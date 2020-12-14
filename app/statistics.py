@@ -87,7 +87,10 @@ def calculate_risk_return(ticker, input_prices=None):
                 variance = variance + (current_mod_return - mean_mod_return)**2/(sample - 1)
             tomorrows_price = prices[date]['4. close']
             i += 1
+
         volatility = numpy.sqrt(variance)
+        mean_return = mean_return + 0.5*(volatility**2)
+        
         results = {
             'annual_return': mean_return,
             'annual_volatility': volatility

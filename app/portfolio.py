@@ -1,5 +1,5 @@
 import app.statistics as stat_calc
-import numpy, math
+import numpy
 
 class Portfolio:
     
@@ -30,18 +30,22 @@ class Portfolio:
         return numpy.dot(x, self.mean_return)
 
     def volatility_function(self, x):
-        return math.sqrt(numpy.multiply(x, self.sample_vol).dot(self.correlation_matrix).dot(numpy.transpose(numpy.multiply(x, self.sample_vol))))
+        return numpy.sqrt(numpy.multiply(x, self.sample_vol).dot(self.correlation_matrix).dot(numpy.transpose(numpy.multiply(x, self.sample_vol))))
 
     def get_init_guess(self):
         length = len(self.tickers)
         uniform_guess = 1/length
-        guess = []
-        for ticker in self.tickers:
-            guess.append(uniform_guess)
+        guess = [uniform_guess for i in range(length)]
         return guess
     
     def get_constraint(self, x):
         return sum(x) - 1
     
-    def get_bounds(self, tickers):
-        return [ [0, 1] for y in range(len(tickers)) ] 
+    def get_default_bounds(self):
+        return [ [0, 1] for y in range(len(self.tickers)) ] 
+
+    def set_target_return(self, target):
+        self.target_return = target
+
+    def get_target_return_constraint(self, x):
+        return (numpy.dot(x, self.mean_return) - self.target_return)

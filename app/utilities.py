@@ -12,62 +12,72 @@ ONE_TRADING_DAY=(1/252)
 
 DEBUG=False
 
-SEPARATER="--------------------------------------------------"
-BUFFER=10
+SEPARATER="-"
+LINE_LENGTH=100
+INDENT=10
 
 FUNC_DICT={
-    "optimize": "-o",
-    "statistics" : "-s",
+    "minimize_variance": "-m",
+    "optimize_portfolio": "-o",
+    "risk_return" : "-r",
     "correlation":"-c",
-    "help": "-h"
+    "help": "-h",
+    "examples": "-e"
 }
 
 class Logger():
 
     def __init__(self, location):
         self.location = location
+    
+    def comment(self, msg):
+        now = datetime.datetime.now()
+        dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
+        print(dt_string, ' :' , self.location, ' : ',msg)
 
     def debug(self, msg):
         if DEBUG:
-            now = datetime.datetime.now()
-            dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
-            print(dt_string, ' :' , self.location, ' : ',msg)
+            self.comment(msg)
 
     def title_line(self, title):
-        print(SEPARATER, title, SEPARATER) 
+        buff = int((LINE_LENGTH - len(title))/2)
+        print(SEPARATER*buff, title, SEPARATER*buff) 
     
     def line(self):
-        print(SEPARATER*2)
+        print(SEPARATER*LINE_LENGTH)
+
+    def center(self, this_line):
+        buff = int((LINE_LENGTH - len(this_line))/2)
+        print(' '*buff, this_line, ' '*buff)
 
     def scalar_result(self, calculation, result):
-        print(' '*BUFFER, '>>', calculation, ' = ', round(result, 4))
+        print(' '*INDENT, '>>', calculation, ' = ', round(result, 4))
 
     def array_result(self, calculation, result, tickers):
         for i in range(len(tickers)):
-            print(' '*BUFFER, f'Optimal {tickers[i]} Allocation =', round(100*result[i], 2), '%')
+            print(' '*INDENT, f'Optimal {tickers[i]} Allocation =', round(100*result[i], 2), '%')
 
     def option(self, opt, explanation):
-        print(' '*BUFFER, opt, " = ", explanation)
+        print(' '*INDENT, opt, " = ", explanation)
 
     def help(self):
         self.title_line('PYNANCE')
         line_1 = 'A financial application written in python to determine optimal portfolio allocations,'
         line_2 = 'in addition to calculating fundamental equity statistics.'
-        side_buffer_1 = len(line_1)
-        side_buffer_2 = len(line_2)
-        print(' '*(len(SEPARATER)-int(side_buffer_1/2)), line_1, ' '*(len(SEPARATER)-int(side_buffer_1/2)))
-        print(' '*(len(SEPARATER)-int(side_buffer_2/2)), line_2, ' '*(len(SEPARATER)-int(side_buffer_2/2)))
+        self.center(line_1)
+        self.center(line_2)
         print()
 
         self.title_line('SYNTAX')
-        line_3 = 'command -OPTION [tickers]'
-        side_buffer = len(line_3)
-        print(' '*(len(SEPARATER) - int(side_buffer/2)), line_3, ' '*(len(SEPARATER) - int(side_buffer/2)))
+        line_3 = 'command -OPTION [tickers] (additional input)'
+        self.center(line_3)
         print()
 
         self.title_line('OPTIONS')
-        self.option(FUNC_DICT['help'], 'Print this help message.')
-        self.option(FUNC_DICT['correlation'], 'Calculate pair-wise correlation for the supplied list of ticker symbols.')
-        self.option(FUNC_DICT['optimize'], 'Optimize the portfolio defined by the supplied list of ticker symbols.')
-        self.option(FUNC_DICT['statistics'], 'Calculate the risk-return profile for the supplied list of ticker symbols.')
+        self.option(FUNC_DICT['correlation'], 'Calculate pair-wise correlation for the supplied list of ticker symbols. \n')
+        self.option(FUNC_DICT['examples'], 'Display examples of syntax. \n')
+        self.option(FUNC_DICT['help'], 'Print this help message. \n')
+        self.option(FUNC_DICT['minimize_variance'], 'Minimize the variance of the portfolio defined by the supplied list of ticker symbols. \n')
+        self.option(FUNC_DICT['risk_return'], 'Calculate the risk-return profile for the supplied list of ticker symbols. \n')
+        self.option(FUNC_DICT['optimize_portfolio'], 'Optimize the variance of the portfolio\'s variance subject to the supplied return target. \n')
         

@@ -21,7 +21,7 @@ if __name__ == "__main__":
         output.title_line('Results')
         output.line()
 
-        if opt == utilities.FUNC_DICT["statistics"]:
+        if opt == utilities.FUNC_DICT["risk_return"]:
             if(len(args)>1) or len(args)==1:
                 for arg in args:
                     result = statistics.calculate_risk_return(arg)
@@ -34,7 +34,7 @@ if __name__ == "__main__":
             else:
                 output.debug('No Input Supplied. Try Again.')
 
-        if opt == utilities.FUNC_DICT["correlation"]:
+        elif opt == utilities.FUNC_DICT["correlation"]:
             if(len(args) > 1):
                 for i in range(len(args)):
                     for j in range(i+1, len(args)):
@@ -48,23 +48,71 @@ if __name__ == "__main__":
             else:
                 output.debug('Invalid Input. Try Again.')
 
-        if opt == utilities.FUNC_DICT['optimize']:
+        elif opt == utilities.FUNC_DICT['minimize_variance']:
             if(len(args)>1):
                 optimal_portfolio = portfolio.Portfolio(args)
 
                 init_guess = optimal_portfolio.get_init_guess()
-                equity_bounds = optimal_portfolio.get_bounds(args)
-                equity_constraints = {
+                equity_bounds = optimal_portfolio.get_default_bounds()
+                equity_constraint = {
                     'type': 'eq',
                     'fun': optimal_portfolio.get_constraint
                 }
 
                 allocation = optimize.minimize(fun = optimal_portfolio.volatility_function, x0 = init_guess, 
-                                            method='SLSQP', bounds=equity_bounds, constraints=equity_constraints, 
+                                            method='SLSQP', bounds=equity_bounds, constraints=equity_constraint, 
                                             options={'disp': False})
+
                 output.array_result('Optimal Portfolio', allocation.x, args)
+                output.title_line('Risk-Return Profile')
+                output.scalar_result('Return', optimal_portfolio.return_function(allocation.x))
+                output.scalar_result('Volatility', optimal_portfolio.volatility_function(allocation.x))
 
             else: 
                 output.debug('Invalid Input. Try Again.')
+
+        elif opt == utilities.FUNC_DICT['optimize_portfolio']:
+            if (len(args)>1):
+                try:
+                    target_return = float(args[len(args)-1])
+                    equities = args[:(len(args)-1)]
+
+                    optimal_portfolio = portfolio.Portfolio(equities)
+                    optimal_portfolio.set_target_return(target_return)
+
+                    init_guess = optimal_portfolio.get_init_guess()
+                    equity_bounds = optimal_portfolio.get_default_bounds()
+                    equity_constraint = {
+                            'type': 'eq',
+                            'fun': optimal_portfolio.get_constraint
+                        }
+                    return_constraint = {
+                        'type': 'eq',
+                        'fun': optimal_portfolio.get_target_return_constraint
+                    }
+                    portfolio_constraints = [equity_constraint, return_constraint]
+
+                    allocation = optimize.minimize(fun = optimal_portfolio.volatility_function, x0 = init_guess, 
+                                                    method='SLSQP', bounds=equity_bounds, constraints=portfolio_constraints, 
+                                                    options={'disp': False})
+            
+                    output.array_result('Optimal Portfolio', allocation.x, equities)
+                    output.title_line('Risk-Return Profile')
+                    output.scalar_result('Return', optimal_portfolio.return_function(allocation.x))
+                    output.scalar_result('Volatility', optimal_portfolio.volatility_function(allocation.x))
+                
+                except: 
+                    e = sys.exc_info()[0]
+                    f = sys.exc_info()[1]
+                    g = sys.exc_info()[2]
+                    print(e, f, g)
+                    output.comment('No Target Return Specified. Try Again.')
+            
+            else: 
+                output.comment('Invalid Input. Try Again.')
+
+        else:
+            output.comment('No Function Supplied. Please Review Function Summary Below And Re-execute Script.')
+            output.help()
         
         output.line()
