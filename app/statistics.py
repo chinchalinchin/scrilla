@@ -1,5 +1,5 @@
 import os, sys, json
-import utilities
+import app.utilities as utilities
 import requests
 import numpy
 import time
@@ -35,7 +35,7 @@ def retrieve_stock_data(ticker):
 
         # save prices to cache for quick access
         dump_file = os.path.join(utilities.BUFFER_DIR,f'{ticker}.json')
-        output.debug(f'')
+        output.debug(f'Storing {ticker} price history in cache...')
         with open(dump_file, 'w') as outfile:
             json.dump(prices, outfile)
 
@@ -72,7 +72,7 @@ def calculate_risk_return(ticker, input_prices=None):
                 mean_return = mean_return + daily_return/sample 
             tomorrows_price = prices[date]['4. close']
             i += 1
-        output.log(f'{ticker} \u03BC', mean_return)
+        # output.log(f'{ticker} \u03BC', mean_return)
 
 
         # calculate sample annual volatility
@@ -97,7 +97,6 @@ def calculate_risk_return(ticker, input_prices=None):
         dump_file = os.path.join(utilities.BUFFER_DIR,f'{ticker}_statistics.json')
         with open(dump_file, 'w') as outfile:
             json.dump(results, outfile)
-        output.log(f'\u03C3_{ticker}', volatility)
     
     return results
 
@@ -154,50 +153,13 @@ def calculate_correlation(ticker_1, ticker_2):
 
         correlation = covariance/ (stats_1['annual_volatility']*stats_2['annual_volatility'])
 
-        output.log(f'covar_({ticker_1}, {ticker_2})', covariance)
-        output.log(f'\u03A1_({ticker_1}, {ticker_2})', correlation)
+        # output.log(f'covar_({ticker_1}, {ticker_2})', covariance)
+        # output.log(f'\u03A1_({ticker_1}, {ticker_2})', correlation)
 
-        results = { 'correlation': correlation }
+        result = { 'correlation': correlation }
 
         dump_file = os.path.join(utilities.BUFFER_DIR,f'{ticker_1}_{ticker_2}_correlation.json')
         with open(dump_file, 'w') as outfile:
-            json.dump(results, outfile)
+            json.dump(result, outfile)
 
-    return correlation
-
-if __name__ == "__main__": 
-    output = utilities.Logger('app.pyfin.main')
-
-    # Clear previous price histories from buffer
-    filelist = [ f for f in os.listdir(utilities.BUFFER_DIR)]
-    for f in filelist:
-        os.remove(os.path.join(utilities.BUFFER_DIR, f))
-
-    opt = sys.argsv[1]
-    if opt == "-h":
-        output.help()
-    
-    else:
-        args = sys.argv[2:]
-        if opt:
-            pass
-
-
-
-
-
-
-
-        if(len(args) > 1):
-            for i in range(len(args)):
-                for j in range(i+1, len(args)):
-                    output.title_line(f'({args[i]}, {args[j]}) Calculations')
-                    flag = calculate_correlation(args[i], args[j]) 
-                    if not flag:
-                        output.debug('Error Encountered While Calculating. Try Again.')
-        elif len(args) == 1:
-            flag = calculate_risk_return(args[0])
-            if not flag:
-                output.debug('Error Encountered While Calculating. Try Again')
-        elif len(args == 0):
-            output.debug('No Input Supplied. Try Again.')
+    return result

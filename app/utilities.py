@@ -5,9 +5,11 @@ BUFFER_DIR = os.path.join(APP_DIR, 'cache')
 ENV = dotenv.load_dotenv(os.path.join(APP_DIR,'.env'))
 QUERY_URL = os.getenv('AV_QUERY_URL')
 ONE_TRADING_DAY=(1/252)
-DEBUG=True
+DEBUG=False
 SEPARATER="-------------------------"
 FUNC_DICT={
+    "optimize": "-o",
+    "statistics" : "-s",
     "correlation":"-c",
     "help": "-h"
 }
@@ -21,7 +23,7 @@ class Logger():
         if DEBUG:
             now = datetime.datetime.now()
             dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
-            print(now, ' :' , self.location, ' : ',msg)
+            print(dt_string, ' :' , self.location, ' : ',msg)
 
     def log(self, calculation, result):
         now = datetime.datetime.now()
@@ -37,5 +39,8 @@ class Logger():
     def help(self):
         print('command -OPTION [tickers]')
         title_line('OPTIONS')
-        option(FUNC_DICT['correlation'], 'Calculate pair-wise correlation (\u03A1) for the list of tickers supplied.')
-        option(FUNC_DICT['help'], 'Print this help message')
+        option(FUNC_DICT['correlation'], 'Calculate pair-wise correlation for the supplied list of ticker symbols.')
+        option(FUNC_DICT['help'], 'Print this help message.')
+        option(FUNC_DICT['optimize'], 'Optimize the portfolio defined by the supplied list of ticker symbols.')
+        option(FUNC_DICT['statistics'], 'Calculate the risk-return profile for the supplied list of ticker symbols.')
+        
