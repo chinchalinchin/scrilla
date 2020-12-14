@@ -21,4 +21,4 @@ class Logger():
     def log(self, calculation, result):
         now = datetime.datetime.now()
         dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
-        print(dt_string, 'pyfin >> ', calculation, ' = ', result)
+        print(dt_string, 'pyfin >> ', calculation, ' = ', round(result, 4))
