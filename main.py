@@ -48,7 +48,7 @@ if __name__ == "__main__":
         if opt == utilities.FUNC_DICT['optimize']:
             if(len(args)>1):
                 optimal_portfolio = portfolio.Portfolio(args)
-                print(optimal_portfolio.get_init_guess())
-            
+                print('init_guess',optimal_portfolio.get_init_guess())
+                print('return_function', optimal_portfolio.return_function([0.3, 0.7]))
             else: 
                 output.debug('Invalid Input. Try Again.')
