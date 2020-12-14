@@ -66,8 +66,8 @@ class Logger():
         print()
 
         self.title_line('OPTIONS')
-        self.option(FUNC_DICT['correlation'], 'Calculate pair-wise correlation for the supplied list of ticker symbols.')
         self.option(FUNC_DICT['help'], 'Print this help message.')
+        self.option(FUNC_DICT['correlation'], 'Calculate pair-wise correlation for the supplied list of ticker symbols.')
         self.option(FUNC_DICT['optimize'], 'Optimize the portfolio defined by the supplied list of ticker symbols.')
         self.option(FUNC_DICT['statistics'], 'Calculate the risk-return profile for the supplied list of ticker symbols.')
         
