@@ -12,7 +12,13 @@ class Logger():
     def __init__(self, location):
         self.location = location
 
-    def log(self, msg):
+    def debug(self, msg):
         if DEBUG:
-            now = datetime.datetime.now()
+            now = datetime.now()
+            dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
             print(now, ' :' , self.location, ' : ',msg)
+
+    def log(self, calculation, result):
+        now = datetime.now()
+        dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
+        print(dt_string, 'pyfin >> ', calculation, ' = ', result)

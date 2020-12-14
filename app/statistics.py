@@ -5,13 +5,11 @@ import numpy
 import time
 
 def retrieve_stock_data(ticker):
-    debug = utilities.Logger('app.pyfin.retrieve_stock_data')
+    output = utilities.Logger('app.pyfin.retrieve_stock_data')
 
-    debug.log(f'Retrieving {ticker} Price History...')
     url=f'{utilities.QUERY_URL}={ticker}'
     prices = requests.get(url).json()
     while list(prices.keys())[0] == 'Note':
-        debug.log('Waiting For AlphaVantage API Rate Limit To Reset...')
         time.sleep(10)
         prices = requests.get(url).json()
 
@@ -23,16 +21,14 @@ def retrieve_stock_data(ticker):
 
 # NOTE: AlphaVantage returns price history fom latest to earliest date.
 def calculate_risk_return(ticker, preloaded_prices=None):
-    debug = utilities.Logger('app.pyfin.calculate_statistics')
+    output = utilities.Logger('app.pyfin.calculate_statistics')
     if preloaded_prices is None:
         prices = retrieve_stock_data(ticker)
     else: 
         prices = preloaded_prices
 
     sample = len(prices)
-    debug.log(f'Last {sample} Days Of {ticker} Prices Retrieved')
 
-    debug.log(f'Calculating {ticker} Annualized Return In The Given Period...')
     # RETURN CALCULATION
     i = 0 
     mean_return = 0
@@ -44,10 +40,9 @@ def calculate_risk_return(ticker, preloaded_prices=None):
             mean_return = mean_return + daily_return/sample 
         tomorrows_price = prices[date]['4. close']
         i += 1
-    debug.log(f'{ticker} Annualized Return = {mean_return}')
+    output.log(f'{ticker} Annualized Return', mean_return)
 
 
-    debug.log(f'Calculating {ticker} Annualized Volatility In The Given Period...')
     # VOLATILITY CALCULATION
     i = 0
     mean_mod_return = mean_return*numpy.sqrt(utilities.ONE_TRADING_DAY)
@@ -69,7 +64,7 @@ def calculate_risk_return(ticker, preloaded_prices=None):
     dump_file = os.path.join(utilities.BUFFER_DIR,f'{ticker}_statistics.json')
     with open(dump_file, 'w') as outfile:
       json.dump(results, outfile)
-    debug.log(f'{ticker} Annualized Volatility = {volatility}')
+    output.log(f'{ticker} Annualized Volatility', volatility)
     
     return results
 
@@ -108,8 +103,8 @@ def calculate_correlation(ticker_1, ticker_2):
 
     correlation = covariance/ (stats_1['annual_volatility']*stats_2['annual_volatility'])
 
-    debug.log(f'({ticker_1}, {ticker_2}) Annualized Covariance = {covariance}')
-    debug.log(f'({ticker_1}, {ticker_2}) Annualized Correlation = {correlation}')
+    output.log(f'({ticker_1}, {ticker_2}) Annualized Covariance', covariance)
+    output.log(f'({ticker_1}, {ticker_2}) Annualized Correlation', correlation)
 
     results = {
         'correlation': correlation
@@ -122,10 +117,10 @@ def calculate_correlation(ticker_1, ticker_2):
     return correlation
 
 if __name__ == "__main__": 
-    debug = utilities.Logger('app.pyfin.main')
+    output = utilities.Logger('app.pyfin.main')
 
     args = sys.argv
     calculate_correlation(args[1], args[2])
     # for arg in args[1:]:
-       # debug.log(f'Calculating {arg} Statistics')
+       # output.log(f'Calculating {arg} Statistics')
         
