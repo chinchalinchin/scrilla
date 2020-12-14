@@ -11,6 +11,7 @@ class Portfolio:
     def calculate_stats(self):
         self.mean_return = []
         self.sample_vol = []
+        self.correlation_matrix = [[0 for x in range(len(self.tickers))] for y in range(len(self.tickers))]
 
         for ticker in self.tickers:
             stats = stat_calc.calculate_risk_return(ticker)
@@ -21,14 +22,23 @@ class Portfolio:
                 for i in range(len(self.tickers)):
                     for j in range(i+1, len(self.tickers)):
                         print(self.tickers[i], self.tickers[j])
+                        self.correlation_matrix[i][i] = 1
+                        self.correlation_matrix[i][j] = stat_calc.calculate_correlation(self.tickers[i], self.tickers[j])['correlation']
+                        self.correlation_matrix[j][i] = self.correlation_matrix[i][j]
+                self.correlation_matrix[len(self.tickers) - 1][len(self.tickers) - 1] = 1
 
-        for ret in self.mean_return:
-            print(ret)
+        vol = numpy.array(self.sample_vol)
+        cor = numpy.array(self.correlation_matrix)
+        overall = vol.dot(cor).dot(numpy.transpose(vol))
+
+        print(self.correlation_matrix)
+        print(overall)
 
     def return_function(self, x):
         return numpy.dot(x, self.mean_return)
 
     def volatility_function(self, x):
+        # replace with correlation matrix multiplicaiton
         return numpy.dot(x, self.sample_vol)
 
     def get_init_guess(self):

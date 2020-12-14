@@ -6,6 +6,9 @@ A 'sample.env' file has been included to demonstrate the appropriate format. Onc
 
     python ./main.py -s FB AMZN XOM
 
-To list the available functions for pynance, use the '-h' flag to print a help message, i.e.
+To list the functions available for pynance, use the '-h' flag to print a help message, i.e.
 
     python ./main.py -h
+
+[[1, 0.5183987856417677, 0.35282631455695634, 0.33624850022234604], [0.5183987856417677, 1, 0.6317555166094494, 0.12155109270546714], [0.35282631455695634, 0.6317555166094494, 1, -0.10496594811303127], [0.33624850022234604, 0.12155109270546714, -0.10496594811303127, 1]]
+
