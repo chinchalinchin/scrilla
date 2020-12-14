@@ -15,7 +15,10 @@ if __name__ == "__main__":
     opt = sys.argv[1]
     if opt == utilities.FUNC_DICT["help"]:
         output.help()
-    
+
+    elif opt == utilities.FUNC_DICT["examples"]:
+        # TODO: add function to utilities to print examples.
+        pass
     else:
         args = sys.argv[2:]
         output.title_line('Results')
@@ -111,6 +114,12 @@ if __name__ == "__main__":
             else: 
                 output.comment('Invalid Input. Try Again.')
 
+        elif opt == utilities.FUNC_DICT['efficient_frontier']:
+            # TODO: calculate minimum variance portfolio
+            # TODO: calculate maximum return portfolio, i.e. determine which equity has largest return
+            # TODO: return point = (maximum return - minimum variance return)/n * i + minimum variance return 
+                # and then optimize for each target return
+            pass
         else:
             output.comment('No Function Supplied. Please Review Function Summary Below And Re-execute Script.')
             output.help()
