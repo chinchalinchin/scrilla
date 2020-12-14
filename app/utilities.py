@@ -42,8 +42,9 @@ class Logger():
     def scalar_result(self, calculation, result):
         print(' '*BUFFER, '>>', calculation, ' = ', round(result, 4))
 
-    def array_result(self, calculation, result):
-        print()
+    def array_result(self, calculation, result, tickers):
+        for i in range(len(tickers)):
+            print(' '*BUFFER, f'Optimal {tickers[i]} Allocation =', round(100*result[i], 2), '%')
 
     def option(self, opt, explanation):
         print(' '*BUFFER, opt, " = ", explanation)

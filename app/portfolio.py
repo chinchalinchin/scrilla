@@ -30,7 +30,7 @@ class Portfolio:
         return numpy.dot(x, self.mean_return)
 
     def volatility_function(self, x):
-        return numpy.multiply(x, self.sample_vol).dot(self.correlation_matrix).dot(numpy.transpose(numpy.multiply(x, self.sample_vol)))
+        return math.sqrt(numpy.multiply(x, self.sample_vol).dot(self.correlation_matrix).dot(numpy.transpose(numpy.multiply(x, self.sample_vol))))
 
     def get_init_guess(self):
         length = len(self.tickers)

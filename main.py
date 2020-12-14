@@ -59,11 +59,10 @@ if __name__ == "__main__":
                     'fun': optimal_portfolio.get_constraint
                 }
 
-                answer = optimize.minimize(fun = optimal_portfolio.volatility_function, x0 = init_guess, 
-                                    method='SLSQP', bounds=equity_bounds, constraints=equity_constraints, 
-                                    options={'disp': True})
-                print(answer)
-                output.array_result('Optimal Portfolio', answer.x)
+                allocation = optimize.minimize(fun = optimal_portfolio.volatility_function, x0 = init_guess, 
+                                            method='SLSQP', bounds=equity_bounds, constraints=equity_constraints, 
+                                            options={'disp': False})
+                output.array_result('Optimal Portfolio', allocation.x, args)
 
             else: 
                 output.debug('Invalid Input. Try Again.')
