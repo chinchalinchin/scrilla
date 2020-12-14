@@ -14,11 +14,11 @@ class Logger():
 
     def debug(self, msg):
         if DEBUG:
-            now = datetime.now()
+            now = datetime.datetime.now()
             dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
             print(now, ' :' , self.location, ' : ',msg)
 
     def log(self, calculation, result):
-        now = datetime.now()
+        now = datetime.datetime.now()
         dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
         print(dt_string, 'pyfin >> ', calculation, ' = ', result)
