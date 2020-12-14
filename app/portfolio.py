@@ -19,13 +19,13 @@ class Portfolio:
             self.sample_vol.append(stats['annual_volatility'])
 
         if(len(self.tickers) > 1):
-                for i in range(len(self.tickers)):
-                    for j in range(i+1, len(self.tickers)):
-                        print(self.tickers[i], self.tickers[j])
-                        self.correlation_matrix[i][i] = 1
-                        self.correlation_matrix[i][j] = stat_calc.calculate_correlation(self.tickers[i], self.tickers[j])['correlation']
-                        self.correlation_matrix[j][i] = self.correlation_matrix[i][j]
-                self.correlation_matrix[len(self.tickers) - 1][len(self.tickers) - 1] = 1
+            for i in range(len(self.tickers)):
+                for j in range(i+1, len(self.tickers)):
+                    print(self.tickers[i], self.tickers[j])
+                    self.correlation_matrix[i][i] = 1
+                    self.correlation_matrix[i][j] = stat_calc.calculate_correlation(self.tickers[i], self.tickers[j])['correlation']
+                    self.correlation_matrix[j][i] = self.correlation_matrix[i][j]
+            self.correlation_matrix[len(self.tickers) - 1][len(self.tickers) - 1] = 1
 
     def return_function(self, x):
         return numpy.dot(x, self.mean_return)
