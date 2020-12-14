@@ -13,6 +13,7 @@ ONE_TRADING_DAY=(1/252)
 DEBUG=False
 
 SEPARATER="--------------------------------------------------"
+BUFFER=10
 
 FUNC_DICT={
     "optimize": "-o",
@@ -32,16 +33,20 @@ class Logger():
             dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
             print(dt_string, ' :' , self.location, ' : ',msg)
 
-    def log(self, calculation, result):
-        now = datetime.datetime.now()
-        dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
-        print(dt_string, 'pyfin >> ', calculation, ' = ', round(result, 4))
-
     def title_line(self, title):
         print(SEPARATER, title, SEPARATER) 
+    
+    def line(self):
+        print(SEPARATER*2)
+
+    def scalar_result(self, calculation, result):
+        print(' '*BUFFER, '>>', calculation, ' = ', round(result, 4))
+
+    def array_result(self, calculation, result):
+        print()
 
     def option(self, opt, explanation):
-        print("      ", opt, " = ", explanation)
+        print(' '*BUFFER, opt, " = ", explanation)
 
     def help(self):
         self.title_line('PYNANCE')
@@ -58,7 +63,7 @@ class Logger():
         side_buffer = len(line_3)
         print(' '*(len(SEPARATER) - int(side_buffer/2)), line_3, ' '*(len(SEPARATER) - int(side_buffer/2)))
         print()
-        
+
         self.title_line('OPTIONS')
         self.option(FUNC_DICT['correlation'], 'Calculate pair-wise correlation for the supplied list of ticker symbols.')
         self.option(FUNC_DICT['help'], 'Print this help message.')

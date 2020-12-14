@@ -21,7 +21,6 @@ class Portfolio:
         if(len(self.tickers) > 1):
             for i in range(len(self.tickers)):
                 for j in range(i+1, len(self.tickers)):
-                    print(self.tickers[i], self.tickers[j])
                     self.correlation_matrix[i][i] = 1
                     self.correlation_matrix[i][j] = stat_calc.calculate_correlation(self.tickers[i], self.tickers[j])['correlation']
                     self.correlation_matrix[j][i] = self.correlation_matrix[i][j]
@@ -40,3 +39,9 @@ class Portfolio:
         for ticker in self.tickers:
             guess.append(uniform_guess)
         return guess
+    
+    def get_constraint(self, x):
+        return sum(x) - 1
+    
+    def get_bounds(self, tickers):
+        return [ [0, 1] for y in range(len(tickers)) ] 
