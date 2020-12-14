@@ -17,6 +17,11 @@ class Portfolio:
             self.mean_return.append(stats['annual_return'])
             self.sample_vol.append(stats['annual_volatility'])
 
+        if(len(self.tickers) > 1):
+                for i in range(len(self.tickers)):
+                    for j in range(i+1, len(self.tickers)):
+                        print(self.tickers[i], self.tickers[j])
+
         for ret in self.mean_return:
             print(ret)
 
