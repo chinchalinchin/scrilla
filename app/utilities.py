@@ -6,6 +6,7 @@ ENV = dotenv.load_dotenv(os.path.join(APP_DIR,'.env'))
 QUERY_URL = os.getenv('AV_QUERY_URL')
 ONE_TRADING_DAY=(1/252)
 DEBUG=True
+SEPARATER="-------------------------"
 
 class Logger():
 
@@ -22,3 +23,6 @@ class Logger():
         now = datetime.datetime.now()
         dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
         print(dt_string, 'pyfin >> ', calculation, ' = ', round(result, 4))
+
+    def title_line(self, title):
+        print(SEPARATER, title, SEPARATER) 

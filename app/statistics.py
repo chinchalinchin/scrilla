@@ -8,15 +8,27 @@ def retrieve_stock_data(ticker):
     output = utilities.Logger('app.pyfin.retrieve_stock_data')
 
     url=f'{utilities.QUERY_URL}={ticker}'
-    prices = requests.get(url).json()
-    while list(prices.keys())[0] == 'Note':
-        time.sleep(10)
+
+    buffer_store= os.path.join(utilities.BUFFER_DIR, f'{ticker}.json')
+    if os.path.isfile(buffer_store):
+        with open(buffer_store, 'r') as infile:
+            prices = json.load(infile)
+    else:          
         prices = requests.get(url).json()
 
-    prices = prices['Time Series (Daily)']
-    dump_file = os.path.join(utilities.BUFFER_DIR,f'{ticker}.json')
-    with open(dump_file, 'w') as outfile:
-      json.dump(prices, outfile)
+        if list(prices.keys())[0] == 'Error Message':
+            output.debug(prices['Error Message'])
+            return False
+        while list(prices.keys())[0] == 'Note':
+            time.sleep(10)
+            prices = requests.get(url).json()
+
+        prices = prices['Time Series (Daily)']
+        # save prices to buffer for quick access
+        dump_file = os.path.join(utilities.BUFFER_DIR,f'{ticker}.json')
+        with open(dump_file, 'w') as outfile:
+            json.dump(prices, outfile)
+
     return prices
 
 # NOTE: AlphaVantage returns price history fom latest to earliest date.
@@ -24,6 +36,8 @@ def calculate_risk_return(ticker, preloaded_prices=None):
     output = utilities.Logger('app.pyfin.calculate_statistics')
     if preloaded_prices is None:
         prices = retrieve_stock_data(ticker)
+        if not prices:
+            return False
     else: 
         prices = preloaded_prices
 
@@ -71,6 +85,8 @@ def calculate_risk_return(ticker, preloaded_prices=None):
 def calculate_correlation(ticker_1, ticker_2):
     prices_1 = retrieve_stock_data(ticker_1)
     prices_2 = retrieve_stock_data(ticker_2)
+    if not (prices_1 and prices_2):
+        return False 
     
     stats_1 = calculate_risk_return(ticker_1, prices_1)
     stats_2 = calculate_risk_return(ticker_2, prices_2)
@@ -119,8 +135,23 @@ def calculate_correlation(ticker_1, ticker_2):
 if __name__ == "__main__": 
     output = utilities.Logger('app.pyfin.main')
 
-    args = sys.argv
-    calculate_correlation(args[1], args[2])
-    # for arg in args[1:]:
-       # output.log(f'Calculating {arg} Statistics')
-        
+    # Clear previous price histories from buffer
+    filelist = [ f for f in os.listdir(utilities.BUFFER_DIR)]
+    for f in filelist:
+        os.remove(os.path.join(utilities.BUFFER_DIR, f))
+
+    args = sys.argv[1:]
+    # calculate_correlation(args[1], args[2])
+    if(len(args) > 1):
+        for i in range(len(args)):
+            for j in range(i+1, len(args)):
+                output.title_line(f'({args[i]}, {args[j]}) Calculations')
+                flag = calculate_correlation(args[i], args[j]) 
+                if not flag:
+                    output.debug('Error Encountered While Calculating. Try Again.')
+    elif len(args) == 1:
+        flag = calculate_risk_return(args[0])
+        if not flag:
+            output.debug('Error Encountered While Calculating. Try Again')
+    elif len(args == 0):
+        output.debug('No Input Supplied. Try Again.')
