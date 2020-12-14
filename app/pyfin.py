@@ -11,6 +11,7 @@ def retrieve_stock_data(ticker):
     url=f'{util.QUERY_URL}={ticker}'
     prices = requests.get(url).json()
     while list(prices.keys())[0] == 'Note':
+        debug.log('Waiting For AlphaVantage API Rate Limit To Reset...')
         time.sleep(10)
         prices = requests.get(url).json()
 
