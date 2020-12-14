@@ -7,18 +7,23 @@ import app.portfolio as portfolio
 if __name__ == "__main__": 
     output = utilities.Logger('app.pyfin.main')
 
-    # Clear previous price histories from buffer
+    # clear previous price histories from cache
+    # TODO: timestamp cache files and only delete if date != todays date
     filelist = [ f for f in os.listdir(utilities.BUFFER_DIR)]
     for f in filelist:
         os.remove(os.path.join(utilities.BUFFER_DIR, f))
 
+    # retrieve function argument
     opt = sys.argv[1]
+
+    # parse function and invoke
     if opt == utilities.FUNC_DICT["help"]:
         output.help()
 
     elif opt == utilities.FUNC_DICT["examples"]:
         # TODO: add function to utilities to print examples.
         pass
+
     else:
         args = sys.argv[2:]
         output.title_line('Results')
@@ -108,7 +113,7 @@ if __name__ == "__main__":
                     e = sys.exc_info()[0]
                     f = sys.exc_info()[1]
                     g = sys.exc_info()[2]
-                    print(e, f, g)
+                    output.debug(f'{e} {f} {g}')
                     output.comment('No Target Return Specified. Try Again.')
             
             else: 

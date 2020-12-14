@@ -17,7 +17,7 @@ LINE_LENGTH=100
 INDENT=10
 
 FUNC_DICT={
-    "efficient_frontier": "-e",
+    "efficient_frontier": "-f",
     "minimize_variance": "-m",
     "optimize_portfolio": "-o",
     "risk_return" : "-r",
@@ -51,9 +51,11 @@ class Logger():
         buff = int((LINE_LENGTH - len(this_line))/2)
         print(' '*buff, this_line, ' '*buff)
 
+    # TODO: align columns in result output
     def scalar_result(self, calculation, result):
         print(' '*INDENT, '>>', calculation, ' = ', round(result, 4))
 
+    # TODO: align columns in result output
     def array_result(self, calculation, result, tickers):
         for i in range(len(tickers)):
             print(' '*INDENT, f'Optimal {tickers[i]} Allocation =', round(100*result[i], 2), '%')
@@ -76,8 +78,8 @@ class Logger():
 
         self.title_line('OPTIONS')
         self.option(FUNC_DICT['correlation'], 'Calculate pair-wise correlation for the supplied list of ticker symbols. \n')
-        self.option(FUNC_DICT['efficient_frontier'], 'Generate a plot of the portfolio\'s efficient frontier for the supplied list of tickers')
         self.option(FUNC_DICT['examples'], 'Display examples of syntax. \n')
+        self.option(FUNC_DICT['efficient_frontier'], 'Generate a plot of the portfolio\'s efficient frontier for the supplied list of tickers')
         self.option(FUNC_DICT['help'], 'Print this help message. \n')
         self.option(FUNC_DICT['minimize_variance'], 'Minimize the variance of the portfolio defined by the supplied list of ticker symbols. \n')
         self.option(FUNC_DICT['risk_return'], 'Calculate the risk-return profile for the supplied list of ticker symbols. \n')

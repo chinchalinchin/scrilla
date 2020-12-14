@@ -72,8 +72,6 @@ def calculate_risk_return(ticker, input_prices=None):
                 mean_return = mean_return + daily_return/sample 
             tomorrows_price = prices[date]['4. close']
             i += 1
-        # output.log(f'{ticker} \u03BC', mean_return)
-
 
         # calculate sample annual volatility
         i = 0
@@ -88,7 +86,9 @@ def calculate_risk_return(ticker, input_prices=None):
             tomorrows_price = prices[date]['4. close']
             i += 1
 
+        # adjust for output
         volatility = numpy.sqrt(variance)
+        # ito's lemma
         mean_return = mean_return + 0.5*(volatility**2)
         
         results = {
@@ -96,7 +96,7 @@ def calculate_risk_return(ticker, input_prices=None):
             'annual_volatility': volatility
         }
 
-        # Store results in buffer for quick access
+        # store results in buffer for quick access
         dump_file = os.path.join(utilities.BUFFER_DIR,f'{ticker}_statistics.json')
         with open(dump_file, 'w') as outfile:
             json.dump(results, outfile)
@@ -111,13 +111,13 @@ def calculate_correlation(ticker_1, ticker_2):
     if os.path.isfile(buffer_store_1):
         with open(buffer_store_1, 'r') as infile:
             results = json.load(infile)
-            correlattion = results['correlation']
+            correlation = results['correlation']
 
     # check if results exist in cache location 2
     elif os.path.isfile(buffer_store_2):
         with open(buffer_store_2, 'r') as infile:
             results = json.load(infile)
-            correlattion = results['correlation']
+            correlation = results['correlation']
 
     # calculate results from sample
     else:
@@ -129,8 +129,9 @@ def calculate_correlation(ticker_1, ticker_2):
         stats_1 = calculate_risk_return(ticker_1, prices_1)
         stats_2 = calculate_risk_return(ticker_2, prices_2)
 
-        mod_mean_1 = stats_1['annual_return']*numpy.sqrt(utilities.ONE_TRADING_DAY)
-        mod_mean_2 = stats_2['annual_return']*numpy.sqrt(utilities.ONE_TRADING_DAY)
+        # ito's lemma
+        mod_mean_1 = (stats_1['annual_return'] - 0.5*(stats_1['annual_volatility'])**2)*numpy.sqrt(utilities.ONE_TRADING_DAY)
+        mod_mean_2 = (stats_2['annual_return'] - 0.5*(stats_2['annual_volatility'])**2)*numpy.sqrt(utilities.ONE_TRADING_DAY)
 
         # calculate correlation
         i = 0 
@@ -154,15 +155,15 @@ def calculate_correlation(ticker_1, ticker_2):
                 tomorrows_price_2 = prices_2[date]['4. close']
                 i += 1
 
-        correlation = covariance/ (stats_1['annual_volatility']*stats_2['annual_volatility'])
+        correlation = covariance/(stats_1['annual_volatility']*stats_2['annual_volatility'])
 
         # output.log(f'covar_({ticker_1}, {ticker_2})', covariance)
         # output.log(f'\u03A1_({ticker_1}, {ticker_2})', correlation)
 
-        result = { 'correlation': correlation }
+    result = { 'correlation': correlation }
 
-        dump_file = os.path.join(utilities.BUFFER_DIR,f'{ticker_1}_{ticker_2}_correlation.json')
-        with open(dump_file, 'w') as outfile:
-            json.dump(result, outfile)
+    dump_file = os.path.join(utilities.BUFFER_DIR,f'{ticker_1}_{ticker_2}_correlation.json')
+    with open(dump_file, 'w') as outfile:
+        json.dump(result, outfile)
 
     return result
