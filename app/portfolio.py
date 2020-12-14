@@ -1,5 +1,5 @@
 import app.statistics as stat_calc
-import numpy 
+import numpy, math
 
 class Portfolio:
     
@@ -27,19 +27,11 @@ class Portfolio:
                         self.correlation_matrix[j][i] = self.correlation_matrix[i][j]
                 self.correlation_matrix[len(self.tickers) - 1][len(self.tickers) - 1] = 1
 
-        vol = numpy.array(self.sample_vol)
-        cor = numpy.array(self.correlation_matrix)
-        overall = vol.dot(cor).dot(numpy.transpose(vol))
-
-        print(self.correlation_matrix)
-        print(overall)
-
     def return_function(self, x):
         return numpy.dot(x, self.mean_return)
 
     def volatility_function(self, x):
-        # replace with correlation matrix multiplicaiton
-        return numpy.dot(x, self.sample_vol)
+        return numpy.multiply(x, self.sample_vol).dot(self.correlation_matrix).dot(numpy.transpose(numpy.multiply(x, self.sample_vol)))
 
     def get_init_guess(self):
         length = len(self.tickers)
