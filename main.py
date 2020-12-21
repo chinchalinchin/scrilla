@@ -11,7 +11,8 @@ if __name__ == "__main__":
     # TODO: timestamp cache files and only delete if date != todays date
     filelist = [ f for f in os.listdir(utilities.BUFFER_DIR)]
     for f in filelist:
-        os.remove(os.path.join(utilities.BUFFER_DIR, f))
+        if os.path.basename(f) != ".gitkeep":
+            os.remove(os.path.join(utilities.BUFFER_DIR, f))
 
     # retrieve function argument
     opt = sys.argv[1]
@@ -71,7 +72,20 @@ if __name__ == "__main__":
                                             method='SLSQP', bounds=equity_bounds, constraints=equity_constraint, 
                                             options={'disp': False})
 
-                output.array_result('Optimal Portfolio', allocation.x, args)
+                output.title_line('Optimal Percentage Allocation')
+                output.array_percent_result('Optimal Portfolio Percentage Allocation', allocation.x, args)
+                output.line()
+
+                portfolio = utilities.get_number_input("Please Enter Total Investment : \n")
+                shares = optimal_portfolio.calculate_shares(allocation.x, portfolio)
+                total = optimal_portfolio.calculate_total(shares)
+                output.line()
+
+                output.title_line('Optimal Share Allocation')
+                output.array_result('Optimal Portfolio Shares Allocation', shares, args)
+                output.title_line('Optimal Portfolio Value')
+                output.scalar_result('Total', total)
+
                 output.title_line('Risk-Return Profile')
                 output.scalar_result('Return', optimal_portfolio.return_function(allocation.x))
                 output.scalar_result('Volatility', optimal_portfolio.volatility_function(allocation.x))
@@ -104,7 +118,20 @@ if __name__ == "__main__":
                                                     method='SLSQP', bounds=equity_bounds, constraints=portfolio_constraints, 
                                                     options={'disp': False})
             
-                    output.array_result('Optimal Portfolio', allocation.x, equities)
+                    output.title_line('Optimal Percentage Allocation')
+                    output.array_percent_result('Optimal Portfolio Percentage Allocation', allocation.x, equities)
+                    output.line()
+
+                    portfolio = utilities.get_number_input("Please Enter Total Investment : \n")
+                    shares = optimal_portfolio.calculate_shares(allocation.x, portfolio)
+                    total = optimal_portfolio.calculate_total(shares)
+                    output.line()
+
+                    output.title_line('Optimal Share Allocation')
+                    output.array_result('Optimal Portfolio Shares Allocation', shares, equities)
+                    output.title_line('Optimal Portfolio Value')
+                    output.scalar_result('Total', total)
+
                     output.title_line('Risk-Return Profile')
                     output.scalar_result('Return', optimal_portfolio.return_function(allocation.x))
                     output.scalar_result('Volatility', optimal_portfolio.volatility_function(allocation.x))

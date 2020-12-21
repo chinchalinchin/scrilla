@@ -26,6 +26,15 @@ FUNC_DICT={
     "examples": "-e"
 }
 
+def get_number_input(msg_prompt):
+    flag = False 
+    while flag is not True:
+        user_input = input(msg_prompt)
+        if isinstance(float(user_input), float):
+            return user_input
+        else:
+            print('Input Not Understood. Please Enter A Numerical Value.')
+        
 class Logger():
 
     def __init__(self, location):
@@ -51,14 +60,17 @@ class Logger():
         buff = int((LINE_LENGTH - len(this_line))/2)
         print(' '*buff, this_line, ' '*buff)
 
-    # TODO: align columns in result output
     def scalar_result(self, calculation, result):
         print(' '*INDENT, '>>', calculation, ' = ', round(result, 4))
 
     # TODO: align columns in result output
+    def array_percent_result(self, calculation, result, tickers):
+        for i in range(len(tickers)):
+            print(' '*INDENT, f'{tickers[i]} =', round(100*result[i], 2), '%')
+
     def array_result(self, calculation, result, tickers):
         for i in range(len(tickers)):
-            print(' '*INDENT, f'Optimal {tickers[i]} Allocation =', round(100*result[i], 2), '%')
+            print(' '*INDENT, f'{tickers[i]} =', result[i])
 
     def option(self, opt, explanation):
         print(' '*INDENT, opt, " = ", explanation)
@@ -79,7 +91,7 @@ class Logger():
         self.title_line('OPTIONS')
         self.option(FUNC_DICT['correlation'], 'Calculate pair-wise correlation for the supplied list of ticker symbols. \n')
         self.option(FUNC_DICT['examples'], 'Display examples of syntax. \n')
-        self.option(FUNC_DICT['efficient_frontier'], 'Generate a plot of the portfolio\'s efficient frontier for the supplied list of tickers')
+        self.option(FUNC_DICT['efficient_frontier'], 'Generate a plot of the portfolio\'s efficient frontier for the supplied list of tickers. \n')
         self.option(FUNC_DICT['help'], 'Print this help message. \n')
         self.option(FUNC_DICT['minimize_variance'], 'Minimize the variance of the portfolio defined by the supplied list of ticker symbols. \n')
         self.option(FUNC_DICT['risk_return'], 'Calculate the risk-return profile for the supplied list of ticker symbols. \n')

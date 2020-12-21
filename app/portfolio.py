@@ -1,5 +1,7 @@
 import app.statistics as stat_calc
 import numpy
+import math
+from decimal import Decimal
 
 class Portfolio:
     
@@ -49,3 +51,23 @@ class Portfolio:
 
     def get_target_return_constraint(self, x):
         return (numpy.dot(x, self.mean_return) - self.target_return)
+
+    def calculate_shares(self, x, total):
+        shares = []
+        for i in range(len(x)):
+            prices = stat_calc.retrieve_stock_data(self.tickers[i])
+            final_date = list(prices.keys())[0]
+            final_price = prices[final_date]['4. close']
+            share = Decimal(x[i]) * Decimal(total) / Decimal(final_price)
+            shares.append(math.trunc(share))
+        return shares
+
+    def calculate_total(self, shares):
+        total = 0
+        for i in range(len(shares)):
+            prices = stat_calc.retrieve_stock_data(self.tickers[i])
+            final_date = list(prices.keys())[0]
+            final_price = prices[final_date]['4. close']
+            portion = Decimal(shares[i]) * Decimal(final_price)
+            total = total + portion
+        return total
