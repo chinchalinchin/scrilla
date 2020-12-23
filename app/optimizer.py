@@ -1,7 +1,8 @@
 from app.portfolio import Portfolio
-import app.utilities as utilities
+import util.logger as logger
 import scipy.optimize as optimize
-output = utilities.Logger('app.pyfin.optimizer')
+
+output = logger.Logger('app.pyfin.optimizer')
 
 def optimize_portfolio(equities, target_return, display=True):
     optimal_portfolio = Portfolio(equities)
@@ -84,5 +85,5 @@ def calculate_efficient_frontier(equities, iterations, display=True):
         
     if display:
         output.efficient_frontier(optimal_portfolio, frontier)
-        
+
     return frontier

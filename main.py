@@ -1,31 +1,31 @@
 import os, sys
 import datetime
 import scipy.optimize as optimize
-import app.utilities as utilities
+import app.settings as settings
 import app.statistics as statistics
-import app.portfolio as portfoli
 import app.optimizer as optimizer
+import util.logger as logger
 
 if __name__ == "__main__": 
-    output = utilities.Logger('app.pyfin.main')
+    output = logger.Logger('app.pyfin.main')
     now = datetime.datetime.now()
     
     # clear previous price histories from cache
-    filelist = [ f for f in os.listdir(utilities.BUFFER_DIR)]
+    filelist = [ f for f in os.listdir(settings.BUFFER_DIR)]
     timestamp = '{}{}{}'.format(now.month, now.day, now.year)
     for f in filelist:
         filename = os.path.basename(f)
         if filename != ".gitkeep" and timestamp not in filename:
-            os.remove(os.path.join(utilities.BUFFER_DIR, f))
+            os.remove(os.path.join(settings.BUFFER_DIR, f))
 
     # retrieve function argument
     opt = sys.argv[1]
 
     # parse function and invoke
-    if opt == utilities.FUNC_DICT["help"]:
+    if opt == settings.FUNC_ARG_DICT["help"]:
         output.help()
 
-    elif opt == utilities.FUNC_DICT["examples"]:
+    elif opt == settings.FUNC_ARG_DICT["examples"]:
         output.examples()
 
     else:
@@ -33,7 +33,7 @@ if __name__ == "__main__":
         output.title_line('Results')
         output.line()
 
-        if opt == utilities.FUNC_DICT["risk_return"]:
+        if opt == settings.FUNC_ARG_DICT["risk_return"]:
             if(len(args)>1) or len(args)==1:
                 for arg in args:
                     result = statistics.calculate_risk_return(arg)
@@ -46,7 +46,7 @@ if __name__ == "__main__":
             else:
                 output.comment('No Input Supplied. Try -ex Flag For Example Usage.')
 
-        elif opt == utilities.FUNC_DICT["correlation"]:
+        elif opt == settings.FUNC_ARG_DICT["correlation"]:
             if(len(args) > 1):
                 for i in range(len(args)):
                     for j in range(i+1, len(args)):
@@ -59,21 +59,21 @@ if __name__ == "__main__":
             else:
                 output.comment('Invalid Input. Try -ex Flag For Example Usage.')
 
-        elif opt == utilities.FUNC_DICT['minimize_variance']:
+        elif opt == settings.FUNC_ARG_DICT['minimize_variance']:
             if(len(args)>1):
                 optimizer.minimize_portfolio_variance(equities=args, display=True)
 
             else: 
                 output.comment('Invalid Input. Try -ex Flag For Example Usage.')
 
-        elif opt == utilities.FUNC_DICT['maximize_return']:
+        elif opt == settings.FUNC_ARG_DICT['maximize_return']:
             if (len(args)>1):
                 optimizer.maximize_portfolio_return(equities=args, display=True)
             
             else:
                 output.comment('Invalid Input. Try -ex Flag For Example Usage.')
                 
-        elif opt == utilities.FUNC_DICT['optimize_portfolio']:
+        elif opt == settings.FUNC_ARG_DICT['optimize_portfolio']:
             if (len(args)>1):
                 try:
                     target_return = float(args[len(args)-1])
@@ -91,7 +91,7 @@ if __name__ == "__main__":
             else: 
                 output.comment('Invalid Input. Try -ex Flag For Example Usage.')
 
-        elif opt == utilities.FUNC_DICT['efficient_frontier']:
+        elif opt == settings.FUNC_ARG_DICT['efficient_frontier']:
             if(len(args)>1):
                 try:
                     frontier_iterations = int(args[len(args)-1])

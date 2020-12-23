@@ -1,15 +1,18 @@
 import os, sys, json
-import app.utilities as utilities
 import requests
 import numpy
 import time, datetime
 
+import app.settings as settings
+import util.logger as logger
+
+
 def retrieve_stock_data(ticker):
-    output = utilities.Logger('app.pyfin.retrieve_stock_data')
+    output = logger.Logger('app.pyfin.retrieve_stock_data')
 
     now = datetime.datetime.now()
     timestamp = '{}{}{}'.format(now.month, now.day, now.year)
-    buffer_store= os.path.join(utilities.BUFFER_DIR, f'{timestamp}_{ticker}.json')
+    buffer_store= os.path.join(settings.BUFFER_DIR, f'{timestamp}_{ticker}.json')
     
     if os.path.isfile(buffer_store):
         output.debug(f'Loading in cached {ticker} prices...')
@@ -19,7 +22,7 @@ def retrieve_stock_data(ticker):
     # retrieve prices from external source
     else:     
         output.debug(f'Retrieving {ticker} prices from AlphaVantage query...')
-        url=f'{utilities.QUERY_URL}={ticker}'     
+        url=f'{settings.QUERY_URL}={ticker}'     
         prices = requests.get(url).json()
 
         # check for bad response
@@ -45,11 +48,11 @@ def retrieve_stock_data(ticker):
 
 # NOTE: AlphaVantage returns price history fom latest to earliest date.
 def calculate_risk_return(ticker, input_prices=None):
-    output = utilities.Logger('app.pyfin.calculate_risk_return')
+    output = logger.Logger('app.pyfin.calculate_risk_return')
 
     now = datetime.datetime.now()
     timestamp = '{}{}{}'.format(now.month, now.day, now.year)
-    buffer_store= os.path.join(utilities.BUFFER_DIR, f'{timestamp}_{ticker}_statistics.json')
+    buffer_store= os.path.join(settings.BUFFER_DIR, f'{timestamp}_{ticker}_statistics.json')
 
     # check if results exist in buffer directory
     if os.path.isfile(buffer_store):
@@ -75,20 +78,20 @@ def calculate_risk_return(ticker, input_prices=None):
         for date in prices:
             todays_price = prices[date]['4. close']
             if i != 0:
-                daily_return = numpy.log(float(tomorrows_price)/float(todays_price))/utilities.ONE_TRADING_DAY
+                daily_return = numpy.log(float(tomorrows_price)/float(todays_price))/settings.ONE_TRADING_DAY
                 mean_return = mean_return + daily_return/sample 
             tomorrows_price = prices[date]['4. close']
             i += 1
 
         # calculate sample annual volatility
         i = 0
-        mean_mod_return = mean_return*numpy.sqrt(utilities.ONE_TRADING_DAY)
+        mean_mod_return = mean_return*numpy.sqrt(settings.ONE_TRADING_DAY)
         variance = 0
         tomorrows_price = 0
         for date in prices:
             todays_price = prices[date]['4. close']
             if i != 0:
-                current_mod_return= numpy.log(float(tomorrows_price)/float(todays_price))/numpy.sqrt(utilities.ONE_TRADING_DAY) 
+                current_mod_return= numpy.log(float(tomorrows_price)/float(todays_price))/numpy.sqrt(settings.ONE_TRADING_DAY) 
                 variance = variance + (current_mod_return - mean_mod_return)**2/(sample - 1)
             tomorrows_price = prices[date]['4. close']
             i += 1
@@ -111,12 +114,12 @@ def calculate_risk_return(ticker, input_prices=None):
     return results
 
 def calculate_correlation(ticker_1, ticker_2):
-    output = utilities.Logger('app.pyfin.calculate_correlation')
+    output = logger.Logger('app.pyfin.calculate_correlation')
 
     now = datetime.datetime.now()
     timestamp = '{}{}{}'.format(now.month, now.day, now.year)
-    buffer_store_1= os.path.join(utilities.BUFFER_DIR, f'{timestamp}_{ticker_1}_{ticker_2}_correlation.json')
-    buffer_store_2= os.path.join(utilities.BUFFER_DIR, f'{timestamp}_{ticker_2}_{ticker_1}_correlation.json')
+    buffer_store_1= os.path.join(settings.BUFFER_DIR, f'{timestamp}_{ticker_1}_{ticker_2}_correlation.json')
+    buffer_store_2= os.path.join(settings.BUFFER_DIR, f'{timestamp}_{ticker_2}_{ticker_1}_correlation.json')
 
     # check if results exist in cache location 1
     if os.path.isfile(buffer_store_1):
@@ -143,8 +146,8 @@ def calculate_correlation(ticker_1, ticker_2):
         stats_2 = calculate_risk_return(ticker_2, prices_2)
 
         # ito's lemma
-        mod_mean_1 = (stats_1['annual_return'] - 0.5*(stats_1['annual_volatility'])**2)*numpy.sqrt(utilities.ONE_TRADING_DAY)
-        mod_mean_2 = (stats_2['annual_return'] - 0.5*(stats_2['annual_volatility'])**2)*numpy.sqrt(utilities.ONE_TRADING_DAY)
+        mod_mean_1 = (stats_1['annual_return'] - 0.5*(stats_1['annual_volatility'])**2)*numpy.sqrt(settings.ONE_TRADING_DAY)
+        mod_mean_2 = (stats_2['annual_return'] - 0.5*(stats_2['annual_volatility'])**2)*numpy.sqrt(settings.ONE_TRADING_DAY)
 
         # calculate correlation
         i = 0 
@@ -161,8 +164,8 @@ def calculate_correlation(ticker_1, ticker_2):
                 todays_price_1 = prices_1[date]['4. close']
                 todays_price_2 = prices_2[date]['4. close']
                 if i != 0:
-                    current_mod_return_1= numpy.log(float(tomorrows_price_1)/float(todays_price_1))/numpy.sqrt(utilities.ONE_TRADING_DAY) 
-                    current_mod_return_2= numpy.log(float(tomorrows_price_2)/float(todays_price_2))/numpy.sqrt(utilities.ONE_TRADING_DAY) 
+                    current_mod_return_1= numpy.log(float(tomorrows_price_1)/float(todays_price_1))/numpy.sqrt(settings.ONE_TRADING_DAY) 
+                    current_mod_return_2= numpy.log(float(tomorrows_price_2)/float(todays_price_2))/numpy.sqrt(settings.ONE_TRADING_DAY) 
                     covariance = covariance + (current_mod_return_1 - mod_mean_1)*(current_mod_return_2 - mod_mean_2)/(sample - 1)
                 tomorrows_price_1 = prices_1[date]['4. close']
                 tomorrows_price_2 = prices_2[date]['4. close']
