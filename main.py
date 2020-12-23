@@ -41,10 +41,10 @@ if __name__ == "__main__":
                         output.scalar_result(f'mean_{arg}', result['annual_return'])
                         output.scalar_result(f'vol_{arg}', result['annual_volatility'])
                     else:
-                        output.debug('Error Encountered While Calculating. Try Again')
+                        output.comment('Error Encountered While Calculating. Try -ex Flag For Example Usage.')
             
             else:
-                output.debug('No Input Supplied. Try Again.')
+                output.comment('No Input Supplied. Try -ex Flag For Example Usage.')
 
         elif opt == utilities.FUNC_DICT["correlation"]:
             if(len(args) > 1):
@@ -54,24 +54,24 @@ if __name__ == "__main__":
                         if result:
                             output.scalar_result(f'correlation_{args[i]}_{args[j]}', result['correlation'])
                         else:
-                            output.debug('Error Encountered While Calculating. Try Again.')
+                            output.comment('Error Encountered While Calculating.Try -ex Flag For Example Usage.')
 
             else:
-                output.debug('Invalid Input. Try Again.')
+                output.comment('Invalid Input. Try -ex Flag For Example Usage.')
 
         elif opt == utilities.FUNC_DICT['minimize_variance']:
             if(len(args)>1):
                 optimizer.minimize_portfolio_variance(equities=args, display=True)
 
             else: 
-                output.debug('Invalid Input. Try Again.')
+                output.comment('Invalid Input. Try -ex Flag For Example Usage.')
 
         elif opt == utilities.FUNC_DICT['maximize_return']:
             if (len(args)>1):
                 optimizer.maximize_portfolio_return(equities=args, display=True)
-
+            
             else:
-                output.debug('Invalid Input. Try Again.')
+                output.comment('Invalid Input. Try -ex Flag For Example Usage.')
                 
         elif opt == utilities.FUNC_DICT['optimize_portfolio']:
             if (len(args)>1):
@@ -86,10 +86,10 @@ if __name__ == "__main__":
                     f = sys.exc_info()[1]
                     g = sys.exc_info()[2]
                     output.debug(f'{e} {f} {g}')
-                    output.comment('No Target Return Specified. Try Again.')
+                    output.comment('No Target Return Specified. Try -ex Flag For Example Usage.')
             
             else: 
-                output.comment('Invalid Input. Try Again.')
+                output.comment('Invalid Input. Try -ex Flag For Example Usage.')
 
         elif opt == utilities.FUNC_DICT['efficient_frontier']:
             if(len(args)>1):
@@ -97,18 +97,19 @@ if __name__ == "__main__":
                     frontier_iterations = int(args[len(args)-1])
                     equities = args[:(len(args)-1)]
                     optimizer.calculate_efficient_frontier(equities=equities, iterations=frontier_iterations, display=True)
+
                 except: 
                     e = sys.exc_info()[0]
                     f = sys.exc_info()[1]
                     g = sys.exc_info()[2]
                     output.debug(f'{e} {f} {g}')
-                    output.comment('No Target Return Specified. Try Again.')
+                    output.comment('Frontier Iterations Not Specified. Try Try -ex Flag For Example Usage.')
             
             else: 
-                output.debug('Invalid Input. Try Again.')
+                output.debug('Invalid Input. Try Try -ex Flag For Example Usage.')
         
         else:
-            output.comment('No Function Supplied. Please Review Function Summary Below And Re-execute Script.')
+            output.comment('No Function Supplied. Please Review Function Summary Below And Re-execute Script With Appropriate Arguments.')
             output.help()
         
         output.line()

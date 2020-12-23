@@ -77,11 +77,12 @@ def calculate_efficient_frontier(equities, iterations, display=True):
     return_width = (maximum_return - minimum_return)/iterations
 
     frontier=[]
-    for i in range(iterations):
+    for i in range(iterations+1):
         target_return = minimum_return + return_width*i
         allocation = optimize_portfolio(equities=equities, target_return=target_return, display=False)
         frontier.append(allocation)
-        if display:
-            output.optimal_result(portfolio=optimal_portfolio, allocation=allocation)
-    
+        
+    if display:
+        output.efficient_frontier(optimal_portfolio, frontier)
+        
     return frontier

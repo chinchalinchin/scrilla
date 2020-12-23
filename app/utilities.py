@@ -100,12 +100,11 @@ class Logger():
     def scalar_result(self, calculation, result):
         print(' '*INDENT, '>>', calculation, ' = ', round(result, 4))
 
-    # TODO: align columns in result output
-    def array_percent_result(self, calculation, result, tickers):
+    def portfolio_percent_result(self, result, tickers):
         for i in range(len(tickers)):
             print(' '*INDENT, f'{tickers[i]} =', round(100*result[i], 2), '%')
 
-    def array_result(self, calculation, result, tickers):
+    def portfolio_shares_result(self, result, tickers):
         for i in range(len(tickers)):
             print(' '*INDENT, f'{tickers[i]} =', result[i])
 
@@ -114,23 +113,56 @@ class Logger():
 
     def optimal_result(self, portfolio, allocation):
         self.title_line('Optimal Percentage Allocation')
-        self.array_percent_result('Optimal Portfolio Percentage Allocation', allocation, portfolio.tickers)
+        self.portfolio_percent_result(allocation, portfolio.tickers)
         self.line()
 
         if PORTFOLIO_MODE:
             investment = get_number_input("Please Enter Total Investment : \n")
             shares = portfolio.calculate_approximate_shares(allocation, investment)
             total = portfolio.calculate_actual_total(allocation, investment)
+            
             self.line()
-
             self.title_line('Optimal Share Allocation')
-            self.array_result('Optimal Portfolio Shares Allocation', shares, portfolio.tickers)
+            self.portfolio_shares_result(shares, portfolio.tickers)
             self.title_line('Optimal Portfolio Value')
-            self.scalar_result('Total', total)
+            self.scalar_result('Total', round(total,2))
 
         self.title_line('Risk-Return Profile')
         self.scalar_result('Return', portfolio.return_function(allocation))
         self.scalar_result('Volatility', portfolio.volatility_function(allocation))
+
+    def efficient_frontier(self, portfolio, frontier):
+        if PORTFOLIO_MODE:
+            investment = get_number_input("Please Enter Total Investment : \n")
+        else:
+            investment = 1000
+        
+        self.title_line(f'( Annual Return %, Annual Volatility %) Portfolio')
+        
+        for allocation in frontier:
+            self.line()
+            return_string=str(round(round(portfolio.return_function(allocation),4)*100,2))
+            vol_string=str(round(round(portfolio.volatility_function(allocation),4)*100,2))
+            self.title_line(f'({return_string} %, {vol_string}%) Portfolio')
+            self.line()
+
+            self.title_line('Optimal Percentage Allocation')
+
+            self.portfolio_percent_result(allocation, portfolio.tickers)
+            
+            if PORTFOLIO_MODE:
+                shares = portfolio.calculate_approximate_shares(allocation, investment)
+                total = portfolio.calculate_actual_total(allocation, investment)
+            
+                self.title_line('Optimal Share Allocation')
+                self.portfolio_shares_result(shares, portfolio.tickers)
+                self.title_line('Optimal Portfolio Value')
+                self.scalar_result('Total', round(total,2))
+            
+            self.title_line('Risk-Return Profile')
+            self.scalar_result('Return', portfolio.return_function(allocation))
+            self.scalar_result('Volatility', portfolio.volatility_function(allocation))
+            self.blank_line()
 
     def help(self):
         self.title_line('PYNANCE')
