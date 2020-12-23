@@ -1,10 +1,11 @@
-from app.portfolio import Portfolio
-import util.logger as logger
 import scipy.optimize as optimize
 
-output = logger.Logger('app.pyfin.optimizer')
+from app.portfolio import Portfolio
+import util.logger as logger
 
-def optimize_portfolio(equities, target_return, display=True):
+output = logger.Logger('app.optimizer')
+
+def optimize_portfolio(equities, target_return, display=False):
     optimal_portfolio = Portfolio(equities)
     optimal_portfolio.set_target_return(target_return)
 
@@ -29,7 +30,7 @@ def optimize_portfolio(equities, target_return, display=True):
 
     return allocation.x
 
-def minimize_portfolio_variance(equities, display=True):
+def minimize_portfolio_variance(equities, display=False):
     optimal_portfolio = Portfolio(equities)
 
     init_guess = optimal_portfolio.get_init_guess()
@@ -48,7 +49,7 @@ def minimize_portfolio_variance(equities, display=True):
     
     return allocation.x
 
-def maximize_portfolio_return(equities, display=True):
+def maximize_portfolio_return(equities, display=False):
     optimal_portfolio = Portfolio(equities)
 
     init_guess = optimal_portfolio.get_init_guess()
@@ -68,7 +69,7 @@ def maximize_portfolio_return(equities, display=True):
     
     return allocation.x
 
-def calculate_efficient_frontier(equities, iterations, display=True):
+def calculate_efficient_frontier(equities, iterations, display=False):
     optimal_portfolio = Portfolio(equities)
     minimum_allocation = minimize_portfolio_variance(equities=equities, display=False)
     maximum_allocation = maximize_portfolio_return(equities=equities, display=False)

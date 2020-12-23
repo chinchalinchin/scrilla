@@ -4,6 +4,7 @@ import scipy.optimize as optimize
 import app.settings as settings
 import app.statistics as statistics
 import app.optimizer as optimizer
+
 import util.logger as logger
 
 if __name__ == "__main__": 

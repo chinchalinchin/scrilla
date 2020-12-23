@@ -6,10 +6,9 @@ import time, datetime
 import app.settings as settings
 import util.logger as logger
 
+output = logger.Logger('app.statistics')
 
 def retrieve_stock_data(ticker):
-    output = logger.Logger('app.pyfin.retrieve_stock_data')
-
     now = datetime.datetime.now()
     timestamp = '{}{}{}'.format(now.month, now.day, now.year)
     buffer_store= os.path.join(settings.BUFFER_DIR, f'{timestamp}_{ticker}.json')
@@ -48,8 +47,6 @@ def retrieve_stock_data(ticker):
 
 # NOTE: AlphaVantage returns price history fom latest to earliest date.
 def calculate_risk_return(ticker, input_prices=None):
-    output = logger.Logger('app.pyfin.calculate_risk_return')
-
     now = datetime.datetime.now()
     timestamp = '{}{}{}'.format(now.month, now.day, now.year)
     buffer_store= os.path.join(settings.BUFFER_DIR, f'{timestamp}_{ticker}_statistics.json')
@@ -114,8 +111,6 @@ def calculate_risk_return(ticker, input_prices=None):
     return results
 
 def calculate_correlation(ticker_1, ticker_2):
-    output = logger.Logger('app.pyfin.calculate_correlation')
-
     now = datetime.datetime.now()
     timestamp = '{}{}{}'.format(now.month, now.day, now.year)
     buffer_store_1= os.path.join(settings.BUFFER_DIR, f'{timestamp}_{ticker_1}_{ticker_2}_correlation.json')

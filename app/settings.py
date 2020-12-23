@@ -12,7 +12,7 @@ QUERY_URL = os.getenv('AV_QUERY_URL')
 
 DEBUG= True if os.getenv('DEBUG') == 'True' else False
 
-PORTFOLIO_MODE = True if os.getenv('PORTFOLIO_MODE') == 'True' else False
+INVESTMENT_MODE = True if os.getenv('INVESTMENT_MODE') == 'True' else False
 
 ONE_TRADING_DAY=(1/252)
 

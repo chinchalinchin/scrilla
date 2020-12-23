@@ -69,7 +69,7 @@ class Logger():
         self.portfolio_percent_result(allocation, portfolio.tickers)
         self.line()
 
-        if settings.PORTFOLIO_MODE:
+        if settings.INVESTMENT_MODE:
             investment = helper.get_number_input("Please Enter Total Investment : \n")
             shares = portfolio.calculate_approximate_shares(allocation, investment)
             total = portfolio.calculate_actual_total(allocation, investment)
@@ -85,12 +85,12 @@ class Logger():
         self.scalar_result('Volatility', portfolio.volatility_function(allocation))
 
     def efficient_frontier(self, portfolio, frontier):
-        if settings.PORTFOLIO_MODE:
+        if settings.INVESTMENT_MODE:
             investment = helper.get_number_input("Please Enter Total Investment : \n")
         else:
             investment = 1000
         
-        self.title_line(f'( Annual Return %, Annual Volatility %) Portfolio')
+        self.title_line(f'(Annual Return %, Annual Volatility %) Portfolio')
 
         for allocation in frontier:
             self.line()
@@ -103,7 +103,7 @@ class Logger():
 
             self.portfolio_percent_result(allocation, portfolio.tickers)
             
-            if settings.PORTFOLIO_MODE:
+            if settings.INVESTMENT_MODE:
                 shares = portfolio.calculate_approximate_shares(allocation, investment)
                 total = portfolio.calculate_actual_total(allocation, investment)
             
