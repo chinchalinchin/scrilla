@@ -8,6 +8,7 @@ def retrieve_stock_data(ticker):
     output = utilities.Logger('app.pyfin.retrieve_stock_data')
 
     buffer_store= os.path.join(utilities.BUFFER_DIR, f'{ticker}.json')
+    # TODO: attach MMDDYY to start of file name
     # check if price history exists in cache
     if os.path.isfile(buffer_store):
         output.debug(f'Loading in cached prices...')
@@ -36,6 +37,7 @@ def retrieve_stock_data(ticker):
         # save prices to cache for quick access
         dump_file = os.path.join(utilities.BUFFER_DIR,f'{ticker}.json')
         output.debug(f'Storing {ticker} price history in cache...')
+        # TODO: dump to buffer_store 
         with open(dump_file, 'w') as outfile:
             json.dump(prices, outfile)
 

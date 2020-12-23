@@ -12,6 +12,7 @@ if __name__ == "__main__":
     filelist = [ f for f in os.listdir(utilities.BUFFER_DIR)]
     for f in filelist:
         if os.path.basename(f) != ".gitkeep":
+            # TODO: if timestamp isn't today
             os.remove(os.path.join(utilities.BUFFER_DIR, f))
 
     # retrieve function argument
