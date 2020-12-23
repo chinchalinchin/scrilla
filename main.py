@@ -26,8 +26,7 @@ if __name__ == "__main__":
         output.help()
 
     elif opt == utilities.FUNC_DICT["examples"]:
-        # TODO: add function to utilities to print examples.
-        pass
+        output.examples()
 
     else:
         args = sys.argv[2:]
@@ -57,7 +56,6 @@ if __name__ == "__main__":
                         else:
                             output.debug('Error Encountered While Calculating. Try Again.')
 
-
             else:
                 output.debug('Invalid Input. Try Again.')
 
@@ -75,7 +73,7 @@ if __name__ == "__main__":
                     equities = args[:(len(args)-1)]
 
                     optimizer.optimize_portfolio(equities=equities, target_return=target_return, display=True)   
-                                 
+
                 except: 
                     e = sys.exc_info()[0]
                     f = sys.exc_info()[1]

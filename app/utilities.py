@@ -31,6 +31,13 @@ FUNC_DICT={
     "examples": "-e"
 }
 
+EXAMPLES = { 
+    'python ./main.py -o ALLY FB PFE SNE BX 0.83': 'Optimize the portfolio consisting of (ALLY, FB, PFE, SNE, BX) subject to the constraint their mean annual return equal 83%. Note the constrained return must reside within the feasible region of returns, i.e. the constrained return must be less than the maximum possible return.',  
+    'python ./main.py -m U TSLA SPCE': 'Find the portfolio allocation that minimizes the overall variance of the portfolio composed of (U, TSLA, SPCE). ',
+    'python ./main.py -r GOOG AMZN XOM AAPL': 'Calculate the risk-return portfolio for each equity in the portfolio composed of (GOOG, AMZN, XOM, APPL)',
+    'python ./main.py -c GLD SPY SLV UUP TLT EWA': 'Calculate the correlation matrix for the portfolio composed of (GLD, SPY, SLV, UUP, TLT, EWA'
+}
+
 # Application Helper Functions
 
 def get_number_input(msg_prompt):
@@ -53,6 +60,12 @@ class Logger():
         dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
         print(dt_string, ' :' , self.location, ' : ',msg)
 
+    def break_lines(self, msg):
+        if len(msg)>LINE_LENGTH:
+            return [msg[i:i+LINE_LENGTH] for i in range(0,len(msg), LINE_LENGTH)]
+        else:
+            return [msg]
+
     def debug(self, msg):
         if DEBUG:
             self.comment(msg)
@@ -67,6 +80,17 @@ class Logger():
     def center(self, this_line):
         buff = int((LINE_LENGTH - len(this_line))/2)
         print(' '*buff, this_line, ' '*buff)
+
+    def example_expo(self, ex_no, example, explanation):
+        print(' '*INDENT, f'#{ex_no}:', example)
+        for line in self.break_lines(explanation):
+            print(' '*2*INDENT, '-', line)
+
+    def examples(self):
+        index = 1
+        for example in EXAMPLES:
+            self.example_expo(index, example, EXAMPLES[example])
+            index += 1
 
     def scalar_result(self, calculation, result):
         print(' '*INDENT, '>>', calculation, ' = ', round(result, 4))
