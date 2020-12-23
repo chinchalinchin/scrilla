@@ -8,7 +8,9 @@ dotenv.load_dotenv(os.path.join(APP_DIR,'.env'))
 
 BUFFER_DIR = os.path.join(APP_DIR, 'cache')
 
-QUERY_URL = os.getenv('AV_QUERY_URL')
+AV_QUERY_URL = os.getenv('AV_QUERY_URL')
+
+PRICE_MANAGER = "alpha_vantage"
 
 DEBUG= True if os.getenv('DEBUG') == 'True' else False
 

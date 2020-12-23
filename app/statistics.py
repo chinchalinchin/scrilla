@@ -1,9 +1,10 @@
 import os, sys, json
-import requests
+import datetime
 import numpy
-import time, datetime
 
 import app.settings as settings
+import app.services as services
+
 import util.logger as logger
 
 output = logger.Logger('app.statistics')
@@ -18,28 +19,11 @@ def retrieve_stock_data(ticker):
         with open(buffer_store, 'r') as infile:
             prices = json.load(infile)
 
-    # retrieve prices from external source
     else:     
-        output.debug(f'Retrieving {ticker} prices from AlphaVantage query...')
-        url=f'{settings.QUERY_URL}={ticker}'     
-        prices = requests.get(url).json()
+        output.debug(f'Retrieving {ticker} prices from Service Manager...')    
+        prices = services.get_price_history(ticker)
 
-        # check for bad response
-        if list(prices.keys())[0] == 'Error Message':
-            output.debug(prices['Error Message'])
-            return False
-
-        # check for API rate limit 
-        while list(prices.keys())[0] == 'Note':
-            output.debug(f'Waiting for AlphaVantage rate limit to refresh...')
-            time.sleep(10)
-            prices = requests.get(url).json()
-
-        prices = prices['Time Series (Daily)']
-
-        # save prices to cache for quick access
         output.debug(f'Storing {ticker} price history in cache...')
-        # TODO: dump to buffer_store 
         with open(buffer_store, 'w') as outfile:
             json.dump(prices, outfile)
 
@@ -51,13 +35,11 @@ def calculate_risk_return(ticker, input_prices=None):
     timestamp = '{}{}{}'.format(now.month, now.day, now.year)
     buffer_store= os.path.join(settings.BUFFER_DIR, f'{timestamp}_{ticker}_statistics.json')
 
-    # check if results exist in buffer directory
     if os.path.isfile(buffer_store):
         output.debug(f'Loading in cached {ticker} statistics...')
         with open(buffer_store, 'r') as infile:
             results = json.load(infile)
     else:
-        # check if prices have been passed in as an argument
         if input_prices is None:
             prices = retrieve_stock_data(ticker)
             if not prices:
