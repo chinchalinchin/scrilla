@@ -2,22 +2,23 @@ import os, sys, json
 import app.utilities as utilities
 import requests
 import numpy
-import time
+import time, datetime
 
 def retrieve_stock_data(ticker):
     output = utilities.Logger('app.pyfin.retrieve_stock_data')
 
-    buffer_store= os.path.join(utilities.BUFFER_DIR, f'{ticker}.json')
-    # TODO: attach MMDDYY to start of file name
-    # check if price history exists in cache
+    now = datetime.datetime.now()
+    timestamp = '{}{}{}'.format(now.month, now.day, now.year)
+    buffer_store= os.path.join(utilities.BUFFER_DIR, f'{timestamp}_{ticker}.json')
+    
     if os.path.isfile(buffer_store):
-        output.debug(f'Loading in cached prices...')
+        output.debug(f'Loading in cached {ticker} prices...')
         with open(buffer_store, 'r') as infile:
             prices = json.load(infile)
 
     # retrieve prices from external source
     else:     
-        output.debug(f'Retrieving prices from AlphaVantage query...')
+        output.debug(f'Retrieving {ticker} prices from AlphaVantage query...')
         url=f'{utilities.QUERY_URL}={ticker}'     
         prices = requests.get(url).json()
 
@@ -35,21 +36,24 @@ def retrieve_stock_data(ticker):
         prices = prices['Time Series (Daily)']
 
         # save prices to cache for quick access
-        dump_file = os.path.join(utilities.BUFFER_DIR,f'{ticker}.json')
         output.debug(f'Storing {ticker} price history in cache...')
         # TODO: dump to buffer_store 
-        with open(dump_file, 'w') as outfile:
+        with open(buffer_store, 'w') as outfile:
             json.dump(prices, outfile)
 
     return prices
 
 # NOTE: AlphaVantage returns price history fom latest to earliest date.
 def calculate_risk_return(ticker, input_prices=None):
-    output = utilities.Logger('app.pyfin.calculate_statistics')
+    output = utilities.Logger('app.pyfin.calculate_risk_return')
+
+    now = datetime.datetime.now()
+    timestamp = '{}{}{}'.format(now.month, now.day, now.year)
+    buffer_store= os.path.join(utilities.BUFFER_DIR, f'{timestamp}_{ticker}_statistics.json')
 
     # check if results exist in buffer directory
-    buffer_store= os.path.join(utilities.BUFFER_DIR, f'{ticker}_statistics.json')
     if os.path.isfile(buffer_store):
+        output.debug(f'Loading in cached {ticker} statistics...')
         with open(buffer_store, 'r') as infile:
             results = json.load(infile)
     else:
@@ -59,6 +63,7 @@ def calculate_risk_return(ticker, input_prices=None):
             if not prices:
                 return False
         else: 
+            output.debug(f'Using inputted {ticker} prices for calculation...')
             prices = input_prices
 
         sample = len(prices)
@@ -99,24 +104,30 @@ def calculate_risk_return(ticker, input_prices=None):
         }
 
         # store results in buffer for quick access
-        dump_file = os.path.join(utilities.BUFFER_DIR,f'{ticker}_statistics.json')
-        with open(dump_file, 'w') as outfile:
+        output.debug(f'Storing {ticker} statistics in cache...')
+        with open(buffer_store, 'w') as outfile:
             json.dump(results, outfile)
     
     return results
 
 def calculate_correlation(ticker_1, ticker_2):
-    buffer_store_1= os.path.join(utilities.BUFFER_DIR, f'{ticker_1}_{ticker_2}_correlation.json')
-    buffer_store_2= os.path.join(utilities.BUFFER_DIR, f'{ticker_2}_{ticker_1}_correlation.json')
+    output = utilities.Logger('app.pyfin.calculate_correlation')
+
+    now = datetime.datetime.now()
+    timestamp = '{}{}{}'.format(now.month, now.day, now.year)
+    buffer_store_1= os.path.join(utilities.BUFFER_DIR, f'{timestamp}_{ticker_1}_{ticker_2}_correlation.json')
+    buffer_store_2= os.path.join(utilities.BUFFER_DIR, f'{timestamp}_{ticker_2}_{ticker_1}_correlation.json')
 
     # check if results exist in cache location 1
     if os.path.isfile(buffer_store_1):
+        output.debug(f'Loading in cached ({ticker_1}, {ticker_2}) correlation...')
         with open(buffer_store_1, 'r') as infile:
             results = json.load(infile)
             correlation = results['correlation']
 
     # check if results exist in cache location 2
     elif os.path.isfile(buffer_store_2):
+        output.debug(f'Loading in cached ({ticker_1}, {ticker_2}) correlation...')
         with open(buffer_store_2, 'r') as infile:
             results = json.load(infile)
             correlation = results['correlation']
@@ -159,13 +170,10 @@ def calculate_correlation(ticker_1, ticker_2):
 
         correlation = covariance/(stats_1['annual_volatility']*stats_2['annual_volatility'])
 
-        # output.log(f'covar_({ticker_1}, {ticker_2})', covariance)
-        # output.log(f'\u03A1_({ticker_1}, {ticker_2})', correlation)
-
     result = { 'correlation': correlation }
 
-    dump_file = os.path.join(utilities.BUFFER_DIR,f'{ticker_1}_{ticker_2}_correlation.json')
-    with open(dump_file, 'w') as outfile:
+    output.debug(f'Storing ({ticker_1}, {ticker_2}) correlation in cache...')
+    with open(buffer_store_1, 'w') as outfile:
         json.dump(result, outfile)
 
     return result

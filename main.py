@@ -1,4 +1,5 @@
 import os, sys
+import datetime
 import scipy.optimize as optimize
 import app.utilities as utilities
 import app.statistics as statistics
@@ -6,13 +7,14 @@ import app.portfolio as portfolio
 
 if __name__ == "__main__": 
     output = utilities.Logger('app.pyfin.main')
-
+    now = datetime.datetime.now()
+    
     # clear previous price histories from cache
-    # TODO: timestamp cache files and only delete if date != todays date
     filelist = [ f for f in os.listdir(utilities.BUFFER_DIR)]
+    timestamp = '{}{}{}'.format(now.month, now.day, now.year)
     for f in filelist:
-        if os.path.basename(f) != ".gitkeep":
-            # TODO: if timestamp isn't today
+        filename = os.path.basename(f)
+        if filename != ".gitkeep" and timestamp not in filename:
             os.remove(os.path.join(utilities.BUFFER_DIR, f))
 
     # retrieve function argument
