@@ -1,4 +1,4 @@
-import app.statistics as stat_calc
+import app.statistics as statistics
 import numpy
 import math
 from decimal import Decimal
@@ -9,14 +9,13 @@ class Portfolio:
         self.tickers = tickers
         self.calculate_stats()
 
-    
     def calculate_stats(self):
         self.mean_return = []
         self.sample_vol = []
         self.correlation_matrix = [[0 for x in range(len(self.tickers))] for y in range(len(self.tickers))]
 
         for ticker in self.tickers:
-            stats = stat_calc.calculate_risk_return(ticker)
+            stats = statistics.calculate_risk_return(ticker)
             self.mean_return.append(stats['annual_return'])
             self.sample_vol.append(stats['annual_volatility'])
 
@@ -24,7 +23,7 @@ class Portfolio:
             for i in range(len(self.tickers)):
                 for j in range(i+1, len(self.tickers)):
                     self.correlation_matrix[i][i] = 1
-                    self.correlation_matrix[i][j] = stat_calc.calculate_correlation(self.tickers[i], self.tickers[j])['correlation']
+                    self.correlation_matrix[i][j] = statistics.calculate_correlation(self.tickers[i], self.tickers[j])['correlation']
                     self.correlation_matrix[j][i] = self.correlation_matrix[i][j]
             self.correlation_matrix[len(self.tickers) - 1][len(self.tickers) - 1] = 1
 
@@ -55,7 +54,7 @@ class Portfolio:
     def calculate_approximate_shares(self, x, total):
         shares = []
         for i in range(len(x)):
-            prices = stat_calc.retrieve_stock_data(self.tickers[i])
+            prices = statistics.retrieve_stock_data(self.tickers[i])
             final_date = list(prices.keys())[0]
             final_price = prices[final_date]['4. close']
             share = Decimal(x[i]) * Decimal(total) / Decimal(final_price)
@@ -66,7 +65,7 @@ class Portfolio:
         actual_total = 0
         shares = self.calculate_approximate_shares(x, total)
         for i in range(len(shares)):
-            prices = stat_calc.retrieve_stock_data(self.tickers[i])
+            prices = statistics.retrieve_stock_data(self.tickers[i])
             final_date = list(prices.keys())[0]
             final_price = prices[final_date]['4. close']
             portion = Decimal(shares[i]) * Decimal(final_price)

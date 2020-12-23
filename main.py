@@ -4,6 +4,7 @@ import scipy.optimize as optimize
 import app.settings as settings
 import app.statistics as statistics
 import app.optimizer as optimizer
+from app.portfolio import Portfolio
 
 import util.logger as logger
 
@@ -62,15 +63,16 @@ if __name__ == "__main__":
 
         elif opt == settings.FUNC_ARG_DICT['minimize_variance']:
             if(len(args)>1):
-                optimizer.minimize_portfolio_variance(equities=args, display=True)
-
+                allocation = optimizer.minimize_portfolio_variance(equities=args)
+                output.optimal_result(portfolio=Portfolio(args), allocation=allocation)
             else: 
                 output.comment('Invalid Input. Try -ex Flag For Example Usage.')
 
         elif opt == settings.FUNC_ARG_DICT['maximize_return']:
             if (len(args)>1):
-                optimizer.maximize_portfolio_return(equities=args, display=True)
-            
+                allocation = optimizer.maximize_portfolio_return(equities=args)
+                output.optimal_result(portfolio=Portfolio(args), allocation=allocation)
+
             else:
                 output.comment('Invalid Input. Try -ex Flag For Example Usage.')
                 
@@ -80,7 +82,8 @@ if __name__ == "__main__":
                     target_return = float(args[len(args)-1])
                     equities = args[:(len(args)-1)]
 
-                    optimizer.optimize_portfolio(equities=equities, target_return=target_return, display=True)   
+                    allocation = optimizer.optimize_portfolio(equities=equities, target_return=target_return)   
+                    output.optimal_result(portfolio=Portfolio(equities), allocation=allocation)
 
                 except: 
                     e = sys.exc_info()[0]
@@ -97,7 +100,8 @@ if __name__ == "__main__":
                 try:
                     frontier_iterations = int(args[len(args)-1])
                     equities = args[:(len(args)-1)]
-                    optimizer.calculate_efficient_frontier(equities=equities, iterations=frontier_iterations, display=True)
+                    frontier = optimizer.calculate_efficient_frontier(equities=equities, iterations=frontier_iterations)
+                    output.efficient_frontier(portfolio=Portfolio(equities), frontier=frontier)
 
                 except: 
                     e = sys.exc_info()[0]
