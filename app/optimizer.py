@@ -3,7 +3,7 @@ import app.utilities as utilities
 import scipy.optimize as optimize
 output = utilities.Logger('app.pyfin.optimizer')
 
-def optimize_portfolio(equities, target_return, display):
+def optimize_portfolio(equities, target_return, display=True):
     optimal_portfolio = Portfolio(equities)
     optimal_portfolio.set_target_return(target_return)
 
@@ -28,7 +28,7 @@ def optimize_portfolio(equities, target_return, display):
 
     return allocation.x
 
-def minimize_portfolio_variance(equities, display):
+def minimize_portfolio_variance(equities, display=True):
     optimal_portfolio = Portfolio(equities)
 
     init_guess = optimal_portfolio.get_init_guess()
@@ -47,7 +47,7 @@ def minimize_portfolio_variance(equities, display):
     
     return allocation.x
 
-def maximize_portfolio_return(equities, display):
+def maximize_portfolio_return(equities, display=True):
     optimal_portfolio = Portfolio(equities)
 
     init_guess = optimal_portfolio.get_init_guess()
@@ -66,3 +66,22 @@ def maximize_portfolio_return(equities, display):
         output.optimal_result(optimal_portfolio, allocation.x)
     
     return allocation.x
+
+def calculate_efficient_frontier(equities, iterations, display=True):
+    optimal_portfolio = Portfolio(equities)
+    minimum_allocation = minimize_portfolio_variance(equities=equities, display=False)
+    maximum_allocation = maximize_portfolio_return(equities=equities, display=False)
+
+    minimum_return = optimal_portfolio.return_function(minimum_allocation)
+    maximum_return = optimal_portfolio.return_function(maximum_allocation)
+    return_width = (maximum_return - minimum_return)/iterations
+
+    frontier=[]
+    for i in range(iterations):
+        target_return = minimum_return + return_width*i
+        allocation = optimize_portfolio(equities=equities, target_return=target_return, display=False)
+        frontier.append(allocation)
+        if display:
+            output.optimal_result(portfolio=optimal_portfolio, allocation=allocation)
+    
+    return frontier

@@ -37,6 +37,7 @@ EXAMPLES = {
     'python ./main.py -cor GLD SPY SLV UUP TLT EWA': 'Calculate the correlation matrix for the portfolio composed of (GLD, SPY, SLV, UUP, TLT, EWA',
     'python ./main.py -min U TSLA SPCE': 'Find the portfolio allocation that minimizes the overall variance of the portfolio composed of (U, TSLA, SPCE). ',
     'python ./main.py -opt ALLY FB PFE SNE BX 0.83': 'Optimize the portfolio consisting of (ALLY, FB, PFE, SNE, BX) subject to the constraint their mean annual return equal 83%. Note the constrained return must reside within the feasible region of returns, i.e. the constrained return must be less than the maximum possible return.',  
+    'python ./main.py -ef QS DIS RUN 5': 'Calculate a five point plot of the efficient portfolio (risk, return) frontier for the portfolio composed of (QS, DIS, RUN)'
 }
 
 # Application Helper Functions
@@ -60,6 +61,9 @@ class Logger():
         now = datetime.datetime.now()
         dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
         print(dt_string, ' :' , self.location, ' : ',msg)
+
+    def blank_line(self):
+        print('\n')
 
     def break_lines(self, msg):
         if len(msg)>LINE_LENGTH:
@@ -144,9 +148,9 @@ class Logger():
         self.title_line('OPTIONS')
         self.option(FUNC_DICT['correlation'], 'Calculate pair-wise correlation for the supplied list of ticker symbols. \n')
         self.option(FUNC_DICT['examples'], 'Display examples of syntax. \n')
-        self.option(FUNC_DICT['efficient_frontier'], 'Generate a plot of the portfolio\'s efficient frontier for the supplied list of tickers. \n')
+        self.option(FUNC_DICT['efficient_frontier'], 'Generate a plot of the portfolio\'s efficient frontier for the supplied list of tickers. The number of points in the plot must be specified by the last argument.  \n')
         self.option(FUNC_DICT['help'], 'Print this help message. \n')
         self.option(FUNC_DICT['minimize_variance'], 'Minimize the variance of the portfolio defined by the supplied list of ticker symbols. \n')
         self.option(FUNC_DICT['maximize_return'], 'Maximize the return of the portfolio defined by the supplied list of ticker symbols. \n')
         self.option(FUNC_DICT['risk_return'], 'Calculate the risk-return profile for the supplied list of ticker symbols. \n')
-        self.option(FUNC_DICT['optimize_portfolio'], 'Optimize the variance of the portfolio\'s variance subject to the supplied return target. \n')   
+        self.option(FUNC_DICT['optimize_portfolio'], 'Optimize the variance of the portfolio\'s variance subject to the supplied return target. The target return must be specified by the last argument. \n')   

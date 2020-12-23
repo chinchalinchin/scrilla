@@ -92,11 +92,21 @@ if __name__ == "__main__":
                 output.comment('Invalid Input. Try Again.')
 
         elif opt == utilities.FUNC_DICT['efficient_frontier']:
-            # TODO: calculate minimum variance portfolio
-            # TODO: calculate maximum return portfolio, i.e. determine which equity has largest return
-            # TODO: return point = (maximum return - minimum variance return)/n * i + minimum variance return 
-                # and then optimize for each target return
-            pass
+            if(len(args)>1):
+                try:
+                    frontier_iterations = int(args[len(args)-1])
+                    equities = args[:(len(args)-1)]
+                    optimizer.calculate_efficient_frontier(equities=equities, iterations=frontier_iterations, display=True)
+                except: 
+                    e = sys.exc_info()[0]
+                    f = sys.exc_info()[1]
+                    g = sys.exc_info()[2]
+                    output.debug(f'{e} {f} {g}')
+                    output.comment('No Target Return Specified. Try Again.')
+            
+            else: 
+                output.debug('Invalid Input. Try Again.')
+        
         else:
             output.comment('No Function Supplied. Please Review Function Summary Below And Re-execute Script.')
             output.help()
