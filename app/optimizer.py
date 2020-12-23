@@ -24,24 +24,7 @@ def optimize_portfolio(equities, target_return, display):
                                     options={'disp': False})
 
     if display:
-        output.title_line('Optimal Percentage Allocation')
-        output.array_percent_result('Optimal Portfolio Percentage Allocation', allocation.x, equities)
-        output.line()
-
-        if utilities.PORTFOLIO_MODE:
-            investment = utilities.get_number_input("Please Enter Total Investment : \n")
-            shares = optimal_portfolio.calculate_approximate_shares(allocation.x, investment)
-            total = optimal_portfolio.calculate_actual_total(allocation.x, investment)
-            output.line()
-
-            output.title_line('Optimal Share Allocation')
-            output.array_result('Optimal Portfolio Shares Allocation', shares, equities)
-            output.title_line('Optimal Portfolio Value')
-            output.scalar_result('Total', total)
-
-        output.title_line('Risk-Return Profile')
-        output.scalar_result('Return', optimal_portfolio.return_function(allocation.x))
-        output.scalar_result('Volatility', optimal_portfolio.volatility_function(allocation.x))
+        output.optimal_result(optimal_portfolio, allocation.x)
 
     return allocation.x
 
@@ -56,25 +39,30 @@ def minimize_portfolio_variance(equities, display):
     }
 
     allocation = optimize.minimize(fun = optimal_portfolio.volatility_function, x0 = init_guess, 
-                                method='SLSQP', bounds=equity_bounds, constraints=equity_constraint, 
-                                options={'disp': False})
+                                    method='SLSQP', bounds=equity_bounds, constraints=equity_constraint, 
+                                    options={'disp': False})
 
     if display:
-        output.title_line('Optimal Percentage Allocation')
-        output.array_percent_result('Optimal Portfolio Percentage Allocation', allocation.x, equities)
-        output.line()
+        output.optimal_result(optimal_portfolio, allocation.x)
+    
+    return allocation.x
 
-        if utilities.PORTFOLIO_MODE:
-            investment = utilities.get_number_input("Please Enter Total Investment : \n")
-            shares = optimal_portfolio.calculate_approximate_shares(allocation.x, investment)
-            total = optimal_portfolio.calculate_actual_total(allocation.x, investment)
-            output.line()
+def maximize_portfolio_return(equities, display):
+    optimal_portfolio = Portfolio(equities)
 
-            output.title_line('Optimal Share Allocation')
-            output.array_result('Optimal Portfolio Shares Allocation', shares, equities)
-            output.title_line('Optimal Portfolio Value')
-            output.scalar_result('Total', total)
+    init_guess = optimal_portfolio.get_init_guess()
+    equity_bounds = optimal_portfolio.get_default_bounds()
+    equity_constraint = {
+        'type': 'eq',
+        'fun': optimal_portfolio.get_constraint
+    }
 
-        output.title_line('Risk-Return Profile')
-        output.scalar_result('Return', optimal_portfolio.return_function(allocation.x))
-        output.scalar_result('Volatility', optimal_portfolio.volatility_function(allocation.x))
+    minimize_function = lambda x: (-1)*optimal_portfolio.return_function(x)
+    allocation = optimize.minimize(fun = minimize_function, x0 = init_guess, method='SLSQP',
+                                    bounds=equity_bounds, constraints=equity_constraint, 
+                                    options={'disp': False})
+
+    if display:
+        output.optimal_result(optimal_portfolio, allocation.x)
+    
+    return allocation.x

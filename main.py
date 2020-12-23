@@ -66,6 +66,13 @@ if __name__ == "__main__":
             else: 
                 output.debug('Invalid Input. Try Again.')
 
+        elif opt == utilities.FUNC_DICT['maximize_return']:
+            if (len(args)>1):
+                optimizer.maximize_portfolio_return(equities=args, display=True)
+
+            else:
+                output.debug('Invalid Input. Try Again.')
+                
         elif opt == utilities.FUNC_DICT['optimize_portfolio']:
             if (len(args)>1):
                 try:
