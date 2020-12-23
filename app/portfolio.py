@@ -52,7 +52,7 @@ class Portfolio:
     def get_target_return_constraint(self, x):
         return (numpy.dot(x, self.mean_return) - self.target_return)
 
-    def calculate_shares(self, x, total):
+    def calculate_approximate_shares(self, x, total):
         shares = []
         for i in range(len(x)):
             prices = stat_calc.retrieve_stock_data(self.tickers[i])
@@ -62,12 +62,13 @@ class Portfolio:
             shares.append(math.trunc(share))
         return shares
 
-    def calculate_total(self, shares):
-        total = 0
+    def calculate_actual_total(self, x, total):
+        actual_total = 0
+        shares = self.calculate_approximate_shares(x, total)
         for i in range(len(shares)):
             prices = stat_calc.retrieve_stock_data(self.tickers[i])
             final_date = list(prices.keys())[0]
             final_price = prices[final_date]['4. close']
             portion = Decimal(shares[i]) * Decimal(final_price)
-            total = total + portion
-        return total
+            actual_total = actual_total + portion
+        return actual_total

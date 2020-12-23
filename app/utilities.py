@@ -1,5 +1,6 @@
 import datetime, os, dotenv
 
+# Application Settings
 APP_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 dotenv.load_dotenv(os.path.join(APP_DIR,'.env'))
@@ -8,12 +9,16 @@ BUFFER_DIR = os.path.join(APP_DIR, 'cache')
 
 QUERY_URL = os.getenv('AV_QUERY_URL')
 
+DEBUG= True if os.getenv('DEBUG') == 'True' else False
+
+PORTFOLIO_MODE = True if os.getenv('PORTFOLIO_MODE') == 'True' else False
+
 ONE_TRADING_DAY=(1/252)
 
-DEBUG=False
-
 SEPARATER="-"
+
 LINE_LENGTH=100
+
 INDENT=10
 
 FUNC_DICT={
@@ -26,6 +31,8 @@ FUNC_DICT={
     "examples": "-e"
 }
 
+# Application Helper Functions
+
 def get_number_input(msg_prompt):
     flag = False 
     while flag is not True:
@@ -34,7 +41,8 @@ def get_number_input(msg_prompt):
             return user_input
         else:
             print('Input Not Understood. Please Enter A Numerical Value.')
-        
+
+# Application Logger        
 class Logger():
 
     def __init__(self, location):
