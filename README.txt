@@ -1,8 +1,8 @@
-Register for an API key at www.alphavantage.co. Create a .env file in the root directory and place your Alpha Vantage API key within it in an environment variable called AV_QUERY_URL. There are several other environment variables that need configured various aspects of the application.
+Register for API keys at https://www.alphavantage.co and https://www.quandl.com/. Create a .env file in the root directory and place your Alpha Vantage and Quandl API keys within it in environment variables called ALPHA_VANTAGE_KEY and QUANDL_KEY respectively. 
 
-A '.sample.env' file has been included to demonstrate the appropriate format for AV_QUERY_URL (sans API key), in addition to providing explanations for the other environment variables that can be changed. Besides the AV_QUERY_URL, none of the other environment variables need to be changed from their defaults for the application to function properly. 
+There are several other environment variables that configure various aspects of the application. A '.sample.env' file has been included to demonstrate the appropriate format for all variables, in addition to providing explanations for the other environment variables that can be changed. Besides the API keys, none of the other environment variables need to be changed from their defaults for the application to function properly. 
 
-Once the API KEY has been set, execute the ./main.py script. Supply this script an argument with a dash that specifies the function you wish to execute and the ticker symbols you wish to apply the function to. For example, if I wanted to calculate the risk-return profile for the Facebook (FB), Amazon (AMZN) and Exxon (XOM), I would execute the following command from the project's root directory,
+Once the API keys have been set, execute the ./main.py script. Supply this script an argument with a dash that specifies the function you wish to execute and the ticker symbols you wish to apply the function to. For example, if I wanted to calculate the risk-return profile for the Facebook (FB), Amazon (AMZN) and Exxon (XOM), I would execute the following command from the project's root directory,
 
     python ./main.py -rr FB AMZN XOM
 
