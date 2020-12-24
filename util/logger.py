@@ -165,13 +165,11 @@ class Logger():
         risk_profile = numpy.array(risk_profile)
         
         title = " ( "
-        index = 0
-        for ticker in portfolio.tickers:
-            if index != (len(portfolio.tickers) - 1):
-                title += ticker + ", "
-                index += 1
+        for i in range(len(portfolio.tickers)):
+            if i != (len(portfolio.tickers) - 1):
+                title += portfolio.tickers[i] + ", "
             else:
-                title += ticker + " ) Efficient Frontier"
+                title += portfolio.tickers[i] + " ) Efficient Frontier"
         
         matplotlib.plot(risk_profile, return_profile, linestyle='dashed')
         matplotlib.xlabel('Volatility')
