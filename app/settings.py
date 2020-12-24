@@ -12,12 +12,32 @@ dotenv.load_dotenv(os.path.join(APP_DIR,'.env'))
 
 CACHE_DIR = os.path.join(APP_DIR, 'cache')
 
-AV_QUERY_URL = os.getenv('AV_QUERY_URL')
+AV_URL = os.getenv('ALPHA_VANTAGE_URL')
+AV_KEY = os.getenv('ALPHA_VANTAGE_KEY')
+
+Q_URL = os.getenv('QUANDL_URL')
+Q_KEY = os.getenv('QUANDL_KEY')
 
 PRICE_MANAGER = os.getenv('PRICE_MANAGER')
+STAT_MANAGER = os.getenv('STAT_MANAGER')
 
 if PRICE_MANAGER == "alpha_vantage":
+    # Response Keys
+    AV_FIRST_LAYER='Time Series (Daily)'
     CLOSE_PRICE="4. close"
+    # Query Parameters
+    PARAM_TICKER="symbol"
+    PARAM_FUNC="function"
+    PARAM_AV_KEY="apikey"
+    # Query Arguments
+    ARG_FUNC_DAILY="TIME_SERIES_DAILY"
+
+if STAT_MANAGER == "quandl":
+    # Response Keys
+    Q_FIRST_LAYER="dataset"
+    Q_SECOND_LAYER="data"
+    # Query Parameters
+    PARAM_Q_KEY="api_key"
 
 DEBUG= True if os.getenv('DEBUG').lower() == 'true' else False
 
@@ -64,6 +84,7 @@ SYNTAX="command -OPTION [tickers] (additional input)"
 
 FUNC_ARG_DICT={
     "correlation":"-cor",
+    "economic_statistics": "-ec",
     "efficient_frontier": "-ef",
     "examples": "-ex",
     "help": "-help",
@@ -78,6 +99,7 @@ FUNC_ARG_DICT={
 
 FUNC_DICT={
     "correlation": "Calculate pair-wise correlation for the supplied list of ticker symbols.",
+    "economic_statistics": "Retrieve the latest value for the supplied list of economic indicators. The available list of economic indicators can be found at https://www.quandl.com/data/FRED-Federal-Reserve-Economic-Data/documentation?anchor=growth",
     "efficient_frontier": "Generate a sample of the portfolio's efficient frontier for the supplied list of tickers.",
     "examples": "Display examples of syntax.",
     "help": "Print this help message.",

@@ -100,7 +100,6 @@ class Logger():
             self.scalar_result(MA2_title, round(averages[i][1], 2))
             self.scalar_result(MA3_title, round(averages[i][2], 2))
 
-
     def optimal_result(self, portfolio, allocation):
         self.title_line('Optimal Percentage Allocation')
         self.portfolio_percent_result(allocation, portfolio.tickers)

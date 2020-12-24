@@ -22,7 +22,7 @@ def retrieve_stock_data(ticker, current=True):
 
     else:     
         output.debug(f'Retrieving {ticker} prices from Service Manager...')    
-        prices = services.get_price_history(ticker, current)
+        prices = services.get_daily_price_history(ticker, current)
 
         output.debug(f'Storing {ticker} price history in cache...')
         with open(buffer_store, 'w') as outfile:

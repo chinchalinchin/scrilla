@@ -5,6 +5,7 @@ import scipy.optimize as optimize
 import app.settings as settings
 import app.statistics as statistics
 import app.optimizer as optimizer
+import app.services as services
 
 from app.portfolio import Portfolio
 
@@ -116,11 +117,21 @@ if __name__ == "__main__":
                     if result:
                         output.scalar_result(f'mean_{arg}', result['annual_return'])
                         output.scalar_result(f'vol_{arg}', result['annual_volatility'])
+
                     else:
                         output.comment('Error Encountered While Calculating. Try -ex Flag For Example Usage.')
             
             else:
                 output.comment('No Input Supplied. Try -ex Flag For Example Usage.')
+
+        elif opt == settings.FUNC_ARG_DICT["economic_statistics"]:
+            if(len(args)>1) or len(args)==1:
+                stats = services.get_daily_stats_latest(args)
+                for i in range(len(stats)):
+                    output.scalar_result(args[i], stats[i])
+                
+            else:
+                output.comment('Error Encountered While Calculating. Try -ex Flag For Example Usage.')
 
         else:
             output.comment('No Function Supplied. Please Review Function Summary Below And Re-execute Script With Appropriate Arguments.')
