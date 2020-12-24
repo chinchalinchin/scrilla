@@ -1,6 +1,11 @@
 import datetime
+import numpy as numpy
+import matplotlib.pyplot as matplotlib
+
+import app.settings as settings
+
 import util.helpers as helper
-from app import settings
+
 
 class Logger():
 
@@ -116,6 +121,30 @@ class Logger():
             self.scalar_result('Return', portfolio.return_function(allocation))
             self.scalar_result('Volatility', portfolio.volatility_function(allocation))
             self.return_line()
+
+    def plot_frontier(self, portfolio, frontier):
+        return_profile=[]
+        risk_profile=[]
+        for allocation in frontier:
+            return_profile.append(portfolio.return_function(allocation))
+            risk_profile.append(portfolio.volatility_function(allocation))
+        return_profile = numpy.array(return_profile)
+        risk_profile = numpy.array(risk_profile)
+        
+        title = " ( "
+        index = 0
+        for ticker in portfolio.tickers:
+            if index != (len(portfolio.tickers) - 1):
+                title += ticker + ", "
+                index += 1
+            else:
+                title += ticker + " ) Efficient Frontier"
+        
+        matplotlib.plot(risk_profile, return_profile, linestyle='dashed')
+        matplotlib.xlabel('Volatility')
+        matplotlib.ylabel('Return')
+        matplotlib.title(title)
+        matplotlib.show()
 
     def help(self):
         self.title_line(settings.APP_NAME)

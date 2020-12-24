@@ -1,6 +1,7 @@
 import scipy.optimize as optimize
 
 from app.portfolio import Portfolio
+import app.settings as settings
 import util.logger as logger
 
 output = logger.Logger('app.optimizer')
@@ -63,17 +64,17 @@ def maximize_portfolio_return(equities):
 
     return allocation.x
 
-def calculate_efficient_frontier(equities, iterations):
+def calculate_efficient_frontier(equities):
     optimal_portfolio = Portfolio(equities)
     minimum_allocation = minimize_portfolio_variance(equities=equities)
     maximum_allocation = maximize_portfolio_return(equities=equities)
 
     minimum_return = optimal_portfolio.return_function(minimum_allocation)
     maximum_return = optimal_portfolio.return_function(maximum_allocation)
-    return_width = (maximum_return - minimum_return)/iterations
+    return_width = (maximum_return - minimum_return)/settings.FRONTIER_STEPS
 
     frontier=[]
-    for i in range(iterations+1):
+    for i in range(settings.FRONTIER_STEPS+1):
         target_return = minimum_return + return_width*i
 
         output.debug(f'Optimizing {equities} Portfolio Return Subject To {target_return}')

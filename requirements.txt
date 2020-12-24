@@ -1,4 +1,10 @@
+# Application Configuration Dependencies
 python-dotenv==0.15.0
+
+# Service Configuration Dependencies
 requests==2.25.0
-numpy==1.19.4
+
+# Application Functional Dependencies
+numpy==1.19.3
 scipy==1.5.4
+matplotlib==3.3.3

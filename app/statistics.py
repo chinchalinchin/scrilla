@@ -12,7 +12,7 @@ output = logger.Logger('app.statistics')
 def retrieve_stock_data(ticker):
     now = datetime.datetime.now()
     timestamp = '{}{}{}'.format(now.month, now.day, now.year)
-    buffer_store= os.path.join(settings.BUFFER_DIR, f'{timestamp}_{ticker}.json')
+    buffer_store= os.path.join(settings.CACHE_DIR, f'{timestamp}_{ticker}.json')
     
     if os.path.isfile(buffer_store):
         output.debug(f'Loading in cached {ticker} prices...')
@@ -33,7 +33,7 @@ def retrieve_stock_data(ticker):
 def calculate_risk_return(ticker, input_prices=None):
     now = datetime.datetime.now()
     timestamp = '{}{}{}'.format(now.month, now.day, now.year)
-    buffer_store= os.path.join(settings.BUFFER_DIR, f'{timestamp}_{ticker}_statistics.json')
+    buffer_store= os.path.join(settings.CACHE_DIR, f'{timestamp}_{ticker}_statistics.json')
 
     if os.path.isfile(buffer_store):
         output.debug(f'Loading in cached {ticker} statistics...')
@@ -95,8 +95,8 @@ def calculate_risk_return(ticker, input_prices=None):
 def calculate_correlation(ticker_1, ticker_2):
     now = datetime.datetime.now()
     timestamp = '{}{}{}'.format(now.month, now.day, now.year)
-    buffer_store_1= os.path.join(settings.BUFFER_DIR, f'{timestamp}_{ticker_1}_{ticker_2}_correlation.json')
-    buffer_store_2= os.path.join(settings.BUFFER_DIR, f'{timestamp}_{ticker_2}_{ticker_1}_correlation.json')
+    buffer_store_1= os.path.join(settings.CACHE_DIR, f'{timestamp}_{ticker_1}_{ticker_2}_correlation.json')
+    buffer_store_2= os.path.join(settings.CACHE_DIR, f'{timestamp}_{ticker_2}_{ticker_1}_correlation.json')
 
     # check if results exist in cache location 1
     if os.path.isfile(buffer_store_1):

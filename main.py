@@ -1,24 +1,20 @@
 import os, sys
 import datetime
 import scipy.optimize as optimize
+
 import app.settings as settings
 import app.statistics as statistics
 import app.optimizer as optimizer
+
 from app.portfolio import Portfolio
 
+import util.helpers as helper
 import util.logger as logger
 
 if __name__ == "__main__": 
     output = logger.Logger('app.pyfin.main')
-    now = datetime.datetime.now()
     
-    # clear previous price histories from cache
-    filelist = [ f for f in os.listdir(settings.BUFFER_DIR)]
-    timestamp = '{}{}{}'.format(now.month, now.day, now.year)
-    for f in filelist:
-        filename = os.path.basename(f)
-        if filename != ".gitkeep" and timestamp not in filename:
-            os.remove(os.path.join(settings.BUFFER_DIR, f))
+    helper.clear_cache()
 
     # retrieve function argument
     opt = sys.argv[1]
@@ -97,22 +93,20 @@ if __name__ == "__main__":
 
         elif opt == settings.FUNC_ARG_DICT['efficient_frontier']:
             if(len(args)>1):
-                try:
-                    frontier_iterations = int(args[len(args)-1])
-                    equities = args[:(len(args)-1)]
-                    frontier = optimizer.calculate_efficient_frontier(equities=equities, iterations=frontier_iterations)
-                    output.efficient_frontier(portfolio=Portfolio(equities), frontier=frontier)
-
-                except: 
-                    e = sys.exc_info()[0]
-                    f = sys.exc_info()[1]
-                    g = sys.exc_info()[2]
-                    output.debug(f'{e} {f} {g}')
-                    output.comment('Frontier Iterations Not Specified. Try Try -ex Flag For Example Usage.')
+                frontier = optimizer.calculate_efficient_frontier(equities=args)
+                output.efficient_frontier(portfolio=Portfolio(args), frontier=frontier)
             
             else: 
                 output.debug('Invalid Input. Try Try -ex Flag For Example Usage.')
         
+        elif opt == settings.FUNC_ARG_DICT['frontier_plot']:
+            if(len(args)>1):
+                frontier = optimizer.calculate_efficient_frontier(equities=args)
+                output.plot_frontier(portfolio=Portfolio(args), frontier=frontier)
+            
+            else: 
+                output.debug('Invalid Input. Try Try -ex Flag For Example Usage.')
+
         else:
             output.comment('No Function Supplied. Please Review Function Summary Below And Re-execute Script With Appropriate Arguments.')
             output.help()

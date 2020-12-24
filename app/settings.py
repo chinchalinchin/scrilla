@@ -1,4 +1,8 @@
 import os, dotenv
+import util.logger as logger
+
+
+output = logger.Logger('app.settings')
 
 APP_NAME="PYNANCE"
 
@@ -6,15 +10,21 @@ APP_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 dotenv.load_dotenv(os.path.join(APP_DIR,'.env'))
 
-BUFFER_DIR = os.path.join(APP_DIR, 'cache')
+CACHE_DIR = os.path.join(APP_DIR, 'cache')
 
 AV_QUERY_URL = os.getenv('AV_QUERY_URL')
 
-PRICE_MANAGER = "alpha_vantage"
+PRICE_MANAGER = os.getenv('PRICE_MANAGER')
 
-DEBUG= True if os.getenv('DEBUG') == 'True' else False
+try:
+    FRONTIER_STEPS = int(os.getenv('FRONTIER_STEPS'))
+except:
+    output.debug('Failed to parse FRONTIER_STEPS from .env File. Please Ensure FRONTIER_STEPS is set to an integer value.')
+    FRONTIER_STEPS = 5
 
-INVESTMENT_MODE = True if os.getenv('INVESTMENT_MODE') == 'True' else False
+DEBUG= True if os.getenv('DEBUG').lower() == 'true' else False
+
+INVESTMENT_MODE = True if os.getenv('INVESTMENT_MODE').lower() == 'true' else False
 
 ONE_TRADING_DAY=(1/252)
 
@@ -32,6 +42,7 @@ FUNC_ARG_DICT={
     "correlation":"-cor",
     "efficient_frontier": "-ef",
     "examples": "-ex",
+    "frontier_plot": "-pef",
     "help": "-help",
     "minimize_variance": "-min",
     "maximize_return": "-max",
@@ -41,8 +52,9 @@ FUNC_ARG_DICT={
 
 FUNC_DICT={
     "correlation": "Calculate pair-wise correlation for the supplied list of ticker symbols.",
-    "efficient_frontier": "Generate a plot of the portfolio's efficient frontier for the supplied list of tickers. The number of points in the plot must be specified by the last argument.",
-    "examples":"Display examples of syntax.",
+    "efficient_frontier": "Generate a sample of the portfolio's efficient frontier for the supplied list of tickers.",
+    "examples": "Display examples of syntax.",
+    "frontier_plot": "Generates a graphical plot of the portfolio's efficient frontier for the supplied list of tickers.",
     "help": "Print this help message.",
     "minimize_variance": 'Minimize the variance of the portfolio defined by the supplied list of ticker symbols.',
     "maximize_return": "Maximize the return of the portfolio defined by the supplied list of ticker symbols.",
@@ -55,5 +67,5 @@ EXAMPLES = {
     'python ./main.py -cor GLD SPY SLV UUP TLT EWA': 'Calculate the correlation matrix for the portfolio composed of (GLD, SPY, SLV, UUP, TLT, EWA',
     'python ./main.py -min U TSLA SPCE': 'Find the portfolio allocation that minimizes the overall variance of the portfolio composed of (U, TSLA, SPCE). ',
     'python ./main.py -opt ALLY FB PFE SNE BX 0.83': 'Optimize the portfolio consisting of (ALLY, FB, PFE, SNE, BX) subject to the constraint their mean annual return equal 83%. Note the constrained return must reside within the feasible region of returns, i.e. the constrained return must be less than the maximum possible return.',  
-    'python ./main.py -ef QS DIS RUN 5': 'Calculate a five point plot of the efficient portfolio (risk, return) frontier for the portfolio composed of (QS, DIS, RUN)'
+    'python ./main.py -ef QS DIS RUN': 'Calculate a five point sample of the efficient portfolio (risk, return) frontier for the portfolio composed of (QS, DIS, RUN). The number of points generated in the sample can be altered through the FRONTIER_STEPS environment variable.'
 }
