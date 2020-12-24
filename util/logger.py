@@ -92,7 +92,7 @@ class Logger():
     def moving_average_result(self, tickers, averages):
         MA1_prefix, MA2_prefix, MA3_prefix = f'MA({settings.MA_1_PERIOD})', f'MA({settings.MA_2_PERIOD})', f'MA({settings.MA_3_PERIOD})'
         for i in range(len(tickers)):
-            title = f'{tickers[i]} Moving Averages for {settings.MA_1_PERIOD}, {settings.MA_2_PERIOD} & {settings.MA_3_PERIOD} Days'
+            title = f'{tickers[i]} Moving Average of Daily Return for {settings.MA_1_PERIOD}, {settings.MA_2_PERIOD} & {settings.MA_3_PERIOD} Days'
             self.title_line(title)
 
             MA1_title, MA2_title, MA3_title = f'{MA1_prefix}_{tickers[i]}', f'{MA2_prefix}_{tickers[i]}', f'{MA3_prefix}_{tickers[i]}'
@@ -195,12 +195,11 @@ class Logger():
         ax.bar(x, ma2s, width, label=ma2_label)
         ax.bar(x + width, ma3s, width, label=ma3_label)
 
-        ax.set_ylabel('Moving Averages')
-        ax.set_title('Moving Averages Grouped By Equity')
+        ax.set_ylabel('Moving Average of Daily Return')
+        ax.set_title('Moving Averages of Daily Return Grouped By Equity')
         ax.set_xticks(x)
         ax.set_xticklabels(tickers)
         ax.legend()
 
-        # fig.tight_layout()
 
         matplotlib.show()

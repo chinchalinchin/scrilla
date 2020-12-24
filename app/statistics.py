@@ -30,35 +30,44 @@ def retrieve_stock_data(ticker, current=True):
 
     return prices
 
-# NOTE: AlphaVantage returns price history from latest to earliest date.s
+# NOTE: assumes price history returns from latest to earliest date.
 def calculate_moving_averages(tickers, current=True, enddate=None):
     moving_averages = []
     
     if current:
         for ticker in tickers:
             prices = retrieve_stock_data(ticker)
-            count = 1
-            MA_1, MA_2, MA_3 = 0, 0, 0
-            
+            today = False
+            count, tomorrows_price, MA_1, MA_2, MA_3 = 1, 0, 0, 0, 0
+    
             for date in prices:
-                price = prices[date][settings.CLOSE_PRICE]
+                todays_price = prices[date][settings.CLOSE_PRICE]
 
-                if count < settings.MA_1_PERIOD:
-                    MA_1 += Decimal(price) / Decimal(settings.MA_1_PERIOD)
+                if today:
+                    todays_return = numpy.log(float(tomorrows_price) / float(todays_price))/settings.ONE_TRADING_DAY
                     
-                if count < settings.MA_2_PERIOD:
-                    MA_2 += Decimal(price) / Decimal(settings.MA_2_PERIOD)
+                    if count < settings.MA_1_PERIOD:
+                        MA_1 += todays_return / settings.MA_1_PERIOD
+                        
+                    if count < settings.MA_2_PERIOD:
+                        MA_2 += todays_return / settings.MA_2_PERIOD
 
-                if count < settings.MA_3_PERIOD:
-                    MA_3 += Decimal(price) / Decimal(settings.MA_3_PERIOD)   
-                count += 1
+                    if count < settings.MA_3_PERIOD:
+                        MA_3 += todays_return / settings.MA_3_PERIOD  
+                        count += 1
+
+                else:
+                    today = True
+
+                tomorrows_price = prices[date][settings.CLOSE_PRICE]
+
             moving_averages.append([MA_1, MA_2, MA_3])
         return moving_averages
     else:
         pass
         # TODO: need to pull entire price history from AlphaVantage
 
-# NOTE: AlphaVantage returns price history from latest to earliest date.
+# NOTE: assumes price history returns from latest to earliest date.
 def calculate_risk_return(ticker, input_prices=None):
     now = datetime.datetime.now()
     timestamp = '{}{}{}'.format(now.month, now.day, now.year)
@@ -121,6 +130,7 @@ def calculate_risk_return(ticker, input_prices=None):
     
     return results
 
+# NOTE: assumes price history returns from latest to earliest date.
 def calculate_correlation(ticker_1, ticker_2):
     now = datetime.datetime.now()
     timestamp = '{}{}{}'.format(now.month, now.day, now.year)

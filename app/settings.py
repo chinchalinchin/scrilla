@@ -56,7 +56,7 @@ LINE_LENGTH=100
 
 INDENT=10
 
-BAR_WIDTH=0.25
+BAR_WIDTH=0.10
 
 HELP_MSG="A financial application written in python to determine optimal portfolio allocations subject to various constraints and calculate fundamental statistics concerning a given portfolio allocation. Note: all calculations are based on an equity's closing price for the past 100 trading days. "
 
