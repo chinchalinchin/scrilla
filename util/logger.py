@@ -94,6 +94,7 @@ class Logger():
         for i in range(len(tickers)):
             title = f'{tickers[i]} Moving Averages for {settings.MA_1_PERIOD}, {settings.MA_2_PERIOD} & {settings.MA_3_PERIOD} Days'
             self.title_line(title)
+            
             MA1_title, MA2_title, MA3_title = f'{MA1_prefix}_{tickers[i]}', f'{MA2_prefix}_{tickers[i]}', f'{MA3_prefix}_{tickers[i]}'
             self.scalar_result(MA1_title, round(averages[i][0], 2))
             self.scalar_result(MA2_title, round(averages[i][1], 2))
