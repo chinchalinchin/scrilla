@@ -45,6 +45,24 @@ if __name__ == "__main__":
             else:
                 output.comment('Invalid Input. Try -ex Flag For Example Usage.')
 
+        elif opt == settings.FUNC_ARG_DICT["crypto_spot"]:
+            if(len(args)>1) or len(args)==1:
+                for arg in args:
+                    price = services.get_daily_price_latest(arg, settings.ASSET_CRYPTO)
+                    output.scalar_result(arg, float(price))
+                
+            else:
+                output.comment('Error Encountered While Calculating. Try -ex Flag For Example Usage.')
+        
+        elif opt == settings.FUNC_ARG_DICT["economic_statistics"]:
+            if(len(args)>1) or len(args)==1:
+                stats = services.get_daily_stats_latest(args)
+                for i in range(len(stats)):
+                    output.scalar_result(args[i], stats[i])
+                
+            else:
+                output.comment('Error Encountered While Calculating. Try -ex Flag For Example Usage.')
+
         elif opt == settings.FUNC_ARG_DICT['efficient_frontier']:
             if(len(args)>1):
                 frontier = optimizer.calculate_efficient_frontier(equities=args)
@@ -53,6 +71,15 @@ if __name__ == "__main__":
             else: 
                 output.debug('Invalid Input. Try -ex Flag For Example Usage.')
 
+        elif opt == settings.FUNC_ARG_DICT["equity_spot"]:
+            if(len(args)>1) or len(args)==1:
+                for arg in args:
+                    price = services.get_daily_price_latest(arg, settings.ASSET_EQUITY)
+                    output.scalar_result(arg, float(price))
+                
+            else:
+                output.comment('Error Encountered While Calculating. Try -ex Flag For Example Usage.')
+        
         elif opt == settings.FUNC_ARG_DICT['maximize_return']:
             if (len(args)>1):
                 allocation = optimizer.maximize_portfolio_return(equities=args)
@@ -123,15 +150,6 @@ if __name__ == "__main__":
             
             else:
                 output.comment('No Input Supplied. Try -ex Flag For Example Usage.')
-
-        elif opt == settings.FUNC_ARG_DICT["economic_statistics"]:
-            if(len(args)>1) or len(args)==1:
-                stats = services.get_daily_stats_latest(args)
-                for i in range(len(stats)):
-                    output.scalar_result(args[i], stats[i])
-                
-            else:
-                output.comment('Error Encountered While Calculating. Try -ex Flag For Example Usage.')
 
         else:
             output.comment('No Function Supplied. Please Review Function Summary Below And Re-execute Script With Appropriate Arguments.')

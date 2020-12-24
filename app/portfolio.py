@@ -1,4 +1,5 @@
 import app.statistics as statistics
+import app.services as services
 import app.settings as settings
 
 import numpy
@@ -56,9 +57,9 @@ class Portfolio:
     def calculate_approximate_shares(self, x, total):
         shares = []
         for i in range(len(x)):
-            prices = statistics.retrieve_stock_data(self.tickers[i])
+            prices = services.retrieve_prices_from_cache_or_web(self.tickers[i])
             final_date = list(prices.keys())[0]
-            final_price = prices[final_date][settings.CLOSE_PRICE]
+            final_price = prices[final_date][settings.AV_EQUITY_CLOSE_PRICE]
             share = Decimal(x[i]) * Decimal(total) / Decimal(final_price)
             shares.append(math.trunc(share))
         return shares
@@ -67,9 +68,9 @@ class Portfolio:
         actual_total = 0
         shares = self.calculate_approximate_shares(x, total)
         for i in range(len(shares)):
-            prices = statistics.retrieve_stock_data(self.tickers[i])
+            prices = services.retrieve_prices_from_cache_or_web(self.tickers[i])
             final_date = list(prices.keys())[0]
-            final_price = prices[final_date][settings.CLOSE_PRICE]
+            final_price = prices[final_date][settings.AV_EQUITY_CLOSE_PRICE]
             portion = Decimal(shares[i]) * Decimal(final_price)
             actual_total = actual_total + portion
         return actual_total

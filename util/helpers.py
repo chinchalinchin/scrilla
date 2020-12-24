@@ -9,6 +9,10 @@ def get_number_input(msg_prompt):
         else:
             print('Input Not Understood. Please Enter A Numerical Value.')
 
+def get_first_json_key(this_json):
+    return list(this_json.keys())[0]
+
+
 def clear_cache():
     now = datetime.datetime.now()
     filelist = [ f for f in os.listdir(settings.CACHE_DIR)]
