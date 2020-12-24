@@ -31,20 +31,7 @@ if __name__ == "__main__":
         output.title_line('Results')
         output.line()
 
-        if opt == settings.FUNC_ARG_DICT["risk_return"]:
-            if(len(args)>1) or len(args)==1:
-                for arg in args:
-                    result = statistics.calculate_risk_return(arg)
-                    if result:
-                        output.scalar_result(f'mean_{arg}', result['annual_return'])
-                        output.scalar_result(f'vol_{arg}', result['annual_volatility'])
-                    else:
-                        output.comment('Error Encountered While Calculating. Try -ex Flag For Example Usage.')
-            
-            else:
-                output.comment('No Input Supplied. Try -ex Flag For Example Usage.')
-
-        elif opt == settings.FUNC_ARG_DICT["correlation"]:
+        if opt == settings.FUNC_ARG_DICT["correlation"]:
             if(len(args) > 1):
                 for i in range(len(args)):
                     for j in range(i+1, len(args)):
@@ -52,17 +39,18 @@ if __name__ == "__main__":
                         if result:
                             output.scalar_result(f'correlation_{args[i]}_{args[j]}', result['correlation'])
                         else:
-                            output.comment('Error Encountered While Calculating.Try -ex Flag For Example Usage.')
+                            output.comment('Error Encountered While Calculating. Try -ex Flag For Example Usage.')
 
             else:
                 output.comment('Invalid Input. Try -ex Flag For Example Usage.')
 
-        elif opt == settings.FUNC_ARG_DICT['minimize_variance']:
+        elif opt == settings.FUNC_ARG_DICT['efficient_frontier']:
             if(len(args)>1):
-                allocation = optimizer.minimize_portfolio_variance(equities=args)
-                output.optimal_result(portfolio=Portfolio(args), allocation=allocation)
+                frontier = optimizer.calculate_efficient_frontier(equities=args)
+                output.efficient_frontier(portfolio=Portfolio(args), frontier=frontier)
+            
             else: 
-                output.comment('Invalid Input. Try -ex Flag For Example Usage.')
+                output.debug('Invalid Input. Try -ex Flag For Example Usage.')
 
         elif opt == settings.FUNC_ARG_DICT['maximize_return']:
             if (len(args)>1):
@@ -72,6 +60,21 @@ if __name__ == "__main__":
             else:
                 output.comment('Invalid Input. Try -ex Flag For Example Usage.')
                 
+        elif opt == settings.FUNC_ARG_DICT['minimize_variance']:
+            if(len(args)>1):
+                allocation = optimizer.minimize_portfolio_variance(equities=args)
+                output.optimal_result(portfolio=Portfolio(args), allocation=allocation)
+            else: 
+                output.comment('Invalid Input. Try -ex Flag For Example Usage.')
+
+        elif opt == settings.FUNC_ARG_DICT['moving_averages']:
+            if(len(args)>1) or len(args)==1:
+                moving_averages = statistics.calculate_moving_averages(args)
+                output.moving_average_result(args, moving_averages)
+
+            else: 
+                output.comment('Invalid Input. Try -ex Flag For Example Usage.')
+
         elif opt == settings.FUNC_ARG_DICT['optimize_portfolio']:
             if (len(args)>1):
                 try:
@@ -90,22 +93,27 @@ if __name__ == "__main__":
             
             else: 
                 output.comment('Invalid Input. Try -ex Flag For Example Usage.')
-
-        elif opt == settings.FUNC_ARG_DICT['efficient_frontier']:
-            if(len(args)>1):
-                frontier = optimizer.calculate_efficient_frontier(equities=args)
-                output.efficient_frontier(portfolio=Portfolio(args), frontier=frontier)
-            
-            else: 
-                output.debug('Invalid Input. Try Try -ex Flag For Example Usage.')
         
-        elif opt == settings.FUNC_ARG_DICT['frontier_plot']:
+        elif opt == settings.FUNC_ARG_DICT['plot_frontier']:
             if(len(args)>1):
                 frontier = optimizer.calculate_efficient_frontier(equities=args)
                 output.plot_frontier(portfolio=Portfolio(args), frontier=frontier)
             
             else: 
                 output.debug('Invalid Input. Try Try -ex Flag For Example Usage.')
+
+        elif opt == settings.FUNC_ARG_DICT["risk_return"]:
+            if(len(args)>1) or len(args)==1:
+                for arg in args:
+                    result = statistics.calculate_risk_return(arg)
+                    if result:
+                        output.scalar_result(f'mean_{arg}', result['annual_return'])
+                        output.scalar_result(f'vol_{arg}', result['annual_volatility'])
+                    else:
+                        output.comment('Error Encountered While Calculating. Try -ex Flag For Example Usage.')
+            
+            else:
+                output.comment('No Input Supplied. Try -ex Flag For Example Usage.')
 
         else:
             output.comment('No Function Supplied. Please Review Function Summary Below And Re-execute Script With Appropriate Arguments.')

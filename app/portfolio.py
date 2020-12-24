@@ -1,4 +1,6 @@
 import app.statistics as statistics
+import app.settings as settings
+
 import numpy
 import math
 from decimal import Decimal
@@ -56,7 +58,7 @@ class Portfolio:
         for i in range(len(x)):
             prices = statistics.retrieve_stock_data(self.tickers[i])
             final_date = list(prices.keys())[0]
-            final_price = prices[final_date]['4. close']
+            final_price = prices[final_date][settings.CLOSE_PRICE]
             share = Decimal(x[i]) * Decimal(total) / Decimal(final_price)
             shares.append(math.trunc(share))
         return shares
@@ -67,7 +69,7 @@ class Portfolio:
         for i in range(len(shares)):
             prices = statistics.retrieve_stock_data(self.tickers[i])
             final_date = list(prices.keys())[0]
-            final_price = prices[final_date]['4. close']
+            final_price = prices[final_date][settings.CLOSE_PRICE]
             portion = Decimal(shares[i]) * Decimal(final_price)
             actual_total = actual_total + portion
         return actual_total

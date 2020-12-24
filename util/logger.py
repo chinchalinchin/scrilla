@@ -12,6 +12,7 @@ class Logger():
     def __init__(self, location):
         self.location = location
     
+    # FORMATTING FUNCTIONS
     def comment(self, msg):
         now = datetime.datetime.now()
         dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
@@ -41,6 +42,7 @@ class Logger():
         buff = int((settings.LINE_LENGTH - len(this_line))/2)
         print(' '*buff, this_line, ' '*buff)
 
+    # PRE-FORMATTED FUNCTIONS
     def example_expo(self, ex_no, example, explanation):
         print(' '*settings.INDENT, f'#{ex_no}:', example)
         for line in self.break_lines(explanation):
@@ -53,6 +55,29 @@ class Logger():
             self.return_line()
             index += 1
 
+    def option(self, opt, explanation):
+        print(' '*settings.INDENT, opt, " :")
+        for line in self.break_lines(explanation):
+            print(' '*settings.INDENT*2, line)
+
+    def help(self):
+        self.title_line(settings.APP_NAME)
+        explanation=self.break_lines(settings.HELP_MSG)
+        for line in explanation:
+            self.center(line)
+        self.return_line()
+
+        self.title_line('SYNTAX')
+        self.center(settings.SYNTAX)
+        self.return_line()
+
+        self.title_line('OPTIONS')
+        options = settings.FUNC_ARG_DICT.keys()
+        for option in options:
+            self.option(settings.FUNC_ARG_DICT[option], settings.FUNC_DICT[option])
+            self.return_line()
+
+    # APPLICATION SPECIFIC FORMATTING FUNCTIONS
     def scalar_result(self, calculation, result):
         print(' '*settings.INDENT, '>>', calculation, ' = ', round(result, 4))
 
@@ -64,10 +89,16 @@ class Logger():
         for i in range(len(tickers)):
             print(' '*settings.INDENT, f'{tickers[i]} =', result[i])
 
-    def option(self, opt, explanation):
-        print(' '*settings.INDENT, opt, " :")
-        for line in self.break_lines(explanation):
-            print(' '*settings.INDENT*2, line)
+    def moving_average_result(self, tickers, averages):
+        MA1_prefix, MA2_prefix, MA3_prefix = f'MA({settings.MA_1_PERIOD})', f'MA({settings.MA_2_PERIOD})', f'MA({settings.MA_3_PERIOD})'
+        for i in range(len(tickers)):
+            title = f'{tickers[i]} Moving Averages for {settings.MA_1_PERIOD}, {settings.MA_2_PERIOD} & {settings.MA_3_PERIOD} Days'
+            self.title_line(title)
+            MA1_title, MA2_title, MA3_title = f'{MA1_prefix}_{tickers[i]}', f'{MA2_prefix}_{tickers[i]}', f'{MA3_prefix}_{tickers[i]}'
+            self.scalar_result(MA1_title, round(averages[i][0], 2))
+            self.scalar_result(MA2_title, round(averages[i][1], 2))
+            self.scalar_result(MA3_title, round(averages[i][2], 2))
+
 
     def optimal_result(self, portfolio, allocation):
         self.title_line('Optimal Percentage Allocation')
@@ -145,20 +176,3 @@ class Logger():
         matplotlib.ylabel('Return')
         matplotlib.title(title)
         matplotlib.show()
-
-    def help(self):
-        self.title_line(settings.APP_NAME)
-        explanation=self.break_lines(settings.HELP_MSG)
-        for line in explanation:
-            self.center(line)
-        self.return_line()
-
-        self.title_line('SYNTAX')
-        self.center(settings.SYNTAX)
-        self.return_line()
-
-        self.title_line('OPTIONS')
-        options = settings.FUNC_ARG_DICT.keys()
-        for option in options:
-            self.option(settings.FUNC_ARG_DICT[option], settings.FUNC_DICT[option])
-            self.return_line()

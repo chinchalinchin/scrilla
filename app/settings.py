@@ -16,6 +16,9 @@ AV_QUERY_URL = os.getenv('AV_QUERY_URL')
 
 PRICE_MANAGER = os.getenv('PRICE_MANAGER')
 
+if PRICE_MANAGER == "alpha_vantage":
+    CLOSE_PRICE="4. close"
+
 DEBUG= True if os.getenv('DEBUG').lower() == 'true' else False
 
 INVESTMENT_MODE = True if os.getenv('INVESTMENT_MODE').lower() == 'true' else False
@@ -24,26 +27,26 @@ try:
     FRONTIER_STEPS = int(os.getenv('FRONTIER_STEPS'))
 
 except:
-    output.debug('Failed to parse FRONTIER_STEPS from .env File. Please Ensure FRONTIER_STEPS is set to an integer value.')
+    output.debug('Failed to parse FRONTIER_STEPS from .env File. Setting to default value of 5. Please Ensure FRONTIER_STEPS is set to an integer value.')
     FRONTIER_STEPS = 5
 
 try:
-    MA_1 = int(os.getenv('MA_1'))
+    MA_1_PERIOD = int(os.getenv('MA_1'))
 except: 
-    output.debug('Failed to parse MA_1 from .env File. Please Ensure MA_1 is set to an integer value.')
-    MA_1 = 20
+    output.debug('Failed to parse MA_1 from .env File. Setting to default value of 20. Please Ensure MA_1 is set to an integer value.')
+    MA_1_PERIOD = 20
 
 try:
-    MA_2 = int(os.getenv('MA_2'))
+    MA_2_PERIOD = int(os.getenv('MA_2'))
 except: 
-    output.debug('Failed to parse MA_2 from .env File. Please Ensure MA_2 is set to an integer value.')
-    MA_2 = 60
+    output.debug('Failed to parse MA_2 from .env File. Setting to default value of 60. Please Ensure MA_2 is set to an integer value.')
+    MA_2_PERIOD = 60
 
 try:
-    MA_3 = int(os.getenv('MA_3'))
+    MA_3_PERIOD = int(os.getenv('MA_3'))
 except: 
-    output.debug('Failed to parse MA_3 from .env File. Please Ensure MA_3 is set to an integer value.')
-    MA_1 = 100
+    output.debug('Failed to parse MA_3 from .env File. Setting to default value of 100. Please Ensure MA_3 is set to an integer value.')
+    MA_3_PERIOD = 100
 
 ONE_TRADING_DAY=(1/252)
 
@@ -61,11 +64,12 @@ FUNC_ARG_DICT={
     "correlation":"-cor",
     "efficient_frontier": "-ef",
     "examples": "-ex",
-    "frontier_plot": "-pef",
     "help": "-help",
-    "minimize_variance": "-min",
     "maximize_return": "-max",
+    "minimize_variance": "-min",
+    "moving_averages": "-mov",
     "optimize_portfolio": "-opt",
+    "plot_frontier": "-pef",
     "risk_return" : "-rr",
 }
 
@@ -73,11 +77,12 @@ FUNC_DICT={
     "correlation": "Calculate pair-wise correlation for the supplied list of ticker symbols.",
     "efficient_frontier": "Generate a sample of the portfolio's efficient frontier for the supplied list of tickers.",
     "examples": "Display examples of syntax.",
-    "frontier_plot": "Generates a graphical plot of the portfolio's efficient frontier for the supplied list of tickers.",
     "help": "Print this help message.",
-    "minimize_variance": 'Minimize the variance of the portfolio defined by the supplied list of ticker symbols.',
     "maximize_return": "Maximize the return of the portfolio defined by the supplied list of ticker symbols.",
+    "minimize_variance": "Minimize the variance of the portfolio defined by the supplied list of ticker symbols.",
+    "moving_averages": "Calculate the current moving averages ",
     "optimize_portfolio":"Optimize the variance of the portfolio's variance subject to the supplied return target. The target return must be specified by the last argument",
+    "plot_frontier": "Generates a graphical plot of the portfolio's efficient frontier for the supplied list of tickers.",
     "risk_return": "Calculate the risk-return profile for the supplied list of ticker symbols.",
 }
 
