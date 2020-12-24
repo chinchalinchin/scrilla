@@ -94,7 +94,7 @@ class Logger():
         for i in range(len(tickers)):
             title = f'{tickers[i]} Moving Averages for {settings.MA_1_PERIOD}, {settings.MA_2_PERIOD} & {settings.MA_3_PERIOD} Days'
             self.title_line(title)
-            
+
             MA1_title, MA2_title, MA3_title = f'{MA1_prefix}_{tickers[i]}', f'{MA2_prefix}_{tickers[i]}', f'{MA3_prefix}_{tickers[i]}'
             self.scalar_result(MA1_title, round(averages[i][0], 2))
             self.scalar_result(MA2_title, round(averages[i][1], 2))
@@ -154,6 +154,7 @@ class Logger():
             self.scalar_result('Volatility', portfolio.volatility_function(allocation))
             self.return_line()
 
+    # APPLICATION SPECIFIC GRAPHICS
     def plot_frontier(self, portfolio, frontier):
         return_profile=[]
         risk_profile=[]
@@ -176,4 +177,30 @@ class Logger():
         matplotlib.xlabel('Volatility')
         matplotlib.ylabel('Return')
         matplotlib.title(title)
+        matplotlib.show()
+    
+    def plot_moving_averages(self, tickers, averages):
+        width = settings.BAR_WIDTH
+        x = numpy.arange(len(tickers))
+        fig, ax = matplotlib.subplots()
+        
+        ma1s, ma2s, ma3s = [], [], []
+        for i in range(len(tickers)):
+            ma1s.append(averages[i][0])
+            ma2s.append(averages[i][1])
+            ma3s.append(averages[i][2])
+        
+        ma1_label, ma2_label, ma3_label = f'MA({settings.MA_1_PERIOD})', f'MA({settings.MA_2_PERIOD})', f'MA({settings.MA_3_PERIOD})'
+        ax.bar(x - width, ma1s, width, label=ma1_label)
+        ax.bar(x, ma2s, width, label=ma2_label)
+        ax.bar(x + width, ma3s, width, label=ma3_label)
+
+        ax.set_ylabel('Moving Averages')
+        ax.set_title('Moving Averages Grouped By Equity')
+        ax.set_xticks(x)
+        ax.set_xticklabels(tickers)
+        ax.legend()
+
+        # fig.tight_layout()
+
         matplotlib.show()

@@ -102,6 +102,13 @@ if __name__ == "__main__":
             else: 
                 output.debug('Invalid Input. Try Try -ex Flag For Example Usage.')
 
+        elif opt == settings.FUNC_ARG_DICT['plot_moving_averages']:
+            if(len(args)>1) or len(args)==1:
+                moving_averages = statistics.calculate_moving_averages(args)
+                output.plot_moving_averages(args, moving_averages)
+            else:
+                output.debug('Invalid Input. Try Try -ex Flag For Example Usage.')
+
         elif opt == settings.FUNC_ARG_DICT["risk_return"]:
             if(len(args)>1) or len(args)==1:
                 for arg in args:

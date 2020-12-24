@@ -56,6 +56,8 @@ LINE_LENGTH=100
 
 INDENT=10
 
+BAR_WIDTH=0.25
+
 HELP_MSG="A financial application written in python to determine optimal portfolio allocations subject to various constraints and calculate fundamental statistics concerning a given portfolio allocation. Note: all calculations are based on an equity's closing price for the past 100 trading days. "
 
 SYNTAX="command -OPTION [tickers] (additional input)"
@@ -70,6 +72,7 @@ FUNC_ARG_DICT={
     "moving_averages": "-mov",
     "optimize_portfolio": "-opt",
     "plot_frontier": "-pef",
+    "plot_moving_averages": "-pmv",
     "risk_return" : "-rr",
 }
 
@@ -82,7 +85,8 @@ FUNC_DICT={
     "minimize_variance": "Minimize the variance of the portfolio defined by the supplied list of ticker symbols.",
     "moving_averages": "Calculate the current moving averages ",
     "optimize_portfolio":"Optimize the variance of the portfolio's variance subject to the supplied return target. The target return must be specified by the last argument",
-    "plot_frontier": "Generates a graphical plot of the portfolio's efficient frontier for the supplied list of tickers.",
+    "plot_frontier": "Generates a scatter plot graphic of the portfolio's efficient frontier for the supplied list of tickers.",
+    "plot_moving_averages": "Generates a grouped bar chart of the moving averages for each equity in the supplied list of tickers.",
     "risk_return": "Calculate the risk-return profile for the supplied list of ticker symbols.",
 }
 
@@ -92,5 +96,6 @@ EXAMPLES = {
     'python ./main.py -min U TSLA SPCE': 'Find the portfolio allocation that minimizes the overall variance of the portfolio composed of (U, TSLA, SPCE). ',
     'python ./main.py -opt ALLY FB PFE SNE BX 0.83': 'Optimize the portfolio consisting of (ALLY, FB, PFE, SNE, BX) subject to the constraint their mean annual return equal 83%. Note the constrained return must reside within the feasible region of returns, i.e. the constrained return must be less than the maximum possible return.',  
     'python ./main.py -ef QS DIS RUN': 'Calculate a five point sample of the efficient portfolio (risk, return) frontier for the portfolio composed of (QS, DIS, RUN). The number of points generated in the sample can be altered through the FRONTIER_STEPS environment variable.',
-    'python ./main.py -pef QQQ SPY DIA': 'Generate a graphical display of the (QQQ, SPY, DIA) portolio\'s efficient (risk, return) frontier. The number of points generated in the sample can be altered through the FRONTIER_STEPS environment variable. Note, if the graphical display does not show up, you may need to configure matplotlib\'s backend to be compatible with your OS.'
+    'python ./main.py -pef QQQ SPY DIA': 'Generate a graphical display of the (QQQ, SPY, DIA) portolio\'s efficient (risk, return) frontier. The number of points generated in the sample can be altered through the FRONTIER_STEPS environment variable. Note, if the graphical display does not show up, you may need to configure matplotlib\'s backend to be compatible with your OS.',
+    'python ./main.py -pmo QS ACI': 'Generate a graphical display of the current moving averages of the (QS, ACI) portolio. The length of moving average periods can be adjusted by the MA_1_PERIOD, MA_2_PERIOD and MA_3_PERIOD environment variables. Note, if the graphical display does not show up, you may need to configure matplotlib\'s backend to be compatible with your OS.'
 }
