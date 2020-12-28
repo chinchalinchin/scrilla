@@ -128,3 +128,18 @@ def get_daily_stats_latest(statistics):
         for stat in stats_history:
             current_stats.append(stat[0][1])
         return current_stats
+
+# TODO
+def init_static_data():
+    # if static folder does not contain economic.json, ticker.json AND crypto.json 
+    # OR settings.INIT:
+        # grab economic indicator symbols and store in STATIC_DIR
+        # grab ticker symbols and store in STATIC_DIR
+        # grab crypto symbols and store in STATIC_DIR
+        # return type.json
+    pass
+
+# TODO
+def get_static_data(type):
+    # grab type from STATIC_DIR
+    pass

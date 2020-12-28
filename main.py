@@ -17,6 +17,8 @@ if __name__ == "__main__":
     
     helper.clear_cache()
 
+    services.init_static_data()
+
     # retrieve function argument
     opt = sys.argv[1]
 

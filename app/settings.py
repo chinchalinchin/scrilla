@@ -12,6 +12,8 @@ dotenv.load_dotenv(os.path.join(APP_DIR,'.env'))
 
 CACHE_DIR = os.path.join(APP_DIR, 'cache')
 
+STATIC_DIR = os.path.join(APP_DIR, 'static')
+
 AV_URL = os.getenv('ALPHA_VANTAGE_URL')
 AV_KEY = os.getenv('ALPHA_VANTAGE_KEY')
 
@@ -22,6 +24,8 @@ PRICE_MANAGER = os.getenv('PRICE_MANAGER')
 STAT_MANAGER = os.getenv('STAT_MANAGER')
 
 DEBUG= True if os.getenv('DEBUG').lower() == 'true' else False
+
+INIT= True if os.getenv('INIT').lower() == 'true' else False
 
 INVESTMENT_MODE = True if os.getenv('INVESTMENT_MODE').lower() == 'true' else False
 

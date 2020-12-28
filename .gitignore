@@ -1,4 +1,6 @@
 .env
 /cache/*
 !/cache/.gitkeep
+/static/*
+!/static/.gitkeep
 *.pyc
