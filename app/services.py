@@ -1,4 +1,5 @@
-import os, json, datetime, time
+import os, csv, json
+import datetime, time
 import requests
 
 import app.settings as settings
@@ -28,17 +29,16 @@ def retrieve_prices_from_cache_or_web(ticker, current=True):
 
     return prices
 
-# need current flag 
 def get_daily_price_history(ticker, asset, current=True, startdate=None, enddate=None):
     if settings.PRICE_MANAGER == "alpha_vantage":
         if current:
-            query = f'{settings.PARAM_TICKER}={ticker}&{settings.PARAM_AV_KEY}={settings.AV_KEY}'
+            query = f'{settings.PARAM_AV_TICKER}={ticker}&{settings.PARAM_AV_KEY}={settings.AV_KEY}'
 
             if asset == settings.ASSET_EQUITY:
-                query += f'&{settings.PARAM_FUNC}={settings.ARG_FUNC_EQUITY_DAILY}'
+                query += f'&{settings.PARAM_AV_FUNC}={settings.ARG_AV_FUNC_EQUITY_DAILY}'
 
             elif asset == settings.ASSET_CRYPTO:
-                query += f'&{settings.PARAM_FUNC}={settings.ARG_FUNC_CRYPTO_DAILY}&{settings.PARAM_DENOM}={settings.DENOMINATION}'
+                query += f'&{settings.PARAM_AV_FUNC}={settings.ARG_AV_FUNC_CRYPTO_DAILY}&{settings.PARAM_AV_DENOM}={settings.DENOMINATION}'
 
             else:
                 return False
@@ -64,9 +64,9 @@ def get_daily_price_history(ticker, asset, current=True, startdate=None, enddate
                 first_element = helper.get_first_json_key(prices)
 
             if asset == settings.ASSET_EQUITY:
-                return prices[settings.AV_EQUITY_FIRST_LAYER]
+                return prices[settings.AV_RES_EQUITY_FIRST_LAYER]
             elif asset == settings.ASSET_CRYPTO:
-                return prices[settings.AV_CRYPTO_FIRST_LAYER]
+                return prices[settings.AV_RES_CRYPTO_FIRST_LAYER]
 
         else:
             if startdate is None and enddate is None:
@@ -84,15 +84,20 @@ def get_daily_price_history(ticker, asset, current=True, startdate=None, enddate
             else:
                 # TODO
                 pass
+    else:
+            output.debug("No STAT_MANAGER set in .env file!")
 
 def get_daily_price_latest(ticker, asset):
     if settings.PRICE_MANAGER == "alpha_vantage":
         prices = get_daily_price_history(ticker, asset)
         first_element = helper.get_first_json_key(prices)
         if asset == settings.ASSET_EQUITY:
-            return prices[first_element][settings.AV_EQUITY_CLOSE_PRICE]
+            return prices[first_element][settings.AV_RES_EQUITY_CLOSE_PRICE]
         elif asset == settings.ASSET_CRYPTO:
-            return prices[first_element][settings.AV_CRYPTO_CLOSE_PRICE]
+            return prices[first_element][settings.AV_RES_CRYPTO_CLOSE_PRICE]
+    else:
+        output.debug("No PRICE_MANAGER set in .env file!")
+        return None
 
 def get_daily_stats_history(statistics, startdate=None, enddate=None):
     if settings.STAT_MANAGER == "quandl":
@@ -120,6 +125,9 @@ def get_daily_stats_history(statistics, startdate=None, enddate=None):
                 pass
         
         return stats
+    else:
+        output.debug("No STAT_MANAGER set in .env file!")
+        return None
         
 def get_daily_stats_latest(statistics):
     if settings.STAT_MANAGER == "quandl":
@@ -128,16 +136,70 @@ def get_daily_stats_latest(statistics):
         for stat in stats_history:
             current_stats.append(stat[0][1])
         return current_stats
+    else:
+        output.debug("No STAT_MANAGER set in .env file!")
+        return None
 
 # TODO
 def init_static_data():
-    # if static folder does not contain economic.json, ticker.json AND crypto.json 
-    # OR settings.INIT:
-        # grab economic indicator symbols and store in STATIC_DIR
-        # grab ticker symbols and store in STATIC_DIR
-        # grab crypto symbols and store in STATIC_DIR
-        # return type.json
-    pass
+    
+    if settings.INIT or \
+        ((not os.path.isfile(settings.STATIC_ECON_FILE)) or \
+            (not os.path.isfile(settings.STATIC_TICKERS_FILE)) or \
+                (not os.path.isfile(settings.STATIC_CRYPTOFILE))):
+
+        # Clear static folder is initializing, otherwise unnecessary
+        if settings.INIT:
+            helper.clear_static()
+
+        # Initialize Static Price Data
+        if settings.PRICE_MANAGER == "alpha_vantage": 
+            # grab ticker symbols and store in STATIC_DIR
+            query=f'{settings.PARAM_AV_FUNC}={settings.ARG_AV_FUNC_EQUITY_LISTINGS}&{settings.PARAM_AV_KEY}={settings.AV_KEY}'
+            url = f'{settings.AV_URL}?{query}'
+
+            with requests.Session() as s:
+                download = s.get(url)
+                decoded_content = download.content.decode('utf-8')
+                cr = csv.reader(decoded_content.splitlines(), delimiter=',')
+                
+                tickers = []
+                for row in cr:
+                    if row[0] != settings.AV_RES_EQUITY_KEY:
+                        tickers.append(row[0])
+
+                with open(settings.STATIC_TICKERS_FILE, 'w') as outfile:
+                    json.dump(tickers, outfile)
+                
+                s.close()
+
+            # grab crypto symbols and store in STATIC_DIR
+            url = settings.AV_CRYPTO_LIST
+
+            with requests.Session() as s:
+                download = s.get(url)
+                decoded_content = download.content.decode('utf-8')
+                cr = csv.reader(decoded_content.splitlines(), delimiter=',')
+                
+                crypto = []
+                for row in cr:
+                    if row[0] != settings.AV_RES_CRYPTO_KEY:
+                        crypto.append(row[0])
+                
+                with open(settings.STATIC_CRYPTO_FILE, 'w') as outfile:
+                    json.dump(crypto, outfile)
+                
+                s.close()
+
+        else:
+            output.debug("No PRICE_MANAGER set in .env file!")
+
+        # Initialize Static Statistic Data
+        if settings.STAT_MANAGER == "quandl":
+            pass
+
+        else:
+            output.debug("No STAT_MANAGER set in .env file!")
 
 # TODO
 def get_static_data(type):

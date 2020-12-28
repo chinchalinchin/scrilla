@@ -4,6 +4,8 @@ import util.logger as logger
 
 output = logger.Logger('app.settings')
 
+#### APPLICATION CONFIGURATOIN
+
 APP_NAME="PYNANCE"
 
 APP_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -13,6 +15,9 @@ dotenv.load_dotenv(os.path.join(APP_DIR,'.env'))
 CACHE_DIR = os.path.join(APP_DIR, 'cache')
 
 STATIC_DIR = os.path.join(APP_DIR, 'static')
+STATIC_TICKERS_FILE = os.path.join(STATIC_DIR, "tickers.json")
+STATIC_ECON_FILE = os.path.join(STATIC_DIR, "economics.json")
+STATIC_CRYPTO_FILE = os.path.join(STATIC_DIR, "crypto.json")
 
 AV_URL = os.getenv('ALPHA_VANTAGE_URL')
 AV_KEY = os.getenv('ALPHA_VANTAGE_KEY')
@@ -28,6 +33,8 @@ DEBUG= True if os.getenv('DEBUG').lower() == 'true' else False
 INIT= True if os.getenv('INIT').lower() == 'true' else False
 
 INVESTMENT_MODE = True if os.getenv('INVESTMENT_MODE').lower() == 'true' else False
+
+#### FINANCIAL CONFIGURATION
 
 try:
     FRONTIER_STEPS = int(os.getenv('FRONTIER_STEPS'))
@@ -58,20 +65,30 @@ ONE_TRADING_DAY=(1/252)
 
 DENOMINATION = "USD"
 
+ASSET_EQUITY="equity"
+ASSET_CRYPTO="crypto"
+
+#### SERVICE CONFIGURATION
+
 if PRICE_MANAGER == "alpha_vantage":
+    # 
+    AV_CRYPTO_LIST="https://www.alphavantage.co/physical_currency_list/"
     # Response Keys
-    AV_EQUITY_FIRST_LAYER='Time Series (Daily)'
-    AV_EQUITY_CLOSE_PRICE="4. close"
-    AV_CRYPTO_FIRST_LAYER='Time Series (Digital Currency Daily)'
-    AV_CRYPTO_CLOSE_PRICE=f'4a. close ({DENOMINATION})'
+    AV_RES_EQUITY_FIRST_LAYER='Time Series (Daily)'
+    AV_RES_EQUITY_CLOSE_PRICE="4. close"
+    AV_RES_EQUITY_KEY="symbol"
+    AV_RES_CRYPTO_FIRST_LAYER='Time Series (Digital Currency Daily)'
+    AV_RES_CRYPTO_KEY="currency code"
+    AV_RES_CRYPTO_CLOSE_PRICE=f'4a. close ({DENOMINATION})'
     # Query Parameters
-    PARAM_TICKER="symbol"
-    PARAM_FUNC="function"
-    PARAM_DENOM="market"
+    PARAM_AV_TICKER="symbol"
+    PARAM_AV_FUNC="function"
+    PARAM_AV_DENOM="market"
     PARAM_AV_KEY="apikey"
     # Query Arguments
-    ARG_FUNC_EQUITY_DAILY="TIME_SERIES_DAILY"
-    ARG_FUNC_CRYPTO_DAILY="DIGITAL_CURRENCY_DAILY"
+    ARG_AV_FUNC_EQUITY_DAILY="TIME_SERIES_DAILY"
+    ARG_AV_FUNC_EQUITY_LISTINGS="LISTING_STATUS"
+    ARG_AV_FUNC_CRYPTO_DAILY="DIGITAL_CURRENCY_DAILY"
 
 if STAT_MANAGER == "quandl":
     # Response Keys
@@ -80,9 +97,7 @@ if STAT_MANAGER == "quandl":
     # Query Parameters
     PARAM_Q_KEY="api_key"
 
-ASSET_EQUITY="equity"
-
-ASSET_CRYPTO="crypto"
+#### OUTPUT FORMATTING CONFIGURAITON
 
 SEPARATER = "-"
 

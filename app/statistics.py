@@ -21,7 +21,7 @@ def calculate_moving_averages(tickers, current=True, enddate=None):
             count, tomorrows_price, MA_1, MA_2, MA_3 = 1, 0, 0, 0, 0
     
             for date in prices:
-                todays_price = prices[date][settings.AV_EQUITY_CLOSE_PRICE]
+                todays_price = prices[date][settings.AV_RES_EQUITY_CLOSE_PRICE]
 
                 if today:
                     todays_return = numpy.log(float(tomorrows_price) / float(todays_price))/settings.ONE_TRADING_DAY
@@ -39,7 +39,7 @@ def calculate_moving_averages(tickers, current=True, enddate=None):
                 else:
                     today = True
 
-                tomorrows_price = prices[date][settings.AV_EQUITY_CLOSE_PRICE]
+                tomorrows_price = prices[date][settings.AV_RES_EQUITY_CLOSE_PRICE]
 
             moving_averages.append([MA_1, MA_2, MA_3])
         return moving_averages
@@ -73,11 +73,11 @@ def calculate_risk_return(ticker, input_prices=None):
         mean_return = 0
         tomorrows_price = 0
         for date in prices:
-            todays_price = prices[date][settings.AV_EQUITY_CLOSE_PRICE]
+            todays_price = prices[date][settings.AV_RES_EQUITY_CLOSE_PRICE]
             if i != 0:
                 daily_return = numpy.log(float(tomorrows_price)/float(todays_price))/settings.ONE_TRADING_DAY
                 mean_return = mean_return + daily_return/sample 
-            tomorrows_price = prices[date][settings.AV_EQUITY_CLOSE_PRICE]
+            tomorrows_price = prices[date][settings.AV_RES_EQUITY_CLOSE_PRICE]
             i += 1
 
         # calculate sample annual volatility
@@ -86,11 +86,11 @@ def calculate_risk_return(ticker, input_prices=None):
         variance = 0
         tomorrows_price = 0
         for date in prices:
-            todays_price = prices[date][settings.AV_EQUITY_CLOSE_PRICE]
+            todays_price = prices[date][settings.AV_RES_EQUITY_CLOSE_PRICE]
             if i != 0:
                 current_mod_return= numpy.log(float(tomorrows_price)/float(todays_price))/numpy.sqrt(settings.ONE_TRADING_DAY) 
                 variance = variance + (current_mod_return - mean_mod_return)**2/(sample - 1)
-            tomorrows_price = prices[date][settings.AV_EQUITY_CLOSE_PRICE]
+            tomorrows_price = prices[date][settings.AV_RES_EQUITY_CLOSE_PRICE]
             i += 1
 
         # adjust for output
@@ -157,14 +157,14 @@ def calculate_correlation(ticker_1, ticker_2):
     
         sample = len(sample_prices)
         for date in sample_prices:
-                todays_price_1 = prices_1[date][settings.AV_EQUITY_CLOSE_PRICE]
+                todays_price_1 = prices_1[date][settings.AV_RES_EQUITY_CLOSE_PRICE]
                 todays_price_2 = prices_2[date][settings.AV_EQUITY_CLOSE_PRICE]
                 if i != 0:
                     current_mod_return_1= numpy.log(float(tomorrows_price_1)/float(todays_price_1))/numpy.sqrt(settings.ONE_TRADING_DAY) 
                     current_mod_return_2= numpy.log(float(tomorrows_price_2)/float(todays_price_2))/numpy.sqrt(settings.ONE_TRADING_DAY) 
                     covariance = covariance + (current_mod_return_1 - mod_mean_1)*(current_mod_return_2 - mod_mean_2)/(sample - 1)
-                tomorrows_price_1 = prices_1[date][settings.AV_EQUITY_CLOSE_PRICE]
-                tomorrows_price_2 = prices_2[date][settings.AV_EQUITY_CLOSE_PRICE]
+                tomorrows_price_1 = prices_1[date][settings.AV_RES_EQUITY_CLOSE_PRICE]
+                tomorrows_price_2 = prices_2[date][settings.AV_RES_EQUITY_CLOSE_PRICE]
                 i += 1
 
         correlation = covariance/(stats_1['annual_volatility']*stats_2['annual_volatility'])

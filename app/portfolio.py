@@ -59,7 +59,7 @@ class Portfolio:
         for i in range(len(x)):
             prices = services.retrieve_prices_from_cache_or_web(self.tickers[i])
             final_date = list(prices.keys())[0]
-            final_price = prices[final_date][settings.AV_EQUITY_CLOSE_PRICE]
+            final_price = prices[final_date][settings.AV_RES_EQUITY_CLOSE_PRICE]
             share = Decimal(x[i]) * Decimal(total) / Decimal(final_price)
             shares.append(math.trunc(share))
         return shares
@@ -70,7 +70,7 @@ class Portfolio:
         for i in range(len(shares)):
             prices = services.retrieve_prices_from_cache_or_web(self.tickers[i])
             final_date = list(prices.keys())[0]
-            final_price = prices[final_date][settings.AV_EQUITY_CLOSE_PRICE]
+            final_price = prices[final_date][settings.AV_RES_EQUITY_CLOSE_PRICE]
             portion = Decimal(shares[i]) * Decimal(final_price)
             actual_total = actual_total + portion
         return actual_total

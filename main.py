@@ -15,8 +15,10 @@ import util.logger as logger
 if __name__ == "__main__": 
     output = logger.Logger('app.pyfin.main')
     
+    # clear out of date data if applicable
     helper.clear_cache()
 
+    # initialize static data if applicable
     services.init_static_data()
 
     # retrieve function argument

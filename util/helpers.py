@@ -21,3 +21,8 @@ def clear_cache():
         filename = os.path.basename(f)
         if filename != ".gitkeep" and timestamp not in filename:
             os.remove(os.path.join(settings.CACHE_DIR, f))
+
+def clear_static():
+    filelist = [ f for f in os.listdir(settings.STATIC_DIR)]
+    for f in filelist:
+        os.remove(f)
