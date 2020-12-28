@@ -155,47 +155,50 @@ def init_static_data():
         # Initialize Static Price Data
         if settings.PRICE_MANAGER == "alpha_vantage": 
             # grab ticker symbols and store in STATIC_DIR
-            query=f'{settings.PARAM_AV_FUNC}={settings.ARG_AV_FUNC_EQUITY_LISTINGS}&{settings.PARAM_AV_KEY}={settings.AV_KEY}'
-            url = f'{settings.AV_URL}?{query}'
+            if not os.path.isfile(settings.STATIC_TICKERS_FILE):
+                query=f'{settings.PARAM_AV_FUNC}={settings.ARG_AV_FUNC_EQUITY_LISTINGS}&{settings.PARAM_AV_KEY}={settings.AV_KEY}'
+                url = f'{settings.AV_URL}?{query}'
 
-            with requests.Session() as s:
-                download = s.get(url)
-                decoded_content = download.content.decode('utf-8')
-                cr = csv.reader(decoded_content.splitlines(), delimiter=',')
-                
-                tickers = []
-                for row in cr:
-                    if row[0] != settings.AV_RES_EQUITY_KEY:
-                        tickers.append(row[0])
+                with requests.Session() as s:
+                    download = s.get(url)
+                    decoded_content = download.content.decode('utf-8')
+                    cr = csv.reader(decoded_content.splitlines(), delimiter=',')
+                    
+                    tickers = []
+                    for row in cr:
+                        if row[0] != settings.AV_RES_EQUITY_KEY:
+                            tickers.append(row[0])
 
-                with open(settings.STATIC_TICKERS_FILE, 'w') as outfile:
-                    json.dump(tickers, outfile)
-                
-                s.close()
+                    with open(settings.STATIC_TICKERS_FILE, 'w') as outfile:
+                        json.dump(tickers, outfile)
+                    
+                    s.close()
 
             # grab crypto symbols and store in STATIC_DIR
-            url = settings.AV_CRYPTO_LIST
+            if not os.path.isfile(settings.STATIC_CRYPTO_FILE):
+                url = settings.AV_CRYPTO_LIST
 
-            with requests.Session() as s:
-                download = s.get(url)
-                decoded_content = download.content.decode('utf-8')
-                cr = csv.reader(decoded_content.splitlines(), delimiter=',')
-                
-                crypto = []
-                for row in cr:
-                    if row[0] != settings.AV_RES_CRYPTO_KEY:
-                        crypto.append(row[0])
-                
-                with open(settings.STATIC_CRYPTO_FILE, 'w') as outfile:
-                    json.dump(crypto, outfile)
-                
-                s.close()
+                with requests.Session() as s:
+                    download = s.get(url)
+                    decoded_content = download.content.decode('utf-8')
+                    cr = csv.reader(decoded_content.splitlines(), delimiter=',')
+                    
+                    crypto = []
+                    for row in cr:
+                        if row[0] != settings.AV_RES_CRYPTO_KEY:
+                            crypto.append(row[0])
+                    
+                    with open(settings.STATIC_CRYPTO_FILE, 'w') as outfile:
+                        json.dump(crypto, outfile)
+                    
+                    s.close()
 
         else:
             output.debug("No PRICE_MANAGER set in .env file!")
 
         # Initialize Static Statistic Data
         if settings.STAT_MANAGER == "quandl":
+            # TODO 
             pass
 
         else:
