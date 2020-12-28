@@ -1,0 +1,7 @@
+# STATIC LOOKUP TABLES FOR ASSET CLASSIFICATION
+
+1. Need to functions to load in static tables such as the list of ticker symbols available, the list of economic indicator symbols and the list of cryptocurrency symbols.
+
+2. Use this static table to determine if a ticker supplied belongs to a given asset group (stock or crypto for, possibly other commodities and asset-types in the future).
+
+3. When a list of symbol is supplied to an optimiziation method, use the functions in #2. to determine which asset group the given symbol belongs to, so the correct API call can be made during the data collection phase of the optimization process.
