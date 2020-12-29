@@ -140,7 +140,6 @@ def get_daily_stats_latest(statistics):
         output.debug("No STAT_MANAGER set in .env file!")
         return None
 
-# TODO
 def init_static_data():
     
     if settings.INIT or \
