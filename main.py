@@ -16,12 +16,6 @@ output = logger.Logger('app.pyfin.main')
 
 
 if __name__ == "__main__": 
-    
-    output.debug('Clearing /cache/ directory')
-    helper.clear_cache()
-
-    output.debug('Initialzing /static/ directory')
-    services.init_static_data()
 
     output.debug('Parsing and invoking command arguments')
     opt = sys.argv[1]
@@ -34,8 +28,20 @@ if __name__ == "__main__":
     elif opt == settings.FUNC_ARG_DICT["examples"]:
         output.examples()
 
+    elif opt == settings.FUNC_ARG_DICT["purge"]:
+        output.comment(f'Clearing {settings.STATIC_DIR} and {settings.CACHE_DIR}')
+        helper.clear_dir(directory=settings.STATIC_DIR, retain=True)
+        helper.clear_dir(directory=settings.CACHE_DIR, retain=True)
+        pass
+
     # variable argument functions
     else:
+        output.debug('Clearing /cache/ directory')
+        helper.clear_cache(outdated_only=True)
+
+        output.debug('Initialzing /static/ directory, if applicable')
+        services.init_static_data()
+        
         args = sys.argv[2:]
         output.title_line('Results')
         output.line()

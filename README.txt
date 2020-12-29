@@ -27,3 +27,7 @@ to perform the same operation as the following command performed in the project 
 TODOS:
 
 1. Future versions of the application will allow the user to set the service responsible for providing data to the application. Currently, all data is retrieved from the free tier of AlphaVantage.
+
+NOTE:
+
+The first time this application is run it retrieves a large amount of static data and stores it in the /static/ folder. The first call of the function may take some time, but subsequent calls, assuming you do not have the environment variable INIT = True, should not take anywhere near as long.

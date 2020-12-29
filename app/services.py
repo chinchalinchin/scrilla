@@ -151,7 +151,7 @@ def init_static_data():
         # Clear static folder if initializing, otherwise unnecessary
         if settings.INIT:
             output.debug('Initialzing because settings.INIT set to True')
-            helper.clear_static()
+            helper.clear_dir(settings.STATIC_DIR, retain=True)
         else:
             output.debug('Initializing because settings.STATIC_DIR directory is missing file(s)')
 
@@ -185,7 +185,7 @@ def init_static_data():
             
             # grab econominc indicator symbols and store in STATIC_DIR
             if not os.path.isfile(settings.STATIC_ECON_FILE):
-                output.debug(f'Missing {settings.STATIC_ECON_FILE}, querying AlphaVantage...')
+                output.debug(f'Missing {settings.STATIC_ECON_FILE}, querying Quandl...')
 
                 url = f'{settings.Q_META_URL}/{settings.PATH_Q_FRED}/{settings.PARAM_Q_METADATA}?{settings.PARAM_Q_KEY}={settings.Q_KEY}'
 

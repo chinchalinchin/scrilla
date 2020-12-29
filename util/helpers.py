@@ -10,6 +10,18 @@ def get_number_input(msg_prompt):
         else:
             print('Input Not Understood. Please Enter A Numerical Value.')
 
+def clear_dir(directory, retain = False):
+    filelist = [ f for f in os.listdir(directory)]
+    if retain:
+        for f in filelist:
+            filename = os.path.basename(f)
+            if filename != ".gitkeep":
+                os.remove(os.path.join(directory, f))
+
+    else:
+        for f in filelist:
+            os.remove(os.path.join(directory, f))
+
 def get_first_json_key(this_json):
     return list(this_json.keys())[0]
 
@@ -17,17 +29,17 @@ def replace_troublesome_chars(msg):
     return msg.replace('\u2265','').replace('\u0142', '')
 
 def parse_csv_response_column(column, url, firstRowHeader=None, savefile=None, zipped=None):
-     with requests.Session() as s:
+    col, big_mother = [], []
+
+    with requests.Session() as s:
         download = s.get(url)
         
         if zipped is not None:
             zipdata = io.BytesIO(download.content)
             unzipped = zipfile.ZipFile(zipdata)
             with unzipped.open(zipped, 'r') as f:
-                big_mother=[]
                 for line in f:
                     big_mother.append(replace_troublesome_chars(line.decode("utf-8")))
-
                 cr = csv.reader(big_mother, delimiter=',')
         
         else:
@@ -35,25 +47,27 @@ def parse_csv_response_column(column, url, firstRowHeader=None, savefile=None, z
             cr = csv.reader(decoded_content.splitlines(), delimiter=',')
 
         s.close()
-        col = []
-        for row in cr:
-            if row[column] != firstRowHeader:
-                col.append(row[column])
+    
+    for row in cr:
+        if row[column] != firstRowHeader:
+            col.append(row[column])
 
-        if savefile is not None:    
-            with open(savefile, 'w') as outfile:
-                json.dump(col, outfile)
+    if savefile is not None:    
+        with open(savefile, 'w') as outfile:
+            json.dump(col, outfile)
 
-def clear_cache():
-    now = datetime.datetime.now()
+def clear_cache(outdated_only=False):
     filelist = [ f for f in os.listdir(settings.CACHE_DIR)]
-    timestamp = '{}{}{}'.format(now.month, now.day, now.year)
-    for f in filelist:
-        filename = os.path.basename(f)
-        if filename != ".gitkeep" and timestamp not in filename:
-            os.remove(os.path.join(settings.CACHE_DIR, f))
 
-def clear_static():
-    filelist = [ f for f in os.listdir(settings.STATIC_DIR)]
-    for f in filelist:
-        os.remove(f)
+    if outdated_only:
+        now = datetime.datetime.now()
+        timestamp = '{}{}{}'.format(now.month, now.day, now.year)
+        for f in filelist:
+            filename = os.path.basename(f)
+            if filename != ".gitkeep" and timestamp not in filename:
+                os.remove(os.path.join(settings.CACHE_DIR, f))
+    else:
+        for f in filelist:
+            filename = os.path.basename(f)
+            if filename != ".gitkeep":
+                os.remove(os.path.join(settings.CACHE_DIR, f))
