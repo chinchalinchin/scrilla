@@ -106,7 +106,7 @@ def get_daily_stats_history(statistics, startdate=None, enddate=None):
         for statistic in statistics:
             
             if startdate is None and enddate is None:
-                url = f'{settings.Q_URL}/{statistic}?{settings.PARAM_Q_KEY}={settings.Q_KEY}'
+                url = f'{settings.Q_URL}/{settings.PATH_Q_FRED}/{statistic}?{settings.PARAM_Q_KEY}={settings.Q_KEY}'
             
                 response = requests.get(url).json()
 
@@ -146,60 +146,51 @@ def init_static_data():
     if settings.INIT or \
         ((not os.path.isfile(settings.STATIC_ECON_FILE)) or \
             (not os.path.isfile(settings.STATIC_TICKERS_FILE)) or \
-                (not os.path.isfile(settings.STATIC_CRYPTOFILE))):
+                (not os.path.isfile(settings.STATIC_CRYPTO_FILE))):
 
-        # Clear static folder is initializing, otherwise unnecessary
+        # Clear static folder if initializing, otherwise unnecessary
         if settings.INIT:
+            output.debug('Initialzing because settings.INIT set to True')
             helper.clear_static()
+        else:
+            output.debug('Initializing because settings.STATIC_DIR directory is missing file(s)')
 
         # Initialize Static Price Data
         if settings.PRICE_MANAGER == "alpha_vantage": 
             # grab ticker symbols and store in STATIC_DIR
             if not os.path.isfile(settings.STATIC_TICKERS_FILE):
+                output.debug(f'Missing {settings.STATIC_TICKERS_FILE}, querying AlphaVantage...')
+
                 query=f'{settings.PARAM_AV_FUNC}={settings.ARG_AV_FUNC_EQUITY_LISTINGS}&{settings.PARAM_AV_KEY}={settings.AV_KEY}'
                 url = f'{settings.AV_URL}?{query}'
 
-                with requests.Session() as s:
-                    download = s.get(url)
-                    decoded_content = download.content.decode('utf-8')
-                    cr = csv.reader(decoded_content.splitlines(), delimiter=',')
-                    
-                    tickers = []
-                    for row in cr:
-                        if row[0] != settings.AV_RES_EQUITY_KEY:
-                            tickers.append(row[0])
-
-                    with open(settings.STATIC_TICKERS_FILE, 'w') as outfile:
-                        json.dump(tickers, outfile)
-                    
-                    s.close()
+                output.debug(f'Preparsing to parse AlphaVantage Response to query: {query}')
+                helper.parse_csv_response_column(column=0, url=url, firstRowHeader=settings.AV_RES_EQUITY_KEY, 
+                                                    savefile=settings.STATIC_TICKERS_FILE)
 
             # grab crypto symbols and store in STATIC_DIR
             if not os.path.isfile(settings.STATIC_CRYPTO_FILE):
+                output.debug(f'Missing {settings.STATIC_CRYPTO_FILE}, querying AlphaVantage...')
                 url = settings.AV_CRYPTO_LIST
 
-                with requests.Session() as s:
-                    download = s.get(url)
-                    decoded_content = download.content.decode('utf-8')
-                    cr = csv.reader(decoded_content.splitlines(), delimiter=',')
-                    
-                    crypto = []
-                    for row in cr:
-                        if row[0] != settings.AV_RES_CRYPTO_KEY:
-                            crypto.append(row[0])
-                    
-                    with open(settings.STATIC_CRYPTO_FILE, 'w') as outfile:
-                        json.dump(crypto, outfile)
-                    
-                    s.close()
+                output.debug(f'Preparsing to parse AlphaVantage Response to query: {url}')
+                helper.parse_csv_response_column(column=0, url=url, firstRowHeader=settings.AV_RES_CRYPTO_KEY, 
+                                                    savefile=settings.STATIC_CRYPTO_FILE)
 
         else:
             output.debug("No PRICE_MANAGER set in .env file!")
 
         # Initialize Static Statistic Data
         if settings.STAT_MANAGER == "quandl":
-            # TODO 
-            pass
+            
+            # grab econominc indicator symbols and store in STATIC_DIR
+            if not os.path.isfile(settings.STATIC_ECON_FILE):
+                output.debug(f'Missing {settings.STATIC_ECON_FILE}, querying AlphaVantage...')
+
+                url = f'{settings.Q_META_URL}/{settings.PATH_Q_FRED}/{settings.PARAM_Q_METADATA}?{settings.PARAM_Q_KEY}={settings.Q_KEY}'
+
+                helper.parse_csv_response_column(column=0, url=url, firstRowHeader=settings.Q_RES_STAT_KEY,
+                                                    savefile=settings.STATIC_ECON_FILE, zipped=settings.Q_RES_STAT_ZIP_KEY)
 
         else:
             output.debug("No STAT_MANAGER set in .env file!")

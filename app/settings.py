@@ -71,8 +71,7 @@ ASSET_CRYPTO="crypto"
 #### SERVICE CONFIGURATION
 
 if PRICE_MANAGER == "alpha_vantage":
-    # 
-    AV_CRYPTO_LIST="https://www.alphavantage.co/physical_currency_list/"
+    AV_CRYPTO_LIST=os.getenv('ALPHA_VANTAGE_CRYPTO_META_URL')
     # Response Keys
     AV_RES_EQUITY_FIRST_LAYER='Time Series (Daily)'
     AV_RES_EQUITY_CLOSE_PRICE="4. close"
@@ -91,11 +90,17 @@ if PRICE_MANAGER == "alpha_vantage":
     ARG_AV_FUNC_CRYPTO_DAILY="DIGITAL_CURRENCY_DAILY"
 
 if STAT_MANAGER == "quandl":
+    Q_META_URL = os.getenv('QUANDL_META_URL')
     # Response Keys
     Q_FIRST_LAYER="dataset"
     Q_SECOND_LAYER="data"
+    Q_RES_STAT_KEY="code"
+    Q_RES_STAT_ZIP_KEY="FRED_metadata.csv"
+    # Path Paramaters
+    PATH_Q_FRED ="FRED"
     # Query Parameters
     PARAM_Q_KEY="api_key"
+    PARAM_Q_METADATA="metadata.json"
 
 #### OUTPUT FORMATTING CONFIGURAITON
 

@@ -1,4 +1,4 @@
-import datetime
+import datetime, sys
 import numpy as numpy
 import matplotlib.pyplot as matplotlib
 
@@ -30,6 +30,13 @@ class Logger():
     def debug(self, msg):
         if settings.DEBUG:
             self.comment(msg)
+
+    def sys_error(self):
+        e = sys.exc_info()[0]
+        f = sys.exc_info()[1]
+        g = sys.exc_info()[2]
+        msg = f'{e} \n {f} \n {g} \n'
+        self.debug(msg)
 
     def title_line(self, title):
         buff = int((settings.LINE_LENGTH - len(title))/2)

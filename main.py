@@ -12,25 +12,29 @@ from app.portfolio import Portfolio
 import util.helpers as helper
 import util.logger as logger
 
+output = logger.Logger('app.pyfin.main')
+
+
 if __name__ == "__main__": 
-    output = logger.Logger('app.pyfin.main')
     
-    # clear out of date data if applicable
+    output.debug('Clearing /cache/ directory')
     helper.clear_cache()
 
-    # initialize static data if applicable
+    output.debug('Initialzing /static/ directory')
     services.init_static_data()
 
-    # retrieve function argument
+    output.debug('Parsing and invoking command arguments')
     opt = sys.argv[1]
 
-    # parse function and invoke
+    
+    # single argument functions
     if opt == settings.FUNC_ARG_DICT["help"]:
         output.help()
 
     elif opt == settings.FUNC_ARG_DICT["examples"]:
         output.examples()
 
+    # variable argument functions
     else:
         args = sys.argv[2:]
         output.title_line('Results')
@@ -117,10 +121,7 @@ if __name__ == "__main__":
                     output.optimal_result(portfolio=Portfolio(equities), allocation=allocation)
 
                 except: 
-                    e = sys.exc_info()[0]
-                    f = sys.exc_info()[1]
-                    g = sys.exc_info()[2]
-                    output.debug(f'{e} {f} {g}')
+                    output.sys_error()
                     output.comment('No Target Return Specified. Try -ex Flag For Example Usage.')
             
             else: 
