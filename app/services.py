@@ -149,15 +149,18 @@ def init_static_data():
 
         output.comment('Initializing Static Data. Please wait. This may take a moment...')
         output.comment('NOTE: set DEBUG = True for more output while you wait.')
+
         # Clear static folder if initializing, otherwise unnecessary
         if settings.INIT:
             output.debug('Initialzing because settings.INIT set to True')
             helper.clear_dir(settings.STATIC_DIR, retain=True)
+        
         else:
             output.debug('Initializing because settings.STATIC_DIR directory is missing file(s)')
 
         # Initialize Static Price Data
         if settings.PRICE_MANAGER == "alpha_vantage": 
+
             # grab ticker symbols and store in STATIC_DIR
             if not os.path.isfile(settings.STATIC_TICKERS_FILE):
                 output.debug(f'Missing {settings.STATIC_TICKERS_FILE}, querying AlphaVantage...')
@@ -199,12 +202,16 @@ def init_static_data():
 def get_static_data(static_type):
     output.debug(f'Loading in cached {static_type} symbols...')
     path = ""
+
     if static_type == settings.ASSET_CRYPTO:
         path = settings.STATIC_CRYPTO_FILE
+    
     elif static_type == settings.ASSET_EQUITY:
         path = settings.STATIC_TICKERS_FILE
+    
     elif static_type == settings.STAT_ECON:
         path = settings.STATIC_ECON_FILE
+    
     else:
         return False
 

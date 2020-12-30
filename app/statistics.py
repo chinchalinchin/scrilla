@@ -42,7 +42,9 @@ def calculate_moving_averages(tickers, current=True, enddate=None):
                 tomorrows_price = prices[date][settings.AV_RES_EQUITY_CLOSE_PRICE]
 
             moving_averages.append([MA_1, MA_2, MA_3])
+
         return moving_averages
+
     else:
         pass
         # TODO: need to pull entire price history from AlphaVantage
@@ -68,7 +70,7 @@ def calculate_risk_return(ticker, input_prices=None):
 
         sample = len(prices)
 
-        # calculate mean annual return
+        # calculate sample mean annual return
         i = 0 
         mean_return = 0
         tomorrows_price = 0
