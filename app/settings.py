@@ -67,6 +67,7 @@ DENOMINATION = "USD"
 
 ASSET_EQUITY="equity"
 ASSET_CRYPTO="crypto"
+STAT_ECON="econ"
 
 #### SERVICE CONFIGURATION
 
@@ -117,6 +118,7 @@ HELP_MSG = "A financial application written in python to determine optimal portf
 SYNTAX = "command -OPTION [tickers] (additional input)"
 
 FUNC_ARG_DICT = {
+    "asset_type": "-at",
     "correlation":"-cor",
     "crypto_spot": "-cs",
     "economic_statistics": "-ec",
@@ -135,6 +137,7 @@ FUNC_ARG_DICT = {
 }
 
 FUNC_DICT = {
+    "asset_type": "Outputs the asset type for the supplied symbol.",
     "correlation": "Calculate pair-wise correlation for the supplied list of ticker symbols.",
     "crypto_spot": "Retrieve the latest closing prices for the supplied list of cryptocurrencies symbols, e.g. BTC, XRP, ETH, etc.",
     "economic_statistics": "Retrieve the latest value for the supplied list of economic indicators. The available list of economic indicators can be found at https://www.quandl.com/data/FRED-Federal-Reserve-Economic-Data/documentation?anchor=growth",

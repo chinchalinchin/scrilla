@@ -85,6 +85,9 @@ class Logger():
             self.return_line()
 
     # APPLICATION SPECIFIC FORMATTING FUNCTIONS
+    def string_result(self, operation, result):
+        print(' '*settings.INDENT, '>>', operation, ' = ', result)
+        
     def scalar_result(self, calculation, result):
         print(' '*settings.INDENT, '>>', calculation, ' = ', round(result, 4))
 

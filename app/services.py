@@ -196,7 +196,22 @@ def init_static_data():
         else:
             output.debug("No STAT_MANAGER set in .env file!")
 
-# TODO
-def get_static_data(type):
-    # grab type from STATIC_DIR
-    pass
+def get_static_data(static_type):
+    output.debug(f'Loading in cached {static_type} symbols...')
+    path = ""
+    if static_type == settings.ASSET_CRYPTO:
+        path = settings.STATIC_CRYPTO_FILE
+    elif static_type == settings.ASSET_EQUITY:
+        path = settings.STATIC_TICKERS_FILE
+    elif static_type == settings.STAT_ECON:
+        path = settings.STATIC_ECON_FILE
+    else:
+        return False
+
+    if not os.path.isfile(path):
+        init_static_data()
+
+    with open(path, 'r') as infile:
+        symbols = json.load(infile)   
+    
+    return symbols
