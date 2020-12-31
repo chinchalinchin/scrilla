@@ -31,6 +31,10 @@ class Logger():
         if settings.DEBUG:
             self.comment(msg)
 
+    def verbose(self, msg):
+        if settings.VERBOSE:
+            self.comment(msg)
+            
     def sys_error(self):
         e = sys.exc_info()[0]
         f = sys.exc_info()[1]

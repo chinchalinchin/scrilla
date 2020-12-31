@@ -72,10 +72,13 @@ def get_first_json_key(this_json):
     return list(this_json.keys())[0]
 
 def parse_price_from_date(prices, date, asset_type):
-    if asset_type == settings.ASSET_EQUITY:
-        return prices[date][settings.AV_RES_EQUITY_CLOSE_PRICE]
-    elif asset_type == settings.ASSET_CRYPTO:
-        return prices[date][settings.AV_RES_CRYPTO_CLOSE_PRICE]
+    try:
+        if asset_type == settings.ASSET_EQUITY:
+            return prices[date][settings.AV_RES_EQUITY_CLOSE_PRICE]
+        elif asset_type == settings.ASSET_CRYPTO:
+            return prices[date][settings.AV_RES_CRYPTO_CLOSE_PRICE]
+    except:
+        return False
 
 def replace_troublesome_chars(msg):
     return msg.replace('\u2265','').replace('\u0142', '')

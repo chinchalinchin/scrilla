@@ -29,6 +29,7 @@ PRICE_MANAGER = os.getenv('PRICE_MANAGER')
 STAT_MANAGER = os.getenv('STAT_MANAGER')
 
 DEBUG= True if os.getenv('DEBUG').lower() == 'true' else False
+VERBOSE= True if os.getenv('VERBOSE').lower() == 'true' else False
 
 INIT= True if os.getenv('INIT').lower() == 'true' else False
 
