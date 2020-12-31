@@ -1,16 +1,19 @@
 import os, csv, json
+import itertools
 import datetime, time
 import requests
 
 import app.settings as settings
+import app.markets as markets
 
 import util.logger as logger
 import util.helpers as helper
 
 output = logger.Logger("app.services")
 
-def retrieve_prices_from_cache_or_web(ticker, current=True):
+def retrieve_prices_from_cache(ticker, startdate=None, enddate=None):
     now = datetime.datetime.now()
+    # TODO: if startdate and enddate are supplied need to change timestamp
     timestamp = '{}{}{}'.format(now.month, now.day, now.year)
     buffer_store= os.path.join(settings.CACHE_DIR, f'{timestamp}_{ticker}.json')
     
@@ -20,8 +23,8 @@ def retrieve_prices_from_cache_or_web(ticker, current=True):
             prices = json.load(infile)
 
     else:     
-        output.debug(f'Retrieving {ticker} prices from Service Manager...')    
-        prices = get_daily_price_history(ticker=ticker, asset=settings.ASSET_EQUITY, current=current)
+        output.debug(f'Retrieving {ticker} prices from Service Manager...')  
+        prices = get_daily_price_history(ticker=ticker, startdate=startdate, enddate=enddate)
 
         output.debug(f'Storing {ticker} price history in cache...')
         with open(buffer_store, 'w') as outfile:
@@ -29,15 +32,23 @@ def retrieve_prices_from_cache_or_web(ticker, current=True):
 
     return prices
 
-def get_daily_price_history(ticker, asset, current=True, startdate=None, enddate=None):
+# Note, by default, AlphaVantage returns last 100 days of prices for equities, while returning the 
+# entire price history for crypto assets by default. By default, this method will return the last 
+# 100 days of prices for any type of asset provided to the input 'ticker'. 
+#
+# TODO: Implement 'startdate' and 'enddate' features
+def get_daily_price_history(ticker, startdate=None, enddate=None):
+    asset_type=markets.get_asset_type(ticker)  
+
     if settings.PRICE_MANAGER == "alpha_vantage":
-        if current:
+        # Retrieve last 100 days of closing prices
+        if startdate is None and enddate is None:
             query = f'{settings.PARAM_AV_TICKER}={ticker}&{settings.PARAM_AV_KEY}={settings.AV_KEY}'
 
-            if asset == settings.ASSET_EQUITY:
+            if asset_type == settings.ASSET_EQUITY:
                 query += f'&{settings.PARAM_AV_FUNC}={settings.ARG_AV_FUNC_EQUITY_DAILY}'
 
-            elif asset == settings.ASSET_CRYPTO:
+            elif asset_type == settings.ASSET_CRYPTO:
                 query += f'&{settings.PARAM_AV_FUNC}={settings.ARG_AV_FUNC_CRYPTO_DAILY}&{settings.PARAM_AV_DENOM}={settings.DENOMINATION}'
 
             else:
@@ -63,13 +74,23 @@ def get_daily_price_history(ticker, asset, current=True, startdate=None, enddate
                 prices = requests.get(url).json()
                 first_element = helper.get_first_json_key(prices)
 
-            if asset == settings.ASSET_EQUITY:
+            if asset_type == settings.ASSET_EQUITY:
                 return prices[settings.AV_RES_EQUITY_FIRST_LAYER]
-            elif asset == settings.ASSET_CRYPTO:
-                return prices[settings.AV_RES_CRYPTO_FIRST_LAYER]
+
+            elif asset_type == settings.ASSET_CRYPTO:
+                truncated_prices, index = {}, 0
+                for date in prices[settings.AV_RES_CRYPTO_FIRST_LAYER]:
+                    if index < 100:
+                        truncated_prices[date] = prices[settings.AV_RES_CRYPTO_FIRST_LAYER][date]
+                    else:
+                        return truncated_prices
+                    index += 1
+                # NOTE: AlphaVantage returns entire history for any crypto API call
+                # unlike the equity API calls, so the response for crypto is truncated
+                # to make sure responses for 'current=True' are of the same length.
 
         else:
-            if startdate is None and enddate is None:
+            if startdate is not None and enddate is not None:
                 # TODO
                 pass
 
@@ -87,14 +108,18 @@ def get_daily_price_history(ticker, asset, current=True, startdate=None, enddate
     else:
             output.debug("No STAT_MANAGER set in .env file!")
 
-def get_daily_price_latest(ticker, asset):
+def get_daily_price_latest(ticker):
     if settings.PRICE_MANAGER == "alpha_vantage":
-        prices = get_daily_price_history(ticker, asset)
+        asset_type = markets.get_asset_type(ticker)
+        prices = retrieve_prices_from_cache(ticker)
         first_element = helper.get_first_json_key(prices)
-        if asset == settings.ASSET_EQUITY:
+
+        if asset_type == settings.ASSET_EQUITY:
             return prices[first_element][settings.AV_RES_EQUITY_CLOSE_PRICE]
-        elif asset == settings.ASSET_CRYPTO:
+
+        elif asset_type == settings.ASSET_CRYPTO:
             return prices[first_element][settings.AV_RES_CRYPTO_CLOSE_PRICE]
+            
     else:
         output.debug("No PRICE_MANAGER set in .env file!")
         return None
@@ -104,7 +129,6 @@ def get_daily_stats_history(statistics, startdate=None, enddate=None):
         stats = []
         
         for statistic in statistics:
-            
             if startdate is None and enddate is None:
                 url = f'{settings.Q_URL}/{settings.PATH_Q_FRED}/{statistic}?{settings.PARAM_Q_KEY}={settings.Q_KEY}'
             
@@ -130,12 +154,16 @@ def get_daily_stats_history(statistics, startdate=None, enddate=None):
         return None
         
 def get_daily_stats_latest(statistics):
+
     if settings.STAT_MANAGER == "quandl":
         current_stats = []
         stats_history = get_daily_stats_history(statistics)
+
         for stat in stats_history:
             current_stats.append(stat[0][1])
+
         return current_stats
+
     else:
         output.debug("No STAT_MANAGER set in .env file!")
         return None

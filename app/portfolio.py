@@ -57,7 +57,7 @@ class Portfolio:
     def calculate_approximate_shares(self, x, total):
         shares = []
         for i in range(len(x)):
-            prices = services.retrieve_prices_from_cache_or_web(self.tickers[i])
+            prices = services.retrieve_prices_from_cache(self.tickers[i])
             final_date = list(prices.keys())[0]
             final_price = prices[final_date][settings.AV_RES_EQUITY_CLOSE_PRICE]
             share = Decimal(x[i]) * Decimal(total) / Decimal(final_price)
@@ -68,7 +68,7 @@ class Portfolio:
         actual_total = 0
         shares = self.calculate_approximate_shares(x, total)
         for i in range(len(shares)):
-            prices = services.retrieve_prices_from_cache_or_web(self.tickers[i])
+            prices = services.retrieve_prices_from_cache(self.tickers[i])
             final_date = list(prices.keys())[0]
             final_price = prices[final_date][settings.AV_RES_EQUITY_CLOSE_PRICE]
             portion = Decimal(shares[i]) * Decimal(final_price)

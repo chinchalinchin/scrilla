@@ -46,14 +46,17 @@ if __name__ == "__main__":
             output.title_line('Results')
             output.line()
 
+            # Asset Grouping
             if opt == settings.FUNC_ARG_DICT['asset_type']:
                 for arg in args:
                     asset_type = markets.get_asset_type(arg)
                     if asset_type:
                         output.string_result(f'asset_type({arg})', asset_type)
+
                     else: 
                         output.comment('Error Encountered While Determining Asset Type. Try -ex Flag For Example Usage.')
 
+            # Correlation Matrix
             elif opt == settings.FUNC_ARG_DICT["correlation"]:
                 if(len(args) > 1):
                     for i in range(len(args)):
@@ -61,22 +64,14 @@ if __name__ == "__main__":
                             result = statistics.calculate_correlation(args[i], args[j]) 
                             if result:
                                 output.scalar_result(f'correlation_{args[i]}_{args[j]}', result['correlation'])
+                            
                             else:
                                 output.comment('Error Encountered While Calculating. Try -ex Flag For Example Usage.')
 
                 else:
                     output.comment('Invalid Input. Try -ex Flag For Example Usage.')
-
-            elif opt == settings.FUNC_ARG_DICT["crypto_spot"]:
-                if(len(args)>1) or len(args)==1:
-                    for arg in args:
-                        price = services.get_daily_price_latest(arg, settings.ASSET_CRYPTO)
-                        output.scalar_result(arg, float(price))
-                    
-                else:
-                    output.comment('Error Encountered While Calculating. Try -ex Flag For Example Usage.')
             
-            elif opt == settings.FUNC_ARG_DICT["economic_statistics"]:
+            elif opt == settings.FUNC_ARG_DICT["economic_indicator"]:
                 if(len(args)>1) or len(args)==1:
                     stats = services.get_daily_stats_latest(args)
                     for i in range(len(stats)):
@@ -93,15 +88,14 @@ if __name__ == "__main__":
                 else: 
                     output.debug('Invalid Input. Try -ex Flag For Example Usage.')
 
-            elif opt == settings.FUNC_ARG_DICT["equity_spot"]:
+            elif opt == settings.FUNC_ARG_DICT["last_close"]:
                 if(len(args)>1) or len(args)==1:
                     for arg in args:
-                        price = services.get_daily_price_latest(arg, settings.ASSET_EQUITY)
+                        price = services.get_daily_price_latest(arg)
                         output.scalar_result(arg, float(price))
                     
                 else:
                     output.comment('Error Encountered While Calculating. Try -ex Flag For Example Usage.')
-            
             elif opt == settings.FUNC_ARG_DICT['maximize_return']:
                 if (len(args)>1):
                     allocation = optimizer.maximize_portfolio_return(equities=args)

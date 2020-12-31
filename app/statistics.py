@@ -5,8 +5,10 @@ from decimal import Decimal
 
 import app.settings as settings
 import app.services as services
+import app.markets as markets
 
 import util.logger as logger
+import util.helpers as helper
 
 output = logger.Logger('app.statistics')
 
@@ -16,12 +18,13 @@ def calculate_moving_averages(tickers, current=True, enddate=None):
     
     if current:
         for ticker in tickers:
-            prices = services.retrieve_prices_from_cache_or_web(ticker)
+            prices = services.retrieve_prices_from_cache(ticker)
             today = False
+            asset_type = helper.get_asset_type(ticker)
             count, tomorrows_price, MA_1, MA_2, MA_3 = 1, 0, 0, 0, 0
     
             for date in prices:
-                todays_price = prices[date][settings.AV_RES_EQUITY_CLOSE_PRICE]
+                todays_price = helper.parse_price_from_date(prices, date, asset_type)
 
                 if today:
                     todays_return = numpy.log(float(tomorrows_price) / float(todays_price))/settings.ONE_TRADING_DAY
@@ -39,7 +42,7 @@ def calculate_moving_averages(tickers, current=True, enddate=None):
                 else:
                     today = True
 
-                tomorrows_price = prices[date][settings.AV_RES_EQUITY_CLOSE_PRICE]
+                tomorrows_price = helper.parse_price_from_date(prices, date, asset_type)
 
             moving_averages.append([MA_1, MA_2, MA_3])
 
@@ -54,15 +57,28 @@ def calculate_risk_return(ticker, input_prices=None):
     now = datetime.datetime.now()
     timestamp = '{}{}{}'.format(now.month, now.day, now.year)
     buffer_store= os.path.join(settings.CACHE_DIR, f'{timestamp}_{ticker}_statistics.json')
+    asset_type = markets.get_asset_type(ticker)
+
+    if asset_type == None:
+        output.debug("Asset did not map to (crypto, equity) grouping")
+        return False
+    elif asset_type == settings.ASSET_EQUITY:
+        trading_period = settings.ONE_TRADING_DAY
+    elif asset_type == settings.ASSET_CRYPTO:
+        trading_period = 365
+    else:
+        trading_period = settings.ONE_TRADING_DAY
 
     if os.path.isfile(buffer_store):
         output.debug(f'Loading in cached {ticker} statistics...')
         with open(buffer_store, 'r') as infile:
             results = json.load(infile)
+
     else:
         if input_prices is None:
-            prices = services.retrieve_prices_from_cache_or_web(ticker)
+            prices = services.retrieve_prices_from_cache(ticker)
             if not prices:
+                output.debug(f'No prices could be retrieved for {ticker}')
                 return False
         else: 
             output.debug(f'Using inputted {ticker} prices for calculation...')
@@ -71,29 +87,36 @@ def calculate_risk_return(ticker, input_prices=None):
         sample = len(prices)
 
         # calculate sample mean annual return
-        i = 0 
-        mean_return = 0
-        tomorrows_price = 0
-        for date in prices:
-            todays_price = prices[date][settings.AV_RES_EQUITY_CLOSE_PRICE]
-            if i != 0:
-                daily_return = numpy.log(float(tomorrows_price)/float(todays_price))/settings.ONE_TRADING_DAY
-                mean_return = mean_return + daily_return/sample 
-            tomorrows_price = prices[date][settings.AV_RES_EQUITY_CLOSE_PRICE]
-            i += 1
+        i, mean_return, tomorrows_price = 0, 0, 0 
+        output.debug(f'Calculating mean annual return over last {sample} days for {ticker}')
 
-        # calculate sample annual volatility
-        i = 0
-        mean_mod_return = mean_return*numpy.sqrt(settings.ONE_TRADING_DAY)
-        variance = 0
-        tomorrows_price = 0
         for date in prices:
-            todays_price = prices[date][settings.AV_RES_EQUITY_CLOSE_PRICE]
+            todays_price = helper.parse_price_from_date(prices, date, asset_type)
+
             if i != 0:
-                current_mod_return= numpy.log(float(tomorrows_price)/float(todays_price))/numpy.sqrt(settings.ONE_TRADING_DAY) 
+                daily_return = numpy.log(float(tomorrows_price)/float(todays_price))/trading_period
+                mean_return = mean_return + daily_return/sample 
+            else:
+                i += 1  
+
+            tomorrows_price = helper.parse_price_from_date(prices, date, asset_type)
+            
+        # calculate sample annual volatility
+        i, variance, tomorrows_price = 0, 0, 0
+        mean_mod_return = mean_return*numpy.sqrt(trading_period)
+        output.debug(f'Calculating mean annual volatility over last {sample} days for {ticker}')
+
+        for date in prices:
+            todays_price = helper.parse_price_from_date(prices, date, asset_type)
+
+            if i != 0:
+                current_mod_return= numpy.log(float(tomorrows_price)/float(todays_price))/numpy.sqrt(trading_period) 
                 variance = variance + (current_mod_return - mean_mod_return)**2/(sample - 1)
-            tomorrows_price = prices[date][settings.AV_RES_EQUITY_CLOSE_PRICE]
-            i += 1
+            else:
+                i += 1
+
+            tomorrows_price = helper.parse_price_from_date(prices, date, asset_type)
+
 
         # adjust for output
         volatility = numpy.sqrt(variance)
@@ -114,6 +137,7 @@ def calculate_risk_return(ticker, input_prices=None):
 
 # NOTE: assumes price history returns from latest to earliest date.
 def calculate_correlation(ticker_1, ticker_2):
+    output.debug(f'Preparing to calculate correlation for ({ticker_1},{ticker_2})')
     now = datetime.datetime.now()
     timestamp = '{}{}{}'.format(now.month, now.day, now.year)
     buffer_store_1= os.path.join(settings.CACHE_DIR, f'{timestamp}_{ticker_1}_{ticker_2}_correlation.json')
@@ -135,39 +159,102 @@ def calculate_correlation(ticker_1, ticker_2):
 
     # calculate results from sample
     else:
-        prices_1 = services.retrieve_prices_from_cache_or_web(ticker_1)
-        prices_2 = services.retrieve_prices_from_cache_or_web(ticker_2)
+        prices_1 = services.retrieve_prices_from_cache(ticker_1)
+        prices_2 = services.retrieve_prices_from_cache(ticker_2)
+
         if not (prices_1 and prices_2):
+            output.debug("Prices cannot be retrieved for correlation calculation")
             return False 
         
         stats_1 = calculate_risk_return(ticker_1, prices_1)
         stats_2 = calculate_risk_return(ticker_2, prices_2)
 
+        if not (stats_1 and stats_2):
+            output.debug("Statistics cannot be calculated for correlation calculation")
+            return False
+
         # ito's lemma
         mod_mean_1 = (stats_1['annual_return'] - 0.5*(stats_1['annual_volatility'])**2)*numpy.sqrt(settings.ONE_TRADING_DAY)
         mod_mean_2 = (stats_2['annual_return'] - 0.5*(stats_2['annual_volatility'])**2)*numpy.sqrt(settings.ONE_TRADING_DAY)
 
-        # calculate correlation
-        i = 0 
-        covariance = 0
-        tomorrows_price_1 = 0
-        tomorrows_price_2 = 0
-        if len(prices_1) == len(prices_2) or len(prices_1) < len(prices_2):
+        asset_type_1 = markets.get_asset_type(ticker_1)
+        asset_type_2 = markets.get_asset_type(ticker_2)
+        
+        weekend_offset_1, weekend_offset_2 = 0, 0
+        # if asset_types are same
+        if asset_type_1 == asset_type_2:
+            same_type = True
+            output.debug(f'Asset({ticker_1}) and Asset({ticker_2}) are the same asset_type')
+
+            if asset_type_1 == settings.ASSET_CRYPTO:
+                trading_period = 365
+            elif asset_type_1 == settings.ASSET_EQUITY:
+                trading_period = settings.ONE_TRADING_DAY
+            else:
+                trading_period = settings.ONE_TRADING_DAY
+
+
+        # if asset_types are different
+        else:
+            same_type = False
+            output.debug(f'Asset({ticker_1}) and Asset({ticker_2}) are not the same type')
+
+            if asset_type_1 == settings.ASSET_CRYPTO and asset_type_2 == settings.ASSET_EQUITY:
+                for date in prices_1:
+                    if helper.is_date_string_weekend(date):
+                        weekend_offset_1 += 1
+                trading_period = settings.ONE_TRADING_DAY
+
+            elif asset_type_1 == settings.ASSET_EQUITY and asset_type_2 == settings.ASSET_CRYPTO:
+                for date in prices_2:
+                    if helper.is_date_string_weekend(date):
+                        weekend_offset_1 += 1
+                trading_period = settings.ONE_TRADING_DAY
+
+
+        # make sure datasets are only compared over corresponding intervals, i.e.
+        # always calculate correlation over smallest interval.
+        if (len(prices_1) - weekend_offset_1) == (len(prices_2) - weekend_offset_2) \
+            or (len(prices_1) - weekend_offset_1)< (len(prices_2) - weekend_offset_2):
             sample_prices = prices_1
+            offset = weekend_offset_1
         else:
             sample_prices = prices_2
-    
-        sample = len(sample_prices)
+            offset = weekend_offset_2
+        
+        output.debug(f'trading_period set to = {trading_period}, weekend_offset = {offset}')
+        output.debug(f'Calculating correlation')
+
+        # calculate correlation
+        i, covariance, tomorrows_price_1, tomorrows_price_2 = 0, 0, 0, 0 
+        tomorrows_date, todays_date = "", ""
+        sample = len(sample_prices) - offset
+
         for date in sample_prices:
-                todays_price_1 = prices_1[date][settings.AV_RES_EQUITY_CLOSE_PRICE]
-                todays_price_2 = prices_2[date][settings.AV_EQUITY_CLOSE_PRICE]
+            todays_price_1 = helper.parse_price_from_date(prices_1, date, asset_type_1)
+            todays_price_2 = helper.parse_price_from_date(prices_2, date, asset_type_2)
+            todays_date = date
+            
+            if not same_type:
+                if not helper.is_date_string_weekend(date):
+                    if i != 0:
+                        current_mod_return_1= numpy.log(float(tomorrows_price_1)/float(todays_price_1))/numpy.sqrt(trading_period) 
+                        current_mod_return_2= numpy.log(float(tomorrows_price_2)/float(todays_price_2))/numpy.sqrt(trading_period) 
+                        covariance = covariance + (current_mod_return_1 - mod_mean_1)*(current_mod_return_2 - mod_mean_2)/(sample - 1)
+                    else:
+                        i += 1
+
+            else:
                 if i != 0:
-                    current_mod_return_1= numpy.log(float(tomorrows_price_1)/float(todays_price_1))/numpy.sqrt(settings.ONE_TRADING_DAY) 
-                    current_mod_return_2= numpy.log(float(tomorrows_price_2)/float(todays_price_2))/numpy.sqrt(settings.ONE_TRADING_DAY) 
+                    current_mod_return_1= numpy.log(float(tomorrows_price_1)/float(todays_price_1))/numpy.sqrt(trading_period) 
+                    current_mod_return_2= numpy.log(float(tomorrows_price_2)/float(todays_price_2))/numpy.sqrt(trading_period) 
                     covariance = covariance + (current_mod_return_1 - mod_mean_1)*(current_mod_return_2 - mod_mean_2)/(sample - 1)
-                tomorrows_price_1 = prices_1[date][settings.AV_RES_EQUITY_CLOSE_PRICE]
-                tomorrows_price_2 = prices_2[date][settings.AV_RES_EQUITY_CLOSE_PRICE]
-                i += 1
+                else:
+                    i += 1
+
+            tomorrows_price_1 = helper.parse_price_from_date(prices_1, date, asset_type_1)
+            tomorrows_price_2 = helper.parse_price_from_date(prices_2, date, asset_type_2)
+            tomorrows_date = date
 
         correlation = covariance/(stats_1['annual_volatility']*stats_2['annual_volatility'])
 

@@ -11,4 +11,4 @@ def get_asset_type(symbol):
         if symbol in symbols:
             return settings.ASSET_EQUITY
         else:
-            return settings.STAT_ECON
+            return None
