@@ -2,6 +2,8 @@ import os, sys
 import datetime
 import scipy.optimize as optimize
 
+from PySide6 import QtCore, QtWidgets, QtGui
+
 import app.settings as settings
 import app.statistics as statistics
 import app.optimizer as optimizer
@@ -9,6 +11,9 @@ import app.services as services
 import app.markets as markets
 
 from app.portfolio import Portfolio
+
+import gui.functions as functions
+import gui.menu as menu
 
 import util.helpers as helper
 import util.logger as logger
@@ -33,6 +38,15 @@ if __name__ == "__main__":
             output.comment(f'Clearing {settings.STATIC_DIR} and {settings.CACHE_DIR}')
             helper.clear_dir(directory=settings.STATIC_DIR, retain=True)
             helper.clear_dir(directory=settings.CACHE_DIR, retain=True)
+
+        elif opt == settings.FUNC_ARG_DICT["gui"]:
+            app = QtWidgets.QApplication([])
+
+            widget = functions.RiskProfileWidget()
+            widget.resize(settings.GUI_WIDTH, settings.GUI_HEIGHT)
+            widget.show()
+
+            sys.exit(app.exec_())
 
         # variable argument functions
         else:

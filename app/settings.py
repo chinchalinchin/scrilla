@@ -19,6 +19,18 @@ STATIC_TICKERS_FILE = os.path.join(STATIC_DIR, "tickers.json")
 STATIC_ECON_FILE = os.path.join(STATIC_DIR, "economics.json")
 STATIC_CRYPTO_FILE = os.path.join(STATIC_DIR, "crypto.json")
 
+try:
+    GUI_WIDTH = int(os.environ.setdefault('GUI_WIDTH', 400))
+except: 
+    output.debug('Failed to parse GUI_WIDTH from .env File. Setting to default value of 400. Please Ensure GUI_WIDTH is set to an integer value.')
+    GUI_WIDTH = 400
+
+try:
+    GUI_HEIGHT = int(os.environ.setdefault('GUI_HEIGHT', 400))
+except:
+    output.debug('Failed to parse GUI_HEIGHT from .env File. Setting to default value of 400. Please Ensure GUI_HEIGHT is set to an integer value.')
+    GUI_HEIGHT = 400
+
 AV_URL = os.getenv('ALPHA_VANTAGE_URL')
 AV_KEY = os.getenv('ALPHA_VANTAGE_KEY')
 
@@ -124,6 +136,7 @@ FUNC_ARG_DICT = {
     "efficient_frontier": "-ef",
     "economic_indicator": "-ei",
     "examples": "-ex",
+    "gui": "-gui",
     "help": "-help",
     "last_close": "-close",
     "maximize_return": "-max",
@@ -142,6 +155,7 @@ FUNC_DICT = {
     "economic_indicator": "Retrieves the latest value for the supplied list of economic indicators. The available list of economic indicators can be found at https://www.quandl.com/data/FRED-Federal-Reserve-Economic-Data/documentation?anchor=growth; it is also stored in the /static/ directory of the application ",
     "efficient_frontier": "Generate a sample of the portfolio's efficient frontier for the supplied list of tickers.",
     "examples": "Display examples of syntax.",
+    "gui": "Brings up a GUI for the application (work in progress!)",
     "help": "Print this help message.",
     "last_close": "Return latest closing value for the supplied list of symbol (equity or crypto).",
     "maximize_return": "Maximize the return of the portfolio defined by the supplied list of ticker symbols.",

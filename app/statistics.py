@@ -156,6 +156,7 @@ def calculate_correlation(ticker_1, ticker_2):
         with open(buffer_store_1, 'r') as infile:
             results = json.load(infile)
             correlation = results['correlation']
+        return correlation
 
     # check if results exist in cache location 2
     elif os.path.isfile(buffer_store_2):
@@ -163,6 +164,7 @@ def calculate_correlation(ticker_1, ticker_2):
         with open(buffer_store_2, 'r') as infile:
             results = json.load(infile)
             correlation = results['correlation']
+        return correlation
 
     # calculate results from sample
     else:
@@ -177,7 +179,7 @@ def calculate_correlation(ticker_1, ticker_2):
         stats_2 = calculate_risk_return(ticker_2, prices_2)
 
         if not (stats_1 and stats_2):
-            output.debug("Statistics cannot be calculated for correlation calculation")
+            output.debug("Sample statistics cannot be calculated for correlation calculation")
             return False
 
         asset_type_1 = markets.get_asset_type(ticker_1)
@@ -195,6 +197,7 @@ def calculate_correlation(ticker_1, ticker_2):
             mod_mean_2 = (stats_2['annual_return'] - 0.5*(stats_2['annual_volatility'])**2)*numpy.sqrt((1/365))
 
         weekend_offset_1, weekend_offset_2 = 0, 0
+
         # if asset_types are same
         if asset_type_1 == asset_type_2:
             same_type = True
@@ -239,79 +242,52 @@ def calculate_correlation(ticker_1, ticker_2):
         output.debug(f'(trading_period, offset) = ({trading_period}, {offset})')
         output.debug(f'Calculating ({ticker_1}, {ticker_2}) correlation...')
 
-        # calculate correlation
+        # Initialize loop variables
         i, covariance, tomorrows_price_1, tomorrows_price_2 = 0, 0, 1, 1
         delta = 0
         tomorrows_date, todays_date = "", ""
-        sample = len(sample_prices) - offset
+        sample = len(sample_prices)
 
         #### START CORRELATION LOOP ####
+            # TODO: Needs work. Not calculating correlation for different asset_types correctly
         for date in sample_prices:
             todays_price_1 = helper.parse_price_from_date(prices_1, date, asset_type_1)
             todays_price_2 = helper.parse_price_from_date(prices_2, date, asset_type_2)
             todays_date = date
             output.verbose(f'(todays_date, todays_price_{ticker_1}, todays_price_{ticker_2}) = ({todays_date}, {todays_price_1}, {todays_price_2})')
-            
+                
             # if both prices exist, proceed
             if todays_price_1 and todays_price_2 and tomorrows_price_1 and tomorrows_price_2:
-                if not same_type:
-                    if not helper.is_date_string_weekend(date):
-                        if i != 0:
-                            output.verbose(f'Iteration #{i}')
-                            output.verbose(f'(todays_price, tomorrows_price)_{ticker_1} = ({todays_price_1}, {tomorrows_price_1})')
-                            output.verbose(f'(todays_price, tomorrows_price)_{ticker_2} = ({todays_price_2}, {tomorrows_price_2})')
-                            
-                            if delta != 0:
-                                output.verbose(f'current delta = {delta}')
-
-                            time_delta = (1+delta)/numpy.sqrt(trading_period)
-                            current_mod_return_1= numpy.log(float(tomorrows_price_1)/float(todays_price_1))*time_delta 
-                            current_mod_return_2= numpy.log(float(tomorrows_price_2)/float(todays_price_2))*time_delta
-                            current_sample_covariance = (current_mod_return_1 - mod_mean_1)*(current_mod_return_2 - mod_mean_2)/(sample - 1)
-                            covariance = covariance + current_sample_covariance
-                            
-                            output.verbose(f'(return_1, return_2)=({round(current_mod_return_1,2)}, {round(current_mod_return_2, 2)})')
-                            output.verbose(f'(current_sample_covariance, covariance) = ({round(current_sample_covariance, 2)}, {round(covariance, 2)})')
-                            
-                            # once missed data points are skipped, annihiliate delta
-                            if delta != 0:
-                                delta = 0
-                            
-                        i += 1
-
-                # if not same type
-                else:
-                    if i != 0:
-                        output.verbose(f'Iteration #{i}')
-                        output.verbose(f'(todays_price, tomorrows_price)_{ticker_1} = ({todays_price_1}, {tomorrows_price_1})')
-                        output.verbose(f'(todays_price, tomorrows_price)_{ticker_2} = ({todays_price_2}, {tomorrows_price_2})')
-                        
-                        if delta != 0:
-                                output.verbose(f'current delta = {delta}')
-
-                        time_delta = (1+delta)/numpy.sqrt(trading_period)
-                        current_mod_return_1= numpy.log(float(tomorrows_price_1)/float(todays_price_1))*time_delta
-                        current_mod_return_2= numpy.log(float(tomorrows_price_2)/float(todays_price_2))*time_delta
-                        current_sample_covariance = (current_mod_return_1 - mod_mean_1)*(current_mod_return_2 - mod_mean_2)/(sample - 1)
-                        covariance = covariance + current_sample_covariance
+                if i != 0:
+                    output.verbose(f'Iteration #{i}')
+                    output.verbose(f'(todays_price, tomorrows_price)_{ticker_1} = ({todays_price_1}, {tomorrows_price_1})')
+                    output.verbose(f'(todays_price, tomorrows_price)_{ticker_2} = ({todays_price_2}, {tomorrows_price_2})')
                     
-                        output.verbose(f'(return_1, return_2) = ({round(current_mod_return_1, 2)}, {round(current_mod_return_2, 2)})')
-                        output.verbose(f'(current_sample_covariance, covariance) = ({round(current_sample_covariance, 2)}, {round(covariance, 2)})')
-                        
-                        # once missed data points are skipped, annihiliate delta
-                        if delta != 0:
-                            delta = 0
-                        
-                    i += 1
+                    if delta != 0:
+                        output.verbose(f'current delta = {delta}')
+
+                    time_delta = (1+delta)/numpy.sqrt(trading_period)
+                    current_mod_return_1= numpy.log(float(tomorrows_price_1)/float(todays_price_1))*time_delta
+                    current_mod_return_2= numpy.log(float(tomorrows_price_2)/float(todays_price_2))*time_delta
+                    current_sample_covariance = (current_mod_return_1 - mod_mean_1)*(current_mod_return_2 - mod_mean_2)/(sample - 1)
+                    covariance = covariance + current_sample_covariance
+                
+                    output.verbose(f'(return_1, return_2) = ({round(current_mod_return_1, 2)}, {round(current_mod_return_2, 2)})')
+                    output.verbose(f'(current_sample_covariance, covariance) = ({round(current_sample_covariance, 2)}, {round(covariance, 2)})')
+                    
+                    # once missed data points are skipped, annihiliate delta
+                    if delta != 0:
+                        delta = 0
+                    
+                i += 1
 
             # if one price doesn't exist, then a data point has been lost, so revise sample. 
             # collect number of missed data points to offset return calculation
             else: 
                 output.verbose('Lost a day. Revising covariance and sample...')
                 revised_covariance = covariance*(sample - 1)
-                sample = sample - 1 
-                covariance = revised_covariance/sample
-                old_delta = delta
+                sample -= 1 
+                covariance = revised_covariance/(sample - 1)
                 delta += 1
                 if i == 0:
                     i += 1
@@ -321,7 +297,7 @@ def calculate_correlation(ticker_1, ticker_2):
             tomorrows_price_2 = helper.parse_price_from_date(prices_2, date, asset_type_2)
             tomorrows_date = date
 
-        #### START CORRELATION LOOP ####
+        #### END CORRELATION LOOP ####
 
         correlation = covariance/(stats_1['annual_volatility']*stats_2['annual_volatility'])
 
