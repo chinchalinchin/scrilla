@@ -155,7 +155,7 @@ def calculate_correlation(ticker_1, ticker_2):
         output.debug(f'Loading in cached ({ticker_1}, {ticker_2}) correlation...')
         with open(buffer_store_1, 'r') as infile:
             results = json.load(infile)
-            correlation = results['correlation']
+            correlation = results
         return correlation
 
     # check if results exist in cache location 2
@@ -163,7 +163,7 @@ def calculate_correlation(ticker_1, ticker_2):
         output.debug(f'Loading in cached ({ticker_1}, {ticker_2}) correlation...')
         with open(buffer_store_2, 'r') as infile:
             results = json.load(infile)
-            correlation = results['correlation']
+            correlation = results
         return correlation
 
     # calculate results from sample
@@ -171,14 +171,14 @@ def calculate_correlation(ticker_1, ticker_2):
         prices_1 = services.retrieve_prices_from_cache(ticker_1)
         prices_2 = services.retrieve_prices_from_cache(ticker_2)
 
-        if not (prices_1 and prices_2):
+        if (not prices_1) and (not prices_2):
             output.debug("Prices cannot be retrieved for correlation calculation")
             return False 
         
         stats_1 = calculate_risk_return(ticker_1, prices_1)
         stats_2 = calculate_risk_return(ticker_2, prices_2)
 
-        if not (stats_1 and stats_2):
+        if (not stats_1) and (not stats_2):
             output.debug("Sample statistics cannot be calculated for correlation calculation")
             return False
 

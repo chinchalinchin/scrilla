@@ -2,7 +2,7 @@ import os, sys
 import datetime
 import scipy.optimize as optimize
 
-from PySide6 import QtCore, QtWidgets, QtGui
+from PySide6 import QtWidgets
 
 import app.settings as settings
 import app.statistics as statistics
@@ -12,7 +12,6 @@ import app.markets as markets
 
 from app.portfolio import Portfolio
 
-import gui.functions as functions
 import gui.menu as menu
 
 import util.helpers as helper
@@ -24,7 +23,7 @@ output = logger.Logger('main')
 if __name__ == "__main__": 
 
     if len(sys.argv)>0:
-        output.debug('Parsing and invoking command arguments')
+        output.debug('Parsing and invoking command line arguments')
         opt = sys.argv[1]
         
         # single argument functions

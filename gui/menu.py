@@ -2,7 +2,7 @@ import sys
 import random
 from PySide6 import QtCore, QtWidgets, QtGui
 
-from gui.functions import RiskProfileWidget
+from gui.functions import RiskProfileWidget, CorrelationWidget
 
 def get_title_font():
     font = QtGui.QFont('Impact', 12)
@@ -17,13 +17,16 @@ class MenuWidget(QtWidgets.QWidget):
         self.title.setFont(get_title_font())
 
         self.back_button = QtWidgets.QPushButton("Menu")
+        self.back_button.setAutoDefault(True)
         self.back_button.hide()
 
         # Widget Buttons
-        self.widget_buttons = [ QtWidgets.QPushButton("Risk-Return Profile") ]
+        self.widget_buttons = [ QtWidgets.QPushButton("Risk-Return Profile"),
+                                    QtWidgets.QPushButton("Correlation") ]
 
         # Function Widgets
-        self.function_widgets = [ RiskProfileWidget() ]
+        self.function_widgets = [ RiskProfileWidget(),
+                                    CorrelationWidget() ]
 
         self.layout = QtWidgets.QVBoxLayout()
 
@@ -33,16 +36,28 @@ class MenuWidget(QtWidgets.QWidget):
 
         for button in self.widget_buttons:
             this_widget = self.widget_buttons.index(button)
-            button.clicked.connect(lambda args = this_widget: self.show_widget(args))
-            button.show()
+            button.setAutoDefault(True)
+            if this_widget == 1:
+                button.clicked.connect(lambda: self.show_widget(this_widget))
             self.layout.addWidget(button)
+            button.show()
+
+        for i in range(len(self.widget_buttons)):
+            self.widget_buttons[i].setAutoDefault(True)
+            # TODO: can't pass i for some reason...has to be literal int???
+                # has to have something to do with when lambda functions execute
+            if i == 0:
+                self.widget_buttons[i].clicked.connect(lambda: self.show_widget(0))
+            elif i == 1:
+                self.widget_buttons[i].clicked.connect(lambda: self.show_widget(1))
+            self.layout.addWidget(self.widget_buttons[i])
+            self.widget_buttons[i].show()
+
 
         for widget in self.function_widgets:
             widget.hide()
             self.layout.addWidget(widget)
         
-        self.layout.addStretch()
-
         self.layout.addWidget(self.back_button)
 
         self.setLayout(self.layout)
@@ -50,13 +65,13 @@ class MenuWidget(QtWidgets.QWidget):
         self.back_button.clicked.connect(self.clear)
 
     @QtCore.Slot()
-    def show_widget(self, this_widget):
+    def show_widget(self, widget):
         for button in self.widget_buttons:
             button.hide()
 
         self.back_button.show()
         
-        self.function_widgets[this_widget].show()
+        self.function_widgets[widget].show()
 
     @QtCore.Slot()
     def clear(self):
