@@ -5,6 +5,7 @@ from PySide6 import QtCore, QtWidgets, QtGui
 import app.statistics as statistics
 
 import util.logger as logger
+import util.helpers as helper
 
 output = logger.Logger('gui.functions')
 
@@ -71,8 +72,7 @@ class CalculateWidget(QtWidgets.QWidget):
 
 class RiskProfileWidget(CalculateWidget):
     def __init__(self):
-        super().__init__(widget_title="Risk-Profile Over Last 100 Days", 
-                            button_msg="Calculate Profile", 
+        super().__init__(widget_title="Risk-Profile Over Last 100 Days", button_msg="Calculate Profile", 
                             calculate_function=self.calculate)
 
     @QtCore.Slot()
@@ -96,11 +96,9 @@ class RiskProfileWidget(CalculateWidget):
 class CorrelationWidget(CalculateWidget):
 
     def __init__(self):
-        super().__init__(widget_title = "Correlation Over Last 100 Days", 
-                            button_msg="Calculate Correlation",
+        super().__init__(widget_title = "Correlation Over Last 100 Days", button_msg="Calculate Correlation",
                             calculate_function = self.calculate)
 
-    # TODO: Finish formatting correlation matrix
     @QtCore.Slot()
     def calculate(self):
         user_symbols = self.symbol_input.text().upper().split(",")
@@ -111,24 +109,26 @@ class CorrelationWidget(CalculateWidget):
         no_symbols = len(user_symbols)
 
         for i in range(no_symbols):
-            print(i)
             this_symbol = user_symbols[i].strip()
-            symbol_string = f'{this_symbol}'
-            this_line = symbol_string + ' '*(line_length - len(symbol_string) - 6*(no_symbols-i))
-            print(this_line + "end")
-            print((line_length - len(symbol_string) - 6*(no_symbols-i)))
+            symbol_string = f'{this_symbol} '
+            if i != 0:
+                this_line = symbol_string + ' '*(line_length - len(symbol_string) - 7*(no_symbols - i))
+            else: 
+                this_line = symbol_string
+
             new_line = this_line
             
             for j in range(i, no_symbols):
                 if j == i:
-                    new_line += " 100.0 %"
+                    new_line += " 100.0%"
                 
                 else:
                     that_symbol = user_symbols[j].strip()
                     result = statistics.calculate_correlation(this_symbol, that_symbol) 
                     formatted_result = str(100*result['correlation'])[:5]
-                    new_line += f' {formatted_result} %'
+                    new_line += f' {formatted_result}%'
 
+            print(new_line)
             entire_formatted_result += new_line + '\n'
             
             if i == 0:

@@ -72,15 +72,8 @@ if __name__ == "__main__":
             # Correlation Matrix
             elif opt == settings.FUNC_ARG_DICT["correlation"]:
                 if(len(args) > 1):
-                    for i in range(len(args)):
-                        for j in range(i+1, len(args)):
-                            result = statistics.calculate_correlation(args[i], args[j]) 
-                            if result:
-                                output.scalar_result(f'correlation_{args[i]}_{args[j]}', result['correlation'])
-                            
-                            else:
-                                output.comment('Error Encountered While Calculating. Try -ex Flag For Example Usage.')
-
+                    print(helper.get_correlation_matrix_string())
+                    
                 else:
                     output.comment('Invalid Input. Try -ex Flag For Example Usage.')
             
