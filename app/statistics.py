@@ -171,14 +171,14 @@ def calculate_correlation(ticker_1, ticker_2):
         prices_1 = services.retrieve_prices_from_cache(ticker_1)
         prices_2 = services.retrieve_prices_from_cache(ticker_2)
 
-        if (not prices_1) and (not prices_2):
+        if (not prices_1) or (not prices_2):
             output.debug("Prices cannot be retrieved for correlation calculation")
             return False 
         
         stats_1 = calculate_risk_return(ticker_1, prices_1)
         stats_2 = calculate_risk_return(ticker_2, prices_2)
 
-        if (not stats_1) and (not stats_2):
+        if (not stats_1) or (not stats_2):
             output.debug("Sample statistics cannot be calculated for correlation calculation")
             return False
 
@@ -335,6 +335,9 @@ def get_correlation_matrix_string(symbols, indent=0):
             else:
                 that_symbol = symbols[j].strip()
                 result = calculate_correlation(this_symbol, that_symbol) 
+                if not result:
+                    output.debug(f'Cannot correlation for ({this_symbol}, {that_symbol})')
+                    return False
                 formatted_result = str(100*result['correlation'])[:settings.SIG_FIGS]
                 new_line += f' {formatted_result}%'
 

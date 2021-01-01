@@ -70,9 +70,9 @@ class CalculateWidget(QtWidgets.QWidget):
         self.symbol_input.clear()
         self.result.hide()
 
-class RiskProfileWidget(CalculateWidget):
+class RiskReturnWidget(CalculateWidget):
     def __init__(self):
-        super().__init__(widget_title="Risk-Profile Over Last 100 Days", button_msg="Calculate Profile", 
+        super().__init__(widget_title="Risk-Return Profile Over Last 100 Days", button_msg="Calculate Profile", 
                             calculate_function=self.calculate)
 
     @QtCore.Slot()
@@ -102,46 +102,8 @@ class CorrelationWidget(CalculateWidget):
     @QtCore.Slot()
     def calculate(self):
         user_symbols = self.symbol_input.text().upper().split(",")
-        entire_formatted_result, formatted_title = "", ""
-
-        line_length, percent_length = 0, 0
-        new_line=""
-        no_symbols = len(user_symbols)
-
-        for i in range(no_symbols):
-            this_symbol = user_symbols[i].strip()
-            symbol_string = f'{this_symbol} '
-            if i != 0:
-                this_line = symbol_string + ' '*(line_length - len(symbol_string) - 7*(no_symbols - i))
-            else: 
-                this_line = symbol_string
-
-            new_line = this_line
-            
-            for j in range(i, no_symbols):
-                if j == i:
-                    new_line += " 100.0%"
-                
-                else:
-                    that_symbol = user_symbols[j].strip()
-                    result = statistics.calculate_correlation(this_symbol, that_symbol) 
-                    formatted_result = str(100*result['correlation'])[:5]
-                    new_line += f' {formatted_result}%'
-
-            print(new_line)
-            entire_formatted_result += new_line + '\n'
-            
-            if i == 0:
-                line_length = len(new_line)
-                output.debug(f'Line length set equal to {line_length}')
-
-        for symbol in user_symbols:
-            formatted_title += f' {symbol}'
-        formatted_title += '\n'
-
-
-        whole_thing = formatted_title + entire_formatted_result
-        self.result.setText(whole_thing)
+        correlation_matrix = statistics.get_correlation_matrix_string(user_symbols)
+        self.result.setText(correlation_matrix)
         self.result.show()
 
 class EfficientFrontierWidget(QtWidgets.QWidget):

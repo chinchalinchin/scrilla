@@ -2,7 +2,7 @@ import sys
 import random
 from PySide6 import QtCore, QtWidgets, QtGui
 
-from gui.functions import RiskProfileWidget, CorrelationWidget
+from gui.functions import RiskReturnWidget, CorrelationWidget
 
 def get_title_font():
     font = QtGui.QFont('Impact', 12)
@@ -21,12 +21,14 @@ class MenuWidget(QtWidgets.QWidget):
         self.back_button.hide()
 
         # Widget Buttons
-        self.widget_buttons = [ QtWidgets.QPushButton("Risk-Return Profile"),
-                                    QtWidgets.QPushButton("Correlation") ]
+        self.widget_buttons = [ QtWidgets.QPushButton("Correlation"),
+                                QtWidgets.QPushButton("Risk-Return Profile"),
+                            ]
 
         # Function Widgets
-        self.function_widgets = [ RiskProfileWidget(),
-                                    CorrelationWidget() ]
+        self.function_widgets = [ CorrelationWidget(), 
+                                    RiskReturnWidget(),
+                                ]
 
         self.layout = QtWidgets.QVBoxLayout()
 
