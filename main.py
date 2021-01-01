@@ -18,7 +18,7 @@ import gui.menu as menu
 import util.helpers as helper
 import util.logger as logger
 
-output = logger.Logger('app.pyfin.main')
+output = logger.Logger('main')
 
 
 if __name__ == "__main__": 
