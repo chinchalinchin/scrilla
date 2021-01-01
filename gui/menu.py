@@ -4,20 +4,23 @@ from PySide6 import QtCore, QtWidgets, QtGui
 
 from gui.functions import RiskProfileWidget
 
-WIDGET_ORDER = ["RiskProfile"]
-# DESIGN: menu widget holds other widgets. when you click the function button,
-# it will hide the menu widget and show the function widget. a button on 
-# the function widget will cause the function widget to hide and the menu
-# widget to redisplay
+def get_title_font():
+    font = QtGui.QFont('Impact', 12)
+    font.bold()
+    return font
+
+# NOTE: widget_buttons and function_widgets must preserve order.
 class MenuWidget(QtWidgets.QWidget):
     def __init__(self):
         super().__init__()
         self.title = QtWidgets.QLabel("Pynance", alignment=QtCore.Qt.AlignTop)
+        self.title.setFont(get_title_font())
 
         self.back_button = QtWidgets.QPushButton("Menu")
         self.back_button.hide()
 
-        self.widget_buttons = [ QtWidgets.QPushButton("Risk-Profile") ]
+        # Widget Buttons
+        self.widget_buttons = [ QtWidgets.QPushButton("Risk-Return Profile") ]
 
         # Function Widgets
         self.function_widgets = [ RiskProfileWidget() ]
@@ -26,6 +29,8 @@ class MenuWidget(QtWidgets.QWidget):
 
         self.layout.addWidget(self.title)
     
+        self.layout.addStretch()
+
         for button in self.widget_buttons:
             this_widget = self.widget_buttons.index(button)
             button.clicked.connect(lambda args = this_widget: self.show_widget(args))
@@ -35,6 +40,8 @@ class MenuWidget(QtWidgets.QWidget):
         for widget in self.function_widgets:
             widget.hide()
             self.layout.addWidget(widget)
+        
+        self.layout.addStretch()
 
         self.layout.addWidget(self.back_button)
 
@@ -44,8 +51,6 @@ class MenuWidget(QtWidgets.QWidget):
 
     @QtCore.Slot()
     def show_widget(self, this_widget):
-        print('clicked')
-
         for button in self.widget_buttons:
             button.hide()
 
@@ -57,8 +62,10 @@ class MenuWidget(QtWidgets.QWidget):
     def clear(self):
         for widget in self.function_widgets:
             widget.hide()
+
         for button in self.widget_buttons:
             button.show()
+
         self.back_button.hide()
 
 if __name__ == "__main__":

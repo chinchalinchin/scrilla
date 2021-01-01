@@ -4,13 +4,32 @@ from PySide6 import QtCore, QtWidgets, QtGui
 
 import app.statistics as statistics
 
+def get_label_font():
+    font = QtGui.QFont('Arial', 10)
+    font.setBold(True)
+    font.setUnderline(True)
+    return font
+
+def get_msg_font():
+    font = QtGui.QFont('Arial', 8)
+    font.setItalic(True)
+    return font
+
+def get_result_font():
+    font = QtGui.QFont('Arial', 8)
+    font.setBold(True)
+    return font
+
 class RiskProfileWidget(QtWidgets.QWidget):
     def __init__(self):
         super().__init__()
 
         self.title = QtWidgets.QLabel("Risk-Profile Over Last 100 Days", alignment=QtCore.Qt.AlignTop)
+        self.title.setFont(get_label_font())
+
         self.message = QtWidgets.QLabel("Please separate symbols with a comma", alignment=QtCore.Qt.AlignBottom)
-        
+        self.message.setFont(get_msg_font())    
+
         self.calculate_button = QtWidgets.QPushButton("Calculate Risk-Return")
         self.calculate_button.setAutoDefault(True)
             # emits 'clicked' when return is pressed
@@ -20,6 +39,7 @@ class RiskProfileWidget(QtWidgets.QWidget):
             # emits 'clicked' when return is pressed
 
         self.result = QtWidgets.QLabel("Result", alignment=QtCore.Qt.AlignCenter)
+        self.result.setFont(get_result_font())
         self.result.hide()
         
         self.symbol_input = QtWidgets.QLineEdit()
@@ -28,6 +48,7 @@ class RiskProfileWidget(QtWidgets.QWidget):
         self.layout = QtWidgets.QVBoxLayout()
 
         self.layout.addWidget(self.title)
+        self.layout.addStretch()
         self.layout.addWidget(self.result)
         self.layout.addWidget(self.message)
         self.layout.addWidget(self.symbol_input)
