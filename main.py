@@ -42,7 +42,7 @@ if __name__ == "__main__":
         elif opt == settings.FUNC_ARG_DICT["gui"]:
             app = QtWidgets.QApplication([])
 
-            widget = functions.RiskProfileWidget()
+            widget = menu.MenuWidget()
             widget.resize(settings.GUI_WIDTH, settings.GUI_HEIGHT)
             widget.show()
 

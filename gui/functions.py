@@ -10,21 +10,27 @@ class RiskProfileWidget(QtWidgets.QWidget):
 
         self.title = QtWidgets.QLabel("Risk-Profile Over Last 100 Days", alignment=QtCore.Qt.AlignTop)
         self.message = QtWidgets.QLabel("Please separate symbols with a comma", alignment=QtCore.Qt.AlignBottom)
+        
         self.calculate_button = QtWidgets.QPushButton("Calculate Risk-Return")
+        self.calculate_button.setAutoDefault(True)
+            # emits 'clicked' when return is pressed
+
         self.clear_button = QtWidgets.QPushButton("Clear")
+        self.clear_button.setAutoDefault(True)
+            # emits 'clicked' when return is pressed
 
         self.result = QtWidgets.QLabel("Result", alignment=QtCore.Qt.AlignCenter)
         self.result.hide()
         
-        self.symbols = QtWidgets.QLineEdit()
-        self.symbols.setMaxLength(100)
+        self.symbol_input = QtWidgets.QLineEdit()
+        self.symbol_input.setMaxLength(100)
         
         self.layout = QtWidgets.QVBoxLayout()
 
         self.layout.addWidget(self.title)
         self.layout.addWidget(self.result)
         self.layout.addWidget(self.message)
-        self.layout.addWidget(self.symbols)
+        self.layout.addWidget(self.symbol_input)
         self.layout.addWidget(self.calculate_button)
         self.layout.addWidget(self.clear_button)
 
@@ -32,10 +38,11 @@ class RiskProfileWidget(QtWidgets.QWidget):
 
         self.calculate_button.clicked.connect(self.calculate)
         self.clear_button.clicked.connect(self.clear)
+        self.symbol_input.returnPressed.connect(self.calculate)
 
     @QtCore.Slot()
     def calculate(self):
-        user_symbols = self.symbols.text().upper().split(",")
+        user_symbols = self.symbol_input.text().upper().split(",")
 
         formatted_result = ""
         for user_symbol in user_symbols:
@@ -51,14 +58,17 @@ class RiskProfileWidget(QtWidgets.QWidget):
 
     @QtCore.Slot()
     def clear(self):
-        self.symbol.clear()
+        self.symbol_input.clear()
         self.result.hide()
 
-if __name__ == "__main__":
-    app = QtWidgets.QApplication([])
+class CorrelationWidget(QtWidgets.QWidget):
+    def __init__(self):
+        super().__init__()
 
-    widget = RiskProfileWidget()
-    widget.resize(800, 600)
-    widget.show()
+class EfficientFrontierWidget(QtWidgets.QWidget):
+    def __init__(self):
+        super().__init__()
 
-    sys.exit(app.exec_())
+class OptimizerWidget(QtWidgets.QWidget):
+    def __init__(self):
+        super().__init__()    
