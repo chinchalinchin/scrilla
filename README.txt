@@ -28,6 +28,14 @@ TODOS:
 
 1. Future versions of the application will allow the user to set the service responsible for providing data to the application. Currently, all data is retrieved from the free tier of AlphaVantage.
 
+2. Need to rejigger the correlation algorithm so it works across asset types.
+
+3. Use PyQt to create gui. 
+
+    python ./main.py -gui 
+
+will launch GUI. Currently only have a basic display for risk-return calculations.
+
 NOTE:
 
 The first time this application is run it retrieves a large amount of static data and stores it in the /static/ folder. The first call of the function may take some time, but subsequent calls, assuming you do not have the environment variable INIT = True, should not take anywhere near as long.

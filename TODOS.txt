@@ -1,3 +1,0 @@
-1. Need to rejigger the correlation algorithm so it works across asset types.
-
-2. Use PyQt to create gui.
