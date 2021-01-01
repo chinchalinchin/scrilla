@@ -2,7 +2,6 @@ import datetime, os, io, json, csv, zipfile
 import holidays
 import requests
 import app.settings as settings
-import app.statistics as statistics
 
 def get_number_input(msg_prompt):
     while True:
@@ -112,46 +111,6 @@ def parse_csv_response_column(column, url, firstRowHeader=None, savefile=None, z
         with open(savefile, 'w') as outfile:
             json.dump(col, outfile)
             
-def get_correlation_matrix_string(symbols, indent=0):
-    entire_formatted_result, formatted_title = "", ""
-
-    line_length, percent_length = 0, 0
-    new_line=""
-    no_symbols = len(symbols)
-
-    for i in range(no_symbols):
-        this_symbol = symbols[i].strip()
-        symbol_string = ' '*indent + f'{this_symbol} '
-
-        if i != 0:
-            this_line = symbol_string + ' '*(line_length - len(symbol_string) - 7*(no_symbols - i))
-        else: 
-            this_line = symbol_string
-
-        new_line = this_line
-        
-        for j in range(i, no_symbols):
-            if j == i:
-                new_line += " 100.0%"
-            
-            else:
-                that_symbol = symbols[j].strip()
-                result = statistics.calculate_correlation(this_symbol, that_symbol) 
-                formatted_result = str(100*result['correlation'])[:settings.SIG_FIGS]
-                new_line += f' {formatted_result}%'
-
-        entire_formatted_result += new_line + '\n'
-        
-        if i == 0:
-            line_length = len(new_line)
-
-    for symbol in symbols:
-        formatted_title += f' {symbol}'
-    formatted_title += '\n'
-
-    whole_thing = formatted_title + entire_formatted_result
-    return whole_thing
-
 def clear_dir(directory, retain=True):
     filelist = [ f for f in os.listdir(directory)]
     if retain:

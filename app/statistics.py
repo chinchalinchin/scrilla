@@ -308,3 +308,46 @@ def calculate_correlation(ticker_1, ticker_2):
         json.dump(result, outfile)
 
     return result
+
+def get_correlation_matrix_string(symbols, indent=0):
+    entire_formatted_result, formatted_title = "", ""
+
+    line_length, percent_length, first_symbol_length = 0, 0, 0
+    new_line=""
+    no_symbols = len(symbols)
+
+    for i in range(no_symbols):
+        this_symbol = symbols[i].strip()
+        symbol_string = ' '*indent + f'{this_symbol} '
+
+        if i != 0:
+            this_line = symbol_string + ' '*(line_length - len(symbol_string) - 7*(no_symbols - i))
+        else: 
+            this_line = symbol_string
+            first_symbol_length = len(this_symbol)
+
+        new_line = this_line
+        
+        for j in range(i, no_symbols):
+            if j == i:
+                new_line += " 100.0%"
+            
+            else:
+                that_symbol = symbols[j].strip()
+                result = calculate_correlation(this_symbol, that_symbol) 
+                formatted_result = str(100*result['correlation'])[:settings.SIG_FIGS]
+                new_line += f' {formatted_result}%'
+
+        entire_formatted_result += new_line + '\n'
+        
+        if i == 0:
+            line_length = len(new_line)
+
+    formatted_title += ' '*(indent + first_symbol_length+1)
+    for symbol in symbols:
+        sym_len = len(symbol)
+        formatted_title += f' {symbol}'+ ' '*(7-sym_len)
+    formatted_title += '\n'
+
+    whole_thing = formatted_title + entire_formatted_result
+    return whole_thing

@@ -72,8 +72,9 @@ if __name__ == "__main__":
             # Correlation Matrix
             elif opt == settings.FUNC_ARG_DICT["correlation"]:
                 if(len(args) > 1):
-                    print(helper.get_correlation_matrix_string())
-                    
+                    result = statistics.get_correlation_matrix_string(args, settings.INDENT)
+                    output.comment(f'\n{result}')
+
                 else:
                     output.comment('Invalid Input. Try -ex Flag For Example Usage.')
             
