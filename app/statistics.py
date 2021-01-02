@@ -31,7 +31,7 @@ def calculate_moving_averages(tickers, start_date=None, end_date=None):
             count, tomorrows_price, MA_1, MA_2, MA_3 = 1, 0, 0, 0, 0
     
             for date in prices:
-                todays_price = helper.parse_price_from_date(prices, date, asset_type)
+                todays_price = services.parse_price_from_date(prices, date, asset_type)
                 if today:
                     todays_return = numpy.log(float(tomorrows_price) / float(todays_price))/trading_period
                     
@@ -48,7 +48,7 @@ def calculate_moving_averages(tickers, start_date=None, end_date=None):
                 else:
                     today = True
 
-                tomorrows_price = helper.parse_price_from_date(prices, date, asset_type)
+                tomorrows_price = services.parse_price_from_date(prices, date, asset_type)
 
             moving_averages.append([MA_1, MA_2, MA_3])
 
@@ -92,7 +92,7 @@ def calculate_risk_return(ticker, start_date=None, end_date=None):
         output.debug(f'Calculating mean annual return over last {sample} days for {ticker}')
 
         for date in prices:
-            todays_price = helper.parse_price_from_date(prices, date, asset_type)
+            todays_price = services.parse_price_from_date(prices, date, asset_type)
 
             if i != 0:
                 output.verbose(f'(todays_price, tomorrows_price) = ({todays_price}, {tomorrows_price})')
@@ -104,7 +104,7 @@ def calculate_risk_return(ticker, start_date=None, end_date=None):
                 output.verbose('Skipping first date.')
                 i += 1  
 
-            tomorrows_price = helper.parse_price_from_date(prices, date, asset_type)
+            tomorrows_price = services.parse_price_from_date(prices, date, asset_type)
             
         # calculate sample annual volatility
         i, variance, tomorrows_price = 0, 0, 0
@@ -112,7 +112,7 @@ def calculate_risk_return(ticker, start_date=None, end_date=None):
         output.debug(f'Calculating mean annual volatility over last {sample} days for {ticker}')
 
         for date in prices:
-            todays_price = helper.parse_price_from_date(prices, date, asset_type)
+            todays_price = services.parse_price_from_date(prices, date, asset_type)
 
             if i != 0:
                 output.verbose(f'todays_price, tomorrows_price) = ({todays_price}, {tomorrows_price})')
@@ -123,7 +123,7 @@ def calculate_risk_return(ticker, start_date=None, end_date=None):
             else:
                 i += 1
 
-            tomorrows_price = helper.parse_price_from_date(prices, date, asset_type)
+            tomorrows_price = services.parse_price_from_date(prices, date, asset_type)
 
         # adjust for output
         volatility = numpy.sqrt(variance)
@@ -253,8 +253,8 @@ def calculate_correlation(ticker_1, ticker_2, start_date=None, end_date=None):
         #### START CORRELATION LOOP ####
             # TODO: Needs work. Not calculating correlation for different asset_types correctly
         for date in sample_prices:
-            todays_price_1 = helper.parse_price_from_date(prices_1, date, asset_type_1)
-            todays_price_2 = helper.parse_price_from_date(prices_2, date, asset_type_2)
+            todays_price_1 = services.parse_price_from_date(prices_1, date, asset_type_1)
+            todays_price_2 = services.parse_price_from_date(prices_2, date, asset_type_2)
             todays_date = date
             output.verbose(f'(todays_date, todays_price_{ticker_1}, todays_price_{ticker_2}) = ({todays_date}, {todays_price_1}, {todays_price_2})')
                 
@@ -295,8 +295,8 @@ def calculate_correlation(ticker_1, ticker_2, start_date=None, end_date=None):
                     i += 1
                 output.verbose(f'(revised_covariance, revised_sample) = ({covariance}, {sample})')
             
-            tomorrows_price_1 = helper.parse_price_from_date(prices_1, date, asset_type_1)
-            tomorrows_price_2 = helper.parse_price_from_date(prices_2, date, asset_type_2)
+            tomorrows_price_1 = services.parse_price_from_date(prices_1, date, asset_type_1)
+            tomorrows_price_2 = services.parse_price_from_date(prices_2, date, asset_type_2)
             tomorrows_date = date
 
         #### END CORRELATION LOOP ####

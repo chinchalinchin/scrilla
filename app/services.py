@@ -11,6 +11,15 @@ import util.helper as helper
 
 output = logger.Logger("app.services")
 
+def parse_price_from_date(prices, date, asset_type):
+    try:
+        if asset_type == settings.ASSET_EQUITY:
+            return prices[date][settings.AV_RES_EQUITY_CLOSE_PRICE]
+        elif asset_type == settings.ASSET_CRYPTO:
+            return prices[date][settings.AV_RES_CRYPTO_CLOSE_PRICE]
+    except:
+        return False
+        
 # Arguments: tickers -> [string]
 #            startdate -> datetime.date
 #            enddate -> datetime.date

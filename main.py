@@ -102,7 +102,8 @@ if __name__ == "__main__":
             elif opt == settings.FUNC_ARG_DICT['efficient_frontier']:
                 if(len(args)>1):
                     frontier = optimizer.calculate_efficient_frontier(equities=args)
-                    output.efficient_frontier(portfolio=Portfolio(args), frontier=frontier)
+                    output.efficient_frontier(portfolio=Portfolio(args), frontier=frontier,
+                                                user_input=settings.INVESTMENT_MODE)
                 
                 else: 
                     output.debug('Invalid Input. Try -ex Flag For Example Usage.')
@@ -119,7 +120,8 @@ if __name__ == "__main__":
             elif opt == settings.FUNC_ARG_DICT['maximize_return']:
                 if (len(args)>1):
                     allocation = optimizer.maximize_portfolio_return(equities=args)
-                    output.optimal_result(portfolio=Portfolio(args), allocation=allocation)
+                    output.optimal_result(portfolio=Portfolio(args), allocation=allocation, 
+                                            user_input=settings.INVESTMENT_MODE)
 
                 else:
                     output.comment('Invalid Input. Try -ex Flag For Example Usage.')
@@ -127,14 +129,16 @@ if __name__ == "__main__":
             elif opt == settings.FUNC_ARG_DICT['minimize_variance']:
                 if(len(args)>1):
                     allocation = optimizer.minimize_portfolio_variance(equities=args)
-                    output.optimal_result(portfolio=Portfolio(args), allocation=allocation)
+                    output.optimal_result(portfolio=Portfolio(args), allocation=allocation,
+                                            user_input=settings.INVESTMENT_MODE)
                 else: 
                     output.comment('Invalid Input. Try -ex Flag For Example Usage.')
 
             elif opt == settings.FUNC_ARG_DICT['moving_averages']:
                 if(len(args)>1) or len(args)==1:
                     moving_averages = statistics.calculate_moving_averages(args)
-                    output.moving_average_result(args, moving_averages)
+                    periods = [settings.MA_1_PERIOD, settings.MA_2_PERIOD, settings.MA_3_PERIOD]
+                    output.moving_average_result(args, moving_averages, periods)
 
                 else: 
                     output.comment('Invalid Input. Try -ex Flag For Example Usage.')
@@ -146,7 +150,8 @@ if __name__ == "__main__":
                         equities = args[:(len(args)-1)]
 
                         allocation = optimizer.optimize_portfolio(equities=equities, target_return=target_return)   
-                        output.optimal_result(portfolio=Portfolio(equities), allocation=allocation)
+                        output.optimal_result(portfolio=Portfolio(equities), allocation=allocation,
+                                                settings.INVESTMENT_MODE)
 
                     except: 
                         output.sys_error()
