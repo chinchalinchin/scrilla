@@ -26,13 +26,16 @@ else:
 DEBUG= True if os.getenv('DEBUG').lower() == 'true' else False
 VERBOSE= True if os.getenv('VERBOSE').lower() == 'true' else False
 
+# NOTE: CACHE only supports JSON currently. Future file extensions: csv and txt.
 CACHE_DIR = os.path.join(APP_DIR, 'cache')
+CACHE_EXT = "json"
 
 STATIC_DIR = os.path.join(APP_DIR, 'static')
+STATIC_EXT = "json"
 
-STATIC_TICKERS_FILE = os.path.join(STATIC_DIR, "tickers.json")
-STATIC_ECON_FILE = os.path.join(STATIC_DIR, "economics.json")
-STATIC_CRYPTO_FILE = os.path.join(STATIC_DIR, "crypto.json")
+STATIC_TICKERS_FILE = os.path.join(STATIC_DIR, f'tickers.{STATIC_EXT}')
+STATIC_ECON_FILE = os.path.join(STATIC_DIR, f'economics.{STATIC_EXT}')
+STATIC_CRYPTO_FILE = os.path.join(STATIC_DIR, f'crypto.{STATIC_EXT}')
 
 try:
     GUI_WIDTH = int(os.environ.setdefault('GUI_WIDTH', 800))

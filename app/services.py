@@ -20,9 +20,11 @@ def parse_price_from_date(prices, date, asset_type):
     except:
         return False
         
-# ARGUMENTS: tickers : [ string ] : list of symbols whose prices will be retrieved
+# ARGUMENTS: 
+#            tickers : [ string ] : list of symbols whose prices will be retrieved
 #            start_date : datetime.date : start of time period 
 #            end_date : datetime.date : end of time period
+#
 # NOTE: Only recent prices are cached, i.e. the last 100 days of prices. Calls
 # for other periods of time are not cached and will take longer to load due to 
 # the API rate limit from AlphaVantage.
@@ -32,12 +34,13 @@ def retrieve_prices_from_cache(ticker, start_date=None, end_date=None):
     if buffer_flag:
         now = datetime.datetime.now()
         timestamp = '{}{}{}'.format(now.month, now.day, now.year)
-        buffer_store= os.path.join(settings.CACHE_DIR, f'{timestamp}_{ticker}.json')
+        buffer_store= os.path.join(settings.CACHE_DIR, f'{timestamp}_{ticker}.{settings.CACHE_EXT}')
         
         if os.path.isfile(buffer_store):
             output.debug(f'Loading in cached {ticker} prices...')
             with open(buffer_store, 'r') as infile:
-                prices = json.load(infile)
+                if settings.CACHE_EXT == "json":
+                    prices = json.load(infile)
             return prices
     
     output.debug(f'Retrieving {ticker} prices from Service Manager...')  
@@ -46,7 +49,8 @@ def retrieve_prices_from_cache(ticker, start_date=None, end_date=None):
     if buffer_flag:
         output.debug(f'Storing {ticker} price history in cache...')
         with open(buffer_store, 'w') as outfile:
-            json.dump(prices, outfile)
+            if settings.CACHE_EXT == "json":
+                json.dump(prices, outfile)
 
     return prices
 
@@ -233,7 +237,7 @@ def init_static_data():
 
                 output.debug(f'Preparsing to parse \'{settings.PRICE_MANAGER}\' Response to query: {query}')
                 helper.parse_csv_response_column(column=0, url=url, firstRowHeader=settings.AV_RES_EQUITY_KEY, 
-                                                    savefile=settings.STATIC_TICKERS_FILE)
+                                                    savefile=settings.STATIC_TICKERS_FILE, filetype=settings.STATIC_EXT)
 
             # grab crypto symbols and store in STATIC_DIR
             if not os.path.isfile(settings.STATIC_CRYPTO_FILE):
@@ -242,7 +246,7 @@ def init_static_data():
 
                 output.debug(f'Preparsing to parse \'{settings.PRICE_MANAGER}\' Response to query: {url}')
                 helper.parse_csv_response_column(column=0, url=url, firstRowHeader=settings.AV_RES_CRYPTO_KEY, 
-                                                    savefile=settings.STATIC_CRYPTO_FILE)
+                                                    savefile=settings.STATIC_CRYPTO_FILE, filetype=settings.STATIC_EXT)
 
         else:
             output.debug("No PRICE_MANAGER set in .env file!")
@@ -259,7 +263,8 @@ def init_static_data():
 
                 output.debug(f'Preparsing to parse \'{settings.PRICE_MANAGER}\' Response to query: {query}')
                 helper.parse_csv_response_column(column=0, url=url, firstRowHeader=settings.Q_RES_STAT_KEY,
-                                                    savefile=settings.STATIC_ECON_FILE, zipped=settings.Q_RES_STAT_ZIP_KEY)
+                                                    savefile=settings.STATIC_ECON_FILE, filetype=settings.STATIC_EXT,
+                                                    zipped=settings.Q_RES_STAT_ZIP_KEY)
 
         else:
             output.debug("No STAT_MANAGER set in .env file!")
