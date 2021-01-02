@@ -16,7 +16,7 @@ if settings.ENVIRONMENT != "container":
     import gui.menu as menu
     import util.plotter as plotter
 
-import util.helpers as helper
+import util.helper as helper
 import util.logger as logger
 
 output = logger.Logger('main')
@@ -185,6 +185,7 @@ if __name__ == "__main__":
                 
                 else:
                     output.debug('Invalid Input. Try Try -ex Flag For Example Usage.')
+                    
             elif opt == settings.FUNC_ARG_DICT["risk_return"]:
                 if(len(args)>1) or len(args)==1:
                     for arg in args:

@@ -10,7 +10,7 @@ import app.optimizer as optimizer
 import app.portfolio as portfolio
 
 import util.logger as logger
-import util.helpers as helper
+import util.helper as helper
 import util.plotter as plotter
 
 from gui.widgets import CompositeWidget, GraphWidget, \

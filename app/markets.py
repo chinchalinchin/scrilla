@@ -14,3 +14,8 @@ def get_asset_type(symbol):
             return settings.ASSET_EQUITY
         else:
             return None
+
+def get_risk_free_rate():
+    # TODO: call Quandl to get 1 year interest rate
+    
+    pass

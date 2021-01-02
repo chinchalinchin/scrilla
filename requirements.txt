@@ -1,5 +1,6 @@
 # Application Configuration Dependencies
 python-dotenv==0.15.0
+setuptools==51.1.1
 
 # Service Configuration Dependencies
 requests==2.25.0
