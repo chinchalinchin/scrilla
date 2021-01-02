@@ -2,7 +2,6 @@ import os, sys
 import datetime
 import scipy.optimize as optimize
 
-from PyQt5 import QtWidgets
 
 import app.settings as settings
 import app.statistics as statistics
@@ -12,7 +11,9 @@ import app.markets as markets
 
 from app.portfolio import Portfolio
 
-import gui.menu as menu
+if settings.ENVIRONMENT != "container":
+    from PyQt5 import QtWidgets
+    import gui.menu as menu
 
 import util.helpers as helper
 import util.logger as logger
@@ -39,7 +40,7 @@ if __name__ == "__main__":
             helper.clear_dir(directory=settings.STATIC_DIR, retain=True)
             helper.clear_dir(directory=settings.CACHE_DIR, retain=True)
 
-        elif opt == settings.FUNC_ARG_DICT["gui"]:
+        elif opt == settings.FUNC_ARG_DICT["gui"] and settings.ENVIRONMENT != "container":
             app = QtWidgets.QApplication([])
 
             widget = menu.MenuWidget()
@@ -143,7 +144,7 @@ if __name__ == "__main__":
                 else: 
                     output.comment('Invalid Input. Try -ex Flag For Example Usage.')
             
-            elif opt == settings.FUNC_ARG_DICT['plot_frontier']:
+            elif opt == settings.FUNC_ARG_DICT['plot_frontier'] and settings.ENVIRONMENT != "container":
                 if(len(args)>1):
                     frontier = optimizer.calculate_efficient_frontier(equities=args)
                     output.plot_frontier(portfolio=Portfolio(args), frontier=frontier)
@@ -151,7 +152,7 @@ if __name__ == "__main__":
                 else: 
                     output.debug('Invalid Input. Try Try -ex Flag For Example Usage.')
 
-            elif opt == settings.FUNC_ARG_DICT['plot_moving_averages']:
+            elif opt == settings.FUNC_ARG_DICT['plot_moving_averages'] and settings.ENVIRONMENT != "container":
                 if(len(args)>1) or len(args)==1:
                     moving_averages = statistics.calculate_moving_averages(args)
                     plotter.plot_moving_averages(symbols=args, averages=moving_averages, show=True)

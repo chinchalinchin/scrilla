@@ -10,6 +10,8 @@ APP_NAME="PYNANCE"
 
 APP_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+ENVIRONMENT = os.environ.setdefault('ENVIRONMENT', 'local')
+
 dotenv.load_dotenv(os.path.join(APP_DIR,'.env'))
 
 DEBUG= True if os.getenv('DEBUG').lower() == 'true' else False
@@ -164,8 +166,8 @@ FUNC_DICT = {
     "minimize_variance": "Minimize the variance of the portfolio defined by the supplied list of ticker symbols.",
     "moving_averages": "Calculate the current moving averages ",
     "optimize_portfolio":"Optimize the variance of the portfolio's variance subject to the supplied return target. The target return must be specified by the last argument",
-    "plot_frontier": "Generates a scatter plot graphic of the portfolio's efficient frontier for the supplied list of tickers.",
-    "plot_moving_averages": "Generates a grouped bar chart of the moving averages for each equity in the supplied list of tickers.",
+    "plot_frontier": "Generates a scatter plot graphic of the portfolio's efficient frontier for the supplied list of tickers. Not available when running inside of a Docker container.",
+    "plot_moving_averages": "Generates a grouped bar chart of the moving averages for each equity in the supplied list of tickers. Not available when running inside of a Docker container.",
     "purge": "Removes all files contained with the /static/ and /cache/ directory, but retains the directories themselves.",
     "risk_return": "Calculate the risk-return profile for the supplied list of ticker symbols.",
 }
