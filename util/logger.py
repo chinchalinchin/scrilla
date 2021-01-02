@@ -163,27 +163,3 @@ class Logger():
             self.scalar_result('Return', portfolio.return_function(allocation))
             self.scalar_result('Volatility', portfolio.volatility_function(allocation))
             self.return_line()
-
-    # TODO: move to plotter.py
-    # APPLICATION SPECIFIC GRAPHICS
-    def plot_frontier(self, portfolio, frontier):
-        return_profile=[]
-        risk_profile=[]
-        for allocation in frontier:
-            return_profile.append(portfolio.return_function(allocation))
-            risk_profile.append(portfolio.volatility_function(allocation))
-        return_profile = numpy.array(return_profile)
-        risk_profile = numpy.array(risk_profile)
-        
-        title = " ( "
-        for i in range(len(portfolio.tickers)):
-            if i != (len(portfolio.tickers) - 1):
-                title += portfolio.tickers[i] + ", "
-            else:
-                title += portfolio.tickers[i] + " ) Efficient Frontier"
-        
-        matplotlib.plot(risk_profile, return_profile, linestyle='dashed')
-        matplotlib.xlabel('Volatility')
-        matplotlib.ylabel('Return')
-        matplotlib.title(title)
-        matplotlib.show()

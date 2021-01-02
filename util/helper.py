@@ -1,8 +1,7 @@
 import datetime, os, io, json, csv, zipfile
 import holidays
 import requests
-import app.settings as settings
-
+    
 def get_number_input(msg_prompt):
     while True:
         user_input = input(msg_prompt)
