@@ -37,6 +37,10 @@ class SymbolWidget(QtWidgets.QWidget):
         self.message = QtWidgets.QLabel("Please separate symbols with a comma", alignment=QtCore.Qt.AlignBottom)
         self.message.setFont(get_msg_font())    
 
+        self.error_message = QtWidgets.QLabel("Something Went Wrong; Check Input and Try Again", alignment=QtCore.Qt.AlignHCenter)
+        self.error_message.setFont(get_subtitle_font())
+        self.error_message.hide()
+
         self.calculate_button = QtWidgets.QPushButton(button_msg)
         self.calculate_button.setAutoDefault(True)
             # emits 'clicked' when return is pressed
@@ -57,10 +61,6 @@ class TableWidget(SymbolWidget):
         self.table.hide()
 
         self.layout = QtWidgets.QVBoxLayout()
-    
-        self.error_message = QtWidgets.QLabel("Something Went Wrong; Check Input and Try Again", alignment=QtCore.Qt.AlignHCenter)
-        self.error_message.setFont(get_subtitle_font())
-        self.error_message.hide()
 
         self.layout.addWidget(self.title)
         self.layout.addStretch()
@@ -129,10 +129,6 @@ class CompositeWidget(SymbolWidget):
         self.table.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustToContents)
         self.table.hide()
 
-        self.error_message = QtWidgets.QLabel("Something Went Wrong; Check Input and Try Again", alignment=QtCore.Qt.AlignHCenter)
-        self.error_message.setFont(get_subtitle_font())
-        self.error_message.hide()
-
         self.first_layer = QtWidgets.QVBoxLayout()
         self.second_layer = QtWidgets.QHBoxLayout()
         self.left_layout = QtWidgets.QVBoxLayout()
@@ -140,7 +136,7 @@ class CompositeWidget(SymbolWidget):
 
         self.first_layer.addWidget(self.title)
         self.first_layer.addStretch()
-        self.first_layer.add(self.error_message)
+        self.first_layer.addWidget(self.error_message)
 
         self.left_layout.addWidget(self.table, 1)
         self.second_layer.addLayout(self.left_layout)
@@ -160,6 +156,8 @@ class CompositeWidget(SymbolWidget):
         self.clear_button.clicked.connect(self.clear)
         self.calculate_button.clicked.connect(calculate_function)
         self.calculate_button.clicked.connect(display_function)
+        self.symbol_input.returnPressed.connect(calculate_function)
+        self.symbol_input.returnPressed.connect(display_function)
 
     @QtCore.Slot()
     def clear(self):
