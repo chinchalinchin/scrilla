@@ -20,16 +20,23 @@ def parse_price_from_date(prices, date, asset_type):
     except:
         return False
         
-# ARGUMENTS: 
-#            tickers : [ string ] : list of symbols whose prices will be retrieved
-#            start_date : datetime.date : start of time period 
-#            end_date : datetime.date : end of time period
-#
-# NOTE: Only recent prices are cached, i.e. the last 100 days of prices. Calls
-# for other periods of time are not cached and will take longer to load due to 
-# the API rate limit from AlphaVantage.
 def retrieve_prices_from_cache(ticker, start_date=None, end_date=None):
+    """
+    Parameters
+    ----------
+    tickers : [ str ]
+        Required. List of ticker symbols corresponding to the price histories to be retrieved.
+    start_date : str
+        Optional. Start date of price history. Must be formatted "YYYY-MM-DD".
+    end_date : str
+        Optional: End date of price history. Must be formatted "YYYY-MM-DD"
+    
+    Notes
+    -----
+    Only recent prices are cached, i.e. the last 100 days of prices. Calls for other periods of time will not be cached and can take considerably longer to load, due to the API rate limits on AlphaVantage. 
+    """
     buffer_flag = (start_date is None and end_date is None)
+    switch_flag = start_date is not None and end_date is not None
 
     if buffer_flag:
         now = datetime.datetime.now()
@@ -42,7 +49,13 @@ def retrieve_prices_from_cache(ticker, start_date=None, end_date=None):
                 if settings.CACHE_EXT == "json":
                     prices = json.load(infile)
             return prices
-    
+
+    if switch_flag:
+        # TODO: time_delta = end_date - start_date
+        # if time_delta < 0
+        #   end_date = start_date
+        #   start_date = end_date
+        pass    
     output.debug(f'Retrieving {ticker} prices from Service Manager...')  
     prices = get_daily_price_history(ticker=ticker, startdate=start_date, enddate=end_date)
 
@@ -62,6 +75,24 @@ def retrieve_prices_from_cache(ticker, start_date=None, end_date=None):
 # Arguments: startdate -> datetime.date
 #             enddate -> datetime.date
 def get_daily_price_history(ticker, start_date=None, end_date=None):
+    """
+    Parameters
+    ----------
+    tickers : [ str ]
+        Required. List of ticker symbols corresponding to the price histories to be retrieved.
+    start_date : str
+        Optional. Start date of price history. Must be formatted "YYYY-MM-DD".
+    end_date : str
+        Optional: End date of price history. Must be formatted "YYYY-MM-DD"
+    
+    Notes
+    -----
+
+    By default, AlphaVantage returns the last 100 days of prices for equities, while returning the entire price history for crypto asset. If no start_date or end_date are specified, this function will truncate the crypto price histories to have a length of 100 so the price histories across asset types are the same length. 
+    """
+    # TODO: price histories aren't the same length, though, because of weekends. 
+    # TODO: don't truncate crypto history until len(crypto_prices) - weekends = 100
+
     asset_type=markets.get_asset_type(ticker)  
 
     if settings.PRICE_MANAGER == "alpha_vantage":

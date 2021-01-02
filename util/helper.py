@@ -57,18 +57,18 @@ def consecutive_trading_days(start_date_string, end_date_string) -> bool:
     """
     Parameters
     ----------
-    start_date_string: str
+    start_date_string : str
         Required. The start date of the time period under consideration. Must be formatted "YYYY-MM-DD"
-    end_date_string: str
+    end_date_string : str
         Required. The end date of the time period under consideration. Must be formatted "YYYY-MM-DD"
     
     Returns 
     -------
     True
-        if start_date and end_date are consecutive trading days, i.e. Tuesday, Wednesday or Friday, Monday,
+        if start_date_string and end_date_string are consecutive trading days, i.e. Tuesday, Wednesday or Friday, Monday,
         or Tuesday, Thursday where Wednesday is a Holiday.
     False
-        if end_date are NOT consecutive trading days.
+        if start_date_string and end_date_string are NOT consecutive trading days.
     """
     if is_date_string_weekend(start_date_string) or is_date_string_weekend(end_date_string):
         return False
@@ -123,7 +123,7 @@ def parse_csv_response_column(column, url, firstRowHeader=None, savefile=None, f
         Optional. the absolute path of the file you wish to save the parsed response column to.
     filetype : str
         Optional. determines the type of conversion that is applied to the response before it is saved. Currently, only supports 'json'.
-    zipped: str
+    zipped : str
         if the response returns a zip file, this argument needs to be set equal to the file within the archive you wish to parse. 
     """
     col, big_mother = [], []
