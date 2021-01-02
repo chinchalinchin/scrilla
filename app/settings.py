@@ -151,6 +151,7 @@ FUNC_ARG_DICT = {
     "optimize_portfolio": "-opt",
     "plot_frontier": "-plot-ef",
     "plot_moving_averages": "-plot-mov",
+    "plot_risk_profile": "-plot-rr",
     "purge": "-pur",
     "risk_return" : "-rr",
 }
@@ -169,7 +170,8 @@ FUNC_DICT = {
     "moving_averages": "Calculate the current moving averages ",
     "optimize_portfolio":"Optimize the variance of the portfolio's variance subject to the supplied return target. The target return must be specified by the last argument",
     "plot_frontier": "Generates a scatter plot graphic of the portfolio's efficient frontier for the supplied list of tickers. Not available when running inside of a Docker container.",
-    "plot_moving_averages": "Generates a grouped bar chart of the moving averages for each equity in the supplied list of tickers. Not available when running inside of a Docker container.",
+    "plot_moving_averages": "Generates a grouped bar chart of the moving averages for each equity in the supplied list of ticker symbols. Not available when running inside of a Docker container.",
+    "plto_risk_profile": "Generates a scatter plot of the risk-return profile for symbol in the supplied list of ticker symbols.",
     "purge": "Removes all files contained with the /static/ and /cache/ directory, but retains the directories themselves.",
     "risk_return": "Calculate the risk-return profile for the supplied list of ticker symbols.",
 }

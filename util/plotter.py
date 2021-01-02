@@ -43,6 +43,12 @@ def plot_frontier(portfolio, frontier, show=True, savefile=None):
     else:
         return canvas
 
+def plot_profiles(symbols, profiles):
+    canvas = FigureCanvas(Figure())
+
+    x = numpy.arange(len(symbols))
+    axes = canvas.figure.subplots()
+
 def plot_moving_averages(symbols, averages, show=True, savefile=None):
     canvas = FigureCanvas(Figure())
 

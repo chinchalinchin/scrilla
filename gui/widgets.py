@@ -150,35 +150,6 @@ class SymbolWidget(QtWidgets.QWidget):
         self.symbol_input = QtWidgets.QLineEdit()
         self.symbol_input.setMaxLength(100)
 
-class CalculateWidget(SymbolWidget):
-    def __init__(self, widget_title, button_msg, calculate_function):
-        super().__init__(widget_title=widget_title, button_msg=button_msg)
-
-        self.result = QtWidgets.QLabel("Result", alignment=QtCore.Qt.AlignRight)
-        self.result.setFont(get_result_font())
-        self.result.hide()
-        
-        self.layout = QtWidgets.QVBoxLayout()
-
-        self.layout.addWidget(self.title)
-        self.layout.addStretch()
-        self.layout.addWidget(self.result)
-        self.layout.addWidget(self.message)
-        self.layout.addWidget(self.symbol_input)
-        self.layout.addWidget(self.calculate_button)
-        self.layout.addWidget(self.clear_button)
-
-        self.setLayout(self.layout)
-
-        self.clear_button.clicked.connect(self.clear)
-        self.calculate_button.clicked.connect(calculate_function)
-        self.symbol_input.returnPressed.connect(calculate_function)
-
-    @QtCore.Slot()
-    def clear(self):
-        self.symbol_input.clear()
-        self.result.hide()
-
 class TableWidget(SymbolWidget):
     def __init__(self, widget_title, button_msg, table_function):
         super().__init__(widget_title=widget_title, button_msg=button_msg)
@@ -212,6 +183,35 @@ class TableWidget(SymbolWidget):
         self.table.clear()
         self.table.hide()
 
+class CalculateWidget(SymbolWidget):
+    def __init__(self, widget_title, button_msg, calculate_function):
+        super().__init__(widget_title=widget_title, button_msg=button_msg)
+
+        self.result = QtWidgets.QLabel("Result", alignment=QtCore.Qt.AlignRight)
+        self.result.setFont(get_result_font())
+        self.result.hide()
+        
+        self.layout = QtWidgets.QVBoxLayout()
+
+        self.layout.addWidget(self.title)
+        self.layout.addStretch()
+        self.layout.addWidget(self.result)
+        self.layout.addWidget(self.message)
+        self.layout.addWidget(self.symbol_input)
+        self.layout.addWidget(self.calculate_button)
+        self.layout.addWidget(self.clear_button)
+
+        self.setLayout(self.layout)
+
+        self.clear_button.clicked.connect(self.clear)
+        self.calculate_button.clicked.connect(calculate_function)
+        self.symbol_input.returnPressed.connect(calculate_function)
+
+    @QtCore.Slot()
+    def clear(self):
+        self.symbol_input.clear()
+        self.result.hide()
+
 # NOTE: display_function MUST set displayed = True and set
 #       figure to FigureCanvasAgg object
 class GraphWidget(SymbolWidget):
@@ -244,3 +244,9 @@ class GraphWidget(SymbolWidget):
             self.layout.removeWidget(self.figure)
             self.figure.deleteLater()
             self.figure = None
+
+class CompositeWidget(SymbolWidget, TableWidget, GraphWidget):
+     def __init__(self, widget_title, button_msg, calculate_function, display_function):
+        super(SymbolWidget, self).__init__(widget_title=widget_title, button_msg=button_msg)
+        super(TableWidget, self).__init__(widget_title=widget_title, button_msg=button_msg, calculate_function=calculate_function)
+        super(GraphWidget, self).__init__(widget_title=widget_title, button_msg=button_msg, display_function=display_function)

@@ -59,7 +59,7 @@ class CorrelationWidget(TableWidget):
             self.table.setColumnCount(no_symbols)
             self.table.setHorizontalHeader(QtWidgets.QHeaderView(QtCore.Qt.Horizontal))
             self.table.setHorizontalHeaderLabels(user_symbols)
-            self.table.horizontalHeader().setStretchLastSection(True)
+            #self.table.horizontalHeader().setStretchLastSection(True)
             self.table.setVerticalHeader(QtWidgets.QHeaderView(QtCore.Qt.Vertical))
             self.table.setVerticalHeaderLabels(user_symbols)
 
@@ -67,6 +67,7 @@ class CorrelationWidget(TableWidget):
                 for j in range(i, len(user_symbols)):
                     if i == j:
                         item = QtWidgets.QTableWidgetItem("100.0%")
+                        item.setTextAlignment(QtCore.Qt.AlignHCenter)
                         self.table.setItem(i, j, item)
                         
                     else:    
@@ -74,9 +75,9 @@ class CorrelationWidget(TableWidget):
                         correlation = statistics.calculate_correlation(user_symbols[i], user_symbols[j])
                         formatted_correlation = str(100*correlation["correlation"])[:settings.SIG_FIGS]+"%"
                         item_1 = QtWidgets.QTableWidgetItem(formatted_correlation)
-                        item_1.setTextAlignment(Qt.AlignHCenter)
+                        item_1.setTextAlignment(QtCore.Qt.AlignHCenter)
                         item_2 = QtWidgets.QTableWidgetItem(formatted_correlation)
-                        item_2.setTextAlignment(Qt.AlignHCenter)
+                        item_2.setTextAlignment(QtCore.Qt.AlignHCenter)
 
                         output.debug(f'Appending correlation = {formatted_correlation} to ({i}, {j}) and ({j}, {i}) entries of matrix')
                         self.table.setItem(j, i, item_1)
