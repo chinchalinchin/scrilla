@@ -245,6 +245,8 @@ class GraphWidget(SymbolWidget):
             self.figure.deleteLater()
             self.figure = None
 
+# NOTE: both calculate_function and display_function get binded to the Widget's calculate_button.
+    # i.e. the display_function's figure should represent the result from the calculate_function
 class CompositeWidget(SymbolWidget, TableWidget, GraphWidget):
      def __init__(self, widget_title, button_msg, calculate_function, display_function):
         super(SymbolWidget, self).__init__(widget_title=widget_title, button_msg=button_msg)
