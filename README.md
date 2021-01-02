@@ -42,7 +42,7 @@ to perform the same operation as the following command performed in the project 
 
 > python ./main.py -min SPY GLD EWA
 
-## TODOS
+### TODOS
 
 1. Future versions of the application will allow the user to set the service responsible for providing data to the application. Currently, all data is retrieved from the free tier of AlphaVantage and Quandl.
 
@@ -64,6 +64,6 @@ to perform the same operation as the following command performed in the project 
 
 10. Rejigger settings.py to search for API keys in .env and if it finds none, search in config.json. If it still finds none, prompt user to register and enter via command line/dialog box. Save in config.json. Perhaps search config.json first since those credentials will always override .env credentials?
 
-## NOTE
+### NOTE
 
 The first time this application is run it retrieves a large amount of static data and stores it in the <b>/static/</b> folder. The first call of the function may take some time, but subsequent calls, assuming you do not have the environment variable <b>INIT</b> = <b>True</b>, should not take anywhere near as long.
