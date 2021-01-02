@@ -187,28 +187,3 @@ class Logger():
         matplotlib.ylabel('Return')
         matplotlib.title(title)
         matplotlib.show()
-    
-    def plot_moving_averages(self, tickers, averages):
-        width = settings.BAR_WIDTH
-        x = numpy.arange(len(tickers))
-        fig, ax = matplotlib.subplots()
-        
-        ma1s, ma2s, ma3s = [], [], []
-        for i in range(len(tickers)):
-            ma1s.append(averages[i][0])
-            ma2s.append(averages[i][1])
-            ma3s.append(averages[i][2])
-        
-        ma1_label, ma2_label, ma3_label = f'MA({settings.MA_1_PERIOD})', f'MA({settings.MA_2_PERIOD})', f'MA({settings.MA_3_PERIOD})'
-        ax.bar(x - width, ma1s, width, label=ma1_label)
-        ax.bar(x, ma2s, width, label=ma2_label)
-        ax.bar(x + width, ma3s, width, label=ma3_label)
-
-        ax.set_ylabel('Moving Average of Daily Return')
-        ax.set_title('Moving Averages of Daily Return Grouped By Equity')
-        ax.set_xticks(x)
-        ax.set_xticklabels(tickers)
-        ax.legend()
-
-
-        matplotlib.show()

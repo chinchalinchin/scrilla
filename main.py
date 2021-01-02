@@ -2,7 +2,7 @@ import os, sys
 import datetime
 import scipy.optimize as optimize
 
-from PySide6 import QtWidgets
+from PyQt5 import QtWidgets
 
 import app.settings as settings
 import app.statistics as statistics
@@ -16,6 +16,7 @@ import gui.menu as menu
 
 import util.helpers as helper
 import util.logger as logger
+import util.plotter as plotter
 
 output = logger.Logger('main')
 
@@ -153,7 +154,8 @@ if __name__ == "__main__":
             elif opt == settings.FUNC_ARG_DICT['plot_moving_averages']:
                 if(len(args)>1) or len(args)==1:
                     moving_averages = statistics.calculate_moving_averages(args)
-                    output.plot_moving_averages(args, moving_averages)
+                    plotter.plot_moving_averages(symbols=args, averages=moving_averages, show=True)
+
                 else:
                     output.debug('Invalid Input. Try Try -ex Flag For Example Usage.')
 

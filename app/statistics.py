@@ -18,14 +18,14 @@ def calculate_moving_averages(tickers, current=True, enddate=None):
     
     if current:
         for ticker in tickers:
+            ticker = ticker.strip()
             prices = services.retrieve_prices_from_cache(ticker)
-            asset_type = helper.get_asset_type(ticker)
+            asset_type = markets.get_asset_type(ticker)
             today = False
             count, tomorrows_price, MA_1, MA_2, MA_3 = 1, 0, 0, 0, 0
     
             for date in prices:
                 todays_price = helper.parse_price_from_date(prices, date, asset_type)
-
                 if today:
                     todays_return = numpy.log(float(tomorrows_price) / float(todays_price))/settings.ONE_TRADING_DAY
                     

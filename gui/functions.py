@@ -1,11 +1,14 @@
 import sys
+import matplotlib
 
-from PySide6 import QtCore, QtWidgets, QtGui
+from PyQt5 import QtGui, QtCore, QtWidgets
+
 
 import app.statistics as statistics
 
 import util.logger as logger
 import util.helpers as helper
+import util.plotter as plotter
 
 output = logger.Logger('gui.functions')
 
@@ -113,3 +116,57 @@ class EfficientFrontierWidget(QtWidgets.QWidget):
 class OptimizerWidget(QtWidgets.QWidget):
     def __init__(self):
         super().__init__()    
+
+class MovingAverageWidget(QtWidgets.QWidget):
+    def __init__(self):
+        super().__init__()
+        self.title = QtWidgets.QLabel("Rolling Moving Average Plot", alignment=QtCore.Qt.AlignTop)
+        self.title.setFont(get_label_font())
+
+        self.message = QtWidgets.QLabel("Please separate symbols with a comma", alignment=QtCore.Qt.AlignBottom)
+        self.message.setFont(get_msg_font())    
+
+        self.calculate_button = QtWidgets.QPushButton("Calculate MAs")
+        self.calculate_button.setAutoDefault(True)
+            # emits 'clicked' when return is pressed
+
+        self.clear_button = QtWidgets.QPushButton("Clear")
+        self.clear_button.setAutoDefault(True)
+            # emits 'clicked' when return is pressed
+        
+        self.symbol_input = QtWidgets.QLineEdit()
+        self.symbol_input.setMaxLength(100)
+        
+        self.layout = QtWidgets.QVBoxLayout()
+        self.layout.addWidget(self.title)
+        self.layout.addStretch()
+        self.layout.addWidget(self.message)
+        self.layout.addWidget(self.symbol_input)
+        self.layout.addWidget(self.calculate_button)
+        self.layout.addWidget(self.clear_button)
+        self.setLayout(self.layout)
+
+        self.clear_button.clicked.connect(self.clear)
+        self.calculate_button.clicked.connect(self.calculate)
+        self.symbol_input.returnPressed.connect(self.calculate)
+    
+        self.displayed = False
+
+    @QtCore.Slot()
+    def clear(self):
+        self.symbol_input.clear()
+        if self.displayed:
+            self.displayed = False
+            self.layout.removeWidget(self.figure)
+            self.figure.deleteLater()
+            self.figure = None
+
+    @QtCore.Slot()
+    def calculate(self):
+        user_symbols = self.symbol_input.text().upper().split(",")
+        moving_averages = statistics.calculate_moving_averages(user_symbols)
+        figure = plotter.plot_moving_averages(symbols=user_symbols, averages=moving_averages, show=False)
+        self.figure = figure
+        self.layout.insertWidget(1, self.figure)
+        self.displayed = True
+

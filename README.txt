@@ -1,10 +1,13 @@
-Register for API keys at https://www.alphavantage.co and https://www.quandl.com/. Create a .env file in the root directory and place your Alpha Vantage and Quandl API keys within it in environment variables called ALPHA_VANTAGE_KEY and QUANDL_KEY respectively. 
+This is a financial application that calculates asset correlation, statistics and optimal portfolio allocations using data it retrieves
+from a variety of sources, chief among them AlphaVantage and Quandl.
 
-There are several other environment variables that configure various aspects of the application. A '.sample.env' file has been included to demonstrate the appropriate format for all variables, in addition to providing explanations for the other environment variables that can be changed. Besides the API keys, none of the other environment variables need to be changed from their defaults for the application to function properly. The easiest way to set up is to simply 
+For the application to retrieve data, it must be connected to AlphaVantage and Quandl. Register for API keys at https://www.alphavantage.co and https://www.quandl.com/. Create a .env file in the root directory and place your Alpha Vantage and Quandl API keys within it in environment variables called ALPHA_VANTAGE_KEY and QUANDL_KEY respectively. 
+
+There are several other environment variables that configure various aspects of the application. A '.sample.env' file has been included to demonstrate the appropriate format for all variables, in addition to providing explanations for the other variables that can be changed. Besides the API keys, none of the other environment variables need to be changed from their defaults for the application to function properly. The easiest way to set up is to simply 
 
     cp .sample.env .env
 
-And then change the AV_KEY and QUANDL_KEY variables to the values you received when you registered on the respective site. Once the API keys have been set, execute the ./main.py script. Supply this script an argument with a dash that specifies the function you wish to execute and the ticker symbols you wish to apply the function to. For example, if I wanted to calculate the risk-return profile for the Facebook (FB), Amazon (AMZN) and Exxon (XOM), I would execute the following command from the project's root directory,
+And then change the ALPHA_VANTAGE_KEY and QUANDL_KEY variables to the values you received when you registered on the respective site. Once the API keys have been set, execute the ./main.py script. Supply this script an argument with a dash that specifies the function you wish to execute and the ticker symbols you wish to apply the function to. For example, if I wanted to calculate the risk-return profile for the Facebook (FB), Amazon (AMZN) and Exxon (XOM), I would execute the following command from the project's root directory,
 
     python ./main.py -rr FB AMZN XOM
 
@@ -28,13 +31,13 @@ TODOS:
 
 1. Future versions of the application will allow the user to set the service responsible for providing data to the application. Currently, all data is retrieved from the free tier of AlphaVantage.
 
-2. Need to rejigger the correlation algorithm so it works across asset types.
+2. Need to rejigger the correlation algorithm so it works across asset types. Currently only works if assets are the same type; things go haywire when asset types are different, presumably because crypto can trade on weekends, screwing up the correlation calculation.
 
 3. Use PyQt to create gui. 
 
     python ./main.py -gui 
 
-will launch GUI. Currently only have a basic display for risk-return calculations.
+will launch GUI. Currently working on widgets for the functions.
 
 NOTE:
 

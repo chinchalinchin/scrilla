@@ -159,7 +159,7 @@ FUNC_DICT = {
     "examples": "Display examples of syntax.",
     "gui": "Brings up a GUI for the application (work in progress!)",
     "help": "Print this help message.",
-    "last_close": "Return latest closing value for the supplied list of symbol (equity or crypto).",
+    "last_close": "Return latest closing value for the supplied list of symbols (equity or crypto).",
     "maximize_return": "Maximize the return of the portfolio defined by the supplied list of ticker symbols.",
     "minimize_variance": "Minimize the variance of the portfolio defined by the supplied list of ticker symbols.",
     "moving_averages": "Calculate the current moving averages ",
