@@ -14,10 +14,10 @@ from app.portfolio import Portfolio
 if settings.ENVIRONMENT != "container":
     from PyQt5 import QtWidgets
     import gui.menu as menu
+    import util.plotter as plotter
 
 import util.helpers as helper
 import util.logger as logger
-import util.plotter as plotter
 
 output = logger.Logger('main')
 

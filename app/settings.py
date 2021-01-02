@@ -36,10 +36,10 @@ except:
     output.debug('Failed to parse GUI_HEIGHT from .env File. Setting to default value of 400. Please Ensure GUI_HEIGHT is set to an integer value.')
     GUI_HEIGHT = 400
 
-AV_URL = os.getenv('ALPHA_VANTAGE_URL')
+AV_URL = os.getenv('ALPHA_VANTAGE_URL').strip("\"").strip("'")
 AV_KEY = os.getenv('ALPHA_VANTAGE_KEY')
 
-Q_URL = os.getenv('QUANDL_URL')
+Q_URL = os.getenv('QUANDL_URL').strip("\"").strip("'")
 Q_KEY = os.getenv('QUANDL_KEY')
 
 PRICE_MANAGER = os.getenv('PRICE_MANAGER')
