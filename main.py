@@ -147,26 +147,41 @@ if __name__ == "__main__":
             
             elif opt == settings.FUNC_ARG_DICT['plot_frontier'] and settings.ENVIRONMENT != "container":
                 if(len(args)>1):
+                    if args[0] == "-save":
+                        save_file = args[1]
+                        args = args[2:]
+                    else:
+                        save_file = None
                     frontier = optimizer.calculate_efficient_frontier(equities=args)
-                    plotter.plot_frontier(portfolio=Portfolio(args), frontier=frontier)
+                    plotter.plot_frontier(portfolio=Portfolio(args), frontier=frontier, show=True, savefile=save_file)
                 
                 else: 
                     output.debug('Invalid Input. Try Try -ex Flag For Example Usage.')
 
             elif opt == settings.FUNC_ARG_DICT['plot_moving_averages'] and settings.ENVIRONMENT != "container":
                 if(len(args)>1) or len(args)==1:
+                    if args[0] == "-save":
+                        save_file = args[1]
+                        args = args[2:]
+                    else:
+                        save_file = None
                     moving_averages = statistics.calculate_moving_averages(args)
-                    plotter.plot_moving_averages(symbols=args, averages=moving_averages)
+                    plotter.plot_moving_averages(symbols=args, averages=moving_averages, show=True, savefile=save_file)
 
                 else:
                     output.debug('Invalid Input. Try Try -ex Flag For Example Usage.')
 
             elif opt == settings.FUNC_ARG_DICT['plot_risk_profile']:
                 if len(args) > 0:
+                    if args[0] == "-save":
+                        save_file = args[1]
+                        args = args[2:].strip("\"")
+                    else:
+                        save_file = None
                     profiles = []
                     for arg in args:
                         profiles.append(statistics.calculate_risk_return(arg))
-                    plotter.plot_profiles(symbols=args, profiles=profiles)
+                    plotter.plot_profiles(symbols=args, profiles=profiles, show=True, savefile=save_file)
                 
                 else:
                     output.debug('Invalid Input. Try Try -ex Flag For Example Usage.')
