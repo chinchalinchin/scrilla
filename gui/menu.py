@@ -44,7 +44,7 @@ class MenuWidget(QtWidgets.QWidget):
     
         self.layout.addStretch()
 
-        # TODO: can't pass i for some reason...has to be literal int???
+        # TODO: can't pass 'i' for some reason...has to be literal int???
                 # has to have something to do with when lambda functions execute
         for button in self.widget_buttons:
             button.setAutoDefault(True)
@@ -56,6 +56,8 @@ class MenuWidget(QtWidgets.QWidget):
                 button.clicked.connect(lambda: self.show_widget(2))
             elif self.widget_buttons.index(button) == 3:
                 button.clicked.connect(lambda: self.show_widget(3))
+            elif self.widget_buttons.index(button) == 4:
+                button.clicked.connect(lambda: self.show_widget(4))
             self.layout.addWidget(button)
             button.show()
 

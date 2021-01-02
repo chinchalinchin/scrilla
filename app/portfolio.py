@@ -10,7 +10,8 @@ class Portfolio:
     
     def __init__(self, tickers):
         self.tickers = tickers
-        self.calculate_stats()
+        self.error = not self.calculate_stats()
+        
 
     def calculate_stats(self):
         self.mean_return = []
@@ -19,6 +20,8 @@ class Portfolio:
 
         for ticker in self.tickers:
             stats = statistics.calculate_risk_return(ticker)
+            if not stats:
+                return False
             self.mean_return.append(stats['annual_return'])
             self.sample_vol.append(stats['annual_volatility'])
 
@@ -26,9 +29,13 @@ class Portfolio:
             for i in range(len(self.tickers)):
                 for j in range(i+1, len(self.tickers)):
                     self.correlation_matrix[i][i] = 1
-                    self.correlation_matrix[i][j] = statistics.calculate_correlation(self.tickers[i], self.tickers[j])['correlation']
+                    correlation = statistics.calculate_correlation(self.tickers[i], self.tickers[j])['correlation']
+                    if not correlation:
+                        return False
+                    self.correlation_matrix[i][j] = correlation
                     self.correlation_matrix[j][i] = self.correlation_matrix[i][j]
             self.correlation_matrix[len(self.tickers) - 1][len(self.tickers) - 1] = 1
+        return True
 
     def return_function(self, x):
         return numpy.dot(x, self.mean_return)

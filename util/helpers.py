@@ -19,7 +19,7 @@ def strip_string_array(array):
     
 def format_allocation_profile(allocation, portfolio):
     port_return, port_volatility = portfolio.return_function(allocation), portfolio.volatility_function(allocation)
-    formatted_result = "( "+str(100*port_return)[:5]+"%, " + str(100*port_volatility)[:5]+"%)"
+    formatted_result = "("+str(100*port_return)[:5]+"%, " + str(100*port_volatility)[:5]+"%)"
     formatted_result_title = "("
     for symbol in portfolio.tickers:
         if portfolio.tickers.index(symbol) != (len(portfolio.tickers) - 1):

@@ -47,29 +47,51 @@ class CorrelationWidget(TableWidget):
 
     @QtCore.Slot()
     def calculate_table(self):
+        if self.table.isVisible():
+            output.debug('Clearing correlation matrix from table widget.')
+            self.table.clear()
+
         user_symbols = helper.strip_string_array(self.symbol_input.text().upper().split(","))
         no_symbols = len(user_symbols)
 
-        self.table.setRowCount(no_symbols)
-        self.table.setColumnCount(no_symbols)
-        self.table.setHorizontalHeader(QtWidgets.QHeaderView(QtCore.Qt.Horizontal))
-        self.table.setVerticalHeader(QtWidgets.QHeaderView(QtCore.Qt.Vertical))
-        self.table.setHorizontalHeaderLabels(user_symbols)
-        self.table.setVerticalHeaderLabels(user_symbols)
+        if no_symbols > 1:
+            self.table.setRowCount(no_symbols)
+            self.table.setColumnCount(no_symbols)
+            self.table.setHorizontalHeader(QtWidgets.QHeaderView(QtCore.Qt.Horizontal))
+            self.table.setHorizontalHeaderLabels(user_symbols)
+            self.table.horizontalHeader().setStretchLastSection(True)
+            self.table.setVerticalHeader(QtWidgets.QHeaderView(QtCore.Qt.Vertical))
+            self.table.setVerticalHeaderLabels(user_symbols)
 
-        for i in range(len(user_symbols)):
-            for j in range(i, len(user_symbols)):
-                if i == j:
-                    item = QtWidgets.QTableWidgetItem("100.0%")
-                    self.table.setItem(i, j, item)
-                    
-                else:    
-                    correlation = statistics.calculate_correlation(user_symbols[i], user_symbols[j])
-                    formatted_correlation = str(100*correlation["correlation"])[:settings.SIG_FIGS]+"%"
-                    item_1, item_2 = QtWidgets.QTableWidgetItem(formatted_correlation), QtWidgets.QTableWidgetItem(formatted_correlation)
-                    self.table.setItem(j, i, item_1)
-                    self.table.setItem(i, j, item_2)
+            for i in range(len(user_symbols)):
+                for j in range(i, len(user_symbols)):
+                    if i == j:
+                        item = QtWidgets.QTableWidgetItem("100.0%")
+                        self.table.setItem(i, j, item)
+                        
+                    else:    
+                        output.debug(f'Calculating correlation for ({user_symbols[i]}, {user_symbols[j]})')
+                        correlation = statistics.calculate_correlation(user_symbols[i], user_symbols[j])
+                        formatted_correlation = str(100*correlation["correlation"])[:settings.SIG_FIGS]+"%"
+                        item_1 = QtWidgets.QTableWidgetItem(formatted_correlation)
+                        item_1.setTextAlignment(Qt.AlignHCenter)
+                        item_2 = QtWidgets.QTableWidgetItem(formatted_correlation)
+                        item_2.setTextAlignment(Qt.AlignHCenter)
 
+                        output.debug(f'Appending correlation = {formatted_correlation} to ({i}, {j}) and ({j}, {i}) entries of matrix')
+                        self.table.setItem(j, i, item_1)
+                        self.table.setItem(i, j, item_2)
+        else:
+            self.table.setRowCount(1)
+            self.table.setColumnCount(1)
+            self.table.setHorizontalHeader(QtWidgets.QHeaderView(QtCore.Qt.Horizontal))
+            self.table.setHorizontalHeaderLabels(["Error, Will Robinson"])
+            self.table.horizontalHeader().setStretchLastSection(True)
+            error_item = QtWidgets.QTableWidgetItem("Error Occurred. Check Input and Try Again.")
+            error_item.setTextAlignment(Qt.AlignHCenter)
+            self.table.setItem(0, 0, error_item)
+
+        self.table.resizeColumnsToContents()
         self.table.show()
 
 class OptimizerWidget(PortfolioWidget):
@@ -87,39 +109,51 @@ class OptimizerWidget(PortfolioWidget):
 
         user_symbols = helper.strip_string_array(self.symbol_input.text().upper().split(","))
         no_symbols = len(user_symbols)
-        investment = self.portfolio_value.text()
 
-        allocation = optimizer.minimize_portfolio_variance(equities=user_symbols)
-        this_portfolio = portfolio.Portfolio(user_symbols)
-        
-        self.result.setText(helper.format_allocation_profile(allocation, this_portfolio))
+        if no_symbols > 1:
+            investment = self.portfolio_value.text()
 
-        self.result_table.setRowCount(no_symbols)
-        self.result_table.setVerticalHeader(QtWidgets.QHeaderView(QtCore.Qt.Vertical))
-        self.result_table.setVerticalHeaderLabels(user_symbols)
+            allocation = optimizer.minimize_portfolio_variance(equities=user_symbols)
+            this_portfolio = portfolio.Portfolio(user_symbols)
+            
+            self.result.setText(helper.format_allocation_profile(allocation, this_portfolio))
+
+            self.result_table.setRowCount(no_symbols)
+            self.result_table.setVerticalHeader(QtWidgets.QHeaderView(QtCore.Qt.Vertical))
+            self.result_table.setVerticalHeaderLabels(user_symbols)
+            
+            if not investment:
+                self.result_table.setColumnCount(1)
+                labels = ['Allocation']
+            else:
+                self.result_table.setColumnCount(2)
+                labels = ['Allocation', 'Shares']
+                shares = this_portfolio.calculate_approximate_shares(allocation, float(investment))
+
+            self.result_table.setHorizontalHeader(QtWidgets.QHeaderView(QtCore.Qt.Horizontal))
+            self.result_table.setHorizontalHeaderLabels(labels)
+            self.result_table.horizontalHeader().setStretchLastSection(True)
+
+
+            for i in range(no_symbols):
+                this_allocation = allocation[i]
+                formatted_allocation = str(100*this_allocation)[:settings.SIG_FIGS]+"%"
+                item = QtWidgets.QTableWidgetItem(formatted_allocation)
+                item.setTextAlignment(Qt.AlignHCenter)
+                self.result_table.setItem(i, 0, item)
+                if investment:
+                    share_item = QtWidgets.QTableWidgetItem(str(shares[i]))
+                    share_item.setTextAlignment(Qt.AlignHCenter)
+                    self.result_table.setItem(i, 1, share_item)
+            
+            self.result_table.resizeColumnsToContents()
+            self.result_table.show()
+            self.result.show()
         
-        if not investment:
-            self.result_table.setColumnCount(1)
-            labels = ['Allocation']
         else:
-            self.result_table.setColumnCount(2)
-            labels = ['Allocation', 'Shares']
-            shares = this_portfolio.calculate_approximate_shares(allocation, float(investment))
+            self.result.setText("Error Occurred. Check Input and Try Again.")
+            self.result.show()
 
-        self.result_table.setHorizontalHeader(QtWidgets.QHeaderView(QtCore.Qt.Horizontal))
-        self.result_table.setHorizontalHeaderLabels(labels)
-
-        for i in range(no_symbols):
-            this_allocation = allocation[i]
-            formatted_allocation = str(100*this_allocation)[:settings.SIG_FIGS]+"%"
-            item = QtWidgets.QTableWidgetItem(formatted_allocation)
-            self.result_table.setItem(i, 0, item)
-            if investment:
-                share_item = QtWidgets.QTableWidgetItem(str(shares[i]))
-                self.result_table.setItem(i, 1, share_item)
-        
-        self.result_table.show()
-        self.result.show()
 
     @QtCore.Slot()
     def optimize(self):
@@ -136,7 +170,7 @@ class EfficientFrontierWidget(GraphWidget):
         frontier = optimizer.calculate_efficient_frontier(equities=user_symbols)
         figure = plotter.plot_frontier(portfolio=portfolio.Portfolio(user_symbols), frontier=frontier, show=False)
         self.figure = figure
-        self.layout.insertWidget(1, self.figure)
+        self.layout.insertWidget(1, self.figure, 1)
         self.displayed = True 
 
 class MovingAverageWidget(GraphWidget):
@@ -155,6 +189,6 @@ class MovingAverageWidget(GraphWidget):
         moving_averages = statistics.calculate_moving_averages(user_symbols)
         figure = plotter.plot_moving_averages(symbols=user_symbols, averages=moving_averages, show=False)
         self.figure = figure
-        self.layout.insertWidget(1, self.figure)
+        self.layout.insertWidget(1, self.figure, 1)
         self.displayed = True
 

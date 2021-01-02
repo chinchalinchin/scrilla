@@ -38,6 +38,7 @@ class PortfolioWidget(QtWidgets.QWidget):
         self.result.hide()
 
         self.result_table = QtWidgets.QTableWidget()
+        self.result_table.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustToContents)
         self.result_table.hide()
 
         self.left_title = QtWidgets.QLabel("Portfolio")
@@ -86,7 +87,8 @@ class PortfolioWidget(QtWidgets.QWidget):
 
         self.first_layer.addWidget(self.title)
         self.first_layer.addWidget(self.result)
-        self.first_layer.addWidget(self.result_table)
+        self.first_layer.addWidget(self.result_table, 1)
+        self.first_layer.addStretch()
         # Left Panel Layout
         self.left_layout.addWidget(self.left_title)
         self.left_layout.addWidget(self.message)
@@ -102,6 +104,7 @@ class PortfolioWidget(QtWidgets.QWidget):
         # Layering
         self.second_layer.addLayout(self.left_layout)
         self.second_layer.addLayout(self.right_layout)
+
         self.first_layer.addLayout(self.second_layer)
         self.first_layer.addWidget(self.clear_button)
         self.first_layer.addStretch()
@@ -173,13 +176,14 @@ class TableWidget(SymbolWidget):
         super().__init__(widget_title=widget_title, button_msg=button_msg)
 
         self.table = QtWidgets.QTableWidget()
+        self.table.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustToContents)
         self.table.hide()
 
         self.layout = QtWidgets.QVBoxLayout()
     
         self.layout.addWidget(self.title)
         self.layout.addStretch()
-        self.layout.addWidget(self.table)
+        self.layout.addWidget(self.table, 1)
         self.layout.addWidget(self.message)
         self.layout.addWidget(self.symbol_input)
         self.layout.addWidget(self.calculate_button)
