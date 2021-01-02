@@ -160,7 +160,7 @@ FUNC_ARG_DICT = {
 
 FUNC_DICT = {
     "asset_type": "Outputs the asset type for the supplied symbol.",
-    "correlation": "Calculate pair-wise correlation for the supplied list of ticker symbols.",
+    "correlation": "Calculate pair-wise correlation for the supplied list of ticker symbols. \n \n ADDITIONAL OPTIONS \n -start (format: \"YYYY-MM-DD\") \n -end  (format :\"YYYY-MM-DD\")",
     "economic_indicator": "Retrieves the latest value for the supplied list of economic indicators. The available list of economic indicators can be found at https://www.quandl.com/data/FRED-Federal-Reserve-Economic-Data/documentation?anchor=growth; it is also stored in the /static/ directory of the application ",
     "efficient_frontier": "Generate a sample of the portfolio's efficient frontier for the supplied list of tickers.",
     "examples": "Display examples of syntax.",

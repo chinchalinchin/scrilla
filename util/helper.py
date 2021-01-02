@@ -30,9 +30,15 @@ def format_allocation_profile(allocation, portfolio):
     return whole_thing
 
 # YYYY-MM-DD
+def parse_date_string(date_string):
+    parsed = str(date_string).split('-')
+    date = datetime.date(year=int(parsed[0]), month=int(parsed[1]), day=int(parsed[2]))
+    return date
+    
+# YYYY-MM-DD
 def is_date_string_weekend(date_string):
     dates=str(date_string).split('-')
-    weekday = datetime.datetime(year=int(dates[0]), month=int(dates[1]), day=int(dates[2])).weekday()
+    weekday = parse_date_string(date_string).weekday()
     if weekday in [5,6]:
         return True
     else:
@@ -56,8 +62,8 @@ def consecutive_trading_days(start_date_string, end_date_string):
 
     start_parsed = str(start_date_string).split('-')
     end_parsed = str(end_date_string).split('-')
-    start_date = datetime.date(year=int(start_parsed[0]), month=int(start_parsed[1]), day=int(start_parsed[2]))
-    end_date = datetime.date(year=int(end_parsed[0]), month=int(end_parsed[1]), day=int(end_parsed[2]))
+    start_date = parse_date_string(start_date_string)
+    end_date = parse_date_string(end_date_string)
     delta = end_date - start_date
 
     if delta.days < 0:

@@ -11,7 +11,11 @@ import util.helper as helper
 
 output = logger.Logger("app.services")
 
-def retrieve_prices_from_cache(ticker, startdate=None, enddate=None):
+# Arguments: tickers -> [string]
+#            startdate -> datetime.date
+#            enddate -> datetime.date
+    # TODO: don't cache stats if start_date and end_date are specified
+def retrieve_prices_from_cache(ticker, start_date=None, end_date=None):
     now = datetime.datetime.now()
     # TODO: if startdate and enddate are supplied need to change timestamp
     timestamp = '{}{}{}'.format(now.month, now.day, now.year)
@@ -24,7 +28,7 @@ def retrieve_prices_from_cache(ticker, startdate=None, enddate=None):
 
     else:     
         output.debug(f'Retrieving {ticker} prices from Service Manager...')  
-        prices = get_daily_price_history(ticker=ticker, startdate=startdate, enddate=enddate)
+        prices = get_daily_price_history(ticker=ticker, startdate=start_date, enddate=end_date)
 
         output.debug(f'Storing {ticker} price history in cache...')
         with open(buffer_store, 'w') as outfile:
@@ -32,17 +36,23 @@ def retrieve_prices_from_cache(ticker, startdate=None, enddate=None):
 
     return prices
 
+# TODO: test api keys here
+def test_api_keys():
+    return True
+
 # Note, by default, AlphaVantage returns last 100 days of prices for equities, while returning the 
 # entire price history for crypto assets by default. By default, this method will return the last 
 # 100 days of prices for any type of asset provided to the input 'ticker'. 
 #
 # TODO: Implement 'startdate' and 'enddate' features
-def get_daily_price_history(ticker, startdate=None, enddate=None):
+# Arguments: startdate -> datetime.date
+#             enddate -> datetime.date
+def get_daily_price_history(ticker, start_date=None, end_date=None):
     asset_type=markets.get_asset_type(ticker)  
 
     if settings.PRICE_MANAGER == "alpha_vantage":
         # Retrieve last 100 days of closing prices
-        if startdate is None and enddate is None:
+        if start_date is None and end_date is None:
             query = f'{settings.PARAM_AV_TICKER}={ticker}&{settings.PARAM_AV_KEY}={settings.AV_KEY}'
 
             if asset_type == settings.ASSET_EQUITY:
@@ -87,18 +97,18 @@ def get_daily_price_history(ticker, startdate=None, enddate=None):
                     index += 1
                 # NOTE: AlphaVantage returns entire history for any crypto API call
                 # unlike the equity API calls, so the response for crypto is truncated
-                # to make sure responses for 'current=True' are of the same length.
+                # to make sure responses for current calculations are of the same length.
 
         else:
-            if startdate is not None and enddate is not None:
+            if start_date is not None and end_date is not None:
                 # TODO
                 pass
 
-            elif startdate is None and enddate is not None:
+            elif start_date is None and end_date is not None:
                 # TODO
                 pass
 
-            elif startdate is not None and enddate is None:
+            elif start_date is not None and end_date is None:
                 # TODO
                 pass
 

@@ -58,6 +58,8 @@ if __name__ == "__main__":
             services.init_static_data()
             
             args = sys.argv[2:]
+
+            # PULL ADDITIONAL ARGUMENTS
             output.title_line('Results')
             output.line()
 
@@ -74,6 +76,14 @@ if __name__ == "__main__":
             # Correlation Matrix
             elif opt == settings.FUNC_ARG_DICT["correlation"]:
                 if(len(args) > 1):
+                    if args[0] == "-start":
+                        start_date = helper.parse_date_string(args[0])
+                        args = args[1:]
+                    elif args[0] == "-end":
+                        start_date = helper.parse_date_string(args[1])
+                        args = args[1:]
+                    else:
+                        start_date = None
                     result = statistics.get_correlation_matrix_string(args, settings.INDENT)
                     output.comment(f'\n{result}')
 

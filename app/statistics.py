@@ -13,20 +13,27 @@ import util.helper as helper
 output = logger.Logger('app.statistics')
 
 # NOTE: assumes price history returns from latest to earliest date.
-def calculate_moving_averages(tickers, current=True, enddate=None):
+    # TODO: check if end_date - start_date < MA_Periods, if so return False
+    # TODO: check if end_date - start_date > MA_periods, perform algorithm 
+    #       for each date in [start_date, end_date - start_date - MA_periods]
+    #       as the starting date in the calculation, i.e. return an array of 
+    #       arrays 
+def calculate_moving_averages(tickers, start_date=None, end_date=None):
     moving_averages = []
     
-    if current:
+    if start_date is None and end_date is None:
         for ticker in tickers:
-            prices = services.retrieve_prices_from_cache(ticker)
+            prices = services.retrieve_prices_from_cache(ticker, start_date, end_date)
             asset_type = markets.get_asset_type(ticker)
+            trading_period = markets.get_trading_period(asset_type)
+
             today = False
             count, tomorrows_price, MA_1, MA_2, MA_3 = 1, 0, 0, 0, 0
     
             for date in prices:
                 todays_price = helper.parse_price_from_date(prices, date, asset_type)
                 if today:
-                    todays_return = numpy.log(float(tomorrows_price) / float(todays_price))/settings.ONE_TRADING_DAY
+                    todays_return = numpy.log(float(tomorrows_price) / float(todays_price))/trading_period
                     
                     if count < settings.MA_1_PERIOD:
                         MA_1 += todays_return / settings.MA_1_PERIOD
@@ -52,21 +59,19 @@ def calculate_moving_averages(tickers, current=True, enddate=None):
         # TODO: need to pull entire price history from AlphaVantage
 
 # NOTE: assumes price history returns from latest to earliest date.
-def calculate_risk_return(ticker, input_prices=None):
+    # TODO: don't cache stats if start_date and end_date are specified
+def calculate_risk_return(ticker, start_date=None, end_date=None):
     now = datetime.datetime.now()
+    # create different timestamps if start_date and end_date exists
     timestamp = '{}{}{}'.format(now.month, now.day, now.year)
+
     buffer_store= os.path.join(settings.CACHE_DIR, f'{timestamp}_{ticker}_statistics.json')
     asset_type = markets.get_asset_type(ticker)
+    trading_period = markets.get_trading_period(asset_type)
 
-    if asset_type == None:
+    if not trading_period:
         output.debug("Asset did not map to (crypto, equity) grouping")
         return False
-    elif asset_type == settings.ASSET_EQUITY:
-        trading_period = settings.ONE_TRADING_DAY
-    elif asset_type == settings.ASSET_CRYPTO:
-        trading_period = (1/365)
-    else:
-        trading_period = settings.ONE_TRADING_DAY
 
     if os.path.isfile(buffer_store):
         output.debug(f'Loading in cached {ticker} statistics...')
@@ -74,14 +79,11 @@ def calculate_risk_return(ticker, input_prices=None):
             results = json.load(infile)
 
     else:
-        if input_prices is None:
-            prices = services.retrieve_prices_from_cache(ticker)
-            if not prices:
-                output.debug(f'No prices could be retrieved for {ticker}')
-                return False
-        else: 
-            output.debug(f'Using inputted {ticker} prices for calculation...')
-            prices = input_prices
+        prices = services.retrieve_prices_from_cache(ticker, start_date, end_date)
+        if not prices:
+            output.debug(f'No prices could be retrieved for {ticker}')
+            return False
+        
 
         sample = len(prices)
 
@@ -142,7 +144,8 @@ def calculate_risk_return(ticker, input_prices=None):
     return results
 
 # NOTE: assumes price history returns from latest to earliest date.
-def calculate_correlation(ticker_1, ticker_2):
+    # TODO: don't cache stats if start_date and end_date are specified
+def calculate_correlation(ticker_1, ticker_2, start_date=None, end_date=None):
     output.debug(f'Preparing to calculate correlation for ({ticker_1},{ticker_2})')
     now = datetime.datetime.now()
     timestamp = '{}{}{}'.format(now.month, now.day, now.year)
@@ -167,15 +170,15 @@ def calculate_correlation(ticker_1, ticker_2):
 
     # calculate results from sample
     else:
-        prices_1 = services.retrieve_prices_from_cache(ticker_1)
-        prices_2 = services.retrieve_prices_from_cache(ticker_2)
+        prices_1 = services.retrieve_prices_from_cache(ticker_1, start_date, end_date)
+        prices_2 = services.retrieve_prices_from_cache(ticker_2, start_date, end_date)
 
         if (not prices_1) or (not prices_2):
             output.debug("Prices cannot be retrieved for correlation calculation")
             return False 
         
-        stats_1 = calculate_risk_return(ticker_1, prices_1)
-        stats_2 = calculate_risk_return(ticker_2, prices_2)
+        stats_1 = calculate_risk_return(ticker_1, start_date, end_date)
+        stats_2 = calculate_risk_return(ticker_2, start_date, end_date)
 
         if (not stats_1) or (not stats_2):
             output.debug("Sample statistics cannot be calculated for correlation calculation")
@@ -308,7 +311,7 @@ def calculate_correlation(ticker_1, ticker_2):
 
     return result
 
-def get_correlation_matrix_string(symbols, indent=0):
+def get_correlation_matrix_string(symbols, indent=0, start_date=None, end_date=None):
     entire_formatted_result, formatted_title = "", ""
 
     line_length, percent_length, first_symbol_length = 0, 0, 0
@@ -333,7 +336,7 @@ def get_correlation_matrix_string(symbols, indent=0):
             
             else:
                 that_symbol = symbols[j]
-                result = calculate_correlation(this_symbol, that_symbol) 
+                result = calculate_correlation(this_symbol, that_symbol, start_date, end_date) 
                 if not result:
                     output.debug(f'Cannot correlation for ({this_symbol}, {that_symbol})')
                     return False

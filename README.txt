@@ -1,5 +1,9 @@
 This is a financial application that calculates asset correlation, statistics and optimal portfolio allocations using data it retrieves from a variety of sources, chief among them AlphaVantage and Quandl.
 
+First, from the project root directory, (activate your virtual environment, if using one, and) install all of the requirements,
+
+    pip install -r requirements.txt
+
 For the application to retrieve data, it must be connected to AlphaVantage and Quandl. Register for API keys at https://www.alphavantage.co and https://www.quandl.com/. Create a .env file in the root directory and place your Alpha Vantage and Quandl API keys within it in environment variables called ALPHA_VANTAGE_KEY and QUANDL_KEY respectively. 
 
 There are several other environment variables that configure various aspects of the application. A '.sample.env' file has been included to demonstrate the appropriate format for all variables, in addition to providing explanations for the other variables that can be changed. Besides the API keys, none of the other environment variables need to be changed from their defaults for the application to function properly. The easiest way to set up is to simply 
@@ -34,13 +38,25 @@ to perform the same operation as the following command performed in the project 
 
 TODOS:
 
-1. Future versions of the application will allow the user to set the service responsible for providing data to the application. Currently, all data is retrieved from the free tier of AlphaVantage.
+1. Future versions of the application will allow the user to set the service responsible for providing data to the application. Currently, all data is retrieved from the free tier of AlphaVantage and Quandl.
 
 2. Need to rejigger the correlation algorithm so it works across asset types. Currently only works if assets are the same type; things go haywire when asset types are different, presumably because crypto can trade on weekends, screwing up the correlation calculation.
 
-4. Figure out how to launch GUI in Docker. Also, volumes.
+3. Rejigger moving averages algorithm (calculation and plotting) to accept current snapshot of moving averages and print bar graph (already does this), or accept a history of moving averages and created a line plot with several labeled serieses.
 
-5. Free icons: https://streamlineicons.com/
+4. Rejigger statistics.py and services.py methods to make calls to API with date parameters.
+
+5. Rejigger main.py to parse date strings from command line.
+
+6. Rejigger gui to have DateWidgets to select dates in GUI.
+
+7. Figure out how to launch GUI in Docker. Also, volumes.
+
+8. Free icons: https://streamlineicons.com/
+
+9. Search for API keys in .env file. Test if api key works, if not search for config.json, grab api key from there. Test if api key works, if not prompt user to register for new keys and enter into applications. save new keys in config.json. amend settings.py to check for new location if .env key doesn't work. 
+
+10. Rejigger settings.py to search for API keys in .env and if it finds none, search in config.json. If it still finds none, prompt user to register and enter via command line/dialog box. Save in config.json. Perhaps search config.json first since those credentials will always override .env credentials?
 
 NOTE:
 

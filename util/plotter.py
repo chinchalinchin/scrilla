@@ -79,6 +79,10 @@ def plot_profiles(symbols, profiles, show=True, savefile=None):
     else:
         return canvas
 
+# if len(averages) = (# of moving averages)*(# of symbols)
+    # create barchart of moving averages as of today
+# if len(averages) > (# of moving averages)*(# of symbols)
+    # create line plot with three series for all available samples
 def plot_moving_averages(symbols, averages, show=True, savefile=None):
     canvas = FigureCanvas(Figure())
 
