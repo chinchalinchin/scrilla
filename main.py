@@ -37,8 +37,8 @@ if __name__ == "__main__":
 
         elif opt == settings.FUNC_ARG_DICT["purge"]:
             output.comment(f'Clearing {settings.STATIC_DIR} and {settings.CACHE_DIR}')
-            helper.clear_dir(directory=settings.STATIC_DIR, retain=True)
-            helper.clear_dir(directory=settings.CACHE_DIR, retain=True)
+            helper.clear_directory(directory=settings.STATIC_DIR, retain=True, outdated_only=False)
+            helper.clear_directory(directory=settings.CACHE_DIR, retain=True, outdated_only=False)
 
         elif opt == settings.FUNC_ARG_DICT["gui"] and settings.ENVIRONMENT != "container":
             app = QtWidgets.QApplication([])
@@ -52,7 +52,7 @@ if __name__ == "__main__":
         # variable argument functions
         else:
             output.debug('Clearing /cache/ directory')
-            helper.clear_cache(outdated_only=True)
+            helper.clear_directory(settings.CACHE_DIR, retain=True, outdated_only=True)
 
             output.debug('Initialzing /static/ directory, if applicable')
             services.init_static_data()

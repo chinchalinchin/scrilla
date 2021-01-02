@@ -134,32 +134,30 @@ def parse_csv_response_column(column, url, firstRowHeader=None, savefile=None, z
     if savefile is not None:    
         with open(savefile, 'w') as outfile:
             json.dump(col, outfile)
-            
-def clear_dir(directory, retain=True):
+
+def clear_directory(directory, retain=True, outdated_only=False):
     filelist = [ f for f in os.listdir(directory)]
-    if retain:
-        for f in filelist:
-            filename = os.path.basename(f)
-            if filename != ".gitkeep":
-                os.remove(os.path.join(directory, f))
-
-    else:
-        for f in filelist:
-            os.remove(os.path.join(directory, f))
-
-def clear_cache(outdated_only=False):
-    filelist = [ f for f in os.listdir(settings.CACHE_DIR)]
 
     if outdated_only:
         now = datetime.datetime.now()
         timestamp = '{}{}{}'.format(now.month, now.day, now.year)
-        for f in filelist:
-            filename = os.path.basename(f)
-            if filename != ".gitkeep" and timestamp not in filename:
-                os.remove(os.path.join(settings.CACHE_DIR, f))
+        if retain:
+            for f in filelist:
+                filename = os.path.basename(f)
+                if filename != ".gitkeep" and timestamp not in filename:
+                    os.remove(os.path.join(directory, f))
+        else:
+            for f in filelist:
+                filename = os.path.basename(f)
+                if timestamp not in filename:
+                    os.remove(os.path.join(directory, f))
 
     else:
-        for f in filelist:
-            filename = os.path.basename(f)
-            if filename != ".gitkeep":
-                os.remove(os.path.join(settings.CACHE_DIR, f))
+        if retain:
+            for f in filelist:
+                filename = os.path.basename(f)
+                if filename != ".gitkeep":
+                    os.remove(os.path.join(directory, f))
+        else:
+            for f in filelist:
+            os.remove(os.path.join(directory, f))

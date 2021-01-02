@@ -36,10 +36,6 @@ def retrieve_prices_from_cache(ticker, start_date=None, end_date=None):
 
     return prices
 
-# TODO: test api keys here
-def test_api_keys():
-    return True
-
 # Note, by default, AlphaVantage returns last 100 days of prices for equities, while returning the 
 # entire price history for crypto assets by default. By default, this method will return the last 
 # 100 days of prices for any type of asset provided to the input 'ticker'. 
@@ -191,7 +187,7 @@ def init_static_data():
         # Clear static folder if initializing, otherwise unnecessary
         if settings.INIT:
             output.debug('Initialzing because settings.INIT set to True')
-            helper.clear_dir(settings.STATIC_DIR, retain=True)
+            helper.clear_directory(settings.STATIC_DIR, retain=True, outdated_only=False)
         
         else:
             output.debug('Initializing because settings.STATIC_DIR directory is missing file(s)')

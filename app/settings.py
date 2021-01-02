@@ -1,6 +1,6 @@
-import os, dotenv
+import os, json, dotenv
 import util.logger as logger
-
+import app.services as services
 
 output = logger.Logger('app.settings')
 
@@ -16,14 +16,21 @@ ENVIRONMENT = os.environ.setdefault('ENVIRONMENT', 'local')
 
 dotenv.load_dotenv(os.path.join(APP_DIR,'.env'))
 
+CONFIG_FILE = os.path.join(APP_DIR,'config.json')
+
+if os.path.isfile(CONFIG_FILE):
+    with open(CONFIG_FILE, 'r') as infile:
+        credential_overrides = json.load(infile)
+else:
+    credential_overrides = None
+
 DEBUG= True if os.getenv('DEBUG').lower() == 'true' else False
 VERBOSE= True if os.getenv('VERBOSE').lower() == 'true' else False
 
 CACHE_DIR = os.path.join(APP_DIR, 'cache')
 
-DATA_DIR = os.path.join(APP_DIR, 'data')
-
 STATIC_DIR = os.path.join(APP_DIR, 'static')
+
 STATIC_TICKERS_FILE = os.path.join(STATIC_DIR, "tickers.json")
 STATIC_ECON_FILE = os.path.join(STATIC_DIR, "economics.json")
 STATIC_CRYPTO_FILE = os.path.join(STATIC_DIR, "crypto.json")
@@ -41,10 +48,28 @@ except:
     GUI_HEIGHT = 800
 
 AV_URL = os.getenv('ALPHA_VANTAGE_URL').strip("\"").strip("'")
-AV_KEY = os.getenv('ALPHA_VANTAGE_KEY')
+if credential_overrides:
+    try:
+        AV_KEY = credential_overrides['ALPHA_VANTAGE_KEY']
+    except:
+        AV_KEY = None
+        output.debug('Unable to parse ALPHA_VANTAGE_KEY from config.json file')
+else:
+    try:
+        AV_KEY = os.getenv('ALPHA_VANTAGE_KEY')
+    except:
+        AV_KEY = None
+        output.debug('Unable to parse ALPHA_VANTAGE_KEY from .env file')
+if AV_KEY is not None:
+    pass
+if AV_KEY is not None
+    pass
 
 Q_URL = os.getenv('QUANDL_URL').strip("\"").strip("'")
-Q_KEY = os.getenv('QUANDL_KEY')
+if credential_overrides:
+    Q_KEY = credential_overrides['QUANDL_KEY']
+else:
+    Q_KEY = os.getenv('QUANDL_KEY')
 
 PRICE_MANAGER = os.getenv('PRICE_MANAGER')
 STAT_MANAGER = os.getenv('STAT_MANAGER')
@@ -134,9 +159,9 @@ INDENT = 10
 
 BAR_WIDTH = 0.10
 
-HELP_MSG = "A financial application written in python to determine optimal portfolio allocations subject to various constraints and calculate fundamental statistics concerning a given portfolio allocation. Note: all calculations are based on an equity's closing price for the past 100 trading days. "
+HELP_MSG = "A financial application written in python to determine optimal portfolio allocations subject to various constraints and to calculate fundamental statistics concerning a given portfolio allocation. Note: all calculations are based on an equity's closing price for the past 100 trading days. "
 
-SYNTAX = "command -OPTION [tickers] (additional input)"
+SYNTAX = "command -OPTIONS [tickers] (additional input)"
 
 FUNC_ARG_DICT = {
     "asset_type": "-at",
@@ -160,11 +185,11 @@ FUNC_ARG_DICT = {
 
 FUNC_DICT = {
     "asset_type": "Outputs the asset type for the supplied symbol.",
-    "correlation": "Calculate pair-wise correlation for the supplied list of ticker symbols. \n \n ADDITIONAL OPTIONS \n -start (format: \"YYYY-MM-DD\") \n -end  (format :\"YYYY-MM-DD\")",
+    "correlation": "Calculate pair-wise correlation for the supplied list of ticker symbols. ADDITIONAL OPTIONS: -start (format: \"YYYY-MM-DD\"), -end  (format :\"YYYY-MM-DD\")",
     "economic_indicator": "Retrieves the latest value for the supplied list of economic indicators. The available list of economic indicators can be found at https://www.quandl.com/data/FRED-Federal-Reserve-Economic-Data/documentation?anchor=growth; it is also stored in the /static/ directory of the application ",
     "efficient_frontier": "Generate a sample of the portfolio's efficient frontier for the supplied list of tickers.",
     "examples": "Display examples of syntax.",
-    "gui": "Brings up a GUI for the application (work in progress!)",
+    "gui": "Brings up a Qt GUI for the application (work in progress!)",
     "help": "Print this help message.",
     "last_close": "Return latest closing value for the supplied list of symbols (equity or crypto).",
     "maximize_return": "Maximize the return of the portfolio defined by the supplied list of ticker symbols.",
@@ -172,10 +197,10 @@ FUNC_DICT = {
     "moving_averages": "Calculate the current moving averages ",
     "optimize_portfolio":"Optimize the variance of the portfolio's variance subject to the supplied return target. The target return must be specified by the last argument",
     "plot_frontier": "Generates a scatter plot graphic of the portfolio's efficient frontier for the supplied list of tickers. Not available when running inside of a Docker container.",
-    "plot_moving_averages": "Generates a grouped bar chart of the moving averages for each equity in the supplied list of ticker symbols. Not available when running inside of a Docker container.",
-    "plot_risk_profile": "Generates a scatter plot of the risk-return profile for symbol in the supplied list of ticker symbols.",
+    "plot_moving_averages": "Generates a grouped bar chart of the moving averages for each equity in the supplied list of ticker symbols. Not available when running inside of a Docker container. ",
+    "plot_risk_profile": "Generates a scatter plot of the risk-return profile for symbol in the supplied list of ticker symbols. ADDITIONAL OPTIONS: -start (format: \"YYYY-MM-DD\"), -end  (format :\"YYYY-MM-DD\")",
     "purge": "Removes all files contained with the /static/ and /cache/ directory, but retains the directories themselves.",
-    "risk_return": "Calculate the risk-return profile for the supplied list of ticker symbols.",
+    "risk_return": "Calculate the risk-return profile for the supplied list of ticker symbols. ADDITIONAL OPTIONS: -start (format: \"YYYY-MM-DD\"), -end  (format :\"YYYY-MM-DD\")",
 }
 
 EXAMPLES = { 
