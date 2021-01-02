@@ -181,6 +181,8 @@ def get_daily_stats_history(statistics, startdate=None, enddate=None):
         
             response = requests.get(url).json()
 
+            # TODO: test for error messages or API rate limits
+
             stats.append(response[settings.Q_FIRST_LAYER][settings.Q_SECOND_LAYER])
 
         return stats
@@ -189,7 +191,6 @@ def get_daily_stats_history(statistics, startdate=None, enddate=None):
         return None
         
 def get_daily_stats_latest(statistics):
-
     if settings.STAT_MANAGER == "quandl":
         current_stats = []
         stats_history = get_daily_stats_history(statistics)
@@ -204,7 +205,6 @@ def get_daily_stats_latest(statistics):
         return None
 
 def init_static_data():
-    
     if settings.INIT or \
         ((not os.path.isfile(settings.STATIC_ECON_FILE)) or \
             (not os.path.isfile(settings.STATIC_TICKERS_FILE)) or \
@@ -226,21 +226,21 @@ def init_static_data():
 
             # grab ticker symbols and store in STATIC_DIR
             if not os.path.isfile(settings.STATIC_TICKERS_FILE):
-                output.debug(f'Missing {settings.STATIC_TICKERS_FILE}, querying AlphaVantage...')
+                output.debug(f'Missing {settings.STATIC_TICKERS_FILE}, querying \'{settings.PRICE_MANAGER}\'...')
 
-                query=f'{settings.PARAM_AV_FUNC}={settings.ARG_AV_FUNC_EQUITY_LISTINGS}&{settings.PARAM_AV_KEY}={settings.AV_KEY}'
-                url = f'{settings.AV_URL}?{query}'
+                query=f'{settings.PARAM_AV_FUNC}={settings.ARG_AV_FUNC_EQUITY_LISTINGS}'
+                url = f'{settings.AV_URL}?{query}&{settings.PARAM_AV_KEY}={settings.AV_KEY}'
 
-                output.debug(f'Preparsing to parse AlphaVantage Response to query: {query}')
+                output.debug(f'Preparsing to parse \'{settings.PRICE_MANAGER}\' Response to query: {query}')
                 helper.parse_csv_response_column(column=0, url=url, firstRowHeader=settings.AV_RES_EQUITY_KEY, 
                                                     savefile=settings.STATIC_TICKERS_FILE)
 
             # grab crypto symbols and store in STATIC_DIR
             if not os.path.isfile(settings.STATIC_CRYPTO_FILE):
-                output.debug(f'Missing {settings.STATIC_CRYPTO_FILE}, querying AlphaVantage...')
+                output.debug(f'Missing {settings.STATIC_CRYPTO_FILE}, querying \'{settings.PRICE_MANAGER}\'.')
                 url = settings.AV_CRYPTO_LIST
 
-                output.debug(f'Preparsing to parse AlphaVantage Response to query: {url}')
+                output.debug(f'Preparsing to parse \'{settings.PRICE_MANAGER}\' Response to query: {url}')
                 helper.parse_csv_response_column(column=0, url=url, firstRowHeader=settings.AV_RES_CRYPTO_KEY, 
                                                     savefile=settings.STATIC_CRYPTO_FILE)
 
@@ -252,10 +252,12 @@ def init_static_data():
             
             # grab econominc indicator symbols and store in STATIC_DIR
             if not os.path.isfile(settings.STATIC_ECON_FILE):
-                output.debug(f'Missing {settings.STATIC_ECON_FILE}, querying Quandl...')
+                output.debug(f'Missing {settings.STATIC_ECON_FILE}, querying \'{settings.STAT_MANAGER}\'...')
 
-                url = f'{settings.Q_META_URL}/{settings.PATH_Q_FRED}/{settings.PARAM_Q_METADATA}?{settings.PARAM_Q_KEY}={settings.Q_KEY}'
+                query = f'{settings.PATH_Q_FRED}/{settings.PARAM_Q_METADATA}'
+                url = f'{settings.Q_META_URL}/{query}?{settings.PARAM_Q_KEY}={settings.Q_KEY}'
 
+                output.debug(f'Preparsing to parse \'{settings.PRICE_MANAGER}\' Response to query: {query}')
                 helper.parse_csv_response_column(column=0, url=url, firstRowHeader=settings.Q_RES_STAT_KEY,
                                                     savefile=settings.STATIC_ECON_FILE, zipped=settings.Q_RES_STAT_ZIP_KEY)
 

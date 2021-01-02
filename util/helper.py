@@ -55,12 +55,9 @@ def get_holidays_between(start_date_string, end_date_string):
 
 # YYYY-MM-DD
 def consecutive_trading_days(start_date_string, end_date_string):
-    # if weekends, return false
     if is_date_string_weekend(start_date_string) or is_date_string_weekend(end_date_string):
         return False
 
-    start_parsed = str(start_date_string).split('-')
-    end_parsed = str(end_date_string).split('-')
     start_date = parse_date_string(start_date_string)
     end_date = parse_date_string(end_date_string)
     delta = end_date - start_date

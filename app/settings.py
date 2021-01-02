@@ -1,6 +1,5 @@
 import os, json, dotenv
 import util.logger as logger
-import app.services as services
 
 output = logger.Logger('app.settings')
 
@@ -48,6 +47,7 @@ except:
     GUI_HEIGHT = 800
 
 AV_URL = os.getenv('ALPHA_VANTAGE_URL').strip("\"").strip("'")
+
 if credential_overrides:
     try:
         AV_KEY = credential_overrides['ALPHA_VANTAGE_KEY']
@@ -61,15 +61,33 @@ else:
         AV_KEY = None
         output.debug('Unable to parse ALPHA_VANTAGE_KEY from .env file')
 if AV_KEY is not None:
+    # TODO: test URL
+    # if fails, set to None
     pass
-if AV_KEY is not None
+if AV_KEY is None:
+    # TODO: Prompt user to register and enter key, save in config.json
     pass
 
 Q_URL = os.getenv('QUANDL_URL').strip("\"").strip("'")
 if credential_overrides:
-    Q_KEY = credential_overrides['QUANDL_KEY']
+    try:
+        Q_KEY = credential_overrides['QUANDL_KEY']
+    except:
+        Q_KEY = None
+        output.debug('Unable to parse QUANDL_KEY from config.json file')
 else:
-    Q_KEY = os.getenv('QUANDL_KEY')
+    try:
+        Q_KEY = os.getenv('QUANDL_KEY')
+    except:
+        Q_KEY = None
+        output.debug('Unable to parse QUANDL_KEY from .env file')
+if Q_KEY is not None:
+    # TODO: test URL
+    # if fails, set to None
+    pass
+if Q_KEY is None:
+    # TODO: Prompt user to register and enter key, save in config.json
+    pass
 
 PRICE_MANAGER = os.getenv('PRICE_MANAGER')
 STAT_MANAGER = os.getenv('STAT_MANAGER')
