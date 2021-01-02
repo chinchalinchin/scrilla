@@ -44,7 +44,7 @@ class PortfolioWidget(QtWidgets.QWidget):
         self.left_title = QtWidgets.QLabel("Portfolio")
         self.left_title.setFont(get_subtitle_font())
 
-        self.right_title = QtWidgets.QLabel("Contraints")
+        self.right_title = QtWidgets.QLabel("Constraints")
         self.right_title.setFont(get_subtitle_font())
 
         self.message = QtWidgets.QLabel("Please separate symbols with a comma", alignment=QtCore.Qt.AlignBottom)
@@ -91,13 +91,13 @@ class PortfolioWidget(QtWidgets.QWidget):
         self.first_layer.addStretch()
         # Left Panel Layout
         self.left_layout.addWidget(self.left_title)
+        self.left_layout.addWidget(self.portfolio_label)
+        self.left_layout.addWidget(self.portfolio_value)
         self.left_layout.addWidget(self.message)
         self.left_layout.addWidget(self.symbol_input)
         self.left_layout.addWidget(self.minimize_button)
         # Right Panel Layout
         self.right_layout.addWidget(self.right_title)
-        self.right_layout.addWidget(self.portfolio_label)
-        self.right_layout.addWidget(self.portfolio_value)
         self.right_layout.addWidget(self.target_label)
         self.right_layout.addWidget(self.target_return)
         self.right_layout.addWidget(self.optimize_button)
