@@ -142,6 +142,8 @@ if PRICE_MANAGER == "alpha_vantage":
     AV_RES_CRYPTO_FIRST_LAYER='Time Series (Digital Currency Daily)'
     AV_RES_CRYPTO_KEY="currency code"
     AV_RES_CRYPTO_CLOSE_PRICE=f'4a. close ({DENOMINATION})'
+    AV_RES_ERROR='Error Message'
+    AV_RES_LIMIT='Note'
     # Query Parameters
     PARAM_AV_TICKER="symbol"
     PARAM_AV_FUNC="function"
@@ -164,7 +166,3 @@ if STAT_MANAGER == "quandl":
     # Query Parameters
     PARAM_Q_KEY="api_key"
     PARAM_Q_METADATA="metadata.json"
-
-#### PLOTTING CONFIGURAITON
-
-BAR_WIDTH = 0.10

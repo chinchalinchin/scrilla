@@ -106,13 +106,13 @@ def get_daily_price_history(ticker, start_date=None, end_date=None):
         first_element = helper.get_first_json_key(prices)
 
         # check for bad response
-        if first_element == 'Error Message':
-            output.debug(prices['Error Message'])
+        if first_element == settings.AV_RES_ERROR:
+            output.debug(prices[settings.AV_RES_ERROR])
             return False
 
         # check and wait for API rate limit refresh
         first_pass = True
-        while first_element == 'Note':
+        while first_element == settings.AV_RES_LIMIT:
             if first_pass:
                 output.debug('AlphaVantage API rate limit exceeded. Waiting...')
                 first_pass = False
