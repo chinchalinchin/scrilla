@@ -27,6 +27,153 @@ def get_label_font():
     font.setBold(True)
     return font
 
+# Base Widget to get asset symbol input
+class SymbolWidget(QtWidgets.QWidget):
+    def __init__(self, widget_title, button_msg):
+        super().__init__()
+        self.title = QtWidgets.QLabel(widget_title, alignment=QtCore.Qt.AlignTop)
+        self.title.setFont(get_title_font())
+
+        self.message = QtWidgets.QLabel("Please separate symbols with a comma", alignment=QtCore.Qt.AlignBottom)
+        self.message.setFont(get_msg_font())    
+
+        self.calculate_button = QtWidgets.QPushButton(button_msg)
+        self.calculate_button.setAutoDefault(True)
+            # emits 'clicked' when return is pressed
+
+        self.clear_button = QtWidgets.QPushButton("Clear")
+        self.clear_button.setAutoDefault(True)
+            # emits 'clicked' when return is pressed
+        
+        self.symbol_input = QtWidgets.QLineEdit()
+        self.symbol_input.setMaxLength(100)
+
+class TableWidget(SymbolWidget):
+    def __init__(self, widget_title, button_msg, table_function):
+        super().__init__(widget_title=widget_title, button_msg=button_msg)
+
+        self.table = QtWidgets.QTableWidget()
+        self.table.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustToContents)
+        self.table.hide()
+
+        self.layout = QtWidgets.QVBoxLayout()
+    
+        self.error_message = QtWidgets.QLabel("Something Went Wrong; Check Input and Try Again", alignment=QtCore.Qt.AlignHCenter)
+        self.error_message.setFont(get_subtitle_font())
+        self.error_message.hide()
+
+        self.layout.addWidget(self.title)
+        self.layout.addStretch()
+        self.layout.addWidget(self.table, 1)
+        self.layout.addWidget(self.error_message)
+        self.layout.addWidget(self.message)
+        self.layout.addWidget(self.symbol_input)
+        self.layout.addWidget(self.calculate_button)
+        self.layout.addWidget(self.clear_button)
+
+        self.setLayout(self.layout)
+
+        self.clear_button.clicked.connect(self.clear)
+        self.calculate_button.clicked.connect(table_function)
+        self.symbol_input.returnPressed.connect(table_function)
+    
+        self.displayed = False
+        self.figure = None
+
+    @QtCore.Slot()
+    def clear(self):
+        self.symbol_input.clear()
+        self.error_message.hide()
+        self.table.clear()
+        self.table.hide()
+
+# NOTE: display_function MUST set displayed = True and set
+#       figure to FigureCanvasAgg object
+class GraphWidget(SymbolWidget):
+    def __init__(self, widget_title, button_msg, display_function):
+        super().__init__(widget_title=widget_title, button_msg=button_msg)
+        
+        self.layout = QtWidgets.QVBoxLayout()
+    
+        self.layout.addWidget(self.title)
+        self.layout.addStretch()
+        self.layout.addWidget(self.message)
+        self.layout.addWidget(self.symbol_input)
+        self.layout.addWidget(self.calculate_button)
+        self.layout.addWidget(self.clear_button)
+
+        self.setLayout(self.layout)
+
+        self.clear_button.clicked.connect(self.clear)
+        self.calculate_button.clicked.connect(display_function)
+        self.symbol_input.returnPressed.connect(display_function)
+    
+        self.displayed = False
+        self.figure = None
+
+    @QtCore.Slot()
+    def clear(self):
+        self.symbol_input.clear()
+        if self.displayed:
+            self.displayed = False
+            self.layout.removeWidget(self.figure)
+            self.figure.deleteLater()
+            self.figure = None
+
+# NOTE: both calculate_function and display_function get binded to the Widget's calculate_button.
+    # i.e. the display_function's figure should represent the result from the calculate_function
+class CompositeWidget(SymbolWidget):
+    def __init__(self, widget_title, button_msg, calculate_function, display_function):
+        super().__init__(widget_title=widget_title, button_msg=button_msg)
+        self.table = QtWidgets.QTableWidget()
+        self.table.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustToContents)
+        self.table.hide()
+
+        self.error_message = QtWidgets.QLabel("Something Went Wrong; Check Input and Try Again", alignment=QtCore.Qt.AlignHCenter)
+        self.error_message.setFont(get_subtitle_font())
+        self.error_message.hide()
+
+        self.first_layer = QtWidgets.QVBoxLayout()
+        self.second_layer = QtWidgets.QHBoxLayout()
+        self.left_layout = QtWidgets.QVBoxLayout()
+        self.right_layout = QtWidgets.QVBoxLayout()
+
+        self.first_layer.addWidget(self.title)
+        self.first_layer.addStretch()
+        self.first_layer.add(self.error_message)
+
+        self.left_layout.addWidget(self.table, 1)
+        self.second_layer.addLayout(self.left_layout)
+        self.second_layer.addLayout(self.right_layout)
+
+        self.first_layer.addLayout(self.second_layer)
+        self.first_layer.addWidget(self.message)
+        self.first_layer.addWidget(self.symbol_input)
+        self.first_layer.addWidget(self.calculate_button)
+        self.first_layer.addWidget(self.clear_button)
+
+        self.setLayout(self.first_layer)
+
+        self.displayed = False
+        self.figure = None
+
+        self.clear_button.clicked.connect(self.clear)
+        self.calculate_button.clicked.connect(calculate_function)
+        self.calculate_button.clicked.connect(display_function)
+
+    @QtCore.Slot()
+    def clear(self):
+        self.symbol_input.clear()
+        self.error_message.hide()
+        self.table.clear()
+        self.table.hide()
+        if self.displayed:
+            self.displayed = False
+            self.right_layout.removeWidget(self.figure)
+            self.figure.deleteLater()
+            self.figure = None
+
+# Specialized Widget For Portfolio Calculations
 class PortfolioWidget(QtWidgets.QWidget):
     def __init__(self, widget_title, min_function, opt_function):
         super().__init__()
@@ -128,127 +275,3 @@ class PortfolioWidget(QtWidgets.QWidget):
         self.result_table.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustToContents)
         self.first_layer.insertWidget(2, self.result_table, 1)
         self.result_table.hide()
-
-# Base Widget to get asset symbol input
-class SymbolWidget(QtWidgets.QWidget):
-    def __init__(self, widget_title, button_msg):
-        super().__init__()
-        self.title = QtWidgets.QLabel(widget_title, alignment=QtCore.Qt.AlignTop)
-        self.title.setFont(get_title_font())
-
-        self.message = QtWidgets.QLabel("Please separate symbols with a comma", alignment=QtCore.Qt.AlignBottom)
-        self.message.setFont(get_msg_font())    
-
-        self.calculate_button = QtWidgets.QPushButton(button_msg)
-        self.calculate_button.setAutoDefault(True)
-            # emits 'clicked' when return is pressed
-
-        self.clear_button = QtWidgets.QPushButton("Clear")
-        self.clear_button.setAutoDefault(True)
-            # emits 'clicked' when return is pressed
-        
-        self.symbol_input = QtWidgets.QLineEdit()
-        self.symbol_input.setMaxLength(100)
-
-class TableWidget(SymbolWidget):
-    def __init__(self, widget_title, button_msg, table_function):
-        super().__init__(widget_title=widget_title, button_msg=button_msg)
-
-        self.table = QtWidgets.QTableWidget()
-        self.table.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustToContents)
-        self.table.hide()
-
-        self.layout = QtWidgets.QVBoxLayout()
-    
-        self.layout.addWidget(self.title)
-        self.layout.addStretch()
-        self.layout.addWidget(self.table, 1)
-        self.layout.addWidget(self.message)
-        self.layout.addWidget(self.symbol_input)
-        self.layout.addWidget(self.calculate_button)
-        self.layout.addWidget(self.clear_button)
-
-        self.setLayout(self.layout)
-
-        self.clear_button.clicked.connect(self.clear)
-        self.calculate_button.clicked.connect(table_function)
-        self.symbol_input.returnPressed.connect(table_function)
-    
-        self.displayed = False
-        self.figure = None
-
-    @QtCore.Slot()
-    def clear(self):
-        self.symbol_input.clear()
-        self.table.clear()
-        self.table.hide()
-
-class CalculateWidget(SymbolWidget):
-    def __init__(self, widget_title, button_msg, calculate_function):
-        super().__init__(widget_title=widget_title, button_msg=button_msg)
-
-        self.result = QtWidgets.QLabel("Result", alignment=QtCore.Qt.AlignRight)
-        self.result.setFont(get_result_font())
-        self.result.hide()
-        
-        self.layout = QtWidgets.QVBoxLayout()
-
-        self.layout.addWidget(self.title)
-        self.layout.addStretch()
-        self.layout.addWidget(self.result)
-        self.layout.addWidget(self.message)
-        self.layout.addWidget(self.symbol_input)
-        self.layout.addWidget(self.calculate_button)
-        self.layout.addWidget(self.clear_button)
-
-        self.setLayout(self.layout)
-
-        self.clear_button.clicked.connect(self.clear)
-        self.calculate_button.clicked.connect(calculate_function)
-        self.symbol_input.returnPressed.connect(calculate_function)
-
-    @QtCore.Slot()
-    def clear(self):
-        self.symbol_input.clear()
-        self.result.hide()
-
-# NOTE: display_function MUST set displayed = True and set
-#       figure to FigureCanvasAgg object
-class GraphWidget(SymbolWidget):
-    def __init__(self, widget_title, button_msg, display_function):
-        super().__init__(widget_title=widget_title, button_msg=button_msg)
-        
-        self.layout = QtWidgets.QVBoxLayout()
-    
-        self.layout.addWidget(self.title)
-        self.layout.addStretch()
-        self.layout.addWidget(self.message)
-        self.layout.addWidget(self.symbol_input)
-        self.layout.addWidget(self.calculate_button)
-        self.layout.addWidget(self.clear_button)
-
-        self.setLayout(self.layout)
-
-        self.clear_button.clicked.connect(self.clear)
-        self.calculate_button.clicked.connect(display_function)
-        self.symbol_input.returnPressed.connect(display_function)
-    
-        self.displayed = False
-        self.figure = None
-
-    @QtCore.Slot()
-    def clear(self):
-        self.symbol_input.clear()
-        if self.displayed:
-            self.displayed = False
-            self.layout.removeWidget(self.figure)
-            self.figure.deleteLater()
-            self.figure = None
-
-# NOTE: both calculate_function and display_function get binded to the Widget's calculate_button.
-    # i.e. the display_function's figure should represent the result from the calculate_function
-class CompositeWidget(TableWidget, GraphWidget):
-     def __init__(self, widget_title, button_msg, calculate_function, display_function):
-        super(SymbolWidget, self).__init__(widget_title=widget_title, button_msg=button_msg)
-        super(TableWidget, self).__init__(widget_title=widget_title, button_msg=button_msg, calculate_function=calculate_function)
-        super(GraphWidget, self).__init__(widget_title=widget_title, button_msg=button_msg, display_function=display_function)

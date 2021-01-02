@@ -46,7 +46,7 @@ def plot_frontier(portfolio, frontier, show=True, savefile=None):
 def plot_profiles(symbols, profiles, show=True, savefile=None):
     canvas = FigureCanvas(Figure())
 
-    no_symbols = numpy.arange(len(symbols))
+    no_symbols = len(symbols)
     axes = canvas.figure.subplots()
 
     title ="("
@@ -61,14 +61,14 @@ def plot_profiles(symbols, profiles, show=True, savefile=None):
         return_profile.append(profile['annual_return'])
         risk_profile.append(profile['annual_volatility'])
 
-    axes.plot(risks, returns, linestyle='None', markersize=10.0)
+    axes.plot(risk_profile, return_profile, linestyle='None', marker= ".", markersize=10.0)
     axes.set_xlabel('Volatility')
     axes.set_ylabel('Return')
     axes.set_title(title)
 
     for i in range(no_symbols):
         axes.annotate(symbols[i], (risk_profile[i], return_profile[i]))
-        
+
     if savefile is not None:
         canvas.print_jpeg(filename_or_obj=savefile)
 

@@ -13,32 +13,69 @@ import util.logger as logger
 import util.helpers as helper
 import util.plotter as plotter
 
-from gui.widgets import CalculateWidget, GraphWidget, \
+from gui.widgets import CompositeWidget, GraphWidget, \
                             TableWidget, PortfolioWidget
 
 output = logger.Logger('gui.functions')
 
-class RiskReturnWidget(CalculateWidget):
+class RiskReturnWidget(CompositeWidget):
     def __init__(self):
         super().__init__(widget_title="Risk-Return Profile Over Last 100 Days", button_msg="Calculate Profile", 
-                            calculate_function=self.calculate)
+                            calculate_function=self.calculate, display_function=self.display)
 
     @QtCore.Slot()
     def calculate(self):
         user_symbols = helper.strip_string_array(self.symbol_input.text().upper().split(","))
+        no_symbols = len(user_symbols)
 
-        formatted_result = "(return, volatility) \n"
-        for user_symbol in user_symbols:
-            stats = statistics.calculate_risk_return(user_symbol)
+        self.table.setRowCount(no_symbols)
+        self.table.setColumnCount(2)
+        self.table.setHorizontalHeader(QtWidgets.QHeaderView(QtCore.Qt.Horizontal))
+        self.table.setHorizontalHeaderLabels(['Risk','Return'])
+        self.table.horizontalHeader().setStretchLastSection(True)
+        self.table.setVerticalHeader(QtWidgets.QHeaderView(QtCore.Qt.Vertical))
+        self.table.setVerticalHeaderLabels(user_symbols)
+
+        for symbol in user_symbols:
+            output.debug(f'Calculating {symbol} Risk-Return Profile')
+            stats = statistics.calculate_risk_return(symbol)
             if stats:
-                annual_ret, annual_vol = str(100*stats['annual_return'])[:5], str(100*stats['annual_volatility'])[:settings.SIG_FIGS]
-                formatted_result += f'{user_symbol} = ({annual_ret} %, {annual_vol} %) \n'
-            
-            else: 
-                formatted_result += f'Price History Not Found For {user_symbol} \n'
+                formatted_ret = str(100*stats['annual_return'])[:settings.SIG_FIGS]+"%"
+                formatted_vol = str(100*stats['annual_volatility'])[:settings.SIG_FIGS]+"%"
+                
+                output.debug(f'(return, vol)_{symbol} = ({formatted_ret}, {formatted_vol})')
 
-        self.result.setText(formatted_result)
-        self.result.show()
+                ret_item = QtWidgets.QTableWidgetItem(formatted_ret)
+                ret_item.setTextAlignment(QtCore.Qt.AlignHCenter)
+                vol_item = QtWidgets.QTableWidgetItem(formatted_vol)
+                vol_item.setTextAlignment(QtCore.Qt.AlignHCenter)
+                
+                self.table.setItem(user_symbols.index(symbol), 0, vol_item)
+                self.table.setItem(user_symbols.index(symbol), 1, ret_item)
+            else: 
+                self.error_message.show()
+                return False
+
+        self.table.resizeColumnsToContents()
+        self.table.show()
+    
+    @QtCore.Slot()
+    def display(self):
+        if self.displayed:
+            self.layout.removeWidget(self.figure)
+            self.figure.deleteLater()
+            self.figure = None
+            time.sleep(1)
+        user_symbols = helper.strip_string_array(self.symbol_input.text().upper().split(","))
+        profiles = []
+        for symbol in user_symbols:
+            profiles.append(statistics.calculate_risk_return(symbol))
+
+        figure = plotter.plot_profiles(symbols=user_symbols, profiles=profiles, show=False)
+        self.figure = figure
+        self.right_layout.insertWidget(1, self.figure, 1)
+        self.displayed = True
+
 
 class CorrelationWidget(TableWidget):
     def __init__(self):
@@ -158,7 +195,7 @@ class OptimizerWidget(PortfolioWidget):
             self.result.setText("Error Occurred. Check Input and Try Again.")
             self.result.show()
 
-
+    # TODO
     @QtCore.Slot()
     def optimize(self):
         pass
