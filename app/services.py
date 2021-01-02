@@ -67,13 +67,6 @@ def retrieve_prices_from_cache(ticker, start_date=None, end_date=None):
 
     return prices
 
-# Note, by default, AlphaVantage returns last 100 days of prices for equities, while returning the 
-# entire price history for crypto assets by default. By default, this method will return the last 
-# 100 days of prices for any type of asset provided to the input 'ticker'. 
-#
-# TODO: Implement 'startdate' and 'enddate' features
-# Arguments: startdate -> datetime.date
-#             enddate -> datetime.date
 def get_daily_price_history(ticker, start_date=None, end_date=None):
     """
     Parameters
@@ -96,7 +89,7 @@ def get_daily_price_history(ticker, start_date=None, end_date=None):
     asset_type=markets.get_asset_type(ticker)  
 
     if settings.PRICE_MANAGER == "alpha_vantage":
-        # Retrieve last 100 days of closing prices
+
         if start_date is None and end_date is None:
             query = f'{settings.PARAM_AV_TICKER}={ticker}&{settings.PARAM_AV_KEY}={settings.AV_KEY}'
 
@@ -171,12 +164,9 @@ def get_daily_price_history(ticker, start_date=None, end_date=None):
                     index += 1
             else:
                 return prices[settings.AV_RES_CRYPTO_FIRST_LAYER]
-            # NOTE: AlphaVantage returns entire history for any crypto API call
-            # unlike the equity API calls, so the response for crypto is truncated
-            # to make sure responses for current calculations are of the same length.
 
     else:
-            output.debug("No STAT_MANAGER set in .env file!")
+        output.debug("No STAT_MANAGER set in .env file!")
 
 def get_daily_price_latest(ticker):
     if settings.PRICE_MANAGER == "alpha_vantage":
