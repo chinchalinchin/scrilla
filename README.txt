@@ -38,6 +38,8 @@ TODOS:
 
 will launch GUI. Currently working on widgets for the functions.
 
+4. Figure out how to launch GUI in Docker. Also, volumes.
+
 NOTE:
 
 The first time this application is run it retrieves a large amount of static data and stores it in the /static/ folder. The first call of the function may take some time, but subsequent calls, assuming you do not have the environment variable INIT = True, should not take anywhere near as long.
