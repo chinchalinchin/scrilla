@@ -11,6 +11,12 @@ def get_number_input(msg_prompt):
         else:
             print('Input Not Understood. Please Enter A Numerical Value.')
 
+def strip_string_array(array):
+    new_array = []
+    for string in array:
+        new_array.append(string.strip())
+    return new_array
+    
 # YYYY-MM-DD
 def is_date_string_weekend(date_string):
     dates=str(date_string).split('-')

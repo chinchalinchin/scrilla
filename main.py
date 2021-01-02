@@ -147,7 +147,7 @@ if __name__ == "__main__":
             elif opt == settings.FUNC_ARG_DICT['plot_frontier'] and settings.ENVIRONMENT != "container":
                 if(len(args)>1):
                     frontier = optimizer.calculate_efficient_frontier(equities=args)
-                    output.plot_frontier(portfolio=Portfolio(args), frontier=frontier)
+                    plotter.plot_frontier(portfolio=Portfolio(args), frontier=frontier)
                 
                 else: 
                     output.debug('Invalid Input. Try Try -ex Flag For Example Usage.')
@@ -155,7 +155,7 @@ if __name__ == "__main__":
             elif opt == settings.FUNC_ARG_DICT['plot_moving_averages'] and settings.ENVIRONMENT != "container":
                 if(len(args)>1) or len(args)==1:
                     moving_averages = statistics.calculate_moving_averages(args)
-                    plotter.plot_moving_averages(symbols=args, averages=moving_averages, show=True)
+                    plotter.plot_moving_averages(symbols=args, averages=moving_averages)
 
                 else:
                     output.debug('Invalid Input. Try Try -ex Flag For Example Usage.')

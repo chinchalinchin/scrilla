@@ -40,6 +40,12 @@ will launch GUI. Currently working on widgets for the functions.
 
 4. Figure out how to launch GUI in Docker. Also, volumes.
 
+5. Free icons: https://streamlineicons.com/
+
+BUGS:
+
+1. if you add two moving average graphs, the clear button only clears the most recently added one and you are stuck with the first graph.
+
 NOTE:
 
 The first time this application is run it retrieves a large amount of static data and stores it in the /static/ folder. The first call of the function may take some time, but subsequent calls, assuming you do not have the environment variable INIT = True, should not take anywhere near as long.

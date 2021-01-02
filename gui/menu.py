@@ -2,7 +2,8 @@ import sys
 import random
 from PyQt5 import QtCore, QtWidgets, QtGui
 
-from gui.functions import RiskReturnWidget, CorrelationWidget, MovingAverageWidget
+from gui.functions import RiskReturnWidget, CorrelationWidget, \
+                            MovingAverageWidget, EfficientFrontierWidget
 
 def get_title_font():
     font = QtGui.QFont('Impact', 12)
@@ -21,13 +22,15 @@ class MenuWidget(QtWidgets.QWidget):
         self.back_button.hide()
 
         # Widget Buttons
-        self.widget_buttons = [ QtWidgets.QPushButton("Correlation"),
+        self.widget_buttons = [ QtWidgets.QPushButton("Correlation Matrix"),
+                                QtWidgets.QPushButton("Efficient Frontier"),
                                 QtWidgets.QPushButton("Moving Averages"),
                                 QtWidgets.QPushButton("Risk-Return Profile"),
                               ]
 
         # Function Widgets
         self.function_widgets = [ CorrelationWidget(), 
+                                  EfficientFrontierWidget(),
                                   MovingAverageWidget(),
                                   RiskReturnWidget(),
                                 ]
@@ -38,16 +41,18 @@ class MenuWidget(QtWidgets.QWidget):
     
         self.layout.addStretch()
 
+        # TODO: can't pass i for some reason...has to be literal int???
+                # has to have something to do with when lambda functions execute
         for button in self.widget_buttons:
             button.setAutoDefault(True)
-            # TODO: can't pass i for some reason...has to be literal int???
-                # has to have something to do with when lambda functions execute
             if self.widget_buttons.index(button) == 0:
                 button.clicked.connect(lambda: self.show_widget(0))
             elif self.widget_buttons.index(button) == 1:
                 button.clicked.connect(lambda: self.show_widget(1))
             elif self.widget_buttons.index(button) == 2:
                 button.clicked.connect(lambda: self.show_widget(2))
+            elif self.widget_buttons.index(button) == 3:
+                button.clicked.connect(lambda: self.show_widget(3))
             self.layout.addWidget(button)
             button.show()
 

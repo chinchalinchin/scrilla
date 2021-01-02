@@ -18,7 +18,6 @@ def calculate_moving_averages(tickers, current=True, enddate=None):
     
     if current:
         for ticker in tickers:
-            ticker = ticker.strip()
             prices = services.retrieve_prices_from_cache(ticker)
             asset_type = markets.get_asset_type(ticker)
             today = False
@@ -317,7 +316,7 @@ def get_correlation_matrix_string(symbols, indent=0):
     no_symbols = len(symbols)
 
     for i in range(no_symbols):
-        this_symbol = symbols[i].strip()
+        this_symbol = symbols[i]
         symbol_string = ' '*indent + f'{this_symbol} '
 
         if i != 0:
@@ -333,7 +332,7 @@ def get_correlation_matrix_string(symbols, indent=0):
                 new_line += " 100.0%"
             
             else:
-                that_symbol = symbols[j].strip()
+                that_symbol = symbols[j]
                 result = calculate_correlation(this_symbol, that_symbol) 
                 if not result:
                     output.debug(f'Cannot correlation for ({this_symbol}, {that_symbol})')

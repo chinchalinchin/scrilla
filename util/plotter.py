@@ -1,19 +1,15 @@
 import numpy, matplotlib
 from PIL import Image
 
-# matplotlib.rcParams['backend.qt4']='PySide'
-# matplotlib.use('Qt4Agg')
-
-import matplotlib.pyplot as plot
-matplotlib.use("Qt5Agg")
-
+from matplotlib import pyplot as plot
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 
-
 import app.settings as settings
 
-def plot_frontier(portfolio, frontier, show=True):
+matplotlib.use("Qt5Agg")
+
+def plot_frontier(portfolio, frontier, show=True, savefile=None):
     return_profile=[]
     risk_profile=[]
     for allocation in frontier:
@@ -29,21 +25,26 @@ def plot_frontier(portfolio, frontier, show=True):
         else:
             title += portfolio.tickers[i] + " ) Efficient Frontier"
     
-    fig, ax = plot.subplots()
+    canvas = FigureCanvas(Figure())
+    axes = canvas.figure.subplots()
 
-    ax.plot(risk_profile, return_profile, linestyle='dashed')
-    ax.set_xlabel('Volatility')
-    ax.set_ylabel('Return')
-    ax.set_title(title)
+    axes.plot(risk_profile, return_profile, linestyle='dashed')
+    axes.set_xlabel('Volatility')
+    axes.set_ylabel('Return')
+    axes.set_title(title)
+
+    if savefile is not None:
+        canvas.print_jpeg(filename_or_obj=savefile)
 
     if show:
-        plot.show()
+        s, (width, height) = canvas.print_to_buffer()
+        im = Image.frombytes("RGBA", (width, height), s)
+        im.show()
     else:
-        return fig
+        return canvas
 
-def plot_moving_averages(symbols, averages, show=True):
-    figure = Figure(figsize=(5,3))    
-    canvas = FigureCanvas(figure)
+def plot_moving_averages(symbols, averages, show=True, savefile=None):
+    canvas = FigureCanvas(Figure())
 
     width = settings.BAR_WIDTH
     x = numpy.arange(len(symbols))
@@ -56,6 +57,7 @@ def plot_moving_averages(symbols, averages, show=True):
         ma3s.append(averages[i][2])
     
     ma1_label, ma2_label, ma3_label = f'MA({settings.MA_1_PERIOD})', f'MA({settings.MA_2_PERIOD})', f'MA({settings.MA_3_PERIOD})'
+
     axes.bar(x + width, ma1s, width, label=ma1_label)
     axes.bar(x, ma2s, width, label=ma2_label)
     axes.bar(x - width, ma3s, width, label=ma3_label)
@@ -65,6 +67,9 @@ def plot_moving_averages(symbols, averages, show=True):
     axes.set_xticks(x)
     axes.set_xticklabels(symbols)
     axes.legend()
+
+    if savefile is not None:
+        canvas.print_jpeg(filename_or_obj=savefile)
 
     if show:
         s, (width, height) = canvas.print_to_buffer()

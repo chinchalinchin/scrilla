@@ -19,6 +19,8 @@ VERBOSE= True if os.getenv('VERBOSE').lower() == 'true' else False
 
 CACHE_DIR = os.path.join(APP_DIR, 'cache')
 
+DATA_DIR = os.path.join(APP_DIR, 'data')
+
 STATIC_DIR = os.path.join(APP_DIR, 'static')
 STATIC_TICKERS_FILE = os.path.join(STATIC_DIR, "tickers.json")
 STATIC_ECON_FILE = os.path.join(STATIC_DIR, "economics.json")
