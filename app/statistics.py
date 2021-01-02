@@ -14,10 +14,16 @@ output = logger.Logger('app.statistics')
 
 # NOTE: assumes price history returns from latest to earliest date.
     # TODO: check if end_date - start_date < MA_Periods, if so return False
-    # TODO: check if end_date - start_date > MA_periods, perform algorithm 
+    # TODO: check if end_date - start_date > MA_Periods, perform algorithm 
     #       for each date in [start_date, end_date - start_date - MA_periods]
     #       as the starting date in the calculation, i.e. return an array of 
     #       arrays 
+    # TODO: if end_date - start_date > MA_Periods
+    #           return (moving_averages, dates)-tuple
+    #               where dates = array of dates for MA plot
+    #       else:
+    #           return (moving_averages, None)-tuple
+    #               where None indicates the moving_averages is for present.
 def calculate_moving_averages(tickers, start_date=None, end_date=None):
     moving_averages = []
     

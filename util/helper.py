@@ -1,7 +1,7 @@
 import datetime, os, io, json, csv, zipfile
 import holidays
 import requests
-    
+
 def get_number_input(msg_prompt):
     while True:
         user_input = input(msg_prompt)
@@ -150,4 +150,4 @@ def clear_directory(directory, retain=True, outdated_only=False):
                     os.remove(os.path.join(directory, f))
         else:
             for f in filelist:
-            os.remove(os.path.join(directory, f))
+                os.remove(os.path.join(directory, f))

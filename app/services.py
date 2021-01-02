@@ -20,25 +20,30 @@ def parse_price_from_date(prices, date, asset_type):
     except:
         return False
         
-# Arguments: tickers -> [string]
-#            startdate -> datetime.date
-#            enddate -> datetime.date
-    # TODO: don't cache stats if start_date and end_date are specified
+# ARGUMENTS: tickers : [ string ] : list of symbols whose prices will be retrieved
+#            start_date : datetime.date : start of time period 
+#            end_date : datetime.date : end of time period
+# NOTE: Only recent prices are cached, i.e. the last 100 days of prices. Calls
+# for other periods of time are not cached and will take longer to load due to 
+# the API rate limit from AlphaVantage.
 def retrieve_prices_from_cache(ticker, start_date=None, end_date=None):
-    now = datetime.datetime.now()
-    # TODO: if startdate and enddate are supplied need to change timestamp
-    timestamp = '{}{}{}'.format(now.month, now.day, now.year)
-    buffer_store= os.path.join(settings.CACHE_DIR, f'{timestamp}_{ticker}.json')
+    buffer_flag = (start_date is None and end_date is None)
+
+    if buffer_flag:
+        now = datetime.datetime.now()
+        timestamp = '{}{}{}'.format(now.month, now.day, now.year)
+        buffer_store= os.path.join(settings.CACHE_DIR, f'{timestamp}_{ticker}.json')
+        
+        if os.path.isfile(buffer_store):
+            output.debug(f'Loading in cached {ticker} prices...')
+            with open(buffer_store, 'r') as infile:
+                prices = json.load(infile)
+            return prices
     
-    if os.path.isfile(buffer_store):
-        output.debug(f'Loading in cached {ticker} prices...')
-        with open(buffer_store, 'r') as infile:
-            prices = json.load(infile)
+    output.debug(f'Retrieving {ticker} prices from Service Manager...')  
+    prices = get_daily_price_history(ticker=ticker, startdate=start_date, enddate=end_date)
 
-    else:     
-        output.debug(f'Retrieving {ticker} prices from Service Manager...')  
-        prices = get_daily_price_history(ticker=ticker, startdate=start_date, enddate=end_date)
-
+    if buffer_flag:
         output.debug(f'Storing {ticker} price history in cache...')
         with open(buffer_store, 'w') as outfile:
             json.dump(prices, outfile)
@@ -69,57 +74,72 @@ def get_daily_price_history(ticker, start_date=None, end_date=None):
             else:
                 return False
 
-            url=f'{settings.AV_URL}?{query}'     
-  
-            # NOTE: can probably move all of this below outside of the current conditional and apply all the 
-            #   conditional logic to the url, so this stuff needs to be done just once.
+        elif start_date is not None and end_date is not None:
+            if asset_type == settings.ASSET_EQUITY:
+                # TODO
+                pass
+            elif asset_type == settings.ASSET_CRYPTO:
+                # TODO
+                pass
+
+        elif start_date is None and end_date is not None:
+            if asset_type == settings.ASSET_EQUITY:
+                # TODO
+                pass
+            elif asset_type == settings.ASSET_CRYPTO:
+                # TODO
+                pass
+
+        # if start_date is not None and end_date is None
+        else:
+            if asset_type == settings.ASSET_EQUITY:
+                # TODO
+                pass
+            elif asset_type == settings.ASSET_CRYPTO:
+                # TODO
+                pass
+
+        url=f'{settings.AV_URL}?{query}'     
+
+        prices = requests.get(url).json()
+        
+        first_element = helper.get_first_json_key(prices)
+
+        # check for bad response
+        if first_element == 'Error Message':
+            output.debug(prices['Error Message'])
+            return False
+
+        # check and wait for API rate limit refresh
+        first_pass = True
+        while first_element == 'Note':
+            if first_pass:
+                output.debug('AlphaVantage API rate limit exceeded. Waiting...')
+                first_pass = False
+            else:
+                output.debug('Waiting...')
+            time.sleep(10)
             prices = requests.get(url).json()
-           
-            # check for bad response
             first_element = helper.get_first_json_key(prices)
 
-            if first_element == 'Error Message':
-                output.debug(prices['Error Message'])
-                return False
+        if asset_type == settings.ASSET_EQUITY:
+            return prices[settings.AV_RES_EQUITY_FIRST_LAYER]
 
-            # check for API rate limit 
-            while first_element == 'Note':
-                output.debug(f'Waiting for AlphaVantage rate limit to refresh...')
-                time.sleep(10)
-                prices = requests.get(url).json()
-                first_element = helper.get_first_json_key(prices)
-
-            if asset_type == settings.ASSET_EQUITY:
-                return prices[settings.AV_RES_EQUITY_FIRST_LAYER]
-
-            elif asset_type == settings.ASSET_CRYPTO:
-                truncated_prices, index = {}, 0
+        elif asset_type == settings.ASSET_CRYPTO:
+            truncated_prices, index = {}, 0
+            if start_date is None and end_date is None:
                 for date in prices[settings.AV_RES_CRYPTO_FIRST_LAYER]:
                     if index < 100:
                         truncated_prices[date] = prices[settings.AV_RES_CRYPTO_FIRST_LAYER][date]
                     else:
                         return truncated_prices
                     index += 1
-                # NOTE: AlphaVantage returns entire history for any crypto API call
-                # unlike the equity API calls, so the response for crypto is truncated
-                # to make sure responses for current calculations are of the same length.
-
-        else:
-            if start_date is not None and end_date is not None:
-                # TODO
-                pass
-
-            elif start_date is None and end_date is not None:
-                # TODO
-                pass
-
-            elif start_date is not None and end_date is None:
-                # TODO
-                pass
-
             else:
-                # TODO
-                pass
+                return prices[settings.AV_RES_CRYPTO_FIRST_LAYER]
+            # NOTE: AlphaVantage returns entire history for any crypto API call
+            # unlike the equity API calls, so the response for crypto is truncated
+            # to make sure responses for current calculations are of the same length.
+
     else:
             output.debug("No STAT_MANAGER set in .env file!")
 
@@ -147,10 +167,6 @@ def get_daily_stats_history(statistics, startdate=None, enddate=None):
             if startdate is None and enddate is None:
                 url = f'{settings.Q_URL}/{settings.PATH_Q_FRED}/{statistic}?{settings.PARAM_Q_KEY}={settings.Q_KEY}'
             
-                response = requests.get(url).json()
-
-                stats.append(response[settings.Q_FIRST_LAYER][settings.Q_SECOND_LAYER])
-
             elif startdate is None and enddate is not None:
                 # TODO
                 pass
@@ -163,6 +179,10 @@ def get_daily_stats_history(statistics, startdate=None, enddate=None):
                 # TODO
                 pass
         
+            response = requests.get(url).json()
+
+            stats.append(response[settings.Q_FIRST_LAYER][settings.Q_SECOND_LAYER])
+
         return stats
     else:
         output.debug("No STAT_MANAGER set in .env file!")

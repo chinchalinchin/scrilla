@@ -10,20 +10,21 @@ import util.format as formatter
 matplotlib.use("Qt5Agg")
 
 def plot_frontier(portfolio, frontier, show=True, savefile=None):
-    return_profile=[]
-    risk_profile=[]
-    for allocation in frontier:
-        return_profile.append(portfolio.return_function(allocation))
-        risk_profile.append(portfolio.volatility_function(allocation))
-    return_profile = numpy.array(return_profile)
-    risk_profile = numpy.array(risk_profile)
-    
     title = " ("
     for i in range(len(portfolio.tickers)):
         if i != (len(portfolio.tickers) - 1):
             title += portfolio.tickers[i] + ", "
         else:
             title += portfolio.tickers[i] + ") Efficient Frontier"
+    
+    return_profile, risk_profile = [], []
+    for allocation in frontier:
+        return_profile.append(portfolio.return_function(allocation))
+        risk_profile.append(portfolio.volatility_function(allocation))
+    
+        # don't think numpy arrays are needed...
+    # return_profile = numpy.array(return_profile)
+    # risk_profile = numpy.array(risk_profile)
     
     canvas = FigureCanvas(Figure())
     axes = canvas.figure.subplots()
@@ -79,6 +80,7 @@ def plot_profiles(symbols, profiles, show=True, savefile=None):
     else:
         return canvas
 
+# TODO: dynamically generate bar or line plot based on number of data points!
 # if len(averages) = (# of moving averages)*(# of symbols)
     # create barchart of moving averages as of today
 # if len(averages) > (# of moving averages)*(# of symbols)
