@@ -1,4 +1,4 @@
-import sys
+import sys, time
 import matplotlib
 
 from PyQt5 import QtGui, QtCore, QtWidgets
@@ -84,7 +84,7 @@ class OptimizerWidget(PortfolioWidget):
             self.result_table.clear()
         if self.result.isVisible():
             self.result.clear()
-            
+
         user_symbols = helper.strip_string_array(self.symbol_input.text().upper().split(","))
         no_symbols = len(user_symbols)
         investment = self.portfolio_value.text()
@@ -146,6 +146,11 @@ class MovingAverageWidget(GraphWidget):
         
     @QtCore.Slot()
     def display(self):
+        if self.displayed:
+            self.layout.removeWidget(self.figure)
+            self.figure.deleteLater()
+            self.figure = None
+            time.sleep(1)
         user_symbols = helper.strip_string_array(self.symbol_input.text().upper().split(","))
         moving_averages = statistics.calculate_moving_averages(user_symbols)
         figure = plotter.plot_moving_averages(symbols=user_symbols, averages=moving_averages, show=False)
