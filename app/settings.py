@@ -12,6 +12,9 @@ APP_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 dotenv.load_dotenv(os.path.join(APP_DIR,'.env'))
 
+DEBUG= True if os.getenv('DEBUG').lower() == 'true' else False
+VERBOSE= True if os.getenv('VERBOSE').lower() == 'true' else False
+
 CACHE_DIR = os.path.join(APP_DIR, 'cache')
 
 STATIC_DIR = os.path.join(APP_DIR, 'static')
@@ -39,9 +42,6 @@ Q_KEY = os.getenv('QUANDL_KEY')
 
 PRICE_MANAGER = os.getenv('PRICE_MANAGER')
 STAT_MANAGER = os.getenv('STAT_MANAGER')
-
-DEBUG= True if os.getenv('DEBUG').lower() == 'true' else False
-VERBOSE= True if os.getenv('VERBOSE').lower() == 'true' else False
 
 INIT= True if os.getenv('INIT').lower() == 'true' else False
 

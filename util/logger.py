@@ -165,6 +165,7 @@ class Logger():
             self.scalar_result('Volatility', portfolio.volatility_function(allocation))
             self.return_line()
 
+    # TODO: move to plotter.py
     # APPLICATION SPECIFIC GRAPHICS
     def plot_frontier(self, portfolio, frontier):
         return_profile=[]
