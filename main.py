@@ -181,7 +181,9 @@ if __name__ == "__main__":
                     else:
                         save_file = None
                     moving_averages = statistics.calculate_moving_averages(args)
-                    plotter.plot_moving_averages(symbols=args, averages=moving_averages, show=True, savefile=save_file)
+                    periods = [settings.MA_1_PERIOD, settings.MA_2_PERIOD, settings.MA_3_PERIOD]
+                    plotter.plot_moving_averages(symbols=args, averages=moving_averages, periods=periods, 
+                                                    show=True, savefile=save_file)
 
                 else:
                     output.debug('Invalid Input. Try Try -ex Flag For Example Usage.')

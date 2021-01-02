@@ -5,7 +5,7 @@ from matplotlib import pyplot as plot
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 
-import app.settings as settings
+import util.format as formatter
 
 matplotlib.use("Qt5Agg")
 
@@ -83,10 +83,10 @@ def plot_profiles(symbols, profiles, show=True, savefile=None):
     # create barchart of moving averages as of today
 # if len(averages) > (# of moving averages)*(# of symbols)
     # create line plot with three series for all available samples
-def plot_moving_averages(symbols, averages, show=True, savefile=None):
+def plot_moving_averages(symbols, averages, periods, show=True, savefile=None):
     canvas = FigureCanvas(Figure())
 
-    width = settings.BAR_WIDTH
+    width = formatter.BAR_WIDTH
     x = numpy.arange(len(symbols))
     axes = canvas.figure.subplots()
     
@@ -96,7 +96,7 @@ def plot_moving_averages(symbols, averages, show=True, savefile=None):
         ma2s.append(averages[i][1])
         ma3s.append(averages[i][2])
     
-    ma1_label, ma2_label, ma3_label = f'MA({settings.MA_1_PERIOD})', f'MA({settings.MA_2_PERIOD})', f'MA({settings.MA_3_PERIOD})'
+    ma1_label, ma2_label, ma3_label = f'MA({periods[0]})', f'MA({periods[1]})', f'MA({periods[2]})'
 
     axes.bar(x + width, ma1s, width, label=ma1_label)
     axes.bar(x, ma2s, width, label=ma2_label)
