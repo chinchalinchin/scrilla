@@ -1,5 +1,4 @@
-This is a financial application that calculates asset correlation, statistics and optimal portfolio allocations using data it retrieves
-from a variety of sources, chief among them AlphaVantage and Quandl.
+This is a financial application that calculates asset correlation, statistics and optimal portfolio allocations using data it retrieves from a variety of sources, chief among them AlphaVantage and Quandl.
 
 For the application to retrieve data, it must be connected to AlphaVantage and Quandl. Register for API keys at https://www.alphavantage.co and https://www.quandl.com/. Create a .env file in the root directory and place your Alpha Vantage and Quandl API keys within it in environment variables called ALPHA_VANTAGE_KEY and QUANDL_KEY respectively. 
 
