@@ -163,11 +163,11 @@ if __name__ == "__main__":
 
             elif opt == settings.FUNC_ARG_DICT['plot_risk_profile']:
                 if len(args) > 0:
-                    # TODO: calculate stats
                     profiles = []
                     for arg in args:
                         profiles.append(statistics.calculate_risk_return(arg))
                     plotter.plot_profiles(symbols=args, profiles=profiles)
+                
                 else:
                     output.debug('Invalid Input. Try Try -ex Flag For Example Usage.')
             elif opt == settings.FUNC_ARG_DICT["risk_return"]:

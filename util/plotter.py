@@ -18,12 +18,12 @@ def plot_frontier(portfolio, frontier, show=True, savefile=None):
     return_profile = numpy.array(return_profile)
     risk_profile = numpy.array(risk_profile)
     
-    title = " ( "
+    title = " ("
     for i in range(len(portfolio.tickers)):
         if i != (len(portfolio.tickers) - 1):
             title += portfolio.tickers[i] + ", "
         else:
-            title += portfolio.tickers[i] + " ) Efficient Frontier"
+            title += portfolio.tickers[i] + ") Efficient Frontier"
     
     canvas = FigureCanvas(Figure())
     axes = canvas.figure.subplots()
@@ -43,11 +43,41 @@ def plot_frontier(portfolio, frontier, show=True, savefile=None):
     else:
         return canvas
 
-def plot_profiles(symbols, profiles):
+def plot_profiles(symbols, profiles, show=True, savefile=None):
     canvas = FigureCanvas(Figure())
 
-    x = numpy.arange(len(symbols))
+    no_symbols = numpy.arange(len(symbols))
     axes = canvas.figure.subplots()
+
+    title ="("
+    for symbol in symbols:
+        if symbols.index(symbol) != (len(symbols)-1):
+            title += symbol +", "
+        else:
+            title += symbol +") Risk-Return Profile"
+
+    return_profile, risk_profile = [], []
+    for profile in profiles:
+        return_profile.append(profile['annual_return'])
+        risk_profile.append(profile['annual_volatility'])
+
+    axes.plot(risks, returns, linestyle='None', markersize=10.0)
+    axes.set_xlabel('Volatility')
+    axes.set_ylabel('Return')
+    axes.set_title(title)
+
+    for i in range(no_symbols):
+        axes.annotate(symbols[i], (risk_profile[i], return_profile[i]))
+        
+    if savefile is not None:
+        canvas.print_jpeg(filename_or_obj=savefile)
+
+    if show:
+        s, (width, height) = canvas.print_to_buffer()
+        im = Image.frombytes("RGBA", (width, height), s)
+        im.show()
+    else:
+        return canvas
 
 def plot_moving_averages(symbols, averages, show=True, savefile=None):
     canvas = FigureCanvas(Figure())

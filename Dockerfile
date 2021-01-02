@@ -1,6 +1,6 @@
 FROM python:3.7.7-slim-stretch
-LABEL application="CCDA : Core Contract Data Automation"
-LABEL maintainers=["Grant Moore <chinchalinchin@gsa.gov>"]
+LABEL application="Pynance : A Portfolio Management Application"
+LABEL maintainers=["Grant Moore <chinchalinchin@gmail.com>"]
 LABEL version="prototype-1.0.0"
 LABEL description="A financial application for managing portfolios"
 
@@ -23,4 +23,4 @@ WORKDIR /home
 COPY /main.py /home/main.py
 
 ENTRYPOINT [ "python", "./main.py" ]
-CMD [ "-gui" ]
+CMD [ "-help" ]
