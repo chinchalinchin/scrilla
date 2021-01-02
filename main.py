@@ -105,6 +105,7 @@ if __name__ == "__main__":
                     
                 else:
                     output.comment('Error Encountered While Calculating. Try -ex Flag For Example Usage.')
+                    
             elif opt == settings.FUNC_ARG_DICT['maximize_return']:
                 if (len(args)>1):
                     allocation = optimizer.maximize_portfolio_return(equities=args)

@@ -17,6 +17,18 @@ def strip_string_array(array):
         new_array.append(string.strip())
     return new_array
     
+def format_allocation_profile(allocation, portfolio):
+    port_return, port_volatility = portfolio.return_function(allocation), portfolio.volatility_function(allocation)
+    formatted_result = "( "+str(100*port_return)[:5]+"%, " + str(100*port_volatility)[:5]+"%)"
+    formatted_result_title = "("
+    for symbol in portfolio.tickers:
+        if portfolio.tickers.index(symbol) != (len(portfolio.tickers) - 1):
+            formatted_result_title += symbol+", "
+        else:
+            formatted_result_title += symbol + ") Portfolio Return-Risk Profile"
+    whole_thing = formatted_result_title +" = "+formatted_result
+    return whole_thing
+
 # YYYY-MM-DD
 def is_date_string_weekend(date_string):
     dates=str(date_string).split('-')

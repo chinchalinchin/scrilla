@@ -3,7 +3,8 @@ import random
 from PyQt5 import QtCore, QtWidgets, QtGui
 
 from gui.functions import RiskReturnWidget, CorrelationWidget, \
-                            MovingAverageWidget, EfficientFrontierWidget
+                            MovingAverageWidget, EfficientFrontierWidget, \
+                                OptimizerWidget
 
 def get_title_font():
     font = QtGui.QFont('Impact', 12)
@@ -25,6 +26,7 @@ class MenuWidget(QtWidgets.QWidget):
         self.widget_buttons = [ QtWidgets.QPushButton("Correlation Matrix"),
                                 QtWidgets.QPushButton("Efficient Frontier"),
                                 QtWidgets.QPushButton("Moving Averages"),
+                                QtWidgets.QPushButton("Portfolio Optimization"),
                                 QtWidgets.QPushButton("Risk-Return Profile"),
                               ]
 
@@ -32,6 +34,7 @@ class MenuWidget(QtWidgets.QWidget):
         self.function_widgets = [ CorrelationWidget(), 
                                   EfficientFrontierWidget(),
                                   MovingAverageWidget(),
+                                  OptimizerWidget(),
                                   RiskReturnWidget(),
                                 ]
 

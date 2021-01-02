@@ -13,7 +13,8 @@ import util.logger as logger
 import util.helpers as helper
 import util.plotter as plotter
 
-from gui.widgets import CalculateWidget, GraphWidget, TableWidget
+from gui.widgets import CalculateWidget, GraphWidget, \
+                            TableWidget, PortfolioWidget
 
 output = logger.Logger('gui.functions')
 
@@ -71,9 +72,58 @@ class CorrelationWidget(TableWidget):
 
         self.table.show()
 
-class OptimizerWidget(QtWidgets.QWidget):
+class OptimizerWidget(PortfolioWidget):
     def __init__(self):
-        super().__init__()   
+        super().__init__(widget_title="Portfolio Allocation Optimization",
+                            min_function=self.minimize, opt_function=self.optimize)
+
+
+    @QtCore.Slot()
+    def minimize(self):
+        if self.result_table.isVisible():
+            self.result_table.clear()
+        if self.result.isVisible():
+            self.result.clear()
+            
+        user_symbols = helper.strip_string_array(self.symbol_input.text().upper().split(","))
+        no_symbols = len(user_symbols)
+        investment = self.portfolio_value.text()
+
+        allocation = optimizer.minimize_portfolio_variance(equities=user_symbols)
+        this_portfolio = portfolio.Portfolio(user_symbols)
+        
+        self.result.setText(helper.format_allocation_profile(allocation, this_portfolio))
+
+        self.result_table.setRowCount(no_symbols)
+        self.result_table.setVerticalHeader(QtWidgets.QHeaderView(QtCore.Qt.Vertical))
+        self.result_table.setVerticalHeaderLabels(user_symbols)
+        
+        if not investment:
+            self.result_table.setColumnCount(1)
+            labels = ['Allocation']
+        else:
+            self.result_table.setColumnCount(2)
+            labels = ['Allocation', 'Shares']
+            shares = this_portfolio.calculate_approximate_shares(allocation, float(investment))
+
+        self.result_table.setHorizontalHeader(QtWidgets.QHeaderView(QtCore.Qt.Horizontal))
+        self.result_table.setHorizontalHeaderLabels(labels)
+
+        for i in range(no_symbols):
+            this_allocation = allocation[i]
+            formatted_allocation = str(100*this_allocation)[:settings.SIG_FIGS]+"%"
+            item = QtWidgets.QTableWidgetItem(formatted_allocation)
+            self.result_table.setItem(i, 0, item)
+            if investment:
+                share_item = QtWidgets.QTableWidgetItem(str(shares[i]))
+                self.result_table.setItem(i, 1, share_item)
+        
+        self.result_table.show()
+        self.result.show()
+
+    @QtCore.Slot()
+    def optimize(self):
+        pass
 
 class EfficientFrontierWidget(GraphWidget):
     def __init__(self):
