@@ -121,6 +121,14 @@ class PortfolioWidget(QtWidgets.QWidget):
         self.result.clear()
         self.result.hide()
 
+    def reset_table(self):
+        self.result_table.clear()
+        self.first_layer.removeWidget(self.result_table)
+        self.result_table = QtWidgets.QTableWidget()
+        self.result_table.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustToContents)
+        self.first_layer.insertWidget(2, self.result_table, 1)
+        self.result_table.hide()
+
 # Base Widget to get asset symbol input
 class SymbolWidget(QtWidgets.QWidget):
     def __init__(self, widget_title, button_msg):

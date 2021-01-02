@@ -103,7 +103,8 @@ class OptimizerWidget(PortfolioWidget):
     @QtCore.Slot()
     def minimize(self):
         if self.result_table.isVisible():
-            self.result_table.clear()
+            self.reset_table()
+
         if self.result.isVisible():
             self.result.clear()
 
@@ -113,9 +114,11 @@ class OptimizerWidget(PortfolioWidget):
         if no_symbols > 1:
             investment = self.portfolio_value.text()
 
+            output.debug(f'Optimizing Portfolio : {user_symbols}.')
             allocation = optimizer.minimize_portfolio_variance(equities=user_symbols)
             this_portfolio = portfolio.Portfolio(user_symbols)
             
+            output.debug(helper.format_allocation_profile(allocation, this_portfolio))
             self.result.setText(helper.format_allocation_profile(allocation, this_portfolio))
 
             self.result_table.setRowCount(no_symbols)
@@ -139,11 +142,11 @@ class OptimizerWidget(PortfolioWidget):
                 this_allocation = allocation[i]
                 formatted_allocation = str(100*this_allocation)[:settings.SIG_FIGS]+"%"
                 item = QtWidgets.QTableWidgetItem(formatted_allocation)
-                item.setTextAlignment(Qt.AlignHCenter)
+                item.setTextAlignment(QtCore.Qt.AlignHCenter)
                 self.result_table.setItem(i, 0, item)
                 if investment:
                     share_item = QtWidgets.QTableWidgetItem(str(shares[i]))
-                    share_item.setTextAlignment(Qt.AlignHCenter)
+                    share_item.setTextAlignment(QtCore.Qt.AlignHCenter)
                     self.result_table.setItem(i, 1, share_item)
             
             self.result_table.resizeColumnsToContents()
