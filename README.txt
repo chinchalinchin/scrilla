@@ -18,6 +18,12 @@ Or use the '-ex' flag to display a list of examples of syntax,
 
     python ./main.py -ex
 
+If you prefer a GUI, most of pynance's functionality has been wired into a PyQt widget GUI that can be launched with,
+
+    python ./main.py -gui
+
+The GUI is still in development and so may have a few bugs lurking within it. If you discover one, contact the owner of this repo.
+
 Note, if you put the /scripts/ directory on your PATH, it provides a light wrapper around the python invocation so you can dispense with the 'python ./main.py' part of each command. In other words, if /scripts/ is on your PATH, you can execute the following command from any directory,
 
     pynance -min SPY GLD EWA
@@ -31,12 +37,6 @@ TODOS:
 1. Future versions of the application will allow the user to set the service responsible for providing data to the application. Currently, all data is retrieved from the free tier of AlphaVantage.
 
 2. Need to rejigger the correlation algorithm so it works across asset types. Currently only works if assets are the same type; things go haywire when asset types are different, presumably because crypto can trade on weekends, screwing up the correlation calculation.
-
-3. Use PyQt to create gui. 
-
-    python ./main.py -gui 
-
-will launch GUI. Currently working on widgets for the functions.
 
 4. Figure out how to launch GUI in Docker. Also, volumes.
 
