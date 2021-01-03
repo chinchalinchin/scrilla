@@ -1,5 +1,7 @@
 This is a financial application that calculates asset correlation, statistics and optimal portfolio allocations using data it retrieves from a variety of sources, chief among them AlphaVantage and Quandl. Statistics are calculated using Ito Calculus and should be consistent with the results demanded by Modern Portfolio Theory and Financial Engineering. The portfolios are optimized by minimizing the portfolio's variance/volatility, i.e. by finding the optimal spot on the portfolio's efficient frontier.
 
+The program's functions are wrapped in <b>PyQt5</b> widgets which provide visualizations from <b>matplotlib</b> in addition to the raw output.
+
 # Set Up
 
 First, from the project root directory, (activate your virtual environment, if using one, and) install all of the requirements,
@@ -13,6 +15,8 @@ There are several other environment variables that configure various aspects of 
 > cp .sample.env .env
 
 And then change the <b>ALPHA_VANTAGE_KEY</b> and <b>QUANDL_KEY</b> variables to the values you received when you registered on the respective site. Once the API keys have been set, execute the ./main.py script. Supply this script an argument with a dash that specifies the function you wish to execute and the ticker symbols you wish to apply the function to. 
+
+After the application searches for API keys in the <i>.env</i> file, it will search for API keys in <i>config.json</i>. If this file exists, it will override any keys found in <i>.env</i>. If no keys are found within either file, a popup dialog box (QInputDialog for PyQt) will prompt the user to register for their keys and enter them into the text field. The application will then test the API key entered and if it is valid, save it in the <i>config.json</i> file. Subsequent application calls will leverage the credentials in this file.
 
 ## Examples 
 
@@ -62,6 +66,8 @@ to perform the same operation as the following command performed in the project 
 
 9. Search for API keys in .env file. Test if api key works, if not search for config.json, grab api key from there. Test if api key works, if not prompt user to register for new keys and enter into applications. save new keys in config.json. amend settings.py to check for new location if .env key doesn't work. 
 
+10. Cancel button needs to exit application when prompting user for API keys.
+s
 ### NOTE
 
 The first time this application is run it retrieves a large amount of static data and stores it in the <b>/static/</b> folder. The first call of the function may take some time, but subsequent calls, assuming you do not have the environment variable <b>INIT</b> = <b>True</b>, should not take anywhere near as long.
