@@ -48,26 +48,20 @@ to perform the same operation as the following command performed in the project 
 
 ### TODOS
 
-1. Future versions of the application will allow the user to set the service responsible for providing data to the application. Currently, all data is retrieved from the free tier of AlphaVantage and Quandl.
+1. add different price_managers and stat_managers besides AlphaVantage and Quandl.
 
 2. Need to rejigger the correlation algorithm so it works across asset types. Currently only works if assets are the same type; things go haywire when asset types are different, presumably because crypto can trade on weekends, screwing up the correlation calculation.
 
-3. Rejigger moving averages algorithm (calculation and plotting) to accept current snapshot of moving averages and print bar graph (already does this), or accept a history of moving averages and created a line plot with several labeled serieses.
+3. Rejigger moving averages algorithm (calculation and plotting) to accept current snapshot of moving averages and print bar graph (already does this), or accept a history of moving averages and created a line plot with several labeled serieses. Also need to check if date_range is less than any of the MA_PERIODS before proceeding.
 
-4. IMPORTANT: Rejigger statistics.py and services.py methods to make calls to API with date parameters.
+4. Rejigger GUI to have DateWidgets to select dates in GUI.
 
-5. Rejigger main.py to parse date strings from command line.
+5. Figure out how to launch GUI in Docker, if it's even possible.. Also, volumes.
 
-6. Rejigger GUI to have DateWidgets to select dates in GUI.
+6. [Free Icons](https://streamlineicons.com/)
 
-7. Figure out how to launch GUI in Docker, if it's even possible.. Also, volumes.
+7. Cancel button needs to exit application when prompting user for API keys.
 
-8. [Free Icons](https://streamlineicons.com/)
-
-9. Search for API keys in .env file. Test if api key works, if not search for config.json, grab api key from there. Test if api key works, if not prompt user to register for new keys and enter into applications. save new keys in config.json. amend settings.py to check for new location if .env key doesn't work. 
-
-10. Cancel button needs to exit application when prompting user for API keys.
-s
 ### NOTE
 
 The first time this application is run it retrieves a large amount of static data and stores it in the <b>/static/</b> folder. The first call of the function may take some time, but subsequent calls, assuming you do not have the environment variable <b>INIT</b> = <b>True</b>, should not take anywhere near as long.
