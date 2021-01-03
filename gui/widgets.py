@@ -189,6 +189,10 @@ class PortfolioWidget(QtWidgets.QWidget):
         self.result_table.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustToContents)
         self.result_table.hide()
 
+        self.error_message = QtWidgets.QLabel("Something Went Wrong; Check Input and Try Again", alignment=QtCore.Qt.AlignHCenter)
+        self.error_message.setFont(get_subtitle_font())
+        self.error_message.hide()
+
         self.left_title = QtWidgets.QLabel("Portfolio")
         self.left_title.setFont(get_subtitle_font())
 
@@ -235,6 +239,7 @@ class PortfolioWidget(QtWidgets.QWidget):
 
         self.first_layer.addWidget(self.title)
         self.first_layer.addWidget(self.result)
+        self.first_layer.addWidget(self.error_message)
         self.first_layer.addWidget(self.result_table, 1)
         self.first_layer.addStretch()
         # Left Panel Layout
@@ -266,6 +271,7 @@ class PortfolioWidget(QtWidgets.QWidget):
         self.portfolio_value.clear()
         self.result_table.clear()
         self.result_table.hide()
+        self.error_message.hide()
         self.result.clear()
         self.result.hide()
 
@@ -274,5 +280,5 @@ class PortfolioWidget(QtWidgets.QWidget):
         self.first_layer.removeWidget(self.result_table)
         self.result_table = QtWidgets.QTableWidget()
         self.result_table.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustToContents)
-        self.first_layer.insertWidget(2, self.result_table, 1)
+        self.first_layer.insertWidget(3, self.result_table, 1)
         self.result_table.hide()
