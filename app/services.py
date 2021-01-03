@@ -17,6 +17,7 @@ def parse_price_from_date(prices, date, asset_type):
             return prices[date][settings.AV_RES_EQUITY_CLOSE_PRICE]
         elif asset_type == settings.ASSET_CRYPTO:
             return prices[date][settings.AV_RES_CRYPTO_CLOSE_PRICE]
+
     except:
         return False
         
@@ -119,7 +120,7 @@ def get_daily_price_history(ticker, start_date=None, end_date=None):
         else:
             return False
 
-        # NOTE: only need to modify EQUITY query
+            # NOTE: only need to modify EQUITY query, CRYPTO always returns full history
         if (start_date is not None or end_date is not None) and (asset_type == settings.ASSET_EQUITY):
             if asset_type == settings.ASSET_EQUITY:
                 query += f'&{settings.PARAM_AV_SIZE}={settings.ARG_AV_SIZE_FULL}'
@@ -147,13 +148,35 @@ def get_daily_price_history(ticker, start_date=None, end_date=None):
             prices = requests.get(url).json()
             first_element = helper.get_first_json_key(prices)
 
+        # Equity Response Parsing
+        # TODO: could possibly initial start_index = 0 and end_index = len(prices)
+        #           and then filter through conditional and return prices[start:end]
+        #           no matter what?
         if asset_type == settings.ASSET_EQUITY:
-            if start_date is not None or end_date is not None:
+            if start_date is not None and end_date is not None:
                 try:
                     start_index = prices[settings.AV_RES_EQUITY_FIRST_LAYER].index(start_date)
                     end_index = prices[settings.AV_RES_EQUITY_FIRST_LAYER].index(end_date)
+                    prices = prices[start_index:end_index]
                 except:
                     output.debug('Indicated dates not found in AlphaVantage Response.')
+                    return False
+
+            # TODO: possibly check here if end_date falls outside of 100 day range. 
+            elif start_date is None and end_date is not None:
+                try:
+                    end_index = prices[settings.AV_RES_EQUITY_FIRST_LAYER].index(end_date)
+                    prices = prices[:end_index]
+                except:
+                    output.debug('End Date not found in AlphaVantage Response.')
+                    return False
+
+            elif start_date is not None and end_date is None:
+                try:
+                    start_index = prices[settings.AV_RES_EQUITY_FIRST_LAYER].index(start_date)
+                    prices = prices[:start_index]
+                except:
+                    output.debug('End Date not found in AlphaVantage Response.')
                     return False
 
             return prices[settings.AV_RES_EQUITY_FIRST_LAYER]
@@ -162,17 +185,46 @@ def get_daily_price_history(ticker, start_date=None, end_date=None):
         # the different datasets are actually being compared? probably statistics.py.
         # NO! because statistics.py will need complete datasets to compare, so it's better
         # that crypto returns a dataset longer than is needed!
+        #
+        # TODO: can probably set RESPONSE_KEY to asset_type and condense the double conditional
+        # branching down to one branch. will make it simpler.
         elif asset_type == settings.ASSET_CRYPTO:
-            truncated_prices, index = {}, 0
             if start_date is None and end_date is None:
+                truncated_prices, index = {}, 0
                 for date in prices[settings.AV_RES_CRYPTO_FIRST_LAYER]:
                     if index < 100:
                         truncated_prices[date] = prices[settings.AV_RES_CRYPTO_FIRST_LAYER][date]
                     else:
                         return truncated_prices
                     index += 1
-            else:
-                return prices[settings.AV_RES_CRYPTO_FIRST_LAYER]
+
+            elif start_date is not None and end_date is not None:
+                try:
+                    start_index = prices[settings.AV_RES_CRYPTO_FIRST_LAYER].index(start_date)
+                    end_index = prices[settings.AV_RES_CRYPTO_FIRST_LAYER].index(end_date)
+                    prices = prices[start_index:end_index]
+                except:
+                    output.debug('Indicated dates not found in AlphaVantage Response.')
+                    return False
+
+            # TODO: possibly check here if end_date falls outside of 100 day range. 
+            elif start_date is None and end_date is not None:
+                try:
+                    end_index = prices[settings.AV_RES_CRYPTO_FIRST_LAYER].index(end_date)
+                    prices = prices[:end_index]
+                except:
+                    output.debug('End Date not found in AlphaVantage Response.')
+                    return False
+
+            elif start_date is not None and end_date is None:
+                try:
+                    start_index = prices[settings.AV_RES_CRYPTO_FIRST_LAYER].index(start_date)
+                    prices = prices[:start_index]
+                except:
+                    output.debug('End Date not found in AlphaVantage Response.')
+                    return False
+            
+            return prices
 
     else:
         output.debug("No STAT_MANAGER set in .env file!")
