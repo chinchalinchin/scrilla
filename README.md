@@ -54,7 +54,7 @@ to perform the same operation as the following command performed in the project 
 
 3. Rejigger moving averages algorithm (calculation and plotting) to accept current snapshot of moving averages and print bar graph (already does this), or accept a history of moving averages and created a line plot with several labeled serieses.
 
-4. Rejigger statistics.py and services.py methods to make calls to API with date parameters.
+4. IMPORTANT: Rejigger statistics.py and services.py methods to make calls to API with date parameters.
 
 5. Rejigger main.py to parse date strings from command line.
 
@@ -71,3 +71,5 @@ s
 ### NOTE
 
 The first time this application is run it retrieves a large amount of static data and stores it in the <b>/static/</b> folder. The first call of the function may take some time, but subsequent calls, assuming you do not have the environment variable <b>INIT</b> = <b>True</b>, should not take anywhere near as long.
+
+IMPORTANT: ALL DATE STRINGS SHOULD BE CONVERTED TO DATETIME.DATES AT POINT OF CONTACT WITH USER, I.E. IN THE MAIN.PY FILE OR WITHIN THE GUI SOMEWHERE BEFORE PASSING IT THE SERVICE/STATISTICS/PORTFOLIO FUNCTIONS.

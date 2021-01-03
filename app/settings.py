@@ -23,7 +23,7 @@ ENVIRONMENT = os.environ.setdefault('ENVIRONMENT', 'local')
 
 dotenv.load_dotenv(os.path.join(APP_DIR,'.env'))
 
-CONFIG_FILE = os.path.join(APP_DIR,'config.json')
+CONFIG_FILE = os.path.join(APP_DIR,'static', 'creds','config.json')
 
 if helper.is_non_zero_file(CONFIG_FILE):
     with open(CONFIG_FILE, 'r') as infile:
@@ -171,11 +171,13 @@ if PRICE_MANAGER == 'alpha_vantage':
     PARAM_AV_FUNC="function"
     PARAM_AV_DENOM="market"
     PARAM_AV_KEY="apikey"
+    PARAM_AV_SIZE="outputsize"
     
     # Query Arguments
     ARG_AV_FUNC_EQUITY_DAILY="TIME_SERIES_DAILY"
     ARG_AV_FUNC_EQUITY_LISTINGS="LISTING_STATUS"
     ARG_AV_FUNC_CRYPTO_DAILY="DIGITAL_CURRENCY_DAILY"
+    ARG_AV_SIZE_FULL="full"
 
 ### STAT_MANAGER CONFIGURATION
 STAT_MANAGER = os.getenv('STAT_MANAGER')

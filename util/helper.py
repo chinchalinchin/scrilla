@@ -36,19 +36,27 @@ def parse_date_string(date_string) -> datetime.date:
     parsed = str(date_string).split('-')
     date = datetime.date(year=int(parsed[0]), month=int(parsed[1]), day=int(parsed[2]))
     return date
-    
-# YYYY-MM-DD
-def is_date_string_weekend(date_string) -> bool:
-    weekday = parse_date_string(date_string).weekday()
-    if weekday in [5,6]:
+
+def date_to_string(date) -> str:
+    return f'{date.year}-{date.month}-{date.day}'
+
+def is_date_weekend(date) -> bool:
+    if date.weekday() in [5, 6]:
         return True
     else:
         return False
 
 # YYYY-MM-DD
-def is_holiday(date_string) -> bool:
+def is_date_string_weekend(date_string) -> bool:
+    return is_date_weekend(parse_date_string(date_string))
+
+# YYYY-MM-DD
+def is_date_string_holiday(date_string) -> bool:
     us_holidays = holidays.UnitedStates()
     return (date_string in us_holidays)
+
+def is_date_holiday(date) -> bool:
+    return is_date_string_holiday(date_to_string(date))
 
 # YYYY-MM-DD
 def get_holidays_between(start_date_string, end_date_string) -> int:

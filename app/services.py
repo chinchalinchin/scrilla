@@ -51,11 +51,12 @@ def retrieve_prices_from_cache(ticker, start_date=None, end_date=None):
             return prices
 
     if switch_flag:
-        # TODO: time_delta = end_date - start_date
-        # if time_delta < 0
-        #   end_date = start_date
-        #   start_date = end_date
-        pass    
+        time_delta = end_date - start_date
+        if time_delta.days < 0:
+            buffer = end_date
+            end_date = start_date
+            start_date = end_date
+    
     output.debug(f'Retrieving {ticker} prices from Service Manager...')  
     prices = get_daily_price_history(ticker=ticker, startdate=start_date, enddate=end_date)
 
@@ -88,44 +89,40 @@ def get_daily_price_history(ticker, start_date=None, end_date=None):
 
     asset_type=markets.get_asset_type(ticker)  
 
-    if settings.PRICE_MANAGER == "alpha_vantage":
-
-        if start_date is None and end_date is None:
-            query = f'{settings.PARAM_AV_TICKER}={ticker}&{settings.PARAM_AV_KEY}={settings.AV_KEY}'
-
-            if asset_type == settings.ASSET_EQUITY:
-                query += f'&{settings.PARAM_AV_FUNC}={settings.ARG_AV_FUNC_EQUITY_DAILY}'
-
-            elif asset_type == settings.ASSET_CRYPTO:
-                query += f'&{settings.PARAM_AV_FUNC}={settings.ARG_AV_FUNC_CRYPTO_DAILY}&{settings.PARAM_AV_DENOM}={settings.DENOMINATION}'
-
-            else:
+    # Verify dates fall on trading days if asset_type is ASSET_EQUITY
+    if asset_type == settings.ASSET_EQUITY and (start_date is not None or end_date is not None):
+        if start_date is not None:
+            if helper.is_date_holiday(start_date):
+                output.debug('Start Date is a holiday. Equities do not trade on holidays.')
+                return False
+            elif helper.is_date_weekend(start_date):
+                output.debug('Start Date is a weekend. Equities do not trade on weekends.')
+                return False
+        if end_date is not 
+            if helper.is_date_holiday(end_date):
+                output.debug('End Date is a holiday. Equities do not trade on holidays.')
+                return False
+            elif helper.is_date_weekend(end_date):
+                output.debug('End Date is a weekend. Equities do not trade on weekends.')
                 return False
 
-        elif start_date is not None and end_date is not None:
-            if asset_type == settings.ASSET_EQUITY:
-                # TODO
-                pass
-            elif asset_type == settings.ASSET_CRYPTO:
-                # TODO
-                pass
+    if settings.PRICE_MANAGER == "alpha_vantage":
 
-        elif start_date is None and end_date is not None:
-            if asset_type == settings.ASSET_EQUITY:
-                # TODO
-                pass
-            elif asset_type == settings.ASSET_CRYPTO:
-                # TODO
-                pass
+        query = f'{settings.PARAM_AV_TICKER}={ticker}&{settings.PARAM_AV_KEY}={settings.AV_KEY}'
 
-        # if start_date is not None and end_date is None
+        if asset_type == settings.ASSET_EQUITY:
+            query += f'&{settings.PARAM_AV_FUNC}={settings.ARG_AV_FUNC_EQUITY_DAILY}'
+
+        elif asset_type == settings.ASSET_CRYPTO:
+            query += f'&{settings.PARAM_AV_FUNC}={settings.ARG_AV_FUNC_CRYPTO_DAILY}&{settings.PARAM_AV_DENOM}={settings.DENOMINATION}'
+
         else:
+            return False
+
+        # NOTE: only need to modify EQUITY query
+        if (start_date is not None or end_date is not None) and (asset_type == settings.ASSET_EQUITY):
             if asset_type == settings.ASSET_EQUITY:
-                # TODO
-                pass
-            elif asset_type == settings.ASSET_CRYPTO:
-                # TODO
-                pass
+                query += f'&{settings.PARAM_AV_SIZE}={settings.ARG_AV_SIZE_FULL}'
 
         url=f'{settings.AV_URL}?{query}'     
 
@@ -151,8 +148,20 @@ def get_daily_price_history(ticker, start_date=None, end_date=None):
             first_element = helper.get_first_json_key(prices)
 
         if asset_type == settings.ASSET_EQUITY:
+            if start_date is not None or end_date is not None:
+                try:
+                    start_index = prices[settings.AV_RES_EQUITY_FIRST_LAYER].index(start_date)
+                    end_index = prices[settings.AV_RES_EQUITY_FIRST_LAYER].index(end_date)
+                except:
+                    output.debug('Indicated dates not found in AlphaVantage Response.')
+                    return False
+
             return prices[settings.AV_RES_EQUITY_FIRST_LAYER]
 
+        # TODO: len(crypto_prices) - weekends. do i want to do it here? or in statistics.py when
+        # the different datasets are actually being compared? probably statistics.py.
+        # NO! because statistics.py will need complete datasets to compare, so it's better
+        # that crypto returns a dataset longer than is needed!
         elif asset_type == settings.ASSET_CRYPTO:
             truncated_prices, index = {}, 0
             if start_date is None and end_date is None:
