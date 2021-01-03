@@ -50,17 +50,15 @@ to perform the same operation as the following command performed in the project 
 
 1. add different price_managers and stat_managers besides AlphaVantage and Quandl.
 
-2. Need to rejigger the correlation algorithm so it works across asset types. Currently only works if assets are the same type; things go haywire when asset types are different, presumably because crypto can trade on weekends, screwing up the correlation calculation.
+2. Rejigger moving averages algorithm (calculation and plotting) to accept current snapshot of moving averages and print bar graph (already does this), or accept a history of moving averages and created a line plot with several labeled serieses. Also need to check if date_range is less than any of the MA_PERIODS before proceeding.
 
-3. Rejigger moving averages algorithm (calculation and plotting) to accept current snapshot of moving averages and print bar graph (already does this), or accept a history of moving averages and created a line plot with several labeled serieses. Also need to check if date_range is less than any of the MA_PERIODS before proceeding.
+3. Rejigger GUI to have DateWidgets to select dates in GUI.
 
-4. Rejigger GUI to have DateWidgets to select dates in GUI.
+4. Figure out how to launch GUI in Docker, if it's even possible.. Also, volumes.
 
-5. Figure out how to launch GUI in Docker, if it's even possible.. Also, volumes.
+5. [Free Icons](https://streamlineicons.com/)
 
-6. [Free Icons](https://streamlineicons.com/)
-
-7. Cancel button needs to exit application when prompting user for API keys.
+6. Cancel button needs to exit application when prompting user for API keys.
 
 ### NOTE
 
