@@ -8,6 +8,8 @@ output = logger.Logger('app.settings')
 
 APP_NAME="PYNANCE"
 
+VERSION="0.0.1"
+
 APP_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 ENVIRONMENT = os.environ.setdefault('ENVIRONMENT', 'local')
@@ -27,16 +29,16 @@ STATIC_ECON_FILE = os.path.join(STATIC_DIR, "economics.json")
 STATIC_CRYPTO_FILE = os.path.join(STATIC_DIR, "crypto.json")
 
 try:
-    GUI_WIDTH = int(os.environ.setdefault('GUI_WIDTH', 400))
+    GUI_WIDTH = int(os.environ.setdefault('GUI_WIDTH', 800))
 except: 
-    output.debug('Failed to parse GUI_WIDTH from .env File. Setting to default value of 400. Please Ensure GUI_WIDTH is set to an integer value.')
-    GUI_WIDTH = 400
+    output.debug('Failed to parse GUI_WIDTH from .env File. Setting to default value of 800. Please Ensure GUI_WIDTH is set to an integer value.')
+    GUI_WIDTH = 800
 
 try:
-    GUI_HEIGHT = int(os.environ.setdefault('GUI_HEIGHT', 400))
+    GUI_HEIGHT = int(os.environ.setdefault('GUI_HEIGHT', 800))
 except:
-    output.debug('Failed to parse GUI_HEIGHT from .env File. Setting to default value of 400. Please Ensure GUI_HEIGHT is set to an integer value.')
-    GUI_HEIGHT = 400
+    output.debug('Failed to parse GUI_HEIGHT from .env File. Setting to default value of 800. Please Ensure GUI_HEIGHT is set to an integer value.')
+    GUI_HEIGHT = 800
 
 AV_URL = os.getenv('ALPHA_VANTAGE_URL').strip("\"").strip("'")
 AV_KEY = os.getenv('ALPHA_VANTAGE_KEY')
@@ -84,7 +86,7 @@ DENOMINATION = "USD"
 
 ASSET_EQUITY="equity"
 ASSET_CRYPTO="crypto"
-STAT_ECON="econ"
+STAT_ECON="indicator"
 
 #### SERVICE CONFIGURATION
 
@@ -140,7 +142,7 @@ FUNC_ARG_DICT = {
     "asset_type": "-at",
     "correlation":"-cor",
     "efficient_frontier": "-ef",
-    "economic_indicator": "-ei",
+    "economic_indicator": "-ind",
     "examples": "-ex",
     "gui": "-gui",
     "help": "-help",
@@ -182,7 +184,9 @@ EXAMPLES = {
     'python ./main.py -min U TSLA SPCE': 'Find the portfolio allocation that minimizes the overall variance of the portfolio composed of (U, TSLA, SPCE). ',
     'python ./main.py -opt ALLY FB PFE SNE BX 0.83': 'Optimize the portfolio consisting of (ALLY, FB, PFE, SNE, BX) subject to the constraint their mean annual return equal 83%. Note the constrained return must reside within the feasible region of returns, i.e. the constrained return must be less than the maximum possible return.',  
     'python ./main.py -ef QS DIS RUN': 'Calculate a five point sample of the efficient portfolio (risk, return) frontier for the portfolio composed of (QS, DIS, RUN). The number of points generated in the sample can be altered through the FRONTIER_STEPS environment variable.',
-    'python ./main.py -pef QQQ SPY DIA': 'Generate a graphical display of the (QQQ, SPY, DIA) portolio\'s efficient (risk, return) frontier. The number of points generated in the sample can be altered through the FRONTIER_STEPS environment variable. Note, if the graphical display does not show up, you may need to configure matplotlib\'s backend to be compatible with your OS.',
-    'python ./main.py -pmo QS ACI': 'Generate a graphical display of the current moving averages of the (QS, ACI) portolio. The length of moving average periods can be adjusted by the MA_1_PERIOD, MA_2_PERIOD and MA_3_PERIOD environment variables. Note, if the graphical display does not show up, you may need to configure matplotlib\'s backend to be compatible with your OS.',
-    'python ./main.py -ec GDP BASE MI': 'Display the latest values for the supplied list of economic indicators.'
+    'python ./main.py -plot-ef QQQ SPY DIA': 'Generate a graphical display of the (QQQ, SPY, DIA) portolio\'s efficient (risk, return) frontier. The number of points generated in the sample can be altered through the FRONTIER_STEPS environment variable. Note, if the graphical display does not show up, you may need to configure matplotlib\'s backend to be compatible with your OS.',
+    'python ./main.py -plot-mov QS ACI': 'Generate a graphical display of the current moving averages of the (QS, ACI) portolio. The length of moving average periods can be adjusted by the MA_1_PERIOD, MA_2_PERIOD and MA_3_PERIOD environment variables. Note, if the graphical display does not show up, you may need to configure matplotlib\'s backend to be compatible with your OS.',
+    'python ./main.py -ind GDP BASE MI': 'Display the latest values for the supplied list of economic indicators.',
+    'python ./main.py -close MSFT IBM FSLR NFLX BTC XRP': 'Displays the last closing price for the supplied list of asset types',
+    'python ./main.py -gui': 'Launches a PyQt GUI into which the application functions have been wired.'
 }
