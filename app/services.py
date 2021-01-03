@@ -59,7 +59,7 @@ def retrieve_prices_from_cache(ticker, start_date=None, end_date=None):
             start_date = end_date
     
     output.debug(f'Retrieving {ticker} prices from Service Manager...')  
-    prices = get_daily_price_history(ticker=ticker, startdate=start_date, enddate=end_date)
+    prices = get_daily_price_history(ticker=ticker, start_date=start_date, end_date=end_date)
 
     if buffer_flag:
         output.debug(f'Storing {ticker} price history in cache...')
@@ -152,34 +152,40 @@ def get_daily_price_history(ticker, start_date=None, end_date=None):
         # TODO: could possibly initial start_index = 0 and end_index = len(prices)
         #           and then filter through conditional and return prices[start:end]
         #           no matter what?
+        # NOTE: Remember AlphaVantage is ordered current to earliest. END_INDEX is 
+        # actually the beginning of slice and START_INDEX is actually end of slice. 
         if asset_type == settings.ASSET_EQUITY:
             if start_date is not None and end_date is not None:
                 try:
-                    start_index = prices[settings.AV_RES_EQUITY_FIRST_LAYER].index(start_date)
-                    end_index = prices[settings.AV_RES_EQUITY_FIRST_LAYER].index(end_date)
-                    prices = prices[start_index:end_index]
+                    start_string, end_string = helper.date_to_string(start_date), helper.date_to_string(end_date)
+                    start_index = list(prices[settings.AV_RES_EQUITY_FIRST_LAYER].keys()).index(start_string)
+                    end_index = list(prices[settings.AV_RES_EQUITY_FIRST_LAYER].keys()).index(end_string)
+                    prices = dict(itertools.islice(prices[settings.AV_RES_EQUITY_FIRST_LAYER].items(), end_index, start_index))
                 except:
+                    output.sys_error()
                     output.debug('Indicated dates not found in AlphaVantage Response.')
                     return False
 
             # TODO: possibly check here if end_date falls outside of 100 day range. 
             elif start_date is None and end_date is not None:
                 try:
-                    end_index = prices[settings.AV_RES_EQUITY_FIRST_LAYER].index(end_date)
-                    prices = prices[:end_index]
+                    end_string = helper.date_to_string(end_date)
+                    end_index = list(prices[settings.AV_RES_EQUITY_FIRST_LAYER].keys()).index(end_string)
+                    prices = dict(itertools.islice(prices[settings.AV_RES_EQUITY_FIRST_LAYER].items(), end_index))
                 except:
                     output.debug('End Date not found in AlphaVantage Response.')
                     return False
 
             elif start_date is not None and end_date is None:
                 try:
-                    start_index = prices[settings.AV_RES_EQUITY_FIRST_LAYER].index(start_date)
-                    prices = prices[:start_index]
+                    start_string = helper.date_to_string(start_date)
+                    start_index = list(prices[settings.AV_RES_EQUITY_FIRST_LAYER].keys()).index(start_string)
+                    dict(itertools.islice(prices[settings.AV_RES_EQUITY_FIRST_LAYER].items(), 0, start_index))
                 except:
                     output.debug('End Date not found in AlphaVantage Response.')
                     return False
 
-            return prices[settings.AV_RES_EQUITY_FIRST_LAYER]
+            return prices
 
         # TODO: len(crypto_prices) - weekends. do i want to do it here? or in statistics.py when
         # the different datasets are actually being compared? probably statistics.py.
@@ -200,8 +206,10 @@ def get_daily_price_history(ticker, start_date=None, end_date=None):
 
             elif start_date is not None and end_date is not None:
                 try:
-                    start_index = prices[settings.AV_RES_CRYPTO_FIRST_LAYER].index(start_date)
-                    end_index = prices[settings.AV_RES_CRYPTO_FIRST_LAYER].index(end_date)
+                    start_string, end_string = helper.date_to_string(start_date), helper.date_to_string(end_date)
+                    start_index = list(prices[settings.AV_RES_CRYPTO_FIRST_LAYER].keys()).index(start_string)
+                    end_index = list(prices[settings.AV_RES_CRYPTO_FIRST_LAYER].keys()).index(end_string)
+                    prices = dict(itertools.islice(prices[settings.AV_RES_CRYPTO_FIRST_LAYER].items(), end_index, start_index))
                     prices = prices[start_index:end_index]
                 except:
                     output.debug('Indicated dates not found in AlphaVantage Response.')
@@ -210,16 +218,18 @@ def get_daily_price_history(ticker, start_date=None, end_date=None):
             # TODO: possibly check here if end_date falls outside of 100 day range. 
             elif start_date is None and end_date is not None:
                 try:
-                    end_index = prices[settings.AV_RES_CRYPTO_FIRST_LAYER].index(end_date)
-                    prices = prices[:end_index]
+                    end_string = helper.date_to_string(end_date)
+                    end_index = list(prices[settings.AV_RES_CRYPTO_FIRST_LAYER].keys()).index(end_string)
+                    prices = dict(itertools.islice(prices[settings.AV_RES_CRYPTO_FIRST_LAYER].items(), end_index))
                 except:
                     output.debug('End Date not found in AlphaVantage Response.')
                     return False
 
             elif start_date is not None and end_date is None:
                 try:
-                    start_index = prices[settings.AV_RES_CRYPTO_FIRST_LAYER].index(start_date)
-                    prices = prices[:start_index]
+                    start_string = helper.date_to_string(end_date)
+                    start_index = list(prices[settings.AV_RES_CRYPTO_FIRST_LAYER].keys()).index(start_string)
+                    prices = dict(itertools.islice(prices[settings.AV_RES_CRYPTO_FIRST_LAYER].items(), 0, start_index))
                 except:
                     output.debug('End Date not found in AlphaVantage Response.')
                     return False
@@ -245,19 +255,19 @@ def get_daily_price_latest(ticker):
         output.debug("No PRICE_MANAGER set in .env file!")
         return None
 
-def get_daily_stats_history(statistics, startdate=None, enddate=None):
+def get_daily_stats_history(statistics, start_date=None, end_date=None):
     if settings.STAT_MANAGER == "quandl":
         stats = []
         
         for statistic in statistics:
-            if startdate is None and enddate is None:
+            if start_date is None and end_date is None:
                 url = f'{settings.Q_URL}/{settings.PATH_Q_FRED}/{statistic}?{settings.PARAM_Q_KEY}={settings.Q_KEY}'
             
-            elif startdate is None and enddate is not None:
+            elif start_date is None and end_date is not None:
                 # TODO
                 pass
 
-            elif startdate is not None and enddate is None:
+            elif start_date is not None and end_date is None:
                 # TODO
                 pass
 

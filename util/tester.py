@@ -18,7 +18,7 @@ def test_av_key(key):
 def test_q_key(key):
     test_url = f'https://www.quandl.com/api/v3/datasets/FRED/NROUST?api_key={key}'
 
-    status = requests.get().status_code
+    status = requests.get(test_url).status_code
     
     # check for bad response
     if status == 400:

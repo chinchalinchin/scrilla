@@ -18,7 +18,7 @@ if settings.ENVIRONMENT != "container":
 
 import util.helper as helper
 import util.logger as logger
-import util.format as formatter
+import util.formatting as formatter
 
 output = logger.Logger('main')
 
@@ -60,7 +60,13 @@ if __name__ == "__main__":
             
             args = sys.argv[2:]
 
-            # PULL ADDITIONAL ARGUMENTS
+            # Additional Argument Parsing
+            xtra_args, xtra_values, main_args = helper.separate_args(args)
+            output.debug(f'Main Arguments: {main_args}')
+            for xtra in xtra_args:
+                i = xtra_args.index(xtra)
+                output.debug(f'Extra Argument: {xtra} = {xtra_values[i]}')
+
             output.title_line('Results')
             output.line()
 
@@ -77,14 +83,6 @@ if __name__ == "__main__":
             # Correlation Matrix
             elif opt == formatter.FUNC_ARG_DICT["correlation"]:
                 if(len(args) > 1):
-                    if args[0] == "-start":
-                        start_date = helper.parse_date_string(args[0])
-                        args = args[1:]
-                    elif args[0] == "-end":
-                        start_date = helper.parse_date_string(args[1])
-                        args = args[1:]
-                    else:
-                        start_date = None
                     result = statistics.get_correlation_matrix_string(args, settings.INDENT)
                     output.comment(f'\n{result}')
 
@@ -163,27 +161,27 @@ if __name__ == "__main__":
             
             elif opt == formatter.FUNC_ARG_DICT['plot_frontier'] and settings.ENVIRONMENT != "container":
                 if(len(args)>1):
-                    if args[0] == "-save":
-                        save_file = args[1]
-                        args = args[2:]
+                    if formatter.FUNC_XTRA_ARGS_DICT['save'] in xtra_args:
+                        save_file = xtra_values[xtra_args.index(formatter.FUNC_XTRA_ARGS_DICT['save'])]
                     else:
                         save_file = None
-                    frontier = optimizer.calculate_efficient_frontier(equities=args)
-                    plotter.plot_frontier(portfolio=Portfolio(args), frontier=frontier, show=True, savefile=save_file)
+
+                    frontier = optimizer.calculate_efficient_frontier(equities=main_args)
+                    plotter.plot_frontier(portfolio=Portfolio(main_args), frontier=frontier, show=True, savefile=save_file)
                 
                 else: 
                     output.debug('Invalid Input. Try Try -ex Flag For Example Usage.')
 
             elif opt == formatter.FUNC_ARG_DICT['plot_moving_averages'] and settings.ENVIRONMENT != "container":
                 if(len(args)>1) or len(args)==1:
-                    if args[0] == "-save":
-                        save_file = args[1]
-                        args = args[2:]
+                    if formatter.FUNC_XTRA_ARGS_DICT['save'] in xtra_args:
+                        save_file = xtra_values[xtra_args.index(formatter.FUNC_XTRA_ARGS_DICT['save'])]
                     else:
                         save_file = None
-                    moving_averages = statistics.calculate_moving_averages(args)
+
+                    moving_averages = statistics.calculate_moving_averages(main_args)
                     periods = [settings.MA_1_PERIOD, settings.MA_2_PERIOD, settings.MA_3_PERIOD]
-                    plotter.plot_moving_averages(symbols=args, averages=moving_averages, periods=periods, 
+                    plotter.plot_moving_averages(symbols=main_args, averages=moving_averages, periods=periods, 
                                                     show=True, savefile=save_file)
 
                 else:
@@ -191,11 +189,6 @@ if __name__ == "__main__":
 
             elif opt == formatter.FUNC_ARG_DICT['plot_risk_profile']:
                 if len(args) > 0:
-                    if args[0] == "-save":
-                        save_file = args[1]
-                        args = args[2:].strip("\"")
-                    else:
-                        save_file = None
                     profiles = []
                     for arg in args:
                         profiles.append(statistics.calculate_risk_return(arg))
@@ -206,8 +199,21 @@ if __name__ == "__main__":
                     
             elif opt == formatter.FUNC_ARG_DICT["risk_return"]:
                 if(len(args)>1) or len(args)==1:
-                    for arg in args:
-                        result = statistics.calculate_risk_return(arg)
+
+                    if formatter.FUNC_XTRA_ARGS_DICT['start_date'] in xtra_args:
+                        unparsed_start = xtra_values[xtra_args.index(formatter.FUNC_XTRA_ARGS_DICT['start_date'])]
+                        start_date = helper.parse_date_string(unparsed_start)
+                    else:
+                        start_date = None
+                    
+                    if formatter.FUNC_XTRA_ARGS_DICT['end_date'] in xtra_args:
+                        unparsed_end = xtra_values[xtra_args.index(formatter.FUNC_XTRA_ARGS_DICT['end_date'])]
+                        end_date = helper.parse_date_string(unparsed_end)
+                    else:
+                        end_date = None
+
+                    for arg in main_args:
+                        result = statistics.calculate_risk_return(arg, start_date, end_date)
                         if result:
                             output.scalar_result(f'mean_{arg}', result['annual_return'])
                             output.scalar_result(f'vol_{arg}', result['annual_volatility'])

@@ -44,6 +44,12 @@ FUNC_ARG_DICT = {
     "risk_return" : "-rr",
 }
 
+FUNC_XTRA_ARGS_DICT = {
+    'save': '-save',
+    'start_date': '-start',
+    'end_date': '-end'
+}
+
 FUNC_DICT = {
     "asset_type": "Outputs the asset type for the supplied symbol.",
     "correlation": "Calculate pair-wise correlation for the supplied list of ticker symbols. ADDITIONAL OPTIONS: -start (format: \"YYYY-MM-DD\"), -end  (format :\"YYYY-MM-DD\")",

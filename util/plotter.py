@@ -5,7 +5,7 @@ from matplotlib import pyplot as plot
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 
-import util.format as formatter
+import util.formatting as formatter
 
 matplotlib.use("Qt5Agg")
 

@@ -5,7 +5,7 @@ import matplotlib.pyplot as matplotlib
 # TODO: possibly pass in DEBUG statically instead 
 #       of a potential circular import
 import app.settings as settings
-import util.format as formatter
+import util.formatting as formatter
 import util.helper as helper
 
 

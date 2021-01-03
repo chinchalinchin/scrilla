@@ -8,7 +8,7 @@ import app.services as services
 import app.markets as markets
 
 import util.logger as logger
-import util.format as formatter
+import util.formatting as formatter
 import util.helper as helper
 
 output = logger.Logger('app.statistics')
@@ -68,22 +68,22 @@ def calculate_moving_averages(tickers, start_date=None, end_date=None):
 # NOTE: assumes price history returns from latest to earliest date.
     # TODO: don't cache stats if start_date and end_date are specified
 def calculate_risk_return(ticker, start_date=None, end_date=None):
-    now = datetime.datetime.now()
-    # create different timestamps if start_date and end_date exists
-    timestamp = '{}{}{}'.format(now.month, now.day, now.year)
-
-    buffer_store= os.path.join(settings.CACHE_DIR, f'{timestamp}_{ticker}_statistics.json')
     asset_type = markets.get_asset_type(ticker)
     trading_period = markets.get_trading_period(asset_type)
-
     if not trading_period:
         output.debug("Asset did not map to (crypto, equity) grouping")
         return False
 
-    if os.path.isfile(buffer_store):
-        output.debug(f'Loading in cached {ticker} statistics...')
-        with open(buffer_store, 'r') as infile:
-            results = json.load(infile)
+    if start_date is None and end_date is None:
+        now = datetime.datetime.now()
+        timestamp = '{}{}{}'.format(now.month, now.day, now.year)
+        buffer_store= os.path.join(settings.CACHE_DIR, f'{timestamp}_{ticker}_{settings.CACHE_STAT_KEY}.{settings.CACHE_EXT}')
+
+        if os.path.isfile(buffer_store):
+            output.debug(f'Loading in cached {ticker} statistics...')
+            with open(buffer_store, 'r') as infile:
+                results = json.load(infile)
+            return results
 
     else:
         prices = services.retrieve_prices_from_cache(ticker, start_date, end_date)
@@ -91,7 +91,6 @@ def calculate_risk_return(ticker, start_date=None, end_date=None):
             output.debug(f'No prices could be retrieved for {ticker}')
             return False
         
-
         sample = len(prices)
 
         # calculate sample mean annual return
@@ -102,10 +101,10 @@ def calculate_risk_return(ticker, start_date=None, end_date=None):
             todays_price = services.parse_price_from_date(prices, date, asset_type)
 
             if i != 0:
-                output.verbose(f'(todays_price, tomorrows_price) = ({todays_price}, {tomorrows_price})')
+                output.verbose(f'{date}: (todays_price, tomorrows_price) = ({todays_price}, {tomorrows_price})')
                 daily_return = numpy.log(float(tomorrows_price)/float(todays_price))/trading_period
                 mean_return = mean_return + daily_return/sample
-                output.verbose(f'(daily_return, mean_return) = ({round(daily_return, 2)}, {round(mean_return, 2)})')
+                output.verbose(f'{date}: (daily_return, mean_return) = ({round(daily_return, 2)}, {round(mean_return, 2)})')
 
             else:
                 output.verbose('Skipping first date.')
@@ -122,10 +121,10 @@ def calculate_risk_return(ticker, start_date=None, end_date=None):
             todays_price = services.parse_price_from_date(prices, date, asset_type)
 
             if i != 0:
-                output.verbose(f'todays_price, tomorrows_price) = ({todays_price}, {tomorrows_price})')
+                output.verbose(f'{date}: (todays_price, tomorrows_price) = ({todays_price}, {tomorrows_price})')
                 current_mod_return= numpy.log(float(tomorrows_price)/float(todays_price))/numpy.sqrt(trading_period) 
                 variance = variance + (current_mod_return - mean_mod_return)**2/(sample - 1)
-                output.verbose(f'(daily_variance, sample_variance) = ({round(current_mod_return, 2)}, {round(variance, 2)})')
+                output.verbose(f'{date}: (daily_variance, sample_variance) = ({round(current_mod_return, 2)}, {round(variance, 2)})')
 
             else:
                 i += 1
@@ -144,9 +143,10 @@ def calculate_risk_return(ticker, start_date=None, end_date=None):
         }
 
         # store results in buffer for quick access
-        output.debug(f'Storing {ticker} statistics in cache...')
-        with open(buffer_store, 'w') as outfile:
-            json.dump(results, outfile)
+        if start_date is None and end_date is None:
+            output.debug(f'Storing {ticker} statistics in cache...')
+            with open(buffer_store, 'w') as outfile:
+                json.dump(results, outfile)
     
     return results
 

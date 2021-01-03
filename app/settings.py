@@ -33,6 +33,7 @@ else:
 
     # NOTE: CACHE only supports JSON currently. Future file extensions: csv and txt.
 CACHE_DIR = os.path.join(APP_DIR, 'cache')
+CACHE_STAT_KEY = "statistics"
 CACHE_EXT = "json"
 
 STATIC_DIR = os.path.join(APP_DIR, 'static')
@@ -114,6 +115,11 @@ if PRICE_MANAGER == 'alpha_vantage':
         except:
             AV_KEY = None
             output.debug('Unable to parse ALPHA_VANTAGE_KEY from config.json file')
+            try:
+                AV_KEY = os.getenv('ALPHA_VANTAGE_KEY')
+            except:
+                AV_KEY = None
+                output.debug('Unable to parse ALPHA_VANTAGE_KEY from .env file')
     else:
         try:
             AV_KEY = os.getenv('ALPHA_VANTAGE_KEY')
@@ -129,6 +135,7 @@ if PRICE_MANAGER == 'alpha_vantage':
     else:
         unverified = True
 
+    new_creds = None
     while unverified:
         output.comment('Unable to verify ALPHA_VANTAGE API Key.')
         output.comment('Please register at https://www.alphavantage.co/ and place API Key in .env or config.json')
@@ -143,15 +150,17 @@ if PRICE_MANAGER == 'alpha_vantage':
         widget, popup = None, None
         app.exit()
         app = None
+
         unverified = not tester.test_av_key(text)
 
-    new_creds = { 'ALPHA_VANTAGE_KEY' : text }
+        if not unverified:
+            new_creds = { 'ALPHA_VANTAGE_KEY' : text }
 
-    if credential_overrides is not None and 'QUANDL_KEY' in credential_overrides:
+    if credential_overrides is not None and new_creds is not None and 'QUANDL_KEY' in credential_overrides:
         new_creds['QUANDL_KEY'] = credential_overrides['QUANDL_KEY']
 
-    with open(CONFIG_FILE, 'w') as outfile:
-        json.dump(new_creds, outfile)
+        with open(CONFIG_FILE, 'w') as outfile:
+            json.dump(new_creds, outfile)
 
     # Metadata Endpoints
     AV_CRYPTO_LIST=os.getenv('ALPHA_VANTAGE_CRYPTO_META_URL')
@@ -192,6 +201,11 @@ if STAT_MANAGER == "quandl":
         except:
             Q_KEY = None
             output.debug('Unable to parse QUANDL_KEY from config.json file')
+            try:
+                Q_KEY = os.getenv('QUANDL_KEY')
+            except:
+                Q_KEY = None
+                output.debug('Unable to parse QUANDL_KEY from .env file')
     else:
         try:
             Q_KEY = os.getenv('QUANDL_KEY')
@@ -205,6 +219,7 @@ if STAT_MANAGER == "quandl":
     else:
         unverified = True
 
+    new_creds = None
     while unverified:
         output.comment('Unable to verify QUANDL API Key.')
         output.comment('Please register at https://www.quandl.com/ and place API Key in .env or config.json')
@@ -219,11 +234,13 @@ if STAT_MANAGER == "quandl":
         widget, popup = None, None
         app.exit()
         app = None
+
         unverified = not tester.test_q_key(text)
 
-    new_creds = { 'QUANDL_KEY' : text }
+        if not unverified:
+            new_creds = { 'QUANDL_KEY' : text }
 
-    if credential_overrides is not None and 'ALPHA_VANTAGE_KEY' in credential_overrides:
+    if credential_overrides is not None and new_creds is not None and 'ALPHA_VANTAGE_KEY' in credential_overrides:
         new_creds['ALPHA_VANTAGE_KEY'] = credential_overrides['ALPHA_VANTAGE_KEY']
 
     with open(CONFIG_FILE, 'w') as outfile:

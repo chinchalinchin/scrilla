@@ -2,6 +2,21 @@ import datetime, os, io, json, csv, zipfile
 import holidays
 import requests
 
+import util.formatting as formatter
+
+def separate_args(args):
+    extra_args, extra_values, reduced_args= [], [], args
+    offset = 0
+    for arg in args:
+        if arg in formatter.FUNC_XTRA_ARGS_DICT.values():
+            extra_args.append(arg)
+            extra_values.append(args[args.index(arg)+1])
+    for arg in extra_args:
+        reduced_args.remove(arg)
+    for arg in extra_values:
+        reduced_args.remove(arg)
+    return extra_args, extra_values, reduced_args
+
 def get_number_input(msg_prompt) -> str:
     while True:
         user_input = input(msg_prompt)
@@ -18,18 +33,6 @@ def strip_string_array(array) -> [str]:
     for string in array:
         new_array.append(string.strip())
     return new_array
-    
-def format_allocation_profile(allocation, portfolio) -> str:
-    port_return, port_volatility = portfolio.return_function(allocation), portfolio.volatility_function(allocation)
-    formatted_result = "("+str(100*port_return)[:5]+"%, " + str(100*port_volatility)[:5]+"%)"
-    formatted_result_title = "("
-    for symbol in portfolio.tickers:
-        if portfolio.tickers.index(symbol) != (len(portfolio.tickers) - 1):
-            formatted_result_title += symbol+", "
-        else:
-            formatted_result_title += symbol + ") Portfolio Return-Risk Profile"
-    whole_thing = formatted_result_title +" = "+formatted_result
-    return whole_thing
 
 # YYYY-MM-DD
 def parse_date_string(date_string) -> datetime.date:
@@ -38,7 +41,17 @@ def parse_date_string(date_string) -> datetime.date:
     return date
 
 def date_to_string(date) -> str:
-    return f'{date.year}-{date.month}-{date.day}'
+    year, month, day = date.year, date.month, date.day
+    if month<10:
+        month_string = "0"+str(month)
+    else:
+        month_string = str(month)
+    if day<10:
+        day_string = "0"+str(day)
+    else:
+        day_string = str(day)
+    print('date-to-string',f'{date.year}-{month_string}-{day_string}')
+    return f'{date.year}-{month_string}-{day_string}'
 
 def is_date_weekend(date) -> bool:
     if date.weekday() in [5, 6]:
@@ -113,6 +126,41 @@ def consecutive_trading_days(start_date_string, end_date_string) -> bool:
 
     else:
         return False
+
+def get_start_date(xtra_args, xtra_values):
+    if formatter.FUNC_XTRA_ARGS_DICT['start_date'] in xtra_args:
+        unparsed_start = xtra_values[xtra_args.index(formatter.FUNC_XTRA_ARGS_DICT['start_date'])]
+        start_date = parse_date_string(unparsed_start)
+    else:
+        start_date = None
+    return start_date
+
+def get_end_date(xtra_args, xtra_values):
+    if formatter.FUNC_XTRA_ARGS_DICT['end_date'] in xtra_args:
+        unparsed_end = xtra_values[xtra_args.index(formatter.FUNC_XTRA_ARGS_DICT['end_date'])]
+        end_date = parse_date_string(unparsed_end)
+    else:
+        end_date = None
+    return end_date
+
+def get_save_file(xtra_args, xtra_values):
+    if formatter.FUNC_XTRA_ARGS_DICT['save'] in xtra_args:
+        save_file = xtra_values[xtra_args.index(formatter.FUNC_XTRA_ARGS_DICT['save'])]
+    else:
+        save_file = None
+    return save_file
+
+def format_allocation_profile(allocation, portfolio) -> str:
+    port_return, port_volatility = portfolio.return_function(allocation), portfolio.volatility_function(allocation)
+    formatted_result = "("+str(100*port_return)[:5]+"%, " + str(100*port_volatility)[:5]+"%)"
+    formatted_result_title = "("
+    for symbol in portfolio.tickers:
+        if portfolio.tickers.index(symbol) != (len(portfolio.tickers) - 1):
+            formatted_result_title += symbol+", "
+        else:
+            formatted_result_title += symbol + ") Portfolio Return-Risk Profile"
+    whole_thing = formatted_result_title +" = "+formatted_result
+    return whole_thing
 
 def get_first_json_key(this_json):
     return list(this_json.keys())[0]
