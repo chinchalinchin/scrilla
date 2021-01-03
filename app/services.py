@@ -98,7 +98,7 @@ def get_daily_price_history(ticker, start_date=None, end_date=None):
             elif helper.is_date_weekend(start_date):
                 output.debug('Start Date is a weekend. Equities do not trade on weekends.')
                 return False
-        if end_date is not 
+        if end_date is not None:
             if helper.is_date_holiday(end_date):
                 output.debug('End Date is a holiday. Equities do not trade on holidays.')
                 return False
