@@ -126,6 +126,15 @@ def consecutive_trading_days(start_date_string, end_date_string) -> bool:
     else:
         return False
 
+def dates_between(start_date, end_date):
+    return [start_date + datetime.timedelta(x + 1) for x in range((end_date - start_date).days)]
+
+def business_days_between(start_date, end_date):
+    return len([1 for day in dates_between(start_date, end_date) if day.weekday() < 5])
+    
+def weekends_between(start_date, end_date):
+    return len([1 for day in dates_between(start_date, end_date) if day.weekday() > 4])
+
 ################################################
 ##### PARSING FUNCTIONS
 

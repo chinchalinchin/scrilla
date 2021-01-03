@@ -1,4 +1,4 @@
-import os, sys, json
+import os, sys, math, json
 import datetime
 import numpy
 from decimal import Decimal
@@ -14,20 +14,12 @@ import util.helper as helper
 output = logger.Logger('app.statistics')
 
 # NOTE: assumes price history returns from latest to earliest date.
-    # TODO: check if end_date - start_date < MA_Periods, if so return False
-    # TODO: check if end_date - start_date > MA_Periods, perform algorithm 
-    #       for each date in [start_date, end_date - start_date - MA_periods]
-    #       as the starting date in the calculation, i.e. return an array of 
-    #       arrays 
-    # TODO: if end_date - start_date > MA_Periods
-    #           return (moving_averages, dates)-tuple
-    #               where dates = array of dates for MA plot
-    #       else:
-    #           return (moving_averages, None)-tuple
-    #               where None indicates the moving_averages is for present.
+# NOTE: If no start_date and end_date passed in, static snapshot of moving averages,
+#       i.e. the moving averages as of today (or last close), are calculated and 
+#       returned.
 def calculate_moving_averages(tickers, start_date=None, end_date=None):
     moving_averages = []
-    
+
     if start_date is None and end_date is None:
         for ticker in tickers:
             prices = services.retrieve_prices_from_cache(ticker, start_date, end_date)
@@ -59,16 +51,77 @@ def calculate_moving_averages(tickers, start_date=None, end_date=None):
 
             moving_averages.append([MA_1, MA_2, MA_3])
 
-        return moving_averages
+        return (moving_averages, None)
 
     else:
-        pass
-        # TODO: need to pull entire price history from AlphaVantage
+        # get period of time consistent with MA Periods
+        day_count = (end_date - start_date).days
+        for ticker in tickers:
+            asset_type = markets.get_asset_type(ticker)
+            trading_period = markets.get_trading_period(asset_type)
+            new_start_date = start_date - datetime.timedelta(days=settings.MA_3_PERIOD)
+
+            # amend equity trading dates to take account of weekends
+            if asset_type == settings.ASSET_EQUITY:
+                weekends = helper.weekends_between(new_start_date, start_date)
+
+                trading_weeks, remainder = math.floor(weekends / 5), weekends % 5
+                revised_delta = trading_weeks*2 + remainder + settings.MA_3_PERIOD
+                revised_start_date = start_date - datetime.timedelta(days=revised_delta)
+                
+                while helper.is_date_weekend(revised_start_date):
+                    revised_start_date = revised_start_date - datetime.timedelta(days=1)
+                
+                new_start_date = revised_start_date
+
+            prices = services.retrieve_prices_from_cache(ticker, new_start_date, end_date)
+
+            today = False
+            count, tomorrows_price, MA_1, MA_2, MA_3 = 1, 0
+            MA_1, MA_2, MA_3 = [], [], []
+
+            for date in prices:
+                todays_price = services.parse_price_from_date(prices, date, asset_type)
+                if today:
+                   todays_return = numpy.log(float(tomorrows_price) / float(todays_price))/trading_period
+               
+                   for MA in MA_1:
+                       if len(MA_1) - MA_1.index(MA) + 1 < settings.MA_1_PERIOD:
+                           MA += todays_return / settings.MA_1_PERIOD
+                   MA_1.append( (todays_return / settings.MA_1_PERIOD) )
+         
+                   for MA in MA_2:
+                       if len(MA_2) - MA_2.index(MA) + 1 < settings.MA_2_PERIOD:
+                           MA += todays_return / settings.MA_2_PERIOD
+                   MA_2.append( (todays_return / settings.MA_2_PERIOD) )
+        
+                   for MA in MA_3:
+                       if len(MA_3) - MA_3.index(MA) + 1 < settings.MA_3_PERIOD:
+                           MA += todays_return / settings.MA_3_PERIOD
+                   MA_3.append( (todays_return) / settings.MA_3_PERIOD)
+                
+                else:
+                    today = True
+                    tomorrows_price = services.parse_price_from_date(prices, date, asset_type)
+
+            MA_1 = MA_1[:day_count]
+            MA_2 = MA_2[:day_count]
+            MA_3 = MA_3[:day_count]
+
+            moving_averages.append([MA_1, MA_2, MA_3])
+
+        dates_between = helper.dates_between(start_date, end_date)
+        # len(moving_averages[0]) == len(dates_between) 
+        #       if everything has been done correctly, that is!
+        print('len(moving_averages[0]) =', len(moving_averages[0]))
+        print('len(dates_between) = ', len(dates_between))
+        return (moving_averages, dates_between) 
 
 # NOTE: assumes price history returns from latest to earliest date.
 def calculate_risk_return(ticker, start_date=None, end_date=None):
     asset_type = markets.get_asset_type(ticker)
     trading_period = markets.get_trading_period(asset_type)
+
     if not trading_period:
         output.debug("Asset did not map to (crypto, equity) grouping")
         return False
@@ -150,7 +203,8 @@ def calculate_risk_return(ticker, start_date=None, end_date=None):
     return results
 
 # NOTE: assumes price history returns from latest to earliest date.
-    # TODO: don't cache stats if start_date and end_date are specified
+# NOTE: does not cache correlation if start_date and end_date are specified, 
+#       i.e. only caches current correlation from the last 100 days.
 def calculate_correlation(ticker_1, ticker_2, start_date=None, end_date=None):
     now = datetime.datetime.now()
     timestamp = '{}{}{}'.format(now.month, now.day, now.year)
@@ -328,6 +382,7 @@ def get_correlation_matrix_string(symbols, indent=0, start_date=None, end_date=N
 
         if i != 0:
             this_line = symbol_string + ' '*(line_length - len(symbol_string) - 7*(no_symbols - i))
+            # NOTE: seven is number of chars in ' 100.0%'
         else: 
             this_line = symbol_string
             first_symbol_length = len(this_symbol)
@@ -356,6 +411,7 @@ def get_correlation_matrix_string(symbols, indent=0, start_date=None, end_date=N
     for symbol in symbols:
         sym_len = len(symbol)
         formatted_title += f' {symbol}'+ ' '*(7-sym_len)
+        # NOTE: seven is number of chars in ' 100.0%'
     formatted_title += '\n'
 
     whole_thing = formatted_title + entire_formatted_result

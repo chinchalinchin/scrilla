@@ -52,7 +52,7 @@ to perform the same operation as the following command performed in the project 
 
 2. Rejigger moving averages algorithm (calculation and plotting) to accept current snapshot of moving averages and print bar graph (already does this), or accept a history of moving averages and created a line plot with several labeled serieses. Also need to check if date_range is less than any of the MA_PERIODS before proceeding.
 
-3. Rejigger GUI to have DateWidgets to select dates in GUI.
+3. Rejigger GUI to have DateWidgets to select dates in GUI and take advantage of the new date filtering functionality.
 
 4. Figure out how to launch GUI in Docker, if it's even possible.. Also, volumes.
 
