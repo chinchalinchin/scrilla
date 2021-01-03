@@ -175,6 +175,9 @@ class CompositeWidget(SymbolWidget):
 # TODO: remove general optimize button and remove minimize to optimize
 # TODO: perform general optimization if target return is specificed,
 # TODO: otherwise, minimize.
+#
+# TODO: can probably inherit from SymbolWidget since SymbolWidget doesn't
+# TODO: set any layouts.
 class PortfolioWidget(QtWidgets.QWidget):
     def __init__(self, widget_title, min_function, opt_function):
         super().__init__()
