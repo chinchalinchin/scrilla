@@ -10,6 +10,9 @@ def get_number_input(msg_prompt) -> str:
         else:
             print('Input Not Understood. Please Enter A Numerical Value.')
 
+def is_non_zero_file(fpath):  
+    return os.path.isfile(fpath) and os.path.getsize(fpath) > 0
+    
 def strip_string_array(array) -> [str]:
     new_array = []
     for string in array:

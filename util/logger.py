@@ -30,7 +30,7 @@ class Logger():
             return [msg]
 
     def debug(self, msg):
-        if settings.DEBUG:
+        if formatter.DEBUG:
             self.comment(msg)
 
     def verbose(self, msg):

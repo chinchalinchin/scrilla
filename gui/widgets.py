@@ -27,6 +27,13 @@ def get_label_font():
     font.setBold(True)
     return font
 
+# Widget to retrieve User Input
+class InputWidget(QtWidgets.QWidget):
+    def __init__(self, widget_title):
+        super().__init__()
+
+        text, okPressed = QtWidgets.QInputDialog.getText(self, "Get text","Your name:", QLineEdit.Normal, "")
+
 # Base Widget to get asset symbol input
 class SymbolWidget(QtWidgets.QWidget):
     def __init__(self, widget_title, button_msg):

@@ -1,9 +1,17 @@
-import os, json, dotenv
+import sys, os, json, dotenv
+
+from PyQt5.QtWidgets import QApplication, QWidget, QInputDialog, QLineEdit
+
+import util.helper as helper
+import util.tester as tester
 import util.logger as logger
+
 
 output = logger.Logger('app.settings')
 
-#### APPLICATION CONFIGURATOIN
+# SETTINGS.PY
+
+## APPLICATION CONFIGURATOIN
 
 APP_NAME="PYNANCE"
 
@@ -17,16 +25,13 @@ dotenv.load_dotenv(os.path.join(APP_DIR,'.env'))
 
 CONFIG_FILE = os.path.join(APP_DIR,'config.json')
 
-if os.path.isfile(CONFIG_FILE):
+if helper.is_non_zero_file(CONFIG_FILE):
     with open(CONFIG_FILE, 'r') as infile:
         credential_overrides = json.load(infile)
 else:
     credential_overrides = None
 
-DEBUG= True if os.getenv('DEBUG').lower() == 'true' else False
-VERBOSE= True if os.getenv('VERBOSE').lower() == 'true' else False
-
-# NOTE: CACHE only supports JSON currently. Future file extensions: csv and txt.
+    # NOTE: CACHE only supports JSON currently. Future file extensions: csv and txt.
 CACHE_DIR = os.path.join(APP_DIR, 'cache')
 CACHE_EXT = "json"
 
@@ -36,6 +41,10 @@ STATIC_EXT = "json"
 STATIC_TICKERS_FILE = os.path.join(STATIC_DIR, f'tickers.{STATIC_EXT}')
 STATIC_ECON_FILE = os.path.join(STATIC_DIR, f'economics.{STATIC_EXT}')
 STATIC_CRYPTO_FILE = os.path.join(STATIC_DIR, f'crypto.{STATIC_EXT}')
+
+## GUI CONFIGURATION
+
+POPUP_WIDTH, POPUP_HEIGHT = 150, 150
 
 try:
     GUI_WIDTH = int(os.environ.setdefault('GUI_WIDTH', 800))
@@ -49,57 +58,10 @@ except:
     output.debug('Failed to parse GUI_HEIGHT from .env File. Setting to default value of 800. Please Ensure GUI_HEIGHT is set to an integer value.')
     GUI_HEIGHT = 800
 
-AV_URL = os.getenv('ALPHA_VANTAGE_URL').strip("\"").strip("'")
 
-if credential_overrides:
-    try:
-        AV_KEY = credential_overrides['ALPHA_VANTAGE_KEY']
-    except:
-        AV_KEY = None
-        output.debug('Unable to parse ALPHA_VANTAGE_KEY from config.json file')
-else:
-    try:
-        AV_KEY = os.getenv('ALPHA_VANTAGE_KEY')
-    except:
-        AV_KEY = None
-        output.debug('Unable to parse ALPHA_VANTAGE_KEY from .env file')
-if AV_KEY is not None:
-    # TODO: test URL
-    # if fails, set to None
-    pass
-if AV_KEY is None:
-    # TODO: Prompt user to register and enter key, save in config.json
-    pass
-
-Q_URL = os.getenv('QUANDL_URL').strip("\"").strip("'")
-if credential_overrides:
-    try:
-        Q_KEY = credential_overrides['QUANDL_KEY']
-    except:
-        Q_KEY = None
-        output.debug('Unable to parse QUANDL_KEY from config.json file')
-else:
-    try:
-        Q_KEY = os.getenv('QUANDL_KEY')
-    except:
-        Q_KEY = None
-        output.debug('Unable to parse QUANDL_KEY from .env file')
-if Q_KEY is not None:
-    # TODO: test URL
-    # if fails, set to None
-    pass
-if Q_KEY is None:
-    # TODO: Prompt user to register and enter key, save in config.json
-    pass
-
-PRICE_MANAGER = os.getenv('PRICE_MANAGER')
-STAT_MANAGER = os.getenv('STAT_MANAGER')
-
-INIT= True if os.getenv('INIT').lower() == 'true' else False
+## FINANCIAL CONFIGURATION
 
 INVESTMENT_MODE = True if os.getenv('INVESTMENT_MODE').lower() == 'true' else False
-
-#### FINANCIAL CONFIGURATION
 
 try:
     FRONTIER_STEPS = int(os.getenv('FRONTIER_STEPS'))
@@ -134,10 +96,66 @@ ASSET_EQUITY="equity"
 ASSET_CRYPTO="crypto"
 STAT_ECON="indicator"
 
-#### SERVICE CONFIGURATION
+## SERVICE CONFIGURATION
 
-if PRICE_MANAGER == "alpha_vantage":
+INIT= True if os.getenv('INIT').lower() == 'true' else False
+
+### PRICE_MANAGER CONFIGRUATION
+PRICE_MANAGER = os.getenv('PRICE_MANAGER')
+
+#### ALPHAVANTAGE CONFIGURATION
+if PRICE_MANAGER == 'alpha_vantage':
+    AV_URL = os.getenv('ALPHA_VANTAGE_URL').strip("\"").strip("'")
+
+    # Grab AV API Key From config.json or .env if config.json doesn't exist
+    if credential_overrides:
+        try:
+            AV_KEY = credential_overrides['ALPHA_VANTAGE_KEY']
+        except:
+            AV_KEY = None
+            output.debug('Unable to parse ALPHA_VANTAGE_KEY from config.json file')
+    else:
+        try:
+            AV_KEY = os.getenv('ALPHA_VANTAGE_KEY')
+        except:
+            AV_KEY = None
+            output.debug('Unable to parse ALPHA_VANTAGE_KEY from .env file')
+
+    # Verify API Key works
+    if AV_KEY is not None:
+        output.debug('Verifying ALPHA_VANTAGE API Key')
+        unverified = not tester.test_av_key(AV_KEY)
+
+    else:
+        unverified = True
+
+    while unverified:
+        output.comment('Unable to verify ALPHA_VANTAGE API Key.')
+        output.comment('Please register at https://www.alphavantage.co/ and place API Key in .env or config.json')
+        
+        app = QApplication([])
+        widget, popup = QWidget(), QInputDialog()
+        widget.resize(POPUP_WIDTH, POPUP_HEIGHT)
+
+        text, okPressed = popup.getText(widget, "AlphaVantage API Key",
+                                        "No AlphaVantage API Key found within application. \n Please register at https://www.alphavantage.co/ for an API Key and enter here:", QLineEdit.Normal, "")
+        
+        widget, popup = None, None
+        app.exit()
+        app = None
+        unverified = not tester.test_av_key(text)
+
+    new_creds = { 'ALPHA_VANTAGE_KEY' : text }
+
+    if credential_overrides is not None and 'QUANDL_KEY' in credential_overrides:
+        new_creds['QUANDL_KEY'] = credential_overrides['QUANDL_KEY']
+
+    with open(CONFIG_FILE, 'w') as outfile:
+        json.dump(new_creds, outfile)
+
+    # Metadata Endpoints
     AV_CRYPTO_LIST=os.getenv('ALPHA_VANTAGE_CRYPTO_META_URL')
+    
     # Response Keys
     AV_RES_EQUITY_FIRST_LAYER='Time Series (Daily)'
     AV_RES_EQUITY_CLOSE_PRICE="4. close"
@@ -147,25 +165,79 @@ if PRICE_MANAGER == "alpha_vantage":
     AV_RES_CRYPTO_CLOSE_PRICE=f'4a. close ({DENOMINATION})'
     AV_RES_ERROR='Error Message'
     AV_RES_LIMIT='Note'
+    
     # Query Parameters
     PARAM_AV_TICKER="symbol"
     PARAM_AV_FUNC="function"
     PARAM_AV_DENOM="market"
     PARAM_AV_KEY="apikey"
+    
     # Query Arguments
     ARG_AV_FUNC_EQUITY_DAILY="TIME_SERIES_DAILY"
     ARG_AV_FUNC_EQUITY_LISTINGS="LISTING_STATUS"
     ARG_AV_FUNC_CRYPTO_DAILY="DIGITAL_CURRENCY_DAILY"
 
+### QUANDL CONFIGURAITON
+STAT_MANAGER = os.getenv('STAT_MANAGER')
+
 if STAT_MANAGER == "quandl":
+    Q_URL = os.getenv('QUANDL_URL').strip("\"").strip("'")
+
+    if credential_overrides:
+        try:
+            Q_KEY = credential_overrides['QUANDL_KEY']
+        except:
+            Q_KEY = None
+            output.debug('Unable to parse QUANDL_KEY from config.json file')
+    else:
+        try:
+            Q_KEY = os.getenv('QUANDL_KEY')
+        except:
+            Q_KEY = None
+            output.debug('Unable to parse QUANDL_KEY from .env file')
+
+    if Q_KEY is not None:
+        output.debug('Verifying QUANDL API Key')
+        unverified = not tester.test_q_key(Q_KEY)
+    else:
+        unverified = True
+
+    while unverified:
+        output.comment('Unable to verify QUANDL API Key.')
+        output.comment('Please register at https://www.quandl.com/ and place API Key in .env or config.json')
+        
+        app = QApplication([])
+        widget, popup = QWidget(), QInputDialog()
+        widget.resize(POPUP_WIDTH, POPUP_HEIGHT)
+
+        text, okPressed = popup.getText(widget, "Quandl API Key",
+                                        "No Quandl API Key detectedin application. \n Please register at https://www.quandl.com/ for an API Key and enter here:", QLineEdit.Normal, "")
+        
+        widget, popup = None, None
+        app.exit()
+        app = None
+        unverified = not tester.test_q_key(text)
+
+    new_creds = { 'QUANDL_KEY' : text }
+
+    if credential_overrides is not None and 'ALPHA_VANTAGE_KEY' in credential_overrides:
+        new_creds['ALPHA_VANTAGE_KEY'] = credential_overrides['ALPHA_VANTAGE_KEY']
+
+    with open(CONFIG_FILE, 'w') as outfile:
+        json.dump(new_creds, outfile)
+
+    # Metadata Endpoints
     Q_META_URL = os.getenv('QUANDL_META_URL')
+
     # Response Keys
     Q_FIRST_LAYER="dataset"
     Q_SECOND_LAYER="data"
     Q_RES_STAT_KEY="code"
     Q_RES_STAT_ZIP_KEY="FRED_metadata.csv"
+    
     # Path Paramaters
     PATH_Q_FRED ="FRED"
+    
     # Query Parameters
     PARAM_Q_KEY="api_key"
     PARAM_Q_METADATA="metadata.json"

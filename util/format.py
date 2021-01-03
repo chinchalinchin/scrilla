@@ -1,3 +1,15 @@
+import os, dotenv
+
+APP_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+dotenv.load_dotenv(os.path.join(APP_DIR,'.env'))
+
+APP_NAME="Pynance"
+
+DEBUG= True if os.getenv('DEBUG').lower() == 'true' else False
+
+VERBOSE= True if os.getenv('VERBOSE').lower() == 'true' else False
+
 SIG_FIGS=5
 
 SEPARATER = "-"
