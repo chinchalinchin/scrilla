@@ -149,17 +149,22 @@ def decrement_date_by_business_days(start_date, business_days):
 ##### PARSING FUNCTIONS
 
 def separate_args(args):
-    extra_args, extra_values, reduced_args= [], [], args
+    extra_args, extra_values= [], []
+    reduced_args = args
     offset = 0
+    
     for arg in args:
         if arg in formatter.FUNC_XTRA_ARGS_DICT.values():
             extra_args.append(arg)
             extra_values.append(args[args.index(arg)+1])
+
     for arg in extra_args:
         reduced_args.remove(arg)
+
     for arg in extra_values:
         reduced_args.remove(arg)
-    return extra_args, extra_values, reduced_args
+
+    return (extra_args, extra_values, reduced_args)
 
 def get_start_date(xtra_args, xtra_values):
     if formatter.FUNC_XTRA_ARGS_DICT['start_date'] in xtra_args:
