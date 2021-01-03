@@ -10,6 +10,7 @@ import app.optimizer as optimizer
 import app.portfolio as portfolio
 
 import util.logger as logger
+import util.formatting as formatter
 import util.helper as helper
 import util.plotter as plotter
 
@@ -40,8 +41,8 @@ class RiskReturnWidget(CompositeWidget):
             output.debug(f'Calculating {symbol} Risk-Return Profile')
             stats = statistics.calculate_risk_return(symbol)
             if stats:
-                formatted_ret = str(100*stats['annual_return'])[:settings.SIG_FIGS]+"%"
-                formatted_vol = str(100*stats['annual_volatility'])[:settings.SIG_FIGS]+"%"
+                formatted_ret = str(100*stats['annual_return'])[:formatter.SIG_FIGS]+"%"
+                formatted_vol = str(100*stats['annual_volatility'])[:formatter.SIG_FIGS]+"%"
                 
                 output.debug(f'(return, vol)_{symbol} = ({formatted_ret}, {formatted_vol})')
 
@@ -110,7 +111,7 @@ class CorrelationWidget(TableWidget):
                     else:    
                         output.debug(f'Calculating correlation for ({user_symbols[i]}, {user_symbols[j]})')
                         correlation = statistics.calculate_correlation(user_symbols[i], user_symbols[j])
-                        formatted_correlation = str(100*correlation["correlation"])[:settings.SIG_FIGS]+"%"
+                        formatted_correlation = str(100*correlation["correlation"])[:formatter.SIG_FIGS]+"%"
                         item_1 = QtWidgets.QTableWidgetItem(formatted_correlation)
                         item_1.setTextAlignment(QtCore.Qt.AlignHCenter)
                         item_2 = QtWidgets.QTableWidgetItem(formatted_correlation)
@@ -178,7 +179,7 @@ class OptimizerWidget(PortfolioWidget):
 
             for i in range(no_symbols):
                 this_allocation = allocation[i]
-                formatted_allocation = str(100*this_allocation)[:settings.SIG_FIGS]+"%"
+                formatted_allocation = str(100*this_allocation)[:formatter.SIG_FIGS]+"%"
                 item = QtWidgets.QTableWidgetItem(formatted_allocation)
                 item.setTextAlignment(QtCore.Qt.AlignHCenter)
                 self.result_table.setItem(i, 0, item)
@@ -228,7 +229,9 @@ class MovingAverageWidget(GraphWidget):
             time.sleep(1)
         user_symbols = helper.strip_string_array(self.symbol_input.text().upper().split(","))
         moving_averages = statistics.calculate_moving_averages(user_symbols)
-        figure = plotter.plot_moving_averages(symbols=user_symbols, averages=moving_averages, show=False)
+        periods = [settings.MA_1_PERIOD, settings.MA_2_PERIOD, settings.MA_3_PERIOD]
+        figure = plotter.plot_moving_averages(symbols=user_symbols, averages=moving_averages, 
+                                                periods=periods, show=False)
         self.figure = figure
         self.layout.insertWidget(1, self.figure, 1)
         self.displayed = True

@@ -1,3 +1,4 @@
+.gitignore
 .env
 /static/creds/config.json
 /cache/*

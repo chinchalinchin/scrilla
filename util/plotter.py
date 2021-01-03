@@ -5,25 +5,27 @@ from matplotlib import pyplot as plot
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 
-import app.settings as settings
+import util.formatting as formatter
+import util.helper as helper
 
 matplotlib.use("Qt5Agg")
 
 def plot_frontier(portfolio, frontier, show=True, savefile=None):
-    return_profile=[]
-    risk_profile=[]
-    for allocation in frontier:
-        return_profile.append(portfolio.return_function(allocation))
-        risk_profile.append(portfolio.volatility_function(allocation))
-    return_profile = numpy.array(return_profile)
-    risk_profile = numpy.array(risk_profile)
-    
     title = " ("
     for i in range(len(portfolio.tickers)):
         if i != (len(portfolio.tickers) - 1):
             title += portfolio.tickers[i] + ", "
         else:
             title += portfolio.tickers[i] + ") Efficient Frontier"
+    
+    return_profile, risk_profile = [], []
+    for allocation in frontier:
+        return_profile.append(portfolio.return_function(allocation))
+        risk_profile.append(portfolio.volatility_function(allocation))
+    
+        # don't think numpy arrays are needed...
+    # return_profile = numpy.array(return_profile)
+    # risk_profile = numpy.array(risk_profile)
     
     canvas = FigureCanvas(Figure())
     axes = canvas.figure.subplots()
@@ -43,7 +45,7 @@ def plot_frontier(portfolio, frontier, show=True, savefile=None):
     else:
         return canvas
 
-def plot_profiles(symbols, profiles, show=True, savefile=None):
+def plot_profiles(symbols, profiles, show=True, savefile=None, subtitle=None):
     canvas = FigureCanvas(Figure())
 
     no_symbols = len(symbols)
@@ -54,7 +56,9 @@ def plot_profiles(symbols, profiles, show=True, savefile=None):
         if symbols.index(symbol) != (len(symbols)-1):
             title += symbol +", "
         else:
-            title += symbol +") Risk-Return Profile"
+            title += symbol +') Risk-Return Profile'
+            if subtitle is not None:
+                title += "\n" + subtitle
 
     return_profile, risk_profile = [], []
     for profile in profiles:
@@ -79,10 +83,15 @@ def plot_profiles(symbols, profiles, show=True, savefile=None):
     else:
         return canvas
 
-def plot_moving_averages(symbols, averages, show=True, savefile=None):
+# TODO: dynamically generate bar or line plot based on number of data points!
+# if len(averages) = (# of moving averages)*(# of symbols)
+    # create barchart of moving averages as of today
+# if len(averages) > (# of moving averages)*(# of symbols)
+    # create line plot with three series for all available samples
+def plot_moving_averages(symbols, averages, periods, show=True, savefile=None):
     canvas = FigureCanvas(Figure())
 
-    width = settings.BAR_WIDTH
+    width = formatter.BAR_WIDTH
     x = numpy.arange(len(symbols))
     axes = canvas.figure.subplots()
     
@@ -92,7 +101,7 @@ def plot_moving_averages(symbols, averages, show=True, savefile=None):
         ma2s.append(averages[i][1])
         ma3s.append(averages[i][2])
     
-    ma1_label, ma2_label, ma3_label = f'MA({settings.MA_1_PERIOD})', f'MA({settings.MA_2_PERIOD})', f'MA({settings.MA_3_PERIOD})'
+    ma1_label, ma2_label, ma3_label = f'MA({periods[0]})', f'MA({periods[1]})', f'MA({periods[2]})'
 
     axes.bar(x + width, ma1s, width, label=ma1_label)
     axes.bar(x, ma2s, width, label=ma2_label)

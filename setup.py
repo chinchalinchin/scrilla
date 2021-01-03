@@ -1,7 +1,7 @@
 import setuptools
 from app.settings import settings
 
-with open("README.txt", "r", encoding="utf"-8) as fh:
+with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 setuptools.setup(
@@ -16,7 +16,7 @@ setuptools.setup(
     packages=setuptools.find_packages(),
     classifers=[
         "Programming Language :: Python :: 3",
-        "License:: GNU GPL",
+        "License:: GNU GPL v3",
         "Operating System :: OS Independent"
     ],
     python_requires = '==3.7.7'

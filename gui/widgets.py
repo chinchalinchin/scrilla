@@ -27,6 +27,13 @@ def get_label_font():
     font.setBold(True)
     return font
 
+# Widget to retrieve User Input
+class InputWidget(QtWidgets.QWidget):
+    def __init__(self, widget_title):
+        super().__init__()
+
+        text, okPressed = QtWidgets.QInputDialog.getText(self, "Get text","Your name:", QLineEdit.Normal, "")
+
 # Base Widget to get asset symbol input
 class SymbolWidget(QtWidgets.QWidget):
     def __init__(self, widget_title, button_msg):
@@ -172,6 +179,12 @@ class CompositeWidget(SymbolWidget):
             self.figure = None
 
 # Specialized Widget For Portfolio Calculations
+# TODO: remove general optimize button and remove minimize to optimize
+# TODO: perform general optimization if target return is specificed,
+# TODO: otherwise, minimize.
+#
+# TODO: can probably inherit from SymbolWidget since SymbolWidget doesn't
+# TODO: set any layouts.
 class PortfolioWidget(QtWidgets.QWidget):
     def __init__(self, widget_title, min_function, opt_function):
         super().__init__()
@@ -185,6 +198,10 @@ class PortfolioWidget(QtWidgets.QWidget):
         self.result_table = QtWidgets.QTableWidget()
         self.result_table.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustToContents)
         self.result_table.hide()
+
+        self.error_message = QtWidgets.QLabel("Something Went Wrong; Check Input and Try Again", alignment=QtCore.Qt.AlignHCenter)
+        self.error_message.setFont(get_subtitle_font())
+        self.error_message.hide()
 
         self.left_title = QtWidgets.QLabel("Portfolio")
         self.left_title.setFont(get_subtitle_font())
@@ -205,7 +222,7 @@ class PortfolioWidget(QtWidgets.QWidget):
         self.minimize_button.setAutoDefault(True)
         self.minimize_button.clicked.connect(min_function)
 
-        self.optimize_button = QtWidgets.QPushButton("Optimize Subject To Constraint")
+        self.optimize_button = QtWidgets.QPushButton("Optimize Subject To Constraints")
         self.optimize_button.setAutoDefault(True)
         self.optimize_button.clicked.connect(opt_function)
 
@@ -232,6 +249,7 @@ class PortfolioWidget(QtWidgets.QWidget):
 
         self.first_layer.addWidget(self.title)
         self.first_layer.addWidget(self.result)
+        self.first_layer.addWidget(self.error_message)
         self.first_layer.addWidget(self.result_table, 1)
         self.first_layer.addStretch()
         # Left Panel Layout
@@ -263,6 +281,7 @@ class PortfolioWidget(QtWidgets.QWidget):
         self.portfolio_value.clear()
         self.result_table.clear()
         self.result_table.hide()
+        self.error_message.hide()
         self.result.clear()
         self.result.hide()
 
@@ -271,5 +290,5 @@ class PortfolioWidget(QtWidgets.QWidget):
         self.first_layer.removeWidget(self.result_table)
         self.result_table = QtWidgets.QTableWidget()
         self.result_table.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustToContents)
-        self.first_layer.insertWidget(2, self.result_table, 1)
+        self.first_layer.insertWidget(3, self.result_table, 1)
         self.result_table.hide()

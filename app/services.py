@@ -11,73 +11,191 @@ import util.helper as helper
 
 output = logger.Logger("app.services")
 
-def retrieve_prices_from_cache(ticker, startdate=None, enddate=None):
-    now = datetime.datetime.now()
-    # TODO: if startdate and enddate are supplied need to change timestamp
-    timestamp = '{}{}{}'.format(now.month, now.day, now.year)
-    buffer_store= os.path.join(settings.CACHE_DIR, f'{timestamp}_{ticker}.json')
+def parse_price_from_date(prices, date, asset_type):
+    try:
+        if asset_type == settings.ASSET_EQUITY:
+            return prices[date][settings.AV_RES_EQUITY_CLOSE_PRICE]
+        elif asset_type == settings.ASSET_CRYPTO:
+            return prices[date][settings.AV_RES_CRYPTO_CLOSE_PRICE]
+
+    except:
+        return False
+        
+def retrieve_prices_from_cache(ticker, start_date=None, end_date=None):
+    """
+    Parameters
+    ----------
+    tickers : [ str ]
+        Required. List of ticker symbols corresponding to the price histories to be retrieved.
+    start_date : str
+        Optional. Start date of price history. Must be formatted "YYYY-MM-DD".
+    end_date : str
+        Optional: End date of price history. Must be formatted "YYYY-MM-DD"
     
-    if os.path.isfile(buffer_store):
-        output.debug(f'Loading in cached {ticker} prices...')
-        with open(buffer_store, 'r') as infile:
-            prices = json.load(infile)
+    Notes
+    -----
+    Only recent prices are cached, i.e. the last 100 days of prices. Calls for other periods of time will not be cached and can take considerably longer to load, due to the API rate limits on AlphaVantage. 
+    """
+    buffer_flag = (start_date is None and end_date is None)
+    switch_flag = start_date is not None and end_date is not None
 
-    else:     
-        output.debug(f'Retrieving {ticker} prices from Service Manager...')  
-        prices = get_daily_price_history(ticker=ticker, startdate=startdate, enddate=enddate)
+    if buffer_flag:
+        now = datetime.datetime.now()
+        timestamp = '{}{}{}'.format(now.month, now.day, now.year)
+        buffer_store= os.path.join(settings.CACHE_DIR, f'{timestamp}_{ticker}.{settings.CACHE_EXT}')
+        
+        if os.path.isfile(buffer_store):
+            output.debug(f'Loading in cached {ticker} prices...')
+            with open(buffer_store, 'r') as infile:
+                if settings.CACHE_EXT == "json":
+                    prices = json.load(infile)
+            return prices
 
+    if switch_flag:
+        time_delta = end_date - start_date
+        if time_delta.days < 0:
+            buffer = end_date
+            end_date = start_date
+            start_date = end_date
+    
+    output.debug(f'Retrieving {ticker} prices from Service Manager...')  
+    prices = get_daily_price_history(ticker=ticker, start_date=start_date, end_date=end_date)
+
+    if buffer_flag:
         output.debug(f'Storing {ticker} price history in cache...')
         with open(buffer_store, 'w') as outfile:
-            json.dump(prices, outfile)
+            if settings.CACHE_EXT == "json":
+                json.dump(prices, outfile)
 
     return prices
 
-# Note, by default, AlphaVantage returns last 100 days of prices for equities, while returning the 
-# entire price history for crypto assets by default. By default, this method will return the last 
-# 100 days of prices for any type of asset provided to the input 'ticker'. 
-#
-# TODO: Implement 'startdate' and 'enddate' features
-def get_daily_price_history(ticker, startdate=None, enddate=None):
+def get_daily_price_history(ticker, start_date=None, end_date=None):
+    """
+    Parameters
+    ----------
+    tickers : [ str ]
+        Required. List of ticker symbols corresponding to the price histories to be retrieved.
+    start_date : str
+        Optional. Start date of price history. Must be formatted "YYYY-MM-DD".
+    end_date : str
+        Optional: End date of price history. Must be formatted "YYYY-MM-DD"
+    
+    Notes
+    -----
+
+    By default, AlphaVantage returns the last 100 days of prices for equities, while returning the entire price history for crypto asset. If no start_date or end_date are specified, this function will truncate the crypto price histories to have a length of 100 so the price histories across asset types are the same length. 
+    """
+    # TODO: price histories aren't the same length, though, because of weekends. 
+    # TODO: don't truncate crypto history until len(crypto_prices) - weekends = 100
+    # TODO: need to check if start_date or end_date are today. If end_date is today, set to 
+    #           end_date = None. if start_date is today, return False
+
     asset_type=markets.get_asset_type(ticker)  
 
-    if settings.PRICE_MANAGER == "alpha_vantage":
-        # Retrieve last 100 days of closing prices
-        if startdate is None and enddate is None:
-            query = f'{settings.PARAM_AV_TICKER}={ticker}&{settings.PARAM_AV_KEY}={settings.AV_KEY}'
-
-            if asset_type == settings.ASSET_EQUITY:
-                query += f'&{settings.PARAM_AV_FUNC}={settings.ARG_AV_FUNC_EQUITY_DAILY}'
-
-            elif asset_type == settings.ASSET_CRYPTO:
-                query += f'&{settings.PARAM_AV_FUNC}={settings.ARG_AV_FUNC_CRYPTO_DAILY}&{settings.PARAM_AV_DENOM}={settings.DENOMINATION}'
-
-            else:
+    # Verify dates fall on trading days if asset_type is ASSET_EQUITY
+    if asset_type == settings.ASSET_EQUITY and (start_date is not None or end_date is not None):
+        if start_date is not None:
+            if helper.is_date_holiday(start_date):
+                output.debug('Start Date is a holiday. Equities do not trade on holidays.')
+                return False
+            elif helper.is_date_weekend(start_date):
+                output.debug('Start Date is a weekend. Equities do not trade on weekends.')
+                return False
+        if end_date is not None:
+            if helper.is_date_holiday(end_date):
+                output.debug('End Date is a holiday. Equities do not trade on holidays.')
+                return False
+            elif helper.is_date_weekend(end_date):
+                output.debug('End Date is a weekend. Equities do not trade on weekends.')
                 return False
 
-            url=f'{settings.AV_URL}?{query}'     
-  
-            # NOTE: can probably move all of this below outside of the current conditional and apply all the 
-            #   conditional logic to the url, so this stuff needs to be done just once.
+    if settings.PRICE_MANAGER == "alpha_vantage":
+
+        query = f'{settings.PARAM_AV_TICKER}={ticker}&{settings.PARAM_AV_KEY}={settings.AV_KEY}'
+
+        if asset_type == settings.ASSET_EQUITY:
+            query += f'&{settings.PARAM_AV_FUNC}={settings.ARG_AV_FUNC_EQUITY_DAILY}'
+        elif asset_type == settings.ASSET_CRYPTO:
+            query += f'&{settings.PARAM_AV_FUNC}={settings.ARG_AV_FUNC_CRYPTO_DAILY}&{settings.PARAM_AV_DENOM}={settings.DENOMINATION}'
+        else:
+            return False
+
+            # NOTE: only need to modify EQUITY query, CRYPTO always returns full history
+        if (start_date is not None or end_date is not None) and (asset_type == settings.ASSET_EQUITY):
+            if asset_type == settings.ASSET_EQUITY:
+                query += f'&{settings.PARAM_AV_SIZE}={settings.ARG_AV_SIZE_FULL}'
+
+        url=f'{settings.AV_URL}?{query}'     
+        prices = requests.get(url).json()
+        first_element = helper.get_first_json_key(prices)
+
+        # check for bad response
+        if first_element == settings.AV_RES_ERROR:
+            output.debug(prices[settings.AV_RES_ERROR])
+            return False
+
+        # check and wait for API rate limit refresh
+        first_pass = True
+        while first_element == settings.AV_RES_LIMIT:
+            if first_pass:
+                output.debug('AlphaVantage API rate limit exceeded. Waiting...')
+                first_pass = False
+            else:
+                output.debug('Waiting...')
+            time.sleep(10)
             prices = requests.get(url).json()
-           
-            # check for bad response
             first_element = helper.get_first_json_key(prices)
 
-            if first_element == 'Error Message':
-                output.debug(prices['Error Message'])
-                return False
+        # Equity Response Parsing
+        # TODO: could possibly initial start_index = 0 and end_index = len(prices)
+        #           and then filter through conditional and return prices[start:end]
+        #           no matter what?
+        # NOTE: Remember AlphaVantage is ordered current to earliest. END_INDEX is 
+        # actually the beginning of slice and START_INDEX is actually end of slice. 
+        if asset_type == settings.ASSET_EQUITY:
+            if start_date is not None and end_date is not None:
+                try:
+                    start_string, end_string = helper.date_to_string(start_date), helper.date_to_string(end_date)
+                    start_index = list(prices[settings.AV_RES_EQUITY_FIRST_LAYER].keys()).index(start_string) + 1
+                    end_index = list(prices[settings.AV_RES_EQUITY_FIRST_LAYER].keys()).index(end_string) - 1
+                    prices = dict(itertools.islice(prices[settings.AV_RES_EQUITY_FIRST_LAYER].items(), end_index, start_index))
+                except:
+                    output.sys_error()
+                    output.debug('Indicated dates not found in AlphaVantage Response.')
+                    return False
 
-            # check for API rate limit 
-            while first_element == 'Note':
-                output.debug(f'Waiting for AlphaVantage rate limit to refresh...')
-                time.sleep(10)
-                prices = requests.get(url).json()
-                first_element = helper.get_first_json_key(prices)
+            # TODO: possibly check here if end_date falls outside of 100 day range. 
+            elif start_date is None and end_date is not None:
+                try:
+                    end_string = helper.date_to_string(end_date)
+                    end_index = list(prices[settings.AV_RES_EQUITY_FIRST_LAYER].keys()).index(end_string) + 1
+                    prices = dict(itertools.islice(prices[settings.AV_RES_EQUITY_FIRST_LAYER].items(), end_index))
+                except:
+                    output.debug('End Date not found in AlphaVantage Response.')
+                    return False
 
-            if asset_type == settings.ASSET_EQUITY:
-                return prices[settings.AV_RES_EQUITY_FIRST_LAYER]
+            elif start_date is not None and end_date is None:
+                try:
+                    start_string = helper.date_to_string(start_date)
+                    start_index = list(prices[settings.AV_RES_EQUITY_FIRST_LAYER].keys()).index(start_string) - 1
+                    dict(itertools.islice(prices[settings.AV_RES_EQUITY_FIRST_LAYER].items(), 0, start_index))
+                except:
+                    output.debug('End Date not found in AlphaVantage Response.')
+                    return False
+            
+            else:
+                prices = prices[settings.AV_RES_EQUITY_FIRST_LAYER]
+            return prices
 
-            elif asset_type == settings.ASSET_CRYPTO:
+        # TODO: len(crypto_prices) - weekends. do i want to do it here? or in statistics.py when
+        # the different datasets are actually being compared? probably statistics.py.
+        # NO! because statistics.py will need complete datasets to compare, so it's better
+        # that crypto returns a dataset longer than is needed!
+        #
+        # TODO: can probably set RESPONSE_KEY to asset_type and condense the double conditional
+        # branching down to one branch. will make it simpler.
+        elif asset_type == settings.ASSET_CRYPTO:
+            if start_date is None and end_date is None:
                 truncated_prices, index = {}, 0
                 for date in prices[settings.AV_RES_CRYPTO_FIRST_LAYER]:
                     if index < 100:
@@ -85,28 +203,43 @@ def get_daily_price_history(ticker, startdate=None, enddate=None):
                     else:
                         return truncated_prices
                     index += 1
-                # NOTE: AlphaVantage returns entire history for any crypto API call
-                # unlike the equity API calls, so the response for crypto is truncated
-                # to make sure responses for 'current=True' are of the same length.
 
-        else:
-            if startdate is not None and enddate is not None:
-                # TODO
-                pass
+            elif start_date is not None and end_date is not None:
+                try:
+                    start_string, end_string = helper.date_to_string(start_date), helper.date_to_string(end_date)
+                    start_index = list(prices[settings.AV_RES_CRYPTO_FIRST_LAYER].keys()).index(start_string) + 1 
+                    end_index = list(prices[settings.AV_RES_CRYPTO_FIRST_LAYER].keys()).index(end_string) - 1
+                    prices = dict(itertools.islice(prices[settings.AV_RES_CRYPTO_FIRST_LAYER].items(), end_index, start_index))
+                except:
+                    output.debug('Indicated dates not found in AlphaVantage Response.')
+                    return False
 
-            elif startdate is None and enddate is not None:
-                # TODO
-                pass
+            # TODO: possibly check here if end_date falls outside of 100 day range. 
+            elif start_date is None and end_date is not None:
+                try:
+                    end_string = helper.date_to_string(end_date)
+                    end_index = list(prices[settings.AV_RES_CRYPTO_FIRST_LAYER].keys()).index(end_string) - 1
+                    prices = dict(itertools.islice(prices[settings.AV_RES_CRYPTO_FIRST_LAYER].items(), end_index))
+                except:
+                    output.debug('End Date not found in AlphaVantage Response.')
+                    return False
 
-            elif startdate is not None and enddate is None:
-                # TODO
-                pass
+            elif start_date is not None and end_date is None:
+                try:
+                    start_string = helper.date_to_string(end_date)
+                    start_index = list(prices[settings.AV_RES_CRYPTO_FIRST_LAYER].keys()).index(start_string) + 1
+                    prices = dict(itertools.islice(prices[settings.AV_RES_CRYPTO_FIRST_LAYER].items(), 0, start_index))
+                except:
+                    output.debug('End Date not found in AlphaVantage Response.')
+                    return False
 
             else:
-                # TODO
-                pass
+                prices = prices[settings.AV_RES_CRYPTO_FIRST_LAYER]
+            
+            return prices
+
     else:
-            output.debug("No STAT_MANAGER set in .env file!")
+        output.debug("No STAT_MANAGER set in .env file!")
 
 def get_daily_price_latest(ticker):
     if settings.PRICE_MANAGER == "alpha_vantage":
@@ -124,23 +257,19 @@ def get_daily_price_latest(ticker):
         output.debug("No PRICE_MANAGER set in .env file!")
         return None
 
-def get_daily_stats_history(statistics, startdate=None, enddate=None):
+def get_daily_stats_history(statistics, start_date=None, end_date=None):
     if settings.STAT_MANAGER == "quandl":
         stats = []
         
         for statistic in statistics:
-            if startdate is None and enddate is None:
+            if start_date is None and end_date is None:
                 url = f'{settings.Q_URL}/{settings.PATH_Q_FRED}/{statistic}?{settings.PARAM_Q_KEY}={settings.Q_KEY}'
             
-                response = requests.get(url).json()
-
-                stats.append(response[settings.Q_FIRST_LAYER][settings.Q_SECOND_LAYER])
-
-            elif startdate is None and enddate is not None:
+            elif start_date is None and end_date is not None:
                 # TODO
                 pass
 
-            elif startdate is not None and enddate is None:
+            elif start_date is not None and end_date is None:
                 # TODO
                 pass
 
@@ -148,13 +277,18 @@ def get_daily_stats_history(statistics, startdate=None, enddate=None):
                 # TODO
                 pass
         
+            response = requests.get(url).json()
+
+            # TODO: test for error messages or API rate limits
+
+            stats.append(response[settings.Q_FIRST_LAYER][settings.Q_SECOND_LAYER])
+
         return stats
     else:
         output.debug("No STAT_MANAGER set in .env file!")
         return None
         
 def get_daily_stats_latest(statistics):
-
     if settings.STAT_MANAGER == "quandl":
         current_stats = []
         stats_history = get_daily_stats_history(statistics)
@@ -169,7 +303,6 @@ def get_daily_stats_latest(statistics):
         return None
 
 def init_static_data():
-    
     if settings.INIT or \
         ((not os.path.isfile(settings.STATIC_ECON_FILE)) or \
             (not os.path.isfile(settings.STATIC_TICKERS_FILE)) or \
@@ -181,7 +314,7 @@ def init_static_data():
         # Clear static folder if initializing, otherwise unnecessary
         if settings.INIT:
             output.debug('Initialzing because settings.INIT set to True')
-            helper.clear_dir(settings.STATIC_DIR, retain=True)
+            helper.clear_directory(settings.STATIC_DIR, retain=True, outdated_only=False)
         
         else:
             output.debug('Initializing because settings.STATIC_DIR directory is missing file(s)')
@@ -191,23 +324,23 @@ def init_static_data():
 
             # grab ticker symbols and store in STATIC_DIR
             if not os.path.isfile(settings.STATIC_TICKERS_FILE):
-                output.debug(f'Missing {settings.STATIC_TICKERS_FILE}, querying AlphaVantage...')
+                output.debug(f'Missing {settings.STATIC_TICKERS_FILE}, querying \'{settings.PRICE_MANAGER}\'...')
 
-                query=f'{settings.PARAM_AV_FUNC}={settings.ARG_AV_FUNC_EQUITY_LISTINGS}&{settings.PARAM_AV_KEY}={settings.AV_KEY}'
-                url = f'{settings.AV_URL}?{query}'
+                query=f'{settings.PARAM_AV_FUNC}={settings.ARG_AV_FUNC_EQUITY_LISTINGS}'
+                url = f'{settings.AV_URL}?{query}&{settings.PARAM_AV_KEY}={settings.AV_KEY}'
 
-                output.debug(f'Preparsing to parse AlphaVantage Response to query: {query}')
+                output.debug(f'Preparsing to parse \'{settings.PRICE_MANAGER}\' Response to query: {query}')
                 helper.parse_csv_response_column(column=0, url=url, firstRowHeader=settings.AV_RES_EQUITY_KEY, 
-                                                    savefile=settings.STATIC_TICKERS_FILE)
+                                                    savefile=settings.STATIC_TICKERS_FILE, filetype=settings.STATIC_EXT)
 
             # grab crypto symbols and store in STATIC_DIR
             if not os.path.isfile(settings.STATIC_CRYPTO_FILE):
-                output.debug(f'Missing {settings.STATIC_CRYPTO_FILE}, querying AlphaVantage...')
+                output.debug(f'Missing {settings.STATIC_CRYPTO_FILE}, querying \'{settings.PRICE_MANAGER}\'.')
                 url = settings.AV_CRYPTO_LIST
 
-                output.debug(f'Preparsing to parse AlphaVantage Response to query: {url}')
+                output.debug(f'Preparsing to parse \'{settings.PRICE_MANAGER}\' Response to query: {url}')
                 helper.parse_csv_response_column(column=0, url=url, firstRowHeader=settings.AV_RES_CRYPTO_KEY, 
-                                                    savefile=settings.STATIC_CRYPTO_FILE)
+                                                    savefile=settings.STATIC_CRYPTO_FILE, filetype=settings.STATIC_EXT)
 
         else:
             output.debug("No PRICE_MANAGER set in .env file!")
@@ -217,12 +350,15 @@ def init_static_data():
             
             # grab econominc indicator symbols and store in STATIC_DIR
             if not os.path.isfile(settings.STATIC_ECON_FILE):
-                output.debug(f'Missing {settings.STATIC_ECON_FILE}, querying Quandl...')
+                output.debug(f'Missing {settings.STATIC_ECON_FILE}, querying \'{settings.STAT_MANAGER}\'...')
 
-                url = f'{settings.Q_META_URL}/{settings.PATH_Q_FRED}/{settings.PARAM_Q_METADATA}?{settings.PARAM_Q_KEY}={settings.Q_KEY}'
+                query = f'{settings.PATH_Q_FRED}/{settings.PARAM_Q_METADATA}'
+                url = f'{settings.Q_META_URL}/{query}?{settings.PARAM_Q_KEY}={settings.Q_KEY}'
 
+                output.debug(f'Preparsing to parse \'{settings.PRICE_MANAGER}\' Response to query: {query}')
                 helper.parse_csv_response_column(column=0, url=url, firstRowHeader=settings.Q_RES_STAT_KEY,
-                                                    savefile=settings.STATIC_ECON_FILE, zipped=settings.Q_RES_STAT_ZIP_KEY)
+                                                    savefile=settings.STATIC_ECON_FILE, filetype=settings.STATIC_EXT,
+                                                    zipped=settings.Q_RES_STAT_ZIP_KEY)
 
         else:
             output.debug("No STAT_MANAGER set in .env file!")
