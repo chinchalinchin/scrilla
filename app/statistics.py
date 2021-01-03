@@ -8,6 +8,7 @@ import app.services as services
 import app.markets as markets
 
 import util.logger as logger
+import util.format as formatter
 import util.helper as helper
 
 output = logger.Logger('app.statistics')
@@ -346,7 +347,7 @@ def get_correlation_matrix_string(symbols, indent=0, start_date=None, end_date=N
                 if not result:
                     output.debug(f'Cannot correlation for ({this_symbol}, {that_symbol})')
                     return False
-                formatted_result = str(100*result['correlation'])[:settings.SIG_FIGS]
+                formatted_result = str(100*result['correlation'])[:formatter.SIG_FIGS]
                 new_line += f' {formatted_result}%'
 
         entire_formatted_result += new_line + '\n'

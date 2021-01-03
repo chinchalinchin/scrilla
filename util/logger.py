@@ -2,6 +2,9 @@ import datetime, sys
 import numpy as numpy
 import matplotlib.pyplot as matplotlib
 
+# TODO: possibly pass in DEBUG statically instead 
+#       of a potential circular import
+import app.settings as settings
 import util.format as formatter
 import util.helper as helper
 
@@ -27,7 +30,7 @@ class Logger():
             return [msg]
 
     def debug(self, msg):
-        if formatter.DEBUG:
+        if settings.DEBUG:
             self.comment(msg)
 
     def verbose(self, msg):
