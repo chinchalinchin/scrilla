@@ -172,6 +172,9 @@ class CompositeWidget(SymbolWidget):
             self.figure = None
 
 # Specialized Widget For Portfolio Calculations
+# TODO: remove general optimize button and remove minimize to optimize
+# TODO: perform general optimization if target return is specificed,
+# TODO: otherwise, minimize.
 class PortfolioWidget(QtWidgets.QWidget):
     def __init__(self, widget_title, min_function, opt_function):
         super().__init__()
@@ -205,7 +208,7 @@ class PortfolioWidget(QtWidgets.QWidget):
         self.minimize_button.setAutoDefault(True)
         self.minimize_button.clicked.connect(min_function)
 
-        self.optimize_button = QtWidgets.QPushButton("Optimize Subject To Constraint")
+        self.optimize_button = QtWidgets.QPushButton("Optimize Subject To Constraints")
         self.optimize_button.setAutoDefault(True)
         self.optimize_button.clicked.connect(opt_function)
 
