@@ -59,20 +59,16 @@ def calculate_moving_averages(tickers, start_date=None, end_date=None):
         for ticker in tickers:
             asset_type = markets.get_asset_type(ticker)
             trading_period = markets.get_trading_period(asset_type)
-            new_start_date = start_date - datetime.timedelta(days=settings.MA_3_PERIOD)
+
+            if asset_type == settings.ASSET_CRYPTO:
+                new_start_date = start_date - datetime.timedelta(days=settings.MA_3_PERIOD)
 
             # amend equity trading dates to take account of weekends
-            if asset_type == settings.ASSET_EQUITY:
-                weekends = helper.weekends_between(new_start_date, start_date)
+            elif asset_type == settings.ASSET_EQUITY:
+                new_start_date = helper.decrement_date_by_business_days(days=settings.MA_3_PERIOD)
 
-                trading_weeks, remainder = math.floor(weekends / 5), weekends % 5
-                revised_delta = trading_weeks*2 + remainder + settings.MA_3_PERIOD
-                revised_start_date = start_date - datetime.timedelta(days=revised_delta)
-                
-                while helper.is_date_weekend(revised_start_date):
-                    revised_start_date = revised_start_date - datetime.timedelta(days=1)
-                
-                new_start_date = revised_start_date
+            else:
+                new_start_date = start_date - datetime.timedelta(days=settings.MA_3_PERIOD)
 
             prices = services.retrieve_prices_from_cache(ticker, new_start_date, end_date)
 

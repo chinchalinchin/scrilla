@@ -129,11 +129,21 @@ def consecutive_trading_days(start_date_string, end_date_string) -> bool:
 def dates_between(start_date, end_date):
     return [start_date + datetime.timedelta(x + 1) for x in range((end_date - start_date).days)]
 
+def days_between(start_date, end_date):
+    return (end_date - start_date).days
+
 def business_days_between(start_date, end_date):
     return len([1 for day in dates_between(start_date, end_date) if day.weekday() < 5])
-    
+
 def weekends_between(start_date, end_date):
     return len([1 for day in dates_between(start_date, end_date) if day.weekday() > 4])
+
+def decrement_date_by_business_days(start_date, business_days):
+    days_to_subtract = business_days
+    while days_to_subtract > 0:
+        if not is_date_weekend(start_date) and not is_date_holiday(start_date):
+            days_to_subtract -= 1
+        start_date -= datetime.timedelta(days=1)
 
 ################################################
 ##### PARSING FUNCTIONS
