@@ -66,7 +66,6 @@ def calculate_moving_averages(tickers, start_date=None, end_date=None):
         # TODO: need to pull entire price history from AlphaVantage
 
 # NOTE: assumes price history returns from latest to earliest date.
-    # TODO: don't cache stats if start_date and end_date are specified
 def calculate_risk_return(ticker, start_date=None, end_date=None):
     asset_type = markets.get_asset_type(ticker)
     trading_period = markets.get_trading_period(asset_type)
@@ -85,69 +84,69 @@ def calculate_risk_return(ticker, start_date=None, end_date=None):
                 results = json.load(infile)
             return results
 
-    else:
-        prices = services.retrieve_prices_from_cache(ticker, start_date, end_date)
-        if not prices:
-            output.debug(f'No prices could be retrieved for {ticker}')
-            return False
-        
-        sample = len(prices)
-
-        # calculate sample mean annual return
-        i, mean_return, tomorrows_price = 0, 0, 0 
-        output.debug(f'Calculating mean annual return over last {sample} days for {ticker}')
-
-        for date in prices:
-            todays_price = services.parse_price_from_date(prices, date, asset_type)
-
-            if i != 0:
-                output.verbose(f'{date}: (todays_price, tomorrows_price) = ({todays_price}, {tomorrows_price})')
-                daily_return = numpy.log(float(tomorrows_price)/float(todays_price))/trading_period
-                mean_return = mean_return + daily_return/sample
-                output.verbose(f'{date}: (daily_return, mean_return) = ({round(daily_return, 2)}, {round(mean_return, 2)})')
-
-            else:
-                output.verbose('Skipping first date.')
-                i += 1  
-
-            tomorrows_price = services.parse_price_from_date(prices, date, asset_type)
-            
-        # calculate sample annual volatility
-        i, variance, tomorrows_price = 0, 0, 0
-        mean_mod_return = mean_return*numpy.sqrt(trading_period)
-        output.debug(f'Calculating mean annual volatility over last {sample} days for {ticker}')
-
-        for date in prices:
-            todays_price = services.parse_price_from_date(prices, date, asset_type)
-
-            if i != 0:
-                output.verbose(f'{date}: (todays_price, tomorrows_price) = ({todays_price}, {tomorrows_price})')
-                current_mod_return= numpy.log(float(tomorrows_price)/float(todays_price))/numpy.sqrt(trading_period) 
-                variance = variance + (current_mod_return - mean_mod_return)**2/(sample - 1)
-                output.verbose(f'{date}: (daily_variance, sample_variance) = ({round(current_mod_return, 2)}, {round(variance, 2)})')
-
-            else:
-                i += 1
-
-            tomorrows_price = services.parse_price_from_date(prices, date, asset_type)
-
-        # adjust for output
-        volatility = numpy.sqrt(variance)
-        # ito's lemma
-        mean_return = mean_return + 0.5*(volatility**2)
-        output.debug(f'(mean_return, sample_volatility) = ({round(mean_return, 2)}, {round(volatility, 2)})')
-
-        results = {
-            'annual_return': mean_return,
-            'annual_volatility': volatility
-        }
-
-        # store results in buffer for quick access
-        if start_date is None and end_date is None:
-            output.debug(f'Storing {ticker} statistics in cache...')
-            with open(buffer_store, 'w') as outfile:
-                json.dump(results, outfile)
     
+    prices = services.retrieve_prices_from_cache(ticker, start_date, end_date)
+    if not prices:
+        output.debug(f'No prices could be retrieved for {ticker}')
+        return False
+    
+    sample = len(prices)
+
+    # calculate sample mean annual return
+    i, mean_return, tomorrows_price = 0, 0, 0 
+    output.debug(f'Calculating mean annual return over last {sample} days for {ticker}')
+
+    for date in prices:
+        todays_price = services.parse_price_from_date(prices, date, asset_type)
+
+        if i != 0:
+            output.verbose(f'{date}: (todays_price, tomorrows_price) = ({todays_price}, {tomorrows_price})')
+            daily_return = numpy.log(float(tomorrows_price)/float(todays_price))/trading_period
+            mean_return = mean_return + daily_return/sample
+            output.verbose(f'{date}: (daily_return, mean_return) = ({round(daily_return, 2)}, {round(mean_return, 2)})')
+
+        else:
+            output.verbose('Skipping first date.')
+            i += 1  
+
+        tomorrows_price = services.parse_price_from_date(prices, date, asset_type)
+        
+    # calculate sample annual volatility
+    i, variance, tomorrows_price = 0, 0, 0
+    mean_mod_return = mean_return*numpy.sqrt(trading_period)
+    output.debug(f'Calculating mean annual volatility over last {sample} days for {ticker}')
+
+    for date in prices:
+        todays_price = services.parse_price_from_date(prices, date, asset_type)
+
+        if i != 0:
+            output.verbose(f'{date}: (todays_price, tomorrows_price) = ({todays_price}, {tomorrows_price})')
+            current_mod_return= numpy.log(float(tomorrows_price)/float(todays_price))/numpy.sqrt(trading_period) 
+            variance = variance + (current_mod_return - mean_mod_return)**2/(sample - 1)
+            output.verbose(f'{date}: (daily_variance, sample_variance) = ({round(current_mod_return, 2)}, {round(variance, 2)})')
+
+        else:
+            i += 1
+
+        tomorrows_price = services.parse_price_from_date(prices, date, asset_type)
+
+    # adjust for output
+    volatility = numpy.sqrt(variance)
+    # ito's lemma
+    mean_return = mean_return + 0.5*(volatility**2)
+    output.debug(f'(mean_return, sample_volatility) = ({round(mean_return, 2)}, {round(volatility, 2)})')
+
+    results = {
+        'annual_return': mean_return,
+        'annual_volatility': volatility
+    }
+
+    # store results in buffer for quick access
+    if start_date is None and end_date is None:
+        output.debug(f'Storing {ticker} statistics in cache...')
+        with open(buffer_store, 'w') as outfile:
+            json.dump(results, outfile)
+
     return results
 
 # NOTE: assumes price history returns from latest to earliest date.

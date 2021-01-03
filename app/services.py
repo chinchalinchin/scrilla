@@ -87,6 +87,8 @@ def get_daily_price_history(ticker, start_date=None, end_date=None):
     """
     # TODO: price histories aren't the same length, though, because of weekends. 
     # TODO: don't truncate crypto history until len(crypto_prices) - weekends = 100
+    # TODO: need to check if start_date or end_date are today. If end_date is today, set to 
+    #           end_date = None. if start_date is today, return False
 
     asset_type=markets.get_asset_type(ticker)  
 
@@ -113,10 +115,8 @@ def get_daily_price_history(ticker, start_date=None, end_date=None):
 
         if asset_type == settings.ASSET_EQUITY:
             query += f'&{settings.PARAM_AV_FUNC}={settings.ARG_AV_FUNC_EQUITY_DAILY}'
-
         elif asset_type == settings.ASSET_CRYPTO:
             query += f'&{settings.PARAM_AV_FUNC}={settings.ARG_AV_FUNC_CRYPTO_DAILY}&{settings.PARAM_AV_DENOM}={settings.DENOMINATION}'
-
         else:
             return False
 
@@ -126,9 +126,7 @@ def get_daily_price_history(ticker, start_date=None, end_date=None):
                 query += f'&{settings.PARAM_AV_SIZE}={settings.ARG_AV_SIZE_FULL}'
 
         url=f'{settings.AV_URL}?{query}'     
-
         prices = requests.get(url).json()
-        
         first_element = helper.get_first_json_key(prices)
 
         # check for bad response
@@ -184,7 +182,9 @@ def get_daily_price_history(ticker, start_date=None, end_date=None):
                 except:
                     output.debug('End Date not found in AlphaVantage Response.')
                     return False
-
+            
+            else:
+                prices = prices[settings.AV_RES_EQUITY_FIRST_LAYER]
             return prices
 
         # TODO: len(crypto_prices) - weekends. do i want to do it here? or in statistics.py when
@@ -232,6 +232,9 @@ def get_daily_price_history(ticker, start_date=None, end_date=None):
                 except:
                     output.debug('End Date not found in AlphaVantage Response.')
                     return False
+
+            else:
+                prices = prices[settings.AV_RES_CRYPTO_FIRST_LAYER]
             
             return prices
 

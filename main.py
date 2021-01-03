@@ -66,13 +66,18 @@ if __name__ == "__main__":
             for xtra in xtra_args:
                 i = xtra_args.index(xtra)
                 output.debug(f'Extra Argument: {xtra} = {xtra_values[i]}')
+            
+            # Parse additional arguments or set to None
+            start_date = helper.get_start_date(xtra_args, xtra_values)
+            end_date = helper.get_end_date(xtra_args, xtra_values)
+            save_file = helper.get_save_file(xtra_args, xtra_values)
 
             output.title_line('Results')
             output.line()
 
             # Asset Grouping
             if opt == formatter.FUNC_ARG_DICT['asset_type']:
-                for arg in args:
+                for arg in main_args:
                     asset_type = markets.get_asset_type(arg)
                     if asset_type:
                         output.string_result(f'asset_type({arg})', asset_type)
@@ -82,34 +87,35 @@ if __name__ == "__main__":
 
             # Correlation Matrix
             elif opt == formatter.FUNC_ARG_DICT["correlation"]:
-                if(len(args) > 1):
-                    result = statistics.get_correlation_matrix_string(args, settings.INDENT)
+                if(len(main_args) > 1):
+                    result = statistics.get_correlation_matrix_string(symbols=main_args, indent=settings.INDENT, 
+                                                                        start_date=start_date, end_date=end_date)
                     output.comment(f'\n{result}')
 
                 else:
                     output.comment('Invalid Input. Try -ex Flag For Example Usage.')
             
             elif opt == formatter.FUNC_ARG_DICT["economic_indicator"]:
-                if(len(args)>1) or len(args)==1:
-                    stats = services.get_daily_stats_latest(args)
+                if(len(main_args)>1) or len(main_args)==1:
+                    stats = services.get_daily_stats_latest(main_args)
                     for i in range(len(stats)):
-                        output.scalar_result(args[i], stats[i])
+                        output.scalar_result(main_args[i], stats[i])
                     
                 else:
                     output.comment('Error Encountered While Calculating. Try -ex Flag For Example Usage.')
 
             elif opt == formatter.FUNC_ARG_DICT['efficient_frontier']:
-                if(len(args)>1):
-                    frontier = optimizer.calculate_efficient_frontier(equities=args)
-                    output.efficient_frontier(portfolio=Portfolio(args), frontier=frontier,
+                if(len(main_args)>1):
+                    frontier = optimizer.calculate_efficient_frontier(equities=main_args)
+                    output.efficient_frontier(portfolio=Portfolio(main_args), frontier=frontier,
                                                 user_input=settings.INVESTMENT_MODE)
                 
                 else: 
                     output.debug('Invalid Input. Try -ex Flag For Example Usage.')
 
             elif opt == formatter.FUNC_ARG_DICT["last_close"]:
-                if(len(args)>1) or len(args)==1:
-                    for arg in args:
+                if(len(main_args)>1) or len(main_args)==1:
+                    for arg in main_args:
                         price = services.get_daily_price_latest(arg)
                         output.scalar_result(arg, float(price))
                     
@@ -117,36 +123,36 @@ if __name__ == "__main__":
                     output.comment('Error Encountered While Calculating. Try -ex Flag For Example Usage.')
                     
             elif opt == formatter.FUNC_ARG_DICT['maximize_return']:
-                if (len(args)>1):
-                    allocation = optimizer.maximize_portfolio_return(equities=args)
-                    output.optimal_result(portfolio=Portfolio(args), allocation=allocation, 
+                if (len(main_args)>1):
+                    allocation = optimizer.maximize_portfolio_return(equities=main_args)
+                    output.optimal_result(portfolio=Portfolio(main_args), allocation=allocation, 
                                             user_input=settings.INVESTMENT_MODE)
 
                 else:
                     output.comment('Invalid Input. Try -ex Flag For Example Usage.')
                     
             elif opt == formatter.FUNC_ARG_DICT['minimize_variance']:
-                if(len(args)>1):
-                    allocation = optimizer.minimize_portfolio_variance(equities=args)
-                    output.optimal_result(portfolio=Portfolio(args), allocation=allocation,
+                if(len(main_args)>1):
+                    allocation = optimizer.minimize_portfolio_variance(equities=main_args)
+                    output.optimal_result(portfolio=Portfolio(main_args), allocation=allocation,
                                             user_input=settings.INVESTMENT_MODE)
                 else: 
                     output.comment('Invalid Input. Try -ex Flag For Example Usage.')
 
             elif opt == formatter.FUNC_ARG_DICT['moving_averages']:
-                if(len(args)>1) or len(args)==1:
-                    moving_averages = statistics.calculate_moving_averages(args)
+                if(len(main_args)>1) or len(main_args)==1:
+                    moving_averages = statistics.calculate_moving_averages(main_args, start_date, end_date)
                     periods = [settings.MA_1_PERIOD, settings.MA_2_PERIOD, settings.MA_3_PERIOD]
-                    output.moving_average_result(args, moving_averages, periods)
+                    output.moving_average_result(main_args, moving_averages, periods)
 
                 else: 
                     output.comment('Invalid Input. Try -ex Flag For Example Usage.')
 
             elif opt == formatter.FUNC_ARG_DICT['optimize_portfolio']:
-                if (len(args)>1):
+                if (len(main_args)>1):
                     try:
-                        target_return = float(args[len(args)-1])
-                        equities = args[:(len(args)-1)]
+                        target_return = float(args[len(main_args)-1])
+                        equities = main_args[:(len(main_args)-1)]
 
                         allocation = optimizer.optimize_portfolio(equities=equities, target_return=target_return)   
                         output.optimal_result(portfolio=Portfolio(equities), allocation=allocation,
@@ -160,12 +166,7 @@ if __name__ == "__main__":
                     output.comment('Invalid Input. Try -ex Flag For Example Usage.')
             
             elif opt == formatter.FUNC_ARG_DICT['plot_frontier'] and settings.ENVIRONMENT != "container":
-                if(len(args)>1):
-                    if formatter.FUNC_XTRA_ARGS_DICT['save'] in xtra_args:
-                        save_file = xtra_values[xtra_args.index(formatter.FUNC_XTRA_ARGS_DICT['save'])]
-                    else:
-                        save_file = None
-
+                if(len(main_args)>1):
                     frontier = optimizer.calculate_efficient_frontier(equities=main_args)
                     plotter.plot_frontier(portfolio=Portfolio(main_args), frontier=frontier, show=True, savefile=save_file)
                 
@@ -173,13 +174,8 @@ if __name__ == "__main__":
                     output.debug('Invalid Input. Try Try -ex Flag For Example Usage.')
 
             elif opt == formatter.FUNC_ARG_DICT['plot_moving_averages'] and settings.ENVIRONMENT != "container":
-                if(len(args)>1) or len(args)==1:
-                    if formatter.FUNC_XTRA_ARGS_DICT['save'] in xtra_args:
-                        save_file = xtra_values[xtra_args.index(formatter.FUNC_XTRA_ARGS_DICT['save'])]
-                    else:
-                        save_file = None
-
-                    moving_averages = statistics.calculate_moving_averages(main_args)
+                if(len(main_args)>1) or len(main_args)==1:
+                    moving_averages = statistics.calculate_moving_averages(main_args, start_date, end_date)
                     periods = [settings.MA_1_PERIOD, settings.MA_2_PERIOD, settings.MA_3_PERIOD]
                     plotter.plot_moving_averages(symbols=main_args, averages=moving_averages, periods=periods, 
                                                     show=True, savefile=save_file)
@@ -188,30 +184,19 @@ if __name__ == "__main__":
                     output.debug('Invalid Input. Try Try -ex Flag For Example Usage.')
 
             elif opt == formatter.FUNC_ARG_DICT['plot_risk_profile']:
-                if len(args) > 0:
+                if len(main_args) > 0:
                     profiles = []
-                    for arg in args:
-                        profiles.append(statistics.calculate_risk_return(arg))
-                    plotter.plot_profiles(symbols=args, profiles=profiles, show=True, savefile=save_file)
+                    for arg in main_args:
+                        profiles.append(statistics.calculate_risk_return(arg, start_date, end_date))
+                    
+                    plotter.plot_profiles(symbols=main_args, profiles=profiles, show=True, savefile=save_file, 
+                                            subtitle=helper.format_date_range(start_date, end_date))
                 
                 else:
                     output.debug('Invalid Input. Try Try -ex Flag For Example Usage.')
                     
             elif opt == formatter.FUNC_ARG_DICT["risk_return"]:
-                if(len(args)>1) or len(args)==1:
-
-                    if formatter.FUNC_XTRA_ARGS_DICT['start_date'] in xtra_args:
-                        unparsed_start = xtra_values[xtra_args.index(formatter.FUNC_XTRA_ARGS_DICT['start_date'])]
-                        start_date = helper.parse_date_string(unparsed_start)
-                    else:
-                        start_date = None
-                    
-                    if formatter.FUNC_XTRA_ARGS_DICT['end_date'] in xtra_args:
-                        unparsed_end = xtra_values[xtra_args.index(formatter.FUNC_XTRA_ARGS_DICT['end_date'])]
-                        end_date = helper.parse_date_string(unparsed_end)
-                    else:
-                        end_date = None
-
+                if(len(main_args)>1) or len(main_args)==1:
                     for arg in main_args:
                         result = statistics.calculate_risk_return(arg, start_date, end_date)
                         if result:

@@ -6,6 +6,7 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 
 import util.formatting as formatter
+import util.helper as helper
 
 matplotlib.use("Qt5Agg")
 
@@ -44,7 +45,7 @@ def plot_frontier(portfolio, frontier, show=True, savefile=None):
     else:
         return canvas
 
-def plot_profiles(symbols, profiles, show=True, savefile=None):
+def plot_profiles(symbols, profiles, show=True, savefile=None, subtitle=None):
     canvas = FigureCanvas(Figure())
 
     no_symbols = len(symbols)
@@ -55,7 +56,9 @@ def plot_profiles(symbols, profiles, show=True, savefile=None):
         if symbols.index(symbol) != (len(symbols)-1):
             title += symbol +", "
         else:
-            title += symbol +") Risk-Return Profile"
+            title += symbol +') Risk-Return Profile'
+            if subtitle is not None:
+                title += "\n" + subtitle
 
     return_profile, risk_profile = [], []
     for profile in profiles:

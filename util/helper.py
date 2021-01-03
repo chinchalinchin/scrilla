@@ -4,18 +4,8 @@ import requests
 
 import util.formatting as formatter
 
-def separate_args(args):
-    extra_args, extra_values, reduced_args= [], [], args
-    offset = 0
-    for arg in args:
-        if arg in formatter.FUNC_XTRA_ARGS_DICT.values():
-            extra_args.append(arg)
-            extra_values.append(args[args.index(arg)+1])
-    for arg in extra_args:
-        reduced_args.remove(arg)
-    for arg in extra_values:
-        reduced_args.remove(arg)
-    return extra_args, extra_values, reduced_args
+################################################
+##### FORMATTING FUNCTIONS
 
 def get_number_input(msg_prompt) -> str:
     while True:
@@ -24,15 +14,15 @@ def get_number_input(msg_prompt) -> str:
             return user_input
         else:
             print('Input Not Understood. Please Enter A Numerical Value.')
-
-def is_non_zero_file(fpath):  
-    return os.path.isfile(fpath) and os.path.getsize(fpath) > 0
     
 def strip_string_array(array) -> [str]:
     new_array = []
     for string in array:
         new_array.append(string.strip())
     return new_array
+
+################################################
+##### DATE FUNCTIONS
 
 # YYYY-MM-DD
 def parse_date_string(date_string) -> datetime.date:
@@ -50,8 +40,17 @@ def date_to_string(date) -> str:
         day_string = "0"+str(day)
     else:
         day_string = str(day)
-    print('date-to-string',f'{date.year}-{month_string}-{day_string}')
     return f'{date.year}-{month_string}-{day_string}'
+
+def format_date_range(start_date, end_date):
+    result = ""
+    if start_date is not None:
+        start_string = date_to_string(start_date)
+        result += f'From {start_string}'
+    if end_date is not None:
+        end_string = date_to_string(end_date)
+        result += f' Until {end_string}'
+    return result
 
 def is_date_weekend(date) -> bool:
     if date.weekday() in [5, 6]:
@@ -126,6 +125,22 @@ def consecutive_trading_days(start_date_string, end_date_string) -> bool:
 
     else:
         return False
+
+################################################
+##### PARSING FUNCTIONS
+
+def separate_args(args):
+    extra_args, extra_values, reduced_args= [], [], args
+    offset = 0
+    for arg in args:
+        if arg in formatter.FUNC_XTRA_ARGS_DICT.values():
+            extra_args.append(arg)
+            extra_values.append(args[args.index(arg)+1])
+    for arg in extra_args:
+        reduced_args.remove(arg)
+    for arg in extra_values:
+        reduced_args.remove(arg)
+    return extra_args, extra_values, reduced_args
 
 def get_start_date(xtra_args, xtra_values):
     if formatter.FUNC_XTRA_ARGS_DICT['start_date'] in xtra_args:
@@ -216,6 +231,9 @@ def parse_csv_response_column(column, url, firstRowHeader=None, savefile=None, f
 
     return col
 
+################################################
+##### FILE MANAGEMENT FUNCTIONS
+
 def clear_directory(directory, retain=True, outdated_only=False):
     filelist = [ f for f in os.listdir(directory)]
 
@@ -242,3 +260,6 @@ def clear_directory(directory, retain=True, outdated_only=False):
         else:
             for f in filelist:
                 os.remove(os.path.join(directory, f))
+
+def is_non_zero_file(fpath):  
+    return os.path.isfile(fpath) and os.path.getsize(fpath) > 0
