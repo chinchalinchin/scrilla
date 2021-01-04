@@ -126,21 +126,45 @@ def consecutive_trading_days(start_date_string, end_date_string) -> bool:
     else:
         return False
 
+def dates_between(start_date, end_date):
+    return [start_date + datetime.timedelta(x + 1) for x in range((end_date - start_date).days)]
+
+def days_between(start_date, end_date):
+    return (end_date - start_date).days
+
+def business_days_between(start_date, end_date):
+    return len([1 for day in dates_between(start_date, end_date) if day.weekday() < 5])
+
+def weekends_between(start_date, end_date):
+    return len([1 for day in dates_between(start_date, end_date) if day.weekday() > 4])
+
+def decrement_date_by_business_days(start_date, business_days):
+    days_to_subtract = business_days
+    while days_to_subtract > 0:
+        if not is_date_weekend(start_date) and not is_date_holiday(start_date):
+            days_to_subtract -= 1
+        start_date -= datetime.timedelta(days=1)
+
 ################################################
 ##### PARSING FUNCTIONS
 
 def separate_args(args):
-    extra_args, extra_values, reduced_args= [], [], args
+    extra_args, extra_values= [], []
+    reduced_args = args
     offset = 0
+    
     for arg in args:
         if arg in formatter.FUNC_XTRA_ARGS_DICT.values():
             extra_args.append(arg)
             extra_values.append(args[args.index(arg)+1])
+
     for arg in extra_args:
         reduced_args.remove(arg)
+
     for arg in extra_values:
         reduced_args.remove(arg)
-    return extra_args, extra_values, reduced_args
+
+    return (extra_args, extra_values, reduced_args)
 
 def get_start_date(xtra_args, xtra_values):
     if formatter.FUNC_XTRA_ARGS_DICT['start_date'] in xtra_args:

@@ -143,7 +143,7 @@ if __name__ == "__main__":
                 if(len(main_args)>1) or len(main_args)==1:
                     moving_averages = statistics.calculate_moving_averages(main_args, start_date, end_date)
                     periods = [settings.MA_1_PERIOD, settings.MA_2_PERIOD, settings.MA_3_PERIOD]
-                    output.moving_average_result(main_args, moving_averages, periods)
+                    output.moving_average_result(main_args, moving_averages, periods, start_date, end_date)
 
                 else: 
                     output.comment('Invalid Input. Try -ex Flag For Example Usage.')

@@ -103,16 +103,30 @@ class Logger():
         for i in range(len(tickers)):
             print(' '*formatter.INDENT, f'{tickers[i]} =', result[i])
 
-    def moving_average_result(self, tickers, averages, periods):
+    def moving_average_result(self, tickers, averages, periods, start_date = None, end_date = None):
         MA1_prefix, MA2_prefix, MA3_prefix = f'MA({periods[0]})', f'MA({periods[1]})', f'MA({periods[2]})'
-        for i in range(len(tickers)):
-            title = f'{tickers[i]} Moving Average of Daily Return for {periods[0]}, {periods[1]} & {periods[0]} Days'
-            self.title_line(title)
+        if start_date is None and end_date is None:
+            for i in range(len(tickers)):
+                title = f'{tickers[i]} Moving Average of Daily Return for {periods[0]}, {periods[1]} & {periods[0]} Days'
+                self.title_line(title)
 
-            MA1_title, MA2_title, MA3_title = f'{MA1_prefix}_{tickers[i]}', f'{MA2_prefix}_{tickers[i]}', f'{MA3_prefix}_{tickers[i]}'
-            self.scalar_result(MA1_title, round(averages[i][0], 2))
-            self.scalar_result(MA2_title, round(averages[i][1], 2))
-            self.scalar_result(MA3_title, round(averages[i][2], 2))
+                MA1_title, MA2_title, MA3_title = f'{MA1_prefix}_{tickers[i]}', f'{MA2_prefix}_{tickers[i]}', f'{MA3_prefix}_{tickers[i]}'
+                self.scalar_result(MA1_title, round(averages[i][0], 2))
+                self.scalar_result(MA2_title, round(averages[i][1], 2))
+                self.scalar_result(MA3_title, round(averages[i][2], 2))
+        else:
+            dates = helper.dates_between(start_date, end_date)
+            for i in range(len(tickers)):
+                title = f'{tickers[i]} Moving Average of Daily Return for {periods[0]}, {periods[1]} & {periods[0]} Days'
+                self.title_line(title)
+
+                MA1_title, MA2_title, MA3_title = f'{MA1_prefix}_{tickers[i]}', f'{MA2_prefix}_{tickers[i]}', f'{MA3_prefix}_{tickers[i]}'
+                count = 0
+                for j in range(len(dates)):
+                    msg_1, msg_2, msg_3 = f'{dates[j]} : {MA1_title}', f'{dates[j]} : {MA2_title}', f'{dates[j]} : {MA3_title}'
+                    self.scalar_result(msg_1, round(averages[i][0][j], 2))
+                    self.scalar_result(msg_2, round(averages[i][1][j], 2))
+                    self.scalar_result(msg_3, round(averages[i][2][j], 2))                    
 
     def optimal_result(self, portfolio, allocation, user_input):
         self.title_line('Optimal Percentage Allocation')
