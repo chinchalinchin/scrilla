@@ -262,20 +262,19 @@ def get_daily_stats_history(statistics, start_date=None, end_date=None):
         stats = []
         
         for statistic in statistics:
-            if start_date is None and end_date is None:
-                url = f'{settings.Q_URL}/{settings.PATH_Q_FRED}/{statistic}?{settings.PARAM_Q_KEY}={settings.Q_KEY}'
+            url = f'{settings.Q_URL}/{settings.PATH_Q_FRED}/{statistic}?{settings.PARAM_Q_KEY}={settings.Q_KEY}'
+            query = ""
             
-            elif start_date is None and end_date is not None:
-                # TODO
+            if end_date is not None:
+                end_string = helper.date_to_string(end_date)
+                query += f'&{settings.PARAM_Q_END}={end_string}' 
                 pass
 
-            elif start_date is not None and end_date is None:
-                # TODO
-                pass
+            if start_date is not None:
+                start_string = helper.date_to_string(start_date)
+                query += f'&{settings.PARAM_Q_END}={end_string}'
 
-            else:
-                # TODO
-                pass
+            url += query
         
             response = requests.get(url).json()
 
