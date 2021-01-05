@@ -88,13 +88,14 @@ def plot_profiles(symbols, profiles, show=True, savefile=None, subtitle=None):
     # create barchart of moving averages as of today
 # if len(averages) > (# of moving averages)*(# of symbols)
     # create line plot with three series for all available samples
-def plot_moving_averages(symbols, averages, periods, show=True, savefile=None):
+def plot_moving_averages(symbols, averages, periods, show=True, savefile=None, dates=None):
     canvas = FigureCanvas(Figure())
 
     width = formatter.BAR_WIDTH
     x = numpy.arange(len(symbols))
     axes = canvas.figure.subplots()
     
+    print(averages)
     ma1s, ma2s, ma3s = [], [], []
     for i in range(len(symbols)):
         ma1s.append(averages[i][0])

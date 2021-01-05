@@ -228,10 +228,10 @@ class MovingAverageWidget(GraphWidget):
             self.figure = None
             time.sleep(1)
         user_symbols = helper.strip_string_array(self.symbol_input.text().upper().split(","))
-        moving_averages = statistics.calculate_moving_averages(user_symbols)
+        moving_averages, dates = statistics.calculate_moving_averages(user_symbols)
         periods = [settings.MA_1_PERIOD, settings.MA_2_PERIOD, settings.MA_3_PERIOD]
         figure = plotter.plot_moving_averages(symbols=user_symbols, averages=moving_averages, 
-                                                periods=periods, show=False)
+                                                periods=periods, show=False, dates=dates)
         self.figure = figure
         self.layout.insertWidget(1, self.figure, 1)
         self.displayed = True

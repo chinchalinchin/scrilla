@@ -243,8 +243,8 @@ if STAT_MANAGER == "quandl":
     if credential_overrides is not None and new_creds is not None and 'ALPHA_VANTAGE_KEY' in credential_overrides:
         new_creds['ALPHA_VANTAGE_KEY'] = credential_overrides['ALPHA_VANTAGE_KEY']
 
-    with open(CONFIG_FILE, 'w') as outfile:
-        json.dump(new_creds, outfile)
+        with open(CONFIG_FILE, 'w') as outfile:
+            json.dump(new_creds, outfile)
 
     # Metadata Endpoints
     Q_META_URL = os.getenv('QUANDL_META_URL')
