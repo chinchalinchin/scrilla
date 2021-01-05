@@ -255,9 +255,19 @@ if STAT_MANAGER == "quandl":
     Q_RES_STAT_KEY="code"
     Q_RES_STAT_ZIP_KEY="FRED_metadata.csv"
     
+    # Special Endpoints
+    ENDPOINT_Q_YIELD_CURVE = {
+        '3-Month': 'DTB3',
+        '5-Year': 'DGS5',
+        '10-Year': 'DGS10',
+        '30-Year': 'DGS30'
+    }
+    
     # Path Paramaters
     PATH_Q_FRED ="FRED"
     
     # Query Parameters
     PARAM_Q_KEY="api_key"
     PARAM_Q_METADATA="metadata.json"
+    PARAM_Q_START="start_date"
+    PARAM_Q_END="end_date"
