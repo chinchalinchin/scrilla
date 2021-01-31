@@ -75,6 +75,7 @@ if __name__ == "__main__":
             start_date = helper.get_start_date(xtra_args, xtra_values)
             end_date = helper.get_end_date(xtra_args, xtra_values)
             save_file = helper.get_save_file(xtra_args, xtra_values)
+            target = helper.get_target(xtra_args, xtra_values)
 
             output.title_line('Results')
             output.line()
@@ -154,17 +155,12 @@ if __name__ == "__main__":
 
             elif opt == formatter.FUNC_ARG_DICT['optimize_portfolio']:
                 if (len(main_args)>1):
-                    try:
-                        target_return = float(args[len(main_args)-1])
-                        equities = main_args[:(len(main_args)-1)]
-
-                        allocation = optimizer.optimize_portfolio(equities=equities, target_return=target_return)   
-                        output.optimal_result(portfolio=Portfolio(equities), allocation=allocation,
-                                                user_input=settings.INVESTMENT_MODE)
-
-                    except: 
-                        output.sys_error()
-                        output.comment('No Target Return Specified. Try -ex Flag For Example Usage.')
+                        if target is not None:
+                            allocation = optimizer.optimize_portfolio(equities=main_args, target_return=target)   
+                            output.optimal_result(portfolio=Portfolio(main_args), allocation=allocation,
+                                                    user_input=settings.INVESTMENT_MODE)
+                        else:
+                            output.comment('No Target Return Specified. Try -ex Flag For Example Usage.')
                 
                 else: 
                     output.comment('Invalid Input. Try -ex Flag For Example Usage.')
