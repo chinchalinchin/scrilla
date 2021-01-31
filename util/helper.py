@@ -191,7 +191,10 @@ def get_save_file(xtra_args, xtra_values):
 
 def get_target(xtra_args, xtra_values):
     if formatter.FUNC_XTRA_ARGS_DICT['target'] in xtra_args:
-        target = xtra_values[xtra_args.index(formatter.FUNC_XTRA_ARGS_DICT['target'])]
+        try:
+            target = float(xtra_values[xtra_args.index(formatter.FUNC_XTRA_ARGS_DICT['target'])])
+        except:
+            target = None
     else:
         target = None
     return target
