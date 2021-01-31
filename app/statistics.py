@@ -80,7 +80,9 @@ def calculate_moving_averages(tickers, start_date=None, end_date=None):
             tomorrows_price, MA_1, MA_2, MA_3
             MAs_1, MAs_2, MAs_3 = [], [], []
 
-            # TODO: this is totally fucked. needs a redo.
+            # TODO: this is totally fucked. needs a redo. no clue what I was thinking.
+            #
+            # TODO: !!!!!
             for date in prices:
                 todays_price = services.parse_price_from_date(prices, date, asset_type)
                 if today:
