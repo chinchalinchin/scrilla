@@ -1,9 +1,0 @@
-.gitignore
-.env
-/static/creds/config.json
-/cache/*
-!/cache/.gitkeep
-/static/*
-!/static/.gitkeep
-!/static/creds/.gitkeep
-*.pyc
