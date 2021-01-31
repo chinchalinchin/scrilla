@@ -22,6 +22,8 @@ def calculate_moving_averages(tickers, start_date=None, end_date=None):
 
     if start_date is None and end_date is None:
         for ticker in tickers:
+            output.verbose(f'Calculating Moving Average For {ticker}')
+
             prices = services.retrieve_prices_from_cache(ticker, start_date, end_date)
             asset_type = markets.get_asset_type(ticker)
             trading_period = markets.get_trading_period(asset_type)
@@ -49,6 +51,7 @@ def calculate_moving_averages(tickers, start_date=None, end_date=None):
 
                 tomorrows_price = services.parse_price_from_date(prices, date, asset_type)
 
+            output.verbose(f'(MA_1, MA_2, MA_3)_{ticker} = ({MA_1}, {MA_2}, {MA_3}')
             moving_averages.append([MA_1, MA_2, MA_3])
 
         return (moving_averages, None)
@@ -73,16 +76,18 @@ def calculate_moving_averages(tickers, start_date=None, end_date=None):
             prices = services.retrieve_prices_from_cache(ticker, new_start_date, end_date)
 
             today = False
-            count, tomorrows_price, MA_1, MA_2, MA_3 = 1, 0
-            MA_1, MA_2, MA_3 = [], [], []
+            count= 1
+            tomorrows_price, MA_1, MA_2, MA_3
+            MAs_1, MAs_2, MAs_3 = [], [], []
 
+            # TODO: this is totally fucked. needs a redo.
             for date in prices:
                 todays_price = services.parse_price_from_date(prices, date, asset_type)
                 if today:
                    todays_return = numpy.log(float(tomorrows_price) / float(todays_price))/trading_period
                
-                   for MA in MA_1:
-                       if len(MA_1) - MA_1.index(MA) + 1 < settings.MA_1_PERIOD:
+                   for MA in MAs_1:
+                       if len(MAs_1) - MAs_1.index(MA) + 1 < settings.MA_1_PERIOD:
                            MA += todays_return / settings.MA_1_PERIOD
                    MA_1.append( (todays_return / settings.MA_1_PERIOD) )
          

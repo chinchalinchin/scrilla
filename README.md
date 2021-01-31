@@ -62,6 +62,10 @@ to perform the same operation as the following command performed in the project 
 
 7. Return None instead of False when errors are encountered in methods, so methods can have strict typing. Better for documentation! 
 
+8. set up argument parsing for Investment Mode so user doesn't have to change .env variable to use Investment Mode from cli.
+
+9. Hook up 'Optimize' widget to optimize subject to constraint.
+
 ### NOTE
 
 The first time this application is run it retrieves a large amount of static data and stores it in the <b>/static/</b> folder. The first call of the function may take some time, but subsequent calls, assuming you do not have the environment variable <b>INIT</b> = <b>True</b>, should not take anywhere near as long.

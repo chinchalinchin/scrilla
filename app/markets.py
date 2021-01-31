@@ -5,7 +5,8 @@ import app.services as services
 def get_asset_type(symbol):
     symbols = list(services.get_static_data(settings.ASSET_CRYPTO))
 
-    if symbol in symbols:
+    # TODO: need to differentiate between GLD etf and GLD crypto somehow!
+    if symbol in symbols and symbol != 'GLD':
         return settings.ASSET_CRYPTO
         
     else:

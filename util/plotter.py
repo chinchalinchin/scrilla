@@ -88,30 +88,50 @@ def plot_profiles(symbols, profiles, show=True, savefile=None, subtitle=None):
     # create barchart of moving averages as of today
 # if len(averages) > (# of moving averages)*(# of symbols)
     # create line plot with three series for all available samples
-def plot_moving_averages(symbols, averages, periods, show=True, savefile=None):
+def plot_moving_averages(symbols, averages_output, periods, show=True, savefile=None):
+    averages, dates = averages_output
     canvas = FigureCanvas(Figure())
-
-    width = formatter.BAR_WIDTH
-    x = numpy.arange(len(symbols))
     axes = canvas.figure.subplots()
-    
     ma1s, ma2s, ma3s = [], [], []
-    for i in range(len(symbols)):
-        ma1s.append(averages[i][0])
-        ma2s.append(averages[i][1])
-        ma3s.append(averages[i][2])
-    
-    ma1_label, ma2_label, ma3_label = f'MA({periods[0]})', f'MA({periods[1]})', f'MA({periods[2]})'
 
-    axes.bar(x + width, ma1s, width, label=ma1_label)
-    axes.bar(x, ma2s, width, label=ma2_label)
-    axes.bar(x - width, ma3s, width, label=ma3_label)
 
-    axes.set_ylabel('Moving Average of Daily Return')
-    axes.set_title('Moving Averages of Daily Return Grouped By Equity')
-    axes.set_xticks(x)
-    axes.set_xticklabels(symbols)
-    axes.legend()
+    if dates is None:
+        for i in range(len(symbols)):
+            ma1s.append(averages[i][0])
+            ma2s.append(averages[i][1])
+            ma3s.append(averages[i][2])
+        
+        ma1_label, ma2_label, ma3_label = f'MA({periods[0]})', f'MA({periods[1]})', f'MA({periods[2]})'
+
+        # Bar Chart Variables
+        width = formatter.BAR_WIDTH
+        x = numpy.arange(len(symbols))
+
+        axes.bar(x + width, ma1s, width, label=ma1_label)
+        axes.bar(x, ma2s, width, label=ma2_label)
+        axes.bar(x - width, ma3s, width, label=ma3_label)
+
+        axes.set_ylabel('Moving Average of Daily Return')
+        axes.set_title('Moving Averages of Daily Return Grouped By Equity')
+        axes.set_xticks(x)
+        axes.set_xticklabels(symbols)
+        axes.legend()
+
+    else:
+        # TODO: create line plot of moving averages over specified period
+        # AVERAGES FORMAT: [ticker][date][period]
+        #
+        # for i in range(len(symobls)):
+        #   for j in range(len(dates)):
+        #       MA_1 = averages[i][j][0]
+        #       ma1s.append(MA_1)
+        #                         
+        #       MA_2 = averages[i][j][1]
+        #       ma2s.append(MA_2)
+        #
+        #       MA_3 = averages[i][j][2]
+        #       ma3s.append(MA_3)
+        pass
 
     if savefile is not None:
         canvas.print_jpeg(filename_or_obj=savefile)
