@@ -179,7 +179,7 @@ if __name__ == "__main__":
 
             elif opt == formatter.FUNC_ARG_DICT['plot_moving_averages'] and settings.ENVIRONMENT != "container":
                 if(len(main_args)>1) or len(main_args)==1:
-                    moving_averages = statistics.calculate_moving_averages(main_args, start_date, end_date)
+                    moving_averages, dates = statistics.calculate_moving_averages(main_args, start_date, end_date)
                     periods = [settings.MA_1_PERIOD, settings.MA_2_PERIOD, settings.MA_3_PERIOD]
                     plotter.plot_moving_averages(symbols=main_args, averages_output=moving_averages, periods=periods, 
                                                     show=True, savefile=save_file)

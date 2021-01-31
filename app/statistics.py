@@ -54,7 +54,7 @@ def calculate_moving_averages(tickers, start_date=None, end_date=None):
             output.verbose(f'(MA_1, MA_2, MA_3)_{ticker} = ({MA_1}, {MA_2}, {MA_3}')
             moving_averages.append([MA_1, MA_2, MA_3])
 
-        return (moving_averages, None)
+        return moving_averages, None
 
     else:
         # get period of time consistent with MA Periods
@@ -116,7 +116,7 @@ def calculate_moving_averages(tickers, start_date=None, end_date=None):
         #       if everything has been done correctly, that is!
         print('len(moving_averages[0]) =', len(moving_averages[0]))
         print('len(dates_between) = ', len(dates_between))
-        return (moving_averages, dates_between) 
+        return moving_averages, dates_between 
 
 # NOTE: assumes price history returns from latest to earliest date.
 def calculate_risk_return(ticker, start_date=None, end_date=None):

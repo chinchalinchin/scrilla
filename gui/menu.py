@@ -2,6 +2,8 @@ import sys
 import random
 from PyQt5 import QtCore, QtWidgets, QtGui
 
+import app.settings as settings
+
 from gui.functions import RiskReturnWidget, CorrelationWidget, \
                             MovingAverageWidget, EfficientFrontierWidget, \
                                 OptimizerWidget
@@ -73,6 +75,7 @@ class MenuWidget(QtWidgets.QWidget):
 
     @QtCore.Slot()
     def show_widget(self, widget):
+        # TODO: possibly clear cache?
         for button in self.widget_buttons:
             button.hide()
 
@@ -94,7 +97,7 @@ if __name__ == "__main__":
     app = QtWidgets.QApplication([])
 
     widget = MenuWidget()
-    widget.resize(800, 600)
+    widget.resize(settings.GUI_WIDTH, settings.GUI_HEIGHT)
     widget.show()
 
     sys.exit(app.exec_())
