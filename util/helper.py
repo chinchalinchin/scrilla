@@ -144,7 +144,18 @@ def decrement_date_by_business_days(start_date, business_days):
         if not is_date_weekend(start_date) and not is_date_holiday(start_date):
             days_to_subtract -= 1
         start_date -= datetime.timedelta(days=1)
+    return start_date
 
+def get_next_business_day(date):
+    while is_date_weekend(date) or is_date_holiday(date):
+        date += datetime.timedelta(days=1)
+    return date
+
+def get_previous_business_day(date):
+    while is_date_weekend(date) or is_date_holiday(date):
+        date -= datetime.timedelta(days=1)
+    return date
+    
 ################################################
 ##### PARSING FUNCTIONS
 

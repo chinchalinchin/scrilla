@@ -103,7 +103,8 @@ class Logger():
         for i in range(len(tickers)):
             print(' '*formatter.INDENT, f'{tickers[i]} =', result[i])
 
-    def moving_average_result(self, tickers, averages, periods, start_date = None, end_date = None):
+    def moving_average_result(self, tickers, averages_output, periods, start_date = None, end_date = None):
+        averages, dates = averages_output
         MA1_prefix, MA2_prefix, MA3_prefix = f'MA({periods[0]})', f'MA({periods[1]})', f'MA({periods[2]})'
         if start_date is None and end_date is None:
             for i in range(len(tickers)):

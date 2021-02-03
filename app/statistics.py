@@ -59,7 +59,14 @@ def calculate_moving_averages(tickers, start_date=None, end_date=None):
     else:
         # get period of time consistent with MA Periods
         day_count = (end_date - start_date).days
+
+        print_end=helper.date_to_string(end_date)
+        print_start=helper.date_to_string(start_date)
+        output.debug(f'end_date ({print_end}) - start_date ({print_start}) = day_count ({day_count})')
+
         for ticker in tickers:
+            output.verbose(f'Calculating Moving Average For {ticker}')
+
             asset_type = markets.get_asset_type(ticker)
             trading_period = markets.get_trading_period(asset_type)
 
@@ -68,55 +75,66 @@ def calculate_moving_averages(tickers, start_date=None, end_date=None):
 
             # amend equity trading dates to take account of weekends
             elif asset_type == settings.ASSET_EQUITY:
-                new_start_date = helper.decrement_date_by_business_days(days=settings.MA_3_PERIOD)
-
+                new_start_date = helper.decrement_date_by_business_days(start_date=start_date, 
+                                                                        business_days=settings.MA_3_PERIOD)
             else:
                 new_start_date = start_date - datetime.timedelta(days=settings.MA_3_PERIOD)
 
-            prices = services.retrieve_prices_from_cache(ticker, new_start_date, end_date)
+            print_new_start = helper.date_to_string(new_start_date)
+            output.verbose(f'Offsetting Start Date for Moving Average Calculation...')
+            output.verbose(f'start_date = {print_new_start}')
+
+            prices = services.get_daily_price_history(ticker, new_start_date, end_date)
 
             today = False
             count= 1
-            tomorrows_price, MA_1, MA_2, MA_3
+            tomorrows_price = 0
             MAs_1, MAs_2, MAs_3 = [], [], []
 
-            # TODO: this is totally fucked. needs a redo. no clue what I was thinking.
-            #
-            # TODO: !!!!!
+            #  for start date to end date:
+            #       get today's price
+            #       for all elements of MAs_n
+            #           if today's date is less than a MA_n period away from the date of this MAs_n element
+            #               # add today's_price / MA_n_PERIOD to this element of MAs_n
+            #       create today's MAs_n element
             for date in prices:
+                output.verbose(f'date: {date}')
+
                 todays_price = services.parse_price_from_date(prices, date, asset_type)
                 if today:
                    todays_return = numpy.log(float(tomorrows_price) / float(todays_price))/trading_period
-               
+                   output.verbose(f'todays_return == {tomorrows_price}/({todays_price}*{trading_period}) = {todays_return}') 
+
                    for MA in MAs_1:
-                       if len(MAs_1) - MAs_1.index(MA) + 1 < settings.MA_1_PERIOD:
+                       if len(MAs_1) - MAs_1.index(MA) < settings.MA_1_PERIOD:
                            MA += todays_return / settings.MA_1_PERIOD
-                   MA_1.append( (todays_return / settings.MA_1_PERIOD) )
-         
-                   for MA in MA_2:
-                       if len(MA_2) - MA_2.index(MA) + 1 < settings.MA_2_PERIOD:
+                   MAs_1.append( (todays_return / settings.MA_1_PERIOD) )
+   
+                   for MA in MAs_2:
+                       if len(MAs_2) - MAs_2.index(MA) < settings.MA_2_PERIOD:
                            MA += todays_return / settings.MA_2_PERIOD
-                   MA_2.append( (todays_return / settings.MA_2_PERIOD) )
+                   MAs_2.append( (todays_return / settings.MA_2_PERIOD) )
         
-                   for MA in MA_3:
-                       if len(MA_3) - MA_3.index(MA) + 1 < settings.MA_3_PERIOD:
+                   for MA in MAs_3:
+                       if len(MAs_3) - MAs_3.index(MA)  < settings.MA_3_PERIOD:
                            MA += todays_return / settings.MA_3_PERIOD
-                   MA_3.append( (todays_return) / settings.MA_3_PERIOD)
+                   MAs_3.append( (todays_return) / settings.MA_3_PERIOD)
                 
                 else:
                     today = True
-                    tomorrows_price = services.parse_price_from_date(prices, date, asset_type)
+                    
+                tomorrows_price = services.parse_price_from_date(prices, date, asset_type)
 
-            MA_1 = MA_1[:day_count]
-            MA_2 = MA_2[:day_count]
-            MA_3 = MA_3[:day_count]
+            MAs_1 = MAs_1[:day_count]
+            MAs_2 = MAs_2[:day_count]
+            MAs_3 = MAs_3[:day_count]
 
-            moving_averages.append([MA_1, MA_2, MA_3])
+            moving_averages.append([MAs_1, MAs_2, MAs_3])
 
         dates_between = helper.dates_between(start_date, end_date)
         # len(moving_averages[0]) == len(dates_between) 
         #       if everything has been done correctly, that is!
-        print('len(moving_averages[0]) =', len(moving_averages[0]))
+        print('len(moving_averages[0]) =', len(moving_averages))
         print('len(dates_between) = ', len(dates_between))
         return moving_averages, dates_between 
 

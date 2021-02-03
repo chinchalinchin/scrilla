@@ -65,7 +65,7 @@ FUNC_DICT = {
     "last_close": "Return latest closing value for the supplied list of symbols (equity or crypto).",
     "maximize_return": "Maximize the return of the portfolio defined by the supplied list of ticker symbols.",
     "minimize_variance": "Minimize the variance of the portfolio defined by the supplied list of ticker symbols.",
-    "moving_averages": "Calculate the current moving averages ",
+    "moving_averages": "Calculate the current moving averages. ADDITIONAL OPTIONS:  -start (format: \"YYYY-MM-DD\"), -end  (format :\"YYYY-MM-DD\")",
     "optimize_portfolio":"Optimize the variance of the portfolio\'s variance subject to the supplied return target. The target return must be specified with the '-target' flag. ADDITIONAL OPTIONS:  -target (format: decimal)",
     "plot_frontier": "Generates a scatter plot graphic of the portfolio\'s efficient frontier for the supplied list of tickers. Not available when running inside of a Docker container. ADDITIONAL OPTIONS:  -save (format: /path/to/file/filename.jpeg)",
     "plot_moving_averages": "Generates a grouped bar chart of the moving averages for each equity in the supplied list of ticker symbols. Not available when running inside of a Docker container. ADDITIONAL OPTIONS:  -start (format: \"YYYY-MM-DD\"), -end  (format :\"YYYY-MM-DD\"), -save (format: /path/to/file/filename.jpeg)",
