@@ -100,7 +100,7 @@ if __name__ == "__main__":
                 else:
                     output.comment('Invalid Input. Try -ex Flag For Example Usage.')
             
-            elif opt == formatter.FUNC_ARG_DICT["economic_indicator"]:
+            elif opt == formatter.FUNC_ARG_DICT["indicator"]:
                 if(len(main_args)>1) or len(main_args)==1:
                     stats = services.get_daily_stats_latest(main_args)
                     for i in range(len(stats)):
@@ -118,7 +118,7 @@ if __name__ == "__main__":
                 else: 
                     output.debug('Invalid Input. Try -ex Flag For Example Usage.')
 
-            elif opt == formatter.FUNC_ARG_DICT["last_close"]:
+            elif opt == formatter.FUNC_ARG_DICT["close"]:
                 if(len(main_args)>1) or len(main_args)==1:
                     for arg in main_args:
                         price = services.get_daily_price_latest(arg)

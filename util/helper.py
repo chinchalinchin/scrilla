@@ -52,6 +52,12 @@ def format_date_range(start_date, end_date):
         result += f' Until {end_string}'
     return result
 
+def is_date_today(date) -> bool:
+    return (date == datetime.today().date())
+
+def is_date_string_today(date) -> bool:
+    return is_date_today(parse_date_string(date))
+    
 def is_date_weekend(date) -> bool:
     if date.weekday() in [5, 6]:
         return True
