@@ -4,6 +4,8 @@ The program's functions are wrapped in <b>PyQt5</b> widgets which provide visual
 
 # Set Up
 
+## CLI Application
+
 First, from the project root directory, (activate your virtual environment, if using one, and) install all of the requirements,
 
 > pip install -r requirements.txt
@@ -18,7 +20,7 @@ And then change the <b>ALPHA_VANTAGE_KEY</b> and <b>QUANDL_KEY</b> variables to 
 
 After the application searches for API keys in the <i>.env</i> file, it will search for API keys in <i>config.json</i>. If this file exists, it will override any keys found in <i>.env</i>. If no keys are found within either file, a popup dialog box (QInputDialog from PyQt.QtWidgets) will prompt the user to register for their keys and enter them into a text field. The application will then test the API key entered and if it is valid, save it in the <i>config.json</i> file. Subsequent application calls will leverage the credentials in this file.
 
-## Examples 
+### Examples 
 
 If I wanted to calculate the risk-return profile for the Facebook (FB), Amazon (AMZN) and Exxon (XOM), I would execute the following command from the project's root directory,
 
@@ -46,7 +48,17 @@ to perform the same operation as the following command performed in the project 
 
 > python ./main.py -min SPY GLD EWA
 
-### TODOS
+## WSGI Application
+
+### Local Setup
+
+TODO: Explain
+
+### Container Setup
+
+TODO: Explain
+
+# TODOS
 
 1. add different price_managers and stat_managers besides AlphaVantage and Quandl. Find API service for options quotes.
 
