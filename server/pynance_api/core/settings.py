@@ -6,7 +6,8 @@ APP_DIR = os.path.dirname(os.path.dirname(os.path.dirname(BASE_DIR)))
 
 dotenv.load_dotenv(os.path.join(os.path.join(APP_DIR, 'env'),'.env'))
 
-SECRET_KEY = os.getenv('SECRET_KEY')
+SECRET_KEY = os.environ.setdefault('SECRET_KEY', 'NoIAmYourFather')
+
 DEBUG = True
 
 ALLOWED_HOSTS = []
