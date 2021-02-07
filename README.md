@@ -66,6 +66,11 @@ to perform the same operation as the following command performed in the project 
 
 9. Use fundamentals API from Alpha Vantage to calculate things like EBITBA, Enterprise Value, Price to Earnings, etc.
 
+10. Hook API into pynance functions and create micro-service for the app.
+    - During Docker image build, be sure to initialize static data so user doesn't have to.
+    - Create docker image
+    - Possibly initialize database image through compose to cache data instead of saving it to virtual filesystem. Either that, or define a volume to persist cache across image builds. 
+
 ### NOTE
 
 The first time this application is run it retrieves a large amount of static data and stores it in the <b>/static/</b> folder. The first call of the function may take some time, but subsequent calls, assuming you do not have the environment variable <b>INIT</b> = <b>True</b>, should not take anywhere near as long.
