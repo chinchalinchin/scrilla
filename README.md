@@ -54,17 +54,17 @@ to perform the same operation as the following command performed in the project 
 
 3. Rejigger GUI to have DateWidgets to select dates in GUI and take advantage of the new date filtering functionality.
 
-4. Figure out how to launch GUI in Docker, if it's even possible.. Also, volumes.
+4. [Free Icons](https://streamlineicons.com/)
 
-5. [Free Icons](https://streamlineicons.com/)
+5. Cancel button needs to exit application when prompting user for API keys.
 
-6. Cancel button needs to exit application when prompting user for API keys.
+6. Return None instead of False when errors are encountered in methods, so methods can have strict typing. Better for documentation! 
 
-7. Return None instead of False when errors are encountered in methods, so methods can have strict typing. Better for documentation! 
+7. set up argument parsing for Investment Mode so user doesn't have to change .env variable to use Investment Mode from cli.
 
-8. set up argument parsing for Investment Mode so user doesn't have to change .env variable to use Investment Mode from cli.
+8. Hook up 'Optimize' widget to optimize subject to constraint.
 
-9. Hook up 'Optimize' widget to optimize subject to constraint.
+9. Use fundamentals API from Alpha Vantage to calculate things like EBITBA, Enterprise Value, Price to Earnings, etc.
 
 ### NOTE
 
