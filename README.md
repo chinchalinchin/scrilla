@@ -48,13 +48,13 @@ to perform the same operation as the following command performed in the project 
 
 ### TODOS
 
-1. add different price_managers and stat_managers besides AlphaVantage and Quandl.
+1. add different price_managers and stat_managers besides AlphaVantage and Quandl. Find API service for options quotes.
 
-2. Rejigger moving averages algorithm (calculation and plotting) to accept current snapshot of moving averages and print bar graph (already does this), or accept a history of moving averages and created a line plot with several labeled serieses. Also need to check if date_range is less than any of the MA_PERIODS before proceeding.
+2. Rejigger moving averages algorithm (calculation and plotting) to accept current snapshot of moving averages and print bar graph (already does this), or accept a history of moving averages and created a line plot with several labeled serieses (moving average algorithm returns the sample data correctly, need to configure plotting of sample data now).
 
 3. Rejigger GUI to have DateWidgets to select dates in GUI and take advantage of the new date filtering functionality.
 
-4. [Free Icons](https://streamlineicons.com/)
+4. [Free Icons](https://streamlineicons.com/) for GUI. Verify licensing terms. 
 
 5. Cancel button needs to exit application when prompting user for API keys.
 
@@ -70,6 +70,13 @@ to perform the same operation as the following command performed in the project 
     - During Docker image build, be sure to initialize static data so user doesn't have to.
     - Create docker image
     - Possibly initialize database image through compose to cache data instead of saving it to virtual filesystem. Either that, or define a volume to persist cache across image builds. 
+    - Endpoints that serve images of graphs calculated from the core app. 
+
+11. Create functions for calculation and plotting of yield curve.
+
+12. Create tabs in GUI for: Markets, Fundamentals, Options, Economy. Markets will feature the portfolio optimization and financial price statistics such as moving averages and efficient frontiers. Fundamentals will feature graphs and calculations of accounting statistics like EBITDA, Enterprise Value, etc. Options will feature functions for calculating IV of options, displaying the volatility skew, historical vs. implied volatility, and option greeks. Economy will feature graphs of the yield curve, GDP, etc. 
+
+13. Copy IV algorithm and option greek algorithms from old python cli program. 
 
 ### NOTE
 
