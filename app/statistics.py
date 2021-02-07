@@ -39,7 +39,7 @@ def calculate_moving_averages(tickers, start_date=None, end_date=None):
     # Moving Average Snapshot
     if start_date is None and end_date is None:
         for ticker in tickers:
-            output.verbose(f'Calculating Moving Average For {ticker}')
+            output.verbose(f'Calculating Moving Average for {ticker}')
 
             prices = services.retrieve_prices_from_cache(ticker, start_date, end_date)
             asset_type = markets.get_asset_type(ticker)
@@ -52,7 +52,7 @@ def calculate_moving_averages(tickers, start_date=None, end_date=None):
                 todays_price = services.parse_price_from_date(prices, date, asset_type)
                 if today:
                     todays_return = numpy.log(float(tomorrows_price) / float(todays_price))/trading_period
-                    output.verbose(f'todays_return == {tomorrows_price}/({todays_price}*{trading_period}) = {todays_return}') 
+                    output.verbose(f'todays_return == {tomorrows_price}/({todays_price}*{round(trading_period,2)}) = {todays_return}') 
 
                     if count < settings.MA_1_PERIOD:
                         MA_1 += todays_return / settings.MA_1_PERIOD
@@ -91,7 +91,7 @@ def calculate_moving_averages(tickers, start_date=None, end_date=None):
             previous_asset_type = asset_type
 
         for ticker in tickers:
-            output.verbose(f'Calculating Moving Average For {ticker}')
+            output.verbose(f'Calculating Moving Average for {ticker}')
 
             asset_type = markets.get_asset_type(ticker)
             trading_period = markets.get_trading_period(asset_type)
@@ -120,7 +120,7 @@ def calculate_moving_averages(tickers, start_date=None, end_date=None):
             print_start = helper.date_to_string(start_date)
             print_new_start = helper.date_to_string(new_start_date)
 
-            output.verbose(f'Offsetting Start Date To Account For Longest Moving Average Calculation')
+            output.verbose(f'Offsetting start date To account for longest Moving Average period')
             output.verbose(f'start_date -> new_start_date == {print_start} -> {print_new_start}')
             output.verbose(f'day_count == {day_count}')
 
@@ -138,7 +138,7 @@ def calculate_moving_averages(tickers, start_date=None, end_date=None):
 
                 if today:
                    todays_return = numpy.log(float(tomorrows_price) / float(todays_price))/trading_period
-                   output.verbose(f'todays_return == ln({tomorrows_price}/{todays_price})/{trading_period}) = {todays_return}') 
+                   output.verbose(f'todays_return == ln({tomorrows_price}/{todays_price})/{round(trading_period,4)}) = {round(todays_return,4)}') 
 
                    for MA in MAs_1:
                        end_flag = False
