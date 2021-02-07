@@ -156,6 +156,10 @@ def decrement_date_by_business_days(start_date, business_days):
         start_date -= datetime.timedelta(days=1)
     return start_date
 
+def decrement_date_string_by_business_days(start_date_string, business_days):
+    start_date = parse_date_string(start_date_string)
+    return date_to_string(decrement_date_by_business_days(start_date, business_days))
+
 def increment_date_by_business_days(start_date, business_days):
     days_to_add = business_days
     while days_to_add > 0:
@@ -163,6 +167,10 @@ def increment_date_by_business_days(start_date, business_days):
             days_to_add -= 1
         start_date += datetime.timedelta(days=1)
     return start_date
+
+def increment_date_string_by_business_days(start_date_string, business_days):
+    start_date = parse_date_string(start_date_string)
+    return date_to_string(increment_date_by_business_days(start_date, business_days))
 
 def get_next_business_day(date):
     while is_date_weekend(date) or is_date_holiday(date):

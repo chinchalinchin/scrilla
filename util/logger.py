@@ -124,7 +124,7 @@ class Logger():
                 MA1_title, MA2_title, MA3_title = f'{MA1_prefix}_{tickers[i]}', f'{MA2_prefix}_{tickers[i]}', f'{MA3_prefix}_{tickers[i]}'
                 count = 0
                 for j in range(len(dates)):
-                    msg_1, msg_2, msg_3 = f'{dates[j]} : {MA1_title}'
+                    msg_1 = f'{dates[j]} : {MA1_title}'
                     self.scalar_result(msg_1, round(averages[i][0][j], 2))
                 for j in range(len(dates)):
                     msg_2 = f'{dates[j]} : {MA2_title}'

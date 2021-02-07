@@ -138,14 +138,19 @@ def calculate_moving_averages(tickers, start_date=None, end_date=None):
 
                 if today:
                    todays_return = numpy.log(float(tomorrows_price) / float(todays_price))/trading_period
-                   output.verbose(f'todays_return == {tomorrows_price}/({todays_price}*{trading_period}) = {todays_return}') 
+                   output.verbose(f'todays_return == ln({tomorrows_price}/{todays_price})/{trading_period}) = {todays_return}') 
 
                    for MA in MAs_1:
                        end_flag = False
                        if len(MAs_1) - MAs_1.index(MA) < settings.MA_1_PERIOD:
                            if len(MAs_1) - MAs_1.index(MA) == settings.MA_1_PERIOD - 1:
                                end_flag = True
-                               date_of_MA1 = prices[MAs_1.index(MA)]
+                               if asset_type == settings.ASSET_EQUITY:
+                                   date_of_MA1 = helper.decrement_date_string_by_business_days(date, MAs_1.index(MA))
+                               elif asset_type == settings.ASSET_CRYPTO:
+                                   date_of_MA1 = helper.string_to_date(date) - datetime.timedelta(days=MAs_1.index(MA))
+                               else: 
+                                   date_of_MA1 = helper.string_to_date(date) - datetime.timedelta(days=MAs_1.index(MA)) 
 
                            MA += todays_return / settings.MA_1_PERIOD
 
@@ -160,8 +165,13 @@ def calculate_moving_averages(tickers, start_date=None, end_date=None):
                        end_flag = False
                        if len(MAs_2) - MAs_2.index(MA) < settings.MA_2_PERIOD:
                            if len(MAs_2) - MAs_2.index(MA) == settings.MA_2_PERIOD - 1:
-                               date_of_MA2 = prices[MAs_2.index(MA)]
                                end_flag = True
+                               if asset_type == settings.ASSET_EQUITY:
+                                   date_of_MA2 = helper.decrement_date_string_by_business_days(date, MAs_2.index(MA))
+                               elif asset_type == settings.ASSET_CRYPTO:
+                                   date_of_MA2 = helper.string_to_date(date) + datetime.timedelta(days=MAs_2.index(MA))
+                               else: 
+                                   date_of_MA2 = helper.string_to_date(date) + datetime.timedelta(days=MAs_2.index(MA)) 
                                
                            MA += todays_return / settings.MA_2_PERIOD
 
@@ -177,7 +187,12 @@ def calculate_moving_averages(tickers, start_date=None, end_date=None):
                        if len(MAs_3) - MAs_3.index(MA)  < settings.MA_3_PERIOD:
                            if len(MAs_3) - MAs_3.index(MA) == settings.MA_3_PERIOD - 1:
                                end_flag = True
-                               date_of_MA3 = prices[MAs_3.index(MA)]
+                               if asset_type == settings.ASSET_EQUITY:
+                                   date_of_MA3 = helper.decrement_date_string_by_business_days(date, MAs_3.index(MA))
+                               elif asset_type == settings.ASSET_CRYPTO:
+                                   date_of_MA3 = helper.string_to_date(date) + datetime.timedelta(days=MAs_3.index(MA))
+                               else: 
+                                   date_of_MA3 = helper.string_to_date(date) + datetime.timedelta(days=MAs_3.index(MA)) 
 
                            MA += todays_return / settings.MA_3_PERIOD
 
@@ -211,9 +226,9 @@ def calculate_moving_averages(tickers, start_date=None, end_date=None):
         
         output.verbose(f'If everything is correct, then len(moving_averages[0][1]) == len(dates_between)')
         if len(moving_averages[0][1]) == len(dates_between):
-            output.verbose('%s = %s', len(moving_averages[0][1]), len(dates_between))
+            output.verbose('{} = {}'.format(len(moving_averages[0][1]), len(dates_between)))
         else: 
-            output.verbose('%s != %s', len(moving_averages[0][1]), len(dates_between))
+            output.verbose('{} != {}'.format(len(moving_averages[0][1]), len(dates_between)))
 
         return moving_averages, dates_between 
 
