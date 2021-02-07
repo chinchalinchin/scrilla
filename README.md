@@ -20,6 +20,16 @@ And then change the <b>ALPHA_VANTAGE_KEY</b> and <b>QUANDL_KEY</b> variables to 
 
 After the application searches for API keys in the <i>.env</i> file, it will search for API keys in <i>config.json</i>. If this file exists, it will override any keys found in <i>.env</i>. If no keys are found within either file, a popup dialog box (QInputDialog from PyQt.QtWidgets) will prompt the user to register for their keys and enter them into a text field. The application will then test the API key entered and if it is valid, save it in the <i>config.json</i> file. Subsequent application calls will leverage the credentials in this file.
 
+You can add the <i>/scripts/</i> directory to your path to provide access to the BASH script for invoking the application with a python wrapper, i.e. if <i>/scripts/</i> is on your path, then
+
+> pynance -help
+
+will execute the same function as 
+
+> python $PATH_TO_PROJECT/main.py -help
+
+from any directory on your computer.
+
 ### Examples 
 
 If I wanted to calculate the risk-return profile for the Facebook (FB), Amazon (AMZN) and Exxon (XOM), I would execute the following command from the project's root directory,
@@ -47,6 +57,20 @@ Note, if you put the <b>/scripts/</b> directory on your PATH, it provides a ligh
 to perform the same operation as the following command performed in the project root directory,
 
 > python ./main.py -min SPY GLD EWA
+
+In addition, some of the functions have extra arguments that can be provided to filter the output. For example, moving averages can be calculated for a range of dates by using the <i>-start</i> and <i>-end</i> flags, i.e.
+
+> python ./main.py -mov -start 2020-03-05 -end 2021-02-01 ALLY BX
+
+will output the tuple-series of moving averages defined by the environment variables <b>MA_1_PERIOD</b>, <b>MA_2_PERIOD</b> and <b>MA_3_PERIOD</b> between the dates of 2020-03-05 and 2021-02-01. Note dates must be provided in the "YYYY-MM-DD" format. See
+
+> python ./main.py -help
+
+or
+
+> pynance -help
+
+for more examples of additional arguments that can be provided to functions.
 
 ## WSGI Application
 
