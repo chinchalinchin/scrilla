@@ -88,8 +88,8 @@ def consecutive_trading_days(start_date_string, end_date_string) -> bool:
     Returns 
     -------
     True
-        if start_date_string and end_date_string are consecutive trading days, i.e. Tuesday, Wednesday or Friday, Monday,
-        or Tuesday, Thursday where Wednesday is a Holiday.
+        if start_date_string and end_date_string are consecutive trading days, i.e. Tuesday -> Wednesday or Friday -> Monday,
+        or Tuesday -> Thursday where Wednesday is a Holiday.
     False
         if start_date_string and end_date_string are NOT consecutive trading days.
     """
@@ -132,18 +132,36 @@ def dates_between(start_date, end_date):
 def days_between(start_date, end_date):
     return (end_date - start_date).days
 
+def business_dates_between(start_date, end_date):
+    dates = []
+    for x in range((end_date - start_date).days):
+        this_date = start_date + datetime.timedelta(x+1)
+        if not (is_date_weekend(this_date) or is_date_holiday(this_date)):
+            dates.append(this_date)
+    return dates
+
 def business_days_between(start_date, end_date):
-    return len([1 for day in dates_between(start_date, end_date) if day.weekday() < 5])
+    dates = dates_between(start_date, end_date)
+    return len([1 for day in dates if day.weekday() < 5])
 
 def weekends_between(start_date, end_date):
-    return len([1 for day in dates_between(start_date, end_date) if day.weekday() > 4])
+    dates = dates_between(start_date, end_date)
+    return len([1 for day in dates if day.weekday() > 4])
 
 def decrement_date_by_business_days(start_date, business_days):
     days_to_subtract = business_days
     while days_to_subtract > 0:
-        if not is_date_weekend(start_date) and not is_date_holiday(start_date):
+        if not (is_date_weekend(start_date) or is_date_holiday(start_date)):
             days_to_subtract -= 1
         start_date -= datetime.timedelta(days=1)
+    return start_date
+
+def increment_date_by_business_days(start_date, business_days):
+    days_to_add = business_days
+    while days_to_add > 0:
+        if not (is_date_weekend(start_date) or is_date_holiday(start_date)):
+            days_to_add -= 1
+        start_date += datetime.timedelta(days=1)
     return start_date
 
 def get_next_business_day(date):

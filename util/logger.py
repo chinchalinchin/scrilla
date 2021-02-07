@@ -116,18 +116,23 @@ class Logger():
                 self.scalar_result(MA2_title, round(averages[i][1], 2))
                 self.scalar_result(MA3_title, round(averages[i][2], 2))
         else:
-            dates = helper.dates_between(start_date, end_date)
             for i in range(len(tickers)):
+
                 title = f'{tickers[i]} Moving Average of Daily Return for {periods[0]}, {periods[1]} & {periods[0]} Days'
                 self.title_line(title)
 
                 MA1_title, MA2_title, MA3_title = f'{MA1_prefix}_{tickers[i]}', f'{MA2_prefix}_{tickers[i]}', f'{MA3_prefix}_{tickers[i]}'
                 count = 0
                 for j in range(len(dates)):
-                    msg_1, msg_2, msg_3 = f'{dates[j]} : {MA1_title}', f'{dates[j]} : {MA2_title}', f'{dates[j]} : {MA3_title}'
+                    msg_1, msg_2, msg_3 = f'{dates[j]} : {MA1_title}'
                     self.scalar_result(msg_1, round(averages[i][0][j], 2))
+                for j in range(len(dates)):
+                    msg_2 = f'{dates[j]} : {MA2_title}'
                     self.scalar_result(msg_2, round(averages[i][1][j], 2))
-                    self.scalar_result(msg_3, round(averages[i][2][j], 2))                    
+                for j in range(len(dates)):  
+                    msg_3 = f'{dates[j]} : {MA3_title}'
+                    self.scalar_result(msg_3, round(averages[i][2][j], 2))      
+            
 
     def optimal_result(self, portfolio, allocation, user_input):
         self.title_line('Optimal Percentage Allocation')
