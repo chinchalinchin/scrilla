@@ -86,9 +86,17 @@ def get_daily_price_history(ticker, start_date=None, end_date=None):
     By default, AlphaVantage returns the last 100 days of prices for equities, while returning the entire price history for crypto asset. If no start_date or end_date are specified, this function will truncate the crypto price histories to have a length of 100 so the price histories across asset types are the same length. 
     """
     # TODO: price histories aren't the same length, though, because of weekends. 
-    # TODO: don't truncate crypto history until len(crypto_prices) - weekends = 100
-    # TODO: need to check if start_date or end_date are today. If end_date is today, set to 
-    #           end_date = None. if start_date is today, return False
+    # TODO: retrieve crypto history for len(crypto_prices) = 100 + weekends
+
+    if start_date is not None:
+        if helper.is_date_string_today(start_date):
+            output.debug(f'Invalid date range. Start Date {start_date} is today!')
+            return False
+    if end_date is not None:
+        if helper.is_date_string_today(end_date):
+            output.debug(f'End Date {end_date} is today!')
+            end_date = None
+
     asset_type=markets.get_asset_type(ticker)  
 
     # Verify dates fall on trading days if asset_type is ASSET_EQUITY
@@ -98,7 +106,7 @@ def get_daily_price_history(ticker, start_date=None, end_date=None):
                 start_string = helper.date_to_string(start_date)
                 output.debug(f'{start_string} is a holiday. Equities do not trade on holidays.')
 
-                start_date = helper.get_previous_business_day(start_date)
+                start_date = helper.get_previous_business_date(start_date)
                 start_string = helper.date_to_string(start_date)
                 output.debug(f'Setting start date to next business day, {start_string}')
 
@@ -106,7 +114,7 @@ def get_daily_price_history(ticker, start_date=None, end_date=None):
                 start_string = helper.date_to_string(start_date)
                 output.debug(f'{start_string} is a weekend. Equities do not trade on weekends.')
 
-                start_date = helper.get_previous_business_day(start_date)
+                start_date = helper.get_previous_business_date(start_date)
                 start_string = helper.date_to_string(start_date)
                 output.debug(f'Setting start date to previous business day, {start_string}')
         
@@ -115,7 +123,7 @@ def get_daily_price_history(ticker, start_date=None, end_date=None):
                 end_string = helper.date_to_string(end_date)
                 output.debug(f'{end_string} is a holiday. Equities do not trade on holidays.')
 
-                end_date = helper.get_previous_business_day(end_date)
+                end_date = helper.get_previous_business_date(end_date)
                 end_string = helper.date_to_string(end_date)
                 output.debug(f'Setting end date to previous business day, {end_string}.')
 
@@ -123,7 +131,7 @@ def get_daily_price_history(ticker, start_date=None, end_date=None):
                 end_string = helper.date_to_string(end_date)
                 output.debug(f'{end_string} is a weekend. Equities do not trade on weekends.')
                 
-                end_date = helper.get_previous_business_day(end_date)
+                end_date = helper.get_previous_business_date(end_date)
                 end_string = helper.date_to_string(end_date)
                 output.debug(f'Setting end date to previous business day, {end_string}.')
 

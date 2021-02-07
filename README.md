@@ -114,6 +114,10 @@ TODO: Explain
 
 13. Copy IV algorithm and option greek algorithms from old python cli program. 
 
+14. Implement start and end date arguments for optimization algorithms, so user can optimizer over any given date range.
+
+15. TEST MOVING AVERAGE ALGORITHM FOR MIX OF ASSET TYPES. I think there may be some mismatch of types in date comparisons.
+
 ### NOTE
 
 The first time this application is run it retrieves a large amount of static data and stores it in the <b>/static/</b> folder. The first call of the function may take some time, but subsequent calls, assuming you do not have the environment variable <b>INIT</b> = <b>True</b>, should not take anywhere near as long.

@@ -24,11 +24,32 @@ def strip_string_array(array) -> [str]:
 ################################################
 ##### DATE FUNCTIONS
 
+def validate_date_string(parsed_date_string):
+    length_check = (len(parsed_date_string) == 3 )
+    year_check = (parsed_date_string[0] > 1950)
+    month_check = (parsed_date_string[1]>0 and parsed_date_string[1]<13)
+    day_check = (parsed_date_string[2]>0 and parsed_date_string[3]<32)
+    return (length_check and year_check and month_check and day_check)
+
 # YYYY-MM-DD
 def parse_date_string(date_string) -> datetime.date:
     parsed = str(date_string).split('-')
-    date = datetime.date(year=int(parsed[0]), month=int(parsed[1]), day=int(parsed[2]))
-    return date
+    if validate_date_string(parsed):
+        date = datetime.date(year=int(parsed[0]), month=int(parsed[1]), day=int(parsed[2]))
+        return date
+    else:
+        return False
+
+def verify_date_types(dates):
+    verified_dates = []
+    for date in dates:
+        if isinstance(date, str):
+            verified_dates.append(parse_date_string(date))
+        elif isinstance(date, datetime.date):
+            verified_dates.append(date)
+        else:
+            return None
+    return verified_dates
 
 def date_to_string(date) -> str:
     year, month, day = date.year, date.month, date.day
@@ -57,7 +78,7 @@ def is_date_today(date) -> bool:
 
 def is_date_string_today(date) -> bool:
     return is_date_today(parse_date_string(date))
-    
+
 def is_date_weekend(date) -> bool:
     if date.weekday() in [5, 6]:
         return True
@@ -151,6 +172,7 @@ def business_days_between(start_date, end_date):
     return len([1 for day in dates if day.weekday() < 5])
 
 def weekends_between(start_date, end_date):
+    start_date, end_date = verify_date_types(start_date, end_date)
     dates = dates_between(start_date, end_date)
     return len([1 for day in dates if day.weekday() > 4])
 
@@ -178,12 +200,12 @@ def increment_date_string_by_business_days(start_date_string, business_days):
     start_date = parse_date_string(start_date_string)
     return date_to_string(increment_date_by_business_days(start_date, business_days))
 
-def get_next_business_day(date):
+def get_next_business_date(date):
     while is_date_weekend(date) or is_date_holiday(date):
         date += datetime.timedelta(days=1)
     return date
 
-def get_previous_business_day(date):
+def get_previous_business_date(date):
     while is_date_weekend(date) or is_date_holiday(date):
         date -= datetime.timedelta(days=1)
     return date
