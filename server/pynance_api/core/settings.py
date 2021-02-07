@@ -4,7 +4,7 @@ import os, dotenv
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 APP_DIR = os.path.dirname(os.path.dirname(os.path.dirname(BASE_DIR)))
 
-dotenv.load_dotenv(os.path.join(APP_DIR,'.env'))
+dotenv.load_dotenv(os.path.join(os.path.join(APP_DIR, 'env'),'.env'))
 
 SECRET_KEY = 'l*qk33)o929ie=b#v$pf-h$evh92i0+xa8_29&6nupptuo$$%f'
 DEBUG = True

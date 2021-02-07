@@ -2,7 +2,7 @@ import os, dotenv
 
 APP_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-dotenv.load_dotenv(os.path.join(APP_DIR,'.env'))
+dotenv.load_dotenv(os.path.join(os.path.join(APP_DIR, 'env'),'.env'))
 
 APP_NAME="Pynance"
 

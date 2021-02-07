@@ -21,7 +21,7 @@ APP_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 ENVIRONMENT = os.environ.setdefault('ENVIRONMENT', 'local')
 
-dotenv.load_dotenv(os.path.join(APP_DIR,'.env'))
+dotenv.load_dotenv(os.path.join(os.path.join(APP_DIR,'env'), '.env'))
 
 CONFIG_FILE = os.path.join(APP_DIR,'static', 'creds','config.json')
 
