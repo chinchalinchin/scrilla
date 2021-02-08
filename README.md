@@ -90,7 +90,25 @@ This will launch embed the Django app on your <i>localhost</i> and expose the
 
 ### Container Setup
 
-TODO: Explain
+If you have your environment file initialized, then the <b>IMG_NAME</b>, <b>TAG_NAME</b> and <b>CONTAINER_NAME</b> environment variables will set the (obviously) image, tag and container respectively. 
+
+To start up the server in a container, execute the <i>launch-server</i> script, but provide it an argument of <i>-container</i>,
+
+>./scripts/server/launch-server.sh -container
+
+Or, if you want to build the image without spinning up the container,
+
+>./scripts/docker/build-container.sh
+
+Once the image has been built, you can spin up the container using (assuming your environment file has been initialized and loaded into your shell sessoin),
+
+> docker run --publish $SERVER_PORT:$SERVER_PORT --env-file /path/to/env/file $IMG_NAME:$IMG_TAG
+
+Note, the image will need an environment file to function properly. The application container also supports the CLI functionality by providing the <i>docker run</i> command with the function you wish to execute (you do not need to publish the container on port in this case),
+
+> docker run --env-file /path/to/env/file $IMG_TAG:$IMG_TAG -rr BX AMC BB
+
+
 
 ### API
 
