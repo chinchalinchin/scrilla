@@ -30,8 +30,11 @@ else
     then
         source "$UTIL_DIR/env-vars.sh"
 
-        log "Starting Server On \e[3mlocalhost:$SERVER_PORT\e[0m" $SCRIPT_NAME
         cd $SERVER_DIR
+        log "Logging Non-sensitive Django Settings" $SCRIPT_NAME
+        python debug.py
+        
+        log "Starting Server On \e[3mlocalhost:$SERVER_PORT\e[0m" $SCRIPT_NAME
         python manage.py runserver $SERVER_PORT
     fi
     if [ "$1" == "--container" ] || [ "$1" = "-container" ] || [ "$1" == "--c" ] || [ "$1" == "-c" ]
