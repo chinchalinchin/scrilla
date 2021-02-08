@@ -90,6 +90,15 @@ if __name__ == "__main__":
                     else: 
                         output.comment('Error Encountered While Determining Asset Type. Try -ex Flag For Example Usage.')
 
+            elif opt == formatter.FUNC_ARG_DICT["close"]:
+                if(len(main_args)>1) or len(main_args)==1:
+                    for arg in main_args:
+                        price = services.get_daily_price_latest(arg)
+                        output.scalar_result(arg, float(price))
+                    
+                else:
+                    output.comment('Error Encountered While Calculating. Try -ex Flag For Example Usage.')
+                    
             # Correlation Matrix
             elif opt == formatter.FUNC_ARG_DICT["correlation"]:
                 if(len(main_args) > 1):
@@ -117,15 +126,6 @@ if __name__ == "__main__":
                 
                 else: 
                     output.debug('Invalid Input. Try -ex Flag For Example Usage.')
-
-            elif opt == formatter.FUNC_ARG_DICT["close"]:
-                if(len(main_args)>1) or len(main_args)==1:
-                    for arg in main_args:
-                        price = services.get_daily_price_latest(arg)
-                        output.scalar_result(arg, float(price))
-                    
-                else:
-                    output.comment('Error Encountered While Calculating. Try -ex Flag For Example Usage.')
                     
             elif opt == formatter.FUNC_ARG_DICT['maximize_return']:
                 if (len(main_args)>1):

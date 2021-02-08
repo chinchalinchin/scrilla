@@ -21,7 +21,7 @@ def parse_price_from_date(prices, date, asset_type):
     except:
         return False
         
-def retrieve_prices_from_cache(ticker, start_date=None, end_date=None):
+def retrieve_prices_from_cache(ticker):
     """
     Parameters
     ----------
@@ -36,38 +36,27 @@ def retrieve_prices_from_cache(ticker, start_date=None, end_date=None):
     -----
     Only recent prices are cached, i.e. the last 100 days of prices. Calls for other periods of time will not be cached and can take considerably longer to load, due to the API rate limits on AlphaVantage. 
     """
-    buffer_flag = (start_date is None and end_date is None)
-    switch_flag = start_date is not None and end_date is not None
 
-    if buffer_flag:
-        now = datetime.datetime.now()
-        timestamp = '{}{}{}'.format(now.month, now.day, now.year)
-        buffer_store= os.path.join(settings.CACHE_DIR, f'{timestamp}_{ticker}.{settings.CACHE_EXT}')
-        
-        if os.path.isfile(buffer_store):
-            output.debug(f'Loading in cached {ticker} prices...')
-            with open(buffer_store, 'r') as infile:
-                if settings.CACHE_EXT == "json":
-                    prices = json.load(infile)
-            return prices
-
-    if switch_flag:
-        time_delta = end_date - start_date
-        if time_delta.days < 0:
-            buffer = end_date
-            end_date = start_date
-            start_date = end_date
+    now = datetime.datetime.now()
+    timestamp = '{}{}{}'.format(now.month, now.day, now.year)
+    buffer_store= os.path.join(settings.CACHE_DIR, f'{timestamp}_{ticker}.{settings.CACHE_EXT}')
     
-    output.debug(f'Retrieving {ticker} prices from Service Manager...')  
-    prices = get_daily_price_history(ticker=ticker, start_date=start_date, end_date=end_date)
+    if os.path.isfile(buffer_store):
+        output.debug(f'Loading in cached {ticker} prices...')
+        with open(buffer_store, 'r') as infile:
+            if settings.CACHE_EXT == "json":
+                prices = json.load(infile)
+        return prices
+    else:
+        output.debug(f'Retrieving {ticker} prices from Service Manager...')  
+        prices = get_daily_price_history(ticker=ticker)
 
-    if buffer_flag:
         output.debug(f'Storing {ticker} price history in cache...')
         with open(buffer_store, 'w') as outfile:
             if settings.CACHE_EXT == "json":
                 json.dump(prices, outfile)
 
-    return prices
+        return prices
 
 def get_daily_price_history(ticker, start_date=None, end_date=None):
     """
@@ -88,6 +77,9 @@ def get_daily_price_history(ticker, start_date=None, end_date=None):
     # TODO: price histories aren't the same length, though, because of weekends. 
     # TODO: retrieve crypto history for len(crypto_prices) = 100 + weekends
 
+    switch_flag = start_date is not None and end_date is not None
+
+    # Validate arguments
     if start_date is not None:
         if helper.is_date_string_today(start_date):
             output.debug(f'Invalid date range. Start Date {start_date} is today!')
@@ -96,7 +88,12 @@ def get_daily_price_history(ticker, start_date=None, end_date=None):
         if helper.is_date_string_today(end_date):
             output.debug(f'End Date {end_date} is today!')
             end_date = None
-
+    if switch_flag:
+        time_delta = end_date - start_date
+        if time_delta.days < 0:
+            buffer = end_date
+            end_date = start_date
+            start_date = end_date
     asset_type=markets.get_asset_type(ticker)  
 
     # Verify dates fall on trading days if asset_type is ASSET_EQUITY

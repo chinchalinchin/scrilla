@@ -41,7 +41,7 @@ def calculate_moving_averages(tickers, start_date=None, end_date=None):
         for ticker in tickers:
             output.verbose(f'Calculating Moving Average for {ticker}')
 
-            prices = services.retrieve_prices_from_cache(ticker, start_date, end_date)
+            prices = services.retrieve_prices_from_cache(ticker)
             asset_type = markets.get_asset_type(ticker)
             trading_period = markets.get_trading_period(asset_type)
 
@@ -253,15 +253,16 @@ def calculate_risk_return(ticker, start_date=None, end_date=None):
             with open(buffer_store, 'r') as infile:
                 results = json.load(infile)
             return results
+        else:
+            prices = services.retrieve_prices_from_cache(ticker=ticker)
+    else: 
+        prices = services.get_daily_price_history(ticker=ticker, start_date=start_date, end_date=end_date)
 
-    
-    prices = services.retrieve_prices_from_cache(ticker, start_date, end_date)
     if not prices:
         output.debug(f'No prices could be retrieved for {ticker}')
         return False
     
     sample = len(prices)
-
     # calculate sample mean annual return
     i, mean_return, tomorrows_price = 0, 0, 0 
     output.debug(f'Calculating mean annual return over last {sample} days for {ticker}')
@@ -282,21 +283,22 @@ def calculate_risk_return(ticker, start_date=None, end_date=None):
         tomorrows_price = services.parse_price_from_date(prices, date, asset_type)
         
     # calculate sample annual volatility
-    i, variance, tomorrows_price = 0, 0, 0
+    today = False
+    variance, tomorrows_price = 0, 0
     mean_mod_return = mean_return*numpy.sqrt(trading_period)
     output.debug(f'Calculating mean annual volatility over last {sample} days for {ticker}')
 
     for date in prices:
         todays_price = services.parse_price_from_date(prices, date, asset_type)
 
-        if i != 0:
+        if today:
             output.verbose(f'{date}: (todays_price, tomorrows_price) = ({todays_price}, {tomorrows_price})')
             current_mod_return= numpy.log(float(tomorrows_price)/float(todays_price))/numpy.sqrt(trading_period) 
             variance = variance + (current_mod_return - mean_mod_return)**2/(sample - 1)
             output.verbose(f'{date}: (daily_variance, sample_variance) = ({round(current_mod_return, 2)}, {round(variance, 2)})')
 
         else:
-            i += 1
+            today = True
 
         tomorrows_price = services.parse_price_from_date(prices, date, asset_type)
 
@@ -322,6 +324,7 @@ def calculate_risk_return(ticker, start_date=None, end_date=None):
 # NOTE: assumes price history returns from latest to earliest date.
 # NOTE: does not cache correlation if start_date and end_date are specified, 
 #       i.e. only caches current correlation from the last 100 days.
+# TODO: NEED TO TAKE INTO ACCOUNT START_ AND END_DATE
 def calculate_correlation(ticker_1, ticker_2, start_date=None, end_date=None):
     now = datetime.datetime.now()
     timestamp = '{}{}{}'.format(now.month, now.day, now.year)
@@ -344,11 +347,14 @@ def calculate_correlation(ticker_1, ticker_2, start_date=None, end_date=None):
                 results = json.load(infile)
                 correlation = results
             return correlation
-
+        else:
+            prices_1 = services.retrieve_prices_from_cache(ticker=ticker_1)
+            prices_2 = services.retrieve_prices_from_cache(ticker=ticker_2)
+    else:
+        prices_1 = services.get_daily_price_history(ticker=ticker_1, start_date=start_date, end_date=end_date)
+        prices_2 = services.get_daily_price_history(ticker=ticker_1, stat_date=start_date, end_date=end_date)
     # calculate results from sample
     output.debug(f'Preparing to calculate correlation for ({ticker_1},{ticker_2})')
-    prices_1 = services.retrieve_prices_from_cache(ticker_1, start_date, end_date)
-    prices_2 = services.retrieve_prices_from_cache(ticker_2, start_date, end_date)
 
     if (not prices_1) or (not prices_2):
         output.debug("Prices cannot be retrieved for correlation calculation")

@@ -1,9 +1,11 @@
-import os, dotenv
+import sys, os, dotenv
 
 ### DIRECTORY CONFIGURATION ## 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PROJECT_DIR = os.path.dirname(os.path.dirname(BASE_DIR))
 APP_DIR = os.path.join(PROJECT_DIR, 'app')
+    # Add Application To Python Path
+sys.path.append(PROJECT_DIR)
 
 ### ENVIRONMENT INITIALIZATION ###
 dotenv.load_dotenv(os.path.join(os.path.join(PROJECT_DIR, 'env'),'.env'))
@@ -66,7 +68,7 @@ AUTH_PASSWORD_VALIDATORS = [
 STATIC_URL = '/static/'
 
 ### HEADER CONFIGURATION ###
-ALLOWED_HOSTS = ['localhost']
+ALLOWED_HOSTS = [ 'localhost' ]
 
 ### DATABASE CONFIGURATION
 DATABASES = {

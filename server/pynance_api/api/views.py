@@ -10,13 +10,6 @@ from core import settings
 from debug import DebugLogger
 
 # Application Imports
-    # Add PROJECT_DIR to Python Path
-sys.path.append(settings.APP_DIR)
-sys.path.append(settings.PROJECT_DIR)
-
-print(settings.APP_DIR)
-print(settings.PROJECT_DIR)
-
 import app.statistics as statistics
 import util.helper as helper
 
@@ -38,7 +31,7 @@ def verify_method(request, allowed_methods):
 def get_secondary_args(request):
     if REQUEST_PARAMS['start_date'] in request.GET:
         start_date = str(request.GET.get(REQUEST_PARAMS['start_date']))
-        end_date = helper.parse_date_string(start_date)
+        start_date = helper.parse_date_string(start_date)
     else:
         start_date = None
 
