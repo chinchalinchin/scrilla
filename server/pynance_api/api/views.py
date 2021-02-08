@@ -15,13 +15,6 @@ import util.helper as helper
 
 logger = DebugLogger("server.pynance_api.api.views").get_logger()
 
-REQUEST_PARAMS = {
-    'ticker': 'tickers',
-    'start_date': 'start',
-    'end_date': 'end',
-    'target_return': 'target'
-}
-
 def verify_method(request, allowed_methods):
     if request.method not in allowed_methods: 
         return False
@@ -29,20 +22,20 @@ def verify_method(request, allowed_methods):
         return True
 
 def get_secondary_args(request):
-    if REQUEST_PARAMS['start_date'] in request.GET:
-        start_date = str(request.GET.get(REQUEST_PARAMS['start_date']))
+    if settings.REQUEST_PARAMS['start_date'] in request.GET:
+        start_date = str(request.GET.get(settings.REQUEST_PARAMS['start_date']))
         start_date = helper.parse_date_string(start_date)
     else:
         start_date = None
 
-    if REQUEST_PARAMS['end_date'] in request.GET:
-        end_date = str(request.GET.get(REQUEST_PARAMS['end_date']))
+    if settings.REQUEST_PARAMS['end_date'] in request.GET:
+        end_date = str(request.GET.get(settings.REQUEST_PARAMS['end_date']))
         end_date = helper.parse_date_string(end_date)
     else:
         end_date = None
 
-    if REQUEST_PARAMS['target_return'] in request.GET:
-        target_return = request.GET.get(REQUEST_PARAMS['target_return'])
+    if settings.REQUEST_PARAMS['target_return'] in request.GET:
+        target_return = request.GET.get(settings.REQUEST_PARAMS['target_return'])
     else:
         target_return = None
 
@@ -58,23 +51,25 @@ def risk_return(request):
     if verify_method(request, ["GET"]):
         logger.info('Request method verified!')
 
-        if 'tickers' in request.GET:
-            tickers = request.GET.getlist('tickers')
+        if settings.REQUEST_PARAMS['tickers'] in request.GET:
+            tickers = request.GET.getlist(settings.REQUEST_PARAMS['tickers'])
 
             parsed_args = get_secondary_args(request)
             
             response = {}
             for ticker in tickers:
                 logger.info('Calculating risk-return profile for %s', ticker)
+
                 if parsed_args['start_date'] is not None:
                     logger.info('> Start : %s', parsed_args['start_date'])
+
                 if parsed_args['end_date'] is not None:
                     logger.info('> End: %s', parsed_args['end_date'])
                 response[ticker] = statistics.calculate_risk_return(ticker=ticker, 
                                                                     start_date=parsed_args['start_date'], 
                                                                     end_date=parsed_args['end_date'])
 
-            return JsonResponse(response, safe=False)
+            return JsonResponse(response, status=200, safe=False)
         
         else:
             logger.info('No query parameters provided')

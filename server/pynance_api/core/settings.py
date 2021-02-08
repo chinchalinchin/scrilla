@@ -43,6 +43,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'core.middleware.DebugMiddleware',
 ]
 TEMPLATES = [
     {
@@ -76,4 +77,12 @@ DATABASES = {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
+}
+
+### API CONFIGURATOIN
+REQUEST_PARAMS = {
+    'tickers': 'tickers',
+    'start_date': 'start',
+    'end_date': 'end',
+    'target_return': 'target'
 }
