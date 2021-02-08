@@ -2,6 +2,8 @@ This is a financial application that calculates asset correlation, statistics an
 
 The program's functions are wrapped in <b>PyQt5</b> widgets which provide visualizations from <b>matplotlib</b> in addition to the raw output.
 
+The program's function can also be wired into a WSGI Application using the Django framework provided in the <i>/server/</i> directory. See <b>WSGI Application</b> for more information.
+
 # Set Up
 
 ## CLI Application
@@ -76,11 +78,29 @@ for more examples of additional arguments that can be provided to functions.
 
 ### Local Setup
 
-TODO: Explain
+The application's functions can also be exposed through an API (a work in progress). To launch the API on your <i>localhost</i>, first configure the <b>SERVER_PORT</b> in the <i>/env/.env</i>file. Then, from the <i>/server/pynance_api</i> directory execute,
+
+> python manage.py runserver $SERVER_PORT
+
+Alternatively, you can run the <i>/scripts/server/launch-server.sh</i> script with an argument of <i>-local</i>,
+
+>./scripts/server/launch-server.sh -local
+
+This will launch embed the Django app on your <i>localhost</i> and expose the 
 
 ### Container Setup
 
 TODO: Explain
+
+### API
+
+1. <h1>/api/risk-return</h1><br><b>Query Parameters</b><br>
+    - <i>tickers</i>: an array of the stock/crypto tickers (specified by repeated instances of the <i>tickers</i> parameters) whose risk-return profiles are to be calculated.<br><br> 
+
+    <b>Examples</b>
+    - /api/risk-return?tickers=ALLY&tickers=SNE&tickers=GME
+    - /api/risk_return?tickers=TSLA&start=2020-03-22
+2. 
 
 # TODOS
 

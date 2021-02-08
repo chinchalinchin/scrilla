@@ -33,22 +33,13 @@ if __name__ == "__main__":
         if opt == formatter.FUNC_ARG_DICT["help"]:
             output.help()
 
-        elif opt == formatter.FUNC_ARG_DICT["examples"]:
-            output.examples()
-
-        elif opt == formatter.FUNC_ARG_DICT["purge"]:
-            output.comment(f'Clearing {settings.STATIC_DIR} and {settings.CACHE_DIR}')
-            helper.clear_directory(directory=settings.STATIC_DIR, retain=True, outdated_only=False)
-            helper.clear_directory(directory=settings.CACHE_DIR, retain=True, outdated_only=False)
-
         elif opt == formatter.FUNC_ARG_DICT["clear_cache"]:
             output.comment(f'Clearing {settings.CACHE_DIR}')
             helper.clear_directory(directory=settings.CACHE_DIR, retain=True, outdated_only=False)
 
-        elif opt == formatter.FUNC_ART_DICT['initialize']:
-            output.comment("Initializing /static/ directory")       
-            services.init_static_data()
-
+        elif opt == formatter.FUNC_ARG_DICT["examples"]:
+            output.examples()
+        
         elif opt == formatter.FUNC_ARG_DICT["gui"] and settings.APP_ENV != "container":
             app = QtWidgets.QApplication([])
 
@@ -57,6 +48,16 @@ if __name__ == "__main__":
             widget.show()
 
             sys.exit(app.exec_())
+
+        elif opt == formatter.FUNC_ARG_DICT['initialize']:
+            output.comment("Initializing /static/ directory")       
+            services.init_static_data()
+
+        elif opt == formatter.FUNC_ARG_DICT["purge"]:
+            output.comment(f'Clearing {settings.STATIC_DIR} and {settings.CACHE_DIR}')
+            helper.clear_directory(directory=settings.STATIC_DIR, retain=True, outdated_only=False)
+            helper.clear_directory(directory=settings.CACHE_DIR, retain=True, outdated_only=False)
+
 
         # variable argument functions
         else:
