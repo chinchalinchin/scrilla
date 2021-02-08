@@ -226,8 +226,10 @@ def calculate_moving_averages(tickers, start_date=None, end_date=None):
         
         output.verbose(f'If everything is correct, then len(moving_averages[0][1]) == len(dates_between)')
         if len(moving_averages[0][1]) == len(dates_between):
+            output.verbose("Your program rules.")
             output.verbose('{} = {}'.format(len(moving_averages[0][1]), len(dates_between)))
         else: 
+            output.verbose("Your program sucks.")
             output.verbose('{} != {}'.format(len(moving_averages[0][1]), len(dates_between)))
 
         return moving_averages, dates_between 

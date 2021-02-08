@@ -1,6 +1,9 @@
 
 from django.urls import path
 
-urlpatterns = [
+from api import views
 
+urlpatterns = [
+    path('optimize/', views.optimize),
+    path('risk-return/', views.risk_return)
 ]

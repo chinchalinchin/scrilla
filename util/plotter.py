@@ -123,7 +123,7 @@ def plot_moving_averages(symbols, averages_output, periods, show=True, savefile=
         #
         # for i in range(len(symobls)):
         #   for j in range(len(dates)):
-        #       MA_1 = averages[i][j][0]
+        #       MA_1 = averages[i][0][j]
         #       ma1s.append(MA_1)
         #                         
         #       MA_2 = averages[i][j][1]

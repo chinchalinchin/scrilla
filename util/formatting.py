@@ -44,6 +44,8 @@ FUNC_ARG_DICT = {
     "plot_risk_profile": "-plot-rr",
     "purge": "-pur",
     "risk_return" : "-rr",
+    "server_local": "-local",
+    "server_container": "-container"
 }
 
 FUNC_XTRA_ARGS_DICT = {
@@ -72,6 +74,8 @@ FUNC_DICT = {
     "plot_risk_profile": "Generates a scatter plot of the risk-return profile for symbol in the supplied list of ticker symbols.ADDITIONAL OPTIONS:  -start (format: \"YYYY-MM-DD\"), -end  (format :\"YYYY-MM-DD\"), -save (format: /path/to/file/filename.jpeg",
     "purge": "Removes all files contained with the /static/ and /cache/ directory, but retains the directories themselves.",
     "risk_return": "Calculate the risk-return profile for the supplied list of ticker symbols. ADDITIONAL OPTIONS:  -start (format: \"YYYY-MM-DD\"), -end  (format :\"YYYY-MM-DD\")",
+    "server_local": "Invokes 'python manage.py runserver' from /server/ directory. Configure .env file to change port.",
+    "server_container": "Builds and runs a Docker image of the application on 'localhost'. Configure .env to change port."
 }
 
 EXAMPLES = { 
