@@ -11,7 +11,7 @@ runserver\e[0m from the \e[3m/server/\e[0m directory.${nl}${tab}${tab}${ind}--co
  = Builds and runs a Docker image of the application.${nl}${tab}${tab}${ind}--help/-h = \
 Displays this help message." 
 
-source "$SCRIPT_DIR/../util/logging.sh"
+source $SCRIPT_DIR/../util/logging.sh
 
 if [ "$1" == "--help" ] || [ "$1" == "--h" ] || [ "$1" == "-help" ] || [ "$1" == "-h" ]
 then
@@ -20,15 +20,15 @@ else
     # DIRECTORIES
     ROOT_DIR=$SCRIPT_DIR/../..
     UTIL_DIR=$SCRIPT_DIR/../util
+    DOCKER_DIR=$SCRIPT_DIR/../docker
     SERVER_DIR=$ROOT_DIR/server/pynance_api
     APP_DIR=$ROOT_DIR/app
     ENV_DIR=$ROOT_DIR/env
 
-    log "Invoking \e[3menv-vars\e[0m script" $SCRIPT_NAME
-
     if [ "$1" == "--local" ] || [ "$1" == "-local" ] || [ "$1"  == "--l" ] || [ "$1" == "-l" ] || [ $# -eq 0 ]
     then
-        source "$UTIL_DIR/env-vars.sh"
+        log "Invoking \e[3menv-vars\e[0m script" $SCRIPT_NAME
+        source $UTIL_DIR/env-vars.sh ""
 
         cd $SERVER_DIR
         log "Logging Non-sensitive Django Settings" $SCRIPT_NAME
@@ -42,7 +42,13 @@ else
     fi
     if [ "$1" == "--container" ] || [ "$1" = "-container" ] || [ "$1" == "--c" ] || [ "$1" == "-c" ]
     then
-        source "$UTIL_DIR/env-vars.sh" container
-        log "Build Docker image here" $SCRIPT_NAME
+        log "Invoking \e[3menv-vars\e[0m script" $SCRIPT_NAME
+        source $UTIL_DIR/env-vars.sh container
+
+        log "Invoking \e[3mbuild-container\e[0m script" $SCRIPT_NAME
+        bash $DOCKER_DIR/build-container.sh
+
+        log "Spinning up \e[3m$IMG_NAME:$TAG_NAME\e[0m with container name \e[3m$CONTAINER_NAME\e[0m" $SCRIPT_NAME
+        docker run -d --name $CONTAINER_NAME --publish $SERVER_PORT:$SERVER_PORT --env-file $ENV_DIR/container.env $IMG_NAME:$IMG_TAG
     fi
 fi
