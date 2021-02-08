@@ -17,8 +17,6 @@ VERSION="0.0.1"
 
 APP_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-ENVIRONMENT = os.environ.setdefault('ENVIRONMENT', 'local')
-
 APP_ENV = os.environ.setdefault('APP_ENV', 'local')
 
 if APP_ENV != 'container':
@@ -27,9 +25,10 @@ if APP_ENV != 'container':
 else:
     dotenv.load_dotenv(os.path.join(os.path.join(APP_DIR,'env'), 'container.env'))
 
-CONFIG_FILE = os.path.join(APP_DIR,'static', 'creds','config.json')
+CONFIG_FILE = os.path.join(APP_DIR, 'static', 'creds','config.json')
 
 if helper.is_non_zero_file(CONFIG_FILE):
+    print('config was nonzero')
     with open(CONFIG_FILE, 'r') as infile:
         credential_overrides = json.load(infile)
 else:

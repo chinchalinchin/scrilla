@@ -336,7 +336,7 @@ def init_static_data():
             (not os.path.isfile(settings.STATIC_TICKERS_FILE)) or \
                 (not os.path.isfile(settings.STATIC_CRYPTO_FILE))):
 
-        output.comment('Initializing Static Data. Please wait. This may take a moment...')
+        output.comment('Initializing static data. Please wait. This may take a moment...')
         output.comment('NOTE: set DEBUG = True for more output while you wait.')
 
         # Clear static folder if initializing, otherwise unnecessary
@@ -390,6 +390,8 @@ def init_static_data():
 
         else:
             output.debug("No STAT_MANAGER set in .env file!")
+    else:
+        output.comment('Static data already initialized!')
 
 def get_static_data(static_type):
     output.debug(f'Loading in cached {static_type} symbols...')

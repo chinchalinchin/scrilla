@@ -29,6 +29,8 @@ then
         gunicorn core.wsgi:application --bind=0.0.0.0:$SERVER_PORT --workers 3
     fi
 
+    # OTHER IMAGE DEPLOYMENTS GO HERE
+    
 else
     log "Argument(s) Provided: ${@}" $SCRIPT_NAME
     log "Switching to CLI Mode" $SCRIPT_NAME

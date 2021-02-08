@@ -50,7 +50,7 @@ else
         log "Invoking \e[3menv-vars\e[0m script" $SCRIPT_NAME
         source $UTIL_DIR/env-vars.sh container
 
-        log "Checking if \e[3m$CONTAINER_NAME\e[0m container is currently running" $SCRIPT_NAME
+        log "Checking if \e[3m$CONTAINER_NAME\e[0m container is currently running..." $SCRIPT_NAME
         if [ "$(docker ps -q -f name=$CONTAINER_NAME)" ]
         then
             log "Stopping \e[3m$CONTAINER_NAME\e[0m container" $SCRIPT_NAME
@@ -59,8 +59,8 @@ else
             log "Removing \e[3m$CONTAINER_NAME\e[0m container" $SCRIPT_NAME
             docker rm $CONTAINER_NAME
         fi
-        
-        log "Invoking \e[3mbuild-container\e[0m script" $SCRIPT_NAME
+
+        log "Invoking \e[3mbuild-container\e[0m script..." $SCRIPT_NAME
         bash $DOCKER_DIR/pynance-container.sh
 
         # TODO: mount /static/ and /cache/ directories
@@ -69,6 +69,8 @@ else
         --name $CONTAINER_NAME \
         --publish $SERVER_PORT:$SERVER_PORT \
         --env-file $ENV_DIR/container.env \
+        --mount type=bind,source=$CACHE_DIR,target=/home/cache/ \
+        --mount type=bind,source-$STATIC_DIR,target=/home/static/ \
         $IMG_NAME:$TAG_NAME
     fi
 fi
