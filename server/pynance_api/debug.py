@@ -30,7 +30,7 @@ class DebugLogger():
         self.logger.info('> Enviroment: %s', config.APP_ENV)
         self.logger.info("-------------------------------------------------")
         self.logger.info("# Database Configuration")
-        self.logger.info('> Database Engine: %s', config.DATABASE['default']['ENGINE'])
+        self.logger.info('> Database Engine: %s', config.DATABASES['default']['ENGINE'])
         self.logger.info("-------------------------------------------------")
 
 if __name__ == "__main__":
