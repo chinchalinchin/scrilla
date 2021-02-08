@@ -1,7 +1,5 @@
 import sys, os, json, dotenv
 
-from PyQt5.QtWidgets import QApplication, QWidget, QInputDialog, QLineEdit
-
 import util.helper as helper
 import util.tester as tester
 import util.logger as logger
@@ -21,7 +19,13 @@ APP_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 ENVIRONMENT = os.environ.setdefault('ENVIRONMENT', 'local')
 
-dotenv.load_dotenv(os.path.join(os.path.join(APP_DIR,'env'), '.env'))
+APP_ENV = os.environ.setdefault('APP_ENV', 'local')
+
+if APP_ENV != 'container':
+    from PyQt5.QtWidgets import QApplication, QWidget, QInputDialog, QLineEdit
+    dotenv.load_dotenv(os.path.join(os.path.join(APP_DIR,'env'), '.env'))
+else:
+    dotenv.load_dotenv(os.path.join(os.path.join(APP_DIR,'env'), 'container.env'))
 
 CONFIG_FILE = os.path.join(APP_DIR,'static', 'creds','config.json')
 
@@ -138,31 +142,36 @@ if PRICE_MANAGER == 'alpha_vantage':
         unverified = True
 
     new_creds = None
-    while unverified:
-        output.comment('Unable to verify ALPHA_VANTAGE API Key.')
-        output.comment('Please register at https://www.alphavantage.co/ and place API Key in .env or config.json')
-        
-        app = QApplication([])
-        widget, popup = QWidget(), QInputDialog()
-        widget.resize(POPUP_WIDTH, POPUP_HEIGHT)
+    if APP_ENV != 'container':
+        while unverified:
+            output.comment('Unable to verify ALPHA_VANTAGE API Key.')
+            output.comment('Please register at https://www.alphavantage.co/ and place API Key in .env or config.json')
+            
+            app = QApplication([])
+            widget, popup = QWidget(), QInputDialog()
+            widget.resize(POPUP_WIDTH, POPUP_HEIGHT)
 
-        text, okPressed = popup.getText(widget, "AlphaVantage API Key",
-                                        "No AlphaVantage API Key found within application. \n Please register at https://www.alphavantage.co/ for an API Key and enter here:", QLineEdit.Normal, "")
-        
-        widget, popup = None, None
-        app.exit()
-        app = None
+            text, okPressed = popup.getText(widget, "AlphaVantage API Key",
+                                            "No AlphaVantage API Key found within application. \n Please register at https://www.alphavantage.co/ for an API Key and enter here:", QLineEdit.Normal, "")
+            
+            widget, popup = None, None
+            app.exit()
+            app = None
 
-        unverified = not tester.test_av_key(text)
+            unverified = not tester.test_av_key(text)
 
-        if not unverified:
-            new_creds = { 'ALPHA_VANTAGE_KEY' : text }
+            if not unverified:
+                new_creds = { 'ALPHA_VANTAGE_KEY' : text }
 
-    if credential_overrides is not None and new_creds is not None and 'QUANDL_KEY' in credential_overrides:
-        new_creds['QUANDL_KEY'] = credential_overrides['QUANDL_KEY']
+        if credential_overrides is not None and new_creds is not None and 'QUANDL_KEY' in credential_overrides:
+            new_creds['QUANDL_KEY'] = credential_overrides['QUANDL_KEY']
 
-        with open(CONFIG_FILE, 'w') as outfile:
-            json.dump(new_creds, outfile)
+            with open(CONFIG_FILE, 'w') as outfile:
+                json.dump(new_creds, outfile)
+    else:
+        # TODO: Come up with API verification process for containers
+        output.comment('TODO: Set up Docker API verification process')
+        pass
 
     # Metadata Endpoints
     AV_CRYPTO_LIST=os.getenv('ALPHA_VANTAGE_CRYPTO_META_URL')
@@ -222,31 +231,36 @@ if STAT_MANAGER == "quandl":
         unverified = True
 
     new_creds = None
-    while unverified:
-        output.comment('Unable to verify QUANDL API Key.')
-        output.comment('Please register at https://www.quandl.com/ and place API Key in .env or config.json')
-        
-        app = QApplication([])
-        widget, popup = QWidget(), QInputDialog()
-        widget.resize(POPUP_WIDTH, POPUP_HEIGHT)
+    if APP_ENV != 'container':
+        while unverified:
+            output.comment('Unable to verify QUANDL API Key.')
+            output.comment('Please register at https://www.quandl.com/ and place API Key in .env or config.json')
+            
+            app = QApplication([])
+            widget, popup = QWidget(), QInputDialog()
+            widget.resize(POPUP_WIDTH, POPUP_HEIGHT)
 
-        text, okPressed = popup.getText(widget, "Quandl API Key",
-                                        "No Quandl API Key detectedin application. \n Please register at https://www.quandl.com/ for an API Key and enter here:", QLineEdit.Normal, "")
-        
-        widget, popup = None, None
-        app.exit()
-        app = None
+            text, okPressed = popup.getText(widget, "Quandl API Key",
+                                            "No Quandl API Key detectedin application. \n Please register at https://www.quandl.com/ for an API Key and enter here:", QLineEdit.Normal, "")
+            
+            widget, popup = None, None
+            app.exit()
+            app = None
 
-        unverified = not tester.test_q_key(text)
+            unverified = not tester.test_q_key(text)
 
-        if not unverified:
-            new_creds = { 'QUANDL_KEY' : text }
+            if not unverified:
+                new_creds = { 'QUANDL_KEY' : text }
 
-    if credential_overrides is not None and new_creds is not None and 'ALPHA_VANTAGE_KEY' in credential_overrides:
-        new_creds['ALPHA_VANTAGE_KEY'] = credential_overrides['ALPHA_VANTAGE_KEY']
+        if credential_overrides is not None and new_creds is not None and 'ALPHA_VANTAGE_KEY' in credential_overrides:
+            new_creds['ALPHA_VANTAGE_KEY'] = credential_overrides['ALPHA_VANTAGE_KEY']
 
-        with open(CONFIG_FILE, 'w') as outfile:
-            json.dump(new_creds, outfile)
+            with open(CONFIG_FILE, 'w') as outfile:
+                json.dump(new_creds, outfile)
+    else:
+        # TODO: Come up with API verification process for containers
+        output.comment('TODO: Set up Docker API verification process')
+        pass
 
     # Metadata Endpoints
     Q_META_URL = os.getenv('QUANDL_META_URL')

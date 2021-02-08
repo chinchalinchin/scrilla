@@ -24,31 +24,51 @@ else
     SERVER_DIR=$ROOT_DIR/server/pynance_api
     APP_DIR=$ROOT_DIR/app
     ENV_DIR=$ROOT_DIR/env
+    CACHE_DIR=$ROOT_DIR/cache
+    STATIC_DIR=$ROOT_DIR/static
 
+    # Run in local mode
     if [ "$1" == "--local" ] || [ "$1" == "-local" ] || [ "$1"  == "--l" ] || [ "$1" == "-l" ] || [ $# -eq 0 ]
     then
         log "Invoking \e[3menv-vars\e[0m script" $SCRIPT_NAME
         source $UTIL_DIR/env-vars.sh ""
 
         cd $SERVER_DIR
-        log "Logging Non-sensitive Django Settings" $SCRIPT_NAME
+        log "Logging non-sensitive Django settings" $SCRIPT_NAME
         python debug.py
 
-        log 'Migrating Django Database Models' $SCRIPT_NAME
+        log 'Migrating Django database models' $SCRIPT_NAME
         python manage.py migrate
                 
-        log "Starting Server On \e[3mlocalhost:$SERVER_PORT\e[0m" $SCRIPT_NAME
+        log "Starting server On \e[3mlocalhost:$SERVER_PORT\e[0m" $SCRIPT_NAME
         python manage.py runserver $SERVER_PORT
     fi
+
+    # Run in container mode
     if [ "$1" == "--container" ] || [ "$1" = "-container" ] || [ "$1" == "--c" ] || [ "$1" == "-c" ]
     then
         log "Invoking \e[3menv-vars\e[0m script" $SCRIPT_NAME
         source $UTIL_DIR/env-vars.sh container
 
         log "Invoking \e[3mbuild-container\e[0m script" $SCRIPT_NAME
-        bash $DOCKER_DIR/build-container.sh
+        bash $DOCKER_DIR/pynance-container.sh
 
-        log "Spinning up \e[3m$IMG_NAME:$TAG_NAME\e[0m with container name \e[3m$CONTAINER_NAME\e[0m" $SCRIPT_NAME
-        docker run -d --name $CONTAINER_NAME --publish $SERVER_PORT:$SERVER_PORT --env-file $ENV_DIR/container.env $IMG_NAME:$IMG_TAG
+        log "Checking if \e[3m$CONTAINER_NAME\e[0m container is currently running" $SCRIPT_NAME
+        if [ "$(docker ps -q -f name=$CONTAINER_NAME)" ]
+        then
+            log "Stopping \e[3m$CONTAINER_NAME\e[0m container" $SCRIPT_NAME
+            docker container stop $CONTAINER_NAME
+
+            log "Removing \e[3m$CONTAINER_NAME\e[0m container" $SCRIPT_NAME
+            docker rm $CONTAINER_NAME
+        fi
+
+        # TODO: mount /static/ and /cache/ directories
+        log "Spinning up \e[3m$IMG_NAME:$TAG_NAME\e[0m with container name \e[3m$CONTAINER_NAME\e[0m on \e[3mlocalhost:$SERVER_PORT\e[0m" $SCRIPT_NAME
+        docker run \
+        --name $CONTAINER_NAME \
+        --publish $SERVER_PORT:$SERVER_PORT \
+        --env-file $ENV_DIR/container.env \
+        $IMG_NAME:$TAG_NAME
     fi
 fi

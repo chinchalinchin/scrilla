@@ -11,7 +11,7 @@ import app.markets as markets
 
 from app.portfolio import Portfolio
 
-if settings.ENVIRONMENT != "container":
+if settings.APP_ENV != "container":
     from PyQt5 import QtWidgets
     import gui.menu as menu
     import util.plotter as plotter
@@ -45,7 +45,11 @@ if __name__ == "__main__":
             output.comment(f'Clearing {settings.CACHE_DIR}')
             helper.clear_directory(directory=settings.CACHE_DIR, retain=True, outdated_only=False)
 
-        elif opt == formatter.FUNC_ARG_DICT["gui"] and settings.ENVIRONMENT != "container":
+        elif opt == formatter.FUNC_ART_DICT['initialize']:
+            output.comment("Initializing /static/ directory")       
+            services.init_static_data()
+
+        elif opt == formatter.FUNC_ARG_DICT["gui"] and settings.APP_ENV != "container":
             app = QtWidgets.QApplication([])
 
             widget = menu.MenuWidget()

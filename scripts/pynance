@@ -1,13 +1,11 @@
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-SERVER_ARGS=("--local" "-local" "--l" "-l" "--container" "-container" "--c" "-c")
+declare -a SERVER_ARGS=("--local" "-local" "--l" "-l" "--container" "-container" "--c" "-c")
 
-for arg in $SERVER_ARGS
+for arg in ${SERVER_ARGS[@]}
 do
     if [ "$1" == "$arg" ]
     then
-        this_arg=$1
-        shift
-        bash $SCRIPT_DIR/server/launch-server.sh $this_arg
+        bash $SCRIPT_DIR/server/pynance-server.sh $1
         exit 0
     fi
 done
