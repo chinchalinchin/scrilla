@@ -65,9 +65,14 @@ def risk_return(request):
             
             response = {}
             for ticker in tickers:
-                response[ticker] = statistics.calculate_risk_return(ticker, 
-                                                                    parsed_args['start_date'], 
-                                                                    parsed_args['end_date'])
+                logger.info('Calculating risk-return profile for %s', ticker)
+                if parsed_args['start_date'] is not None:
+                    logger.info('> Start : %s', parsed_args['start_date'])
+                if parsed_args['end_date'] is not None:
+                    logger.info('> End: %s', parsed_args['end_date'])
+                response[ticker] = statistics.calculate_risk_return(ticker=ticker, 
+                                                                    start_date=parsed_args['start_date'], 
+                                                                    end_date=parsed_args['end_date'])
 
             return JsonResponse(response, safe=False)
         

@@ -34,5 +34,5 @@ class DebugLogger():
         self.logger.info("-------------------------------------------------")
 
 if __name__ == "__main__":
-    logger = DebugLogger("debug.py")
+    logger = DebugLogger("server.pynance_api.debug")
     logger.log_config()

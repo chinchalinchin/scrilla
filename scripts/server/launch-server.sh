@@ -33,7 +33,10 @@ else
         cd $SERVER_DIR
         log "Logging Non-sensitive Django Settings" $SCRIPT_NAME
         python debug.py
-        
+
+        log 'Migrating Django Database Models' $SCRIPT_NAME
+        python manage.py migrate
+                
         log "Starting Server On \e[3mlocalhost:$SERVER_PORT\e[0m" $SCRIPT_NAME
         python manage.py runserver $SERVER_PORT
     fi
