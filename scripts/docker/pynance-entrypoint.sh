@@ -4,7 +4,6 @@
 # function and output results to the terminal.
 # 
 # NOTE: Dockerfile sets WORKDIR to /home/server/
-
 SCRIPT_NAME='pynance-entrypoint'
 source /home/scripts/util/logging.sh
 
@@ -32,7 +31,7 @@ then
     # OTHER IMAGE DEPLOYMENTS GO HERE
 
 else
-    log "Argument(s) Provided: ${@}" $SCRIPT_NAME
+    log "Argument(s) Provided: $(concat_args $@)" $SCRIPT_NAME
     log "Switching to CLI Mode" $SCRIPT_NAME
     cd /home/
     python main.py $@

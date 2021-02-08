@@ -16,3 +16,12 @@ help(){
     nl=$'\n'
     echo -e "${nl}\e[4m$2\e[0m${nl}${nl}   $1" 
 }
+
+concat_args(){
+    ARG_STRING=""
+    for arg in $@
+    do
+        ARG_STRING="$ARG_STRING$ARG"
+    done
+    echo $ARG_STRING
+}

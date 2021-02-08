@@ -28,7 +28,6 @@ else:
 CONFIG_FILE = os.path.join(APP_DIR, 'static', 'creds','config.json')
 
 if helper.is_non_zero_file(CONFIG_FILE):
-    print('config was nonzero')
     with open(CONFIG_FILE, 'r') as infile:
         credential_overrides = json.load(infile)
 else:

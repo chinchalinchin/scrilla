@@ -47,7 +47,7 @@ else
     # Run in container mode
     if [ "$1" == "--container" ] || [ "$1" = "-container" ] || [ "$1" == "--c" ] || [ "$1" == "-c" ]
     then
-        log "Invoking \e[3menv-vars\e[0m script" $SCRIPT_NAME
+        log "Invoking \e[3menv-vars\e[0m script..." $SCRIPT_NAME
         source $UTIL_DIR/env-vars.sh container
 
         log "Checking if \e[3m$CONTAINER_NAME\e[0m container is currently running..." $SCRIPT_NAME
