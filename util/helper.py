@@ -26,9 +26,9 @@ def strip_string_array(array) -> [str]:
 
 def validate_date_string(parsed_date_string):
     length_check = (len(parsed_date_string) == 3 )
-    year_check = (parsed_date_string[0] > 1950)
-    month_check = (parsed_date_string[1]>0 and parsed_date_string[1]<13)
-    day_check = (parsed_date_string[2]>0 and parsed_date_string[3]<32)
+    year_check = (int(parsed_date_string[0]) > 1950)
+    month_check = (int(parsed_date_string[1])>0 and int(parsed_date_string[1])<13)
+    day_check = (int(parsed_date_string[2])>0 and int(parsed_date_string[2])<32)
     return (length_check and year_check and month_check and day_check)
 
 # YYYY-MM-DD
@@ -74,7 +74,7 @@ def format_date_range(start_date, end_date):
     return result
 
 def is_date_today(date) -> bool:
-    return (date == datetime.today().date())
+    return (date == datetime.date.today())
 
 def is_date_string_today(date) -> bool:
     return is_date_today(parse_date_string(date))
@@ -90,12 +90,12 @@ def is_date_string_weekend(date_string) -> bool:
     return is_date_weekend(parse_date_string(date_string))
 
 # YYYY-MM-DD
-def is_date_string_holiday(date_string) -> bool:
+def is_date_holiday(date_string) -> bool:
     us_holidays = holidays.UnitedStates()
     return (date_string in us_holidays)
 
-def is_date_holiday(date) -> bool:
-    return is_date_string_holiday(date_to_string(date))
+def is_date_string_holiday(date) -> bool:
+    return is_date_holiday(date_to_string(date))
 
 # YYYY-MM-DD
 def get_holidays_between(start_date_string, end_date_string) -> int:

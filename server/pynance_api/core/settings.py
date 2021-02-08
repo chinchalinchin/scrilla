@@ -2,9 +2,10 @@ import os, dotenv
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-APP_DIR = os.path.dirname(os.path.dirname(os.path.dirname(BASE_DIR)))
+PROJECT_DIR = os.path.dirname(os.path.dirname(BASE_DIR))
+APP_DIR = os.path.join(PROJECT_DIR, 'app')
 
-dotenv.load_dotenv(os.path.join(os.path.join(APP_DIR, 'env'),'.env'))
+dotenv.load_dotenv(os.path.join(os.path.join(PROJECT_DIR, 'env'),'.env'))
 
 SECRET_KEY = os.environ.setdefault('SECRET_KEY', 'NoIAmYourFather')
 
