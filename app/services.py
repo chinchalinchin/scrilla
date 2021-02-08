@@ -46,6 +46,7 @@ def retrieve_prices_from_cache(ticker):
         with open(buffer_store, 'r') as infile:
             if settings.CACHE_EXT == "json":
                 prices = json.load(infile)
+            # TODO: load other file types
         return prices
     else:
         output.debug(f'Retrieving {ticker} prices from Service Manager...')  
@@ -55,7 +56,7 @@ def retrieve_prices_from_cache(ticker):
         with open(buffer_store, 'w') as outfile:
             if settings.CACHE_EXT == "json":
                 json.dump(prices, outfile)
-
+            # TODO: dump other file types
         return prices
 
 def get_daily_price_history(ticker, start_date=None, end_date=None):
@@ -94,6 +95,7 @@ def get_daily_price_history(ticker, start_date=None, end_date=None):
             buffer = end_date
             end_date = start_date
             start_date = end_date
+
     asset_type=markets.get_asset_type(ticker)  
 
     # Verify dates fall on trading days if asset_type is ASSET_EQUITY
@@ -184,7 +186,6 @@ def get_daily_price_history(ticker, start_date=None, end_date=None):
                     start_string, end_string = helper.date_to_string(start_date), helper.date_to_string(end_date)
                     start_index = list(prices[settings.AV_RES_EQUITY_FIRST_LAYER].keys()).index(start_string)
                     end_index = list(prices[settings.AV_RES_EQUITY_FIRST_LAYER].keys()).index(end_string)
-                    print(start_index, end_index)
                     prices = dict(itertools.islice(prices[settings.AV_RES_EQUITY_FIRST_LAYER].items(), end_index, start_index))
                 except:
                     output.sys_error()
@@ -205,13 +206,14 @@ def get_daily_price_history(ticker, start_date=None, end_date=None):
                 try:
                     start_string = helper.date_to_string(start_date)
                     start_index = list(prices[settings.AV_RES_EQUITY_FIRST_LAYER].keys()).index(start_string)
-                    dict(itertools.islice(prices[settings.AV_RES_EQUITY_FIRST_LAYER].items(), 0, start_index))
+                    prices = dict(itertools.islice(prices[settings.AV_RES_EQUITY_FIRST_LAYER].items(), 0, start_index))
                 except:
                     output.debug('End Date not found in AlphaVantage Response.')
                     return False
             
             else:
                 prices = prices[settings.AV_RES_EQUITY_FIRST_LAYER]
+
             return prices
 
         # TODO: len(crypto_prices) - weekends. do i want to do it here? or in statistics.py when
