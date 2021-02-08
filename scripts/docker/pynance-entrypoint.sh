@@ -12,9 +12,9 @@ log "Executing from $(pwd)" $SCRIPT_NAME
 
 if [ $# -eq 0 ]
 then
-    # cd /home/
-    # log "Invoking \e[2mpynance CLI\e[0m to initalize \e[3m/static/\e[0m directory; This may take a while!"
-    # python main.py -init
+    cd /home/
+    log "Invoking \e[2mpynance CLI\e[0m to initalize \e[3m/static/\e[0m directory; This may take a while!"
+    python main.py -init
 
     cd /home/server/pynance_api/
     log "Logging Non-sensitive Django settings" $SCRIPT_NAME
@@ -30,7 +30,7 @@ then
     fi
 
     # OTHER IMAGE DEPLOYMENTS GO HERE
-    
+
 else
     log "Argument(s) Provided: ${@}" $SCRIPT_NAME
     log "Switching to CLI Mode" $SCRIPT_NAME
