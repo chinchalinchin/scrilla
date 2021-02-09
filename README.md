@@ -22,7 +22,7 @@ If this script is provided an argument, it will search for an <i>.env</i> file w
 
 > ./scripts/util/env-vars.sh container
 
-will attempt to export the <i>/env/container.env</i> variables into your session. If it does not find one, it will copy the <i>/env/.sample.env</i> into a new file with that name and ask you configure it before executing the script again.
+will attempt to export the <i>/env/container.env</i> variables into your session. If it does not find this file, it will copy the <i>/env/.sample.env</i> into a new file with that name and ask you configure it before executing the script again.
 
 ## CLI Application
 
