@@ -84,5 +84,6 @@ REQUEST_PARAMS = {
     'tickers': 'tickers',
     'start_date': 'start',
     'end_date': 'end',
-    'target_return': 'target'
+    'target_return': 'target',
+    'jpeg': 'jpeg'
 }
