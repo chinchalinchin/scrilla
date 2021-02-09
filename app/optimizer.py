@@ -6,7 +6,9 @@ import util.logger as logger
 
 output = logger.Logger('app.optimizer')
 
-def optimize_portfolio(portfolio, target_return):
+# TODO: set target_return = None for default and combine with minimize_portfolio_variance
+#       by conditioning on if target_return is None. 
+def optimize_portfolio_variance(portfolio, target_return=None):
     tickers = portfolio.get_assets()
     portfolio.set_target_return(target_return)
 
@@ -16,34 +18,40 @@ def optimize_portfolio(portfolio, target_return):
             'type': 'eq',
             'fun': portfolio.get_constraint
         }
-    return_constraint = {
-        'type': 'eq',
-        'fun': portfolio.get_target_return_constraint
-    }
-    portfolio_constraints = [equity_constraint, return_constraint]
 
-    output.debug(f'Optimizing {tickers} Portfolio Risk Subject To Return = {target_return}')
+    if target_return is not None:
+        output.debug(f'Optimizing {tickers} Portfolio Volatility Subject To Return = {target_return}')
+
+        return_constraint = {
+            'type': 'eq',
+            'fun': portfolio.get_target_return_constraint
+        }
+        portfolio_constraints = [equity_constraint, return_constraint]
+    else:
+        output.debug(f'Minimizing {tickers} Portfolio Volatility')
+        portfolio_constraints = equity_constraint
+
     allocation = optimize.minimize(fun = portfolio.volatility_function, x0 = init_guess, 
                                     method=settings.OPTIMIZATION_METHOD, bounds=equity_bounds, 
                                     constraints=portfolio_constraints, options={'disp': False})
 
     return allocation.x
 
-def minimize_portfolio_variance(portfolio):
-    tickers = portfolio.get_assets()
-    init_guess = portfolio.get_init_guess()
-    equity_bounds = portfolio.get_default_bounds()
-    equity_constraint = {
-        'type': 'eq',
-        'fun': portfolio.get_constraint
-    }
+# def minimize_portfolio_variance(portfolio):
+    # tickers = portfolio.get_assets()
+    # init_guess = portfolio.get_init_guess()
+    # equity_bounds = portfolio.get_default_bounds()
+    # equity_constraint = {
+        # 'type': 'eq',
+        # 'fun': portfolio.get_constraint
+    # }
 
-    output.debug(f'Minimizing {tickers} Portfolio Risk')
-    allocation = optimize.minimize(fun = portfolio.volatility_function, x0 = init_guess, 
-                                    method=settings.OPTIMIZATION_METHOD, bounds=equity_bounds, 
-                                    constraints=equity_constraint, options={'disp': False})
+    # output.debug(f'Minimizing {tickers} Portfolio Risk')
+    # allocation = optimize.minimize(fun = portfolio.volatility_function, x0 = init_guess, 
+    #                                 method=settings.OPTIMIZATION_METHOD, bounds=equity_bounds, 
+    #                                 constraints=equity_constraint, options={'disp': False})
 
-    return allocation.x
+    # return allocation.x
 
 def maximize_portfolio_return(portfolio):
     tickers = portfolio.get_assets()
@@ -64,7 +72,7 @@ def maximize_portfolio_return(portfolio):
 
 def calculate_efficient_frontier(portfolio):
     tickers = portfolio.get_assets()
-    minimum_allocation = minimize_portfolio_variance(portfolio=portfolio)
+    minimum_allocation = optimize_portfolio_variance(portfolio=portfolio)
     maximum_allocation = maximize_portfolio_return(portfolio=portfolio)
 
     minimum_return = portfolio.return_function(minimum_allocation)
@@ -76,7 +84,7 @@ def calculate_efficient_frontier(portfolio):
         target_return = minimum_return + return_width*i
 
         output.debug(f'Optimizing {tickers} Portfolio Return Subject To {target_return}')
-        allocation = optimize_portfolio(portfolio=portfolio, target_return=target_return)
+        allocation = optimize_portfolio_variance(portfolio=portfolio, target_return=target_return)
         
         frontier.append(allocation)
         

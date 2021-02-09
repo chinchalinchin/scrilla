@@ -154,8 +154,8 @@ class OptimizerWidget(PortfolioWidget):
             investment = self.portfolio_value.text()
 
             output.debug(f'Optimizing Portfolio : {user_symbols}.')
-            allocation = optimizer.minimize_portfolio_variance(equities=user_symbols)
-            this_portfolio = portfolio.Portfolio(user_symbols)
+            allocation = optimizer.optimize_portfolio_variance(equities=user_symbols)
+            this_portfolio = portfolio.Portfolio(tickers=user_symbols)
             
             output.debug(helper.format_allocation_profile(allocation, this_portfolio))
             self.result.setText(helper.format_allocation_profile(allocation, this_portfolio))
@@ -209,7 +209,7 @@ class EfficientFrontierWidget(GraphWidget):
     @QtCore.Slot()
     def display(self):
         user_symbols = helper.strip_string_array(self.symbol_input.text().upper().split(","))
-        portfolio = portfolio.Portfolio(user_symbols)
+        portfolio = portfolio.Portfolio(tickers=user_symbols)
         # TODO: DATES!
         frontier = optimizer.calculate_efficient_frontier(portfolio=portfolio)
         figure = plotter.plot_frontier(portfolio=portfolio, frontier=frontier, show=False)

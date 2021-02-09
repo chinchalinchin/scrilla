@@ -143,15 +143,6 @@ if __name__ == "__main__":
                 else:
                     output.comment('Invalid Input. Try -ex Flag For Example Usage.')
                     
-            elif opt == formatter.FUNC_ARG_DICT['minimize_variance']:
-                if(len(main_args)>1):
-                    portfolio = Portfolio(tickers=main_args, start_date=start_date, end_date=end_date)
-                    allocation = optimizer.minimize_portfolio_variance(portfolio=portfolio)
-                    output.optimal_result(portfolio=portfolio, allocation=allocation,
-                                            user_input=settings.INVESTMENT_MODE)
-                else: 
-                    output.comment('Invalid Input. Try -ex Flag For Example Usage.')
-
             elif opt == formatter.FUNC_ARG_DICT['moving_averages']:
                 if(len(main_args)>1) or len(main_args)==1:
                     moving_averages = statistics.calculate_moving_averages(main_args, start_date, end_date)
@@ -163,13 +154,10 @@ if __name__ == "__main__":
 
             elif opt == formatter.FUNC_ARG_DICT['optimize_portfolio']:
                 if (len(main_args)>1):
-                        if target is not None:
-                            portfolio = Portfolio(tickers=main_args, start_date=start_date, end_date=end_date)
-                            allocation = optimizer.optimize_portfolio(portfolio=portfolio, target_return=target)   
-                            output.optimal_result(portfolio=portfolio, allocation=allocation,
-                                                    user_input=settings.INVESTMENT_MODE)
-                        else:
-                            output.comment('No Target Return Specified. Try -ex Flag For Example Usage.')
+                    portfolio = Portfolio(tickers=main_args, start_date=start_date, end_date=end_date)
+                    allocation = optimizer.optimize_portfolio_variance(portfolio=portfolio, target_return=target)   
+                    output.optimal_result(portfolio=portfolio, allocation=allocation,
+                                            user_input=settings.INVESTMENT_MODE)
                 
                 else: 
                     output.comment('Invalid Input. Try -ex Flag For Example Usage.')

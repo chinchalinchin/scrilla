@@ -120,7 +120,10 @@ The same applies for publishing the application over a <i>localhost</i> port. To
 
 ## API
 
-1. <h2>/api/risk-return</h2><br><b>Query Parameters</b><br>
+1. <h2>/api/risk-return</h2><br><br>
+    <b>Description</b><br>
+    Returns the annualized mean annual return and the annualized volatility over the specified date range for the supplied list of ticker symbols.<br><br>
+    <b>Query Parameters</b><br>
     - <i>tickers</i>: an array of the stock/crypto tickers (specified by repeated instances of the <i>tickers</i> parameters).<br>
     - <i>start</i>: start date of calculation's time period. Format: YYYY-MM-DD<br>
     - <i>end</i>: end date of calculation's time period. Format: YYYY-MM-DD<br>
@@ -129,7 +132,10 @@ The same applies for publishing the application over a <i>localhost</i> port. To
     - /api/risk-return?tickers=ALLY&tickers=SNE&tickers=GME<br>
     - /api/risk_return?tickers=TSLA&start=2020-03-22<br>
 
-2. <h2>/api/optimize</h2><br><b>Query Paramters</b><br>
+2. <h2>/api/optimize</h2><br><br>
+    <b>Description</b><br>
+    Returns the optimal portfolio allocation (i.e. the portfolio with the minimal volatility) for the supplied list of ticker subject to the target return. If no target return is specified, the portfolio's volatility is minimized without constraints.
+    <b>Query Paramters</b><br>
     - <i>tickers</i>: an array of the stock/crypto tickers (specified by repeated instances of the <i>tickers</i> parameters).<br>
     - <i>target</i>: the target return subject to which the portfolio will be optimized.<br>
     - <i>start</i>: start date of calculation's time period. Format: YYYY-MM-DD<br>
@@ -139,7 +145,7 @@ The same applies for publishing the application over a <i>localhost</i> port. To
 
 See the comments in the <i>/env/.sample.env</i> for more information on each variable. Most of the defaults shouldn't need changed except for <b>ALPHA_VANTAGE_KEY</b> and <b>QUANDL_KEY</b>.
 
-### Service Configuratoin
+### Service Configuration
 
 1. PRICE_MANAGER: defines the service manager in charge of retrieving asset price historical data.
 2. STAT_MANAGER: defines the service manager in charge of retrieving economic statistics historical data.

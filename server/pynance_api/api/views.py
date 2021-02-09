@@ -10,6 +10,7 @@ from core import settings
 from debug import DebugLogger
 
 # Application Imports
+from app.portfolio import Portfolio
 import app.statistics as statistics
 import app.optimizer as optimizer
 import util.helper as helper
@@ -100,8 +101,6 @@ def risk_return(request):
 
         return JsonResponse(response, status=status, safe=False)
         
-
-
 def optimize(request):
     logger.info('Verifying request method...')
     status, parsed_args_or_err_msg = validate_request(request, ["GET"])
@@ -113,9 +112,15 @@ def optimize(request):
         tickers = parsed_args_or_err_msg['tickers']
         parsed_args = parsed_args_or_err_msg['parsed_args']
 
-        if parsed_args['target_return'] is None:
-            # TODO: minimize
-            pass
-        else:
-            # Optimize subject to target return constraint
-            pass
+        portfolio = Portfolio(tickers=tickers, start_date=parsed_args['start_date'], end_date=parsed_args['end_date'])
+        allocation = optimizer.optimize_portfolio_variance(portfolio=portfolio, target_return=parsed_args['target_return'])
+
+        response = {
+            'portfolio_return' : portfolio.return_function(allocation),
+            'portfolio_volatility': portfolio.volatility_function(allocation)
+        }
+        for i in range(len(tickers)):
+            allocation_string = f'{tickers[i]}_allocation'
+            response[allocation_string] = allocation[i]
+        
+        return JsonResponse(response, status=status, safe=False)
