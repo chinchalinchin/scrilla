@@ -135,8 +135,9 @@ if __name__ == "__main__":
                     
             elif opt == formatter.FUNC_ARG_DICT['maximize_return']:
                 if (len(main_args)>1):
-                    allocation = optimizer.maximize_portfolio_return(equities=main_args)
-                    output.optimal_result(portfolio=Portfolio(main_args), allocation=allocation, 
+                    portfolio = Portfolio(tickers=main_args, start_date=start_date, end_date=end_date)
+                    allocation = optimizer.maximize_portfolio_return(portfolio=portfolio)
+                    output.optimal_result(portfolio=portfolio, allocation=allocation, 
                                             user_input=settings.INVESTMENT_MODE)
 
                 else:
@@ -144,8 +145,9 @@ if __name__ == "__main__":
                     
             elif opt == formatter.FUNC_ARG_DICT['minimize_variance']:
                 if(len(main_args)>1):
-                    allocation = optimizer.minimize_portfolio_variance(equities=main_args)
-                    output.optimal_result(portfolio=Portfolio(main_args), allocation=allocation,
+                    portfolio = Portfolio(tickers=main_args, start_date=start_date, end_date=end_date)
+                    allocation = optimizer.minimize_portfolio_variance(portfolio=portfolio)
+                    output.optimal_result(portfolio=portfolio, allocation=allocation,
                                             user_input=settings.INVESTMENT_MODE)
                 else: 
                     output.comment('Invalid Input. Try -ex Flag For Example Usage.')
@@ -162,8 +164,9 @@ if __name__ == "__main__":
             elif opt == formatter.FUNC_ARG_DICT['optimize_portfolio']:
                 if (len(main_args)>1):
                         if target is not None:
-                            allocation = optimizer.optimize_portfolio(equities=main_args, target_return=target)   
-                            output.optimal_result(portfolio=Portfolio(main_args), allocation=allocation,
+                            portfolio = Portfolio(tickers=main_args, start_date=start_date, end_date=end_date)
+                            allocation = optimizer.optimize_portfolio(portfolio=portfolio, target_return=target)   
+                            output.optimal_result(portfolio=portfolio, allocation=allocation,
                                                     user_input=settings.INVESTMENT_MODE)
                         else:
                             output.comment('No Target Return Specified. Try -ex Flag For Example Usage.')
