@@ -10,7 +10,7 @@ The program's function can also be wired into a WSGI Application using the [Djan
 
 ## Prerequisites
 - [Python 3.8 +](https://www.python.org/downloads/) <br>
-- [Docker](https://www.docker.com/products/docker-desktop) (<span style="font-size:0.5em;">Not required, but recommended for deploying application as a microservice.</span>)<br>
+- [Docker](https://www.docker.com/products/docker-desktop) (Not required, but recommended for deploying application as a microservice.)<br>
 
 ## Environment
 
@@ -163,44 +163,44 @@ See the comments in the <i>/env/.sample.env</i> for more information on each var
 
 ### Service Configuration
 
-1. PRICE_MANAGER: defines the service manager in charge of retrieving asset price historical data.
-2. STAT_MANAGER: defines the service manager in charge of retrieving economic statistics historical data.
-3. ALPHA_VANTAGE_URL: URL used to query AlphaVantage for provided price histories.
-4. ALPHA_VANTAGE_CRYPTO_META_URL: URL used to query to AlphaVantage for metadata on crypto market.
-5. ALPHA_VANTAGE_KEY: API key required to authenticate AlphaVantage queries.
-6. QUANDL_URL: URL used to query Quandl fo economic statistics historical data.
-7. QUANDL_META_URL: URL used to query Quandl for metadata on economic statistics.
-8. QUANDL_KEY: API key required to authenticate Quandl queries.
+1. <b>PRICE_MANAGER:</b> defines the service manager in charge of retrieving asset price historical data.
+2. <b>STAT_MANAGER:</b> defines the service manager in charge of retrieving economic statistics historical data.
+3. <b>ALPHA_VANTAGE_URL:</b> URL used to query AlphaVantage for provided price histories.
+4. <b>ALPHA_VANTAGE_CRYPTO_META_URL:</b> URL used to query to AlphaVantage for metadata on crypto market.
+5. <b>ALPHA_VANTAGE_KEY:</b> API key required to authenticate AlphaVantage queries.
+6. <b>QUANDL_URL:</b> URL used to query Quandl fo economic statistics historical data.
+7. <b>QUANDL_META_URL</b>: URL used to query Quandl for metadata on economic statistics.
+8. <b>QUANDL_KEY:</b> API key required to authenticate Quandl queries.
 
 ### Algorithm Configuratoin
 
-9. FRONTIER_STEPS: Number of data points calculated in a portfolio's efficient frontier. Each data point consists of a (return, volatility)-tuple for a specific allocation of assets. 
-10. MA_1: Number of days in the first Moving Average period. Defaults to 20 if not provided.
-11. MA_2: Number of days in the second Moving Average period. Defaults to 60 if not provided.
-12. MA_3: Number of days in the third Moving Average period. Defaulst to 100 if not provided.
+9. <b>FRONTIER_STEPS</b>: Number of data points calculated in a portfolio's efficient frontier. Each data point consists of a (return, volatility)-tuple for a specific allocation of assets. 
+10. <b>MA_1:</b> Number of days in the first Moving Average period. Defaults to 20 if not provided.
+11. <b>MA_2:</b> Number of days in the second Moving Average period. Defaults to 60 if not provided.
+12. <b>MA_3:</b> Number of days in the third Moving Average period. Defaulst to 100 if not provided.
 
 ### CLI Configuration
 
-13. DEBUG: Increases the amount of output, in order to find problems in the application's algorithms.
-14. VERBOSE: Vastly increases the amount of output. Will include output from each calculation conducted. 
-15. INVESTMENT_MODE: Determines whether or not asset allocations are outputted in percentages or dollars. If set to <i>True</i>, the CLI will prompt the user to input the amount of money invested in a given portfolio before outputting results.
-16. INIT: A flag that will cause the application to always initialize the <i>/static/</i> directory everytime it executes. TODO: probably don't need this anymore since there is a CLI function that will re-initialize the <i>/static/</i> directory.
+13. <b>DEBUG:</b> Increases the amount of output, in order to find problems in the application's algorithms.
+14. <b>VERBOSE:</b> Vastly increases the amount of output. Will include output from each calculation conducted. 
+15. <b>INVESTMENT_MODE:</b> Determines whether or not asset allocations are outputted in percentages or dollars. If set to <i>True</i>, the CLI will prompt the user to input the amount of money invested in a given portfolio before outputting results.
+16. <b>INIT:</b> A flag that will cause the application to always initialize the <i>/static/</i> directory everytime it executes. TODO: probably don't need this anymore since there is a CLI function that will re-initialize the <i>/static/</i> directory.
 
 ### GUI Configuration
 
-17. GUI_WIDTH: Defines the width in pixels of the application's root <b>PyQt</b> widget. Defaults to 800 if not provided.
-18. GUI_HEIGHT: Defines the height in pixels of the application's root <b>PyQt</b> widget. Defaults to 800 if not provided.
+17. <b>GUI_WIDTH:</b> Defines the width in pixels of the application's root <b>PyQt</b> widget. Defaults to 800 if not provided.
+18. <b>GUI_HEIGHT:</b> Defines the height in pixels of the application's root <b>PyQt</b> widget. Defaults to 800 if not provided.
 
 ### Server Configuration
 
-19. SECRET_KEY: The secret used by Django to sign requests.
-20. APP_ENV: Informs the application which environment is it running in, i.e. either <i>local</i> or <i>container</i>
-21. SERVER_PORT: Configures the port on which the WSGI application runs.
+19. <b>SECRET_KEY:</b> The secret used by Django to sign requests.
+20. <b>APP_ENV:</b> Informs the application which environment is it running in, i.e. either <i>local</i> or <i>container</i>
+21. <b>SERVER_PORT:</b> Configures the port on which the WSGI application runs.
 
 ### Container Configuration
-22. IMG_NAME: Name of the image created during the Docker build.
-23. TAG_NAME: Tag applied to the image created during the Docker build.
-24. CONTAINER_NAME: Name of the container applied to the image when it is spun up.
+22. <b>IMG_NAME:</b> Name of the image created during the Docker build.
+23. <b>TAG_NAME:</b> Tag applied to the image created during the Docker build.
+24. <b>CONTAINER_NAME:</b> Name of the container applied to the image when it is spun up.
 
 # TODOS
 
