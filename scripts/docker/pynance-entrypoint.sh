@@ -9,6 +9,7 @@ source /home/scripts/util/logging.sh
 
 log "Executing from $(pwd)" $SCRIPT_NAME
 
+# TODO: need to modify entrypoint to execute BASH commands for 'wait-for-it' in docker-compose.
 if [ $# -eq 0 ]
 then
     cd /home/
@@ -21,6 +22,9 @@ then
 
     log 'Migrating Django database models' $SCRIPT_NAME
     python manage.py migrate
+
+    # TODO: data scrapping goes here. May need to adjust argument parsing if I want to do an --init flag
+    # or something like that.
 
     if [ "$APP_ENV" == "container" ]
     then

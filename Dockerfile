@@ -3,7 +3,10 @@ FROM python:latest
 # DEFAULT USER & GROUP CONFIGURATION
 RUN useradd -ms /bin/bash pynance && groupadd pyadmin && usermod -a -G pyadmin pynance
 
-# DEPENDENCIES CONFIGURATION
+# OS DEPENDENCY CONFIGURAITON
+RUN apt-get update -y && apt-get install -y curl wait-for-it
+
+# APPLICATION DEPENDENCY CONFIGURATION
 WORKDIR /home/
 COPY /requirements_docker.txt /home/requirements.txt
 RUN pip install -r requirements.txt

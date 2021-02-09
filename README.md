@@ -248,7 +248,11 @@ See the comments in the <i>/env/.sample.env</i> for more information on each var
 
 20. Create automated tests and integrate repo with a CircleCi pipeline that simply builds the image. Will need to find a cloud provider to deploy onto. Perhaps [Heroku](https://www.heroku.com/)
 
-21. Angular frontend! Separate container. Served through nginx and queries backend <b>pynance</b> server. W
+21. Angular frontend! Separate container. Served through nginx and queries backend <b>pynance</b> server. 
+
+22. Need to modify Docker entrypoint so the `wait-for-it` command in the <i>docker-compose.yml</i> actually does what it is supposed to!
+
+23. Create custom postgres image that initializes a <b>market</b> database and a <b>economy</b> database. Populate <b>market</b> with scrapped price histories. Populate <b>economy</b> with scrapped statistics histories. 
 
 ### NOTES
 
