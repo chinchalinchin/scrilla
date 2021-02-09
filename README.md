@@ -68,7 +68,7 @@ In addition, some of the functions have extra arguments that can be provided to 
 
 > python ./main.py -mov -start 2020-03-05 -end 2021-02-01 ALLY BX
 
-will output the tuple-series of moving averages defined by the environment variables <b>MA_1_PERIOD</b>, <b>MA_2_PERIOD</b> and <b>MA_3_PERIOD</b> between the dates of 2020-03-05 and 2021-02-01. Note dates must be provided in the <i>YYYY-MM-DD</i> format. See
+will output the (date, average)-tuple series of moving averages defined by the environment variables <b>MA_1</b>, <b>MA_2</b> and <b>MA_3</b> between the dates of 2020-03-05 and 2021-02-01. Note dates must be provided in the <i>YYYY-MM-DD</i> format. See
 
 > python ./main.py -ex
 
