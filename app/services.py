@@ -27,7 +27,7 @@ def parse_price_from_date(prices, date, asset_type):
     
     Output
     ------
-    String containing the price on the specified day.
+    String containing the price on the specified date.
     """
     try:
         if settings.PRICE_MANAGER == 'alpha_vantage':
@@ -40,8 +40,11 @@ def parse_price_from_date(prices, date, asset_type):
             pass
 
     except:
+        output.debug('Price unable to be parsed from date.')
         return False
         
+# TODO: Crypto queries return all dates and price even if no start_date is provided.
+#       Need to truncuate crypto queries to last 100 days for caching. 
 def retrieve_prices_from_cache(ticker):
     """
     Parameters
@@ -49,9 +52,14 @@ def retrieve_prices_from_cache(ticker):
     tickers : [ str ]
         Required. List of ticker symbols corresponding to the price histories to be retrieved.
 
+    Output
+    ------
+    { date (str) : price (str) }
+        List of prices and their corresponding dates. 
     Notes
     -----
-    Only recent prices are cached, i.e. the last 100 days of prices. Calls for other periods of time will not be cached and can take considerably longer to load, due to the API rate limits on AlphaVantage. 
+    Only recent prices are cached, i.e. the last 100 days of prices. Calls for other periods of time will not be cached and can take considerably longer to load, due to the API rate limits on AlphaVantage. This function
+    should only be used to retrieve the last 100 days of prices. 
     """
 
     now = datetime.datetime.now()

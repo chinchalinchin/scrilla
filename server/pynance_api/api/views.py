@@ -72,19 +72,26 @@ def parse_secondary_args(request):
 
     return parsed_args
 
+def parse_tickers(request):
+    if settings.REQUEST_PARAMS['tickers'] in request.GET:
+        tickers = request.GET.getlist(settings.REQUEST_PARAMS['tickers'])
+        for ticker in tickers:
+            ticker = ticker.upper()
+        return tickers
+    else:
+        return False
+
 def validate_request(request, allowed_methods=["GET"]):
     logger.info('Verifying request method...')
     if verify_method(request, allowed_methods):
         logger.info('Request method verified!')
 
-        if settings.REQUEST_PARAMS['tickers'] in request.GET:
-            tickers = request.GET.getlist(settings.REQUEST_PARAMS['tickers'])
+        arg_err_or_tickers = parse_tickers(request)
+        if arg_err_or_tickers:
+            tickers = arg_err_or_tickers
             parsed_args = parse_secondary_args(request)
 
-            return 200, {
-                'tickers': tickers,
-                'parsed_args': parsed_args
-            }
+            return 200, { 'tickers': tickers, 'parsed_args': parsed_args }
 
         else:
             logger.info('No ticker query parameters provided')    

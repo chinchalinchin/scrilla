@@ -70,7 +70,7 @@ if __name__ == "__main__":
             args = sys.argv[2:]
 
             # Additional Argument Parsing
-            xtra_args, xtra_values, main_args = helper.separate_args(args)
+            xtra_args, xtra_values, main_args = helper.separate_and_parse_args(args)
             output.debug(f'Main Arguments: {main_args}')
             for xtra in xtra_args:
                 i = xtra_args.index(xtra)

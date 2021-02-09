@@ -12,6 +12,7 @@ import util.formatting as formatter
 import util.helper as helper
 
 output = logger.Logger('app.statistics')
+
 def calculate_moving_averages(tickers, start_date=None, end_date=None):
     """
     Parameters
@@ -357,6 +358,14 @@ def calculate_risk_return(ticker, start_date=None, end_date=None):
 #       i.e. only caches current correlation from the last 100 days.
 # TODO: NEED TO TAKE INTO ACCOUNT START_ AND END_DATE
 def calculate_correlation(ticker_1, ticker_2, start_date=None, end_date=None):
+    """
+    Parameters
+    ----------
+    ticker_1 : str
+        Ticker symbol for first asset.
+    ticker_2 : str
+        Ticker symbol for second asset
+    """
     ### START DATA RETRIEVAL ###
     now = datetime.datetime.now()
     timestamp = '{}{}{}'.format(now.month, now.day, now.year)

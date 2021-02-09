@@ -213,7 +213,7 @@ def get_previous_business_date(date):
 ################################################
 ##### PARSING FUNCTIONS
 
-def separate_args(args):
+def separate_and_parse_args(args):
     extra_args, extra_values= [], []
     reduced_args = args
     offset = 0
@@ -228,6 +228,9 @@ def separate_args(args):
 
     for arg in extra_values:
         reduced_args.remove(arg)
+        
+    for arg in reduced_args:
+        arg = arg.upper()
 
     return (extra_args, extra_values, reduced_args)
 
