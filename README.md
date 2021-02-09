@@ -8,7 +8,7 @@ The program's function can also be wired into a WSGI Application using the [Djan
 
 # Set Up
 
-## Prerequisits
+## Prerequisites
 - [Python 3.8 +](https://www.python.org/downloads/) <br>
 - [Docker](https://www.docker.com/products/docker-desktop) (<span style="font-size:0.5em;">Not required, but recommended for deploying application as a microservice.</span>)<br>
 
