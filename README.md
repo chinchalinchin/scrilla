@@ -58,7 +58,7 @@ If you prefer a GUI, most of pynance's functionality has been wired into a PyQt 
 
 The GUI is still in development and so may have a few bugs lurking within it. If you discover one, contact the owner of this repo.
 
-Note, if you put the <b>/scripts/</b> directory on your PATH, it provides a light wrapper around the python invocation so you can dispense with the <i>python ./main.py</i> part of each command. In other words, if <b>/scripts/</b> is on your PATH, you can execute the following command from any directory,
+Note, if you put the <b>/scripts/</b> directory on your PATH, it provides a light wrapper around the python invocation so you can dispense with the `python ./main.py` part of each command. In other words, if <b>/scripts/</b> is on your PATH, you can execute the following command from any directory,
 
 > pynance -min SPY GLD EWA
 
@@ -66,7 +66,7 @@ to perform the same operation as the following command performed in the project 
 
 > python ./main.py -min SPY GLD EWA
 
-In addition, some of the functions have extra arguments that can be provided to filter the output. For example, moving averages can be calculated for a range of dates by using the <i>-start</i> and <i>-end</i> flags, i.e.
+In addition, some of the functions have extra arguments that can be provided to filter the output. For example, moving averages can be calculated for a range of dates by using the `-start` and `-end` flags, i.e.
 
 > python ./main.py -mov -start 2020-03-05 -end 2021-02-01 ALLY BX
 
@@ -98,7 +98,7 @@ This will launch embed the Django app on your <i>localhost</i> and expose the
 
 If you have your environment file initialized, then the <b>IMG_NAME</b>, <b>TAG_NAME</b> and <b>CONTAINER_NAME</b> environment variables will set the (obviously) image, tag and container respectively. 
 
-To start up the server in a container, execute the <i>launch-server</i> script, but provide it an argument of <i>-container</i>,
+To start up the server in a container, execute the <i>launch-server</i> script, but provide it an argument of `-container`,
 
 >./scripts/server/launch-server.sh -container
 
@@ -110,7 +110,7 @@ Once the image has been built, you can spin up the container using (assuming you
 
 > docker run --publish $SERVER_PORT:$SERVER_PORT --env-file /path/to/env/file $IMG_NAME:$IMG_TAG
 
-Note, the image will need an environment file to function properly. The application container also supports the CLI functionality by providing the <i>docker run</i> command with the function you wish to execute (you do not need to publish the container on port in this case),
+Note, the image will need an environment file to function properly. The application container also supports the CLI functionality by providing the `docker run` command with the function you wish to execute (you do not need to publish the container on port in this case),
 
 > docker run --env-file /path/to/env/file $IMG_NAME:$IMG_TAG -rr BX AMC BB
 
@@ -131,19 +131,21 @@ The same applies for publishing the application over a <i>localhost</i> port. To
     - <i>tickers</i>: an array of the stock/crypto tickers (specified by repeated instances of the <i>tickers</i> parameters).<br>
     - <i>start</i>: start date of calculation's time period. Format: YYYY-MM-DD<br>
     - <i>end</i>: end date of calculation's time period. Format: YYYY-MM-DD<br>
-
     <b>Examples</b>
     - /api/risk-return?tickers=ALLY&tickers=SNE&tickers=GME<br>
     - /api/risk_return?tickers=TSLA&start=2020-03-22<br>
 
 2. <h2>/api/optimize</h2><br><br>
     <b>Description</b><br>
-    Returns the optimal portfolio allocation (i.e. the portfolio with the minimal volatility) for the supplied list of ticker subject to the target return. If no target return is specified, the portfolio's volatility is minimized without constraints.
+    Returns the optimal portfolio allocation (i.e. the portfolio with the minimal volatility) for the supplied list of ticker subject to the target return. If no target return is specified, the portfolio's volatility is minimized without constraints.<br><br>
     <b>Query Paramters</b><br>
     - <i>tickers</i>: an array of the stock/crypto tickers (specified by repeated instances of the <i>tickers</i> parameters).<br>
     - <i>target</i>: the target return subject to which the portfolio will be optimized.<br>
     - <i>start</i>: start date of calculation's time period. Format: YYYY-MM-DD<br>
     - <i>end</i>: end date of calculation's time period. Format: YYYY-MM-DD<br>
+    <b>Examples</b>
+    - /api/optimize?tickers=SRAC&tickers=SPCE&tickers=AMZN<br>
+    - /api/optimize?tickers=FB&tickers=GOOG&tickers=AMZN&tickers=NFLX&target=0.68
 
 ## Environment
 
