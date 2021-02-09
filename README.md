@@ -140,7 +140,7 @@ The same applies for publishing the application over a <i>localhost</i> port. To
     <b>Query Parameters</b><br>
     - <i>tickers</i>: an array of the stock/crypto tickers (specified by repeated instances of the <i>tickers</i> parameters).<br>
     - <i>start</i>: start date of calculation's time period. Format: YYYY-MM-DD<br>
-    - <i>end</i>: end date of calculation's time period. Format: YYYY-MM-DD<br>
+    - <i>end</i>: end date of calculation's time period. Format: YYYY-MM-DD<br><br>
     <b>Examples</b><br>
     - /api/risk-return?tickers=ALLY&tickers=SNE&tickers=GME<br>
     - /api/risk-return?tickers=TSLA&start=2020-03-22<br>
@@ -152,7 +152,7 @@ The same applies for publishing the application over a <i>localhost</i> port. To
     - <i>tickers</i>: an array of the stock/crypto tickers (specified by repeated instances of the <i>tickers</i> parameters).<br>
     - <i>target</i>: the target return subject to which the portfolio will be optimized.<br>
     - <i>start</i>: start date of calculation's time period. Format: YYYY-MM-DD<br>
-    - <i>end</i>: end date of calculation's time period. Format: YYYY-MM-DD<br>
+    - <i>end</i>: end date of calculation's time period. Format: YYYY-MM-DD<br><br>
     <b>Examples</b><br>
     - /api/optimize?tickers=SRAC&tickers=SPCE&tickers=AMZN<br>
     - /api/optimize?tickers=FB&tickers=GOOG&tickers=AMZN&tickers=NFLX&target=0.68
