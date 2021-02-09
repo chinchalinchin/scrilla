@@ -153,7 +153,7 @@ The same applies for publishing the application over a <i>localhost</i> port. To
     - <i>target</i>: the target return subject to which the portfolio will be optimized.<br>
     - <i>start</i>: start date of calculation's time period. Format: YYYY-MM-DD<br>
     - <i>end</i>: end date of calculation's time period. Format: YYYY-MM-DD<br>
-    <b>Examples</b>
+    <b>Examples</b><br>
     - /api/optimize?tickers=SRAC&tickers=SPCE&tickers=AMZN<br>
     - /api/optimize?tickers=FB&tickers=GOOG&tickers=AMZN&tickers=NFLX&target=0.68
 
