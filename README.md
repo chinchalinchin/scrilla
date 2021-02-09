@@ -12,6 +12,18 @@ The program's function can also be wired into a WSGI Application using the [Djan
 - [Python 3.8 +](https://www.python.org/downloads/) <br>
 - [Docker](https://www.docker.com/products/docker-desktop) (<span style="font-size:0.5em;">Not required, but recommended for deploying application as a microservice.</span>)<br>
 
+## Environment
+
+You may want to export the environment variables defined in the <i>/env/.env</i> file into your current terminal session. You can use the <i>scripts/util/env-vars.sh</i> shell script to load these variables,
+
+> ./scripts/util/env-vars.sh
+
+If this script is provided an argument, it will search for an <i>.env</i> file withiin the <i>/env/</i> with the name supplied, i.e.,
+
+> ./scripts/util/env-vars.sh container
+
+will attempt to export the <i>/env/container.env</i> variables into your session. If it does not find one, it will copy the <i>/env/.sample.env</i> into a new file with that name and ask you configure it before executing the script again.
+
 ## CLI Application
 
 First, from the project root directory, (activate your virtual environment, if using one, and) install all of the requirements,
@@ -82,7 +94,7 @@ for more examples of additional arguments that can be provided to functions.
 
 ### Local Setup
 
-The application's functions can also be exposed through an API (a work in progress). To launch the API on your <i>localhost</i>, first configure the <b>SERVER_PORT</b> in the <i>/env/.env</i>file. Then, from the <i>/server/pynance_api</i> directory execute,
+The application's functions can also be exposed through an API (a work in progress). To launch the API on your <i>localhost</i>, first configure the <b>SERVER_PORT</b> in the <i>/env/.env</i> file. Then, from the <i>/server/pynance_api</i> directory execute,
 
 > python manage.py runserver $SERVER_PORT
 
