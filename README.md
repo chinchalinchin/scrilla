@@ -141,7 +141,7 @@ The same applies for publishing the application over a <i>localhost</i> port. To
     - <i>tickers</i>: an array of the stock/crypto tickers (specified by repeated instances of the <i>tickers</i> parameters).<br>
     - <i>start</i>: start date of calculation's time period. Format: YYYY-MM-DD<br>
     - <i>end</i>: end date of calculation's time period. Format: YYYY-MM-DD<br>
-    <b>Examples</b>
+    <b>Examples</b><br>
     - /api/risk-return?tickers=ALLY&tickers=SNE&tickers=GME<br>
     - /api/risk_return?tickers=TSLA&start=2020-03-22<br>
 
