@@ -56,7 +56,7 @@ If you prefer a GUI, most of pynance's functionality has been wired into a PyQt 
 
 The GUI is still in development and so may have a few bugs lurking within it. If you discover one, contact the owner of this repo.
 
-Note, if you put the <b>/scripts/</b> directory on your PATH, it provides a light wrapper around the python invocation so you can dispense with the `python ./main.py` part of each command. In other words, if <b>/scripts/</b> is on your PATH, you can execute the following command from any directory,
+Note, if you put the <i>/scripts/</i> directory on your PATH, it provides a light wrapper around the python invocation so you can dispense with the `python ./main.py` part of each command. In other words, if <b>/scripts/</b> is on your PATH, you can execute the following command from any directory,
 
 > pynance -min SPY GLD EWA
 
