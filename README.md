@@ -18,7 +18,7 @@ You may want to export the environment variables defined in the <i>/env/.env</i>
 
 > ./scripts/util/env-vars.sh
 
-If this script is provided an argument, it will search for an <i>.env</i> file withiin the <i>/env/</i> with the name supplied, i.e.,
+If this script is provided an argument, it will search for an <i>.env</i> file within the <i>/env/</i> with the name supplied, i.e.,
 
 > ./scripts/util/env-vars.sh container
 
@@ -245,6 +245,12 @@ See the comments in the <i>/env/.sample.env</i> for more information on each var
 18. ERROR: There seems to be a problem with the correlation algorithm over time ranges longer than 100 days. NOTE: Pretty sure this is resolved now, but needs further testing. Correlation algorithm needs test for mix of asset types as well, i.e. equities and crypto.
 
 19. Condense DEBUG and VERBOSE environment variables into a string valued variable for simpler output configuration, i.e. LOG_LEVEL or some such instead of separating the two options.
+
+20. Test views manually for jpeg and non-jpeg functions. Now would be a good time to learn about automated tests! 
+
+21. Create automated tests and integrate repo with a CircleCi pipeline that simply builds the image. Will need to find a cloud provider to deploy onto. Perhaps [Heroku](https://www.heroku.com/)
+
+22. Angular frontend! Separate container. Served through nginx and queries backend <b>pynance</b> server. W
 
 ### NOTES
 
