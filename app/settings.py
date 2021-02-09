@@ -64,6 +64,8 @@ except:
 
 ## FINANCIAL CONFIGURATION
 
+OPTIMIZATION_METHOD="SLSQP"
+
 INVESTMENT_MODE = True if os.getenv('INVESTMENT_MODE').lower() == 'true' else False
 
 try:

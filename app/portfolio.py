@@ -20,14 +20,16 @@ class Portfolio:
     def set_end_date(self, end_date=None):
         self.end_date = end_date
         
+    def get_assets(self):
+        return self.tickers
+        
     def calculate_stats(self):
         self.mean_return = []
         self.sample_vol = []
         self.correlation_matrix = [[0 for x in range(len(self.tickers))] for y in range(len(self.tickers))]
 
         for ticker in self.tickers:
-            stats = statistics.calculate_risk_return(ticker=ticker, start_date=self.start_date, 
-                                                        end_date=self.end_date)
+            stats = statistics.calculate_risk_return(ticker=ticker, start_date=self.start_date, end_date=self.end_date)
             if not stats:
                 return False
             self.mean_return.append(stats['annual_return'])

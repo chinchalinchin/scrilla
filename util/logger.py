@@ -161,6 +161,7 @@ class Logger():
             investment = 1000
         
         self.title_line(f'(Annual Return %, Annual Volatility %) Portfolio')
+        # TODO: edit title to include dates
 
         for allocation in frontier:
             self.line()

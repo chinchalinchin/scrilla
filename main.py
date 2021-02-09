@@ -125,8 +125,9 @@ if __name__ == "__main__":
 
             elif opt == formatter.FUNC_ARG_DICT['efficient_frontier']:
                 if(len(main_args)>1):
-                    frontier = optimizer.calculate_efficient_frontier(equities=main_args)
-                    output.efficient_frontier(portfolio=Portfolio(main_args), frontier=frontier,
+                    portfolio = Portfolio(tickers=main_args, start_date=start_date, end_date=end_date)
+                    frontier = optimizer.calculate_efficient_frontier(portfolio=portfolio)
+                    output.efficient_frontier(portfolio=portfolio, frontier=frontier,
                                                 user_input=settings.INVESTMENT_MODE)
                 
                 else: 
