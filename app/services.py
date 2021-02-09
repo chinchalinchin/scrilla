@@ -18,6 +18,16 @@ def parse_price_from_date(prices, date, asset_type):
     prices : {str}{str}
         2D list containing the AlphaVantage response with the first layer peeled off, i.e.
         no metadata, just the date and prices.
+    date: str
+        String of the date to be parsed. Note: this is not a datetime.date object. String
+        must be formatted YYYY-MM-DD
+    asset_type : str
+        String that specifies what type of asset price is being parsed. Options are statically
+        typed in the app.settings.py file: app.settings.ASSET_EQUITY, app.settings.ASSET_CRYPTO
+    
+    Output
+    ------
+    String containing the price on the specified day.
     """
     try:
         if settings.PRICE_MANAGER == 'alpha_vantage':
