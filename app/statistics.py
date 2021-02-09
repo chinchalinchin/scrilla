@@ -353,7 +353,7 @@ def calculate_correlation(ticker_1, ticker_2, start_date=None, end_date=None):
             prices_2 = services.retrieve_prices_from_cache(ticker=ticker_2)
     else:
         prices_1 = services.get_daily_price_history(ticker=ticker_1, start_date=start_date, end_date=end_date)
-        prices_2 = services.get_daily_price_history(ticker=ticker_1, start_date=start_date, end_date=end_date)
+        prices_2 = services.get_daily_price_history(ticker=ticker_2, start_date=start_date, end_date=end_date)
         
     output.debug(f'Preparing to calculate correlation for ({ticker_1},{ticker_2})')
 

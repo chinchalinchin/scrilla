@@ -1,8 +1,10 @@
-This is a financial application that calculates asset correlation, statistics and optimal portfolio allocations using data it retrieves from a variety of sources, chief among them AlphaVantage and Quandl. Statistics are calculated using Ito Calculus and should be consistent with the results demanded by Modern Portfolio Theory and Financial Engineering. The portfolios are optimized by minimizing the portfolio's variance/volatility, i.e. by finding the optimal spot on the portfolio's efficient frontier.
+# Pynance: A Financial Optimization Application
 
-The program's functions are wrapped in <b>PyQt5</b> widgets which provide visualizations from <b>matplotlib</b> in addition to the raw output.
+This is a financial application that calculates asset correlation, statistics and optimal portfolio allocations using data it retrieves from a variety of sources, chief among them AlphaVantage and Quandl. Statistics are calculated using [Ito Calculus](https://en.wikipedia.org/wiki/It%C3%B4_calculus) and should be consistent with the results demanded by [Modern Portfolio Theory](https://en.wikipedia.org/wiki/Modern_portfolio_theory) and [Financial Engineering](https://en.wikipedia.org/wiki/Black%E2%80%93Scholes_equation). The portfolios are optimized by minimizing the portfolio's variance/volatility, i.e. by finding the optimal spot on the portfolio's efficient frontier as defined by the [CAPM model](https://en.wikipedia.org/wiki/Capital_asset_pricing_model).
 
-The program's function can also be wired into a WSGI Application using the Django framework provided in the <i>/server/</i> directory. See <b>WSGI Application</b> for more information.
+The program's functions are wrapped in <b>[PyQt5](https://doc.qt.io/qtforpython/index.html)</b> widgets which provide visualizations from <b>[matplotlib](https://matplotlib.org/3.3.3/contents.html)</b> in addition to the raw output.
+
+The program's function can also be wired into a WSGI Application using the [Django framework](https://docs.djangoproject.com/en/3.0/intro/tutorial01/) provided in the <i>/server/</i> directory. See <b>WSGI Application</b> for more information. The WSGI application can be containerized using the <i>Dockerfile</i> in the project root and deployed as a microservice. 
 
 # Set Up
 
@@ -116,22 +118,58 @@ The same applies for publishing the application over a <i>localhost</i> port. To
 
 > docker run --publish $SERVER_PORT:$SERVER_PORT --env-file /path/to/env/file --mount type=bind,source=/path/to/project/static/,target=/home/static/ --mount type=bind,source=/path/to/project/cache/,target=/home/cache/ $IMG_NAME:$IMG_TAG
 
-### API
+## API
 
 1. <h2>/api/risk-return</h2><br><b>Query Parameters</b><br>
-    - <i>tickers</i>: an array of the stock/crypto tickers (specified by repeated instances of the <i>tickers</i> parameters).
-    - <i>start</i>: start date of calculation's time period. Format: YYYY-MM-DD
-    - <i>end</i>: end date of calculation's time period. Format: YYYY-MM-DD
+    - <i>tickers</i>: an array of the stock/crypto tickers (specified by repeated instances of the <i>tickers</i> parameters).<br>
+    - <i>start</i>: start date of calculation's time period. Format: YYYY-MM-DD<br>
+    - <i>end</i>: end date of calculation's time period. Format: YYYY-MM-DD<br>
 
     <b>Examples</b>
-    - /api/risk-return?tickers=ALLY&tickers=SNE&tickers=GME
-    - /api/risk_return?tickers=TSLA&start=2020-03-22
+    - /api/risk-return?tickers=ALLY&tickers=SNE&tickers=GME<br>
+    - /api/risk_return?tickers=TSLA&start=2020-03-22<br>
 
 2. <h2>/api/optimize</h2><br><b>Query Paramters</b><br>
-    - <i>tickers</i>: an array of the stock/crypto tickers (specified by repeated instances of the <i>tickers</i> parameters).
-    - <i>target</i>: the target return subject to which the portfolio will be optimized.
-    - <i>start</i>: start date of calculation's time period. Format: YYYY-MM-DD
-    - <i>end</i>: end date of calculation's time period. Format: YYYY-MM-DD
+    - <i>tickers</i>: an array of the stock/crypto tickers (specified by repeated instances of the <i>tickers</i> parameters).<br>
+    - <i>target</i>: the target return subject to which the portfolio will be optimized.<br>
+    - <i>start</i>: start date of calculation's time period. Format: YYYY-MM-DD<br>
+    - <i>end</i>: end date of calculation's time period. Format: YYYY-MM-DD<br>
+
+## Environment
+
+TODO: Explain each category.
+### Service Configuratoin
+
+1. PRICE_MANAGER, STAT_MANAGER
+
+2. ALPHA_VANTAGE_URL, ALPHA_VANTAGE_CRYPTO_META_URL, ALPHA_VANTAGE_KEY
+
+3. QUANDL_URL, QUANDL_META_URL, QUANDL_KEY
+
+### Algorithm Configuratoin
+
+4. FRONTIER_STEPS
+
+5. MA_1, MA_2, MA_3
+
+### CLI Configuration
+
+6. DEBUG, VERBOSE
+
+7. INVESTMENT_MODE
+
+8. INIT 
+
+### GUI Configuration
+
+9. GUI_WIDTH, GUI_HEIGHT
+
+### Server Configuration
+
+10. SECRET_KEY, APP_ENV, SERVER_PORT
+
+### Container Configuration
+11. IMG_NAME, TAG_NAME, CONTAINER_NAME
 
 # TODOS
 
@@ -171,7 +209,9 @@ The same applies for publishing the application over a <i>localhost</i> port. To
 
 16. Expand optimization algorithms to take into account START_DATE and END_DATE! Need to adjust Portfolio class! 
 
-17. Scrap historical closing prices up to current year from API and store in database.
+17. Scrap historical closing prices up to current year from API and store in database. Set up container orchestration via <i>docker-compose</i> 
+
+18. ERROR: There seems to be a problem with the correlation algorithm over time ranges longer than 100 days. 
 
 ### NOTE
 
