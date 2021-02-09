@@ -4,7 +4,7 @@ This is a financial application that calculates asset correlation, statistics an
 
 The program's functions are wrapped in [PyQt5](https://doc.qt.io/qtforpython/index.html) widgets which provide visualizations from [matplotlib](https://matplotlib.org/3.3.3/contents.html) in addition to the raw output.
 
-The program's function can also be wired into a WSGI Application using the [Django framework](https://docs.djangoproject.com/en/3.1/) provided in the <i>/server/</i> directory. See <b>WSGI Application</b> for more information. The WSGI application can be containerized using the <i>Dockerfile</i> in the project root and deployed as a microservice. 
+The program's function can also be wired into a WSGI Application using the [Django framework](https://docs.djangoproject.com/en/3.1/) provided in the <i>/server/</i> directory. See **WSGI Application** for more information. The WSGI application can be containerized using the <i>Dockerfile</i> in the project root and deployed as a microservice. 
 
 # Set Up
 
@@ -30,11 +30,11 @@ First, from the project root directory, (activate your virtual environment, if u
 
 > pip install -r requirements.txt
 
-For the application to retrieve data, it must be connected to AlphaVantage and Quandl. Register for API keys at [AlphaVantage](https://www.alphavantage.co) and [Quandl](https://www.quandl.com/). The application searches for environment variables called <b>ALPHA_VANTAGE_KEY</b> and <b>QUANDL_KEY</b> that contain the respective API keys. These variables are loaded in through the <i>/env/.env</i> environment. There are several other environment variables that configure various aspects of the application. A <i>.sample.env</i> file has been included to demonstrate the appropriate format for all variables, in addition to providing explanations for the other variables that can be changed. Besides the API keys, none of the other environment variables need to be changed from their defaults for the application to function properly. The easiest way to set up is to simply 
+For the application to retrieve data, it must be connected to AlphaVantage and Quandl. Register for API keys at [AlphaVantage](https://www.alphavantage.co) and [Quandl](https://www.quandl.com/). The application searches for environment variables called **ALPHA_VANTAGE_KEY** and **QUANDL_KEY** that contain the respective API keys. These variables are loaded in through the <i>/env/.env</i> environment. There are several other environment variables that configure various aspects of the application. A <i>.sample.env</i> file has been included to demonstrate the appropriate format for all variables, in addition to providing explanations for the other variables that can be changed. Besides the API keys, none of the other environment variables need to be changed from their defaults for the application to function properly. The easiest way to set up is to simply 
 
 > cp .sample.env .env
 
-And then change the <b>ALPHA_VANTAGE_KEY</b> and <b>QUANDL_KEY</b> variables to the values you received when you registered on their respective site. Once the API keys have been set, execute the <i>./main.py script</i>. Supply this script an argument with a dash that specifies the function you wish to execute and the ticker symbols you wish to apply the function to. 
+And then change the **ALPHA_VANTAGE_KEY** and **QUANDL_KEY** variables to the values you received when you registered on their respective site. Once the API keys have been set, execute the <i>./main.py script</i>. Supply this script an argument with a dash that specifies the function you wish to execute and the ticker symbols you wish to apply the function to. 
 
 After the application searches for API keys in the <i>.env</i> file, it will search for API keys in <i>config.json</i>. If this file exists, it will override any keys found in <i>.env</i>. If no keys are found within either file, a popup dialog box (QInputDialog from PyQt.QtWidgets) will prompt the user to register for their keys and enter them into a text field. The application will then test the API key entered and if it is valid, save it in the <i>config.json</i> file. Subsequent application calls will leverage the credentials in this file.
 
@@ -80,7 +80,7 @@ In addition, some of the functions have extra arguments that can be provided to 
 
 > python ./main.py -mov -start 2020-03-05 -end 2021-02-01 ALLY BX
 
-will output the (date, average)-tuple series of moving averages defined by the environment variables <b>MA_1</b>, <b>MA_2</b> and <b>MA_3</b> between the dates of 2020-03-05 and 2021-02-01. Note dates must be provided in the <i>YYYY-MM-DD</i> format. See
+will output the (date, average)-tuple series of moving averages defined by the environment variables **MA_1**, **MA_2** and **MA_3** between the dates of 2020-03-05 and 2021-02-01. Note dates must be provided in the <i>YYYY-MM-DD</i> format. See
 
 > python ./main.py -ex
 
@@ -94,7 +94,7 @@ for more examples of additional arguments that can be provided to functions.
 
 ### Local Setup
 
-The application's functions can also be exposed through an API (a work in progress). To launch the API on your <i>localhost</i>, first configure the <b>SERVER_PORT</b> in the <i>/env/.env</i> file. Then, from the <i>/server/pynance_api</i> directory execute,
+The application's functions can also be exposed through an API (a work in progress). To launch the API on your <i>localhost</i>, first configure the **SERVER_PORT** in the <i>/env/.env</i> file. Then, from the <i>/server/pynance_api</i> directory execute,
 
 > python manage.py runserver $SERVER_PORT
 
@@ -106,7 +106,7 @@ This will launch embed the Django app on your <i>localhost</i> and expose the
 
 ### Container Setup
 
-If you have your environment file initialized, then the <b>IMG_NAME</b>, <b>TAG_NAME</b> and <b>CONTAINER_NAME</b> environment variables will set the (obviously) image, tag and container respectively. 
+If you have your environment file initialized, then the **IMG_NAME**, **TAG_NAME** and **CONTAINER_NAME** environment variables will set the (obviously) image, tag and container respectively. 
 
 To start up the server in a container, execute the <i>launch-server</i> script, but provide it an argument of `-container`,
 
@@ -135,31 +135,31 @@ The same applies for publishing the application over a <i>localhost</i> port. To
 ## API
 
 1. <h2>/api/risk-return</h2>
-    <b>Description</b><br>
+    **Description**<br>
     Returns the annualized mean annual return and the annualized volatility over the specified date range for the supplied list of ticker symbols.<br><br>
-    <b>Query Parameters</b><br>
+    **Query Parameters**<br>
     - <i>tickers</i>: an array of the stock/crypto tickers (specified by repeated instances of the <i>tickers</i> parameters).<br>
     - <i>start</i>: start date of calculation's time period. Format: YYYY-MM-DD<br>
     - <i>end</i>: end date of calculation's time period. Format: YYYY-MM-DD<br>
-    <b>Examples</b><br>
+    **Examples**<br>
     - /api/risk-return?tickers=ALLY&tickers=SNE&tickers=GME<br>
-    - /api/risk_return?tickers=TSLA&start=2020-03-22<br>
+    - /api/risk-return?tickers=TSLA&start=2020-03-22<br>
 
 2. <h2>/api/optimize</h2>
-    <b>Description</b><br>
+    **Description**<br>
     Returns the optimal portfolio allocation (i.e. the portfolio with the minimal volatility) for the supplied list of ticker subject to the target return. If no target return is specified, the portfolio's volatility is minimized without constraints.<br><br>
-    <b>Query Paramters</b><br>
+    **Query Paramters**<br>
     - <i>tickers</i>: an array of the stock/crypto tickers (specified by repeated instances of the <i>tickers</i> parameters).<br>
     - <i>target</i>: the target return subject to which the portfolio will be optimized.<br>
     - <i>start</i>: start date of calculation's time period. Format: YYYY-MM-DD<br>
     - <i>end</i>: end date of calculation's time period. Format: YYYY-MM-DD<br>
-    <b>Examples</b><br>
+    **Examples**<br>
     - /api/optimize?tickers=SRAC&tickers=SPCE&tickers=AMZN<br>
     - /api/optimize?tickers=FB&tickers=GOOG&tickers=AMZN&tickers=NFLX&target=0.68
 
 ## Environment
 
-See the comments in the <i>/env/.sample.env</i> for more information on each variable. Most of the defaults shouldn't need changed except for <b>ALPHA_VANTAGE_KEY</b> and <b>QUANDL_KEY</b>.
+See the comments in the <i>/env/.sample.env</i> for more information on each variable. Most of the defaults shouldn't need changed except for **ALPHA_VANTAGE_KEY** and **QUANDL_KEY**.
 
 ### Service Configuration
 
@@ -188,8 +188,8 @@ See the comments in the <i>/env/.sample.env</i> for more information on each var
 
 ### GUI Configuration
 
-17. GUI_WIDTH: Defines the width in pixels of the application's root <b>PyQt</b> widget. Defaults to 800 if not provided.
-18. GUI_HEIGHT: Defines the height in pixels of the application's root <b>PyQt</b> widget. Defaults to 800 if not provided.
+17. GUI_WIDTH: Defines the width in pixels of the application's root **PyQt** widget. Defaults to 800 if not provided.
+18. GUI_HEIGHT: Defines the height in pixels of the application's root **PyQt** widget. Defaults to 800 if not provided.
 
 ### Server Configuration
 
@@ -248,4 +248,4 @@ See the comments in the <i>/env/.sample.env</i> for more information on each var
 
 ### NOTES
 
-1. IMPORTANT: All date strings should be converted to <b>datetime.dates</b> at point of contact with user, i.e. in the main.py file where CLI arguments are parsed, within the gui where user arguments are pulled from widgets or in the server's endpoint views where user arguments are provided through query parameters, before passing it the service/statistics/portfolio functions. All functions in the <i>/app/</i> module assume dates are passed in as <b>datetime.dates</b>.
+1. IMPORTANT: All date strings should be converted to **datetime.dates** at point of contact with user, i.e. in the main.py file where CLI arguments are parsed, within the gui where user arguments are pulled from widgets or in the server's endpoint views where user arguments are provided through query parameters, before passing it the service/statistics/portfolio functions. All functions in the <i>/app/</i> module assume dates are passed in as **datetime.dates**.
