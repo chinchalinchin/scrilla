@@ -118,13 +118,20 @@ The same applies for publishing the application over a <i>localhost</i> port. To
 
 ### API
 
-1. <h1>/api/risk-return</h1><br><b>Query Parameters</b><br>
-    - <i>tickers</i>: an array of the stock/crypto tickers (specified by repeated instances of the <i>tickers</i> parameters) whose risk-return profiles are to be calculated.<br><br> 
+1. <h2>/api/risk-return</h2><br><b>Query Parameters</b><br>
+    - <i>tickers</i>: an array of the stock/crypto tickers (specified by repeated instances of the <i>tickers</i> parameters).
+    - <i>start</i>: start date of calculation's time period. Format: YYYY-MM-DD
+    - <i>end</i>: end date of calculation's time period. Format: YYYY-MM-DD
 
     <b>Examples</b>
     - /api/risk-return?tickers=ALLY&tickers=SNE&tickers=GME
     - /api/risk_return?tickers=TSLA&start=2020-03-22
-2. 
+
+2. <h2>/api/optimize</h2><br><b>Query Paramters</b><br>
+    - <i>tickers</i>: an array of the stock/crypto tickers (specified by repeated instances of the <i>tickers</i> parameters).
+    - <i>target</i>: the target return subject to which the portfolio will be optimized.
+    - <i>start</i>: start date of calculation's time period. Format: YYYY-MM-DD
+    - <i>end</i>: end date of calculation's time period. Format: YYYY-MM-DD
 
 # TODOS
 
@@ -163,6 +170,8 @@ The same applies for publishing the application over a <i>localhost</i> port. To
 15. TEST MOVING AVERAGE ALGORITHM FOR MIX OF ASSET TYPES. I think there may be some mismatch of types in date comparisons.
 
 16. Expand optimization algorithms to take into account START_DATE and END_DATE! Need to adjust Portfolio class! 
+
+17. Scrap historical closing prices up to current year from API and store in database.
 
 ### NOTE
 

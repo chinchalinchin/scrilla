@@ -326,6 +326,7 @@ def calculate_risk_return(ticker, start_date=None, end_date=None):
 #       i.e. only caches current correlation from the last 100 days.
 # TODO: NEED TO TAKE INTO ACCOUNT START_ AND END_DATE
 def calculate_correlation(ticker_1, ticker_2, start_date=None, end_date=None):
+    ### START DATA RETRIEVAL ###
     now = datetime.datetime.now()
     timestamp = '{}{}{}'.format(now.month, now.day, now.year)
     buffer_store_1= os.path.join(settings.CACHE_DIR, f'{timestamp}_{ticker_1}_{ticker_2}_correlation.json')
@@ -352,15 +353,16 @@ def calculate_correlation(ticker_1, ticker_2, start_date=None, end_date=None):
             prices_2 = services.retrieve_prices_from_cache(ticker=ticker_2)
     else:
         prices_1 = services.get_daily_price_history(ticker=ticker_1, start_date=start_date, end_date=end_date)
-        prices_2 = services.get_daily_price_history(ticker=ticker_1, stat_date=start_date, end_date=end_date)
+        prices_2 = services.get_daily_price_history(ticker=ticker_1, start_date=start_date, end_date=end_date)
         
-    # calculate results from sample
     output.debug(f'Preparing to calculate correlation for ({ticker_1},{ticker_2})')
 
     if (not prices_1) or (not prices_2):
         output.debug("Prices cannot be retrieved for correlation calculation")
         return False 
     
+    ### END DATA RETRIEVAL ###
+    ### START SAMPLE STATISTICS CALCULATION ###
     stats_1 = calculate_risk_return(ticker_1, start_date, end_date)
     stats_2 = calculate_risk_return(ticker_2, start_date, end_date)
 
@@ -382,6 +384,11 @@ def calculate_correlation(ticker_1, ticker_2, start_date=None, end_date=None):
     elif asset_type_2 == settings.ASSET_CRYPTO:
         mod_mean_2 = (stats_2['annual_return'] - 0.5*(stats_2['annual_volatility'])**2)*numpy.sqrt((1/365))
 
+    # TODO: Pretty sure I no longer need these constants. The correlation loop implicitly ignores
+    # dates where both assets do not have corresponding prices, i.e. if price 1 is None and price 2
+    # is not None, the loop will skip that date.
+    # I could possibly use these constants to retrieve a longer price history for equities, so
+    # the sample size isn't decreased by mismatched trading days between asset types.
     weekend_offset_1, weekend_offset_2 = 0, 0
 
     # if asset_types are same

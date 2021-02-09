@@ -78,36 +78,46 @@ def get_daily_price_history(ticker, start_date=None, end_date=None):
     # TODO: price histories aren't the same length, though, because of weekends. 
     # TODO: retrieve crypto history for len(crypto_prices) = 100 + weekends
 
+    ### START: ARGUMENT VALIDATION ###
     switch_flag = start_date is not None and end_date is not None
 
-    # Validate arguments
+        # Check if start_date is today
     if start_date is not None:
-        if helper.is_date_string_today(start_date):
-            output.debug(f'Invalid date range. Start Date {start_date} is today!')
+        if helper.is_date_today(start_date):
+            start_date_string = helper.date_to_string(start_date)
+            output.debug(f'Invalid date range. Start Date {start_date_string} is today!')
             return False
+        # Check if end_date is today
     if end_date is not None:
-        if helper.is_date_string_today(end_date):
-            output.debug(f'End Date {end_date} is today!')
+        if helper.is_date_today(end_date):
+            end_date_string = helper.date_to_string(end_date)
+            output.debug(f'End Date {end_date_string} is today!')
             end_date = None
+        # Check if end_date < start_date or end_date = start_date
     if switch_flag:
         time_delta = end_date - start_date
         if time_delta.days < 0:
             buffer = end_date
             end_date = start_date
             start_date = end_date
+        elif time_delta == 0:
+            start_date_string = helper.date_to_string(start_date)
+            end_date_string = helper.date_to_string(end_date)
+            output.debug(f'End Date {end_date_string} = Start Date {start_date_string}!')
+            return False
 
     asset_type=markets.get_asset_type(ticker)  
 
-    # Verify dates fall on trading days if asset_type is ASSET_EQUITY
+        # Verify dates fall on trading days (i.e. not weekends or holidays) if asset_type is ASSET_EQUITY
     if asset_type == settings.ASSET_EQUITY and (start_date is not None or end_date is not None):
         if start_date is not None:
             if helper.is_date_holiday(start_date):
-                start_string = helper.date_to_string(start_date)
-                output.debug(f'{start_string} is a holiday. Equities do not trade on holidays.')
+                start_date_string = helper.date_to_string(start_date)
+                output.debug(f'{start_date_string} is a holiday. Equities do not trade on holidays.')
 
                 start_date = helper.get_previous_business_date(start_date)
-                start_string = helper.date_to_string(start_date)
-                output.debug(f'Setting start date to next business day, {start_string}')
+                start_date_string = helper.date_to_string(start_date)
+                output.debug(f'Setting start date to next business day, {start_date_string}')
 
             elif helper.is_date_weekend(start_date):
                 start_string = helper.date_to_string(start_date)
@@ -119,20 +129,23 @@ def get_daily_price_history(ticker, start_date=None, end_date=None):
         
         if end_date is not None:
             if helper.is_date_holiday(end_date):
-                end_string = helper.date_to_string(end_date)
-                output.debug(f'{end_string} is a holiday. Equities do not trade on holidays.')
+                end_date_string = helper.date_to_string(end_date)
+                output.debug(f'{end_date_string} is a holiday. Equities do not trade on holidays.')
 
                 end_date = helper.get_previous_business_date(end_date)
-                end_string = helper.date_to_string(end_date)
-                output.debug(f'Setting end date to previous business day, {end_string}.')
+                end_date_string = helper.date_to_string(end_date)
+                output.debug(f'Setting end date to previous business day, {end_date_string}.')
 
             elif helper.is_date_weekend(end_date):
-                end_string = helper.date_to_string(end_date)
-                output.debug(f'{end_string} is a weekend. Equities do not trade on weekends.')
+                end_date_string = helper.date_to_string(end_date)
+                output.debug(f'{end_date_string} is a weekend. Equities do not trade on weekends.')
                 
                 end_date = helper.get_previous_business_date(end_date)
-                end_string = helper.date_to_string(end_date)
-                output.debug(f'Setting end date to previous business day, {end_string}.')
+                end_date_string = helper.date_to_string(end_date)
+                output.debug(f'Setting end date to previous business day, {end_date_string}.')
+
+    ### END: ARGUMENT VALIDATION ###
+    ### START: SERVICE QUERY CREATION ###
 
     if settings.PRICE_MANAGER == "alpha_vantage":
 
@@ -192,7 +205,6 @@ def get_daily_price_history(ticker, start_date=None, end_date=None):
                     output.debug('Indicated dates not found in AlphaVantage Response.')
                     return False
 
-            # TODO: possibly check here if end_date falls outside of 100 day range. 
             elif start_date is None and end_date is not None:
                 try:
                     end_string = helper.date_to_string(end_date)
@@ -243,7 +255,6 @@ def get_daily_price_history(ticker, start_date=None, end_date=None):
                     output.debug('Indicated dates not found in AlphaVantage Response.')
                     return False
 
-            # TODO: possibly check here if end_date falls outside of 100 day range. 
             elif start_date is None and end_date is not None:
                 try:
                     end_string = helper.date_to_string(end_date)
@@ -268,7 +279,7 @@ def get_daily_price_history(ticker, start_date=None, end_date=None):
             return prices
 
     else:
-        output.debug("No STAT_MANAGER set in .env file!")
+        output.debug("No PRICE_MANAGER set in .env file!")
 
 def get_daily_price_latest(ticker):
     if settings.PRICE_MANAGER == "alpha_vantage":

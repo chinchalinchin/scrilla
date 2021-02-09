@@ -14,10 +14,10 @@ class Portfolio:
         self.start_date = start_date
         self.end_date = end_date
 
-    def set_start_date(self, start_date):
+    def set_start_date(self, start_date=None):
         self.start_date = start_date
         
-    def set_end_date(self, end_date):
+    def set_end_date(self, end_date=None):
         self.end_date = end_date
         
     def calculate_stats(self):
@@ -26,7 +26,8 @@ class Portfolio:
         self.correlation_matrix = [[0 for x in range(len(self.tickers))] for y in range(len(self.tickers))]
 
         for ticker in self.tickers:
-            stats = statistics.calculate_risk_return(ticker)
+            stats = statistics.calculate_risk_return(ticker=ticker, start_date=self.start_date, 
+                                                        end_date=self.end_date)
             if not stats:
                 return False
             self.mean_return.append(stats['annual_return'])
@@ -36,7 +37,9 @@ class Portfolio:
             for i in range(len(self.tickers)):
                 for j in range(i+1, len(self.tickers)):
                     self.correlation_matrix[i][i] = 1
-                    correlation = statistics.calculate_correlation(self.tickers[i], self.tickers[j])['correlation']
+                    cor_list = statistics.calculate_correlation(ticker_1 = self.tickers[i], tickers_2=self.tickers[j],
+                                                                start_date = self.start_date, end_date = self.end_date)
+                    correlation = cor_list['correlation']
                     if not correlation:
                         return False
                     self.correlation_matrix[i][j] = correlation
