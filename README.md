@@ -134,7 +134,7 @@ The same applies for publishing the application over a <i>localhost</i> port. To
 
 ## API
 
-1. <h2>/api/risk-return</h2><br><br>
+1. <h2>/api/risk-return</h2>
     <b>Description</b><br>
     Returns the annualized mean annual return and the annualized volatility over the specified date range for the supplied list of ticker symbols.<br><br>
     <b>Query Parameters</b><br>
@@ -145,7 +145,7 @@ The same applies for publishing the application over a <i>localhost</i> port. To
     - /api/risk-return?tickers=ALLY&tickers=SNE&tickers=GME<br>
     - /api/risk_return?tickers=TSLA&start=2020-03-22<br>
 
-2. <h2>/api/optimize</h2><br><br>
+2. <h2>/api/optimize</h2>
     <b>Description</b><br>
     Returns the optimal portfolio allocation (i.e. the portfolio with the minimal volatility) for the supplied list of ticker subject to the target return. If no target return is specified, the portfolio's volatility is minimized without constraints.<br><br>
     <b>Query Paramters</b><br>
