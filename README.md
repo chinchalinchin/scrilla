@@ -137,39 +137,48 @@ The same applies for publishing the application over a <i>localhost</i> port. To
 
 ## Environment
 
-TODO: Explain each category.
+See the comments in the <i>/env/.sample.env</i> for more information on each variable. Most of the defaults shouldn't need changed except for <b>ALPHA_VANTAGE_KEY</b> and <b>QUANDL_KEY</b>.
+
 ### Service Configuratoin
 
-1. PRICE_MANAGER, STAT_MANAGER
-
-2. ALPHA_VANTAGE_URL, ALPHA_VANTAGE_CRYPTO_META_URL, ALPHA_VANTAGE_KEY
-
-3. QUANDL_URL, QUANDL_META_URL, QUANDL_KEY
+1. PRICE_MANAGER: defines the service manager in charge of retrieving asset price historical data.
+2. STAT_MANAGER: defines the service manager in charge of retrieving economic statistics historical data.
+3. ALPHA_VANTAGE_URL: URL used to query AlphaVantage for provided price histories.
+4. ALPHA_VANTAGE_CRYPTO_META_URL: URL used to query to AlphaVantage for metadata on crypto market.
+5. ALPHA_VANTAGE_KEY: API key required to authenticate AlphaVantage queries.
+6. QUANDL_URL: URL used to query Quandl fo economic statistics historical data.
+7. QUANDL_META_URL: URL used to query Quandl for metadata on economic statistics.
+8. QUANDL_KEY: API key required to authenticate Quandl queries.
 
 ### Algorithm Configuratoin
 
-4. FRONTIER_STEPS
-
-5. MA_1, MA_2, MA_3
+9. FRONTIER_STEPS: Number of data points calculated in a portfolio's efficient frontier. Each data point consists of a (return, volatility)-tuple for a specific allocation of assets. 
+10. MA_1: Number of days in the first Moving Average period. Defaults to 20 if not provided.
+11. MA_2: Number of days in the second Moving Average period. Defaults to 60 if not provided.
+12. MA_3: Number of days in the third Moving Average period. Defaulst to 100 if not provided.
 
 ### CLI Configuration
 
-6. DEBUG, VERBOSE
-
-7. INVESTMENT_MODE
-
-8. INIT 
+13. DEBUG: Increases the amount of output, in order to find problems in the application's algorithms.
+14. VERBOSE: Vastly increases the amount of output. Will include output from each calculation conducted. 
+15. INVESTMENT_MODE: Determines whether or not asset allocations are outputted in percentages or dollars. If set to <i>True</i>, the CLI will prompt the user to input the amount of money invested in a given portfolio before outputting results.
+16. INIT: A flag that will cause the application to always initialize the <i>/static/</i> directory everytime it executes. TODO: probably don't need this anymore since there is a CLI function that will re-initialize the <i>/static/</i> directory.
 
 ### GUI Configuration
 
-9. GUI_WIDTH, GUI_HEIGHT
+17. GUI_WIDTH: Defines the width in pixels of the application's root <b>PyQt</b> widget. Defaults to 800 if not provided.
+18. GUI_HEIGHT: Defines the height in pixels of the application's root <b>PyQt</b> widget. Defaults to 800 if not provided.
 
 ### Server Configuration
 
-10. SECRET_KEY, APP_ENV, SERVER_PORT
+19. SECRET_KEY: The secret used by Django to sign requests.
+20. APP_ENV: Informs the application which environment is it running in, i.e. either <i>local</i> or <i>container</i>
+21. SERVER_PORT: Configures the port on which the WSGI application runs.
 
 ### Container Configuration
-11. IMG_NAME, TAG_NAME, CONTAINER_NAME
+22. IMG_NAME: Name of the image created during the Docker build.
+23. TAG_NAME: Tag applied to the image created during the Docker build.
+24. CONTAINER_NAME: Name of the container applied to the image when it is spun up.
 
 # TODOS
 
@@ -212,6 +221,8 @@ TODO: Explain each category.
 17. Scrap historical closing prices up to current year from API and store in database. Set up container orchestration via <i>docker-compose</i> 
 
 18. ERROR: There seems to be a problem with the correlation algorithm over time ranges longer than 100 days. NOTE: Pretty sure this is resolved now, but needs further testing. Correlation algorithm needs test for mix of asset types as well, i.e. equities and crypto.
+
+19. Condense DEBUG and VERBOSE environment variables into a string valued variable for simpler output configuration, i.e. LOG_LEVEL or some such instead of separating the two options.
 
 ### NOTES
 
