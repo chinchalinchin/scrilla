@@ -4,9 +4,13 @@ This is a financial application that calculates asset correlation, statistics an
 
 The program's functions are wrapped in <b>[PyQt5](https://doc.qt.io/qtforpython/index.html)</b> widgets which provide visualizations from <b>[matplotlib](https://matplotlib.org/3.3.3/contents.html)</b> in addition to the raw output.
 
-The program's function can also be wired into a WSGI Application using the [Django framework](https://docs.djangoproject.com/en/3.0/intro/tutorial01/) provided in the <i>/server/</i> directory. See <b>WSGI Application</b> for more information. The WSGI application can be containerized using the <i>Dockerfile</i> in the project root and deployed as a microservice. 
+The program's function can also be wired into a WSGI Application using the [Django framework](https://docs.djangoproject.com/en/3.1/) provided in the <i>/server/</i> directory. See <b>WSGI Application</b> for more information. The WSGI application can be containerized using the <i>Dockerfile</i> in the project root and deployed as a microservice. 
 
 # Set Up
+
+## Prerequisits
+- [Python 3.8 +](https://www.python.org/downloads/) <br>
+- [Docker](https://www.docker.com/products/docker-desktop) Not required, but recommended for deploying application as a microservice.<br>
 
 ## CLI Application
 
@@ -14,7 +18,7 @@ First, from the project root directory, (activate your virtual environment, if u
 
 > pip install -r requirements.txt
 
-For the application to retrieve data, it must be connected to AlphaVantage and Quandl. Register for API keys at [AlphaVantage](https://www.alphavantage.co) and [Quandl](https://www.quandl.com/). Create a .env file in the root directory and place your Alpha Vantage and Quandl API keys within it in environment variables called <b>ALPHA_VANTAGE_KEY</b> and <b>QUANDL_KEY</b> respectively. 
+For the application to retrieve data, it must be connected to AlphaVantage and Quandl. Register for API keys at [AlphaVantage](https://www.alphavantage.co) and [Quandl](https://www.quandl.com/). Create a <i>.env</i> file in the root directory and place your Alpha Vantage and Quandl API keys within it in environment variables called <b>ALPHA_VANTAGE_KEY</b> and <b>QUANDL_KEY</b> respectively. 
 
 There are several other environment variables that configure various aspects of the application. A <i>.sample.env</i> file has been included to demonstrate the appropriate format for all variables, in addition to providing explanations for the other variables that can be changed. Besides the API keys, none of the other environment variables need to be changed from their defaults for the application to function properly. The easiest way to set up is to simply 
 
