@@ -12,28 +12,45 @@ import util.formatting as formatter
 import util.helper as helper
 
 output = logger.Logger('app.statistics')
-
-## MOVING AVERAGE FUNCTION NOTES
-# NOTE #1: assumes price history returns from latest to earliest date.
-# NOTE #2: If no start_date and end_date passed in, static snapshot of moving averages,
-#       i.e. the moving averages as of today (or last close), are calculated and 
-#       returned.
-# NOTE #3: If asset types are mixed, then the sample from which the average is calculated
-#       only consists of prices on business days. In other words, since crypo trades on
-#       weekends, to compare the moving average of equities and crypto, the moving average
-#       is only returned for business days. The moving average of crypto is still calculated
-#       using weekend price data, i.e. the moving average on Monday contains information about
-#       the moving average on Sunday, but the moving average on Sunday is discarded from the
-#       returned data, due to the fact equities are not traded on weekends.
-# NOTE #4: # MOVING AVERAGE LOOP CALCULATION PSEUDO-CODE 
-#       for start date to end date:
-#           get today's price
-#               calculate today's return 
-#               for all elements of MAs_n
-#               if today's date is less than a MA_n period away from the date of this MAs_n element
-#                   add today's return / MA_n_PERIOD to this element of MAs_n
-#           create today's MAs_n element
 def calculate_moving_averages(tickers, start_date=None, end_date=None):
+    """
+    Parameters
+    ----------
+    tickers : [ str ]
+        array of ticker symbols correspond to the moving averages to be calculated.
+    start_date : datetime.date
+        start date of the time period over which the moving averages will be calculated.
+    end_date : datetime.date
+        end date of the time period over which the moving averages will be calculated.
+
+    Output
+    ------
+    (averages, dates)-tuple, where averages is a 3D array with the following format :
+    averages[ticker][period][date] and dates is a list of dates between the start_date
+    and end_date
+
+    Notes
+    -----
+    NOTE #1: assumes price history returns from latest to earliest date.
+    NOTE #2: If no start_date and end_date passed in, static snapshot of moving averages,
+            i.e. the moving averages as of today (or last close), are calculated and 
+            returned.
+    NOTE #3: If asset types are mixed, then the sample from which the average is calculated
+           only consists of prices on business days. In other words, since crypo trades on
+           weekends, to compare the moving average of equities and crypto, the moving average
+           is only returned for business days. The moving average of crypto is still calculated
+           using weekend price data, i.e. the moving average on Monday contains information about
+           the moving average on Sunday, but the moving average on Sunday is discarded from the
+           returned data, due to the fact equities are not traded on weekends.
+    NOTE #4: MOVING AVERAGE OVER DATE RANGE LOOP CALCULATION PSEUDO-CODE 
+              1. for start date to end date:
+                2. get today's price
+                3. calculate today's return 
+                4. for all elements of MAs_n
+                    5. if today's date is less than a MA_n period away from the date of this MAs_n element
+                        6. add today's return / MA_n_PERIOD to this element of MAs_n
+                        7. create today's MAs_n element
+    """
     moving_averages = []
 
     # Moving Average Snapshot
@@ -236,6 +253,20 @@ def calculate_moving_averages(tickers, start_date=None, end_date=None):
 
 # NOTE: assumes price history returns from latest to earliest date.
 def calculate_risk_return(ticker, start_date=None, end_date=None):
+    """
+    Parameters
+    ----------
+    ticker : str
+        Ticker symbols whose risk-return profile is to be calculated.
+    start_date : datetime.date
+        Start date of the time period over which the risk-return profile is to be calculated. Defaults to None.
+    end_date : datetime.date
+        End date of the time period over which the risk-return profile is to be calculated. Defaults to None.
+
+    Output
+    ------
+    { 'annual_return' : float, 'annual_volatility': float }
+    """
     asset_type = markets.get_asset_type(ticker)
     trading_period = markets.get_trading_period(asset_type)
 

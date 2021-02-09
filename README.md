@@ -223,10 +223,10 @@ See the comments in the <i>/env/.sample.env</i> for more information on each var
 9. Use fundamentals API from Alpha Vantage to calculate things like EBITBA, Enterprise Value, Price to Earnings, etc.
 
 10. Hook API into pynance functions and create micro-service for the app.
-    - During Docker image build, be sure to initialize static data so user doesn't have to.
-    - Create docker image
-    - Possibly initialize database image through compose to cache data instead of saving it to virtual filesystem. Either that, or define a volume to persist cache across image builds. 
-    - Endpoints that serve images of graphs calculated from the core app. 
+    - [x] During Docker image build, be sure to initialize static data so user doesn't have to.
+    - [x]Create docker image
+    - []Possibly initialize database image through compose to cache data instead of saving it to virtual filesystem. Either that, or define a volume to persist cache across image builds. 
+    - [x] Endpoints that serve images of graphs calculated from the core app. NOTE: NEEDS TESTED.
 
 11. Create functions for calculation and plotting of yield curve.
 
@@ -238,19 +238,17 @@ See the comments in the <i>/env/.sample.env</i> for more information on each var
 
 15. TEST MOVING AVERAGE ALGORITHM FOR MIX OF ASSET TYPES. I think there may be some mismatch of types in date comparisons.
 
-16. Expand optimization algorithms to take into account START_DATE and END_DATE! Need to adjust Portfolio class! 
+16. Scrap historical closing prices up to current year from API and store in database. Set up container orchestration via <i>docker-compose</i> 
 
-17. Scrap historical closing prices up to current year from API and store in database. Set up container orchestration via <i>docker-compose</i> 
+17. ERROR: There seems to be a problem with the correlation algorithm over time ranges longer than 100 days. NOTE: Pretty sure this is resolved now, but needs further testing. Correlation algorithm needs test for mix of asset types as well, i.e. equities and crypto.
 
-18. ERROR: There seems to be a problem with the correlation algorithm over time ranges longer than 100 days. NOTE: Pretty sure this is resolved now, but needs further testing. Correlation algorithm needs test for mix of asset types as well, i.e. equities and crypto.
+18. Condense DEBUG and VERBOSE environment variables into a string valued variable for simpler output configuration, i.e. LOG_LEVEL or some such instead of separating the two options.
 
-19. Condense DEBUG and VERBOSE environment variables into a string valued variable for simpler output configuration, i.e. LOG_LEVEL or some such instead of separating the two options.
+19. Test views manually for jpeg and non-jpeg functions. Now would be a good time to learn about automated tests! 
 
-20. Test views manually for jpeg and non-jpeg functions. Now would be a good time to learn about automated tests! 
+20. Create automated tests and integrate repo with a CircleCi pipeline that simply builds the image. Will need to find a cloud provider to deploy onto. Perhaps [Heroku](https://www.heroku.com/)
 
-21. Create automated tests and integrate repo with a CircleCi pipeline that simply builds the image. Will need to find a cloud provider to deploy onto. Perhaps [Heroku](https://www.heroku.com/)
-
-22. Angular frontend! Separate container. Served through nginx and queries backend <b>pynance</b> server. W
+21. Angular frontend! Separate container. Served through nginx and queries backend <b>pynance</b> server. W
 
 ### NOTES
 

@@ -12,11 +12,22 @@ import util.helper as helper
 output = logger.Logger("app.services")
 
 def parse_price_from_date(prices, date, asset_type):
+    """
+    Parameters
+    ----------
+    prices : {str}{str}
+        2D list containing the AlphaVantage response with the first layer peeled off, i.e.
+        no metadata, just the date and prices.
+    """
     try:
-        if asset_type == settings.ASSET_EQUITY:
-            return prices[date][settings.AV_RES_EQUITY_CLOSE_PRICE]
-        elif asset_type == settings.ASSET_CRYPTO:
-            return prices[date][settings.AV_RES_CRYPTO_CLOSE_PRICE]
+        if settings.PRICE_MANAGER == 'alpha_vantage':
+            if asset_type == settings.ASSET_EQUITY:
+                return prices[date][settings.AV_RES_EQUITY_CLOSE_PRICE]
+            elif asset_type == settings.ASSET_CRYPTO:
+                return prices[date][settings.AV_RES_CRYPTO_CLOSE_PRICE]
+        else: 
+            # TODO: other service parsing goes here.
+            pass
 
     except:
         return False
@@ -27,11 +38,7 @@ def retrieve_prices_from_cache(ticker):
     ----------
     tickers : [ str ]
         Required. List of ticker symbols corresponding to the price histories to be retrieved.
-    start_date : str
-        Optional. Start date of price history. Must be formatted "YYYY-MM-DD".
-    end_date : str
-        Optional: End date of price history. Must be formatted "YYYY-MM-DD"
-    
+
     Notes
     -----
     Only recent prices are cached, i.e. the last 100 days of prices. Calls for other periods of time will not be cached and can take considerably longer to load, due to the API rate limits on AlphaVantage. 
@@ -65,14 +72,13 @@ def get_daily_price_history(ticker, start_date=None, end_date=None):
     ----------
     tickers : [ str ]
         Required. List of ticker symbols corresponding to the price histories to be retrieved.
-    start_date : str
-        Optional. Start date of price history. Must be formatted "YYYY-MM-DD".
-    end_date : str
-        Optional: End date of price history. Must be formatted "YYYY-MM-DD"
+    start_date : datetime.date
+        Optional. Start date of price history. Defaults to None.
+    end_date : datetime.date
+        Optional: End date of price history. Defaults to None.
     
     Notes
     -----
-
     By default, AlphaVantage returns the last 100 days of prices for equities, while returning the entire price history for crypto asset. If no start_date or end_date are specified, this function will truncate the crypto price histories to have a length of 100 so the price histories across asset types are the same length. 
     """
     # TODO: price histories aren't the same length, though, because of weekends. 

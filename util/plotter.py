@@ -4,6 +4,7 @@ from PIL import Image
 from matplotlib import pyplot as plot
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
+from matplotlib import dates
 
 import util.formatting as formatter
 import util.helper as helper
@@ -93,16 +94,14 @@ def plot_moving_averages(symbols, averages_output, periods, show=True, savefile=
     canvas = FigureCanvas(Figure())
     axes = canvas.figure.subplots()
     ma1s, ma2s, ma3s = [], [], []
-
+    ma1_label, ma2_label, ma3_label = f'MA({periods[0]})', f'MA({periods[1]})', f'MA({periods[2]})'
 
     if dates is None:
         for i in range(len(symbols)):
             ma1s.append(averages[i][0])
             ma2s.append(averages[i][1])
             ma3s.append(averages[i][2])
-        
-        ma1_label, ma2_label, ma3_label = f'MA({periods[0]})', f'MA({periods[1]})', f'MA({periods[2]})'
-
+    
         # Bar Chart Variables
         width = formatter.BAR_WIDTH
         x = numpy.arange(len(symbols))
@@ -111,17 +110,20 @@ def plot_moving_averages(symbols, averages_output, periods, show=True, savefile=
         axes.bar(x, ma2s, width, label=ma2_label)
         axes.bar(x - width, ma3s, width, label=ma3_label)
 
-        axes.set_ylabel('Moving Average of Daily Return')
-        axes.set_title('Moving Averages of Daily Return Grouped By Equity')
+        axes.set_ylabel('Annual Logarithmic Return')
+        axes.set_title('Moving Averages of Annualized Daily Return Grouped By Equity')
         axes.set_xticks(x)
         axes.set_xticklabels(symbols)
         axes.legend()
 
     else:
-        # TODO: create line plot of moving averages over specified period
-        # AVERAGES FORMAT: [ticker][date][period]
-        #
+        months = dates.MonthLocator()
+        days = dates.DayLocator()
+        months_format = dates.DateFormatter('%m')
+
+        
         # for i in range(len(symobls)):
+        #   ma1_label, ma2_label, ma3_label = f'{symbols[i]}_{ma1_label}', f'{symbols[i]}_{ma2_label}', f'{symbols[i]}_{ma3_label}'
         #   for j in range(len(dates)):
         #       MA_1 = averages[i][0][j]
         #       ma1s.append(MA_1)
@@ -131,7 +133,26 @@ def plot_moving_averages(symbols, averages_output, periods, show=True, savefile=
         #
         #       MA_3 = averages[i][j][2]
         #       ma3s.append(MA_3)
-        pass
+        #   
+        #   start_date, end_date = dates[0], dates[len(dates)-1] 
+        #   title_str = f'Moving Averages of Annualized Return From {start_date} to {end_date}'
+        #   axes.plot(dates, MA_1, linestyle="solid", color="darkgrean", label=ma1_label)
+        #   axes.plot(dates, MA_2, linestyle="dotted", color="gold", label=ma2_label)
+        #   axes.plot(dates, MA_3, linestyle="dashdot", color="orangered", label=ma3_label)
+
+        #   axes.set_title(title_str)
+
+        #   axes.set_ylabel('Annualized Logarthmic Return')
+        
+        #   datemin = np.datetime64(dates[0], 'M')
+        #   datemax = np.datetime64(dates[-1], 'M') + np.datetime64(1, 'Y')
+        #   axes.set_xlabel('')
+        #   axes.set_xlim()
+        #   axes.xaxis.set_major_locator(months)
+        #   axes.xaxis.set_major_formatter(months_format)
+        #   axes.format_xdata = dates.DatesFormatter('%Y-%m-%d)
+        
+        #   axes.legend()
 
     if savefile is not None:
         canvas.print_jpeg(filename_or_obj=savefile)
