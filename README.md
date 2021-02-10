@@ -150,28 +150,35 @@ to orchestrate the application with a <b>postgres</b> container.
 
 ## API
 
+### Query Parameters
+- <i>tickers</i>: an array of the stock/crypto tickers (specified by repeated instances of the <i>tickers</i> parameters).<br>
+- <i>start</i>: start date of calculation's time period. If not provided, defaults to 100 days ago.Format: YYYY-MM-DD<br>
+- <i>end</i>: end date of calculation's time period. If not provided, defaults to today. Format: YYYY-MM-DD<br><br>
+- <i>jpeg</i>: will visualize and return the result as a JPEG. If not provided, defaults to <i>False</i>. Format: true, false. Case insensitive.<br>
+
 1. <h2>/api/risk-return</h2>
     <b>Description</b><br>
-    Returns the annualized mean annual return and the annualized volatility over the specified date range for the supplied list of ticker symbols.<br><br>
-    <b>Query Parameters</b><br>
-    - <i>tickers</i>: an array of the stock/crypto tickers (specified by repeated instances of the <i>tickers</i> parameters).<br>
-    - <i>start</i>: start date of calculation's time period. Format: YYYY-MM-DD<br>
-    - <i>end</i>: end date of calculation's time period. Format: YYYY-MM-DD<br><br>
+    Returns the annualized mean annual return and the annualized volatility over the specified date range for the supplied list of ticker symbols.<br>
     <b>Examples</b><br>
     - /api/risk-return?tickers=ALLY&tickers=SNE&tickers=GME<br>
     - /api/risk-return?tickers=TSLA&start=2020-03-22<br>
 
 2. <h2>/api/optimize</h2>
     <b>Description</b><br>
-    Returns the optimal portfolio allocation (i.e. the portfolio with the minimal volatility) for the supplied list of ticker subject to the target return. If no target return is specified, the portfolio's volatility is minimized without constraints.<br><br>
-    <b>Query Paramters</b><br>
-    - <i>tickers</i>: an array of the stock/crypto tickers (specified by repeated instances of the <i>tickers</i> parameters).<br>
+    Returns the optimal portfolio allocation (i.e. the portfolio with the minimal volatility) for the supplied list of ticker subject to the target return. If no target return is specified, the portfolio's volatility is minimized without constraints.<br>
+    <b>Additional Query Parameters</b>
     - <i>target</i>: the target return subject to which the portfolio will be optimized.<br>
-    - <i>start</i>: start date of calculation's time period. Format: YYYY-MM-DD<br>
-    - <i>end</i>: end date of calculation's time period. Format: YYYY-MM-DD<br><br>
     <b>Examples</b><br>
     - /api/optimize?tickers=SRAC&tickers=SPCE&tickers=AMZN<br>
     - /api/optimize?tickers=FB&tickers=GOOG&tickers=AMZN&tickers=NFLX&target=0.68
+
+3. <h2>/api/efficient-frontier</hs>
+    <b>Description</b><br>
+    Returns the efficient-frontier of a portfolio defined by the supplied list of tickers. Each point on the frontier tier consists of a mean annualized return, an annualized volatility and the portfolio allocations necessary to generate those two statistics.<br>
+    <b>Examples</b><br>
+    
+
+4. <h2>/api/moving-averages/
 
 ## Environment
 
@@ -271,4 +278,6 @@ See the comments in the <i>/env/.sample.env</i> for more information on each var
 
 ### NOTES
 
-1. IMPORTANT: All date strings should be converted to <b>datetime.dates</b> at point of contact with user, i.e. in the main.py file where CLI arguments are parsed, within the gui where user arguments are pulled from widgets or in the server's endpoint views where user arguments are provided through query parameters, before passing it the service/statistics/portfolio functions. All functions in the <i>/app/</i> module assume dates are passed in as <b>datetime.dates</b>.
+1. All date strings should be converted to <b>datetime.dates</b> at point of contact with user, i.e. in the main.py file where CLI arguments are parsed, within the gui where user arguments are pulled from widgets or in the server's endpoint views where user arguments are provided through query parameters, before passing it the service/statistics/portfolio functions. All functions in the <i>/app/</i> module assume dates are passed in as <b>datetime.dates</b>.
+
+2. The first time the CLI application is invoked, it loads a huge amount of data in the <i>/static/</i> directory. This may take a few moments to complete. Subsequent invocations of the CLI application will not take anywhere near as long (unless the <b>INIT</b> environment variable is set to <i>True</i>; see [Environment section below](#CLI-Configuration). )
