@@ -39,7 +39,7 @@ class Portfolio:
             for i in range(len(self.tickers)):
                 for j in range(i+1, len(self.tickers)):
                     self.correlation_matrix[i][i] = 1
-                    cor_list = statistics.calculate_correlation(ticker_1 = self.tickers[i], tickers_2=self.tickers[j],
+                    cor_list = statistics.calculate_correlation(ticker_1 = self.tickers[i], ticker_2=self.tickers[j],
                                                                 start_date = self.start_date, end_date = self.end_date)
                     correlation = cor_list['correlation']
                     if not correlation:
