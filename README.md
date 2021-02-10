@@ -236,13 +236,7 @@ See the comments in the <i>/env/.sample.env</i> for more information on each var
 
 9. Use fundamentals API from Alpha Vantage to calculate things like EBITBA, Enterprise Value, Price to Earnings, etc.
 
-10. Hook API into pynance functions and create micro-service for the app.
-    - [x] During Docker image build, be sure to initialize static data so user doesn't have to.
-    - [x]Create docker image
-    - []Possibly initialize database image through compose to cache data instead of saving it to virtual filesystem. Either that, or define a volume to persist cache across image builds. 
-    - [x] Endpoints that serve images of graphs calculated from the core app. NOTE: NEEDS TESTED.
-
-11. Create functions for calculation and plotting of yield curve. Relevant FRED symbols: 
+10. Create functions for calculation and plotting of yield curve. Relevant FRED symbols: 
     - DFF = Effective Federal Funds Rate<br>
     - DTB3 = 3 Month Treasury<br>
     - DGS5 = 5 Year Treasury Constant Maturity<br>
@@ -251,29 +245,29 @@ See the comments in the <i>/env/.sample.env</i> for more information on each var
     - T5YIE = 5 Year Breakeven Inflation Rate<br>
     - T10YIE = 10 Year Breakeven Inflation Rate<br>
 
-12. Create tabs in GUI for: Markets, Fundamentals, Options, Economy. Markets will feature the portfolio optimization and financial price statistics such as moving averages and efficient frontiers. Fundamentals will feature graphs and calculations of accounting statistics like EBITDA, Enterprise Value, etc. Options will feature functions for calculating IV of options, displaying the volatility skew, historical vs. implied volatility, and option greeks. Economy will feature graphs of the yield curve, GDP, etc. 
+11. Create tabs in GUI for: Markets, Fundamentals, Options, Economy. Markets will feature the portfolio optimization and financial price statistics such as moving averages and efficient frontiers. Fundamentals will feature graphs and calculations of accounting statistics like EBITDA, Enterprise Value, etc. Options will feature functions for calculating IV of options, displaying the volatility skew, historical vs. implied volatility, and option greeks. Economy will feature graphs of the yield curve, GDP, etc. 
 
-13. Copy IV algorithm and option greek algorithms from old python cli program. 
+12. Copy IV algorithm and option greek algorithms from old python cli program. 
 
-14. Implement start and end date arguments for optimization algorithms, so user can optimizer over any given date range.
+13. Implement start and end date arguments for optimization algorithms, so user can optimizer over any given date range.
 
-15. TEST MOVING AVERAGE ALGORITHM FOR MIX OF ASSET TYPES. I think there may be some mismatch of types in date comparisons.
+14. TEST MOVING AVERAGE ALGORITHM FOR MIX OF ASSET TYPES. I think there may be some mismatch of types in date comparisons.
 
-16. Scrap historical closing prices up to current year from API and store in database. Set up container orchestration via <i>docker-compose</i> 
+15. Scrap historical closing prices up to current year from API and store in database. Set up container orchestration via <i>docker-compose</i> 
 
-17. ERROR: There seems to be a problem with the correlation algorithm over time ranges longer than 100 days. NOTE: Pretty sure this is resolved now, but needs further testing. Correlation algorithm needs test for mix of asset types as well, i.e. equities and crypto.
+16. ERROR: There seems to be a problem with the correlation algorithm over time ranges longer than 100 days. NOTE: Pretty sure this is resolved now, but needs further testing. Correlation algorithm needs test for mix of asset types as well, i.e. equities and crypto.
 
-18. Condense DEBUG and VERBOSE environment variables into a string valued variable for simpler output configuration, i.e. LOG_LEVEL or some such instead of separating the two options.
+17. Condense DEBUG and VERBOSE environment variables into a string valued variable for simpler output configuration, i.e. LOG_LEVEL or some such instead of separating the two options.
 
-19. Test views manually for jpeg and non-jpeg functions. Now would be a good time to learn about automated tests! 
+18. Test views manually for jpeg and non-jpeg functions. Now would be a good time to learn about automated tests! 
 
-20. Create automated tests and integrate repo with a CircleCi pipeline that simply builds the image. Will need to find a cloud provider to deploy onto. Perhaps [Heroku](https://www.heroku.com/)
+19. Create automated tests and integrate repo with a CircleCi pipeline that simply builds the image. Will need to find a cloud provider to deploy onto. Perhaps [Heroku](https://www.heroku.com/)
 
-21. Angular frontend! Separate container. Served through nginx and queries backend <b>pynance</b> server. 
+20. Angular frontend! Separate container. Served through nginx and queries backend <b>pynance</b> server. 
 
-22. Need to modify Docker entrypoint so the `wait-for-it` command in the <i>docker-compose.yml</i> actually does what it is supposed to!
+21. Need to modify Docker entrypoint so the `wait-for-it` command in the <i>docker-compose.yml</i> actually does what it is supposed to!
 
-23. Create custom postgres image that initializes a <b>market</b> database and a <b>economy</b> database. Populate <b>market</b> with scrapped price histories. Populate <b>economy</b> with scrapped statistics histories. 
+22. Create custom postgres image that initializes a <b>market</b> database and a <b>economy</b> database. Populate <b>market</b> with scrapped price histories. Populate <b>economy</b> with scrapped statistics histories. 
 
 ### NOTES
 
