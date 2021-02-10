@@ -106,7 +106,7 @@ This will launch the Django app and expose it on your <i>localhost</i>.
 
 ### Container Setup
 
-If you have your environment file initialized, then the <b>IMG_NAME</b>, <b>TAG_NAME</b> and <b>CONTAINER_NAME</b> environment variables will set the (obviously) image, tag and container respectively. 
+If you have your environment file initialized, then the <b>IMG_NAME</b>, <b>TAG_NAME</b> and <b>CONTAINER_NAME</b> environment variables will set the image, tag and container name respectively (if that wasn't obvious). 
 
 To start up the server in a container, execute the <i>launch-server</i> script, but provide it an argument of `-container`,
 
