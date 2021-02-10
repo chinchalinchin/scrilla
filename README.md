@@ -263,9 +263,7 @@ See the comments in the <i>/env/.sample.env</i> for more information on each var
 
 19. Angular frontend! Separate container. Served through nginx and queries backend <b>pynance</b> server. 
 
-20. Need to modify Docker entrypoint so the `wait-for-it` command in the <i>docker-compose.yml</i> actually does what it is supposed to!
-
-21. Create custom postgres image that initializes a <b>market</b> database and a <b>economy</b> database. Populate <b>market</b> with scrapped price histories. Populate <b>economy</b> with scrapped statistics histories. 
+20. Create custom postgres image that initializes a <b>market</b> database and a <b>economy</b> database. Populate <b>market</b> with scrapped price histories. Populate <b>economy</b> with scrapped statistics histories. 
 
 ### NOTES
 
