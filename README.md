@@ -102,7 +102,7 @@ Alternatively, you can run the <i>/scripts/server/launch-server.sh</i> script wi
 
 >./scripts/server/launch-server.sh -local
 
-This will launch embed the Django app on your <i>localhost</i> and expose the 
+This will launch the Django app and expose it on your <i>localhost</i>.
 
 ### Container Setup
 
