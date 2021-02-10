@@ -26,6 +26,8 @@ will attempt to export the <i>/env/container.env</i> variables into your session
 
 ## CLI Application
 
+> Note: the first time the CLI application is invoked, it loads a huge amount of data in the <i>/static/</i> directory. This may take a few moments to complete. Subsequent invocations of the CLI application will not take anywhere near as long.
+
 First, from the project root directory, (activate your virtual environment, if using one, and) install all of the requirements,
 
 > pip install -r requirements.txt
