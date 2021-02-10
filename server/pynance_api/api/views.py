@@ -113,15 +113,19 @@ def optimize(request):
 
         portfolio = Portfolio(tickers=tickers, start_date=parsed_args['start_date'], end_date=parsed_args['end_date'])
         allocation = optimizer.optimize_portfolio_variance(portfolio=portfolio, target_return=parsed_args['target_return'])
+        allocation = helper.round_array(array=allocation, decimals=4)
 
         response = {
             'portfolio_return' : portfolio.return_function(allocation),
             'portfolio_volatility': portfolio.volatility_function(allocation)
         }
+        subresponse = {}
+
         for i in range(len(tickers)):
             allocation_string = f'{tickers[i]}_allocation'
-            response[allocation_string] = allocation[i]
-        
+            subresponse[allocation_string] = allocation[i]
+
+        response['allocations'] = subresponse
         return JsonResponse(data=response, status=status, safe=False)
 
 def risk_return(request):
@@ -168,19 +172,19 @@ def efficient_frontier(request):
     
         response = {}
         for i in range(len(frontier)):
-            subresponse = {}
-            allocation = frontier[i]
+            subresponse, subsubresponse = {}, {}
+            port_string =  f'portfolio_{i}'
 
-            ret_string, vol_string, port_string = f'portfoli_{i}_return', f'portfolio_{i}_volatility', f'portfolio_{i}'
-
-            subresponse[return_string] = portfolio.return_function(allocation)
-            subresponse[volatility_string] = portfolio.volatility_function(allocation)
+            allocation = helper.round_array(array=frontier[i], decimals=4)
+            subresponse['portfolio_return'] = helper.truncate(portfolio.return_function(allocation),4)
+            subresponse['portfolio_volatility'] = helper.truncate(portfolio.volatility_function(allocation), 4)
 
             for j in range(len(tickers)):
-                allocation_string = f'{tickers[j]}_allocation_{i}'
-                subresponse[allocation_string] = allocation[j]
-                
-            response[portfolio_string] = subresponse
+                allocation_string = f'{tickers[j]}_allocation'
+                subsubresponse[allocation_string] = allocation[j]
+
+            subresponse['allocation']=subsubresponse
+            response[port_string] = subresponse
         
         if parsed_args['jpeg']:
             graph = plotter.plot_frontier(portfolio=portfolio, frontier=frontier, show=False)

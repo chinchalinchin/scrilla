@@ -11,7 +11,7 @@ import util.logger as logger
 import util.formatting as formatter
 import util.helper as helper
 
-output = logger.Logger('app.statistics')
+output = logger.Logger('app.statistics', settings.LOG_LEVEL)
 
 def calculate_moving_averages(tickers, start_date=None, end_date=None):
     """

@@ -2,17 +2,17 @@ import datetime, sys
 import numpy as numpy
 import matplotlib.pyplot as matplotlib
 
-# TODO: possibly pass in DEBUG statically instead 
-#       of a potential circular import
-import app.settings as settings
-import util.formatting as formatter
 import util.helper as helper
+import util.formatting as formatter
 
-
+LOG_LEVEL_INFO = "info"
+LOG_LEVEL_DEBUG = "debug"
+LOG_LEVEL_VERBOSE = "verbose"
 class Logger():
 
-    def __init__(self, location):
+    def __init__(self, location, log_level="info"):
         self.location = location
+        self.log_level = log_level
     
     # FORMATTING FUNCTIONS
     def comment(self, msg):
@@ -30,11 +30,11 @@ class Logger():
             return [msg]
 
     def debug(self, msg):
-        if formatter.DEBUG:
+        if self.log_level == LOG_LEVEL_DEBUG or self.log_level == LOG_LEVEL_VERBOSE:
             self.comment(msg)
 
     def verbose(self, msg):
-        if formatter.VERBOSE:
+        if self.verbose == LOG_LEVEL_VERBOSE:
             self.comment(msg)
             
     def sys_error(self):
@@ -187,3 +187,19 @@ class Logger():
             self.scalar_result('Return', portfolio.return_function(allocation))
             self.scalar_result('Volatility', portfolio.volatility_function(allocation))
             self.return_line()
+
+    def log_django_settings(self, settings):
+            self.line()
+            self.title_line('SETTINGS.PY Configuration')
+            self.line()
+            self.comment("# Environment Configuration")
+            self.comment("> Directory Location : %s", settings.BASE_DIR)
+            self.comment('> Environment: %s',settings.APP_ENV)
+            self.line()
+            self.comment("# Application Configuration")
+            self.comment('> Debug : %s', settings.DEBUG)
+            self.comment('> Enviroment: %s', settings.APP_ENV)
+            self.line()
+            self.comment("# Database Configuration")
+            self.comment('> Database Engine: %s', settings.DATABASES['default']['ENGINE'])
+            self.line()

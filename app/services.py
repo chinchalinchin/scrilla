@@ -9,7 +9,7 @@ import app.markets as markets
 import util.logger as logger
 import util.helper as helper
 
-output = logger.Logger("app.services")
+output = logger.Logger("app.services", settings.LOG_LEVEL)
 
 def parse_price_from_date(prices, date, asset_type):
     """
@@ -373,7 +373,7 @@ def init_static_data():
                 (not os.path.isfile(settings.STATIC_CRYPTO_FILE))):
 
         output.comment('Initializing static data. Please wait. This may take a moment...')
-        output.comment('NOTE: set DEBUG = True for more output while you wait.')
+        output.comment('NOTE: set LOG_LEVEL = "debug" for more output while you wait.')
 
         # Clear static folder if initializing, otherwise unnecessary
         if settings.INIT:
@@ -427,7 +427,7 @@ def init_static_data():
         else:
             output.debug("No STAT_MANAGER set in .env file!")
     else:
-        output.comment('Static data already initialized!')
+        output.debug('Static data already initialized!')
 
 def get_static_data(static_type):
     output.debug(f'Loading in cached {static_type} symbols...')

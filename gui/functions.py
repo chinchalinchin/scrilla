@@ -17,7 +17,7 @@ import util.plotter as plotter
 from gui.widgets import CompositeWidget, GraphWidget, \
                             TableWidget, PortfolioWidget
 
-output = logger.Logger('gui.functions')
+output = logger.Logger('gui.functions', settings.LOG_LEVEL)
 
 class RiskReturnWidget(CompositeWidget):
     def __init__(self):

@@ -4,7 +4,7 @@ from app.portfolio import Portfolio
 import app.settings as settings
 import util.logger as logger
 
-output = logger.Logger('app.optimizer')
+output = logger.Logger('app.optimizer', settings.LOG_LEVEL)
 
 def optimize_portfolio_variance(portfolio, target_return=None):
     """

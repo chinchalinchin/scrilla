@@ -1,4 +1,4 @@
-import datetime, os, io, json, csv, zipfile
+import datetime, os, io, math, json, csv, zipfile
 import holidays
 import requests
 
@@ -6,6 +6,9 @@ import util.formatting as formatter
 
 ################################################
 ##### FORMATTING FUNCTIONS
+def truncate(number, digits) -> float:
+    stepper = 10.0 ** digits
+    return math.trunc(stepper * number) / stepper
 
 def get_number_input(msg_prompt) -> str:
     while True:
@@ -20,6 +23,10 @@ def strip_string_array(array) -> [str]:
     for string in array:
         new_array.append(string.strip())
     return new_array
+
+def round_array(array, decimals):
+    cutoff = (1/10**decimals)
+    return [0 if element < cutoff else truncate(element, decimals) for element in array]
 
 ################################################
 ##### DATE FUNCTIONS

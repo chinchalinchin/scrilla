@@ -214,8 +214,7 @@ See the comments in the <i>/env/.sample.env</i> for more information on each var
 
 ### CLI Configuration
 
-13. <b>DEBUG:</b> Increases the amount of output, in order to find problems in the application's algorithms.
-14. <b>VERBOSE:</b> Vastly increases the amount of output. Will include output from each calculation conducted. 
+13. <b>LOG_LEVEL</b>: values = ("info", "debug", "verbose"). Verbose is <i>extremely</i> verbose. The result of every single calculation within the application will be outputted. 
 15. <b>INVESTMENT_MODE:</b> Determines whether or not asset allocations are outputted in percentages or dollars. If set to <i>True</i>, the CLI will prompt the user to input the amount of money invested in a given portfolio before outputting results.
 16. <b>INIT:</b> A flag that will cause the application to always initialize the <i>/static/</i> directory everytime it executes. TODO: probably don't need this anymore since there is a CLI function that will re-initialize the <i>/static/</i> directory.
 
@@ -274,17 +273,15 @@ See the comments in the <i>/env/.sample.env</i> for more information on each var
 
 15. ERROR: There seems to be a problem with the correlation algorithm over time ranges longer than 100 days. NOTE: Pretty sure this is resolved now, but needs further testing. Correlation algorithm needs test for mix of asset types as well, i.e. equities and crypto.
 
-16. Condense DEBUG and VERBOSE environment variables into a string valued variable for simpler output configuration, i.e. LOG_LEVEL or some such instead of separating the two options.
+16. Test views manually for jpeg and non-jpeg functions. Now would be a good time to learn about automated tests! 
 
-17. Test views manually for jpeg and non-jpeg functions. Now would be a good time to learn about automated tests! 
+17. Create automated tests and integrate repo with a CircleCi pipeline that simply builds the image. Will need to find a cloud provider to deploy onto. Perhaps [Heroku](https://www.heroku.com/)
 
-18. Create automated tests and integrate repo with a CircleCi pipeline that simply builds the image. Will need to find a cloud provider to deploy onto. Perhaps [Heroku](https://www.heroku.com/)
+18. Angular frontend! Separate container. Served through nginx and queries backend <b>pynance</b> server. 
 
-19. Angular frontend! Separate container. Served through nginx and queries backend <b>pynance</b> server. 
+19. Create custom postgres image that initializes a <b>market</b> database and a <b>economy</b> database. Populate <b>market</b> with scrapped price histories. Populate <b>economy</b> with scrapped statistics histories. 
 
-20. Create custom postgres image that initializes a <b>market</b> database and a <b>economy</b> database. Populate <b>market</b> with scrapped price histories. Populate <b>economy</b> with scrapped statistics histories. 
-
-21. If an option prices API is found, then IV can be calculated for a specific equity. The optimization algorithm can be expanded to optimize over IV of a portfolio, instead of the Historical Volatility. Allow user to specify what type of volatility the portfolio will use in its optimization, historical or implied. Will need to account for skew, somehow. 
+20. If an option prices API is found, then IV can be calculated for a specific equity. The optimization algorithm can be expanded to optimize over IV of a portfolio, instead of the Historical Volatility. Allow user to specify what type of volatility the portfolio will use in its optimization, historical or implied. Will need to account for skew, somehow. 
 
 ### NOTES
 

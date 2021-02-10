@@ -20,7 +20,7 @@ import util.helper as helper
 import util.logger as logger
 import util.formatting as formatter
 
-output = logger.Logger('main')
+output = logger.Logger('main', settings.LOG_LEVEL)
 
 
 if __name__ == "__main__": 

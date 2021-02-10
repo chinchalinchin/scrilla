@@ -15,7 +15,7 @@ dotenv.load_dotenv(os.path.join(os.path.join(PROJECT_DIR, 'env'),'.env'))
 APP_ENV = os.environ.setdefault('APP_ENV', 'local')
 SECRET_KEY = os.environ.setdefault('SECRET_KEY', 'NoIAmYourFather')
 DEBUG= True if os.getenv('DEBUG').lower() == 'true' else False
-VERBOSE= True if os.getenv('VERBOSE').lower() == 'true' else False
+
 ## LOCALIZATION SETTINGS
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     'api.apps.ApiConfig',
     'data.apps.DataConfig'
 ]
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -46,6 +47,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'core.middleware.DebugMiddleware',
 ]
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -61,12 +63,14 @@ TEMPLATES = [
         },
     },
 ]
+
 AUTH_PASSWORD_VALIDATORS = [
     { 'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator', },
     { 'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator', },
     { 'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',},
     { 'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator', },
 ]
+
 STATIC_URL = '/static/'
 
 ### HEADER CONFIGURATION ###
