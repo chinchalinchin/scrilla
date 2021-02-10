@@ -124,7 +124,7 @@ Once the image has been built, you can spin up the container using (assuming you
 
 Note, the image will need an environment file to function properly. The application container also supports the CLI functionality, which can be accessed by providing the `docker run` command with the function you wish to execute (you do not need to publish the container on port in this case),
 
-> docker run --env-file /path/to/env/file \\
+> docker run --env-file /path/to/env/file \\ <br>
 > $IMG_NAME:$IMG_TAG -rr BX AMC BB
 
 The <i>Dockerfile</i> defines the virtual <i>/cache/</i> and <i>/static/</i> directories as volumes, so that you can mount your local directories onto the container. The first time the CLI is ever run, it loads in a substantial amount of static data. Because of this, it is recommended that you mount atleast the <i>/static/</i> directory onto its virtual counterpart,
