@@ -1,15 +1,22 @@
+import os
 import numpy, matplotlib
 from PIL import Image
 
 from matplotlib import pyplot as plot
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 from matplotlib import dates
 
 import util.formatting as formatter
 import util.helper as helper
 
-matplotlib.use("Qt5Agg")
+APP_ENV=os.environ.setdefault('APP_ENV', 'local')
+
+if APP_ENV == 'local':
+    from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+    matplotlib.use("Qt5Agg")
+elif APP_ENV == 'container':
+    from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+    matplotlib.use("agg")
 
 def plot_frontier(portfolio, frontier, show=True, savefile=None):
     title = " ("

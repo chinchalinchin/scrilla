@@ -10,4 +10,4 @@ do
     fi
 done
 
-python SCRIPT_DIR/../main.py $@
+python $SCRIPT_DIR/../main.py $@

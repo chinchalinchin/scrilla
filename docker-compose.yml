@@ -1,16 +1,20 @@
 version: "3.8"
 services:
-    pynance_app: 
-      build: ./
+    app: 
+      image: pynance:latest
+      depends_on:
+        - datasource
+      ports:
+        - "8000:8000"
+      volumes:
+        - static:/home/static/
       networks:
         - pynance
       env_file: 
         - ./env/container.env
-      depends_on:
-        - market_data
-      command: ["wait-for-it", "market_data:5432", "--","./bootstrap-wrapper.sh","container"]
+      command: ["wait-for-it", "datasource:5432"]
 
-    market_data:
+    datasource:
       image: postgres:latest
       restart: always
       ports: 
@@ -21,3 +25,10 @@ services:
           - pynance
       env_file:
           - ./env/container.env 
+
+networks:
+    pynance: 
+
+volumes: 
+    postgres:
+    static:
