@@ -4,9 +4,80 @@ import util.helper as helper
 import util.tester as tester
 import util.logger as logger
 
-# SETTINGS.PY
+## APPLICATION CONFIGURATION
+"""
+Application Configuration
+-------------------------
 
-## APPLICATION CONFIGURATOIN
+Attributes
+----------
+* APP_NAME: Name of the application.
+* VERSION: Version of the application.
+* APP_DIR: Folder containing this file.
+* APP_ENV: Application environment.
+* LOG_LEVEL: Debug output level.
+* CONFIG_FILE: Location of secondary credentials file.
+* CACHE_DIR: Folder where cached price histories reside.
+* CACHE_STAT_KEY: File name where calculations are saved.
+* CACHE_EXT: File extension used in CACHE_DIR
+* STATIC_DIR: Folder where static data reside.
+* STATIC_EXT: File extension used in STATIC_DIR.
+* STATIC_TICKERS_FILE: File containing equity ticker symbols.
+* STATIC_ECON_FILE: File containg list of economic statistics.
+* STATIC_CRYPTO_FILE: File containing crypto ticker symbols.
+* ACCURACY: Number of decimals place saved in calculations.
+* POPUP_WIDTH: Width of popup that prompts for API keys.
+* POPUP_HEIGHT: Height of popup that prompts for API keys.
+* GUI_WIDTH: Width of root widget in GUI
+* GUI_HEIGHT: Height of root widget in GUI
+* OPTIMIZATION_METHOD: Scipy method used to optimize portfolios.
+* INVESTMENT_MODE: Determines if output is percentage or absolute.
+* FRONTIER_STEPS: Number of points in efficient frontier output.
+* MA_1_PERIOD: Number of days in first moving average period.
+* MA_2_PERIOD: Number of days in second moving average period.
+* MA_3_PERIOD: Number of days in first moving average period.
+* ONE_TRADING_DAY: Length of trading day in years.
+* PRICE_YEAR_CUTOFF: Earliest year considered in price histories.
+* ASSET_EQUITY: Constant for assets of type equity.
+* ASSET_CRYPTO: Constant for assets of type crypto.
+* STAT_ECON: Constant for economic statistics.
+* INIT: Flag to initialize STATIC_DIR
+* PRICE_MANAGER: Service in charge of price histories.
+* STAT_MANAGER: Service in charge of statistic histories.
+* AV_URL: Base URL for AlphaVantage query.
+* AV_KEY: Credentials for AlphaVantage query
+* AV_CRYPTO_LIST: URL for crypto metadata AlphaVantage query.
+* AV_RES_EQUITY_FIRST_LAYER: First key in AlphaVantage equity response.
+* AV_RES_EQUITY_CLOSE_PRICE: Column key in AlphaVantage response.
+* AV_RES_EQUITY_KEY: Column key in AlphaVantage response. 
+* AV_RES_CRYPTO_FIRST_LAYER: First key in AlphaVantage crypto response.
+* AV_RES_CRYPTO_KEY: Column key in AlphaVantage response.
+* AV_RES_CRYPTO_CLOSE_PRICE: Column key in AlphaVantage response.
+* AV_RES_ERROR: Key for error messages in AlphaVantage response.
+* AV_RES_LIMIT: Key for rate limit in AlphaVantage response.
+* PARAM_AV_TICKER: AlphaVantage ticker symbol query parameter.
+* PARAM_AV_FUNC: AlphaVantage function query parameter.
+* PARAM_AV_DENOM: AlphaVantage denomination query parameter.
+* PARAM_AV_KEY: AlphaVantage API Key query parameter.
+* PARAM_AV_SIZE: AlphaVantage sample size query parameter.
+* ARG_AV_FUNC_EQUITY_DAILY: : AlphaVantage query constant for daily equity prices.
+* ARG_AV_FUNC_EQUITY_LISTINGS: AlphaVantage query constant for equity metadata.
+* ARG_AV_FUNC_CRYPTO_DAILY: AlphaVantage query constant for daily crypto prices.
+* ARG_AV_SIZE_FULL: AlphaVantage query constant for full price history.
+* Q_URL: Base URL for Quandl query.
+* Q_KEY: Credentials for Quandl query.
+* Q_META_URL: URL for economic statistics data.
+* Q_FIRST_LAYER: First key for Quandl response.
+* Q_SECOND_LAYER: Second key for Quandl response.
+* Q_RES_STAT_KEY: Column key for Quandl response.
+* Q_RES_STAT_ZIP_KEY: Column key for Quandl response.
+* PATH_Q_FRED: Path parameter for Quandl query.
+* PARAM_Q_KEY: Quandl API key query parameter.
+* PARAM_Q_METADATA: Quandl metadata query parameter.
+* PARAM_Q_START: Quandl start date query parameter.
+* PARAM_Q_END: Quandl end date query parameter.
+* ARG_Q_YIELD_CURVE: Quandl constant for interest rate histories.
+"""
 
 APP_NAME="PYNANCE"
 
@@ -264,18 +335,18 @@ if STAT_MANAGER == "quandl":
     Q_SECOND_LAYER="data"
     Q_RES_STAT_KEY="code"
     Q_RES_STAT_ZIP_KEY="FRED_metadata.csv"
-    
+
+    # Path Paramaters
+    PATH_Q_FRED ="FRED"
+
     # Special Endpoints
-    ENDPOINT_Q_YIELD_CURVE = {
+    ARG_Q_YIELD_CURVE = {
         '3-Month': 'DTB3',
         '5-Year': 'DGS5',
         '10-Year': 'DGS10',
         '30-Year': 'DGS30'
     }
-    
-    # Path Paramaters
-    PATH_Q_FRED ="FRED"
-    
+        
     # Query Parameters
     PARAM_Q_KEY="api_key"
     PARAM_Q_METADATA="metadata.json"
