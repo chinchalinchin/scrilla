@@ -168,15 +168,15 @@ Some endpoints have unique query parameters, but all endpoints accept the follow
 2. <h2>/api/optimize</h2>
     <b>Description</b><br>
     Returns the optimal portfolio allocation (i.e. the portfolio with the minimal volatility) for the supplied list of ticker subject to the target return. If no target return is specified, the portfolio's volatility is minimized without constraints.<br><br>
-    <b>Additional Query Parameters</b>
-    - <i>target</i>: the target return subject to which the portfolio will be optimized.<br>
+    <b>Additional Query Parameters</b><br>
+    - <i>target</i>: the target return subject to which the portfolio will be optimized.<br><br>
     <b>Examples</b><br>
     - /api/optimize?tickers=SRAC&tickers=SPCE&tickers=AMZN<br>
     - /api/optimize?tickers=FB&tickers=GOOG&tickers=AMZN&tickers=NFLX&target=0.68
 
 3. <h2>/api/efficient-frontier</h2>
     <b>Description</b><br>
-    Returns the efficient-frontier of a portfolio defined by the supplied list of tickers. Each point on the frontier tier consists of a mean annualized return, an annualized volatility and the portfolio allocations necessary to generate those two statistics.<br>
+    Returns the efficient-frontier of a portfolio defined by the supplied list of tickers. Each point on the frontier tier consists of a mean annualized return, an annualized volatility and the portfolio allocations necessary to generate those two statistics.<br><br>
     <b>Examples</b><br>
     
 
