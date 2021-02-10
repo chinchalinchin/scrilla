@@ -33,10 +33,12 @@ else
         log "Invoking \e[3menv-vars\e[0m script..." $SCRIPT_NAME
         source $UTIL_DIR/env-vars.sh local
 
-        cd $SERVER_DIR
+        cd $ROOT_DIR
         log "Logging non-sensitive Django settings..." $SCRIPT_NAME
-        python -c "import util.logger as logger; logger.log_django_settings("
-        
+        python -c "import server.pynance_api.core.settings as settings; from util.logger import Logger; \
+        logger=Logger('scripts.server.pynance-server','info'); logger.log_django_settings(settings);"
+
+        cd $SERVER_DIR
         log "Verifying migrations are up-to-date..." $SCRIPT_NAME
         python manage.py makemigrations
 

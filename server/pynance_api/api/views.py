@@ -12,6 +12,7 @@ from core import settings
 from app.portfolio import Portfolio
 import app.statistics as statistics
 import app.optimizer as optimizer
+import app.settings as app_settings
 
 # Utility Imports
 import util.helper as helper
@@ -241,7 +242,7 @@ def moving_averages(request, jpeg=False):
             response[ticker_str] = subresponse
 
         if parsed_args['jpeg']:
-            periods = [settings.MA_1_PERIOD, settings.MA_2_PERIOD, settings.MA_3_PERIOD]
+            periods = [app_settings.MA_1_PERIOD, app_settings.MA_2_PERIOD, app_settings.MA_3_PERIOD]
             graph = plotter.plot_moving_averages(symbols=tickers, averages_output=averages_output, periods=periods,
                                                     show=False)
             graph.draw()
