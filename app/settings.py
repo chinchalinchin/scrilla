@@ -16,27 +16,25 @@ APP_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 APP_ENV = os.environ.setdefault('APP_ENV', 'local')
 
-# Load in local.env file if not running application container. Container should 
+# NOTE: Load in local.env file if not running application container. Container should 
 # already have the container.env file preloaded in its environment.
 if APP_ENV != 'container':
     from PyQt5.QtWidgets import QApplication, QWidget, QInputDialog, QLineEdit
     dotenv.load_dotenv(os.path.join(os.path.join(APP_DIR,'env'), 'local.env'))
 
-CONFIG_FILE = os.path.join(APP_DIR, 'static', 'creds','config.json')
-
 LOG_LEVEL = str(os.environ.setdefault("LOG_LEVEL", "info")).lower()
 
 output = logger.Logger('app.settings', LOG_LEVEL)
 
+CONFIG_FILE = os.path.join(APP_DIR, 'static', 'creds','config.json')
+
 if helper.is_non_zero_file(CONFIG_FILE):
     with open(CONFIG_FILE, 'r') as infile:
         credential_overrides = json.load(infile)
-        # TODO: remove this after testing
-        print('credentials overrides', credential_overrides)
 else:
     credential_overrides = None
 
-    # NOTE: CACHE only supports JSON currently. Future file extensions: csv and txt.
+# NOTE: CACHE only supports JSON currently. Future file extensions: csv and txt.
 CACHE_DIR = os.path.join(APP_DIR, 'cache')
 CACHE_STAT_KEY = "statistics"
 CACHE_EXT = "json"

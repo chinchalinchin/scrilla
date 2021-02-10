@@ -24,11 +24,10 @@ then
     log "Invoking \e[2mpynance CLI\e[0m to initalize \e[3m/static/\e[0m directory; This may take a while!" $SCRIPT_NAME
     python main.py -init
 
-    cd /home/server/pynance_api/
     log "Logging Non-sensitive Django settings" $SCRIPT_NAME
     python -c "import server.pynance_api.core.settings as settings; from util.logger import Logger; \
         logger=Logger('scripts.server.pynance-server','info'); logger.log_django_settings(settings);"
-    
+
     if [ "$1" == "wait-for-it" ]
     then
         log "Waiting for database service connection..." $SCRIPT_NAME
@@ -40,6 +39,7 @@ then
         exit 0
     fi
 
+    cd /home/server/pynance_api/
     log 'Checking for new migrations' $SCRIPT_NAME
     python manage.py makemigrations
     
