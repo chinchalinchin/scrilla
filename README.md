@@ -285,6 +285,8 @@ See the comments in the <i>/env/.sample.env</i> for more information on each var
 
 21. API keys are verified every single time the app.settings.py file is imported. Need to change how this is done to avoid expensive URL requests. 
 
+22. Need to rethink the cache mechanism. Currently app.statistics decides whether to make calls to services.get_daily_price_history or services.retrieve_price_from_cache. Should probably isolate the cache calls to the services.py class. That way, statistics.py is agnostic about where the prices come from and only that they were retrieved. In other words, services.py should handle all price retrieval. The decision to use the cache should only be made there. If set up this way, different service managers can be more easily plugged into the statistics.py class.
+
 ### NOTES
 
 1. All date strings should be converted to <b>datetime.dates</b> at point of contact with user, i.e. in the main.py file where CLI arguments are parsed, within the gui where user arguments are pulled from widgets or in the server's endpoint views where user arguments are provided through query parameters, before passing it the service/statistics/portfolio functions. All functions in the <i>/app/</i> module assume dates are passed in as <b>datetime.dates</b>.
