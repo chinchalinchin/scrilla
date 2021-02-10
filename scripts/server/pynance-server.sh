@@ -31,7 +31,7 @@ else
     if [ "$1" == "--local" ] || [ "$1" == "-local" ] || [ "$1"  == "--l" ] || [ "$1" == "-l" ] || [ $# -eq 0 ]
     then
         log "Invoking \e[3menv-vars\e[0m script..." $SCRIPT_NAME
-        source $UTIL_DIR/env-vars.sh ""
+        source $UTIL_DIR/env-vars.sh local
 
         cd $SERVER_DIR
         log "Logging non-sensitive Django settings..." $SCRIPT_NAME

@@ -21,9 +21,7 @@ APP_ENV = os.environ.setdefault('APP_ENV', 'local')
 
 if APP_ENV != 'container':
     from PyQt5.QtWidgets import QApplication, QWidget, QInputDialog, QLineEdit
-    dotenv.load_dotenv(os.path.join(os.path.join(APP_DIR,'env'), '.env'))
-else:
-    dotenv.load_dotenv(os.path.join(os.path.join(APP_DIR,'env'), 'container.env'))
+    dotenv.load_dotenv(os.path.join(os.path.join(APP_DIR,'env'), 'local.env'))
 
 CONFIG_FILE = os.path.join(APP_DIR, 'static', 'creds','config.json')
 

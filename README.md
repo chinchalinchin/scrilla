@@ -14,13 +14,13 @@ The program's function can also be wired into a WSGI Application using the [Djan
 
 ## Environment
 
-You may want to export the environment variables defined in the <i>/env/.env</i> file into your current terminal session. You can use the <i>scripts/util/env-vars.sh</i> shell script to load these variables,
+You may want to export the environment variables defined in the <i>/env/.env</i> file into your current terminal session. You can `source` the <i>scripts/util/env-vars.sh</i> shell script to load these variables,
 
-> ./scripts/util/env-vars.sh
+> source ./scripts/util/env-vars.sh
 
 If this script is provided an argument, it will search for an <i>.env</i> file within the <i>/env/</i> with the name supplied, i.e.,
 
-> ./scripts/util/env-vars.sh container
+> source ./scripts/util/env-vars.sh container
 
 will attempt to export the <i>/env/container.env</i> variables into your session. If it does not find this file, it will copy the <i>/env/.sample.env</i> into a new file with that name and ask you configure it before executing the script again.
 
@@ -32,13 +32,13 @@ First, from the project root directory, (activate your virtual environment, if u
 
 > pip install -r requirements.txt
 
-For the application to retrieve data, it must be able to connect to AlphaVantage and Quandl. Register for API keys at [AlphaVantage](https://www.alphavantage.co) and [Quandl](https://www.quandl.com/). The application searches for environment variables called <b>ALPHA_VANTAGE_KEY</b> and <b>QUANDL_KEY</b> that contain the respective API keys. These variables are loaded in through the <i>/env/.env</i> environment file. There are several other environment variables that configure various aspects of the application. A <i>.sample.env</i> file has been included to demonstrate the appropriate format for all variables, in addition to providing explanations for the other variables that can be changed. Besides the API keys, none of the other environment variables need to be changed from their defaults for the application to function properly. The easiest way to set up is to simply 
+For the application to retrieve data, it must be able to connect to AlphaVantage and Quandl. Register for API keys at [AlphaVantage](https://www.alphavantage.co) and [Quandl](https://www.quandl.com/). The application searches for environment variables called <b>ALPHA_VANTAGE_KEY</b> and <b>QUANDL_KEY</b> that contain the respective API keys. These variables are loaded in through the <i>/env/local.env</i> environment file. There are several other environment variables that configure various aspects of the application. A <i>.sample.env</i> file has been included to demonstrate the appropriate format for all variables, in addition to providing explanations for the other variables that can be changed. Besides the API keys, none of the other environment variables need to be changed from their defaults for the application to function properly. The easiest way to set up is to simply 
 
-> cp .sample.env .env
+> cp .sample.env local.env
 
 And then change the <b>ALPHA_VANTAGE_KEY</b> and <b>QUANDL_KEY</b> variables to the values you received when you registered on their respective site. Once the API keys have been set, execute the `python main.py` script. Supply this script an argument preceded by a dash that specifies the function you wish to execute and the ticker symbols to which you wish to apply the function. 
 
-After the application searches for API keys in the <i>.env</i> file, it will search for API keys in <i>config.json</i>. If this file exists, it will override any keys found in <i>.env</i>. If no keys are found within either file, a popup dialog box (QInputDialog from PyQt.QtWidgets) will prompt the user to register for their keys and enter them into a text field. The application will then test the API key entered and if it is valid, save it in the <i>config.json</i> file. Subsequent application calls will leverage the credentials in this file.
+After the application searches for API keys in the <i>local.env</i> file, it will search for API keys in <i>config.json</i>. If this file exists, it will override any keys found in <i>local.env</i>. If no keys are found within either file, a popup dialog box (QInputDialog from PyQt.QtWidgets) will prompt the user to register for their keys and enter them into a text field. The application will then test the API key entered and if it is valid, save it in the <i>config.json</i> file. Subsequent application calls will leverage the credentials in this file.
 
 You can add the <i>/scripts/</i> directory to your path to provide access to a BASH script for invoking the application with a python wrapper, i.e. if <i>/scripts/</i> is on your path, then
 
@@ -96,7 +96,7 @@ for more examples of additional arguments that can be provided to functions.
 
 ### Local Setup
 
-The application's functions can also be exposed through an API (a work in progress). To launch the API on your <i>localhost</i>, first configure the <b>SERVER_PORT</b> in the <i>/env/.env</i> file. Then, from the <i>/server/pynance_api</i> directory execute,
+The application's functions can also be exposed through an API (a work in progress). To launch the API on your <i>localhost</i>, first configure the <b>SERVER_PORT</b> in the <i>/env/local.env</i> file. Then, from the <i>/server/pynance_api</i> directory execute,
 
 > python manage.py runserver $SERVER_PORT
 
@@ -108,7 +108,15 @@ This will launch the Django app and expose it on your <i>localhost</i>.
 
 ### Container Setup
 
-If you have your environment file initialized, then the <b>IMG_NAME</b>, <b>TAG_NAME</b> and <b>CONTAINER_NAME</b> environment variables will set the image, tag and container name respectively (if that wasn't obvious). 
+First create a new environment file,
+
+> cp .sample.env container.env
+
+and make sure the <b>APP_ENV</b> variable is set to <i>container</i>. Initialize your environment in your current shell session by executing from the project root directory,
+
+> source ./scripts/util/env-vars.sh container
+
+After you have your environment file initialized, note the <b>IMG_NAME</b>, <b>TAG_NAME</b> and <b>CONTAINER_NAME</b> environment variables will set the image, tag and container name respectively (if that wasn't obvious). 
 
 To start up the server in a container, execute the <i>launch-server</i> script, but provide it an argument of `-container`,
 
@@ -146,7 +154,7 @@ NOTE: if the <b>APP_ENV</b> in the environment file is set to <i>container</i>, 
 
 > docker-compose up
 
-to orchestrate the application with a <b>postgres</b> container.
+to orchestrate the application with a <b>postgres</b> container. Verify the environment variable <b>POSTGRES_HOST</b> is set to the name of the database service defined in the <i>docker-compose.yml</i>, i.e. <b>POSTGRES_HOST</b> = <i>datasource</i>, if you are running the application as a container through <i>docker-compose</i>.
 
 ## API
 
@@ -180,7 +188,7 @@ Some endpoints have unique query parameters, but all endpoints accept the follow
     <b>Examples</b><br>
     
 
-4. <h2>/api/moving-averages/
+4. <h2>/api/moving-averages
 
 ## Environment
 
