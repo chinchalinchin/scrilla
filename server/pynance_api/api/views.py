@@ -7,17 +7,18 @@ from django.http import JsonResponse, HttpResponse
 
 # Server Imports
 from core import settings
-from debug import DebugLogger
 
 # Application Imports
 from app.portfolio import Portfolio
-import app.settings as app_settings
 import app.statistics as statistics
 import app.optimizer as optimizer
+
+# Utility Imports
 import util.helper as helper
 import util.plotter as plotter
+import util.logger as logger
 
-logger = DebugLogger("server.pynance_api.api.views").get_logger()
+logger = logger.Logger("server.pynance_api.api.views", settings.LOG_LEVEL)
 
 def verify_method(request, allowed_methods):
     if request.method not in allowed_methods: 

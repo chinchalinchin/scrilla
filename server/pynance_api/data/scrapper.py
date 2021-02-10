@@ -4,11 +4,13 @@ import datetime
 # Server Imports
 from data.models import Market, Crypto, Economy
 from core import settings
-from debug import DebugLogger as logger
 
 # Application Imports
 import app.services as services
+
+# Utility Imports
 import util.helper as helper
+import util.logger as logger
 
 output = logger.Logger("server.pynance_api.data")
 

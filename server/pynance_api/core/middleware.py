@@ -1,20 +1,21 @@
 from urllib.parse import urlencode
 from django.http.request import HttpRequest
-from . import settings
-import logging, re
-from debug import DebugLogger
 
-class DebugMiddleware:
+from core import settings
+
+from util.logger import Logger, LOG_LEVEL_DEBUG, LOG_LEVEL_VERBOSE
+
+class LogMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response
-        self.logger=DebugLogger("core.middleware.DebugMiddleware").get_logger()
+        self.logger=Logger("core.middleware.DebugMiddleware", settings.LOG_LEVEL)
         
     def __call__(self, request: HttpRequest):
 
-        if settings.DEBUG:
+        if settings.LOG_LEVEL in [LOG_LEVEL_DEBUG, LOG_LEVEL_VERBOSE]:
             if ('liveness' not in request.path) and ('readiness' not in request.path):
-                self.logger.info('> Request Path: %s', request.path)
-                self.logger.info('> Request Host: %s', request.META["HTTP_HOST"])
+                self.comment(f'> Request Path: {request.path}')
+                self.logger.info(f'> Request Host: {request.META["HTTP_HOST"]}')
 
                 if hasattr(request, 'user'):
                     self.logger.info('>> Request User: %s', request.user)

@@ -15,6 +15,7 @@ dotenv.load_dotenv(os.path.join(os.path.join(PROJECT_DIR, 'env'),'.env'))
 APP_ENV = os.environ.setdefault('APP_ENV', 'local')
 SECRET_KEY = os.environ.setdefault('SECRET_KEY', 'NoIAmYourFather')
 DEBUG= True if os.getenv('DEBUG').lower() == 'true' else False
+LOG_LEVEL = str(os.environ.setdefault('LOG_LEVEL', "info")).lower()
 
 ## LOCALIZATION SETTINGS
 LANGUAGE_CODE = 'en-us'
@@ -45,7 +46,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'core.middleware.DebugMiddleware',
+    'core.middleware.LogMiddleware',
 ]
 
 TEMPLATES = [

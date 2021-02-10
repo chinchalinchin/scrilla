@@ -8,6 +8,7 @@ import util.formatting as formatter
 LOG_LEVEL_INFO = "info"
 LOG_LEVEL_DEBUG = "debug"
 LOG_LEVEL_VERBOSE = "verbose"
+
 class Logger():
 
     def __init__(self, location, log_level="info"):
