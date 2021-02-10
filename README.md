@@ -118,19 +118,19 @@ Or, if you want to build the image without spinning up the container,
 
 Once the image has been built, you can spin up the container using (assuming your environment file has been initialized and loaded into your shell session),
 
-> docker run --publish $SERVER_PORT:$SERVER_PORT --env-file /path/to/env/file $IMG_NAME:$IMG_TAG
+> docker run --publish $SERVER_PORT:$SERVER_PORT \<br>--env-file /path/to/env/file $IMG_NAME:$IMG_TAG
 
 Note, the image will need an environment file to function properly. The application container also supports the CLI functionality, which can be accessed by providing the `docker run` command with the function you wish to execute (you do not need to publish the container on port in this case),
 
-> docker run --env-file /path/to/env/file $IMG_NAME:$IMG_TAG -rr BX AMC BB
+> docker run --env-file /path/to/env/file \<br>$IMG_NAME:$IMG_TAG -rr BX AMC BB
 
 The <i>Dockerfile</i> defines the virtual <i>/cache/</i> and <i>/static/</i> directories as volumes, so that you can mount your local directories onto the container. The first time the CLI is ever run, it loads in a substantial amount of static data. Because of this, it is recommended that you mount atleast the <i>/static/</i> directory onto its virtual counterpart,
 
-> docker run --env-file /path/to/env/file --mount type=bind,source=/path/to/project/static/,target=/home/static/ $IMG_NAME:$IMG_TAG -min SPY QQQ 
+> docker run --env-file /path/to/env/file \<br>--mount type=bind,source=/path/to/project/static/,target=/home/static/ \<br> $IMG_NAME:$IMG_TAG -min SPY QQQ 
 
 The same applies for publishing the application over a <i>localhost</i> port. To run the container in as efficient as manner as possible, execute the following,
 
-> docker run --publish $SERVER_PORT:$SERVER_PORT --env-file /path/to/env/file --mount type=bind,source=/path/to/project/static/,target=/home/static/ --mount type=bind,source=/path/to/project/cache/,target=/home/cache/ $IMG_NAME:$IMG_TAG
+> docker run --publish $SERVER_PORT:$SERVER_PORT \<br> --env-file /path/to/env/file \<br> --mount type=bind,source=/path/to/project/static/,target=/home/static/ --mount type=bind,source=/path/to/project/cache/,target=/home/cache/ \<br> $IMG_NAME:$IMG_TAG
 
 NOTE: if the <b>APP_ENV</b> in the environment file is set to <i>container</i>, then the application will search for a <b>postgres</b> database on the connection defined by <b>POSTGRES_*</b> environment variables. If <b>APP_ENV</b> is set to <i>local</i> or not set at all, then the Django app will default to a <b>SQLite</b> database. If running the application as a container, it is recommended you spin up the container with the <i>docker-compose.yml</i> with a postgres container (unless you have a postgres service running on your <i>localhost</i>; configure the <b>POSTGRES_*</b> environment variables accordingly). After building the image, execute from the project root directory,
 
