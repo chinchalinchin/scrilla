@@ -179,7 +179,7 @@ See the comments in the <i>/env/.sample.env</i> for more information on each var
 
 1. <b>PRICE_MANAGER:</b> defines the service manager in charge of retrieving asset price historical data.
 2. <b>STAT_MANAGER:</b> defines the service manager in charge of retrieving economic statistics historical data.
-3. <b>ALPHA_VANTAGE_URL:</b> URL used to query AlphaVantage for provided price histories.
+3. <b>ALPHA_VANTAGE_URL:</b> URL used to query AlphaVantage for asset price histories.
 4. <b>ALPHA_VANTAGE_CRYPTO_META_URL:</b> URL used to query to AlphaVantage for metadata on crypto market.
 5. <b>ALPHA_VANTAGE_KEY:</b> API key required to authenticate AlphaVantage queries.
 6. <b>QUANDL_URL:</b> URL used to query Quandl fo economic statistics historical data.
