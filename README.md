@@ -150,29 +150,31 @@ to orchestrate the application with a <b>postgres</b> container.
 
 ## API
 
+Some endpoints have unique query parameters, but all endpoints accept the following list of query parameters. See below for more information. 
+
 ### Query Parameters
 - <i>tickers</i>: an array of the stock/crypto tickers (specified by repeated instances of the <i>tickers</i> parameters).<br>
 - <i>start</i>: start date of calculation's time period. If not provided, defaults to 100 days ago.Format: YYYY-MM-DD<br>
-- <i>end</i>: end date of calculation's time period. If not provided, defaults to today. Format: YYYY-MM-DD<br><br>
+- <i>end</i>: end date of calculation's time period. If not provided, defaults to today. Format: YYYY-MM-DD<br>
 - <i>jpeg</i>: will visualize and return the result as a JPEG. If not provided, defaults to <i>False</i>. Format: true, false. Case insensitive.<br>
 
 1. <h2>/api/risk-return</h2>
     <b>Description</b><br>
-    Returns the annualized mean annual return and the annualized volatility over the specified date range for the supplied list of ticker symbols.<br>
+    Returns the annualized mean annual return and the annualized volatility over the specified date range for the supplied list of ticker symbols.<br><br>
     <b>Examples</b><br>
     - /api/risk-return?tickers=ALLY&tickers=SNE&tickers=GME<br>
     - /api/risk-return?tickers=TSLA&start=2020-03-22<br>
 
 2. <h2>/api/optimize</h2>
     <b>Description</b><br>
-    Returns the optimal portfolio allocation (i.e. the portfolio with the minimal volatility) for the supplied list of ticker subject to the target return. If no target return is specified, the portfolio's volatility is minimized without constraints.<br>
+    Returns the optimal portfolio allocation (i.e. the portfolio with the minimal volatility) for the supplied list of ticker subject to the target return. If no target return is specified, the portfolio's volatility is minimized without constraints.<br><br>
     <b>Additional Query Parameters</b>
     - <i>target</i>: the target return subject to which the portfolio will be optimized.<br>
     <b>Examples</b><br>
     - /api/optimize?tickers=SRAC&tickers=SPCE&tickers=AMZN<br>
     - /api/optimize?tickers=FB&tickers=GOOG&tickers=AMZN&tickers=NFLX&target=0.68
 
-3. <h2>/api/efficient-frontier</hs>
+3. <h2>/api/efficient-frontier</h2>
     <b>Description</b><br>
     Returns the efficient-frontier of a portfolio defined by the supplied list of tickers. Each point on the frontier tier consists of a mean annualized return, an annualized volatility and the portfolio allocations necessary to generate those two statistics.<br>
     <b>Examples</b><br>
