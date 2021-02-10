@@ -35,7 +35,7 @@ class Logger():
             self.comment(msg)
 
     def debug(self, msg):
-        if self.log_level in [LOG_LEVEL_INFO, LOG_LEVEL_DEBUG]:
+        if self.log_level in [LOG_LEVEL_DEBUG, LOG_LEVEL_VERBOSE]:
             self.comment(msg)
 
     def verbose(self, msg):

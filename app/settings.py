@@ -282,9 +282,11 @@ if STAT_MANAGER == "quandl":
     PARAM_Q_START="start_date"
     PARAM_Q_END="end_date"
 
+# Ensure config.json gets a dump of the credentials, whether they are user-entered or 
+# pulled from environment variables.
 if credential_overrides is None:
     credential_overrides = {}
-    
+
     if PRICE_MANAGER == 'alpha_vantage':
         if new_alpha_creds:
             credential_overrides['ALPHA_VANTAGE_KEY'] = new_alpha_creds['ALPHA_VANTAGE_KEY']

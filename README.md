@@ -205,7 +205,7 @@ See the comments in the <i>/env/.sample.env</i> for more information on each var
 7. <b>QUANDL_META_URL</b>: URL used to query Quandl for metadata on economic statistics.
 8. <b>QUANDL_KEY:</b> API key required to authenticate Quandl queries.
 
-### Algorithm Configuratoin
+### Algorithm Configuration
 
 9. <b>FRONTIER_STEPS</b>: Number of data points calculated in a portfolio's efficient frontier. Each data point consists of a (return, volatility)-tuple for a specific allocation of assets. 
 10. <b>MA_1:</b> Number of days in the first Moving Average period. Defaults to 20 if not provided.
