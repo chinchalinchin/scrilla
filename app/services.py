@@ -15,15 +15,15 @@ def parse_price_from_date(prices, date, asset_type):
     """
     Parameters
     ----------
-    prices : {str}{str}
+    * prices : { str : str } \n
         2D list containing the AlphaVantage response with the first layer peeled off, i.e.
-        no metadata, just the date and prices.
-    date: str
+        no metadata, just the date and prices. \n \n
+    * date: str \n
         String of the date to be parsed. Note: this is not a datetime.date object. String
-        must be formatted YYYY-MM-DD
-    asset_type : str
+        must be formatted YYYY-MM-DD \n \n
+    * asset_type : str \n
         String that specifies what type of asset price is being parsed. Options are statically
-        typed in the app.settings.py file: app.settings.ASSET_EQUITY, app.settings.ASSET_CRYPTO
+        typed in the app.settings.py file: app.settings.ASSET_EQUITY, app.settings.ASSET_CRYPTO \n \n
     
     Output
     ------
@@ -84,7 +84,7 @@ def retrieve_prices_from_cache(ticker):
             # TODO: dump other file types
         return prices
 
-def get_daily_price_history(ticker, start_date=None, end_date=None):
+def get_daily_price_history(ticker, start_date=None, end_date=None, full=False):
     """
     Parameters
     ----------
@@ -94,6 +94,8 @@ def get_daily_price_history(ticker, start_date=None, end_date=None):
         Optional. Start date of price history. Defaults to None.
     end_date : datetime.date
         Optional: End date of price history. Defaults to None.
+    full: boolean
+        Optional: If specified, will return the entire price history. Will override start_date and end_date if provided. Defaults to False.
     
     Notes
     -----
@@ -167,10 +169,9 @@ def get_daily_price_history(ticker, start_date=None, end_date=None):
                 end_date = helper.get_previous_business_date(end_date)
                 end_date_string = helper.date_to_string(end_date)
                 output.debug(f'Setting end date to previous business day, {end_date_string}.')
-
     ### END: ARGUMENT VALIDATION ###
-    ### START: SERVICE QUERY CREATION ###
 
+    ### START: SERVICE QUERY CREATION ###
     if settings.PRICE_MANAGER == "alpha_vantage":
 
         query = f'{settings.PARAM_AV_TICKER}={ticker}'
@@ -183,7 +184,7 @@ def get_daily_price_history(ticker, start_date=None, end_date=None):
             return False
 
             # NOTE: only need to modify EQUITY query, CRYPTO always returns full history
-        if (start_date is not None or end_date is not None) and (asset_type == settings.ASSET_EQUITY):
+        if (start_date is not None or end_date is not None or full) and (asset_type == settings.ASSET_EQUITY):
             if asset_type == settings.ASSET_EQUITY:
                 query += f'&{settings.PARAM_AV_SIZE}={settings.ARG_AV_SIZE_FULL}'
 
@@ -218,7 +219,7 @@ def get_daily_price_history(ticker, start_date=None, end_date=None):
         # NOTE: Remember AlphaVantage is ordered current to earliest. END_INDEX is 
         # actually the beginning of slice and START_INDEX is actually end of slice. 
         if asset_type == settings.ASSET_EQUITY:
-            if start_date is not None and end_date is not None:
+            if (start_date is not None and end_date is not None) and not full:
                 try:
                     start_string, end_string = helper.date_to_string(start_date), helper.date_to_string(end_date)
                     start_index = list(prices[settings.AV_RES_EQUITY_FIRST_LAYER].keys()).index(start_string)
@@ -229,7 +230,7 @@ def get_daily_price_history(ticker, start_date=None, end_date=None):
                     output.debug('Indicated dates not found in AlphaVantage Response.')
                     return False
 
-            elif start_date is None and end_date is not None:
+            elif (start_date is None and end_date is not None) and not full:
                 try:
                     end_string = helper.date_to_string(end_date)
                     end_index = list(prices[settings.AV_RES_EQUITY_FIRST_LAYER].keys()).index(end_string)
@@ -238,7 +239,7 @@ def get_daily_price_history(ticker, start_date=None, end_date=None):
                     output.debug('End Date not found in AlphaVantage Response.')
                     return False
 
-            elif start_date is not None and end_date is None:
+            elif (start_date is not None and end_date is None) and not full:
                 try:
                     start_string = helper.date_to_string(start_date)
                     start_index = list(prices[settings.AV_RES_EQUITY_FIRST_LAYER].keys()).index(start_string)
@@ -260,7 +261,7 @@ def get_daily_price_history(ticker, start_date=None, end_date=None):
         # TODO: can probably set RESPONSE_KEY to asset_type and condense the double conditional
         # branching down to one branch. will make it simpler.
         elif asset_type == settings.ASSET_CRYPTO:
-            if start_date is None and end_date is None:
+            if (start_date is None and end_date is None) or full:
                 truncated_prices, index = {}, 0
                 for date in prices[settings.AV_RES_CRYPTO_FIRST_LAYER]:
                     if index < 100:
@@ -269,7 +270,7 @@ def get_daily_price_history(ticker, start_date=None, end_date=None):
                         return truncated_prices
                     index += 1
 
-            elif start_date is not None and end_date is not None:
+            elif (start_date is not None and end_date is not None) and not full:
                 try:
                     start_string, end_string = helper.date_to_string(start_date), helper.date_to_string(end_date)
                     start_index = list(prices[settings.AV_RES_CRYPTO_FIRST_LAYER].keys()).index(start_string)
@@ -279,7 +280,7 @@ def get_daily_price_history(ticker, start_date=None, end_date=None):
                     output.debug('Indicated dates not found in AlphaVantage Response.')
                     return False
 
-            elif start_date is None and end_date is not None:
+            elif (start_date is None and end_date is not None) and not full:
                 try:
                     end_string = helper.date_to_string(end_date)
                     end_index = list(prices[settings.AV_RES_CRYPTO_FIRST_LAYER].keys()).index(end_string) 
@@ -288,7 +289,7 @@ def get_daily_price_history(ticker, start_date=None, end_date=None):
                     output.debug('End Date not found in AlphaVantage Response.')
                     return False
 
-            elif start_date is not None and end_date is None:
+            elif (start_date is not None and end_date is None) and not full:
                 try:
                     start_string = helper.date_to_string(end_date)
                     start_index = list(prices[settings.AV_RES_CRYPTO_FIRST_LAYER].keys()).index(start_string)

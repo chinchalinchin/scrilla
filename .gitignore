@@ -1,6 +1,5 @@
 *.env
 !.sample.env
-/static/creds/config.json
 /cache/*
 !/cache/.gitkeep
 /static/*

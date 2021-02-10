@@ -36,6 +36,9 @@ else
         cd $SERVER_DIR
         log "Logging non-sensitive Django settings..." $SCRIPT_NAME
         python debug.py
+        
+        log "Verifying migrations are up-to-date..." $SCRIPT_NAME
+        python manage.py makemigrations
 
         log 'Migrating Django database models...' $SCRIPT_NAME
         python manage.py migrate

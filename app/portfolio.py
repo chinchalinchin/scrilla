@@ -10,9 +10,9 @@ class Portfolio:
     
     def __init__(self, tickers, start_date=None, end_date=None):
         self.tickers = tickers
-        self.error = not self.calculate_stats()
         self.start_date = start_date
         self.end_date = end_date
+        self.error = not self.calculate_stats()
 
     def set_start_date(self, start_date=None):
         self.start_date = start_date

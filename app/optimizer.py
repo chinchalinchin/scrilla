@@ -6,9 +6,19 @@ import util.logger as logger
 
 output = logger.Logger('app.optimizer')
 
-# TODO: set target_return = None for default and combine with minimize_portfolio_variance
-#       by conditioning on if target_return is None. 
 def optimize_portfolio_variance(portfolio, target_return=None):
+    """
+    Parameters
+    ----------
+    * portfolio : Portfolio \n
+        An instance of the Portfolio class defined in app.portfolio. Must be initialized with an array of ticker symbols. Optionally, it can be initialized with a start_date and end_date datetime. If start_date and end_date are specified, the portfolio will be optimized over the stated time period.\n \n
+    * target_return : float \n
+        The target return, as a decimal, subject to which the portfolio's volatility will be minimized.
+
+    Output
+    ------
+    An array of floats that represents the proportion of the portfolio that should be allocated to the corresponding ticker symbols given as a parameter within the portfolio object. In other words, if portfolio.tickers = ['AAPL', 'MSFT'] and the output is [0.25, 0.75], this result means a portfolio with 25% allocation in AAPL and a 75% allocation in MSFT will result in an optimally constructed portfolio with respect to its volatility.  
+    """
     tickers = portfolio.get_assets()
     portfolio.set_target_return(target_return)
 
@@ -37,6 +47,7 @@ def optimize_portfolio_variance(portfolio, target_return=None):
 
     return allocation.x
 
+# TODO: verify everything works before deleting this permanently.
 # def minimize_portfolio_variance(portfolio):
     # tickers = portfolio.get_assets()
     # init_guess = portfolio.get_init_guess()
@@ -54,6 +65,16 @@ def optimize_portfolio_variance(portfolio, target_return=None):
     # return allocation.x
 
 def maximize_portfolio_return(portfolio):
+    """
+    Parameters
+    ----------
+    * portfolio : Portfolio \n
+        An instance of the Portfolio class defined in app.portfolio. Must be initialized with an array of ticker symbols. Optionally, it can be initialized with a start_date and end_date datetime. If start_date and end_date are specified, the portfolio will be optimized over the stated time period.\n \n
+
+    Output
+    ------
+    An array of floats that represents the proportion of the portfolio that should be allocated to the corresponding ticker symbols given as a parameter within the portfolio object to achieve the maximum return. Note, this function is often uninteresting because if the rate of return for equity A is 50% and the rate of return of equity B is 25%, the portfolio with a maximized return will always allocated 100% of its value to equity A. However, this function is useful for determining whether or not the optimization algorithm is actually working, so it has been left in the program for debugging purposes. 
+    """
     tickers = portfolio.get_assets()
     init_guess = portfolio.get_init_guess()
     equity_bounds = portfolio.get_default_bounds()
@@ -71,6 +92,16 @@ def maximize_portfolio_return(portfolio):
     return allocation.x
 
 def calculate_efficient_frontier(portfolio):
+    """
+    Parameters
+    ----------
+    * portfolio : Portfolio \n
+        An instance of the Portfolio class defined in app.portfolio. Must be initialized with an array of ticker symbols. Optionally, it can be initialized with a start_date and end_date datetime. If start_date and end_date are specified, the portfolio will be optimized over the stated time period.\n \n
+
+    Output
+    ------
+    An array of float arrays. Each float array corresponds to a point on a portfolio's efficient frontier, i.e. each array represents the percentage of a portfolio that should be allocated to the equity to the corresponding ticker symbol (supplied as an attribute portfolio parameter, portfolio.tickers) in order to produce a given rate of return with minimal volatility.
+    """
     tickers = portfolio.get_assets()
     minimum_allocation = optimize_portfolio_variance(portfolio=portfolio)
     maximum_allocation = maximize_portfolio_return(portfolio=portfolio)

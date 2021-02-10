@@ -47,6 +47,9 @@ then
 
     if [ "$1" == "--scrap" ] || [ "$1" == "--sc" ] || [ "$1" == "-scrap" ] || [ "$1" == "-sc" ]
     then
+        log "Scrapping price histories into $POSTGRES_HOST; this may take a while!" $SCRIPT_NAME
+        cd /home/server/pynance_api/data/
+
         log "TODO: Data scrapping goes here" $SCRIPT_NAME
     fi
 
