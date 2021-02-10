@@ -120,7 +120,7 @@ Once the image has been built, you can spin up the container using (assuming you
 
 > docker run --publish $SERVER_PORT:$SERVER_PORT --env-file /path/to/env/file $IMG_NAME:$IMG_TAG
 
-Note, the image will need an environment file to function properly. The application container also supports the CLI functionality by providing the `docker run` command with the function you wish to execute (you do not need to publish the container on port in this case),
+Note, the image will need an environment file to function properly. The application container also supports the CLI functionality, which can be accessed by providing the `docker run` command with the function you wish to execute (you do not need to publish the container on port in this case),
 
 > docker run --env-file /path/to/env/file $IMG_NAME:$IMG_TAG -rr BX AMC BB
 
