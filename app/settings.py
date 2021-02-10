@@ -110,6 +110,9 @@ STAT_ECON="indicator"
 
 INIT= True if os.getenv('INIT').lower() == 'true' else False
 
+new_alpha_creds = None
+new_quandl_creds = None
+
 ### PRICE_MANAGER CONFIGRUATION
 PRICE_MANAGER = os.getenv('PRICE_MANAGER')
 
@@ -144,7 +147,6 @@ if PRICE_MANAGER == 'alpha_vantage':
     else:
         unverified = True
 
-    new_creds = None
     if APP_ENV != 'container':
         while unverified:
             output.comment('Unable to verify ALPHA_VANTAGE API Key.')
@@ -164,13 +166,8 @@ if PRICE_MANAGER == 'alpha_vantage':
             unverified = not tester.test_av_key(text)
 
             if not unverified:
-                new_creds = { 'ALPHA_VANTAGE_KEY' : text }
+                new_alpha_creds = { 'ALPHA_VANTAGE_KEY' : text }
 
-        if credential_overrides is not None and new_creds is not None and 'QUANDL_KEY' in credential_overrides:
-            new_creds['QUANDL_KEY'] = credential_overrides['QUANDL_KEY']
-
-            with open(CONFIG_FILE, 'w') as outfile:
-                json.dump(new_creds, outfile)
     else:
         # TODO: Come up with API verification process for containers
         output.info('TODO: Set up Docker API verification process')
@@ -233,7 +230,6 @@ if STAT_MANAGER == "quandl":
     else:
         unverified = True
 
-    new_creds = None
     if APP_ENV != 'container':
         while unverified:
             output.comment('Unable to verify QUANDL API Key.')
@@ -253,13 +249,8 @@ if STAT_MANAGER == "quandl":
             unverified = not tester.test_q_key(text)
 
             if not unverified:
-                new_creds = { 'QUANDL_KEY' : text }
+                new_quandl_creds = { 'QUANDL_KEY' : text }
 
-        if credential_overrides is not None and new_creds is not None and 'ALPHA_VANTAGE_KEY' in credential_overrides:
-            new_creds['ALPHA_VANTAGE_KEY'] = credential_overrides['ALPHA_VANTAGE_KEY']
-
-            with open(CONFIG_FILE, 'w') as outfile:
-                json.dump(new_creds, outfile)
     else:
         # TODO: Come up with API verification process for containers
         output.info('TODO: Set up Docker API verification process')
@@ -290,3 +281,21 @@ if STAT_MANAGER == "quandl":
     PARAM_Q_METADATA="metadata.json"
     PARAM_Q_START="start_date"
     PARAM_Q_END="end_date"
+
+if credential_overrides is None:
+    credential_overrides = {}
+    
+    if PRICE_MANAGER == 'alpha_vantage':
+        if new_alpha_creds:
+            credential_overrides['ALPHA_VANTAGE_KEY'] = new_alpha_creds['ALPHA_VANTAGE_KEY']
+        else:
+            credential_overrides['ALPHA_VANTAGE_KEY'] = AV_KEY
+
+    if STAT_MANAGER == 'quandl':
+        if new_quandl_creds:
+            credential_overrides['QUANDL_KEY'] = new_quandl_creds['QUANDL_CREDS']
+        else:
+            credential_overrides['QUANDL_KEY'] = Q_KEY
+
+    with open(CONFIG_FILE, 'w') as outfile:
+        json.dump(credential_overrides, outfile)
