@@ -8,7 +8,13 @@ APP_DIR = os.path.join(PROJECT_DIR, 'app')
 sys.path.append(PROJECT_DIR)
 
 ### ENVIRONMENT INITIALIZATION ###
-dotenv.load_dotenv(os.path.join(os.path.join(PROJECT_DIR, 'env'),'.env'))
+
+APP_ENV = os.environ.setdefault('APP_ENV', 'local')
+
+# Load in local.env file if not running application container. Container should 
+# already have the container.env file preloaded in its environment.
+if APP_ENV != 'container':
+    dotenv.load_dotenv(os.path.join(os.path.join(PROJECT_DIR, 'env'),'local.env'))
 
 ### APPLICATION ENVIRONMENT CONFIGURATION ###
 ## APP SETTINGS

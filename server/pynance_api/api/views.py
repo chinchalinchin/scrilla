@@ -28,16 +28,16 @@ def verify_method(request, allowed_methods):
 
 def log_secondary_args(parsed_args):
     if parsed_args['start_date'] is not None:
-        logger.info('> Start : %s', parsed_args['start_date'])
+        logger.comment(f'> Start : {parsed_args["start_date"]}')
 
     if parsed_args['end_date'] is not None:
-        logger.info('> End: %s', parsed_args['end_date'])
+        logger.comment(f'> End: {parsed_args["end_date"]}')
     
     if parsed_args['target_return'] is not None:
-        logger.info('> Target: %s', parsed_args['target_return'])
+        logger.comment(f'> Target: {parsed_args["target_return"]}')
     
     if parsed_args['jpeg'] is not None:
-        logger.info('> JPEG: %s', parsed_args['jpeg'])
+        logger.comment(f'> JPEG: {parsed_args["jpeg"]}')
 
 def parse_secondary_args(request):
     if settings.REQUEST_PARAMS['start_date'] in request.GET:
@@ -83,9 +83,9 @@ def parse_tickers(request):
         return False
 
 def validate_request(request, allowed_methods=["GET"]):
-    logger.info('Verifying request method...')
+    logger.debug('Verifying request method...')
     if verify_method(request, allowed_methods):
-        logger.info('Request method verified!')
+        logger.debug('Request method verified!')
 
         arg_err_or_tickers = parse_tickers(request)
         if arg_err_or_tickers:
@@ -95,16 +95,15 @@ def validate_request(request, allowed_methods=["GET"]):
             return 200, { 'tickers': tickers, 'parsed_args': parsed_args }
 
         else:
-            logger.info('No ticker query parameters provided')    
+            logger.debug('No ticker query parameters provided')    
             return 400, { 'message': 'Input error' }
 
     else:
-        logger.info('Request method rejected')
+        logger.debug('Request method rejected')
         return 405, { 'message' : "Request method not allowed" }
 
 def optimize(request):
     status, parsed_args_or_err_msg = validate_request(request, ["GET"])
-
     if status == 400 or status == 405:
         return JsonResponse(data=parsed_args_or_err_msg, status=status, safe=False)
 
@@ -143,17 +142,22 @@ def risk_return(request):
         profiles = []
         for i in range(len(tickers)):
             ticker_str = f'tickers[i]'
-            logger.info('Calculating risk-return profile for %s', tickers[i])
-            response[ticker_str] = statistics.calculate_risk_return(ticker=tickers[i], 
+
+            logger.debug(f'Calculating risk-return profile for {tickers[i]}')
+            profile = statistics.calculate_risk_return(ticker=tickers[i], 
                                                                 start_date=parsed_args['start_date'], 
                                                                 end_date=parsed_args['end_date'])
+            response[ticker_str] = profile
+
             if parsed_args['jpeg']:
-                profiles += response[ticker_str]
+                profiles.append(profile)
 
         if parsed_args['jpeg']:
             graph = plotter.plot_profiles(symbols=tickers, profiles=profiles, show=False)
-            with open(graph, "rb") as f:
-                return HttpResponse(f.read(), content_type="image/jpeg")
+            graph.draw()
+            response = HttpResponse(content_type="image/png")
+            graph.print_png(response)
+            return response
 
         else:
             return JsonResponse(data=response, status=status, safe=False)
@@ -189,8 +193,10 @@ def efficient_frontier(request):
         
         if parsed_args['jpeg']:
             graph = plotter.plot_frontier(portfolio=portfolio, frontier=frontier, show=False)
-            with open(graph, "rb") as f:
-                return HttpResponse(f.read(), content_type="image/jpeg")
+            graph.draw()
+            response = HttpResponse(content_type="image/png")
+            graph.print_png(response)
+            return response
         else:
             return JsonResponse(data=response, status=status, safe=False) 
 
@@ -213,31 +219,35 @@ def moving_averages(request, jpeg=False):
             ticker_str=f'{tickers[i]}'
             MA_1_str, MA_2_str, MA_3_str = f'{ticker_str}_MA_1', f'{ticker_str}_MA_2', f'{ticker_str}_MA_3'    
 
-            if parsed_args['start_date'] is None and parsed_args['end_date']:
-                response[ticker_str][MA_1_str] = moving_averages[i][0]
-                response[ticker_str][MA_2_str] = moving_averages[i][1]
-                response[ticker_str][MA_3_str] = moving_averages[i][2]
+            subresponse = {}
+            if parsed_args['start_date'] is None and parsed_args['end_date'] is None:
+                subresponse[MA_1_str] = moving_averages[i][0]
+                subresponse[MA_2_str] = moving_averages[i][1]
+                subresponse[MA_3_str] = moving_averages[i][2]
 
             else:
-                subres_1, subres_2, subres_3 = {}, {}, {}
+                subsubresponse_1, subsubresponse_2, subsubresponse_3 = {}, {}, {}
         
                 for j in range(len(dates)):
-                    date_str=dates[j]
-                    subres_1[date_str] = moving_averages[i][0][j]
-                    subres_2[date_str] = moving_averages[i][1][j]
-                    subres_3[date_str] = moving_averages[i][2][j]
+                    date_str=helper.date_to_string(dates[j])
+                    subsubresponse_1[date_str] = moving_averages[i][0][j]
+                    subsubresponse_2[date_str] = moving_averages[i][1][j]
+                    subsubresponse_3[date_str] = moving_averages[i][2][j]
  
-                response[ticker_str][MA_1_str] = subres_1
-                response[ticker_str][MA_2_str] = subres_2
-                response[ticker_str][MA_3_str] = subres_3
-                        
+                subresponse[MA_1_str] = subsubresponse_1
+                subresponse[MA_2_str] = subsubresponse_2
+                subresponse[MA_3_str] = subsubresponse_3
+
+            response[ticker_str] = subresponse
+
         if parsed_args['jpeg']:
             periods = [settings.MA_1_PERIOD, settings.MA_2_PERIOD, settings.MA_3_PERIOD]
             graph = plotter.plot_moving_averages(symbols=tickers, averages_output=averages_output, periods=periods,
                                                     show=False)
-            with open(graph, 'rb') as f:
-                return HttpResponse(f.read(), content_type="image/jpeg")
-            pass
+            graph.draw()
+            response = HttpResponse(content_type="image/png")
+            graph.print_png(response)
+            return response
         else:
             return JsonResponse(data = response, status=status, safe=False)
 

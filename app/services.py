@@ -372,8 +372,8 @@ def init_static_data():
             (not os.path.isfile(settings.STATIC_TICKERS_FILE)) or \
                 (not os.path.isfile(settings.STATIC_CRYPTO_FILE))):
 
-        output.comment('Initializing static data. Please wait. This may take a moment...')
-        output.comment('NOTE: set LOG_LEVEL = "debug" for more output while you wait.')
+        output.info('Initializing static data. Please wait. This may take a moment...')
+        output.info('NOTE: set LOG_LEVEL = "debug" for more output while you wait.')
 
         # Clear static folder if initializing, otherwise unnecessary
         if settings.INIT:

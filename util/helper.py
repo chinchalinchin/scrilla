@@ -102,7 +102,7 @@ def is_date_holiday(date_string) -> bool:
     return (date_string in us_holidays)
 
 def is_date_string_holiday(date) -> bool:
-    return is_date_holiday(date_to_string(date))
+    return is_date_holiday(parse_date_string(date))
 
 # YYYY-MM-DD
 def get_holidays_between(start_date_string, end_date_string) -> int:

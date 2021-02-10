@@ -175,7 +175,7 @@ if PRICE_MANAGER == 'alpha_vantage':
                 json.dump(new_creds, outfile)
     else:
         # TODO: Come up with API verification process for containers
-        output.comment('TODO: Set up Docker API verification process')
+        output.info('TODO: Set up Docker API verification process')
         pass
 
     # Metadata Endpoints
@@ -264,7 +264,7 @@ if STAT_MANAGER == "quandl":
                 json.dump(new_creds, outfile)
     else:
         # TODO: Come up with API verification process for containers
-        output.comment('TODO: Set up Docker API verification process')
+        output.info('TODO: Set up Docker API verification process')
         pass
 
     # Metadata Endpoints

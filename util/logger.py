@@ -30,8 +30,12 @@ class Logger():
         else:
             return [msg]
 
+    def info(self, msg):
+        if self.log_level in [LOG_LEVEL_INFO, LOG_LEVEL_DEBUG, LOG_LEVEL_VERBOSE]:
+            self.comment(msg)
+
     def debug(self, msg):
-        if self.log_level == LOG_LEVEL_DEBUG or self.log_level == LOG_LEVEL_VERBOSE:
+        if self.log_level in [LOG_LEVEL_INFO, LOG_LEVEL_DEBUG]:
             self.comment(msg)
 
     def verbose(self, msg):
