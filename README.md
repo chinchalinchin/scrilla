@@ -249,25 +249,23 @@ See the comments in the <i>/env/.sample.env</i> for more information on each var
 
 12. Copy IV algorithm and option greek algorithms from old python cli program. 
 
-13. Implement start and end date arguments for optimization algorithms, so user can optimizer over any given date range.
+13. TEST MOVING AVERAGE ALGORITHM FOR MIX OF ASSET TYPES. I think there may be some mismatch of types in date comparisons.
 
-14. TEST MOVING AVERAGE ALGORITHM FOR MIX OF ASSET TYPES. I think there may be some mismatch of types in date comparisons.
+14. Scrap historical closing prices up to current year from API and store in database. Set up container orchestration via <i>docker-compose</i> 
 
-15. Scrap historical closing prices up to current year from API and store in database. Set up container orchestration via <i>docker-compose</i> 
+15. ERROR: There seems to be a problem with the correlation algorithm over time ranges longer than 100 days. NOTE: Pretty sure this is resolved now, but needs further testing. Correlation algorithm needs test for mix of asset types as well, i.e. equities and crypto.
 
-16. ERROR: There seems to be a problem with the correlation algorithm over time ranges longer than 100 days. NOTE: Pretty sure this is resolved now, but needs further testing. Correlation algorithm needs test for mix of asset types as well, i.e. equities and crypto.
+16. Condense DEBUG and VERBOSE environment variables into a string valued variable for simpler output configuration, i.e. LOG_LEVEL or some such instead of separating the two options.
 
-17. Condense DEBUG and VERBOSE environment variables into a string valued variable for simpler output configuration, i.e. LOG_LEVEL or some such instead of separating the two options.
+17. Test views manually for jpeg and non-jpeg functions. Now would be a good time to learn about automated tests! 
 
-18. Test views manually for jpeg and non-jpeg functions. Now would be a good time to learn about automated tests! 
+18. Create automated tests and integrate repo with a CircleCi pipeline that simply builds the image. Will need to find a cloud provider to deploy onto. Perhaps [Heroku](https://www.heroku.com/)
 
-19. Create automated tests and integrate repo with a CircleCi pipeline that simply builds the image. Will need to find a cloud provider to deploy onto. Perhaps [Heroku](https://www.heroku.com/)
+19. Angular frontend! Separate container. Served through nginx and queries backend <b>pynance</b> server. 
 
-20. Angular frontend! Separate container. Served through nginx and queries backend <b>pynance</b> server. 
+20. Need to modify Docker entrypoint so the `wait-for-it` command in the <i>docker-compose.yml</i> actually does what it is supposed to!
 
-21. Need to modify Docker entrypoint so the `wait-for-it` command in the <i>docker-compose.yml</i> actually does what it is supposed to!
-
-22. Create custom postgres image that initializes a <b>market</b> database and a <b>economy</b> database. Populate <b>market</b> with scrapped price histories. Populate <b>economy</b> with scrapped statistics histories. 
+21. Create custom postgres image that initializes a <b>market</b> database and a <b>economy</b> database. Populate <b>market</b> with scrapped price histories. Populate <b>economy</b> with scrapped statistics histories. 
 
 ### NOTES
 
