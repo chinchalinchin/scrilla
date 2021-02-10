@@ -252,7 +252,6 @@ def calculate_moving_averages(tickers, start_date=None, end_date=None):
 
         return moving_averages, dates_between 
 
-# NOTE: assumes price history returns from latest to earliest date.
 def calculate_risk_return(ticker, start_date=None, end_date=None):
     """
     Parameters
@@ -353,10 +352,6 @@ def calculate_risk_return(ticker, start_date=None, end_date=None):
 
     return results
 
-# NOTE: assumes price history returns from latest to earliest date.
-# NOTE: does not cache correlation if start_date and end_date are specified, 
-#       i.e. only caches current correlation from the last 100 days.
-# TODO: NEED TO TAKE INTO ACCOUNT START_ AND END_DATE
 def calculate_correlation(ticker_1, ticker_2, start_date=None, end_date=None):
     """
     Parameters
@@ -555,15 +550,31 @@ def calculate_correlation(ticker_1, ticker_2, start_date=None, end_date=None):
 
     return result
 
-def get_correlation_matrix_string(symbols, indent=0, start_date=None, end_date=None):
+def get_correlation_matrix_string(tickers, indent=0, start_date=None, end_date=None):
+    """
+    Parameters
+    ----------
+    1. tickers : [str] \n
+        Array of tickers for which the correlation matrix will be calculated and formatted. \n \n
+    2. indent : int \n 
+        Amount of indent on each new line of the correlation matrix. \n \n
+    3. start_date : datetime.date \n 
+        Start date of the time period over which correlation will be calculated. \n \n 
+    4. end_date : datetime.date \n 
+        End date of the time period over which correlation will be calculated. \n \n  
+    
+    Output
+    ------
+    A correlation matrix string formatted with new lines and spaces.\n
+    """
     entire_formatted_result, formatted_title = "", ""
 
     line_length, percent_length, first_symbol_length = 0, 0, 0
     new_line=""
-    no_symbols = len(symbols)
+    no_symbols = len(tickers)
 
     for i in range(no_symbols):
-        this_symbol = symbols[i]
+        this_symbol = tickers[i]
         symbol_string = ' '*indent + f'{this_symbol} '
 
         if i != 0:
@@ -580,7 +591,7 @@ def get_correlation_matrix_string(symbols, indent=0, start_date=None, end_date=N
                 new_line += " 100.0%"
             
             else:
-                that_symbol = symbols[j]
+                that_symbol = tickers[j]
                 result = calculate_correlation(this_symbol, that_symbol, start_date, end_date) 
                 if not result:
                     output.debug(f'Cannot correlation for ({this_symbol}, {that_symbol})')
@@ -594,7 +605,7 @@ def get_correlation_matrix_string(symbols, indent=0, start_date=None, end_date=N
             line_length = len(new_line)
 
     formatted_title += ' '*(indent + first_symbol_length+1)
-    for symbol in symbols:
+    for symbol in tickers:
         sym_len = len(symbol)
         formatted_title += f' {symbol}'+ ' '*(7-sym_len)
         # NOTE: seven is number of chars in ' 100.0%'

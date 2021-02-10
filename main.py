@@ -107,7 +107,7 @@ if __name__ == "__main__":
             # Correlation Matrix
             elif opt == formatter.FUNC_ARG_DICT["correlation"]:
                 if(len(main_args) > 1):
-                    result = statistics.get_correlation_matrix_string(symbols=main_args, indent=formatter.INDENT, 
+                    result = statistics.get_correlation_matrix_string(tickers=main_args, indent=formatter.INDENT, 
                                                                         start_date=start_date, end_date=end_date)
                     output.comment(f'\n{result}')
 
