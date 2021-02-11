@@ -44,62 +44,6 @@ def parse_price_from_date(prices, date, asset_type):
     except:
         output.debug('Price unable to be parsed from date.')
         return False
-        
-# TODO: Crypto queries return all dates and price even if no start_date is provided.
-#       Need to truncuate crypto queries to last 100 days for caching. 
-# TODO: make all price retrievals (ctrl+f get_daily_price_history) go through this 
-#       function. Will need to modify it to accept dates.
-# TODO: should I query database in app module or server module? regardless, function calls
-#       should go through this method so they always check the cache, rather than having 
-#       objects that call this function check the cache (currently how it does it).
-# TODO: don't query the database here. leave services to interface with services. leave
-#       database stuff to django. 
-#       But then how will statistics calculate based on database values? 
-def get_daily_price_history(ticker, start_date=None, end_date=None):
-    """
-    Parameters
-    ----------
-    tickers : [ str ]
-        Required. List of ticker symbols corresponding to the price histories to be retrieved.
-
-    Output
-    ------
-    { date (str) : price (str) }
-        List of prices and their corresponding dates. 
-    Notes
-    -----
-    Only recent prices are cached, i.e. the last 100 days of prices. Calls for other periods of time will not be cached and can take considerably longer to load, due to the API rate limits on AlphaVantage. This function
-    should only be used to retrieve the last 100 days of prices. 
-    """
-
-    if start_date is None and end_date is None:
-        output.debug('Checking for {ticker} prices in cache..')
-        now = datetime.datetime.now()
-        timestamp = '{}{}{}'.format(now.month, now.day, now.year)
-        buffer_store= os.path.join(settings.CACHE_DIR, f'{timestamp}_{ticker}.{settings.CACHE_EXT}')
-        
-        if os.path.isfile(buffer_store):
-            output.debug(f'Loading in cached {ticker} prices...')
-            with open(buffer_store, 'r') as infile:
-                if settings.CACHE_EXT == "json":
-                    output.debug(f'Cached {ticker} prices found.')
-                    prices = json.load(infile)
-                # TODO: load other file types
-            return prices
-        else:
-            output.debug(f'Retrieving {ticker} prices from Service Manager...')  
-            prices = query_service_for_daily_price_history(ticker=ticker)
-
-            output.debug(f'Storing {ticker} price history in cache...')
-            with open(buffer_store, 'w') as outfile:
-                if settings.CACHE_EXT == "json":
-                    json.dump(prices, outfile)
-                # TODO: dump other file types
-            return prices
-    else:
-        output.debug(f'No cached prices for date ranges past default. Passing to service call...')
-        prices = query_service_for_daily_price_history(ticker=ticker)
-        return prices
 
 def query_service_for_daily_price_history(ticker, start_date=None, end_date=None, full=False):
     """
@@ -327,6 +271,60 @@ def query_service_for_daily_price_history(ticker, start_date=None, end_date=None
     else:
         output.debug("No PRICE_MANAGER set in .env file!")
 
+# TODO: Crypto queries return all dates and price even if no start_date is provided.
+#       Need to truncuate crypto queries to last 100 days for caching. 
+# TODO: should I query database in app module or server module? regardless, function calls
+#       should go through this method so they always check the cache, rather than having 
+#       objects that call this function check the cache (currently how it does it).
+# TODO: don't query the database here. leave services to interface with services. leave
+#       database stuff to django. 
+#       But then how will statistics calculate based on database values? 
+def get_daily_price_history(ticker, start_date=None, end_date=None):
+    """
+    Parameters
+    ----------
+    tickers : [ str ]
+        Required. List of ticker symbols corresponding to the price histories to be retrieved.
+
+    Output
+    ------
+    { date (str) : price (str) }
+        List of prices and their corresponding dates. 
+    Notes
+    -----
+    Only recent prices are cached, i.e. the last 100 days of prices. Calls for other periods of time will not be cached and can take considerably longer to load, due to the API rate limits on AlphaVantage. This function
+    should only be used to retrieve the last 100 days of prices. 
+    """
+
+    if start_date is None and end_date is None:
+        output.debug('Checking for {ticker} prices in cache..')
+        now = datetime.datetime.now()
+        timestamp = '{}{}{}'.format(now.month, now.day, now.year)
+        buffer_store= os.path.join(settings.CACHE_DIR, f'{timestamp}_{ticker}.{settings.CACHE_EXT}')
+        
+        if os.path.isfile(buffer_store):
+            output.debug(f'Loading in cached {ticker} prices...')
+            with open(buffer_store, 'r') as infile:
+                if settings.CACHE_EXT == "json":
+                    output.debug(f'Cached {ticker} prices found.')
+                    prices = json.load(infile)
+                # TODO: load other file types
+            return prices
+        else:
+            output.debug(f'Retrieving {ticker} prices from Service Manager...')  
+            prices = query_service_for_daily_price_history(ticker=ticker)
+
+            output.debug(f'Storing {ticker} price history in cache...')
+            with open(buffer_store, 'w') as outfile:
+                if settings.CACHE_EXT == "json":
+                    json.dump(prices, outfile)
+                # TODO: dump other file types
+            return prices
+    else:
+        output.debug(f'No cached prices for date ranges past default. Passing to service call...')
+        prices = query_service_for_daily_price_history(ticker=ticker)
+        return prices
+
 def get_daily_price_latest(ticker):
     if settings.PRICE_MANAGER == "alpha_vantage":
         asset_type = markets.get_asset_type(ticker)
@@ -343,7 +341,7 @@ def get_daily_price_latest(ticker):
         output.debug("No PRICE_MANAGER set in .env file!")
         return None
 
-def get_daily_stats_history(statistics, start_date=None, end_date=None):
+def query_service_for_daily_stats_history(statistics, start_date=None, end_date=None):
     if settings.STAT_MANAGER == "quandl":
         stats = []
         
@@ -372,7 +370,11 @@ def get_daily_stats_history(statistics, start_date=None, end_date=None):
     else:
         output.debug("No STAT_MANAGER set in .env file!")
         return None
-        
+
+def get_daily_stats_history(statistics):
+    # TODO: implement caching for statistics
+    return query_service_for_daily_stats_history(statistics)
+
 def get_daily_stats_latest(statistics):
     if settings.STAT_MANAGER == "quandl":
         current_stats = []
@@ -452,7 +454,7 @@ def init_static_data():
 
 def get_static_data(static_type):
     output.debug(f'Loading in cached {static_type} symbols...')
-    path = ""
+    path = None
 
     if static_type == settings.ASSET_CRYPTO:
         path = settings.STATIC_CRYPTO_FILE
@@ -466,10 +468,12 @@ def get_static_data(static_type):
     else:
         return False
 
-    if not os.path.isfile(path):
-        init_static_data()
+    if path is not None:
+        if not os.path.isfile(path):
+            init_static_data()
 
-    with open(path, 'r') as infile:
-        symbols = json.load(infile)   
-    
-    return symbols
+        with open(path, 'r') as infile:
+            symbols = json.load(infile)   
+            return symbols
+    else:
+        return False

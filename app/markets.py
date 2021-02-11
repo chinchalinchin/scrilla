@@ -10,11 +10,15 @@ def get_asset_type(symbol):
         return settings.ASSET_CRYPTO
         
     else:
-        symbols = list(services.get_static_data(settings.ASSET_EQUITY))
-        if symbol in symbols:
-            return settings.ASSET_EQUITY
-        else:
-            return None
+        return settings.ASSET_EQUITY
+    # if other asset types are introduced, then uncomment these lines
+    # and add new asset type to conditional. Keep in mind the static
+    # equity data is HUGE.
+        # symbols = list(services.get_static_data(settings.ASSET_EQUITY))
+        # if symbol in symbols:
+            # return settings.ASSET_EQUITY
+        # else:
+            #return None
 
 def get_trading_period(asset_type):
     if asset_type == None:
