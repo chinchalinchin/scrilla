@@ -1,5 +1,5 @@
 # Python Imports
-import datetime
+import os, datetime
 
 # Server Imports
 from data.models import Market, Crypto, Economy
@@ -13,6 +13,8 @@ import util.helper as helper
 import util.logger as logger
 
 output = logger.Logger("server.pynance_api.data")
+
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings')
 
 # Must be done after /static/ is initialized!
 def scrap_data():

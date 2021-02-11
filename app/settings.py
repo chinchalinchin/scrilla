@@ -92,20 +92,11 @@ APP_ENV = os.environ.setdefault('APP_ENV', 'local')
 # NOTE: Load in local.env file if not running application container. Container should 
 # already have the container.env file preloaded in its environment.
 if APP_ENV != 'container':
-    from PyQt5.QtWidgets import QApplication, QWidget, QInputDialog, QLineEdit
     dotenv.load_dotenv(os.path.join(os.path.join(APP_DIR,'env'), 'local.env'))
 
 LOG_LEVEL = str(os.environ.setdefault("LOG_LEVEL", "info")).lower()
 
 output = logger.Logger('app.settings', LOG_LEVEL)
-
-CONFIG_FILE = os.path.join(APP_DIR, 'static', 'creds','config.json')
-
-if helper.is_non_zero_file(CONFIG_FILE):
-    with open(CONFIG_FILE, 'r') as infile:
-        credential_overrides = json.load(infile)
-else:
-    credential_overrides = None
 
 # TODO: CACHE only supports JSON currently. Future file extensions: csv and txt.
 CACHE_DIR = os.path.join(APP_DIR, 'cache')
@@ -192,59 +183,7 @@ PRICE_MANAGER = os.getenv('PRICE_MANAGER')
 #### ALPHAVANTAGE CONFIGURATION
 if PRICE_MANAGER == 'alpha_vantage':
     AV_URL = os.getenv('ALPHA_VANTAGE_URL').strip("\"").strip("'")
-
-    # Grab AV API Key From config.json or .env if config.json doesn't exist
-    if credential_overrides:
-        try:
-            AV_KEY = credential_overrides['ALPHA_VANTAGE_KEY']
-        except:
-            AV_KEY = None
-            output.debug('Unable to parse ALPHA_VANTAGE_KEY from config.json file')
-            try:
-                AV_KEY = os.getenv('ALPHA_VANTAGE_KEY')
-            except:
-                AV_KEY = None
-                output.debug('Unable to parse ALPHA_VANTAGE_KEY from .env file')
-    else:
-        try:
-            AV_KEY = os.getenv('ALPHA_VANTAGE_KEY')
-        except:
-            AV_KEY = None
-            output.debug('Unable to parse ALPHA_VANTAGE_KEY from .env file')
-
-    # Verify API Key works
-    if AV_KEY is not None:
-        output.debug('Verifying ALPHA_VANTAGE API Key')
-        unverified = not tester.test_av_key(AV_KEY)
-
-    else:
-        unverified = True
-
-    if APP_ENV != 'container':
-        while unverified:
-            output.comment('Unable to verify ALPHA_VANTAGE API Key.')
-            output.comment('Please register at https://www.alphavantage.co/ and place API Key in .env or config.json')
-            
-            app = QApplication([])
-            widget, popup = QWidget(), QInputDialog()
-            widget.resize(POPUP_WIDTH, POPUP_HEIGHT)
-
-            text, okPressed = popup.getText(widget, "AlphaVantage API Key",
-                                            "No AlphaVantage API Key found within application. \n Please register at https://www.alphavantage.co/ for an API Key and enter here:", QLineEdit.Normal, "")
-            
-            widget, popup = None, None
-            app.exit()
-            app = None
-
-            unverified = not tester.test_av_key(text)
-
-            if not unverified:
-                new_alpha_creds = { 'ALPHA_VANTAGE_KEY' : text }
-
-    else:
-        # TODO: Come up with API verification process for containers
-        output.info('TODO: Set up Docker API verification process')
-        pass
+    AV_KEY = os.getenv('ALPHA_VANTAGE_KEY')
 
     # Metadata Endpoints
     AV_CRYPTO_LIST=os.getenv('ALPHA_VANTAGE_CRYPTO_META_URL')
@@ -278,56 +217,7 @@ STAT_MANAGER = os.getenv('STAT_MANAGER')
 #### QUANDL CONFIGURAITON
 if STAT_MANAGER == "quandl":
     Q_URL = os.getenv('QUANDL_URL').strip("\"").strip("'")
-
-    if credential_overrides:
-        try:
-            Q_KEY = credential_overrides['QUANDL_KEY']
-        except:
-            Q_KEY = None
-            output.debug('Unable to parse QUANDL_KEY from config.json file')
-            try:
-                Q_KEY = os.getenv('QUANDL_KEY')
-            except:
-                Q_KEY = None
-                output.debug('Unable to parse QUANDL_KEY from .env file')
-    else:
-        try:
-            Q_KEY = os.getenv('QUANDL_KEY')
-        except:
-            Q_KEY = None
-            output.debug('Unable to parse QUANDL_KEY from .env file')
-
-    if Q_KEY is not None:
-        output.debug('Verifying QUANDL API Key')
-        unverified = not tester.test_q_key(Q_KEY)
-    else:
-        unverified = True
-
-    if APP_ENV != 'container':
-        while unverified:
-            output.comment('Unable to verify QUANDL API Key.')
-            output.comment('Please register at https://www.quandl.com/ and place API Key in .env or config.json')
-            
-            app = QApplication([])
-            widget, popup = QWidget(), QInputDialog()
-            widget.resize(POPUP_WIDTH, POPUP_HEIGHT)
-
-            text, okPressed = popup.getText(widget, "Quandl API Key",
-                                            "No Quandl API Key detectedin application. \n Please register at https://www.quandl.com/ for an API Key and enter here:", QLineEdit.Normal, "")
-            
-            widget, popup = None, None
-            app.exit()
-            app = None
-
-            unverified = not tester.test_q_key(text)
-
-            if not unverified:
-                new_quandl_creds = { 'QUANDL_KEY' : text }
-
-    else:
-        # TODO: Come up with API verification process for containers
-        output.info('TODO: Set up Docker API verification process')
-        pass
+    Q_KEY = os.getenv('QUANDL_KEY')
 
     # Metadata Endpoints
     Q_META_URL = os.getenv('QUANDL_META_URL')
@@ -354,23 +244,3 @@ if STAT_MANAGER == "quandl":
     PARAM_Q_METADATA="metadata.json"
     PARAM_Q_START="start_date"
     PARAM_Q_END="end_date"
-
-# Ensure config.json gets a dump of the credentials, whether they are user-entered or 
-# pulled from environment variables.
-if credential_overrides is None:
-    credential_overrides = {}
-
-    if PRICE_MANAGER == 'alpha_vantage':
-        if new_alpha_creds:
-            credential_overrides['ALPHA_VANTAGE_KEY'] = new_alpha_creds['ALPHA_VANTAGE_KEY']
-        else:
-            credential_overrides['ALPHA_VANTAGE_KEY'] = AV_KEY
-
-    if STAT_MANAGER == 'quandl':
-        if new_quandl_creds:
-            credential_overrides['QUANDL_KEY'] = new_quandl_creds['QUANDL_CREDS']
-        else:
-            credential_overrides['QUANDL_KEY'] = Q_KEY
-
-    with open(CONFIG_FILE, 'w') as outfile:
-        json.dump(credential_overrides, outfile)

@@ -49,6 +49,9 @@ if __name__ == "__main__":
 
             sys.exit(app.exec_())
 
+        elif opt == formatter.FUNC_ARG_DICT["gui"] and settings.APP_ENV == "container":
+            output.comment("GUI functionality disabled when application is containerized.")
+
         elif opt == formatter.FUNC_ARG_DICT['initialize']:
             output.comment("Initializing /static/ directory")       
             services.init_static_data()

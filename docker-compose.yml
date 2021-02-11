@@ -9,25 +9,25 @@ services:
       volumes:
         - static:/home/static/
       networks:
-        - pynance
+        - the_pit
       env_file: 
         - ./env/container.env
       command: ["wait-for-it", "datasource:5432"]
 
     datasource:
-      image: postgres:latest
+      image: postgres:11
       restart: always
       ports: 
           - "5432:5432"
       volumes:
           - postgres:/data/postgres
       networks:
-          - pynance
+          - the_pit
       env_file:
           - ./env/container.env 
 
 networks:
-    pynance: 
+    the_pit: 
 
 volumes: 
     postgres:

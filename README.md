@@ -38,8 +38,6 @@ For the application to retrieve data, it must be able to connect to AlphaVantage
 
 And then change the <b>ALPHA_VANTAGE_KEY</b> and <b>QUANDL_KEY</b> variables to the values you received when you registered on their respective site. Once the API keys have been set, execute the `python main.py` script. Supply this script an argument preceded by a dash that specifies the function you wish to execute and the ticker symbols to which you wish to apply the function. 
 
-After the application searches for API keys in the <i>local.env</i> file, it will search for API keys in <i>config.json</i>. If this file exists, it will override any keys found in <i>local.env</i>. If no keys are found within either file, a popup dialog box (QInputDialog from PyQt.QtWidgets) will prompt the user to register for their keys and enter them into a text field. The application will then test the API key entered and if it is valid, save it in the <i>config.json</i> file. Subsequent application calls will leverage the credentials in this file.
-
 You can add the <i>/scripts/</i> directory to your path to provide access to a BASH script for invoking the application with a python wrapper, i.e. if <i>/scripts/</i> is on your path, then
 
 > pynance -help
@@ -288,6 +286,8 @@ See the comments in the <i>/env/.sample.env</i> for more information on each var
 22. Pretty sure the reason the len(moving_averages) != len(dates_between) in moving average algorithnm is because dates_between doesn't include the dates themselves; it's only returning...dun dun dun...the dates between, not the dates themselves. 
 
 23. Need to figure out what's going on with the x-axis formatting for moving average graphs over date ranges.
+
+24. Error with request parameters not being taken to uppercase. Doesn't affect program, but annoys me. 
 
 ### NOTES
 

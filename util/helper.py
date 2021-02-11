@@ -343,6 +343,8 @@ def parse_csv_response_column(column, url, firstRowHeader=None, savefile=None, f
 ################################################
 ##### FILE MANAGEMENT FUNCTIONS
 
+# TODO: this deletes subdirectories. Need to retain /static/creds/ directory
+#       for config.json
 def clear_directory(directory, retain=True, outdated_only=False):
     filelist = [ f for f in os.listdir(directory)]
 

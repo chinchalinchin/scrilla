@@ -1,10 +1,10 @@
-FROM python:latest
+FROM python:3.7.7-slim
 
 # DEFAULT USER & GROUP CONFIGURATION
 RUN useradd -ms /bin/bash pynance && groupadd pyadmin && usermod -a -G pyadmin pynance
 
 # OS DEPENDENCY CONFIGURAITON
-RUN apt-get update -y && apt-get install -y curl wait-for-it
+RUN apt-get update -y && apt-get install -y curl wait-for-it postgresql-client-11 libpq-dev build-essential
 
 # APPLICATION DEPENDENCY CONFIGURATION
 WORKDIR /home/

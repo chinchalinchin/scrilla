@@ -18,10 +18,14 @@ help(){
 }
 
 concat_args(){
-    ARG_STRING=""
-    for arg in $@
-    do
-        ARG_STRING="$ARG_STRING$ARG"
-    done
-    echo $ARG_STRING
+    if [ ! $# -eq 0 ]
+    then
+        ARG_STRING=""
+        for arg in $@
+        do
+            ARG_STRING="$ARG_STRING $1"
+            shift
+        done
+        echo $ARG_STRING
+    fi
 }
