@@ -18,7 +18,7 @@ if settings.APP_ENV != "container":
 
 import util.helper as helper
 import util.logger as logger
-import util.formatting as formatter
+import util.formatter as formatter
 
 output = logger.Logger('main', settings.LOG_LEVEL)
 

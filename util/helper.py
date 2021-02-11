@@ -2,7 +2,7 @@ import datetime, os, io, math, json, csv, zipfile
 import holidays
 import requests
 
-import util.formatting as formatter
+import util.formatter as formatter
 
 ################################################
 ##### FORMATTING FUNCTIONS

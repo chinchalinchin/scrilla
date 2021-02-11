@@ -8,7 +8,7 @@ import app.services as services
 import app.markets as markets
 
 import util.logger as logger
-import util.formatting as formatter
+import util.formatter as formatter
 import util.helper as helper
 
 output = logger.Logger('app.statistics', settings.LOG_LEVEL)

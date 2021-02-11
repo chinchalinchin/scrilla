@@ -6,7 +6,7 @@ from matplotlib import pyplot as plot
 from matplotlib.figure import Figure
 from matplotlib import dates as matdates
 
-import util.formatting as formatter
+import util.formatter as formatter
 import util.helper as helper
 
 APP_ENV=os.environ.setdefault('APP_ENV', 'local')

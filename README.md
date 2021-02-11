@@ -286,6 +286,9 @@ See the comments in the <i>/env/.sample.env</i> for more information on each var
 21. Create 'self' PRICE_MANAGER and STAT_MANAGER. If set to 'self' query database for price histories. Will need to make sure scrapper runs during application initialization. Possibly entrypoints where it will need run: CLI, GUI and API.
 
 22. Pretty sure the reason the len(moving_averages) != len(dates_between) in moving average algorithnm is because dates_between doesn't include the dates themselves; it's only returning...dun dun dun...the dates between, not the dates themselves. 
+
+23. Need to figure out what's going on with the x-axis formatting for moving average graphs over date ranges.
+
 ### NOTES
 
 1. All date strings should be converted to <b>datetime.dates</b> at point of contact with user, i.e. in the main.py file where CLI arguments are parsed, within the gui where user arguments are pulled from widgets or in the server's endpoint views where user arguments are provided through query parameters, before passing it the service/statistics/portfolio functions. All functions in the <i>/app/</i> module assume dates are passed in as <b>datetime.dates</b>.

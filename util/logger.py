@@ -3,7 +3,7 @@ import numpy as numpy
 import matplotlib.pyplot as matplotlib
 
 import util.helper as helper
-import util.formatting as formatter
+import util.formatter as formatter
 
 LOG_LEVEL_INFO = "info"
 LOG_LEVEL_DEBUG = "debug"
