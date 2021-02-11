@@ -4,7 +4,7 @@ from PIL import Image
 
 from matplotlib import pyplot as plot
 from matplotlib.figure import Figure
-from matplotlib import dates
+from matplotlib import dates as matdates
 
 import util.formatting as formatter
 import util.helper as helper
@@ -102,10 +102,10 @@ def plot_moving_averages(symbols, averages_output, periods, show=True, savefile=
     averages, dates = averages_output
     canvas = FigureCanvas(Figure())
     axes = canvas.figure.subplots()
-    ma1s, ma2s, ma3s = [], [], []
     ma1_label, ma2_label, ma3_label = f'MA({periods[0]})', f'MA({periods[1]})', f'MA({periods[2]})'
 
     if dates is None:
+        ma1s, ma2s, ma3s = [], [], []
         for i in range(len(symbols)):
             ma1s.append(averages[i][0])
             ma2s.append(averages[i][1])
@@ -126,40 +126,41 @@ def plot_moving_averages(symbols, averages_output, periods, show=True, savefile=
         axes.legend()
 
     else:
-        months = dates.MonthLocator()
-        days = dates.DayLocator()
-        months_format = dates.DateFormatter('%m')
+        months = matdates.MonthLocator()
+        days = matdates.DayLocator()
+        months_format = matdates.DateFormatter('%m')
 
         
         for i in range(len(symbols)):
+            ma1s, ma2s, ma3s = [], [], []
             ma1_label, ma2_label, ma3_label = f'{symbols[i]}_{ma1_label}', f'{symbols[i]}_{ma2_label}', f'{symbols[i]}_{ma3_label}'
             for j in range(len(dates)):
                 MA_1 = averages[i][0][j]
                 ma1s.append(MA_1)
                                   
-                MA_2 = averages[i][j][1]
+                MA_2 = averages[i][1][j]
                 ma2s.append(MA_2)
          
-                MA_3 = averages[i][j][2]
+                MA_3 = averages[i][2][j]
                 ma3s.append(MA_3)
             
             start_date, end_date = dates[0], dates[len(dates)-1] 
             title_str = f'Moving Averages of Annualized Return From {start_date} to {end_date}'
-            axes.plot(dates, MA_1, linestyle="solid", color="darkgrean", label=ma1_label)
-            axes.plot(dates, MA_2, linestyle="dotted", color="gold", label=ma2_label)
-            axes.plot(dates, MA_3, linestyle="dashdot", color="orangered", label=ma3_label)
+            axes.plot(dates, ma1s, linestyle="solid", color="darkgreen", label=ma1_label)
+            axes.plot(dates, ma2s, linestyle="dotted", color="gold", label=ma2_label)
+            axes.plot(dates, ma3s, linestyle="dashdot", color="orangered", label=ma3_label)
 
             axes.set_title(title_str)
 
             axes.set_ylabel('Annualized Logarthmic Return')
         
-            datemin = np.datetime64(dates[0], 'M')
-            datemax = np.datetime64(dates[-1], 'M') + np.datetime64(1, 'Y')
+            datemin = numpy.datetime64(dates[0], 'M')
+            datemax = numpy.datetime64(dates[-1], 'M') + numpy.timedelta64(1, 'M')
             axes.set_xlabel('')
             axes.set_xlim()
             axes.xaxis.set_major_locator(months)
             axes.xaxis.set_major_formatter(months_format)
-            axes.format_xdata = dates.DatesFormatter('%Y-%m-%d')
+            axes.format_xdata = matdates.DateFormatter('%Y-%m-%d')
         
             axes.legend()
 

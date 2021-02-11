@@ -322,7 +322,7 @@ def get_daily_price_history(ticker, start_date=None, end_date=None):
             return prices
     else:
         output.debug(f'No cached prices for date ranges past default. Passing to service call...')
-        prices = query_service_for_daily_price_history(ticker=ticker)
+        prices = query_service_for_daily_price_history(ticker=ticker, start_date=start_date, end_date=end_date)
         return prices
 
 def get_daily_price_latest(ticker):

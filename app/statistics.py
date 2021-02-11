@@ -67,7 +67,7 @@ def calculate_moving_averages(tickers, start_date=None, end_date=None, sample_pr
     # Moving Average Snapshot
     if start_date is None and end_date is None:
         for ticker in tickers:
-            output.verbose(f'Calculating Moving Average for {ticker}')
+            output.debug(f'Calculating Moving Average for {ticker}')
 
             if sample_prices is None:
                 prices = services.get_daily_price_history(ticker)
@@ -108,31 +108,50 @@ def calculate_moving_averages(tickers, start_date=None, end_date=None, sample_pr
 
     # Moving Average Scatter Plot
     else:
-        previous_asset_type = None
-        portfolio_asset_type = None
+        previous_asset_type, portfolio_asset_type = None, None
         mixed_flag = False
+        original_day_count = 0
 
+        output.debug('Checking provided tickers for mixed asset types...')
         for ticker in tickers:
             asset_type = markets.get_asset_type(ticker)
             portfolio_asset_type = asset_type
             if previous_asset_type is not None:
                 if previous_asset_type != asset_type:
+                    output.debug('Tickers include mixed asset types, flagging calculation.')
                     portfolio_asset_type = None
                     mixed_flag = True
                     break
             previous_asset_type = asset_type
 
+        if not mixed_flag:
+            output.debug(f'Tickers provided all of {portfolio_asset_type} asset type.')
+
+        output.debug('Calculating length of date range in trading days...')
+        if mixed_flag:
+            original_day_count = helper.business_day_between(start_date, end_date)
+        elif portfolio_asset_type == settings.ASSET_EQUITY:
+            original_day_count = helper.business_days_between(start_date, end_date)
+        elif portfolio_asset_type == settings.ASSET_CRYPTO:
+            original_day_count = (end_date - start_date).days
+        else:
+            original_day_count = helper.business_days_between(start_date, end_date)
+
+        output.debug(f'{end_date} - {start_date} = {original_day_count} trading days')
+
         for ticker in tickers:
-            output.verbose(f'Calculating Moving Average for {ticker}')
+            output.debug(f'Calculating Moving Average for {ticker}.')
 
             asset_type = markets.get_asset_type(ticker)
             trading_period = markets.get_trading_period(asset_type)
 
+            output.debug(f'Offsetting start date to account for longest Moving Average period....')
             if asset_type == settings.ASSET_CRYPTO:
                 output.debug(f'{ticker}_asset_type = Crypto')
 
+                output.debug(f'Configuring date variables to account for all dates.')
                 new_start_date = start_date - datetime.timedelta(days=settings.MA_3_PERIOD)
-                day_count = (end_date - new_start_date).days
+                new_day_count = (end_date - new_start_date).days
 
                 # amend equity trading dates to take account of weekends
             elif asset_type == settings.ASSET_EQUITY:
@@ -141,24 +160,24 @@ def calculate_moving_averages(tickers, start_date=None, end_date=None, sample_pr
                 output.debug(f'Configuring date variables to account for weekends and holidays.')
                 new_start_date = helper.decrement_date_by_business_days(start_date=start_date, 
                                                                         business_days=settings.MA_3_PERIOD)
-                day_count = helper.business_days_between(new_start_date, end_date)
+                new_day_count = helper.business_days_between(new_start_date, end_date)
 
             else:
-                output.debug(f'{ticker}_asset_type = Unknown; Defaulting to all dates')
+                output.debug(f'{ticker}_asset_type = Unknown; Defaulting to business dates')
 
-                new_start_date = start_date - datetime.timedelta(days=settings.MA_3_PERIOD)
-                day_count = (end_date - new_start_date).days
+                output.debug(f'Configuring date variables to account for weekends and holidays.')
+                new_start_date = helper.decrement_date_by_business_days(start_date=start_date, 
+                                                                        business_days=settings.MA_3_PERIOD)
+                new_day_count = helper.business_days_between(new_start_date, end_date)
 
-            print_start = helper.date_to_string(start_date)
-            print_new_start = helper.date_to_string(new_start_date)
-
-            output.verbose(f'Offsetting start date To account for longest Moving Average period')
-            output.verbose(f'start_date -> new_start_date == {print_start} -> {print_new_start}')
-            output.verbose(f'day_count == {day_count}')
+            output.debug(f'start_date -> new_start_date == {start_date} -> {new_start_date}')
+            output.debug(f'{end_date} - {new_start_date} == {new_day_count}')
 
             if sample_prices is None:
+                output.debug(f'No {ticker} sample prices provided, calling service...')
                 prices = services.get_daily_price_history(ticker, new_start_date, end_date)
             else:
+                output.debug(f'{ticker} sample prices provided, skipping service call.')
                 prices = sample_prices[ticker]
 
             today = False
@@ -193,9 +212,12 @@ def calculate_moving_averages(tickers, start_date=None, end_date=None, sample_pr
                                output.verbose(f'{ticker}_MA_1({date_of_MA1}) = {MA}')
 
                     # See NOTE #3
-                   if not(helper.is_date_string_holiday(date) or helper.is_date_string_weekend(date)): 
-                        MAs_1.append( (todays_return / settings.MA_1_PERIOD) )
-   
+                   if mixed_flag or portfolio_asset_type == settings.ASSET_EQUITY:
+                        if not(helper.is_date_string_holiday(date) or helper.is_date_string_weekend(date)): 
+                            MAs_1.append( (todays_return / settings.MA_1_PERIOD) )
+                   elif portfolio_asset_type == settings.ASSET_CRYPTO:
+                       MAs_1.append( (todays_return / settings.MA_1_PERIOD))
+
                    for MA in MAs_2:
                        end_flag = False
                        if len(MAs_2) - MAs_2.index(MA) < settings.MA_2_PERIOD:
@@ -214,9 +236,12 @@ def calculate_moving_averages(tickers, start_date=None, end_date=None, sample_pr
                                output.verbose(f'{ticker}_MA_2({date_of_MA2}) = {MA}')
 
                     # See NOTE #3
-                   if not(helper.is_date_string_holiday(date) or helper.is_date_string_weekend(date)):
-                        MAs_2.append( (todays_return / settings.MA_2_PERIOD) )
-        
+                   if mixed_flag or portfolio_asset_type == settings.ASSET_EQUITY:
+                       if not(helper.is_date_string_holiday(date) or helper.is_date_string_weekend(date)):
+                            MAs_2.append((todays_return / settings.MA_2_PERIOD))
+                   elif portfolio_asset_type == settings.ASSET_CRYPTO:
+                       MAs_2.append((todays_return / settings.MA_2_PERIOD))
+
                    for MA in MAs_3:
                        end_flag = False
                        if len(MAs_3) - MAs_3.index(MA)  < settings.MA_3_PERIOD:
@@ -235,17 +260,20 @@ def calculate_moving_averages(tickers, start_date=None, end_date=None, sample_pr
                                output.verbose(f'{ticker}_MA_3({date_of_MA3}) = {MA}')
 
                     # See NOTE #3
-                   if not(helper.is_date_string_holiday(date) or helper.is_date_string_weekend(date)):
-                       MAs_3.append( (todays_return) / settings.MA_3_PERIOD)
-                
+                   if mixed_flag or portfolio_asset_type == settings.ASSET_EQUITY:
+                       if not(helper.is_date_string_holiday(date) or helper.is_date_string_weekend(date)):
+                           MAs_3.append((todays_return / settings.MA_3_PERIOD))
+                   elif portfolio_asset_type == settings.ASSET_CRYPTO: 
+                       MAs_3.append((todays_return / settings))
+
                 else:
                     today = True
                     
                 tomorrows_price = services.parse_price_from_date(prices, date, asset_type)
 
-            MAs_1 = MAs_1[:day_count]
-            MAs_2 = MAs_2[:day_count]
-            MAs_3 = MAs_3[:day_count]
+            MAs_1 = MAs_1[:original_day_count]
+            MAs_2 = MAs_2[:original_day_count]
+            MAs_3 = MAs_3[:original_day_count]
 
             moving_averages.append([MAs_1, MAs_2, MAs_3])
 
@@ -259,13 +287,13 @@ def calculate_moving_averages(tickers, start_date=None, end_date=None, sample_pr
         else:
             dates_between = helper.business_dates_between(start_date, end_date)
         
-        output.verbose(f'If everything is correct, then len(moving_averages[0][1]) == len(dates_between)')
+        output.debug(f'If everything is correct, then len(moving_averages[0][1]) == len(dates_between)')
         if len(moving_averages[0][1]) == len(dates_between):
-            output.verbose("Your program rules.")
-            output.verbose('{} = {}'.format(len(moving_averages[0][1]), len(dates_between)))
+            output.debug("Your program rules.")
+            output.debug('{} = {}'.format(len(moving_averages[0][1]), len(dates_between)))
         else: 
-            output.verbose("Your program sucks.")
-            output.verbose('{} != {}'.format(len(moving_averages[0][1]), len(dates_between)))
+            output.debug("Your program sucks.")
+            output.debug('{} != {}'.format(len(moving_averages[0][1]), len(dates_between)))
 
         return moving_averages, dates_between 
 
