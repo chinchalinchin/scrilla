@@ -297,7 +297,7 @@ def get_daily_price_history(ticker, start_date=None, end_date=None):
     """
 
     if start_date is None and end_date is None:
-        output.debug('Checking for {ticker} prices in cache..')
+        output.debug(f'Checking for {ticker} prices in cache..')
         now = datetime.datetime.now()
         timestamp = '{}{}{}'.format(now.month, now.day, now.year)
         buffer_store= os.path.join(settings.CACHE_DIR, f'{timestamp}_{ticker}.{settings.CACHE_EXT}')

@@ -302,6 +302,7 @@ def calculate_risk_return(ticker, start_date=None, end_date=None, sample_prices=
             now = datetime.datetime.now()
             timestamp = '{}{}{}'.format(now.month, now.day, now.year)
             buffer_store= os.path.join(settings.CACHE_DIR, f'{timestamp}_{ticker}_{settings.CACHE_STAT_KEY}.{settings.CACHE_EXT}')
+            output.debug(f'Checking for cached {ticker} statistics...')
 
             if os.path.isfile(buffer_store):
                 output.debug(f'Loading in cached {ticker} statistics...')
@@ -309,10 +310,13 @@ def calculate_risk_return(ticker, start_date=None, end_date=None, sample_prices=
                     results = json.load(infile)
                 return results
             else:
+                output.debug(f'No cached {ticker} statistics found, calling service...')
                 prices = services.get_daily_price_history(ticker=ticker)
         else: 
+            output.debug(f'No sample prices provided, calling service...')
             prices = services.get_daily_price_history(ticker=ticker, start_date=start_date, end_date=end_date)
     else:
+        output.debug(f'{ticker} sample prices provided, skipping service call.')
         prices = sample_prices[ticker]
 
     if not prices:
@@ -419,7 +423,7 @@ def calculate_correlation(ticker_1, ticker_2, start_date=None, end_date=None, sa
         
         if start_date is None and end_date is None:
             # check if results exist in cache location 1
-            output.debug('Checking for calculation in cache...')
+            output.debug('Checking for correlation calculation in cache...')
             if os.path.isfile(buffer_store_1):
                 output.debug(f'Loading in cached ({ticker_1}, {ticker_2}) correlation...')
                 with open(buffer_store_1, 'r') as infile:
@@ -437,6 +441,7 @@ def calculate_correlation(ticker_1, ticker_2, start_date=None, end_date=None, sa
                     correlation = results
                 return correlation
             else:
+                output.debug(f'No cached ({ticker_1}, {ticker_2}) correlation found, retrieving price histories for calculation...')
                 prices_1 = services.get_daily_price_history(ticker=ticker_1)
                 prices_2 = services.get_daily_price_history(ticker=ticker_2)
         else:
@@ -453,8 +458,8 @@ def calculate_correlation(ticker_1, ticker_2, start_date=None, end_date=None, sa
     
     ### START SAMPLE STATISTICS CALCULATION ###
     output.debug(f'Preparing to calculate correlation for ({ticker_1},{ticker_2})')
-    stats_1 = calculate_risk_return(ticker_1, start_date, end_date, sample_prices)
-    stats_2 = calculate_risk_return(ticker_2, start_date, end_date, sample_prices)
+    stats_1 = calculate_risk_return(ticker_1, start_date, end_date, sample_prices[ticker_1])
+    stats_2 = calculate_risk_return(ticker_2, start_date, end_date, sample_prices[ticker_2])
 
     if (not stats_1) or (not stats_2):
         output.debug("Sample statistics cannot be calculated for correlation calculation")

@@ -204,6 +204,7 @@ class Logger():
             self.comment("# Application Configuration")
             self.comment(f'> Debug : {settings.DEBUG}')
             self.comment(f'> Enviroment: {settings.APP_ENV}')
+            self.comment(f'> Log Level: {settings.LOG_LEVEL}')
             self.line()
             self.comment("# Database Configuration")
             self.comment(f'> Database Engine: {settings.DATABASES["default"]["ENGINE"]}')
