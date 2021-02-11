@@ -238,23 +238,21 @@ See the comments in the <i>/env/.sample.env</i> for more information on each var
 
 1. add different price_managers and stat_managers besides AlphaVantage and Quandl. Find API service for options quotes.
 
-2. Rejigger moving averages algorithm (calculation and plotting) to accept current snapshot of moving averages and print bar graph (already does this), or accept a history of moving averages and created a line plot with several labeled serieses (moving average algorithm returns the sample data correctly, need to configure plotting of sample data now).
+2. Rejigger GUI to have DateWidgets to select dates in GUI and take advantage of the new date filtering functionality.
 
-3. Rejigger GUI to have DateWidgets to select dates in GUI and take advantage of the new date filtering functionality.
+3. [Free Icons](https://streamlineicons.com/) for GUI. Verify licensing terms. 
 
-4. [Free Icons](https://streamlineicons.com/) for GUI. Verify licensing terms. 
+4. Cancel button needs to exit application when prompting user for API keys.
 
-5. Cancel button needs to exit application when prompting user for API keys.
+5. Return None instead of False when errors are encountered in methods, so methods can have strict typing. Better for documentation! 
 
-6. Return None instead of False when errors are encountered in methods, so methods can have strict typing. Better for documentation! 
+6. set up argument parsing for Investment Mode so user doesn't have to change .env variable to use Investment Mode from cli.
 
-7. set up argument parsing for Investment Mode so user doesn't have to change .env variable to use Investment Mode from cli.
+7. Hook up 'Optimize' widget to optimize subject to constraint.
 
-8. Hook up 'Optimize' widget to optimize subject to constraint.
+8. Use fundamentals API from Alpha Vantage to calculate things like EBITBA, Enterprise Value, Price to Earnings, etc.
 
-9. Use fundamentals API from Alpha Vantage to calculate things like EBITBA, Enterprise Value, Price to Earnings, etc.
-
-10. Create functions for calculation and plotting of yield curve. Relevant FRED symbols: 
+9. Create functions for calculation and plotting of yield curve. Relevant FRED symbols: 
     - DFF = Effective Federal Funds Rate<br>
     - DTB3 = 3 Month Treasury<br>
     - DGS5 = 5 Year Treasury Constant Maturity<br>
@@ -263,30 +261,31 @@ See the comments in the <i>/env/.sample.env</i> for more information on each var
     - T5YIE = 5 Year Breakeven Inflation Rate<br>
     - T10YIE = 10 Year Breakeven Inflation Rate<br>
 
-11. Create tabs in GUI for: Markets, Fundamentals, Options, Economy. Markets will feature the portfolio optimization and financial price statistics such as moving averages and efficient frontiers. Fundamentals will feature graphs and calculations of accounting statistics like EBITDA, Enterprise Value, etc. Options will feature functions for calculating IV of options, displaying the volatility skew, historical vs. implied volatility, and option greeks. Economy will feature graphs of the yield curve, GDP, etc. 
+10. Create tabs in GUI for: Markets, Fundamentals, Options, Economy. Markets will feature the portfolio optimization and financial price statistics such as moving averages and efficient frontiers. Fundamentals will feature graphs and calculations of accounting statistics like EBITDA, Enterprise Value, etc. Options will feature functions for calculating IV of options, displaying the volatility skew, historical vs. implied volatility, and option greeks. Economy will feature graphs of the yield curve, GDP, etc. 
 
-12. Copy IV algorithm and option greek algorithms from old python cli program. 
+11. Copy IV algorithm and option greek algorithms from old python cli program. 
 
-13. TEST MOVING AVERAGE ALGORITHM FOR MIX OF ASSET TYPES. I think there may be some mismatch of types in date comparisons.
+12. TEST MOVING AVERAGE ALGORITHM FOR MIX OF ASSET TYPES. I think there may be some mismatch of types in date comparisons.
 
-14. Scrap historical closing prices up to current year from API and store in database. Set up container orchestration via <i>docker-compose</i> 
+13. Scrap historical closing prices up to current year from API and store in database. Set up container orchestration via <i>docker-compose</i> 
 
-15. ERROR: There seems to be a problem with the correlation algorithm over time ranges longer than 100 days. NOTE: Pretty sure this is resolved now, but needs further testing. Correlation algorithm needs test for mix of asset types as well, i.e. equities and crypto.
+14. ERROR: There seems to be a problem with the correlation algorithm over time ranges longer than 100 days. NOTE: Pretty sure this is resolved now, but needs further testing. Correlation algorithm needs test for mix of asset types as well, i.e. equities and crypto.
 
-16. Create automated tests and integrate repo with a CircleCi pipeline that simply builds the image. Will need to find a cloud provider to deploy onto. Perhaps [Heroku](https://www.heroku.com/)
+15. Create automated tests and integrate repo with a CircleCi pipeline that simply builds the image. Will need to find a cloud provider to deploy onto. Perhaps [Heroku](https://www.heroku.com/)
 
-17. Angular frontend! Separate container. Served through nginx and queries backend <b>pynance</b> server. 
+16. Angular frontend! Separate container. Served through nginx and queries backend <b>pynance</b> server. 
 
-18. Create custom postgres image that initializes a <b>market</b> database and a <b>economy</b> database. Populate <b>market</b> with scrapped price histories. Populate <b>economy</b> with scrapped statistics histories. 
+17. Create custom postgres image that initializes a <b>market</b> database and a <b>economy</b> database. Populate <b>market</b> with scrapped price histories. Populate <b>economy</b> with scrapped statistics histories. 
 
-19. If an option prices API is found, then IV can be calculated for a specific equity. The optimization algorithm can be expanded to optimize over IV of a portfolio, instead of the Historical Volatility. Allow user to specify what type of volatility the portfolio will use in its optimization, historical or implied. Will need to account for skew, somehow. 
+18. If an option prices API is found, then IV can be calculated for a specific equity. The optimization algorithm can be expanded to optimize over IV of a portfolio, instead of the Historical Volatility. Allow user to specify what type of volatility the portfolio will use in its optimization, historical or implied. Will need to account for skew, somehow. 
 
-20. Test moving averages plot generation.
+19. Test moving averages plot generation.
 
-21. API keys are verified every single time the app.settings.py file is imported. Need to change how this is done to avoid expensive URL requests. 
+20. API keys are verified every single time the app.settings.py file is imported. Need to change how this is done to avoid expensive URL requests. 
 
-22. Create 'self' PRICE_MANAGER and STAT_MANAGER. If set to 'self' query database for price histories. Will need to make sure scrapper runs during application initialization. Possibly entrypoints where it will need run: CLI, GUI and API.
+21. Create 'self' PRICE_MANAGER and STAT_MANAGER. If set to 'self' query database for price histories. Will need to make sure scrapper runs during application initialization. Possibly entrypoints where it will need run: CLI, GUI and API.
 
+22. Pretty sure the reason the len(moving_averages) != len(dates_between) in moving average algorithnm is because dates_between doesn't include the dates themselves; it's only returning...dun dun dun...the dates between, not the dates themselves. 
 ### NOTES
 
 1. All date strings should be converted to <b>datetime.dates</b> at point of contact with user, i.e. in the main.py file where CLI arguments are parsed, within the gui where user arguments are pulled from widgets or in the server's endpoint views where user arguments are provided through query parameters, before passing it the service/statistics/portfolio functions. All functions in the <i>/app/</i> module assume dates are passed in as <b>datetime.dates</b>.
