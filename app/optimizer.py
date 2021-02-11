@@ -47,23 +47,6 @@ def optimize_portfolio_variance(portfolio, target_return=None):
 
     return allocation.x
 
-# TODO: verify everything works before deleting this permanently.
-# def minimize_portfolio_variance(portfolio):
-    # tickers = portfolio.get_assets()
-    # init_guess = portfolio.get_init_guess()
-    # equity_bounds = portfolio.get_default_bounds()
-    # equity_constraint = {
-        # 'type': 'eq',
-        # 'fun': portfolio.get_constraint
-    # }
-
-    # output.debug(f'Minimizing {tickers} Portfolio Risk')
-    # allocation = optimize.minimize(fun = portfolio.volatility_function, x0 = init_guess, 
-    #                                 method=settings.OPTIMIZATION_METHOD, bounds=equity_bounds, 
-    #                                 constraints=equity_constraint, options={'disp': False})
-
-    # return allocation.x
-
 def maximize_portfolio_return(portfolio):
     """
     Parameters

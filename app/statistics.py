@@ -13,7 +13,15 @@ import util.helper as helper
 
 output = logger.Logger('app.statistics', settings.LOG_LEVEL)
 
-def calculate_moving_averages(tickers, start_date=None, end_date=None):
+# NOTE: the format of 'sample_prices' was chosen so any function that accepts it as an argument
+#       can pass the same argument to other statistical functions with minimal formatting.
+#       While some of the information in 'sample_prices' may be redundant, i.e. 'tickers' is a subset
+#       of 'sample_prices', this format provides an easier method of communication between functions.
+#       In particular, the call to 'calculate_risk_return' inside of 'calculate_correlation' is able
+#       pass 'sample_prices' directly into 'calculate_risk_return' without having to worry whether it
+#       is passing in a 'None'-type object, or a list of prices ordered by date.
+
+def calculate_moving_averages(tickers, start_date=None, end_date=None, sample_prices=None):
     """
     Parameters
     ----------
@@ -23,7 +31,9 @@ def calculate_moving_averages(tickers, start_date=None, end_date=None):
         start date of the time period over which the moving averages will be calculated. \n \n 
     3. end_date : datetime.date\n 
         end date of the time period over which the moving averages will be calculated. \n \n 
-
+    4. sample_prices : { 'ticker' (str) : { 'date' (str) : 'price' (str) } } \n
+        A list of the asset prices for which moving_averages will be calculated. Overrides calls to service and calculates correlation for sample of prices supplied. Function will disregard start_date and end_date if sample_price is specified. Must be of the format: {'ticker_1': { 'date_1' : 'price_1', 'date_2': 'price_2' ...}, 'ticker_2': { 'date_1' : 'price_1:, ... } } and ordered from latest date to earliest date.  \n \n
+    
     Output
     ------
     (averages, dates)-tuple, where averages is a 3D array with the following format :
@@ -32,7 +42,7 @@ def calculate_moving_averages(tickers, start_date=None, end_date=None):
 
     Notes
     -----
-    NOTE #1: assumes price history returns from latest to earliest date. \n \n 
+    NOTE #1: assumes price history is ordered from latest to earliest date. \n \n 
     NOTE #2: If no start_date and end_date passed in, static snapshot of moving averages,
             i.e. the moving averages as of today (or last close), are calculated and 
             returned. \n \n
@@ -59,7 +69,11 @@ def calculate_moving_averages(tickers, start_date=None, end_date=None):
         for ticker in tickers:
             output.verbose(f'Calculating Moving Average for {ticker}')
 
-            prices = services.retrieve_prices_from_cache(ticker)
+            if sample_prices is None:
+                prices = services.get_daily_price_history(ticker)
+            else:
+                prices = sample_prices[ticker]
+
             asset_type = markets.get_asset_type(ticker)
             trading_period = markets.get_trading_period(asset_type)
 
@@ -142,7 +156,10 @@ def calculate_moving_averages(tickers, start_date=None, end_date=None):
             output.verbose(f'start_date -> new_start_date == {print_start} -> {print_new_start}')
             output.verbose(f'day_count == {day_count}')
 
-            prices = services.get_daily_price_history(ticker, new_start_date, end_date)
+            if sample_prices is None:
+                prices = services.get_daily_price_history(ticker, new_start_date, end_date)
+            else:
+                prices = sample_prices[ticker]
 
             today = False
             count= 1
@@ -252,7 +269,7 @@ def calculate_moving_averages(tickers, start_date=None, end_date=None):
 
         return moving_averages, dates_between 
 
-def calculate_risk_return(ticker, start_date=None, end_date=None):
+def calculate_risk_return(ticker, start_date=None, end_date=None, sample_prices=None):
     """
     Parameters
     ----------
@@ -262,10 +279,16 @@ def calculate_risk_return(ticker, start_date=None, end_date=None):
         Start date of the time period over which the risk-return profile is to be calculated. Defaults to None. \n \n
     3. end_date : datetime.date \n 
         End date of the time period over which the risk-return profile is to be calculated. Defaults to None. \n \n
+    5. sample_prices : { 'date' (str) : 'price' (str) } \n
+        A list of the asset prices for which correlation will be calculated. Overrides calls to service and calculates correlation for sample of prices supplied. Function will disregard start_date and end_date if sample_price is specified:  { 'date_1' : 'price_1', 'date_2': 'price_2' ...}  and ordered from latest date to earliest date.  \n \n
 
     Output
     ------
-    { 'annual_return' : float, 'annual_volatility': float } \n 
+    { 'annual_return' : float, 'annual_volatility': float } \n \n
+
+    Notes
+    -----
+    NOTE #1: assumes price history is ordered from latest to earliest date. \n \n 
     """
     asset_type = markets.get_asset_type(ticker)
     trading_period = markets.get_trading_period(asset_type)
@@ -274,20 +297,23 @@ def calculate_risk_return(ticker, start_date=None, end_date=None):
         output.debug("Asset did not map to (crypto, equity) grouping")
         return False
 
-    if start_date is None and end_date is None:
-        now = datetime.datetime.now()
-        timestamp = '{}{}{}'.format(now.month, now.day, now.year)
-        buffer_store= os.path.join(settings.CACHE_DIR, f'{timestamp}_{ticker}_{settings.CACHE_STAT_KEY}.{settings.CACHE_EXT}')
+    if sample_prices is None:
+        if start_date is None and end_date is None:
+            now = datetime.datetime.now()
+            timestamp = '{}{}{}'.format(now.month, now.day, now.year)
+            buffer_store= os.path.join(settings.CACHE_DIR, f'{timestamp}_{ticker}_{settings.CACHE_STAT_KEY}.{settings.CACHE_EXT}')
 
-        if os.path.isfile(buffer_store):
-            output.debug(f'Loading in cached {ticker} statistics...')
-            with open(buffer_store, 'r') as infile:
-                results = json.load(infile)
-            return results
-        else:
-            prices = services.retrieve_prices_from_cache(ticker=ticker)
-    else: 
-        prices = services.get_daily_price_history(ticker=ticker, start_date=start_date, end_date=end_date)
+            if os.path.isfile(buffer_store):
+                output.debug(f'Loading in cached {ticker} statistics...')
+                with open(buffer_store, 'r') as infile:
+                    results = json.load(infile)
+                return results
+            else:
+                prices = services.get_daily_price_history(ticker=ticker)
+        else: 
+            prices = services.get_daily_price_history(ticker=ticker, start_date=start_date, end_date=end_date)
+    else:
+        prices = sample_prices[ticker]
 
     if not prices:
         output.debug(f'No prices could be retrieved for {ticker}')
@@ -352,7 +378,7 @@ def calculate_risk_return(ticker, start_date=None, end_date=None):
 
     return results
 
-def calculate_correlation(ticker_1, ticker_2, start_date=None, end_date=None):
+def calculate_correlation(ticker_1, ticker_2, start_date=None, end_date=None, sample_prices=None):
     """
     Parameters
     ----------
@@ -364,6 +390,8 @@ def calculate_correlation(ticker_1, ticker_2, start_date=None, end_date=None):
         Start date of the time period over which correlation will be calculated. \n \n 
     4. end_date : datetime.date \n 
         End date of the time period over which correlation will be calculated. \n \n  
+    5. sample_prices : { 'ticker' (str) : { 'date' (str) : 'price' (str) } } \n
+        A list of the asset prices for which correlation will be calculated. Overrides calls to service and calculates correlation for sample of prices supplied. Will disregard start_date and end_date. Must be of the format: {'AAPL': { 'date_1' : 'price_1', 'date_2': 'price_2' ...}, 'BX': { 'date_1' : 'price_1:, ... } } and ordered from latest date to earliest date.  \n \n
     
     Output
     ------
@@ -382,39 +410,51 @@ def calculate_correlation(ticker_1, ticker_2, start_date=None, end_date=None):
     buffer_store_1= os.path.join(settings.CACHE_DIR, f'{timestamp}_{ticker_1}_{ticker_2}_correlation.json')
     buffer_store_2= os.path.join(settings.CACHE_DIR, f'{timestamp}_{ticker_2}_{ticker_1}_correlation.json')
 
-    if start_date is None and end_date is None:
-        # check if results exist in cache location 1
-        if os.path.isfile(buffer_store_1):
-            output.debug(f'Loading in cached ({ticker_1}, {ticker_2}) correlation...')
-            with open(buffer_store_1, 'r') as infile:
-                results = json.load(infile)
-                correlation = results
-            return correlation
+    if sample_prices is None:
+        # reset sample price and set entries to None for consistency in calculate_risk_return call below.
+        output.debug('No sample prices provided. Calling service for prices...')
 
-        # check if results exist in cache location 2
-        elif os.path.isfile(buffer_store_2):
-            output.debug(f'Loading in cached ({ticker_1}, {ticker_2}) correlation...')
-            with open(buffer_store_2, 'r') as infile:
-                results = json.load(infile)
-                correlation = results
-            return correlation
-        else:
-            prices_1 = services.retrieve_prices_from_cache(ticker=ticker_1)
-            prices_2 = services.retrieve_prices_from_cache(ticker=ticker_2)
-    else:
-        prices_1 = services.get_daily_price_history(ticker=ticker_1, start_date=start_date, end_date=end_date)
-        prices_2 = services.get_daily_price_history(ticker=ticker_2, start_date=start_date, end_date=end_date)
+        sample_prices = {}
+        sample_prices[ticker_1], sample_prices[ticker_2] = None, None
         
-    output.debug(f'Preparing to calculate correlation for ({ticker_1},{ticker_2})')
+        if start_date is None and end_date is None:
+            # check if results exist in cache location 1
+            output.debug('Checking for calculation in cache...')
+            if os.path.isfile(buffer_store_1):
+                output.debug(f'Loading in cached ({ticker_1}, {ticker_2}) correlation...')
+                with open(buffer_store_1, 'r') as infile:
+                    output.debug(f'Cached ({ticker_1}, {ticker_2}) correlation loaded.')
+                    results = json.load(infile)
+                    correlation = results
+                return correlation
 
+            # check if results exist in cache location 2
+            elif os.path.isfile(buffer_store_2):
+                output.debug(f'Loading in cached ({ticker_1}, {ticker_2}) correlation...')
+                with open(buffer_store_2, 'r') as infile:
+                    output.debug(f'Cached ({ticker_1}, {ticker_2}) correlation loaded.')
+                    results = json.load(infile)
+                    correlation = results
+                return correlation
+            else:
+                prices_1 = services.get_daily_price_history(ticker=ticker_1)
+                prices_2 = services.get_daily_price_history(ticker=ticker_2)
+        else:
+            output.debug('Sample prices provided, skipping service calls.')
+            prices_1 = services.get_daily_price_history(ticker=ticker_1, start_date=start_date, end_date=end_date)
+            prices_2 = services.get_daily_price_history(ticker=ticker_2, start_date=start_date, end_date=end_date)
+    else:
+        prices_1, prices_2 = sample_prices[ticker_1], prices_2[ticker_2]
+        
     if (not prices_1) or (not prices_2):
         output.debug("Prices cannot be retrieved for correlation calculation")
         return False 
-    
     ### END DATA RETRIEVAL ###
+    
     ### START SAMPLE STATISTICS CALCULATION ###
-    stats_1 = calculate_risk_return(ticker_1, start_date, end_date)
-    stats_2 = calculate_risk_return(ticker_2, start_date, end_date)
+    output.debug(f'Preparing to calculate correlation for ({ticker_1},{ticker_2})')
+    stats_1 = calculate_risk_return(ticker_1, start_date, end_date, sample_prices)
+    stats_2 = calculate_risk_return(ticker_2, start_date, end_date, sample_prices)
 
     if (not stats_1) or (not stats_2):
         output.debug("Sample statistics cannot be calculated for correlation calculation")
@@ -550,7 +590,7 @@ def calculate_correlation(ticker_1, ticker_2, start_date=None, end_date=None):
 
     return result
 
-def get_correlation_matrix_string(tickers, indent=0, start_date=None, end_date=None):
+def get_correlation_matrix_string(tickers, indent=0, start_date=None, end_date=None, sample_prices=None):
     """
     Parameters
     ----------
@@ -592,7 +632,7 @@ def get_correlation_matrix_string(tickers, indent=0, start_date=None, end_date=N
             
             else:
                 that_symbol = tickers[j]
-                result = calculate_correlation(this_symbol, that_symbol, start_date, end_date) 
+                result = calculate_correlation(this_symbol, that_symbol, start_date, end_date, sample_prices) 
                 if not result:
                     output.debug(f'Cannot correlation for ({this_symbol}, {that_symbol})')
                     return False

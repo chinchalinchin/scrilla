@@ -85,6 +85,8 @@ VERSION="0.0.1"
 
 APP_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+PROJECT_DIR = os.path.dirname(APP_DIR)
+
 APP_ENV = os.environ.setdefault('APP_ENV', 'local')
 
 # NOTE: Load in local.env file if not running application container. Container should 

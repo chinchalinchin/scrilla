@@ -51,6 +51,7 @@ def plot_frontier(portfolio, frontier, show=True, savefile=None):
         im = Image.frombytes("RGBA", (width, height), s)
         im.show()
     else:
+        canvas.draw()
         return canvas
 
 def plot_profiles(symbols, profiles, show=True, savefile=None, subtitle=None):
@@ -89,6 +90,7 @@ def plot_profiles(symbols, profiles, show=True, savefile=None, subtitle=None):
         im = Image.frombytes("RGBA", (width, height), s)
         im.show()
     else:
+        canvas.draw()
         return canvas
 
 # TODO: dynamically generate bar or line plot based on number of data points!
@@ -129,37 +131,37 @@ def plot_moving_averages(symbols, averages_output, periods, show=True, savefile=
         months_format = dates.DateFormatter('%m')
 
         
-        # for i in range(len(symobls)):
-        #   ma1_label, ma2_label, ma3_label = f'{symbols[i]}_{ma1_label}', f'{symbols[i]}_{ma2_label}', f'{symbols[i]}_{ma3_label}'
-        #   for j in range(len(dates)):
-        #       MA_1 = averages[i][0][j]
-        #       ma1s.append(MA_1)
-        #                         
-        #       MA_2 = averages[i][j][1]
-        #       ma2s.append(MA_2)
-        #
-        #       MA_3 = averages[i][j][2]
-        #       ma3s.append(MA_3)
-        #   
-        #   start_date, end_date = dates[0], dates[len(dates)-1] 
-        #   title_str = f'Moving Averages of Annualized Return From {start_date} to {end_date}'
-        #   axes.plot(dates, MA_1, linestyle="solid", color="darkgrean", label=ma1_label)
-        #   axes.plot(dates, MA_2, linestyle="dotted", color="gold", label=ma2_label)
-        #   axes.plot(dates, MA_3, linestyle="dashdot", color="orangered", label=ma3_label)
+        for i in range(len(symbols)):
+            ma1_label, ma2_label, ma3_label = f'{symbols[i]}_{ma1_label}', f'{symbols[i]}_{ma2_label}', f'{symbols[i]}_{ma3_label}'
+            for j in range(len(dates)):
+                MA_1 = averages[i][0][j]
+                ma1s.append(MA_1)
+                                  
+                MA_2 = averages[i][j][1]
+                ma2s.append(MA_2)
+         
+                MA_3 = averages[i][j][2]
+                ma3s.append(MA_3)
+            
+            start_date, end_date = dates[0], dates[len(dates)-1] 
+            title_str = f'Moving Averages of Annualized Return From {start_date} to {end_date}'
+            axes.plot(dates, MA_1, linestyle="solid", color="darkgrean", label=ma1_label)
+            axes.plot(dates, MA_2, linestyle="dotted", color="gold", label=ma2_label)
+            axes.plot(dates, MA_3, linestyle="dashdot", color="orangered", label=ma3_label)
 
-        #   axes.set_title(title_str)
+            axes.set_title(title_str)
 
-        #   axes.set_ylabel('Annualized Logarthmic Return')
+            axes.set_ylabel('Annualized Logarthmic Return')
         
-        #   datemin = np.datetime64(dates[0], 'M')
-        #   datemax = np.datetime64(dates[-1], 'M') + np.datetime64(1, 'Y')
-        #   axes.set_xlabel('')
-        #   axes.set_xlim()
-        #   axes.xaxis.set_major_locator(months)
-        #   axes.xaxis.set_major_formatter(months_format)
-        #   axes.format_xdata = dates.DatesFormatter('%Y-%m-%d)
+            datemin = np.datetime64(dates[0], 'M')
+            datemax = np.datetime64(dates[-1], 'M') + np.datetime64(1, 'Y')
+            axes.set_xlabel('')
+            axes.set_xlim()
+            axes.xaxis.set_major_locator(months)
+            axes.xaxis.set_major_formatter(months_format)
+            axes.format_xdata = dates.DatesFormatter('%Y-%m-%d')
         
-        #   axes.legend()
+            axes.legend()
 
     if savefile is not None:
         canvas.print_jpeg(filename_or_obj=savefile)
@@ -169,4 +171,5 @@ def plot_moving_averages(symbols, averages_output, periods, show=True, savefile=
         im = Image.frombytes("RGBA", (width, height), s)
         im.show()
     else:
+        canvas.draw()
         return canvas

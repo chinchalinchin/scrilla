@@ -9,6 +9,8 @@ import app.markets as markets
 import util.logger as logger
 import util.helper as helper
 
+# os.environ.setdefault("DJANGO_SETTINGS_MODULE", "core.settings")
+
 output = logger.Logger("app.services", settings.LOG_LEVEL)
 
 def parse_price_from_date(prices, date, asset_type):
@@ -45,7 +47,15 @@ def parse_price_from_date(prices, date, asset_type):
         
 # TODO: Crypto queries return all dates and price even if no start_date is provided.
 #       Need to truncuate crypto queries to last 100 days for caching. 
-def retrieve_prices_from_cache(ticker):
+# TODO: make all price retrievals (ctrl+f get_daily_price_history) go through this 
+#       function. Will need to modify it to accept dates.
+# TODO: should I query database in app module or server module? regardless, function calls
+#       should go through this method so they always check the cache, rather than having 
+#       objects that call this function check the cache (currently how it does it).
+# TODO: don't query the database here. leave services to interface with services. leave
+#       database stuff to django. 
+#       But then how will statistics calculate based on database values? 
+def get_daily_price_history(ticker, start_date=None, end_date=None):
     """
     Parameters
     ----------
@@ -62,40 +72,51 @@ def retrieve_prices_from_cache(ticker):
     should only be used to retrieve the last 100 days of prices. 
     """
 
-    now = datetime.datetime.now()
-    timestamp = '{}{}{}'.format(now.month, now.day, now.year)
-    buffer_store= os.path.join(settings.CACHE_DIR, f'{timestamp}_{ticker}.{settings.CACHE_EXT}')
-    
-    if os.path.isfile(buffer_store):
-        output.debug(f'Loading in cached {ticker} prices...')
-        with open(buffer_store, 'r') as infile:
-            if settings.CACHE_EXT == "json":
-                prices = json.load(infile)
-            # TODO: load other file types
-        return prices
+    if start_date is None and end_date is None:
+        output.debug('Checking for {ticker} prices in cache..')
+        now = datetime.datetime.now()
+        timestamp = '{}{}{}'.format(now.month, now.day, now.year)
+        buffer_store= os.path.join(settings.CACHE_DIR, f'{timestamp}_{ticker}.{settings.CACHE_EXT}')
+        
+        if os.path.isfile(buffer_store):
+            output.debug(f'Loading in cached {ticker} prices...')
+            with open(buffer_store, 'r') as infile:
+                if settings.CACHE_EXT == "json":
+                    output.debug(f'Cached {ticker} prices found.')
+                    prices = json.load(infile)
+                # TODO: load other file types
+            return prices
+        else:
+            output.debug(f'Retrieving {ticker} prices from Service Manager...')  
+            prices = query_service_for_daily_price_history(ticker=ticker)
+
+            output.debug(f'Storing {ticker} price history in cache...')
+            with open(buffer_store, 'w') as outfile:
+                if settings.CACHE_EXT == "json":
+                    json.dump(prices, outfile)
+                # TODO: dump other file types
+            return prices
     else:
-        output.debug(f'Retrieving {ticker} prices from Service Manager...')  
-        prices = get_daily_price_history(ticker=ticker)
-
-        output.debug(f'Storing {ticker} price history in cache...')
-        with open(buffer_store, 'w') as outfile:
-            if settings.CACHE_EXT == "json":
-                json.dump(prices, outfile)
-            # TODO: dump other file types
+        output.debug(f'No cached prices for date ranges past default. Passing to service call...')
+        prices = query_service_for_daily_price_history(ticker=ticker)
         return prices
 
-def get_daily_price_history(ticker, start_date=None, end_date=None, full=False):
+def query_service_for_daily_price_history(ticker, start_date=None, end_date=None, full=False):
     """
+    Description
+    -----------
+    Function in charge of querying external services for daily price history. \n \n
+
     Parameters
     ----------
-    tickers : [ str ]
-        Required. List of ticker symbols corresponding to the price histories to be retrieved.
-    start_date : datetime.date
-        Optional. Start date of price history. Defaults to None.
-    end_date : datetime.date
-        Optional: End date of price history. Defaults to None.
-    full: boolean
-        Optional: If specified, will return the entire price history. Will override start_date and end_date if provided. Defaults to False.
+    1. tickers : [ str ] \n
+        Required. List of ticker symbols corresponding to the price histories to be retrieved. \n \n
+    2. start_date : datetime.date \n 
+        Optional. Start date of price history. Defaults to None. \n \n
+    3. end_date : datetime.date \n 
+        Optional: End date of price history. Defaults to None. \n \n
+    4. full: boolean \n
+        Optional: If specified, will return the entire price history. Will override start_date and end_date if provided. Defaults to False. \n \n
     
     Notes
     -----
@@ -309,7 +330,7 @@ def get_daily_price_history(ticker, start_date=None, end_date=None, full=False):
 def get_daily_price_latest(ticker):
     if settings.PRICE_MANAGER == "alpha_vantage":
         asset_type = markets.get_asset_type(ticker)
-        prices = retrieve_prices_from_cache(ticker)
+        prices = get_daily_price_history(ticker)
         first_element = helper.get_first_json_key(prices)
 
         if asset_type == settings.ASSET_EQUITY:

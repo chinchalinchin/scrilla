@@ -155,7 +155,6 @@ def risk_return(request):
 
         if parsed_args['jpeg']:
             graph = plotter.plot_profiles(symbols=tickers, profiles=profiles, show=False)
-            graph.draw()
             response = HttpResponse(content_type="image/png")
             graph.print_png(response)
             return response
@@ -194,7 +193,6 @@ def efficient_frontier(request):
         
         if parsed_args['jpeg']:
             graph = plotter.plot_frontier(portfolio=portfolio, frontier=frontier, show=False)
-            graph.draw()
             response = HttpResponse(content_type="image/png")
             graph.print_png(response)
             return response
@@ -245,7 +243,6 @@ def moving_averages(request, jpeg=False):
             periods = [app_settings.MA_1_PERIOD, app_settings.MA_2_PERIOD, app_settings.MA_3_PERIOD]
             graph = plotter.plot_moving_averages(symbols=tickers, averages_output=averages_output, periods=periods,
                                                     show=False)
-            graph.draw()
             response = HttpResponse(content_type="image/png")
             graph.print_png(response)
             return response
