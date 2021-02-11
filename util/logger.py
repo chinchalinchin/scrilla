@@ -39,7 +39,7 @@ class Logger():
             self.comment(msg)
 
     def verbose(self, msg):
-        if self.verbose == LOG_LEVEL_VERBOSE:
+        if self.log_level == LOG_LEVEL_VERBOSE:
             self.comment(msg)
             
     def sys_error(self):
