@@ -1,5 +1,5 @@
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-SCRIPT_NAME='dump-scrapped-data'
+SCRIPT_NAME='scrap-data'
 nl=$'\n'
 tab="     "
 ind="   "
@@ -16,15 +16,11 @@ then
 else
     if [ ! $# -eq 0 ]
     then
-        DUMP_PATH="/home/pynance.gz"
-        DUMP_CMD="PGPASSWORD=$POTSGRES_PASSWORD pg_dump --username=$POSTGRES_USER --dbname pynance | gzip > $DUMP_PATH"
-        CONTAINER_ID="$(docker container ps --filter name=datasource --quiet)"
+        SCRAP_CMD="cd /home/server/pynance_api && python scrap.py"
+        CONTAINER_ID="$(docker container ps --filter name=$CONTAINER_NAME --quiet)"
 
         log "Executing dump command within Container ID# $CONTAINER_ID" $SCRIPT_NAME
-        docker exec $CONTAINER_ID bash -c "$DUMP_CMD"
-
-        log "Copying dump file to local filesytem at $1" $SCRIPT_NAME
-        docker cp $CONTAINER_ID:$DUMP_PATH $1
+        docker exec $CONTAINER_ID bash -c "$SCRAP_CMD"
     else
         log "No argument provided, unable to execute script. Please see help message below and try again." $SCRIPT_NAME
         help "$SCRIPT_DES" $SCRIPT_NAME

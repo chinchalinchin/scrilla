@@ -8,20 +8,13 @@ from decimal import Decimal
 
 class Portfolio:
     
-    def __init__(self, tickers, start_date=None, end_date=None):
+    def __init__(self, tickers, start_date=None, end_date=None, sample_prices=None):
         self.tickers = tickers
-        self.start_date = start_date
-        self.end_date = end_date
+        if sample_prices is None:
+            self.start_date = start_date
+            self.end_date = end_date
+        self.sample_prices = sample_prices
         self.error = not self.calculate_stats()
-
-    def set_start_date(self, start_date=None):
-        self.start_date = start_date
-        
-    def set_end_date(self, end_date=None):
-        self.end_date = end_date
-        
-    def get_assets(self):
-        return self.tickers
         
     def calculate_stats(self):
         self.mean_return = []
@@ -29,7 +22,8 @@ class Portfolio:
         self.correlation_matrix = [[0 for x in range(len(self.tickers))] for y in range(len(self.tickers))]
 
         for ticker in self.tickers:
-            stats = statistics.calculate_risk_return(ticker=ticker, start_date=self.start_date, end_date=self.end_date)
+            stats = statistics.calculate_risk_return(ticker=ticker, start_date=self.start_date, end_date=self.end_date, 
+                                                        sample_prices=self.sample_prices)
             if not stats:
                 return False
             self.mean_return.append(stats['annual_return'])
@@ -40,7 +34,8 @@ class Portfolio:
                 for j in range(i+1, len(self.tickers)):
                     self.correlation_matrix[i][i] = 1
                     cor_list = statistics.calculate_correlation(ticker_1 = self.tickers[i], ticker_2=self.tickers[j],
-                                                                start_date = self.start_date, end_date = self.end_date)
+                                                                start_date = self.start_date, end_date = self.end_date,
+                                                                sample_prices = self.sample_prices)
                     correlation = cor_list['correlation']
                     if not correlation:
                         return False

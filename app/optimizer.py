@@ -19,7 +19,7 @@ def optimize_portfolio_variance(portfolio, target_return=None):
     ------
     An array of floats that represents the proportion of the portfolio that should be allocated to the corresponding ticker symbols given as a parameter within the portfolio object. In other words, if portfolio.tickers = ['AAPL', 'MSFT'] and the output is [0.25, 0.75], this result means a portfolio with 25% allocation in AAPL and a 75% allocation in MSFT will result in an optimally constructed portfolio with respect to its volatility.  
     """
-    tickers = portfolio.get_assets()
+    tickers = portfolio.tickers
     portfolio.set_target_return(target_return)
 
     init_guess = portfolio.get_init_guess()
@@ -58,7 +58,7 @@ def maximize_portfolio_return(portfolio):
     ------
     An array of floats that represents the proportion of the portfolio that should be allocated to the corresponding ticker symbols given as a parameter within the portfolio object to achieve the maximum return. Note, this function is often uninteresting because if the rate of return for equity A is 50% and the rate of return of equity B is 25%, the portfolio with a maximized return will always allocated 100% of its value to equity A. However, this function is useful for determining whether or not the optimization algorithm is actually working, so it has been left in the program for debugging purposes. 
     """
-    tickers = portfolio.get_assets()
+    tickers = portfolio.tickers
     init_guess = portfolio.get_init_guess()
     equity_bounds = portfolio.get_default_bounds()
     equity_constraint = {
@@ -85,7 +85,7 @@ def calculate_efficient_frontier(portfolio):
     ------
     An array of float arrays. Each float array corresponds to a point on a portfolio's efficient frontier, i.e. each array represents the percentage of a portfolio that should be allocated to the equity to the corresponding ticker symbol (supplied as an attribute portfolio parameter, portfolio.tickers) in order to produce a given rate of return with minimal volatility.
     """
-    tickers = portfolio.get_assets()
+    tickers = portfolio.tickers
     minimum_allocation = optimize_portfolio_variance(portfolio=portfolio)
     maximum_allocation = maximize_portfolio_return(portfolio=portfolio)
 

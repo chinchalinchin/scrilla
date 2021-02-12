@@ -7,6 +7,7 @@ from django.http import JsonResponse, HttpResponse
 
 # Server Imports
 from core import settings
+from data.models import EquityMarket, CryptoMarket, EquityTicker, CryptoTicker, Economy
 
 # Application Imports
 from app.portfolio import Portfolio
@@ -145,9 +146,9 @@ def risk_return(request):
             ticker_str = f'tickers[i]'
 
             logger.debug(f'Calculating risk-return profile for {tickers[i]}')
-            profile = statistics.calculate_risk_return(ticker=tickers[i], 
-                                                                start_date=parsed_args['start_date'], 
-                                                                end_date=parsed_args['end_date'])
+            prices = EquityMarket.objects.filter(ticker=tickers[i], date__gte=parsed_args['start_date'], date__lte=parsed_args['end_DATE'])
+            profile = statistics.calculate_risk_return(ticker=tickers[i], sample_prices=prices)
+
             response[ticker_str] = profile
 
             if parsed_args['jpeg']:
@@ -209,8 +210,9 @@ def moving_averages(request, jpeg=False):
     else:
         tickers = parsed_args_or_err_msg['tickers']
         parsed_args = parsed_args_or_err_msg['parsed_args']
-        averages_output = statistics.calculate_moving_averages(tickers=tickers, start_date=parsed_args['start_date'], 
-                                                                        end_date=parsed_args['end_date'])
+
+        prices = EquityMarket.objects.filter(ticker=tickers[i], date__gte=parsed_args['start_date'], date__lte=parsed_args['end_DATE'])
+        averages_output = statistics.calculate_moving_averages(tickers=tickers, sample_prices=prices)
         moving_averages, dates = averages_output
 
         response = {}
