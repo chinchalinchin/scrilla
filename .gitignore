@@ -1,8 +1,8 @@
 *.env
 !.sample.env
-/cache/*
+data/cache/*
 !/cache/.gitkeep
-/static/*
+data/static/*
 !/static/.gitkeep
 !/static/creds/.gitkeep
 *.pyc

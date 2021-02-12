@@ -20,9 +20,7 @@ import util.logger as logger
 
 output = logger.Logger("server.pynance_api.scrap", settings.LOG_LEVEL)
 
-# Must be done after /static/ is initialized!
-# TODO: query equitymarket by ticker and sort by date. Find delta between
-#       today and last price and only query service for missing dates.
+# Must be done after /static/ is initialized! 
 def scrap_prices(asset_type):
     today = datetime.date.today()
 

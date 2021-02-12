@@ -99,11 +99,11 @@ LOG_LEVEL = str(os.environ.setdefault("LOG_LEVEL", "info")).lower()
 output = logger.Logger('app.settings', LOG_LEVEL)
 
 # TODO: CACHE only supports JSON currently. Future file extensions: csv and txt.
-CACHE_DIR = os.path.join(APP_DIR, 'cache')
+CACHE_DIR = os.path.join(APP_DIR, 'data', 'cache')
 CACHE_STAT_KEY = "statistics"
 CACHE_EXT = "json"
 
-STATIC_DIR = os.path.join(APP_DIR, 'static')
+STATIC_DIR = os.path.join(APP_DIR, 'data', 'static')
 STATIC_EXT = "json"
 
 STATIC_TICKERS_FILE = os.path.join(STATIC_DIR, f'tickers.{STATIC_EXT}')
