@@ -21,15 +21,11 @@ then
     python -c "import server.pynance_api.core.settings as settings; from util.logger import Logger; \
         logger=Logger('scripts.server.pynance-server', '$LOG_LEVEL'); logger.log_django_settings(settings);"
 
+    # 
     if [ "$1" == "wait-for-it" ]
     then
-        log "Waiting for database service connection..." $SCRIPT_NAME
-        $@
-    elif [ "$1" == "bash" ]
-    then
-        log "Starting BASH shell session..." $SCRIPT_NAME
-        $@
-        exit 0
+        log "Waiting for \e[3m$POSTGRES_HOST:$POSTGRES_PORT\e[0m database service connection..." $SCRIPT_NAME
+        wait-for-it $POSTGRES_HOST:$POSTGRES_PORT
     fi
 
     cd /home/server/pynance_api/
@@ -39,14 +35,20 @@ then
     log 'Migrating Django database models' $SCRIPT_NAME
     python manage.py migrate
 
+    # SHELL ENTRYPOINTS
         # SCRAPPER_ENABLED to lower case
     if [ "${SCRAPPER_ENABLED,,}" == "true" ]
     then
-        log "Scrapping price histories into $POSTGRES_HOST; this may take a while!" $SCRIPT_NAME
-        cd /home/server/pynance_api/data/
-        python scrapper.py 
+        log "Scrapping price histories into $POSTGRES_HOST/$POSTGRES_DB; this may take a while!" $SCRIPT_NAME
+        cd /home/server/pynance_api/
+        python scrap.py 
     fi
-
+    if [ "$1" == "bash" ]
+    then
+        log "Starting BASH shell session..." $SCRIPT_NAME
+        $@
+        exit 0
+    fi
     if [ "$1" == "psql" ]
     then
         PGPASSWORD=$POSTGRES_PASSWORD psql --host=$POSTGRES_HOST --port=$POSTGRES_PORT --username=$POSTGRES_USER 

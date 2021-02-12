@@ -13,7 +13,7 @@ services:
         - the_pit
       env_file: 
         - ./env/container.env
-      command: ["wait-for-it", "datasource:5432"]
+      command: ["wait-for-it"]
 
     datasource:
       image: postgres:11
