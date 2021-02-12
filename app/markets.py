@@ -19,11 +19,13 @@ def get_asset_type(symbol):
     overlap = get_overlapping_symbols()
 
     # TODO: need to differentiate between GLD etf and GLD crypto somehow!
-    if symbol not in overlap and symbol in symbols:
-        return settings.ASSET_CRYPTO
-        
-    else:
-        return settings.ASSET_EQUITY
+    if symbol not in overlap:
+        if symbol in symbols:
+            return settings.ASSET_CRYPTO
+            
+        else:
+            return settings.ASSET_EQUITY
+    
     # if other asset types are introduced, then uncomment these lines
     # and add new asset type to conditional. Keep in mind the static
     # equity data is HUGE.
