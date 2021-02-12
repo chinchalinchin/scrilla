@@ -14,6 +14,7 @@ from app.portfolio import Portfolio
 import app.statistics as statistics
 import app.optimizer as optimizer
 import app.settings as app_settings
+import app.markets as markets
 
 # Utility Imports
 import util.helper as helper
@@ -84,6 +85,13 @@ def parse_tickers(request):
     else:
         return False
 
+# Note: model must implement to_date and to_list()
+def model_to_list(price_models):
+    model_list = {}
+    for price in price_models:
+        model_list[price.to_date()] = price.to_list() 
+    return model_list
+
 def validate_request(request, allowed_methods=["GET"]):
     output.debug('Verifying request method...')
     if verify_method(request, allowed_methods):
@@ -113,6 +121,10 @@ def optimize(request):
         tickers = parsed_args_or_err_msg['tickers']
         parsed_args = parsed_args_or_err_msg['parsed_args']
 
+        # TODO: what if start_date and end_date = None
+        # TODO: what is asset_type = crpyto?
+        # TODO: this won't work. Need to filter by ticker, not all tickers at once.
+        # for i in range(len(tickers)):
         prices = EquityMarket.objects.filter(ticker=tickers[i], date__gte=parsed_args['start_date'], date__lte=parsed_args['end_date'])
 
         if prices.count() == 0:
@@ -121,8 +133,8 @@ def optimize(request):
             portfolio = Portfolio(tickers=tickers, start_date=parsed_args['start_date'], end_date=parsed_args['end_date'])
         else:
             output.debug(f'Prices found in database, passing result to statistics.')
-            # TODO: format prices
-            portfolio = Portfolio(tickers=tickers, sample_prices=prices)  
+            sample_prices = model_to_list(price_models=prices)
+            portfolio = Portfolio(tickers=tickers, sample_prices=sample_prices)  
 
         allocation = optimizer.optimize_portfolio_variance(portfolio=portfolio, target_return=parsed_args['target_return'])
         allocation = helper.round_array(array=allocation, decimals=4)
@@ -153,10 +165,12 @@ def risk_return(request):
         response = {}
         profiles = []
         for i in range(len(tickers)):
-            ticker_str = f'tickers[i]'
+            ticker_str = f'{tickers[i]}'
+            asset_type = markets.get_asset_type(tickers[i])
             logger.debug(f'Calculating risk-return profile for {tickers[i]}')
 
-            # TODO: what is start_date and end_date = None
+            # TODO: what if start_date and end_date = None
+            # TODO: what is asset_type = crpyto?
             prices = EquityMarket.objects.filter(ticker=tickers[i], date__gte=parsed_args['start_date'], date__lte=parsed_args['end_date'])
 
             if prices.count() == 0:
@@ -165,8 +179,8 @@ def risk_return(request):
                 profile = statistics.calculate_risk_return(ticker=tickers[i], start_date=parsed_args['start_date'], end_date=parsed_args['end_date'])
             else:
                 output.debug(f'Prices found in database, passing result to statistics.')
-                # TODO: format prices
-                profile = statistics.calculate_risk_return(ticker=tickers[i], sample_prices=prices)
+                sample_prices = model_to_list(price_models=prices)
+                profile = statistics.calculate_risk_return(ticker=tickers[i], sample_prices=sample_prices)
 
             response[ticker_str] = profile
 
@@ -192,7 +206,10 @@ def efficient_frontier(request):
         tickers = parsed_args_or_err_msg['tickers']
         parsed_args = parsed_args_or_err_msg['parsed_args']
 
-        # TODO: what is start_date and end_date = None
+        # TODO: what if start_date and end_date = None
+        # TODO: what is asset_type = crpyto?
+        # TODO: this won't work. Need to filter by ticker, not all tickers at once.
+                # for i in range(len(tickers)):
         prices = EquityMarket.objects.filter(ticker=tickers[i], date__gte=parsed_args['start_date'], date__lte=parsed_args['end_date'])
 
         if prices.count() == 0:
@@ -201,8 +218,9 @@ def efficient_frontier(request):
             portfolio = Portfolio(tickers=tickers, start_date=parsed_args['start_date'], end_date=parsed_args['end_date'])
         else:
             output.debug(f'Prices found in database, passing result to statistics.')
-            # TODO: format prices
-            portfolio = Portfolio(tickers=tickers, sample_prices=prices)    
+            sample_prices = model_to_list(price_models=prices)
+            # TODO: need to supply ALL sample prices
+            portfolio = Portfolio(tickers=tickers, sample_prices=sample_prices)    
             
         frontier = optimizer.calculate_efficient_frontier(portfolio=portfolio)
     
@@ -241,7 +259,8 @@ def moving_averages(request, jpeg=False):
         tickers = parsed_args_or_err_msg['tickers']
         parsed_args = parsed_args_or_err_msg['parsed_args']
 
-        # TODO: what is start_date and end_date = None
+        # TODO: what if start_date and end_date = None
+        # TODO: what is asset_type = crpyto?
         prices = EquityMarket.objects.filter(ticker=tickers[i], date__gte=parsed_args['start_date'], date__lte=parsed_args['end_date'])
 
         if prices.count() == 0:
@@ -251,8 +270,8 @@ def moving_averages(request, jpeg=False):
                                                                     end_date=parsed_args['end_date'])
         else: 
             output.debug(f'Prices found in database, passing result to statistics.')
-            # TODO: format prices 
-            averages_output = statistics.calculate_moving_averages(tickers=tickers, sample_prices=prices)
+            sample_prices = model_to_list(price_models=prices)
+            averages_output = statistics.calculate_moving_averages(tickers=tickers, sample_prices=sample_prices)
 
         moving_averages, dates = averages_output
 
