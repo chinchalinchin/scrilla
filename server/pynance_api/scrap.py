@@ -32,6 +32,8 @@ def scrap_prices(asset_type):
 
         if asset_type == app_settings.ASSET_EQUITY:
             new_ticker_entry = EquityTicker.objects.get_or_create(ticker=symbol)
+        elif asset_type == app_settings.ASSET_CRYPTO:
+            new_ticker_entry = CryptoTicker.objects.get_or_create(ticker=symbol)
 
         if new_ticker_entry[1] and asset_type == app_settings.ASSET_EQUITY:
             output.debug(f'Saving {symbol} to EquityTicker table in database')
@@ -59,7 +61,6 @@ def scrap_prices(asset_type):
                 elif asset_type == app_settings.ASSET_CRYPTO:
                     new_market_entry = CryptoMarket.objects.get_or_create(ticker=new_ticker_entry[0], date=todays_date,
                                                                             close_price=todays_open_price, open_price=todays_open_price)
-                    pass
 
                 if new_market_entry[1] and asset_type == app_settings.ASSET_EQUITY:
                     output.verbose(f'Saving {symbol} (opening, closing) price of ({todays_open_price}, {todays_close_price}) on {date} to EquityMarket table in database.')
