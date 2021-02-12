@@ -8,7 +8,7 @@ RUN apt-get update -y && apt-get install -y curl wait-for-it postgresql-client-1
 
 # APPLICATION DEPENDENCY CONFIGURATION
 WORKDIR /home/
-COPY /requirements_docker.txt /home/requirements.txt
+COPY /requirements-docker.txt /home/requirements.txt
 RUN pip install -r requirements.txt
 
 # APPLICATION CONFIGURATION

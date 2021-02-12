@@ -20,7 +20,7 @@ import util.helper as helper
 import util.plotter as plotter
 import util.logger as logger
 
-logger = logger.Logger("server.pynance_api.api.views", settings.LOG_LEVEL)
+output = logger.Logger("server.pynance_api.api.views", settings.LOG_LEVEL)
 
 def verify_method(request, allowed_methods):
     if request.method not in allowed_methods: 
@@ -30,16 +30,16 @@ def verify_method(request, allowed_methods):
 
 def log_secondary_args(parsed_args):
     if parsed_args['start_date'] is not None:
-        logger.comment(f'> Start : {parsed_args["start_date"]}')
+        output.comment(f'> Start : {parsed_args["start_date"]}')
 
     if parsed_args['end_date'] is not None:
-        logger.comment(f'> End: {parsed_args["end_date"]}')
+        output.comment(f'> End: {parsed_args["end_date"]}')
     
     if parsed_args['target_return'] is not None:
-        logger.comment(f'> Target: {parsed_args["target_return"]}')
+        output.comment(f'> Target: {parsed_args["target_return"]}')
     
     if parsed_args['jpeg'] is not None:
-        logger.comment(f'> JPEG: {parsed_args["jpeg"]}')
+        output.comment(f'> JPEG: {parsed_args["jpeg"]}')
 
 def parse_secondary_args(request):
     if settings.REQUEST_PARAMS['start_date'] in request.GET:
@@ -85,9 +85,9 @@ def parse_tickers(request):
         return False
 
 def validate_request(request, allowed_methods=["GET"]):
-    logger.debug('Verifying request method...')
+    output.debug('Verifying request method...')
     if verify_method(request, allowed_methods):
-        logger.debug('Request method verified!')
+        output.debug('Request method verified!')
 
         arg_err_or_tickers = parse_tickers(request)
         if arg_err_or_tickers:
@@ -113,7 +113,17 @@ def optimize(request):
         tickers = parsed_args_or_err_msg['tickers']
         parsed_args = parsed_args_or_err_msg['parsed_args']
 
-        portfolio = Portfolio(tickers=tickers, start_date=parsed_args['start_date'], end_date=parsed_args['end_date'])
+        prices = EquityMarket.objects.filter(ticker=tickers[i], date__gte=parsed_args['start_date'], date__lte=parsed_args['end_date'])
+
+        if prices.count() == 0:
+            output.debug(f'No prices found in database, passing query to service.')
+            # TODO: query service for prices, pass in as portfolio's sample_prices, save to database.
+            portfolio = Portfolio(tickers=tickers, start_date=parsed_args['start_date'], end_date=parsed_args['end_date'])
+        else:
+            output.debug(f'Prices found in database, passing result to statistics.')
+            # TODO: format prices
+            portfolio = Portfolio(tickers=tickers, sample_prices=prices)  
+
         allocation = optimizer.optimize_portfolio_variance(portfolio=portfolio, target_return=parsed_args['target_return'])
         allocation = helper.round_array(array=allocation, decimals=4)
 
@@ -144,10 +154,19 @@ def risk_return(request):
         profiles = []
         for i in range(len(tickers)):
             ticker_str = f'tickers[i]'
-
             logger.debug(f'Calculating risk-return profile for {tickers[i]}')
-            prices = EquityMarket.objects.filter(ticker=tickers[i], date__gte=parsed_args['start_date'], date__lte=parsed_args['end_DATE'])
-            profile = statistics.calculate_risk_return(ticker=tickers[i], sample_prices=prices)
+
+            # TODO: what is start_date and end_date = None
+            prices = EquityMarket.objects.filter(ticker=tickers[i], date__gte=parsed_args['start_date'], date__lte=parsed_args['end_date'])
+
+            if prices.count() == 0:
+                output.debug(f'No prices found in database, passing query to service.')
+                # TODO: query service for prices, pass in as portfolio's sample_prices, save to database.
+                profile = statistics.calculate_risk_return(ticker=tickers[i], start_date=parsed_args['start_date'], end_date=parsed_args['end_date'])
+            else:
+                output.debug(f'Prices found in database, passing result to statistics.')
+                # TODO: format prices
+                profile = statistics.calculate_risk_return(ticker=tickers[i], sample_prices=prices)
 
             response[ticker_str] = profile
 
@@ -173,7 +192,18 @@ def efficient_frontier(request):
         tickers = parsed_args_or_err_msg['tickers']
         parsed_args = parsed_args_or_err_msg['parsed_args']
 
-        portfolio = Portfolio(tickers=tickers, start_date=parsed_args['start_date'], end_date=parsed_args['end_date'])
+        # TODO: what is start_date and end_date = None
+        prices = EquityMarket.objects.filter(ticker=tickers[i], date__gte=parsed_args['start_date'], date__lte=parsed_args['end_date'])
+
+        if prices.count() == 0:
+            output.debug(f'No prices found in database, passing query to service.')
+            # TODO: query service for prices, pass in as portfolio's sample_prices, save to database.
+            portfolio = Portfolio(tickers=tickers, start_date=parsed_args['start_date'], end_date=parsed_args['end_date'])
+        else:
+            output.debug(f'Prices found in database, passing result to statistics.')
+            # TODO: format prices
+            portfolio = Portfolio(tickers=tickers, sample_prices=prices)    
+            
         frontier = optimizer.calculate_efficient_frontier(portfolio=portfolio)
     
         response = {}
@@ -211,8 +241,19 @@ def moving_averages(request, jpeg=False):
         tickers = parsed_args_or_err_msg['tickers']
         parsed_args = parsed_args_or_err_msg['parsed_args']
 
-        prices = EquityMarket.objects.filter(ticker=tickers[i], date__gte=parsed_args['start_date'], date__lte=parsed_args['end_DATE'])
-        averages_output = statistics.calculate_moving_averages(tickers=tickers, sample_prices=prices)
+        # TODO: what is start_date and end_date = None
+        prices = EquityMarket.objects.filter(ticker=tickers[i], date__gte=parsed_args['start_date'], date__lte=parsed_args['end_date'])
+
+        if prices.count() == 0:
+            output.debug(f'No prices found in database, passing query to service.')
+            # TODO: query service, pass in prices as moving_average's sample_prices, save to database
+            averages_output = statistics.calculate_moving_averages(tickers=tickers, start_date=parsed_args['start_date'],
+                                                                    end_date=parsed_args['end_date'])
+        else: 
+            output.debug(f'Prices found in database, passing result to statistics.')
+            # TODO: format prices 
+            averages_output = statistics.calculate_moving_averages(tickers=tickers, sample_prices=prices)
+
         moving_averages, dates = averages_output
 
         response = {}

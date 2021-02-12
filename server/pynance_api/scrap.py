@@ -35,6 +35,8 @@ def scrap_equities():
 
         if new_ticker_entry[1]:
             output.debug(f'Saving {symbol} to EquityTicker table in database')
+        else:
+            output.debug(f'{symbol} already exists in EquityTicker table')
 
         output.debug(f'Retrieving price history for {symbol}...')
         price_history = services.query_service_for_daily_price_history(symbol, full=True)
@@ -51,6 +53,8 @@ def scrap_equities():
                                                                         close_price=todays_close_price, open_price=todays_open_price)
                 if new_market_entry[1]:
                     output.verbose(f'Saving {symbol} (opening, closing) price of ({todays_open_price}, {todays_close_price}) on {date} to EquityMarket table in database.')
+                else: 
+                    output.verbose(f'Closing and openiong prices for {symbol} on {date} already exist in EquityMarket table')
         else: 
             output.debug(f'Price history not found for {symbol}.')
 
