@@ -2,7 +2,15 @@
 import app.settings as settings
 import app.services as services
 
-# OVERLAP = ['ABT', 'AC', 'GLD']
+# NOTE: output from get_overlapping_symbols:
+# OVERLAP = ['ABT', 'AC', 'ADT', 'ADX', 'AE', 'AGI', 'AI', 'AIR', 'AMP', 'AVT', 'BCC', 'BCD', 'BCH', 'BCX', 'BDL', 'BFT', 'BIS', 'BLK', 'BQ', 'BRX', 
+# 'BTA', 'BTG', 'CAT', 'CMP', 'CMT', 'CNX', 'CTR', 'CURE', 'DAR', 'DASH', 'DBC', 'DCT', 'DDF', 'DFS', 'DTB', 'DYN', 'EBTC', 'ECC', 'EFL', 'ELA', 'ELF',
+# 'EMB', 'ENG', 'ENJ', 'EOS', 'EOT', 'EQT', 'ERC', 'ETH', 'ETN', 'EVX', 'EXP', 'FCT', 'FLO', 'FLT', 'FTC', 'FUN', 'GAM', 'GBX', 'GEO', 'GLD', 'GNT', 
+# 'GRC', 'GTO', 'INF', 'INS', 'INT', 'IXC', 'KIN', 'LBC', 'LEND', 'LTC', 'MAX', 'MCO', 'MEC', 'MED', 'MGC', 'MINT', 'MLN', 'MNE', 'MOD', 'MSP', 'MTH', 
+# 'MTN', 'MUE', 'NAV', 'NEO', 'NEOS', 'NET', 'NMR', 'NOBL', 'NXC', 'OCN', 'OPT', 'PBT', 'PING', 'PPC', 'PPT', 'PRG', 'PRO', 'PST', 'PTC', 'QLC', 'QTUM',
+# 'R', 'RDN', 'REC', 'RVT', 'SALT', 'SAN', 'SC', 'SKY', 'SLS', 'SPR', 'SNX', 'STK', 'STX', 'SUB', 'SWT', 'THC', 'TKR', 'TRC', 'TRST', 'TRUE', 'TRX', 
+# 'TX', 'UNB', 'VERI', 'VIVO', 'VOX', 'VPN', 'VRM', 'VRS', 'VSL', 'VTC', 'VTR', 'WDC', 'WGO', 'WTT', 'XEL', 'NEM', 'ZEN']
+
 # TODO: need some way to distinguish between overlap.
 
 def get_overlapping_symbols():
@@ -24,16 +32,18 @@ def get_asset_type(symbol):
             return settings.ASSET_CRYPTO
             
         else:
+                # if other asset types are introduced, then uncomment these lines
+                # and add new asset type to conditional. Keep in mind the static
+                # equity data is HUGE.
+            # symbols = list(services.get_static_data(settings.ASSET_EQUITY))
+            # if symbol in symbols:
+                # return settings.ASSET_EQUITY
+            # else:
+                #return None
             return settings.ASSET_EQUITY
-    
-    # if other asset types are introduced, then uncomment these lines
-    # and add new asset type to conditional. Keep in mind the static
-    # equity data is HUGE.
-        # symbols = list(services.get_static_data(settings.ASSET_EQUITY))
-        # if symbol in symbols:
-            # return settings.ASSET_EQUITY
-        # else:
-            #return None
+    else:
+        # default to equity for overlap until a better method is determined. 
+        return settings.ASSET_EQUITY
 
 def get_trading_period(asset_type):
     if asset_type == None:

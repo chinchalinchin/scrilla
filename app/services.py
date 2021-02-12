@@ -10,10 +10,11 @@ import util.logger as logger
 import util.helper as helper
 
 # os.environ.setdefault("DJANGO_SETTINGS_MODULE", "core.settings")
-
+CLOSE_PRICE = "close"
+OPEN_PRICE = "open"
 output = logger.Logger("app.services", settings.LOG_LEVEL)
 
-def parse_price_from_date(prices, date, asset_type):
+def parse_price_from_date(prices, date, asset_type, which_price=CLOSE_PRICE):
     """
     Parameters
     ----------
@@ -34,9 +35,13 @@ def parse_price_from_date(prices, date, asset_type):
     try:
         if settings.PRICE_MANAGER == 'alpha_vantage':
             if asset_type == settings.ASSET_EQUITY:
-                return prices[date][settings.AV_RES_EQUITY_CLOSE_PRICE]
+                if which_price == CLOSE_PRICE:
+                    return prices[date][settings.AV_RES_EQUITY_CLOSE_PRICE]
+                elif which_price == OPEN_PRICE:
+                    return prices[date][settings.AV_RES_EQUITY_OPEN_PRICE]
             elif asset_type == settings.ASSET_CRYPTO:
-                return prices[date][settings.AV_RES_CRYPTO_CLOSE_PRICE]
+                if which_price == CLOSE_PRICE:
+                    return prices[date][settings.AV_RES_CRYPTO_CLOSE_PRICE]
         else: 
             # TODO: other service parsing goes here.
             pass
@@ -68,34 +73,37 @@ def query_service_for_daily_price_history(ticker, start_date=None, end_date=None
     """
     # TODO: price histories aren't the same length, though, because of weekends. 
     # TODO: retrieve crypto history for len(crypto_prices) = 100 + weekends
+    # TODO: checking end and start dates for holiday/weekend in this method may 
+    #       mess up statistical calculations, i.e. statistics.py expects a sample 
+    #       of a certain size and gets a different size.
 
     ### START: ARGUMENT VALIDATION ###
     switch_flag = start_date is not None and end_date is not None
 
         # Check if start_date is today
-    if start_date is not None:
-        if helper.is_date_today(start_date):
-            start_date_string = helper.date_to_string(start_date)
-            output.debug(f'Invalid date range. Start Date {start_date_string} is today!')
-            return False
-        # Check if end_date is today
-    if end_date is not None:
-        if helper.is_date_today(end_date):
-            end_date_string = helper.date_to_string(end_date)
-            output.debug(f'End Date {end_date_string} is today!')
-            end_date = None
-        # Check if end_date < start_date or end_date = start_date
-    if switch_flag:
-        time_delta = end_date - start_date
-        if time_delta.days < 0:
-            buffer = end_date
-            end_date = start_date
-            start_date = end_date
-        elif time_delta == 0:
-            start_date_string = helper.date_to_string(start_date)
-            end_date_string = helper.date_to_string(end_date)
-            output.debug(f'End Date {end_date_string} = Start Date {start_date_string}!')
-            return False
+    if not full:
+        if start_date is not None:
+            if helper.is_date_today(start_date):
+                output.debug(f'Invalid date range. Start Date {start_date} is today!')
+                return False
+            # Check if end_date is today
+        if end_date is not None:
+            if helper.is_date_today(end_date):
+                output.debug(f'End Date {end_date} is today!')
+                end_date = None
+            # Check if end_date < start_date or end_date = start_date
+        if switch_flag:
+            time_delta = end_date - start_date
+            if time_delta.days < 0:
+                buffer = end_date
+                end_date = start_date
+                start_date = end_date
+            elif time_delta == 0:
+                output.debug(f'End Date {end_date} = Start Date {start_date}!')
+                return False
+    else:
+        output.debug(f'Full price history requested, nulling start_date and end_date')
+        start_date, end_date = None, None
 
     asset_type=markets.get_asset_type(ticker)  
 
@@ -103,37 +111,29 @@ def query_service_for_daily_price_history(ticker, start_date=None, end_date=None
     if asset_type == settings.ASSET_EQUITY and (start_date is not None or end_date is not None):
         if start_date is not None:
             if helper.is_date_holiday(start_date):
-                start_date_string = helper.date_to_string(start_date)
-                output.debug(f'{start_date_string} is a holiday. Equities do not trade on holidays.')
+                output.debug(f'{start_date} is a holiday. Equities do not trade on holidays.')
 
                 start_date = helper.get_previous_business_date(start_date)
-                start_date_string = helper.date_to_string(start_date)
-                output.debug(f'Setting start date to next business day, {start_date_string}')
+                output.debug(f'Setting start date to next business day, {start_date}')
 
             elif helper.is_date_weekend(start_date):
-                start_string = helper.date_to_string(start_date)
-                output.debug(f'{start_string} is a weekend. Equities do not trade on weekends.')
+                output.debug(f'{start_date} is a weekend. Equities do not trade on weekends.')
 
                 start_date = helper.get_previous_business_date(start_date)
-                start_string = helper.date_to_string(start_date)
-                output.debug(f'Setting start date to previous business day, {start_string}')
+                output.debug(f'Setting start date to previous business day, {start_date}')
         
         if end_date is not None:
             if helper.is_date_holiday(end_date):
-                end_date_string = helper.date_to_string(end_date)
-                output.debug(f'{end_date_string} is a holiday. Equities do not trade on holidays.')
+                output.debug(f'{end_date} is a holiday. Equities do not trade on holidays.')
 
                 end_date = helper.get_previous_business_date(end_date)
-                end_date_string = helper.date_to_string(end_date)
-                output.debug(f'Setting end date to previous business day, {end_date_string}.')
+                output.debug(f'Setting end date to previous business day, {end_date}.')
 
             elif helper.is_date_weekend(end_date):
-                end_date_string = helper.date_to_string(end_date)
-                output.debug(f'{end_date_string} is a weekend. Equities do not trade on weekends.')
+                output.debug(f'{end_date} is a weekend. Equities do not trade on weekends.')
                 
                 end_date = helper.get_previous_business_date(end_date)
-                end_date_string = helper.date_to_string(end_date)
-                output.debug(f'Setting end date to previous business day, {end_date_string}.')
+                output.debug(f'Setting end date to previous business day, {end_date}.')
     ### END: ARGUMENT VALIDATION ###
 
     ### START: SERVICE QUERY CREATION ###
@@ -149,7 +149,7 @@ def query_service_for_daily_price_history(ticker, start_date=None, end_date=None
             return False
 
             # NOTE: only need to modify EQUITY query, CRYPTO always returns full history
-        if (start_date is not None or end_date is not None or full) and (asset_type == settings.ASSET_EQUITY):
+        if (full or start_date is not None or end_date is not None) and (asset_type == settings.ASSET_EQUITY):
             if asset_type == settings.ASSET_EQUITY:
                 query += f'&{settings.PARAM_AV_SIZE}={settings.ARG_AV_SIZE_FULL}'
 
@@ -184,7 +184,7 @@ def query_service_for_daily_price_history(ticker, start_date=None, end_date=None
         # NOTE: Remember AlphaVantage is ordered current to earliest. END_INDEX is 
         # actually the beginning of slice and START_INDEX is actually end of slice. 
         if asset_type == settings.ASSET_EQUITY:
-            if (start_date is not None and end_date is not None) and not full:
+            if not full and (start_date is not None and end_date is not None):
                 try:
                     start_string, end_string = helper.date_to_string(start_date), helper.date_to_string(end_date)
                     start_index = list(prices[settings.AV_RES_EQUITY_FIRST_LAYER].keys()).index(start_string)
@@ -195,7 +195,7 @@ def query_service_for_daily_price_history(ticker, start_date=None, end_date=None
                     output.debug('Indicated dates not found in AlphaVantage Response.')
                     return False
 
-            elif (start_date is None and end_date is not None) and not full:
+            elif not full and (start_date is None and end_date is not None):
                 try:
                     end_string = helper.date_to_string(end_date)
                     end_index = list(prices[settings.AV_RES_EQUITY_FIRST_LAYER].keys()).index(end_string)
@@ -204,7 +204,7 @@ def query_service_for_daily_price_history(ticker, start_date=None, end_date=None
                     output.debug('End Date not found in AlphaVantage Response.')
                     return False
 
-            elif (start_date is not None and end_date is None) and not full:
+            elif not full and (start_date is not None and end_date is None):
                 try:
                     start_string = helper.date_to_string(start_date)
                     start_index = list(prices[settings.AV_RES_EQUITY_FIRST_LAYER].keys()).index(start_string)
@@ -214,8 +214,11 @@ def query_service_for_daily_price_history(ticker, start_date=None, end_date=None
                     return False
             
             else:
-                prices = prices[settings.AV_RES_EQUITY_FIRST_LAYER]
-
+                try:
+                    prices = prices[settings.AV_RES_EQUITY_FIRST_LAYER]
+                except: 
+                    output.debug('Error encountered ')
+                    prices = False
             return prices
 
         # TODO: len(crypto_prices) - weekends. do i want to do it here? or in statistics.py when
@@ -226,7 +229,7 @@ def query_service_for_daily_price_history(ticker, start_date=None, end_date=None
         # TODO: can probably set RESPONSE_KEY to asset_type and condense the double conditional
         # branching down to one branch. will make it simpler.
         elif asset_type == settings.ASSET_CRYPTO:
-            if (start_date is None and end_date is None) or full:
+            if not full and (start_date is None and end_date is None):
                 truncated_prices, index = {}, 0
                 for date in prices[settings.AV_RES_CRYPTO_FIRST_LAYER]:
                     if index < 100:
@@ -235,7 +238,7 @@ def query_service_for_daily_price_history(ticker, start_date=None, end_date=None
                         return truncated_prices
                     index += 1
 
-            elif (start_date is not None and end_date is not None) and not full:
+            elif not full and (start_date is not None and end_date is not None):
                 try:
                     start_string, end_string = helper.date_to_string(start_date), helper.date_to_string(end_date)
                     start_index = list(prices[settings.AV_RES_CRYPTO_FIRST_LAYER].keys()).index(start_string)
@@ -245,7 +248,7 @@ def query_service_for_daily_price_history(ticker, start_date=None, end_date=None
                     output.debug('Indicated dates not found in AlphaVantage Response.')
                     return False
 
-            elif (start_date is None and end_date is not None) and not full:
+            elif not full and (start_date is None and end_date is not None):
                 try:
                     end_string = helper.date_to_string(end_date)
                     end_index = list(prices[settings.AV_RES_CRYPTO_FIRST_LAYER].keys()).index(end_string) 
@@ -254,7 +257,7 @@ def query_service_for_daily_price_history(ticker, start_date=None, end_date=None
                     output.debug('End Date not found in AlphaVantage Response.')
                     return False
 
-            elif (start_date is not None and end_date is None) and not full:
+            elif not full and (start_date is not None and end_date is None):
                 try:
                     start_string = helper.date_to_string(end_date)
                     start_index = list(prices[settings.AV_RES_CRYPTO_FIRST_LAYER].keys()).index(start_string)

@@ -265,15 +265,11 @@ See the comments in the <i>/env/.sample.env</i> for more information on each var
 
 12. TEST MOVING AVERAGE ALGORITHM FOR MIX OF ASSET TYPES. I think there may be some mismatch of types in date comparisons.
 
-13. Scrap historical closing prices up to current year from API and store in database. Set up container orchestration via <i>docker-compose</i> 
-
 14. ERROR: There seems to be a problem with the correlation algorithm over time ranges longer than 100 days. NOTE: Pretty sure this is resolved now, but needs further testing. Correlation algorithm needs test for mix of asset types as well, i.e. equities and crypto.
 
 15. Create automated tests and integrate repo with a CircleCi pipeline that simply builds the image. Will need to find a cloud provider to deploy onto. Perhaps [Heroku](https://www.heroku.com/)
 
 16. Angular frontend! Separate container. Served through nginx and queries backend <b>pynance</b> server. 
-
-17. Create custom postgres image that initializes a <b>market</b> database and a <b>economy</b> database. Populate <b>market</b> with scrapped price histories. Populate <b>economy</b> with scrapped statistics histories. 
 
 18. If an option prices API is found, then IV can be calculated for a specific equity. The optimization algorithm can be expanded to optimize over IV of a portfolio, instead of the Historical Volatility. Allow user to specify what type of volatility the portfolio will use in its optimization, historical or implied. Will need to account for skew, somehow. 
 
@@ -283,7 +279,7 @@ See the comments in the <i>/env/.sample.env</i> for more information on each var
 
 21. Create 'self' PRICE_MANAGER and STAT_MANAGER. If set to 'self' query database for price histories. Will need to make sure scrapper runs during application initialization. Possibly entrypoints where it will need run: CLI, GUI and API.
 
-22. Pretty sure the reason the len(moving_averages) != len(dates_between) in moving average algorithnm is because dates_between doesn't include the dates themselves; it's only returning...dun dun dun...the dates between, not the dates themselves. 
+22. Pretty sure the reason the len(moving_averages) != len(dates_between) in moving average algorithm is because dates_between doesn't include the dates themselves; it's only returning...dun dun dun...the dates between, not the dates themselves. 
 
 23. Need to figure out what's going on with the x-axis formatting for moving average graphs over date ranges.
 

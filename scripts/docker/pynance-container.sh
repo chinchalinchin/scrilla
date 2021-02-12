@@ -26,6 +26,10 @@ else
     log "Building \e[3m$IMG_NAME:$TAG_NAME\e[0m Docker image" $SCRIPT_NAME
     docker build -t $IMG_NAME:$TAG_NAME .
 
-    log 'Deleting Dangling Images' $SCRIPT_NAME
-    docker rmi -f $(docker images --filter "dangling=true" -q)
+    DANGLERS=$(docker images --filter "dangling=true" -q)
+    if [ "$DANGLERS" != "" ]
+    then 
+        log 'Deleting Dangling Images' $SCRIPT_NAME
+        docker rmi -f $DANGLERS
+    fi
 fi

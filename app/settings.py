@@ -191,10 +191,12 @@ if PRICE_MANAGER == 'alpha_vantage':
     # Response Keys
     AV_RES_EQUITY_FIRST_LAYER='Time Series (Daily)'
     AV_RES_EQUITY_CLOSE_PRICE="4. close"
+    AV_RES_EQUITY_OPEN_PRICE="1. open"
     AV_RES_EQUITY_KEY="symbol"
     AV_RES_CRYPTO_FIRST_LAYER='Time Series (Digital Currency Daily)'
     AV_RES_CRYPTO_KEY="currency code"
     AV_RES_CRYPTO_CLOSE_PRICE=f'4a. close ({DENOMINATION})'
+    AV_RES_CRYPTO_OPEN_PRICE=f'1a. open ({DENOMINATION})'
     AV_RES_ERROR='Error Message'
     AV_RES_LIMIT='Note'
     

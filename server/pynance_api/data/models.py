@@ -18,7 +18,9 @@ class CryptoTicker(models.Model):
 class EquityMarket(models.Model):
     ticker = models.ForeignKey(EquityTicker, on_delete=models.CASCADE)
     date = models.DateField('Date')
-    closing_price = models.DecimalField(max_digits=20, decimal_places=4)
+    open_price = models.DecimalField(max_digits=20, decimal_places=4)
+    close_price = models.DecimalField(max_digits=20, decimal_places=4)
+    
     
     def __str__(self):
         return '{} {} : {}'.format(self.ticker, self.date, self.closing_price)
@@ -26,7 +28,8 @@ class EquityMarket(models.Model):
 class CryptoMarket(models.Model):
     ticker = models.ForeignKey(CryptoTicker, on_delete=models.CASCADE)
     date = models.DateField('Date')
-    closing_price = models.DecimalField(max_digits=20, decimal_places=10)
+    open_price = models.DecimalField(max_digits=20, decimal_places=10)
+    close_price = models.DecimalField(max_digits=20, decimal_places=10)
     
     def __str__(self):
         return '{} {} : {}'.format(self.ticker, self.date, self.closing_price)

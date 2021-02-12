@@ -18,8 +18,7 @@ COPY /scripts/ /home/scripts/
 COPY /util/ /home/util/
 COPY /main.py /home/main.py
 RUN mkdir ./cache/ && mkdir ./static/
-RUN chown -R pynance:pyadmin /home/
-RUN chmod -R 770 /home/
+RUN chown -R pynance:pyadmin /home/ && chmod -R 770 /home/
 
 # ENTRYPOINT CONFIGURATION
 VOLUME /home/cache/ /home/static/

@@ -1,0 +1,3 @@
+/server/pynance_api/db.sqlite3
+*.pyc
+*.env
