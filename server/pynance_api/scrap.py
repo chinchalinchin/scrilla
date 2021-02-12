@@ -23,20 +23,24 @@ output = logger.Logger("server.pynance_api.scrap", settings.LOG_LEVEL)
 # Must be done after /static/ is initialized!
 # TODO: query equitymarket by ticker and sort by date. Find delta between
 #       today and last price and only query service for missing dates.
-def scrap_equities():
+def scrap_prices(asset_type):
     today = datetime.date.today()
 
-    asset_type = app_settings.ASSET_EQUITY
     symbols = list(services.get_static_data(asset_type))
 
     for symbol in symbols:
 
-        new_ticker_entry = EquityTicker.objects.get_or_create(ticker=symbol)
+        if asset_type == app_settings.ASSET_EQUITY:
+            new_ticker_entry = EquityTicker.objects.get_or_create(ticker=symbol)
 
-        if new_ticker_entry[1]:
+        if new_ticker_entry[1] and asset_type == app_settings.ASSET_EQUITY:
             output.debug(f'Saving {symbol} to EquityTicker table in database')
-        else:
+        elif new_ticker_entry[1] and asset_type == app_settings.ASSET_CRYPTO:
+            output.debug(f'Saving {symbol} to CryptoTicker table in database')
+        elif not new_ticker_entry[1] and asset_type == app_settings.ASSET_EQUITY:
             output.debug(f'{symbol} already exists in EquityTicker table')
+        else:
+            output.debug(f'{symbol} already exists in CryptoTicker table')
 
         output.debug(f'Retrieving price history for {symbol}...')
         price_history = services.query_service_for_daily_price_history(symbol, full=True)
@@ -49,23 +53,35 @@ def scrap_equities():
                                                                     asset_type=asset_type,which_price=services.OPEN_PRICE)
                 todays_date = helper.parse_date_string(date)
                 
-                new_market_entry = EquityMarket.objects.get_or_create(ticker=new_ticker_entry[0], date=todays_date, 
-                                                                        close_price=todays_close_price, open_price=todays_open_price)
-                if new_market_entry[1]:
+                if asset_type == app_settings.ASSET_EQUITY:
+                    new_market_entry = EquityMarket.objects.get_or_create(ticker=new_ticker_entry[0], date=todays_date, 
+                                                                            close_price=todays_close_price, open_price=todays_open_price)
+                elif asset_type == app_settings.ASSET_CRYPTO:
+                    new_market_entry = CryptoMarket.objects.get_or_create(ticker=new_ticker_entry[0], date=todays_date,
+                                                                            close_price=todays_open_price, open_price=todays_open_price)
+                    pass
+
+                if new_market_entry[1] and asset_type == app_settings.ASSET_EQUITY:
                     output.verbose(f'Saving {symbol} (opening, closing) price of ({todays_open_price}, {todays_close_price}) on {date} to EquityMarket table in database.')
-                else: 
+                elif new_market_entry[1] and asset_type == app_settings.ASSET_CRYPTO:
+                    output.verbose(f'Saving {symbol} (opening, closing) price of ({todays_open_price}, {todays_close_price}) on {date} to CryptoMarket table in database.')
+                elif not new_market_entry[1] and asset_type == app_settings.ASSET_EQUITY:
                     output.verbose(f'Closing and openiong prices for {symbol} on {date} already exist in EquityMarket table')
+                else: 
+                    output.verbose(f'Closing and openiong prices for {symbol} on {date} already exist in CryptoMarket table')
         else: 
             output.debug(f'Price history not found for {symbol}.')
 
-    
-def scrap_crypto():
-    pass
 
 def scrap_stats():
+    today = datetime.date.today()
+
+    stat_type = app_settings.STAT_ECON
+    symbols = list(services.get_static_data(stat_type))
+
     pass
 
 if __name__ == "__main__": 
-    scrap_equities()
-    scrap_crypto()
+    scrap_prices(asset_type=app_settings.ASSET_EQUITY)
+    scrap_prices(asset_type=app_settings.ASSET_CRYPTO)
     scrap_stats()
