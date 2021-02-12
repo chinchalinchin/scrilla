@@ -38,7 +38,6 @@ else
         python -c "import server.pynance_api.core.settings as settings; from util.logger import Logger; \
         logger=Logger('scripts.server.pynance-server','info'); logger.log_django_settings(settings);"
    
-
         cd $SERVER_DIR
         log "Verifying migrations are up-to-date..." $SCRIPT_NAME
         python manage.py makemigrations

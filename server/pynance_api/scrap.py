@@ -27,9 +27,10 @@ def scrap():
     symbols = list(services.get_static_data(asset_type))
 
     for symbol in symbols:
-        output.debug(f'Saving {symbol} to EquityTicker table in database')
-        new_ticker_entry = EquityTicker.objects.get_or_create(ticker=symbol)[0]
-        
+        new_ticker_entry = EquityTicker.objects.get_or_create(ticker=symbol)
+        if new_ticker_entry[1]:
+            output.debug(f'Saving {symbol} to EquityTicker table in database')
+
         output.debug(f'Retrieving price history for {symbol}...')
         price_history = services.query_service_for_daily_price_history(symbol, full=True)
         
@@ -37,8 +38,10 @@ def scrap():
             todays_price = services.parse_price_from_date(prices=price_history, date=date, asset_type=asset_type)
             todays_date = helper.parse_date_string(date)
                 
-            output.debug(f'Saving {symbol} closing price of {todays_price} on {date} to EquityMarket table in database.')
-            new_market_entry = EquityMarket.objects.get_or_create(ticker=new_ticker_entry, date=date, closing_price=todays_price)
+            new_market_entry = EquityMarket.objects.get_or_create(ticker=new_ticker_entry[0], date=date, closing_price=todays_price)
+            if new_market_entry[1]:
+                output.debug(f'Saving {symbol} closing price of {todays_price} on {date} to EquityMarket table in database.')
+
     
 
 if __name__ == "__main__": 

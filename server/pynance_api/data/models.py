@@ -4,13 +4,13 @@ from django.db import models
 # Have to separate equity and crypto tickers since GLD exists in both
 # crypto and equity symbols. Real pain.
 class EquityTicker(models.Model):
-    ticker = models.CharField(max_length=5, primary_key=True)
+    ticker = models.CharField(max_length=20, primary_key=True)
 
     def __str__(self):
         return self.ticker
 
 class CryptoTicker(models.Model):
-    ticker = models.CharField(max_length=5, primary_key=True)
+    ticker = models.CharField(max_length=20, primary_key=True)
 
     def __str__(self):
         return self.ticker
