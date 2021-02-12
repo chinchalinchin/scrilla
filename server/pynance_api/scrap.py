@@ -29,18 +29,21 @@ def scrap():
     for symbol in symbols:
         new_ticker_entry = EquityTicker.objects.get_or_create(ticker=symbol)
         if new_ticker_entry[1]:
-            output.debug(f'Saving {symbol} to EquityTicker table in database')
+            output.verbose(f'Saving {symbol} to EquityTicker table in database')
 
         output.debug(f'Retrieving price history for {symbol}...')
         price_history = services.query_service_for_daily_price_history(symbol, full=True)
-        
-        for date in price_history:
-            todays_price = services.parse_price_from_date(prices=price_history, date=date, asset_type=asset_type)
-            todays_date = helper.parse_date_string(date)
+
+        if price_history:
+            for date in price_history:
+                todays_price = services.parse_price_from_date(prices=price_history, date=date, asset_type=asset_type)
+                todays_date = helper.parse_date_string(date)
                 
-            new_market_entry = EquityMarket.objects.get_or_create(ticker=new_ticker_entry[0], date=date, closing_price=todays_price)
-            if new_market_entry[1]:
-                output.debug(f'Saving {symbol} closing price of {todays_price} on {date} to EquityMarket table in database.')
+                new_market_entry = EquityMarket.objects.get_or_create(ticker=new_ticker_entry[0], date=date, closing_price=todays_price)
+                if new_market_entry[1]:
+                    output.verbose(f'Saving {symbol} closing price of {todays_price} on {date} to EquityMarket table in database.')
+        else: 
+            output.debug(f'Price history not found for {symbol}')
 
     
 

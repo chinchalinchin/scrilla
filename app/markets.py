@@ -2,11 +2,24 @@
 import app.settings as settings
 import app.services as services
 
+# OVERLAP = ['ABT', 'AC', 'GLD']
+# TODO: need some way to distinguish between overlap.
+
+def get_overlapping_symbols():
+    equities = list(services.get_static_data(settings.ASSET_EQUITY))
+    cryptos = list(services.get_static_data(settings.ASSET_CRYPTO))
+    overlap = []
+    for crypto in cryptos:
+        if crypto in equities:
+            overlap.append(crypto)
+    return overlap
+
 def get_asset_type(symbol):
     symbols = list(services.get_static_data(settings.ASSET_CRYPTO))
+    overlap = get_overlapping_symbols()
 
     # TODO: need to differentiate between GLD etf and GLD crypto somehow!
-    if symbol in symbols and symbol != 'GLD' and symbol != 'ABT':
+    if symbol not in overlap and symbol in symbols:
         return settings.ASSET_CRYPTO
         
     else:
