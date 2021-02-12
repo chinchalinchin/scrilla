@@ -1,9 +1,8 @@
 *.env
 !.sample.env
 data/cache/*
-!/cache/.gitkeep
+!/data/cache/.gitkeep
 data/static/*
-!/static/.gitkeep
-!/static/creds/.gitkeep
+!/data/static/.gitkeep
 *.pyc
 /server/pynance_api/db.sqlite3
