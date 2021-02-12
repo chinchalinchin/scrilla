@@ -8,7 +8,7 @@ services:
         - "8000:8000"
       volumes:
         - static:/home/static/
-        - cache:/home/static/
+        - cache:/home/cache
       networks:
         - the_pit
       env_file: 
