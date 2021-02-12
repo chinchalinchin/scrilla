@@ -45,14 +45,25 @@ def scrap_prices(asset_type):
             output.debug(f'{symbol} already exists in CryptoTicker table')
 
         output.debug(f'Retrieving price history for {symbol}...')
-        price_history = services.query_service_for_daily_price_history(symbol, full=True)
+
+        if new_ticker_entry[1]:
+            price_history = services.query_service_for_daily_price_history(symbol, full=True, asset_type=asset_type)
+        else:
+            if asset_type == app_settings.ASSET_EQUITY:
+                # TODO: determine if last date in table is today
+                #       if not, query missing dates
+                pass
+            elif asset_type == app_settings.ASSET_CRYPTO:
+                # TODO: determine if last date in table is today
+                #       if not, query missing dates
+                pass
 
         if price_history:
             for date in price_history:
                 todays_close_price = services.parse_price_from_date(prices=price_history, date=date, 
-                                                                    asset_type=asset_type)
+                                                                    asset_type=asset_type, which_price=services.CLOSE_PRICE)
                 todays_open_price = services.parse_price_from_date(prices=price_history, date=date, 
-                                                                    asset_type=asset_type,which_price=services.OPEN_PRICE)
+                                                                    asset_type=asset_type, which_price=services.OPEN_PRICE)
                 todays_date = helper.parse_date_string(date)
                 
                 if asset_type == app_settings.ASSET_EQUITY:

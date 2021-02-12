@@ -50,7 +50,7 @@ def parse_price_from_date(prices, date, asset_type, which_price=CLOSE_PRICE):
         output.debug('Price unable to be parsed from date.')
         return False
 
-def query_service_for_daily_price_history(ticker, start_date=None, end_date=None, full=False):
+def query_service_for_daily_price_history(ticker, start_date=None, end_date=None, asset_type=None, full=False):
     """
     Description
     -----------
@@ -105,7 +105,12 @@ def query_service_for_daily_price_history(ticker, start_date=None, end_date=None
         output.debug(f'Full price history requested, nulling start_date and end_date')
         start_date, end_date = None, None
 
-    asset_type=markets.get_asset_type(ticker)  
+    if asset_type is None:
+        output.debug('No asset type provided, determining from ticker.')
+        asset_type=markets.get_asset_type(ticker)  
+    else: 
+        output.debug(f'Asset type {asset_type} provided')
+        asset_type=asset_type
 
         # Verify dates fall on trading days (i.e. not weekends or holidays) if asset_type is ASSET_EQUITY
     if asset_type == settings.ASSET_EQUITY and (start_date is not None or end_date is not None):
