@@ -202,6 +202,7 @@ if PRICE_MANAGER == 'alpha_vantage':
     AV_RES_CRYPTO_OPEN_PRICE=f'1a. open ({DENOMINATION})'
     AV_RES_ERROR='Error Message'
     AV_RES_LIMIT='Note'
+    AV_RES_DAY_LIMIT='Information'
     
     # Query Parameters
     PARAM_AV_TICKER="symbol"

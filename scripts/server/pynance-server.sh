@@ -26,6 +26,11 @@ else
     ENV_DIR=$ROOT_DIR/env
     CACHE_DIR=$ROOT_DIR/cache
     STATIC_DIR=$ROOT_DIR/static
+    # PYTHON SCRIPTS
+    LOG_DJANGO_SETTINGS="import server.pynance_api.core.settings as settings; from util.logger import Logger; \
+        logger=Logger('scripts.server.pynance-server','info'); logger.log_django_settings(settings);"
+    CLEAR_CACHE="import app.settings as settings; import util.helper as helper; \
+        helper.clear_directory(directory=settings.CACHE_DIR, retain=True, outdated_only=True)"
 
     # Run in local mode
     if [ "$1" == "--local" ] || [ "$1" == "-local" ] || [ "$1"  == "--l" ] || [ "$1" == "-l" ] || [ $# -eq 0 ]
@@ -35,9 +40,11 @@ else
 
         cd $ROOT_DIR
         log "Logging non-sensitive Django settings." $SCRIPT_NAME
-        python -c "import server.pynance_api.core.settings as settings; from util.logger import Logger; \
-        logger=Logger('scripts.server.pynance-server','info'); logger.log_django_settings(settings);"
+        python -c $LOG_DJANGO_SETTINGS
    
+        log "Clearing \e[3m/cache/\e[0m directory of outdated price histories." $SCRIPT_NAME
+        python -c $CLEAR_CACHE
+
         cd $SERVER_DIR
         log "Verifying migrations are up-to-date." $SCRIPT_NAME
         python manage.py makemigrations

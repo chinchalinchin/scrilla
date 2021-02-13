@@ -65,7 +65,7 @@ if __name__ == "__main__":
         # variable argument functions
         else:
             output.debug('Clearing /cache/ directory of outdated price histories')
-            helper.clear_directory(settings.CACHE_DIR, retain=True, outdated_only=True)
+            helper.clear_directory(directory=settings.CACHE_DIR, retain=True, outdated_only=True)
 
             output.debug('Initialzing /static/ directory, if applicable')
             services.init_static_data()

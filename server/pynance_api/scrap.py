@@ -50,10 +50,13 @@ def scrap_prices(asset_type):
             if asset_type == app_settings.ASSET_EQUITY:
                 # TODO: determine if last date in table is today
                 #       if not, query missing dates
+                # TODO: make sure missed price histories after rate limit get added.
                 pass
             elif asset_type == app_settings.ASSET_CRYPTO:
                 # TODO: determine if last date in table is today
                 #       if not, query missing dates
+                # TODO: make sure missed price histories after rate limit get added.
+
                 pass
             price_history = None
 
@@ -84,10 +87,8 @@ def scrap_prices(asset_type):
             output.debug(f'Price history not found for {symbol}.')
 
 
-def scrap_stats():
+def scrap_stats(stat_type):
     today = datetime.date.today()
-
-    stat_type = app_settings.STAT_ECON
     symbols = list(services.get_static_data(stat_type))
 
     # TODO: scrap quandl stats
@@ -96,4 +97,4 @@ def scrap_stats():
 if __name__ == "__main__": 
     scrap_prices(asset_type=app_settings.ASSET_EQUITY)
     scrap_prices(asset_type=app_settings.ASSET_CRYPTO)
-    scrap_stats()
+    scrap_stats(stat_type=app_settings.STAT_ECON)

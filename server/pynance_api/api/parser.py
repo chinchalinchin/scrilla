@@ -66,9 +66,7 @@ def parse_secondary_args(request):
 def parse_tickers(request):
     if settings.REQUEST_PARAMS['tickers'] in request.GET:
         tickers = request.GET.getlist(settings.REQUEST_PARAMS['tickers'])
-        for ticker in tickers:
-            ticker = ticker.upper()
-        return tickers
+        return [ticker.upper() for ticker in tickers]
     else:
         return False
 
@@ -104,7 +102,6 @@ def parse_args_into_queryset(ticker, parsed_args):
         if asset_type == app_settings.ASSET_EQUITY:
             return EquityMarket.objects.filter(ticker=ticker, date__gte=parsed_args['start_date'], 
                                                 date__lte=parsed_args['end_date']).order_by('-date')
-
         elif asset_type == app_settings.ASSET_CRYPTO:
             return CryptoMarket.objects.filter(ticker=ticker, date__gte=parsed_args['start_date'],
                                                 date_lte=parsed_args['end_date']).order_by('-date')

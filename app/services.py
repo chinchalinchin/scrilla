@@ -34,14 +34,18 @@ def parse_price_from_date(prices, date, asset_type, which_price=CLOSE_PRICE):
     """
     try:
         if settings.PRICE_MANAGER == 'alpha_vantage':
+            
             if asset_type == settings.ASSET_EQUITY:
                 if which_price == CLOSE_PRICE:
                     return prices[date][settings.AV_RES_EQUITY_CLOSE_PRICE]
                 elif which_price == OPEN_PRICE:
                     return prices[date][settings.AV_RES_EQUITY_OPEN_PRICE]
+
             elif asset_type == settings.ASSET_CRYPTO:
                 if which_price == CLOSE_PRICE:
                     return prices[date][settings.AV_RES_CRYPTO_CLOSE_PRICE]
+                elif which_price == OPEN_PRICE:
+                    return prices[date][settings.AV_RES_CRYPTO_OPEN_PRICE]
         else: 
             # TODO: other service parsing goes here.
             pass
@@ -139,11 +143,11 @@ def query_service_for_daily_price_history(ticker, start_date=None, end_date=None
                 
                 end_date = helper.get_previous_business_date(end_date)
                 output.debug(f'Setting end date to previous business day, {end_date}.')
-    ### END: ARGUMENT VALIDATION ###
+    ### END: Argument Validation ###
 
-    ### START: SERVICE QUERY CREATION ###
     if settings.PRICE_MANAGER == "alpha_vantage":
 
+        ### START: AlphaVantage Service Query ###
         query = f'{settings.PARAM_AV_TICKER}={ticker}'
 
         if asset_type == settings.ASSET_EQUITY:
@@ -165,69 +169,68 @@ def query_service_for_daily_price_history(ticker, start_date=None, end_date=None
         prices = requests.get(url).json()
         first_element = helper.get_first_json_key(prices)
 
-        # check for bad response
+            # check for bad response
         if first_element == settings.AV_RES_ERROR:
             output.debug(prices[settings.AV_RES_ERROR])
             return False
 
-        # check and wait for API rate limit refresh
+            # check and wait for API rate limit refresh
         first_pass = True
         while first_element == settings.AV_RES_LIMIT:
             if first_pass:
-                output.debug('AlphaVantage API rate limit exceeded. Waiting.')
+                output.debug('AlphaVantage API rate limit per minute exceeded. Waiting.')
                 first_pass = False
             else:
                 output.debug('Waiting.')
+            
             time.sleep(10)
             prices = requests.get(url).json()
             first_element = helper.get_first_json_key(prices)
-            # TODO: if first_element = total rate limit exceeded
-            #           return False 
 
-        # Equity Response Parsing
+                # end function is daily rate limit is reached 
+            if first_element == settings.AV_RES_DAY_LIMIT:
+                output.debug('Daily AlphaVantage rate limit exceeded. No more queries possible!')
+                return False
+        ### END: AlphaVantage sService Query ###
+
+        ### START: AlphaVantage Equity Response Parsing ###
         # TODO: could possibly initial start_index = 0 and end_index = len(prices)
         #           and then filter through conditional and return prices[start:end]
         #           no matter what?
         # NOTE: Remember AlphaVantage is ordered current to earliest. END_INDEX is 
         # actually the beginning of slice and START_INDEX is actually end of slice. 
         if asset_type == settings.ASSET_EQUITY:
-            if not full and (start_date is not None and end_date is not None):
-                try:
+            try:
+                if not full and (start_date is not None and end_date is not None):
                     start_string, end_string = helper.date_to_string(start_date), helper.date_to_string(end_date)
                     start_index = list(prices[settings.AV_RES_EQUITY_FIRST_LAYER].keys()).index(start_string)
                     end_index = list(prices[settings.AV_RES_EQUITY_FIRST_LAYER].keys()).index(end_string)
                     prices = dict(itertools.islice(prices[settings.AV_RES_EQUITY_FIRST_LAYER].items(), end_index, start_index))
-                except:
-                    output.sys_error()
-                    output.debug('Indicated dates not found in AlphaVantage Response.')
-                    return False
+                    return prices
 
-            elif not full and (start_date is None and end_date is not None):
-                try:
+                elif not full and (start_date is None and end_date is not None):
                     end_string = helper.date_to_string(end_date)
                     end_index = list(prices[settings.AV_RES_EQUITY_FIRST_LAYER].keys()).index(end_string)
                     prices = dict(itertools.islice(prices[settings.AV_RES_EQUITY_FIRST_LAYER].items(), end_index))
-                except:
-                    output.debug('End Date not found in AlphaVantage Response.')
-                    return False
+                    return prices
 
-            elif not full and (start_date is not None and end_date is None):
-                try:
+                elif not full and (start_date is not None and end_date is None):
                     start_string = helper.date_to_string(start_date)
                     start_index = list(prices[settings.AV_RES_EQUITY_FIRST_LAYER].keys()).index(start_string)
                     prices = dict(itertools.islice(prices[settings.AV_RES_EQUITY_FIRST_LAYER].items(), 0, start_index))
-                except:
-                    output.debug('End Date not found in AlphaVantage Response.')
-                    return False
-            
-            else:
-                try:
-                    prices = prices[settings.AV_RES_EQUITY_FIRST_LAYER]
-                except: 
-                    output.debug('Error encountered ')
-                    prices = False
-            return prices
+                    return prices
 
+                else:
+                    prices = prices[settings.AV_RES_EQUITY_FIRST_LAYER]
+                    return prices
+                    
+            except:
+                output.debug('Error encountered parsing AlphaVantage equity response')
+                output.sys_error()
+                return False
+        ### END: AlphaVantage Equity Response Parsing ###
+
+        ### START: AlphaVantage Crypto Response Parsing ###
         # TODO: len(crypto_prices) - weekends. do i want to do it here? or in statistics.py when
         # the different datasets are actually being compared? probably statistics.py.
         # NO! because statistics.py will need complete datasets to compare, so it's better
@@ -236,50 +239,49 @@ def query_service_for_daily_price_history(ticker, start_date=None, end_date=None
         # TODO: can probably set RESPONSE_KEY to asset_type and condense the double conditional
         # branching down to one branch. will make it simpler.
         elif asset_type == settings.ASSET_CRYPTO:
-            if not full and (start_date is None and end_date is None):
-                truncated_prices, index = {}, 0
-                for date in prices[settings.AV_RES_CRYPTO_FIRST_LAYER]:
-                    if index < 100:
-                        truncated_prices[date] = prices[settings.AV_RES_CRYPTO_FIRST_LAYER][date]
-                    else:
-                        return truncated_prices
-                    index += 1
+            try:
+                if not full and (start_date is None and end_date is None):
+                    truncated_prices, index = {}, 0
+                    for date in prices[settings.AV_RES_CRYPTO_FIRST_LAYER]:
+                        if index < 100:
+                            truncated_prices[date] = prices[settings.AV_RES_CRYPTO_FIRST_LAYER][date]
+                        else:
+                            return truncated_prices
+                        index += 1
 
-            elif not full and (start_date is not None and end_date is not None):
-                try:
+                elif not full and (start_date is not None and end_date is not None):
                     start_string, end_string = helper.date_to_string(start_date), helper.date_to_string(end_date)
                     start_index = list(prices[settings.AV_RES_CRYPTO_FIRST_LAYER].keys()).index(start_string)
                     end_index = list(prices[settings.AV_RES_CRYPTO_FIRST_LAYER].keys()).index(end_string)
                     prices = dict(itertools.islice(prices[settings.AV_RES_CRYPTO_FIRST_LAYER].items(), end_index, start_index))
-                except:
-                    output.debug('Indicated dates not found in AlphaVantage Response.')
-                    return False
+                    return prices
 
-            elif not full and (start_date is None and end_date is not None):
-                try:
+                elif not full and (start_date is None and end_date is not None):
                     end_string = helper.date_to_string(end_date)
                     end_index = list(prices[settings.AV_RES_CRYPTO_FIRST_LAYER].keys()).index(end_string) 
                     prices = dict(itertools.islice(prices[settings.AV_RES_CRYPTO_FIRST_LAYER].items(), end_index))
-                except:
-                    output.debug('End Date not found in AlphaVantage Response.')
-                    return False
+                    return prices
 
-            elif not full and (start_date is not None and end_date is None):
-                try:
+
+                elif not full and (start_date is not None and end_date is None):
                     start_string = helper.date_to_string(end_date)
                     start_index = list(prices[settings.AV_RES_CRYPTO_FIRST_LAYER].keys()).index(start_string)
                     prices = dict(itertools.islice(prices[settings.AV_RES_CRYPTO_FIRST_LAYER].items(), 0, start_index))
-                except:
-                    output.debug('End Date not found in AlphaVantage Response.')
-                    return False
+                    return prices
 
-            else:
-                prices = prices[settings.AV_RES_CRYPTO_FIRST_LAYER]
-            
-            return prices
+                else:
+                    prices = prices[settings.AV_RES_CRYPTO_FIRST_LAYER]
+                    return prices
+            except:
+                output.debug('Error encountered parsing AlphaVantage crypto response.')
+                output.sys_error()
+                return False
+
+        ### END: AlphaVantage Crypto Response Parsing ###
 
     else:
         output.debug("No PRICE_MANAGER set in .env file!")
+        return False
 
 # TODO: Crypto queries return all dates and price even if no start_date is provided.
 #       Need to truncuate crypto queries to last 100 days for caching. 

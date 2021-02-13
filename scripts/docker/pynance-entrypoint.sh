@@ -7,19 +7,31 @@
 SCRIPT_NAME='pynance-entrypoint'
 source /home/scripts/util/logging.sh
 
+# DIRECTORIES
+ROOT_DIR=/home/
+APP_DIR=/home/app/
+SERVER_DIR=/home/server/pynance_api/
+
+# PYTHON SCRIPTS
+LOG_DJANGO_SETTINGS="import server.pynance_api.core.settings as settings; from util.logger import Logger; \
+        logger=Logger('scripts.server.pynance-server','$LOG_LEVEL'); logger.log_django_settings(settings);"
+CLEAR_CACHE="import app.settings as settings; import util.helper as helper; \
+        helper.clear_directory(directory=settings.CACHE_DIR, retain=True, outdated_only=True)"
 
 log "Entrypoint Argument(s): \e[3m$(concat_args $@)\e[0m" $SCRIPT_NAME
 log "Executing from $(pwd)" $SCRIPT_NAME
 
 if [ $# -eq 0 ] || [ "$1" == "wait-for-it" ] || [ "$1" == "bash" ] || [ "$1" == "psql" ]
 then
-    cd /home/
+    cd $ROOT_DIR
     log "Invoking \e[2mpynance CLI\e[0m to initalize \e[3m/static/\e[0m directory; This may take a while!" $SCRIPT_NAME
     python main.py -init
 
+    log "Clearing \e[3m/cache/\e[0m directory of outdated price histories." $SCRIPT_NAME
+    python -c $CLEAR_CACHE
+
     log "Logging Non-sensitive Django settings" $SCRIPT_NAME
-    python -c "import server.pynance_api.core.settings as settings; from util.logger import Logger; \
-        logger=Logger('scripts.server.pynance-server', '$LOG_LEVEL'); logger.log_django_settings(settings);"
+    python -c $LOG_DJANGO_SETTINGS
 
     # 
     if [ "$1" == "wait-for-it" ]
@@ -28,7 +40,7 @@ then
         wait-for-it $POSTGRES_HOST:$POSTGRES_PORT
     fi
 
-    cd /home/server/pynance_api/
+    cd $SERVER_DIR
     log 'Checking for new migrations' $SCRIPT_NAME
     python manage.py makemigrations
     
@@ -41,7 +53,7 @@ then
     if [ "${SCRAPPER_ENABLED,,}" == "true" ] # SCRAPPER_ENABLED to lower case
     then
         log "Scrapping price histories into $POSTGRES_HOST/$POSTGRES_DB; this may take a while!" $SCRIPT_NAME
-        cd /home/server/pynance_api/
+        cd $SERVER_DIR
         python scrap.py 
     fi
     if [ "$1" == "bash" ]
@@ -58,7 +70,7 @@ then
 
     if [ "$APP_ENV" == "container" ]
     then
-        cd /home/server/pynance_api/
+        cd $SERVER_DIR
         log "Binding WSGI app To \e[2mgunicorn\e[0m Web Server On 0.0.0.0:8000" $SCRIPT_NAME 
         gunicorn core.wsgi:application --bind=0.0.0.0:$SERVER_PORT --workers 1
     fi
@@ -68,6 +80,6 @@ then
 else
     log "Argument(s) Provided: $(concat_args $@)" $SCRIPT_NAME
     log "Switching to CLI Mode" $SCRIPT_NAME
-    cd /home/
+    cd $ROOT_DIR
     python main.py $@
 fi
