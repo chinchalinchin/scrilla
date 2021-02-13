@@ -24,7 +24,7 @@ then
     # 
     if [ "$1" == "wait-for-it" ]
     then
-        log "Waiting for \e[3m$POSTGRES_HOST:$POSTGRES_PORT\e[0m database service connection..." $SCRIPT_NAME
+        log "Waiting for \e[3m$POSTGRES_HOST:$POSTGRES_PORT\e[0m database service connection." $SCRIPT_NAME
         wait-for-it $POSTGRES_HOST:$POSTGRES_PORT
     fi
 
@@ -46,7 +46,7 @@ then
     fi
     if [ "$1" == "bash" ]
     then
-        log "Starting BASH shell session..." $SCRIPT_NAME
+        log "Starting BASH shell session." $SCRIPT_NAME
         $@
         exit 0
     fi

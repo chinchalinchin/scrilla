@@ -12,9 +12,9 @@ The program's functions can also be wired into a WSGI Application using the [Dja
 - [Python 3.8 +](https://www.python.org/downloads/) <br>
 - [Docker](https://www.docker.com/products/docker-desktop) (Not required, but recommended for deploying application as a microservice.)<br>
 
-## Environment
+## Environment 
 
-You may want to export the environment variables defined in the <i>/env/.env</i> file into your current terminal session. You can `source` the <i>scripts/util/env-vars.sh</i> shell script to load these variables,
+You will want to export the environment variables defined in the <i>/env/ENVIRONMENT.env</i> file into your current terminal session while using and developing the application. You can `source` the <i>scripts/util/env-vars.sh</i> shell script to load these variables,
 
 > source ./scripts/util/env-vars.sh
 
@@ -186,51 +186,70 @@ Some endpoints have unique query parameters, but all endpoints accept the follow
     <b>Examples</b><br>
     
 
-4. <h2>/api/moving-averages
+4. <h2>/api/moving-averages</h2>
+    <b>Description</b><br>
+    Returns the moving average of the return over the specified dates. The response will include three moving averages series with periods defined by the <b>MA_1</b>, <b>MA_2</b> and <b>MA_3</b> environment variables. In the future, this endpoint will accept user defined periods through request parameters. Note: if no start-date and end-date are supplied, this endpoint will return a snapshot of the current moving averages, not a time series.
+    <b>Examples</b><br>
 
-## Environment
+## Environment Variables
 
 See the comments in the <i>/env/.sample.env</i> for more information on each variable. Most of the defaults shouldn't need changed except for <b>ALPHA_VANTAGE_KEY</b> and <b>QUANDL_KEY</b>.
 
 ### Service Configuration
 
-1. <b>PRICE_MANAGER:</b> defines the service manager in charge of retrieving asset price historical data.
-2. <b>STAT_MANAGER:</b> defines the service manager in charge of retrieving economic statistics historical data.
-3. <b>ALPHA_VANTAGE_URL:</b> URL used to query AlphaVantage for asset price histories.
-4. <b>ALPHA_VANTAGE_CRYPTO_META_URL:</b> URL used to query to AlphaVantage for metadata on crypto market.
-5. <b>ALPHA_VANTAGE_KEY:</b> API key required to authenticate AlphaVantage queries.
-6. <b>QUANDL_URL:</b> URL used to query Quandl fo economic statistics historical data.
+1. <b>PRICE_MANAGER</b>: defines the service manager in charge of retrieving asset price historical data.
+2. <b>STAT_MANAGER</b>: defines the service manager in charge of retrieving economic statistics historical data.
+3. <b>ALPHA_VANTAGE_URL</b>: URL used to query AlphaVantage for asset price histories.
+4. <b>ALPHA_VANTAGE_CRYPTO_META_URL</b>: URL used to query to AlphaVantage for metadata on crypto market.
+5. <b>ALPHA_VANTAGE_KEY</b>: API key required to authenticate AlphaVantage queries.
+6. <b>QUANDL_URL</b>: URL used to query Quandl fo economic statistics historical data.
 7. <b>QUANDL_META_URL</b>: URL used to query Quandl for metadata on economic statistics.
-8. <b>QUANDL_KEY:</b> API key required to authenticate Quandl queries.
+8. <b>QUANDL_KEY</b>: API key required to authenticate Quandl queries.
 
 ### Algorithm Configuration
 
 9. <b>FRONTIER_STEPS</b>: Number of data points calculated in a portfolio's efficient frontier. Each data point consists of a (return, volatility)-tuple for a specific allocation of assets. 
-10. <b>MA_1:</b> Number of days in the first Moving Average period. Defaults to 20 if not provided.
-11. <b>MA_2:</b> Number of days in the second Moving Average period. Defaults to 60 if not provided.
-12. <b>MA_3:</b> Number of days in the third Moving Average period. Defaulst to 100 if not provided.
+10. <b>MA_1</b>: Number of days in the first Moving Average period. Defaults to 20 if not provided.
+11. <b>MA_2</b>: Number of days in the second Moving Average period. Defaults to 60 if not provided.
+12. <b>MA_3</b>: Number of days in the third Moving Average period. Defaulst to 100 if not provided.
 
 ### CLI Configuration
 
 13. <b>LOG_LEVEL</b>: values = ("info", "debug", "verbose"). Verbose is <i>extremely</i> verbose. The result of every single calculation within the application will be outputted. 
-15. <b>INVESTMENT_MODE:</b> Determines whether or not asset allocations are outputted in percentages or dollars. If set to <i>True</i>, the CLI will prompt the user to input the amount of money invested in a given portfolio before outputting results.
-16. <b>INIT:</b> A flag that will cause the application to always initialize the <i>/static/</i> directory everytime it executes. TODO: probably don't need this anymore since there is a CLI function that will re-initialize the <i>/static/</i> directory.
+15. <b>INVESTMENT_MODE</b>: Determines whether or not asset allocations are outputted in percentages or dollars. If set to <i>True</i>, the CLI will prompt the user to input the amount of money invested in a given portfolio before outputting results.
+16. <b>INIT</b>: A flag that will cause the application to always initialize the <i>/static/</i> directory everytime it executes. TODO: probably don't need this anymore since there is a CLI function that will re-initialize the <i>/static/</i> directory. 
 
 ### GUI Configuration
 
-17. <b>GUI_WIDTH:</b> Defines the width in pixels of the application's root <b>PyQt</b> widget. Defaults to 800 if not provided.
-18. <b>GUI_HEIGHT:</b> Defines the height in pixels of the application's root <b>PyQt</b> widget. Defaults to 800 if not provided.
+17. <b>GUI_WIDTH</b>: Defines the width in pixels of the application's root <b>PyQt</b> widget. Defaults to 800 if not provided.
+18. <b>GUI_HEIGHT</b>: Defines the height in pixels of the application's root <b>PyQt</b> widget. Defaults to 800 if not provided.
 
 ### Server Configuration
 
-19. <b>SECRET_KEY:</b> The secret used by Django to sign requests.
-20. <b>APP_ENV:</b> Informs the application which environment is it running in, i.e. either <i>local</i> or <i>container</i>
-21. <b>SERVER_PORT:</b> Configures the port on which the WSGI application runs.
+19. <b>SECRET_KEY</b>: The secret used by Django to sign requests.
+20. <b>APP_ENV</b>: Informs the application which environment is it running in, i.e. either <i>local</i> or <i>container</i>
+21. <b>SERVER_PORT</b>: Configures the port on which the WSGI application runs.
+22. <b>DJANGO_SUPERUSER_EMAIL</b>:
+23. <b>DJANGO_SUPERUSER_USERNAME</b>:
+24. <b>DJANGO_SUPERUSER_PASSWORD</b>:
+
+### Database Configuration
+
+- Note: If `APP_ENV == local`, then the server will default to a SQLite database and the following environment variables will 
+not affect the application. 
+
+25. <b>POSTGRES_HOST</b>: should be set equal to the name of the <b>postgres</b> service defined in the <i>docker-compose.yml</i>; the default is <i>datasource</i>
+26. <b>POSTGRES_PORT</b>:
+27. <b>POSTGRES_DB</b>:
+28. <b>POSTGRES_USER</b>:
+29. <b>POSTGRES_PASSWORD</b>:
+30. <b>PGDATA</b>:
 
 ### Container Configuration
-22. <b>IMG_NAME:</b> Name of the image created during the Docker build.
-23. <b>TAG_NAME:</b> Tag applied to the image created during the Docker build.
-24. <b>CONTAINER_NAME:</b> Name of the container applied to the image when it is spun up.
+22. <b>IMG_NAME</b>: Name of the image created during the Docker build.
+23. <b>TAG_NAME</b>: Tag applied to the image created during the Docker build.
+24. <b>CONTAINER_NAME</b>: Name of the container applied to the image when it is spun up.
+25. <b>SCRAPPER_ENABLED</b>: If set to True, the container will scrap price histories from the external services for storage in the <b>postgres</b> orchestrated with the application. 
 
 # TODOS
 

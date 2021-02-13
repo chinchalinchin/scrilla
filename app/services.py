@@ -174,10 +174,10 @@ def query_service_for_daily_price_history(ticker, start_date=None, end_date=None
         first_pass = True
         while first_element == settings.AV_RES_LIMIT:
             if first_pass:
-                output.debug('AlphaVantage API rate limit exceeded. Waiting...')
+                output.debug('AlphaVantage API rate limit exceeded. Waiting.')
                 first_pass = False
             else:
-                output.debug('Waiting...')
+                output.debug('Waiting.')
             time.sleep(10)
             prices = requests.get(url).json()
             first_element = helper.get_first_json_key(prices)
@@ -313,7 +313,7 @@ def get_daily_price_history(ticker, start_date=None, end_date=None):
         buffer_store= os.path.join(settings.CACHE_DIR, f'{timestamp}_{ticker}.{settings.CACHE_EXT}')
         
         if os.path.isfile(buffer_store):
-            output.debug(f'Loading in cached {ticker} prices...')
+            output.debug(f'Loading in cached {ticker} prices.')
             with open(buffer_store, 'r') as infile:
                 if settings.CACHE_EXT == "json":
                     output.debug(f'Cached {ticker} prices found.')
@@ -321,17 +321,17 @@ def get_daily_price_history(ticker, start_date=None, end_date=None):
                 # TODO: load other file types
             return prices
         else:
-            output.debug(f'Retrieving {ticker} prices from Service Manager...')  
+            output.debug(f'Retrieving {ticker} prices from Service Manager.')  
             prices = query_service_for_daily_price_history(ticker=ticker)
 
-            output.debug(f'Storing {ticker} price history in cache...')
+            output.debug(f'Storing {ticker} price history in cache.')
             with open(buffer_store, 'w') as outfile:
                 if settings.CACHE_EXT == "json":
                     json.dump(prices, outfile)
                 # TODO: dump other file types
             return prices
     else:
-        output.debug(f'No cached prices for date ranges past default. Passing to service call...')
+        output.debug(f'No cached prices for date ranges past default. Passing to service call.')
         prices = query_service_for_daily_price_history(ticker=ticker, start_date=start_date, end_date=end_date)
         return prices
 
@@ -405,7 +405,7 @@ def init_static_data():
             (not os.path.isfile(settings.STATIC_TICKERS_FILE)) or \
                 (not os.path.isfile(settings.STATIC_CRYPTO_FILE))):
 
-        output.info('Initializing static data. Please wait. This may take a moment...')
+        output.info('Initializing static data. Please wait. This may take a moment.')
         output.info('NOTE: set LOG_LEVEL = "debug" for more output while you wait.')
 
         # Clear static folder if initializing, otherwise unnecessary
@@ -421,7 +421,7 @@ def init_static_data():
 
             # grab ticker symbols and store in STATIC_DIR
             if not os.path.isfile(settings.STATIC_TICKERS_FILE):
-                output.debug(f'Missing {settings.STATIC_TICKERS_FILE}, querying \'{settings.PRICE_MANAGER}\'...')
+                output.debug(f'Missing {settings.STATIC_TICKERS_FILE}, querying \'{settings.PRICE_MANAGER}\'')
 
                 query=f'{settings.PARAM_AV_FUNC}={settings.ARG_AV_FUNC_EQUITY_LISTINGS}'
                 url = f'{settings.AV_URL}?{query}&{settings.PARAM_AV_KEY}={settings.AV_KEY}'
@@ -447,7 +447,7 @@ def init_static_data():
             
             # grab econominc indicator symbols and store in STATIC_DIR
             if not os.path.isfile(settings.STATIC_ECON_FILE):
-                output.debug(f'Missing {settings.STATIC_ECON_FILE}, querying \'{settings.STAT_MANAGER}\'...')
+                output.debug(f'Missing {settings.STATIC_ECON_FILE}, querying \'{settings.STAT_MANAGER}\'.')
 
                 query = f'{settings.PATH_Q_FRED}/{settings.PARAM_Q_METADATA}'
                 url = f'{settings.Q_META_URL}/{query}?{settings.PARAM_Q_KEY}={settings.Q_KEY}'
@@ -463,7 +463,7 @@ def init_static_data():
         output.debug('Static data already initialized!')
 
 def get_static_data(static_type):
-    output.debug(f'Loading in cached {static_type} symbols...')
+    output.debug(f'Loading in cached {static_type} symbols.')
     path = None
 
     if static_type == settings.ASSET_CRYPTO:

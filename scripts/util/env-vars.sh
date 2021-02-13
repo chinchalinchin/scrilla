@@ -4,12 +4,12 @@ source "$SCRIPT_DIR/logging.sh"
 # ARGUMENT: whatever environment's env vars you initializing. Must have a 
 # corresponding .env file in the /env/ directory. 
 
-log "Verifying \e[3m$1.env\e[0m file existence..." "env-vars"
+log "Verifying \e[3m$1.env\e[0m file existence." "env-vars"
 
 if [ -f "$SCRIPT_DIR/../../env/$1.env" ]
 then
     log "Environment file detected." "env-vars"
-    log 'Initializing environment...' "env-vars"
+    log 'Initializing environment.' "env-vars"
     set -o allexport
     source $SCRIPT_DIR/../../env/$1.env
     set +o allexport

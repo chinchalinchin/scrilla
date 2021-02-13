@@ -1,5 +1,15 @@
 import sys, os, dotenv
 
+"""
+Server Configuration
+--------------------
+
+Not to be confused with app.settings, which configures the optimization and statistical calculations 
+performed by the application. These settings only affect the server side of the application. 
+
+"""
+
+
 ### DIRECTORY CONFIGURATION ## 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PROJECT_DIR = os.path.dirname(os.path.dirname(BASE_DIR))

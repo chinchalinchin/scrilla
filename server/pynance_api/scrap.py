@@ -42,7 +42,7 @@ def scrap_prices(asset_type):
         else:
             output.debug(f'{symbol} already exists in CryptoTicker table')
 
-        output.debug(f'Retrieving price history for {symbol}...')
+        output.debug(f'Retrieving price history for {symbol}.')
 
         if new_ticker_entry[1]:
             price_history = services.query_service_for_daily_price_history(symbol, full=True, asset_type=asset_type)
@@ -90,6 +90,7 @@ def scrap_stats():
     stat_type = app_settings.STAT_ECON
     symbols = list(services.get_static_data(stat_type))
 
+    # TODO: scrap quandl stats
     pass
 
 if __name__ == "__main__": 

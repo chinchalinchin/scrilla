@@ -32,7 +32,7 @@ def calculate_moving_averages(tickers, start_date=None, end_date=None, sample_pr
     3. end_date : datetime.date\n 
         end date of the time period over which the moving averages will be calculated. \n \n 
     4. sample_prices : { 'ticker' (str) : { 'date' (str) : 'price' (str) } } \n
-        A list of the asset prices for which moving_averages will be calculated. Overrides calls to service and calculates correlation for sample of prices supplied. Function will disregard start_date and end_date if sample_price is specified. Must be of the format: {'ticker_1': { 'date_1' : 'price_1', 'date_2': 'price_2' ...}, 'ticker_2': { 'date_1' : 'price_1:, ... } } and ordered from latest date to earliest date.  \n \n
+        A list of the asset prices for which moving_averages will be calculated. Overrides calls to service and calculates correlation for sample of prices supplied. Function will disregard start_date and end_date if sample_price is specified. Must be of the format: {'ticker_1': { 'date_1' : 'price_1', 'date_2': 'price_2' .}, 'ticker_2': { 'date_1' : 'price_1:, ... } } and ordered from latest date to earliest date.  \n \n
     
     Output
     ------
@@ -113,7 +113,7 @@ def calculate_moving_averages(tickers, start_date=None, end_date=None, sample_pr
         original_day_count = 0
 
         ### START ARGUMENT VALIDATION ###
-        output.debug('Checking provided tickers for mixed asset types...')
+        output.debug('Checking provided tickers for mixed asset types.')
         for ticker in tickers:
             asset_type = markets.get_asset_type(ticker)
             portfolio_asset_type = asset_type
@@ -128,7 +128,7 @@ def calculate_moving_averages(tickers, start_date=None, end_date=None, sample_pr
         if not mixed_flag:
             output.debug(f'Tickers provided all of {portfolio_asset_type} asset type.')
 
-        output.debug('Calculating length of date range in trading days...')
+        output.debug('Calculating length of date range in trading days.')
         if mixed_flag:
             original_day_count = helper.business_day_between(start_date, end_date)
         elif portfolio_asset_type == settings.ASSET_EQUITY:
@@ -146,7 +146,7 @@ def calculate_moving_averages(tickers, start_date=None, end_date=None, sample_pr
             asset_type = markets.get_asset_type(ticker)
             trading_period = markets.get_trading_period(asset_type)
 
-            output.debug(f'Offsetting start date to account for longest Moving Average period....')
+            output.debug(f'Offsetting start date to account for longest Moving Average period.')
             if asset_type == settings.ASSET_CRYPTO:
                 output.debug(f'{ticker}_asset_type = Crypto')
 
@@ -175,7 +175,7 @@ def calculate_moving_averages(tickers, start_date=None, end_date=None, sample_pr
             output.debug(f'{end_date} - {new_start_date} == {new_day_count}')
 
             if sample_prices is None:
-                output.debug(f'No {ticker} sample prices provided, calling service...')
+                output.debug(f'No {ticker} sample prices provided, calling service.')
                 prices = services.get_daily_price_history(ticker, new_start_date, end_date)
             else:
                 output.debug(f'{ticker} sample prices provided, skipping service call.')
@@ -338,18 +338,18 @@ def calculate_risk_return(ticker, start_date=None, end_date=None, sample_prices=
 
     if sample_prices is None:
         if start_date is None and end_date is None:
-            output.debug(f'Checking for cached {ticker} statistics...')
+            output.debug(f'Checking for cached {ticker} statistics.')
 
             if os.path.isfile(buffer_store):
-                output.debug(f'Loading in cached {ticker} statistics...')
+                output.debug(f'Loading in cached {ticker} statistics.')
                 with open(buffer_store, 'r') as infile:
                     results = json.load(infile)
                 return results
             else:
-                output.debug(f'No cached {ticker} statistics found, calling service...')
+                output.debug(f'No cached {ticker} statistics found, calling service.')
                 prices = services.get_daily_price_history(ticker=ticker)
         else: 
-            output.debug(f'No sample prices provided, calling service...')
+            output.debug(f'No sample prices provided, calling service.')
             prices = services.get_daily_price_history(ticker=ticker, start_date=start_date, end_date=end_date)
     else:
         output.debug(f'{ticker} sample prices provided, skipping service call.')
@@ -452,15 +452,15 @@ def calculate_correlation(ticker_1, ticker_2, start_date=None, end_date=None, sa
 
     if sample_prices is None:
         # reset sample price and set entries to None for consistency in calculate_risk_return call below.
-        output.debug('No sample prices provided. Calling service for prices...')
+        output.debug('No sample prices provided. Calling service for prices.')
 
         sample_prices = {}
         
         if start_date is None and end_date is None:
             # check if results exist in cache location 1
-            output.debug('Checking for correlation calculation in cache...')
+            output.debug('Checking for correlation calculation in cache.')
             if os.path.isfile(buffer_store_1):
-                output.debug(f'Loading in cached ({ticker_1}, {ticker_2}) correlation...')
+                output.debug(f'Loading in cached ({ticker_1}, {ticker_2}) correlation.')
                 with open(buffer_store_1, 'r') as infile:
                     output.debug(f'Cached ({ticker_1}, {ticker_2}) correlation loaded.')
                     results = json.load(infile)
@@ -469,19 +469,19 @@ def calculate_correlation(ticker_1, ticker_2, start_date=None, end_date=None, sa
 
             # check if results exist in cache location 2
             elif os.path.isfile(buffer_store_2):
-                output.debug(f'Loading in cached ({ticker_1}, {ticker_2}) correlation...')
+                output.debug(f'Loading in cached ({ticker_1}, {ticker_2}) correlation.')
                 with open(buffer_store_2, 'r') as infile:
                     output.debug(f'Cached ({ticker_1}, {ticker_2}) correlation loaded.')
                     results = json.load(infile)
                     correlation = results
                 return correlation
             else:
-                output.debug(f'No cached ({ticker_1}, {ticker_2}) correlation found, retrieving price histories for calculation...')
+                output.debug(f'No cached ({ticker_1}, {ticker_2}) correlation found, retrieving price histories for calculation.')
                 prices_1 = services.get_daily_price_history(ticker=ticker_1)
                 prices_2 = services.get_daily_price_history(ticker=ticker_2)
                 sample_prices[ticker_1], sample_prices[ticker_2] = prices_1, prices_2
         else:
-            output.debug('No sample prices provided, retrieving price histories for calculation...')
+            output.debug('No sample prices provided, retrieving price histories for calculation.')
             prices_1 = services.get_daily_price_history(ticker=ticker_1, start_date=start_date, end_date=end_date)
             prices_2 = services.get_daily_price_history(ticker=ticker_2, start_date=start_date, end_date=end_date)
             sample_prices[ticker_1], sample_prices[ticker_2] = prices_1, prices_2
@@ -566,7 +566,7 @@ def calculate_correlation(ticker_1, ticker_2, start_date=None, end_date=None, sa
         offset = weekend_offset_2
     
     output.debug(f'(trading_period, offset) = ({trading_period}, {offset})')
-    output.debug(f'Calculating ({ticker_1}, {ticker_2}) correlation...')
+    output.debug(f'Calculating ({ticker_1}, {ticker_2}) correlation.')
 
     # Initialize loop variables
     i, covariance, tomorrows_price_1, tomorrows_price_2 = 0, 0, 1, 1
@@ -609,7 +609,7 @@ def calculate_correlation(ticker_1, ticker_2, start_date=None, end_date=None, sa
         # if one price doesn't exist, then a data point has been lost, so revise sample. 
         # collect number of missed data points (delta) to offset return calculation
         else: 
-            output.verbose('Lost a day. Revising covariance and sample...')
+            output.verbose('Lost a day. Revising covariance and sample.')
             revised_covariance = covariance*(sample - 1)
             sample -= 1 
             covariance = revised_covariance/(sample - 1)
