@@ -13,6 +13,9 @@ class Portfolio:
         if sample_prices is None:
             self.start_date = start_date
             self.end_date = end_date
+        else:
+            self.start_date = None
+            self.end_date = None
         self.sample_prices = sample_prices
         self.error = not self.calculate_stats()
         

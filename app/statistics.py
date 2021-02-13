@@ -112,6 +112,7 @@ def calculate_moving_averages(tickers, start_date=None, end_date=None, sample_pr
         mixed_flag = False
         original_day_count = 0
 
+        ### START ARGUMENT VALIDATION ###
         output.debug('Checking provided tickers for mixed asset types...')
         for ticker in tickers:
             asset_type = markets.get_asset_type(ticker)
@@ -179,7 +180,9 @@ def calculate_moving_averages(tickers, start_date=None, end_date=None, sample_pr
             else:
                 output.debug(f'{ticker} sample prices provided, skipping service call.')
                 prices = sample_prices[ticker]
+        ### END ARGUMENT VALIDATION ###
 
+        ### START MOVING AVERAGE CALCULATION ###
             today = False
             count= 1
             tomorrows_price = 0
@@ -277,6 +280,9 @@ def calculate_moving_averages(tickers, start_date=None, end_date=None, sample_pr
 
             moving_averages.append([MAs_1, MAs_2, MAs_3])
 
+        ### END MOVING AVERAGE CALCULATION ###
+
+        ### START RESPONSE FORMATTING ###
         if not mixed_flag:
             if portfolio_asset_type == settings.ASSET_EQUITY:
                 dates_between = helper.business_dates_between(start_date, end_date)
@@ -295,6 +301,7 @@ def calculate_moving_averages(tickers, start_date=None, end_date=None, sample_pr
             output.debug("Your program sucks.")
             output.debug('{} != {}'.format(len(moving_averages[0][1]), len(dates_between)))
 
+        ### END RESPONSE FORMATTING ###
         return moving_averages, dates_between 
 
 def calculate_risk_return(ticker, start_date=None, end_date=None, sample_prices=None):

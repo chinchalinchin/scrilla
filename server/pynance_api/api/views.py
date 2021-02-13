@@ -1,5 +1,5 @@
 # Python Imports
-import sys
+import sys, datetime
 
 # Django Imports
 from django.shortcuts import render
@@ -85,12 +85,64 @@ def parse_tickers(request):
     else:
         return False
 
-# Note: model must implement to_date and to_list()
-def model_to_list(price_models):
-    model_list = {}
-    for price in price_models:
-        model_list[price.to_date()] = price.to_list() 
-    return model_list
+# If end_date and start_date are not provided, defaults to last 100 prices.
+# If either end_date and start_date are provided, will return ALL records
+# that match the criteria, i.e. less than or equal to end_date and greater_than
+# or equal to start_date. Note, if only one is specified, the result will 
+# contain all left-hand or right-hand records that match the criteria, i.e.
+# if only start date is specified in, then it will return ALL records greater
+# than or equal to the start_date
+def parse_args_into_queryset(ticker, parsed_args):
+    asset_type = markets.get_asset_type(ticker)
+
+    if parsed_args['start_date'] is None and parsed_args['end_date'] is None:
+        if asset_type == app_settings.ASSET_EQUITY:
+            return EquityMarket.objects.filter(ticker=ticker).order_by('-date')[:100]
+        elif asset_type == app_settings.ASSET_CRYPTO:
+            return CryptoMarket.objects.filter(ticker=ticker).order_by('-date')[:100]
+        else:
+            return False
+
+    elif parsed_args['start_date'] is None and parsed_args['end_date'] is not None:
+        if asset_type == app_settings.ASSET_EQUITY:
+            return EquityMarket.objects.filter(ticker=ticker,
+                                                date__lte=parsed_args['end_date']).order_by('-date')
+        elif asset_type == app_settings.ASSET_CRYPTO:
+            return CryptoMarket.objects.filter(ticker=ticker,
+                                                date__lte=parsed_args['end_date']).order_by('-date')
+        else:
+            return False
+        
+    elif parsed_args['start_date'] is not None and parsed_args['end_date'] is not None:
+        if asset_type == app_settings.ASSET_EQUITY:
+            return EquityMarket.objects.filter(ticker=ticker, date__gte=parsed_args['start_date'], 
+                                                date__lte=parsed_args['end_date']).order_by('-date')
+
+        elif asset_type == app_settings.ASSET_CRYPTO:
+            return CryptoMarket.objects.filter(ticker=ticker, date__gte=parsed_args['start_date'],
+                                                date_lte=parsed_args['end_date']).order_by('-date')
+        else:
+            return False
+
+    # start_date is not None and end_date is None
+    else:
+        if asset_type == app_settings.ASSET_EQUITY:
+            return EquityMarket.objects.filter(ticker=ticker,
+                                                date__gte=parsed_args['start_date']).order_by('-date')
+        elif asset_type == app_settings.ASSET_CRYPTO:
+            return CryptoMarket.objects.filter(ticker=ticker,
+                                                date_gte=parsed_args['start_date']).order_by('-date')
+        else:
+            return False
+
+# Note: model must implement to_date() and to_list() methods and have
+#       ticker attribute
+def queryset_to_list(price_set):
+    set_list, price_list = {}, {}
+    for price in price_set:
+        price_list[price.to_date()] = price.to_list() 
+    set_list[price_models.ticker] = price_list
+    return set_list
 
 def validate_request(request, allowed_methods=["GET"]):
     output.debug('Verifying request method...')
@@ -105,12 +157,54 @@ def validate_request(request, allowed_methods=["GET"]):
             return 200, { 'tickers': tickers, 'parsed_args': parsed_args }
 
         else:
-            logger.debug('No ticker query parameters provided')    
+            output.debug('No ticker query parameters provided')    
             return 400, { 'message': 'Input error' }
 
     else:
-        logger.debug('Request method rejected')
+        output.debug('Request method rejected')
         return 405, { 'message' : "Request method not allowed" }
+
+def risk_return(request):
+    status, parsed_args_or_err_msg = validate_request(request, ["GET"])
+    today = datetime.date.today()
+
+    if status == 400 or status == 405:
+        return JsonResponse(data=parsed_args_or_err_msg, status=status, safe=False)
+
+    else:
+        tickers = parsed_args_or_err_msg['tickers']
+        parsed_args = parsed_args_or_err_msg['parsed_args']
+
+        response = {}
+        profiles = []
+        for i in range(len(tickers)):
+            ticker_str = f'{tickers[i]}'
+            output.debug(f'Calculating risk-return profile for {tickers[i]}')
+
+            prices = parse_args_into_queryset(ticker=tickers[i], parsed_args=parsed_args)
+
+            if prices.count() == 0:
+                output.debug(f'No prices found in database, passing query to service.')
+                profile = statistics.calculate_risk_return(ticker=tickers[i], start_date=parsed_args['start_date'], 
+                                                            end_date=parsed_args['end_date'])
+            else:
+                output.debug(f'Prices found in database, passing result to statistics.')
+                sample_prices = queryset_to_list(price_models=prices)
+                profile = statistics.calculate_risk_return(ticker=tickers[i], sample_prices=sample_prices)
+
+            response[ticker_str] = profile
+
+            if parsed_args['jpeg']:
+                profiles.append(profile)
+
+        if parsed_args['jpeg']:
+            graph = plotter.plot_profiles(symbols=tickers, profiles=profiles, show=False)
+            response = HttpResponse(content_type="image/png")
+            graph.print_png(response)
+            return response
+
+        else:
+            return JsonResponse(data=response, status=status, safe=False)
 
 def optimize(request):
     status, parsed_args_or_err_msg = validate_request(request, ["GET"])
@@ -120,20 +214,23 @@ def optimize(request):
     else:
         tickers = parsed_args_or_err_msg['tickers']
         parsed_args = parsed_args_or_err_msg['parsed_args']
+        prices, sample_prices = {}, {}
+        null_result = False
 
-        # TODO: what if start_date and end_date = None
-        # TODO: what is asset_type = crpyto?
-        # TODO: this won't work. Need to filter by ticker, not all tickers at once.
-        # for i in range(len(tickers)):
-        prices = EquityMarket.objects.filter(ticker=tickers[i], date__gte=parsed_args['start_date'], date__lte=parsed_args['end_date'])
-
-        if prices.count() == 0:
+        # TODO: what is querysets.count() != each other?
+        for ticker in tickers:
+            prices[ticker] = parse_args_into_queryset(ticker, parsed_args)
+            if prices[ticker].count() == 0:
+                null_result=True
+                break
+        
+        if null_result:
             output.debug(f'No prices found in database, passing query to service.')
-            # TODO: query service for prices, pass in as portfolio's sample_prices, save to database.
             portfolio = Portfolio(tickers=tickers, start_date=parsed_args['start_date'], end_date=parsed_args['end_date'])
         else:
             output.debug(f'Prices found in database, passing result to statistics.')
-            sample_prices = model_to_list(price_models=prices)
+            for ticker in tickers:
+                sample_prices[ticker] = queryset_to_list(price_model=prices[ticker])[ticker]
             portfolio = Portfolio(tickers=tickers, sample_prices=sample_prices)  
 
         allocation = optimizer.optimize_portfolio_variance(portfolio=portfolio, target_return=parsed_args['target_return'])
@@ -152,50 +249,6 @@ def optimize(request):
         response['allocations'] = subresponse
         return JsonResponse(data=response, status=status, safe=False)
 
-def risk_return(request):
-    status, parsed_args_or_err_msg = validate_request(request, ["GET"])
-
-    if status == 400 or status == 405:
-        return JsonResponse(data=parsed_args_or_err_msg, status=status, safe=False)
-
-    else:
-        tickers = parsed_args_or_err_msg['tickers']
-        parsed_args = parsed_args_or_err_msg['parsed_args']
-
-        response = {}
-        profiles = []
-        for i in range(len(tickers)):
-            ticker_str = f'{tickers[i]}'
-            asset_type = markets.get_asset_type(tickers[i])
-            logger.debug(f'Calculating risk-return profile for {tickers[i]}')
-
-            # TODO: what if start_date and end_date = None
-            # TODO: what is asset_type = crpyto?
-            prices = EquityMarket.objects.filter(ticker=tickers[i], date__gte=parsed_args['start_date'], date__lte=parsed_args['end_date'])
-
-            if prices.count() == 0:
-                output.debug(f'No prices found in database, passing query to service.')
-                # TODO: query service for prices, pass in as portfolio's sample_prices, save to database.
-                profile = statistics.calculate_risk_return(ticker=tickers[i], start_date=parsed_args['start_date'], end_date=parsed_args['end_date'])
-            else:
-                output.debug(f'Prices found in database, passing result to statistics.')
-                sample_prices = model_to_list(price_models=prices)
-                profile = statistics.calculate_risk_return(ticker=tickers[i], sample_prices=sample_prices)
-
-            response[ticker_str] = profile
-
-            if parsed_args['jpeg']:
-                profiles.append(profile)
-
-        if parsed_args['jpeg']:
-            graph = plotter.plot_profiles(symbols=tickers, profiles=profiles, show=False)
-            response = HttpResponse(content_type="image/png")
-            graph.print_png(response)
-            return response
-
-        else:
-            return JsonResponse(data=response, status=status, safe=False)
-
 def efficient_frontier(request):
     status, parsed_args_or_err_msg = validate_request(request, ["GET"])
 
@@ -206,21 +259,24 @@ def efficient_frontier(request):
         tickers = parsed_args_or_err_msg['tickers']
         parsed_args = parsed_args_or_err_msg['parsed_args']
 
-        # TODO: what if start_date and end_date = None
-        # TODO: what is asset_type = crpyto?
-        # TODO: this won't work. Need to filter by ticker, not all tickers at once.
-                # for i in range(len(tickers)):
-        prices = EquityMarket.objects.filter(ticker=tickers[i], date__gte=parsed_args['start_date'], date__lte=parsed_args['end_date'])
+        prices, sample_prices = {}, {}
+        null_result = False
 
-        if prices.count() == 0:
+        # TODO: what is querysets.count() != each other?
+        for ticker in tickers:
+            prices[ticker] = parse_args_into_queryset(ticker, parsed_args)
+            if prices[ticker].count() == 0:
+                null_result=True
+                break
+
+        if null_result:
             output.debug(f'No prices found in database, passing query to service.')
-            # TODO: query service for prices, pass in as portfolio's sample_prices, save to database.
             portfolio = Portfolio(tickers=tickers, start_date=parsed_args['start_date'], end_date=parsed_args['end_date'])
         else:
             output.debug(f'Prices found in database, passing result to statistics.')
-            sample_prices = model_to_list(price_models=prices)
-            # TODO: need to supply ALL sample prices
-            portfolio = Portfolio(tickers=tickers, sample_prices=sample_prices)    
+            for ticker in tickers:
+                sample_prices[ticker] = queryset_to_list(price_model=prices[ticker])[ticker]
+            portfolio = Portfolio(tickers=tickers, sample_prices=sample_prices)  
             
         frontier = optimizer.calculate_efficient_frontier(portfolio=portfolio)
     
@@ -259,18 +315,24 @@ def moving_averages(request, jpeg=False):
         tickers = parsed_args_or_err_msg['tickers']
         parsed_args = parsed_args_or_err_msg['parsed_args']
 
-        # TODO: what if start_date and end_date = None
-        # TODO: what is asset_type = crpyto?
-        prices = EquityMarket.objects.filter(ticker=tickers[i], date__gte=parsed_args['start_date'], date__lte=parsed_args['end_date'])
+        prices, sample_prices = {}, {}
+        null_result = False
 
-        if prices.count() == 0:
+        # TODO: what is querysets.count() != each other?
+        for ticker in tickers:
+            prices[ticker] = parse_args_into_queryset(ticker, parsed_args)
+            if prices[ticker].count() == 0:
+                null_result=True
+                break
+
+        if null_result:
             output.debug(f'No prices found in database, passing query to service.')
-            # TODO: query service, pass in prices as moving_average's sample_prices, save to database
             averages_output = statistics.calculate_moving_averages(tickers=tickers, start_date=parsed_args['start_date'],
                                                                     end_date=parsed_args['end_date'])
         else: 
             output.debug(f'Prices found in database, passing result to statistics.')
-            sample_prices = model_to_list(price_models=prices)
+            for ticker in tickers:
+                sample_prices[ticker] = queryset_to_list(price_model=prices[ticker])[ticker]
             averages_output = statistics.calculate_moving_averages(tickers=tickers, sample_prices=sample_prices)
 
         moving_averages, dates = averages_output

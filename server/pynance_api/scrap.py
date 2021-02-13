@@ -55,6 +55,7 @@ def scrap_prices(asset_type):
                 # TODO: determine if last date in table is today
                 #       if not, query missing dates
                 pass
+            price_history = None
 
         if price_history:
             for date in price_history:

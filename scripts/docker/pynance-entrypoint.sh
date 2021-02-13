@@ -35,9 +35,10 @@ then
     log 'Migrating Django database models' $SCRIPT_NAME
     python manage.py migrate
 
+    python manage.py createsuperuser --no-input --username $DJANGO_SUPERUSER_USERNAME --email $DJANGO_SUPERUSER_EMAIL
+
     # SHELL ENTRYPOINTS
-        # SCRAPPER_ENABLED to lower case
-    if [ "${SCRAPPER_ENABLED,,}" == "true" ]
+    if [ "${SCRAPPER_ENABLED,,}" == "true" ] # SCRAPPER_ENABLED to lower case
     then
         log "Scrapping price histories into $POSTGRES_HOST/$POSTGRES_DB; this may take a while!" $SCRIPT_NAME
         cd /home/server/pynance_api/

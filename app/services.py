@@ -181,6 +181,8 @@ def query_service_for_daily_price_history(ticker, start_date=None, end_date=None
             time.sleep(10)
             prices = requests.get(url).json()
             first_element = helper.get_first_json_key(prices)
+            # TODO: if first_element = total rate limit exceeded
+            #           return False 
 
         # Equity Response Parsing
         # TODO: could possibly initial start_index = 0 and end_index = len(prices)
