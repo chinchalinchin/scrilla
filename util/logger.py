@@ -139,7 +139,6 @@ class Logger():
                     msg_3 = f'{dates[j]} : {MA3_title}'
                     self.scalar_result(msg_3, round(averages[i][2][j], 2))      
             
-
     def optimal_result(self, portfolio, allocation, user_input):
         self.title_line('Optimal Percentage Allocation')
         self.portfolio_percent_result(allocation, portfolio.tickers)

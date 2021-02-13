@@ -189,7 +189,7 @@ def query_service_for_daily_price_history(ticker, start_date=None, end_date=None
 
                 # end function is daily rate limit is reached 
             if first_element == settings.AV_RES_DAY_LIMIT:
-                output.debug('Daily AlphaVantage rate limit exceeded. No more queries possible!')
+                output.info('Daily AlphaVantage rate limit exceeded. No more queries possible!')
                 return False
         ### END: AlphaVantage sService Query ###
 
@@ -225,7 +225,7 @@ def query_service_for_daily_price_history(ticker, start_date=None, end_date=None
                     return prices
                     
             except:
-                output.debug('Error encountered parsing AlphaVantage equity response')
+                output.info('Error encountered parsing AlphaVantage equity response')
                 output.sys_error()
                 return False
         ### END: AlphaVantage Equity Response Parsing ###
@@ -273,7 +273,7 @@ def query_service_for_daily_price_history(ticker, start_date=None, end_date=None
                     prices = prices[settings.AV_RES_CRYPTO_FIRST_LAYER]
                     return prices
             except:
-                output.debug('Error encountered parsing AlphaVantage crypto response.')
+                output.info('Error encountered parsing AlphaVantage crypto response.')
                 output.sys_error()
                 return False
 
