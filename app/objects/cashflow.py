@@ -71,7 +71,10 @@ class Cashflow:
             return growth_function(x)
 
     # TODO: use trading days or actual days?
-    def calculate_net_present_value(self, discount_rate=RISK_FREE_RATE):
+    def calculate_net_present_value(self, discount_rate=None):
+        if discount_rate is None:
+            discount_rate = RISK_FREE_RATE
+            
         time_to_first_payment = 0
         if self.frequency == FREQ_ANNUAL:
             time_to_first_payment = helper.get_time_to_next_year()
