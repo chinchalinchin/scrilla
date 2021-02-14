@@ -249,7 +249,7 @@ not affect the application.
 22. <b>IMG_NAME</b>: Name of the image created during the Docker build.
 23. <b>TAG_NAME</b>: Tag applied to the image created during the Docker build.
 24. <b>CONTAINER_NAME</b>: Name of the container applied to the image when it is spun up.
-25. <b>SCRAPPER_ENABLED</b>: If set to True, the container will scrap price histories from the external services for storage in the <b>postgres</b> orchestrated with the application. 
+25. <b>SCRAPPER_ENABLED</b>: If set to True, the container will scrap price histories from the external services for storage in the <b>postgres</b> instance orchestrated with the application. 
 
 # TODOS
 

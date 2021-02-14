@@ -19,13 +19,13 @@ services:
       image: postgres:11
       restart: always
       ports: 
-          - "5432:5432"
+        - "5432:5432"
       volumes:
-          - postgres:/data/postgres
+        - postgres:/data/postgres
       networks:
-          - the_pit
+        - the_pit
       env_file:
-          - ./env/container.env 
+        - ./env/container.env 
 
 networks:
     the_pit: 

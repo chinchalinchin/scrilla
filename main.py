@@ -119,10 +119,9 @@ if __name__ == "__main__":
             
             elif opt == formatter.FUNC_ARG_DICT["indicator"]:
                 if(len(main_args)>1) or len(main_args)==1:
-                    stats = services.get_daily_stats_latest(main_args)
-                    for i in range(len(stats)):
-                        output.scalar_result(main_args[i], stats[i])
-                    
+                    for stat in main_args:
+                        output.scalar_result(stat, services.get_daily_stats_latest(stat))
+                        
                 else:
                     output.comment('Error Encountered While Calculating. Try -ex Flag For Example Usage.')
 

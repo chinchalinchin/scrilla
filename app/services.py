@@ -14,6 +14,64 @@ CLOSE_PRICE = "close"
 OPEN_PRICE = "open"
 output = logger.Logger("app.services", settings.LOG_LEVEL)
 
+# TODO: if start_date = end_date, then return only todays date?
+# TODO: these functions, validate_order and validate_tradeability, should probably go in util.helper
+def validate_order_of_dates(start_date, end_date):
+    switch_flag = start_date is not None and end_date is not None
+
+    if start_date is not None:
+        if helper.is_date_today(start_date):
+            output.debug(f'Invalid date range. Start Date {start_date} is today!')
+            return False, end_date, start_date
+
+    if end_date is not None:
+        if helper.is_date_today(end_date):
+            output.debug(f'End Date {end_date} is today!')
+            end_date = None
+
+    if switch_flag:
+        time_delta = end_date - start_date
+        
+        if time_delta.days < 0:
+            buffer = end_date
+            end_date = start_date
+            start_date = end_date
+
+        elif time_delta == 0:
+            output.debug(f'End Date {end_date} = Start Date {start_date}!')
+            return False, start_date, end_date
+    
+    return True, start_date, end_date
+
+def validate_tradeability_of_dates(start_date, end_date):
+    if start_date is not None:
+        if helper.is_date_holiday(start_date):
+            output.debug(f'{start_date} is a holiday. Equities do not trade on holidays.')
+
+            start_date = helper.get_previous_business_date(start_date)
+            output.debug(f'Setting start date to next business day, {start_date}')
+
+        elif helper.is_date_weekend(start_date):
+            output.debug(f'{start_date} is a weekend. Equities do not trade on weekends.')
+
+            start_date = helper.get_previous_business_date(start_date)
+            output.debug(f'Setting start date to previous business day, {start_date}')
+    
+    if end_date is not None:
+        if helper.is_date_holiday(end_date):
+            output.debug(f'{end_date} is a holiday. Equities do not trade on holidays.')
+
+            end_date = helper.get_previous_business_date(end_date)
+            output.debug(f'Setting end date to previous business day, {end_date}.')
+
+        elif helper.is_date_weekend(end_date):
+            output.debug(f'{end_date} is a weekend. Equities do not trade on weekends.')
+            
+            end_date = helper.get_previous_business_date(end_date)
+            output.debug(f'Setting end date to previous business day, {end_date}.')
+    
+    return start_date, end_date
+
 def parse_price_from_date(prices, date, asset_type, which_price=CLOSE_PRICE):
     """
     Parameters
@@ -82,28 +140,10 @@ def query_service_for_daily_price_history(ticker, start_date=None, end_date=None
     #       of a certain size and gets a different size.
 
     ### START: ARGUMENT VALIDATION ###
-    switch_flag = start_date is not None and end_date is not None
-
-        # Check if start_date is today
     if not full:
-        if start_date is not None:
-            if helper.is_date_today(start_date):
-                output.debug(f'Invalid date range. Start Date {start_date} is today!')
-                return False
-            # Check if end_date is today
-        if end_date is not None:
-            if helper.is_date_today(end_date):
-                output.debug(f'End Date {end_date} is today!')
-                end_date = None
-            # Check if end_date < start_date or end_date = start_date
-        if switch_flag:
-            time_delta = end_date - start_date
-            if time_delta.days < 0:
-                buffer = end_date
-                end_date = start_date
-                start_date = end_date
-            elif time_delta == 0:
-                output.debug(f'End Date {end_date} = Start Date {start_date}!')
+        if start_date is not None or end_date is not None:
+            valid_dates, start_date, end_date = validate_order_of_dates(start_date, end_date)
+            if not valid_dates:
                 return False
     else:
         output.debug(f'Full price history requested, nulling start_date and end_date')
@@ -118,33 +158,10 @@ def query_service_for_daily_price_history(ticker, start_date=None, end_date=None
 
         # Verify dates fall on trading days (i.e. not weekends or holidays) if asset_type is ASSET_EQUITY
     if asset_type == settings.ASSET_EQUITY and (start_date is not None or end_date is not None):
-        if start_date is not None:
-            if helper.is_date_holiday(start_date):
-                output.debug(f'{start_date} is a holiday. Equities do not trade on holidays.')
-
-                start_date = helper.get_previous_business_date(start_date)
-                output.debug(f'Setting start date to next business day, {start_date}')
-
-            elif helper.is_date_weekend(start_date):
-                output.debug(f'{start_date} is a weekend. Equities do not trade on weekends.')
-
-                start_date = helper.get_previous_business_date(start_date)
-                output.debug(f'Setting start date to previous business day, {start_date}')
-        
-        if end_date is not None:
-            if helper.is_date_holiday(end_date):
-                output.debug(f'{end_date} is a holiday. Equities do not trade on holidays.')
-
-                end_date = helper.get_previous_business_date(end_date)
-                output.debug(f'Setting end date to previous business day, {end_date}.')
-
-            elif helper.is_date_weekend(end_date):
-                output.debug(f'{end_date} is a weekend. Equities do not trade on weekends.')
-                
-                end_date = helper.get_previous_business_date(end_date)
-                output.debug(f'Setting end date to previous business day, {end_date}.')
+        start_date, end_date = validate_tradeability_of_dates(start_date, end_date)
     ### END: Argument Validation ###
 
+    ### START: Service Query ###
     if settings.PRICE_MANAGER == "alpha_vantage":
 
         ### START: AlphaVantage Service Query ###
@@ -353,53 +370,103 @@ def get_daily_price_latest(ticker):
         output.debug("No PRICE_MANAGER set in .env file!")
         return None
 
-def query_service_for_daily_stats_history(statistics, start_date=None, end_date=None):
+# NOTE: if no start_date and end_date are provided to Quandl API, entire price history is returned.
+# NOTE: by default, returns last 100 days of data.
+def query_service_for_daily_stats_history(statistic, start_date=None, end_date=None, full=False):
     if settings.STAT_MANAGER == "quandl":
-        stats = []
+        stat = {}
         
-        for statistic in statistics:
-            url = f'{settings.Q_URL}/{settings.PATH_Q_FRED}/{statistic}?{settings.PARAM_Q_KEY}={settings.Q_KEY}'
-            query = ""
-            
-            if end_date is not None:
-                end_string = helper.date_to_string(end_date)
-                query += f'&{settings.PARAM_Q_END}={end_string}' 
-                pass
+        if full:
+            start_date, end_date = None, None
 
-            if start_date is not None:
-                start_string = helper.date_to_string(start_date)
-                query += f'&{settings.PARAM_Q_END}={end_string}'
+        if start_date is not None or end_date is not None:
+            valid_dates, start_date, end_date = validate_order_of_dates(start_date, end_date)
+            if not valid_dates:
+                return False
 
-            url += query
+            start_date, end_date = validate_tradeability_of_dates(start_date, end_date)
+
+        url = f'{settings.Q_URL}/'
+        query = f'{settings.PATH_Q_FRED}/{statistic}?'
         
-            response = requests.get(url).json()
+        if end_date is not None:
+            end_string = helper.date_to_string(end_date)
+            query += f'&{settings.PARAM_Q_END}={end_string}' 
+            pass
 
-            # TODO: test for error messages or API rate limits
+        if start_date is not None:
+            start_string = helper.date_to_string(start_date)
+            query += f'&{settings.PARAM_Q_END}={end_string}'
 
-            stats.append(response[settings.Q_FIRST_LAYER][settings.Q_SECOND_LAYER])
+        auth_query = f'{query}&{settings.PARAM_Q_KEY}={settings.Q_KEY}'
+        url += auth_query
+        output.debug(f'Quandl query (w/o key) = {query}')   
 
+        response = requests.get(url).json()
+
+        # TODO: test for error messages or API rate limits
+
+        raw_stat = response[settings.Q_FIRST_LAYER][settings.Q_SECOND_LAYER]
+        formatted_stat = {}
+
+        if not full:
+            raw_stat = raw_stat[:100]
+
+        for stat in raw_stat:
+            formatted_stat[stat[0]] = stat[1]
+
+        return formatted_stat
+    else:
+        output.debug("No STAT_MANAGER set in .env file!")
+        return None
+
+def get_daily_stats_history(statistic, start_date=None, end_date=None):
+    if start_date is None and end_date is None:
+        output.debug(f'Checking for {statistic} statistics in cache')
+        now = datetime.datetime.now()
+        timestamp = '{}{}{}'.format(now.month, now.day, now.year)
+        buffer_store = os.path.join(settings.CACHE_DIR, f'{timestamp}_{statistic}.{settings.CACHE_EXT}')
+
+        if os.path.isfile(buffer_store):
+            output.debug(f'Loading in cached {statistic} statistics.')
+            with open(buffer_store, 'f') as infile:
+                if settings.CACHE_EXT == "json":
+                    output.debug(f'Cached {statistic} statistics found.')
+                    stats = json.load(infile)
+                # TODO: load other file types
+            return stats
+        else:
+            output.debug(f'Retrieivng {statistic} statistics from Service Manager')
+            stats = query_service_for_daily_stats_history(statistic=statistic)
+
+            output.debug(f'Storing {statistic} statistics in cache')
+            with open(buffer_store, 'w') as outfile:
+                if settings.CACHE_EXT == "json":
+                    json.dump(stats, outfile)
+                # TODO: dump other file types
+            return stats
+
+    else:
+        output.debug(f'No cached prices for date ranges past default. Passing to service call.')
+        stats = query_service_for_daily_stats_history(statistic=statistic, start_date=start_date, end_date=end_date)
         return stats
-    else:
-        output.debug("No STAT_MANAGER set in .env file!")
-        return None
 
-def get_daily_stats_history(statistics):
-    # TODO: implement caching for statistics
-    return query_service_for_daily_stats_history(statistics)
-
-def get_daily_stats_latest(statistics):
+def get_daily_stats_latest(statistic):
     if settings.STAT_MANAGER == "quandl":
-        current_stats = []
-        stats_history = get_daily_stats_history(statistics)
-
-        for stat in stats_history:
-            current_stats.append(stat[0][1])
-
-        return current_stats
+        stats_history = get_daily_stats_history(statistic=statistic)
+        first_element = helper.get_first_json_key(stats_history)
+        return stats_history[first_element]
 
     else:
         output.debug("No STAT_MANAGER set in .env file!")
         return None
+
+# NOTE: Quandl outputs interest in percentage terms
+def get_risk_free_rate():
+    if settings.STAT_MANAGER == "quandl":
+        risk_free_rate_key = settings.ARG_Q_YIELD_CURVE[settings.RISK_FREE_RATE]
+        risk_free_rate = get_daily_stats_latest(statistic=risk_free_rate_key)
+        return (risk_free_rate)/100
 
 def init_static_data():
     if settings.INIT or \

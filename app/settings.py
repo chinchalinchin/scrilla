@@ -169,6 +169,9 @@ PRICE_YEAR_CUTOFF=1950
 
 DENOMINATION = "USD"
 
+# SEE: ARG_Q_YIELD_CURVE for allowabled values
+RISK_FREE_RATE="10-Year"
+
 ASSET_EQUITY="equity"
 ASSET_CRYPTO="crypto"
 STAT_ECON="indicator"
