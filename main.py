@@ -10,6 +10,7 @@ import app.services as services
 import app.markets as markets
 
 from app.objects.portfolio import Portfolio
+from app.objects.cashflow import Cashflow
 
 if settings.APP_ENV != "container":
     from PyQt5 import QtWidgets
@@ -125,6 +126,11 @@ if __name__ == "__main__":
             ### FUNCTION: Discount Dividend Model
             elif opt == formatter.FUNC_ARG_DICT["discount_dividend"]:
                 output.comment('Discount Dividend Model calculation goes here.')
+                for arg in main_args:
+                    dividends = services.get_dividend_history(arg)
+                    div_npv = Cashflow(dividends).calculate_net_present_value()
+                    output.scalar_result(f'Net Present Value ({arg} dividends)', div_npv)
+                    # TODO:
                 # ALLOW USER TO SPECIFY DISCOUNT RATE THROUGH -discount. IF NOT
                 # SPECIFIED, DEFAULT TO risk_free_rate
                 pass

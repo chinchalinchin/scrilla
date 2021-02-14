@@ -1,7 +1,11 @@
-import os, csv, json
+import os, csv, json, sys
 import itertools
 import datetime, time
 import requests
+
+PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(PROJECT_DIR)
+
 
 import app.settings as settings
 import app.markets as markets
@@ -332,7 +336,7 @@ def get_daily_price_history(ticker, start_date=None, end_date=None):
             output.debug(f'Loading in cached {ticker} prices.')
             with open(buffer_store, 'r') as infile:
                 if settings.CACHE_EXT == "json":
-                    output.debug(f'Cached {ticker} prices found.')
+                    output.debug(f'Cached {ticker} prices loaded.')
                     prices = json.load(infile)
                 # TODO: load other file types
             return prices
@@ -428,7 +432,7 @@ def get_daily_stats_history(statistic, start_date=None, end_date=None):
             output.debug(f'Loading in cached {statistic} statistics.')
             with open(buffer_store, 'r') as infile:
                 if settings.CACHE_EXT == "json":
-                    output.debug(f'Cached {statistic} statistics found.')
+                    output.debug(f'Cached {statistic} statistics loaded.')
                     stats = json.load(infile)
                 # TODO: load other file types
             return stats
@@ -457,6 +461,50 @@ def get_daily_stats_latest(statistic):
     else:
         output.debug("No STAT_MANAGER set in .env file!")
         return None
+
+def query_service_for_dividend_history(ticker):
+    if settings.DIV_MANAGER == "iex":
+        
+        query=f'{ticker}/{settings.PATH_IEX_DIV}/{settings.PARAM_IEX_RANGE_5YR}'
+        url = f'{settings.IEX_URL}/{query}?{settings.PARAM_IEX_KEY}={settings.IEX_KEY}'
+    
+        output.debug(f'IEX Cloud Path Query (w/o key) = {query}')
+        response = requests.get(url).json()
+
+        formatted_response = {}
+
+        for item in response:
+            date_string = str(item[settings.IEX_RES_DATE_KEY])
+            div_string = item[settings.IEX_RES_DIV_KEY]
+            formatted_response[date_string] = div_string
+
+        return formatted_response
+
+def get_dividend_history(ticker):
+    output.debug(f'Checking for {ticker} dividend history in cache.')
+    now = datetime.datetime.now()
+    timestamp = '{}{}{}'.format(now.month, now.day, now.year)
+    buffer_store= os.path.join(settings.CACHE_DIR, f'{timestamp}_{ticker}_dividends.{settings.CACHE_EXT}')
+        
+    if os.path.isfile(buffer_store):
+        output.debug(f'Loading in cached {ticker} dividend history.')
+        with open(buffer_store, 'r') as infile:
+            if settings.CACHE_EXT == "json":
+                output.debug(f'Cached {ticker} dividend loaded.')
+                dividends = json.load(infile)
+            # TODO: load other file types
+            return dividends
+    else:
+        output.debug(f'Retrieving {ticker} prices from Service Manager.')  
+        dividends = query_service_for_dividend_history(ticker=ticker)
+
+        output.debug(f'Storing {ticker} price history in cache.')
+        with open(buffer_store, 'w') as outfile:
+            if settings.CACHE_EXT == "json":
+                json.dump(dividends, outfile)
+            # TODO: dump other file types
+        return dividends
+
 
 # NOTE: Quandl outputs interest in percentage terms
 def get_risk_free_rate():
@@ -553,3 +601,6 @@ def get_static_data(static_type):
             return symbols
     else:
         return False
+
+if __name__=="__main__":
+    print(get_dividend_history("AAPL"))

@@ -32,7 +32,7 @@ class Cashflow:
     # NOTE: Growth function should be a function of time in years
     # NOTE: sample : { 'date_1' : 'value_1', 'date_2': 'value_2', ... }.
     # NOTE: sample must be ordered from latest to earliest, i.e. in descending order.
-    def __init__(self, sample, frequency=FREQ_ANNUAL, growth_function=None):
+    def __init__(self, sample, frequency=None, growth_function=None):
         self.sample = sample
         self.frequency = frequency
 
@@ -40,6 +40,12 @@ class Cashflow:
         if growth_function is None:
             self.generate_time_series_for_sample()
             self.regress_growth_function()
+
+        if frequency is None:
+            # TODO: infer frequency from sample of data.
+            # calculate difference between dates
+            # take average of difference and use as frequency
+            pass
 
     def generate_time_series_for_sample(self):
         self.time_series = []

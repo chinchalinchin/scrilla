@@ -263,6 +263,16 @@ if STAT_MANAGER == "quandl":
 ### DIVIDEND_MANAGER CONFIGURATION
 DIV_MANAGER=os.getenv("DIV_MANAGER")
 
-if DIV_MANAGER == "":
-    # set up endpoint constants
-    pass
+if DIV_MANAGER == "iex":
+    IEX_URL = os.getenv("IEX_URL")
+    IEX_KEY = os.getenv("IEX_KEY")
+
+    IEX_RES_DATE_KEY="paymentDate"
+    IEX_RES_DIV_KEY="amount"
+
+    PATH_IEX_DIV ="dividends"
+
+    PARAM_IEX_RANGE_5YR="5y"
+    PARAM_IEX_RANGE_2YR="2y"
+    PARAM_IEX_RANGE_1YR="1y"
+    PARAM_IEX_KEY="token"
