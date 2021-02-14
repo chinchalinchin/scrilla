@@ -17,7 +17,7 @@ output = logger.Logger('app.statistics', settings.LOG_LEVEL)
 #       can pass the same argument to other statistical functions with minimal formatting.
 #       While some of the information in 'sample_prices' may be redundant, i.e. 'tickers' is a subset
 #       of 'sample_prices', this format provides an easier method of communication between functions.
-#       In particular, the call to 'calculate_risk_return' inside of 'calculate_correlation' is able
+#       In particular, the call to 'calculate_risk_return' inside of 'calculate_ito_correlation' is able
 #       pass 'sample_prices' directly into 'calculate_risk_return' without having to worry whether it
 #       is passing in a 'None'-type object, or a list of prices ordered by date.
 
@@ -418,7 +418,7 @@ def calculate_risk_return(ticker, start_date=None, end_date=None, sample_prices=
 
     return results
 
-def calculate_correlation(ticker_1, ticker_2, start_date=None, end_date=None, sample_prices=None):
+def calculate_ito_correlation(ticker_1, ticker_2, start_date=None, end_date=None, sample_prices=None):
     """
     Parameters
     ----------
@@ -634,7 +634,7 @@ def calculate_correlation(ticker_1, ticker_2, start_date=None, end_date=None, sa
 
     return result
 
-def get_correlation_matrix_string(tickers, indent=0, start_date=None, end_date=None, sample_prices=None):
+def get_ito_correlation_matrix_string(tickers, indent=0, start_date=None, end_date=None, sample_prices=None):
     """
     Parameters
     ----------
@@ -676,7 +676,7 @@ def get_correlation_matrix_string(tickers, indent=0, start_date=None, end_date=N
             
             else:
                 that_symbol = tickers[j]
-                result = calculate_correlation(this_symbol, that_symbol, start_date, end_date, sample_prices) 
+                result = calculate_ito_correlation(this_symbol, that_symbol, start_date, end_date, sample_prices) 
                 if not result:
                     output.debug(f'Cannot correlation for ({this_symbol}, {that_symbol})')
                     return False
@@ -715,4 +715,27 @@ def sample_correlation(x, y):
         correlation_den = numpy.sqrt((n*sum_x_squared-sum_x**2)(n*sum_y_squared-sum_y**2))
         correlation = correlation_num / correlation_den
 
-        
+def sample_mean(x):
+    sample_mean, n = 0, len(x)
+    for i in x:
+        sample_mean+=i/n
+    return sample_mean
+
+def sample_variance(x):
+    sample_mean, sample_var, n = sample_mean(x=x), 0, len(x)
+    for i in x:
+        sample_var += ((i-sample_mean)**2)/(n-1)
+    return sample_var
+
+def regression_beta(x, y):
+    sample_correlation=sample_correlation(x,y)
+    vol_x = numpy.sqrt(sample_variance(x=x))
+    vol_y = numpy.sqrt(sample_variance(y=y))
+    beta = sample_correlation * vol_y / vol_x
+
+def regression_alpha(x, y):
+    y_mean, x_mean = sample_mean(y), sample_mean(x)
+    alpha = y_mean - regression_beta(x=x, y=y)*x_mean
+    return alpha
+    
+

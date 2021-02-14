@@ -110,7 +110,7 @@ class CorrelationWidget(TableWidget):
                         
                     else:    
                         output.debug(f'Calculating correlation for ({user_symbols[i]}, {user_symbols[j]})')
-                        correlation = statistics.calculate_correlation(user_symbols[i], user_symbols[j])
+                        correlation = statistics.calculate_ito_correlation(user_symbols[i], user_symbols[j])
                         formatted_correlation = str(100*correlation["correlation"])[:formatter.SIG_FIGS]+"%"
                         item_1 = QtWidgets.QTableWidgetItem(formatted_correlation)
                         item_1.setTextAlignment(QtCore.Qt.AlignHCenter)
