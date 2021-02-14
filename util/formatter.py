@@ -10,6 +10,8 @@ BAR_WIDTH = 0.10
 
 INDENT = 10
 
+RISK_FREE_TITLE = "10-Year US Treasury"
+
 HELP_MSG = "A financial application written in python to determine optimal portfolio allocations subject to various constraints and to calculate fundamental statistics concerning a given portfolio allocation. Note: all calculations are based on an equity's closing price for the past 100 trading days. "
 
 SYNTAX = "command -OPTIONS [tickers] (additional input)"
@@ -33,6 +35,7 @@ FUNC_ARG_DICT = {
     "plot_moving_averages": "-plot-mov",
     "plot_risk_profile": "-plot-rr",
     "purge": "-pur",
+    "risk_free_rate": "-rf",
     "risk_return" : "-rr",
     "server_local": "-local",
     "server_container": "-container"
@@ -63,6 +66,7 @@ FUNC_DICT = {
     "plot_moving_averages": "Generates a grouped bar chart of the moving averages for each equity in the supplied list of ticker symbols. Not available when running inside of a Docker container. ADDITIONAL OPTIONS:  -start (format: \"YYYY-MM-DD\"), -end  (format :\"YYYY-MM-DD\"), -save (format: /path/to/file/filename.jpeg)",
     "plot_risk_profile": "Generates a scatter plot of the risk-return profile for symbol in the supplied list of ticker symbols.ADDITIONAL OPTIONS:  -start (format: \"YYYY-MM-DD\"), -end  (format :\"YYYY-MM-DD\"), -save (format: /path/to/file/filename.jpeg",
     "purge": "Removes all files contained with the /static/ and /cache/ directory, but retains the directories themselves.",
+    "risk_free_rate": "Returns current 10-year, annualized US Treasury yield.",
     "risk_return": "Calculate the risk-return profile for the supplied list of ticker symbols. ADDITIONAL OPTIONS:  -start (format: \"YYYY-MM-DD\"), -end  (format :\"YYYY-MM-DD\")",
     "server_local": "Invokes 'python manage.py runserver' from /server/ directory. Configure .env file to change port.",
     "server_container": "Builds and runs a Docker image of the application on 'localhost'. Configure .env to change port."

@@ -16,13 +16,20 @@ output = logger.Logger("app.services", settings.LOG_LEVEL)
 
 # TODO: if start_date = end_date, then return only todays date?
 # TODO: these functions, validate_order and validate_tradeability, should probably go in util.helper
+#       however, they won't have logging output in helper!
 def validate_order_of_dates(start_date, end_date):
     switch_flag = start_date is not None and end_date is not None
 
     if start_date is not None:
         if helper.is_date_today(start_date):
-            output.debug(f'Invalid date range. Start Date {start_date} is today!')
-            return False, end_date, start_date
+            time_delta = end_date - start_date
+            if time_delta.days == 0:
+                output.debug(f'End Date {end_date} = Start Date {start_date}')
+                return True, start_date, None
+
+            else:
+                output.debug(f'Invalid date range, {start_date} - {end_date}.')
+                return False, None, None
 
     if end_date is not None:
         if helper.is_date_today(end_date):
@@ -36,10 +43,6 @@ def validate_order_of_dates(start_date, end_date):
             buffer = end_date
             end_date = start_date
             start_date = end_date
-
-        elif time_delta == 0:
-            output.debug(f'End Date {end_date} = Start Date {start_date}!')
-            return False, start_date, end_date
     
     return True, start_date, end_date
 
@@ -302,12 +305,6 @@ def query_service_for_daily_price_history(ticker, start_date=None, end_date=None
 
 # TODO: Crypto queries return all dates and price even if no start_date is provided.
 #       Need to truncuate crypto queries to last 100 days for caching. 
-# TODO: should I query database in app module or server module? regardless, function calls
-#       should go through this method so they always check the cache, rather than having 
-#       objects that call this function check the cache (currently how it does it).
-# TODO: don't query the database here. leave services to interface with services. leave
-#       database stuff to django. 
-#       But then how will statistics calculate based on database values? 
 def get_daily_price_history(ticker, start_date=None, end_date=None):
     """
     Parameters
@@ -429,7 +426,7 @@ def get_daily_stats_history(statistic, start_date=None, end_date=None):
 
         if os.path.isfile(buffer_store):
             output.debug(f'Loading in cached {statistic} statistics.')
-            with open(buffer_store, 'f') as infile:
+            with open(buffer_store, 'r') as infile:
                 if settings.CACHE_EXT == "json":
                     output.debug(f'Cached {statistic} statistics found.')
                     stats = json.load(infile)

@@ -56,6 +56,9 @@ if __name__ == "__main__":
             output.comment("Initializing /static/ directory")       
             services.init_static_data()
 
+        elif opt == formatter.FUNC_ARG_DICT['risk_free_rate']:
+            output.scalar_result(formatter.RISK_FREE_TITLE, services.get_risk_free_rate())
+
         elif opt == formatter.FUNC_ARG_DICT["purge"]:
             output.comment(f'Clearing {settings.STATIC_DIR} and {settings.CACHE_DIR}')
             helper.clear_directory(directory=settings.STATIC_DIR, retain=True, outdated_only=False)
@@ -121,7 +124,7 @@ if __name__ == "__main__":
                 if(len(main_args)>1) or len(main_args)==1:
                     for stat in main_args:
                         output.scalar_result(stat, services.get_daily_stats_latest(stat))
-                        
+
                 else:
                     output.comment('Error Encountered While Calculating. Try -ex Flag For Example Usage.')
 
