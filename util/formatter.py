@@ -22,11 +22,11 @@ FUNC_ARG_DICT = {
     "clear_cache": "-clear",
     "close": "-close",
     "correlation":"-cor",
+    "dividend_discount": "-ddm",
     "efficient_frontier": "-ef",
     "examples": "-ex",
     "gui": "-gui",
     "help": "-help",
-    "indicator": "-ind",
     "initialize": "-init",
     "maximize_return": "-max",
     "moving_averages": "-mov",
@@ -34,11 +34,13 @@ FUNC_ARG_DICT = {
     "plot_frontier": "-plot-ef",
     "plot_moving_averages": "-plot-mov",
     "plot_risk_profile": "-plot-rr",
-    "purge": "-pur",
+    "purge": "-purge",
     "risk_free_rate": "-rf",
     "risk_return" : "-rr",
     "server_local": "-local",
-    "server_container": "-container"
+    "server_container": "-container",
+    "statistic": "-stat",
+
 }
 
 FUNC_XTRA_ARGS_DICT = {
@@ -55,9 +57,9 @@ FUNC_DICT = {
     "correlation": "Calculate pair-wise correlation for the supplied list of ticker symbols. ADDITIONAL OPTIONS:  -start (format: \"YYYY-MM-DD\"), -end  (format :\"YYYY-MM-DD\")",
     "efficient_frontier": "Generate a sample of the portfolio's efficient frontier for the supplied list of tickers.",
     "examples": "Display examples of syntax.",
+    "discount_dividend": "Extrapolates future dividend cashflows with linear regression based on historical dividend payments and then uses that model to calculate the net present value of all future dividends.",
     "gui": "Brings up a Qt GUI for the application (work in progress!)",
     "help": "Print this help message.",
-    "indicator": "Retrieves the latest value for the supplied list of economic indicators. The available list of economic indicators can be found at https://www.quandl.com/data/FRED-Federal-Reserve-Economic-Data/documentation?anchor=growth; it is also stored in the /static/ directory of the application ",
     "initialize": "Initializes the data in the /static/ directory. Local application automatically initializes this data. This option is used to initialize static data inside of a Docker container, where the application entrypoint doesn't invoke the CLI automatically.",
     "maximize_return": "Maximize the return of the portfolio defined by the supplied list of ticker symbols. ADDITIONAL OPTIONS:  -start (format: \"YYYY-MM-DD\"), -end  (format :\"YYYY-MM-DD\")",
     "moving_averages": "Calculate the current moving averages. ADDITIONAL OPTIONS:  -start (format: \"YYYY-MM-DD\"), -end  (format :\"YYYY-MM-DD\")",
@@ -69,7 +71,9 @@ FUNC_DICT = {
     "risk_free_rate": "Returns current 10-year, annualized US Treasury yield.",
     "risk_return": "Calculate the risk-return profile for the supplied list of ticker symbols. ADDITIONAL OPTIONS:  -start (format: \"YYYY-MM-DD\"), -end  (format :\"YYYY-MM-DD\")",
     "server_local": "Invokes 'python manage.py runserver' from /server/ directory. Configure .env file to change port.",
-    "server_container": "Builds and runs a Docker image of the application on 'localhost'. Configure .env to change port."
+    "server_container": "Builds and runs a Docker image of the application on 'localhost'. Configure .env to change port.",
+    "indicator": "Retrieves the latest value for the supplied list of economic statistics. The available list of economic statistic can be found at https://www.quandl.com/data/FRED-Federal-Reserve-Economic-Data/documentation?anchor=growth; it is also stored in the /static/ directory of the application ",
+
 }
 
 EXAMPLES = { 

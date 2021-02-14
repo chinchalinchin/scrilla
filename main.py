@@ -91,7 +91,7 @@ if __name__ == "__main__":
             output.title_line('Results')
             output.line()
 
-            # Asset Grouping
+            ### FUNCTION: Asset Grouping
             if opt == formatter.FUNC_ARG_DICT['asset_type']:
                 for arg in main_args:
                     asset_type = markets.get_asset_type(arg)
@@ -101,6 +101,7 @@ if __name__ == "__main__":
                     else: 
                         output.comment('Error Encountered While Determining Asset Type. Try -ex Flag For Example Usage.')
 
+            ### FUNCTION: Last Close Price
             elif opt == formatter.FUNC_ARG_DICT["close"]:
                 if(len(main_args)>1) or len(main_args)==1:
                     for arg in main_args:
@@ -110,7 +111,7 @@ if __name__ == "__main__":
                 else:
                     output.comment('Error Encountered While Calculating. Try -ex Flag For Example Usage.')
                     
-            # Correlation Matrix
+            ### FUNCTION: Correlation Matrix
             elif opt == formatter.FUNC_ARG_DICT["correlation"]:
                 if(len(main_args) > 1):
                     result = statistics.get_ito_correlation_matrix_string(tickers=main_args, indent=formatter.INDENT, 
@@ -119,15 +120,13 @@ if __name__ == "__main__":
 
                 else:
                     output.comment('Invalid Input. Try -ex Flag For Example Usage.')
-            
-            elif opt == formatter.FUNC_ARG_DICT["indicator"]:
-                if(len(main_args)>1) or len(main_args)==1:
-                    for stat in main_args:
-                        output.scalar_result(stat, services.get_daily_stats_latest(stat))
 
-                else:
-                    output.comment('Error Encountered While Calculating. Try -ex Flag For Example Usage.')
+            ### FUNCTION: Discount Dividend Model
+            elif opt == formatter.FUNC_ARG_DICT["discount_dividend"]:
+                output.comment('Discount Dividend Model calculation goes here.')
+                pass
 
+            ### FUNCTION: Efficient Frontier
             elif opt == formatter.FUNC_ARG_DICT['efficient_frontier']:
                 if(len(main_args)>1):
                     portfolio = Portfolio(tickers=main_args, start_date=start_date, end_date=end_date)
@@ -138,6 +137,7 @@ if __name__ == "__main__":
                 else: 
                     output.debug('Invalid Input. Try -ex Flag For Example Usage.')
                     
+            ### FUNCTION: Maximize Portfolio Return
             elif opt == formatter.FUNC_ARG_DICT['maximize_return']:
                 if (len(main_args)>1):
                     portfolio = Portfolio(tickers=main_args, start_date=start_date, end_date=end_date)
@@ -147,7 +147,8 @@ if __name__ == "__main__":
 
                 else:
                     output.comment('Invalid Input. Try -ex Flag For Example Usage.')
-                    
+
+            ### FUNCTION: Moving Averages of Logarithmic Returns
             elif opt == formatter.FUNC_ARG_DICT['moving_averages']:
                 if(len(main_args)>1) or len(main_args)==1:
                     moving_averages = statistics.calculate_moving_averages(main_args, start_date, end_date)
@@ -157,6 +158,7 @@ if __name__ == "__main__":
                 else: 
                     output.comment('Invalid Input. Try -ex Flag For Example Usage.')
 
+            ### FUNCTION: Optimize Portfolio Variance/Volatility
             elif opt == formatter.FUNC_ARG_DICT['optimize_portfolio']:
                 if (len(main_args)>1):
                     portfolio = Portfolio(tickers=main_args, start_date=start_date, end_date=end_date)
@@ -167,6 +169,7 @@ if __name__ == "__main__":
                 else: 
                     output.comment('Invalid Input. Try -ex Flag For Example Usage.')
             
+            ### FUNCTION: Plot Efficient Frontier
             elif opt == formatter.FUNC_ARG_DICT['plot_frontier'] and settings.ENVIRONMENT != "container":
                 if(len(main_args)>1):
                     frontier = optimizer.calculate_efficient_frontier(equities=main_args)
@@ -175,6 +178,7 @@ if __name__ == "__main__":
                 else: 
                     output.debug('Invalid Input. Try Try -ex Flag For Example Usage.')
 
+            ### FUNCTION: Plot Moving Averages of Logarithmic Returns
             elif opt == formatter.FUNC_ARG_DICT['plot_moving_averages'] and settings.APP_ENV != "container":
                 if(len(main_args)>1) or len(main_args)==1:
                     moving_averages = statistics.calculate_moving_averages(main_args, start_date, end_date)
@@ -185,6 +189,7 @@ if __name__ == "__main__":
                 else:
                     output.debug('Invalid Input. Try Try -ex Flag For Example Usage.')
 
+            ### FUNCTION: Plot Risk-Return Profile
             elif opt == formatter.FUNC_ARG_DICT['plot_risk_profile']:
                 if len(main_args) > 0:
                     profiles = []
@@ -197,6 +202,7 @@ if __name__ == "__main__":
                 else:
                     output.debug('Invalid Input. Try Try -ex Flag For Example Usage.')
                     
+            ### FUNCTION: Risk-Return Profile
             elif opt == formatter.FUNC_ARG_DICT["risk_return"]:
                 if(len(main_args)>1) or len(main_args)==1:
                     for arg in main_args:
@@ -210,6 +216,15 @@ if __name__ == "__main__":
                 
                 else:
                     output.comment('No Input Supplied. Try -ex Flag For Example Usage.')
+
+            ### FUNCTION: Get Latest Economic Statistic
+            elif opt == formatter.FUNC_ARG_DICT["statistic"]:
+                if(len(main_args)>1) or len(main_args)==1:
+                    for stat in main_args:
+                        output.scalar_result(stat, services.get_daily_stats_latest(stat))
+
+                else:
+                    output.comment('Error Encountered While Calculating. Try -ex Flag For Example Usage.')
 
             else:
                 output.comment('No Function Supplied. Please Review Function Summary Below And Re-execute Script With Appropriate Arguments.')
