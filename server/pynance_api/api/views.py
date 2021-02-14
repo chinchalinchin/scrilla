@@ -11,7 +11,7 @@ from api import parser
 from data.models import EquityMarket, CryptoMarket, EquityTicker, CryptoTicker, Economy
 
 # Application Imports
-from app.portfolio import Portfolio
+from app.objects.portfolio import Portfolio
 import app.statistics as statistics
 import app.optimizer as optimizer
 import app.settings as app_settings

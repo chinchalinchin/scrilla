@@ -41,6 +41,9 @@ Attributes
 25. MA_3_PERIOD: Number of days in first moving average period. \n \n
 26. ONE_TRADING_DAY: Length of trading day in years. \n \n
 27. PRICE_YEAR_CUTOFF: Earliest year considered in price histories. \n \n
+28. DENOMINATION: Denomination in which prices are quoted. \n \n 
+29. NPV_DELTA_TOLERANCE: NPV calculations stop when the next value adds less than this amount. \n \n 
+29. RISK_FREE_RATE: Interest rate used for cashflow valuations. \n \n
 28. ASSET_EQUITY: Constant for assets of type equity. \n \n
 29. ASSET_CRYPTO: Constant for assets of type crypto. \n \n
 30. STAT_ECON: Constant for economic statistics. \n \n
@@ -168,6 +171,8 @@ ONE_TRADING_DAY=(1/252)
 PRICE_YEAR_CUTOFF=1950
 
 DENOMINATION = "USD"
+
+NPV_DELTA_TOLERANCE = 0.0000001
 
 # SEE: ARG_Q_YIELD_CURVE for allowabled values
 RISK_FREE_RATE="10-Year"

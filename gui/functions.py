@@ -7,7 +7,7 @@ from PyQt5 import QtGui, QtCore, QtWidgets
 import app.statistics as statistics
 import app.settings as settings
 import app.optimizer as optimizer
-import app.portfolio as portfolio
+import app.objects.portfolio as portfolio
 
 import util.logger as logger
 import util.formatter as formatter

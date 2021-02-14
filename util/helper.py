@@ -216,7 +216,38 @@ def get_previous_business_date(date):
     while is_date_weekend(date) or is_date_holiday(date):
         date -= datetime.timedelta(days=1)
     return date
-    
+
+# in years
+def get_time_to_next_month():
+    today = datetime.date.today()
+    next_month=datetime.date(year=today.year, month=(today.month+1), day=1)
+    return ((next_month - today).days / 365)
+
+# in years
+# 365 or 252? 
+def get_time_to_next_quarter():
+    today = datetime.date.today()
+
+    first_q = datetime.date(year=today.year, month=1, day=1)
+    second_q = datetime.date(year=today.year, month=4, day=1)
+    third_q = datetime.date(year=today.year, month=7, day=1)
+    fourth_q = datetime.date(year=today.year, month=10, day=1)
+    next_first_q = datetime.date(year=(today.year+1), month=1, day=1)
+
+    first_delta = (first_q - today).days / 365
+    second_delta = (second_q - today).days / 365
+    third_delta = (third_q - today).days / 365
+    fourth_delta = (fourth_q - today).days /365
+    next_delta = (next_first_q - today).days / 365 
+
+    return min(i for i in [first_delta, second_delta, third_delta, fourth_delta, next_delta] if i > 0)
+
+# in years
+def get_time_to_year(date):
+    today = datetime.date.today()
+    next_year = datetime.date(year=(today.year+1), month=1, day=1)
+    return ((next_year - today).days / 365)
+
 ################################################
 ##### PARSING FUNCTIONS
 

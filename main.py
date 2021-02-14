@@ -9,7 +9,7 @@ import app.optimizer as optimizer
 import app.services as services
 import app.markets as markets
 
-from app.portfolio import Portfolio
+from app.objects.portfolio import Portfolio
 
 if settings.APP_ENV != "container":
     from PyQt5 import QtWidgets

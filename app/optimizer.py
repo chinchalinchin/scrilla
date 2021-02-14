@@ -1,6 +1,6 @@
 import scipy.optimize as optimize
 
-from app.portfolio import Portfolio
+from app.objects.portfolio import Portfolio
 import app.settings as settings
 import util.logger as logger
 

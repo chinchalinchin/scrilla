@@ -54,6 +54,3 @@ def get_trading_period(asset_type):
         return (1/365)
     else:
         return settings.ONE_TRADING_DAY
-
-def get_risk_free_rate():
-    return services.get_risk_free_rate()
