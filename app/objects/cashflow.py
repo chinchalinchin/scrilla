@@ -13,7 +13,20 @@ FREQ_ANNUAL=1
 
 
 class Cashflow:
+    """
+    Description
+    -----------
 
+    Parameters
+    ----------
+    sample: list { 'date_1' : 'value_1', 'date_2': 'value_2', ... } \n
+        A list comprised of the cashflows historical values. The list must be ordered from latest to earliest, i.e. in descending order. \n \n
+    frequency: float \n
+        The frequency of the cash flow. The value should be measured in years. Common frequencies are statically accessible through FREQ_DAY, FREQ_MONTH, FREQ_QUARTER and FREQ_ANNUAL. \n \n 
+    growth_function: function \n
+        A function that describes the cash flow as a function of time in years. If provided, the class will skip linear regression for estimating the cash flow model. If providing a growth_function, specify sample = None in the arguments provided to the class constructor. \n \n
+
+    """
     RISK_FREE_RATE = services.get_risk_free_rate()
 
     # NOTE: Growth function should be a function of time in years
@@ -21,7 +34,7 @@ class Cashflow:
     # NOTE: sample must be ordered from latest to earliest, i.e. in descending order.
     def __init__(self, sample, frequency=FREQ_ANNUAL, growth_function=None):
         self.sample = sample
-        self.frequency =frequency
+        self.frequency = frequency
 
         # If no sample provided, use simple linear regression
         if growth_function is None:
