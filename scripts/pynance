@@ -8,6 +8,8 @@ do
         bash $SCRIPT_DIR/server/pynance-server.sh $1
         exit 0
     fi
+    # TODO: parse extra dash from arguments here since pynance only
+    # looks for single dashed arguments
 done
 
 python $SCRIPT_DIR/../main.py $@

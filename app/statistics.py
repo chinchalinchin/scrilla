@@ -697,3 +697,22 @@ def get_correlation_matrix_string(tickers, indent=0, start_date=None, end_date=N
 
     whole_thing = formatted_title + entire_formatted_result
     return whole_thing
+
+def sample_correlation(x, y):
+    if len(x) != len(y):
+        output.debug(f'Samples are not comparable')
+        return False
+    else:
+        sumproduct, sum_x_squared, sum_x, sum_y, sum_y_squared= 0, 0, 0, 0, 0
+        n = len(x)
+        for i in range(len(x)):
+            sumproduct += x[i]*y[i]
+            sum_x += x[i]
+            sum_x_squared = x[i]**2
+            sum_y += y[i]
+            sum_y += y[i]**2
+        correlation_num = ((n*sumproduct) - sum_x*sum_y)
+        correlation_den = numpy.sqrt((n*sum_x_squared-sum_x**2)(n*sum_y_squared-sum_y**2))
+        correlation = correlation_num / correlation_den
+
+        

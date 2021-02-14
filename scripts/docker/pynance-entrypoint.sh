@@ -28,10 +28,10 @@ then
     python main.py -init
 
     log "Clearing \e[3m/cache/\e[0m directory of outdated price histories." $SCRIPT_NAME
-    python -c $CLEAR_CACHE
+    python -c "$CLEAR_CACHE"
 
     log "Logging Non-sensitive Django settings" $SCRIPT_NAME
-    python -c $LOG_DJANGO_SETTINGS
+    python -c "$LOG_DJANGO_SETTINGS"
 
     # 
     if [ "$1" == "wait-for-it" ]
