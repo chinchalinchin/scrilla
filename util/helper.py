@@ -305,6 +305,16 @@ def get_target(xtra_args, xtra_values):
         target = None
     return target
 
+def get_discount(xtra_args, xtra_values):
+    if formatter.FUNC_XTRA_ARGS_DICT['discount'] in xtra_args:
+        try:
+            discount = float(xtra_values[xtra_args.index(formatter.FUNC_XTRA_ARGS_DICT['discount'])])
+        except:
+            discount = None
+    else:
+        discount = None
+    return discount
+    
 def format_allocation_profile(allocation, portfolio) -> str:
     port_return, port_volatility = portfolio.return_function(allocation), portfolio.volatility_function(allocation)
     formatted_result = "("+str(100*port_return)[:5]+"%, " + str(100*port_volatility)[:5]+"%)"

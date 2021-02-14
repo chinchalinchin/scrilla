@@ -47,7 +47,8 @@ FUNC_XTRA_ARGS_DICT = {
     'target': '-target',
     'save': '-save',
     'start_date': '-start',
-    'end_date': '-end'
+    'end_date': '-end',
+    'discount': '-discount'
 }
 
 FUNC_DICT = {
@@ -57,7 +58,7 @@ FUNC_DICT = {
     "correlation": "Calculate pair-wise correlation for the supplied list of ticker symbols. ADDITIONAL OPTIONS:  -start (format: \"YYYY-MM-DD\"), -end  (format :\"YYYY-MM-DD\")",
     "efficient_frontier": "Generate a sample of the portfolio's efficient frontier for the supplied list of tickers.",
     "examples": "Display examples of syntax.",
-    "discount_dividend": "Extrapolates future dividend cashflows with linear regression based on historical dividend payments and then uses that model to calculate the net present value of all future dividends.",
+    "discount_dividend": "Extrapolates future dividend cashflows with linear regression based on historical dividend payments and then uses that model to calculate the net present value of all future dividends. If no discount rate is specified, the calculations default to the risk-free rate, i.e. the 10-Year US Treasury yield. ADDITIONAL OPTIONS: -discount (float)",
     "gui": "Brings up a Qt GUI for the application (work in progress!)",
     "help": "Print this help message.",
     "initialize": "Initializes the data in the /static/ directory. Local application automatically initializes this data. This option is used to initialize static data inside of a Docker container, where the application entrypoint doesn't invoke the CLI automatically.",

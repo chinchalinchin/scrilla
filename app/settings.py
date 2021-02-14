@@ -50,6 +50,7 @@ Attributes
 31. INIT: Flag to initialize STATIC_DIR \n \n
 32. PRICE_MANAGER: Service in charge of price histories. \n \n
 33. STAT_MANAGER: Service in charge of statistic histories. \n \n
+34. DIVIDEND_MANAGER: Service in charge of dividend payment histories. \n \n
 34. AV_URL: Base URL for AlphaVantage query. \n \n
 35. AV_KEY: Credentials for AlphaVantage query. \n \n
 36. AV_CRYPTO_LIST: URL for crypto metadata AlphaVantage query. \n \n
@@ -175,7 +176,7 @@ DENOMINATION = "USD"
 NPV_DELTA_TOLERANCE = 0.0000001
 
 # SEE: ARG_Q_YIELD_CURVE for allowabled values
-RISK_FREE_RATE="10-Year"
+RISK_FREE_RATE=os.environ.setdefault("RISK_FREE", "10-Year")
 
 ASSET_EQUITY="equity"
 ASSET_CRYPTO="crypto"
@@ -258,3 +259,10 @@ if STAT_MANAGER == "quandl":
     PARAM_Q_METADATA="metadata.json"
     PARAM_Q_START="start_date"
     PARAM_Q_END="end_date"
+
+### DIVIDEND_MANAGER CONFIGURATION
+DIV_MANAGER=os.getenv("DIV_MANAGER")
+
+if DIV_MANAGER == "":
+    # set up endpoint constants
+    pass

@@ -87,6 +87,7 @@ if __name__ == "__main__":
             end_date = helper.get_end_date(xtra_args, xtra_values)
             save_file = helper.get_save_file(xtra_args, xtra_values)
             target = helper.get_target(xtra_args, xtra_values)
+            discount = helper.get_discount(xtra_args, xtra_values)
 
             output.title_line('Results')
             output.line()
@@ -124,6 +125,8 @@ if __name__ == "__main__":
             ### FUNCTION: Discount Dividend Model
             elif opt == formatter.FUNC_ARG_DICT["discount_dividend"]:
                 output.comment('Discount Dividend Model calculation goes here.')
+                # ALLOW USER TO SPECIFY DISCOUNT RATE THROUGH -discount. IF NOT
+                # SPECIFIED, DEFAULT TO risk_free_rate
                 pass
 
             ### FUNCTION: Efficient Frontier
