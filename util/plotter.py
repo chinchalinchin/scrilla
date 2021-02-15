@@ -186,19 +186,11 @@ def plot_cashflow(ticker, cashflow, show=True, savefile=None):
             # dates.append(date)
             dividend_history.append(cashflow.sample[date])
 
-        model_history = []
         linear_model = lambda x: cashflow.alpha + cashflow.beta*x
-        print('linear model')
-        for i in cashflow.time_series:
-            print(linear_model(i))
 
-         # x = [datetime.datetime.strptime(date, '%Y-%m-%d').toordinal() for date in dates]
+        # x = [datetime.datetime.strptime(date, '%Y-%m-%d').toordinal() for date in dates]
         # model_map = list(map(linear_model, x))
         model_map = list(map(linear_model, cashflow.time_series))
-
-        print('model map')
-        for i in model_map:
-            print(i)
 
         axes.scatter(cashflow.time_series, dividend_history, marker=".")
         axes.plot(cashflow.time_series, model_map)

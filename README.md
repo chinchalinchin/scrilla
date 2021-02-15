@@ -298,13 +298,13 @@ not affect the application.
 
 22. Pretty sure the reason the len(moving_averages) != len(dates_between) in moving average algorithm is because dates_between doesn't include the dates themselves; it's only returning...dun dun dun...the dates between, not the dates themselves. 
 
-23. Need to figure out what's going on with the x-axis formatting for moving average graphs over date ranges.
+23. Figure out matplotlib x-axis date formatting
 
 24. Error with request parameters not being taken to uppercase. Doesn't affect program, but annoys me. 
 
 27. Other types of screening. Discounted Cash Flow, for instance. 
 
-28. Plot dividends with linear regression model superimposed.
+28. TODO: DDM defaults to Risk Free Rate currently. Should be using cost of capital equity rate. 
 
 ### NOTES
 
