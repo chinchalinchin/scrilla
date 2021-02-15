@@ -4,5 +4,7 @@ data/cache/*
 !/data/cache/.gitkeep
 data/static/*
 !/data/static/.gitkeep
+data/common/*
+!/data/common/.gitkeep
 *.pyc
 /server/pynance_api/db.sqlite3
