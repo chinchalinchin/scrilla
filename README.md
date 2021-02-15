@@ -227,7 +227,7 @@ Some endpoints have unique query parameters, but all endpoints accept the follow
     >   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;...<br>
     >   &nbsp;&nbsp;}<br>
     >   },<br>
-    >   ...
+    >   ...<br>
     > }
 
 4. <h2>/api/moving-averages</h2>
