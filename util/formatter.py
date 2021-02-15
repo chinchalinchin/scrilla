@@ -21,6 +21,7 @@ TAB = "      "
 FUNC_ARG_DICT = {
     "asset_type": "-at",
     "clear_cache": "-clear",
+    "clear_watchlist": "-clear-watch",
     "close": "-close",
     "correlation":"-cor",
     "discount_dividend": "-ddm",
@@ -58,7 +59,8 @@ FUNC_XTRA_ARGS_DICT = {
 
 FUNC_DICT = {
     "asset_type": "Outputs the asset type for the supplied symbol.",
-    "clear_cache": "Clears the /cache/ directory of all data, outdated or not.",
+    "clear_cache": "Clears the /data/cache/ directory of all data, outdated or not.",
+    "clear_watchlist": "Clears the watchlist.",
     "close": "Return latest closing value for the supplied list of symbols (equity or crypto).",
     "correlation": "Calculate pair-wise correlation for the supplied list of ticker symbols. ADDITIONAL OPTIONS:  -start (format: \"YYYY-MM-DD\"), -end  (format :\"YYYY-MM-DD\")",
     "efficient_frontier": "Generate a sample of the portfolio's efficient frontier for the supplied list of tickers.",

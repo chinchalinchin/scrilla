@@ -600,8 +600,9 @@ def get_static_data(static_type):
             init_static_data()
 
         with open(path, 'r') as infile:
-            symbols = json.load(infile)   
-        
+            if settings.FILE_EXT == "json":
+                symbols = json.load(infile)   
+            # TODO: implement other file loading exts    
         return symbols
     else:
         return False
@@ -609,15 +610,31 @@ def get_static_data(static_type):
 def get_watchlist():
     output.debug('Loading in Watchlist symbols.')
 
-    with open(settings.COMMON_WATCHLIST_FILE, 'r') as infile:
-        watchlist = json.load(infile)
-    
+    if os.path.isfile(settings.COMMON_WATCHLIST_FILE):
+        output.debug('Watchlist found.')
+        with open(settings.COMMON_WATCHLIST_FILE, 'r') as infile:
+            if settings.FILE_EXT =="json":
+                watchlist = json.load(infile)
+                output.debug('Watchlist loaded in JSON format.')
+
+            # TODO: implement other file loading exts
+    else: 
+        output.debug('Watchlist not found.')
+        watchlist = []
+
     return watchlist
 
-def set_watchlist(tickers):
+def add_watchlist(new_tickers):
     output.debug('Saving tickers to Watchlist')
 
-    with open(settings.COMMON_WATCHLIST_FILE, 'w') as outfile:
+    current_tickers = get_watchlist()
+
+    for ticker in new_tickers:
+        if ticker not in current_tickers:
+            output.debug(f'New ticker being added to Watchlist: {ticker}')
+            current_tickers.append(ticker)
+
+    with open(settings.COMMON_WATCHLIST_FILE, 'w+') as outfile:
         if settings.FILE_EXT == "json":
-            json.dump(tickers, outfile)
+            json.dump(current_tickers, outfile)
         # TODO: implement other file extensions

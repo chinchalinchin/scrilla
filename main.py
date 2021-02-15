@@ -40,6 +40,11 @@ if __name__ == "__main__":
             output.comment(f'Clearing {settings.CACHE_DIR}')
             helper.clear_directory(directory=settings.CACHE_DIR, retain=True, outdated_only=False)
 
+        ### FUNCTION: Clear Watchlist
+        elif opt == formatter.FUNC_ARG_DICT["clear_watchlist"]:
+            output.comment(f'Clearing {settings.COMMON_DIR}')
+            helper.clear_directory(directory=settings.COMMON_DIR, retain=True, outdated_only=False)
+
         ### FUNCTION: Function Examples
         elif opt == formatter.FUNC_ARG_DICT["examples"]:
             output.examples()
@@ -268,7 +273,7 @@ if __name__ == "__main__":
             ### FUNCTION: Set Watchlist
             elif opt == formatter.FUNC_ARG_DICT["watchlist"]:
                 if(len(main_args)>1) or len(main_args)==1:
-                    services.set_watchlist(tickers=main_args)
+                    services.add_watchlist(new_tickers=main_args)
                     output.comment("Watchlist saved. Use -ls option to print watchlist.")
                 else:
                     output.comment('Error encountered while calculating. Try -ex flag for example usage.')
