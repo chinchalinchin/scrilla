@@ -40,16 +40,15 @@ class Cashflow:
     constant: float \n
         If the cashflow is constant with respect to time, specify the value of it with this argument. Will override growth_function and sample. If constant is specified, you MUST also specify a period or else you will encounter errors when trying to calculate the net present value of future cashflows. \n \n
     
+    NOTES
+    -----
+    NOTE #1: A constant cashflow can be specified in two ways: 1. By passing in a constant through the constructor 'constant' variable. 2. By passing in a constant function with respect to time through the constructor 'growth_function' variable. If choosing method #1, you MUST pass in a period or the net_present_value method of this class will return False.
+
     TODOs
     -----
     1. Implement prediction interval function to get error bars for graph.
 
     """
-
-    # NOTE: Growth function should be a function of time in years
-    # NOTE: sample : { 'date_1' : 'value_1', 'date_2': 'value_2', ... }.
-    # NOTE: sample must be ordered from latest to earliest, i.e. in descending order.
-    # NOTE: If constant is not None, then period must be specified!
     def __init__(self, sample=None, period=None, growth_function=None, discount_rate=None, constant=None):
         self.sample = sample
         self.period = period
@@ -64,7 +63,7 @@ class Cashflow:
             self.growth_function = None
 
         # If no sample provided, use simple linear regression
-        if growth_function is None and sample is not None:
+        if self.sample is not None and self.growth_function is None:
             self.generate_time_series_for_sample()
             self.regress_growth_function()
         
@@ -76,7 +75,7 @@ class Cashflow:
         output.debug(f'Using discount_rate = {self.discount_rate}')
 
         # If no frequency is specified, infer frequency from sample
-        if period is None and sample is not None:
+        if self.sample is not None and self.period is None:
             self.infer_period()
 
     def infer_period(self):

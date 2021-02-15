@@ -306,7 +306,6 @@ not affect the application.
 
 28. Add watchlist functionality for crypto assets. Differentiate in /data/common/ between watchlist_equity.json and watchlist_crypto.json. Integrate watchlist functionality into GUI and API. Will need to implement API Key authentication functionality before introducing watchlist to API to account for different users's watchlist.
 
-29. overload Cashflow constructor to allow for constant cashflows.
 
 ### NOTES
 
