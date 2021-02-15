@@ -796,3 +796,5 @@ if __name__=="__main__":
     x = [1, 2, 3, 4, 5, 6, 7]
     y = [20, 19, 23, 20, 26, 22, 30]
     print(sample_correlation(x, y))
+    print(regression_beta(x,y))
+    print(regression_alpha(x,y))
