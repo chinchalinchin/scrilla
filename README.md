@@ -196,7 +196,7 @@ Some endpoints have unique query parameters, but all endpoints accept the follow
     >    'allocations': {<br>
     >        &nbsp;&nbsp;&nbsp;&nbsp;'ticker_allocation': double,<br>
     >        &nbsp;&nbsp;&nbsp;&nbsp;'ticker_allocation': double,<br>
-    >        &nbsp;&nbsp;&nbsp;&nbsp;...
+    >        &nbsp;&nbsp;&nbsp;&nbsp;...<br>
     >    }<br>
     >}<br>
 
