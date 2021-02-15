@@ -109,12 +109,12 @@ class Logger():
         print(' '*formatter.INDENT, '>>', f'{right_hand} = {left_hand} = {value}')
 
     def spot_price(self, ticker, spot_price):
-        formatted_price = round(spot_price, 2)
+        formatted_price = round(float(spot_price), 2)
         self.scalar_result(f'{ticker} spot price', formatted_price)
     
     def model_price(self, ticker, model_price, model):
-        formatted_price = round(model_price,2)
-        self.scalar_result(f'{ticker} {model} price', formatted_price)
+        formatted_price = round(float(model_price),2)
+        self.scalar_result(f'{ticker} {str(model).upper()} price', formatted_price)
     
     def portfolio_percent_result(self, result, tickers):
         for i in range(len(tickers)):
@@ -156,9 +156,11 @@ class Logger():
 
     def screen_results(self, info, model):
         for ticker in info:
-            self.spot_price(ticker=ticker, spot_price=info['spot_price'])
-            self.model_price(ticker=ticker, model_price=info['model_price'], model=model)
-            self.scalar_result(f'{ticker} discount', info['discount'])
+            self.title_line(f'{ticker} {str(model).upper()} Model vs. Spot Price ')
+            self.spot_price(ticker=ticker, spot_price=info[ticker]['spot_price'])
+            self.model_price(ticker=ticker, model_price=info[ticker]['model_price'], model=model)
+            self.scalar_result(f'{ticker} discount', info[ticker]['discount'])
+            self.line()
             
     def optimal_result(self, portfolio, allocation, user_input):
         self.title_line('Optimal Percentage Allocation')

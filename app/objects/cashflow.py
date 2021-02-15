@@ -49,39 +49,51 @@ class Cashflow:
             self.infer_period()
 
     def infer_period(self):
+        output.debug('Attempting to infer period/frequency of cashflows.')
+
         # no_of_dates = len - 1 because delta is being computed, i.e.
         #   lose one date.
-        dates, no_of_dates = self.sample.keys(), (len(self.sample.keys()) -1 )
+        dates, no_of_dates = self.sample.keys(), (len(self.sample.keys()) - 1)
         first_pass = True
         mean_delta = 0
 
-        for date in dates:
-            if first_pass:
-                tomorrows_date = helper.parse_date_string(date)
-                first_pass = False
+        if no_of_dates < 2:
+            output.debug('Cannot infer period from sample size less than or equal to 1')
+            self.period = None
+            self.frequency = None
 
-            else:
-                todays_date = helper.parse_date_string(date)
-                delta = (tomorrows_date - todays_date).days / 365
-                mean_delta += delta / no_of_dates 
-                tomorrows_date = todays_date
+        else:
+            for date in dates:
+                if first_pass:
+                    tomorrows_date = helper.parse_date_string(date)
+                    first_pass = False
 
-        self.period =  mean_delta
-        self.frequency = 1 / self.period 
-        output.debug(f'Inferred period = {self.period} yrs')
-        output.debug(f'Inferred frequency = {self.frequency}')
+                else:
+                    todays_date = helper.parse_date_string(date)
+                    delta = (tomorrows_date - todays_date).days / 365
+                    mean_delta += delta / no_of_dates 
+                    tomorrows_date = todays_date
+
+            self.period =  mean_delta
+            self.frequency = 1 / self.period 
+            output.debug(f'Inferred period = {self.period} yrs')
+            output.debug(f'Inferred frequency = {self.frequency}')
 
     def generate_time_series_for_sample(self):
         self.time_series = []
 
         dates, no_of_dates = self.sample.keys(), len(self.sample.keys())
-        first_date = helper.parse_date_string(list(dates)[no_of_dates-1])
 
-        for date in dates:
-            this_date = helper.parse_date_string(date)
-            delta = (this_date - first_date).days
-            time_in_years = delta / 365
-            self.time_series.append(time_in_years)
+        if no_of_dates == 0:
+            output.debug('Cannot generate a time series for a sample size of 0.')
+        else:
+            first_date = helper.parse_date_string(list(dates)[no_of_dates-1])
+
+            for date in dates:
+                this_date = helper.parse_date_string(date)
+                delta = (this_date - first_date).days
+                time_in_years = delta / 365
+                self.time_series.append(time_in_years)
     
     def regress_growth_function(self):
         to_array = []
@@ -91,7 +103,15 @@ class Cashflow:
         self.beta = statistics.regression_beta(x=self.time_series, y=to_array)
         self.alpha = statistics.regression_alpha(x=self.time_series, y=to_array)
         
-        output.debug(f'Linear regression model : y = {self.beta} * x + {self.alpha}')
+        if not self.beta or not self.alpha:
+            if len(self.sample) > 0:
+                self.alpha = list(self.sample.items())[0][1]
+                output.debug('Error calculating regression coefficients; Defaulting to Markovian process E(X2|X1) = X1.')
+                output.debug(f'Estimation model : y = {self.alpha}')
+            else: 
+                output.debug('Not enough information to formulate estimation model.')
+        else:
+            output.debug(f'Linear regression model : y = {self.beta} * x + {self.alpha}')
 
     def get_growth_function(self, x):
         if self.growth_function is None:
@@ -101,37 +121,42 @@ class Cashflow:
 
     # TODO: use trading days or actual days?
     def calculate_net_present_value(self, discount_rate=None):
-        if discount_rate is None:
-            discount_rate = services.get_risk_free_rate()
-
-        time_to_first_payment = 0
-        if self.period == FREQ_ANNUAL:
-            time_to_first_payment = helper.get_time_to_next_year()
-            
-        elif self.period == FREQ_QUARTER:
-            time_to_first_payment = helper.get_time_to_next_quarter()
-
-        elif self.period == FREQ_MONTH:
-            time_to_first_payment = helper.get_time_to_next_month()
-
-        elif self.period == FREQ_DAY:
-            time_to_first_payment = FREQ_DAY
-        
+    
+        if self.period is None:
+            output.debug('No period detected for cashflows. Not enough information to calculate net present value.')
+            return False
         else:
-            dates = self.sample.keys()
-            latest_date = helper.parse_date_string(list(dates)[0])
-            time_to_first_payment = helper.get_time_to_next_period(starting_date=latest_date, period=self.period)
+            if discount_rate is None:
+                discount_rate = services.get_risk_free_rate()
 
-        self.NPV, i = 0, 0
-        calculating = True
-        while calculating: 
-            previous_value = self.NPV
-            current_time = time_to_first_payment + i * self.period
-            self.NPV += self.get_growth_function(current_time) / (1 + discount_rate)**current_time
+            time_to_first_payment = 0
+            if self.period == FREQ_ANNUAL:
+                time_to_first_payment = helper.get_time_to_next_year()
+                
+            elif self.period == FREQ_QUARTER:
+                time_to_first_payment = helper.get_time_to_next_quarter()
 
-            if self.NPV - previous_value < settings.NPV_DELTA_TOLERANCE:
-                calculating = False
-            i += 1
+            elif self.period == FREQ_MONTH:
+                time_to_first_payment = helper.get_time_to_next_month()
 
-        return self.NPV
+            elif self.period == FREQ_DAY:
+                time_to_first_payment = FREQ_DAY
+            
+            else:
+                dates = self.sample.keys()
+                latest_date = helper.parse_date_string(list(dates)[0])
+                time_to_first_payment = helper.get_time_to_next_period(starting_date=latest_date, period=self.period)
+
+            self.NPV, i = 0, 0
+            calculating = True
+            while calculating: 
+                previous_value = self.NPV
+                current_time = time_to_first_payment + i * self.period
+                self.NPV += self.get_growth_function(current_time) / (1 + discount_rate)**current_time
+
+                if self.NPV - previous_value < settings.NPV_DELTA_TOLERANCE:
+                    calculating = False
+                i += 1
+
+            return self.NPV
             

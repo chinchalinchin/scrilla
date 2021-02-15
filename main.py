@@ -254,12 +254,11 @@ if __name__ == "__main__":
 
             ### FUNCTION: Model Discount Screener 
             elif  opt == formatter.FUNC_ARG_DICT["screener"]:
-                output.comment('Model screening for discount spot prices goes here')
+                if model is None:
+                    model = markets.MODEL_DDM
+                    
                 results = markets.screen_for_discount(model=model)
                 output.screen_results(info=results, model=model)
-                # result = some_class.screen_equities_for_model_discount(model=model)
-                # output.premium_or_discount
-                pass
 
             ### FUNCTION: Get Latest Economic Statistic
             elif opt == formatter.FUNC_ARG_DICT["statistic"]:

@@ -69,7 +69,7 @@ def screen_for_discount(model=None):
     Parameters
     ----------
     model : str \n
-        Model used to value the equities saved in the watchlist. If no model is specified, the function will default to MODEL_DDM. Model constants are statically accessible through the variables: MODEL_DDM (Discount Dividend Model), MODEL_DCF (Discounted Cash Flow Model) \n \n
+        Model used to value the equities saved in the watchlist. If no model is specified, the function will default to MODEL_DDM. Model constants are statically accessible through the variables: MODEL_DDM (Discount Dividend Model), MODEL_DCF (Discounted Cash Flow Model, not yet implemented) \n \n
 
     Output
     ------
@@ -97,16 +97,19 @@ def screen_for_discount(model=None):
             dividends = services.get_dividend_history(equity)
             model_price = Cashflow(dividends).calculate_net_present_value(discount_rate=risk_free_rate)
         
-        discount = model_price - spot_price
-        
-        output.verbose(f'{equity} spot price = {spot_price}, {equity} {model} price = {model_price}')
-        
-        if discount > 0:
-            discount_result = {}
-            discount_result['spot_price'] = spot_price
-            discount_result['model_price'] = model_price
-            discount_result['discount'] = discount
-            discounts[equity] = discount_result
-            output.debug(f'Discount of {discount} found for {equity}')
+        if not model_price:
+            output.debug(f'Net present value of dividend payments cannot be calculated for {equity}.')
+        else:
+            output.verbose(f'{equity} spot price = {spot_price}, {equity} {model} price = {model_price}')
+
+            discount = float(model_price) - float(spot_price)
+                        
+            if discount > 0:
+                discount_result = {}
+                discount_result['spot_price'] = spot_price
+                discount_result['model_price'] = model_price
+                discount_result['discount'] = discount
+                discounts[equity] = discount_result
+                output.debug(f'Discount of {discount} found for {equity}')
 
     return discounts
