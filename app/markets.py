@@ -1,6 +1,7 @@
 
 import app.settings as settings
 import app.services as services
+import app.files as files
 from app.objects.cashflow import Cashflow
 
 import util.logger as logger
@@ -23,8 +24,8 @@ output = logger.Logger('app.markets', settings.LOG_LEVEL)
 # TODO: need some way to distinguish between overlap.
 
 def get_overlapping_symbols():
-    equities = list(services.get_static_data(settings.ASSET_EQUITY))
-    cryptos = list(services.get_static_data(settings.ASSET_CRYPTO))
+    equities = list(files.get_static_data(settings.ASSET_EQUITY))
+    cryptos = list(files.get_static_data(settings.ASSET_CRYPTO))
     overlap = []
     for crypto in cryptos:
         if crypto in equities:
@@ -32,7 +33,7 @@ def get_overlapping_symbols():
     return overlap
 
 def get_asset_type(symbol):
-    symbols = list(services.get_static_data(settings.ASSET_CRYPTO))
+    symbols = list(files.get_static_data(settings.ASSET_CRYPTO))
     overlap = get_overlapping_symbols()
 
     # TODO: need to differentiate between GLD etf and GLD crypto somehow!
@@ -44,7 +45,7 @@ def get_asset_type(symbol):
                 # if other asset types are introduced, then uncomment these lines
                 # and add new asset type to conditional. Keep in mind the static
                 # equity data is HUGE.
-            # symbols = list(services.get_static_data(settings.ASSET_EQUITY))
+            # symbols = list(files.get_static_data(settings.ASSET_EQUITY))
             # if symbol in symbols:
                 # return settings.ASSET_EQUITY
             # else:
@@ -84,7 +85,7 @@ def screen_for_discount(model=None, discount=None):
     if model is None:
         model = MODEL_DDM
 
-    equities = list(services.get_watchlist())
+    equities = list(files.get_watchlist())
     discounts = {}
     
     output.debug(f'Using Discount Dividend Model to screen watchlisted equities for discounts.')

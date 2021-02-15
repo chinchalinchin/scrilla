@@ -8,6 +8,7 @@ import app.statistics as statistics
 import app.optimizer as optimizer
 import app.services as services
 import app.markets as markets
+import app.files as files
 
 from app.objects.portfolio import Portfolio
 from app.objects.cashflow import Cashflow
@@ -66,12 +67,12 @@ if __name__ == "__main__":
         ### FUNCTION: Static Data Initialization
         elif opt == formatter.FUNC_ARG_DICT['initialize']:
             output.comment("Initializing /static/ directory")       
-            services.init_static_data()
+            files.init_static_data()
 
         ### FUNCTION: Print Stock Watchlist
         # TODO:
         elif opt == formatter.FUNC_ARG_DICT['list_watchlist']:
-            tickers = services.get_watchlist()
+            tickers = files.get_watchlist()
             output.title_line("Stock Watchlist")
             output.print_list(tickers)
 
@@ -94,7 +95,7 @@ if __name__ == "__main__":
             helper.clear_directory(directory=settings.CACHE_DIR, retain=True, outdated_only=True)
 
             output.debug('Initialzing /static/ directory, if applicable.')
-            services.init_static_data()
+            files.init_static_data()
             
             args = sys.argv[2:]
 
@@ -280,7 +281,7 @@ if __name__ == "__main__":
             ### FUNCTION: Set Watchlist
             elif opt == formatter.FUNC_ARG_DICT["watchlist"]:
                 if(len(main_args)>1) or len(main_args)==1:
-                    services.add_watchlist(new_tickers=main_args)
+                    files.add_watchlist(new_tickers=main_args)
                     output.comment("Watchlist saved. Use -ls option to print watchlist.")
                 else:
                     output.comment('Error encountered while calculating. Try -ex flag for example usage.')

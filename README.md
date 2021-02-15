@@ -284,7 +284,7 @@ not affect the application.
 
 12. TEST MOVING AVERAGE ALGORITHM FOR MIX OF ASSET TYPES. I think there may be some mismatch of types in date comparisons.
 
-14. ERROR: There seems to be a problem with the correlation algorithm over time ranges longer than 100 days. NOTE: Pretty sure this is resolved now, but needs further testing. Correlation algorithm needs test for mix of asset types as well, i.e. equities and crypto.
+14. Correlation algorithm needs test for mix of asset types as well, i.e. equities and crypto.
 
 15. Create automated tests and integrate repo with a CircleCi pipeline that simply builds the image. Will need to find a cloud provider to deploy onto. Perhaps [Heroku](https://www.heroku.com/)
 
@@ -303,6 +303,8 @@ not affect the application.
 24. Error with request parameters not being taken to uppercase. Doesn't affect program, but annoys me. 
 
 27. Other types of screening. Discounted Cash Flow, for instance. 
+
+28. Plot dividends with linear regression model superimposed.
 
 ### NOTES
 

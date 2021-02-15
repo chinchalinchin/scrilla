@@ -24,7 +24,7 @@ output = logger.Logger("server.pynance_api.scrap", settings.LOG_LEVEL)
 def scrap_prices(asset_type):
     today = datetime.date.today()
 
-    symbols = list(services.get_static_data(asset_type))
+    symbols = list(files.get_static_data(asset_type))
 
     for symbol in symbols:
 
@@ -89,7 +89,7 @@ def scrap_prices(asset_type):
 
 def scrap_stats(stat_type):
     today = datetime.date.today()
-    symbols = list(services.get_static_data(stat_type))
+    symbols = list(files.get_static_data(stat_type))
 
     # TODO: scrap quandl stats
     pass
