@@ -712,26 +712,28 @@ def sample_correlation(x, y):
             sum_y += y[i]
             sum_y += y[i]**2
         correlation_num = ((n*sumproduct) - sum_x*sum_y)
-        correlation_den = numpy.sqrt((n*sum_x_squared-sum_x**2)(n*sum_y_squared-sum_y**2))
+        correlation_den = numpy.sqrt((n*sum_x_squared-sum_x**2)*(n*sum_y_squared-sum_y**2))
         correlation = correlation_num / correlation_den
+        return correlation
 
 def sample_mean(x):
-    sample_mean, n = 0, len(x)
+    xbar, n = 0, len(x)
     for i in x:
-        sample_mean+=i/n
-    return sample_mean
+        xbar += i/n
+    return xbar
 
 def sample_variance(x):
-    sample_mean, sample_var, n = sample_mean(x=x), 0, len(x)
+    mu, sigma, n = sample_mean(x=x), 0, len(x)
     for i in x:
-        sample_var += ((i-sample_mean)**2)/(n-1)
-    return sample_var
+        sigma += ((i-mu)**2)/(n-1)
+    return sigma
 
 def regression_beta(x, y):
-    sample_correlation=sample_correlation(x,y)
+    correl = sample_correlation(x=x, y=y)
     vol_x = numpy.sqrt(sample_variance(x=x))
-    vol_y = numpy.sqrt(sample_variance(y=y))
-    beta = sample_correlation * vol_y / vol_x
+    vol_y = numpy.sqrt(sample_variance(x=y))
+    beta = correl * vol_y / vol_x
+    return beta
 
 def regression_alpha(x, y):
     y_mean, x_mean = sample_mean(y), sample_mean(x)

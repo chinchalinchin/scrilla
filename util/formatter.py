@@ -22,7 +22,7 @@ FUNC_ARG_DICT = {
     "clear_cache": "-clear",
     "close": "-close",
     "correlation":"-cor",
-    "dividend_discount": "-ddm",
+    "discount_dividend": "-ddm",
     "efficient_frontier": "-ef",
     "examples": "-ex",
     "gui": "-gui",
