@@ -70,10 +70,10 @@ if __name__ == "__main__":
 
         ### FUNCTION: Print Stock Watchlist
         # TODO:
-        elif opt == formatter.FUNC_ARG_DICT['list']:
+        elif opt == formatter.FUNC_ARG_DICT['list_watchlist']:
             tickers = services.get_watchlist()
             output.title_line("Stock Watchlist")
-            # output.print_list(tickers)
+            output.print_list(tickers)
 
         ### FUNCTION: Risk Free Rate
         elif opt == formatter.FUNC_ARG_DICT['risk_free_rate']:
@@ -151,7 +151,7 @@ if __name__ == "__main__":
                 if(len(main_args)>1) or len(main_args)==1:
                     for arg in main_args:
                         dividends = services.get_dividend_history(arg)
-                        div_npv = Cashflow(dividends).calculate_net_present_value(discount_rate=discount)
+                        div_npv = Cashflow(sample=dividends, discount_rate=discount).calculate_net_present_value()
                         output.scalar_result(f'Net Present Value ({arg} dividends)', div_npv)
                 else:
                     output.comment('Invalid input. Try -ex flag for example usage.')
@@ -263,7 +263,7 @@ if __name__ == "__main__":
                 if model is None:
                     model = markets.MODEL_DDM
 
-                results = markets.screen_for_discount(model=model)
+                results = markets.screen_for_discount(model=model, discount=discount)
                 output.screen_results(info=results, model=model)
 
             ### FUNCTION: Get Latest Economic Statistic

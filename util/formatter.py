@@ -30,7 +30,7 @@ FUNC_ARG_DICT = {
     "gui": "-gui",
     "help": "-help",
     "initialize": "-init",
-    "list": "-ls",
+    "list_watchlist": "-ls",
     "maximize_return": "-max",
     "moving_averages": "-mov",
     "optimize_portfolio": "-opt",
@@ -80,15 +80,16 @@ FUNC_DICT = {
     "purge": "Removes all files contained with the /static/ and /cache/ directory, but retains the directories themselves.",
     "risk_free_rate": "Returns current 10-year, annualized US Treasury yield.",
     "risk_return": "Calculate the risk-return profile for the supplied list of ticker symbols. ADDITIONAL OPTIONS:  -start (format: \"YYYY-MM-DD\"), -end  (format :\"YYYY-MM-DD\")",
-    "screener": "Searchs equity spot prices that trade at a discount to the provided model. If no model is provided, the screen will use the Discount Dividend Model. ADDITION OPTIONS: -model (format: string, values: ddm)",
+    "screener": "Searchs equity spot prices that trade at a discount to the provided model. If no model is provided, the screener will default to the Discount Dividend Model. If no discount rate is provided, the screener will default to the risk free rate defined by the RISK_FREE environment variable. ADDITION OPTIONS: -discount (format: decimal), -model (format: string, values: ddm)",
     "server_local": "Invokes 'python manage.py runserver' from /server/ directory. Configure .env file to change port.",
     "server_container": "Builds and runs a Docker image of the application on 'localhost'. Configure .env to change port.",
-    "indicator": "Retrieves the latest value for the supplied list of economic statistics. The available list of economic statistic can be found at https://www.quandl.com/data/FRED-Federal-Reserve-Economic-Data/documentation?anchor=growth; it is also stored in the /static/ directory of the application ",
+    "statistic": "Retrieves the latest value for the supplied list of economic statistics. The available list of economic statistic can be found at https://www.quandl.com/data/FRED-Federal-Reserve-Economic-Data/documentation?anchor=growth; it is also stored in the /static/ directory of the application ",
     "watchlist": "Saves the supplist list of tickers to your watchlist. These equity symbol are used by the screening algorithms when searching for stocks that trade at a discount."
 
 }
 
 EXAMPLES = { 
+    'python ./main.py -ls': 'Lists the stocks in your watchlist.',
     'python ./main.py -rr GOOG AMZN XOM AAPL': 'Calculate the risk-return profile for each equity in the portfolio composed of (GOOG, AMZN, XOM, APPL)',
     'python ./main.py -cor GLD SPY SLV UUP TLT EWA': 'Calculate the correlation matrix for the portfolio composed of (GLD, SPY, SLV, UUP, TLT, EWA',
     'python ./main.py -min U TSLA SPCE': 'Find the portfolio allocation that minimizes the overall variance of the portfolio composed of (U, TSLA, SPCE). ',
@@ -98,5 +99,7 @@ EXAMPLES = {
     'python ./main.py -plot-mov -save /home/Desktop/moving_averages.jpeg QS ACI': "Generate a graphical display of the current moving averages of the (QS, ACI) portolio and saves it to the file named 'moving_averages.jpeg' located in the directory /home/Desktop/. The length of moving average periods can be adjusted by the MA_1_PERIOD, MA_2_PERIOD and MA_3_PERIOD environment variables. Note, if the graphical display does not show up, you may need to configure matplotlib\'s backend to be compatible with your OS.",
     'python ./main.py -ind GDP BASE MI': "Display the latest values for the supplied list of economic indicators.",
     'python ./main.py -close MSFT IBM FSLR NFLX BTC XRP': "Displays the last closing price for the supplied list of asset types",
-    'python ./main.py -gui': "Launches a PyQt GUI into which the application functions have been wired."
+    'python ./main.py -gui': "Launches a PyQt GUI into which the application functions have been wired.",
+    'python ./main.py -screen -model DDM': 'Screens the equities in your watchlist for spot prices that trade at a discount to the Discount Dividend Model',
+    'python ./main.py -watch ATVI TTWO EA': 'Adds the portfolio (ATVI, TTWO, EA) to the existing ticker symbols in your equity watchlist'  
 }

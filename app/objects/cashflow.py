@@ -137,7 +137,7 @@ class Cashflow:
             return self.growth_function(x)
 
     # TODO: use trading days or actual days?
-    def calculate_net_present_value(self, discount_rate=None):
+    def calculate_net_present_value(self):
     
         if self.period is None:
             output.debug('No period detected for cashflows. Not enough information to calculate net present value.')

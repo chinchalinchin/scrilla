@@ -59,9 +59,9 @@ class Logger():
         buff = int((formatter.LINE_LENGTH - len(this_line))/2)
         print(' '*buff, this_line, ' '*buff)
 
-    def print_list(self, list):
-        # TODO:
-        pass
+    def print_list(self, list_to_print):
+        for i in range(len(list_to_print)):
+            print(formatter.TAB, f'{i}. {list_to_print[i]}')
     
     # PRE-FORMATTED FUNCTIONS
     def example_expo(self, ex_no, example, explanation):

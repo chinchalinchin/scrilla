@@ -634,6 +634,8 @@ def add_watchlist(new_tickers):
             output.debug(f'New ticker being added to Watchlist: {ticker}')
             current_tickers.append(ticker)
 
+    current_tickers = sorted(current_tickers)
+    
     with open(settings.COMMON_WATCHLIST_FILE, 'w+') as outfile:
         if settings.FILE_EXT == "json":
             json.dump(current_tickers, outfile)

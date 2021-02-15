@@ -64,7 +64,7 @@ def get_trading_period(asset_type):
     else:
         return settings.ONE_TRADING_DAY
 
-def screen_for_discount(model=None):
+def screen_for_discount(model=None, discount=None):
     """
     Parameters
     ----------
@@ -84,7 +84,6 @@ def screen_for_discount(model=None):
     if model is None:
         model = MODEL_DDM
 
-    risk_free_rate = services.get_risk_free_rate()
     equities = list(services.get_watchlist())
     discounts = {}
     
@@ -95,7 +94,7 @@ def screen_for_discount(model=None):
 
         if model == MODEL_DDM:
             dividends = services.get_dividend_history(equity)
-            model_price = Cashflow(dividends).calculate_net_present_value(discount_rate=risk_free_rate)
+            model_price = Cashflow(sample=dividends, discount_rate=discount).calculate_net_present_value()
         
         if not model_price:
             output.debug(f'Net present value of dividend payments cannot be calculated for {equity}.')
