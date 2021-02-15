@@ -20,7 +20,8 @@ TAB = "      "
 
 FUNC_ARG_DICT = {
     "asset_type": "-at",
-    "capm_equity_cost": "-capm-eq",
+    "capm_equity_cost": "-capm-equity",
+    "capm_beta": "-capm-beta",
     "clear_cache": "-clear-cache",
     "clear_static": "-clear-static",
     "clear_watchlist": "-clear-watch",
@@ -61,7 +62,8 @@ FUNC_XTRA_ARGS_DICT = {
 
 FUNC_DICT = {
     "asset_type": "Outputs the asset type for the supplied symbol.",
-    "capm_equity_cost": "Computes the cost of equity according to CAPM for the supplied list of tickers. If no start or end dates are specified, calculations default to the last 100 days of prices. ADDITIONAL OPTIONS:  -start (format: \"YYYY-MM-DD\"), -end  (format :\"YYYY-MM-DD\")",
+    "capm_equity_cost": "Computes the cost of equity according to CAPM for the supplied list of tickers. If no start or end dates are specified, calculations default to the last 100 days of prices. The environment variable MARKET_RATE defines which ticker serves as a proxy for the market as whole. ADDITIONAL OPTIONS:  -start (format: \"YYYY-MM-DD\"), -end  (format :\"YYYY-MM-DD\")",
+    "capm_beta": "Computes the market beta according to CAPM for the supplied list of tickers. If no start or end dates are specified, calculations default to the last 100 days of prices. The environment variable MARKET_RATE defines which ticker serves as a proxy for the market as whole. ADDITIONAL OPTIONS:  -start (format: \"YYYY-MM-DD\"), -end  (format :\"YYYY-MM-DD\")",
     "clear_cache": "Clears the /data/cache/ directory of all data, outdated or not.",
     "clear_static": "Clears the /data/static directory of all data. Not recommended unless necessary. Static data takes a long time to reload.",
     "clear_watchlist": "Clears the /data/common/watchlist.json of all saved ticker symbols.",
@@ -84,7 +86,7 @@ FUNC_DICT = {
     "purge": "Removes all files contained with the /static/ and /cache/ directory, but retains the directories themselves.",
     "risk_free_rate": "Returns current 10-year, annualized US Treasury yield.",
     "risk_return": "Calculate the risk-return profile for the supplied list of ticker symbols. If no start or end dates are specified, calculations default to the last 100 days of prices. ADDITIONAL OPTIONS:  -start (format: \"YYYY-MM-DD\"), -end  (format :\"YYYY-MM-DD\")",
-    "screener": "Searchs equity spot prices that trade at a discount to the provided model. If no model is provided, the screener will default to the Discount Dividend Model. If no discount rate is provided, the screener will default to the risk free rate defined by the RISK_FREE environment variable. ADDITION OPTIONS: -discount (format: decimal), -model (format: string, values: ddm)",
+    "screener": "Searchs equity spot prices that trade at a discount to the provided model. If no model is provided, the screener will default to the Discount Dividend Model. If no discount rate is provided, the screener will default to the cost of equity for a ticker calculated using the CAPM model and the ticker defined by environment variable MARKET_RATE as a proxy for the market. ADDITION OPTIONS: -discount (format: decimal), -model (format: string, values: ddm)",
     "server_local": "Invokes 'python manage.py runserver' from /server/ directory. Configure .env file to change port.",
     "server_container": "Builds and runs a Docker image of the application on 'localhost'. Configure .env to change port.",
     "statistic": "Retrieves the latest value for the supplied list of economic statistics. The available list of economic statistic can be found at https://www.quandl.com/data/FRED-Federal-Reserve-Economic-Data/documentation?anchor=growth; it is also stored in the /static/ directory of the application ",

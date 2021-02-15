@@ -126,6 +126,22 @@ if __name__ == "__main__":
                     else: 
                         output.comment('Error encountered while determining asset Type. Try -ex flag for example usage.')
 
+            elif opt == formatter.FUNC_ARG_DICT['capm_equity_cost']:
+                if (len(main_args)>0):
+                    for arg in main_args:
+                        equity_cost = markets.cost_of_equity(ticker=arg, start_date=start_date, end_date=end_date)
+                        output.scalar_result(f'{arg}_equity_cost', equity_cost, currency=False)
+                else:
+                    output.comment('Error encountered while calculating. Try -ex flag for example usage.')
+
+            elif opt == formatter.FUNC_ARG_DICT['capm_beta']:
+                if (len(main_args)>0):
+                    for arg in main_args:
+                        beta = markets.market_beta(ticker=arg, start_date=start_date, end_date=end_date)
+                        output.scalar_result(f'{arg}_beta', equity_cost, currency=False)
+                else:
+                    output.comment('Error encountered while calculating. Try -ex flag for example usage.')
+
             ### FUNCTION: Last Close Price
             elif opt == formatter.FUNC_ARG_DICT["close"]:
                 if(len(main_args)>1) or len(main_args)==1:
@@ -178,7 +194,7 @@ if __name__ == "__main__":
 
             ### FUNCTION: Moving Averages of Logarithmic Returns
             elif opt == formatter.FUNC_ARG_DICT['moving_averages']:
-                if(len(main_args)>1) or len(main_args)==1:
+                if(len(main_args)>0):
                     moving_averages = statistics.calculate_moving_averages(main_args, start_date, end_date)
                     periods = [settings.MA_1_PERIOD, settings.MA_2_PERIOD, settings.MA_3_PERIOD]
                     output.moving_average_result(main_args, moving_averages, periods, start_date, end_date)
@@ -221,7 +237,7 @@ if __name__ == "__main__":
 
             ### FUNCTION: Plot Moving Averages of Logarithmic Returns
             elif opt == formatter.FUNC_ARG_DICT['plot_moving_averages'] and settings.APP_ENV != "container":
-                if(len(main_args)>1) or len(main_args)==1:
+                if(len(main_args)>0):
                     moving_averages = statistics.calculate_moving_averages(main_args, start_date, end_date)
                     periods = [settings.MA_1_PERIOD, settings.MA_2_PERIOD, settings.MA_3_PERIOD]
                     plotter.plot_moving_averages(symbols=main_args, averages_output=moving_averages, periods=periods, 
@@ -246,7 +262,7 @@ if __name__ == "__main__":
 
             ### FUNCTION: Risk-Return Profile
             elif opt == formatter.FUNC_ARG_DICT["risk_return"]:
-                if(len(main_args)>1) or len(main_args)==1:
+                if(len(main_args)>0):
                     for arg in main_args:
                         result = statistics.calculate_risk_return(arg, start_date, end_date)
                         if result:
@@ -271,7 +287,7 @@ if __name__ == "__main__":
 
             ### FUNCTION: Get Latest Economic Statistic
             elif opt == formatter.FUNC_ARG_DICT["statistic"]:
-                if(len(main_args)>1) or len(main_args)==1:
+                if(len(main_args)>0):
                     for stat in main_args:
                         output.scalar_result(calculation=stat, 
                                                 result=services.get_daily_stats_latest(stat),
@@ -281,7 +297,7 @@ if __name__ == "__main__":
             
             ### FUNCTION: Set Watchlist
             elif opt == formatter.FUNC_ARG_DICT["watchlist"]:
-                if(len(main_args)>1) or len(main_args)==1:
+                if(len(main_args)>0):
                     files.add_watchlist(new_tickers=main_args)
                     output.comment("Watchlist saved. Use -ls option to print watchlist.")
                 else:
