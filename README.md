@@ -216,7 +216,7 @@ Some endpoints have unique query parameters, but all endpoints accept the follow
     >   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'ticker_allocation': double,<br>
     >   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'ticker_allocation': double,<br>
     >   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;...<br>
-    >   &nbsp;&nbsp;}<br>
+    >   &nbsp;&nbsp;&nbsp;&nbsp;}<br>
     >   },<br>
     >   'portfolio_2': { <br>
     >   &nbsp;&nbsp;&nbsp;&nbsp;'portfolio_return': double,<br>
@@ -225,7 +225,7 @@ Some endpoints have unique query parameters, but all endpoints accept the follow
     >   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'ticker_allocation': double,<br>
     >   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'ticker_allocation': double,<br>
     >   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;...<br>
-    >   &nbsp;&nbsp;}<br>
+    >   &nbsp;&nbsp;&nbsp;&nbsp;}<br>
     >   },<br>
     >   ...<br>
     > }
@@ -244,11 +244,11 @@ Some endpoints have unique query parameters, but all endpoints accept the follow
     >   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'date': double, <br>
     >   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;... <br>
     >   &nbsp;&nbsp;&nbsp;&nbsp;}, <br>
-    >   &nbsp;&nbsp;'ticker_MA_2:{ <br>
+    >   &nbsp;&nbsp;&nbsp;&nbsp;'ticker_MA_2:{ <br>
     >   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'date': double, <br>
     >   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;... <br>
     >   &nbsp;&nbsp;&nbsp;&nbsp;}, <br>
-    >   &nbsp;&nbsp;'ticker_MA_3': { <br>
+    >   &nbsp;&nbsp;&nbsp;&nbsp;'ticker_MA_3': { <br>
     >   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'date': double, <br>
     >   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;... <br>
     >   &nbsp;&nbsp;&nbsp;&nbsp;}<br>
