@@ -102,8 +102,11 @@ class Logger():
     def string_result(self, operation, result):
         print(' '*formatter.INDENT, '>>', operation, ' = ', result)
         
-    def scalar_result(self, calculation, result):
-        print(' '*formatter.INDENT, '>>', calculation, ' = ', round(result, 4))
+    def scalar_result(self, calculation, result, currency=True):
+        if currency:
+            print(' '*formatter.INDENT, '>>', calculation, ' = $', round(result, 2))
+        else:
+            print(' '*formatter.INDENT, '>>', calculation, ' = ', round(result, 4))
 
     def equivalent_result(self, right_hand, left_hand, value):
         print(' '*formatter.INDENT, '>>', f'{right_hand} = {left_hand} = {value}')
@@ -179,8 +182,8 @@ class Logger():
             self.scalar_result('Total', round(total,2))
 
         self.title_line('Risk-Return Profile')
-        self.scalar_result('Return', portfolio.return_function(allocation))
-        self.scalar_result('Volatility', portfolio.volatility_function(allocation))
+        self.scalar_result(calculation='Return', result=portfolio.return_function(allocation), currency=False)
+        self.scalar_result(calculation='Volatility', result=portfolio.volatility_function(allocation), currency=False)
 
     def efficient_frontier(self, portfolio, frontier, user_input):
         if user_input:

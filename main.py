@@ -77,7 +77,9 @@ if __name__ == "__main__":
 
         ### FUNCTION: Risk Free Rate
         elif opt == formatter.FUNC_ARG_DICT['risk_free_rate']:
-            output.scalar_result(formatter.RISK_FREE_TITLE, services.get_risk_free_rate())
+            output.scalar_result(calculation=formatter.RISK_FREE_TITLE, 
+                                    result=services.get_risk_free_rate(), 
+                                    currency=False)
 
         ### FUNCTION: Purge Data Directories
         elif opt == formatter.FUNC_ARG_DICT["purge"]:
@@ -129,7 +131,7 @@ if __name__ == "__main__":
                 if(len(main_args)>1) or len(main_args)==1:
                     for arg in main_args:
                         price = services.get_daily_price_latest(arg)
-                        output.scalar_result(arg, float(price))
+                        output.scalar_result(calculation=arg, result=float(price))
                     
                 else:
                     output.comment('Error encountered while calculating. Try -ex flag for example usage.')
@@ -243,8 +245,12 @@ if __name__ == "__main__":
                     for arg in main_args:
                         result = statistics.calculate_risk_return(arg, start_date, end_date)
                         if result:
-                            output.scalar_result(f'mean_{arg}', result['annual_return'])
-                            output.scalar_result(f'vol_{arg}', result['annual_volatility'])
+                            output.scalar_result(calculation=f'mean_{arg}', 
+                                                    result=result['annual_return'],
+                                                    currency=False)
+                            output.scalar_result(calculation=f'vol_{arg}', 
+                                                    result=result['annual_volatility'],
+                                                    currency=False)
 
                         else:
                             output.comment('Error Encountered While Calculating. Try -ex Flag For Example Usage.')
@@ -256,7 +262,7 @@ if __name__ == "__main__":
             elif  opt == formatter.FUNC_ARG_DICT["screener"]:
                 if model is None:
                     model = markets.MODEL_DDM
-                    
+
                 results = markets.screen_for_discount(model=model)
                 output.screen_results(info=results, model=model)
 
@@ -264,7 +270,9 @@ if __name__ == "__main__":
             elif opt == formatter.FUNC_ARG_DICT["statistic"]:
                 if(len(main_args)>1) or len(main_args)==1:
                     for stat in main_args:
-                        output.scalar_result(stat, services.get_daily_stats_latest(stat))
+                        output.scalar_result(calculation=stat, 
+                                                result=services.get_daily_stats_latest(stat),
+                                                currency=False)
 
                 else:
                     output.comment('Error encountered while calculating. Try -ex flag for example usage.')
