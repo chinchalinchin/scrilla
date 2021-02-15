@@ -154,28 +154,11 @@ class Logger():
                     msg_3 = f'{dates[j]} : {MA3_title}'
                     self.scalar_result(msg_3, round(averages[i][2][j], 2))      
 
-    def discount_price(self, ticker, spot_price, model_price, model):
-        self.spot_price(ticker=ticker, spot_price=spot_price)
-        self.model_price(ticker=ticker, model_price=model_price, model=model)
-        discount = model_price - spot_price
-        self.scalar_result(f'{ticker} discount', discount)
-
-    def premium_price(self, ticker, spot_price, model_price, model):
-        self.spot_price(ticker=ticker, spot_price=spot_price)
-        self.model_price(ticker=ticker,model_price=model_price, model=model)
-        premium = spot_price - model_price
-        self.scalar_result(f'{ticker} premium', premium)
-
-    def premium_or_discount(self, ticker, spot_price, model_price, model):
-        if model_price > spot_price:
-            self.discount_price(ticker=ticker, spot_price=spot_price, 
-                                model_price=model_price, model=model)
-        elif model_price == spot_price:
-            self.equivalent_result(f'{ticker} spot', f'{ticker} {model}', spot_price)
-        # model_price < spot_price
-        else:
-            self.premium_price(ticker=ticker, spot_price=spot_price,
-                                model_price=model_price, model=model)
+    def screen_results(self, info, model):
+        for ticker in info:
+            self.spot_price(ticker=ticker, spot_price=info['spot_price'])
+            self.model_price(ticker=ticker, model_price=info['model_price'], model=model)
+            self.scalar_result(f'{ticker} discount', info['discount'])
             
     def optimal_result(self, portfolio, allocation, user_input):
         self.title_line('Optimal Percentage Allocation')

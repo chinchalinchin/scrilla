@@ -250,6 +250,8 @@ if __name__ == "__main__":
             ### FUNCTION: Model Discount Screener 
             elif  opt == formatter.FUNC_ARG_DICT["screener"]:
                 output.comment('Model screening for discount spot prices goes here')
+                results = markets.screen_for_discount(model=model)
+                output.screen_results(info=results, model=model)
                 # result = some_class.screen_equities_for_model_discount(model=model)
                 # output.premium_or_discount
                 pass
@@ -262,15 +264,14 @@ if __name__ == "__main__":
 
                 else:
                     output.comment('Error encountered while calculating. Try -ex flag for example usage.')
-
+            
+            ### FUNCTION: Set Watchlist
             elif opt == formatter.FUNC_ARG_DICT["watchlist"]:
                 if(len(main_args)>1) or len(main_args)==1:
                     services.set_watchlist(tickers=main_args)
                     output.comment("Watchlist saved. Use -ls option to print watchlist.")
                 else:
                     output.comment('Error encountered while calculating. Try -ex flag for example usage.')
-
-            ### FUNCTION: Set Watchlist
 
             else:
                 output.comment('No function supplied. Please review Function Summary below and re-execute with appropriate arguments.')

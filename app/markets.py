@@ -64,23 +64,49 @@ def get_trading_period(asset_type):
     else:
         return settings.ONE_TRADING_DAY
 
-def screen_for_discount(model=MODEL_DDM):
+def screen_for_discount(model=None):
+    """
+    Parameters
+    ----------
+    model : str \n
+        Model used to value the equities saved in the watchlist. If no model is specified, the function will default to MODEL_DDM. Model constants are statically accessible through the variables: MODEL_DDM (Discount Dividend Model), MODEL_DCF (Discounted Cash Flow Model) \n \n
+
+    Output
+    ------
+    A list of tickers that trade at a discount relative to the model price, formatted as follows: \n
+        { 'ticker' : { \n 
+                'spot_price': float, \n
+                'model_price': float, \n
+                'discount': float \n 
+            }\n
+        }\n \n 
+    """
+    if model is None:
+        model = MODEL_DDM
+
     risk_free_rate = services.get_risk_free_rate()
     equities = list(services.get_watchlist())
-    discounts = []
+    discounts = {}
     
-    if model == MODEL_DDM:
-        output.debug(f'Using Discount Dividend Model to screen watchlisted equities for discounts.')
-        for equity in equities:
+    output.debug(f'Using Discount Dividend Model to screen watchlisted equities for discounts.')
+
+    for equity in equities:
+        spot_price = services.get_daily_price_latest(ticker=equity)
+
+        if model == MODEL_DDM:
             dividends = services.get_dividend_history(equity)
-            div_npv = Cashflow(dividends).calculate_net_present_value(discount_rate=risk_free_rate)
-            spot_price = services.get_daily_price_latest(ticker=equity)
-            discount = div_npv - spot_price
-            
-            output.verbose(f'{equity} spot price = {spot_price}, {equity} DDM price = {div_npv} ')
-            
-            if discount > 0:
-                output.debug(f'Discount of {discount} found for {equity}')
-                discounts += equity
+            model_price = Cashflow(dividends).calculate_net_present_value(discount_rate=risk_free_rate)
+        
+        discount = model_price - spot_price
+        
+        output.verbose(f'{equity} spot price = {spot_price}, {equity} {model} price = {model_price}')
+        
+        if discount > 0:
+            discount_result = {}
+            discount_result['spot_price'] = spot_price
+            discount_result['model_price'] = model_price
+            discount_result['discount'] = discount
+            discounts[equity] = discount_result
+            output.debug(f'Discount of {discount} found for {equity}')
 
     return discounts

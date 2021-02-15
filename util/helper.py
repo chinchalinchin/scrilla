@@ -325,7 +325,7 @@ def get_discount(xtra_args, xtra_values):
 
 def get_model(xtra_args, xtra_values):
     if formatter.FUNC_XTRA_ARGS_DICT['model'] in xtra_args:
-        model = xtra_values[xtra_args.index(formatter.FUNC_XTRA_ARGS_DICT['model'])]
+        model = str(xtra_values[xtra_args.index(formatter.FUNC_XTRA_ARGS_DICT['model'])]).lower()
     else:
         model = None
     return model
