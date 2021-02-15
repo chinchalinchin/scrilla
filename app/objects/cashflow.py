@@ -60,6 +60,7 @@ class Cashflow:
         else:
             self.discount_rate = discount_rate
 
+        output.debug(f'Using discount_rate = {self.discount_rate}')
 
         # If no frequency is specified, infer frequency from sample
         if period is None:

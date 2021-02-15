@@ -249,13 +249,16 @@ def get_time_to_year(date):
     return ((next_year - today).days / 365)
 
 def get_time_to_next_period(starting_date, period):
-    today = datetime.date.today()
-    floored_days=math.floor(365*period)
+    if period is None:
+        return 0
+    else:
+        today = datetime.date.today()
+        floored_days=math.floor(365*period)
 
-    while ((starting_date - today).days<0):
-        starting_date += datetime.timedelta(days=floored_days)
-    
-    return ((today - starting_date).days / 365)
+        while ((starting_date - today).days<0):
+            starting_date += datetime.timedelta(days=floored_days)
+        
+        return ((today - starting_date).days / 365)
 ################################################
 ##### PARSING FUNCTIONS
 

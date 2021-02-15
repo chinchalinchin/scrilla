@@ -263,8 +263,9 @@ if __name__ == "__main__":
             elif  opt == formatter.FUNC_ARG_DICT["screener"]:
                 if model is None:
                     model = markets.MODEL_DDM
+                output.debug(f'Using discount rate =  {discount}')
 
-                results = markets.screen_for_discount(model=model, discount=discount)
+                results = markets.screen_for_discount(model=model, discount_rate=discount)
                 output.screen_results(info=results, model=model)
 
             ### FUNCTION: Get Latest Economic Statistic
