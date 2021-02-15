@@ -330,12 +330,12 @@ def get_daily_price_history(ticker, start_date=None, end_date=None):
         output.debug(f'Checking for {ticker} prices in cache..')
         now = datetime.datetime.now()
         timestamp = '{}{}{}'.format(now.month, now.day, now.year)
-        buffer_store= os.path.join(settings.CACHE_DIR, f'{timestamp}_{ticker}.{settings.CACHE_EXT}')
+        buffer_store= os.path.join(settings.CACHE_DIR, f'{timestamp}_{ticker}.{settings.FILE_EXT}')
         
         if os.path.isfile(buffer_store):
             output.debug(f'Loading in cached {ticker} prices.')
             with open(buffer_store, 'r') as infile:
-                if settings.CACHE_EXT == "json":
+                if settings.FILE_EXT == "json":
                     output.debug(f'Cached {ticker} prices loaded.')
                     prices = json.load(infile)
                 # TODO: load other file types
@@ -346,7 +346,7 @@ def get_daily_price_history(ticker, start_date=None, end_date=None):
 
             output.debug(f'Storing {ticker} price history in cache.')
             with open(buffer_store, 'w') as outfile:
-                if settings.CACHE_EXT == "json":
+                if settings.FILE_EXT == "json":
                     json.dump(prices, outfile)
                 # TODO: dump other file types
             return prices
@@ -426,12 +426,12 @@ def get_daily_stats_history(statistic, start_date=None, end_date=None):
         output.debug(f'Checking for {statistic} statistics in cache')
         now = datetime.datetime.now()
         timestamp = '{}{}{}'.format(now.month, now.day, now.year)
-        buffer_store = os.path.join(settings.CACHE_DIR, f'{timestamp}_{statistic}.{settings.CACHE_EXT}')
+        buffer_store = os.path.join(settings.CACHE_DIR, f'{timestamp}_{statistic}.{settings.FILE_EXT}')
 
         if os.path.isfile(buffer_store):
             output.debug(f'Loading in cached {statistic} statistics.')
             with open(buffer_store, 'r') as infile:
-                if settings.CACHE_EXT == "json":
+                if settings.FILE_EXT == "json":
                     output.debug(f'Cached {statistic} statistics loaded.')
                     stats = json.load(infile)
                 # TODO: load other file types
@@ -442,7 +442,7 @@ def get_daily_stats_history(statistic, start_date=None, end_date=None):
 
             output.debug(f'Storing {statistic} statistics in cache')
             with open(buffer_store, 'w') as outfile:
-                if settings.CACHE_EXT == "json":
+                if settings.FILE_EXT == "json":
                     json.dump(stats, outfile)
                 # TODO: dump other file types
             return stats
@@ -484,12 +484,12 @@ def get_dividend_history(ticker):
     output.debug(f'Checking for {ticker} dividend history in cache.')
     now = datetime.datetime.now()
     timestamp = '{}{}{}'.format(now.month, now.day, now.year)
-    buffer_store= os.path.join(settings.CACHE_DIR, f'{timestamp}_{ticker}_dividends.{settings.CACHE_EXT}')
+    buffer_store= os.path.join(settings.CACHE_DIR, f'{timestamp}_{ticker}_dividends.{settings.FILE_EXT}')
         
     if os.path.isfile(buffer_store):
         output.debug(f'Loading in cached {ticker} dividend history.')
         with open(buffer_store, 'r') as infile:
-            if settings.CACHE_EXT == "json":
+            if settings.FILE_EXT == "json":
                 output.debug(f'Cached {ticker} dividend loaded.')
                 dividends = json.load(infile)
             # TODO: load other file types
@@ -500,7 +500,7 @@ def get_dividend_history(ticker):
 
         output.debug(f'Storing {ticker} price history in cache.')
         with open(buffer_store, 'w') as outfile:
-            if settings.CACHE_EXT == "json":
+            if settings.FILE_EXT == "json":
                 json.dump(dividends, outfile)
             # TODO: dump other file types
         return dividends
@@ -542,7 +542,7 @@ def init_static_data():
 
                 output.debug(f'Preparsing to parse \'{settings.PRICE_MANAGER}\' Response to query: {query}')
                 helper.parse_csv_response_column(column=0, url=url, firstRowHeader=settings.AV_RES_EQUITY_KEY, 
-                                                    savefile=settings.STATIC_TICKERS_FILE, filetype=settings.STATIC_EXT)
+                                                    savefile=settings.STATIC_TICKERS_FILE, filetype=settings.FILE_EXT)
 
             # grab crypto symbols and store in STATIC_DIR
             if not os.path.isfile(settings.STATIC_CRYPTO_FILE):
@@ -551,7 +551,7 @@ def init_static_data():
 
                 output.debug(f'Preparsing to parse \'{settings.PRICE_MANAGER}\' Response to query: {query}')
                 helper.parse_csv_response_column(column=0, url=url, firstRowHeader=settings.AV_RES_CRYPTO_KEY, 
-                                                    savefile=settings.STATIC_CRYPTO_FILE, filetype=settings.STATIC_EXT)
+                                                    savefile=settings.STATIC_CRYPTO_FILE, filetype=settings.FILE_EXT)
 
         else:
             output.debug("No PRICE_MANAGER set in .env file!")
@@ -568,7 +568,7 @@ def init_static_data():
 
                 output.debug(f'Preparsing to parse \'{settings.PRICE_MANAGER}\' Response to query: {query}')
                 helper.parse_csv_response_column(column=0, url=url, firstRowHeader=settings.Q_RES_STAT_KEY,
-                                                    savefile=settings.STATIC_ECON_FILE, filetype=settings.STATIC_EXT,
+                                                    savefile=settings.STATIC_ECON_FILE, filetype=settings.FILE_EXT,
                                                     zipped=settings.Q_RES_STAT_ZIP_KEY)
 
         else:
@@ -598,9 +598,23 @@ def get_static_data(static_type):
 
         with open(path, 'r') as infile:
             symbols = json.load(infile)   
-            return symbols
+        
+        return symbols
     else:
         return False
 
-if __name__=="__main__":
-    print(get_dividend_history("AAPL"))
+def get_watchlist():
+    output.debug('Loading in Watchlist symbols.')
+
+    with open(settings.COMMON_WATCHLIST_FILE, 'r') as infile:
+        watchlist = json.load(infile)
+    
+    return watchlist
+
+def set_watchlist(tickers):
+    output.debug('Saving tickers to Watchlist')
+
+    with open(settings.COMMON_WATCHLIST_FILE, 'w') as outfile:
+        if settings.FILE_EXT == "json":
+            json.dump(tickers, outfile)
+        # TODO: implement other file extensions

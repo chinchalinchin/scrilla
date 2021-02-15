@@ -17,6 +17,7 @@ HELP_MSG = "A financial application written in python to determine optimal portf
 SYNTAX = "command -OPTIONS [tickers] (additional input)"
 
 TAB = "      "
+
 FUNC_ARG_DICT = {
     "asset_type": "-at",
     "clear_cache": "-clear",
@@ -28,19 +29,22 @@ FUNC_ARG_DICT = {
     "gui": "-gui",
     "help": "-help",
     "initialize": "-init",
+    "list": "-ls",
     "maximize_return": "-max",
     "moving_averages": "-mov",
     "optimize_portfolio": "-opt",
+    "plot_dividends": "-plot-div",
     "plot_frontier": "-plot-ef",
     "plot_moving_averages": "-plot-mov",
     "plot_risk_profile": "-plot-rr",
     "purge": "-purge",
     "risk_free_rate": "-rf",
     "risk_return" : "-rr",
+    "screener": "-screen",
     "server_local": "-local",
     "server_container": "-container",
     "statistic": "-stat",
-
+    "watchlist": "-watch"
 }
 
 FUNC_XTRA_ARGS_DICT = {
@@ -48,7 +52,8 @@ FUNC_XTRA_ARGS_DICT = {
     'save': '-save',
     'start_date': '-start',
     'end_date': '-end',
-    'discount': '-discount'
+    'discount': '-discount',
+    'model': '-model'
 }
 
 FUNC_DICT = {
@@ -63,17 +68,21 @@ FUNC_DICT = {
     "help": "Print this help message.",
     "initialize": "Initializes the data in the /static/ directory. Local application automatically initializes this data. This option is used to initialize static data inside of a Docker container, where the application entrypoint doesn't invoke the CLI automatically.",
     "maximize_return": "Maximize the return of the portfolio defined by the supplied list of ticker symbols. ADDITIONAL OPTIONS:  -start (format: \"YYYY-MM-DD\"), -end  (format :\"YYYY-MM-DD\")",
+    "list": "Lists the equity symbols currently saved to your watchlist.",
     "moving_averages": "Calculate the current moving averages. ADDITIONAL OPTIONS:  -start (format: \"YYYY-MM-DD\"), -end  (format :\"YYYY-MM-DD\")",
     "optimize_portfolio":"Optimize the volatility of the portfolio\'s variance subject to the supplied return target. The target return must be specified with the '-target' flag. If no target return is specified, the portfolio's volatility is minimized. ADDITIONAL OPTIONS:  -start (format: \"YYYY-MM-DD\"), -end  (format :\"YYYY-MM-DD\"), -target (format: decimal)",
+    "plot_dividends": "Generates a scatter plot graphic of the dividend history for the supplied list of tickers with a superimposed simple linear regression line. TODO: Doesn't go anything thing.",
     "plot_frontier": "Generates a scatter plot graphic of the portfolio\'s efficient frontier for the supplied list of tickers. Not available when running inside of a Docker container. ADDITIONAL OPTIONS:  -save (format: /path/to/file/filename.jpeg)",
     "plot_moving_averages": "Generates a grouped bar chart of the moving averages for each equity in the supplied list of ticker symbols. Not available when running inside of a Docker container. ADDITIONAL OPTIONS:  -start (format: \"YYYY-MM-DD\"), -end  (format :\"YYYY-MM-DD\"), -save (format: /path/to/file/filename.jpeg)",
     "plot_risk_profile": "Generates a scatter plot of the risk-return profile for symbol in the supplied list of ticker symbols.ADDITIONAL OPTIONS:  -start (format: \"YYYY-MM-DD\"), -end  (format :\"YYYY-MM-DD\"), -save (format: /path/to/file/filename.jpeg",
     "purge": "Removes all files contained with the /static/ and /cache/ directory, but retains the directories themselves.",
     "risk_free_rate": "Returns current 10-year, annualized US Treasury yield.",
     "risk_return": "Calculate the risk-return profile for the supplied list of ticker symbols. ADDITIONAL OPTIONS:  -start (format: \"YYYY-MM-DD\"), -end  (format :\"YYYY-MM-DD\")",
+    "screener": "Searchs equity spot prices that trade at a discount to the provided model. If no model is provided, the screen will use the Discount Dividend Model. ADDITION OPTIONS: -model (format: string, values: ddm)",
     "server_local": "Invokes 'python manage.py runserver' from /server/ directory. Configure .env file to change port.",
     "server_container": "Builds and runs a Docker image of the application on 'localhost'. Configure .env to change port.",
     "indicator": "Retrieves the latest value for the supplied list of economic statistics. The available list of economic statistic can be found at https://www.quandl.com/data/FRED-Federal-Reserve-Economic-Data/documentation?anchor=growth; it is also stored in the /static/ directory of the application ",
+    "watchlist": "Saves the supplist list of tickers to your watchlist. These equity symbol are used by the screening algorithms when searching for stocks that trade at a discount."
 
 }
 

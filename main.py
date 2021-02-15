@@ -31,16 +31,20 @@ if __name__ == "__main__":
         opt = sys.argv[1]
         
         # single argument functions
+        ### FUNCTION: Help Message
         if opt == formatter.FUNC_ARG_DICT["help"]:
             output.help()
 
+        ### FUNCTION: Clear Cache
         elif opt == formatter.FUNC_ARG_DICT["clear_cache"]:
             output.comment(f'Clearing {settings.CACHE_DIR}')
             helper.clear_directory(directory=settings.CACHE_DIR, retain=True, outdated_only=False)
 
+        ### FUNCTION: Function Examples
         elif opt == formatter.FUNC_ARG_DICT["examples"]:
             output.examples()
         
+        ### FUNCTION: Graphical User Interface
         elif opt == formatter.FUNC_ARG_DICT["gui"] and settings.APP_ENV != "container":
             app = QtWidgets.QApplication([])
 
@@ -50,16 +54,27 @@ if __name__ == "__main__":
 
             sys.exit(app.exec_())
 
+        # NOTE: Docker doesn't support windowing libraries
         elif opt == formatter.FUNC_ARG_DICT["gui"] and settings.APP_ENV == "container":
             output.comment("GUI functionality disabled when application is containerized.")
 
+        ### FUNCTION: Static Data Initialization
         elif opt == formatter.FUNC_ARG_DICT['initialize']:
             output.comment("Initializing /static/ directory")       
             services.init_static_data()
 
+        ### FUNCTION: Print Stock Watchlist
+        # TODO:
+        elif opt == formatter.FUNC_ARG_DICT['list']:
+            tickers = services.get_watchlist()
+            output.title_line("Stock Watchlist")
+            # output.print_list(tickers)
+
+        ### FUNCTION: Risk Free Rate
         elif opt == formatter.FUNC_ARG_DICT['risk_free_rate']:
             output.scalar_result(formatter.RISK_FREE_TITLE, services.get_risk_free_rate())
 
+        ### FUNCTION: Purge Data Directories
         elif opt == formatter.FUNC_ARG_DICT["purge"]:
             output.comment(f'Clearing {settings.STATIC_DIR} and {settings.CACHE_DIR}')
             helper.clear_directory(directory=settings.STATIC_DIR, retain=True, outdated_only=False)
@@ -68,10 +83,10 @@ if __name__ == "__main__":
 
         # variable argument functions
         else:
-            output.debug('Clearing /cache/ directory of outdated price histories')
+            output.debug('Clearing /cache/ directory of outdated data.')
             helper.clear_directory(directory=settings.CACHE_DIR, retain=True, outdated_only=True)
 
-            output.debug('Initialzing /static/ directory, if applicable')
+            output.debug('Initialzing /static/ directory, if applicable.')
             services.init_static_data()
             
             args = sys.argv[2:]
@@ -89,6 +104,7 @@ if __name__ == "__main__":
             save_file = helper.get_save_file(xtra_args, xtra_values)
             target = helper.get_target(xtra_args, xtra_values)
             discount = helper.get_discount(xtra_args, xtra_values)
+            model = helper.get_model(xtra_args, xtra_values)
 
             output.title_line('Results')
             output.line()
@@ -101,7 +117,7 @@ if __name__ == "__main__":
                         output.string_result(f'asset_type({arg})', asset_type)
 
                     else: 
-                        output.comment('Error Encountered While Determining Asset Type. Try -ex Flag For Example Usage.')
+                        output.comment('Error encountered while determining asset Type. Try -ex flag for example usage.')
 
             ### FUNCTION: Last Close Price
             elif opt == formatter.FUNC_ARG_DICT["close"]:
@@ -111,7 +127,7 @@ if __name__ == "__main__":
                         output.scalar_result(arg, float(price))
                     
                 else:
-                    output.comment('Error Encountered While Calculating. Try -ex Flag For Example Usage.')
+                    output.comment('Error encountered while calculating. Try -ex flag for example usage.')
                     
             ### FUNCTION: Correlation Matrix
             elif opt == formatter.FUNC_ARG_DICT["correlation"]:
@@ -121,7 +137,7 @@ if __name__ == "__main__":
                     output.comment(f'\n{result}')
 
                 else:
-                    output.comment('Invalid Input. Try -ex Flag For Example Usage.')
+                    output.comment('Invalid input. Try -ex flag for example usage.')
 
             ### FUNCTION: Discount Dividend Model
             elif opt == formatter.FUNC_ARG_DICT["discount_dividend"]:
@@ -131,7 +147,7 @@ if __name__ == "__main__":
                         div_npv = Cashflow(dividends).calculate_net_present_value(discount_rate=discount)
                         output.scalar_result(f'Net Present Value ({arg} dividends)', div_npv)
                 else:
-                    output.comment('Invalid Input. Try -ex Flag For Example Usage.') 
+                    output.comment('Invalid input. Try -ex flag for example usage.')
 
             ### FUNCTION: Efficient Frontier
             elif opt == formatter.FUNC_ARG_DICT['efficient_frontier']:
@@ -142,7 +158,7 @@ if __name__ == "__main__":
                                                 user_input=settings.INVESTMENT_MODE)
                 
                 else: 
-                    output.debug('Invalid Input. Try -ex Flag For Example Usage.')
+                    output.comment('Invalid input. Try -ex flag for example usage.')
                     
             ### FUNCTION: Maximize Portfolio Return
             elif opt == formatter.FUNC_ARG_DICT['maximize_return']:
@@ -153,7 +169,7 @@ if __name__ == "__main__":
                                             user_input=settings.INVESTMENT_MODE)
 
                 else:
-                    output.comment('Invalid Input. Try -ex Flag For Example Usage.')
+                    output.comment('Invalid input. Try -ex flag for example usage.')
 
             ### FUNCTION: Moving Averages of Logarithmic Returns
             elif opt == formatter.FUNC_ARG_DICT['moving_averages']:
@@ -163,7 +179,7 @@ if __name__ == "__main__":
                     output.moving_average_result(main_args, moving_averages, periods, start_date, end_date)
 
                 else: 
-                    output.comment('Invalid Input. Try -ex Flag For Example Usage.')
+                    output.comment('Invalid input. Try -ex flag for example usage.')
 
             ### FUNCTION: Optimize Portfolio Variance/Volatility
             elif opt == formatter.FUNC_ARG_DICT['optimize_portfolio']:
@@ -174,8 +190,15 @@ if __name__ == "__main__":
                                             user_input=settings.INVESTMENT_MODE)
                 
                 else: 
-                    output.comment('Invalid Input. Try -ex Flag For Example Usage.')
+                    output.comment('Invalid input. Try -ex flag for example usage.')
             
+            ### FUNCTION: Plot Dividen History
+            elif opt == formatter.FUNC_ARG_DICT['plot_dividends'] and settings.ENVIRONMENT != "container":
+                if(len(main_args)>1) or len(main_args)==1:
+                    output.comment('Dividend plotting goes here.')
+                else: 
+                    output.comment('Invalid input. Try -ex flag for example usage.')
+
             ### FUNCTION: Plot Efficient Frontier
             elif opt == formatter.FUNC_ARG_DICT['plot_frontier'] and settings.ENVIRONMENT != "container":
                 if(len(main_args)>1):
@@ -183,7 +206,7 @@ if __name__ == "__main__":
                     plotter.plot_frontier(portfolio=Portfolio(main_args), frontier=frontier, show=True, savefile=save_file)
                 
                 else: 
-                    output.debug('Invalid Input. Try Try -ex Flag For Example Usage.')
+                    output.comment('Invalid input. Try -ex flag for example usage.')
 
             ### FUNCTION: Plot Moving Averages of Logarithmic Returns
             elif opt == formatter.FUNC_ARG_DICT['plot_moving_averages'] and settings.APP_ENV != "container":
@@ -207,7 +230,7 @@ if __name__ == "__main__":
                                             subtitle=helper.format_date_range(start_date, end_date))
                 
                 else:
-                    output.debug('Invalid Input. Try Try -ex Flag For Example Usage.')
+                    output.comment('Invalid input. Try -ex flag for example usage.')
                     
             ### FUNCTION: Risk-Return Profile
             elif opt == formatter.FUNC_ARG_DICT["risk_return"]:
@@ -222,7 +245,14 @@ if __name__ == "__main__":
                             output.comment('Error Encountered While Calculating. Try -ex Flag For Example Usage.')
                 
                 else:
-                    output.comment('No Input Supplied. Try -ex Flag For Example Usage.')
+                    output.comment('Invalid input. Try -ex flag for example usage.')
+
+            ### FUNCTION: Model Discount Screener 
+            elif  opt == formatter.FUNC_ARG_DICT["screener"]:
+                output.comment('Model screening for discount spot prices goes here')
+                # result = some_class.screen_equities_for_model_discount(model=model)
+                # output.premium_or_discount
+                pass
 
             ### FUNCTION: Get Latest Economic Statistic
             elif opt == formatter.FUNC_ARG_DICT["statistic"]:
@@ -231,13 +261,22 @@ if __name__ == "__main__":
                         output.scalar_result(stat, services.get_daily_stats_latest(stat))
 
                 else:
-                    output.comment('Error Encountered While Calculating. Try -ex Flag For Example Usage.')
+                    output.comment('Error encountered while calculating. Try -ex flag for example usage.')
+
+            elif opt == formatter.FUNC_ARG_DICT["watchlist"]:
+                if(len(main_args)>1) or len(main_args)==1:
+                    services.set_watchlist(tickers=main_args)
+                    output.comment("Watchlist saved. Use -ls option to print watchlist.")
+                else:
+                    output.comment('Error encountered while calculating. Try -ex flag for example usage.')
+
+            ### FUNCTION: Set Watchlist
 
             else:
-                output.comment('No Function Supplied. Please Review Function Summary Below And Re-execute Script With Appropriate Arguments.')
+                output.comment('No function supplied. Please review Function Summary below and re-execute with appropriate arguments.')
                 output.help()
             
             output.line()
     else:
-        output.comment('No Arguments Supplied. Please Review Function Summary Below and Re-execute Script.')
+        output.comment('No arguments Supplied. Please review function summary below and re-execute with appropriate arguments.')
         output.help()

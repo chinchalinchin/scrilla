@@ -22,9 +22,9 @@ Attributes
 6. CONFIG_FILE: Location of secondary credentials file. \n \n
 7. CACHE_DIR: Folder where cached price histories reside. \n \n
 8. CACHE_STAT_KEY: File name where calculations are saved. \n \n
-9. CACHE_EXT: File extension used in CACHE_DIR. \n \n
+9. FILE_EXT: File extension used in CACHE_DIR. \n \n
 10. STATIC_DIR: Folder where static data reside. \n \n
-11. STATIC_EXT: File extension used in STATIC_DIR. \n \n
+11. FILE_EXT: File extension used in STATIC_DIR. \n \n
 12. STATIC_TICKERS_FILE: File containing equity ticker symbols. \n \n
 13. STATIC_ECON_FILE: File containg list of economic statistics. \n \n
 14. STATIC_CRYPTO_FILE: File containing crypto ticker symbols. \n \n
@@ -106,16 +106,20 @@ LOG_LEVEL = str(os.environ.setdefault("LOG_LEVEL", "info")).lower()
 output = logger.Logger('app.settings', LOG_LEVEL)
 
 # TODO: CACHE only supports JSON currently. Future file extensions: csv and txt.
+FILE_EXT = os.environ.setdefault("FILE_EXT", "json")
+
 CACHE_DIR = os.path.join(APP_DIR, 'data', 'cache')
 CACHE_STAT_KEY = "statistics"
-CACHE_EXT = "json"
 
 STATIC_DIR = os.path.join(APP_DIR, 'data', 'static')
-STATIC_EXT = "json"
 
-STATIC_TICKERS_FILE = os.path.join(STATIC_DIR, f'tickers.{STATIC_EXT}')
-STATIC_ECON_FILE = os.path.join(STATIC_DIR, f'economics.{STATIC_EXT}')
-STATIC_CRYPTO_FILE = os.path.join(STATIC_DIR, f'crypto.{STATIC_EXT}')
+STATIC_TICKERS_FILE = os.path.join(STATIC_DIR, f'tickers.{FILE_EXT}')
+STATIC_ECON_FILE = os.path.join(STATIC_DIR, f'economics.{FILE_EXT}')
+STATIC_CRYPTO_FILE = os.path.join(STATIC_DIR, f'crypto.{FILE_EXT}')
+
+COMMON_DIR=os.path.join(APP_DIR, 'data', 'common')
+COMMON_WATCHLIST_FILE=os.path.join(COMMON_DIR, f'watchlist.{FILE_EXT}')
+
 
 ACCURACY=5
 

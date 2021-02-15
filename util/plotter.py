@@ -174,3 +174,18 @@ def plot_moving_averages(symbols, averages_output, periods, show=True, savefile=
     else:
         canvas.draw()
         return canvas
+
+def plot_dividends(ticker, dividends, beta, alpha, show=True, savefile=None):
+    canvas = FigureCanvas(Figure())
+
+    # TODO: Plot dividends and model
+    if savefile is not None:
+        canvas.print_jpeg(filename_or_obj=savefile)
+
+    if show:
+        s, (width, height) = canvas.print_to_buffer()
+        im = Image.frombytes("RGBA", (width, height), s)
+        im.show()
+    else:
+        canvas.draw()
+        return canvas

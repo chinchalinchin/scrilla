@@ -304,6 +304,12 @@ not affect the application.
 
 24. Error with request parameters not being taken to uppercase. Doesn't affect program, but annoys me. 
 
+25. Screener that compares Discount Dividend Model to spot price and finds stocks that trade at a discount. 
+
+26. Function that sets Watchlist stocks. Only apply screener to watchlist.
+
+27. Other types of screening.
+
 ### NOTES
 
 1. All date strings should be converted to <b>datetime.dates</b> at point of contact with user, i.e. in the main.py file where CLI arguments are parsed, within the gui where user arguments are pulled from widgets or in the server's endpoint views where user arguments are provided through query parameters, before passing it the service/statistics/portfolio functions. All functions in the <i>/app/</i> module assume dates are passed in as <b>datetime.dates</b>.

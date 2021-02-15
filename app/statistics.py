@@ -327,7 +327,7 @@ def calculate_risk_return(ticker, start_date=None, end_date=None, sample_prices=
     """
     now = datetime.datetime.now()
     timestamp = '{}{}{}'.format(now.month, now.day, now.year)
-    buffer_store= os.path.join(settings.CACHE_DIR, f'{timestamp}_{ticker}_{settings.CACHE_STAT_KEY}.{settings.CACHE_EXT}')
+    buffer_store= os.path.join(settings.CACHE_DIR, f'{timestamp}_{ticker}_{settings.CACHE_STAT_KEY}.{settings.FILE_EXT}')
 
     asset_type = markets.get_asset_type(ticker)
     trading_period = markets.get_trading_period(asset_type)

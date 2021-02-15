@@ -59,6 +59,10 @@ class Logger():
         buff = int((formatter.LINE_LENGTH - len(this_line))/2)
         print(' '*buff, this_line, ' '*buff)
 
+    def print_list(self, list):
+        # TODO:
+        pass
+    
     # PRE-FORMATTED FUNCTIONS
     def example_expo(self, ex_no, example, explanation):
         print(' '*formatter.INDENT, f'#{ex_no}:', example)
@@ -101,6 +105,17 @@ class Logger():
     def scalar_result(self, calculation, result):
         print(' '*formatter.INDENT, '>>', calculation, ' = ', round(result, 4))
 
+    def equivalent_result(self, right_hand, left_hand, value):
+        print(' '*formatter.INDENT, '>>', f'{right_hand} = {left_hand} = {value}')
+
+    def spot_price(self, ticker, spot_price):
+        formatted_price = round(spot_price, 2)
+        self.scalar_result(f'{ticker} spot price', formatted_price)
+    
+    def model_price(self, ticker, model_price, model):
+        formatted_price = round(model_price,2)
+        self.scalar_result(f'{ticker} {model} price', formatted_price)
+    
     def portfolio_percent_result(self, result, tickers):
         for i in range(len(tickers)):
             print(' '*formatter.INDENT, f'{tickers[i]} =', round(100*result[i], 2), '%')
@@ -138,6 +153,29 @@ class Logger():
                 for j in range(len(dates)):  
                     msg_3 = f'{dates[j]} : {MA3_title}'
                     self.scalar_result(msg_3, round(averages[i][2][j], 2))      
+
+    def discount_price(self, ticker, spot_price, model_price, model):
+        self.spot_price(ticker=ticker, spot_price=spot_price)
+        self.model_price(ticker=ticker, model_price=model_price, model=model)
+        discount = model_price - spot_price
+        self.scalar_result(f'{ticker} discount', discount)
+
+    def premium_price(self, ticker, spot_price, model_price, model):
+        self.spot_price(ticker=ticker, spot_price=spot_price)
+        self.model_price(ticker=ticker,model_price=model_price, model=model)
+        premium = spot_price - model_price
+        self.scalar_result(f'{ticker} premium', premium)
+
+    def premium_or_discount(self, ticker, spot_price, model_price, model):
+        if model_price > spot_price:
+            self.discount_price(ticker=ticker, spot_price=spot_price, 
+                                model_price=model_price, model=model)
+        elif model_price == spot_price:
+            self.equivalent_result(f'{ticker} spot', f'{ticker} {model}', spot_price)
+        # model_price < spot_price
+        else:
+            self.premium_price(ticker=ticker, spot_price=spot_price,
+                                model_price=model_price, model=model)
             
     def optimal_result(self, portfolio, allocation, user_input):
         self.title_line('Optimal Percentage Allocation')

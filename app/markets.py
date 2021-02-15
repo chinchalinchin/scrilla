@@ -1,6 +1,11 @@
 
 import app.settings as settings
 import app.services as services
+from app.objects.cashflow import Cashflow
+
+MODEL_DDM="ddm"
+# TODO: implement dcf model
+MODEL_DCF="dcf"
 
 # NOTE: output from get_overlapping_symbols:
 # OVERLAP = ['ABT', 'AC', 'ADT', 'ADX', 'AE', 'AGI', 'AI', 'AIR', 'AMP', 'AVT', 'BCC', 'BCD', 'BCH', 'BCX', 'BDL', 'BFT', 'BIS', 'BLK', 'BQ', 'BRX', 
@@ -54,3 +59,11 @@ def get_trading_period(asset_type):
         return (1/365)
     else:
         return settings.ONE_TRADING_DAY
+
+def screen_for_discount(model=MODEL_DDM):
+    risk_free_rate = services.get_risk_free_rate()
+    equities = list(services.get_watchlist())
+    for equity in equities:
+        dividends = services.get_dividend_history(equity)
+        div_npv = Cashflow(dividends).calculate_net_present_value(discount_rate=risk_free_rate)
+
