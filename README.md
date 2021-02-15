@@ -160,7 +160,7 @@ Some endpoints have unique query parameters, but all endpoints accept the follow
 
 ### Query Parameters
 - <i>tickers</i>: an array of the stock/crypto tickers (specified by repeated instances of the <i>tickers</i> parameters).<br>
-- <i>start</i>: start date of calculation's time period. If not provided, defaults to 100 days ago.Format: YYYY-MM-DD<br>
+- <i>start</i>: start date of calculation's time period. If not provided, defaults to 100 days ago. Format: YYYY-MM-DD<br>
 - <i>end</i>: end date of calculation's time period. If not provided, defaults to today. Format: YYYY-MM-DD<br>
 - <i>jpeg</i>: will visualize and return the result as a JPEG. If not provided, defaults to <i>False</i>. Format: true, false. Case insensitive.<br>
 
