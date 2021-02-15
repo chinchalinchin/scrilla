@@ -123,7 +123,6 @@ if __name__ == "__main__":
                     asset_type = markets.get_asset_type(arg)
                     if asset_type:
                         output.string_result(f'asset_type({arg})', asset_type)
-
                     else: 
                         output.comment('Error encountered while determining asset Type. Try -ex flag for example usage.')
 
@@ -133,7 +132,6 @@ if __name__ == "__main__":
                     for arg in main_args:
                         price = services.get_daily_price_latest(arg)
                         output.scalar_result(calculation=arg, result=float(price))
-                    
                 else:
                     output.comment('Error encountered while calculating. Try -ex flag for example usage.')
                     
@@ -143,7 +141,6 @@ if __name__ == "__main__":
                     result = statistics.get_ito_correlation_matrix_string(tickers=main_args, indent=formatter.INDENT, 
                                                                         start_date=start_date, end_date=end_date)
                     output.comment(f'\n{result}')
-
                 else:
                     output.comment('Invalid input. Try -ex flag for example usage.')
 
@@ -164,7 +161,6 @@ if __name__ == "__main__":
                     frontier = optimizer.calculate_efficient_frontier(portfolio=portfolio)
                     output.efficient_frontier(portfolio=portfolio, frontier=frontier,
                                                 user_input=settings.INVESTMENT_MODE)
-                
                 else: 
                     output.comment('Invalid input. Try -ex flag for example usage.')
                     
@@ -175,7 +171,6 @@ if __name__ == "__main__":
                     allocation = optimizer.maximize_portfolio_return(portfolio=portfolio)
                     output.optimal_result(portfolio=portfolio, allocation=allocation, 
                                             user_input=settings.INVESTMENT_MODE)
-
                 else:
                     output.comment('Invalid input. Try -ex flag for example usage.')
 
@@ -185,7 +180,6 @@ if __name__ == "__main__":
                     moving_averages = statistics.calculate_moving_averages(main_args, start_date, end_date)
                     periods = [settings.MA_1_PERIOD, settings.MA_2_PERIOD, settings.MA_3_PERIOD]
                     output.moving_average_result(main_args, moving_averages, periods, start_date, end_date)
-
                 else: 
                     output.comment('Invalid input. Try -ex flag for example usage.')
 
@@ -196,25 +190,32 @@ if __name__ == "__main__":
                     allocation = optimizer.optimize_portfolio_variance(portfolio=portfolio, target_return=target)   
                     output.optimal_result(portfolio=portfolio, allocation=allocation,
                                             user_input=settings.INVESTMENT_MODE)
-                
                 else: 
                     output.comment('Invalid input. Try -ex flag for example usage.')
             
-            ### FUNCTION: Plot Dividen History
-            elif opt == formatter.FUNC_ARG_DICT['plot_dividends'] and settings.ENVIRONMENT != "container":
-                if(len(main_args)>1) or len(main_args)==1:
+            ### FUNCTION: Plot Dividend History With Linear Regression Model
+            elif opt == formatter.FUNC_ARG_DICT['plot_dividends'] and settings.APP_ENV != "container":
+                if len(main_args)==1:
                     output.comment('Dividend plotting goes here.')
+                    dividends = services.get_dividend_history(ticker=main_args[0])
+                    div_cashflow = Cashflow(sample=dividends,discount_rate=discount)
+                    plotter.plot_cashflow(ticker=main_args[0], cashflow=div_cashflow, show=True, savefile=save_file)
+                elif len(main_args) > 1:
+                    output.comment('Only one equity\'s dividend history can be plotted at a time.')
                 else: 
                     output.comment('Invalid input. Try -ex flag for example usage.')
+            elif opt == formatter.FUNC_ARG_DICT['plot_dividends'] and settings.APP_ENV == "container":
+                output.comment('Plotting functionality disabled when application is containerized.')
 
             ### FUNCTION: Plot Efficient Frontier
-            elif opt == formatter.FUNC_ARG_DICT['plot_frontier'] and settings.ENVIRONMENT != "container":
+            elif opt == formatter.FUNC_ARG_DICT['plot_frontier'] and settings.APP_ENV != "container":
                 if(len(main_args)>1):
                     frontier = optimizer.calculate_efficient_frontier(equities=main_args)
                     plotter.plot_frontier(portfolio=Portfolio(main_args), frontier=frontier, show=True, savefile=save_file)
-                
                 else: 
                     output.comment('Invalid input. Try -ex flag for example usage.')
+            elif opt == formatter.FUNC_ARG_DICT['plot_frontier'] and settings.APP_ENV == "container":
+                output.comment('Plotting functionality disabled when application is containerized.')
 
             ### FUNCTION: Plot Moving Averages of Logarithmic Returns
             elif opt == formatter.FUNC_ARG_DICT['plot_moving_averages'] and settings.APP_ENV != "container":
@@ -223,23 +224,24 @@ if __name__ == "__main__":
                     periods = [settings.MA_1_PERIOD, settings.MA_2_PERIOD, settings.MA_3_PERIOD]
                     plotter.plot_moving_averages(symbols=main_args, averages_output=moving_averages, periods=periods, 
                                                     show=True, savefile=save_file)
-
                 else:
                     output.debug('Invalid Input. Try Try -ex Flag For Example Usage.')
+            elif opt == formatter.FUNC_ARG_DICT['plot_moving_averages'] and settings.APP_ENV == "container":
+                output.comment('Plotting functionality disabled when application is containerized.')
 
             ### FUNCTION: Plot Risk-Return Profile
-            elif opt == formatter.FUNC_ARG_DICT['plot_risk_profile']:
+            elif opt == formatter.FUNC_ARG_DICT['plot_risk_profile'] and settings.APP_ENV != "container":
                 if len(main_args) > 0:
                     profiles = []
                     for arg in main_args:
                         profiles.append(statistics.calculate_risk_return(arg, start_date, end_date))
-                    
                     plotter.plot_profiles(symbols=main_args, profiles=profiles, show=True, savefile=save_file, 
                                             subtitle=helper.format_date_range(start_date, end_date))
-                
                 else:
                     output.comment('Invalid input. Try -ex flag for example usage.')
-                    
+            elif opt == formatter.FUNC_ARG_DICT['plot_risk_profile'] and settings.APP_ENV == "container":
+                output.comment('Plotting functionality disabled when application is containerized.')
+
             ### FUNCTION: Risk-Return Profile
             elif opt == formatter.FUNC_ARG_DICT["risk_return"]:
                 if(len(main_args)>1) or len(main_args)==1:
@@ -252,10 +254,8 @@ if __name__ == "__main__":
                             output.scalar_result(calculation=f'vol_{arg}', 
                                                     result=result['annual_volatility'],
                                                     currency=False)
-
                         else:
                             output.comment('Error Encountered While Calculating. Try -ex Flag For Example Usage.')
-                
                 else:
                     output.comment('Invalid input. Try -ex flag for example usage.')
 
@@ -263,8 +263,6 @@ if __name__ == "__main__":
             elif  opt == formatter.FUNC_ARG_DICT["screener"]:
                 if model is None:
                     model = markets.MODEL_DDM
-                output.debug(f'Using discount rate =  {discount}')
-
                 results = markets.screen_for_discount(model=model, discount_rate=discount)
                 output.screen_results(info=results, model=model)
 
@@ -275,7 +273,6 @@ if __name__ == "__main__":
                         output.scalar_result(calculation=stat, 
                                                 result=services.get_daily_stats_latest(stat),
                                                 currency=False)
-
                 else:
                     output.comment('Error encountered while calculating. Try -ex flag for example usage.')
             
@@ -286,7 +283,6 @@ if __name__ == "__main__":
                     output.comment("Watchlist saved. Use -ls option to print watchlist.")
                 else:
                     output.comment('Error encountered while calculating. Try -ex flag for example usage.')
-
             else:
                 output.comment('No function supplied. Please review Function Summary below and re-execute with appropriate arguments.')
                 output.help()

@@ -3,6 +3,9 @@ import datetime
 import numpy
 from decimal import Decimal
 
+PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(PROJECT_DIR)
+
 import app.settings as settings
 import app.services as services
 import app.markets as markets
@@ -704,15 +707,16 @@ def sample_correlation(x, y):
         return False
     elif len(x) == 1 or len(x) == 1:
         output.debug(f'Sample correlation cannot be computed for a sample size less than or equal to 1.')
+        return False
     else:
         sumproduct, sum_x_squared, sum_x, sum_y, sum_y_squared= 0, 0, 0, 0, 0
         n = len(x)
         for i in range(len(x)):
             sumproduct += x[i]*y[i]
             sum_x += x[i]
-            sum_x_squared = x[i]**2
+            sum_x_squared += x[i]**2
             sum_y += y[i]
-            sum_y += y[i]**2
+            sum_y_squared += y[i]**2
         correl_num = ((n*sumproduct) - sum_x*sum_y)
         correl_den = numpy.sqrt((n*sum_x_squared-sum_x**2)*(n*sum_y_squared-sum_y**2))
 
@@ -788,3 +792,7 @@ def regression_alpha(x, y):
             return alpha
     
 
+if __name__=="__main__":
+    x = [1, 2, 3, 4, 5, 6, 7]
+    y = [20, 19, 23, 20, 26, 22, 30]
+    print(sample_correlation(x, y))

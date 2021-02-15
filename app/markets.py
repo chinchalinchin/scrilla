@@ -88,8 +88,7 @@ def screen_for_discount(model=None, discount_rate=None):
     equities = list(files.get_watchlist())
     discounts = {}
     
-    output.debug(f'Using Discount Dividend Model to screen watchlisted equities for discounts.')
-    output.debug(f'')
+    output.debug('Using Discount Dividend Model to screen watchlisted equities for discounts.')
 
     for equity in equities:
         spot_price = services.get_daily_price_latest(ticker=equity)
