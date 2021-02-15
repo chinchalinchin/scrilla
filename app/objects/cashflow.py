@@ -37,6 +37,9 @@ class Cashflow:
         A function that describes the cash flow as a function of time in years. If provided, the class will skip linear regression for estimating the cash flow model. If providing a growth_function, specify sample = None in the arguments provided to the class constructor. \n \n
     discount_rate: float \n
         The rate of return used to discount future cash flows back to the present. If not provided, the discount_rate defaults to the risk free rate defined by the RISK_FREE environment variable. \n \n
+    constant: float \n
+        If the cashflow is constant with respect to time, specify the value of it with this argument. Will override growth_function and sample. If constant is specified, you MUST also specify a period or else you will encounter errors when trying to calculate the net present value of future cashflows. \n \n
+    
     TODOs
     -----
     1. Implement prediction interval function to get error bars for graph.
@@ -46,13 +49,22 @@ class Cashflow:
     # NOTE: Growth function should be a function of time in years
     # NOTE: sample : { 'date_1' : 'value_1', 'date_2': 'value_2', ... }.
     # NOTE: sample must be ordered from latest to earliest, i.e. in descending order.
-    def __init__(self, sample, period=None, growth_function=None, discount_rate=None):
+    # NOTE: If constant is not None, then period must be specified!
+    def __init__(self, sample=None, period=None, growth_function=None, discount_rate=None, constant=None):
         self.sample = sample
         self.period = period
         self.growth_function = growth_function
 
+        # if constant is specified, override sample and growth_function
+        if constant is not None:
+            output.debug(f'Constant = $ {self.constant}; Period MUST NOT be null!')
+            output.debug(f'Period = {self.period}')
+            self.constant = constant
+            self.sample = None
+            self.growth_function = None
+
         # If no sample provided, use simple linear regression
-        if growth_function is None:
+        if growth_function is None and sample is not None:
             self.generate_time_series_for_sample()
             self.regress_growth_function()
         
@@ -64,7 +76,7 @@ class Cashflow:
         output.debug(f'Using discount_rate = {self.discount_rate}')
 
         # If no frequency is specified, infer frequency from sample
-        if period is None:
+        if period is None and sample is not None:
             self.infer_period()
 
     def infer_period(self):
@@ -164,12 +176,22 @@ class Cashflow:
                 latest_date = helper.parse_date_string(list(dates)[0])
                 time_to_first_payment = helper.get_time_to_next_period(starting_date=latest_date, period=self.period)
 
-            self.NPV, i = 0, 0
+            self.NPV, i, current_time = 0, 0, 0
             calculating = True
             while calculating: 
                 previous_value = self.NPV
-                current_time = time_to_first_payment + i * self.period
-                self.NPV += self.get_growth_function(current_time) / (1 + self.discount_rate)**current_time
+
+                if self.period is not None:
+                    current_time = time_to_first_payment + i * self.period
+                else:
+                    output.debug('Not enough information to calculate net present value of cash flow.')
+                    return False
+
+                if self.constant is None:
+                    self.NPV += self.get_growth_function(current_time) / ((1 + self.discount_rate)**current_time)
+
+                else:
+                    self.NPV += self.constant / ((1 + self.discount_rate)**current_time)
 
                 if self.NPV - previous_value < settings.NPV_DELTA_TOLERANCE:
                     calculating = False
