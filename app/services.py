@@ -507,10 +507,3 @@ def get_dividend_history(ticker):
                 json.dump(dividends, outfile)
             # TODO: dump other file types
         return dividends
-
-# NOTE: Quandl outputs interest in percentage terms
-def get_risk_free_rate():
-    if settings.STAT_MANAGER == "quandl":
-        risk_free_rate_key = settings.ARG_Q_YIELD_CURVE[settings.RISK_FREE_RATE]
-        risk_free_rate = get_daily_stats_latest(statistic=risk_free_rate_key)
-        return (risk_free_rate)/100

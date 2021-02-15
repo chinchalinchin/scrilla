@@ -44,6 +44,7 @@ Attributes
 28. DENOMINATION: Denomination in which prices are quoted. \n \n 
 29. NPV_DELTA_TOLERANCE: NPV calculations stop when the next value adds less than this amount. \n \n 
 29. RISK_FREE_RATE: Interest rate used for cashflow valuations. \n \n
+30. MARKET_RATE: Ticker symbol used to calculate market rate of return
 28. ASSET_EQUITY: Constant for assets of type equity. \n \n
 29. ASSET_CRYPTO: Constant for assets of type crypto. \n \n
 30. STAT_ECON: Constant for economic statistics. \n \n
@@ -180,6 +181,8 @@ NPV_DELTA_TOLERANCE = 0.0000001
 
 # SEE: ARG_Q_YIELD_CURVE for allowabled values
 RISK_FREE_RATE=os.environ.setdefault("RISK_FREE", "10-Year")
+
+MARKET_RATE=os.environ.setdefault('MARKET', 'SPY')
 
 ASSET_EQUITY="equity"
 ASSET_CRYPTO="crypto"

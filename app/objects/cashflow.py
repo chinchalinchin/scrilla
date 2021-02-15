@@ -3,6 +3,7 @@ import datetime
 import util.helper as helper
 import util.logger as logger
 
+import app.markets as markets
 import app.settings as settings
 import app.statistics as statistics
 import app.services as services
@@ -56,7 +57,7 @@ class Cashflow:
             self.regress_growth_function()
         
         if discount_rate is None:
-            self.discount_rate = services.get_risk_free_rate()
+            self.discount_rate = markets.get_risk_free_rate()
         else:
             self.discount_rate = discount_rate
 

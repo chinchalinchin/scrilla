@@ -79,7 +79,7 @@ if __name__ == "__main__":
         ### FUNCTION: Risk Free Rate
         elif opt == formatter.FUNC_ARG_DICT['risk_free_rate']:
             output.scalar_result(calculation=formatter.RISK_FREE_TITLE, 
-                                    result=services.get_risk_free_rate(), 
+                                    result=markets.get_risk_free_rate(), 
                                     currency=False)
 
         ### FUNCTION: Purge Data Directories
@@ -146,6 +146,8 @@ if __name__ == "__main__":
 
             ### FUNCTION: Discount Dividend Model
             elif opt == formatter.FUNC_ARG_DICT["discount_dividend"]:
+                # TODO: compute cost of capital equity and use as discount rate
+
                 if(len(main_args)>1) or len(main_args)==1:
                     for arg in main_args:
                         dividends = services.get_dividend_history(arg)
@@ -263,6 +265,7 @@ if __name__ == "__main__":
             elif  opt == formatter.FUNC_ARG_DICT["screener"]:
                 if model is None:
                     model = markets.MODEL_DDM
+                # TODO: compute cost of capital equity and use as discount rate
                 results = markets.screen_for_discount(model=model, discount_rate=discount)
                 output.screen_results(info=results, model=model)
 

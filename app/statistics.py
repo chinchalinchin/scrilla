@@ -24,6 +24,112 @@ output = logger.Logger('app.statistics', settings.LOG_LEVEL)
 #       pass 'sample_prices' directly into 'calculate_risk_return' without having to worry whether it
 #       is passing in a 'None'-type object, or a list of prices ordered by date.
 
+def sample_correlation(x, y):
+    if len(x) != len(y):
+        output.debug(f'Samples are not comparable')
+        return False
+    elif len(x) == 1 or len(x) == 1:
+        output.debug(f'Sample correlation cannot be computed for a sample size less than or equal to 1.')
+        return False
+    else:
+        sumproduct, sum_x_squared, sum_x, sum_y, sum_y_squared= 0, 0, 0, 0, 0
+        n = len(x)
+        for i in range(len(x)):
+            sumproduct += x[i]*y[i]
+            sum_x += x[i]
+            sum_x_squared += x[i]**2
+            sum_y += y[i]
+            sum_y_squared += y[i]**2
+        correl_num = ((n*sumproduct) - sum_x*sum_y)
+        correl_den = numpy.sqrt((n*sum_x_squared-sum_x**2)*(n*sum_y_squared-sum_y**2))
+
+        # LET'S DO SOME MATHEMATICS! (to get around division by zero!)
+        #   Unfortunately, this only works when A and B > 0 because log
+        #       of a negative number only exists in complex plane.
+        #   1. correl = A/B
+        #   2. log(correl) = log(A/B) = log(A) - log(B)
+        #   3. exp(log(correl)) = exp(log(A/B))
+        #   4. correl = exp(log(A/B))
+        if correl_num > 0 and correl_den > 0:
+            log_correl = numpy.log(correl_num) - numpy.log(correl_den)
+            correlation = numpy.exp(log_correl)
+        else:
+            if correl_den != 0:
+                correlation = correl_num / correl_den
+            else:
+                output.debug('Denominator for correlation formula to small for division')
+                return False
+
+        return correlation
+
+def sample_mean(x):
+    xbar, n = 0, len(x)
+    if n == 0:
+        output.debug('Sample mean cannot be computed for a sample size of 0.')
+        return False
+    else:
+        for i in x:
+            xbar += i/n
+        return xbar
+
+def sample_variance(x):
+    mu, sigma, n = sample_mean(x=x), 0, len(x)
+    if n == 1 or n == 0:
+        output.debug('Sample variance cannot be computed for a sample size less than or equal to 1.')
+        return False
+    else:
+        for i in x:
+            sigma += ((i-mu)**2)/(n-1)
+        return sigma
+
+def sample_covariance(x, y):
+    if len(x) != len(y):
+        output.debug(f'Samples are not comparable')
+        return False
+    elif len(x) == 1 or len(x) == 1:
+        output.debug(f'Sample correlation cannot be computed for a sample size less than or equal to 1.')
+        return False
+    else:
+        n, covariance = len(x), 0
+        x_mean, y_mean = sample_mean(x=x), sample_mean(x=y)
+        for i in range(len(x)):
+            covariance += (x[i] - x_mean)*(y[i] - y_mean) / (n -1) 
+    
+        return covariance
+
+def regression_beta(x, y):
+    if len(x) != len(y):
+        output.debug(f'len(x) = {len(x)} != len(y) = {len(y)}')
+        return False
+    elif len(x) < 3:
+        output.debug(f'Sample size of {len(x)} is less than the necessary degrees of freedom (n > 2) for regression estimation.')
+        return False
+    else:
+        correl = sample_correlation(x=x, y=y)
+        vol_x = numpy.sqrt(sample_variance(x=x))
+        vol_y = numpy.sqrt(sample_variance(x=y))
+        if not correl or not vol_x or not vol_y:
+            output.debug('Error calculating statistics for regression Beta.')
+            return False
+        else:
+            beta = correl * vol_y / vol_x
+            return beta
+
+def regression_alpha(x, y):
+    if len(x) != len(y):
+        output.debug(f'len(x) == {len(x)} != len(y) == {len(y)}')
+        return False
+    elif len(x) < 3:
+        output.debug(f'Sample size of {len(x)} is less than the necessary degrees of freedom (n > 2) for regression estimation.')
+    else:
+        y_mean, x_mean = sample_mean(y), sample_mean(x)
+        if not y_mean or not x_mean:
+            output.debug('Error calculating statistics for regression alpha')
+        else:
+            alpha = y_mean - regression_beta(x=x, y=y)*x_mean
+            return alpha
+    
+
 def calculate_moving_averages(tickers, start_date=None, end_date=None, sample_prices=None):
     """
     Parameters
@@ -701,97 +807,16 @@ def get_ito_correlation_matrix_string(tickers, indent=0, start_date=None, end_da
     whole_thing = formatted_title + entire_formatted_result
     return whole_thing
 
-def sample_correlation(x, y):
-    if len(x) != len(y):
-        output.debug(f'Samples are not comparable')
-        return False
-    elif len(x) == 1 or len(x) == 1:
-        output.debug(f'Sample correlation cannot be computed for a sample size less than or equal to 1.')
-        return False
-    else:
-        sumproduct, sum_x_squared, sum_x, sum_y, sum_y_squared= 0, 0, 0, 0, 0
-        n = len(x)
-        for i in range(len(x)):
-            sumproduct += x[i]*y[i]
-            sum_x += x[i]
-            sum_x_squared += x[i]**2
-            sum_y += y[i]
-            sum_y_squared += y[i]**2
-        correl_num = ((n*sumproduct) - sum_x*sum_y)
-        correl_den = numpy.sqrt((n*sum_x_squared-sum_x**2)*(n*sum_y_squared-sum_y**2))
-
-        # LET'S DO SOME MATHEMATICS! (to get around division by zero!)
-        #   Unfortunately, this only works when A and B > 0 because log
-        #       of a negative number only exists in complex plane.
-        #   1. correl = A/B
-        #   2. log(correl) = log(A/B) = log(A) - log(B)
-        #   3. exp(log(correl)) = exp(log(A/B))
-        #   4. correl = exp(log(A/B))
-        if correl_num > 0 and correl_den > 0:
-            log_correl = numpy.log(correl_num) - numpy.log(correl_den)
-            correlation = numpy.exp(log_correl)
-        else:
-            if correl_den != 0:
-                correlation = correl_num / correl_den
-            else:
-                output.debug('Denominator for correlation formula to small for division')
-                return False
-
-        return correlation
-
-def sample_mean(x):
-    xbar, n = 0, len(x)
-    if n == 0:
-        output.debug('Sample mean cannot be computed for a sample size of 0.')
-        return False
-    else:
-        for i in x:
-            xbar += i/n
-        return xbar
-
-def sample_variance(x):
-    mu, sigma, n = sample_mean(x=x), 0, len(x)
-    if n == 1 or n == 0:
-        output.debug('Sample variance cannot be computed for a sample size less than or equal to 1.')
-        return False
-    else:
-        for i in x:
-            sigma += ((i-mu)**2)/(n-1)
-        return sigma
-
-def regression_beta(x, y):
-    if len(x) != len(y):
-        output.debug(f'len(x) = {len(x)} != len(y) = {len(y)}')
-        return False
-    elif len(x) < 3:
-        output.debug(f'Sample size of {len(x)} is less than the necessary degrees of freedom (n > 2) for regression estimation.')
-        return False
-    else:
-        correl = sample_correlation(x=x, y=y)
-        vol_x = numpy.sqrt(sample_variance(x=x))
-        vol_y = numpy.sqrt(sample_variance(x=y))
-        if not correl or not vol_x or not vol_y:
-            output.debug('Error calculating statistics for regression Beta.')
-            return False
-        else:
-            beta = correl * vol_y / vol_x
-            return beta
-
-def regression_alpha(x, y):
-    if len(x) != len(y):
-        output.debug(f'len(x) == {len(x)} != len(y) == {len(y)}')
-        return False
-    elif len(x) < 3:
-        output.debug(f'Sample size of {len(x)} is less than the necessary degrees of freedom (n > 2) for regression estimation.')
-    else:
-        y_mean, x_mean = sample_mean(y), sample_mean(x)
-        if not y_mean or not x_mean:
-            output.debug('Error calculating statistics for regression alpha')
-        else:
-            alpha = y_mean - regression_beta(x=x, y=y)*x_mean
-            return alpha
+def calculate_return_covariance(ticker_1, ticker_2, start_date=None, end_date=None, sample_prices=None):
+    correlation = calculate_ito_correlation(ticker_1=ticker_1, ticker_2=ticker_2, start_date=start_date, 
+                                              end_date=end_date, sample_prices=sample_prices)
+    profile_1 = calculate_risk_return(ticker=ticker_1, start_date=start_date, end_date=end_date, 
+                                        sample_prices=sample_prices)
+    profile_2 = calculate_risk_return(ticker=ticker_2, start_date=start_date, end_date=end_date,
+                                        sample_prices=sample_prices)
+    covariance = profile_1['annual_volatility']*profile_2['annual_volatility']*correlation['correlation']
+    return covariance
     
-
 if __name__=="__main__":
     x = [1, 2, 3, 4, 5, 6, 7]
     y = [20, 19, 23, 20, 26, 22, 30]

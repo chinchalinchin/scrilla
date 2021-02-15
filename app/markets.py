@@ -1,4 +1,5 @@
 
+import app.statistics as statistics
 import app.settings as settings
 import app.services as services
 import app.files as files
@@ -65,6 +66,43 @@ def get_trading_period(asset_type):
     else:
         return settings.ONE_TRADING_DAY
 
+# NOTE: Quandl outputs interest in percentage terms
+# NOTE: This function sort of blurs the lines between services.py and markets.py
+#       I put it here because I want the markets.py class to be from where the 
+#       the risk_free_rate is accessed for now. It may make more sense to have this
+#       in services.py since it's basically just a call an external service.
+#       Haven't made up my mind yet. 
+def get_risk_free_rate():
+    if settings.STAT_MANAGER == "quandl":
+        risk_free_rate_key = settings.ARG_Q_YIELD_CURVE[settings.RISK_FREE_RATE]
+        risk_free_rate = services.get_daily_stats_latest(statistic=risk_free_rate_key)
+        return (risk_free_rate)/100
+
+def sharpe_ratio(ticker, start_date=None, end_date=None):
+    ticker_profile = statistics.calculate_risk_return(ticker=ticker, start_date=start_date,
+                                                        end_date=end_date)
+    return (ticker_profile['annual_return'] - get_risk_free_rate())/ticker_profile['annual_volatility']
+
+# if no dates are specified, defaults to last 100 days
+def market_premium(start_date=None, end_date=None):
+    market_profile = statistics.calculate_risk_return(ticker=settings.MARKET_RATE, 
+                                                        start_date=start_date, 
+                                                        end_date=end_date)
+    return (market_profile['annual_return'] - get_risk_free_rate())
+
+def market_beta(ticker, start_date=None, end_date=None):
+    market_profile = statistics.calculate_risk_return(ticker=settings.MARKET_RATE, start_date=start_date, 
+                                                        end_date=end_date)
+    market_covariance = statistics.calculate_return_covariance(ticker_1=ticker, ticker_2=settings.MARKET_RATE,
+                                                            start_date=start_date, end_date=end_date)
+    return market_covariance / (market_profile['annual_volatility']**2)
+
+def cost_of_equity(ticker, start_date=None, end_date=None):
+    beta = market_beta(ticker=ticker, start_date=start_date, end_date=end_date)
+    premium = market_premium(start_date=start_date, end_date=end_date)
+
+    return (premium*beta + get_risk_free_rate())
+
 def screen_for_discount(model=None, discount_rate=None):
     """
     Parameters
@@ -93,9 +131,11 @@ def screen_for_discount(model=None, discount_rate=None):
     for equity in equities:
         spot_price = services.get_daily_price_latest(ticker=equity)
 
+        if discount_rate is None:
+            discount_rate = cost_of_equity(ticker=equity)
+
         if model == MODEL_DDM:
             dividends = services.get_dividend_history(equity)
-            # TODO: compute cost of capital equity and use that instead of risk free rate.
             output.debug(f'Passing discount rate = {discount_rate}')
             model_price = Cashflow(sample=dividends, discount_rate=discount_rate).calculate_net_present_value()
         
