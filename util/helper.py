@@ -259,6 +259,7 @@ def get_time_to_next_period(starting_date, period):
 ################################################
 ##### PARSING FUNCTIONS
 
+### CLI PARSING
 def separate_and_parse_args(args):
     extra_args, extra_values= [], []
     reduced_args = args
@@ -330,6 +331,7 @@ def get_model(xtra_args, xtra_values):
         model = None
     return model
 
+### APPLICATION PARSING
 def format_allocation_profile(allocation, portfolio) -> str:
     port_return, port_volatility = portfolio.return_function(allocation), portfolio.volatility_function(allocation)
     formatted_result = "("+str(100*port_return)[:5]+"%, " + str(100*port_volatility)[:5]+"%)"

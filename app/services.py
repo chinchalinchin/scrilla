@@ -483,6 +483,9 @@ def query_service_for_dividend_history(ticker):
 def get_dividend_history(ticker):
     output.debug(f'Checking for {ticker} dividend history in cache.')
     now = datetime.datetime.now()
+    ### TODO: dividend payments occur less frequently than spot prices,
+    ###         so you can probably get away with using MM-YYYY as a timestamp,
+    ###         to avoid excessive calls to external services and longer caching.
     timestamp = '{}{}{}'.format(now.month, now.day, now.year)
     buffer_store= os.path.join(settings.CACHE_DIR, f'{timestamp}_{ticker}_dividends.{settings.FILE_EXT}')
         
