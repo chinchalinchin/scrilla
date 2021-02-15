@@ -296,19 +296,13 @@ not affect the application.
 
 20. API keys are verified every single time the app.settings.py file is imported. Need to change how this is done to avoid expensive URL requests. 
 
-21. Create 'self' PRICE_MANAGER and STAT_MANAGER. If set to 'self' query database for price histories. Will need to make sure scrapper runs during application initialization. Possibly entrypoints where it will need run: CLI, GUI and API.
-
 22. Pretty sure the reason the len(moving_averages) != len(dates_between) in moving average algorithm is because dates_between doesn't include the dates themselves; it's only returning...dun dun dun...the dates between, not the dates themselves. 
 
 23. Need to figure out what's going on with the x-axis formatting for moving average graphs over date ranges.
 
 24. Error with request parameters not being taken to uppercase. Doesn't affect program, but annoys me. 
 
-25. Screener that compares Discount Dividend Model to spot price and finds stocks that trade at a discount. 
-
-26. Function that sets Watchlist stocks. Only apply screener to watchlist.
-
-27. Other types of screening.
+27. Other types of screening. Discounted Cash Flow, for instance. 
 
 ### NOTES
 

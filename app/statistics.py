@@ -748,7 +748,7 @@ def sample_mean(x):
 def sample_variance(x):
     mu, sigma, n = sample_mean(x=x), 0, len(x)
     if n == 1 or n == 0:
-        output.debug('Sample variance cannot be computed for a sample size less than  or equal to 1.')
+        output.debug('Sample variance cannot be computed for a sample size less than or equal to 1.')
         return False
     else:
         for i in x:
@@ -756,22 +756,35 @@ def sample_variance(x):
         return sigma
 
 def regression_beta(x, y):
-    correl = sample_correlation(x=x, y=y)
-    vol_x = numpy.sqrt(sample_variance(x=x))
-    vol_y = numpy.sqrt(sample_variance(x=y))
-    if not correl or not vol_x or not vol_y:
-        output.debug('Error calculating statistics for regression Beta.')
+    if len(x) != len(y):
+        output.debug(f'len(x) = {len(x)} != len(y) = {len(y)}')
+        return False
+    elif len(x) < 3:
+        output.debug(f'Sample size of {len(x)} is less than the necessary degrees of freedom (n > 2) for regression estimation.')
         return False
     else:
-        beta = correl * vol_y / vol_x
-        return beta
+        correl = sample_correlation(x=x, y=y)
+        vol_x = numpy.sqrt(sample_variance(x=x))
+        vol_y = numpy.sqrt(sample_variance(x=y))
+        if not correl or not vol_x or not vol_y:
+            output.debug('Error calculating statistics for regression Beta.')
+            return False
+        else:
+            beta = correl * vol_y / vol_x
+            return beta
 
 def regression_alpha(x, y):
-    y_mean, x_mean = sample_mean(y), sample_mean(x)
-    if not y_mean or not x_mean:
-        output.debug('Error calculating statistics for regression alpha')
+    if len(x) != len(y):
+        output.debug(f'len(x) == {len(x)} != len(y) == {len(y)}')
+        return False
+    elif len(x) < 3:
+        output.debug(f'Sample size of {len(x)} is less than the necessary degrees of freedom (n > 2) for regression estimation.')
     else:
-        alpha = y_mean - regression_beta(x=x, y=y)*x_mean
-        return alpha
+        y_mean, x_mean = sample_mean(y), sample_mean(x)
+        if not y_mean or not x_mean:
+            output.debug('Error calculating statistics for regression alpha')
+        else:
+            alpha = y_mean - regression_beta(x=x, y=y)*x_mean
+            return alpha
     
 

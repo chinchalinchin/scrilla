@@ -20,6 +20,11 @@ class Cashflow:
     """
     Description
     -----------
+    A class that represents a set of future cashflows. The class is initialized with a sample of past data and a linear regression model is inferred from the sample. Alternatively, a growth function can be provided that describes the cash flow as a function of time in years. If a growth function is provided, the class skips the linear regression model. \n \n
+
+    If the sample of data is not large enough to infer a linear regression model, the estimation model will default to Markovian process where E(X2|X1) = X1, i.e. the next expected value given the current value is the current value, or put in plain english, without more information the best guess for the future value of an asset is its current value. \n \n
+
+    The estimation model is used to project the future value of cashflows and then these projections are discounted back to the present by the risk free rate. A discount rate different from the risk free rate can be specified by providing the constructor a value for discount_rate. \n \n
 
     Parameters
     ----------
@@ -29,12 +34,18 @@ class Cashflow:
         The period in years of the cash flow payments. Measure as the lenght of time between two distinct cash flows. The value should be measured in years. Common frequencies are statically accessible through FREQ_DAY, FREQ_MONTH, FREQ_QUARTER and FREQ_ANNUAL. \n \n 
     growth_function: function \n
         A function that describes the cash flow as a function of time in years. If provided, the class will skip linear regression for estimating the cash flow model. If providing a growth_function, specify sample = None in the arguments provided to the class constructor. \n \n
+    discount_rate: float \n
+        The rate of return used to discount future cash flows back to the present. If not provided, the discount_rate defaults to the risk free rate defined by the RISK_FREE environment variable. \n \n
+    TODOs
+    -----
+    1. Implement prediction interval function to get error bars for graph.
+
     """
 
     # NOTE: Growth function should be a function of time in years
     # NOTE: sample : { 'date_1' : 'value_1', 'date_2': 'value_2', ... }.
     # NOTE: sample must be ordered from latest to earliest, i.e. in descending order.
-    def __init__(self, sample, period=None, growth_function=None):
+    def __init__(self, sample, period=None, growth_function=None, discount_rate=None):
         self.sample = sample
         self.period = period
         self.growth_function = growth_function
@@ -43,6 +54,12 @@ class Cashflow:
         if growth_function is None:
             self.generate_time_series_for_sample()
             self.regress_growth_function()
+        
+        if discount_rate is None:
+            self.discount_rate = services.get_risk_free_rate()
+        else:
+            self.discount_rate = discount_rate
+
 
         # If no frequency is specified, infer frequency from sample
         if period is None:
@@ -126,8 +143,6 @@ class Cashflow:
             output.debug('No period detected for cashflows. Not enough information to calculate net present value.')
             return False
         else:
-            if discount_rate is None:
-                discount_rate = services.get_risk_free_rate()
 
             time_to_first_payment = 0
             if self.period == FREQ_ANNUAL:
@@ -152,7 +167,7 @@ class Cashflow:
             while calculating: 
                 previous_value = self.NPV
                 current_time = time_to_first_payment + i * self.period
-                self.NPV += self.get_growth_function(current_time) / (1 + discount_rate)**current_time
+                self.NPV += self.get_growth_function(current_time) / (1 + self.discount_rate)**current_time
 
                 if self.NPV - previous_value < settings.NPV_DELTA_TOLERANCE:
                     calculating = False
