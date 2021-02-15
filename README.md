@@ -304,7 +304,8 @@ not affect the application.
 
 27. Other types of screening. Discounted Cash Flow, for instance. 
 
-28. TODO: DDM defaults to Risk Free Rate currently. Should be using cost of capital equity rate. 
+28. Add watchlist functionality for crypto assets. Differentiate in /data/common/ between watchlist_equity.json and watchlist_crypto.json. Integrate watchlist functionality into GUI and API. Will need to implement API Key authentication functionality before introducing watchlist to API to account for different users's watchlist.
+
 
 ### NOTES
 
