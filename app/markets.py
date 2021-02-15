@@ -95,6 +95,7 @@ def screen_for_discount(model=None, discount_rate=None):
 
         if model == MODEL_DDM:
             dividends = services.get_dividend_history(equity)
+            # TODO: compute cost of capital equity and use that instead of risk free rate.
             output.debug(f'Passing discount rate = {discount_rate}')
             model_price = Cashflow(sample=dividends, discount_rate=discount_rate).calculate_net_present_value()
         

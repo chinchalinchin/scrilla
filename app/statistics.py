@@ -795,6 +795,16 @@ def regression_alpha(x, y):
 if __name__=="__main__":
     x = [1, 2, 3, 4, 5, 6, 7]
     y = [20, 19, 23, 20, 26, 22, 30]
-    print(sample_correlation(x, y))
-    print(regression_beta(x,y))
-    print(regression_alpha(x,y))
+    output.comment(f'x test-data: {x}')
+    output.comment(f'y test-data: {y}')
+    output.title_line('Test Results')
+    output.line()
+    output.scalar_result(calculation='correct sample_correlation', result=0.764852927, currency=False)
+    output.scalar_result(calculation='sample_correlation(x, y)',  result=sample_correlation(x, y), currency=False)
+    output.line()
+    output.scalar_result(calculation='correct regression_beta(x,y)', result= 1.39286, currency=False)
+    output.scalar_result(calculation='regression_beta(x,y)',  result=regression_beta(x,y), currency=False)
+    output.line()
+    output.scalar_result(calculation='correct regression_alpha(x,y)',  result=17.28571, currency=False)
+    output.scalar_result(calculation='regression_alpha(x,y)',  result=regression_alpha(x,y), currency=False)
+    output.line()
