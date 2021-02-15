@@ -194,9 +194,9 @@ Some endpoints have unique query parameters, but all endpoints accept the follow
     >    'portfolio_return': double, <br>
     >    'portfolio_volatility': double<br>
     >    'allocations': <br>{
-    >        'ticker_allocation': double,<br>
-    >        'ticker_allocation': double,<br>
-    >        ...
+    >        &nbsp;&nbsp;'ticker_allocation': double,<br>
+    >        &nbsp;&nbsp;'ticker_allocation': double,<br>
+    >        &nbsp;&nbsp;...
     >    }<br>
     >}<br>
 
@@ -210,22 +210,22 @@ Some endpoints have unique query parameters, but all endpoints accept the follow
     <b>Response JSON</b><br>
     > {<br>
     >   'portfolio_1': { <br>
-    >       'portfolio_return': double <br>,
-    >       'portfolio_volatility': double<br>,
-    >       'allocations': {<br>
-    >           'ticker_allocation': double,<br>
-    >           'ticker_allocation': double<br>
-    >           ...<br>
-    >       }<br>
+    >   &nbsp;&nbsp;'portfolio_return': double <br>,
+    >   &nbsp;&nbsp;'portfolio_volatility': double<br>,
+    >   &nbsp;&nbsp;'allocations': {<br>
+    >   &nbsp;&nbsp;&nbsp;&nbsp;'ticker_allocation': double,<br>
+    >   &nbsp;&nbsp;&nbsp;&nbsp;'ticker_allocation': double<br>
+    >   &nbsp;&nbsp;&nbsp;&nbsp;...<br>
+    >   &nbsp;&nbsp;}<br>
     >   },<br>
     >   'portfolio_2': { <br>
-    >       'portfolio_return': double <br>,
-    >       'portfolio_volatility': double<br>,
-    >       'allocations': {<br>
-    >           'ticker_allocation': double,<br>
-    >           'ticker_allocation': double<br>
-    >           ...<br>
-    >       }<br>
+    >   &nbsp;&nbsp;'portfolio_return': double <br>,
+    >   &nbsp;&nbsp;'portfolio_volatility': double<br>,
+    >   &nbsp;&nbsp;'allocations': {<br>
+    >   &nbsp;&nbsp;&nbsp;&nbsp;'ticker_allocation': double,<br>
+    >   &nbsp;&nbsp;&nbsp;&nbsp;'ticker_allocation': double<br>
+    >   &nbsp;&nbsp;&nbsp;&nbsp;...<br>
+    >   &nbsp;&nbsp;}<br>
     >   },<br>
     >   ...
     > }
@@ -239,19 +239,19 @@ Some endpoints have unique query parameters, but all endpoints accept the follow
     <b>Response JSON</b><br>
     > { <br>
     >   'ticker':{ <br>
-    >       'ticker_MA_1':{ <br>
-    >           'date': double, <br>
-    >           'date': double, <br>
-    >           ... <br>
-    >       }, <br>
-    >       'ticker_MA_2:{ <br>
-    >           'date': double, <br>
-    >           ... <br>
-    >       }, <br>
-    >       'ticker_MA_3': { <br>
-    >           'date': double, <br>
-    >           ... <br>
-    >       }<br>
+    >   &nbsp;&nbsp;'ticker_MA_1':{ <br>
+    >   &nbsp;&nbsp;&nbsp;&nbsp;'date': double, <br>
+    >   &nbsp;&nbsp;&nbsp;&nbsp;'date': double, <br>
+    >   &nbsp;&nbsp;&nbsp;&nbsp;... <br>
+    >   &nbsp;&nbsp;}, <br>
+    >   &nbsp;&nbsp;'ticker_MA_2:{ <br>
+    >   &nbsp;&nbsp;&nbsp;&nbsp;'date': double, <br>
+    >   &nbsp;&nbsp;&nbsp;&nbsp;... <br>
+    >   &nbsp;&nbsp;}, <br>
+    >   &nbsp;&nbsp;'ticker_MA_3': { <br>
+    >   &nbsp;&nbsp;&nbsp;&nbsp;'date': double, <br>
+    >   &nbsp;&nbsp;&nbsp;&nbsp;... <br>
+    >   &nbsp;&nbsp;}<br>
     > }<br>
 
 5. <h2>/api/discount-dividend-model</h2>
