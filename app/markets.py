@@ -3,9 +3,13 @@ import app.settings as settings
 import app.services as services
 from app.objects.cashflow import Cashflow
 
+import util.logger as logger
+
 MODEL_DDM="ddm"
 # TODO: implement dcf model
 MODEL_DCF="dcf"
+
+output = logger.Logger('app.markets', settings.LOG_LEVEL)
 
 # NOTE: output from get_overlapping_symbols:
 # OVERLAP = ['ABT', 'AC', 'ADT', 'ADX', 'AE', 'AGI', 'AI', 'AIR', 'AMP', 'AVT', 'BCC', 'BCD', 'BCH', 'BCX', 'BDL', 'BFT', 'BIS', 'BLK', 'BQ', 'BRX', 
@@ -63,7 +67,20 @@ def get_trading_period(asset_type):
 def screen_for_discount(model=MODEL_DDM):
     risk_free_rate = services.get_risk_free_rate()
     equities = list(services.get_watchlist())
-    for equity in equities:
-        dividends = services.get_dividend_history(equity)
-        div_npv = Cashflow(dividends).calculate_net_present_value(discount_rate=risk_free_rate)
+    discounts = []
+    
+    if model == MODEL_DDM:
+        output.debug(f'Using Discount Dividend Model to screen watchlisted equities for discounts.')
+        for equity in equities:
+            dividends = services.get_dividend_history(equity)
+            div_npv = Cashflow(dividends).calculate_net_present_value(discount_rate=risk_free_rate)
+            spot_price = services.get_daily_price_latest(ticker=equity)
+            discount = div_npv - spot_price
+            
+            output.verbose(f'{equity} spot price = {spot_price}, {equity} DDM price = {div_npv} ')
+            
+            if discount > 0:
+                output.debug(f'Discount of {discount} found for {equity}')
+                discounts += equity
 
+    return discounts
