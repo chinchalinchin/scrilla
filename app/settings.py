@@ -150,26 +150,31 @@ try:
     FRONTIER_STEPS = int(os.getenv('FRONTIER_STEPS'))
 
 except:
-    output.debug('Failed to parse FRONTIER_STEPS from .env File. Setting to default value of 5. Please Ensure FRONTIER_STEPS is set to an integer value.')
+    output.debug('Failed to parse FRONTIER_STEPS from .env File. Setting to default value of 5. Please ensure FRONTIER_STEPS is set to an integer value.')
     FRONTIER_STEPS = 5
 
 try:
     MA_1_PERIOD = int(os.getenv('MA_1'))
 except: 
-    output.debug('Failed to parse MA_1 from .env File. Setting to default value of 20. Please Ensure MA_1 is set to an integer value.')
+    output.debug('Failed to parse MA_1 from .env File. Setting to default value of 20. Please ensure MA_1 is set to an integer value.')
     MA_1_PERIOD = 20
 
 try:
     MA_2_PERIOD = int(os.getenv('MA_2'))
 except: 
-    output.debug('Failed to parse MA_2 from .env File. Setting to default value of 60. Please Ensure MA_2 is set to an integer value.')
+    output.debug('Failed to parse MA_2 from .env File. Setting to default value of 60. Please ensure MA_2 is set to an integer value.')
     MA_2_PERIOD = 60
 
 try:
     MA_3_PERIOD = int(os.getenv('MA_3'))
 except: 
-    output.debug('Failed to parse MA_3 from .env File. Setting to default value of 100. Please Ensure MA_3 is set to an integer value.')
+    output.debug('Failed to parse MA_3 from .env File. Setting to default value of 100. Please ensure MA_3 is set to an integer value.')
     MA_3_PERIOD = 100
+
+try:
+    ITO_STEPS = int(os.getenv('ITO_STEPS'))
+except:
+    output.debug('Failed to parsed ITO_STEPS from .env file. Setting to default of 10000. Please ensure ITO_STEPS is set to an integer value.')
 
 ONE_TRADING_DAY=(1/252)
 
