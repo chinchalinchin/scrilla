@@ -11,6 +11,7 @@ CLOSE_PRICE = "close"
 OPEN_PRICE = "open"
 output = logger.Logger("app.services", settings.LOG_LEVEL)
 
+# TODO: move services calls to services.py! 
 def init_static_data():
     if settings.INIT or \
         ((not os.path.isfile(settings.STATIC_ECON_FILE)) or \
@@ -35,6 +36,8 @@ def init_static_data():
             if not os.path.isfile(settings.STATIC_TICKERS_FILE):
                 output.debug(f'Missing {settings.STATIC_TICKERS_FILE}, querying \'{settings.PRICE_MANAGER}\'')
 
+                # TODO: services calls should be in services.py! need to put this and the helper method 
+                #       into services.py in the future. 
                 query=f'{settings.PARAM_AV_FUNC}={settings.ARG_AV_FUNC_EQUITY_LISTINGS}'
                 url = f'{settings.AV_URL}?{query}&{settings.PARAM_AV_KEY}={settings.AV_KEY}'
 

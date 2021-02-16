@@ -382,6 +382,8 @@ not affect the application.
 
 25. Use annotations to allow users to annotate functions for cashflows and other objects.
 
+26. Move init_static_data and helper method into services.py to preserve modularization of application functionality. Service calls should always go in statistics.py.
+
 ### NOTES
 
 1. All date strings should be converted to <b>datetime.dates</b> at point of contact with user, i.e. in the main.py file where CLI arguments are parsed, within the gui where user arguments are pulled from widgets or in the server's endpoint views where user arguments are provided through query parameters, before passing it the service/statistics/portfolio functions. All functions in the <i>/app/</i> module assume dates are passed in as <b>datetime.dates</b>.

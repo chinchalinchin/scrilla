@@ -191,7 +191,7 @@ MARKET_RATE=os.environ.setdefault('MARKET', 'SPY')
 
 ASSET_EQUITY="equity"
 ASSET_CRYPTO="crypto"
-STAT_ECON="indicator"
+STAT_ECON="statistic"
 
 ## SERVICE CONFIGURATION
 

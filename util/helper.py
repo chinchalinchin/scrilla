@@ -373,6 +373,7 @@ def get_first_json_key(this_json):
 def replace_troublesome_chars(msg):
     return msg.replace('\u2265','').replace('\u0142', '')
 
+# TODO: This technically a service call and should be in services.py
 def parse_csv_response_column(column, url, firstRowHeader=None, savefile=None, filetype=None, zipped=None):
     """
     Parameters

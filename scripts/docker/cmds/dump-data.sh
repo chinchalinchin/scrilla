@@ -24,12 +24,12 @@ else
         DUMP_CMD="PGPASSWORD=$POSTGRES_PASSWORD pg_dump --username=$POSTGRES_USER --dbname=$POSTGRES_DB --table=$1| gzip > $DUMP_PATH"
         CONTAINER_ID="$(docker container ps --filter name=datasource --quiet)"
 
-        log "Executing dump command within Container ID# $CONTAINER_ID" $SCRIPT_NAME
-        echo "$DUMP_CMD"
+        log "Executing dump command within Container ID # $CONTAINER_ID" $SCRIPT_NAME
         docker exec $CONTAINER_ID bash -c "$DUMP_CMD"
 
-        log "Copying dump file to local filesytem at $LOCAL_PATH" $SCRIPT_NAME
-        docker cp $CONTAINER_ID:$DUMP_PATH $LOCAL_PATH
+        log "Copying container dump file to local filesytem at $LOCAL_PATH/$POSTGRES_DB-$1.gz" $SCRIPT_NAME
+            # the cp command may or may not need quotes...
+        docker cp "$CONTAINER_ID:$DUMP_PATH" "$LOCAL_PATH"
     else
         log "No argument provided, unable to execute script. Please see help message below and try again." $SCRIPT_NAME
         help "$SCRIPT_DES" $SCRIPT_NAME
