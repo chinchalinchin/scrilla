@@ -315,7 +315,8 @@ if __name__ == "__main__":
                     for arg in main_args:
                         result = markets.sharpe_ratio(ticker=arg, start_date=xtra_list['start_date'],
                                                         end_date=xtra_list['end_date'])
-                        output.scalar_result(f'{arg}_sharpe_ratio', result)
+                        output.scalar_result(calculation=f'{arg}_sharpe_ratio', result=result, 
+                                                    currency=False)
                 else:
                     output.comment('Error encountered while calculating. Try -ex flag for example usage.')
 
