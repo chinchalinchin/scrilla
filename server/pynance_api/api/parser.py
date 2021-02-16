@@ -49,7 +49,7 @@ def parse_secondary_args(request):
 
     if settings.REQUEST_PARAMS['jpeg'] in request.GET:
         jpeg = str(request.GET.get(settings.REQUEST_PARAMS['jpeg']))
-        jpeg = True if jpeg.lower() == 'true' else False
+        jpeg = jpeg.lower() == 'true'
     else:
         jpeg = None
 
