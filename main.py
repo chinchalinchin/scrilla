@@ -106,13 +106,8 @@ if __name__ == "__main__":
                 i = xtra_args.index(xtra)
                 output.debug(f'Extra Argument: {xtra} = {xtra_values[i]}')
             
-            # Parse additional arguments or set to None
-            start_date = helper.get_start_date(xtra_args, xtra_values)
-            end_date = helper.get_end_date(xtra_args, xtra_values)
-            save_file = helper.get_save_file(xtra_args, xtra_values)
-            target = helper.get_target(xtra_args, xtra_values)
-            discount = helper.get_discount(xtra_args, xtra_values)
-            model = helper.get_model(xtra_args, xtra_values)
+            # Format xtra_args into a list where entries that don't exist are set to None
+            xtra_list = helper.format_xtra_args_list(xtra_args, xtra_values)
 
             output.title_line('Results')
             output.line()
@@ -130,7 +125,8 @@ if __name__ == "__main__":
             elif opt == formatter.FUNC_ARG_DICT['capm_equity_cost']:
                 if (len(main_args)>0):
                     for arg in main_args:
-                        equity_cost = markets.cost_of_equity(ticker=arg, start_date=start_date, end_date=end_date)
+                        equity_cost = markets.cost_of_equity(ticker=arg, start_date=xtra_list['start_date'], 
+                                                                end_date=xtra_list['end_date'])
                         output.scalar_result(f'{arg}_equity_cost', equity_cost, currency=False)
                 else:
                     output.comment('Error encountered while calculating. Try -ex flag for example usage.')
@@ -139,7 +135,8 @@ if __name__ == "__main__":
             elif opt == formatter.FUNC_ARG_DICT['capm_beta']:
                 if (len(main_args)>0):
                     for arg in main_args:
-                        beta = markets.market_beta(ticker=arg, start_date=start_date, end_date=end_date)
+                        beta = markets.market_beta(ticker=arg, start_date=xtra_list['start_date'], 
+                                                    end_date=xtra_list['end_date'])
                         output.scalar_result(f'{arg}_beta', beta, currency=False)
                 else:
                     output.comment('Error encountered while calculating. Try -ex flag for example usage.')
@@ -157,7 +154,8 @@ if __name__ == "__main__":
             elif opt == formatter.FUNC_ARG_DICT["correlation"]:
                 if(len(main_args) > 1):
                     result = statistics.get_ito_correlation_matrix_string(tickers=main_args, indent=formatter.INDENT, 
-                                                                        start_date=start_date, end_date=end_date)
+                                                                        start_date=xtra_list['start_date'], 
+                                                                        end_date=xtra_list['end_date'])
                     output.comment(f'\n{result}')
                 else:
                     output.comment('Invalid input. Try -ex flag for example usage.')
@@ -169,7 +167,7 @@ if __name__ == "__main__":
                 if(len(main_args)>1) or len(main_args)==1:
                     for arg in main_args:
                         dividends = services.get_dividend_history(arg)
-                        if discount is None:
+                        if xtra_list['discount'] is None:
                             discount = markets.cost_of_equity(ticker=arg)
                         div_npv = Cashflow(sample=dividends, discount_rate=discount).calculate_net_present_value()
                         output.scalar_result(f'Net Present Value ({arg} dividends)', div_npv)
@@ -179,7 +177,8 @@ if __name__ == "__main__":
             ### FUNCTION: Efficient Frontier
             elif opt == formatter.FUNC_ARG_DICT['efficient_frontier']:
                 if(len(main_args)>1):
-                    portfolio = Portfolio(tickers=main_args, start_date=start_date, end_date=end_date)
+                    portfolio = Portfolio(tickers=main_args, start_date=xtra_list['start_date'], 
+                                            end_date=xtra_list['end_date'])
                     frontier = optimizer.calculate_efficient_frontier(portfolio=portfolio)
                     output.efficient_frontier(portfolio=portfolio, frontier=frontier,
                                                 user_input=settings.INVESTMENT_MODE)
@@ -189,7 +188,8 @@ if __name__ == "__main__":
             ### FUNCTION: Maximize Portfolio Return
             elif opt == formatter.FUNC_ARG_DICT['maximize_return']:
                 if (len(main_args)>1):
-                    portfolio = Portfolio(tickers=main_args, start_date=start_date, end_date=end_date)
+                    portfolio = Portfolio(tickers=main_args, start_date=xtra_list['start_date'], 
+                                            end_date=xtra_list['end_date'])
                     allocation = optimizer.maximize_portfolio_return(portfolio=portfolio)
                     output.optimal_result(portfolio=portfolio, allocation=allocation, 
                                             user_input=settings.INVESTMENT_MODE)
@@ -199,17 +199,21 @@ if __name__ == "__main__":
             ### FUNCTION: Moving Averages of Logarithmic Returns
             elif opt == formatter.FUNC_ARG_DICT['moving_averages']:
                 if(len(main_args)>0):
-                    moving_averages = statistics.calculate_moving_averages(main_args, start_date, end_date)
+                    moving_averages = statistics.calculate_moving_averages(tickers=main_args, 
+                                                                            start_date=xtra_list['start_date'], 
+                                                                            end_date=xtra_list['end_date'])
                     periods = [settings.MA_1_PERIOD, settings.MA_2_PERIOD, settings.MA_3_PERIOD]
-                    output.moving_average_result(main_args, moving_averages, periods, start_date, end_date)
+                    output.moving_average_result(tickers=main_args, averages_output=moving_averages, 
+                                                    periods=periods, start_date=xtra_list['start_date'], 
+                                                    end_date=xtra_list['end_date'])
                 else: 
                     output.comment('Invalid input. Try -ex flag for example usage.')
 
             ### FUNCTION: Optimize Portfolio Variance/Volatility
             elif opt == formatter.FUNC_ARG_DICT['optimize_portfolio']:
                 if (len(main_args)>1):
-                    portfolio = Portfolio(tickers=main_args, start_date=start_date, end_date=end_date)
-                    allocation = optimizer.optimize_portfolio_variance(portfolio=portfolio, target_return=target)   
+                    portfolio = Portfolio(tickers=main_args, start_date=xtra_list['start_date'], end_date=xtra_list['end_date'])
+                    allocation = optimizer.optimize_portfolio_variance(portfolio=portfolio, target_return=xtra_list['target'])   
                     output.optimal_result(portfolio=portfolio, allocation=allocation,
                                             user_input=settings.INVESTMENT_MODE)
                 else: 
@@ -221,7 +225,8 @@ if __name__ == "__main__":
                     output.comment('Dividend plotting goes here.')
                     dividends = services.get_dividend_history(ticker=main_args[0])
                     div_cashflow = Cashflow(sample=dividends,discount_rate=discount)
-                    plotter.plot_cashflow(ticker=main_args[0], cashflow=div_cashflow, show=True, savefile=save_file)
+                    plotter.plot_cashflow(ticker=main_args[0], cashflow=div_cashflow, show=True, 
+                                            savefile=xtra_list['save_file'])
                 elif len(main_args) > 1:
                     output.comment('Only one equity\'s dividend history can be plotted at a time.')
                 else: 
@@ -233,7 +238,8 @@ if __name__ == "__main__":
             elif opt == formatter.FUNC_ARG_DICT['plot_frontier'] and settings.APP_ENV != "container":
                 if(len(main_args)>1):
                     frontier = optimizer.calculate_efficient_frontier(equities=main_args)
-                    plotter.plot_frontier(portfolio=Portfolio(main_args), frontier=frontier, show=True, savefile=save_file)
+                    plotter.plot_frontier(portfolio=Portfolio(main_args), frontier=frontier, show=True, 
+                                            savefile=xtra_list['save_file'])
                 else: 
                     output.comment('Invalid input. Try -ex flag for example usage.')
             elif opt == formatter.FUNC_ARG_DICT['plot_frontier'] and settings.APP_ENV == "container":
@@ -242,10 +248,12 @@ if __name__ == "__main__":
             ### FUNCTION: Plot Moving Averages of Logarithmic Returns
             elif opt == formatter.FUNC_ARG_DICT['plot_moving_averages'] and settings.APP_ENV != "container":
                 if(len(main_args)>0):
-                    moving_averages = statistics.calculate_moving_averages(main_args, start_date, end_date)
+                    moving_averages = statistics.calculate_moving_averages(tickers=main_args, 
+                                                                            start_date=xtra_list['start_date'], 
+                                                                            end_date=xtra_list['end_date'])
                     periods = [settings.MA_1_PERIOD, settings.MA_2_PERIOD, settings.MA_3_PERIOD]
                     plotter.plot_moving_averages(symbols=main_args, averages_output=moving_averages, periods=periods, 
-                                                    show=True, savefile=save_file)
+                                                    show=True, savefile=xtra_list['save_file'])
                 else:
                     output.debug('Invalid Input. Try Try -ex Flag For Example Usage.')
             elif opt == formatter.FUNC_ARG_DICT['plot_moving_averages'] and settings.APP_ENV == "container":
@@ -256,9 +264,12 @@ if __name__ == "__main__":
                 if len(main_args) > 0:
                     profiles = []
                     for arg in main_args:
-                        profiles.append(statistics.calculate_risk_return(arg, start_date, end_date))
-                    plotter.plot_profiles(symbols=main_args, profiles=profiles, show=True, savefile=save_file, 
-                                            subtitle=helper.format_date_range(start_date, end_date))
+                        profiles.append(statistics.calculate_risk_return(tickers=arg, start_date=xtra_list['start_date'], 
+                                                                            end_date=xtra_list['end_date']))
+                    plotter.plot_profiles(symbols=main_args, profiles=profiles, show=True, 
+                                            savefile=xtra_list['save_file'], 
+                                            subtitle=helper.format_date_range(start_date=xtra_list['start_date'], 
+                                                                                end_date=xtra_list['end_date']))
                 else:
                     output.comment('Invalid input. Try -ex flag for example usage.')
             elif opt == formatter.FUNC_ARG_DICT['plot_risk_profile'] and settings.APP_ENV == "container":
@@ -268,13 +279,12 @@ if __name__ == "__main__":
             elif opt == formatter.FUNC_ARG_DICT["risk_return"]:
                 if(len(main_args)>0):
                     for arg in main_args:
-                        result = statistics.calculate_risk_return(arg, start_date, end_date)
+                        result = statistics.calculate_risk_return(tickers=arg, start_date=xtra_list['start_date'], 
+                                                                    end_date=xtra_list['end_date'])
                         if result:
-                            output.scalar_result(calculation=f'mean_{arg}', 
-                                                    result=result['annual_return'],
+                            output.scalar_result(calculation=f'mean_{arg}', result=result['annual_return'],
                                                     currency=False)
-                            output.scalar_result(calculation=f'vol_{arg}', 
-                                                    result=result['annual_volatility'],
+                            output.scalar_result(calculation=f'vol_{arg}', result=result['annual_volatility'],
                                                     currency=False)
                         else:
                             output.comment('Error Encountered While Calculating. Try -ex Flag For Example Usage.')
@@ -283,7 +293,7 @@ if __name__ == "__main__":
 
             ### FUNCTION: Model Discount Screener 
             elif  opt == formatter.FUNC_ARG_DICT["screener"]:
-                if model is None:
+                if xtra_list['model'] is None:
                     model = markets.MODEL_DDM
                 # TODO: compute cost of capital equity and use as discount rate
                 results = markets.screen_for_discount(model=model, discount_rate=discount)

@@ -335,6 +335,25 @@ def get_model(xtra_args, xtra_values):
         model = None
     return model
 
+def get_sharpe(xtra_args):
+    if formatter.FUNC_XTRA_SINGLE_ARGS_DICT['sharpe'] in xtra_args:
+        sharpe = formatter.FUNC_XTRA_SINGLE_ARGS_DICT['sharpe']
+    else:
+        sharpe = None
+    return sharpe
+
+def format_xtra_args_list(xtra_args, xtra_values):
+    arg_list = {
+        'start_date': get_start_date(xtra_args, xtra_values),
+        'end_date': get_end_date(xtra_args, xtra_values),
+        'save_file': get_save_file(xtra_args, xtra_values),
+        'target': get_target(xtra_args, xtra_values),
+        'discount': get_discount(xtra_args, xtra_values),
+        'model': get_model(xtra_args, xtra_values),
+        'sharpe': get_sharpe(xtra_args)
+    }
+    return arg_list
+
 ### APPLICATION PARSING
 def format_allocation_profile(allocation, portfolio) -> str:
     port_return, port_volatility = portfolio.return_function(allocation), portfolio.volatility_function(allocation)
