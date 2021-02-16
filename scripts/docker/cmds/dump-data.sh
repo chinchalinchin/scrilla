@@ -22,7 +22,7 @@ else
         DUMP_PATH="/home/$POSTGRES_DB-$1.gz"
         LOCAL_PATH="$SCRIPT_DIR/../../../data/sql/"
         DUMP_CMD="PGPASSWORD=$POSTGRES_PASSWORD pg_dump --username=$POSTGRES_USER --dbname=$POSTGRES_DB --table=$1| gzip > $DUMP_PATH"
-        CONTAINER_ID="$(docker container ps --filter name=datasource --quiet)"
+        CONTAINER_ID="$(docker container ps --filter name=$POSTGRES_HOST --quiet)"
 
         log "Executing dump command within Container ID # $CONTAINER_ID" $SCRIPT_NAME
         docker exec $CONTAINER_ID bash -c "$DUMP_CMD"

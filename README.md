@@ -1,6 +1,6 @@
 # Pynance: A Financial Optimization Application
 
-This is a financial application that calculates asset correlations, statistics and optimal portfolio allocations using data it retrieves from external services (currently: [AlphaVantage](https://www.alphavantage.co) and [Quandl](https://www.quandl.com/)). Statistics are calculated using [Ito Calculus](https://en.wikipedia.org/wiki/It%C3%B4_calculus) and should be consistent with the results demanded by [Modern Portfolio Theory](https://en.wikipedia.org/wiki/Modern_portfolio_theory) and [Financial Engineering](https://en.wikipedia.org/wiki/Black%E2%80%93Scholes_equation). The portfolios are optimized by minimizing the portfolio's variance/volatility, i.e. by finding the optimal spot on the portfolio's efficient frontier as defined by the [CAPM model](https://en.wikipedia.org/wiki/Capital_asset_pricing_model).
+This is a financial application that calculates asset correlations, statistics and optimal portfolio allocations using data it retrieves from external services (currently: [AlphaVantage](https://www.alphavantage.co), [IEX](https://iexcloud.io/) and [Quandl](https://www.quandl.com/)). Statistics are calculated using [Ito Calculus](https://en.wikipedia.org/wiki/It%C3%B4_calculus) and should be consistent with the results demanded by [Modern Portfolio Theory](https://en.wikipedia.org/wiki/Modern_portfolio_theory) and [Financial Engineering](https://en.wikipedia.org/wiki/Black%E2%80%93Scholes_equation). The portfolios are optimized by minimizing the portfolio's variance/volatility, i.e. by finding the optimal spot on the portfolio's efficient frontier as defined by the [CAPM model](https://en.wikipedia.org/wiki/Capital_asset_pricing_model).
 
 The program's functions are wrapped in [PyQt5](https://doc.qt.io/qtforpython/index.html) widgets which provide a user interface. In addition, visualizations are created by [matplotlib](https://matplotlib.org/3.3.3/contents.html) for easier presentation.
 
@@ -32,11 +32,11 @@ First, from the project root directory, (activate your virtual environment, if u
 
 > pip install -r requirements.txt
 
-For the application to retrieve data, it must be able to connect to AlphaVantage and Quandl. Register for API keys at [AlphaVantage](https://www.alphavantage.co) and [Quandl](https://www.quandl.com/). The application searches for environment variables called <b>ALPHA_VANTAGE_KEY</b> and <b>QUANDL_KEY</b> that contain the respective API keys. These variables are loaded in through the <i>/env/local.env</i> environment file. There are several other environment variables that configure various aspects of the application. A <i>.sample.env</i> file has been included to demonstrate the appropriate format for all variables, in addition to providing explanations for the other variables that can be changed. Besides the API keys, none of the other environment variables need to be changed from their defaults for the application to function properly. The easiest way to set up is to simply 
+For the application to retrieve data, it must be able to connect to AlphaVantage and Quandl. Register for API keys at [AlphaVantage](https://www.alphavantage.co), [IEX](https://iexcloud.io/), [Quandl](https://www.quandl.com/). The application searches for environment variables called <b>ALPHA_VANTAGE_KEY</b>, <b>IEX_KEY</b> and <b>QUANDL_KEY</b> that contain the respective API keys. These variables are loaded in through the <i>/env/local.env</i> environment file. There are several other environment variables that configure various aspects of the application. A <i>.sample.env</i> file has been included to demonstrate the appropriate format for all variables, in addition to providing explanations for the other variables that can be changed. Besides the API keys, none of the other environment variables need to be changed from their defaults for the application to function properly. The easiest way to set up is to simply 
 
 > cp .sample.env local.env
 
-And then change the <b>ALPHA_VANTAGE_KEY</b> and <b>QUANDL_KEY</b> variables to the values you received when you registered on their respective site. Once the API keys have been set, execute the `python main.py` script. Supply this script an argument preceded by a dash that specifies the function you wish to execute and the ticker symbols to which you wish to apply the function. 
+And then change the <b>ALPHA_VANTAGE_KEY</b>, <b>IEX_KEY</b> and <b>QUANDL_KEY</b> variables to the values you received when you registered on their respective site. Once the API keys have been set, execute the `python main.py` script. Supply this script an argument preceded by a dash that specifies the function you wish to execute and the ticker symbols to which you wish to apply the function. 
 
 You can add the <i>/scripts/</i> directory to your path to provide access to a BASH script for invoking the application with a python wrapper, i.e. if <i>/scripts/</i> is on your path, then
 
@@ -263,47 +263,57 @@ Some endpoints have unique query parameters, but all endpoints accept the follow
     <b>Examples</b><br>
 
     <b>Response JSON</b><br>
+
 ## Environment Variables
 
-See the comments in the <i>/env/.sample.env</i> for more information on each variable. Most of the defaults shouldn't need changed except for <b>ALPHA_VANTAGE_KEY</b> and <b>QUANDL_KEY</b>.
+See the comments in the <i>/env/.sample.env</i> for more information on each variable. Most of the defaults shouldn't need changed except for <b>ALPHA_VANTAGE_KEY</b>, <b>IEX_KEY</b> and <b>QUANDL_KEY</b>.
 
 ### Service Configuration
 
 1. <b>PRICE_MANAGER</b>: defines the service manager in charge of retrieving asset price historical data.
 2. <b>STAT_MANAGER</b>: defines the service manager in charge of retrieving economic statistics historical data.
-3. <b>ALPHA_VANTAGE_URL</b>: URL used to query AlphaVantage for asset price histories.
-4. <b>ALPHA_VANTAGE_CRYPTO_META_URL</b>: URL used to query to AlphaVantage for metadata on crypto market.
-5. <b>ALPHA_VANTAGE_KEY</b>: API key required to authenticate AlphaVantage queries.
-6. <b>QUANDL_URL</b>: URL used to query Quandl fo economic statistics historical data.
-7. <b>QUANDL_META_URL</b>: URL used to query Quandl for metadata on economic statistics.
-8. <b>QUANDL_KEY</b>: API key required to authenticate Quandl queries.
+3. <b>DIV_MANAGER</b>: defines the service manager in charge of retrieving dividend historical data.
+4. <b>ALPHA_VANTAGE_URL</b>: URL used to query <b>AlphaVantage</b> for asset price histories.
+5. <b>ALPHA_VANTAGE_CRYPTO_META_URL</b>: URL used to query to <b>AlphaVantage</b> for metadata on crypto market.
+6. <b>ALPHA_VANTAGE_KEY</b>: API key required to authenticate <b>AlphaVantage</b> queries.
+7. <b>QUANDL_URL</b>: URL used to query <b>Quandl</b> for economic statistics histories.
+8. <b>QUANDL_META_URL</b>: URL used to query <b>Quandl</b> for metadata on economic statistics.
+9. <b>QUANDL_KEY</b>: API key required to authenticate <b>Quandl</b> queries.
+10. <b>IEX_URL</b>: URL used to query <b>IEX</b> for dividend histories.
+11. <b>IEX_KEY</b>: API key required to authenticate <b>IEX</b> queries. 
 
 ### Algorithm Configuration
 
-9. <b>FRONTIER_STEPS</b>: Number of data points calculated in a portfolio's efficient frontier. Each data point consists of a (return, volatility)-tuple for a specific allocation of assets. 
-10. <b>MA_1</b>: Number of days in the first Moving Average period. Defaults to 20 if not provided.
-11. <b>MA_2</b>: Number of days in the second Moving Average period. Defaults to 60 if not provided.
-12. <b>MA_3</b>: Number of days in the third Moving Average period. Defaulst to 100 if not provided.
+12. <b>ITO_STEPS</b>: The number of segments into which the integration domain is divided during the calculation of Ito Integrals.
+13. <b>FRONTIER_STEPS</b>: Number of data points calculated in a portfolio's efficient frontier. Each data point consists of a (return, volatility)-tuple for a specific allocation of assets. 
+14. <b>MA_1</b>: Number of days in the first Moving Average period. Defaults to 20 if not provided.
+15. <b>MA_2</b>: Number of days in the second Moving Average period. Defaults to 60 if not provided.
+16. <b>MA_3</b>: Number of days in the third Moving Average period. Defaulst to 100 if not provided.
+17. <b>RISK_FREE</b>: values = ("3-Month", "5-Year", "10-Year", "30-Year"). The US Treasury yield used as a proxy for the risk free rate when valuing securities and equities.
+18. <b>MARKET</b>: Recommend values: ("SPY", "DIA", "QQQ"). Defines the equity ticker symbol used by the application as a proxy for market return. While the recommended values are preferred, there is nothing preventing more obscure ticker symbols from being used the MARKET. GME, for instance. ;)
 
 ### CLI Configuration
 
-13. <b>LOG_LEVEL</b>: values = ("info", "debug", "verbose"). Verbose is <i>extremely</i> verbose. The result of every single calculation within the application will be outputted. 
-15. <b>INVESTMENT_MODE</b>: Determines whether or not asset allocations are outputted in percentages or dollars. If set to <i>True</i>, the CLI will prompt the user to input the amount of money invested in a given portfolio before outputting results.
-16. <b>INIT</b>: A flag that will cause the application to always initialize the <i>/static/</i> directory everytime it executes. TODO: probably don't need this anymore since there is a CLI function that will re-initialize the <i>/static/</i> directory. 
+19. <b>LOG_LEVEL</b>: values = ("info", "debug", "verbose"). Verbose is <i>extremely</i> verbose. The result of every single calculation within the application will be outputted. 
+20. <b>INVESTMENT_MODE</b>: Determines whether or not asset allocations are outputted in percentages or dollars. If set to <i>True</i>, the CLI will prompt the user to input the amount of money invested in a given portfolio before outputting results.
+21. <b>DEFAULT_OPTIMIZATION_PERIOD</b>: The default time range in days over which portfolios are optimized. 
+22. <b>INIT</b>: A flag that will cause the application to always initialize the <i>/static/</i> directory everytime it executes. TODO: probably don't need this anymore since there is a CLI function that will re-initialize the <i>/static/</i> directory. 
+23. <b>FILE_EXT</b>: values = ("json"). Determines in what format cached price, statistic and dividend histories are saved. Currently only supports JSON. In the future, will support XML and CSV.
 
 ### GUI Configuration
 
-17. <b>GUI_WIDTH</b>: Defines the width in pixels of the application's root <b>PyQt</b> widget. Defaults to 800 if not provided.
-18. <b>GUI_HEIGHT</b>: Defines the height in pixels of the application's root <b>PyQt</b> widget. Defaults to 800 if not provided.
+24. <b>GUI_WIDTH</b>: Defines the width in pixels of the application's root <b>PyQt</b> widget. Defaults to 800 if not provided.
+25. <b>GUI_HEIGHT</b>: Defines the height in pixels of the application's root <b>PyQt</b> widget. Defaults to 800 if not provided.
 
 ### Server Configuration
 
-19. <b>SECRET_KEY</b>: The secret used by Django to sign requests.
-20. <b>APP_ENV</b>: Informs the application which environment is it running in, i.e. either <i>local</i> or <i>container</i>
-21. <b>SERVER_PORT</b>: Configures the port on which the WSGI application runs.
-22. <b>DJANGO_SUPERUSER_EMAIL</b>:
-23. <b>DJANGO_SUPERUSER_USERNAME</b>:
-24. <b>DJANGO_SUPERUSER_PASSWORD</b>:
+26. <b>SECRET_KEY</b>: The secret used by Django to sign requests.
+27. <b>APP_ENV</b>: Informs the application which environment is it running in, i.e. either <i>local</i> or <i>container</i>
+28. <b>SERVER_PORT</b>: Configures the port on which the WSGI application runs.
+29. <b>DEBUG</b>: Configures Django's debug mode. 
+30. <b>DJANGO_SUPERUSER_EMAIL</b>:
+31. <b>DJANGO_SUPERUSER_USERNAME</b>:
+32. <b>DJANGO_SUPERUSER_PASSWORD</b>:
 
 ### Database Configuration
 
