@@ -138,7 +138,7 @@ if __name__ == "__main__":
                 if (len(main_args)>0):
                     for arg in main_args:
                         beta = markets.market_beta(ticker=arg, start_date=start_date, end_date=end_date)
-                        output.scalar_result(f'{arg}_beta', equity_cost, currency=False)
+                        output.scalar_result(f'{arg}_beta', beta, currency=False)
                 else:
                     output.comment('Error encountered while calculating. Try -ex flag for example usage.')
 
