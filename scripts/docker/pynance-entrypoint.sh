@@ -25,7 +25,7 @@ if [ $# -eq 0 ] || [ "$1" == "wait-for-it" ] || [ "$1" == "bash" ] || [ "$1" == 
 then
     cd $ROOT_DIR
     log "Invoking \e[2mpynance CLI\e[0m to initalize \e[3m/static/\e[0m directory; This may take a while!" $SCRIPT_NAME
-    python main.py -init
+    python main.py -init-static
 
     log "Clearing \e[3m/cache/\e[0m directory of outdated price histories." $SCRIPT_NAME
     python -c "$CLEAR_CACHE"

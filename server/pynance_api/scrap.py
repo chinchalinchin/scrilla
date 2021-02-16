@@ -7,7 +7,7 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings')
 django.setup()
 
 # Server Imports
-from data.models import EquityMarket, CryptoMarket, EquityTicker, CryptoTicker, Economy
+from data.models import EquityMarket, CryptoMarket, EquityTicker, CryptoTicker, Economy, StatSymbol
 from core import settings
 
 # Application Imports
@@ -24,7 +24,6 @@ output = logger.Logger("server.pynance_api.scrap", settings.LOG_LEVEL)
 # Must be done after /static/ is initialized! 
 def scrap_prices(asset_type):
     today = datetime.date.today()
-
     symbols = list(files.get_static_data(asset_type))
 
     for symbol in symbols:
@@ -35,9 +34,9 @@ def scrap_prices(asset_type):
             new_ticker_entry = CryptoTicker.objects.get_or_create(ticker=symbol)
 
         if new_ticker_entry[1] and asset_type == app_settings.ASSET_EQUITY:
-            output.debug(f'Saving New {symbol} to EquityTicker table in database')
+            output.debug(f'Saved new {symbol} to EquityTicker table in database')
         elif new_ticker_entry[1] and asset_type == app_settings.ASSET_CRYPTO:
-            output.debug(f'Saving New {symbol} to CryptoTicker table in database')
+            output.debug(f'Saved new {symbol} to CryptoTicker table in database')
         elif not new_ticker_entry[1] and asset_type == app_settings.ASSET_EQUITY:
             output.debug(f'{symbol} already exists in EquityTicker table')
         else:
@@ -61,6 +60,9 @@ def scrap_prices(asset_type):
                     output.debug(f'Querying service for {symbol} price history from {next_date} to {today}.')
                     price_history = services.query_service_for_daily_price_history(ticker=symbol, 
                                                                                     start_date=next_date)
+                                                                                
+                else:
+                    price_history = None
 
             elif asset_type == app_settings.ASSET_CRYPTO:
                 last_date = CryptoMarket.objects.filter(ticker=symbol).order_by('-date')[:1][0].date
@@ -72,6 +74,8 @@ def scrap_prices(asset_type):
                     output.debug(f'Querying service for {symbol} price from {next_date} to {today}')
                     price_history = services.query_service_for_daily_price_history(ticker=symbol,
                                                                                     start_date=next_date)
+                else:
+                    price_history = None
 
         if price_history:
             for date in price_history:
@@ -108,8 +112,49 @@ def scrap_stats(stat_type):
     today = datetime.date.today()
     symbols = list(files.get_static_data(stat_type))
 
-    # TODO: scrap quandl stats
-    pass
+    for symbol in symbols:
+        new_symbol_entry = StatSymbol.objects.get_or_create(symbol=symbol)
+
+        if new_symbol_entry[1]:
+            output.debug(f'Saved {symbol} to StatSymbol table in database.')
+            exists=False
+
+            output.debug(f'Querying service for {symbol} statistic history.')
+            stat_history = services.query_service_for_daily_stats_history(statistic=symbol, full=True)
+
+        else:
+            output.debug(f'{symbol} already exists in StatSymbol table in database.')
+            output.debug(f'Determining if saved {symbol} statistic history is missing dates')
+            exists = True
+            
+            last_date = Economy.objects.filter(statistic=symbol).order_by('-date')[:1][0].date
+            missing_dates = (today - last_date).days
+
+            if missing_dates > 0:
+                output.debug(f'{symbol} saved price history missing dates.')
+                next_date = helper.get_next_business_date(last_date + datetime.timedelta(days=1))
+                
+                output.debug(f'Querying service for {symbol} statistic history from {next_date} to {today}.')
+                stat_history = services.query_service_for_daily_price_history(ticker=symbol, 
+                                                                                start_date=next_date)
+            else:
+                stat_history = None
+        
+        if stat_history:
+            for date in stat_history:
+                todays_date = helper.parse_date_string(date)
+                value = stat_history[date]
+                new_stat_entry = Economy.objects.get_or_create(statistic=symbol, date = todays_date, value=value)
+
+                if new_stat_entry[1]:
+                    output.verbose(f'Saving {symbol} value of {value} on {todays_date} to Economy table in database.')
+                else:
+                    output.verbose(f'Value of {symbol} on {todays_date} already exists within Economy table in database.')
+        else:
+            if exists:
+                output.debug(f'{symbol} statistic history up to date.')
+            else:
+                output.debug(f'{symbol} statistic history not found.')
 
 def scrap_dividends():
     today = datetime.date.today()
@@ -119,7 +164,7 @@ def scrap_dividends():
     pass
 
 if __name__ == "__main__": 
-    scrap_prices(asset_type=app_settings.ASSET_EQUITY)
+    # scrap_prices(asset_type=app_settings.ASSET_EQUITY)
     # scrap_prices(asset_type=app_settings.ASSET_CRYPTO)
-    # scrap_stats(stat_type=app_settings.STAT_ECON)
+    scrap_stats(stat_type=app_settings.STAT_ECON)
     # scrap_dividends()

@@ -19,7 +19,7 @@ SYNTAX = "command -OPTIONS [tickers] (additional input)"
 TAB = "      "
 
 FUNC_ARG_DICT = {
-    "asset_type": "-at",
+    "asset_type": "-asset",
     "capm_equity_cost": "-capm-equity",
     "capm_beta": "-capm-beta",
     "clear_cache": "-clear-cache",
