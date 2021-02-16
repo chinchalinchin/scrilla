@@ -144,7 +144,7 @@ def screen_for_discount(model=None, discount_rate=None):
             model_price = Cashflow(sample=dividends, discount_rate=discount_rate).calculate_net_present_value()
         
         if not model_price:
-            output.debug(f'Net present value of dividend payments cannot be calculated for {equity}.')
+            output.info(f'Net present value of dividend payments cannot be calculated for {equity}.')
         else:
             output.verbose(f'{equity} spot price = {spot_price}, {equity} {model} price = {model_price}')
 

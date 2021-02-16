@@ -52,7 +52,7 @@ def init_static_data():
                                                     savefile=settings.STATIC_CRYPTO_FILE, filetype=settings.FILE_EXT)
 
         else:
-            output.debug("No PRICE_MANAGER set in .env file!")
+            output.info("No PRICE_MANAGER set in .env file!")
 
         # Initialize Static Statistic Data
         if settings.STAT_MANAGER == "quandl":
@@ -70,7 +70,7 @@ def init_static_data():
                                                     zipped=settings.Q_RES_STAT_ZIP_KEY)
 
         else:
-            output.debug("No STAT_MANAGER set in .env file!")
+            output.info("No STAT_MANAGER set in .env file!")
     else:
         output.debug('Static data already initialized!')
 
@@ -114,7 +114,7 @@ def get_watchlist():
 
             # TODO: implement other file loading exts
     else: 
-        output.debug('Watchlist not found.')
+        output.info('Watchlist not found.')
         watchlist = []
 
     return watchlist

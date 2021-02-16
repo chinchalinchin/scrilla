@@ -47,6 +47,7 @@ FUNC_ARG_DICT = {
     "screener": "-screen",
     "server_local": "-local",
     "server_container": "-container",
+    "sharpe_ratio": "-sharpe",
     "statistic": "-stat",
     "watchlist": "-watch"
 }
@@ -61,7 +62,7 @@ FUNC_XTRA_VALUED_ARGS_DICT = {
 }
 
 FUNC_XTRA_SINGLE_ARGS_DICT = {
-    'sharpe': "-sharpe"
+    'optimize_sharpe': "-sh"
 }
 
 FUNC_DICT = {
@@ -81,7 +82,7 @@ FUNC_DICT = {
     
     "correlation": "Calculate pair-wise correlation for the supplied list of ticker symbols. If no start or end dates are specified, calculations default to the last 100 days of prices. ADDITIONAL OPTIONS:  -start (format: \"YYYY-MM-DD\"), -end  (format :\"YYYY-MM-DD\")",
     
-    "efficient_frontier": "Generate a sample of the portfolio's efficient frontier for the supplied list of tickers. By default, the efficient frontier will minimize a portfolio's volality for a given rate of return. You can provide the -sharpe flag as an argument to force the function to instead maximize the portfolio's sharpe ration. ADDITIONAL OPTIONS: -sharpe",
+    "efficient_frontier": "Generate a sample of the portfolio's efficient frontier for the supplied list of tickers. By default, the efficient frontier will minimize a portfolio's volality for a given rate of return. You can provide the -sh flag as an argument to force the function to instead maximize the portfolio's sharpe ratio. ADDITIONAL OPTIONS: -sh",
     
     "examples": "Display examples of syntax.",
     
@@ -99,7 +100,7 @@ FUNC_DICT = {
     
     "moving_averages": "Calculate the current moving averages. If no start or end dates are specified, calculations default to the last 100 days of prices. ADDITIONAL OPTIONS:  -start (format: \"YYYY-MM-DD\"), -end  (format :\"YYYY-MM-DD\")",
     
-    "optimize_portfolio": "Optimize the volatility of the portfolio\'s variance subject to the supplied return target. The target return must be specified with the '-target' flag. If no target return is specified, the portfolio's volatility is minimized. If no start or end dates are specified, calculations default to the last 100 days of prices. If the -sharpe flag is specified, the function will maximize the portfolio's sharpe ratio instead of minimizing it's volatility. ADDITIONAL OPTIONS:  -start (format: \"YYYY-MM-DD\"), -end  (format :\"YYYY-MM-DD\"), -target (format: decimal), -sharep",
+    "optimize_portfolio": "Optimize the volatility of the portfolio\'s variance subject to the supplied return target. The target return must be specified with the '-target' flag. If no target return is specified, the portfolio's volatility is minimized. If no start or end dates are specified, calculations default to the last 100 days of prices. If the -sh flag is specified, the function will maximize the portfolio's sharpe ratio instead of minimizing it's volatility. ADDITIONAL OPTIONS:  -start (format: \"YYYY-MM-DD\"), -end  (format :\"YYYY-MM-DD\"), -target (format: decimal), -sh",
     
     "plot_dividends": "Generates a scatter plot graphic of the dividend history for the supplied list of tickers with a superimposed simple linear regression line. ADDITIONAL OPTIONS: -save (format: /path/to/file/filename.jpeg)",
     
@@ -121,7 +122,10 @@ FUNC_DICT = {
     
     "server_container": "Builds and runs a Docker image of the application on 'localhost'. Configure .env to change port.",
     
+    "sharpe_ratio": "Computes the sharpe ratio for each of the supplied tickers. ADDITIONAL OPTIONS:  -start (format: \"YYYY-MM-DD\"), -end  (format :\"YYYY-MM-DD\")", 
+
     "statistic": "Retrieves the latest value for the supplied list of economic statistics. The available list of economic statistic can be found at https://www.quandl.com/data/FRED-Federal-Reserve-Economic-Data/documentation?anchor=growth; it is also stored in the /static/ directory of the application ",
+    
     "watchlist": "Saves the supplist list of tickers to your watchlist. These equity symbol are used by the screening algorithms when searching for stocks that trade at a discount."
 
 }

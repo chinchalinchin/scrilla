@@ -61,6 +61,8 @@ class Portfolio:
         
         self.error = not self.calculate_stats()
 
+        self.risk_free_rate = markets.get_risk_free_rate()
+
         # todo: calculate stats with lambda functions.
     def calculate_stats(self):
         self.mean_return = []
@@ -107,7 +109,7 @@ class Portfolio:
         return numpy.sqrt(numpy.multiply(x, self.sample_vol).dot(self.correlation_matrix).dot(numpy.transpose(numpy.multiply(x, self.sample_vol))))
 
     def sharpe_ratio_function(self, x):
-        return (numpy.dot(x, self.sample_mean) - markets.get_risk_free_rate()) / (self.volatility_function(x))
+        return (numpy.dot(x, self.mean_return) - self.risk_free_rate) / (self.volatility_function(x))
 
     def get_init_guess(self):
         length = len(self.tickers)

@@ -32,7 +32,7 @@ def validate_order_of_dates(start_date, end_date):
                 return True, start_date, None
 
             else:
-                output.debug(f'Invalid date range, {start_date} - {end_date}.')
+                output.INFO(f'Invalid date range, {start_date} - {end_date}.')
                 return False, None, None
 
     if end_date is not None:
@@ -116,7 +116,7 @@ def parse_price_from_date(prices, date, asset_type, which_price=CLOSE_PRICE):
             pass
 
     except:
-        output.debug('Price unable to be parsed from date.')
+        output.info('Price unable to be parsed from date.')
         return False
 
 def query_service_for_daily_price_history(ticker, start_date=None, end_date=None, asset_type=None, full=False):
@@ -195,7 +195,7 @@ def query_service_for_daily_price_history(ticker, start_date=None, end_date=None
 
             # check for bad response
         if first_element == settings.AV_RES_ERROR:
-            output.debug(prices[settings.AV_RES_ERROR])
+            output.info(prices[settings.AV_RES_ERROR])
             return False
 
             # check and wait for API rate limit refresh
@@ -304,7 +304,7 @@ def query_service_for_daily_price_history(ticker, start_date=None, end_date=None
         ### END: AlphaVantage Crypto Response Parsing ###
 
     else:
-        output.debug("No PRICE_MANAGER set in .env file!")
+        output.info("No PRICE_MANAGER set in .env file!")
         return False
 
 # TODO: Crypto queries return all dates and price even if no start_date is provided.
@@ -351,7 +351,7 @@ def get_daily_price_history(ticker, start_date=None, end_date=None):
                 # TODO: dump other file types
             return prices
     else:
-        output.debug(f'No cached prices for date ranges past default. Passing to service call.')
+        output.info(f'No cached prices for date ranges past default. Passing to service call.')
         prices = query_service_for_daily_price_history(ticker=ticker, start_date=start_date, end_date=end_date)
         return prices
 
@@ -368,7 +368,7 @@ def get_daily_price_latest(ticker):
             return prices[first_element][settings.AV_RES_CRYPTO_CLOSE_PRICE]
             
     else:
-        output.debug("No PRICE_MANAGER set in .env file!")
+        output.info("No PRICE_MANAGER set in .env file!")
         return None
 
 # NOTE: if no start_date and end_date are provided to Quandl API, entire price history is returned.
@@ -418,7 +418,7 @@ def query_service_for_daily_stats_history(statistic, start_date=None, end_date=N
 
         return formatted_stat
     else:
-        output.debug("No STAT_MANAGER set in .env file!")
+        output.info("No STAT_MANAGER set in .env file!")
         return None
 
 def get_daily_stats_history(statistic, start_date=None, end_date=None):
@@ -448,7 +448,7 @@ def get_daily_stats_history(statistic, start_date=None, end_date=None):
             return stats
 
     else:
-        output.debug(f'No cached prices for date ranges past default. Passing to service call.')
+        output.info(f'No cached prices for date ranges past default. Passing to service call.')
         stats = query_service_for_daily_stats_history(statistic=statistic, start_date=start_date, end_date=end_date)
         return stats
 
@@ -459,7 +459,7 @@ def get_daily_stats_latest(statistic):
         return stats_history[first_element]
 
     else:
-        output.debug("No STAT_MANAGER set in .env file!")
+        output.info("No STAT_MANAGER set in .env file!")
         return None
 
 def query_service_for_dividend_history(ticker):

@@ -269,9 +269,9 @@ def separate_and_parse_args(args):
     offset = 0
     
     for arg in args:
-        if arg in formatter.FUNC_XTRA_VALUED_ARGS_DICT.values() or arg in formatter.FUNC_XTRA_SINGLE_ARGS_DICT:
+        if arg in formatter.FUNC_XTRA_VALUED_ARGS_DICT.values() or arg in formatter.FUNC_XTRA_SINGLE_ARGS_DICT.values():
             extra_args.append(arg)
-            if arg not in formatter.FUNC_XTRA_SINGLE_ARGS_DICT:
+            if arg not in formatter.FUNC_XTRA_SINGLE_ARGS_DICT.values():
                 extra_values.append(args[args.index(arg)+1])
 
     for arg in extra_args:
@@ -336,8 +336,8 @@ def get_model(xtra_args, xtra_values):
     return model
 
 def get_sharpe(xtra_args):
-    if formatter.FUNC_XTRA_SINGLE_ARGS_DICT['sharpe'] in xtra_args:
-        sharpe = formatter.FUNC_XTRA_SINGLE_ARGS_DICT['sharpe']
+    if formatter.FUNC_XTRA_SINGLE_ARGS_DICT['optimize_sharpe'] in xtra_args:
+        sharpe = formatter.FUNC_XTRA_SINGLE_ARGS_DICT['optimize_sharpe']
     else:
         sharpe = None
     return sharpe
@@ -350,7 +350,7 @@ def format_xtra_args_list(xtra_args, xtra_values):
         'target': get_target(xtra_args, xtra_values),
         'discount': get_discount(xtra_args, xtra_values),
         'model': get_model(xtra_args, xtra_values),
-        'sharpe': get_sharpe(xtra_args)
+        'optimize_sharpe': get_sharpe(xtra_args)
     }
     return arg_list
 

@@ -26,10 +26,10 @@ output = logger.Logger('app.statistics', settings.LOG_LEVEL)
 
 def sample_correlation(x, y):
     if len(x) != len(y):
-        output.debug(f'Samples are not comparable')
+        output.info(f'Samples are not of comparable lengths')
         return False
     elif len(x) == 1 or len(x) == 1:
-        output.debug(f'Sample correlation cannot be computed for a sample size less than or equal to 1.')
+        output.info(f'Sample correlation cannot be computed for a sample size less than or equal to 1.')
         return False
     else:
         sumproduct, sum_x_squared, sum_x, sum_y, sum_y_squared= 0, 0, 0, 0, 0
@@ -57,7 +57,7 @@ def sample_correlation(x, y):
             if correl_den != 0:
                 correlation = correl_num / correl_den
             else:
-                output.debug('Denominator for correlation formula to small for division')
+                output.info('Denominator for correlation formula to small for division')
                 return False
 
         return correlation
@@ -65,7 +65,7 @@ def sample_correlation(x, y):
 def sample_mean(x):
     xbar, n = 0, len(x)
     if n == 0:
-        output.debug('Sample mean cannot be computed for a sample size of 0.')
+        output.info('Sample mean cannot be computed for a sample size of 0.')
         return False
     else:
         for i in x:
@@ -75,7 +75,7 @@ def sample_mean(x):
 def sample_variance(x):
     mu, sigma, n = sample_mean(x=x), 0, len(x)
     if n == 1 or n == 0:
-        output.debug('Sample variance cannot be computed for a sample size less than or equal to 1.')
+        output.info('Sample variance cannot be computed for a sample size less than or equal to 1.')
         return False
     else:
         for i in x:
@@ -84,10 +84,10 @@ def sample_variance(x):
 
 def sample_covariance(x, y):
     if len(x) != len(y):
-        output.debug(f'Samples are not comparable')
+        output.info(f'Samples are not of comparable length')
         return False
     elif len(x) == 1 or len(x) == 1:
-        output.debug(f'Sample correlation cannot be computed for a sample size less than or equal to 1.')
+        output.info(f'Sample correlation cannot be computed for a sample size less than or equal to 1.')
         return False
     else:
         n, covariance = len(x), 0
@@ -99,17 +99,17 @@ def sample_covariance(x, y):
 
 def regression_beta(x, y):
     if len(x) != len(y):
-        output.debug(f'len(x) = {len(x)} != len(y) = {len(y)}')
+        output.info(f'len(x) = {len(x)} != len(y) = {len(y)}')
         return False
     elif len(x) < 3:
-        output.debug(f'Sample size of {len(x)} is less than the necessary degrees of freedom (n > 2) for regression estimation.')
+        output.info(f'Sample size of {len(x)} is less than the necessary degrees of freedom (n > 2) for regression estimation.')
         return False
     else:
         correl = sample_correlation(x=x, y=y)
         vol_x = numpy.sqrt(sample_variance(x=x))
         vol_y = numpy.sqrt(sample_variance(x=y))
         if not correl or not vol_x or not vol_y:
-            output.debug('Error calculating statistics for regression Beta.')
+            output.info('Error calculating statistics for regression Beta.')
             return False
         else:
             beta = correl * vol_y / vol_x
@@ -117,14 +117,15 @@ def regression_beta(x, y):
 
 def regression_alpha(x, y):
     if len(x) != len(y):
-        output.debug(f'len(x) == {len(x)} != len(y) == {len(y)}')
+        output.info(f'len(x) == {len(x)} != len(y) == {len(y)}')
         return False
     elif len(x) < 3:
-        output.debug(f'Sample size of {len(x)} is less than the necessary degrees of freedom (n > 2) for regression estimation.')
+        output.info(f'Sample size of {len(x)} is less than the necessary degrees of freedom (n > 2) for regression estimation.')
     else:
         y_mean, x_mean = sample_mean(y), sample_mean(x)
         if not y_mean or not x_mean:
-            output.debug('Error calculating statistics for regression alpha')
+            output.info('Error calculating statistics for regression alpha')
+            return False
         else:
             alpha = y_mean - regression_beta(x=x, y=y)*x_mean
             return alpha
@@ -600,7 +601,7 @@ def calculate_ito_correlation(ticker_1, ticker_2, start_date=None, end_date=None
         prices_1, prices_2 = sample_prices[ticker_1], prices_2[ticker_2]
         
     if (not prices_1) or (not prices_2):
-        output.debug("Prices cannot be retrieved for correlation calculation")
+        output.info("Prices cannot be retrieved for correlation calculation")
         return False 
     ### END DATA RETRIEVAL ###
     
@@ -610,7 +611,7 @@ def calculate_ito_correlation(ticker_1, ticker_2, start_date=None, end_date=None
     stats_2 = calculate_risk_return(ticker_2, start_date, end_date, sample_prices)
 
     if (not stats_1) or (not stats_2):
-        output.debug("Sample statistics cannot be calculated for correlation calculation")
+        output.info("Sample statistics cannot be calculated for correlation calculation")
         return False
 
     asset_type_1 = markets.get_asset_type(ticker_1)
@@ -725,7 +726,7 @@ def calculate_ito_correlation(ticker_1, ticker_2, start_date=None, end_date=None
             try:
                 covariance = revised_covariance/(sample - 1)
             except:
-                output.debug('Lost entire sample!')
+                output.info('Lost entire sample!')
                 return False
 
             delta += 1

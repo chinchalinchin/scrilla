@@ -64,7 +64,7 @@ class Logger():
             print(formatter.TAB, f'{i}. {list_to_print[i]}')
     
     # PRE-FORMATTED FUNCTIONS
-    def example_expo(self, ex_no, example, explanation):
+    def example(self, ex_no, example, explanation):
         print(' '*formatter.INDENT, f'#{ex_no}:', example)
         for line in self.break_lines(explanation):
             print(' '*2*formatter.INDENT, '-', line)
@@ -72,7 +72,7 @@ class Logger():
     def examples(self):
         index = 1
         for example in formatter.EXAMPLES:
-            self.example_expo(index, example, formatter.EXAMPLES[example])
+            self.example(index, example, formatter.EXAMPLES[example])
             self.return_line()
             index += 1
 
@@ -97,6 +97,14 @@ class Logger():
         for option in options:
             self.option(formatter.FUNC_ARG_DICT[option], formatter.FUNC_DICT[option])
             self.return_line()
+
+    def arguments(self, main_args, xtra_args, xtra_values):
+        self.debug(f'Main Arguments: {main_args}')
+        for i in range(len(xtra_args)):
+            if i < len(xtra_values):
+                self.debug(f'Extra Argument: {xtra_args[i]} = {xtra_values[i]}')
+            else:
+                self.debug(f'Extra Argument: {xtra_args[i]}')
 
     # APPLICATION SPECIFIC FORMATTING FUNCTIONS
     def string_result(self, operation, result):
@@ -164,7 +172,11 @@ class Logger():
             self.model_price(ticker=ticker, model_price=info[ticker]['model_price'], model=model)
             self.scalar_result(f'{ticker} discount', info[ticker]['discount'])
             self.line()
-            
+
+    # TODO: can probably combine optimal_result and efficient_frontier into a single function
+    #         by wrapping the optimal_results in an array so when it iterates through frontier
+    #         in efficient_frontier, it will only pick up the single allocation array for the
+    #         optimal result.
     def optimal_result(self, portfolio, allocation, user_input):
         self.title_line('Optimal Percentage Allocation')
         self.portfolio_percent_result(allocation, portfolio.tickers)

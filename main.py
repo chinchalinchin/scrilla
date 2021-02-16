@@ -24,7 +24,21 @@ import util.formatter as formatter
 
 output = logger.Logger('main', settings.LOG_LEVEL)
 
+"""
+main.py
+-------
+CLI Entrypoint 
+--------------
+Description
+-----------
+This script acts as the entrypoint for the CLI application. It parses the arguments supplied through the command line, delegates them to the appropriate application function and then passes the results to the Logger class for formatting and printing to screen. \n \n 
 
+The arguments are parsed in such a way that arguments which are not supplied are set to None. All application functions are set up to accept None as a value for their optional arguments. This makes passing arguments to application functions easier as the `main.py` script doesn't have to worry about their values. In other words, `main.py` always passes all arguments to application functions, even if they aren't supplied through the command line; it just sets the ones which aren't supplied to None.  \n \n
+
+Note, several of the application's function are not dealt with inside of this entrypoint script, namely the `-local` and `-container` flags, which start up a local Django development server or a containerized **gunicorn** server with the WSGI Application deployed onto it, respectively. For several reasons, the wrapper script '/scripts/pynance' takes cares of those arguments within the shell the `pynance` command is invoked from before passing the arguments to python. \n \n
+
+First, before the containerized version of this application can be spun up, the Docker image must be built. This is easier to do from a shell script. Second, there are several 'manage.py' processes that must be completed before the server goes up, such as making migrations and migrating them to the database service. Doing so from inside of this script would be unnecessarily messy. Third, this application is designed to keep functionality as modularized as possible, i.e. the 'app' module is in charge purely of application calculations and algorithms, whereas the 'server' module is in charge of exposing the functions as an API and setting up all the necessary database tables, etc. Mixing and matching server tasks in this script would couple the application and server in ways that go counter to the design principles adopted for this package. \n \n
+"""
 if __name__ == "__main__": 
 
     if len(sys.argv)>0:
@@ -98,16 +112,10 @@ if __name__ == "__main__":
             files.init_static_data()
             
             args = sys.argv[2:]
-
-            # Additional Argument Parsing
             xtra_args, xtra_values, main_args = helper.separate_and_parse_args(args)
-            output.debug(f'Main Arguments: {main_args}')
-            for xtra in xtra_args:
-                i = xtra_args.index(xtra)
-                output.debug(f'Extra Argument: {xtra} = {xtra_values[i]}')
-            
-            # Format xtra_args into a list where entries that don't exist are set to None
             xtra_list = helper.format_xtra_args_list(xtra_args, xtra_values)
+            output.arguments(main_args=main_args, xtra_args=xtra_args, xtra_values=xtra_values)
+            
 
             output.title_line('Results')
             output.line()
@@ -213,7 +221,10 @@ if __name__ == "__main__":
             elif opt == formatter.FUNC_ARG_DICT['optimize_portfolio']:
                 if (len(main_args)>1):
                     portfolio = Portfolio(tickers=main_args, start_date=xtra_list['start_date'], end_date=xtra_list['end_date'])
-                    allocation = optimizer.optimize_portfolio_variance(portfolio=portfolio, target_return=xtra_list['target'])   
+                    if xtra_list['optimize_sharpe']:
+                        allocation = optimizer.maximize_sharpe_ratio(portfolio=portfolio, target_return=xtra_list['target'])
+                    else:
+                        allocation = optimizer.optimize_portfolio_variance(portfolio=portfolio, target_return=xtra_list['target'])   
                     output.optimal_result(portfolio=portfolio, allocation=allocation,
                                             user_input=settings.INVESTMENT_MODE)
                 else: 
@@ -255,7 +266,7 @@ if __name__ == "__main__":
                     plotter.plot_moving_averages(symbols=main_args, averages_output=moving_averages, periods=periods, 
                                                     show=True, savefile=xtra_list['save_file'])
                 else:
-                    output.debug('Invalid Input. Try Try -ex Flag For Example Usage.')
+                    output.comment('Invalid Input. Try Try -ex Flag For Example Usage.')
             elif opt == formatter.FUNC_ARG_DICT['plot_moving_averages'] and settings.APP_ENV == "container":
                 output.comment('Plotting functionality disabled when application is containerized.')
 
@@ -298,6 +309,15 @@ if __name__ == "__main__":
                 # TODO: compute cost of capital equity and use as discount rate
                 results = markets.screen_for_discount(model=model, discount_rate=discount)
                 output.screen_results(info=results, model=model)
+
+            elif opt == formatter.FUNC_ARG_DICT["sharpe_ratio"]:
+                if (len(main_args) > 0):
+                    for arg in main_args:
+                        result = markets.sharpe_ratio(ticker=arg, start_date=xtra_list['start_date'],
+                                                        end_date=xtra_list['end_date'])
+                        output.scalar_result(f'{arg}_sharpe_ratio', result)
+                else:
+                    output.comment('Error encountered while calculating. Try -ex flag for example usage.')
 
             ### FUNCTION: Get Latest Economic Statistic
             elif opt == formatter.FUNC_ARG_DICT["statistic"]:
