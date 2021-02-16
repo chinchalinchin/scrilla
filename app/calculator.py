@@ -19,14 +19,17 @@ def verify_volatility_condition(volatility_function):
     integral = integrate.quad(func=squared_vol, a=0, b=numpy.inf)
     return numpy.isinf(x = integral)
 
-# NOTE: end_date
-# Remember forward increments
+# Remember forward increments!
 def ito_integral(mean_function, volatilty_function, time_to_expiration=None):
     if verify_volatility_condition(volatility_function=volatilty_function):
         random_walk = generate_random_walk(settings.ITO_STEPS)
         
+        # NOTE: Compute Ito Integral using forward increments due to the fact
+        #       the value at the end of the interval can be conditioned on 
+        #       the value at the beginning of the interval. In other words, Ito 
+        #       Processes are Markovian, ie. E(X2 | X1) = X1.
         for i in range(settings.ITO_STEPS):
-            # compute ito integral
+            # TODO
             pass
     else:
         output.debug('Supplied volatility function does not meet condition : ')
