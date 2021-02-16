@@ -13,6 +13,7 @@ from core import settings
 # Application Imports
 import app.services as services
 import app.settings as app_settings
+import app.files as files
 
 # Utility Imports
 import util.helper as helper
@@ -34,31 +35,43 @@ def scrap_prices(asset_type):
             new_ticker_entry = CryptoTicker.objects.get_or_create(ticker=symbol)
 
         if new_ticker_entry[1] and asset_type == app_settings.ASSET_EQUITY:
-            output.debug(f'Saving {symbol} to EquityTicker table in database')
+            output.debug(f'Saving New {symbol} to EquityTicker table in database')
         elif new_ticker_entry[1] and asset_type == app_settings.ASSET_CRYPTO:
-            output.debug(f'Saving {symbol} to CryptoTicker table in database')
+            output.debug(f'Saving New {symbol} to CryptoTicker table in database')
         elif not new_ticker_entry[1] and asset_type == app_settings.ASSET_EQUITY:
             output.debug(f'{symbol} already exists in EquityTicker table')
         else:
             output.debug(f'{symbol} already exists in CryptoTicker table')
 
-        output.debug(f'Retrieving price history for {symbol}.')
-
         if new_ticker_entry[1]:
+            output.debug(f'Querying service for entire price history for {symbol}.')
             price_history = services.query_service_for_daily_price_history(symbol, full=True, asset_type=asset_type)
-        else:
-            if asset_type == app_settings.ASSET_EQUITY:
-                # TODO: determine if last date in table is today
-                #       if not, query missing dates
-                # TODO: make sure missed price histories after rate limit get added.
-                pass
-            elif asset_type == app_settings.ASSET_CRYPTO:
-                # TODO: determine if last date in table is today
-                #       if not, query missing dates
-                # TODO: make sure missed price histories after rate limit get added.
+            exists = False
 
-                pass
-            price_history = None
+        else:
+            output.debug(f'Determining if saved {symbol} price history is missing dates')
+            exists = True        
+            if asset_type == app_settings.ASSET_EQUITY:
+                last_date = EquityMarket.objects.filter(ticker=symbol).order_by('-date')[:1][0].date
+
+                missing_dates = (today - last_date).days
+                if missing_dates > 0:
+                    output.debug(f'{symbol} saved price history missing dates.')
+                    next_date = helper.get_next_business_date(last_date + datetime.timedelta(days=1))
+                    output.debug(f'Querying service for {symbol} price history from {next_date} to {today}.')
+                    price_history = services.query_service_for_daily_price_history(ticker=symbol, 
+                                                                                    start_date=next_date)
+
+            elif asset_type == app_settings.ASSET_CRYPTO:
+                last_date = CryptoMarket.objects.filter(ticker=symbol).order_by('-date')[:1][0].date
+                
+                missing_dates = (today-last_date).days
+                if missing_dates > 0:
+                    output.debug(f'{symbol} saved price history missing dates')
+                    next_date = helper.get_next_business_date(last_date + datetime.timedelta(days=1))
+                    output.debug(f'Querying service for {symbol} price from {next_date} to {today}')
+                    price_history = services.query_service_for_daily_price_history(ticker=symbol,
+                                                                                    start_date=next_date)
 
         if price_history:
             for date in price_history:
@@ -83,8 +96,12 @@ def scrap_prices(asset_type):
                     output.verbose(f'Closing and openiong prices for {symbol} on {date} already exist in EquityMarket table')
                 else: 
                     output.verbose(f'Closing and openiong prices for {symbol} on {date} already exist in CryptoMarket table')
+
         else: 
-            output.debug(f'Price history not found for {symbol}.')
+            if exists:
+                output.debug(f'{symbol} price history up to date.')
+            else:
+                output.debug(f'{symbol} price history not found.')
 
 
 def scrap_stats(stat_type):
@@ -94,7 +111,15 @@ def scrap_stats(stat_type):
     # TODO: scrap quandl stats
     pass
 
+def scrap_dividends():
+    today = datetime.date.today()
+    symbols = list(files.get_static_data(app_settings.ASSET_EQUITY))
+
+    # TODO: scrap IEX dividend histories
+    pass
+
 if __name__ == "__main__": 
     scrap_prices(asset_type=app_settings.ASSET_EQUITY)
-    scrap_prices(asset_type=app_settings.ASSET_CRYPTO)
-    scrap_stats(stat_type=app_settings.STAT_ECON)
+    # scrap_prices(asset_type=app_settings.ASSET_CRYPTO)
+    # scrap_stats(stat_type=app_settings.STAT_ECON)
+    # scrap_dividends()

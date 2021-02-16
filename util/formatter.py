@@ -51,7 +51,7 @@ FUNC_ARG_DICT = {
     "watchlist": "-watch"
 }
 
-FUNC_XTRA_ARGS_DICT = {
+FUNC_XTRA_VALUED_ARGS_DICT = {
     'target': '-target',
     'save': '-save',
     'start_date': '-start',
@@ -60,35 +60,67 @@ FUNC_XTRA_ARGS_DICT = {
     'model': '-model'
 }
 
+FUNC_XTRA_SINGLE_ARGS_DICT = {
+    'sharpe': "-sharpe"
+}
+
 FUNC_DICT = {
     "asset_type": "Outputs the asset type for the supplied symbol.",
+    
     "capm_equity_cost": "Computes the cost of equity according to CAPM for the supplied list of tickers. If no start or end dates are specified, calculations default to the last 100 days of prices. The environment variable MARKET_RATE defines which ticker serves as a proxy for the market as whole. ADDITIONAL OPTIONS:  -start (format: \"YYYY-MM-DD\"), -end  (format :\"YYYY-MM-DD\")",
+
     "capm_beta": "Computes the market beta according to CAPM for the supplied list of tickers. If no start or end dates are specified, calculations default to the last 100 days of prices. The environment variable MARKET_RATE defines which ticker serves as a proxy for the market as whole. ADDITIONAL OPTIONS:  -start (format: \"YYYY-MM-DD\"), -end  (format :\"YYYY-MM-DD\")",
+
     "clear_cache": "Clears the /data/cache/ directory of all data, outdated or not.",
+    
     "clear_static": "Clears the /data/static directory of all data. Not recommended unless necessary. Static data takes a long time to reload.",
+
     "clear_watchlist": "Clears the /data/common/watchlist.json of all saved ticker symbols.",
+    
     "close": "Return latest closing value for the supplied list of symbols (equity or crypto).",
+    
     "correlation": "Calculate pair-wise correlation for the supplied list of ticker symbols. If no start or end dates are specified, calculations default to the last 100 days of prices. ADDITIONAL OPTIONS:  -start (format: \"YYYY-MM-DD\"), -end  (format :\"YYYY-MM-DD\")",
-    "efficient_frontier": "Generate a sample of the portfolio's efficient frontier for the supplied list of tickers.",
+    
+    "efficient_frontier": "Generate a sample of the portfolio's efficient frontier for the supplied list of tickers. By default, the efficient frontier will minimize a portfolio's volality for a given rate of return. You can provide the -sharpe flag as an argument to force the function to instead maximize the portfolio's sharpe ration. ADDITIONAL OPTIONS: -sharpe",
+    
     "examples": "Display examples of syntax.",
+    
     "discount_dividend": "Extrapolates future dividend cashflows from historical dividend payments with linear regression and then uses that model to calculate the net present value of all future dividends. If no discount rate is specified, the calculations default to the risk-free rate, i.e. the 10-Year US Treasury yield. ADDITIONAL OPTIONS: -discount (float)",
+    
     "gui": "Brings up a Qt GUI for the application (work in progress!)",
+    
     "help": "Print this help message.",
+    
     "initialize": "Initializes the data in the /static/ directory. Local application automatically initializes this data. This option is used to initialize static data inside of a Docker container, where the application entrypoint doesn't invoke the CLI automatically.",
+    
     "maximize_return": "Maximize the return of the portfolio defined by the supplied list of ticker symbols. If no start or end dates are specified, calculations default to the last 100 days of prices. ADDITIONAL OPTIONS:  -start (format: \"YYYY-MM-DD\"), -end  (format :\"YYYY-MM-DD\")",
+    
     "list_watchlist": "Lists the equity symbols currently saved to your watchlist.",
+    
     "moving_averages": "Calculate the current moving averages. If no start or end dates are specified, calculations default to the last 100 days of prices. ADDITIONAL OPTIONS:  -start (format: \"YYYY-MM-DD\"), -end  (format :\"YYYY-MM-DD\")",
-    "optimize_portfolio":"Optimize the volatility of the portfolio\'s variance subject to the supplied return target. The target return must be specified with the '-target' flag. If no target return is specified, the portfolio's volatility is minimized. If no start or end dates are specified, calculations default to the last 100 days of prices. ADDITIONAL OPTIONS:  -start (format: \"YYYY-MM-DD\"), -end  (format :\"YYYY-MM-DD\"), -target (format: decimal)",
+    
+    "optimize_portfolio": "Optimize the volatility of the portfolio\'s variance subject to the supplied return target. The target return must be specified with the '-target' flag. If no target return is specified, the portfolio's volatility is minimized. If no start or end dates are specified, calculations default to the last 100 days of prices. If the -sharpe flag is specified, the function will maximize the portfolio's sharpe ratio instead of minimizing it's volatility. ADDITIONAL OPTIONS:  -start (format: \"YYYY-MM-DD\"), -end  (format :\"YYYY-MM-DD\"), -target (format: decimal), -sharep",
+    
     "plot_dividends": "Generates a scatter plot graphic of the dividend history for the supplied list of tickers with a superimposed simple linear regression line. ADDITIONAL OPTIONS: -save (format: /path/to/file/filename.jpeg)",
+    
     "plot_frontier": "Generates a scatter plot graphic of the portfolio\'s efficient frontier for the supplied list of tickers. Not available when running inside of a Docker container. ADDITIONAL OPTIONS: -start (format: \"YYYY-MM-DD\"), -end  (format :\"YYYY-MM-DD\"), -save (format: /path/to/file/filename.jpeg)",
+    
     "plot_moving_averages": "Generates a grouped bar chart of the moving averages for each equity in the supplied list of ticker symbols. Not available when running inside of a Docker container. If no start or end dates are specified, calculations default to the last 100 days of prices. ADDITIONAL OPTIONS:  -start (format: \"YYYY-MM-DD\"), -end  (format :\"YYYY-MM-DD\"), -save (format: /path/to/file/filename.jpeg)",
+    
     "plot_risk_profile": "Generates a scatter plot of the risk-return profile for symbol in the supplied list of ticker symbols. If no start or end dates are specified, calculations default to the last 100 days of prices. ADDITIONAL OPTIONS:  -start (format: \"YYYY-MM-DD\"), -end  (format :\"YYYY-MM-DD\"), -save (format: /path/to/file/filename.jpeg",
+    
     "purge": "Removes all files contained with the /static/ and /cache/ directory, but retains the directories themselves.",
+    
     "risk_free_rate": "Returns current 10-year, annualized US Treasury yield.",
+    
     "risk_return": "Calculate the risk-return profile for the supplied list of ticker symbols. If no start or end dates are specified, calculations default to the last 100 days of prices. ADDITIONAL OPTIONS:  -start (format: \"YYYY-MM-DD\"), -end  (format :\"YYYY-MM-DD\")",
+    
     "screener": "Searchs equity spot prices that trade at a discount to the provided model. If no model is provided, the screener will default to the Discount Dividend Model. If no discount rate is provided, the screener will default to the cost of equity for a ticker calculated using the CAPM model and the ticker defined by environment variable MARKET_RATE as a proxy for the market. ADDITION OPTIONS: -discount (format: decimal), -model (format: string, values: ddm)",
+    
     "server_local": "Invokes 'python manage.py runserver' from /server/ directory. Configure .env file to change port.",
+    
     "server_container": "Builds and runs a Docker image of the application on 'localhost'. Configure .env to change port.",
+    
     "statistic": "Retrieves the latest value for the supplied list of economic statistics. The available list of economic statistic can be found at https://www.quandl.com/data/FRED-Federal-Reserve-Economic-Data/documentation?anchor=growth; it is also stored in the /static/ directory of the application ",
     "watchlist": "Saves the supplist list of tickers to your watchlist. These equity symbol are used by the screening algorithms when searching for stocks that trade at a discount."
 

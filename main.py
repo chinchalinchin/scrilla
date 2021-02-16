@@ -126,6 +126,7 @@ if __name__ == "__main__":
                     else: 
                         output.comment('Error encountered while determining asset Type. Try -ex flag for example usage.')
 
+            ### FUNCTION: Capital Asset Pricing Model Cost of Equity
             elif opt == formatter.FUNC_ARG_DICT['capm_equity_cost']:
                 if (len(main_args)>0):
                     for arg in main_args:
@@ -134,6 +135,7 @@ if __name__ == "__main__":
                 else:
                     output.comment('Error encountered while calculating. Try -ex flag for example usage.')
 
+            ### FUNCTION: Capital Asset Pricing Model Beta
             elif opt == formatter.FUNC_ARG_DICT['capm_beta']:
                 if (len(main_args)>0):
                     for arg in main_args:

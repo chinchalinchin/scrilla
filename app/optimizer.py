@@ -47,6 +47,49 @@ def optimize_portfolio_variance(portfolio, target_return=None):
 
     return allocation.x
 
+def maximize_sharpe_ratio(portfolio, target_return=None):
+    """
+    Parameters
+    ----------
+    * portfolio : Portfolio \n
+        An instance of the Portfolio class defined in app.objects.portfolio. Must be initialized with an array of ticker symbols. Optionally, it can be initialized with a start_date and end_date datetime. If start_date and end_date are specified, the portfolio will be optimized over the stated time period.\n \n
+    * target_return : float \n
+        The target return, as a decimal, subject to which the portfolio's volatility will be minimized.
+
+    Output
+    ------
+    An array of floats that represents the proportion of the portfolio that should be allocated to the corresponding ticker symbols given as a parameter within the portfolio object. In other words, if portfolio.tickers = ['AAPL', 'MSFT'] and the output is [0.25, 0.75], this result means a portfolio with 25% allocation in AAPL and a 75% allocation in MSFT will result in an optimally constructed portfolio with respect to its sharpe ratio.  
+    """
+    tickers = portfolio.tickers
+    portfolio.set_target_return(target_return)
+
+    init_guess = portfolio.get_init_guess()
+    equity_bounds = portfolio.get_default_bounds()
+    equity_constraint = {
+            'type': 'eq',
+            'fun': portfolio.get_constraint
+        }
+
+    if target_return is not None:
+        output.debug(f'Optimizing {tickers} Portfolio Sharpe Ratio Subject To Return = {target_return}')
+
+        return_constraint = {
+            'type': 'eq',
+            'fun': portfolio.get_target_return_constraint
+        }
+        portfolio_constraints = [equity_constraint, return_constraint]
+    else:
+        output.debug(f'Maximizing {tickers} Portfolio Sharpe Ratio')
+        portfolio_constraints = equity_constraint
+
+    maximize_function = lambda x: (-1)*portfolio.sharpe_ratio_function(x)
+
+    allocation = optimize.minimize(fun = maximize_function, x0 = init_guess, 
+                                    method=settings.OPTIMIZATION_METHOD, bounds=equity_bounds, 
+                                    constraints=portfolio_constraints, options={'disp': False})
+
+    return allocation.x
+
 def maximize_portfolio_return(portfolio):
     """
     Parameters

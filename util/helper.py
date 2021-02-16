@@ -269,9 +269,10 @@ def separate_and_parse_args(args):
     offset = 0
     
     for arg in args:
-        if arg in formatter.FUNC_XTRA_ARGS_DICT.values():
+        if arg in formatter.FUNC_XTRA_VALUED_ARGS_DICT.values() or arg in formatter.FUNC_XTRA_SINGLE_ARGS_DICT:
             extra_args.append(arg)
-            extra_values.append(args[args.index(arg)+1])
+            if arg not in formatter.FUNC_XTRA_SINGLE_ARGS_DICT:
+                extra_values.append(args[args.index(arg)+1])
 
     for arg in extra_args:
         reduced_args.remove(arg)
@@ -285,32 +286,32 @@ def separate_and_parse_args(args):
     return (extra_args, extra_values, reduced_args)
 
 def get_start_date(xtra_args, xtra_values):
-    if formatter.FUNC_XTRA_ARGS_DICT['start_date'] in xtra_args:
-        unparsed_start = xtra_values[xtra_args.index(formatter.FUNC_XTRA_ARGS_DICT['start_date'])]
+    if formatter.FUNC_XTRA_VALUED_ARGS_DICT['start_date'] in xtra_args:
+        unparsed_start = xtra_values[xtra_args.index(formatter.FUNC_XTRA_VALUED_ARGS_DICT['start_date'])]
         start_date = parse_date_string(unparsed_start)
     else:
         start_date = None
     return start_date
 
 def get_end_date(xtra_args, xtra_values):
-    if formatter.FUNC_XTRA_ARGS_DICT['end_date'] in xtra_args:
-        unparsed_end = xtra_values[xtra_args.index(formatter.FUNC_XTRA_ARGS_DICT['end_date'])]
+    if formatter.FUNC_XTRA_VALUED_ARGS_DICT['end_date'] in xtra_args:
+        unparsed_end = xtra_values[xtra_args.index(formatter.FUNC_XTRA_VALUED_ARGS_DICT['end_date'])]
         end_date = parse_date_string(unparsed_end)
     else:
         end_date = None
     return end_date
 
 def get_save_file(xtra_args, xtra_values):
-    if formatter.FUNC_XTRA_ARGS_DICT['save'] in xtra_args:
-        save_file = xtra_values[xtra_args.index(formatter.FUNC_XTRA_ARGS_DICT['save'])]
+    if formatter.FUNC_XTRA_VALUED_ARGS_DICT['save'] in xtra_args:
+        save_file = xtra_values[xtra_args.index(formatter.FUNC_XTRA_VALUED_ARGS_DICT['save'])]
     else:
         save_file = None
     return save_file
 
 def get_target(xtra_args, xtra_values):
-    if formatter.FUNC_XTRA_ARGS_DICT['target'] in xtra_args:
+    if formatter.FUNC_XTRA_VALUED_ARGS_DICT['target'] in xtra_args:
         try:
-            target = float(xtra_values[xtra_args.index(formatter.FUNC_XTRA_ARGS_DICT['target'])])
+            target = float(xtra_values[xtra_args.index(formatter.FUNC_XTRA_VALUED_ARGS_DICT['target'])])
         except:
             target = None
     else:
@@ -318,9 +319,9 @@ def get_target(xtra_args, xtra_values):
     return target
 
 def get_discount(xtra_args, xtra_values):
-    if formatter.FUNC_XTRA_ARGS_DICT['discount'] in xtra_args:
+    if formatter.FUNC_XTRA_VALUED_ARGS_DICT['discount'] in xtra_args:
         try:
-            discount = float(xtra_values[xtra_args.index(formatter.FUNC_XTRA_ARGS_DICT['discount'])])
+            discount = float(xtra_values[xtra_args.index(formatter.FUNC_XTRA_VALUED_ARGS_DICT['discount'])])
         except:
             discount = None
     else:
@@ -328,8 +329,8 @@ def get_discount(xtra_args, xtra_values):
     return discount
 
 def get_model(xtra_args, xtra_values):
-    if formatter.FUNC_XTRA_ARGS_DICT['model'] in xtra_args:
-        model = str(xtra_values[xtra_args.index(formatter.FUNC_XTRA_ARGS_DICT['model'])]).lower()
+    if formatter.FUNC_XTRA_VALUED_ARGS_DICT['model'] in xtra_args:
+        model = str(xtra_values[xtra_args.index(formatter.FUNC_XTRA_VALUED_ARGS_DICT['model'])]).lower()
     else:
         model = None
     return model

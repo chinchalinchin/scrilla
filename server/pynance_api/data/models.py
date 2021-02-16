@@ -28,6 +28,7 @@ class EquityMarket(models.Model):
     def __str__(self):
         return '{} {} : {}'.format(self.ticker, self.date, self.closing_price)
     
+    # TODO: may need to change AV_RES_EQUITY_CLOSE_PRICE key to something more generalized.
     def to_list(self):
         date_string = helper.date_to_string(self.date)
         formatted_self = {}
@@ -37,6 +38,21 @@ class EquityMarket(models.Model):
     
     def to_date(self):
         return helper.date_to_string(self.date)
+
+class Dividends(models.Model):
+    ticker = models.ForeignKey(EquityTicker, on_delete=models.CASCADE)
+    date = models.DateField('Payment Date')
+    amount = models.DecimalField(max_digits=20, decimal_places=4)
+
+    def __str__(self):
+        return '{} {}: {}'.format(self.ticker, self.date, self.amount)
+
+    # TODO: may need to change IEX_RES_DIV_KEY key to something more generalized.
+    def to_list(self):
+        date_string = helper.date_to_string(self.date)
+        formatted_self = {}
+        formatted_self[date_string][app_settings.IEX_RES_DIV_KEY] = self.amount
+        return formatted_self
 
 class CryptoMarket(models.Model):
     ticker = models.ForeignKey(CryptoTicker, on_delete=models.CASCADE)

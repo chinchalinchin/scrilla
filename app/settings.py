@@ -10,7 +10,7 @@ Application Configuration
 -------------------------
 Not to be confused with server.pynance_api.core.settings, which configures the server side of the 
 application. The settings in this file only affect the optimization and statistical calculations 
-performed by the application. 
+performed by the application. \n \n
 
 Attributes
 ----------

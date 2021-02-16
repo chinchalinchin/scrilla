@@ -1,6 +1,7 @@
 import app.statistics as statistics
 import app.services as services
 import app.settings as settings
+import app.markets as markets
 
 import util.logger as logger 
 
@@ -104,6 +105,9 @@ class Portfolio:
 
     def volatility_function(self, x):
         return numpy.sqrt(numpy.multiply(x, self.sample_vol).dot(self.correlation_matrix).dot(numpy.transpose(numpy.multiply(x, self.sample_vol))))
+
+    def sharpe_ratio_function(self, x):
+        return (numpy.dot(x, self.sample_mean) - markets.get_risk_free_rate()) / (self.volatility_function(x))
 
     def get_init_guess(self):
         length = len(self.tickers)
