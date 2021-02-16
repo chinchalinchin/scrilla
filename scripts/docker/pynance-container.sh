@@ -19,8 +19,8 @@ else
     # DIRECTORIES
     ROOT_DIR=$SCRIPT_DIR/../..
 
-    source $SCRIPT_DIR/../util/env-vars.sh container 
-    
+    source "$SCRIPT_DIR/../util/env-vars.sh" container 
+
     log 'Clearing Docker Cache' $SCRIPT_NAME
     docker system prune -f
 

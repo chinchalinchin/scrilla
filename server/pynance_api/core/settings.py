@@ -127,5 +127,6 @@ REQUEST_PARAMS = {
     'start_date': 'start',
     'end_date': 'end',
     'target_return': 'target',
+    'discount_rate': 'discount',
     'jpeg': 'jpeg'
 }

@@ -8,7 +8,7 @@ from django.http import JsonResponse, HttpResponse
 # Server Imports
 from core import settings
 from api import parser
-from data.models import EquityMarket, CryptoMarket, EquityTicker, CryptoTicker, Economy
+from data.models import EquityMarket, CryptoMarket, EquityTicker, CryptoTicker, Dividends, Economy, StatSymbol
 
 # Application Imports
 from app.objects.portfolio import Portfolio
@@ -42,7 +42,7 @@ def risk_return(request):
             ticker_str = f'{tickers[i]}'
             output.debug(f'Calculating risk-return profile for {tickers[i]}')
 
-            prices = parser.parse_args_into_queryset(ticker=tickers[i], parsed_args=parsed_args)
+            prices = parser.parse_args_into_market_queryset(ticker=tickers[i], parsed_args=parsed_args)
 
             if prices.count() == 0:
                 output.debug(f'No prices found in database, passing query to service.')
@@ -50,7 +50,7 @@ def risk_return(request):
                                                             end_date=parsed_args['end_date'])
             else:
                 output.debug(f'Prices found in database, passing result to statistics.')
-                sample_prices = parser.queryset_to_list(price_models=prices)
+                sample_prices = parser.market_queryset_to_list(price_models=prices)
                 profile = statistics.calculate_risk_return(ticker=tickers[i], sample_prices=sample_prices)
 
             response[ticker_str] = profile
@@ -80,7 +80,7 @@ def optimize(request):
 
         # TODO: what is querysets.count() != each other?
         for ticker in tickers:
-            prices[ticker] = parser.parse_args_into_queryset(ticker, parsed_args)
+            prices[ticker] = parser.parse_args_into_market_queryset(ticker, parsed_args)
             if prices[ticker].count() == 0:
                 null_result=True
                 break
@@ -91,7 +91,7 @@ def optimize(request):
         else:
             output.debug(f'Prices found in database, passing result to statistics.')
             for ticker in tickers:
-                sample_prices[ticker] = parser.queryset_to_list(price_model=prices[ticker])[ticker]
+                sample_prices[ticker] = parser.market_queryset_to_list(price_model=prices[ticker])[ticker]
             portfolio = Portfolio(tickers=tickers, sample_prices=sample_prices)  
 
         allocation = optimizer.optimize_portfolio_variance(portfolio=portfolio, target_return=parsed_args['target_return'])
@@ -125,7 +125,7 @@ def efficient_frontier(request):
 
         # TODO: what is querysets.count() != each other?
         for ticker in tickers:
-            prices[ticker] = parser.parse_args_into_queryset(ticker, parsed_args)
+            prices[ticker] = parser.parse_args_into_market_queryset(ticker, parsed_args)
             if prices[ticker].count() == 0:
                 null_result=True
                 break
@@ -136,7 +136,7 @@ def efficient_frontier(request):
         else:
             output.debug(f'Prices found in database, passing result to statistics.')
             for ticker in tickers:
-                sample_prices[ticker] = parser.queryset_to_list(price_model=prices[ticker])[ticker]
+                sample_prices[ticker] = parser.market_queryset_to_list(price_model=prices[ticker])[ticker]
             portfolio = Portfolio(tickers=tickers, sample_prices=sample_prices)  
             
         frontier = optimizer.calculate_efficient_frontier(portfolio=portfolio)
@@ -166,7 +166,7 @@ def efficient_frontier(request):
             return JsonResponse(data=response, status=status, safe=False) 
 
 # TODO: in future allow user to specify moving average periods through query parameters! 
-def moving_averages(request, jpeg=False):
+def moving_averages(request):
     status, parsed_args_or_err_msg = parser.validate_request(request, ["GET"])
 
     if status == 400 or status == 405:
@@ -193,7 +193,7 @@ def moving_averages(request, jpeg=False):
         else: 
             output.debug(f'Prices found in database, passing result to statistics.')
             for ticker in tickers:
-                sample_prices[ticker] = parser.queryset_to_list(price_model=prices[ticker])[ticker]
+                sample_prices[ticker] = parser.market_queryset_to_list(price_model=prices[ticker])[ticker]
             averages_output = statistics.calculate_moving_averages(tickers=tickers, sample_prices=sample_prices)
 
         moving_averages, dates = averages_output
@@ -234,3 +234,27 @@ def moving_averages(request, jpeg=False):
         else:
             return JsonResponse(data = response, status=status, safe=False)
 
+def discount_dividend(request):
+    status, parsed_args_or_err_msg = parser.validate_request(request, ["GET"])
+
+    if status == 400 or status == 405:
+        return JsonResponse(data=parsed_args_or_err_msg, status=status, safe=False)
+
+    else:
+        tickers = parsed_args_or_err_msg['tickers']
+        parsed_args = parsed_args_or_err_msg['parsed_args']
+
+        response = {}
+        
+        for ticker in tickers:
+            dividends = Dividends.objects.filter(ticker=ticker)
+
+            if dividends.count() == 0:
+                # query service for dividends
+                pass
+            else:
+                # take queryset to list
+                pass
+        # TODO: implement discount dividend function here
+
+    return JsonResponse({'message': 'hello'}, safe=False)

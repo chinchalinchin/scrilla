@@ -58,6 +58,9 @@ class Dividends(models.Model):
         formatted_self = {}
         formatted_self[date_string][app_settings.IEX_RES_DIV_KEY] = self.amount
         return formatted_self
+    
+    def to_date(self):
+        return helper.date_to_string(self.date)
 
 class CryptoMarket(models.Model):
     ticker = models.ForeignKey(CryptoTicker, on_delete=models.CASCADE)

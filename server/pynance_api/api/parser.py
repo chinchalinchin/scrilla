@@ -1,5 +1,5 @@
 from core import settings
-from data.models import EquityMarket, CryptoMarket, EquityTicker, CryptoTicker, Economy
+from data.models import EquityMarket, CryptoMarket, EquityTicker, CryptoTicker, Dividends, Economy, StatSymbol
 
 import util.helper as helper
 import util.logger as logger
@@ -53,11 +53,17 @@ def parse_secondary_args(request):
     else:
         jpeg = None
 
+    if settings.REQUEST_PARAMS['discount_rate'] in request.GET:
+        discount = request.GET.get(settings.REQUEST_PARAMS['discount_rate'])
+    else:
+        discount = None
+
     parsed_args = {
         'start_date': start_date,
         'end_date': end_date,
         'target_return': target_return,
-        'jpeg': jpeg
+        'jpeg': jpeg,
+        'discount_rate': discount
     }
     log_secondary_args(parsed_args)
 
@@ -77,7 +83,7 @@ def parse_tickers(request):
 # contain all left-hand or right-hand records that match the criteria, i.e.
 # if only start date is specified in, then it will return ALL records greater
 # than or equal to the start_date
-def parse_args_into_queryset(ticker, parsed_args):
+def parse_args_into_market_queryset(ticker, parsed_args):
     asset_type = markets.get_asset_type(ticker)
 
     if parsed_args['start_date'] is None and parsed_args['end_date'] is None:
@@ -119,14 +125,36 @@ def parse_args_into_queryset(ticker, parsed_args):
         else:
             return False
 
+def parse_args_into_dividend_queryset(ticker, parsed_args):
+    if parsed_args['start_date'] is None and parsed_args['end_date'] is None:
+        return Dividends.objects.filter(ticker=ticker).order_by('-date')
+
+    elif parsed_args['start_date'] is None and parsed_args['end_date'] is not None:
+        return Dividends.objects.filter(ticker=ticker, date__lte=parsed_args['end_date']).order_by('-date')
+
+    elif parsed_args['start_date'] is not None and parsed_args['end_date'] is None:
+        return Dividends.objects.filter(ticker=ticker, date__gte=parsed_args['start_date']).order_by('-date')
+    
+    # start_date is not None and end_date is not None
+    else:
+        return Dividends.objects.filter(ticker=ticker, date__gte=parsed_args['start_date'],
+                                            date__lte=parsed_args['end_date']).order_by('-date')
+
 # Note: model must implement to_date() and to_list() methods and have
 #       ticker attribute
-def queryset_to_list(price_set):
+def market_queryset_to_list(price_set):
     set_list, price_list = {}, {}
     for price in price_set:
         price_list[price.to_date()] = price.to_list() 
     set_list[price_models.ticker] = price_list
     return set_list
+
+# Note: model must implement to_list() methods.
+def dividend_queryset_to_list(dividend_set):
+    div_list = {}
+    for dividend in dividend_set:
+        div_list.append(dividend.to_list())
+    return div_list
 
 def validate_request(request, allowed_methods=["GET"]):
     output.debug('Verifying request method.')
