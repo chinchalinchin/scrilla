@@ -234,7 +234,7 @@ Some endpoints have unique query parameters, but all endpoints accept the follow
     <b>Description</b><br>
     Returns the moving average of the return over the specified dates. The response will include three moving averages series with periods defined by the <b>MA_1</b>, <b>MA_2</b> and <b>MA_3</b> environment variables. In the future, this endpoint will accept user defined periods through request parameters. Note: if no start-date and end-date are supplied, this endpoint will return a snapshot of the current moving averages, not a time series.<br><br>
     
-    <b>Examples</b><br>
+    <b>Examples</b><br><br>
 
     <b>Response JSON</b><br>
     > { <br>

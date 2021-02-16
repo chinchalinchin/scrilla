@@ -2,50 +2,104 @@ import app.statistics as statistics
 import app.services as services
 import app.settings as settings
 
+import util.logger as logger 
+
 import numpy
 import math
 from decimal import Decimal
 
+output = logger.Logger("app.objects.portfolio", settings.LOG_LEVEL)
+
 class Portfolio:
-    
-    def __init__(self, tickers, start_date=None, end_date=None, sample_prices=None):
+    """
+    Description
+    -----------
+        A class that represents a portfolio of assets. \n \n
+
+        The portfolio can be initialized with historical prices using the 'start_date' and 'end_date' parameters or the 'sample_prices' parameter. If 'start_date' and 'end_date' are provided, the class will pass the dates to the PriceManager to query an external service for the required prices. If "sample_prices" is provided, the 'start_date' and 'end_date' are ignored and the 'sample_prices' are used in lieu of an external query. \n \n
+
+    Parameters
+    ----------
+    1. tickers : [str] \n
+    Required. An array of ticker symbols that define the assets in a portfolio. \n \n
+    2. start_date: datetime.date \n
+    Optional. The start date for the range of historical prices over which the portfolio will be optimized. 
+    \n \n
+    3. end_date: datetime.date \n
+    Optional. The end date for the range of historical prices over which the portfolio will be optimized. \n \n
+    4. sample_prices: { 'date' : 'price', 'date': 'price' } \n
+    Optional. A list representing a sample of historical data over a time range. The list must be ordered in descending order, i.e. from latest to earliest. \n \n 
+    5. asset_return_functions: [ function(t) ] \n
+    Optional. An array of function that describes the expected logarithmic rate of return of each asset in the portfolio with respect to time. The order between return_functions and tickers be must be preserved, i.e. the index of tickers must correspond to the symbol described by the same index of return_functions. \n \n 
+    6. asset_volatility_funtions: [ function(t) ] \n
+    Optional. An array of functions that describe the mean volatility of each asset in the portfolio with respect to time. The order between return_functions and tickers be must be preserved, i.e. the index of tickers must correspond to the symbol described by the same index of return_functions. \n \n 
+
+    Notes
+    -----
+    NOTE #1: While 'start_date', 'end_date' and 'sample_prices' are all by themselves optional, the Portfolio class must be initialized in one of two ways: \n
+        1. Constructor args : ('start_date', 'end_date') -> Dates are passed to service for external query. \n
+        2. Constructor args : ('sample_prices') -> Dates are ignored and sample is used instead of external query. \n \n
+
+    NOTE #2: The asset_return_functions and asset_volatility_functions can be understood as the drift and noise functions for a Geometric Brownian Motion stochastic process. \n \n
+    """
+    def __init__(self, tickers, start_date=None, end_date=None, sample_prices=None,
+                    asset_return_functions=None, asset_volatility_functions=None):
+
         self.tickers = tickers
+
         if sample_prices is None:
             self.start_date = start_date
             self.end_date = end_date
         else:
             self.start_date = None
             self.end_date = None
+
         self.sample_prices = sample_prices
-        self.error = not self.calculate_stats()
+
+        self.asset_volatility_functions = asset_volatility_functions
         
+        self.asset_return_functions = asset_return_functions
+        
+        self.error = not self.calculate_stats()
+
+        # todo: calculate stats with lambda functions.
     def calculate_stats(self):
         self.mean_return = []
         self.sample_vol = []
         self.correlation_matrix = [[0 for x in range(len(self.tickers))] for y in range(len(self.tickers))]
 
-        for ticker in self.tickers:
-            stats = statistics.calculate_risk_return(ticker=ticker, start_date=self.start_date, end_date=self.end_date, 
-                                                        sample_prices=self.sample_prices)
-            if not stats:
-                return False
-            self.mean_return.append(stats['annual_return'])
-            self.sample_vol.append(stats['annual_volatility'])
+        if self.asset_volatility_functions is not None and self.asset_return_functions is not None:
+            # use return and volatility functions to integrate over time period [0, infinity] for each asset. don't forget to 
+            #   discount! I(x) = discounted expected payoff
+            #   Integral(d ln S) = Integral(Mean dt) + Integral(Vol dZs)
+            #   Need methods to compute ito Integrals in...statistics.py? markets.py? Perhaps a new module.
+            # https://math.stackexchange.com/questions/1780956/mean-and-variance-geometric-brownian-motion-with-not-constant-drift-and-volatili
+            pass
 
-        if(len(self.tickers) > 1):
-            for i in range(len(self.tickers)):
-                for j in range(i+1, len(self.tickers)):
-                    self.correlation_matrix[i][i] = 1
-                    cor_list = statistics.calculate_ito_correlation(ticker_1 = self.tickers[i], ticker_2=self.tickers[j],
-                                                                start_date = self.start_date, end_date = self.end_date,
-                                                                sample_prices = self.sample_prices)
-                    correlation = cor_list['correlation']
-                    if not correlation:
-                        return False
-                    self.correlation_matrix[i][j] = correlation
-                    self.correlation_matrix[j][i] = self.correlation_matrix[i][j]
-            self.correlation_matrix[len(self.tickers) - 1][len(self.tickers) - 1] = 1
-        return True
+        else:
+            for ticker in self.tickers:
+                stats = statistics.calculate_risk_return(ticker=ticker, start_date=self.start_date, end_date=self.end_date, 
+                                                            sample_prices=self.sample_prices)
+                if not stats:
+                    return False
+                self.mean_return.append(stats['annual_return'])
+                self.sample_vol.append(stats['annual_volatility'])
+
+            if(len(self.tickers) > 1):
+                for i in range(len(self.tickers)):
+                    for j in range(i+1, len(self.tickers)):
+                        self.correlation_matrix[i][i] = 1
+                        cor_list = statistics.calculate_ito_correlation(ticker_1 = self.tickers[i], ticker_2=self.tickers[j],
+                                                                    start_date = self.start_date, end_date = self.end_date,
+                                                                    sample_prices = self.sample_prices)
+                        correlation = cor_list['correlation']
+                        if not correlation:
+                            return False
+                        self.correlation_matrix[i][j] = correlation
+                        self.correlation_matrix[j][i] = self.correlation_matrix[i][j]
+                self.correlation_matrix[len(self.tickers) - 1][len(self.tickers) - 1] = 1
+            return True
+
 
     def return_function(self, x):
         return numpy.dot(x, self.mean_return)
