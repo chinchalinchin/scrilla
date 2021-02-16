@@ -378,7 +378,9 @@ not affect the application.
 
 23. Wire DDM functionality into API.
 
-30. CTRL+F 'output.debug' and change error messages to 'output.info'.
+24. CTRL+F 'output.debug' and change error messages to 'output.info'.
+
+25. Use annotations to allow users to annotate functions for cashflows and other objects.
 
 ### NOTES
 

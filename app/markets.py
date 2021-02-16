@@ -128,11 +128,15 @@ def screen_for_discount(model=None, discount_rate=None):
     
     output.debug('Using Discount Dividend Model to screen watchlisted equities for discounts.')
 
+    user_discount_rate = discount_rate
+
     for equity in equities:
         spot_price = services.get_daily_price_latest(ticker=equity)
 
-        if discount_rate is None:
+        if user_discount_rate is None:
             discount_rate = cost_of_equity(ticker=equity)
+        else:
+            discount_rate = user_discount_rate
 
         if model == MODEL_DDM:
             dividends = services.get_dividend_history(equity)

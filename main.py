@@ -147,7 +147,7 @@ if __name__ == "__main__":
                 if(len(main_args)>1) or len(main_args)==1:
                     for arg in main_args:
                         price = services.get_daily_price_latest(arg)
-                        output.scalar_result(calculation=arg, result=float(price))
+                        output.scalar_result(calculation=f'Last {arg} close price', result=float(price))
                 else:
                     output.comment('Error encountered while calculating. Try -ex flag for example usage.')
                     
@@ -167,6 +167,8 @@ if __name__ == "__main__":
                 if(len(main_args)>1) or len(main_args)==1:
                     for arg in main_args:
                         dividends = services.get_dividend_history(arg)
+                        if discount is None:
+                            discount = markets.cost_of_equity(ticker=arg)
                         div_npv = Cashflow(sample=dividends, discount_rate=discount).calculate_net_present_value()
                         output.scalar_result(f'Net Present Value ({arg} dividends)', div_npv)
                 else:

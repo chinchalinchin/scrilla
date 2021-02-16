@@ -70,6 +70,8 @@ class Cashflow:
             self.constant = constant
             self.sample = None
             self.growth_function = None
+        else:
+            self.constant = None
 
         # If no sample provided, use simple linear regression
         if self.sample is not None and self.growth_function is None:
@@ -154,7 +156,7 @@ class Cashflow:
 
     def get_growth_function(self, x):
         if self.growth_function is None:
-            if constant is not None:
+            if self.constant is not None:
                 return self.constant
             else:
                 return (self.alpha + self.beta*x)

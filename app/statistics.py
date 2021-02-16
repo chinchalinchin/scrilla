@@ -721,7 +721,13 @@ def calculate_ito_correlation(ticker_1, ticker_2, start_date=None, end_date=None
             output.verbose('Lost a day. Revising covariance and sample.')
             revised_covariance = covariance*(sample - 1)
             sample -= 1 
-            covariance = revised_covariance/(sample - 1)
+            
+            try:
+                covariance = revised_covariance/(sample - 1)
+            except:
+                output.debug('Lost entire sample!')
+                return False
+
             delta += 1
             if i == 0:
                 i += 1

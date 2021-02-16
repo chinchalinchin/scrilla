@@ -22,7 +22,7 @@ class Portfolio:
 
     Parameters
     ----------
-    1. tickers : [str] \n
+    1. tickers : [ str ] \n
     Required. An array of ticker symbols that define the assets in a portfolio. \n \n
     2. start_date: datetime.date \n
     Optional. The start date for the range of historical prices over which the portfolio will be optimized. 
