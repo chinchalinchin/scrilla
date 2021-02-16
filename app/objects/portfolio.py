@@ -14,9 +14,11 @@ class Portfolio:
     """
     Description
     -----------
-        A class that represents a portfolio of assets. \n \n
+        A class that represents a portfolio of assets defined by the supplied list of ticker symbols in the 'tickers' array. \n \n
 
         The portfolio can be initialized with historical prices using the 'start_date' and 'end_date' parameters or the 'sample_prices' parameter. If 'start_date' and 'end_date' are provided, the class will pass the dates to the PriceManager to query an external service for the required prices. If "sample_prices" is provided, the 'start_date' and 'end_date' are ignored and the 'sample_prices' are used in lieu of an external query. \n \n
+
+        The 'return_function' and 'volatility_function' methods accept an allocation of percentage weights corresponding to each ticker in the 'tickers' array and return the overall portfolio return and volatility. The return is the dot product of the weight and the individual asset returns. The volatility_function is the result of applying matrix multiplication to the transposed weight allocations, the correlation matrix and the untransposed weight allocations. These formulations are consistent with Modern Portfolio Theory.\n \n
 
     Parameters
     ----------
@@ -44,9 +46,6 @@ class Portfolio:
     """
     def __init__(self, tickers, start_date=None, end_date=None, sample_prices=None,
                     asset_return_functions=None, asset_volatility_functions=None):
-
-        self.tickers = tickers
-
         if sample_prices is None:
             self.start_date = start_date
             self.end_date = end_date
@@ -54,10 +53,9 @@ class Portfolio:
             self.start_date = None
             self.end_date = None
 
+        self.tickers = tickers
         self.sample_prices = sample_prices
-
         self.asset_volatility_functions = asset_volatility_functions
-        
         self.asset_return_functions = asset_return_functions
         
         self.error = not self.calculate_stats()

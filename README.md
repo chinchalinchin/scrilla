@@ -356,29 +356,29 @@ not affect the application.
 
 12. TEST MOVING AVERAGE ALGORITHM FOR MIX OF ASSET TYPES. I think there may be some mismatch of types in date comparisons.
 
-14. Correlation algorithm needs test for mix of asset types as well, i.e. equities and crypto.
+13. Correlation algorithm needs test for mix of asset types as well, i.e. equities and crypto.
 
-15. Create automated tests and integrate repo with a CircleCi pipeline that simply builds the image. Will need to find a cloud provider to deploy onto. Perhaps [Heroku](https://www.heroku.com/)
+14. Create automated tests and integrate repo with a CircleCi pipeline that simply builds the image. Will need to find a cloud provider to deploy onto. Perhaps [Heroku](https://www.heroku.com/)
 
-16. Angular frontend! Separate container. Served through nginx and queries backend <b>pynance</b> server. 
+15. Angular frontend! Separate container. Served through nginx and queries backend <b>pynance</b> server. 
 
-18. If an option prices API is found, then IV can be calculated for a specific equity. The optimization algorithm can be expanded to optimize over IV of a portfolio, instead of the Historical Volatility. Allow user to specify what type of volatility the portfolio will use in its optimization, historical or implied. Will need to account for skew, somehow. 
+16. If an option prices API is found, then IV can be calculated for a specific equity. The optimization algorithm can be expanded to optimize over IV of a portfolio, instead of the Historical Volatility. Allow user to specify what type of volatility the portfolio will use in its optimization, historical or implied. Will need to account for skew, somehow. 
 
-19. Test moving averages plot generation.
+17. Test moving averages plot generation.
 
-20. API keys are verified every single time the app.settings.py file is imported. Need to change how this is done to avoid expensive URL requests. 
+18. Pretty sure the reason the len(moving_averages) != len(dates_between) in moving average algorithm is because dates_between doesn't include the dates themselves; it's only returning...dun dun dun...the dates between, not the dates themselves. 
 
-22. Pretty sure the reason the len(moving_averages) != len(dates_between) in moving average algorithm is because dates_between doesn't include the dates themselves; it's only returning...dun dun dun...the dates between, not the dates themselves. 
+19. Figure out matplotlib x-axis date formatting
 
-23. Figure out matplotlib x-axis date formatting
+20. Error with request parameters not being taken to uppercase. Doesn't affect program, but annoys me. 
 
-24. Error with request parameters not being taken to uppercase. Doesn't affect program, but annoys me. 
+21. Other types of screening. Discounted Cash Flow, for instance. 
 
-27. Other types of screening. Discounted Cash Flow, for instance. 
+22. Add watchlist functionality for crypto assets. Differentiate in /data/common/ between watchlist_equity.json and watchlist_crypto.json. Integrate watchlist functionality into GUI and API. Will need to implement API Key authentication functionality before introducing watchlist to API to account for different users's watchlist.
 
-28. Add watchlist functionality for crypto assets. Differentiate in /data/common/ between watchlist_equity.json and watchlist_crypto.json. Integrate watchlist functionality into GUI and API. Will need to implement API Key authentication functionality before introducing watchlist to API to account for different users's watchlist.
+23. Wire DDM functionality into API.
 
-29. Wire DDM functionality into API.
+30. CTRL+F 'output.debug' and change error messages to 'output.info'.
 
 ### NOTES
 

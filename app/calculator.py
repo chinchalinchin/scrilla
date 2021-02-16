@@ -32,5 +32,5 @@ def ito_integral(mean_function, volatilty_function, time_to_expiration=None):
             # TODO
             pass
     else:
-        output.debug('Supplied volatility function does not meet condition : ')
-        output.debug('E(Integral(volatility_function^2 dt) from 0 to infinity)')
+        output.info('Supplied volatility function does not meet condition : ')
+        output.info('E(Integral(volatility_function^2 dt) from 0 to infinity)')
