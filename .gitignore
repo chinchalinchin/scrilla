@@ -6,5 +6,7 @@ data/static/*
 !/data/static/.gitkeep
 data/common/*
 !/data/common/.gitkeep
+data/sql/*
+!/data/sql/.gitkeep
 *.pyc
 /server/pynance_api/db.sqlite3

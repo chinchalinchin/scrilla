@@ -18,6 +18,12 @@ class CryptoTicker(models.Model):
     def __str__(self):
         return self.ticker
 
+class StatSymbol(models.Model):
+    symbol = models.CharField(max_length=20, primary_key=True)
+
+    def __str__(self):
+        return self.symbol
+
 class EquityMarket(models.Model):
     ticker = models.ForeignKey(EquityTicker, on_delete=models.CASCADE)
     date = models.DateField('Date')
@@ -73,7 +79,7 @@ class CryptoMarket(models.Model):
         return helper.date_to_string(self.date)
 
 class Economy(models.Model):
-    statistic = models.CharField(max_length=10, primary_key=True)
+    statistic = models.ForeignKey(StatSymbol, max_length=10, on_delete=models.CASCADE)
     date = models.DateField('Date')
     value = models.DecimalField(max_digits=20, decimal_places=10)
     
