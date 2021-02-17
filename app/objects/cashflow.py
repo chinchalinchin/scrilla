@@ -1,14 +1,14 @@
 import datetime
 
 import util.helper as helper
-import util.logger as logger
+import util.outputter as outputter
 
 import app.markets as markets
 import app.settings as settings
 import app.statistics as statistics
 import app.services as services
 
-output = logger.Logger('app.objects.cashflow', settings.LOG_LEVEL)
+logger = outputter.Logger('app.objects.cashflow', settings.LOG_LEVEL)
 
 # Technically these are periods
 FREQ_DAY=1/365
@@ -65,8 +65,8 @@ class Cashflow:
 
         # if constant is specified, override sample and growth_function
         if constant is not None:
-            output.debug(f'constant = $ {self.constant}; period MUST NOT be null!')
-            output.debug(f'period = {self.period}')
+            logger.debug(f'constant = $ {self.constant}; period MUST NOT be null!')
+            logger.debug(f'period = {self.period}')
             self.constant = constant
             self.sample = None
             self.growth_function = None
@@ -83,14 +83,14 @@ class Cashflow:
         else:
             self.discount_rate = discount_rate
 
-        output.debug(f'Using discount_rate = {self.discount_rate}')
+        logger.debug(f'Using discount_rate = {self.discount_rate}')
 
         # If no frequency is specified, infer frequency from sample
         if self.sample is not None and self.period is None:
             self.infer_period()
 
     def infer_period(self):
-        output.debug('Attempting to infer period/frequency of cashflows.')
+        logger.debug('Attempting to infer period/frequency of cashflows.')
 
         # no_of_dates = len - 1 because delta is being computed, i.e.
         #   lose one date.
@@ -99,7 +99,7 @@ class Cashflow:
         mean_delta = 0
 
         if no_of_dates < 2:
-            output.debug('Cannot infer period from sample size less than or equal to 1')
+            logger.debug('Cannot infer period from sample size less than or equal to 1')
             self.period = None
             self.frequency = None
 
@@ -117,8 +117,8 @@ class Cashflow:
 
             self.period =  mean_delta
             self.frequency = 1 / self.period 
-            output.debug(f'Inferred period = {self.period} yrs')
-            output.debug(f'Inferred frequency = {self.frequency}')
+            logger.debug(f'Inferred period = {self.period} yrs')
+            logger.debug(f'Inferred frequency = {self.frequency}')
 
     def generate_time_series_for_sample(self):
         self.time_series = []
@@ -126,7 +126,7 @@ class Cashflow:
         dates, no_of_dates = self.sample.keys(), len(self.sample.keys())
 
         if no_of_dates == 0:
-            output.debug('Cannot generate a time series for a sample size of 0.')
+            logger.debug('Cannot generate a time series for a sample size of 0.')
         else:
             first_date = helper.parse_date_string(list(dates)[no_of_dates-1])
 
@@ -147,12 +147,12 @@ class Cashflow:
         if not self.beta or not self.alpha:
             if len(self.sample) > 0:
                 self.alpha = list(self.sample.items())[0][1]
-                output.debug('Error calculating regression coefficients; Defaulting to Markovian process E(X2|X1) = X1.')
-                output.debug(f'Estimation model : y = {self.alpha}')
+                logger.debug('Error calculating regression coefficients; Defaulting to Markovian process E(X2|X1) = X1.')
+                logger.debug(f'Estimation model : y = {self.alpha}')
             else: 
-                output.debug('Not enough information to formulate estimation model.')
+                logger.debug('Not enough information to formulate estimation model.')
         else:
-            output.debug(f'Linear regression model : y = {self.beta} * x + {self.alpha}')
+            logger.debug(f'Linear regression model : y = {self.beta} * x + {self.alpha}')
 
     def get_growth_function(self, x):
         if self.growth_function is None:
@@ -167,7 +167,7 @@ class Cashflow:
     def calculate_net_present_value(self):
     
         if self.period is None:
-            output.debug('No period detected for cashflows. Not enough information to calculate net present value.')
+            logger.debug('No period detected for cashflows. Not enough information to calculate net present value.')
             return False
         else:
 
@@ -197,7 +197,7 @@ class Cashflow:
                 if self.period is not None:
                     current_time = time_to_first_payment + i * self.period
                 else:
-                    output.debug('Not enough information to calculate net present value of cash flow.')
+                    logger.debug('Not enough information to calculate net present value of cash flow.')
                     return False
                 
                 self.NPV += self.get_growth_function(current_time) / ((1 + self.discount_rate)**current_time)

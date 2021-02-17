@@ -3,20 +3,16 @@ import itertools
 import datetime, time
 import requests
 
-PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.append(PROJECT_DIR)
-
-
 import app.settings as settings
 import app.markets as markets
 
-import util.logger as logger
+import util.outputter as outputter
 import util.helper as helper
 
-# os.environ.setdefault("DJANGO_SETTINGS_MODULE", "core.settings")
+logger = outputter.Logger("app.services", settings.LOG_LEVEL)
+
 CLOSE_PRICE = "close"
 OPEN_PRICE = "open"
-output = logger.Logger("app.services", settings.LOG_LEVEL)
 
 # TODO: if start_date = end_date, then return only todays date?
 # TODO: these functions, validate_order and validate_tradeability, should probably go in util.helper
@@ -28,16 +24,16 @@ def validate_order_of_dates(start_date, end_date):
         if helper.is_date_today(start_date):
             time_delta = end_date - start_date
             if time_delta.days == 0:
-                output.debug(f'End Date {end_date} = Start Date {start_date}')
+                logger.debug(f'End Date {end_date} = Start Date {start_date}')
                 return True, start_date, None
 
             else:
-                output.INFO(f'Invalid date range, {start_date} - {end_date}.')
+                logger.INFO(f'Invalid date range, {start_date} - {end_date}.')
                 return False, None, None
 
     if end_date is not None:
         if helper.is_date_today(end_date):
-            output.debug(f'End Date {end_date} is today!')
+            logger.debug(f'End Date {end_date} is today!')
             end_date = None
 
     if switch_flag:
@@ -53,29 +49,29 @@ def validate_order_of_dates(start_date, end_date):
 def validate_tradeability_of_dates(start_date, end_date):
     if start_date is not None:
         if helper.is_date_holiday(start_date):
-            output.debug(f'{start_date} is a holiday. Equities do not trade on holidays.')
+            logger.debug(f'{start_date} is a holiday. Equities do not trade on holidays.')
 
             start_date = helper.get_previous_business_date(start_date)
-            output.debug(f'Setting start date to next business day, {start_date}')
+            logger.debug(f'Setting start date to next business day, {start_date}')
 
         elif helper.is_date_weekend(start_date):
-            output.debug(f'{start_date} is a weekend. Equities do not trade on weekends.')
+            logger.debug(f'{start_date} is a weekend. Equities do not trade on weekends.')
 
             start_date = helper.get_previous_business_date(start_date)
-            output.debug(f'Setting start date to previous business day, {start_date}')
+            logger.debug(f'Setting start date to previous business day, {start_date}')
     
     if end_date is not None:
         if helper.is_date_holiday(end_date):
-            output.debug(f'{end_date} is a holiday. Equities do not trade on holidays.')
+            logger.debug(f'{end_date} is a holiday. Equities do not trade on holidays.')
 
             end_date = helper.get_previous_business_date(end_date)
-            output.debug(f'Setting end date to previous business day, {end_date}.')
+            logger.debug(f'Setting end date to previous business day, {end_date}.')
 
         elif helper.is_date_weekend(end_date):
-            output.debug(f'{end_date} is a weekend. Equities do not trade on weekends.')
+            logger.debug(f'{end_date} is a weekend. Equities do not trade on weekends.')
             
             end_date = helper.get_previous_business_date(end_date)
-            output.debug(f'Setting end date to previous business day, {end_date}.')
+            logger.debug(f'Setting end date to previous business day, {end_date}.')
     
     return start_date, end_date
 
@@ -116,7 +112,7 @@ def parse_price_from_date(prices, date, asset_type, which_price=CLOSE_PRICE):
             pass
 
     except:
-        output.info('Price unable to be parsed from date.')
+        logger.info('Price unable to be parsed from date.')
         return False
 
 def query_service_for_daily_price_history(ticker, start_date=None, end_date=None, asset_type=None, full=False):
@@ -153,14 +149,14 @@ def query_service_for_daily_price_history(ticker, start_date=None, end_date=None
             if not valid_dates:
                 return False
     else:
-        output.debug(f'Full price history requested, nulling start_date and end_date')
+        logger.debug(f'Full price history requested, nulling start_date and end_date')
         start_date, end_date = None, None
 
     if asset_type is None:
-        output.debug('No asset type provided, determining from ticker.')
+        logger.debug('No asset type provided, determining from ticker.')
         asset_type=markets.get_asset_type(ticker)  
     else: 
-        output.debug(f'Asset type {asset_type} provided')
+        logger.debug(f'Asset type {asset_type} provided')
         asset_type=asset_type
 
         # Verify dates fall on trading days (i.e. not weekends or holidays) if asset_type is ASSET_EQUITY
@@ -188,24 +184,24 @@ def query_service_for_daily_price_history(ticker, start_date=None, end_date=None
 
         auth_query = query + f'&{settings.PARAM_AV_KEY}={settings.AV_KEY}'
         url=f'{settings.AV_URL}?{auth_query}'  
-        output.debug(f'AlphaVantage query (w/o key) = {query}')   
+        logger.debug(f'AlphaVantage query (w/o key) = {query}')   
         
         prices = requests.get(url).json()
         first_element = helper.get_first_json_key(prices)
 
             # check for bad response
         if first_element == settings.AV_RES_ERROR:
-            output.info(prices[settings.AV_RES_ERROR])
+            logger.info(prices[settings.AV_RES_ERROR])
             return False
 
             # check and wait for API rate limit refresh
         first_pass = True
         while first_element == settings.AV_RES_LIMIT:
             if first_pass:
-                output.debug('AlphaVantage API rate limit per minute exceeded. Waiting.')
+                logger.debug('AlphaVantage API rate limit per minute exceeded. Waiting.')
                 first_pass = False
             else:
-                output.debug('Waiting.')
+                logger.debug('Waiting.')
             
             time.sleep(10)
             prices = requests.get(url).json()
@@ -213,7 +209,7 @@ def query_service_for_daily_price_history(ticker, start_date=None, end_date=None
 
                 # end function is daily rate limit is reached 
             if first_element == settings.AV_RES_DAY_LIMIT:
-                output.info('Daily AlphaVantage rate limit exceeded. No more queries possible!')
+                logger.info('Daily AlphaVantage rate limit exceeded. No more queries possible!')
                 return False
         ### END: AlphaVantage sService Query ###
 
@@ -249,8 +245,8 @@ def query_service_for_daily_price_history(ticker, start_date=None, end_date=None
                     return prices
                     
             except:
-                output.info('Error encountered parsing AlphaVantage equity response')
-                output.sys_error()
+                logger.info('Error encountered parsing AlphaVantage equity response')
+                logger.sys_error()
                 return False
         ### END: AlphaVantage Equity Response Parsing ###
 
@@ -297,14 +293,14 @@ def query_service_for_daily_price_history(ticker, start_date=None, end_date=None
                     prices = prices[settings.AV_RES_CRYPTO_FIRST_LAYER]
                     return prices
             except:
-                output.info('Error encountered parsing AlphaVantage crypto response.')
-                output.sys_error()
+                logger.info('Error encountered parsing AlphaVantage crypto response.')
+                logger.sys_error()
                 return False
 
         ### END: AlphaVantage Crypto Response Parsing ###
 
     else:
-        output.info("No PRICE_MANAGER set in .env file!")
+        logger.info("No PRICE_MANAGER set in .env file!")
         return False
 
 # TODO: Crypto queries return all dates and price even if no start_date is provided.
@@ -327,31 +323,31 @@ def get_daily_price_history(ticker, start_date=None, end_date=None):
     """
 
     if start_date is None and end_date is None:
-        output.debug(f'Checking for {ticker} prices in cache..')
+        logger.debug(f'Checking for {ticker} prices in cache..')
         now = datetime.datetime.now()
         timestamp = '{}{}{}'.format(now.month, now.day, now.year)
         buffer_store= os.path.join(settings.CACHE_DIR, f'{timestamp}_{ticker}.{settings.FILE_EXT}')
         
         if os.path.isfile(buffer_store):
-            output.debug(f'Loading in cached {ticker} prices.')
+            logger.debug(f'Loading in cached {ticker} prices.')
             with open(buffer_store, 'r') as infile:
                 if settings.FILE_EXT == "json":
-                    output.debug(f'Cached {ticker} prices loaded.')
+                    logger.debug(f'Cached {ticker} prices loaded.')
                     prices = json.load(infile)
                 # TODO: load other file types
             return prices
         else:
-            output.debug(f'Retrieving {ticker} prices from Service Manager.')  
+            logger.debug(f'Retrieving {ticker} prices from Service Manager.')  
             prices = query_service_for_daily_price_history(ticker=ticker)
 
-            output.debug(f'Storing {ticker} price history in cache.')
+            logger.debug(f'Storing {ticker} price history in cache.')
             with open(buffer_store, 'w') as outfile:
                 if settings.FILE_EXT == "json":
                     json.dump(prices, outfile)
                 # TODO: dump other file types
             return prices
     else:
-        output.info(f'No cached prices for date ranges past default. Passing to service call.')
+        logger.info(f'No cached prices for date ranges past default. Passing to service call.')
         prices = query_service_for_daily_price_history(ticker=ticker, start_date=start_date, end_date=end_date)
         return prices
 
@@ -368,7 +364,7 @@ def get_daily_price_latest(ticker):
             return prices[first_element][settings.AV_RES_CRYPTO_CLOSE_PRICE]
             
     else:
-        output.info("No PRICE_MANAGER set in .env file!")
+        logger.info("No PRICE_MANAGER set in .env file!")
         return None
 
 # NOTE: if no start_date and end_date are provided to Quandl API, entire price history is returned.
@@ -401,7 +397,7 @@ def query_service_for_daily_stats_history(statistic, start_date=None, end_date=N
 
         auth_query = f'{query}&{settings.PARAM_Q_KEY}={settings.Q_KEY}'
         url += auth_query
-        output.debug(f'Quandl query (w/o key) = {query}')   
+        logger.debug(f'Quandl query (w/o key) = {query}')   
 
         response = requests.get(url).json()
 
@@ -418,29 +414,29 @@ def query_service_for_daily_stats_history(statistic, start_date=None, end_date=N
 
         return formatted_stat
     else:
-        output.info("No STAT_MANAGER set in .env file!")
+        logger.info("No STAT_MANAGER set in .env file!")
         return None
 
 def get_daily_stats_history(statistic, start_date=None, end_date=None):
     if start_date is None and end_date is None:
-        output.debug(f'Checking for {statistic} statistics in cache')
+        logger.debug(f'Checking for {statistic} statistics in cache')
         now = datetime.datetime.now()
         timestamp = '{}{}{}'.format(now.month, now.day, now.year)
         buffer_store = os.path.join(settings.CACHE_DIR, f'{timestamp}_{statistic}.{settings.FILE_EXT}')
 
         if os.path.isfile(buffer_store):
-            output.debug(f'Loading in cached {statistic} statistics.')
+            logger.debug(f'Loading in cached {statistic} statistics.')
             with open(buffer_store, 'r') as infile:
                 if settings.FILE_EXT == "json":
-                    output.debug(f'Cached {statistic} statistics loaded.')
+                    logger.debug(f'Cached {statistic} statistics loaded.')
                     stats = json.load(infile)
                 # TODO: load other file types
             return stats
         else:
-            output.debug(f'Retrieivng {statistic} statistics from Service Manager')
+            logger.debug(f'Retrieivng {statistic} statistics from Service Manager')
             stats = query_service_for_daily_stats_history(statistic=statistic)
 
-            output.debug(f'Storing {statistic} statistics in cache')
+            logger.debug(f'Storing {statistic} statistics in cache')
             with open(buffer_store, 'w') as outfile:
                 if settings.FILE_EXT == "json":
                     json.dump(stats, outfile)
@@ -448,7 +444,7 @@ def get_daily_stats_history(statistic, start_date=None, end_date=None):
             return stats
 
     else:
-        output.info(f'No cached prices for date ranges past default. Passing to service call.')
+        logger.info(f'No cached prices for date ranges past default. Passing to service call.')
         stats = query_service_for_daily_stats_history(statistic=statistic, start_date=start_date, end_date=end_date)
         return stats
 
@@ -459,7 +455,7 @@ def get_daily_stats_latest(statistic):
         return stats_history[first_element]
 
     else:
-        output.info("No STAT_MANAGER set in .env file!")
+        logger.info("No STAT_MANAGER set in .env file!")
         return None
 
 def query_service_for_dividend_history(ticker):
@@ -468,7 +464,7 @@ def query_service_for_dividend_history(ticker):
         query=f'{ticker}/{settings.PATH_IEX_DIV}/{settings.PARAM_IEX_RANGE_5YR}'
         url = f'{settings.IEX_URL}/{query}?{settings.PARAM_IEX_KEY}={settings.IEX_KEY}'
     
-        output.debug(f'IEX Cloud Path Query (w/o key) = {query}')
+        logger.debug(f'IEX Cloud Path Query (w/o key) = {query}')
         response = requests.get(url).json()
 
         formatted_response = {}
@@ -481,7 +477,7 @@ def query_service_for_dividend_history(ticker):
         return formatted_response
 
 def get_dividend_history(ticker):
-    output.debug(f'Checking for {ticker} dividend history in cache.')
+    logger.debug(f'Checking for {ticker} dividend history in cache.')
     now = datetime.datetime.now()
     ### TODO: dividend payments occur less frequently than spot prices,
     ###         so you can probably get away with using MM-YYYY as a timestamp,
@@ -490,18 +486,18 @@ def get_dividend_history(ticker):
     buffer_store= os.path.join(settings.CACHE_DIR, f'{timestamp}_{ticker}_dividends.{settings.FILE_EXT}')
         
     if os.path.isfile(buffer_store):
-        output.debug(f'Loading in cached {ticker} dividend history.')
+        logger.debug(f'Loading in cached {ticker} dividend history.')
         with open(buffer_store, 'r') as infile:
             if settings.FILE_EXT == "json":
-                output.debug(f'Cached {ticker} dividend loaded.')
+                logger.debug(f'Cached {ticker} dividend loaded.')
                 dividends = json.load(infile)
             # TODO: load other file types
             return dividends
     else:
-        output.debug(f'Retrieving {ticker} prices from Service Manager.')  
+        logger.debug(f'Retrieving {ticker} prices from Service Manager.')  
         dividends = query_service_for_dividend_history(ticker=ticker)
 
-        output.debug(f'Storing {ticker} price history in cache.')
+        logger.debug(f'Storing {ticker} price history in cache.')
         with open(buffer_store, 'w') as outfile:
             if settings.FILE_EXT == "json":
                 json.dump(dividends, outfile)

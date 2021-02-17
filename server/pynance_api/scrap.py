@@ -17,9 +17,9 @@ import app.files as files
 
 # Utility Imports
 import util.helper as helper
-import util.logger as logger
+import util.outputter as outputter
 
-output = logger.Logger("server.pynance_api.scrap", settings.LOG_LEVEL)
+logger = outputter.Logger("server.pynance_api.scrap", settings.LOG_LEVEL)
 
 # TODO: register this function as a job in the Redis queue.
 #       Run every day.
@@ -36,30 +36,30 @@ def scrap_prices(asset_type):
             new_ticker_entry = CryptoTicker.objects.get_or_create(ticker=symbol)
 
         if new_ticker_entry[1] and asset_type == app_settings.ASSET_EQUITY:
-            output.debug(f'Saved new {symbol} to EquityTicker table in database')
+            logger.debug(f'Saved new {symbol} to EquityTicker table in database')
         elif new_ticker_entry[1] and asset_type == app_settings.ASSET_CRYPTO:
-            output.debug(f'Saved new {symbol} to CryptoTicker table in database')
+            logger.debug(f'Saved new {symbol} to CryptoTicker table in database')
         elif not new_ticker_entry[1] and asset_type == app_settings.ASSET_EQUITY:
-            output.debug(f'{symbol} already exists in EquityTicker table')
+            logger.debug(f'{symbol} already exists in EquityTicker table')
         else:
-            output.debug(f'{symbol} already exists in CryptoTicker table')
+            logger.debug(f'{symbol} already exists in CryptoTicker table')
 
         if new_ticker_entry[1]:
-            output.debug(f'Querying service for entire price history for {symbol}.')
+            logger.debug(f'Querying service for entire price history for {symbol}.')
             price_history = services.query_service_for_daily_price_history(symbol, full=True, asset_type=asset_type)
             exists = False
 
         else:
-            output.debug(f'Determining if saved {symbol} price history is missing dates')
+            logger.debug(f'Determining if saved {symbol} price history is missing dates')
             exists = True        
             if asset_type == app_settings.ASSET_EQUITY:
                 last_date = EquityMarket.objects.filter(ticker=symbol).order_by('-date')[:1][0].date
 
                 missing_dates = (today - last_date).days
                 if missing_dates > 0:
-                    output.debug(f'{symbol} saved price history missing dates.')
+                    logger.debug(f'{symbol} saved price history missing dates.')
                     next_date = helper.get_next_business_date(last_date + datetime.timedelta(days=1))
-                    output.debug(f'Querying service for {symbol} price history from {next_date} to {today}.')
+                    logger.debug(f'Querying service for {symbol} price history from {next_date} to {today}.')
                     price_history = services.query_service_for_daily_price_history(ticker=symbol, 
                                                                                     start_date=next_date)
                                                                                 
@@ -71,9 +71,9 @@ def scrap_prices(asset_type):
                 
                 missing_dates = (today-last_date).days
                 if missing_dates > 0:
-                    output.debug(f'{symbol} saved price history missing dates')
+                    logger.debug(f'{symbol} saved price history missing dates')
                     next_date = helper.get_next_business_date(last_date + datetime.timedelta(days=1))
-                    output.debug(f'Querying service for {symbol} price from {next_date} to {today}')
+                    logger.debug(f'Querying service for {symbol} price from {next_date} to {today}')
                     price_history = services.query_service_for_daily_price_history(ticker=symbol,
                                                                                     start_date=next_date)
                 else:
@@ -95,19 +95,19 @@ def scrap_prices(asset_type):
                                                                             close_price=todays_open_price, open_price=todays_open_price)
 
                 if new_market_entry[1] and asset_type == app_settings.ASSET_EQUITY:
-                    output.verbose(f'Saving {symbol} (opening, closing) price of ({todays_open_price}, {todays_close_price}) on {date} to EquityMarket table in database.')
+                    logger.verbose(f'Saving {symbol} (opening, closing) price of ({todays_open_price}, {todays_close_price}) on {date} to EquityMarket table in database.')
                 elif new_market_entry[1] and asset_type == app_settings.ASSET_CRYPTO:
-                    output.verbose(f'Saving {symbol} (opening, closing) price of ({todays_open_price}, {todays_close_price}) on {date} to CryptoMarket table in database.')
+                    logger.verbose(f'Saving {symbol} (opening, closing) price of ({todays_open_price}, {todays_close_price}) on {date} to CryptoMarket table in database.')
                 elif not new_market_entry[1] and asset_type == app_settings.ASSET_EQUITY:
-                    output.verbose(f'Closing and openiong prices for {symbol} on {date} already exist in EquityMarket table')
+                    logger.verbose(f'Closing and openiong prices for {symbol} on {date} already exist in EquityMarket table')
                 else: 
-                    output.verbose(f'Closing and openiong prices for {symbol} on {date} already exist in CryptoMarket table')
+                    logger.verbose(f'Closing and openiong prices for {symbol} on {date} already exist in CryptoMarket table')
 
         else: 
             if exists:
-                output.debug(f'{symbol} price history up to date.')
+                logger.debug(f'{symbol} price history up to date.')
             else:
-                output.debug(f'{symbol} price history not found.')
+                logger.debug(f'{symbol} price history not found.')
 
 # TODO: register this function as a job in the Redis queue.
 #       Run every day.
@@ -119,25 +119,25 @@ def scrap_stats(stat_type):
         new_symbol_entry = StatSymbol.objects.get_or_create(symbol=symbol)
 
         if new_symbol_entry[1]:
-            output.debug(f'Saved {symbol} to StatSymbol table in database.')
+            logger.debug(f'Saved {symbol} to StatSymbol table in database.')
             exists=False
 
-            output.debug(f'Querying service for {symbol} statistic history.')
+            logger.debug(f'Querying service for {symbol} statistic history.')
             stat_history = services.query_service_for_daily_stats_history(statistic=symbol, full=True)
 
         else:
-            output.debug(f'{symbol} already exists in StatSymbol table in database.')
-            output.debug(f'Determining if saved {symbol} statistic history is missing dates')
+            logger.debug(f'{symbol} already exists in StatSymbol table in database.')
+            logger.debug(f'Determining if saved {symbol} statistic history is missing dates')
             exists = True
             
             last_date = Economy.objects.filter(statistic=symbol).order_by('-date')[:1][0].date
             missing_dates = (today - last_date).days
 
             if missing_dates > 0:
-                output.debug(f'{symbol} saved price history missing dates.')
+                logger.debug(f'{symbol} saved price history missing dates.')
                 next_date = helper.get_next_business_date(last_date + datetime.timedelta(days=1))
                 
-                output.debug(f'Querying service for {symbol} statistic history from {next_date} to {today}.')
+                logger.debug(f'Querying service for {symbol} statistic history from {next_date} to {today}.')
                 stat_history = services.query_service_for_daily_price_history(ticker=symbol, 
                                                                                 start_date=next_date)
             else:
@@ -150,14 +150,14 @@ def scrap_stats(stat_type):
                 new_stat_entry = Economy.objects.get_or_create(statistic=new_symbol_entry[0], date = todays_date, value=value)
 
                 if new_stat_entry[1]:
-                    output.verbose(f'Saving {symbol} value of {value} on {todays_date} to Economy table in database.')
+                    logger.verbose(f'Saving {symbol} value of {value} on {todays_date} to Economy table in database.')
                 else:
-                    output.verbose(f'Value of {symbol} on {todays_date} already exists within Economy table in database.')
+                    logger.verbose(f'Value of {symbol} on {todays_date} already exists within Economy table in database.')
         else:
             if exists:
-                output.debug(f'{symbol} statistic history up to date.')
+                logger.debug(f'{symbol} statistic history up to date.')
             else:
-                output.debug(f'{symbol} statistic history not found.')
+                logger.debug(f'{symbol} statistic history not found.')
 
 # TODO: register this function as a job in the Redis queue.
 #       Run every day.

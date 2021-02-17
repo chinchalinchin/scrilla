@@ -10,11 +10,11 @@ import app.settings as settings
 import app.services as services
 import app.markets as markets
 
-import util.logger as logger
+import util.outputter as outputter
 import util.formatter as formatter
 import util.helper as helper
 
-output = logger.Logger('app.statistics', settings.LOG_LEVEL)
+logger = outputter.Logger('app.statistics', settings.LOG_LEVEL)
 
 # NOTE: the format of 'sample_prices' was chosen so any function that accepts it as an argument
 #       can pass the same argument to other statistical functions with minimal formatting.
@@ -26,10 +26,10 @@ output = logger.Logger('app.statistics', settings.LOG_LEVEL)
 
 def sample_correlation(x, y):
     if len(x) != len(y):
-        output.info(f'Samples are not of comparable lengths')
+        logger.info(f'Samples are not of comparable lengths')
         return False
     elif len(x) == 1 or len(x) == 1:
-        output.info(f'Sample correlation cannot be computed for a sample size less than or equal to 1.')
+        logger.info(f'Sample correlation cannot be computed for a sample size less than or equal to 1.')
         return False
     else:
         sumproduct, sum_x_squared, sum_x, sum_y, sum_y_squared= 0, 0, 0, 0, 0
@@ -57,7 +57,7 @@ def sample_correlation(x, y):
             if correl_den != 0:
                 correlation = correl_num / correl_den
             else:
-                output.info('Denominator for correlation formula to small for division')
+                logger.info('Denominator for correlation formula to small for division')
                 return False
 
         return correlation
@@ -65,7 +65,7 @@ def sample_correlation(x, y):
 def sample_mean(x):
     xbar, n = 0, len(x)
     if n == 0:
-        output.info('Sample mean cannot be computed for a sample size of 0.')
+        logger.info('Sample mean cannot be computed for a sample size of 0.')
         return False
     else:
         for i in x:
@@ -75,7 +75,7 @@ def sample_mean(x):
 def sample_variance(x):
     mu, sigma, n = sample_mean(x=x), 0, len(x)
     if n == 1 or n == 0:
-        output.info('Sample variance cannot be computed for a sample size less than or equal to 1.')
+        logger.info('Sample variance cannot be computed for a sample size less than or equal to 1.')
         return False
     else:
         for i in x:
@@ -84,10 +84,10 @@ def sample_variance(x):
 
 def sample_covariance(x, y):
     if len(x) != len(y):
-        output.info(f'Samples are not of comparable length')
+        logger.info(f'Samples are not of comparable length')
         return False
     elif len(x) == 1 or len(x) == 1:
-        output.info(f'Sample correlation cannot be computed for a sample size less than or equal to 1.')
+        logger.info(f'Sample correlation cannot be computed for a sample size less than or equal to 1.')
         return False
     else:
         n, covariance = len(x), 0
@@ -99,17 +99,17 @@ def sample_covariance(x, y):
 
 def regression_beta(x, y):
     if len(x) != len(y):
-        output.info(f'len(x) = {len(x)} != len(y) = {len(y)}')
+        logger.info(f'len(x) = {len(x)} != len(y) = {len(y)}')
         return False
     elif len(x) < 3:
-        output.info(f'Sample size of {len(x)} is less than the necessary degrees of freedom (n > 2) for regression estimation.')
+        logger.info(f'Sample size of {len(x)} is less than the necessary degrees of freedom (n > 2) for regression estimation.')
         return False
     else:
         correl = sample_correlation(x=x, y=y)
         vol_x = numpy.sqrt(sample_variance(x=x))
         vol_y = numpy.sqrt(sample_variance(x=y))
         if not correl or not vol_x or not vol_y:
-            output.info('Error calculating statistics for regression Beta.')
+            logger.info('Error calculating statistics for regression Beta.')
             return False
         else:
             beta = correl * vol_y / vol_x
@@ -117,14 +117,14 @@ def regression_beta(x, y):
 
 def regression_alpha(x, y):
     if len(x) != len(y):
-        output.info(f'len(x) == {len(x)} != len(y) == {len(y)}')
+        logger.info(f'len(x) == {len(x)} != len(y) == {len(y)}')
         return False
     elif len(x) < 3:
-        output.info(f'Sample size of {len(x)} is less than the necessary degrees of freedom (n > 2) for regression estimation.')
+        logger.info(f'Sample size of {len(x)} is less than the necessary degrees of freedom (n > 2) for regression estimation.')
     else:
         y_mean, x_mean = sample_mean(y), sample_mean(x)
         if not y_mean or not x_mean:
-            output.info('Error calculating statistics for regression alpha')
+            logger.info('Error calculating statistics for regression alpha')
             return False
         else:
             alpha = y_mean - regression_beta(x=x, y=y)*x_mean
@@ -177,7 +177,7 @@ def calculate_moving_averages(tickers, start_date=None, end_date=None, sample_pr
     # Moving Average Snapshot
     if start_date is None and end_date is None:
         for ticker in tickers:
-            output.debug(f'Calculating Moving Average for {ticker}')
+            logger.debug(f'Calculating Moving Average for {ticker}')
 
             if sample_prices is None:
                 prices = services.get_daily_price_history(ticker)
@@ -194,7 +194,7 @@ def calculate_moving_averages(tickers, start_date=None, end_date=None, sample_pr
                 todays_price = services.parse_price_from_date(prices, date, asset_type)
                 if today:
                     todays_return = numpy.log(float(tomorrows_price) / float(todays_price))/trading_period
-                    output.verbose(f'todays_return == {tomorrows_price}/({todays_price}*{round(trading_period,2)}) = {todays_return}') 
+                    logger.verbose(f'todays_return == {tomorrows_price}/({todays_price}*{round(trading_period,2)}) = {todays_return}') 
 
                     if count < settings.MA_1_PERIOD:
                         MA_1 += todays_return / settings.MA_1_PERIOD
@@ -211,7 +211,7 @@ def calculate_moving_averages(tickers, start_date=None, end_date=None, sample_pr
 
                 tomorrows_price = services.parse_price_from_date(prices, date, asset_type)
 
-            output.verbose(f'(MA_1, MA_2, MA_3)_{ticker} = ({MA_1}, {MA_2}, {MA_3}')
+            logger.verbose(f'(MA_1, MA_2, MA_3)_{ticker} = ({MA_1}, {MA_2}, {MA_3}')
             moving_averages.append([MA_1, MA_2, MA_3])
 
         return moving_averages, None
@@ -223,22 +223,22 @@ def calculate_moving_averages(tickers, start_date=None, end_date=None, sample_pr
         original_day_count = 0
 
         ### START ARGUMENT VALIDATION ###
-        output.debug('Checking provided tickers for mixed asset types.')
+        logger.debug('Checking provided tickers for mixed asset types.')
         for ticker in tickers:
             asset_type = markets.get_asset_type(ticker)
             portfolio_asset_type = asset_type
             if previous_asset_type is not None:
                 if previous_asset_type != asset_type:
-                    output.debug('Tickers include mixed asset types, flagging calculation.')
+                    logger.debug('Tickers include mixed asset types, flagging calculation.')
                     portfolio_asset_type = None
                     mixed_flag = True
                     break
             previous_asset_type = asset_type
 
         if not mixed_flag:
-            output.debug(f'Tickers provided all of {portfolio_asset_type} asset type.')
+            logger.debug(f'Tickers provided all of {portfolio_asset_type} asset type.')
 
-        output.debug('Calculating length of date range in trading days.')
+        logger.debug('Calculating length of date range in trading days.')
         if mixed_flag:
             original_day_count = helper.business_day_between(start_date, end_date)
         elif portfolio_asset_type == settings.ASSET_EQUITY:
@@ -248,47 +248,47 @@ def calculate_moving_averages(tickers, start_date=None, end_date=None, sample_pr
         else:
             original_day_count = helper.business_days_between(start_date, end_date)
 
-        output.debug(f'{end_date} - {start_date} = {original_day_count} trading days')
+        logger.debug(f'{end_date} - {start_date} = {original_day_count} trading days')
 
         for ticker in tickers:
-            output.debug(f'Calculating Moving Average for {ticker}.')
+            logger.debug(f'Calculating Moving Average for {ticker}.')
 
             asset_type = markets.get_asset_type(ticker)
             trading_period = markets.get_trading_period(asset_type)
 
-            output.debug(f'Offsetting start date to account for longest Moving Average period.')
+            logger.debug(f'Offsetting start date to account for longest Moving Average period.')
             if asset_type == settings.ASSET_CRYPTO:
-                output.debug(f'{ticker}_asset_type = Crypto')
+                logger.debug(f'{ticker}_asset_type = Crypto')
 
-                output.debug(f'Configuring date variables to account for all dates.')
+                logger.debug(f'Configuring date variables to account for all dates.')
                 new_start_date = start_date - datetime.timedelta(days=settings.MA_3_PERIOD)
                 new_day_count = (end_date - new_start_date).days
 
                 # amend equity trading dates to take account of weekends
             elif asset_type == settings.ASSET_EQUITY:
-                output.debug(f'{ticker}_asset_type = Equity')
+                logger.debug(f'{ticker}_asset_type = Equity')
 
-                output.debug(f'Configuring date variables to account for weekends and holidays.')
+                logger.debug(f'Configuring date variables to account for weekends and holidays.')
                 new_start_date = helper.decrement_date_by_business_days(start_date=start_date, 
                                                                         business_days=settings.MA_3_PERIOD)
                 new_day_count = helper.business_days_between(new_start_date, end_date)
 
             else:
-                output.debug(f'{ticker}_asset_type = Unknown; Defaulting to business dates')
+                logger.debug(f'{ticker}_asset_type = Unknown; Defaulting to business dates')
 
-                output.debug(f'Configuring date variables to account for weekends and holidays.')
+                logger.debug(f'Configuring date variables to account for weekends and holidays.')
                 new_start_date = helper.decrement_date_by_business_days(start_date=start_date, 
                                                                         business_days=settings.MA_3_PERIOD)
                 new_day_count = helper.business_days_between(new_start_date, end_date)
 
-            output.debug(f'start_date -> new_start_date == {start_date} -> {new_start_date}')
-            output.debug(f'{end_date} - {new_start_date} == {new_day_count}')
+            logger.debug(f'start_date -> new_start_date == {start_date} -> {new_start_date}')
+            logger.debug(f'{end_date} - {new_start_date} == {new_day_count}')
 
             if sample_prices is None:
-                output.debug(f'No {ticker} sample prices provided, calling service.')
+                logger.debug(f'No {ticker} sample prices provided, calling service.')
                 prices = services.get_daily_price_history(ticker, new_start_date, end_date)
             else:
-                output.debug(f'{ticker} sample prices provided, skipping service call.')
+                logger.debug(f'{ticker} sample prices provided, skipping service call.')
                 prices = sample_prices[ticker]
         ### END ARGUMENT VALIDATION ###
 
@@ -300,12 +300,12 @@ def calculate_moving_averages(tickers, start_date=None, end_date=None, sample_pr
 
             # See NOTE #4
             for date in prices:
-                output.verbose(f'date: {date}')
+                logger.verbose(f'date: {date}')
                 todays_price = services.parse_price_from_date(prices, date, asset_type)
 
                 if today:
                    todays_return = numpy.log(float(tomorrows_price) / float(todays_price))/trading_period
-                   output.verbose(f'todays_return == ln({tomorrows_price}/{todays_price})/{round(trading_period,4)}) = {round(todays_return,4)}') 
+                   logger.verbose(f'todays_return == ln({tomorrows_price}/{todays_price})/{round(trading_period,4)}) = {round(todays_return,4)}') 
 
                    for MA in MAs_1:
                        end_flag = False
@@ -322,7 +322,7 @@ def calculate_moving_averages(tickers, start_date=None, end_date=None, sample_pr
                            MA += todays_return / settings.MA_1_PERIOD
 
                            if end_flag:
-                               output.verbose(f'{ticker}_MA_1({date_of_MA1}) = {MA}')
+                               logger.verbose(f'{ticker}_MA_1({date_of_MA1}) = {MA}')
 
                     # See NOTE #3
                    if mixed_flag or portfolio_asset_type == settings.ASSET_EQUITY:
@@ -346,7 +346,7 @@ def calculate_moving_averages(tickers, start_date=None, end_date=None, sample_pr
                            MA += todays_return / settings.MA_2_PERIOD
 
                            if end_flag:
-                               output.verbose(f'{ticker}_MA_2({date_of_MA2}) = {MA}')
+                               logger.verbose(f'{ticker}_MA_2({date_of_MA2}) = {MA}')
 
                     # See NOTE #3
                    if mixed_flag or portfolio_asset_type == settings.ASSET_EQUITY:
@@ -370,7 +370,7 @@ def calculate_moving_averages(tickers, start_date=None, end_date=None, sample_pr
                            MA += todays_return / settings.MA_3_PERIOD
 
                            if end_flag:
-                               output.verbose(f'{ticker}_MA_3({date_of_MA3}) = {MA}')
+                               logger.verbose(f'{ticker}_MA_3({date_of_MA3}) = {MA}')
 
                     # See NOTE #3
                    if mixed_flag or portfolio_asset_type == settings.ASSET_EQUITY:
@@ -403,13 +403,13 @@ def calculate_moving_averages(tickers, start_date=None, end_date=None, sample_pr
         else:
             dates_between = helper.business_dates_between(start_date, end_date)
         
-        output.debug(f'If everything is correct, then len(moving_averages[0][1]) == len(dates_between)')
+        logger.debug(f'If everything is correct, then len(moving_averages[0][1]) == len(dates_between)')
         if len(moving_averages[0][1]) == len(dates_between):
-            output.debug("Your program rules.")
-            output.debug('{} = {}'.format(len(moving_averages[0][1]), len(dates_between)))
+            logger.debug("Your program rules.")
+            logger.debug('{} = {}'.format(len(moving_averages[0][1]), len(dates_between)))
         else: 
-            output.debug("Your program sucks.")
-            output.debug('{} != {}'.format(len(moving_averages[0][1]), len(dates_between)))
+            logger.debug("Your program sucks.")
+            logger.debug('{} != {}'.format(len(moving_averages[0][1]), len(dates_between)))
 
         ### END RESPONSE FORMATTING ###
         return moving_averages, dates_between 
@@ -443,48 +443,48 @@ def calculate_risk_return(ticker, start_date=None, end_date=None, sample_prices=
     trading_period = markets.get_trading_period(asset_type)
 
     if not trading_period:
-        output.debug("Asset did not map to (crypto, equity) grouping")
+        logger.debug("Asset did not map to (crypto, equity) grouping")
         return False
 
     if sample_prices is None:
         if start_date is None and end_date is None:
-            output.debug(f'Checking for cached {ticker} statistics.')
+            logger.debug(f'Checking for cached {ticker} statistics.')
 
             if os.path.isfile(buffer_store):
-                output.debug(f'Loading in cached {ticker} statistics.')
+                logger.debug(f'Loading in cached {ticker} statistics.')
                 with open(buffer_store, 'r') as infile:
                     results = json.load(infile)
                 return results
             else:
-                output.debug(f'No cached {ticker} statistics found, calling service.')
+                logger.debug(f'No cached {ticker} statistics found, calling service.')
                 prices = services.get_daily_price_history(ticker=ticker)
         else: 
-            output.debug(f'No sample prices provided, calling service.')
+            logger.debug(f'No sample prices provided, calling service.')
             prices = services.get_daily_price_history(ticker=ticker, start_date=start_date, end_date=end_date)
     else:
-        output.debug(f'{ticker} sample prices provided, skipping service call.')
+        logger.debug(f'{ticker} sample prices provided, skipping service call.')
         prices = sample_prices[ticker]
 
     if not prices:
-        output.debug(f'No prices could be retrieved for {ticker}')
+        logger.debug(f'No prices could be retrieved for {ticker}')
         return False
     
     sample = len(prices)
     # calculate sample mean annual return
     i, mean_return, tomorrows_price = 0, 0, 0 
-    output.debug(f'Calculating mean annual return over last {sample} days for {ticker}')
+    logger.debug(f'Calculating mean annual return over last {sample} days for {ticker}')
 
     for date in prices:
         todays_price = services.parse_price_from_date(prices, date, asset_type)
 
         if i != 0:
-            output.verbose(f'{date}: (todays_price, tomorrows_price) = ({todays_price}, {tomorrows_price})')
+            logger.verbose(f'{date}: (todays_price, tomorrows_price) = ({todays_price}, {tomorrows_price})')
             daily_return = numpy.log(float(tomorrows_price)/float(todays_price))/trading_period
             mean_return = mean_return + daily_return/sample
-            output.verbose(f'{date}: (daily_return, mean_return) = ({round(daily_return, 2)}, {round(mean_return, 2)})')
+            logger.verbose(f'{date}: (daily_return, mean_return) = ({round(daily_return, 2)}, {round(mean_return, 2)})')
 
         else:
-            output.verbose('Skipping first date.')
+            logger.verbose('Skipping first date.')
             i += 1  
 
         tomorrows_price = services.parse_price_from_date(prices, date, asset_type)
@@ -493,16 +493,16 @@ def calculate_risk_return(ticker, start_date=None, end_date=None, sample_prices=
     today = False
     variance, tomorrows_price = 0, 0
     mean_mod_return = mean_return*numpy.sqrt(trading_period)
-    output.debug(f'Calculating mean annual volatility over last {sample} days for {ticker}')
+    logger.debug(f'Calculating mean annual volatility over last {sample} days for {ticker}')
 
     for date in prices:
         todays_price = services.parse_price_from_date(prices, date, asset_type)
 
         if today:
-            output.verbose(f'{date}: (todays_price, tomorrows_price) = ({todays_price}, {tomorrows_price})')
+            logger.verbose(f'{date}: (todays_price, tomorrows_price) = ({todays_price}, {tomorrows_price})')
             current_mod_return= numpy.log(float(tomorrows_price)/float(todays_price))/numpy.sqrt(trading_period) 
             variance = variance + (current_mod_return - mean_mod_return)**2/(sample - 1)
-            output.verbose(f'{date}: (daily_variance, sample_variance) = ({round(current_mod_return, 2)}, {round(variance, 2)})')
+            logger.verbose(f'{date}: (daily_variance, sample_variance) = ({round(current_mod_return, 2)}, {round(variance, 2)})')
 
         else:
             today = True
@@ -513,7 +513,7 @@ def calculate_risk_return(ticker, start_date=None, end_date=None, sample_prices=
     volatility = numpy.sqrt(variance)
     # ito's lemma
     mean_return = mean_return + 0.5*(volatility**2)
-    output.debug(f'(mean_return, sample_volatility) = ({round(mean_return, 2)}, {round(volatility, 2)})')
+    logger.debug(f'(mean_return, sample_volatility) = ({round(mean_return, 2)}, {round(volatility, 2)})')
 
     results = {
         'annual_return': mean_return,
@@ -522,7 +522,7 @@ def calculate_risk_return(ticker, start_date=None, end_date=None, sample_prices=
 
     # store results in buffer for quick access
     if start_date is None and end_date is None:
-        output.debug(f'Storing {ticker} statistics in cache...')
+        logger.debug(f'Storing {ticker} statistics in cache...')
         with open(buffer_store, 'w') as outfile:
             json.dump(results, outfile)
 
@@ -562,56 +562,56 @@ def calculate_ito_correlation(ticker_1, ticker_2, start_date=None, end_date=None
 
     if sample_prices is None:
         # reset sample price and set entries to None for consistency in calculate_risk_return call below.
-        output.debug('No sample prices provided. Calling service for prices.')
+        logger.debug('No sample prices provided. Calling service for prices.')
 
         sample_prices = {}
         
         if start_date is None and end_date is None:
             # check if results exist in cache location 1
-            output.debug('Checking for correlation calculation in cache.')
+            logger.debug('Checking for correlation calculation in cache.')
             if os.path.isfile(buffer_store_1):
-                output.debug(f'Loading in cached ({ticker_1}, {ticker_2}) correlation.')
+                logger.debug(f'Loading in cached ({ticker_1}, {ticker_2}) correlation.')
                 with open(buffer_store_1, 'r') as infile:
-                    output.debug(f'Cached ({ticker_1}, {ticker_2}) correlation loaded.')
+                    logger.debug(f'Cached ({ticker_1}, {ticker_2}) correlation loaded.')
                     results = json.load(infile)
                     correlation = results
                 return correlation
 
             # check if results exist in cache location 2
             elif os.path.isfile(buffer_store_2):
-                output.debug(f'Loading in cached ({ticker_1}, {ticker_2}) correlation.')
+                logger.debug(f'Loading in cached ({ticker_1}, {ticker_2}) correlation.')
                 with open(buffer_store_2, 'r') as infile:
-                    output.debug(f'Cached ({ticker_1}, {ticker_2}) correlation loaded.')
+                    logger.debug(f'Cached ({ticker_1}, {ticker_2}) correlation loaded.')
                     results = json.load(infile)
                     correlation = results
                 return correlation
             else:
-                output.debug(f'No cached ({ticker_1}, {ticker_2}) correlation found, retrieving price histories for calculation.')
+                logger.debug(f'No cached ({ticker_1}, {ticker_2}) correlation found, retrieving price histories for calculation.')
                 prices_1 = services.get_daily_price_history(ticker=ticker_1)
                 prices_2 = services.get_daily_price_history(ticker=ticker_2)
                 sample_prices[ticker_1], sample_prices[ticker_2] = prices_1, prices_2
         else:
-            output.debug('No sample prices provided, retrieving price histories for calculation.')
+            logger.debug('No sample prices provided, retrieving price histories for calculation.')
             prices_1 = services.get_daily_price_history(ticker=ticker_1, start_date=start_date, end_date=end_date)
             prices_2 = services.get_daily_price_history(ticker=ticker_2, start_date=start_date, end_date=end_date)
             sample_prices[ticker_1], sample_prices[ticker_2] = prices_1, prices_2
 
     else:
-        output.debug('Sample prices provided, skipping service calls.')
+        logger.debug('Sample prices provided, skipping service calls.')
         prices_1, prices_2 = sample_prices[ticker_1], prices_2[ticker_2]
         
     if (not prices_1) or (not prices_2):
-        output.info("Prices cannot be retrieved for correlation calculation")
+        logger.info("Prices cannot be retrieved for correlation calculation")
         return False 
     ### END DATA RETRIEVAL ###
     
     ### START SAMPLE STATISTICS CALCULATION ###
-    output.debug(f'Preparing to calculate correlation for ({ticker_1},{ticker_2})')
+    logger.debug(f'Preparing to calculate correlation for ({ticker_1},{ticker_2})')
     stats_1 = calculate_risk_return(ticker_1, start_date, end_date, sample_prices)
     stats_2 = calculate_risk_return(ticker_2, start_date, end_date, sample_prices)
 
     if (not stats_1) or (not stats_2):
-        output.info("Sample statistics cannot be calculated for correlation calculation")
+        logger.info("Sample statistics cannot be calculated for correlation calculation")
         return False
 
     asset_type_1 = markets.get_asset_type(ticker_1)
@@ -638,7 +638,7 @@ def calculate_ito_correlation(ticker_1, ticker_2, start_date=None, end_date=None
     # if asset_types are same
     if asset_type_1 == asset_type_2:
         same_type = True
-        output.debug(f'Asset({ticker_1}) and Asset({ticker_2}) are the same type of asset')
+        logger.debug(f'Asset({ticker_1}) and Asset({ticker_2}) are the same type of asset')
 
         if asset_type_1 == settings.ASSET_CRYPTO:
             trading_period = (1/365)
@@ -651,7 +651,7 @@ def calculate_ito_correlation(ticker_1, ticker_2, start_date=None, end_date=None
     # if asset_types are different, collect # of days where one assets trades and the other does not.
     else:
         same_type = False
-        output.debug(f'Asset({ticker_1}) and Asset({ticker_2}) are not the same type of asset')
+        logger.debug(f'Asset({ticker_1}) and Asset({ticker_2}) are not the same type of asset')
 
         if asset_type_1 == settings.ASSET_CRYPTO and asset_type_2 == settings.ASSET_EQUITY:
             for date in prices_1:
@@ -675,8 +675,8 @@ def calculate_ito_correlation(ticker_1, ticker_2, start_date=None, end_date=None
         sample_prices = prices_2
         offset = weekend_offset_2
     
-    output.debug(f'(trading_period, offset) = ({trading_period}, {offset})')
-    output.debug(f'Calculating ({ticker_1}, {ticker_2}) correlation.')
+    logger.debug(f'(trading_period, offset) = ({trading_period}, {offset})')
+    logger.debug(f'Calculating ({ticker_1}, {ticker_2}) correlation.')
 
     # Initialize loop variables
     i, covariance, tomorrows_price_1, tomorrows_price_2 = 0, 0, 1, 1
@@ -689,17 +689,17 @@ def calculate_ito_correlation(ticker_1, ticker_2, start_date=None, end_date=None
         todays_price_1 = services.parse_price_from_date(prices_1, date, asset_type_1)
         todays_price_2 = services.parse_price_from_date(prices_2, date, asset_type_2)
         todays_date = date
-        output.verbose(f'(todays_date, todays_price_{ticker_1}, todays_price_{ticker_2}) = ({todays_date}, {todays_price_1}, {todays_price_2})')
+        logger.verbose(f'(todays_date, todays_price_{ticker_1}, todays_price_{ticker_2}) = ({todays_date}, {todays_price_1}, {todays_price_2})')
             
         # if both prices exist, proceed
         if todays_price_1 and todays_price_2 and tomorrows_price_1 and tomorrows_price_2:
             if i != 0:
-                output.verbose(f'Iteration #{i}')
-                output.verbose(f'(todays_price, tomorrows_price)_{ticker_1} = ({todays_price_1}, {tomorrows_price_1})')
-                output.verbose(f'(todays_price, tomorrows_price)_{ticker_2} = ({todays_price_2}, {tomorrows_price_2})')
+                logger.verbose(f'Iteration #{i}')
+                logger.verbose(f'(todays_price, tomorrows_price)_{ticker_1} = ({todays_price_1}, {tomorrows_price_1})')
+                logger.verbose(f'(todays_price, tomorrows_price)_{ticker_2} = ({todays_price_2}, {tomorrows_price_2})')
                 
                 if delta != 0:
-                    output.verbose(f'current delta = {delta}')
+                    logger.verbose(f'current delta = {delta}')
 
                 time_delta = (1+delta)/numpy.sqrt(trading_period)
                 current_mod_return_1= numpy.log(float(tomorrows_price_1)/float(todays_price_1))*time_delta
@@ -707,8 +707,8 @@ def calculate_ito_correlation(ticker_1, ticker_2, start_date=None, end_date=None
                 current_sample_covariance = (current_mod_return_1 - mod_mean_1)*(current_mod_return_2 - mod_mean_2)/(sample - 1)
                 covariance = covariance + current_sample_covariance
             
-                output.verbose(f'(return_1, return_2) = ({round(current_mod_return_1, 2)}, {round(current_mod_return_2, 2)})')
-                output.verbose(f'(current_sample_covariance, covariance) = ({round(current_sample_covariance, 2)}, {round(covariance, 2)})')
+                logger.verbose(f'(return_1, return_2) = ({round(current_mod_return_1, 2)}, {round(current_mod_return_2, 2)})')
+                logger.verbose(f'(current_sample_covariance, covariance) = ({round(current_sample_covariance, 2)}, {round(covariance, 2)})')
                 
                 # once missed data points are skipped, annihiliate delta
                 if delta != 0:
@@ -719,20 +719,20 @@ def calculate_ito_correlation(ticker_1, ticker_2, start_date=None, end_date=None
         # if one price doesn't exist, then a data point has been lost, so revise sample. 
         # collect number of missed data points (delta) to offset return calculation
         else: 
-            output.verbose('Lost a day. Revising covariance and sample.')
+            logger.verbose('Lost a day. Revising covariance and sample.')
             revised_covariance = covariance*(sample - 1)
             sample -= 1 
             
             try:
                 covariance = revised_covariance/(sample - 1)
             except:
-                output.info('Lost entire sample!')
+                logger.info('Lost entire sample!')
                 return False
 
             delta += 1
             if i == 0:
                 i += 1
-            output.verbose(f'(revised_covariance, revised_sample) = ({covariance}, {sample})')
+            logger.verbose(f'(revised_covariance, revised_sample) = ({covariance}, {sample})')
         
         tomorrows_price_1 = services.parse_price_from_date(prices_1, date, asset_type_1)
         tomorrows_price_2 = services.parse_price_from_date(prices_2, date, asset_type_2)
@@ -744,7 +744,7 @@ def calculate_ito_correlation(ticker_1, ticker_2, start_date=None, end_date=None
     result = { 'correlation' : correlation }
 
     if start_date is None and end_date is None:
-        output.debug(f'Storing ({ticker_1}, {ticker_2}) correlation in cache...')
+        logger.debug(f'Storing ({ticker_1}, {ticker_2}) correlation in cache...')
         with open(buffer_store_1, 'w') as outfile:
             json.dump(result, outfile)
 
@@ -794,7 +794,7 @@ def get_ito_correlation_matrix_string(tickers, indent=0, start_date=None, end_da
                 that_symbol = tickers[j]
                 result = calculate_ito_correlation(this_symbol, that_symbol, start_date, end_date, sample_prices) 
                 if not result:
-                    output.debug(f'Cannot correlation for ({this_symbol}, {that_symbol})')
+                    logger.debug(f'Cannot correlation for ({this_symbol}, {that_symbol})')
                     return False
                 formatted_result = str(100*result['correlation'])[:formatter.SIG_FIGS]
                 new_line += f' {formatted_result}%'
@@ -825,18 +825,20 @@ def calculate_return_covariance(ticker_1, ticker_2, start_date=None, end_date=No
     return covariance
     
 if __name__=="__main__":
-    x = [1, 2, 3, 4, 5, 6, 7]
-    y = [20, 19, 23, 20, 26, 22, 30]
-    output.comment(f'x test-data: {x}')
-    output.comment(f'y test-data: {y}')
-    output.title_line('Test Results')
-    output.line()
-    output.scalar_result(calculation='correct correlation', result=0.764852927, currency=False)
-    output.scalar_result(calculation='sample_correlation(x, y)',  result=sample_correlation(x, y), currency=False)
-    output.line()
-    output.scalar_result(calculation='correct regression slope', result= 1.39286, currency=False)
-    output.scalar_result(calculation='regression_beta(x,y)',  result=regression_beta(x,y), currency=False)
-    output.line()
-    output.scalar_result(calculation='correct regression intercept',  result=17.28571, currency=False)
-    output.scalar_result(calculation='regression_alpha(x,y)',  result=regression_alpha(x,y), currency=False)
-    output.line()
+    data = [[1, 2, 3, 4, 5, 6, 7],[20, 19, 23, 20, 26, 22, 30]]
+
+    outputter.title_line('X Data')
+    outputter.print_list(data[0])
+    outputter.title_line('Y Data')
+    outputter.print_list(data[1])
+    outputter.title_line('Test Results')
+    outputter.line()
+    outputter.scalar_result(calculation='correct correlation', result=0.764852927, currency=False)
+    outputter.scalar_result(calculation='sample_correlation(x, y)',  result=sample_correlation(data[0], data[1]), currency=False)
+    outputter.line()
+    outputter.scalar_result(calculation='correct regression slope', result= 1.39286, currency=False)
+    outputter.scalar_result(calculation='regression_beta(x,y)',  result=regression_beta(data[0],data[1]), currency=False)
+    outputter.line()
+    outputter.scalar_result(calculation='correct regression intercept',  result=17.28571, currency=False)
+    outputter.scalar_result(calculation='regression_alpha(x,y)',  result=regression_alpha(data[0],data[1]), currency=False)
+    outputter.line()

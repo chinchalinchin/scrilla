@@ -2,12 +2,12 @@ from core import settings
 from data.models import EquityMarket, CryptoMarket, EquityTicker, CryptoTicker, Dividends, Economy, StatSymbol
 
 import util.helper as helper
-import util.logger as logger
+import util.outputter as outputter
 
 import app.markets as markets
 import app.settings as app_settings
 
-output = logger.Logger("server.pynance_api.api.parser", settings.LOG_LEVEL)
+logger = outputter.Logger("server.pynance_api.api.parser", settings.LOG_LEVEL)
 
 def verify_method(request, allowed_methods):
     if request.method not in allowed_methods: 
@@ -16,18 +16,18 @@ def verify_method(request, allowed_methods):
         return True
 
 def log_secondary_args(parsed_args):
-    output.debug('> Request Parameters')
+    logger.debug('> Request Parameters')
     if parsed_args['start_date'] is not None:
-        output.debug(f'>> Start : {parsed_args["start_date"]}')
+        logger.debug(f'>> Start : {parsed_args["start_date"]}')
 
     if parsed_args['end_date'] is not None:
-        output.debug(f'>> End: {parsed_args["end_date"]}')
+        logger.debug(f'>> End: {parsed_args["end_date"]}')
     
     if parsed_args['target_return'] is not None:
-        output.debug(f'>> Target: {parsed_args["target_return"]}')
+        logger.debug(f'>> Target: {parsed_args["target_return"]}')
     
     if parsed_args['jpeg'] is not None:
-        output.debug(f'>> JPEG: {parsed_args["jpeg"]}')
+        logger.debug(f'>> JPEG: {parsed_args["jpeg"]}')
 
 def parse_secondary_args(request):
     if settings.REQUEST_PARAMS['start_date'] in request.GET:
@@ -157,9 +157,9 @@ def dividend_queryset_to_list(dividend_set):
     return div_list
 
 def validate_request(request, allowed_methods=["GET"]):
-    output.debug('Verifying request method.')
+    logger.debug('Verifying request method.')
     if verify_method(request, allowed_methods):
-        output.debug('Request method verified!')
+        logger.debug('Request method verified!')
 
         arg_err_or_tickers = parse_tickers(request)
         if arg_err_or_tickers:
@@ -169,9 +169,9 @@ def validate_request(request, allowed_methods=["GET"]):
             return 200, { 'tickers': tickers, 'parsed_args': parsed_args }
 
         else:
-            output.debug('No ticker query parameters provided')    
+            logger.debug('No ticker query parameters provided')    
             return 400, { 'message': 'Input error' }
 
     else:
-        output.debug('Request method rejected')
+        logger.debug('Request method rejected')
         return 405, { 'message' : "Request method not allowed" }

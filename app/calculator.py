@@ -6,9 +6,9 @@ import numpy
 import random
 
 import app.settings as settings
-import util.logger as logger
+import util.outputter as outputter
 
-output = logger.Logger("app.calculator", settings.LOG_LEVEL)
+logger = outputter.Logger("app.calculator", settings.LOG_LEVEL)
 
 def generate_random_walk(periods):
     return [stats.norm.ppf(random.uniform(0,1)) for i in range(periods)]
@@ -32,5 +32,5 @@ def ito_integral(mean_function, volatilty_function, time_to_expiration=None):
             # TODO
             pass
     else:
-        output.info('Supplied volatility function does not meet condition : ')
-        output.info('E(Integral(volatility_function^2 dt) from 0 to infinity)')
+        logger.info('Supplied volatility function does not meet condition : ')
+        logger.info('E(Integral(volatility_function^2 dt) from 0 to infinity)')

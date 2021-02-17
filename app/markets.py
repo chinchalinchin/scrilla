@@ -5,13 +5,13 @@ import app.services as services
 import app.files as files
 from app.objects.cashflow import Cashflow
 
-import util.logger as logger
+import util.outputter as outputter
 
 MODEL_DDM="ddm"
 # TODO: implement dcf model
 MODEL_DCF="dcf"
 
-output = logger.Logger('app.markets', settings.LOG_LEVEL)
+logger = outputter.Logger('app.markets', settings.LOG_LEVEL)
 
 # NOTE: output from get_overlapping_symbols:
 # OVERLAP = ['ABT', 'AC', 'ADT', 'ADX', 'AE', 'AGI', 'AI', 'AIR', 'AMP', 'AVT', 'BCC', 'BCD', 'BCH', 'BCX', 'BDL', 'BFT', 'BIS', 'BLK', 'BQ', 'BRX', 
@@ -126,7 +126,7 @@ def screen_for_discount(model=None, discount_rate=None):
     equities = list(files.get_watchlist())
     discounts = {}
     
-    output.debug('Using Discount Dividend Model to screen watchlisted equities for discounts.')
+    logger.debug('Using Discount Dividend Model to screen watchlisted equities for discounts.')
 
     user_discount_rate = discount_rate
 
@@ -140,13 +140,13 @@ def screen_for_discount(model=None, discount_rate=None):
 
         if model == MODEL_DDM:
             dividends = services.get_dividend_history(equity)
-            output.debug(f'Passing discount rate = {discount_rate}')
+            logger.debug(f'Passing discount rate = {discount_rate}')
             model_price = Cashflow(sample=dividends, discount_rate=discount_rate).calculate_net_present_value()
         
         if not model_price:
-            output.info(f'Net present value of dividend payments cannot be calculated for {equity}.')
+            logger.info(f'Net present value of dividend payments cannot be calculated for {equity}.')
         else:
-            output.verbose(f'{equity} spot price = {spot_price}, {equity} {model} price = {model_price}')
+            logger.verbose(f'{equity} spot price = {spot_price}, {equity} {model} price = {model_price}')
 
             discount = float(model_price) - float(spot_price)
                         
@@ -156,6 +156,6 @@ def screen_for_discount(model=None, discount_rate=None):
                 discount_result['model_price'] = model_price
                 discount_result['discount'] = discount
                 discounts[equity] = discount_result
-                output.debug(f'Discount of {discount} found for {equity}')
+                logger.debug(f'Discount of {discount} found for {equity}')
 
     return discounts

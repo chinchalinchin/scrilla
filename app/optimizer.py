@@ -2,9 +2,9 @@ import scipy.optimize as optimize
 
 from app.objects.portfolio import Portfolio
 import app.settings as settings
-import util.logger as logger
+import util.outputter as outputter
 
-output = logger.Logger('app.optimizer', settings.LOG_LEVEL)
+logger = outputter.Logger('app.optimizer', settings.LOG_LEVEL)
 
 def optimize_portfolio_variance(portfolio, target_return=None):
     """
@@ -30,7 +30,7 @@ def optimize_portfolio_variance(portfolio, target_return=None):
         }
 
     if target_return is not None:
-        output.debug(f'Optimizing {tickers} Portfolio Volatility Subject To Return = {target_return}')
+        logger.debug(f'Optimizing {tickers} Portfolio Volatility Subject To Return = {target_return}')
 
         return_constraint = {
             'type': 'eq',
@@ -38,7 +38,7 @@ def optimize_portfolio_variance(portfolio, target_return=None):
         }
         portfolio_constraints = [equity_constraint, return_constraint]
     else:
-        output.debug(f'Minimizing {tickers} Portfolio Volatility')
+        logger.debug(f'Minimizing {tickers} Portfolio Volatility')
         portfolio_constraints = equity_constraint
 
     allocation = optimize.minimize(fun = portfolio.volatility_function, x0 = init_guess, 
@@ -71,7 +71,7 @@ def maximize_sharpe_ratio(portfolio, target_return=None):
         }
 
     if target_return is not None:
-        output.debug(f'Optimizing {tickers} Portfolio Sharpe Ratio Subject To Return = {target_return}')
+        logger.debug(f'Optimizing {tickers} Portfolio Sharpe Ratio Subject To Return = {target_return}')
 
         return_constraint = {
             'type': 'eq',
@@ -79,7 +79,7 @@ def maximize_sharpe_ratio(portfolio, target_return=None):
         }
         portfolio_constraints = [equity_constraint, return_constraint]
     else:
-        output.debug(f'Maximizing {tickers} Portfolio Sharpe Ratio')
+        logger.debug(f'Maximizing {tickers} Portfolio Sharpe Ratio')
         portfolio_constraints = equity_constraint
 
     maximize_function = lambda x: (-1)*portfolio.sharpe_ratio_function(x)
@@ -110,7 +110,7 @@ def maximize_portfolio_return(portfolio):
     }
     maximize_function = lambda x: (-1)*portfolio.return_function(x)
     
-    output.debug(f'Maximizing {tickers} Portfolio Return')
+    logger.debug(f'Maximizing {tickers} Portfolio Return')
     allocation = optimize.minimize(fun = maximize_function, x0 = init_guess, method='SLSQP',
                                     bounds=equity_bounds, constraints=equity_constraint, 
                                     options={'disp': False})
@@ -140,7 +140,7 @@ def calculate_efficient_frontier(portfolio):
     for i in range(settings.FRONTIER_STEPS+1):
         target_return = minimum_return + return_width*i
 
-        output.debug(f'Optimizing {tickers} Portfolio Return Subject To {target_return}')
+        logger.debug(f'Optimizing {tickers} Portfolio Return Subject To {target_return}')
         allocation = optimize_portfolio_variance(portfolio=portfolio, target_return=target_return)
         
         frontier.append(allocation)

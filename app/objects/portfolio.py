@@ -3,13 +3,13 @@ import app.services as services
 import app.settings as settings
 import app.markets as markets
 
-import util.logger as logger 
+import util.outputter as outputter 
 
 import numpy
 import math
 from decimal import Decimal
 
-output = logger.Logger("app.objects.portfolio", settings.LOG_LEVEL)
+logger = outputter.Logger("app.objects.portfolio", settings.LOG_LEVEL)
 
 class Portfolio:
     """

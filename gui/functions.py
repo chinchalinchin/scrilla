@@ -9,7 +9,7 @@ import app.settings as settings
 import app.optimizer as optimizer
 import app.objects.portfolio as portfolio
 
-import util.logger as logger
+import util.outputter as outputter
 import util.formatter as formatter
 import util.helper as helper
 import util.plotter as plotter
@@ -17,7 +17,7 @@ import util.plotter as plotter
 from gui.widgets import CompositeWidget, GraphWidget, \
                             TableWidget, PortfolioWidget
 
-output = logger.Logger('gui.functions', settings.LOG_LEVEL)
+logger = outputter.Logger('gui.functions', settings.LOG_LEVEL)
 
 class RiskReturnWidget(CompositeWidget):
     def __init__(self):
@@ -38,13 +38,13 @@ class RiskReturnWidget(CompositeWidget):
         self.table.setVerticalHeaderLabels(user_symbols)
 
         for symbol in user_symbols:
-            output.debug(f'Calculating {symbol} Risk-Return Profile')
+            logger.debug(f'Calculating {symbol} Risk-Return Profile')
             stats = statistics.calculate_risk_return(symbol)
             if stats:
                 formatted_ret = str(100*stats['annual_return'])[:formatter.SIG_FIGS]+"%"
                 formatted_vol = str(100*stats['annual_volatility'])[:formatter.SIG_FIGS]+"%"
                 
-                output.debug(f'(return, vol)_{symbol} = ({formatted_ret}, {formatted_vol})')
+                logger.debug(f'(return, vol)_{symbol} = ({formatted_ret}, {formatted_vol})')
 
                 ret_item = QtWidgets.QTableWidgetItem(formatted_ret)
                 ret_item.setTextAlignment(QtCore.Qt.AlignHCenter)
@@ -86,7 +86,7 @@ class CorrelationWidget(TableWidget):
     @QtCore.Slot()
     def calculate_table(self):
         if self.table.isVisible():
-            output.debug('Clearing correlation matrix from table widget.')
+            logger.debug('Clearing correlation matrix from table widget.')
             self.table.clear()
 
         user_symbols = helper.strip_string_array(self.symbol_input.text().upper().split(","))
@@ -109,7 +109,7 @@ class CorrelationWidget(TableWidget):
                         self.table.setItem(i, j, item)
                         
                     else:    
-                        output.debug(f'Calculating correlation for ({user_symbols[i]}, {user_symbols[j]})')
+                        logger.debug(f'Calculating correlation for ({user_symbols[i]}, {user_symbols[j]})')
                         correlation = statistics.calculate_ito_correlation(user_symbols[i], user_symbols[j])
                         formatted_correlation = str(100*correlation["correlation"])[:formatter.SIG_FIGS]+"%"
                         item_1 = QtWidgets.QTableWidgetItem(formatted_correlation)
@@ -117,7 +117,7 @@ class CorrelationWidget(TableWidget):
                         item_2 = QtWidgets.QTableWidgetItem(formatted_correlation)
                         item_2.setTextAlignment(QtCore.Qt.AlignHCenter)
 
-                        output.debug(f'Appending correlation = {formatted_correlation} to ({i}, {j}) and ({j}, {i}) entries of matrix')
+                        logger.debug(f'Appending correlation = {formatted_correlation} to ({i}, {j}) and ({j}, {i}) entries of matrix')
                         self.table.setItem(j, i, item_1)
                         self.table.setItem(i, j, item_2)
         else:
@@ -153,11 +153,11 @@ class OptimizerWidget(PortfolioWidget):
         if no_symbols > 1:
             investment = self.portfolio_value.text()
 
-            output.debug(f'Optimizing Portfolio : {user_symbols}.')
+            logger.debug(f'Optimizing Portfolio : {user_symbols}.')
             allocation = optimizer.optimize_portfolio_variance(equities=user_symbols)
             this_portfolio = portfolio.Portfolio(tickers=user_symbols)
             
-            output.debug(helper.format_allocation_profile(allocation, this_portfolio))
+            logger.debug(helper.format_allocation_profile(allocation, this_portfolio))
             self.result.setText(helper.format_allocation_profile(allocation, this_portfolio))
 
             self.result_table.setRowCount(no_symbols)

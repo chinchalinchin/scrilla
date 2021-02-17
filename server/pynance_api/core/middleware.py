@@ -3,12 +3,12 @@ from django.http.request import HttpRequest
 
 from core import settings
 
-from util.logger import Logger, LOG_LEVEL_DEBUG, LOG_LEVEL_VERBOSE
+import util.outputter as outputter
 
 class LogMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response
-        self.logger=Logger("core.middleware.DebugMiddleware", settings.LOG_LEVEL)
+        self.logger=outputter.Logger("core.middleware.DebugMiddleware", settings.LOG_LEVEL)
         
     def __call__(self, request: HttpRequest):
 

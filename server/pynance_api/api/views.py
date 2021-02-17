@@ -22,9 +22,9 @@ import app.markets as markets
 # Utility Imports
 import util.helper as helper
 import util.plotter as plotter
-import util.logger as logger
+import util.outputter as outputter
 
-output = logger.Logger("server.pynance_api.api.views", settings.LOG_LEVEL)
+output = outputter.Logger("server.pynance_api.api.views", settings.LOG_LEVEL)
 
 def risk_return(request):
     status, parsed_args_or_err_msg = parser.validate_request(request, ["GET"])
