@@ -5,6 +5,7 @@ from PIL import Image
 from matplotlib.figure import Figure
 
 import util.formatter as formatter
+import util.helper as helper
 
 APP_ENV=os.environ.setdefault('APP_ENV', 'local')
 
@@ -121,7 +122,12 @@ def plot_moving_averages(symbols, averages_output, periods, show=True, savefile=
         axes.legend()
 
     else:
- 
+        
+        # TODO: generate different locators based on length of period
+        x = [datetime.datetime.strptime(helper.date_to_string(date), '%Y-%m-%d').toordinal() for date in dates]
+        date_locator = matplotlib.dates.WeekdayLocator(byweekday=(matplotlib.dates.WE))
+        date_format = matplotlib.dates.DateFormatter('%m-%d')
+        
         for i in range(len(symbols)):
             ma1s, ma2s, ma3s = [], [], []
             ma1_label, ma2_label, ma3_label = f'{symbols[i]}_{ma1_label}', f'{symbols[i]}_{ma2_label}', f'{symbols[i]}_{ma3_label}'
@@ -136,8 +142,6 @@ def plot_moving_averages(symbols, averages_output, periods, show=True, savefile=
                 ma3s.append(MA_3)
             
             # TODO: this can probably be integrated into the inner loop above.
-            x = [datetime.datetime.strptime(date, '%Y/%M/%d').toordinal() for date in dates]
-
             start_date, end_date = dates[0], dates[-1] 
             title_str = f'Moving Averages of Annualized Return From {start_date} to {end_date}'
 
@@ -148,11 +152,8 @@ def plot_moving_averages(symbols, averages_output, periods, show=True, savefile=
             axes.set_title(title_str)
             axes.set_ylabel('Annualized Logarthmic Return')
             axes.set_xlabel('Dates')
-            # instruct matplotlib on how to convert the numbers back into dates for the x-axis
-            l = matplotlib.dates.AutoDateLocator()
-            f = matplotlib.dates.AutoDateFormatter(l)
-            axes.xaxis.set_major_locator(l)
-            axes.xaxis.set_major_formatter(f)
+            axes.xaxis.set_major_locator(date_locator)
+            axes.xaxis.set_major_formatter(date_format)
         
             axes.legend()
 
@@ -172,40 +173,40 @@ def plot_cashflow(ticker, cashflow, show=True, savefile=None):
     # TODO: print net_present_value somewhere on the graph.
     if not cashflow.beta or not cashflow.alpha or len(cashflow.sample) < 3:
         return False
+    
+    canvas = FigureCanvas(Figure())
+    figure = canvas.figure
+    axes = figure.subplots()
+
+    sup_title_str = f'{ticker} Dividend Linear Regression Model'
+    title_str = f'NPV(dividends | discount = {round(cashflow.discount_rate,4)}) = $ {round(cashflow.calculate_net_present_value(), 2)}'
+
+    dividend_history, dates = [], []
+    for date in cashflow.sample:
+        dates.append(date)
+        dividend_history.append(cashflow.sample[date])
+
+    x = [datetime.datetime.strptime(date, '%Y-%m-%d').toordinal() for date in dates]
+    model_map = list(map(cashflow.get_growth_function, cashflow.time_series))
+
+    axes.scatter(x, dividend_history, marker=".")
+    axes.plot(x, model_map)
+    
+    ordered_dates=dates[::-1]
+    axes.set_xticklabels(ordered_dates)
+
+    axes.set_ylabel('Dividend Payment')
+    axes.set_xlabel('Dates')
+    axes.set_title(title_str, fontsize=12)
+    figure.suptitle(sup_title_str, fontsize=18)
+
+    if savefile is not None:
+        canvas.print_jpeg(filename_or_obj=savefile)
+
+    if show:
+        s, (width, height) = canvas.print_to_buffer()
+        im = Image.frombytes("RGBA", (width, height), s)
+        im.show()
     else:
-        canvas = FigureCanvas(Figure())
-        axes = canvas.figure.subplots()
-
-        title_str = f'{ticker} Dividend History Linear Regression Model'
-
-        dividend_history = []
-        for date in cashflow.sample:
-            # dates.append(date)
-            dividend_history.append(cashflow.sample[date])
-
-        # x = [datetime.datetime.strptime(date, '%Y-%m-%d').toordinal() for date in dates]
-        # model_map = list(map(linear_model, x))
-        model_map = list(map(lambda x: cashflow.alpha + cashflow.beta*x, cashflow.time_series))
-
-        axes.scatter(cashflow.time_series, dividend_history, marker=".")
-        axes.plot(cashflow.time_series, model_map)
-
-        # instruct matplotlib on how to convert the numbers back into dates for the x-axis
-        l = matplotlib.dates.AutoDateLocator()
-        f = matplotlib.dates.AutoDateFormatter(l)
-        axes.xaxis.set_major_locator(l)
-        axes.xaxis.set_major_formatter(f)
-        axes.set_title(title_str)
-        axes.set_ylabel('Dividend Payment')
-        axes.set_xlabel('Dates')
-
-        if savefile is not None:
-            canvas.print_jpeg(filename_or_obj=savefile)
-
-        if show:
-            s, (width, height) = canvas.print_to_buffer()
-            im = Image.frombytes("RGBA", (width, height), s)
-            im.show()
-        else:
-            canvas.draw()
-            return canvas
+        canvas.draw()
+        return canvas

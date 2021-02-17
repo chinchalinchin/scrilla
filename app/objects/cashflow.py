@@ -1,3 +1,4 @@
+import datetime
 import util.helper as helper
 import util.outputter as outputter
 
@@ -86,6 +87,8 @@ class Cashflow:
         if self.sample is not None and self.period is None:
             self.infer_period()
 
+        self.time_to_today = self.calculate_time_to_today()
+
     def infer_period(self):
         logger.debug('Attempting to infer period/frequency of cashflows.')
 
@@ -133,6 +136,12 @@ class Cashflow:
                 time_in_years = delta / 365
                 self.time_series.append(time_in_years)
     
+    def calculate_time_to_today(self):
+        first_date = helper.parse_date_string(list(self.sample.keys())[-1])
+        today = datetime.date.today()
+        return ((today - first_date).days/365)
+        
+
     def regress_growth_function(self):
         to_array = []
         for date in self.sample:
@@ -156,7 +165,7 @@ class Cashflow:
             if self.constant is not None:
                 return self.constant
             else:
-                return (self.alpha + self.beta*x)
+                return (self.alpha + self.beta*(x + self.time_to_today))
         else: 
             return self.growth_function(x)
 
