@@ -138,11 +138,9 @@ except ValueError:
     GUI_HEIGHT = 800
 
 
-## FINANCIAL CONFIGURATION
+## FINANCIAL ALGORITHM CONFIGURATION
 
 OPTIMIZATION_METHOD="SLSQP"
-
-INVESTMENT_MODE = os.getenv('INVESTMENT_MODE').lower() == 'true'
 
 try:
     FRONTIER_STEPS = int(os.getenv('FRONTIER_STEPS'))
@@ -192,12 +190,6 @@ ASSET_CRYPTO="crypto"
 STAT_ECON="statistic"
 
 ## SERVICE CONFIGURATION
-
-INIT= os.getenv('INIT').lower() == 'true'
-
-new_alpha_creds = None
-new_quandl_creds = None
-
 ### PRICE_MANAGER CONFIGRUATION
 PRICE_MANAGER = os.getenv('PRICE_MANAGER')
 

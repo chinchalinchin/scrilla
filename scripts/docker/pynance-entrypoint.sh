@@ -15,8 +15,8 @@ SERVER_DIR=/home/server/pynance_api/
 # PYTHON SCRIPTS
 LOG_DJANGO_SETTINGS="import server.pynance_api.core.settings as settings; from util.logger import Logger; \
         logger=Logger('scripts.server.pynance-server','$LOG_LEVEL'); logger.log_django_settings(settings);"
-CLEAR_CACHE="import app.settings as settings; import util.helper as helper; \
-        helper.clear_directory(directory=settings.CACHE_DIR, retain=True, outdated_only=True)"
+CLEAR_CACHE="import app.settings as settings; import app.files as files; \
+        files.clear_directory(directory=settings.CACHE_DIR, retain=True, outdated_only=True)"
 
 log "Entrypoint Argument(s): \e[3m$(concat_args $@)\e[0m" $SCRIPT_NAME
 log "Executing from $(pwd)" $SCRIPT_NAME

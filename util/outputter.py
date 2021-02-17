@@ -141,13 +141,12 @@ def screen_results(info, model):
 #         by wrapping the optimal_results in an array so when it iterates through frontier
 #         in efficient_frontier, it will only pick up the single allocation array for the
 #         optimal result.
-def optimal_result(portfolio, allocation, user_input):
+def optimal_result(portfolio, allocation, investment=None):
     title_line('Optimal Percentage Allocation')
     portfolio_percent_result(allocation, portfolio.tickers)
     line()
 
-    if user_input:
-        investment = helper.get_number_input("Please Enter Total Investment : \n")
+    if investment is not None:
         shares = portfolio.calculate_approximate_shares(allocation, investment)
         total = portfolio.calculate_actual_total(allocation, investment)
         
@@ -161,13 +160,9 @@ def optimal_result(portfolio, allocation, user_input):
     scalar_result(calculation='Return', result=portfolio.return_function(allocation), currency=False)
     scalar_result(calculation='Volatility', result=portfolio.volatility_function(allocation), currency=False)
 
-def efficient_frontier(portfolio, frontier, user_input):
-    if user_input:
-        investment = helper.get_number_input("Please Enter Total Investment : \n")
-    else:
-        investment = 1000
-    
+def efficient_frontier(portfolio, frontier, investment=None):
     title_line(f'(Annual Return %, Annual Volatility %) Portfolio')
+
     # TODO: edit title to include dates
 
     for allocation in frontier:
@@ -178,10 +173,9 @@ def efficient_frontier(portfolio, frontier, user_input):
         line()
 
         title_line('Optimal Percentage Allocation')
-
         portfolio_percent_result(allocation, portfolio.tickers)
         
-        if user_input:
+        if investment is not None:
             shares = portfolio.calculate_approximate_shares(allocation, investment)
             total = portfolio.calculate_actual_total(allocation, investment)
         

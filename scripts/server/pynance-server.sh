@@ -29,8 +29,8 @@ else
     # PYTHON SCRIPTS
     LOG_DJANGO_SETTINGS="import server.pynance_api.core.settings as settings; from util.logger import Logger; \
         logger=Logger('scripts.server.pynance-server','info'); logger.log_django_settings(settings);"
-    CLEAR_CACHE="import app.settings as settings; import util.helper as helper; \
-        helper.clear_directory(directory=settings.CACHE_DIR, retain=True, outdated_only=True)"
+    CLEAR_CACHE="import app.settings as settings; import app.files as files; \
+        files.clear_directory(directory=settings.CACHE_DIR, retain=True, outdated_only=True)"
 
     # Run in local mode
     if [ "$1" == "--local" ] || [ "$1" == "-local" ] || [ "$1"  == "--l" ] || [ "$1" == "-l" ] || [ $# -eq 0 ]

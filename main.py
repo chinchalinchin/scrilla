@@ -50,12 +50,12 @@ if __name__ == "__main__":
         ### FUNCTION: Clear Cache
         elif opt == formatter.FUNC_ARG_DICT["clear_cache"]:
             logger.comment(f'Clearing {settings.CACHE_DIR}')
-            helper.clear_directory(directory=settings.CACHE_DIR, retain=True, outdated_only=False)
+            files.clear_directory(directory=settings.CACHE_DIR, retain=True, outdated_only=False)
 
         ### FUNCTION: Clear Watchlist
         elif opt == formatter.FUNC_ARG_DICT["clear_watchlist"]:
             logger.comment(f'Clearing {settings.COMMON_DIR}')
-            helper.clear_directory(directory=settings.COMMON_DIR, retain=True, outdated_only=False)
+            files.clear_directory(directory=settings.COMMON_DIR, retain=True, outdated_only=False)
 
         ### FUNCTION: Function Examples
         elif opt == formatter.FUNC_ARG_DICT["examples"]:
@@ -96,14 +96,14 @@ if __name__ == "__main__":
         ### FUNCTION: Purge Data Directories
         elif opt == formatter.FUNC_ARG_DICT["purge"]:
             logger.comment(f'Clearing {settings.STATIC_DIR} and {settings.CACHE_DIR}')
-            helper.clear_directory(directory=settings.STATIC_DIR, retain=True, outdated_only=False)
-            helper.clear_directory(directory=settings.CACHE_DIR, retain=True, outdated_only=False)
+            files.clear_directory(directory=settings.STATIC_DIR, retain=True, outdated_only=False)
+            files.clear_directory(directory=settings.CACHE_DIR, retain=True, outdated_only=False)
 
 
         # variable argument functions
         else:
             logger.debug('Clearing /cache/ directory of outdated data.')
-            helper.clear_directory(directory=settings.CACHE_DIR, retain=True, outdated_only=True)
+            files.clear_directory(directory=settings.CACHE_DIR, retain=True, outdated_only=True)
 
             logger.debug('Initialzing /static/ directory, if applicable.')
             files.init_static_data()
@@ -196,7 +196,7 @@ if __name__ == "__main__":
                                             end_date=xtra_list['end_date'])
                     allocation = optimizer.maximize_portfolio_return(portfolio=portfolio)
                     outputter.optimal_result(portfolio=portfolio, allocation=allocation, 
-                                            user_input=settings.INVESTMENT_MODE)
+                                            investment=xtra_list['investment'])
                 else:
                     logger.comment('Invalid input. Try -ex flag for example usage.')
 
@@ -221,8 +221,8 @@ if __name__ == "__main__":
                         allocation = optimizer.maximize_sharpe_ratio(portfolio=portfolio, target_return=xtra_list['target'])
                     else:
                         allocation = optimizer.optimize_portfolio_variance(portfolio=portfolio, target_return=xtra_list['target'])   
-                    outputter.optimal_result(portfolio=portfolio, allocation=allocation,
-                                            user_input=settings.INVESTMENT_MODE)
+                    
+                    outputter.optimal_result(portfolio=portfolio, allocation=allocation, investment=xtra_list['investment'])
                 else: 
                     logger.comment('Invalid input. Try -ex flag for example usage.')
             
@@ -230,7 +230,7 @@ if __name__ == "__main__":
             elif opt == formatter.FUNC_ARG_DICT['plot_dividends'] and settings.APP_ENV != "container":
                 if len(main_args)==1:
                     dividends = services.get_dividend_history(ticker=main_args[0])
-                    div_cashflow = Cashflow(sample=dividends,discount_rate=discount)
+                    div_cashflow = Cashflow(sample=dividends, discount_rate=xtra_list['discount'])
                     plotter.plot_cashflow(ticker=main_args[0], cashflow=div_cashflow, show=True, 
                                             savefile=xtra_list['save_file'])
                 elif len(main_args) > 1:
