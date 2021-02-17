@@ -147,7 +147,7 @@ def scrap_stats(stat_type):
             for date in stat_history:
                 todays_date = helper.parse_date_string(date)
                 value = stat_history[date]
-                new_stat_entry = Economy.objects.get_or_create(statistic=symbol, date = todays_date, value=value)
+                new_stat_entry = Economy.objects.get_or_create(statistic=new_symbol_entry[0], date = todays_date, value=value)
 
                 if new_stat_entry[1]:
                     output.verbose(f'Saving {symbol} value of {value} on {todays_date} to Economy table in database.')
@@ -179,6 +179,7 @@ def scrap_from_cache():
 #       query the database to make sure all dates have valid data.
 def search_for_missing_dates():
     pass
+
 if __name__ == "__main__": 
     # scrap_prices(asset_type=app_settings.ASSET_EQUITY)
     # scrap_prices(asset_type=app_settings.ASSET_CRYPTO)
