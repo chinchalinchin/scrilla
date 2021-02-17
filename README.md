@@ -401,6 +401,8 @@ not affect the application.
 
 28. Print `net_present_value` result on Cashflow graph legends. 
 
+29. Document how to use objects and functions in shell/scripts.
+
 ### NOTES
 
 1. All date strings should be converted to <b>datetime.dates</b> at point of contact with user, i.e. in the main.py file where CLI arguments are parsed, within the gui where user arguments are pulled from widgets or in the server's endpoint views where user arguments are provided through query parameters, before passing it the service/statistics/portfolio functions. All functions in the <i>/app/</i> module assume dates are passed in as <b>datetime.dates</b>.
