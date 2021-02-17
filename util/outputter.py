@@ -94,11 +94,11 @@ def spot_price(ticker, spot_price):
     formatted_price = round(float(spot_price), 2)
     scalar_result(f'{ticker} spot price', formatted_price)
     
-def model_price(self, ticker, model_price, model):
+def model_price(ticker, model_price, model):
     formatted_price = round(float(model_price),2)
     scalar_result(f'{ticker} {str(model).upper()} price', formatted_price)
 
-def moving_average_result(self, tickers, averages_output, periods, start_date = None, end_date = None):
+def moving_average_result(tickers, averages_output, periods, start_date = None, end_date = None):
     averages, dates = averages_output
     MA1_prefix, MA2_prefix, MA3_prefix = f'MA({periods[0]})', f'MA({periods[1]})', f'MA({periods[2]})'
     if start_date is None and end_date is None:

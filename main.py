@@ -244,7 +244,9 @@ if __name__ == "__main__":
             ### FUNCTION: Plot Efficient Frontier
             elif opt == formatter.FUNC_ARG_DICT['plot_frontier'] and settings.APP_ENV != "container":
                 if(len(main_args)>1):
-                    frontier = optimizer.calculate_efficient_frontier(equities=main_args)
+                    portfolio = Portfolio(tickers=main_args, start_date=xtra_list['start_date'], 
+                                            end_date=xtra_list['end_date'])
+                    frontier = optimizer.calculate_efficient_frontier(portfolio=portfolio)
                     plotter.plot_frontier(portfolio=Portfolio(main_args), frontier=frontier, show=True, 
                                             savefile=xtra_list['save_file'])
                 else: 
