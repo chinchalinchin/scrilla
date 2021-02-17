@@ -21,6 +21,8 @@ import util.logger as logger
 
 output = logger.Logger("server.pynance_api.scrap", settings.LOG_LEVEL)
 
+# TODO: register this function as a job in the Redis queue.
+#       Run every day.
 # Must be done after /static/ is initialized! 
 def scrap_prices(asset_type):
     today = datetime.date.today()
@@ -107,7 +109,8 @@ def scrap_prices(asset_type):
             else:
                 output.debug(f'{symbol} price history not found.')
 
-
+# TODO: register this function as a job in the Redis queue.
+#       Run every day.
 def scrap_stats(stat_type):
     today = datetime.date.today()
     symbols = list(files.get_static_data(stat_type))
@@ -156,6 +159,8 @@ def scrap_stats(stat_type):
             else:
                 output.debug(f'{symbol} statistic history not found.')
 
+# TODO: register this function as a job in the Redis queue.
+#       Run every day.
 def scrap_dividends():
     today = datetime.date.today()
     symbols = list(files.get_static_data(app_settings.ASSET_EQUITY))
@@ -163,6 +168,17 @@ def scrap_dividends():
     # TODO: scrap IEX dividend histories
     pass
 
+# TODO: Parse and save any prices in the cache.
+# TODO: integrate Redis and register this function as a job in the queue.
+#       Run every hour.
+def scrap_from_cache():
+    pass
+
+# TODO: query database and search for missing dates.
+# TODO: call helper.business_dates_between('1950-01-01', today) and 
+#       query the database to make sure all dates have valid data.
+def search_for_missing_dates():
+    pass
 if __name__ == "__main__": 
     # scrap_prices(asset_type=app_settings.ASSET_EQUITY)
     # scrap_prices(asset_type=app_settings.ASSET_CRYPTO)

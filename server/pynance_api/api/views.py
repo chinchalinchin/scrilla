@@ -12,7 +12,9 @@ from data.models import EquityMarket, CryptoMarket, EquityTicker, CryptoTicker, 
 
 # Application Imports
 from app.objects.portfolio import Portfolio
+from app.objects.cashflow import Cashflow
 import app.statistics as statistics
+import app.services as services
 import app.optimizer as optimizer
 import app.settings as app_settings
 import app.markets as markets
@@ -45,11 +47,12 @@ def risk_return(request):
             prices = parser.parse_args_into_market_queryset(ticker=tickers[i], parsed_args=parsed_args)
 
             if prices.count() == 0:
-                output.debug(f'No prices found in database, passing query to service.')
+                output.debug(f'No prices found in database, passing query call to application.')
                 profile = statistics.calculate_risk_return(ticker=tickers[i], start_date=parsed_args['start_date'], 
                                                             end_date=parsed_args['end_date'])
+
             else:
-                output.debug(f'Prices found in database, passing result to statistics.')
+                output.debug(f'Prices found in database, passing result to application.')
                 sample_prices = parser.market_queryset_to_list(price_models=prices)
                 profile = statistics.calculate_risk_return(ticker=tickers[i], sample_prices=sample_prices)
 
@@ -86,10 +89,10 @@ def optimize(request):
                 break
         
         if null_result:
-            output.debug(f'No prices found in database, passing query to service.')
+            output.debug(f'No prices found in database, passing query call to application.')
             portfolio = Portfolio(tickers=tickers, start_date=parsed_args['start_date'], end_date=parsed_args['end_date'])
         else:
-            output.debug(f'Prices found in database, passing result to statistics.')
+            output.debug(f'Prices found in database, passing query call to application.')
             for ticker in tickers:
                 sample_prices[ticker] = parser.market_queryset_to_list(price_model=prices[ticker])[ticker]
             portfolio = Portfolio(tickers=tickers, sample_prices=sample_prices)  
@@ -245,16 +248,43 @@ def discount_dividend(request):
         parsed_args = parsed_args_or_err_msg['parsed_args']
 
         response = {}
-        
+        cashflow_to_plot = None
         for ticker in tickers:
-            dividends = Dividends.objects.filter(ticker=ticker)
-
-            if dividends.count() == 0:
-                # query service for dividends
-                pass
+            if parsed_args['discount_rate'] is None:
+                discount_rate = markets.cost_of_equity(ticker)
             else:
-                # take queryset to list
-                pass
-        # TODO: implement discount dividend function here
+                discount_rate = parsed_args['discount_rate']
 
-    return JsonResponse({'message': 'hello'}, safe=False)
+            dividends = parser.parse_args_into_dividend_queryset(ticker=ticker, parsed_args=parsed_args)
+    
+            if dividends.count() == 0:
+                output.debug(f'No dividends found in database, passing query call to application.')
+                dividends = services.query_service_for_dividend_history(ticker=ticker)
+            else:
+                output.debug(f'Dividends found in database, passing result to application.')
+                dividends = parser.dividend_queryset_to_list(dividend_set=dividends)
+
+            present_value = Cashflow(sample=dividends,discount_rate=discount_rate).calculate_net_present_value()
+
+            # Save first ticker's dividend cash flow history to pass to plotter in case the JPEG argument 
+            #   has been provided through the URL's query parameters.
+            if cashflow_to_plot is None:
+                cashflow_to_plot = Cashflow(sample=dividends,discount_rate=discount_rate)
+
+            if present_value:
+                response[ticker] = {
+                    'discount_dividend_model': present_value
+                }
+            else:
+                response[ticker] = {
+                    'error' : 'discount_dividend_model cannot be computed.'
+                }
+        
+        if parsed_args['jpeg']:
+            graph = plotter.plot_cashflow(ticker=tickers[0], cashflow=cashflow_to_plot, show=False)
+            response = HttpResponse(content_type="image/png")
+            graph.print_png(response)
+            return response
+
+        else:
+            return JsonResponse(data=response, status=status, safe=False)

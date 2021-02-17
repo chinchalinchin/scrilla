@@ -15,11 +15,11 @@ class Portfolio:
     """
     Description
     -----------
-        A class that represents a portfolio of assets defined by the supplied list of ticker symbols in the 'tickers' array. \n \n
+        A class that represents a portfolio of assets defined by the supplied list of ticker symbols in the `tickers` array. \n \n
 
-        The portfolio can be initialized with historical prices using the 'start_date' and 'end_date' parameters or the 'sample_prices' parameter. If 'start_date' and 'end_date' are provided, the class will pass the dates to the PriceManager to query an external service for the required prices. If "sample_prices" is provided, the 'start_date' and 'end_date' are ignored and the 'sample_prices' are used in lieu of an external query. \n \n
+        The portfolio can be initialized with historical prices using the 'start_date' and 'end_date' parameters or the `sample_prices` parameter. If `start_date` and `end_date` are provided, the class will pass the dates to the PriceManager to query an external service for the required prices. If `sample_prices` is provided, the `start_date` and `end_date` are ignored and the `sample_prices` are used in lieu of an external query. \n \n
 
-        The 'return_function' and 'volatility_function' methods accept an allocation of percentage weights corresponding to each ticker in the 'tickers' array and return the overall portfolio return and volatility. The return is the dot product of the weight and the individual asset returns. The volatility_function is the result of applying matrix multiplication to the transposed weight allocations, the correlation matrix and the untransposed weight allocations. These formulations are consistent with Modern Portfolio Theory.\n \n
+        The `return_function` and `volatility_function` methods accept an allocation of percentage weights corresponding to each ticker in the `tickers` array and return the overall portfolio return and volatility. The return is the dot product of the weight and the individual asset returns. The `volatility_function` is the result of applying matrix multiplication to the transposed weight allocations, the correlation matrix and the untransposed weight allocations. These formulations are consistent with Modern Portfolio Theory.\n \n
 
     Parameters
     ----------
@@ -33,17 +33,18 @@ class Portfolio:
     4. sample_prices: { 'date' : 'price', 'date': 'price' } \n
     Optional. A list representing a sample of historical data over a time range. The list must be ordered in descending order, i.e. from latest to earliest. \n \n 
     5. asset_return_functions: [ function(t) ] \n
-    Optional. An array of function that describes the expected logarithmic rate of return of each asset in the portfolio with respect to time. The order between return_functions and tickers be must be preserved, i.e. the index of tickers must correspond to the symbol described by the same index of return_functions. \n \n 
+    Optional. An array of function that describes the expected logarithmic rate of return of each asset in the portfolio with respect to time. The order between `asset_return_functions` and `tickers` be must be preserved, i.e. the index of tickers must correspond to the symbol described by the function with same index in `asset_return_functions`. \n \n 
     6. asset_volatility_funtions: [ function(t) ] \n
-    Optional. An array of functions that describe the mean volatility of each asset in the portfolio with respect to time. The order between return_functions and tickers be must be preserved, i.e. the index of tickers must correspond to the symbol described by the same index of return_functions. \n \n 
+    Optional. An array of functions that describe the mean volatility of each asset in the portfolio with respect to time. The order between `asset_volatility_functions` and `tickers` be must be preserved, i.e. the index of tickers must correspond to the symbol described by the function with the same index in `asset_volatility_functions`. \n \n 
 
     Notes
     -----
-    NOTE #1: While 'start_date', 'end_date' and 'sample_prices' are all by themselves optional, the Portfolio class must be initialized in one of two ways: \n
-        1. Constructor args : ('start_date', 'end_date') -> Dates are passed to service for external query. \n
-        2. Constructor args : ('sample_prices') -> Dates are ignored and sample is used instead of external query. \n \n
-
-    NOTE #2: The asset_return_functions and asset_volatility_functions can be understood as the drift and noise functions for a Geometric Brownian Motion stochastic process. \n \n
+    NOTE #1: While `start_date`, `end_date` and `sample_prices` are all by themselves optional, the Portfolio class must be initialized in one of two ways: \n
+        1. Constructor args : (`start_date`, `end_date`) -> Dates are passed to service for external query. \n
+        2. Constructor args : (`sample_prices`) -> Dates are ignored and sample is used instead of external query. \n 
+    
+    If all three are specified, `sample_prices` takes precedence and `start_date` and `end_date` are nulled. \n \n
+    NOTE #2: The `asset_return_functions` and `asset_volatility_functions` can be understood as the drift and noise functions for a Geometric Brownian Motion stochastic process. \n \n
     """
     def __init__(self, tickers, start_date=None, end_date=None, sample_prices=None,
                     asset_return_functions=None, asset_volatility_functions=None):

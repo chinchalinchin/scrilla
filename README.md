@@ -264,6 +264,9 @@ Some endpoints have unique query parameters, but all endpoints accept the follow
 
     <b>Response JSON</b><br>
 
+    <b>Note</b><br>
+    If the <i>jpeg</i> parameter is specified for this endpoint, the resulting graph will only contain the plot of the first ticker's dividend history and its accompanying linear regression model; only one equity's dividend graphic can be computed and returned at once. The DDM model price will be output onto the graph's legend. 
+
 ## Environment Variables
 
 See the comments in the <i>/env/.sample.env</i> for more information on each variable. Most of the defaults shouldn't need changed except for <b>ALPHA_VANTAGE_KEY</b>, <b>IEX_KEY</b> and <b>QUANDL_KEY</b>.
@@ -393,6 +396,10 @@ not affect the application.
 25. Use annotations to allow users to annotate functions for cashflows and other objects.
 
 26. Move init_static_data and helper method into services.py to preserve modularization of application functionality. Service calls should always go in statistics.py.
+
+27. Integrate a Redis instance to allow a background process to scrap the cache for missing prices every hour or so. Register `scrap_from_cache` function <i>/server/pynance_api/scrap.py</i> script as job in the Redis queue. Likewise, `scrap_prices`, `scrap_stats` and  `scrap_dividends`, plus any future scrapping functions.
+
+28. Print `net_present_value` result on Cashflow graph legends. 
 
 ### NOTES
 

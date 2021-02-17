@@ -93,11 +93,9 @@ def plot_profiles(symbols, profiles, show=True, savefile=None, subtitle=None):
         canvas.draw()
         return canvas
 
-# TODO: dynamically generate bar or line plot based on number of data points!
-# if len(averages) = (# of moving averages)*(# of symbols)
-    # create barchart of moving averages as of today
-# if len(averages) > (# of moving averages)*(# of symbols)
-    # create line plot with three series for all available samples
+
+    # TODO: figure out date formatting for x-axis
+
 def plot_moving_averages(symbols, averages_output, periods, show=True, savefile=None):
     averages, dates = averages_output
     canvas = FigureCanvas(Figure())
@@ -172,7 +170,9 @@ def plot_moving_averages(symbols, averages_output, periods, show=True, savefile=
         canvas.draw()
         return canvas
 
+# TODO: figure out date formatting for x-axis
 def plot_cashflow(ticker, cashflow, show=True, savefile=None):
+    # TODO: print net_present_value somewhere on the graph.
     if not cashflow.beta or not cashflow.alpha or len(cashflow.sample) < 3:
         return False
     else:
