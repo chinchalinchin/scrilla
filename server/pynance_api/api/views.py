@@ -1,6 +1,3 @@
-# Python Imports
-import sys, datetime
-
 # Django Imports
 from django.shortcuts import render
 from django.http import JsonResponse, HttpResponse
@@ -28,7 +25,6 @@ output = outputter.Logger("server.pynance_api.api.views", settings.LOG_LEVEL)
 
 def risk_return(request):
     status, parsed_args_or_err_msg = parser.validate_request(request, ["GET"])
-    today = datetime.date.today()
 
     if status in [400, 405]:
         return JsonResponse(data=parsed_args_or_err_msg, status=status, safe=False)
