@@ -69,9 +69,9 @@ FUNC_XTRA_SINGLE_ARGS_DICT = {
 FUNC_DICT = {
     "asset_type": "Outputs the asset type for the supplied symbol.",
     
-    "capm_equity_cost": "Computes the cost of equity according to CAPM for the supplied list of tickers. If no start or end dates are specified, calculations default to the last 100 days of prices. The environment variable MARKET_RATE defines which ticker serves as a proxy for the market as whole. ADDITIONAL OPTIONS:  -start (format: \"YYYY-MM-DD\"), -end  (format :\"YYYY-MM-DD\")",
+    "capm_equity_cost": "Computes the cost of equity according to CAPM for the supplied list of tickers. If no start or end dates are specified, calculations default to the last 100 days of prices. The environment variable MARKET_PROXY defines which ticker serves as a proxy for the market as whole. ADDITIONAL OPTIONS:  -start (format: \"YYYY-MM-DD\"), -end  (format :\"YYYY-MM-DD\")",
 
-    "capm_beta": "Computes the market beta according to CAPM for the supplied list of tickers. If no start or end dates are specified, calculations default to the last 100 days of prices. The environment variable MARKET_RATE defines which ticker serves as a proxy for the market as whole. ADDITIONAL OPTIONS:  -start (format: \"YYYY-MM-DD\"), -end  (format :\"YYYY-MM-DD\")",
+    "capm_beta": "Computes the market beta according to CAPM for the supplied list of tickers. If no start or end dates are specified, calculations default to the last 100 days of prices. The environment variable MARKET_PROXY defines which ticker serves as a proxy for the market as whole. ADDITIONAL OPTIONS:  -start (format: \"YYYY-MM-DD\"), -end  (format :\"YYYY-MM-DD\")",
 
     "clear_cache": "Clears the /data/cache/ directory of all data, outdated or not.",
     
@@ -117,7 +117,7 @@ FUNC_DICT = {
     
     "risk_return": "Calculate the risk-return profile for the supplied list of ticker symbols. If no start or end dates are specified, calculations default to the last 100 days of prices. ADDITIONAL OPTIONS:  -start (format: \"YYYY-MM-DD\"), -end  (format :\"YYYY-MM-DD\")",
     
-    "screener": "Searchs equity spot prices that trade at a discount to the provided model. If no model is provided, the screener will default to the Discount Dividend Model. If no discount rate is provided, the screener will default to the cost of equity for a ticker calculated using the CAPM model and the ticker defined by environment variable MARKET_RATE as a proxy for the market. ADDITION OPTIONS: -discount (format: decimal), -model (format: string, values: ddm)",
+    "screener": "Searchs equity spot prices that trade at a discount to the provided model. If no model is provided, the screener will default to the Discount Dividend Model. If no discount rate is provided, the screener will default to the cost of equity for a ticker calculated using the CAPM model and the ticker defined by environment variable MARKET_PROXY as a proxy for the market. ADDITION OPTIONS: -discount (format: decimal), -model (format: string, values: ddm)",
     
     "server_local": "Invokes 'python manage.py runserver' from /server/ directory. Configure .env file to change port.",
     

@@ -89,6 +89,7 @@ if __name__ == "__main__":
 
         ### FUNCTION: Risk Free Rate
         elif opt == formatter.FUNC_ARG_DICT['risk_free_rate']:
+            outputter.title_line("Risk Free Rate")
             outputter.scalar_result(calculation=formatter.RISK_FREE_TITLE, 
                                     result=markets.get_risk_free_rate(), 
                                     currency=False)
@@ -172,8 +173,8 @@ if __name__ == "__main__":
                     for arg in main_args:
                         dividends = services.get_dividend_history(arg)
                         if xtra_list['discount'] is None:
-                            discount = markets.cost_of_equity(ticker=arg)
-                        div_npv = Cashflow(sample=dividends, discount_rate=discount).calculate_net_present_value()
+                            xtra_list['discount'] = markets.cost_of_equity(ticker=arg)
+                        div_npv = Cashflow(sample=dividends, discount_rate=xtra_list['discount']).calculate_net_present_value()
                         outputter.scalar_result(f'Net Present Value ({arg} dividends)', div_npv)
                 else:
                     logger.comment('Invalid input. Try -ex flag for example usage.')
@@ -230,6 +231,8 @@ if __name__ == "__main__":
             elif opt == formatter.FUNC_ARG_DICT['plot_dividends'] and settings.APP_ENV != "container":
                 if len(main_args)==1:
                     dividends = services.get_dividend_history(ticker=main_args[0])
+                    if xtra_list['discount'] is None:
+                        xtra_list['discount'] = markets.cost_of_equity(ticker=main_args[0])
                     div_cashflow = Cashflow(sample=dividends, discount_rate=xtra_list['discount'])
                     plotter.plot_cashflow(ticker=main_args[0], cashflow=div_cashflow, show=True, 
                                             savefile=xtra_list['save_file'])

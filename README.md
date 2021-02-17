@@ -293,30 +293,27 @@ See the comments in the <i>/env/.sample.env</i> for more information on each var
 15. <b>MA_2</b>: Number of days in the second Moving Average period. Defaults to 60 if not provided.
 16. <b>MA_3</b>: Number of days in the third Moving Average period. Defaulst to 100 if not provided.
 17. <b>RISK_FREE</b>: values = ("3-Month", "5-Year", "10-Year", "30-Year"). The US Treasury yield used as a proxy for the risk free rate when valuing securities and equities.
-18. <b>MARKET</b>: Recommend values: ("SPY", "DIA", "QQQ"). Defines the equity ticker symbol used by the application as a proxy for market return. While the recommended values are preferred, there is nothing preventing more obscure ticker symbols from being used the MARKET. GME, for instance. ;)
+18. <b>MARKET_PROXY</b>: Recommend values: ("SPY", "DIA", "QQQ"). Defines the equity ticker symbol used by the application as a proxy for market return. While the recommended values are preferred, there is nothing preventing more obscure ticker symbols from being used the MARKET. GME, for instance. ;)
 
 ### CLI Configuration
 
 19. <b>LOG_LEVEL</b>: values = ("info", "debug", "verbose"). Verbose is <i>extremely</i> verbose. The result of every single calculation within the application will be outputted. 
-20. <b>INVESTMENT_MODE</b>: Determines whether or not asset allocations are outputted in percentages or dollars. If set to <i>True</i>, the CLI will prompt the user to input the amount of money invested in a given portfolio before outputting results.
-21. <b>DEFAULT_OPTIMIZATION_PERIOD</b>: The default time range in days over which portfolios are optimized. 
-22. <b>INIT</b>: A flag that will cause the application to always initialize the <i>/static/</i> directory everytime it executes. TODO: probably don't need this anymore since there is a CLI function that will re-initialize the <i>/static/</i> directory. 
-23. <b>FILE_EXT</b>: values = ("json"). Determines in what format cached price, statistic and dividend histories are saved. Currently only supports JSON. In the future, will support XML and CSV.
+20. <b>FILE_EXT</b>: values = ("json"). Determines in what format cached price, statistic and dividend histories are saved. Currently only supports JSON. In the future, will support XML and CSV.
 
 ### GUI Configuration
 
-24. <b>GUI_WIDTH</b>: Defines the width in pixels of the application's root <b>PyQt</b> widget. Defaults to 800 if not provided.
-25. <b>GUI_HEIGHT</b>: Defines the height in pixels of the application's root <b>PyQt</b> widget. Defaults to 800 if not provided.
+21. <b>GUI_WIDTH</b>: Defines the width in pixels of the application's root <b>PyQt</b> widget. Defaults to 800 if not provided.
+22. <b>GUI_HEIGHT</b>: Defines the height in pixels of the application's root <b>PyQt</b> widget. Defaults to 800 if not provided.
 
 ### Server Configuration
 
-26. <b>SECRET_KEY</b>: The secret used by Django to sign requests.
-27. <b>APP_ENV</b>: Informs the application which environment is it running in, i.e. either <i>local</i> or <i>container</i>
-28. <b>SERVER_PORT</b>: Configures the port on which the WSGI application runs.
-29. <b>DEBUG</b>: Configures Django's debug mode. 
-30. <b>DJANGO_SUPERUSER_EMAIL</b>:
-31. <b>DJANGO_SUPERUSER_USERNAME</b>:
-32. <b>DJANGO_SUPERUSER_PASSWORD</b>:
+23. <b>SECRET_KEY</b>: The secret used by Django to sign requests.
+24. <b>APP_ENV</b>: Informs the application which environment is it running in, i.e. either <i>local</i> or <i>container</i>
+25. <b>SERVER_PORT</b>: Configures the port on which the WSGI application runs.
+26. <b>DEBUG</b>: Configures Django's debug mode. 
+27. <b>DJANGO_SUPERUSER_EMAIL</b>:
+28. <b>DJANGO_SUPERUSER_USERNAME</b>:
+29. <b>DJANGO_SUPERUSER_PASSWORD</b>:
 
 ### Database Configuration
 

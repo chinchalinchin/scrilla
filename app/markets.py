@@ -85,15 +85,15 @@ def sharpe_ratio(ticker, start_date=None, end_date=None):
 
 # if no dates are specified, defaults to last 100 days
 def market_premium(start_date=None, end_date=None):
-    market_profile = statistics.calculate_risk_return(ticker=settings.MARKET_RATE, 
+    market_profile = statistics.calculate_risk_return(ticker=settings.MARKET_PROXY, 
                                                         start_date=start_date, 
                                                         end_date=end_date)
     return (market_profile['annual_return'] - get_risk_free_rate())
 
 def market_beta(ticker, start_date=None, end_date=None):
-    market_profile = statistics.calculate_risk_return(ticker=settings.MARKET_RATE, start_date=start_date, 
+    market_profile = statistics.calculate_risk_return(ticker=settings.MARKET_PROXY, start_date=start_date, 
                                                         end_date=end_date)
-    market_covariance = statistics.calculate_return_covariance(ticker_1=ticker, ticker_2=settings.MARKET_RATE,
+    market_covariance = statistics.calculate_return_covariance(ticker_1=ticker, ticker_2=settings.MARKET_PROXY,
                                                             start_date=start_date, end_date=end_date)
     return market_covariance / (market_profile['annual_volatility']**2)
 
