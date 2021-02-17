@@ -207,10 +207,10 @@ class EfficientFrontierWidget(GraphWidget):
     @QtCore.Slot()
     def display(self):
         user_symbols = helper.strip_string_array(self.symbol_input.text().upper().split(","))
-        portfolio = portfolio.Portfolio(tickers=user_symbols)
+        this_portfolio = portfolio.Portfolio(tickers=user_symbols)
         # TODO: DATES!
         frontier = optimizer.calculate_efficient_frontier(portfolio=portfolio)
-        figure = plotter.plot_frontier(portfolio=portfolio, frontier=frontier, show=False)
+        figure = plotter.plot_frontier(portfolio=this_portfolio, frontier=frontier, show=False)
         self.figure = figure
         self.layout.insertWidget(1, self.figure, 1)
         self.displayed = True 
