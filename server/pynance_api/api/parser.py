@@ -91,7 +91,7 @@ def parse_args_into_market_queryset(ticker, parsed_args):
             return CryptoMarket.objects.filter(ticker=ticker).order_by('-date')[:100]
         return False
 
-    elif parsed_args['start_date'] is None and parsed_args['end_date'] is not None:
+    if parsed_args['start_date'] is None and parsed_args['end_date'] is not None:
         if asset_type == app_settings.ASSET_EQUITY:
             return EquityMarket.objects.filter(ticker=ticker,
                                                 date__lte=parsed_args['end_date']).order_by('-date')
@@ -100,7 +100,7 @@ def parse_args_into_market_queryset(ticker, parsed_args):
                                                 date__lte=parsed_args['end_date']).order_by('-date')
         return False
         
-    elif parsed_args['start_date'] is not None and parsed_args['end_date'] is not None:
+    if parsed_args['start_date'] is not None and parsed_args['end_date'] is not None:
         if asset_type == app_settings.ASSET_EQUITY:
             return EquityMarket.objects.filter(ticker=ticker, date__gte=parsed_args['start_date'], 
                                                 date__lte=parsed_args['end_date']).order_by('-date')
@@ -110,14 +110,14 @@ def parse_args_into_market_queryset(ticker, parsed_args):
         return False
 
     # start_date is not None and end_date is None
-    else:
-        if asset_type == app_settings.ASSET_EQUITY:
-            return EquityMarket.objects.filter(ticker=ticker,
+    
+    if asset_type == app_settings.ASSET_EQUITY:
+        return EquityMarket.objects.filter(ticker=ticker,
                                                 date__gte=parsed_args['start_date']).order_by('-date')
-        if asset_type == app_settings.ASSET_CRYPTO:
-            return CryptoMarket.objects.filter(ticker=ticker,
+    if asset_type == app_settings.ASSET_CRYPTO:
+        return CryptoMarket.objects.filter(ticker=ticker,
                                                 date_gte=parsed_args['start_date']).order_by('-date')
-        return False
+    return False
 
 def parse_args_into_dividend_queryset(ticker, parsed_args):
     if parsed_args['start_date'] is None and parsed_args['end_date'] is None:
@@ -130,7 +130,6 @@ def parse_args_into_dividend_queryset(ticker, parsed_args):
         return Dividends.objects.filter(ticker=ticker, date__gte=parsed_args['start_date']).order_by('-date')
     
     # start_date is not None and end_date is not None
-    
     return Dividends.objects.filter(ticker=ticker, date__gte=parsed_args['start_date'],
                                         date__lte=parsed_args['end_date']).order_by('-date')
 
