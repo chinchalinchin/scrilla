@@ -12,8 +12,7 @@ logger = outputter.Logger("server.pynance_api.api.parser", settings.LOG_LEVEL)
 def verify_method(request, allowed_methods):
     if request.method not in allowed_methods: 
         return False
-    else:
-        return True
+    return True
 
 def log_secondary_args(parsed_args):
     logger.debug('> Request Parameters')
@@ -73,8 +72,7 @@ def parse_tickers(request):
     if settings.REQUEST_PARAMS['tickers'] in request.GET:
         tickers = request.GET.getlist(settings.REQUEST_PARAMS['tickers'])
         return [ticker.upper() for ticker in tickers]
-    else:
-        return False
+    return False
 
 # If end_date and start_date are not provided, defaults to last 100 prices.
 # If either end_date and start_date are provided, will return ALL records
@@ -89,56 +87,52 @@ def parse_args_into_market_queryset(ticker, parsed_args):
     if parsed_args['start_date'] is None and parsed_args['end_date'] is None:
         if asset_type == app_settings.ASSET_EQUITY:
             return EquityMarket.objects.filter(ticker=ticker).order_by('-date')[:100]
-        elif asset_type == app_settings.ASSET_CRYPTO:
+        if asset_type == app_settings.ASSET_CRYPTO:
             return CryptoMarket.objects.filter(ticker=ticker).order_by('-date')[:100]
-        else:
-            return False
+        return False
 
     elif parsed_args['start_date'] is None and parsed_args['end_date'] is not None:
         if asset_type == app_settings.ASSET_EQUITY:
             return EquityMarket.objects.filter(ticker=ticker,
                                                 date__lte=parsed_args['end_date']).order_by('-date')
-        elif asset_type == app_settings.ASSET_CRYPTO:
+        if asset_type == app_settings.ASSET_CRYPTO:
             return CryptoMarket.objects.filter(ticker=ticker,
                                                 date__lte=parsed_args['end_date']).order_by('-date')
-        else:
-            return False
+        return False
         
     elif parsed_args['start_date'] is not None and parsed_args['end_date'] is not None:
         if asset_type == app_settings.ASSET_EQUITY:
             return EquityMarket.objects.filter(ticker=ticker, date__gte=parsed_args['start_date'], 
                                                 date__lte=parsed_args['end_date']).order_by('-date')
-        elif asset_type == app_settings.ASSET_CRYPTO:
+        if asset_type == app_settings.ASSET_CRYPTO:
             return CryptoMarket.objects.filter(ticker=ticker, date__gte=parsed_args['start_date'],
                                                 date_lte=parsed_args['end_date']).order_by('-date')
-        else:
-            return False
+        return False
 
     # start_date is not None and end_date is None
     else:
         if asset_type == app_settings.ASSET_EQUITY:
             return EquityMarket.objects.filter(ticker=ticker,
                                                 date__gte=parsed_args['start_date']).order_by('-date')
-        elif asset_type == app_settings.ASSET_CRYPTO:
+        if asset_type == app_settings.ASSET_CRYPTO:
             return CryptoMarket.objects.filter(ticker=ticker,
                                                 date_gte=parsed_args['start_date']).order_by('-date')
-        else:
-            return False
+        return False
 
 def parse_args_into_dividend_queryset(ticker, parsed_args):
     if parsed_args['start_date'] is None and parsed_args['end_date'] is None:
         return Dividends.objects.filter(ticker=ticker).order_by('-date')
 
-    elif parsed_args['start_date'] is None and parsed_args['end_date'] is not None:
+    if parsed_args['start_date'] is None and parsed_args['end_date'] is not None:
         return Dividends.objects.filter(ticker=ticker, date__lte=parsed_args['end_date']).order_by('-date')
 
-    elif parsed_args['start_date'] is not None and parsed_args['end_date'] is None:
+    if parsed_args['start_date'] is not None and parsed_args['end_date'] is None:
         return Dividends.objects.filter(ticker=ticker, date__gte=parsed_args['start_date']).order_by('-date')
     
     # start_date is not None and end_date is not None
-    else:
-        return Dividends.objects.filter(ticker=ticker, date__gte=parsed_args['start_date'],
-                                            date__lte=parsed_args['end_date']).order_by('-date')
+    
+    return Dividends.objects.filter(ticker=ticker, date__gte=parsed_args['start_date'],
+                                        date__lte=parsed_args['end_date']).order_by('-date')
 
 # Note: model must implement to_date() and to_list() methods and have
 #       ticker attribute
@@ -171,10 +165,10 @@ def validate_request(request, allowed_methods=None):
 
             return 200, { 'tickers': tickers, 'parsed_args': parsed_args }
 
-        else:
-            logger.debug('No ticker query parameters provided')    
-            return 400, { 'message': 'Input error' }
+        
+        logger.debug('No ticker query parameters provided')    
+        return 400, { 'message': 'Input error' }
 
-    else:
-        logger.debug('Request method rejected')
-        return 405, { 'message' : "Request method not allowed" }
+    
+    logger.debug('Request method rejected')
+    return 405, { 'message' : "Request method not allowed" }
