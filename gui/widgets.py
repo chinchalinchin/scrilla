@@ -32,7 +32,7 @@ class InputWidget(QtWidgets.QWidget):
     def __init__(self, widget_title):
         super().__init__()
 
-        text, okPressed = QtWidgets.QInputDialog.getText(self, "Get text","Your name:", QLineEdit.Normal, "")
+        text, okPressed = QtWidgets.QInputDialog.getText(self, "Get text","Your name:")
 
 # Base Widget to get asset symbol input
 class SymbolWidget(QtWidgets.QWidget):

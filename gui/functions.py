@@ -194,7 +194,7 @@ class OptimizerWidget(PortfolioWidget):
             self.result.setText("Error Occurred. Check Input and Try Again.")
             self.result.show()
 
-    # TODO
+    # TODO: combine with minimize function
     @QtCore.Slot()
     def optimize(self):
         pass
