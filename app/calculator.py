@@ -15,8 +15,7 @@ def generate_random_walk(periods):
 
 # Condition: E(integral of vol ^2 dt) < inf
 def verify_volatility_condition(volatility_function):
-    squared_vol = lambda x: volatility_function(x)**2
-    integral = integrate.quad(func=squared_vol, a=0, b=numpy.inf)
+    integral = integrate.quad(func=lambda x: volatility_function(x)**2, a=0, b=numpy.inf)
     return numpy.isinf(x = integral)
 
 # Remember forward increments!
