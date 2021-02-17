@@ -309,7 +309,7 @@ def get_target(xtra_args, xtra_values):
     if formatter.FUNC_XTRA_VALUED_ARGS_DICT['target'] in xtra_args:
         try:
             target = float(xtra_values[xtra_args.index(formatter.FUNC_XTRA_VALUED_ARGS_DICT['target'])])
-        except:
+        except ValueError:
             target = None
     else:
         target = None
@@ -319,7 +319,7 @@ def get_discount(xtra_args, xtra_values):
     if formatter.FUNC_XTRA_VALUED_ARGS_DICT['discount'] in xtra_args:
         try:
             discount = float(xtra_values[xtra_args.index(formatter.FUNC_XTRA_VALUED_ARGS_DICT['discount'])])
-        except:
+        except ValueError:
             discount = None
     else:
         discount = None

@@ -111,7 +111,7 @@ def parse_price_from_date(prices, date, asset_type, which_price=CLOSE_PRICE):
             # TODO: other service parsing goes here.
             pass
 
-    except:
+    except KeyError:
         logger.info('Price unable to be parsed from date.')
         return False
 
@@ -244,7 +244,7 @@ def query_service_for_daily_price_history(ticker, start_date=None, end_date=None
                     prices = prices[settings.AV_RES_EQUITY_FIRST_LAYER]
                     return prices
                     
-            except:
+            except KeyError:
                 logger.info('Error encountered parsing AlphaVantage equity response')
                 logger.sys_error()
                 return False
@@ -292,7 +292,7 @@ def query_service_for_daily_price_history(ticker, start_date=None, end_date=None
                 else:
                     prices = prices[settings.AV_RES_CRYPTO_FIRST_LAYER]
                     return prices
-            except:
+            except KeyError:
                 logger.info('Error encountered parsing AlphaVantage crypto response.')
                 logger.sys_error()
                 return False

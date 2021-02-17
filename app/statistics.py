@@ -730,7 +730,7 @@ def calculate_ito_correlation(ticker_1, ticker_2, start_date=None, end_date=None
             
             try:
                 covariance = revised_covariance/(sample - 1)
-            except:
+            except ZeroDivisionError:
                 logger.info('Lost entire sample!')
                 return False
 
