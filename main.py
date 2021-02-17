@@ -1,5 +1,4 @@
 import sys
-import datetime
 
 import app.settings as settings
 import app.statistics as statistics
