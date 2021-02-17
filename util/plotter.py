@@ -141,7 +141,7 @@ def plot_moving_averages(symbols, averages_output, periods, show=True, savefile=
             # TODO: this can probably be integrated into the inner loop above.
             x = [datetime.datetime.strptime(date, '%Y/%M/%d').toordinal() for date in dates]
 
-            start_date, end_date = dates[0], dates[len(dates)-1] 
+            start_date, end_date = dates[0], dates[-1] 
             title_str = f'Moving Averages of Annualized Return From {start_date} to {end_date}'
 
             axes.plot(x, ma1s, linestyle="solid", color="darkgreen", label=ma1_label)
