@@ -1,5 +1,5 @@
 import datetime, sys
-import numpy as numpy
+import numpy
 import matplotlib.pyplot as matplotlib
 
 import util.helper as helper
