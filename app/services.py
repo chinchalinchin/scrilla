@@ -157,7 +157,6 @@ def query_service_for_daily_price_history(ticker, start_date=None, end_date=None
         asset_type=markets.get_asset_type(ticker)  
     else: 
         logger.debug(f'Asset type {asset_type} provided')
-        asset_type=asset_type
 
         # Verify dates fall on trading days (i.e. not weekends or holidays) if asset_type is ASSET_EQUITY
     if asset_type == settings.ASSET_EQUITY and (start_date is not None or end_date is not None):
