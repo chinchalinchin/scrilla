@@ -81,9 +81,8 @@ def maximize_sharpe_ratio(portfolio, target_return=None):
         logger.debug(f'Maximizing {tickers} Portfolio Sharpe Ratio')
         portfolio_constraints = equity_constraint
 
-    maximize_function = lambda x: (-1)*portfolio.sharpe_ratio_function(x)
-
-    allocation = optimize.minimize(fun = maximize_function, x0 = init_guess, 
+    allocation = optimize.minimize(fun = lambda x: (-1)*portfolio.sharpe_ratio_function(x), 
+                                    x0 = init_guess, 
                                     method=settings.OPTIMIZATION_METHOD, bounds=equity_bounds, 
                                     constraints=portfolio_constraints, options={'disp': False})
 
@@ -107,10 +106,10 @@ def maximize_portfolio_return(portfolio):
         'type': 'eq',
         'fun': portfolio.get_constraint
     }
-    maximize_function = lambda x: (-1)*portfolio.return_function(x)
     
     logger.debug(f'Maximizing {tickers} Portfolio Return')
-    allocation = optimize.minimize(fun = maximize_function, x0 = init_guess, method='SLSQP',
+    allocation = optimize.minimize(fun = lambda x: (-1)*portfolio.return_function(x),
+                                    x0 = init_guess, method=settings.OPTIMIZATION_METHOD,
                                     bounds=equity_bounds, constraints=equity_constraint, 
                                     options={'disp': False})
 

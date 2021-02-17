@@ -29,6 +29,8 @@ services:
     
     queue:
       image: redis:alpine
+      networks:
+        - the_pit
 
 networks:
     the_pit: 

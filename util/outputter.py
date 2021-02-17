@@ -72,7 +72,7 @@ def option(opt, explanation):
     for line in break_lines(explanation):
         print(' '*formatter.INDENT*2, line)
 
-def help():
+def help_msg():
     title_line(formatter.APP_NAME)
     explanation=break_lines(formatter.HELP_MSG)
     for line in explanation:
