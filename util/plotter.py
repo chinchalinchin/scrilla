@@ -186,8 +186,9 @@ def plot_cashflow(ticker, cashflow, show=True, savefile=None):
         dates.append(date)
         dividend_history.append(cashflow.sample[date])
 
+    # TODO: this needs more work. remember, cashflow sets the first date to time = 0.
     x = [datetime.datetime.strptime(date, '%Y-%m-%d').toordinal() for date in dates]
-    model_map = list(map(cashflow.get_growth_function, cashflow.time_series))
+    model_map = list(map(lambda x: cashflow.alpha + cashflow.beta*x, cashflow.time_series))
 
     axes.scatter(x, dividend_history, marker=".")
     axes.plot(x, model_map)

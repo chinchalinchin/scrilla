@@ -392,8 +392,6 @@ not affect the application.
 
 27. Integrate a Redis instance with Celery to allow a background process to scrap the cache for missing prices every hour or so. Register `scrap_from_cache` function <i>/server/pynance_api/scrap.py</i> script as job in the Redis queue. Likewise, `scrap_prices`, `scrap_stats` and  `scrap_dividends`, plus any future scrapping functions.
 
-28. Print `net_present_value` result on Cashflow graph legends. 
-
 29. Document how to use objects and functions in shell/scripts.
 
 ### NOTES
