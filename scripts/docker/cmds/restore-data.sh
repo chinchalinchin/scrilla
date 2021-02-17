@@ -20,11 +20,11 @@ else
             # reset SCRIPT_DIR since sourcing overwrites it.
         SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
         LOCAL_PATH="$SCRIPT_DIR/../../../data/sql/unzipped/$POSTGRES_DB-$1"
-        DUMP_PATH="/home/"
+        DUMP_PATH="/home/$POSTGRES_DB-$1"
         CONTAINER_ID="$(docker container ps --filter name=$POSTGRES_HOST --quiet)"
-        RESTORE_CMD="PGPASSWORD=$POSTGRES_PASSWORD psql --username=$POSTGRES_USER --dbname=$POSTGRES_DB -f $LOCAL_PATH"
+        RESTORE_CMD="PGPASSWORD=$POSTGRES_PASSWORD psql --username=$POSTGRES_USER --dbname=$POSTGRES_DB -f $DUMP_PATH"
 
-        log "Copying dump file from local filestem at $LOCAL_PATH/$POSTGRES_DB-$1 to container file system" $SCRIPT_NAME
+        log "Copying dump file from local filestem at \e[3m$LOCAL_PATH/$POSTGRES_DB-$1\e[0m to container file \e[3m/$DUMP_PATH\[e0m" $SCRIPT_NAME
         docker cp "$LOCAL_PATH" "$CONTAINER_ID:$DUMP_PATH"
 
         log "Executing restoration command within Container ID # $CONTAINER_ID" $SCRIPT_NAME

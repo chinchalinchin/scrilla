@@ -22,10 +22,12 @@ class Logger():
         dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
         print(dt_string, ' :' , self.location, ' : ',msg)
 
-    def return_line(self):
+    @staticmethod
+    def return_line():
         print('\n')
 
-    def break_lines(self, msg):
+    @staticmethod
+    def break_lines(msg):
         if len(msg)>formatter.LINE_LENGTH:
             return [msg[i:i+formatter.LINE_LENGTH] for i in range(0,len(msg), formatter.LINE_LENGTH)]
         else:
@@ -48,18 +50,22 @@ class Logger():
         msg = f'{e} \n {f} \n {g} \n'
         self.debug(msg)
 
-    def title_line(self, title):
+    @staticmethod
+    def title_line(title):
         buff = int((formatter.LINE_LENGTH - len(title))/2)
         print(formatter.SEPARATER*buff, title, formatter.SEPARATER*buff) 
     
-    def line(self):
+    @staticmethod
+    def line():
         print(formatter.SEPARATER*formatter.LINE_LENGTH)
 
-    def center(self, this_line):
+    @staticmethod
+    def center(this_line):
         buff = int((formatter.LINE_LENGTH - len(this_line))/2)
         print(' '*buff, this_line, ' '*buff)
 
-    def print_list(self, list_to_print):
+    @staticmethod
+    def print_list(list_to_print):
         for i in range(len(list_to_print)):
             print(formatter.TAB, f'{i}. {list_to_print[i]}')
     
@@ -107,16 +113,19 @@ class Logger():
                 self.debug(f'Extra Argument: {xtra_args[i]}')
 
     # APPLICATION SPECIFIC FORMATTING FUNCTIONS
-    def string_result(self, operation, result):
+    @staticmethod
+    def string_result(operation, result):
         print(' '*formatter.INDENT, '>>', operation, ' = ', result)
         
-    def scalar_result(self, calculation, result, currency=True):
+    @staticmethod
+    def scalar_result(calculation, result, currency=True):
         if currency:
             print(' '*formatter.INDENT, '>>', calculation, ' = $', round(result, 2))
         else:
             print(' '*formatter.INDENT, '>>', calculation, ' = ', round(result, 4))
 
-    def equivalent_result(self, right_hand, left_hand, value):
+    @staticmethod
+    def equivalent_result(right_hand, left_hand, value):
         print(' '*formatter.INDENT, '>>', f'{right_hand} = {left_hand} = {value}')
 
     def spot_price(self, ticker, spot_price):
@@ -127,11 +136,13 @@ class Logger():
         formatted_price = round(float(model_price),2)
         self.scalar_result(f'{ticker} {str(model).upper()} price', formatted_price)
     
-    def portfolio_percent_result(self, result, tickers):
+    @staticmethod
+    def portfolio_percent_result(result, tickers):
         for i in range(len(tickers)):
             print(' '*formatter.INDENT, f'{tickers[i]} =', round(100*result[i], 2), '%')
 
-    def portfolio_shares_result(self, result, tickers):
+    @staticmethod
+    def portfolio_shares_result(result, tickers):
         for i in range(len(tickers)):
             print(' '*formatter.INDENT, f'{tickers[i]} =', result[i])
 

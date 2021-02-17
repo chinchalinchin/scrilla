@@ -118,7 +118,8 @@ class Portfolio:
         guess = [uniform_guess for i in range(length)]
         return guess
     
-    def get_constraint(self, x):
+    @staticmethod
+    def get_constraint(x):
         return sum(x) - 1
     
     def get_default_bounds(self):
