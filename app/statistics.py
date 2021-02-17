@@ -28,7 +28,7 @@ def sample_correlation(x, y):
     if len(x) != len(y):
         logger.info(f'Samples are not of comparable lengths')
         return False
-    elif len(x) == 1 or len(x) == 1:
+    elif len(x) in [0, 1]:
         logger.info(f'Sample correlation cannot be computed for a sample size less than or equal to 1.')
         return False
     else:
@@ -74,7 +74,7 @@ def sample_mean(x):
 
 def sample_variance(x):
     mu, sigma, n = sample_mean(x=x), 0, len(x)
-    if n == 1 or n == 0:
+    if n in [0, 1]:
         logger.info('Sample variance cannot be computed for a sample size less than or equal to 1.')
         return False
     else:
@@ -86,7 +86,7 @@ def sample_covariance(x, y):
     if len(x) != len(y):
         logger.info(f'Samples are not of comparable length')
         return False
-    elif len(x) == 1 or len(x) == 1:
+    elif len(x) in [0, 1]:
         logger.info(f'Sample correlation cannot be computed for a sample size less than or equal to 1.')
         return False
     else:

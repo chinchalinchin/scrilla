@@ -30,7 +30,7 @@ def risk_return(request):
     status, parsed_args_or_err_msg = parser.validate_request(request, ["GET"])
     today = datetime.date.today()
 
-    if status == 400 or status == 405:
+    if status in [400, 405]:
         return JsonResponse(data=parsed_args_or_err_msg, status=status, safe=False)
 
     else:
@@ -72,7 +72,8 @@ def risk_return(request):
 
 def optimize(request):
     status, parsed_args_or_err_msg = parser.validate_request(request, ["GET"])
-    if status == 400 or status == 405:
+    
+    if status in [400, 405]:
         return JsonResponse(data=parsed_args_or_err_msg, status=status, safe=False)
 
     else:
@@ -116,7 +117,7 @@ def optimize(request):
 def efficient_frontier(request):
     status, parsed_args_or_err_msg = parser.validate_request(request, ["GET"])
 
-    if status == 400 or status == 405:
+    if status in [400, 405]:
         return JsonResponse(data=parsed_args_or_err_msg, status=status, safe=False)
     
     else:
@@ -172,7 +173,7 @@ def efficient_frontier(request):
 def moving_averages(request):
     status, parsed_args_or_err_msg = parser.validate_request(request, ["GET"])
 
-    if status == 400 or status == 405:
+    if status in [400, 405]:
         return JsonResponse(data=parsed_args_or_err_msg, status=status, safe=False)
 
     else:
@@ -240,7 +241,7 @@ def moving_averages(request):
 def discount_dividend(request):
     status, parsed_args_or_err_msg = parser.validate_request(request, ["GET"])
 
-    if status == 400 or status == 405:
+    if status in [400, 405]:
         return JsonResponse(data=parsed_args_or_err_msg, status=status, safe=False)
 
     else:
