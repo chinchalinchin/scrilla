@@ -338,9 +338,9 @@ if __name__ == "__main__":
                     logger.comment('Error encountered while calculating. Try -ex flag for example usage.')
             else:
                 logger.comment('No function supplied. Please review Function Summary below and re-execute with appropriate arguments.')
-                outputter.help()
+                outputter.help_msg()
             
             outputter.line()
     else:
         logger.comment('No arguments Supplied. Please review function summary below and re-execute with appropriate arguments.')
-        outputter.help()
+        outputter.help_msg()
