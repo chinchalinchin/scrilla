@@ -21,38 +21,38 @@ class Cashflow:
     """
     Description
     -----------
-    A class that represents a set of future cashflows. The class is initialized with a sample of past data and a linear regression model is inferred from the sample. Alternatively, a growth function can be provided that describes the cash flow as a function of time in years. If a growth function is provided, the class skips the linear regression model. \n \n
+    A class that represents a set of future cashflows. The class is initialized with the 'sample' variable, a list of past cashflows and their dates, and a linear regression model is inferred from the sample. Alternatively, a `growth_function` can be provided that describes the cash flow as a function of time in years. If a `growth_function` is provided, the class skips the linear regression model. \n \n
 
     If the sample of data is not large enough to infer a linear regression model, the estimation model will default to Markovian process where E(X2|X1) = X1, i.e. the next expected value given the current value is the current value, or put in plain english, without more information the best guess for the future value of an asset is its current value. \n \n
 
-    The estimation model is used to project the future value of cashflows and then these projections are discounted back to the present by the risk free rate. A discount rate different from the risk free rate can be specified by providing the constructor a value for discount_rate. \n \n
+    The growth model, whether estimated or provided, is used to project the future value of cashflows and then these projections are discounted back to the present by the risk free rate. A discount rate different from the risk free rate can be specified by providing the constructor a value for discount_rate. \n \n
 
     Parameters
     ----------
-    sample: list { 'date_1' : 'value_1', 'date_2': 'value_2', ... } \n
-        A list comprised of the cashflows historical values. The list must be ordered from latest to earliest, i.e. in descending order. \n \n
-    period: float \n
-        The period in years of the cash flow payments. Measure as the lenght of time between two distinct cash flows. The value should be measured in years. If a period is not specified, then a period will be inferred from the sample of data by averaging the time periods between successive payments in the sample. Common frequencies are statically accessible through FREQ_DAY, FREQ_MONTH, FREQ_QUARTER and FREQ_ANNUAL. \n \n 
-    growth_function: function \n
-        A function that describes the cash flow as a function of time in years. If provided, the class will skip linear regression for estimating the cash flow model. If a growth_function is provided without a sample, a period must be specified. If a growth function is provided with a sample and no period, the period will be inferred from the dates in the sample. If a growth function is provided with a period, then the sample will be ignored altogether. \n \n
-    discount_rate: float \n
-        The rate of return used to discount future cash flows back to the present. If not provided, the discount_rate defaults to the risk free rate defined by the RISK_FREE environment variable. \n \n
-    constant: float \n
-        If the cashflow is constant with respect to time, specify the value of it with this argument. Will override growth_function and sample. If constant is specified, you MUST also specify a period or else you will encounter errors when trying to calculate the net present value of future cashflows. \n \n
+    1. sample: list { 'date_1' : 'value_1', 'date_2': 'value_2', ... } \n
+        A list comprised of the cashflow\'s historical values. The list must be ordered from latest to earliest, i.e. in descending order. \n \n
+    2. period: float \n
+        The period between the cash flow payments. Measured as the length of time between two distinct cash flows, assuming all such payments are evenly spaced across time. The value should be measured in years. If a period is not specified, then a period will be inferred from the sample of data by averaging the time periods between successive payments in the sample. Common period are statically accessible through `FREQ_DAY`, `FREQ_MONTH`, `FREQ_QUARTER` and `FREQ_ANNUAL`. (Yes, I know period = 1 / frequency\; deal with it.) \n \n 
+    3. growth_function: function \n
+        A function that describes the cash flow as a function of time in years. If provided, the class will skip linear regression for estimating the cash flow model. If a `growth_function` is provided without a sample, a period must be specified. If a `growth_function` is provided with a sample and no period, the period will be inferred from the dates in the sample. If a `growth_function` is provided with a period, then the sample will be ignored altogether. \n \n
+    4. discount_rate: float \n
+        The rate of return used to discount future cash flows back to the present. If not provided, the `discount_rate` defaults to the risk free rate defined by the **RISK_FREE** environment variable. \n \n
+    5. constant: float \n
+        If the cashflow is constant with respect to time, specify the value of it with this argument. Will override `growth_function` and sample. If constant is specified, you MUST also specify a period or else you will encounter errors when trying to calculate the net present value of future cashflows. \n \n
     
     NOTES
     -----
-    NOTE #1: A constant cashflow can be specified in two ways: 1. By passing in a constant through the constructor 'constant' variable. 2. By passing in a constant function with respect to time through the constructor 'growth_function' variable. If choosing method #1, you MUST pass in a period or the net_present_value method of this class will return False. \n \n
+    NOTE #1: A constant cashflow can be specified in three ways: 1. By passing in a constant amount through the constructor `constant` variable. 2. By passing in a constant function with respect to time through the constructor `growth_function` variable. 3. By passing in a dataset of length one through the constructor `sample` variable.  In any of the cases, you MUST pass in a period or the `net_present_value` method of this class will return False. \n \n
 
-    NOTE #2: Both a growth_function and a sample of data can be passed in at once to this class. If doing so, the growth_function will take precedence and be used for calculations in the net_present_value method. The sample will be used to infer the length of a period between cashflows, unless a period is also specified. If a period is specified in addition to sample and growth_function, the period will take precedence over the period inferred from the sample of data. \n \n
+    NOTE #2: Both a growth_function and a sample of data can be passed in at once to this class. If doing so, the `growth_function` will take precedence and be used for calculations in the `net_present_value` method. The sample will be used to infer the length of a period between cashflows, unless a period is also specified. If a period is specified in addition to sample and `growth_function`, the period will take precedence over the period inferred from the sample of data. \n \n
 
     NOTE #3: In general, the Cashflow object must always be initialized in one of the following ways: \n
-        1. Constructor args: (sample) -> period inferred from sample, linear regression used for growth
-        2. Constructor args: (sample, period) -> period from constructor, linear regression used for growth
-        3. Constructor args: (sample, period, growth_function) -> period from constructor, growth_function used for growth, sample ignored
-        4. Constructor args: (sample, growth_function) -> period inferred from sample, growth_function used for growth
-        5. Constructor args: (period, growth_function) -> period from constructor, growth_function used for growth
-        6. Constructor args: period, constant -> period from constructor, constant used for growth
+        1. Constructor args: (`sample`) -> period inferred from sample, linear regression used for growth
+        2. Constructor args: (`sample`, `period`) -> period from constructor, linear regression used for growth
+        3. Constructor args: (`sample`, `period`, `growth_function`) -> period from constructor, `growth_function` used for growth, sample ignored
+        4. Constructor args: (`sample`, `growth_function`) -> period inferred from sample, `growth_function` used for growth
+        5. Constructor args: (`period`, `growth_function`) -> period from constructor, `growth_function` used for growth
+        6. Constructor args: `period`, constant -> period from constructor, constant used for growth
     TODOs
     -----
     1. Implement prediction interval function to get error bars for graphs and general usage.
