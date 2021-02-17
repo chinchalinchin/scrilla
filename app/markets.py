@@ -57,7 +57,7 @@ def get_asset_type(symbol):
         return settings.ASSET_EQUITY
 
 def get_trading_period(asset_type):
-    if asset_type == None:
+    if asset_type is None:
         return False
     elif asset_type == settings.ASSET_CRYPTO:
         return settings.ONE_TRADING_DAY
