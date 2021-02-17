@@ -5,7 +5,7 @@ exclude_patterns = [
     "data/cache/**",
     "data/common/**",
     "data/sql/**,
-    "data/static/**"
+    "data/static/**",
     "env/**",
     "*.env",
     *.pyc,
