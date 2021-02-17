@@ -152,8 +152,8 @@ class OptimizerWidget(PortfolioWidget):
             investment = self.portfolio_value.text()
 
             logger.debug(f'Optimizing Portfolio : {user_symbols}.')
-            allocation = optimizer.optimize_portfolio_variance(equities=user_symbols)
             this_portfolio = portfolio.Portfolio(tickers=user_symbols)
+            allocation = optimizer.optimize_portfolio_variance(portfolio=this_portfolio)
             
             logger.debug(helper.format_allocation_profile(allocation, this_portfolio))
             self.result.setText(helper.format_allocation_profile(allocation, this_portfolio))

@@ -273,7 +273,7 @@ if __name__ == "__main__":
                 if len(main_args) > 0:
                     profiles = []
                     for arg in main_args:
-                        profiles.append(statistics.calculate_risk_return(tickers=arg, start_date=xtra_list['start_date'], 
+                        profiles.append(statistics.calculate_risk_return(ticker=arg, start_date=xtra_list['start_date'], 
                                                                             end_date=xtra_list['end_date']))
                     plotter.plot_profiles(symbols=main_args, profiles=profiles, show=True, 
                                             savefile=xtra_list['save_file'], 
@@ -288,7 +288,7 @@ if __name__ == "__main__":
             elif opt == formatter.FUNC_ARG_DICT["risk_return"]:
                 if(len(main_args)>0):
                     for arg in main_args:
-                        result = statistics.calculate_risk_return(tickers=arg, start_date=xtra_list['start_date'], 
+                        result = statistics.calculate_risk_return(ticker=arg, start_date=xtra_list['start_date'], 
                                                                     end_date=xtra_list['end_date'])
                         if result:
                             outputter.scalar_result(calculation=f'mean_{arg}', result=result['annual_return'],
