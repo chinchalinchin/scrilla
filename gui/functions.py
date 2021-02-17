@@ -1,8 +1,6 @@
-import sys, time
-import matplotlib
+import time
 
-from PyQt5 import QtGui, QtCore, QtWidgets
-
+from PyQt5 import Qt, QtCore, QtWidgets
 
 import app.statistics as statistics
 import app.settings as settings

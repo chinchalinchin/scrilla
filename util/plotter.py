@@ -2,12 +2,9 @@ import os, datetime
 import numpy, matplotlib
 from PIL import Image
 
-from matplotlib import pyplot as plot
 from matplotlib.figure import Figure
-from matplotlib import dates as matdates
 
 import util.formatter as formatter
-import util.helper as helper
 
 APP_ENV=os.environ.setdefault('APP_ENV', 'local')
 

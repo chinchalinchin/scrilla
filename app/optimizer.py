@@ -1,6 +1,5 @@
 import scipy.optimize as optimize
 
-from app.objects.portfolio import Portfolio
 import app.settings as settings
 import util.outputter as outputter
 

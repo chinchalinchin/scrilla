@@ -1,7 +1,6 @@
-import os, sys, math, json
+import os, sys, json
 import datetime
 import numpy
-from decimal import Decimal
 
 PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(PROJECT_DIR)

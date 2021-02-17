@@ -1,7 +1,5 @@
-import os, sys
+import sys
 import datetime
-import scipy.optimize as optimize
-
 
 import app.settings as settings
 import app.statistics as statistics

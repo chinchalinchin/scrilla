@@ -1,7 +1,6 @@
-import os, csv, json
+import os, json
 
 import app.settings as settings
-import app.markets as markets
 
 import util.outputter as outputter
 import util.helper as helper

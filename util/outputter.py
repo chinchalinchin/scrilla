@@ -1,6 +1,4 @@
 import datetime, sys
-import numpy
-import matplotlib.pyplot as matplotlib
 
 import util.helper as helper
 import util.formatter as formatter

@@ -1,12 +1,9 @@
-import datetime
-
 import util.helper as helper
 import util.outputter as outputter
 
 import app.markets as markets
 import app.settings as settings
 import app.statistics as statistics
-import app.services as services
 
 logger = outputter.Logger('app.objects.cashflow', settings.LOG_LEVEL)
 

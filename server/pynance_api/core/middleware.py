@@ -1,4 +1,3 @@
-from urllib.parse import urlencode
 from django.http.request import HttpRequest
 
 from core import settings

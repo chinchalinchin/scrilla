@@ -1,4 +1,4 @@
-import os, csv, json, sys
+import os, csv, json
 import itertools
 import datetime, time
 import requests

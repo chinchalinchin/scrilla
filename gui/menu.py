@@ -1,5 +1,5 @@
 import sys
-import random
+
 from PyQt5 import QtCore, QtWidgets, QtGui
 
 import app.settings as settings

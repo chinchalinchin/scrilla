@@ -1,7 +1,5 @@
-import sys, os, json, dotenv
+import os, dotenv
 
-import util.helper as helper
-import util.tester as tester
 import util.outputter as outputter
 
 ## APPLICATION CONFIGURATION
