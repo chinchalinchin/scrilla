@@ -176,7 +176,7 @@ def business_days_between(start_date, end_date):
     return len([1 for day in dates if day.weekday() < 5])
 
 def weekends_between(start_date, end_date):
-    start_date, end_date = verify_date_types(start_date, end_date)
+    start_date, end_date = verify_date_types(dates=[start_date, end_date])
     dates = dates_between(start_date, end_date)
     return len([1 for day in dates if day.weekday() > 4])
 
