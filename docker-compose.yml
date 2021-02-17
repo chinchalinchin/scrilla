@@ -26,6 +26,9 @@ services:
         - the_pit
       env_file:
         - ./env/container.env 
+    
+    queue:
+      image: redis:alpine
 
 networks:
     the_pit: 
@@ -34,3 +37,4 @@ volumes:
     postgres:
     static:
     cache:
+    redis:
