@@ -30,7 +30,7 @@ if APP_ENV != 'container':
 ## APP SETTINGS
 APP_ENV = os.environ.setdefault('APP_ENV', 'local')
 SECRET_KEY = os.environ.setdefault('SECRET_KEY', 'NoIAmYourFather')
-DEBUG= True if os.getenv('DEBUG').lower() == 'true' else False
+DEBUG= os.getenv('DEBUG').lower() == 'true'
 LOG_LEVEL = str(os.environ.setdefault('LOG_LEVEL', "info")).lower()
 
 ## LOCALIZATION SETTINGS

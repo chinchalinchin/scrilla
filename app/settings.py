@@ -144,7 +144,7 @@ except:
 
 OPTIMIZATION_METHOD="SLSQP"
 
-INVESTMENT_MODE = True if os.getenv('INVESTMENT_MODE').lower() == 'true' else False
+INVESTMENT_MODE = os.getenv('INVESTMENT_MODE').lower() == 'true'
 
 try:
     FRONTIER_STEPS = int(os.getenv('FRONTIER_STEPS'))
@@ -195,7 +195,7 @@ STAT_ECON="statistic"
 
 ## SERVICE CONFIGURATION
 
-INIT= True if os.getenv('INIT').lower() == 'true' else False
+INIT= os.getenv('INIT').lower() == 'true'
 
 new_alpha_creds = None
 new_quandl_creds = None

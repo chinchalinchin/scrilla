@@ -87,10 +87,7 @@ def is_date_string_today(date) -> bool:
     return is_date_today(parse_date_string(date))
 
 def is_date_weekend(date) -> bool:
-    if date.weekday() in [5, 6]:
-        return True
-    else:
-        return False
+    return date.weekday() in [5, 6]
 
 # YYYY-MM-DD
 def is_date_string_weekend(date_string) -> bool:
@@ -429,7 +426,7 @@ def parse_csv_response_column(column, url, firstRowHeader=None, savefile=None, f
 # retain: keeps .gitkeep in directory
 # outdated_only: only deletes files with a timestamp != today
 def clear_directory(directory, retain=True, outdated_only=False):
-    filelist = [ f for f in os.listdir(directory)]
+    filelist = list(os.listdir(directory))
 
     if outdated_only:
         now = datetime.datetime.now()
