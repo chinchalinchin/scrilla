@@ -156,7 +156,10 @@ def dividend_queryset_to_list(dividend_set):
         div_list.append(dividend.to_list())
     return div_list
 
-def validate_request(request, allowed_methods=["GET"]):
+def validate_request(request, allowed_methods=None):
+    if allowed_methods is None:
+        allowed_methods = ["GET"]
+        
     logger.debug('Verifying request method.')
     if verify_method(request, allowed_methods):
         logger.debug('Request method verified!')
