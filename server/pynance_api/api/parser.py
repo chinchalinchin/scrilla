@@ -146,7 +146,7 @@ def market_queryset_to_list(price_set):
     set_list, price_list = {}, {}
     for price in price_set:
         price_list[price.to_date()] = price.to_list() 
-    set_list[price_models.ticker] = price_list
+    set_list[price_set[0].ticker] = price_list
     return set_list
 
 # Note: model must implement to_list() methods.
