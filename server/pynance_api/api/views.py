@@ -191,7 +191,7 @@ def moving_averages(request):
             sample_prices[ticker] = parser.market_queryset_to_list(price_model=prices[ticker])[ticker]
         averages_output = statistics.calculate_moving_averages(tickers=tickers, sample_prices=sample_prices)
 
-    moving_averages, dates = averages_output
+    these_moving_averages, dates = averages_output
 
     response = {}
     for i in range(len(tickers)):
@@ -200,18 +200,18 @@ def moving_averages(request):
 
         subresponse = {}
         if parsed_args['start_date'] is None and parsed_args['end_date'] is None:
-            subresponse[MA_1_str] = moving_averages[i][0]
-            subresponse[MA_2_str] = moving_averages[i][1]
-            subresponse[MA_3_str] = moving_averages[i][2]
+            subresponse[MA_1_str] = these_moving_averages[i][0]
+            subresponse[MA_2_str] = these_moving_averages[i][1]
+            subresponse[MA_3_str] = these_moving_averages[i][2]
 
         else:
             subsubresponse_1, subsubresponse_2, subsubresponse_3 = {}, {}, {}
     
             for j in range(len(dates)):
                 date_str=helper.date_to_string(dates[j])
-                subsubresponse_1[date_str] = moving_averages[i][0][j]
-                subsubresponse_2[date_str] = moving_averages[i][1][j]
-                subsubresponse_3[date_str] = moving_averages[i][2][j]
+                subsubresponse_1[date_str] = these_moving_averages[i][0][j]
+                subsubresponse_2[date_str] = these_moving_averages[i][1][j]
+                subsubresponse_3[date_str] = these_moving_averages[i][2][j]
 
             subresponse[MA_1_str] = subsubresponse_1
             subresponse[MA_2_str] = subsubresponse_2
