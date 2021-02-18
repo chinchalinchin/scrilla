@@ -1,3 +1,8 @@
+"""
+Description
+-----------
+`app.files` is in charge of all application file handling. In addition, this module handles requests for large csv files retrieved from external services. The metadata files from 'AlphaVantage' and 'Quandl' are returned as zipped csv files. The functions within in this module perform all the tasks necessary for parsing this response into the application file system, whether on the localhost or a containerized filesytem.
+"""
 import os, io, json, datetime, csv, zipfile
 import requests
 
@@ -9,24 +14,24 @@ import util.helper as helper
 # os.environ.setdefault("DJANGO_SETTINGS_MODULE", "core.settings")
 CLOSE_PRICE = "close"
 OPEN_PRICE = "open"
+
 logger = outputter.Logger("app.services", settings.LOG_LEVEL)
 
-def parse_csv_response_column(column, url, firstRowHeader=None, savefile=None, filetype=None, zipped=None):
+
+def parse_csv_response_column(column, url, firstRowHeader=None, savefile=None, zipped=None):
     """
     Parameters
     ----------
-    column : int
-        Required. Index of the column you wish to retrieve from the response.
-    url : str
-        Required. The url, already formatted with appropriate query and key, that will respond with the csv file, zipped or unzipped (see zipped argument for more info), you wish to parse.
-    firstRowHeader : str
-        Optional. name of the header for the column you wish to parse. if specified, the parsed response will ignore the row header. Do not include if you wish to have the row header in the return result.
-    savefile : str
-        Optional. the absolute path of the file you wish to save the parsed response column to.
-    filetype : str
-        Optional. determines the type of conversion that is applied to the response before it is saved. Currently, only supports 'json'.
-    zipped : str
-        if the response returns a zip file, this argument needs to be set equal to the file within the archive you wish to parse. 
+    1. column : int \n
+        Required. Index of the column you wish to retrieve from the response. \n \n
+    2. url : str \n
+        Required. The url, already formatted with appropriate query and key, that will respond with the csv file, zipped or unzipped (see zipped argument for more info), you wish to parse. \n \n 
+    3. firstRowHeader : str \n 
+        Optional. name of the header for the column you wish to parse. if specified, the parsed response will ignore the row header. Do not include if you wish to have the row header in the return result. \n \n 
+    4. savefile : str \n 
+        Optional. the absolute path of the file you wish to save the parsed response column to. \n \n 
+    5. zipped : str \n 
+        if the response returns a zip file, this argument needs to be set equal to the file within the zipped archive you wish to parse. \n \n 
     """
     col, big_mother = [], []
 
@@ -54,12 +59,17 @@ def parse_csv_response_column(column, url, firstRowHeader=None, savefile=None, f
     if savefile is not None: 
         # TODO: Possibly infer file type extension from filename   
         with open(savefile, 'w') as outfile:
-            if filetype == "json":
+            if settings.FILE_EXT == "json":
                 json.dump(col, outfile)
 
     return col
 
 def init_static_data():
+    """
+    Description
+    -----------
+    Initializes the three static files defined in app.settings: `STATIC_TICKERS_FILE`, `STATIC_CRYPTO_FILE` and `STATIC_ECON_FILE`. The data for these files is retrieved from the service managers. While this function blurs the lines between file management and service management, the function has been included in the `files.py` module rather than the `services.py` module due the unique response types of static metadata. All metadata is returned a csv or zipped csvs. These responses require specialized functions. Moreover, these files should only be initialized the first time the application executes. Subsequent executions will refer to their cached versions residing in the local or containerized filesytems. 
+    """
     if ((not os.path.isfile(settings.STATIC_ECON_FILE)) or \
             (not os.path.isfile(settings.STATIC_TICKERS_FILE)) or \
                 (not os.path.isfile(settings.STATIC_CRYPTO_FILE))):
@@ -81,7 +91,7 @@ def init_static_data():
 
                 logger.debug(f'Preparsing to parse \'{settings.PRICE_MANAGER}\' Response to query: {query}')
                 helper.parse_csv_response_column(column=0, url=url, firstRowHeader=settings.AV_RES_EQUITY_KEY, 
-                                                        savefile=settings.STATIC_TICKERS_FILE, filetype=settings.FILE_EXT)
+                                                        savefile=settings.STATIC_TICKERS_FILE)
 
             else:
                 logger.info("No PRICE_MANAGER set in .env file!")
@@ -94,7 +104,7 @@ def init_static_data():
 
                 logger.debug(f'Preparsing to parse \'{settings.PRICE_MANAGER}\' Response to query: {query}')
                 helper.parse_csv_response_column(column=0, url=url, firstRowHeader=settings.AV_RES_CRYPTO_KEY, 
-                                                    savefile=settings.STATIC_CRYPTO_FILE, filetype=settings.FILE_EXT)
+                                                    savefile=settings.STATIC_CRYPTO_FILE)
             else:
                 logger.info("No PRICE_MANAGER set in .env file!")
             
@@ -108,8 +118,7 @@ def init_static_data():
 
                 logger.debug(f'Preparsing to parse \'{settings.PRICE_MANAGER}\' Response to query: {query}')
                 helper.parse_csv_response_column(column=0, url=url, firstRowHeader=settings.Q_RES_STAT_KEY,
-                                                    savefile=settings.STATIC_ECON_FILE, filetype=settings.FILE_EXT,
-                                                    zipped=settings.Q_RES_STAT_ZIP_KEY)
+                                                    savefile=settings.STATIC_ECON_FILE, zipped=settings.Q_RES_STAT_ZIP_KEY)
 
             else:
                 logger.info("No STAT_MANAGER set in .env file!")
@@ -117,6 +126,16 @@ def init_static_data():
         logger.debug('Static data already initialized!')
 
 def get_static_data(static_type):
+    """
+    Description
+    ----------- 
+    Retrieves static data cached in the local or containerized file system. \n \n 
+
+    Parameters
+    ----------
+    1. `static_type` : str \n
+    A string corresponding to the type of static data to be retrieved. The types can be statically accessed through the `app.settings` variables: ASSET_CRYPTO, ASSET_EQUITY and STAT_ECON. \n \n
+    """
     logger.debug(f'Loading in cached {static_type} symbols.')
     path = None
 
@@ -145,6 +164,11 @@ def get_static_data(static_type):
     return False
 
 def get_watchlist():
+    """
+    Description
+    -----------
+    Retrieves the list of watchlisted equity ticker symbols saved in /data/common/watchlist.json.
+    """
     logger.debug('Loading in Watchlist symbols.')
 
     if os.path.isfile(settings.COMMON_WATCHLIST_FILE):
@@ -162,6 +186,11 @@ def get_watchlist():
     return watchlist
 
 def add_watchlist(new_tickers):
+    """
+    Description
+    -----------
+    Retrieves the list of watchlisted equity ticker symbols saved in /data/common/watchlist.json and then appends to it the list of tickers supplied as arguments. After appending, the list is sorted in alphabetical order. The tickers to add must exist in the /data/static/tickers.json file in order to be added to the watchlist, i.e. the tickers must have price histories that can be retrieved (the static file tickers.json contains a list of all equities with retrievable price histories.) \n \n 
+    """
     logger.debug('Saving tickers to Watchlist')
 
     current_tickers = get_watchlist()
@@ -187,6 +216,22 @@ def add_watchlist(new_tickers):
 # retain: keeps .gitkeep in directory
 # outdated_only: only deletes files with a timestamp != today
 def clear_directory(directory, retain=True, outdated_only=False):
+    """
+    Description
+    -----------
+    Wipes a directory of files without deleting the directory itself. \n \n 
+
+    Parameters
+    ----------
+    1. directory: str \n
+    Path of the directory to be cleaned. \n \n 
+
+    2. retain : bool \n
+    If set to True, the method will skip files named '.gitkeep' within the directory, i.e. version control configuration files. 
+
+    3. outdated_only: bool \b 
+    If set to True, the method will check for a time stamp on files with the format 'DD-MM-YYYY' and retain files that contain this timestamp.
+    """
     filelist = list(os.listdir(directory))
 
     if outdated_only:

@@ -23,9 +23,9 @@ Attributes
 9. FILE_EXT: File extension used in CACHE_DIR. \n \n
 10. STATIC_DIR: Folder where static data reside. \n \n
 11. FILE_EXT: File extension used in STATIC_DIR. \n \n
-12. STATIC_TICKERS_FILE: File containing equity ticker symbols. \n \n
-13. STATIC_ECON_FILE: File containg list of economic statistics. \n \n
-14. STATIC_CRYPTO_FILE: File containing crypto ticker symbols. \n \n
+12. STATIC_TICKERS_FILE: File containing a list of all equity ticker symbols with price histories that can be retrieved from external services. \n \n
+13. STATIC_ECON_FILE: File containg a list of all economic statistics with sample histories that can be retrieved from external services. \n \n
+14. STATIC_CRYPTO_FILE: File containing a list of all crypto ticker symbols with price histories that can be retrieved from external services. \n \n
 15. ACCURACY: Number of decimals place saved in calculations. \n \n
 16. POPUP_WIDTH: Width of popup that prompts for API keys. \n \n
 17. POPUP_HEIGHT: Height of popup that prompts for API keys. \n \n

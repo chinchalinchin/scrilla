@@ -135,7 +135,7 @@ Note, the image will need an environment file to function properly. The applicat
 > docker run --env-file /path/to/env/file \\ <br>
 > $IMG_NAME:$IMG_TAG -rr BX AMC BB
 
-The <i>Dockerfile</i> defines the virtual <i>/cache/</i> and <i>/static/</i> directories as volumes, so that you can mount your local directories onto the container. The first time the CLI is ever run, it loads in a substantial amount of static data. Because of this, it is recommended that you mount atleast the <i>/static/</i> directory onto its virtual counterpart,
+The <i>Dockerfile</i> defines the container <i>/cache/</i> and <i>/static/</i> directories as volumes, so that you can mount your local directories onto the container. The first time the CLI is ever run, it loads in a substantial amount of static data. Because of this, it is recommended that you mount atleast the <i>/static/</i> directory onto its containerized counterpart,
 
 > docker run --env-file /path/to/env/file \\ <br>
 > --mount type=bind,source=/path/to/project/static/,target=/home/static/ \\ <br>

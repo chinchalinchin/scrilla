@@ -25,6 +25,11 @@ logger = outputter.Logger('app.markets', settings.LOG_LEVEL)
 # TODO: need some way to distinguish between overlap.
 
 def get_overlapping_symbols():
+    """
+    Description
+    -----------
+    Returns an array of symbols which are contained in both the STATIC_TICKERS_FILE and STATIC_CRYPTO_FILE, i.e. ticker symbols which have both a tradeable equtiy and a tradeable crypto asset. 
+    """
     equities = list(files.get_static_data(settings.ASSET_EQUITY))
     cryptos = list(files.get_static_data(settings.ASSET_CRYPTO))
     overlap = []
@@ -34,10 +39,18 @@ def get_overlapping_symbols():
     return overlap
 
 def get_asset_type(symbol):
+    """"
+    Description
+    -----------
+    Returns the asset type of the supplied ticker symbol. \n \n
+
+    Output
+    ------
+    A string representing the type of asset of the symbol. Types are statically accessible through the `app.settings` variables: ASSET_EQUITY and ASSET_CRYPTO. \n \n 
+    """
     symbols = list(files.get_static_data(settings.ASSET_CRYPTO))
     overlap = get_overlapping_symbols()
 
-    # TODO: need to differentiate between GLD etf and GLD crypto somehow!
     if symbol not in overlap:
         if symbol in symbols:
             return settings.ASSET_CRYPTO
@@ -54,6 +67,17 @@ def get_asset_type(symbol):
     return settings.ASSET_EQUITY
 
 def get_trading_period(asset_type):
+    """
+    Description
+    -----------
+    Returns the value of one trading day measured in years of the asset_type passed in as an argument.
+
+    Parameters
+    ----------
+    1. asset_type : str\n
+    
+    A string that represents a type of tradeable asset. Types are statically accessible through the `app.settings` variables: ASSET_EQUITY and ASSET_CRYPTO.
+    """
     if asset_type is None:
         return False
     if asset_type == settings.ASSET_CRYPTO:

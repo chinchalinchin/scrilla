@@ -4,7 +4,7 @@ FROM python:3.8.7-slim
 RUN useradd -ms /bin/bash pynance && groupadd pyadmin && usermod -a -G pyadmin pynance
 
 # OS DEPENDENCY CONFIGURAITON
-RUN apt-get update -y && apt-get install -y curl wait-for-it1 postgresql-client-11 libpq-dev build-essential \
+RUN apt-get update -y && apt-get install -y curl wait-for-it postgresql-client-11 libpq-dev build-essential \
      && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # APPLICATION DEPENDENCY CONFIGURATION
