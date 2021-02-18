@@ -130,8 +130,8 @@ def moving_average_result(tickers, averages_output, periods, start_date = None, 
 def screen_results(info, model):
     for ticker in info:
         title_line(f'{ticker} {str(model).upper()} Model vs. Spot Price ')
-        spot_price(ticker=ticker, spot_price=info[ticker]['spot_price'])
-        model_price(ticker=ticker, model_price=info[ticker]['model_price'], model=model)
+        spot_price(ticker=ticker, this_spot_price=info[ticker]['spot_price'])
+        model_price(ticker=ticker, this_model_price=info[ticker]['model_price'], model=model)
         scalar_result(f'{ticker} discount', info[ticker]['discount'])
         print_line()
 
