@@ -460,9 +460,9 @@ def calculate_risk_return(ticker, start_date=None, end_date=None, sample_prices=
                 with open(buffer_store, 'r') as infile:
                     results = json.load(infile)
                 return results
-            else:
-                logger.debug(f'No cached {ticker} statistics found, calling service.')
-                prices = services.get_daily_price_history(ticker=ticker)
+            
+            logger.debug(f'No cached {ticker} statistics found, calling service.')
+            prices = services.get_daily_price_history(ticker=ticker)
         else: 
             logger.debug(f'No sample prices provided, calling service.')
             prices = services.get_daily_price_history(ticker=ticker, start_date=start_date, end_date=end_date)

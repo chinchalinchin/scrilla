@@ -99,17 +99,14 @@ def parse_price_from_date(prices, date, asset_type, which_price=CLOSE_PRICE):
             if asset_type == settings.ASSET_EQUITY:
                 if which_price == CLOSE_PRICE:
                     return prices[date][settings.AV_RES_EQUITY_CLOSE_PRICE]
-                elif which_price == OPEN_PRICE:
+                if which_price == OPEN_PRICE:
                     return prices[date][settings.AV_RES_EQUITY_OPEN_PRICE]
 
             elif asset_type == settings.ASSET_CRYPTO:
                 if which_price == CLOSE_PRICE:
                     return prices[date][settings.AV_RES_CRYPTO_CLOSE_PRICE]
-                elif which_price == OPEN_PRICE:
+                if which_price == OPEN_PRICE:
                     return prices[date][settings.AV_RES_CRYPTO_OPEN_PRICE]
-        else: 
-            # TODO: other service parsing goes here.
-            pass
 
     except KeyError:
         logger.info('Price unable to be parsed from date.')
@@ -227,21 +224,20 @@ def query_service_for_daily_price_history(ticker, start_date=None, end_date=None
                     prices = dict(itertools.islice(prices[settings.AV_RES_EQUITY_FIRST_LAYER].items(), end_index, start_index))
                     return prices
 
-                elif not full and (start_date is None and end_date is not None):
+                if not full and (start_date is None and end_date is not None):
                     end_string = helper.date_to_string(end_date)
                     end_index = list(prices[settings.AV_RES_EQUITY_FIRST_LAYER].keys()).index(end_string)
                     prices = dict(itertools.islice(prices[settings.AV_RES_EQUITY_FIRST_LAYER].items(), end_index))
                     return prices
 
-                elif not full and (start_date is not None and end_date is None):
+                if not full and (start_date is not None and end_date is None):
                     start_string = helper.date_to_string(start_date)
                     start_index = list(prices[settings.AV_RES_EQUITY_FIRST_LAYER].keys()).index(start_string)
                     prices = dict(itertools.islice(prices[settings.AV_RES_EQUITY_FIRST_LAYER].items(), 0, start_index))
                     return prices
 
-                else:
-                    prices = prices[settings.AV_RES_EQUITY_FIRST_LAYER]
-                    return prices
+                prices = prices[settings.AV_RES_EQUITY_FIRST_LAYER]
+                return prices
                     
             except KeyError:
                 logger.info('Error encountered parsing AlphaVantage equity response')
@@ -335,20 +331,20 @@ def get_daily_price_history(ticker, start_date=None, end_date=None):
                     prices = json.load(infile)
                 # TODO: load other file types
             return prices
-        else:
-            logger.debug(f'Retrieving {ticker} prices from Service Manager.')  
-            prices = query_service_for_daily_price_history(ticker=ticker)
+        
+        logger.debug(f'Retrieving {ticker} prices from Service Manager.')  
+        prices = query_service_for_daily_price_history(ticker=ticker)
 
-            logger.debug(f'Storing {ticker} price history in cache.')
-            with open(buffer_store, 'w') as outfile:
-                if settings.FILE_EXT == "json":
-                    json.dump(prices, outfile)
-                # TODO: dump other file types
-            return prices
-    else:
-        logger.info(f'No cached prices for date ranges past default. Passing to service call.')
-        prices = query_service_for_daily_price_history(ticker=ticker, start_date=start_date, end_date=end_date)
+        logger.debug(f'Storing {ticker} price history in cache.')
+        with open(buffer_store, 'w') as outfile:
+            if settings.FILE_EXT == "json":
+                json.dump(prices, outfile)
+            # TODO: dump other file types
         return prices
+    
+    logger.info(f'No cached prices for date ranges past default. Passing to service call.')
+    prices = query_service_for_daily_price_history(ticker=ticker, start_date=start_date, end_date=end_date)
+    return prices
 
 def get_daily_price_latest(ticker):
     if settings.PRICE_MANAGER == "alpha_vantage":
@@ -359,7 +355,7 @@ def get_daily_price_latest(ticker):
         if asset_type == settings.ASSET_EQUITY:
             return prices[first_element][settings.AV_RES_EQUITY_CLOSE_PRICE]
 
-        elif asset_type == settings.ASSET_CRYPTO:
+        if asset_type == settings.ASSET_CRYPTO:
             return prices[first_element][settings.AV_RES_CRYPTO_CLOSE_PRICE]
             
     else:
@@ -431,21 +427,20 @@ def get_daily_stats_history(statistic, start_date=None, end_date=None):
                     stats = json.load(infile)
                 # TODO: load other file types
             return stats
-        else:
-            logger.debug(f'Retrieivng {statistic} statistics from Service Manager')
-            stats = query_service_for_daily_stats_history(statistic=statistic)
+        
+        logger.debug(f'Retrieivng {statistic} statistics from Service Manager')
+        stats = query_service_for_daily_stats_history(statistic=statistic)
 
-            logger.debug(f'Storing {statistic} statistics in cache')
-            with open(buffer_store, 'w') as outfile:
-                if settings.FILE_EXT == "json":
-                    json.dump(stats, outfile)
-                # TODO: dump other file types
-            return stats
-
-    else:
-        logger.info(f'No cached prices for date ranges past default. Passing to service call.')
-        stats = query_service_for_daily_stats_history(statistic=statistic, start_date=start_date, end_date=end_date)
+        logger.debug(f'Storing {statistic} statistics in cache')
+        with open(buffer_store, 'w') as outfile:
+            if settings.FILE_EXT == "json":
+                json.dump(stats, outfile)
+            # TODO: dump other file types
         return stats
+
+    logger.info(f'No cached prices for date ranges past default. Passing to service call.')
+    stats = query_service_for_daily_stats_history(statistic=statistic, start_date=start_date, end_date=end_date)
+    return stats
 
 def get_daily_stats_latest(statistic):
     if settings.STAT_MANAGER == "quandl":
@@ -453,9 +448,8 @@ def get_daily_stats_latest(statistic):
         first_element = helper.get_first_json_key(stats_history)
         return stats_history[first_element]
 
-    else:
-        logger.info("No STAT_MANAGER set in .env file!")
-        return None
+    logger.info("No STAT_MANAGER set in .env file!")
+    return None
 
 def query_service_for_dividend_history(ticker):
     if settings.DIV_MANAGER == "iex":
