@@ -40,9 +40,7 @@ def validate_order_of_dates(start_date, end_date):
         time_delta = end_date - start_date
         
         if time_delta.days < 0:
-            buffer = end_date
-            end_date = start_date
-            start_date = end_date
+            start_date, end_date = end_date, start_date
     
     return True, start_date, end_date
 
