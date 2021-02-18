@@ -84,8 +84,8 @@ def help_msg():
 
     title_line('OPTIONS')
     options = formatter.FUNC_ARG_DICT.keys()
-    for option in options:
-        option(formatter.FUNC_ARG_DICT[option], formatter.FUNC_DICT[option])
+    for opt in options:
+        option(formatter.FUNC_ARG_DICT[opt], formatter.FUNC_DICT[opt])
         return_line()
  # APPLICATION SPECIFIC FORMATTING FUNCTIONS
 
