@@ -388,11 +388,11 @@ not affect the application.
 
 23. Wire DDM functionality into API.
 
-25. Use annotations to allow users to annotate functions for cashflows and other objects.
+24. Use annotations to allow users to annotate functions for cashflows and other objects.
 
-27. Integrate a Redis instance with Celery to allow a background process to scrap the cache for missing prices every hour or so. Register `scrap_from_cache` function <i>/server/pynance_api/scrap.py</i> script as job in the Redis queue. Likewise, `scrap_prices`, `scrap_stats` and  `scrap_dividends`, plus any future scrapping functions.
+25. Integrate a Redis instance with Celery to allow a background process to scrap the cache for missing prices every hour or so. Register `scrap_from_cache` function <i>/server/pynance_api/scrap.py</i> script as job in the Redis queue. Likewise, `scrap_prices`, `scrap_stats` and  `scrap_dividends`, plus any future scrapping functions.
 
-29. Document how to use objects and functions in shell/scripts.
+26. Document how to use objects and functions in shell/scripts.
 
 ### NOTES
 

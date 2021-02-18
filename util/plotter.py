@@ -107,7 +107,6 @@ def plot_moving_averages(symbols, averages_output, periods, show=True, savefile=
             ma2s.append(averages[i][1])
             ma3s.append(averages[i][2])
     
-        # Bar Chart Variables
         width = formatter.BAR_WIDTH
         x = numpy.arange(len(symbols))
 
@@ -141,7 +140,6 @@ def plot_moving_averages(symbols, averages_output, periods, show=True, savefile=
                 MA_3 = averages[i][2][j]
                 ma3s.append(MA_3)
             
-            # TODO: this can probably be integrated into the inner loop above.
             start_date, end_date = dates[0], dates[-1] 
             title_str = f'Moving Averages of Annualized Return From {start_date} to {end_date}'
 
@@ -149,13 +147,13 @@ def plot_moving_averages(symbols, averages_output, periods, show=True, savefile=
             axes.plot(x, ma2s, linestyle="dotted", color="gold", label=ma2_label)
             axes.plot(x, ma3s, linestyle="dashdot", color="orangered", label=ma3_label)
 
-            axes.set_title(title_str)
-            axes.set_ylabel('Annualized Logarthmic Return')
-            axes.set_xlabel('Dates')
-            axes.xaxis.set_major_locator(date_locator)
-            axes.xaxis.set_major_formatter(date_format)
+        axes.set_title(title_str)
+        axes.set_ylabel('Annualized Logarthmic Return')
+        axes.set_xlabel('Dates')
+        axes.xaxis.set_major_locator(date_locator)
+        axes.xaxis.set_major_formatter(date_format)
         
-            axes.legend()
+        axes.legend()
 
     if savefile is not None:
         canvas.print_jpeg(filename_or_obj=savefile)
@@ -168,34 +166,31 @@ def plot_moving_averages(symbols, averages_output, periods, show=True, savefile=
         canvas.draw()
         return canvas
 
-# TODO: figure out date formatting for x-axis
 def plot_cashflow(ticker, cashflow, show=True, savefile=None):
-    # TODO: print net_present_value somewhere on the graph.
     if not cashflow.beta or not cashflow.alpha or len(cashflow.sample) < 3:
         return False
     
     canvas = FigureCanvas(Figure())
     figure = canvas.figure
     axes = figure.subplots()
-
+    date_format = matplotlib.dates.DateFormatter('%m-%d')
     sup_title_str = f'{ticker} Dividend Linear Regression Model'
     title_str = f'NPV(dividends | discount = {round(cashflow.discount_rate,4)}) = $ {round(cashflow.calculate_net_present_value(), 2)}'
 
-    dividend_history, dates = [], []
+    dividend_history, ordinal_x, dates = [], [], []
     for date in cashflow.sample:
-        dates.append(date)
+        ordinal_x.append(datetime.datetime.strptime(date, '%Y-%m-%d').toordinal())
+        dates.append(helper.parse_date_string(date))
         dividend_history.append(cashflow.sample[date])
 
-    # TODO: this needs more work. remember, cashflow sets the first date to time = 0.
-    x = [datetime.datetime.strptime(date, '%Y-%m-%d').toordinal() for date in dates]
-    model_map = list(map(lambda x: cashflow.alpha + cashflow.beta*x, cashflow.time_series))
-
-    axes.scatter(x, dividend_history, marker=".")
-    axes.plot(x, model_map)
-    
     ordered_dates=dates[::-1]
+    model_map = list(map(lambda x: cashflow.alpha + cashflow.beta*x, cashflow.time_series))
+    
+    axes.scatter(ordinal_x, dividend_history, marker=".")
+    axes.plot(ordinal_x, model_map)
+    
+    axes.xaxis.set_major_formatter(date_format)
     axes.set_xticklabels(ordered_dates)
-
     axes.set_ylabel('Dividend Payment')
     axes.set_xlabel('Dates')
     axes.set_title(title_str, fontsize=12)
