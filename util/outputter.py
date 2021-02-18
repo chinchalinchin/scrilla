@@ -54,8 +54,8 @@ def portfolio_shares_result(result, tickers):
     for i in range(len(tickers)):
         print(' '*formatter.INDENT, f'{tickers[i]} =', result[i])
 
-def example(ex_no, example, explanation):
-    print(' '*formatter.INDENT, f'#{ex_no}:', example)
+def example(ex_no, ex, explanation):
+    print(' '*formatter.INDENT, f'#{ex_no}:', ex)
     for line in break_lines(explanation):
         print(' '*2*formatter.INDENT, '-', line)
 
