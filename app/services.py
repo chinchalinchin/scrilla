@@ -386,7 +386,7 @@ def query_service_for_daily_stats_history(statistic, start_date=None, end_date=N
 
         if start_date is not None:
             start_string = helper.date_to_string(start_date)
-            query += f'&{settings.PARAM_Q_END}={end_string}'
+            query += f'&{settings.PARAM_Q_START}={start_string}'
 
         auth_query = f'{query}&{settings.PARAM_Q_KEY}={settings.Q_KEY}'
         url += auth_query

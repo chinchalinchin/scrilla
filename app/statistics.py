@@ -686,7 +686,6 @@ def calculate_ito_correlation(ticker_1, ticker_2, start_date=None, end_date=None
     # Initialize loop variables
     i, covariance, tomorrows_price_1, tomorrows_price_2 = 0, 0, 1, 1
     delta = 0
-    tomorrows_date, todays_date = "", ""
     sample = len(sample_prices)
 
     #### START CORRELATION LOOP ####
@@ -774,7 +773,7 @@ def get_ito_correlation_matrix_string(tickers, indent=0, start_date=None, end_da
     """
     entire_formatted_result, formatted_title = "", ""
 
-    line_length, percent_length, first_symbol_length = 0, 0, 0
+    line_length, first_symbol_length = 0, 0, 0
     new_line=""
     no_symbols = len(tickers)
 

@@ -56,7 +56,7 @@ def verify_date_types(dates):
     return verified_dates
 
 def date_to_string(date) -> str:
-    year, month, day = date.year, date.month, date.day
+    ymonth, day = date.month, date.day
     if month<10:
         month_string = "0"+str(month)
     else:
@@ -336,7 +336,6 @@ def format_xtra_args_list(xtra_args, xtra_values):
 def separate_and_parse_args(args):
     extra_args, extra_values= [], []
     reduced_args = args
-    offset = 0
     
     for arg in args:
         if arg in formatter.FUNC_XTRA_VALUED_ARGS_DICT.values() or arg in formatter.FUNC_XTRA_SINGLE_ARGS_DICT.values():
