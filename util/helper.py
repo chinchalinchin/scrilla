@@ -56,7 +56,7 @@ def verify_date_types(dates):
     return verified_dates
 
 def date_to_string(date) -> str:
-    ymonth, day = date.month, date.day
+    month, day = date.month, date.day
     if month<10:
         month_string = "0"+str(month)
     else:
