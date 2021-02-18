@@ -15,7 +15,7 @@ def title_line(title):
     buff = int((formatter.LINE_LENGTH - len(title))/2)
     print(formatter.SEPARATER*buff, title, formatter.SEPARATER*buff) 
     
-def line():
+def print_line():
     print(formatter.SEPARATER*formatter.LINE_LENGTH)
 
 def return_line():
@@ -56,8 +56,8 @@ def portfolio_shares_result(result, tickers):
 
 def example(ex_no, ex, explanation):
     print(' '*formatter.INDENT, f'#{ex_no}:', ex)
-    for line in break_lines(explanation):
-        print(' '*2*formatter.INDENT, '-', line)
+    for l in break_lines(explanation):
+        print(' '*2*formatter.INDENT, '-', l)
 
 def examples():
     index = 1
@@ -68,14 +68,14 @@ def examples():
     
 def option(opt, explanation):
     print(' '*formatter.INDENT, opt, " :")
-    for line in break_lines(explanation):
-        print(' '*formatter.INDENT*2, line)
+    for l in break_lines(explanation):
+        print(' '*formatter.INDENT*2, l)
 
 def help_msg():
     title_line(formatter.APP_NAME)
     explanation=break_lines(formatter.HELP_MSG)
-    for line in explanation:
-        center(line)
+    for l in explanation:
+        center(l)
     return_line()
 
     title_line('SYNTAX')
@@ -133,7 +133,7 @@ def screen_results(info, model):
         spot_price(ticker=ticker, spot_price=info[ticker]['spot_price'])
         model_price(ticker=ticker, model_price=info[ticker]['model_price'], model=model)
         scalar_result(f'{ticker} discount', info[ticker]['discount'])
-        line()
+        print_line()
 
 # TODO: parse investment argument from command line instead of getting number input like this.
 # TODO: can probably combine optimal_result and efficient_frontier into a single function
@@ -143,13 +143,13 @@ def screen_results(info, model):
 def optimal_result(portfolio, allocation, investment=None):
     title_line('Optimal Percentage Allocation')
     portfolio_percent_result(allocation, portfolio.tickers)
-    line()
+    print_line()
 
     if investment is not None:
         shares = portfolio.calculate_approximate_shares(allocation, investment)
         total = portfolio.calculate_actual_total(allocation, investment)
         
-        line()
+        print_line()
         title_line('Optimal Share Allocation')
         portfolio_shares_result(shares, portfolio.tickers)
         title_line('Optimal Portfolio Value')
@@ -165,11 +165,11 @@ def efficient_frontier(portfolio, frontier, investment=None):
     # TODO: edit title to include dates
 
     for allocation in frontier:
-        line()
+        print_line()
         return_string=str(round(round(portfolio.return_function(allocation),4)*100,2))
         vol_string=str(round(round(portfolio.volatility_function(allocation),4)*100,2))
         title_line(f'({return_string} %, {vol_string}%) Portfolio')
-        line()
+        print_line()
 
         title_line('Optimal Percentage Allocation')
         portfolio_percent_result(allocation, portfolio.tickers)
@@ -226,18 +226,18 @@ class Logger():
                 self.debug(f'Extra Argument: {xtra_args[i]}')
 
     def log_django_settings(self, settings):
-            line()
+            print_line()
             self.title_line('SETTINGS.PY Configuration')
-            line()
+            print_line()
             self.debug("# Environment Configuration")
             self.debug(f'> Directory Location : {settings.BASE_DIR}')
             self.debug(f'> Environment: {settings.APP_ENV}')
-            line()
+            print_line()
             self.debug("# Application Configuration")
             self.debug(f'> Debug : {settings.DEBUG}')
             self.debug(f'> Enviroment: {settings.APP_ENV}')
             self.debug(f'> Log Level: {settings.LOG_LEVEL}')
-            line()
+            print_line()
             self.debug("# Database Configuration")
             self.debug(f'> Database Engine: {settings.DATABASES["default"]["ENGINE"]}')
-            line()
+            print_line()
