@@ -186,7 +186,7 @@ if __name__ == "__main__":
                                             end_date=xtra_list['end_date'])
                     frontier = optimizer.calculate_efficient_frontier(portfolio=portfolio)
                     outputter.efficient_frontier(portfolio=portfolio, frontier=frontier,
-                                                user_input=settings.INVESTMENT_MODE)
+                                                    investment=xtra_list['investment'])
                 else: 
                     logger.comment('Invalid input. Try -ex flag for example usage.')
                     
@@ -197,7 +197,7 @@ if __name__ == "__main__":
                                             end_date=xtra_list['end_date'])
                     allocation = optimizer.maximize_portfolio_return(portfolio=portfolio)
                     outputter.optimal_result(portfolio=portfolio, allocation=allocation, 
-                                            investment=xtra_list['investment'])
+                                                investment=xtra_list['investment'])
                 else:
                     logger.comment('Invalid input. Try -ex flag for example usage.')
 
