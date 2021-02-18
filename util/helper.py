@@ -129,9 +129,7 @@ def consecutive_trading_days(start_date_string, end_date_string) -> bool:
     delta = end_date - start_date
 
     if delta.days < 0:
-        buffer = start_date
-        start_date = end_date
-        end_date = buffer
+        start_date, end_date = end_date, start_date
         delta = end_date - start_date
 
     holiday_count = get_holidays_between(start_date_string=start_date_string, end_date_string=end_date_string)
