@@ -42,29 +42,25 @@ def get_asset_type(symbol):
         if symbol in symbols:
             return settings.ASSET_CRYPTO
             
-        else:
                 # if other asset types are introduced, then uncomment these lines
                 # and add new asset type to conditional. Keep in mind the static
                 # equity data is HUGE.
-            # symbols = list(files.get_static_data(settings.ASSET_EQUITY))
-            # if symbol in symbols:
-                # return settings.ASSET_EQUITY
-            # else:
-                #return None
-            return settings.ASSET_EQUITY
-    else:
-        # default to equity for overlap until a better method is determined. 
+        # symbols = list(files.get_static_data(settings.ASSET_EQUITY))
+        # if symbol in symbols:
+            # return settings.ASSET_EQUITY
+        #return None
         return settings.ASSET_EQUITY
+    # default to equity for overlap until a better method is determined. 
+    return settings.ASSET_EQUITY
 
 def get_trading_period(asset_type):
     if asset_type is None:
         return False
-    elif asset_type == settings.ASSET_CRYPTO:
+    if asset_type == settings.ASSET_CRYPTO:
         return settings.ONE_TRADING_DAY
-    elif asset_type == settings.ASSET_EQUITY:
+    if asset_type == settings.ASSET_EQUITY:
         return (1/365)
-    else:
-        return settings.ONE_TRADING_DAY
+    return settings.ONE_TRADING_DAY
 
 # NOTE: Quandl outputs interest in percentage terms
 # NOTE: This function sort of blurs the lines between services.py and markets.py

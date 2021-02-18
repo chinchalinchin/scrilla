@@ -141,8 +141,8 @@ def get_static_data(static_type):
                 symbols = json.load(infile)   
             # TODO: implement other file loading exts    
         return symbols
-    else:
-        return False
+        
+    return False
 
 def get_watchlist():
     logger.debug('Loading in Watchlist symbols.')

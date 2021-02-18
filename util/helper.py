@@ -14,8 +14,7 @@ def get_number_input(msg_prompt) -> str:
         user_input = input(msg_prompt)
         if user_input.isnumeric():
             return user_input
-        else:
-            print('Input Not Understood. Please Enter A Numerical Value.')
+        print('Input Not Understood. Please Enter A Numerical Value.')
     
 def strip_string_array(array) -> [str]:
     new_array = []
@@ -43,8 +42,7 @@ def parse_date_string(date_string) -> datetime.date:
     if validate_date_string(parsed):
         date = datetime.date(year=int(parsed[0]), month=int(parsed[1]), day=int(parsed[2]))
         return date
-    else:
-        return False
+    return False
 
 def verify_date_types(dates):
     verified_dates = []
@@ -141,20 +139,18 @@ def consecutive_trading_days(start_date_string, end_date_string) -> bool:
     if (delta.days - holiday_count) == 0:
         return False
 
-    elif (delta.days - holiday_count) == 1:
+    if (delta.days - holiday_count) == 1:
         return True
 
-    elif ((delta.days - holiday_count) > 1 and (delta.days - holiday_count) < 4):
+    if ((delta.days - holiday_count) > 1 and (delta.days - holiday_count) < 4):
         start_week, end_week = start_date.isocalendar()[1], end_date.isocalendar()[1]
 
         if start_week == end_week:
             return False
 
-        else:
-            return True
+        return True
 
-    else:
-        return False
+    return False
 
 def dates_between(start_date, end_date):
     return [start_date + datetime.timedelta(x + 1) for x in range((end_date - start_date).days)]
@@ -247,14 +243,14 @@ def get_time_to_year(date):
 def get_time_to_next_period(starting_date, period):
     if period is None:
         return 0
-    else:
-        today = datetime.date.today()
-        floored_days=math.floor(365*period)
+    
+    today = datetime.date.today()
+    floored_days=math.floor(365*period)
 
-        while ((starting_date - today).days<0):
-            starting_date += datetime.timedelta(days=floored_days)
-        
-        return ((today - starting_date).days / 365)
+    while ((starting_date - today).days<0):
+        starting_date += datetime.timedelta(days=floored_days)
+    
+    return ((today - starting_date).days / 365)
 ################################################
 ##### PARSING FUNCTIONS
 

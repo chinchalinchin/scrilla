@@ -164,10 +164,8 @@ class Cashflow:
         if self.growth_function is None:
             if self.constant is not None:
                 return self.constant
-            else:
-                return (self.alpha + self.beta*(x + self.time_to_today))
-        else: 
-            return self.growth_function(x)
+            return (self.alpha + self.beta*(x + self.time_to_today))
+        return self.growth_function(x)
 
     # TODO: use trading days or actual days?
     def calculate_net_present_value(self):
@@ -175,42 +173,41 @@ class Cashflow:
         if self.period is None:
             logger.debug('No period detected for cashflows. Not enough information to calculate net present value.')
             return False
+        
+        time_to_first_payment = 0
+        if self.period == FREQ_ANNUAL:
+            time_to_first_payment = helper.get_time_to_next_year()
+            
+        elif self.period == FREQ_QUARTER:
+            time_to_first_payment = helper.get_time_to_next_quarter()
+
+        elif self.period == FREQ_MONTH:
+            time_to_first_payment = helper.get_time_to_next_month()
+
+        elif self.period == FREQ_DAY:
+            time_to_first_payment = FREQ_DAY
+        
         else:
+            dates = self.sample.keys()
+            latest_date = helper.parse_date_string(list(dates)[0])
+            time_to_first_payment = helper.get_time_to_next_period(starting_date=latest_date, period=self.period)
 
-            time_to_first_payment = 0
-            if self.period == FREQ_ANNUAL:
-                time_to_first_payment = helper.get_time_to_next_year()
-                
-            elif self.period == FREQ_QUARTER:
-                time_to_first_payment = helper.get_time_to_next_quarter()
+        self.NPV, i, current_time = 0, 0, 0
+        calculating = True
+        while calculating: 
+            previous_value = self.NPV
 
-            elif self.period == FREQ_MONTH:
-                time_to_first_payment = helper.get_time_to_next_month()
-
-            elif self.period == FREQ_DAY:
-                time_to_first_payment = FREQ_DAY
-            
+            if self.period is not None:
+                current_time = time_to_first_payment + i * self.period
             else:
-                dates = self.sample.keys()
-                latest_date = helper.parse_date_string(list(dates)[0])
-                time_to_first_payment = helper.get_time_to_next_period(starting_date=latest_date, period=self.period)
-
-            self.NPV, i, current_time = 0, 0, 0
-            calculating = True
-            while calculating: 
-                previous_value = self.NPV
-
-                if self.period is not None:
-                    current_time = time_to_first_payment + i * self.period
-                else:
-                    logger.debug('Not enough information to calculate net present value of cash flow.')
-                    return False
-                
-                self.NPV += self.get_growth_function(current_time) / ((1 + self.discount_rate)**current_time)
-
-                if self.NPV - previous_value < settings.NPV_DELTA_TOLERANCE:
-                    calculating = False
-                i += 1
-
-            return self.NPV
+                logger.debug('Not enough information to calculate net present value of cash flow.')
+                return False
             
+            self.NPV += self.get_growth_function(current_time) / ((1 + self.discount_rate)**current_time)
+
+            if self.NPV - previous_value < settings.NPV_DELTA_TOLERANCE:
+                calculating = False
+            i += 1
+
+        return self.NPV
+        

@@ -24,8 +24,7 @@ def return_line():
 def break_lines(msg):
     if len(msg)>formatter.LINE_LENGTH:
         return [msg[i:i+formatter.LINE_LENGTH] for i in range(0,len(msg), formatter.LINE_LENGTH)]
-    else:
-        return [msg]
+    return [msg]
 
 def center(this_line):
     buff = int((formatter.LINE_LENGTH - len(this_line))/2)

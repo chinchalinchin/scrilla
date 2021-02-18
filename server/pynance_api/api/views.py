@@ -63,8 +63,7 @@ def risk_return(request):
             graph.print_png(response)
             return response
 
-        else:
-            return JsonResponse(data=response, status=status, safe=False)
+        return JsonResponse(data=response, status=status, safe=False)
 
 def optimize(request):
     status, parsed_args_or_err_msg = parser.validate_request(request, ["GET"])
@@ -162,8 +161,8 @@ def efficient_frontier(request):
             response = HttpResponse(content_type="image/png")
             graph.print_png(response)
             return response
-        else:
-            return JsonResponse(data=response, status=status, safe=False) 
+        
+        return JsonResponse(data=response, status=status, safe=False) 
 
 # TODO: in future allow user to specify moving average periods through query parameters! 
 def moving_averages(request):
@@ -231,8 +230,8 @@ def moving_averages(request):
             response = HttpResponse(content_type="image/png")
             graph.print_png(response)
             return response
-        else:
-            return JsonResponse(data = response, status=status, safe=False)
+
+        return JsonResponse(data = response, status=status, safe=False)
 
 def discount_dividend(request):
     status, parsed_args_or_err_msg = parser.validate_request(request, ["GET"])
@@ -283,5 +282,4 @@ def discount_dividend(request):
             graph.print_png(response)
             return response
 
-        else:
-            return JsonResponse(data=response, status=status, safe=False)
+        return JsonResponse(data=response, status=status, safe=False)
