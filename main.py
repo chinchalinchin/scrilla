@@ -115,7 +115,7 @@ if __name__ == "__main__":
             logger.log_arguments(main_args=main_args, xtra_args=xtra_args, xtra_values=xtra_values)
 
             outputter.title_line('Results')
-            outputter.line()
+            outputter.print_line()
 
             ### FUNCTION: Asset Grouping
             if opt == formatter.FUNC_ARG_DICT['asset_type']:
@@ -342,7 +342,7 @@ if __name__ == "__main__":
                 logger.comment('No function supplied. Please review Function Summary below and re-execute with appropriate arguments.')
                 outputter.help_msg()
             
-            outputter.line()
+            outputter.print_line()
     else:
         logger.comment('No arguments Supplied. Please review function summary below and re-execute with appropriate arguments.')
         outputter.help_msg()
