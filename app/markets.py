@@ -93,24 +93,77 @@ def get_trading_period(asset_type):
 #       in services.py since it's basically just a call an external service.
 #       Haven't made up my mind yet. 
 def get_risk_free_rate():
+    """
+    Description
+    -----------
+    Returns as a decimal the risk free rate defined by the RISK_FREE environment variable (and passed into `app.settings` as the variable RISK_FREE_RATE). \n \n 
+    """
     if settings.STAT_MANAGER == "quandl":
         risk_free_rate_key = settings.ARG_Q_YIELD_CURVE[settings.RISK_FREE_RATE]
         risk_free_rate = services.get_daily_stats_latest(statistic=risk_free_rate_key)
         return (risk_free_rate)/100
 
 def sharpe_ratio(ticker, start_date=None, end_date=None):
+    """
+    Description
+    -----------
+    Returns the value of the sharpe ratio for the supplied ticker over the specified time range. If no start and end date are supplied, calculation will default to the last 100 days of prices. \n \n 
+
+    Parameters
+    ----------
+    1. ticker : str \n
+        A string of the ticker symbol whose sharpe ratio will be computed. \n \n
+
+    2. start_date : datetime.date \n 
+        Start date of the time period for which the sharpe ratio will be computed. \n \n 
+
+    3. end_date : datetime.date \n 
+        End_date of the time period for which the sharpe ratio will be computed. \n \n 
+
+    """
     ticker_profile = statistics.calculate_risk_return(ticker=ticker, start_date=start_date,
                                                         end_date=end_date)
     return (ticker_profile['annual_return'] - get_risk_free_rate())/ticker_profile['annual_volatility']
 
 # if no dates are specified, defaults to last 100 days
 def market_premium(start_date=None, end_date=None):
+    """
+    Description
+    -----------
+    Returns the excess of the market return defined by the environment variable MARKET_PROXY and the risk free rate defined by the RISK_FREE rate. \n \n 
+
+    Parameters
+    ----------
+    1. start_date : datetime.date \n 
+        Start date of the time period for which the market premium will be computed. \n \n 
+
+    2. end_date : datetime.date \n 
+        End_date of the time period for which the market premium will be computed. \n \n 
+
+    """
     market_profile = statistics.calculate_risk_return(ticker=settings.MARKET_PROXY, 
                                                         start_date=start_date, 
                                                         end_date=end_date)
     return (market_profile['annual_return'] - get_risk_free_rate())
 
 def market_beta(ticker, start_date=None, end_date=None):
+    """
+    Description
+    -----------
+    Returns the beta of an asset with the market return defined by the environment variable MARKET_PROXY.
+
+    Parameters
+    ----------
+    1. ticker : str \n
+        A string of the ticker symbol whose asset beta will be computed. \n \n
+
+    2. start_date : datetime.date \n 
+        Start date of the time period for which the asset beta will be computed. \n \n 
+
+    3. end_date : datetime.date \n 
+        End_date of the time period for which the asset beta will be computed. \n \n 
+
+    """
     market_profile = statistics.calculate_risk_return(ticker=settings.MARKET_PROXY, start_date=start_date, 
                                                         end_date=end_date)
     market_covariance = statistics.calculate_return_covariance(ticker_1=ticker, ticker_2=settings.MARKET_PROXY,
@@ -118,6 +171,22 @@ def market_beta(ticker, start_date=None, end_date=None):
     return market_covariance / (market_profile['annual_volatility']**2)
 
 def cost_of_equity(ticker, start_date=None, end_date=None):
+    """
+    Description
+    -----------
+    Returns the cost of equity of an asset as estimated by the Capital Asset Pricing Model, i.e. the product of the market premium and asset beta increased by the risk free rate. \n \n 
+    Parameters
+    ----------
+    1. ticker : str \n
+        A string of the ticker symbol whose cost of equity ratio will be computed. \n \n
+
+    2. start_date : datetime.date \n 
+        Start date of the time period for which the cost of equity ratio will be computed. \n \n 
+
+    3. end_date : datetime.date \n 
+        End_date of the time period for which the cost of equity ratio will be computed. \n \n 
+
+    """
     beta = market_beta(ticker=ticker, start_date=start_date, end_date=end_date)
     premium = market_premium(start_date=start_date, end_date=end_date)
 
