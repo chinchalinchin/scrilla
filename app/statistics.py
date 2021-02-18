@@ -25,11 +25,11 @@ logger = outputter.Logger('app.statistics', settings.LOG_LEVEL)
 
 def sample_correlation(x, y):
     if len(x) != len(y):
-        logger.info(f'Samples are not of comparable lengths')
+        logger.info('Samples are not of comparable lengths')
         return False
 
     if len(x) in [0, 1]:
-        logger.info(f'Sample correlation cannot be computed for a sample size less than or equal to 1.')
+        logger.info('Sample correlation cannot be computed for a sample size less than or equal to 1.')
         return False
 
     sumproduct, sum_x_squared, sum_x, sum_y, sum_y_squared= 0, 0, 0, 0, 0
@@ -84,11 +84,11 @@ def sample_variance(x):
 
 def sample_covariance(x, y):
     if len(x) != len(y):
-        logger.info(f'Samples are not of comparable length')
+        logger.info('Samples are not of comparable length')
         return False
 
     if len(x) in [0, 1]:
-        logger.info(f'Sample correlation cannot be computed for a sample size less than or equal to 1.')
+        logger.info('Sample correlation cannot be computed for a sample size less than or equal to 1.')
         return False
 
     n, covariance = len(x), 0
@@ -261,11 +261,11 @@ def calculate_moving_averages(tickers, start_date=None, end_date=None, sample_pr
         asset_type = markets.get_asset_type(ticker)
         trading_period = markets.get_trading_period(asset_type)
 
-        logger.debug(f'Offsetting start date to account for longest Moving Average period.')
+        logger.debug('Offsetting start date to account for longest Moving Average period.')
         if asset_type == settings.ASSET_CRYPTO:
             logger.debug(f'{ticker}_asset_type = Crypto')
 
-            logger.debug(f'Configuring date variables to account for all dates.')
+            logger.debug('Configuring date variables to account for all dates.')
             new_start_date = start_date - datetime.timedelta(days=settings.MA_3_PERIOD)
             new_day_count = (end_date - new_start_date).days
 
@@ -273,7 +273,7 @@ def calculate_moving_averages(tickers, start_date=None, end_date=None, sample_pr
         elif asset_type == settings.ASSET_EQUITY:
             logger.debug(f'{ticker}_asset_type = Equity')
 
-            logger.debug(f'Configuring date variables to account for weekends and holidays.')
+            logger.debug('Configuring date variables to account for weekends and holidays.')
             new_start_date = helper.decrement_date_by_business_days(start_date=start_date, 
                                                                     business_days=settings.MA_3_PERIOD)
             new_day_count = helper.business_days_between(new_start_date, end_date)
@@ -281,7 +281,7 @@ def calculate_moving_averages(tickers, start_date=None, end_date=None, sample_pr
         else:
             logger.debug(f'{ticker}_asset_type = Unknown; Defaulting to business dates')
 
-            logger.debug(f'Configuring date variables to account for weekends and holidays.')
+            logger.debug('Configuring date variables to account for weekends and holidays.')
             new_start_date = helper.decrement_date_by_business_days(start_date=start_date, 
                                                                     business_days=settings.MA_3_PERIOD)
             new_day_count = helper.business_days_between(new_start_date, end_date)
@@ -408,7 +408,7 @@ def calculate_moving_averages(tickers, start_date=None, end_date=None, sample_pr
     else:
         dates_between = helper.business_dates_between(start_date, end_date)
     
-    logger.debug(f'If everything is correct, then len(moving_averages[0][1]) == len(dates_between)')
+    logger.debug('If everything is correct, then len(moving_averages[0][1]) == len(dates_between)')
     if len(moving_averages[0][1]) == len(dates_between):
         logger.debug("Your program rules.")
         logger.debug('{} = {}'.format(len(moving_averages[0][1]), len(dates_between)))
@@ -464,7 +464,7 @@ def calculate_risk_return(ticker, start_date=None, end_date=None, sample_prices=
             logger.debug(f'No cached {ticker} statistics found, calling service.')
             prices = services.get_daily_price_history(ticker=ticker)
         else: 
-            logger.debug(f'No sample prices provided, calling service.')
+            logger.debug('No sample prices provided, calling service.')
             prices = services.get_daily_price_history(ticker=ticker, start_date=start_date, end_date=end_date)
     else:
         logger.debug(f'{ticker} sample prices provided, skipping service call.')

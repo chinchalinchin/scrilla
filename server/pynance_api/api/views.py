@@ -42,12 +42,12 @@ def risk_return(request):
         prices = parser.parse_args_into_market_queryset(ticker=tickers[i], parsed_args=parsed_args)
 
         if prices.count() == 0:
-            output.debug(f'No prices found in database, passing query call to application.')
+            output.debug('No prices found in database, passing query call to application.')
             profile = statistics.calculate_risk_return(ticker=tickers[i], start_date=parsed_args['start_date'], 
                                                         end_date=parsed_args['end_date'])
 
         else:
-            output.debug(f'Prices found in database, passing result to application.')
+            output.debug('Prices found in database, passing result to application.')
             sample_prices = parser.market_queryset_to_list(price_models=prices)
             profile = statistics.calculate_risk_return(ticker=tickers[i], sample_prices=sample_prices)
 
@@ -83,10 +83,10 @@ def optimize(request):
             break
     
     if null_result:
-        output.debug(f'No prices found in database, passing query call to application.')
+        output.debug('No prices found in database, passing query call to application.')
         portfolio = Portfolio(tickers=tickers, start_date=parsed_args['start_date'], end_date=parsed_args['end_date'])
     else:
-        output.debug(f'Prices found in database, passing query call to application.')
+        output.debug('Prices found in database, passing query call to application.')
         for ticker in tickers:
             sample_prices[ticker] = parser.market_queryset_to_list(price_model=prices[ticker])[ticker]
         portfolio = Portfolio(tickers=tickers, sample_prices=sample_prices)  
@@ -127,10 +127,10 @@ def efficient_frontier(request):
             break
 
     if null_result:
-        output.debug(f'No prices found in database, passing query to service.')
+        output.debug('No prices found in database, passing query to service.')
         portfolio = Portfolio(tickers=tickers, start_date=parsed_args['start_date'], end_date=parsed_args['end_date'])
     else:
-        output.debug(f'Prices found in database, passing result to statistics.')
+        output.debug('Prices found in database, passing result to statistics.')
         for ticker in tickers:
             sample_prices[ticker] = parser.market_queryset_to_list(price_model=prices[ticker])[ticker]
         portfolio = Portfolio(tickers=tickers, sample_prices=sample_prices)  
@@ -182,11 +182,11 @@ def moving_averages(request):
             break
 
     if null_result:
-        output.debug(f'No prices found in database, passing query to service.')
+        output.debug('No prices found in database, passing query to service.')
         averages_output = statistics.calculate_moving_averages(tickers=tickers, start_date=parsed_args['start_date'],
                                                                 end_date=parsed_args['end_date'])
     else: 
-        output.debug(f'Prices found in database, passing result to statistics.')
+        output.debug('Prices found in database, passing result to statistics.')
         for ticker in tickers:
             sample_prices[ticker] = parser.market_queryset_to_list(price_model=prices[ticker])[ticker]
         averages_output = statistics.calculate_moving_averages(tickers=tickers, sample_prices=sample_prices)
@@ -250,10 +250,10 @@ def discount_dividend(request):
         dividends = parser.parse_args_into_dividend_queryset(ticker=ticker, parsed_args=parsed_args)
 
         if dividends.count() == 0:
-            output.debug(f'No dividends found in database, passing query call to application.')
+            output.debug('No dividends found in database, passing query call to application.')
             dividends = services.query_service_for_dividend_history(ticker=ticker)
         else:
-            output.debug(f'Dividends found in database, passing result to application.')
+            output.debug('Dividends found in database, passing result to application.')
             dividends = parser.dividend_queryset_to_list(dividend_set=dividends)
 
         present_value = Cashflow(sample=dividends,discount_rate=discount_rate).calculate_net_present_value()
