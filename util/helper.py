@@ -259,28 +259,6 @@ def get_time_to_next_period(starting_date, period):
 ##### PARSING FUNCTIONS
 
 ### CLI PARSING
-def separate_and_parse_args(args):
-    extra_args, extra_values= [], []
-    reduced_args = args
-    offset = 0
-    
-    for arg in args:
-        if arg in formatter.FUNC_XTRA_VALUED_ARGS_DICT.values() or arg in formatter.FUNC_XTRA_SINGLE_ARGS_DICT.values():
-            extra_args.append(arg)
-            if arg not in formatter.FUNC_XTRA_SINGLE_ARGS_DICT.values():
-                extra_values.append(args[args.index(arg)+1])
-
-    for arg in extra_args:
-        reduced_args.remove(arg)
-
-    for arg in extra_values:
-        reduced_args.remove(arg)
-        
-    for arg in reduced_args:
-        arg = arg.upper()
-
-    return (extra_args, extra_values, reduced_args)
-
 def get_start_date(xtra_args, xtra_values):
     if formatter.FUNC_XTRA_VALUED_ARGS_DICT['start_date'] in xtra_args:
         unparsed_start = xtra_values[xtra_args.index(formatter.FUNC_XTRA_VALUED_ARGS_DICT['start_date'])]
@@ -361,6 +339,27 @@ def format_xtra_args_list(xtra_args, xtra_values):
     }
     return arg_list
 
+def separate_and_parse_args(args):
+    extra_args, extra_values= [], []
+    reduced_args = args
+    offset = 0
+    
+    for arg in args:
+        if arg in formatter.FUNC_XTRA_VALUED_ARGS_DICT.values() or arg in formatter.FUNC_XTRA_SINGLE_ARGS_DICT.values():
+            extra_args.append(arg)
+            if arg not in formatter.FUNC_XTRA_SINGLE_ARGS_DICT.values():
+                extra_values.append(args[args.index(arg)+1])
+
+    for arg in extra_args:
+        reduced_args.remove(arg)
+
+    for arg in extra_values:
+        reduced_args.remove(arg)
+        
+    for arg in reduced_args:
+        arg = arg.upper()
+
+    return (extra_args, extra_values, reduced_args)
 ### APPLICATION PARSING
 def format_allocation_profile(allocation, portfolio) -> str:
     port_return, port_volatility = portfolio.return_function(allocation), portfolio.volatility_function(allocation)

@@ -307,7 +307,7 @@ if __name__ == "__main__":
                 if xtra_list['model'] is None:
                     model = markets.MODEL_DDM
                 # TODO: compute cost of capital equity and use as discount rate
-                results = markets.screen_for_discount(model=model, discount_rate=discount)
+                results = markets.screen_for_discount(model=model, discount_rate=xtra_list['discount'])
                 outputter.screen_results(info=results, model=model)
 
             ### FUNCTION: Sharpe Ratio
