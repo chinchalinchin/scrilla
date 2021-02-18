@@ -89,12 +89,12 @@ def help_msg():
         return_line()
  # APPLICATION SPECIFIC FORMATTING FUNCTIONS
 
-def spot_price(ticker, spot_price):
-    formatted_price = round(float(spot_price), 2)
+def spot_price(ticker, this_spot_price):
+    formatted_price = round(float(this_spot_price), 2)
     scalar_result(f'{ticker} spot price', formatted_price)
     
-def model_price(ticker, model_price, model):
-    formatted_price = round(float(model_price),2)
+def model_price(ticker, this_model_price, model):
+    formatted_price = round(float(this_model_price),2)
     scalar_result(f'{ticker} {str(model).upper()} price', formatted_price)
 
 def moving_average_result(tickers, averages_output, periods, start_date = None, end_date = None):
