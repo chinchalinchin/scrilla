@@ -144,7 +144,7 @@ def query_service_for_daily_price_history(ticker, start_date=None, end_date=None
             if not valid_dates:
                 return False
     else:
-        logger.debug(f'Full price history requested, nulling start_date and end_date')
+        logger.debug('Full price history requested, nulling start_date and end_date')
         start_date, end_date = None, None
 
     if asset_type is None:
@@ -340,7 +340,7 @@ def get_daily_price_history(ticker, start_date=None, end_date=None):
             # TODO: dump other file types
         return prices
     
-    logger.info(f'No cached prices for date ranges past default. Passing to service call.')
+    logger.info('No cached prices for date ranges past default. Passing to service call.')
     prices = query_service_for_daily_price_history(ticker=ticker, start_date=start_date, end_date=end_date)
     return prices
 
@@ -436,7 +436,7 @@ def get_daily_stats_history(statistic, start_date=None, end_date=None):
             # TODO: dump other file types
         return stats
 
-    logger.info(f'No cached prices for date ranges past default. Passing to service call.')
+    logger.info('No cached prices for date ranges past default. Passing to service call.')
     stats = query_service_for_daily_stats_history(statistic=statistic, start_date=start_date, end_date=end_date)
     return stats
 
