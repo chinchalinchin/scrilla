@@ -37,6 +37,10 @@ Note, several of the application's function are not dealt with inside of this en
 First, before the containerized version of this application can be spun up, the Docker image must be built. This is easier to do from a shell script. Second, there are several 'manage.py' processes that must be completed before the server goes up, such as making migrations and migrating them to the database service. Doing so from inside of this script would be unnecessarily messy. Third, this application is designed to keep functionality as modularized as possible, i.e. the 'app' module is in charge purely of application calculations and algorithms, whereas the 'server' module is in charge of exposing the functions as an API and setting up all the necessary database tables, etc. Mixing and matching server tasks in this script would couple the application and server in ways that go counter to the design principles adopted for this package. \n \n
 """
 if __name__ == "__main__": 
+    # TODO: check for API key and if none exists, prompt user to define ALPHA_VANTAGE_KEY, QUANDL_KEY and
+    #       IEX_KEY environment variables. Then exit. 
+    # TODO: possibly create PyQt widget to prompt user to enter credentials and save them to creds.json
+    #       in /data/common/
 
     if len(sys.argv)>0:
         logger.debug('Parsing and invoking command line arguments')
