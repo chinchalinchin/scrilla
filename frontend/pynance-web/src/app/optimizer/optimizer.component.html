@@ -1,0 +1,22 @@
+<mat-card class = "app-card">
+    <mat-card-title>Portfolio Optimizer</mat-card-title>
+
+    <mat-card-content>
+        <div id="input-panel">
+            Need some date pickers and ticker input here<br>
+            <app-ticker></app-ticker>   
+        </div>
+        
+        <div id="portfolio-panel">
+            <span class="indent">Grab tickers whenever user enters them and insert into here:</span>
+            <app-portfolio></app-portfolio>
+        </div>
+    </mat-card-content>
+
+    <mat-card-actions class="align-right">
+   
+        <button mat-raised-button color="primary" [disabled]="optimizeDisabled"> Optimize</button>
+        <button mat-raised-button color="warn" [disabled]="clearDisabled">Clear</button>
+        
+    </mat-card-actions>
+</mat-card>
