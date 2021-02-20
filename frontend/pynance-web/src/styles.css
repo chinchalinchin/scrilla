@@ -3,8 +3,11 @@
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 .indent { text-indent: 50px; }
-.app-card { max-width: 400px; }
+.app-card { max-width: 600px; }
+.app-card-nested { max-width: 450px; }
 
-
+.fill-width { width: 100%; }
+.row { margin-top: 20px; }
+.col { padding: 10px; }
 .align-left{ text-align:left; }
 .align-right{ text-align: right; }
