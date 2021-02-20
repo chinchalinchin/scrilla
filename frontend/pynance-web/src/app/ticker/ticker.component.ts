@@ -26,4 +26,7 @@ export class TickerComponent implements OnInit {
     this.inputTickers = null;
   }
 
+  public enterPressed(event: string){
+    console.log(event)
+  }
 }
