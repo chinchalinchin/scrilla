@@ -5,13 +5,13 @@
         <div>
             <mat-form-field appearance="fill" class="fill-width">
                 <mat-label>Tickers</mat-label>
-                <input matInput placeholder="Placeholder"/>
+                <input matInput [(ngModel)]="this.inputTickers" placeholder="Placeholder"/>
             </mat-form-field>                
         </div>
     </mat-card-content>
 
     <mat-card-actions class="align-right">
-        <button mat-raised-button id="ticker-add-button" color="primary">Add</button>
+        <button mat-raised-button id="ticker-add-button" color="primary" (click)="saveTickers()">Add</button>
     </mat-card-actions>
     
 </mat-card>

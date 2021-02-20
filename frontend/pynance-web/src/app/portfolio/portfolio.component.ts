@@ -1,5 +1,6 @@
 import { Component, Input, OnInit, SimpleChanges } from '@angular/core';
 import { Holding } from 'src/app/models/holding';
+import { containsObject, removeStringFromArray } from 'src/utilities';
 
 const mockPortfolio : Holding[] = [
   { ticker: 'ALLY', allocation: 0.2 },
@@ -23,11 +24,10 @@ const mockPortfolio : Holding[] = [
 export class PortfolioComponent implements OnInit {
 
   private clearDisabled : boolean = false;
-  private portfolio : Holding[] = mockPortfolio
+  private portfolio : Holding[] = [];
   
   @Input()
   private allocations: number[]
-
 
   displayedColumns: string[];
 
@@ -39,27 +39,41 @@ export class PortfolioComponent implements OnInit {
   ngOnChanges(changes: SimpleChanges) {
     if (changes.allocations) {
       
+      if(this.portfolio.length != 0){
         // empty portfolio passed in
-      if(changes.allocations.currentValue.length == 0){ 
-        this.displayedColumns = ['ticker']
-        for(let holding of this.portfolio){
-          holding.allocation = null;
+        if(changes.allocations.currentValue.length == 0){ 
+          this.displayedColumns = ['ticker']
+          for(let holding of this.portfolio){
+            holding.allocation = null;
+          }
         }
-      }
-       // allocation portfolio passed in
-      else{
-        this.displayedColumns = ['ticker', 'allocation']
-        for(let newAllocation of changes.allocations.currentValue){
-          let tickerIndex=changes.allocations.currentValue.indexOf(newAllocation)
-          this.portfolio[tickerIndex].allocation = newAllocation
+        // allocation portfolio passed in
+        else{
+          this.displayedColumns = ['ticker', 'allocation']
+          for(let newAllocation of changes.allocations.currentValue){
+            let tickerIndex=changes.allocations.currentValue.indexOf(newAllocation)
+            this.portfolio[tickerIndex].allocation = newAllocation
+          }
         }
-      }
 
+    }
     }
   }
 
   public setTickers(tickers: string[]){
+    for(let ticker of tickers){ console.log(`tickers ${ticker}`)}
 
+    for(let holding of this.portfolio){
+      if(containsObject(holding.ticker, tickers)){
+        removeStringFromArray(holding.ticker, tickers)
+      }
+    }
+    
+    for(let ticker of tickers){ console.log(`tickers ${ticker}`)}
+
+    for(let ticker of tickers){
+      this.portfolio.push({ ticker: ticker, allocation: null})
+    }
   }
 
   public setAllocations(allocations : number[]){

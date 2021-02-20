@@ -1,4 +1,5 @@
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { Console } from 'console';
 
 // A component used to retrieve ticker symbols for app calculations.
 // TODO: needs to emit the tickers being added.
@@ -11,20 +12,22 @@ export class TickerComponent implements OnInit {
   @Output()
   private addTickers = new EventEmitter<string[]>();
   
-  private tickers : string[];
+  private inputTickers: string;
+  private tickers : string[] = [];
 
   constructor() { }
 
   ngOnInit() {
   }
 
-  public saveTickers(tickerList: string[]){
-    for(let ticker in tickerList){ 
-      // TODO: check if ticker is already in this.tickers
-      this.tickers.push(ticker)
+  public saveTickers(){
+    let strippedTickers = this.inputTickers.replace(/\s/g, "");
+    let parsedTickers : string[]= strippedTickers.split(',');
+    for(let ticker of parsedTickers){ 
+      this.tickers.push(ticker);
     }
-  }
-  public emitTickers(){
     this.addTickers.emit(this.tickers);
+    this.inputTickers = null;
   }
+
 }
