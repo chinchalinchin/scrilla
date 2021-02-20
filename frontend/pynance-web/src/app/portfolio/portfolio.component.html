@@ -2,7 +2,7 @@
     <mat-card-title>Portfolio</mat-card-title>
     
     <mat-card-content>
-        <app-ticker></app-ticker>
+        <app-ticker (addTickers)="setTickers($event)"></app-ticker>
 
         
         <table mat-table [dataSource]="portfolio"  class="fill-width">

@@ -13,6 +13,13 @@ const mockPortfolio : Holding[] = [
   selector: 'app-portfolio',
   templateUrl: './portfolio.component.html'
 })
+/**
+ * PortfolioComponent
+ * 
+ * Input
+ * 1. tickers [string]
+ * 2. allocations: [number]. An array of proportions  
+ */
 export class PortfolioComponent implements OnInit {
 
   private clearDisabled : boolean = false;
@@ -22,29 +29,37 @@ export class PortfolioComponent implements OnInit {
   private allocations: number[]
 
 
-  displayedColumns: string[] = ['ticker', 'allocation'];
+  displayedColumns: string[];
 
   constructor() { }
 
-  ngOnInit() {
-  } 
+  ngOnInit() {  } 
 
   
   ngOnChanges(changes: SimpleChanges) {
     if (changes.allocations) {
-        if(changes.allocations.currentValue.length == 0){ 
-          this.displayedColumns = ['ticker']
+      
+        // empty portfolio passed in
+      if(changes.allocations.currentValue.length == 0){ 
+        this.displayedColumns = ['ticker']
+        for(let holding of this.portfolio){
+          holding.allocation = null;
         }
-        else{
-          this.displayedColumns = ['ticker', 'allocation']
+      }
+       // allocation portfolio passed in
+      else{
+        this.displayedColumns = ['ticker', 'allocation']
+        for(let newAllocation of changes.allocations.currentValue){
+          let tickerIndex=changes.allocations.currentValue.indexOf(newAllocation)
+          this.portfolio[tickerIndex].allocation = newAllocation
         }
-    }
-  }
-  
-  public getDisplayColumns(){
-    for(let holding of this.portfolio){
+      }
 
     }
+  }
+
+  public setTickers(tickers: string[]){
+
   }
 
   public setAllocations(allocations : number[]){
