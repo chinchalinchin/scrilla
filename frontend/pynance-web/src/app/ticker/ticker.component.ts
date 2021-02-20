@@ -21,11 +21,8 @@ export class TickerComponent implements OnInit {
   }
 
   public saveTickers(){
-    let strippedTickers = this.inputTickers.replace(/\s/g, "");
-    let parsedTickers : string[]= strippedTickers.split(',');
-    for(let ticker of parsedTickers){ 
-      this.tickers.push(ticker);
-    }
+    let parsedTickers : string[] = this.inputTickers.replace(/\s/g, "").split(',');
+    for(let ticker of parsedTickers){ this.tickers.push(ticker); }
     this.addTickers.emit(this.tickers);
     this.inputTickers = null;
   }
