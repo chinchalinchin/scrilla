@@ -166,7 +166,7 @@ Some endpoints have unique query parameters, but all endpoints accept the follow
 
 1. <h2>/api/risk-return</h2>
     <b>Description</b><br>
-    Returns the annualized mean annual return and the annualized volatility over the specified date range for the supplied list of ticker symbols.<br><br>
+    Returns the annualized mean return and the annualized volatility over the specified date range for the supplied list of ticker symbols.<br><br>
     
     <b>Examples</b><br>
     - /api/risk-return?tickers=ALLY&tickers=SNE&tickers=GME<br>
@@ -175,7 +175,8 @@ Some endpoints have unique query parameters, but all endpoints accept the follow
     <b>Response JSON</b><br>
     > { <br>
     >    'annual_return': double, <br>
-    >    'annual_volatility': double <br>
+    >    'annual_volatility': double, <br>
+    >    'sharpe_ratio': double
     > }<br><br>
 
 2. <h2>/api/optimize</h2>
@@ -183,8 +184,8 @@ Some endpoints have unique query parameters, but all endpoints accept the follow
     Returns the optimal portfolio allocation (i.e. the portfolio with the minimal volatility) for the supplied list of ticker subject to the target return. If no target return is specified, the portfolio's volatility is minimized without constraints.<br><br>
     
     <b>Additional Query Parameters</b><br>
-    - <i>target</i>: Optional. The target return subject to which the portfolio will be optimized. If nothing is provided, function will minimize portfolio variance.<br><br>
-    
+    - <i>target</i>: Optional. The target return subject to which the portfolio will be optimized. If nothing is provided, function will minimize portfolio variance.<br>
+    - <i>sharpe</i>: Optional. Defaults to <i>false.</i> If a value of <i>true</i> is provided, the optimization function will <b>maximize</b> the portfolio's Sharpe ratio instead of minimizing the portfolio's volatility.<br><br>
     <b>Examples</b><br>
     - /api/optimize?tickers=SRAC&tickers=SPCE&tickers=AMZN<br>
     - /api/optimize?tickers=FB&tickers=GOOG&tickers=AMZN&tickers=NFLX&target=0.68<br><br>
@@ -203,7 +204,9 @@ Some endpoints have unique query parameters, but all endpoints accept the follow
 3. <h2>/api/efficient-frontier</h2>
     <b>Description</b><br>
     Returns the efficient-frontier of a portfolio defined by the supplied list of tickers. Each point on the frontier tier consists of a mean annualized return, an annualized volatility and the portfolio allocations necessary to generate those two statistics.<br><br>
-    
+
+    - <i>sharpe</i>: Optional. Defaults to <i>false.</i> If a value of <i>true</i> is provided, the optimization function will <b>maximize</b> the portfolio's Sharpe ratio instead of minimizing the portfolio's volatility.<br><br>
+
     <b>Examples</b><br>
     -/api/efficient-frontier?tickers=ENPH&tickers=TTWO&tickers=ATVI&tickers=DE<br><br>
 
@@ -381,6 +384,10 @@ not affect the application.
 26. Document how to use objects and functions in shell/scripts.
 
 27. Raise Exceptions instead of returning False when functions fail. See #4: https://deepsource.io/blog/8-new-python-antipatterns/
+
+28. Wire sharpe ratio maximization into <i>/api/optimize</i> using the new query parameter, <b>sharpe</b>.
+
+29. Return <b>sharpe ratio</b> with response at <i>/api/risk-return</i>. Considering returning the portfolio beta, as well. We'll see. Functionality exists, just needs wired in.
 
 ### NOTES
 

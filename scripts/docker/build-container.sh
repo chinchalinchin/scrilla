@@ -33,14 +33,14 @@ else
     elif [ "$1" == "frontend" ]
     then
         cd $FRONTEND_DIR
-        log "Build \e[3m$WEB_IMG_NAME:$WEB_TAG_NAME\e[0m Docker image" $SCRIPT_NAME
+        log "Building \e[3m$WEB_IMG_NAME:$WEB_TAG_NAME\e[0m Docker image" $SCRIPT_NAME
         docker build -t $WEB_IMG_NAME:$WEB_TAG_NAME . 
     fi
 
     DANGLERS=$(docker images --filter "dangling=true" -q)
     if [ "$DANGLERS" != "" ]
     then 
-        log 'Deleting Dangling Images' $SCRIPT_NAME
+        log 'Deleting dangling images' $SCRIPT_NAME
         docker rmi -f $DANGLERS
     fi
 fi
