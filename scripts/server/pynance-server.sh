@@ -3,7 +3,7 @@ SCRIPT_NAME='pynance-server'
 nl=$'\n'
 tab="     "
 ind="   "
-SCRIPT_DES="Execute this script to launch a Django server. Change SERVER_PORT in\
+SCRIPT_DES="Execute this script to launch a Django server. Change APP_PORT in\
 \e[3m/env/.env\e[0m to modify the port ${nl}${ind}the server will run on. If no argument\
 is provided, the script will default to \e[3mlocal\e[0m${nl}${nl}\
 ${tab}${tab}OPTIONS: ${nl}${tab}${tab}${ind}--local/-l = Invokes \e[2mpython manage.py \
@@ -21,13 +21,13 @@ else
     ROOT_DIR=$SCRIPT_DIR/../..
     UTIL_DIR=$SCRIPT_DIR/../util
     DOCKER_DIR=$SCRIPT_DIR/../docker
-    SERVER_DIR=$ROOT_DIR/server/pynance_api
+    SERVER_DIR=$ROOT_DIR/server/pynance-api
     APP_DIR=$ROOT_DIR/app
     ENV_DIR=$ROOT_DIR/env
     CACHE_DIR=$ROOT_DIR/cache
     STATIC_DIR=$ROOT_DIR/static
     # PYTHON SCRIPTS
-    LOG_DJANGO_SETTINGS="import server.pynance_api.core.settings as settings; from util.logger import Logger; \
+    LOG_DJANGO_SETTINGS="import server.pynance-api.core.settings as settings; from util.logger import Logger; \
         logger=Logger('scripts.server.pynance-server','info'); logger.log_django_settings(settings);"
     CLEAR_CACHE="import app.settings as settings; import app.files as files; \
         files.clear_directory(directory=settings.CACHE_DIR, retain=True, outdated_only=True)"
@@ -55,8 +55,8 @@ else
         log 'Creating Django Admin from environment variables.' $SCRIPT_NAME
         python manage.py createsuperuser --no-input --username $DJANGO_SUPERUSER_USERNAME --email $DJANGO_SUPERUSER_EMAIL
                 
-        log "Starting server On \e[3mlocalhost:$SERVER_PORT\e[0m." $SCRIPT_NAME
-        python manage.py runserver $SERVER_PORT
+        log "Starting Django Development server On \e[3mlocalhost:$APP_PORT\e[0m." $SCRIPT_NAME
+        python manage.py runserver $APP_PORT
     fi
 
     # Run in container mode
@@ -65,26 +65,26 @@ else
         log "Invoking \e[3menv-vars\e[0m script." $SCRIPT_NAME
         source $UTIL_DIR/env-vars.sh container
 
-        log "Checking if \e[3m$CONTAINER_NAME\e[0m container is currently running." $SCRIPT_NAME
-        if [ "$(docker ps -q -f name=$CONTAINER_NAME)" ]
+        log "Checking if \e[3m$APP_CONTAINER_NAME\e[0m container is currently running." $SCRIPT_NAME
+        if [ "$(docker ps -q -f name=$APP_CONTAINER_NAME)" ]
         then
-            log "Stopping \e[3m$CONTAINER_NAME\e[0m container." $SCRIPT_NAME
-            docker container stop $CONTAINER_NAME
+            log "Stopping \e[3m$APP_CONTAINER_NAME\e[0m container." $SCRIPT_NAME
+            docker container stop $APP_CONTAINER_NAME
 
-            log "Removing \e[3m$CONTAINER_NAME\e[0m container." $SCRIPT_NAME
-            docker rm $CONTAINER_NAME
+            log "Removing \e[3m$APP_CONTAINER_NAME\e[0m container." $SCRIPT_NAME
+            docker rm $APP_CONTAINER_NAME
         fi
 
-        log "Invoking \e[3mbuild-container\e[0m script." $SCRIPT_NAME
-        bash $DOCKER_DIR/pynance-container.sh
+        log "Invoking \e[3mbuild-container\e[0m script with an argument of \e[1mapplication\e[0m." $SCRIPT_NAME
+        bash $DOCKER_DIR/build-container.sh application
 
-        log "Publishing \e[3m$IMG_NAME:$TAG_NAME\e[0m with container name \e[3m$CONTAINER_NAME\e[0m on \e[3mlocalhost:$SERVER_PORT\e[0m." $SCRIPT_NAME
+        log "Publishing \e[3m$APP_IMG_NAME:$APP_TAG_NAME\e[0m with container name \e[3m$APP_CONTAINER_NAME\e[0m on \e[3mlocalhost:$APP_PORT\e[0m." $SCRIPT_NAME
         docker run \
-        --name $CONTAINER_NAME \
-        --publish $SERVER_PORT:$SERVER_PORT \
+        --name $APP_CONTAINER_NAME \
+        --publish $APP_PORT:$APP_PORT \
         --env-file $ENV_DIR/container.env \
         --mount type=bind,source=$CACHE_DIR,target=/home/cache/ \
         --mount type=bind,source=$STATIC_DIR,target=/home/static/ \
-        $IMG_NAME:$TAG_NAME
+        $APP_IMG_NAME:$APP_TAG_NAME
     fi
 fi

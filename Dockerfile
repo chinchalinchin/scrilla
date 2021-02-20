@@ -23,6 +23,6 @@ RUN chown -R pynance:pyadmin /home/ && chmod -R 770 /home/
 
 # ENTRYPOINT CONFIGURATION
 VOLUME /home/cache/ /home/static/
-WORKDIR /home/server/pynance_api/
+WORKDIR /home/server/pynance-api/
 USER pynance
 ENTRYPOINT [ "/home/scripts/docker/pynance-entrypoint.sh" ]

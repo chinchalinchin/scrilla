@@ -16,8 +16,8 @@ then
 else
     if [ ! $# -eq 0 ]
     then
-        SCRAP_CMD="cd /home/server/pynance_api && python scrap.py"
-        CONTAINER_ID="$(docker container ps --filter name=$CONTAINER_NAME --quiet)"
+        SCRAP_CMD="cd /home/server/pynance-api && python scrap.py"
+        CONTAINER_ID="$(docker container ps --filter name=$APP_CONTAINER_NAME --quiet)"
 
         log "Executing dump command within Container ID# $CONTAINER_ID" $SCRIPT_NAME
         docker exec $CONTAINER_ID bash -c "$SCRAP_CMD"

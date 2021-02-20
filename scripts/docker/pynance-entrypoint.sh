@@ -10,10 +10,10 @@ source /home/scripts/util/logging.sh
 # DIRECTORIES
 ROOT_DIR=/home/
 APP_DIR=/home/app/
-SERVER_DIR=/home/server/pynance_api/
+SERVER_DIR=/home/server/pynance-api/
 
 # PYTHON SCRIPTS
-LOG_DJANGO_SETTINGS="import server.pynance_api.core.settings as settings; from util.logger import Logger; \
+LOG_DJANGO_SETTINGS="import server.pynance-api.core.settings as settings; from util.logger import Logger; \
         logger=Logger('scripts.server.pynance-server','$LOG_LEVEL'); logger.log_django_settings(settings);"
 CLEAR_CACHE="import app.settings as settings; import app.files as files; \
         files.clear_directory(directory=settings.CACHE_DIR, retain=True, outdated_only=True)"
@@ -72,7 +72,7 @@ then
     then
         cd $SERVER_DIR
         log "Binding WSGI app To \e[2mgunicorn\e[0m Web Server On 0.0.0.0:8000" $SCRIPT_NAME 
-        gunicorn core.wsgi:application --bind=0.0.0.0:$SERVER_PORT --workers 1
+        gunicorn core.wsgi:application --bind=0.0.0.0:$APP_PORT --workers 1
     fi
 
     # OTHER IMAGE DEPLOYMENTS GO HERE

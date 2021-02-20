@@ -94,9 +94,9 @@ for more examples of additional arguments that can be provided to functions.
 
 ### Local Setup
 
-The application's functions can also be exposed through an API (a work in progress). To launch the API on your <i>localhost</i>, first configure the <b>SERVER_PORT</b> in the <i>/env/local.env</i> file. Then, from the <i>/server/pynance_api</i> directory execute,
+The application's functions can also be exposed through an API (a work in progress). To launch the API on your <i>localhost</i>, first configure the <b>APP_PORT</b> in the <i>/env/local.env</i> file. Then, from the <i>/server/pynance-api</i> directory execute,
 
-> python manage.py runserver $SERVER_PORT
+> python manage.py runserver $APP_PORT
 
 Alternatively, you can run the <i>/scripts/server/launch-server.sh</i> script with an argument of <i>-local</i>,
 
@@ -114,7 +114,7 @@ and make sure the <b>APP_ENV</b> variable is set to <i>container</i>. Initialize
 
 > source ./scripts/util/env-vars.sh container
 
-After you have your environment file initialized, note the <b>IMG_NAME</b>, <b>TAG_NAME</b> and <b>CONTAINER_NAME</b> environment variables will set the image, tag and container name respectively (if that wasn't obvious). 
+After you have your environment file initialized, note the <b>IMG_NAME</b>, <b>TAG_NAME</b> and <b>APP_CONTAINER_NAME</b> environment variables will set the image, tag and container name respectively (if that wasn't obvious). 
 
 To start up the server in a container, execute the <i>launch-server</i> script, but provide it an argument of `-container`,
 
@@ -127,7 +127,7 @@ Or, if you want to build the image without spinning up the container,
 Once the image has been built, you can spin up the container using (assuming your environment file has been initialized and loaded into your shell session),
 
 > docker run 
-> --publish $SERVER_PORT:$SERVER_PORT \\ <br>
+> --publish $APP_PORT:$APP_PORT \\ <br>
 > --env-file /path/to/env/file $IMG_NAME:$IMG_TAG
 
 Note, the image will need an environment file to function properly. The application container also supports the CLI functionality, which can be accessed by providing the `docker run` command with the function you wish to execute (you do not need to publish the container on port in this case),
@@ -143,7 +143,7 @@ The <i>Dockerfile</i> defines the container <i>/cache/</i> and <i>/static/</i> d
 
 The same applies for publishing the application over a <i>localhost</i> port. To run the container in as efficient as manner as possible, execute the following,
 
-> docker run --publish $SERVER_PORT:$SERVER_PORT \\ <br>
+> docker run --publish $APP_PORT:$APP_PORT \\ <br>
 > --env-file /path/to/env/file \\ <br>
 > --mount type=bind,source=/path/to/project/static/,target=/home/static/ --mount type=bind,source=/path/to/project/cache/,target=/home/cache/ \\ <br>
 > $IMG_NAME:$IMG_TAG
@@ -305,11 +305,11 @@ See the comments in the <i>/env/.sample.env</i> for more information on each var
 21. <b>GUI_WIDTH</b>: Defines the width in pixels of the application's root <b>PyQt</b> widget. Defaults to 800 if not provided.
 22. <b>GUI_HEIGHT</b>: Defines the height in pixels of the application's root <b>PyQt</b> widget. Defaults to 800 if not provided.
 
-### Server Configuration
+### Application Server Configuration
 
 23. <b>SECRET_KEY</b>: The secret used by Django to sign requests.
 24. <b>APP_ENV</b>: Informs the application which environment is it running in, i.e. either <i>local</i> or <i>container</i>
-25. <b>SERVER_PORT</b>: Configures the port on which the WSGI application runs.
+25. <b>APP_PORT</b>: Configures the port on which the WSGI application runs.
 26. <b>DEBUG</b>: Configures Django's debug mode. 
 27. <b>DJANGO_SUPERUSER_EMAIL</b>:
 28. <b>DJANGO_SUPERUSER_USERNAME</b>:
@@ -328,9 +328,9 @@ not affect the application.
 30. <b>PGDATA</b>:
 
 ### Container Configuration
-22. <b>IMG_NAME</b>: Name of the image created during the Docker build.
-23. <b>TAG_NAME</b>: Tag applied to the image created during the Docker build.
-24. <b>CONTAINER_NAME</b>: Name of the container applied to the image when it is spun up.
+22. <b>APP_IMG_NAME</b>: Image name of the application created during the Docker build.
+23. <b>APP_TAG_NAME</b>: Tag applied to the application image created during the Docker build.
+24. <b>APP_CONTAINER_NAME</b>: Container name applied to the running application image when it is spun up.
 25. <b>SCRAPPER_ENABLED</b>: If set to True, the container will scrap price histories from the external services for storage in the <b>postgres</b> instance orchestrated with the application. 
 
 # TODOS
@@ -376,7 +376,7 @@ not affect the application.
 
 23. Research annotations for cashflow object's growth function and portfolio's return/volatility functions. Perhaps a way of injecting them into the GUI easier. Not sure.
 
-25. Integrate a Redis instance with Celery to allow a background process to scrap the cache for missing prices every hour or so. Register `scrap_from_cache` function <i>/server/pynance_api/scrap.py</i> script as job in the Redis queue. Likewise, `scrap_prices`, `scrap_stats` and  `scrap_dividends`, plus any future scrapping functions.
+25. Integrate a Redis instance with Celery to allow a background process to scrap the cache for missing prices every hour or so. Register `scrap_from_cache` function <i>/server/pynance-api/scrap.py</i> script as job in the Redis queue. Likewise, `scrap_prices`, `scrap_stats` and  `scrap_dividends`, plus any future scrapping functions.
 
 26. Document how to use objects and functions in shell/scripts.
 
