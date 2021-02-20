@@ -14,6 +14,7 @@ setuptools.setup(
     long_description_content_type="text/raw",
     url="https://github.com/chinchalinchin/pynance",
     packages=setuptools.find_packages(),
+    include_package_data=True,
     install_requires = [
         'python-dotenv==0.15.0',
         'requests==2.25.0',
