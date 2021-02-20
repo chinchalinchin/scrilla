@@ -6,14 +6,16 @@
     
     <mat-card-content>
         <div id="portfolio-panel">
-            <app-portfolio></app-portfolio>
+            <app-portfolio [allocations]="getAllocations()"></app-portfolio>
         </div>
     </mat-card-content>
 
     <mat-card-actions class="align-right">
    
-        <button mat-raised-button color="primary" [disabled]="optimizeDisabled"> Optimize</button>
-        <button mat-raised-button color="warn" [disabled]="clearDisabled">Clear</button>
+        <button mat-raised-button color="primary" 
+                [disabled]="optimizeDisabled" (click)="optimize()"> Optimize</button>
+        <button mat-raised-button color="warn" 
+                [disabled]="clearDisabled" (click)="clear()">Clear</button>
         
     </mat-card-actions>
 </mat-card>
