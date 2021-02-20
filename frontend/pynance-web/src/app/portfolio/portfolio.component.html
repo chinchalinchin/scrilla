@@ -5,7 +5,12 @@
         <app-ticker (addTickers)="setTickers($event)"></app-ticker>
 
         
-        <table mat-table [dataSource]="portfolio"  class="fill-width">
+        <table #portfolioTable mat-table [dataSource]="portfolio"  class="fill-width">
+
+            <ng-container matColumnDef="index">
+                <th mat-header-cell *matHeaderCellDef>  </th>
+                <td mat-cell *matCellDef="let holding"> <mat-icon>input</mat-icon></td>
+            </ng-container>
             <ng-container matColumnDef="ticker">
                 <th mat-header-cell *matHeaderCellDef> Symbol </th>
                 <td mat-cell *matCellDef="let holding"> {{holding.ticker}} </td>

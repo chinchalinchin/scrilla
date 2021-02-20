@@ -1,14 +1,14 @@
-import { THIS_EXPR } from '@angular/compiler/src/output/output_ast';
-import { Component, Input, OnInit, SimpleChanges } from '@angular/core';
+import { MatTable } from '@angular/material';
+import { Component, Input, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 import { Holding } from 'src/app/models/holding';
 import { containsObject, removeStringFromArray } from 'src/utilities';
 
 const mockPortfolio : Holding[] = [
-  { ticker: 'ALLY', allocation: 0.2 },
-  { ticker: 'BX', allocation: 0.25 },
-  { ticker: 'SNE', allocation: 0.4 },
-  { ticker: 'PFE', allocation: 0.1 },
-  { ticker: 'TWTR', allocation: 0.05 }
+  { index: 1, ticker: 'ALLY', allocation: 0.2 },
+  { index: 2, ticker: 'BX', allocation: 0.25 },
+  { index: 3, ticker: 'SNE', allocation: 0.4 },
+  { index: 4, ticker: 'PFE', allocation: 0.1 },
+  { index: 5, ticker: 'TWTR', allocation: 0.05 }
 ]
 
 @Component({
@@ -28,6 +28,10 @@ export class PortfolioComponent implements OnInit {
   private portfolio : Holding[] = [];
   private displayedColumns: string[] = [];
 
+  @ViewChild('portfolioTable', {static: false})
+  private portfolioTable : MatTable<Holding[]>;
+  
+
   
   @Input()
   private allocations: number[]
@@ -42,14 +46,14 @@ export class PortfolioComponent implements OnInit {
       if(this.portfolio.length != 0){
         // empty portfolio passed in
         if(changes.allocations.currentValue.length == 0){ 
-          this.displayedColumns = ['ticker']
+          this.displayedColumns = ['index', 'ticker']
           for(let holding of this.portfolio){
             holding.allocation = null;
           }
         }
         // allocation portfolio passed in
         else{
-          this.displayedColumns = ['ticker', 'allocation']
+          this.displayedColumns = ['index', 'ticker', 'allocation']
           for(let newAllocation of changes.allocations.currentValue){
             let tickerIndex=changes.allocations.currentValue.indexOf(newAllocation)
             this.portfolio[tickerIndex].allocation = newAllocation
@@ -68,13 +72,16 @@ export class PortfolioComponent implements OnInit {
     }
 
     for(let ticker of tickers){
-      this.portfolio.push({ ticker: ticker, allocation: null})
+      let newIndex = this.portfolio.length+1;
+      this.portfolio.push({ index: newIndex, ticker: ticker, allocation: null})
     }
   
     if(this.portfolio.length != 0){
       this.clearDisabled = false;
-      this.displayedColumns = ['ticker']
+      this.displayedColumns = ['index', 'ticker']
     }
+
+    this.portfolioTable.renderRows()
   }
 
   public setAllocations(allocations : number[]) : void{
