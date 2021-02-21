@@ -3,7 +3,7 @@
     
     <mat-card-content>
         <!--TODO: create mat-grid-->
-        <app-ticker (addTickers)="setTickers($event)"></app-ticker>
+        <app-ticker #tickerInput (addTickers)="setTickers($event)"></app-ticker>
 
         <table #portfolioTable mat-table [dataSource]="portfolio"  class="fill-width">
 

@@ -8,9 +8,3 @@ export function containsObject(obj, list) {
 
     return false;
 }
-
-export function removeStringFromArray(element: string, array: string[]) {
-    array.forEach((value,index)=>{
-        if(value==element) array.splice(index,1);
-    });
-}

@@ -1,4 +1,6 @@
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { FormGroup, FormControl } from '@angular/forms';
+
 // A component used to retrieve ticker symbols for app calculations.
 // TODO: needs to emit the tickers being added.
 @Component({
@@ -6,11 +8,15 @@ import { Component, EventEmitter, OnInit, Output } from '@angular/core';
   templateUrl: './ticker.component.html'
 })
 export class TickerComponent implements OnInit {
+  public range = new FormGroup({
+    start: new FormControl(),
+    end: new FormControl()
+  });
 
   @Output()
   private addTickers = new EventEmitter<string[]>();
   
-  private inputTickers: string;
+  public inputTickers: string;
   private tickers : string[] = [];
 
   constructor() { }

@@ -6,12 +6,13 @@ import { Component, Input, OnInit } from '@angular/core';
 })
 export class OptimizerComponent implements OnInit {
 
-  private mockAllocations: number[] = []
-  private optimizeDisabled : boolean = false;
-  private clearDisabled : boolean = true;
-  private calculated : boolean = false;
+  public optimizeDisabled : boolean = false;
+  public clearDisabled : boolean = true;
+  
+  @Input() public explanationDisabled;
 
-  @Input() private explanationDisabled;
+  private mockAllocations: number[] = []
+  private calculated : boolean = false; 
 
   constructor() { }
 
