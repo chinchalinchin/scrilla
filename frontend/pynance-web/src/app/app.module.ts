@@ -27,6 +27,8 @@ import { MatGridListModule } from '@angular/material/grid-list';
 import { MatSelectModule } from '@angular/material/select';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatTabsModule } from '@angular/material/tabs';
+import { MatListModule } from '@angular/material/list';
+
 
 // Third Party Material
 import  { MatCurrencyFormatModule } from 'mat-currency-format';
@@ -60,6 +62,7 @@ import { ValuationComponent } from './widgets/valuation/valuation.component';
     MatSelectModule,
     MatRadioModule,
     MatTabsModule,
+    MatListModule,
     MatCurrencyFormatModule,
     ReactiveFormsModule,
   ],

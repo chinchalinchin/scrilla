@@ -27,9 +27,6 @@ export class OptimizerComponent implements OnInit {
   ngOnInit() {
   }
 
-  ngOnChanges(changes: SimpleChanges){
-    console.log(`changes: ${changes}`)
-  }
   public optimize(){
     this.calculated = true;
     this.optimizeDisabled = true;

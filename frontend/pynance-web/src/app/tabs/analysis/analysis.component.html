@@ -13,11 +13,17 @@
 
     <mat-tab label="Settings">
         <mat-card>
-            <mat-label>Enable widget explanations: </mat-label>
-            <mat-radio-group [(ngModel)]="explanations">
-                <mat-radio-button [value]="true">On</mat-radio-button>
-                <mat-radio-button [value]="false">Off</mat-radio-button>
-            </mat-radio-group>
+            <!--TODO: use a slide toggle instead-->
+            <mat-list role="list">
+                <mat-list-item role="list-item">
+                    <mat-label><mat-icon style="padding-right:15px;">build</mat-icon> Enable widget explanations: </mat-label>
+                    <mat-radio-group [(ngModel)]="explanations">
+                        <mat-radio-button [value]="true" >On</mat-radio-button>
+                        <mat-radio-button [value]="false" >Off</mat-radio-button>
+                    </mat-radio-group>
+                </mat-list-item>
+            </mat-list>
+            
         </mat-card>
     </mat-tab>
 </mat-tab-group>
