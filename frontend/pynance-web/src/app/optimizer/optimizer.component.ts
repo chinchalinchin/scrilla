@@ -14,10 +14,10 @@ export class OptimizerComponent implements OnInit {
   @Input() public explanationDisabled;
 
   @ViewChild(PortfolioComponent)
-  private portfolio : PortfolioComponent;
+  public portfolio : PortfolioComponent;
 
   @ViewChild(ArgumentsComponent)
-  private arguments : ArgumentsComponent;
+  public arguments : ArgumentsComponent;
 
   private calculated : boolean = false; 
 

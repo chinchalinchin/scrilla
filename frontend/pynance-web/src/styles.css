@@ -6,7 +6,7 @@
 /*@import '@angular/material/prebuilt-themes/deeppurple-amber.css';*/
 
 html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; background-color:dimgrey; }
 
 .indent { text-indent: 50px; }
 
@@ -18,12 +18,13 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 .squeeze-height { height: 75%; }
 .squeeze-width { width: 75%; }
 
-.align-left{ text-align: left; }
-.align-right{ text-align: right; }
-.align-cetner{ text-align: center}
+.align-left{ text-align: left !important; }
+.align-right{ text-align: right !important; }
+.align-cetner{ text-align: center !important;}
 
 .component-title { font-size: medium; }
 .component-text { font-size: small; }
+.component-note { font-size: x-small; }
 .foot-note{ text-align: center; font-size:xx-small; }
 
 .divide { border-top: 3px solid #bbb; }

@@ -30,9 +30,12 @@ import { mockPortfolio } from 'src/app/models/holding'
 export class PortfolioComponent implements OnInit {
 
   // public portfolio : Holding[] = [];
-  public portfolio: Holding[] = mockPortfolio;
+  public portfolio: Holding[] = [];
   public clearDisabled : boolean = true;
   public displayedColumns: string[] = [];
+
+  public startDate: string;
+  public endDate: string;
 
   @ViewChild('portfolioTable')
   private portfolioTable : MatTable<Holding[]>;
@@ -42,9 +45,7 @@ export class PortfolioComponent implements OnInit {
 
   ngOnInit() { } 
   
-  ngOnChanges(changes: SimpleChanges) {
-    console.log(`changes ${changes}`)
-    
+  ngOnChanges(changes: SimpleChanges) {    
     if (changes.allocations) {
       if(this.portfolio.length != 0){
         // empty portfolio passed in
@@ -76,6 +77,8 @@ export class PortfolioComponent implements OnInit {
   }
 
   public setTickers(inputTickers: string[]) : void{
+    console.log(`received inputTickers: ${inputTickers}`)
+
     let unduplicatedTickers : string[] = [];
     let portfolioTickers : string[] = this.getTickers();
     
@@ -96,6 +99,12 @@ export class PortfolioComponent implements OnInit {
     
     this.portfolioTable.renderRows()
 
+  }
+  
+  public setDates(inputDates: string[]) : void {
+    console.log(`received inputDates ${inputDates}`)
+    this.startDate = inputDates[0]
+    this.endDate = inputDates[0]
   }
 
   public setAllocations(allocations : number[]) : void{

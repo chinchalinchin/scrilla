@@ -1,5 +1,4 @@
 
-<!--NOTE: rowHeight="1:1" or rowHeight="190px" seem to work best-->
 <mat-grid-list id="arguments-grid" cols="4" rowHeight="150">
 
     <mat-grid-tile *ngIf="tickers" id="tickers-tile" colspan="2">
@@ -15,7 +14,7 @@
                         </mat-form-field>                
                 </mat-card-content>
             
-                <mat-card-actions class="align-right">
+                <mat-card-actions id="tickers-card-actions" class="align-right">
                     <button mat-raised-button id="ticker-add-button" color="primary" 
                             (click)="saveTickers()">Add</button>
                 </mat-card-actions>
@@ -26,6 +25,7 @@
         <mat-card id="dates-card" class="fill-width fill-height" >
             <mat-card-title id="dates-card-title" class="component-title">
                 Sample Date Range</mat-card-title>
+
             <mat-card-content id="dates-card-body">
                 <mat-form-field id="dates-form" class="fill-width">
                     <mat-label class="component-text">Select a date range for sample pirces</mat-label>
@@ -43,7 +43,7 @@
                 </mat-form-field>
             </mat-card-content>
         
-            <mat-card-actions class="align-right">
+            <mat-card-actions id="dates-card-actions" class="align-right">
                 <button mat-raised-button id="dates-apply-button" color="primary" 
                         (click)="saveDates()">Apply</button>
             </mat-card-actions>
@@ -55,6 +55,7 @@
         <mat-card id="investment-card" class="fill-width fill-height">
             <mat-card-title id="investment-card-title" class="component-title">
                 Investment</mat-card-title>
+
             <mat-card-content id="investment-card-body">
                 <mat-form-field id="investment-form" class="fill-width">
                     <mat-label class="component-text">Enter investment in $</mat-label>
@@ -71,10 +72,12 @@
 
     <mat-grid-tile *ngIf="target" id="target-tile" colspan="1">
         <mat-card id="target-card" class="fill-width fill-height">
-            <mat-card-title id="target-card-title" class="component-title">Target Return</mat-card-title>
+            <mat-card-title id="target-card-title" class="component-title">
+                Target Return</mat-card-title>
+
             <mat-card-content id="target-card-body">
                 <mat-form-field id="target-form" class="fill-width">
-                    <mat-label class="component-text">Annualized return as a decimal</mat-label>
+                    <mat-label class="component-text">Enter target annualized return as a decimal</mat-label>
                     <input matInput type="number" [(ngModel)]="inputTarget" (keyup)="saveTarget()"/>
                     <button mat-button *ngIf="inputTarget" matSuffix mat-icon-button aria-label="Clear" 
                             (click)="clearTarget()">
@@ -89,6 +92,7 @@
         <mat-card id="model-card" class="fill-height fill-width">
             <mat-card-title id="model-card-title" class="component-title">
                 Pricing Model</mat-card-title>
+
             <mat-card-content id="model-card-body">
                 <mat-form-field id="model-form" class="fill-width">
                     <mat-label class="component-text">Select a pricing model</mat-label>
@@ -100,7 +104,6 @@
                         </mat-select>
                 </mat-form-field>
             </mat-card-content>
-            
         </mat-card>
     </mat-grid-tile>
 
@@ -108,13 +111,17 @@
         <mat-card id="method-card" class="fill-height fill-width">
             <mat-card-title id="method-card-title" class="component-title">
                 Optimization Method</mat-card-title>
+
             <mat-card-content id="method-card-body">
+                <mat-label class="component-note">Select an optimization method</mat-label><br>
                 <mat-radio-group [(ngModel)]="inputMethod" class="fill-width">
-                <mat-radio-button *ngFor="let method of optMethods" [value]="method.value" (change)="saveMethod($event)">
-                  {{method.viewValue}}
-                </mat-radio-button>
+                    <mat-radio-button *ngFor="let method of optMethods" 
+                            [value]="method.value" (change)="saveMethod($event)">
+                        {{method.viewValue}}
+                    </mat-radio-button>
               </mat-radio-group>
             </mat-card-content>
         </mat-card>
     </mat-grid-tile>
+
 </mat-grid-list>

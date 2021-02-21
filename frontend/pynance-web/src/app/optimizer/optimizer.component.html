@@ -1,22 +1,22 @@
-<mat-card class="app-card">
-    <mat-card-title>Portfolio Optimizer</mat-card-title>
-    
-    <mat-card-subtitle>This widget allows you to create a custom portfolio and optimize its allocations 
-        based on historical data over the specified data range.</mat-card-subtitle>
-    
-    <mat-card-content>
-        <div id="portfolio-panel">
-            <app-portfolio [allocations]="getAllocations()"></app-portfolio>
-        </div>
+<mat-card id="optimizer-card">
+    <mat-card-title id="optimizer-card-title" class="component-title">
+        Portfolio Optimization</mat-card-title>
+    <mat-card-content id="optimizer-card-body">
+        <app-args id="optimizer-card-arguments" class="app-card" 
+                [tickers]="true" [dates]="true" [target]="true" 
+                [investment]="true" [method]="true"
+                (addTickers)="portfolio.setTickers($event)"
+                (addDates)="portfolio.setDates($event)"></app-args>
+
+        <app-portfolio id="optimizer-card-portfolio" class="app-card" 
+                [allocations]="getAllocations()"></app-portfolio>
     </mat-card-content>
 
-    <mat-card-actions class="align-right">
-   
+    <mat-card-actions id="optimizer-card-actions" class="align-right">
         <button mat-raised-button color="primary" 
                 [disabled]="optimizeDisabled" (click)="optimize()"> Optimize</button>
-        <button mat-raised-button color="warn" 
+        <button mat-raised-button color="warn"
                 [disabled]="clearDisabled" (click)="clear()">Clear</button>
-        
     </mat-card-actions>
 </mat-card>
 
