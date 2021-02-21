@@ -9,5 +9,6 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 .fill-width { width: 100%; }
 .row { margin-top: 20px; }
 .col { padding: 10px; }
-.align-left{ text-align:left; }
+.align-left{ text-align: left; }
 .align-right{ text-align: right; }
+.align-center{ text-align: center; }
