@@ -26,3 +26,9 @@ export function dateToString(date: Date) : string{
     let full_date_string = `${year}-${month_string}-${day_string}`;
     return full_date_string;
 }
+
+export function getColumnFromList(column_name, list ){
+    let parsed_list = []
+    for(let entry of list){ parsed_list.push(entry[column_name]) }
+    return parsed_list;
+}

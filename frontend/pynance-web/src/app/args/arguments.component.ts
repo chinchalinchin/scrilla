@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormGroup, FormControl } from '@angular/forms';
-import { dateToString } from 'src/utilities';
+import { containsObject, dateToString, getColumnFromList } from 'src/utilities';
 
 /** ArgumentsComponent
  * DESCRIPTION: 
@@ -43,6 +43,10 @@ import { dateToString } from 'src/utilities';
    { value:'DDM', viewValue:'Discount Dividend Model' },
    { value:'DCF', viewValue:'Discount Cashflow Model'}
  ]
+ const OPTIMIZATION_METHODS=[
+   { value: 'MVP', viewValue:'Minimum Variance Portfolio' },
+   { value: 'MSR', viewValue: 'Maximize Sharpe Ratio'}
+ ]
 
 @Component({
   selector: 'app-args',
@@ -60,6 +64,8 @@ export class ArgumentsComponent implements OnInit {
   public model: boolean = false;
   @Input()
   public investment: boolean = false;
+  @Input()
+  public method: boolean = false;
 
   // Output: User entered argument values
   @Output()
@@ -72,16 +78,20 @@ export class ArgumentsComponent implements OnInit {
   private addModel = new EventEmitter<string>();
   @Output()
   private addInvestment = new EventEmitter<number>();
-  
+  @Output()
+  private addMethod = new EventEmitter<string>();
+
   public inputTickers: string;
   public inputInvestment: number;
   public inputTarget: number;
+  public inputModel: string;
+  public inputMethod: string;
   public range = new FormGroup({
     start: new FormControl(),
     end: new FormControl()
   });
-
   public pricingModels = PRICING_MODELS;
+  public optMethods = OPTIMIZATION_METHODS;
 
   private savedTickers : string[] = [];
   private savedStartDate : Date;
@@ -90,7 +100,8 @@ export class ArgumentsComponent implements OnInit {
 
   constructor() { }
 
-  // TODO: query backend static list of pricing models
+  // TODO: query backend for static dropdown list of pricing models
+  // TODO: ??? maybe not ??? query backend for static list of optimization methods.
   ngOnInit() {
     this.today = new Date();
   }
@@ -118,21 +129,30 @@ export class ArgumentsComponent implements OnInit {
   }
 
   public saveInvestment() : void {
-    console.log(`saving investment: ${this.inputInvestment}`)
     if(this.inputInvestment){
       this.addInvestment.emit(this.inputInvestment);
     }
   }
 
   public saveTarget() : void {
-    console.log(`saving target: ${this.inputTarget}`)
     if(this.inputTarget){
       this.addTarget.emit(this.inputTarget);
     }
   }
 
-  public saveModel(model : string): void{
-    console.log(model)
+  public saveModel() : void{
+    if(this.inputModel){
+      this.addModel.emit(this.inputModel)
+    }
+  }
+
+  // ngModel doesn't get updated until after click, so have to 
+  //  inject the click event itself into the saveMethod function.
+  public saveMethod(event) : void{
+    let valueList = getColumnFromList("value", this.optMethods)
+    if(containsObject(event.value, valueList)){
+      this.addMethod.emit(event.value)
+    }
   }
 
   public clearInvestment() : void {
@@ -144,4 +164,5 @@ export class ArgumentsComponent implements OnInit {
     this.inputTarget = null;
     this.addTarget.emit(null);
   }
+
 }

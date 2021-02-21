@@ -23,6 +23,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatSelectModule } from '@angular/material/select';
+import { MatRadioModule } from '@angular/material/radio';
 
 // Third Party Material
 import  { MatCurrencyFormatModule } from 'mat-currency-format';
@@ -50,6 +51,7 @@ import  { MatCurrencyFormatModule } from 'mat-currency-format';
     MatNativeDateModule,
     MatGridListModule,
     MatSelectModule,
+    MatRadioModule,
     MatCurrencyFormatModule,
     ReactiveFormsModule,
   ],
