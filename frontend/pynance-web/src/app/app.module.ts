@@ -8,9 +8,11 @@ import { ReactiveFormsModule } from '@angular/forms';
 
 // Custom Component Imports
 import { AppComponent } from './app.component';
-import { ArgumentsComponent } from './args/arguments.component';
-import { OptimizerComponent } from './optimizer/optimizer.component';
-import { PortfolioComponent } from './portfolio/portfolio.component';
+import { AnalysisComponent } from './tabs/analysis/analysis.component';
+import { ArgumentsComponent } from './input/args/arguments.component';
+import { PortfolioComponent } from './input/portfolio/portfolio.component';
+import { OptimizerComponent } from './widgets/optimizer/optimizer.component';
+import { EfficientFrontierComponent } from './widgets/efficient-frontier/efficient-frontier.component';
 
 // Angular Material Imports
 import { MatCardModule } from '@angular/material/card';
@@ -28,7 +30,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 
 // Third Party Material
 import  { MatCurrencyFormatModule } from 'mat-currency-format';
-import { AnalysisComponent } from './analysis/analysis.component';
+import { ValuationComponent } from './widgets/valuation/valuation.component';
 
 
 
@@ -38,7 +40,9 @@ import { AnalysisComponent } from './analysis/analysis.component';
     OptimizerComponent,
     ArgumentsComponent,
     PortfolioComponent,
-    AnalysisComponent
+    AnalysisComponent,
+    EfficientFrontierComponent,
+    ValuationComponent
   ],
   imports: [
     BrowserModule,

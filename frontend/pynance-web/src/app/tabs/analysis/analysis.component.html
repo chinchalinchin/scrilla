@@ -4,19 +4,19 @@
     </mat-tab>
 
     <mat-tab label="Efficient Frontier">
-        Efficient Frontier Goes Here
+        <app-efficient-frontier [explanationDisabled]="!explanations"></app-efficient-frontier>
     </mat-tab>
 
     <mat-tab label="Valuation Models">
-        Discount Discount Model Goes Here
+        <app-valuation [explanationDisabled]="!explanations"></app-valuation>
     </mat-tab>
 
     <mat-tab label="Settings">
-        <mat-label>Enable widget explanations</mat-label>
         <mat-card>
+            <mat-label>Enable widget explanations: </mat-label>
             <mat-radio-group [(ngModel)]="explanations">
-                <mat-radio-button value="true">On</mat-radio-button>
-                <mat-radio-button value="off">Off</mat-radio-button>
+                <mat-radio-button [value]="true">On</mat-radio-button>
+                <mat-radio-button [value]="false">Off</mat-radio-button>
             </mat-radio-group>
         </mat-card>
     </mat-tab>

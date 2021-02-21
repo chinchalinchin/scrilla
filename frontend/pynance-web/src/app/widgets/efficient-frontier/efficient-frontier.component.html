@@ -1,0 +1,18 @@
+<mat-card id="frontier-card" class="background">
+    <mat-card-title id="frontier-card-title" class="component-title">
+        Portfolio Efficient Frontier</mat-card-title>
+    <mat-card-content id="frontier-card-body">
+        <app-args id="frontier-card-arguments" class="app-card" 
+                [tickers]="true" [dates]="true" [investment]="true"
+                (addTickers)="portfolio.setTickers($event)"
+                (addDates)="portfolio.setDates($event)"></app-args><br>
+
+    </mat-card-content>
+
+    <mat-card-actions id="frontier-card-actions" class="align-right">
+        <button mat-raised-button color="primary" 
+                [disabled]="frontierDisabled" (click)="calculate()">Calculate</button>
+        <button mat-raised-button color="warn"
+                [disabled]="clearDisabled" (click)="clear()">Clear</button>
+    </mat-card-actions>
+</mat-card>

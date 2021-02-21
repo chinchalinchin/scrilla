@@ -1,0 +1,17 @@
+<mat-card id="valuation-card" class="background">
+    <mat-card-title id="valuation-card-title" class="component-title">
+        Asset Valuation</mat-card-title>
+    <mat-card-content id="valuation-card-body">
+        <app-args id="valuation-card-arguments" class="app-card" 
+                [tickers]="true" [model]="true"
+                (addTickers)="portfolio.setTickers($event)"></app-args><br>
+
+    </mat-card-content>
+
+    <mat-card-actions id="valuation-card-actions" class="align-right">
+        <button mat-raised-button color="primary" 
+                [disabled]="graphDisabled" (click)="calculate()">Calculate</button>
+        <button mat-raised-button color="warn"
+                [disabled]="clearDisabled" (click)="clear()">Clear</button>
+    </mat-card-actions>
+</mat-card>

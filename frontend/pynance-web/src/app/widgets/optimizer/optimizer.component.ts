@@ -1,6 +1,6 @@
-import { Component, Input, OnInit, ViewChild } from '@angular/core';
-import { ArgumentsComponent } from '../args/arguments.component';
-import { PortfolioComponent } from '../portfolio/portfolio.component';
+import { Component, Input, OnInit, SimpleChanges, ViewChild } from '@angular/core';
+import { ArgumentsComponent } from '../../input/args/arguments.component';
+import { PortfolioComponent } from '../../input/portfolio/portfolio.component';
 
 @Component({
   selector: 'app-optimizer',
@@ -10,16 +10,16 @@ export class OptimizerComponent implements OnInit {
 
   public optimizeDisabled : boolean = false;
   public clearDisabled : boolean = true;
-  
-  @Input() public explanationDisabled;
+
+  private calculated : boolean = false; 
+
+  @Input() 
+  public explanationDisabled;
 
   @ViewChild(PortfolioComponent)
   public portfolio : PortfolioComponent;
-
   @ViewChild(ArgumentsComponent)
   public arguments : ArgumentsComponent;
-
-  private calculated : boolean = false; 
 
   constructor() { }
 
@@ -27,6 +27,9 @@ export class OptimizerComponent implements OnInit {
   ngOnInit() {
   }
 
+  ngOnChanges(changes: SimpleChanges){
+    console.log(`changes: ${changes}`)
+  }
   public optimize(){
     this.calculated = true;
     this.optimizeDisabled = true;

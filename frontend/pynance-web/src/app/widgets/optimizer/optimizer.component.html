@@ -1,0 +1,82 @@
+<mat-card id="optimizer-card" class="background">
+    <mat-card-title id="optimizer-card-title" class="component-title">
+        Portfolio Optimization</mat-card-title>
+    <mat-card-content id="optimizer-card-body">
+        <app-args id="optimizer-card-arguments" class="app-card" 
+                [tickers]="true" [dates]="true" [target]="true" 
+                [investment]="true" [method]="true"
+                (addTickers)="portfolio.setTickers($event)"
+                (addDates)="portfolio.setDates($event)"></app-args><br>
+
+        <app-portfolio id="optimizer-card-portfolio" class="app-card" 
+                [allocations]="getAllocations()"></app-portfolio>
+    </mat-card-content>
+
+    <mat-card-actions id="optimizer-card-actions" class="align-right">
+        <button mat-raised-button color="primary" 
+                [disabled]="optimizeDisabled" (click)="optimize()"> Optimize</button>
+        <button mat-raised-button color="warn"
+                [disabled]="clearDisabled" (click)="clear()">Clear</button>
+    </mat-card-actions>
+</mat-card>
+
+<div *ngIf="!explanationDisabled" id="explanation-panel">
+    <div class="box">
+    <h1>Portfolio Optimization Primer</h1>
+
+        <h2>Portfolio Variance</h2>
+
+        <p>
+            <a href="https://en.wikipedia.org/wiki/Portfolio_optimization" target="_blank" rel="noreferrer">Portfolio optimization</a> as described <a href="https://en.wikipedia.org/wiki/Modern_portfolio_theory">by Modern Portfolio Theory</a> hinges on the idea that correlation between assets can be used to decrease a portfolio's overall variance. Consider a portfolio made up <b>n</b> assets <a>***asset image goes here***</a> (<i>i = 1, ... , n</i>) where <a>***weight image goes here***</a> represents the proportion of the portfolio allocated to <i>asset i</i>. The return on this portfolio can be described the weighted sum of the individual returns,
+        </p>    
+        <p style="margin-left: 150px;">***random variable image heres here***</p>
+        <p>
+            Since future returns are unknown, this expression is a <a href="https://en.wikipedia.org/wiki/Random_variable" target="_blank" rel="noreferrer">random variable.</a> By the <a href="https://en.wikipedia.org/wiki/Expected_value#Basic_properties" target="_blank" rel="noreferrer">linearity of expected values</a>, the expectation of the portfolio's future return can be expressed as the weighted sum of the individual assets' return,
+        </p>
+        <p style="margin-left: 150px;">***expected return image goes here***</p>
+        <p>
+            Where <a>return image goes here</a> represents the rate of return for <i>asset i</i>. The expression for the portfolio variance is a little more complicated,<br><br>
+        </p>
+        <p style="margin-left: 150px;">***variance image goes here***</p>
+        <p>
+            Notice, the correlation between assets affects the portfolio's overall variance. In particular, if the correlation between any two assets in a portfolio is negative, the portfolio's variance can be decreased by clever allocation of the total investment among the negatively correlated assets. This is the key idea behind <b>portfolio optimization</b>; <b>portfolio optimization</b> seeks to find the portfolio allocation will which yield the least overall variance, i.e. the minimums variance.<br><br>
+        </p>
+        <p>
+            In order to apply the principles of portfolio optimization a set of assets, the future correlation between assets must be known. The assumption is made that markets roughly obey the dynamics of a <a href="https://en.wikipedia.org/wiki/Martingale_(probability_theory)" target="_blank" rel="noreferrer">Martingale process</a>, i.e. the most likely value of a random process with respect to time is its current value,<br><br>
+        </p>
+        <p style="margin-left: 150px;">***martingale image goes here***</p>
+        <p> 
+            Generalizing the idea of a Martingale process from expectations to correlations, the best guess of two assets' future correlation is those two assets' current correlation. Portfolio correlations can be calculated using a sample of historical prices for each asset. This is exactly what the widget featured above does: it optimizes a portfolio's variance using a sample of historical prices!<br><br>
+
+            First, input the tickers you wish to include in your portfolio and select the date range over which you wish to calculate the portfolio assets' correlation. There are several other options that will be detailed in the following sections. <br><br>
+        </p>
+
+        <h2>Constraints</h2>
+
+        <p>
+            The <b>target return</b> constraint will fix the portfolio's rate of return to a certain value before optimizing. The idea behind this constraint can be seen through an analogy: There are many ways to create the number 5 from a linear combination of other numbers: 10 - 5, 2 + 3, 108 - 103, etc. In the same way, there are many portfolios which will yield a certain rate of return. By fixing the target return before you optimize, you are telling the optimization algorithm to find the portfolio with the specified <b>target return</b> and minimum variance. 
+        </p>
+        <p>
+            In other words, when specifying this argument, the optimization method will find the point on the <a href="https://en.wikipedia.org/wiki/Capital_market_line" target="_blank" rel="noreferrer">Capital Market Line</a> that corresponds to the provided <b>target return</b>. 
+        </p>
+        <h2>Investment</h2>
+
+        <p>
+            By default, the portfolio allocations are output in percentage terms. The result can also be expressed in terms of the <b>investment</b> in the portfolio, i.e. the amount of whole-numbered shares allocated to each asset (or whole-numbered <i>units</i> if the assets under consideration are not equities). If a total investment is provided, the algorithm will output the number of shares that should be bought of each asset in order to minimize the portfolio variance. 
+        </p>
+
+        <h2>Sharpe Ratio</h2>
+
+        <p>
+            Instead of minimizing the portfolio variance, a different approach to portfolio allocation is available. The <a href="https://en.wikipedia.org/wiki/Sharpe_ratio" target="_blank" rel="noreferrer">sharpe ratio</a> measures an asset's excess rate of return over the risk free rate per unit volatility,
+        </p>
+        <p style="margin-left: 150px;">***sharpe ratio image goes here.***</p>
+        <p>
+            Note due to the divisor, the expected value of a portfolio's <b>sharpe ratio</b> can not be expressed as the sum of individual assets' <b>sharpe ratio</b>. The <a>sharpe ratio</a> for an entire portfolio of assets must be calculated using,
+        </p>
+        <p style="margin-left: 150px;">***portfolio sharpe image goes here***</p>
+        <p>
+            The higher the <a>sharpe ratio</a> of a portfolio, the more return it gets on its investment per unit of volatility; in simpler terms, the <a>sharpe ratio</a> is a measure of how much bang a portfolio get for its buck. A low <a>sharpe ratio</a> near zero means the portfolio's rate of return is drowned out by its volatiliy, i.e. an asset's movement cannot be discerned as the result of a trend or random fluctation. A portfolio can also be allocated by <i>maximizing</i> its sharpe ratio, instead of <i>minimizing</i> its overall variance. If you wish to apply this method of optimization, select <i>Maximize Sharpe Ratio</i> from the <b>Optimization Method</b> toggle.
+        </p>
+    </div>
+</div>
