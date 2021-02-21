@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
-import { TickerComponent } from './ticker.component';
+import { TickerComponent } from './arguments.component';
 
 describe('TickerComponent', () => {
   let component: TickerComponent;

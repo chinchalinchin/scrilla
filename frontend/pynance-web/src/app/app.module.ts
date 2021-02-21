@@ -8,8 +8,8 @@ import { ReactiveFormsModule } from '@angular/forms';
 
 // Custom Component Imports
 import { AppComponent } from './app.component';
+import { ArgumentsComponent } from './args/arguments.component';
 import { OptimizerComponent } from './optimizer/optimizer.component';
-import { TickerComponent } from './ticker/ticker.component';
 import { PortfolioComponent } from './portfolio/portfolio.component';
 
 // Angular Material Imports
@@ -26,7 +26,7 @@ import { MatNativeDateModule } from '@angular/material/core';
   declarations: [
     AppComponent,
     OptimizerComponent,
-    TickerComponent,
+    ArgumentsComponent,
     PortfolioComponent
   ],
   imports: [

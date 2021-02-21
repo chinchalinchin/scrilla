@@ -1,39 +1,42 @@
 import { MatTable } from '@angular/material/table';
-import { Component, Input, OnInit, QueryList, SimpleChanges, ViewChild, ViewChildren } from '@angular/core';
+import { Component, Input, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 import { Holding } from 'src/app/models/holding';
 import { containsObject } from 'src/utilities';
-import { TickerComponent } from '../ticker/ticker.component';
-
-const mockPortfolio : Holding[] = [
-  { ticker: 'ALLY', allocation: 0.2, return: 0.4, volatility: 0.65},
-  { ticker: 'BX', allocation: 0.25, return: 0.15, volatility: 0.42 },
-  { ticker: 'SNE', allocation: 0.4, return: 0.33, volatility: 1.02 },
-  { ticker: 'PFE', allocation: 0.1, return: 0.28, volatility: 0.32 },
-  { ticker: 'TWTR', allocation: 0.05, return: 0.41, volatility: 0.44 }
-]
+import { ArgumentsComponent } from '../args/arguments.component';
 
 @Component({
   selector: 'app-portfolio',
   templateUrl: './portfolio.component.html'
 })
-/**
- * PortfolioComponent
+/**PortfolioComponent
+ * This component receives ticker symbols inputted by the user in the child ArgumentsComponent
+ *  and gets loaded by its parent component, whether that be OptimizerComponent or 
+ *  EfficientFrontierComponent, with the percentage of the portfolio that should be dedicated
+ *  to each asset in the user ticker symbol list. 
  * 
- * Input
- * 1. allocations: [number]. An ordered array of portfolio allocation corresponding to the 
- *    the tickers initialized in the portfolio. 
+ * Input:
+ * This component requires a number array as an argument,
+ * 
+ * <app-portfolio [allocations]="[0,0.5,0.25,0.25]"></app-portfolio>
+ * 
+ * 'allocations' must be an ordered array of portfolio allocations corresponding to the 
+ *  the tickers passed in through the ArgumentsComponent child. In other words, if the user
+ *  specifies the ticker list of ["ALLY", "BX", "SNE"], then the allocation array of, say,
+ *  [0.25, 0.3, 0.45] would represent an 25% ALLY allocation, a 30% BX allocation and a 45%
+ *  SNE allocation.
+ * 
+ * 
  */
 export class PortfolioComponent implements OnInit {
 
   public portfolio : Holding[] = [];
   public clearDisabled : boolean = true;
   public displayedColumns: string[] = [];
-  private today: Date  = new Date();
 
   @ViewChild('portfolioTable')
   private portfolioTable : MatTable<Holding[]>;
   @ViewChild('tickerInput') 
-  private tickerChild: TickerComponent;
+  private tickerChild: ArgumentsComponent;
 
   @Input()
   private allocations: number[]
