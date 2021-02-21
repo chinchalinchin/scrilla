@@ -19,7 +19,7 @@ export class ValuationComponent implements OnInit {
   ngOnInit(): void {
   }
 
-  public calculate(){
+  public evaluate(){
 
   }
 
