@@ -8,6 +8,8 @@
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; background-color:rgb(148, 148, 148); }
 
+.tab{background-color:rgb(97, 97, 97);}
+
 p{ margin-top: 25px; margin-bottom: 25px; margin-right: 25px; margin-left: 25px; }
 h1 { margin-left: 10px; }
 h2 { margin-left: 20px; }

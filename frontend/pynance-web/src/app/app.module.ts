@@ -28,6 +28,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 
 // Third Party Material
 import  { MatCurrencyFormatModule } from 'mat-currency-format';
+import { AnalysisComponent } from './analysis/analysis.component';
 
 
 
@@ -36,7 +37,8 @@ import  { MatCurrencyFormatModule } from 'mat-currency-format';
     AppComponent,
     OptimizerComponent,
     ArgumentsComponent,
-    PortfolioComponent
+    PortfolioComponent,
+    AnalysisComponent
   ],
   imports: [
     BrowserModule,
