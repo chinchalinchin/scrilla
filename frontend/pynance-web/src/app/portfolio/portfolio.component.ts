@@ -1,14 +1,16 @@
 import { MatTable } from '@angular/material';
-import { Component, Input, OnInit, SimpleChanges, ViewChild } from '@angular/core';
+import { Component, Input, OnInit, QueryList, SimpleChanges, ViewChild, ViewChildren } from '@angular/core';
+import {FormGroup, FormControl} from '@angular/forms';
 import { Holding } from 'src/app/models/holding';
 import { containsObject, removeStringFromArray } from 'src/utilities';
+import { TickerComponent } from '../ticker/ticker.component';
 
 const mockPortfolio : Holding[] = [
-  { index: 1, ticker: 'ALLY', allocation: 0.2 },
-  { index: 2, ticker: 'BX', allocation: 0.25 },
-  { index: 3, ticker: 'SNE', allocation: 0.4 },
-  { index: 4, ticker: 'PFE', allocation: 0.1 },
-  { index: 5, ticker: 'TWTR', allocation: 0.05 }
+  { ticker: 'ALLY', allocation: 0.2, return: 0.4, volatility: 0.65},
+  { ticker: 'BX', allocation: 0.25, return: 0.15, volatility: 0.42 },
+  { ticker: 'SNE', allocation: 0.4, return: 0.33, volatility: 1.02 },
+  { ticker: 'PFE', allocation: 0.1, return: 0.28, volatility: 0.32 },
+  { ticker: 'TWTR', allocation: 0.05, return: 0.41, volatility: 0.44 }
 ]
 
 @Component({
@@ -19,29 +21,35 @@ const mockPortfolio : Holding[] = [
  * PortfolioComponent
  * 
  * Input
- * 1. tickers [string]
- * 2. allocations: [number]. An array of proportions  
+ * 1. allocations: [number]. An ordered array of portfolio allocation corresponding to the 
+ *    the tickers initialized in the portfolio. 
  */
 export class PortfolioComponent implements OnInit {
+  range = new FormGroup({
+    start: new FormControl(),
+    end: new FormControl()
+  });
 
   private clearDisabled : boolean = true;
   private portfolio : Holding[] = [];
   private displayedColumns: string[] = [];
+  private today: Date  = new Date();
 
   @ViewChild('portfolioTable', {static: false})
   private portfolioTable : MatTable<Holding[]>;
-  
+  @ViewChild(TickerComponent, {static: false}) 
+  private tickerChild: TickerComponent;
 
-  
   @Input()
   private allocations: number[]
 
-  constructor() { }
-
-  ngOnInit() {  } 
-
+  ngOnInit() { 
+    console.log(`tickerChild ${this.tickerChild}`)
+   } 
   
   ngOnChanges(changes: SimpleChanges) {
+    console.log(`changes ${changes}`)
+    
     if (changes.allocations) {
       if(this.portfolio.length != 0){
         // empty portfolio passed in
@@ -72,16 +80,16 @@ export class PortfolioComponent implements OnInit {
     }
 
     for(let ticker of tickers){
-      let newIndex = this.portfolio.length+1;
-      this.portfolio.push({ index: newIndex, ticker: ticker, allocation: null})
+      this.portfolio.push({ ticker: ticker, allocation: null, return: null, volatility: null})
     }
   
     if(this.portfolio.length != 0){
       this.clearDisabled = false;
       this.displayedColumns = ['index', 'ticker']
     }
-
+    
     this.portfolioTable.renderRows()
+
   }
 
   public setAllocations(allocations : number[]) : void{
@@ -91,7 +99,7 @@ export class PortfolioComponent implements OnInit {
     }
   }
 
-  public clearPortfolio():void{
+  public clearPortfolio() : void{
     this.portfolio = [];
     this.clearDisabled = true;
     this.displayedColumns = [];

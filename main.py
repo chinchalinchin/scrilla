@@ -45,7 +45,7 @@ if __name__ == "__main__":
         # single argument functions
         ### FUNCTION: Help Message
         if opt == formatter.FUNC_ARG_DICT["help"]:
-            logger.help()
+            outputter.help_msg()
 
         ### FUNCTION: Clear Cache
         elif opt == formatter.FUNC_ARG_DICT["clear_cache"]:

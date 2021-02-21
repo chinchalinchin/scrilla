@@ -1,5 +1,6 @@
 export interface Holding{
-    index: number,
     ticker: string,
-    allocation: number
+    allocation: number,
+    return: number,
+    volatility: number
 }

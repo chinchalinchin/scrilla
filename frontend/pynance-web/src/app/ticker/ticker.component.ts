@@ -25,8 +25,12 @@ export class TickerComponent implements OnInit {
     this.addTickers.emit(this.tickers);
     this.inputTickers = null;
   }
+  
+  public setStartDate(date : Date) : void {
+    console.log(date)
+  }
 
-  public enterPressed(event: string){
-    console.log(event)
+  public setEndDate(date : Date) : void {
+    console.log(date)
   }
 }
