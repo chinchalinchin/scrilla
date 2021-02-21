@@ -22,6 +22,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatGridListModule } from '@angular/material/grid-list';
+import { MatSelectModule } from '@angular/material/select';
 
 // Third Party Material
 import  { MatCurrencyFormatModule } from 'mat-currency-format';
@@ -48,6 +49,7 @@ import  { MatCurrencyFormatModule } from 'mat-currency-format';
     MatDatepickerModule,
     MatNativeDateModule,
     MatGridListModule,
+    MatSelectModule,
     MatCurrencyFormatModule,
     ReactiveFormsModule,
   ],

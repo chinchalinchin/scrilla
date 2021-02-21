@@ -38,6 +38,12 @@ import { dateToString } from 'src/utilities';
  * TODOS
  * method: maximize sharpe or minimize volatilty
  **  */
+
+ const PRICING_MODELS=[
+   { value:'DDM', viewValue:'Discount Dividend Model' },
+   { value:'DCF', viewValue:'Discount Cashflow Model'}
+ ]
+
 @Component({
   selector: 'app-args',
   templateUrl: './arguments.component.html'
@@ -75,7 +81,8 @@ export class ArgumentsComponent implements OnInit {
     end: new FormControl()
   });
 
-
+  public pricingModels = PRICING_MODELS;
+  
   private savedTickers : string[] = [];
   private savedStartDate : Date;
   private savedEndDate : Date;
@@ -83,6 +90,7 @@ export class ArgumentsComponent implements OnInit {
 
   constructor() { }
 
+  // TODO: query backend static list of pricing models
   ngOnInit() {
     this.today = new Date();
   }
