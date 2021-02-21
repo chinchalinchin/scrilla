@@ -8,7 +8,11 @@
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; background-color:rgb(148, 148, 148); }
 
-.indent { text-indent: 50px; }
+p{ margin-top: 25px; margin-bottom: 25px; margin-right: 25px; margin-left: 25px; }
+h1 { margin-left: 10px; }
+h2 { margin-left: 20px; }
+
+.box{ background-color:rgb(116, 116, 116); margin-left: 10px; margin-right:10px; margin-top:10px; margin-bottom:10px;}
 
 .app-card { max-width: 600px; }
 .app-card-nested { max-width: 450px; }
@@ -18,6 +22,7 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; background-
 .squeeze-height { height: 75%; }
 .squeeze-width { width: 75%; }
 
+.indent { text-indent: 50px; }
 .align-left{ text-align: left !important; }
 .align-right{ text-align: right !important; }
 .align-cetner{ text-align: center !important;}

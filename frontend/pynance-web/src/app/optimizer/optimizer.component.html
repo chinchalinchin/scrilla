@@ -20,53 +20,57 @@
     </mat-card-actions>
 </mat-card>
 
-<mat-card *ngIf="!explanationDisabled" id="explanation-panel">
-    <mat-card-title>Portfolio Optimization Primer</mat-card-title>
-    <mat-card-content>
-        <h1>Portfolio Variance</h1>
+<div *ngIf="!explanationDisabled" id="explanation-panel">
+    <div class="box">
+    <h1>Portfolio Optimization Primer</h1>
 
-        Portfolio optimization hinges on the idea that correlation between assets can be used to decrease a portfolio's variance. Consider a portfolio made up <b>n</b> assets <a>asset image goes here</a> (i = 1, ... , n) where <a>weight image goes here</a> represents the proportion of the portfolio allocated to <i>asset i</i>. The return on this portfolio can be described the weighted sum of the individual returns, <br>
-        
-        <a>random variable image heres here</a>
-        
-        Since future returns are unknown, this expression is a <a href="random variable wiki">random variable.</a> By the linearity of expected values, the expectation of the portfolio's future return can be expressed as the weighted sum of the individual assets' return, <br>
+        <h2>Portfolio Variance</h2>
 
-        <a>expected return image goes here</a>
+        <p>
+            <a href="https://en.wikipedia.org/wiki/Portfolio_optimization" target="_blank" rel="noreferrer">Portfolio optimization</a> hinges on the idea that correlation between assets can be used to decrease a portfolio's overall variance. Consider a portfolio made up <b>n</b> assets <a>asset image goes here</a> (i = 1, ... , n) where <a>weight image goes here</a> represents the proportion of the portfolio allocated to <i>asset i</i>. The return on this portfolio can be described the weighted sum of the individual returns,
+        </p>    
+        <p style="margin-left: 150px;">random variable image heres here</p>
+        <p>
+            Since future returns are unknown, this expression is a <a href="https://en.wikipedia.org/wiki/Random_variable" target="_blank" rel="noreferrer">random variable.</a> By the <a href="https://en.wikipedia.org/wiki/Expected_value#Basic_properties" target="_blank" rel="noreferrer">linearity of expected values</a>, the expectation of the portfolio's future return can be expressed as the weighted sum of the individual assets' return,
+        </p>
+        <p style="margin-left: 150px;">expected return image goes here</p>
+        <p>
+            Where <a>return image goes here</a> represents the rate of return for <i>asset i</i>. The expression for the portfolio variance is a little more complicated,<br><br>
+        </p>
+        <p style="margin-left: 150px;">variance image goes here</p>
+        <p>
+            Notice, the correlation between assets affects the portfolio's overall variance. In particular, if the correlation between any two assets in a portfolio is negative, the portfolio's variance can be decreased by clever allocation of the total investment among the negatively correlated assets. This is the key idea behind <b>portfolio optimization</b>.<br><br>
+        </p>
+        <p>
+            In order to apply the principles of portfolio optimization to the market, the future correlation between assets must be known. If the assumption is made the market roughly obeys the dynamics of a <a href="https://en.wikipedia.org/wiki/Martingale_(probability_theory)" target="_blank" rel="noreferrer">Martingale process</a>, i.e. the most likely value of a random process with respect to time is its current value,<br><br>
+        </p>
+        <p style="margin-left: 150px;">martingale image goes here</p>
+        <p> 
+            Generalizing the idea of a Martingale process, i.e. the best guess of two assets' future correlation is those two assets' current correlation, a portfolio can be optimized by calculating the correlation between its constituent assets. This is exactly what the widget featured above does; it optimizes a portfolio's variance!<br><br>
 
-        Where <a>return image goes here</a> represents the rate of return for <i>asset i</i>. The expression for the portfolio variance is a little more complicated,
+            First, input the tickers you wish to include in your portfolio and select the date range over which you wish to calculate the portfolio assets' correlation. <br><br>
+        </p>
 
-        <a>variance image goes here</a>
-
-        Notice, the correlation between assets affects the portfolio's overall variance. In particular, if the correlation between any two assets in a portfolio is negative, the portfolio's variance can be decreased by clever allocation of the total investment among the negatively correlated assets. This is the key idea behind <b>portfolio optimization</b>.
-
-        In order to apply the principles of portfolio optimization to the market, the future correlation between assets must be known. If the assumption is made the market roughly obeys the dynamics of a Markovian process, i.e. the most likely value of a random process with respect to time is its current value,
-
-        <a>markovian image goes here</a>
-
-        Generalizing the idea of a Markovian process, i.e. the best guess of two assets' future correlation is those two assets' current correlation, a portfolio can be optimized by calculating the correlation between its constituent assets. This is exactly what the widget featured above does; it optimizes a portfolio's variance!
-
-        First, input the tickers you wish to include in your portfolio and select the date range over which you wish to calculate the portfolio assets' correlation. 
-
-        <h1>Constraints</h1>
+        <h2>Constraints</h2>
 
         TODO: explain target return
 
-        <h1>Investment</h1>
+        <h2>Investment</h2>
 
         TODO: explain investment
 
-        <h1>Sharpe Ratio</h1>
+        <h2>Sharpe Ratio</h2>
 
-        Instead of minimizing the portfolio variance, a different approach to portfolio allocation is available. The <b>sharpe ratio</b> measures an asset's excess rate of return over the risk free rate per unit volatility,
-
-        <a>sharpe ratio image goes here.</a>
-
-        Much like the return of a portfolio can be written as the weighted sum of its individual assets' return, the sharpe ratio of a portfolio can be expressed as the weighted sum of its individual assets' sharpe ratio,
-
-        <a>portfolio sharpe image goes here</a>
-
-        The higher the sharpe ratio of a portfolio, the more return it gets on its investment per unit of volatility. A portfolio can also be allocated by <i>maximizing</i> its sharpe ratio, instead of minimize its overall variance. If you wish to apply this method of optimization, select <i>Maximize Sharpe Ratio</i> from the <b>Optimization Method</b> toggle.
-
-
-    </mat-card-content>
-</mat-card>
+        <p>
+            Instead of minimizing the portfolio variance, a different approach to portfolio allocation is available. The <a href="https://en.wikipedia.org/wiki/Sharpe_ratio" target="_blank" rel="noreferrer">sharpe ratio</a> measures an asset's excess rate of return over the risk free rate per unit volatility,
+        </p>
+        <p style="margin-left: 150px;">sharpe ratio image goes here.</p>
+        <p>
+            Much like the return of a portfolio can be written as the weighted sum of its individual assets' return, the sharpe ratio of a portfolio can be expressed as the weighted sum of its individual assets' sharpe ratio,
+        </p>
+        <p style="margin-left: 150px;">portfolio sharpe image goes here</p>
+        <p>
+            The higher the sharpe ratio of a portfolio, the more return it gets on its investment per unit of volatility. A portfolio can also be allocated by <i>maximizing</i> its sharpe ratio, instead of minimize its overall variance. If you wish to apply this method of optimization, select <i>Maximize Sharpe Ratio</i> from the <b>Optimization Method</b> toggle.
+        </p>
+    </div>
+</div>
