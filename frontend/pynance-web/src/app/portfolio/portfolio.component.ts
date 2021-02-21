@@ -35,9 +35,9 @@ export class PortfolioComponent implements OnInit {
   private displayedColumns: string[] = [];
   private today: Date  = new Date();
 
-  @ViewChild('portfolioTable', {static: false})
+  @ViewChild('portfolioTable')
   private portfolioTable : MatTable<Holding[]>;
-  @ViewChild(TickerComponent, {static: false}) 
+  @ViewChild(TickerComponent) 
   private tickerChild: TickerComponent;
 
   @Input()
