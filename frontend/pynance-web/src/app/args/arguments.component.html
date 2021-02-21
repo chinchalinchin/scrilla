@@ -8,7 +8,7 @@
                     Asset Tickers</mat-card-title>
 
                 <mat-card-content id="tickers-card-body">
-                        <mat-form-field >
+                        <mat-form-field class="fill-width">
                             <mat-label class="component-text">Enter ticker symbols separated by a comma</mat-label>
                             <input matInput [(ngModel)]="this.inputTickers" placeholder="Placeholder"
                                     (keyup.enter)="saveTickers()"/>
@@ -27,7 +27,7 @@
             <mat-card-title id="dates-card-title" class="component-title">
                 Sample Date Range</mat-card-title>
             <mat-card-content id="dates-card-body">
-                <mat-form-field id="dates-form">
+                <mat-form-field id="dates-form" class="fill-width">
                     <mat-label class="component-text">Select a date range for sample pirces</mat-label>
                     <mat-date-range-input [formGroup]="range" [rangePicker]="picker">
                         <input matStartDate formControlName="start" 
@@ -56,7 +56,7 @@
             <mat-card-title id="investment-card-title" class="component-title">
                 Investment</mat-card-title>
             <mat-card-content id="investment-card-body">
-                <mat-form-field id="investment-form">
+                <mat-form-field id="investment-form" class="fill-width">
                     <mat-label class="component-text">Enter investment in $</mat-label>
                     <input matInput type="text" mvndrMatCurrencyFormat [(ngModel)]="inputInvestment"
                             [allowNegative]="false" [currencyCode]="'USD'" (keyup)="saveInvestment()" />
@@ -73,7 +73,7 @@
         <mat-card id="target-card" class="fill-width fill-height">
             <mat-card-title id="target-card-title" class="component-title">Target Return</mat-card-title>
             <mat-card-content id="target-card-body">
-                <mat-form-field id="target-form">
+                <mat-form-field id="target-form" class="fill-width">
                     <mat-label class="component-text">Annualized return as a decimal</mat-label>
                     <input matInput type="number" [(ngModel)]="inputTarget" (keyup)="saveTarget()"/>
                     <button mat-button *ngIf="inputTarget" matSuffix mat-icon-button aria-label="Clear" 
@@ -90,7 +90,7 @@
             <mat-card-title id="model-card-title" class="component-title">
                 Pricing Model</mat-card-title>
             <mat-card-content id="model-card-body">
-                <mat-form-field id="model-form">
+                <mat-form-field id="model-form" class="fill-width">
                     <mat-label class="component-text">Select a pricing model</mat-label>
                         <mat-select [(value)]="inputModel">
                             <mat-option class="component-text" *ngFor="let model of pricingModels" 
@@ -109,7 +109,7 @@
             <mat-card-title id="method-card-title" class="component-title">
                 Optimization Method</mat-card-title>
             <mat-card-content id="method-card-body">
-                <mat-radio-group [(ngModel)]="inputMethod" >
+                <mat-radio-group [(ngModel)]="inputMethod" class="fill-width">
                 <mat-radio-button *ngFor="let method of optMethods" [value]="method.value" (change)="saveMethod($event)">
                   {{method.viewValue}}
                 </mat-radio-button>
