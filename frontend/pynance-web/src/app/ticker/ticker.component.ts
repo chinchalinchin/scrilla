@@ -1,5 +1,4 @@
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
-
 // A component used to retrieve ticker symbols for app calculations.
 // TODO: needs to emit the tickers being added.
 @Component({

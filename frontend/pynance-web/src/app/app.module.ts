@@ -4,6 +4,8 @@ import { NgModule } from '@angular/core';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FormsModule } from '@angular/forms';
 
+import { ReactiveFormsModule } from '@angular/forms';
+
 // Custom Component Imports
 import { AppComponent } from './app.component';
 import { OptimizerComponent } from './optimizer/optimizer.component';
@@ -40,6 +42,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
     MatTableModule,
     MatFormFieldModule,
     MatDatepickerModule,
+    ReactiveFormsModule,
   ],
   providers: [],
   bootstrap: [AppComponent]
