@@ -1,4 +1,4 @@
-import { MatTable } from '@angular/material';
+import { MatTable } from '@angular/material/table';
 import { Component, Input, OnInit, QueryList, SimpleChanges, ViewChild, ViewChildren } from '@angular/core';
 import {FormGroup, FormControl} from '@angular/forms';
 import { Holding } from 'src/app/models/holding';
