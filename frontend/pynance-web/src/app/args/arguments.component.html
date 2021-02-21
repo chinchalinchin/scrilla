@@ -1,19 +1,18 @@
-<!--TODO: create mat-grid-->
 
-<mat-grid-list id="arguments-grid" cols="6" rowHeight="1:1">
+<!--NOTE: rowHeight="1:1" or rowHeight="190px" seem to work best-->
+<mat-grid-list id="arguments-grid" cols="5" rowHeight="150">
 
-    <mat-grid-tile id="tickers-tile" colspan="4">
+    <mat-grid-tile *ngIf="tickers" id="tickers-tile" colspan="3">
             <mat-card id="tickers-card" class="fill-width fill-height">
-                <mat-card-title id="tickers-card-title">Asset Tickers</mat-card-title>
+                <mat-card-title id="tickers-card-title" class="component-title">
+                    Asset Tickers</mat-card-title>
 
                 <mat-card-content id="tickers-card-body">
-                    <div>
-                        <mat-form-field appearance="fill" class="fill-width">
-                            <mat-label>Enter ticker symbols separated by a comma</mat-label>
+                        <mat-form-field class="fill-width">
+                            <mat-label class="component-text">Enter ticker symbols separated by a comma</mat-label>
                             <input matInput [(ngModel)]="this.inputTickers" placeholder="Placeholder"
                                     (keyup.enter)="saveTickers()"/>
                         </mat-form-field>                
-                    </div>
                 </mat-card-content>
             
                 <mat-card-actions class="align-right">
@@ -23,12 +22,13 @@
         </mat-card>
     </mat-grid-tile>
 
-    <mat-grid-tile id="dates-tile" colspan="2">
-        <mat-card id="dates-card" class="fill-width fill-height">
-            <mat-card-title id="dates-card-title">Sample Date Range</mat-card-title>
+    <mat-grid-tile *ngIf="dates" id="dates-tile" colspan="2" rowspan="1">
+        <mat-card id="dates-card" class="fill-width fill-height" >
+            <mat-card-title id="dates-card-title" class="component-title">
+                Sample Date Range</mat-card-title>
             <mat-card-content id="dates-card-body">
-                <mat-form-field appearance="fill" class="fill-width">
-                    <mat-label>Select a date range for sample pirces</mat-label>
+                <mat-form-field>
+                    <mat-label class="component-text">Select a date range for sample pirces</mat-label>
                     <mat-date-range-input [formGroup]="range" [rangePicker]="picker">
                         <input matStartDate formControlName="start" 
                                 placeholder="Start date" (dateInput)="setStartDate($event)">
@@ -51,12 +51,13 @@
         </mat-card>
     </mat-grid-tile>
 
-    <mat-grid-tile id="investment-tile" colspan="2">
-        <mat-card id="investment-card" class="fill-height fill-width">
-            <mat-card-title>Investment</mat-card-title>
+    <mat-grid-tile *ngIf="investment" id="investment-tile" colspan="1" >
+        <mat-card id="investment-card" class="fill-width fill-height">
+            <mat-card-title id="investment-card-title" class="component-title">
+                Investment</mat-card-title>
             <mat-card-content id="investment-card-body">
-                <mat-form-field appearance="fill" class="fill-width">
-                    <mat-label>Enter investment in $</mat-label>
+                <mat-form-field>
+                    <mat-label class="component-text">Enter investment in $</mat-label>
                     <input matInput type="text" mvndrMatCurrencyFormat [(ngModel)]="inputInvestment"
                             [allowNegative]="false" [currencyCode]="'USD'" (keyup)="saveInvestment()" />
                     <button mat-button *ngIf="inputInvestment" matSuffix mat-icon-button aria-label="Clear" 
@@ -68,12 +69,12 @@
         </mat-card>
     </mat-grid-tile>
 
-    <mat-grid-tile id="target-tile" colspan="2" >
-        <mat-card id="target-card" class="fill-height fill-width">
-            <mat-card-title>Target Return</mat-card-title>
+    <mat-grid-tile *ngIf="target" id="target-tile" colspan="1">
+        <mat-card id="target-card" class="fill-width fill-height">
+            <mat-card-title id="target-card-title" class="component-title">Target Return</mat-card-title>
             <mat-card-content id="target-card-body">
-                <mat-form-field appearance="fill" class="fill-width">
-                    <mat-label>Annualized return as a decimal</mat-label>
+                <mat-form-field>
+                    <mat-label class="component-text">Annualized return as a decimal</mat-label>
                     <input matInput type="number" [(ngModel)]="inputTarget" (keyup)="saveTarget()"/>
                     <button mat-button *ngIf="inputTarget" matSuffix mat-icon-button aria-label="Clear" 
                             (click)="clearTarget()">
@@ -84,14 +85,15 @@
         </mat-card>
     </mat-grid-tile>
 
-    <mat-grid-tile id="model-tile" colspan="2">
+    <mat-grid-tile *ngIf="model" id="model-tile" colspan="1">
         <mat-card id="model-card" class="fill-height fill-width">
-            <mat-card-title>Pricing Model</mat-card-title>
+            <mat-card-title id="model-card-title" class="component-title">Pricing Model</mat-card-title>
             <mat-card-content id="model-card-body">
                 <mat-form-field appearance="fill" class="fill-width">
-                    <mat-label>Select a pricing model</mat-label>
+                    <mat-label class="component-text">Select a pricing model</mat-label>
                         <mat-select>
-                            <mat-option *ngFor="let model of pricingModels" [value]="model.value">
+                            <mat-option class="component-text" *ngFor="let model of pricingModels" 
+                                    [value]="model.value">
                               {{model.viewValue}}
                             </mat-option>
                         </mat-select>

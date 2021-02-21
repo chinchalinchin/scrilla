@@ -1,5 +1,7 @@
 /* You can add global styles to this file, and also import other style files */
 
+@import '@angular/material/prebuilt-themes/pink-bluegrey.css';
+
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
@@ -10,11 +12,17 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
 .fill-width { width: 100%; }
 .fill-height { height: 100%; }
+.squeeze-height { height: 75%; }
+.squeeze-width { width: 75%; }
 
 .align-left{ text-align: left; }
 .align-right{ text-align: right; }
+.align-cetner{ text-align: center}
 
+.component-title { font-size: medium; }
+.component-text { font-size: small; }
 .foot-note{ text-align: center; font-size:xx-small; }
 
 .divide { border-top: 3px solid #bbb; }
   
+.center-tile{ width: 100% !important;display: flex !important; align-items: flex-start !important; }

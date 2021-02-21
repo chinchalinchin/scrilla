@@ -51,15 +51,15 @@ import { dateToString } from 'src/utilities';
 export class ArgumentsComponent implements OnInit {
   // Input: Displayed argument subcomponents
   @Input()
-  private tickers : boolean = false;
+  public tickers : boolean = false;
   @Input()
-  private dates : boolean = false;
+  public dates : boolean = false;
   @Input()
-  private target : boolean = false;
+  public target : boolean = false;
   @Input()
-  private model: boolean = false;
+  public model: boolean = false;
   @Input()
-  private investment: boolean = false;
+  public investment: boolean = false;
 
   // Output: User entered argument values
   @Output()
@@ -82,7 +82,7 @@ export class ArgumentsComponent implements OnInit {
   });
 
   public pricingModels = PRICING_MODELS;
-  
+
   private savedTickers : string[] = [];
   private savedStartDate : Date;
   private savedEndDate : Date;
