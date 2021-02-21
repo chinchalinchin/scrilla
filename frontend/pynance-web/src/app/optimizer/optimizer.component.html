@@ -27,7 +27,7 @@
         <h2>Portfolio Variance</h2>
 
         <p>
-            <a href="https://en.wikipedia.org/wiki/Portfolio_optimization" target="_blank" rel="noreferrer">Portfolio optimization</a> hinges on the idea that correlation between assets can be used to decrease a portfolio's overall variance. Consider a portfolio made up <b>n</b> assets <a>asset image goes here</a> (i = 1, ... , n) where <a>weight image goes here</a> represents the proportion of the portfolio allocated to <i>asset i</i>. The return on this portfolio can be described the weighted sum of the individual returns,
+            <a href="https://en.wikipedia.org/wiki/Portfolio_optimization" target="_blank" rel="noreferrer">Portfolio optimization</a> as described <a href="https://en.wikipedia.org/wiki/Modern_portfolio_theory">by Modern Portfolio Theory</a>hinges on the idea that correlation between assets can be used to decrease a portfolio's overall variance. Consider a portfolio made up <b>n</b> assets <a>asset image goes here</a> (<i>i = 1, ... , n</i>) where <a>weight image goes here</a> represents the proportion of the portfolio allocated to <i>asset i</i>. The return on this portfolio can be described the weighted sum of the individual returns,
         </p>    
         <p style="margin-left: 150px;">random variable image heres here</p>
         <p>
@@ -39,21 +39,23 @@
         </p>
         <p style="margin-left: 150px;">variance image goes here</p>
         <p>
-            Notice, the correlation between assets affects the portfolio's overall variance. In particular, if the correlation between any two assets in a portfolio is negative, the portfolio's variance can be decreased by clever allocation of the total investment among the negatively correlated assets. This is the key idea behind <b>portfolio optimization</b>.<br><br>
+            Notice, the correlation between assets affects the portfolio's overall variance. In particular, if the correlation between any two assets in a portfolio is negative, the portfolio's variance can be decreased by clever allocation of the total investment among the negatively correlated assets. This is the key idea behind <b>portfolio optimization</b>; <b>portfolio optimization</b> seeks to find the portfolio allocation will which yield the least overall variance, i.e. the minimums variance.</a><br><br>
         </p>
         <p>
-            In order to apply the principles of portfolio optimization to the market, the future correlation between assets must be known. If the assumption is made the market roughly obeys the dynamics of a <a href="https://en.wikipedia.org/wiki/Martingale_(probability_theory)" target="_blank" rel="noreferrer">Martingale process</a>, i.e. the most likely value of a random process with respect to time is its current value,<br><br>
+            In order to apply the principles of portfolio optimization a set of assets, the future correlation between assets must be known. The assumption is made that markets roughly obey the dynamics of a <a href="https://en.wikipedia.org/wiki/Martingale_(probability_theory)" target="_blank" rel="noreferrer">Martingale process</a>, i.e. the most likely value of a random process with respect to time is its current value,<br><br>
         </p>
         <p style="margin-left: 150px;">martingale image goes here</p>
         <p> 
-            Generalizing the idea of a Martingale process, i.e. the best guess of two assets' future correlation is those two assets' current correlation, a portfolio can be optimized by calculating the correlation between its constituent assets. This is exactly what the widget featured above does; it optimizes a portfolio's variance!<br><br>
+            Generalizing the idea of a Martingale process from expectations to correlations, the best guess of two assets' future correlation is those two assets' current correlation. Portfolio correlations can be calculated using a sample of historical prices for each asset. This is exactly what the widget featured above does: it optimizes a portfolio's variance using a sample of historical prices!<br><br>
 
-            First, input the tickers you wish to include in your portfolio and select the date range over which you wish to calculate the portfolio assets' correlation. <br><br>
+            First, input the tickers you wish to include in your portfolio and select the date range over which you wish to calculate the portfolio assets' correlation. There are several other options that will be detailed in the following sections. <br><br>
         </p>
 
         <h2>Constraints</h2>
 
-        TODO: explain target return
+        The target return constraint will fix the portfolio's rate of return to a certain value before optimizing. The idea behind this constraint can be seen through an analogy: There are many ways to create the number 5 from a linear combination of other numbers: 10 - 5, 2 + 3, 108 - 103, etc. In the same way, there are many portfolios which will yield a certain rate of return. By fixing the target return before you optimize, you are telling the optimization algorithm to find the portfolio with the specified target and minimum variance. 
+
+        In other words, when specifying this argument, the optimization method will find the point on the <a href="https://en.wikipedia.org/wiki/Capital_market_line" target="_blank" rel="noreferrer">Capital Market Line</a> that corresponds to the provided target return. 
 
         <h2>Investment</h2>
 
