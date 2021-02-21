@@ -24,6 +24,7 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatSelectModule } from '@angular/material/select';
 import { MatRadioModule } from '@angular/material/radio';
+import { MatTabsModule } from '@angular/material/tabs';
 
 // Third Party Material
 import  { MatCurrencyFormatModule } from 'mat-currency-format';
@@ -52,6 +53,7 @@ import  { MatCurrencyFormatModule } from 'mat-currency-format';
     MatGridListModule,
     MatSelectModule,
     MatRadioModule,
+    MatTabsModule,
     MatCurrencyFormatModule,
     ReactiveFormsModule,
   ],

@@ -1,7 +1,8 @@
 
-<mat-grid-list id="arguments-grid" cols="4" rowHeight="150">
+<mat-grid-list id="arguments-grid" cols="4" rowHeight="150" gutterSize="10px">
 
-    <mat-grid-tile *ngIf="tickers" id="tickers-tile" colspan="2">
+    <div class="module-border">
+    <mat-grid-tile *ngIf="tickers" id="tickers-tile" colspan="2" class="mat-elevation-z2">
             <mat-card id="tickers-card" class="fill-width fill-height">
                 <mat-card-title id="tickers-card-title" class="component-title">
                     Asset Tickers</mat-card-title>
@@ -20,8 +21,9 @@
                 </mat-card-actions>
         </mat-card>
     </mat-grid-tile>
+    </div>
 
-    <mat-grid-tile *ngIf="dates" id="dates-tile" colspan="2" rowspan="1">
+    <mat-grid-tile *ngIf="dates" id="dates-tile" colspan="2" rowspan="1" class="mat-elevation-z2">
         <mat-card id="dates-card" class="fill-width fill-height" >
             <mat-card-title id="dates-card-title" class="component-title">
                 Sample Date Range</mat-card-title>
@@ -49,9 +51,9 @@
             </mat-card-actions>
 
         </mat-card>
-    </mat-grid-tile>
+    </mat-grid-tile><br>
 
-    <mat-grid-tile *ngIf="investment" id="investment-tile" colspan="1" >
+    <mat-grid-tile *ngIf="investment" id="investment-tile" colspan="1" class="mat-elevation-z2">
         <mat-card id="investment-card" class="fill-width fill-height">
             <mat-card-title id="investment-card-title" class="component-title">
                 Investment</mat-card-title>
@@ -70,7 +72,7 @@
         </mat-card>
     </mat-grid-tile>
 
-    <mat-grid-tile *ngIf="target" id="target-tile" colspan="1">
+    <mat-grid-tile *ngIf="target" id="target-tile" colspan="1" class="mat-elevation-z2">
         <mat-card id="target-card" class="fill-width fill-height">
             <mat-card-title id="target-card-title" class="component-title">
                 Target Return</mat-card-title>
@@ -88,7 +90,7 @@
         </mat-card>
     </mat-grid-tile>
 
-    <mat-grid-tile *ngIf="model" id="model-tile" colspan="1">
+    <mat-grid-tile *ngIf="model" id="model-tile" colspan="1" class="mat-elevation-z2">
         <mat-card id="model-card" class="fill-height fill-width">
             <mat-card-title id="model-card-title" class="component-title">
                 Pricing Model</mat-card-title>
@@ -107,7 +109,7 @@
         </mat-card>
     </mat-grid-tile>
 
-    <mat-grid-tile *ngIf="method" id="method-tile" colspan="1">
+    <mat-grid-tile *ngIf="method" id="method-tile" colspan="1" class="mat-elevation-z2">
         <mat-card id="method-card" class="fill-height fill-width">
             <mat-card-title id="method-card-title" class="component-title">
                 Optimization Method</mat-card-title>

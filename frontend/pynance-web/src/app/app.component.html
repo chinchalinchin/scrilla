@@ -1,16 +1,24 @@
+<mat-tab-group>
 
-<h2 class="indent">OptimizeComponent: </h2>
-<app-optimizer [explanationDisabled]="true"></app-optimizer>
+    <mat-tab label="Portfolio Optimizer">
+        <app-optimizer [explanationDisabled]="!explanations"></app-optimizer>
+    </mat-tab>
 
+    <mat-tab label="Efficient Frontier">
+        Efficient Frontier Goes Here
+    </mat-tab>
 
-<!--
-<h2 class="indent">ArgumentsComponent: </h2>
-<app-args class="app-card" [tickers]="true" [dates]="true" [target]="true" 
-        [investment]="true" [model]="true" [method]="true"></app-args>
--->
+    <mat-tab label="Valuation Models">
+        Discount Discount Model Goes Here
+    </mat-tab>
 
-<!--
-<h2 class="indent">PortfolioComponent: </h2>
-<app-portfolio [allocations]="[]"></app-portfolio>
--->
-
+    <mat-tab label="Settings">
+        <mat-label>Enable widget explanations</mat-label>
+        <mat-card>
+            <mat-radio-group [(ngModel)]="explanations">
+                <mat-radio-button value="true">On</mat-radio-button>
+                <mat-radio-button value="off">Off</mat-radio-button>
+            </mat-radio-group>
+        </mat-card>
+    </mat-tab>
+</mat-tab-group>

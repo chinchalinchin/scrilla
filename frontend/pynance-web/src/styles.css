@@ -6,7 +6,7 @@
 /*@import '@angular/material/prebuilt-themes/deeppurple-amber.css';*/
 
 html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; background-color:dimgrey; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; background-color:rgb(148, 148, 148); }
 
 .indent { text-indent: 50px; }
 
@@ -26,7 +26,8 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; background-
 .component-text { font-size: small; }
 .component-note { font-size: x-small; }
 .foot-note{ text-align: center; font-size:xx-small; }
-
+.tab-text{ color:darkslategrey !important; }
 .divide { border-top: 3px solid #bbb; }
-  
+
+.background { background-color:dimgray }
 .center-tile{ width: 100% !important;display: flex !important; align-items: flex-start !important; }
