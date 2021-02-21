@@ -1,44 +1,85 @@
 <!--TODO: create mat-grid-->
 
-<mat-card id="tickers-card">
-    <mat-card-title id="tickers-card-title">Asset Tickers</mat-card-title>
+<mat-grid-list id="arguments-grid" cols="5" rowHeight="175px">
 
-    <mat-card-content id="tickers-card-body">
-        <div>
-            <mat-form-field appearance="fill" class="fill-width">
-                <mat-label>Tickers</mat-label>
-                <input matInput [(ngModel)]="this.inputTickers" placeholder="Placeholder"
-                        (keyup.enter)="saveTickers()"/>
-            </mat-form-field>                
-        </div>
-    </mat-card-content>
+    <mat-grid-tile id="tickers-tile" colspan="3">
+            <mat-card id="tickers-card" class="fill-width fill-height">
+                <mat-card-title id="tickers-card-title">Asset Tickers</mat-card-title>
 
-    <mat-card-actions class="align-right">
-        <button mat-raised-button id="ticker-add-button" color="primary" 
-                (click)="saveTickers()">Add</button>
-    </mat-card-actions>
-    
-</mat-card>
+                <mat-card-content id="tickers-card-body">
+                    <div>
+                        <mat-form-field appearance="fill" class="fill-width">
+                            <mat-label>Enter ticker symbols separated by a comma</mat-label>
+                            <input matInput [(ngModel)]="this.inputTickers" placeholder="Placeholder"
+                                    (keyup.enter)="saveTickers()"/>
+                        </mat-form-field>                
+                    </div>
+                </mat-card-content>
+            
+                <mat-card-actions class="align-right">
+                    <button mat-raised-button id="ticker-add-button" color="primary" 
+                            (click)="saveTickers()">Add</button>
+                </mat-card-actions>
+        </mat-card>
+    </mat-grid-tile>
 
-<mat-card id="dates-card">
-    <mat-card-title id="dates-card-title">Sample Date Range</mat-card-title>
-    <mat-card-content id="dates-card-body">
-        <div>
-            <mat-form-field appearance="fill">
-                <mat-label>Select a date range</mat-label>
-                <mat-date-range-input [formGroup]="range" [rangePicker]="picker">
-                    <input matStartDate formControlName="start" 
-                            placeholder="Start date" (dateInput)="saveStartDate($event)">
-                    <input matEndDate formControlName="end" 
-                            placeholder="End date" (dateInput)="saveEndDate($event)">
-                </mat-date-range-input>
-                <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-                <mat-date-range-picker #picker></mat-date-range-picker>
-                <!--Today: Date Validation: Must be less than today -->
-                <mat-error *ngIf="range.controls.start.hasError('matStartDateInvalid')">Invalid start date</mat-error>
-                <mat-error *ngIf="range.controls.end.hasError('matEndDateInvalid')">Invalid end date</mat-error>
-            </mat-form-field>
-    </div>
-    </mat-card-content>
+    <mat-grid-tile id="dates-tile" colspan="2">
+        <mat-card id="dates-card" class="fill-height fill-height">
+            <mat-card-title id="dates-card-title">Sample Date Range</mat-card-title>
+            <mat-card-content id="dates-card-body">
+                <mat-form-field appearance="fill">
+                    <mat-label>Select a date range for sample pirces</mat-label>
+                    <mat-date-range-input [formGroup]="range" [rangePicker]="picker">
+                        <input matStartDate formControlName="start" 
+                                placeholder="Start date" (dateInput)="setStartDate($event)">
+                        <input matEndDate formControlName="end" 
+                                placeholder="End date" (dateInput)="setEndDate($event)">
+                    </mat-date-range-input>
+                    <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                    <mat-date-range-picker #picker></mat-date-range-picker>
+                    <!--Today: Date Validation: Must be less than today -->
+                    <mat-error *ngIf="range.controls.start.hasError('matStartDateInvalid')">Invalid start date</mat-error>
+                    <mat-error *ngIf="range.controls.end.hasError('matEndDateInvalid')">Invalid end date</mat-error>
+                </mat-form-field>
+            </mat-card-content>
+        
+            <mat-card-actions class="align-right">
+                <button mat-raised-button id="dates-apply-button" color="primary" 
+                        (click)="saveDates()">Apply</button>
+            </mat-card-actions>
 
-</mat-card>
+        </mat-card>
+    </mat-grid-tile>
+
+    <mat-grid-tile id="investment-tile" colspan="1">
+        <mat-card id="investment-card" class="fill-height fill-width">
+            <mat-card-title>Investment</mat-card-title>
+            <mat-card-content id="investment-card-body">
+                <mat-form-field >
+                    <mat-label>Enter investment in $</mat-label>
+                    <input matInput type="text" mvndrMatCurrencyFormat [(ngModel)]="inputInvestment"
+                            [allowNegative]="false" [currencyCode]="'USD'" (keyup)="saveInvestment()" />
+                    <button mat-button *ngIf="inputInvestment" matSuffix mat-icon-button aria-label="Clear" 
+                            (click)="clearInvestment()">
+                        <mat-icon>close</mat-icon>
+                    </button>
+                  </mat-form-field>
+            </mat-card-content>
+        </mat-card>
+    </mat-grid-tile>
+
+    <mat-grid-tile id="target-tile" colspan="1">
+        <mat-card id="target-card" class="fill-height fill-width">
+            <mat-card-title>Target Return</mat-card-title>
+            <mat-card-content id="target-card-body">
+                <mat-form-field>
+                    <mat-label>Enter annualized target return as a decimal</mat-label>
+                    <input matInput type="number" [(ngModel)]="inputTarget">
+                    <button mat-button *ngIf="inputTarget" matSuffix mat-icon-button aria-label="Clear" 
+                            (click)="clearTarget()">
+                </mat-form-field>
+            </mat-card-content>
+        </mat-card>
+    </mat-grid-tile>
+
+</mat-grid-list>

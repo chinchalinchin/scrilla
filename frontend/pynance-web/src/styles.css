@@ -2,16 +2,19 @@
 
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
 .indent { text-indent: 50px; }
+
 .app-card { max-width: 600px; }
 .app-card-nested { max-width: 450px; }
 
 .fill-width { width: 100%; }
-.row { margin-top: 20px; }
-.col { padding: 10px; }
+.fill-height { height: 100%; }
+
 .align-left{ text-align: left; }
 .align-right{ text-align: right; }
-.align-center{ text-align: center; }
 
-.solid { border-top: 3px solid #bbb; }
+.foot-note{ text-align: center; font-size:xx-small; }
+
+.divide { border-top: 3px solid #bbb; }
   

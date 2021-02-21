@@ -1,4 +1,6 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, ViewChild } from '@angular/core';
+import { ArgumentsComponent } from '../args/arguments.component';
+import { PortfolioComponent } from '../portfolio/portfolio.component';
 
 @Component({
   selector: 'app-optimizer',
@@ -11,7 +13,12 @@ export class OptimizerComponent implements OnInit {
   
   @Input() public explanationDisabled;
 
-  private mockAllocations: number[] = []
+  @ViewChild(PortfolioComponent)
+  private portfolio : PortfolioComponent;
+
+  @ViewChild(ArgumentsComponent)
+  private arguments : ArgumentsComponent;
+
   private calculated : boolean = false; 
 
   constructor() { }

@@ -2,7 +2,7 @@ import { MatTable } from '@angular/material/table';
 import { Component, Input, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 import { Holding } from 'src/app/models/holding';
 import { containsObject } from 'src/utilities';
-import { ArgumentsComponent } from '../args/arguments.component';
+import { mockPortfolio } from 'src/app/models/holding'
 
 @Component({
   selector: 'app-portfolio',
@@ -29,21 +29,18 @@ import { ArgumentsComponent } from '../args/arguments.component';
  */
 export class PortfolioComponent implements OnInit {
 
-  public portfolio : Holding[] = [];
+  // public portfolio : Holding[] = [];
+  public portfolio: Holding[] = mockPortfolio;
   public clearDisabled : boolean = true;
   public displayedColumns: string[] = [];
 
   @ViewChild('portfolioTable')
   private portfolioTable : MatTable<Holding[]>;
-  @ViewChild('tickerInput') 
-  private tickerChild: ArgumentsComponent;
 
   @Input()
   private allocations: number[]
 
-  ngOnInit() { 
-    console.log(`tickerChild ${this.tickerChild}`)
-   } 
+  ngOnInit() { } 
   
   ngOnChanges(changes: SimpleChanges) {
     console.log(`changes ${changes}`)

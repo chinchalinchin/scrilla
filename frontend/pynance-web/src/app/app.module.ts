@@ -21,6 +21,12 @@ import { MatTableModule } from '@angular/material/table';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
+import { MatGridListModule } from '@angular/material/grid-list';
+
+// Third Party Material
+import  { MatCurrencyFormatModule } from 'mat-currency-format';
+
+
 
 @NgModule({
   declarations: [
@@ -41,6 +47,8 @@ import { MatNativeDateModule } from '@angular/material/core';
     MatFormFieldModule,
     MatDatepickerModule,
     MatNativeDateModule,
+    MatGridListModule,
+    MatCurrencyFormatModule,
     ReactiveFormsModule,
   ],
   providers: [],

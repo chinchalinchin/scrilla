@@ -2,9 +2,11 @@
     <mat-card-title>Portfolio</mat-card-title>
     
     <mat-card-content>
-        <app-args #argsInput  [tickers]="true" [dates]="true"
-                (addTickers)="setTickers($event)"></app-args>
-
+        <!--TODO: Make portfolio component only responsible for displaying portfolio and allocations
+                    i.e., remove app-args. Pass tickers into portfolio from parent component. In 
+                    other words, Portfolio and Arguments component will be on same level. Parent
+                    will listen for argument events on ArgumentsComponents and then call
+                    set methods on PortfolioComponent. -->
         <table #portfolioTable mat-table [dataSource]="portfolio"  class="fill-width">
 
             <ng-container matColumnDef="ticker">
