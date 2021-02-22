@@ -320,6 +320,16 @@ def get_investment(xtra_args, xtra_values):
         investment = None
     return investment
 
+def get_steps(xtra_args, xtra_values):
+    if formatter.FUNC_XTRA_VALUED_ARGS_DICT['steps'] in xtra_args:
+        try:
+            steps = int(xtra_values[xtra_args.index(formatter.FUNC_XTRA_VALUED_ARGS_DICT)])
+        except ValueError:
+            steps = None
+    else:
+        steps = None
+    return steps
+
 def format_xtra_args_list(xtra_args, xtra_values):
     arg_list = {
         'start_date': get_start_date(xtra_args, xtra_values),
@@ -329,6 +339,7 @@ def format_xtra_args_list(xtra_args, xtra_values):
         'discount': get_discount(xtra_args, xtra_values),
         'model': get_model(xtra_args, xtra_values),
         'investment': get_investment(xtra_args, xtra_values),
+        'steps': get_steps(xtra_args, xtra_values),
         'optimize_sharpe': get_sharpe(xtra_args)
     }
     return arg_list
