@@ -353,17 +353,21 @@ def separate_and_parse_args(args):
             extra_args.append(arg)
             if arg not in formatter.FUNC_XTRA_SINGLE_ARGS_DICT.values():
                 extra_values.append(args[args.index(arg)+1])
+            else:
+                extra_values.append(None)
 
     for arg in extra_args:
         reduced_args.remove(arg)
 
     for arg in extra_values:
-        reduced_args.remove(arg)
+        if arg is not None:
+            reduced_args.remove(arg)
         
     for arg in reduced_args:
         arg = arg.upper()
 
     return (extra_args, extra_values, reduced_args)
+    
 ### APPLICATION PARSING
 def format_allocation_profile(allocation, portfolio) -> str:
     port_return, port_volatility = portfolio.return_function(allocation), portfolio.volatility_function(allocation)

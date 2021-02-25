@@ -183,8 +183,8 @@ def efficient_frontier(portfolio, frontier, investment=None):
             scalar_result('Total', round(total,2))
         
         title_line('Risk-Return Profile')
-        scalar_result('Return', portfolio.return_function(allocation))
-        scalar_result('Volatility', portfolio.volatility_function(allocation))
+        scalar_result('Return', portfolio.return_function(allocation), currency=False)
+        scalar_result('Volatility', portfolio.volatility_function(allocation), currency=False)
         return_line()
         
 class Logger():

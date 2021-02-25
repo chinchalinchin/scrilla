@@ -115,27 +115,31 @@ def maximize_portfolio_return(portfolio):
 
     return allocation.x
 
-def calculate_efficient_frontier(portfolio):
+def calculate_efficient_frontier(portfolio, steps=None):
     """
     Parameters
     ----------
-    * portfolio : Portfolio \n
+    1. portfolio : Portfolio \n
         An instance of the Portfolio class defined in app.objects.portfolio. Must be initialized with an array of ticker symbols. Optionally, it can be initialized with a start_date and end_date datetime. If start_date and end_date are specified, the portfolio will be optimized over the stated time period.\n \n
 
+    2. steps : int \n
+        The number of points calculated in the efficient frontier. If none is provided, it defaults to the environment variable FRONTIER_STEPS.
     Output
     ------
     An array of float arrays. Each float array corresponds to a point on a portfolio's efficient frontier, i.e. each array represents the percentage of a portfolio that should be allocated to the equity to the corresponding ticker symbol (supplied as an attribute portfolio parameter, portfolio.tickers) in order to produce a given rate of return with minimal volatility.
     """
+    if steps is None:
+        steps = settings.FRONTIER_STEPS
     tickers = portfolio.tickers
     minimum_allocation = optimize_portfolio_variance(portfolio=portfolio)
     maximum_allocation = maximize_portfolio_return(portfolio=portfolio)
 
     minimum_return = portfolio.return_function(minimum_allocation)
     maximum_return = portfolio.return_function(maximum_allocation)
-    return_width = (maximum_return - minimum_return)/settings.FRONTIER_STEPS
+    return_width = (maximum_return - minimum_return)/steps
 
     frontier=[]
-    for i in range(settings.FRONTIER_STEPS+1):
+    for i in range(steps+1):
         target_return = minimum_return + return_width*i
 
         logger.debug(f'Optimizing {tickers} Portfolio Return Subject To {target_return}')
