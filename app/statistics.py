@@ -8,6 +8,7 @@ sys.path.append(PROJECT_DIR)
 import app.settings as settings
 import app.services as services
 import app.markets as markets
+import app.files as files
 
 import util.outputter as outputter
 import util.formatter as formatter
@@ -457,8 +458,7 @@ def calculate_risk_return(ticker, start_date=None, end_date=None, sample_prices=
 
             if os.path.isfile(buffer_store):
                 logger.debug(f'Loading in cached {ticker} statistics.')
-                with open(buffer_store, 'r') as infile:
-                    results = json.load(infile)
+                results = files.load_file(buffer_store)
                 return results
             
             logger.debug(f'No cached {ticker} statistics found, calling service.')
@@ -528,8 +528,7 @@ def calculate_risk_return(ticker, start_date=None, end_date=None, sample_prices=
     # store results in buffer for quick access
     if start_date is None and end_date is None:
         logger.debug(f'Storing {ticker} statistics in cache...')
-        with open(buffer_store, 'w') as outfile:
-            json.dump(results, outfile)
+        files.save_file(file_to_save=results, file_name=buffer_store)
 
     return results
 
@@ -576,19 +575,13 @@ def calculate_ito_correlation(ticker_1, ticker_2, start_date=None, end_date=None
             logger.debug('Checking for correlation calculation in cache.')
             if os.path.isfile(buffer_store_1):
                 logger.debug(f'Loading in cached ({ticker_1}, {ticker_2}) correlation.')
-                with open(buffer_store_1, 'r') as infile:
-                    logger.debug(f'Cached ({ticker_1}, {ticker_2}) correlation loaded.')
-                    results = json.load(infile)
-                    correlation = results
+                correlation = files.load_file(file_name=buffer_store_1)
                 return correlation
 
             # check if results exist in cache location 2
             elif os.path.isfile(buffer_store_2):
                 logger.debug(f'Loading in cached ({ticker_1}, {ticker_2}) correlation.')
-                with open(buffer_store_2, 'r') as infile:
-                    logger.debug(f'Cached ({ticker_1}, {ticker_2}) correlation loaded.')
-                    results = json.load(infile)
-                    correlation = results
+                correlation = files.load_file(file_name=buffer_store_2)
                 return correlation
             else:
                 logger.debug(f'No cached ({ticker_1}, {ticker_2}) correlation found, retrieving price histories for calculation.')
@@ -749,9 +742,7 @@ def calculate_ito_correlation(ticker_1, ticker_2, start_date=None, end_date=None
 
     if start_date is None and end_date is None:
         logger.debug(f'Storing ({ticker_1}, {ticker_2}) correlation in cache...')
-        with open(buffer_store_1, 'w') as outfile:
-            json.dump(result, outfile)
-
+        files.save_file(file_to_save=buffer_store_1, file_name=buffer_store_1)
     return result
 
 def get_ito_correlation_matrix_string(tickers, indent=0, start_date=None, end_date=None, sample_prices=None):

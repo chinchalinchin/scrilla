@@ -5,6 +5,7 @@ import requests
 
 import app.settings as settings
 import app.markets as markets
+import app.files as files
 
 import util.outputter as outputter
 import util.helper as helper
@@ -323,21 +324,15 @@ def get_daily_price_history(ticker, start_date=None, end_date=None):
         
         if os.path.isfile(buffer_store):
             logger.debug(f'Loading in cached {ticker} prices.')
-            with open(buffer_store, 'r') as infile:
-                if settings.FILE_EXT == "json":
-                    logger.debug(f'Cached {ticker} prices loaded.')
-                    prices = json.load(infile)
-                # TODO: load other file types
+            
+            prices = files.load_file(file_name=buffer_store)
             return prices
         
         logger.debug(f'Retrieving {ticker} prices from Service Manager.')  
         prices = query_service_for_daily_price_history(ticker=ticker)
 
         logger.debug(f'Storing {ticker} price history in cache.')
-        with open(buffer_store, 'w') as outfile:
-            if settings.FILE_EXT == "json":
-                json.dump(prices, outfile)
-            # TODO: dump other file types
+        files.save_file(file_to_save=prices, file_name=buffer_store)
         return prices
     
     logger.info('No cached prices for date ranges past default. Passing to service call.')
@@ -419,21 +414,14 @@ def get_daily_stats_history(statistic, start_date=None, end_date=None):
 
         if os.path.isfile(buffer_store):
             logger.debug(f'Loading in cached {statistic} statistics.')
-            with open(buffer_store, 'r') as infile:
-                if settings.FILE_EXT == "json":
-                    logger.debug(f'Cached {statistic} statistics loaded.')
-                    stats = json.load(infile)
-                # TODO: load other file types
+            stats = files.load_file(file_name=buffer_store)         
             return stats
         
         logger.debug(f'Retrieivng {statistic} statistics from Service Manager')
         stats = query_service_for_daily_stats_history(statistic=statistic)
 
         logger.debug(f'Storing {statistic} statistics in cache')
-        with open(buffer_store, 'w') as outfile:
-            if settings.FILE_EXT == "json":
-                json.dump(stats, outfile)
-            # TODO: dump other file types
+        files.save_file(file_to_save=stats, file_name=buffer_store)
         return stats
 
     logger.info('No cached prices for date ranges past default. Passing to service call.')
@@ -478,19 +466,13 @@ def get_dividend_history(ticker):
         
     if os.path.isfile(buffer_store):
         logger.debug(f'Loading in cached {ticker} dividend history.')
-        with open(buffer_store, 'r') as infile:
-            if settings.FILE_EXT == "json":
-                logger.debug(f'Cached {ticker} dividend loaded.')
-                dividends = json.load(infile)
-            # TODO: load other file types
-            return dividends
+        dividends = files.load_file(file_name=buffer_store)
+        return dividends
+
     else:
         logger.debug(f'Retrieving {ticker} prices from Service Manager.')  
         dividends = query_service_for_dividend_history(ticker=ticker)
 
         logger.debug(f'Storing {ticker} price history in cache.')
-        with open(buffer_store, 'w') as outfile:
-            if settings.FILE_EXT == "json":
-                json.dump(dividends, outfile)
-            # TODO: dump other file types
+        files.save_file(file_to_save=dividends, file_name=buffer_store)
         return dividends

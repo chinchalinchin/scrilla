@@ -391,6 +391,8 @@ not affect the application.
 
 30. Does it make sense to calculate the 'Sharpe Frontier'?
 
+31. Save efficient frontier as a JSON. Use -save argument that already exists and just modify existing frontier method. 
+
 ### NOTES
 
 1. All date strings should be converted to <b>datetime.dates</b> at point of contact with user, i.e. in the main.py file where CLI arguments are parsed, within the gui where user arguments are pulled from widgets or in the server's endpoint views where user arguments are provided through query parameters, before passing it the service/statistics/portfolio functions. All functions in the <i>/app/</i> module assume dates are passed in as <b>datetime.dates</b>.

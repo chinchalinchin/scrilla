@@ -17,6 +17,18 @@ OPEN_PRICE = "open"
 
 logger = outputter.Logger("app.services", settings.LOG_LEVEL)
 
+def load_file(file_name):
+    with open(file_name, 'r') as infile:
+        if settings.FILE_EXT == "json":
+            prices = json.load(infile)
+    return prices
+        # TODO: implement other file loading extensions
+
+def save_file(file_to_save, file_name):
+    with open(file_name, 'w') as outfile:
+        if settings.FILE_EXT == "json":
+            json.dump(file_to_save, outfile)
+        # TODO: implement other file saving extensions.
 
 def parse_csv_response_column(column, url, firstRowHeader=None, savefile=None, zipped=None):
     """
@@ -208,7 +220,16 @@ def add_watchlist(new_tickers):
             json.dump(current_tickers, outfile)
         # TODO: implement other file extensions
 
- 
+def save_frontier(portfolio, frontier, save_file):
+    save_format = {}
+    for i in range(len(frontier)):
+        allocation_format = {}
+        for j in range(len(portfolio.tickers)):
+            allocation_format[f'{portfolio.tickers[j]}_allocation'] = frontier[i][j] 
+        save_format[f'portfolio_{i}'] = allocation_format
+    
+    save_file(file_to_save=save_format, save_file=save_file)
+
 ################################################
 ##### FILE MANAGEMENT FUNCTIONS
 
