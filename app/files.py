@@ -21,7 +21,7 @@ def load_file(file_name):
     with open(file_name, 'r') as infile:
         if settings.FILE_EXT == "json":
             prices = json.load(infile)
-    return prices
+        return prices
         # TODO: implement other file loading extensions
 
 def save_file(file_to_save, file_name):
@@ -220,7 +220,7 @@ def add_watchlist(new_tickers):
             json.dump(current_tickers, outfile)
         # TODO: implement other file extensions
 
-def save_frontier(portfolio, frontier, save_file):
+def save_frontier(portfolio, frontier, file_name):
     save_format = {}
     for i in range(len(frontier)):
         allocation_format = {}
@@ -228,7 +228,15 @@ def save_frontier(portfolio, frontier, save_file):
             allocation_format[f'{portfolio.tickers[j]}_allocation'] = frontier[i][j] 
         save_format[f'portfolio_{i}'] = allocation_format
     
-    save_file(file_to_save=save_format, save_file=save_file)
+    save_file(file_to_save=save_format, file_name=file_name)
+
+def save_profile(profile, ticker, save_file):
+    # TODO:
+    pass
+
+def save_allocation(allocation, ticker, save_file):
+    # TODO: 
+    pass
 
 ################################################
 ##### FILE MANAGEMENT FUNCTIONS

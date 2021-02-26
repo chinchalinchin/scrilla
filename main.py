@@ -187,6 +187,9 @@ if __name__ == "__main__":
                     frontier = optimizer.calculate_efficient_frontier(portfolio=portfolio)
                     outputter.efficient_frontier(portfolio=portfolio, frontier=frontier,
                                                     investment=xtra_list['investment'])
+                    if xtra_list['save_file'] is not None:
+                        files.save_frontier(portfolio=portfolio, frontier=frontier, 
+                                            file_name=xtra_list['save_file'])
                 else: 
                     logger.comment('Invalid input. Try -ex flag for example usage.')
                     
