@@ -742,7 +742,7 @@ def calculate_ito_correlation(ticker_1, ticker_2, start_date=None, end_date=None
 
     if start_date is None and end_date is None:
         logger.debug(f'Storing ({ticker_1}, {ticker_2}) correlation in cache...')
-        files.save_file(file_to_save=buffer_store_1, file_name=buffer_store_1)
+        files.save_file(file_to_save=result, file_name=buffer_store_1)
     return result
 
 def get_ito_correlation_matrix_string(tickers, indent=0, start_date=None, end_date=None, sample_prices=None):
