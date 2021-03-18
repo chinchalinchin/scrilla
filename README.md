@@ -391,7 +391,9 @@ not affect the application.
 
 30. Does it make sense to calculate the 'Sharpe Frontier'?
 
-31. Save efficient frontier as a JSON. Use -save argument that already exists and just modify existing frontier method. 
+31. Save efficient frontier as a JSON. Use -save argument that already exists and just modify existing frontier method. Change help message to explain new arguments. Add investment total to output format.
+
+32. Function to print dividend history.
 
 ### NOTES
 

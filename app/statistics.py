@@ -764,7 +764,7 @@ def get_ito_correlation_matrix_string(tickers, indent=0, start_date=None, end_da
     """
     entire_formatted_result, formatted_title = "", ""
 
-    line_length, first_symbol_length = 0, 0, 0
+    line_length, first_symbol_length = 0, 0
     new_line=""
     no_symbols = len(tickers)
 
