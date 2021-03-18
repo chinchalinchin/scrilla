@@ -50,7 +50,7 @@ class Cashflow:
         3. Constructor args: (`sample`, `period`, `growth_function`) -> period from constructor, `growth_function` used for growth, sample ignored
         4. Constructor args: (`sample`, `growth_function`) -> period inferred from sample, `growth_function` used for growth
         5. Constructor args: (`period`, `growth_function`) -> period from constructor, `growth_function` used for growth
-        6. Constructor args: `period`, constant -> period from constructor, constant used for growth
+        6. Constructor args: (`period`, `constant`) -> period from constructor, constant used for growth
     TODOs
     -----
     1. Implement prediction interval function to get error bars for graphs and general usage.
@@ -87,7 +87,8 @@ class Cashflow:
         if self.sample is not None and self.period is None:
             self.infer_period()
 
-        self.time_to_today = self.calculate_time_to_today()
+        if self.sample is not None and len(self.sample) > 0:
+            self.time_to_today = self.calculate_time_to_today()
 
     def infer_period(self):
         logger.debug('Attempting to infer period/frequency of cashflows.')
@@ -131,7 +132,9 @@ class Cashflow:
             first_date = helper.parse_date_string(list(dates)[no_of_dates-1])
 
             for date in dates:
+                print(date)
                 this_date = helper.parse_date_string(date)
+                print(this_date)
                 delta = (this_date - first_date).days
                 time_in_years = delta / 365
                 self.time_series.append(time_in_years)

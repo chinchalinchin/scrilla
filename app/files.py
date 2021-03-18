@@ -206,7 +206,7 @@ def add_watchlist(new_tickers):
     logger.debug('Saving tickers to Watchlist')
 
     current_tickers = get_watchlist()
-    all_tickers = get_static_data(settings.ASSET_EQUTY)
+    all_tickers = get_static_data(settings.ASSET_EQUITY)
 
     for ticker in new_tickers:
         if ticker not in current_tickers and ticker in all_tickers:

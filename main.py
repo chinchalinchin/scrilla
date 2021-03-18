@@ -227,6 +227,8 @@ if __name__ == "__main__":
                         allocation = optimizer.optimize_portfolio_variance(portfolio=portfolio, target_return=xtra_list['target'])   
                     
                     outputter.optimal_result(portfolio=portfolio, allocation=allocation, investment=xtra_list['investment'])
+
+                    # TODO: save optimal portfolio
                 else: 
                     logger.comment('Invalid input. Try -ex flag for example usage.')
             
@@ -302,6 +304,8 @@ if __name__ == "__main__":
                                                     currency=False)
                         else:
                             logger.comment('Error Encountered While Calculating. Try -ex Flag For Example Usage.')
+                        
+                        # TODO: Accumulate results and save to file
                 else:
                     logger.comment('Invalid input. Try -ex flag for example usage.')
 
