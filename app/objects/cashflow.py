@@ -132,9 +132,9 @@ class Cashflow:
             first_date = helper.parse_date_string(list(dates)[no_of_dates-1])
 
             for date in dates:
-                print(date)
+                # print(date)
                 this_date = helper.parse_date_string(date)
-                print(this_date)
+                # print(this_date)
                 delta = (this_date - first_date).days
                 time_in_years = delta / 365
                 self.time_series.append(time_in_years)

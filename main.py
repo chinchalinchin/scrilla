@@ -162,6 +162,7 @@ if __name__ == "__main__":
                                                                         start_date=xtra_list['start_date'], 
                                                                         end_date=xtra_list['end_date'])
                     outputter.print_below_new_line(f'\n{result}')
+
                 else:
                     logger.comment('Invalid input. Try -ex flag for example usage.')
 
@@ -170,12 +171,22 @@ if __name__ == "__main__":
                 # TODO: compute cost of capital equity and use as discount rate
 
                 if(len(main_args)>1) or len(main_args)==1:
+                    model_results = {}
                     for arg in main_args:
                         dividends = services.get_dividend_history(arg)
                         if xtra_list['discount'] is None:
-                            xtra_list['discount'] = markets.cost_of_equity(ticker=arg)
-                        div_npv = Cashflow(sample=dividends, discount_rate=xtra_list['discount']).calculate_net_present_value()
-                        outputter.scalar_result(f'Net Present Value ({arg} dividends)', div_npv)
+                            discount = markets.cost_of_equity(ticker=arg)
+                        else:
+                            discount = xtra_list['discount']
+
+                        model_results[f'{arg}_discount_dividend'] = Cashflow(sample=dividends, 
+                                                                                discount_rate=discount).calculate_net_present_value()
+                        outputter.scalar_result(f'Net Present Value ({arg} dividends)', 
+                                                    model_results[f'{arg}_discount_dividend'])
+                    
+                    if xtra_list['save_file'] is not None:
+                        files.save_file(file_to_save=model_results, file_name=xtra_list['save_file'])
+
                 else:
                     logger.comment('Invalid input. Try -ex flag for example usage.')
 
