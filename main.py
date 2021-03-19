@@ -36,6 +36,13 @@ Note, several of the application's function are not dealt with inside of this en
 
 First, before the containerized version of this application can be spun up, the Docker image must be built. This is easier to do from a shell script. Second, there are several 'manage.py' processes that must be completed before the server goes up, such as making migrations and migrating them to the database service. Doing so from inside of this script would be unnecessarily messy. Third, this application is designed to keep functionality as modularized as possible, i.e. the 'app' module is in charge purely of application calculations and algorithms, whereas the 'server' module is in charge of exposing the functions as an API and setting up all the necessary database tables, etc. Mixing and matching server tasks in this script would couple the application and server in ways that go counter to the design principles adopted for this package. \n \n
 """
+
+def validate_function_usage(wrapper_function, required_length=1):
+    if(len(main_args)>(required_length-1)):
+        wrapper_function()
+    else:
+        logger.comment('Error encountered while calculating. Try -ex flag for example usage.')
+
 if __name__ == "__main__": 
 
     if len(sys.argv)>0:
@@ -81,7 +88,6 @@ if __name__ == "__main__":
             files.init_static_data()
 
         ### FUNCTION: Print Stock Watchlist
-        # TODO:
         elif opt == formatter.FUNC_ARG_DICT['list_watchlist']:
             tickers = files.get_watchlist()
             outputter.title_line("Stock Watchlist")
@@ -119,56 +125,54 @@ if __name__ == "__main__":
 
             ### FUNCTION: Asset Grouping
             if opt == formatter.FUNC_ARG_DICT['asset_type']:
-                for arg in main_args:
-                    asset_type = markets.get_asset_type(arg)
-                    if asset_type:
-                        outputter.string_result(f'asset_type({arg})', asset_type)
-                    else: 
-                        logger.comment('Error encountered while determining asset Type. Try -ex flag for example usage.')
+                def cli_asset_type():
+                    for arg in main_args:
+                        asset_type = markets.get_asset_type(arg)
+                        if asset_type:
+                            outputter.string_result(f'asset_type({arg})', asset_type)
+                        else: 
+                            logger.comment('Error encountered while determining asset Type. Try -ex flag for example usage.')
+                validate_function_usage(wrapper_function=cli_asset_type)
 
             ### FUNCTION: Capital Asset Pricing Model Cost of Equity
             elif opt == formatter.FUNC_ARG_DICT['capm_equity_cost']:
-                if (len(main_args)>0):
+                def cli_capm_equity_cost():
                     for arg in main_args:
                         equity_cost = markets.cost_of_equity(ticker=arg, start_date=xtra_list['start_date'], 
                                                                 end_date=xtra_list['end_date'])
                         outputter.scalar_result(f'{arg}_equity_cost', equity_cost, currency=False)
-                else:
-                    logger.comment('Error encountered while calculating. Try -ex flag for example usage.')
+                validate_function_usage(wrapper_function=cli_capm_equity_cost)
+
 
             ### FUNCTION: Capital Asset Pricing Model Beta
             elif opt == formatter.FUNC_ARG_DICT['capm_beta']:
-                if (len(main_args)>0):
+                def cli_capm_beta():
                     for arg in main_args:
                         beta = markets.market_beta(ticker=arg, start_date=xtra_list['start_date'], 
                                                     end_date=xtra_list['end_date'])
                         outputter.scalar_result(f'{arg}_beta', beta, currency=False)
-                else:
-                    logger.comment('Error encountered while calculating. Try -ex flag for example usage.')
+                validate_function_usage(wrapper_function=cli_capm_beta)
 
             ### FUNCTION: Last Close Price
             elif opt == formatter.FUNC_ARG_DICT["close"]:
-                if(len(main_args)>1) or len(main_args)==1:
+                def cli_close():
                     for arg in main_args:
                         price = services.get_daily_price_latest(arg)
                         outputter.scalar_result(calculation=f'Last {arg} close price', result=float(price))
-                else:
-                    logger.comment('Error encountered while calculating. Try -ex flag for example usage.')
+                validate_function_usage(wrapper_function=cli_close)
                     
             ### FUNCTION: Correlation Matrix
             elif opt == formatter.FUNC_ARG_DICT["correlation"]:
-                if(len(main_args) > 1):
+                def cli_correlation():
                     result = statistics.get_ito_correlation_matrix_string(tickers=main_args, indent=formatter.INDENT, 
                                                                         start_date=xtra_list['start_date'], 
                                                                         end_date=xtra_list['end_date'])
                     outputter.print_below_new_line(f'\n{result}')
-
-                else:
-                    logger.comment('Invalid input. Try -ex flag for example usage.')
+                validate_function_usage(wrapper_function=cli_correlation, required_length=2)
 
             ### FUNCTION: Discount Dividend Model
             elif opt == formatter.FUNC_ARG_DICT["discount_dividend"]:
-                if(len(main_args)>0):
+                def cli_discount_dividend():
                     model_results = {}
                     for arg in main_args:
                         dividends = services.get_dividend_history(arg)
@@ -180,26 +184,21 @@ if __name__ == "__main__":
                                                                                 discount_rate=discount).calculate_net_present_value()
                         outputter.scalar_result(f'Net Present Value ({arg} dividends)', 
                                                     model_results[f'{arg}_discount_dividend'])
-                    
                     if xtra_list['save_file'] is not None:
                         files.save_file(file_to_save=model_results, file_name=xtra_list['save_file'])
-
-                else:
-                    logger.comment('Invalid input. Try -ex flag for example usage.')
+                validate_function_usage(wrapper_function=cli_discount_dividend)
 
             elif opt == formatter.FUNC_ARG_DICT['dividends']:
-                if(len(main_args) > 0):
+                def cli_dividends():
                     for arg in main_args:
                         dividends = services.get_dividend_history(arg)
                         for date in dividends:
                             outputter.scalar_result(calculation=f'{arg}_dividend({date})', result=dividends[date])
-                    
-                else:
-                    logger.commemt('Invalid input. Try -ex flag for example usage.')
+                validate_function_usage(wrapper_function=cli_dividends)
 
             ### FUNCTION: Efficient Frontier
             elif opt == formatter.FUNC_ARG_DICT['efficient_frontier']:
-                if(len(main_args)>1):
+                def cli_efficient_frontier():
                     portfolio = Portfolio(tickers=main_args, start_date=xtra_list['start_date'], 
                                             end_date=xtra_list['end_date'])
                     frontier = optimizer.calculate_efficient_frontier(portfolio=portfolio)
@@ -209,23 +208,21 @@ if __name__ == "__main__":
                         files.save_frontier(portfolio=portfolio, frontier=frontier,
                                             investment=xtra_list['investment'], 
                                             file_name=xtra_list['save_file'])
-                else: 
-                    logger.comment('Invalid input. Try -ex flag for example usage.')
-                    
+                validate_function_usage(wrapper_function=cli_efficient_frontier)
+
             ### FUNCTION: Maximize Portfolio Return
             elif opt == formatter.FUNC_ARG_DICT['maximize_return']:
-                if (len(main_args)>1):
+                def cli_maximize_return():
                     portfolio = Portfolio(tickers=main_args, start_date=xtra_list['start_date'], 
                                             end_date=xtra_list['end_date'])
                     allocation = optimizer.maximize_portfolio_return(portfolio=portfolio)
                     outputter.optimal_result(portfolio=portfolio, allocation=allocation, 
                                                 investment=xtra_list['investment'])
-                else:
-                    logger.comment('Invalid input. Try -ex flag for example usage.')
+                validate_function_usage(wrapper_function=cli_maximize_return, required_length=2)
 
             ### FUNCTION: Moving Averages of Logarithmic Returns
             elif opt == formatter.FUNC_ARG_DICT['moving_averages']:
-                if(len(main_args)>0):
+                def cli_moving_averages():
                     moving_averages = statistics.calculate_moving_averages(tickers=main_args, 
                                                                             start_date=xtra_list['start_date'], 
                                                                             end_date=xtra_list['end_date'])
@@ -233,12 +230,11 @@ if __name__ == "__main__":
                     outputter.moving_average_result(tickers=main_args, averages_output=moving_averages, 
                                                     periods=periods, start_date=xtra_list['start_date'], 
                                                     end_date=xtra_list['end_date'])
-                else: 
-                    logger.comment('Invalid input. Try -ex flag for example usage.')
+                validate_function_usage(wrapper_function=cli_moving_averages)
 
             ### FUNCTION: Optimize Portfolio Variance/Volatility
             elif opt == formatter.FUNC_ARG_DICT['optimize_portfolio']:
-                if (len(main_args)>1):
+                def cli_optimize_portfolio():
                     portfolio = Portfolio(tickers=main_args, start_date=xtra_list['start_date'], end_date=xtra_list['end_date'])
                     if xtra_list['optimize_sharpe']:
                         allocation = optimizer.maximize_sharpe_ratio(portfolio=portfolio, target_return=xtra_list['target'])
@@ -249,8 +245,7 @@ if __name__ == "__main__":
                     if xtra_list['save_file'] is not None:
                         files.save_allocation(allocation=allocation, portfolio=portfolio, file_name=xtra_list['save_file'],
                                                 investment=xtra_list['investment'])
-                else: 
-                    logger.comment('Invalid input. Try -ex flag for example usage.')
+                validate_function_usage(wrapper_function=cli_optimize_portfolio, required_length=2)
             
             ### FUNCTION: Plot Dividend History With Linear Regression Model
             elif opt == formatter.FUNC_ARG_DICT['plot_dividends'] and settings.APP_ENV != "container":
@@ -270,14 +265,14 @@ if __name__ == "__main__":
 
             ### FUNCTION: Plot Efficient Frontier
             elif opt == formatter.FUNC_ARG_DICT['plot_frontier'] and settings.APP_ENV != "container":
-                if(len(main_args)>1):
+                def cli_plot_frontier():
                     portfolio = Portfolio(tickers=main_args, start_date=xtra_list['start_date'], 
                                             end_date=xtra_list['end_date'])
                     frontier = optimizer.calculate_efficient_frontier(portfolio=portfolio)
                     plotter.plot_frontier(portfolio=Portfolio(main_args), frontier=frontier, show=True, 
                                             savefile=xtra_list['save_file'])
-                else: 
-                    logger.comment('Invalid input. Try -ex flag for example usage.')
+                validate_function_usage(wrapper_function=cli_plot_frontier, required_length=2)
+
             elif opt == formatter.FUNC_ARG_DICT['plot_frontier'] and settings.APP_ENV == "container":
                 logger.comment('Plotting functionality disabled when application is containerized.')
 
@@ -338,11 +333,9 @@ if __name__ == "__main__":
                             outputter.scalar_result(calculation=f'vol_{arg}', result=result['annual_volatility'],
                                                     currency=False)
                             profiles[arg] = result
-                        
                         else:
                             failed = True
                             logger.comment('Error Encountered While Calculating. Try -ex Flag For Example Usage.')
-                        
                         if not failed and xtra_list['save_file'] is not None:
                             files.save_file(file_to_save=profiles, file_name=xtra_list['save_file'])
                 else:
@@ -386,6 +379,9 @@ if __name__ == "__main__":
                         for date in stats:
                             outputter.scalar_result(calculation=f'{arg}({date})', result=stats[date], 
                                                         currency=False) 
+                    
+                else:
+                    logger.comment('Error encountered while calculating. Try -ex flag for example usage.')
 
             ### FUNCTION: Set Watchlist
             elif opt == formatter.FUNC_ARG_DICT["watchlist"]:
