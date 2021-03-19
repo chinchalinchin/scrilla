@@ -28,6 +28,7 @@ FUNC_ARG_DICT = {
     "close": "-close",
     "correlation":"-cor",
     "discount_dividend": "-ddm",
+    "dividends": "-div",
     "efficient_frontier": "-ef",
     "examples": "-ex",
     "gui": "-gui",
@@ -84,11 +85,13 @@ FUNC_DICT = {
     
     "correlation": "Calculate pair-wise correlation for the supplied list of ticker symbols. If no start or end dates are specified, calculations default to the last 100 days of prices. ADDITIONAL OPTIONS:  -start (format: \"YYYY-MM-DD\"), -end  (format :\"YYYY-MM-DD\")",
     
+    "discount_dividend": "Extrapolates future dividend cashflows from historical dividend payments with linear regression and then uses that model to calculate the net present value of all future dividends. If no discount rate is specified, the calculations default to the risk-free rate, i.e. the 10-Year US Treasury yield. ADDITIONAL OPTIONS: -discount (float)",
+    
+    "dividends": "Displays the price history over the specific date range. If no dates are provided, returns the entire dividend history. -start (format: \"YYYY-MM-DD\"), -end  (format :\"YYYY-MM-DD\")",
+
     "efficient_frontier": "Generate a sample of the portfolio's efficient frontier for the supplied list of tickers. By default, the efficient frontier will minimize a portfolio's volality for a given rate of return. The number of points calculated in the efficient frontier can be specifed as an integer with the -steps. If no -steps is provided, the value of the environment variable FRONTIER_STEPS will be used. ADDITIONAL OPTIONS: -steps (format: integer), -invest (format: float), -start (format: \"YYYY-MM-DD\"), -end  (format :\"YYYY-MM-DD\"), -save (format: /path/to/file/filename.json)",
     
     "examples": "Display examples of syntax.",
-    
-    "discount_dividend": "Extrapolates future dividend cashflows from historical dividend payments with linear regression and then uses that model to calculate the net present value of all future dividends. If no discount rate is specified, the calculations default to the risk-free rate, i.e. the 10-Year US Treasury yield. ADDITIONAL OPTIONS: -discount (float)",
     
     "gui": "Brings up a Qt GUI for the application (work in progress!)",
     
@@ -133,15 +136,17 @@ FUNC_DICT = {
 }
 
 EXAMPLES = { 
-    'python ./main.py -ls': 'Lists the stocks in your watchlist.',
+    'python ./main.py -ls-watch': 'Lists the stocks in your watchlist.',
 
     'python ./main.py -rr GOOG AMZN XOM AAPL': 'Calculate the risk-return profile for each equity in the portfolio composed of (GOOG, AMZN, XOM, APPL)',
 
     'python ./main.py -cor GLD SPY SLV UUP TLT EWA': 'Calculate the correlation matrix for the portfolio composed of (GLD, SPY, SLV, UUP, TLT, EWA',
 
-    'python ./main.py -min U TSLA SPCE': 'Find the portfolio allocation that minimizes the overall variance of the portfolio composed of (U, TSLA, SPCE). ',
+    'python ./main.py -opt U TSLA SPCE': 'Finds the portfolio allocation that minimizes the overall variance of the portfolio composed of (U, TSLA, SPCE). ',
 
-    'python ./main.py -opt -target 0.83 ALLY FB PFE SNE BX': 'Optimize the portfolio consisting of (ALLY, FB, PFE, SNE, BX) subject to the constraint their mean annual return equal 83%. Note the constrained return must reside within the feasible region of returns, i.e. the constrained return must be less than the maximum possible return.',  
+    'python ./main.py -opt -target 0.83 ALLY FB PFE SNE BX': 'Optimize the portfolio consisting of (ALLY, FB, PFE, SNE, BX) subject to the constraint their mean annual return equal 83%. Note the constrained return must reside within the feasible region of returns, i.e. the constrained return must be less than the maximum possible return and greater than the minimum possible return.',  
+
+    'python ./main.py -opt -sh -save /home/Desktop/max_sharpe_ratio.json LMT GD UPS MMM': 'Maximize the sharpe ratio of the portfolio consisting of (LMT, GD, UPS, MM) and ouput the portfolio allocation along with its risk-return profile to a json on the user Desktop.',
 
     'python ./main.py -ef QS DIS RUN': 'Calculate a five point sample of the efficient portfolio (risk, return) frontier for the portfolio composed of (QS, DIS, RUN). The number of points generated in the sample can be altered through the FRONTIER_STEPS environment variable.',
 
@@ -153,9 +158,9 @@ EXAMPLES = {
 
     'python ./main.py -close MSFT IBM FSLR NFLX BTC XRP': "Displays the last closing price for the supplied list of asset types",
 
-    'python ./main.py -gui': "Launches a PyQt GUI into which the application functions have been wired.",
+    'python ./main.py -gui': "Launches a PyQt GUI into which the application functions have been wired. Note this does not work in containers.",
 
-    'python ./main.py -screen -model DDM': 'Screens the equities in your watchlist for spot prices that trade at a discount to the Discount Dividend Model',
+    'python ./main.py -screen -model DDM': 'Screens the equities in your watchlist for spot prices that trade at a discount to the specified moel',
     
     'python ./main.py -watch ATVI TTWO EA': 'Adds the portfolio (ATVI, TTWO, EA) to the existing ticker symbols in your equity watchlist'  
 }

@@ -168,9 +168,7 @@ if __name__ == "__main__":
 
             ### FUNCTION: Discount Dividend Model
             elif opt == formatter.FUNC_ARG_DICT["discount_dividend"]:
-                # TODO: compute cost of capital equity and use as discount rate
-
-                if(len(main_args)>1) or len(main_args)==1:
+                if(len(main_args)>0):
                     model_results = {}
                     for arg in main_args:
                         dividends = services.get_dividend_history(arg)
@@ -178,7 +176,6 @@ if __name__ == "__main__":
                             discount = markets.cost_of_equity(ticker=arg)
                         else:
                             discount = xtra_list['discount']
-
                         model_results[f'{arg}_discount_dividend'] = Cashflow(sample=dividends, 
                                                                                 discount_rate=discount).calculate_net_present_value()
                         outputter.scalar_result(f'Net Present Value ({arg} dividends)', 
@@ -189,6 +186,16 @@ if __name__ == "__main__":
 
                 else:
                     logger.comment('Invalid input. Try -ex flag for example usage.')
+
+            elif opt == formatter.FUNC_ARG_DICT['dividends']:
+                if(len(main_args) > 0):
+                    for arg in main_args:
+                        dividends = services.get_dividend_history(arg)
+                        for date in dividends:
+                            outputter.scalar_result(calculation=f'{arg}_dividend({date})', result=dividends[date])
+                    
+                else:
+                    logger.commemt('Invalid input. Try -ex flag for example usage.')
 
             ### FUNCTION: Efficient Frontier
             elif opt == formatter.FUNC_ARG_DICT['efficient_frontier']:
@@ -348,6 +355,7 @@ if __name__ == "__main__":
 
             ### FUNCTION: Get Latest Economic Statistic
             elif opt == formatter.FUNC_ARG_DICT["statistic"]:
+                # TODO: implement start and end date and print eac.
                 if(len(main_args)>0):
                     for stat in main_args:
                         outputter.scalar_result(calculation=stat, 
