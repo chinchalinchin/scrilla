@@ -220,23 +220,53 @@ def add_watchlist(new_tickers):
             json.dump(current_tickers, outfile)
         # TODO: implement other file extensions
 
-def save_frontier(portfolio, frontier, file_name):
-    save_format = {}
-    for i in range(len(frontier)):
-        allocation_format = {}
-        for j in range(len(portfolio.tickers)):
-            allocation_format[f'{portfolio.tickers[j]}_allocation'] = frontier[i][j] 
-        save_format[f'portfolio_{i}'] = allocation_format
+def format_allocation(allocation, portfolio, investment=None):
+    allocation_format, shares_format = {}, {}
+
+    if investment is not None:
+        shares = portfolio.calculate_approximate_shares(x=allocation, total=investment)
+        total = portfolio.calculate_actual_total(x=allocation, total=investment)
+
+        annual_volatility = portfolio.volatility_function(x=allocation) 
+        annual_return = portfolio.volatility_function(x=allocation)
+
+    for j in range(len(portfolio.tickers)):
+        allocation_format[f'{portfolio.tickers[j]}_allocation'] = allocation[j] 
+        if investment is not None:
+            shares_format[f'{portfolio.tickers[j]}_shares'] = float(shares[j])
+
+    json_format = {}
+    json_format['allocation'] = allocation_format
+
+    if investment is not None:
+        json_format['shares'] = shares_format
+        json_format['total'] = float(total)
+        
+    json_format['annual_return'] = annual_return
+    json_format['annual_volatility'] = annual_volatility
     
+    return json_format
+
+def format_frontier(portfolio, frontier, investment=None):
+    json_format = {}
+    for i in range(len(frontier)):
+        json_format[f'portfolio_{i}'] = format_allocation(allocation=frontier[i], portfolio=portfolio, 
+                                                            investment=investment)
+
+    return json_format
+
+def save_allocation(allocation, portfolio, file_name, investment=None):
+    save_format = format_allocation(allocation=allocation, portfolio=portfolio, investment=investment)
     save_file(file_to_save=save_format, file_name=file_name)
 
-def save_profile(profile, ticker, save_file):
+def save_frontier(portfolio, frontier, file_name, investment=None):
+    save_format = format_frontier(portfolio=portfolio, frontier=frontier,investment=investment)
+    save_file(file_to_save=save_format, file_name=file_name)
+
+def save_profile(profile, ticker, save_file, investment=None):
     # TODO:
     pass
 
-def save_allocation(allocation, ticker, save_file):
-    # TODO: 
-    pass
 
 ################################################
 ##### FILE MANAGEMENT FUNCTIONS

@@ -188,7 +188,8 @@ if __name__ == "__main__":
                     outputter.efficient_frontier(portfolio=portfolio, frontier=frontier,
                                                     investment=xtra_list['investment'])
                     if xtra_list['save_file'] is not None:
-                        files.save_frontier(portfolio=portfolio, frontier=frontier, 
+                        files.save_frontier(portfolio=portfolio, frontier=frontier,
+                                            investment=xtra_list['investment'], 
                                             file_name=xtra_list['save_file'])
                 else: 
                     logger.comment('Invalid input. Try -ex flag for example usage.')
@@ -225,10 +226,11 @@ if __name__ == "__main__":
                         allocation = optimizer.maximize_sharpe_ratio(portfolio=portfolio, target_return=xtra_list['target'])
                     else:
                         allocation = optimizer.optimize_portfolio_variance(portfolio=portfolio, target_return=xtra_list['target'])   
-                    
                     outputter.optimal_result(portfolio=portfolio, allocation=allocation, investment=xtra_list['investment'])
 
-                    # TODO: save optimal portfolio
+                    if xtra_list['save_file'] is not None:
+                        files.save_allocation(allocation=allocation, portfolio=portfolio, file_name=xtra_list['save_file'],
+                                                investment=xtra_list['investment'])
                 else: 
                     logger.comment('Invalid input. Try -ex flag for example usage.')
             
@@ -313,7 +315,6 @@ if __name__ == "__main__":
             elif  opt == formatter.FUNC_ARG_DICT["screener"]:
                 if xtra_list['model'] is None:
                     model = markets.MODEL_DDM
-                # TODO: compute cost of capital equity and use as discount rate
                 results = markets.screen_for_discount(model=model, discount_rate=xtra_list['discount'])
                 outputter.screen_results(info=results, model=model)
 

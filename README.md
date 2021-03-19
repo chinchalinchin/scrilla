@@ -391,9 +391,11 @@ not affect the application.
 
 30. Does it make sense to calculate the 'Sharpe Frontier'?
 
-31. Save efficient frontier as a JSON. Use -save argument that already exists and just modify existing frontier method. Change help message to explain new arguments. Add investment total to output format.
+31. Allow relative file references when saving analysis. Right now needs to be absolute path inputted into -save argument. Also, save return profiles. 
 
 32. Function to print dividend history.
+
+33. Incorporate new formatting methods in files.py into django responses.
 
 ### NOTES
 
