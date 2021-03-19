@@ -14,7 +14,7 @@ RISK_FREE_TITLE = "10-Year US Treasury"
 
 HELP_MSG = "A financial application written in python to determine optimal portfolio allocations subject to various constraints and to calculate fundamental statistics concerning a given portfolio allocation. Note: all calculations are based on an equity's closing price for the past 100 trading days. "
 
-SYNTAX = "command -OPTIONS [tickers] (additional input)"
+SYNTAX = "command -OPTIONS [tickers]"
 
 TAB = "      "
 

@@ -263,10 +263,6 @@ def save_frontier(portfolio, frontier, file_name, investment=None):
     save_format = format_frontier(portfolio=portfolio, frontier=frontier,investment=investment)
     save_file(file_to_save=save_format, file_name=file_name)
 
-def save_profile(profile, ticker, save_file, investment=None):
-    # TODO:
-    pass
-
 
 ################################################
 ##### FILE MANAGEMENT FUNCTIONS

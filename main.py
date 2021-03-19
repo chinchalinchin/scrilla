@@ -296,6 +296,8 @@ if __name__ == "__main__":
             ### FUNCTION: Risk-Return Profile
             elif opt == formatter.FUNC_ARG_DICT["risk_return"]:
                 if(len(main_args)>0):
+                    profiles = {}
+                    failed = False
                     for arg in main_args:
                         result = statistics.calculate_risk_return(ticker=arg, start_date=xtra_list['start_date'], 
                                                                     end_date=xtra_list['end_date'])
@@ -304,10 +306,14 @@ if __name__ == "__main__":
                                                     currency=False)
                             outputter.scalar_result(calculation=f'vol_{arg}', result=result['annual_volatility'],
                                                     currency=False)
+                            profiles[arg] = result
+                        
                         else:
+                            failed = True
                             logger.comment('Error Encountered While Calculating. Try -ex Flag For Example Usage.')
                         
-                        # TODO: Accumulate results and save to file
+                        if not failed and xtra_list['save_file'] is not None:
+                            files.save_file(file_to_save=profiles, file_name=xtra_list['save_file'])
                 else:
                     logger.comment('Invalid input. Try -ex flag for example usage.')
 
