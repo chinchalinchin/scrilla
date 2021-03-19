@@ -311,6 +311,19 @@ if __name__ == "__main__":
             elif opt == formatter.FUNC_ARG_DICT['plot_risk_profile'] and settings.APP_ENV == "container":
                 logger.comment('Plotting functionality disabled when application is containerized.')
 
+            ### FUNCTION: Price History
+            elif opt == formatter.FUNC_ARG_DICT['price_history']:
+                if len(main_args) > 0:
+                    for arg in main_args:
+                        prices = services.get_daily_price_history(ticker=arg, start_date=xtra_list['start_date'],
+                                                                    end_date=xtra_list['end_date'])
+                        asset_type = markets.get_asset_type(symbol=arg)
+                        for date in prices:
+                            price = services.parse_price_from_date(prices=prices, date=date,
+                                                                    asset_type=asset_type)
+                            outputter.scalar_result(calculation=f'{arg}({date})', result = float(price))
+                else:
+                    logger.comment('Invalid input. Try -ex flag for example usage.')
             ### FUNCTION: Risk-Return Profile
             elif opt == formatter.FUNC_ARG_DICT["risk_return"]:
                 if(len(main_args)>0):

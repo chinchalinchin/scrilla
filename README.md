@@ -357,7 +357,7 @@ not affect the application.
 
 6. TEST MOVING AVERAGE ALGORITHM FOR MIX OF ASSET TYPES. I think there may be some mismatch of types in date comparisons.
 
-7. Correlation algorithm needs test for mix of asset types as well, i.e. equities and crypto.
+7. Correlation algorithm needs tested for mix of asset types as well, i.e. equities and crypto.
 
 8. Create automated tests and integrate repo with a CircleCi pipeline that builds the image. Will need to find a cloud provider to deploy onto. Perhaps [Heroku](https://www.heroku.com/)
 
@@ -394,6 +394,8 @@ not affect the application.
 31. Allow relative file references when saving analysis. Right now needs to be absolute path inputted into -save argument. Also, save return profiles. 
 
 33. Incorporate new formatting methods in files.py into django responses.
+
+34. Implement price_history and stat_history function.
 
 ### NOTES
 

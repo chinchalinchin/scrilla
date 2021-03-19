@@ -43,6 +43,7 @@ FUNC_ARG_DICT = {
     "plot_moving_averages": "-plot-mov",
     "plot_risk_profile": "-plot-rr",
     "plot_yield_curve":"-plot-yield",
+    "price_history": "-prices",
     "purge": "-purge",
     "risk_free_rate": "-rf",
     "risk_return" : "-rr",
@@ -51,6 +52,7 @@ FUNC_ARG_DICT = {
     "server_container": "-container",
     "sharpe_ratio": "-sharpe",
     "statistic": "-stat",
+    "statistic_history": "-stats",
     "watchlist": "-watch",
     "yield_curve": "-yield"
 }
@@ -117,8 +119,10 @@ FUNC_DICT = {
     
     "plot_risk_profile": "Generates a scatter plot of the risk-return profile for symbol in the supplied list of ticker symbols. If no start or end dates are specified, calculations default to the last 100 days of prices. ADDITIONAL OPTIONS:  -start (format: \"YYYY-MM-DD\"), -end  (format :\"YYYY-MM-DD\"), -save (format: /path/to/file/filename.jpeg",
 
-    "plot_risk_profile": "Generates a plot of the United States Treasury Yield Curve using the Federal Funds Rate, the 3-Month Rate, the 3-Year Rate, the 5-Year Rate, the 10-Year Rate and the 30-Year Rate. ADDITIONAL OPTIONS:  -start (format: \"YYYY-MM-DD\"), -end  (format :\"YYYY-MM-DD\"), -save (format: /path/to/file/filename.jpeg",
+    "plot_yield_curve": "Generates a plot of the United States Treasury Yield Curve using the Federal Funds Rate, the 3-Month Rate, the 3-Year Rate, the 5-Year Rate, the 10-Year Rate and the 30-Year Rate. ADDITIONAL OPTIONS:  -start (format: \"YYYY-MM-DD\"), -end  (format :\"YYYY-MM-DD\"), -save (format: /path/to/file/filename.jpeg",
     
+    "price_history": "Prints the price histories for each inputted asset over the specified date range. If no date range is given, price histories will default to the last 100 days. -start (format: \"YYYY-MM-DD\"), -end  (format :\"YYYY-MM-DD\"), -save (format: /path/to/file/filename.json)",
+
     "purge": "Removes all files contained with the /static/ and /cache/ directory, but retains the directories themselves.",
     
     "risk_free_rate": "Returns current 10-year, annualized US Treasury yield.",
@@ -135,9 +139,11 @@ FUNC_DICT = {
 
     "statistic": "Retrieves the latest value for the supplied list of economic statistics. The available list of economic statistic can be found at https://www.quandl.com/data/FRED-Federal-Reserve-Economic-Data/documentation?anchor=growth; it is also stored in the /static/ directory of the application ",
     
+    "statistic_history": "Prints the statistic history for the supplied list of economic statistics. -save (format: /path/to/file/filename.jpeg)",
+
     "watchlist": "Saves the supplist list of tickers to your watchlist. These equity symbol are used by the screening algorithms when searching for stocks that trade at a discount.", 
 
-    "yield_curve": "Displays the current yield curve."
+    "yield_curve": "Displays the current United States Treasury Yield Curve using the Federal Funds Rate, the 3-Month Rate, the 3-Year Rate, the 5-Year Rate, the 10-Year Rate and the 30-Year Rate."
 
 }
 
