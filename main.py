@@ -319,11 +319,11 @@ if __name__ == "__main__":
                                                                     end_date=xtra_list['end_date'])
                         asset_type = markets.get_asset_type(symbol=arg)
                         for date in prices:
-                            price = services.parse_price_from_date(prices=prices, date=date,
-                                                                    asset_type=asset_type)
+                            price = services.parse_price_from_date(prices=prices, date=date, asset_type=asset_type)
                             outputter.scalar_result(calculation=f'{arg}({date})', result = float(price))
                 else:
                     logger.comment('Invalid input. Try -ex flag for example usage.')
+
             ### FUNCTION: Risk-Return Profile
             elif opt == formatter.FUNC_ARG_DICT["risk_return"]:
                 if(len(main_args)>0):
@@ -377,6 +377,16 @@ if __name__ == "__main__":
                 else:
                     logger.comment('Error encountered while calculating. Try -ex flag for example usage.')
             
+            ### FUNCTION: Statistic History
+            elif opt == formatter.FUNC_ARG_DICT['statistic_history']:
+                if(len(main_args)>0):
+                    for arg in main_args:
+                        stats = services.get_daily_stats_history(statistic=arg, start_date=xtra_list['start_date'],
+                                                            end_date=xtra_list['end_date'])
+                        for date in stats:
+                            outputter.scalar_result(calculation=f'{arg}({date})', result=stats[date], 
+                                                        currency=False) 
+
             ### FUNCTION: Set Watchlist
             elif opt == formatter.FUNC_ARG_DICT["watchlist"]:
                 if(len(main_args)>0):
