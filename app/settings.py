@@ -249,6 +249,7 @@ if STAT_MANAGER == "quandl":
 
     # Special Endpoints
     ARG_Q_YIELD_CURVE = {
+        'Overnight': 'DFF',
         '3-Month': 'DTB3',
         '5-Year': 'DGS5',
         '10-Year': 'DGS10',

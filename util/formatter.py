@@ -42,6 +42,7 @@ FUNC_ARG_DICT = {
     "plot_frontier": "-plot-ef",
     "plot_moving_averages": "-plot-mov",
     "plot_risk_profile": "-plot-rr",
+    "plot_yield_curve":"-plot-yield",
     "purge": "-purge",
     "risk_free_rate": "-rf",
     "risk_return" : "-rr",
@@ -50,7 +51,8 @@ FUNC_ARG_DICT = {
     "server_container": "-container",
     "sharpe_ratio": "-sharpe",
     "statistic": "-stat",
-    "watchlist": "-watch"
+    "watchlist": "-watch",
+    "yield_curve": "-yield"
 }
 
 FUNC_XTRA_VALUED_ARGS_DICT = {
@@ -65,7 +67,7 @@ FUNC_XTRA_VALUED_ARGS_DICT = {
 }
 
 FUNC_XTRA_SINGLE_ARGS_DICT = {
-    'optimize_sharpe': "-sh"
+    'optimize_sharpe': "-sh",
 }
 
 FUNC_DICT = {
@@ -114,6 +116,8 @@ FUNC_DICT = {
     "plot_moving_averages": "Generates a grouped bar chart of the moving averages for each equity in the supplied list of ticker symbols. Not available when running inside of a Docker container. If no start or end dates are specified, calculations default to the last 100 days of prices. ADDITIONAL OPTIONS:  -start (format: \"YYYY-MM-DD\"), -end  (format :\"YYYY-MM-DD\"), -save (format: /path/to/file/filename.jpeg)",
     
     "plot_risk_profile": "Generates a scatter plot of the risk-return profile for symbol in the supplied list of ticker symbols. If no start or end dates are specified, calculations default to the last 100 days of prices. ADDITIONAL OPTIONS:  -start (format: \"YYYY-MM-DD\"), -end  (format :\"YYYY-MM-DD\"), -save (format: /path/to/file/filename.jpeg",
+
+    "plot_risk_profile": "Generates a plot of the United States Treasury Yield Curve using the Federal Funds Rate, the 3-Month Rate, the 3-Year Rate, the 5-Year Rate, the 10-Year Rate and the 30-Year Rate. ADDITIONAL OPTIONS:  -start (format: \"YYYY-MM-DD\"), -end  (format :\"YYYY-MM-DD\"), -save (format: /path/to/file/filename.jpeg",
     
     "purge": "Removes all files contained with the /static/ and /cache/ directory, but retains the directories themselves.",
     
@@ -131,7 +135,9 @@ FUNC_DICT = {
 
     "statistic": "Retrieves the latest value for the supplied list of economic statistics. The available list of economic statistic can be found at https://www.quandl.com/data/FRED-Federal-Reserve-Economic-Data/documentation?anchor=growth; it is also stored in the /static/ directory of the application ",
     
-    "watchlist": "Saves the supplist list of tickers to your watchlist. These equity symbol are used by the screening algorithms when searching for stocks that trade at a discount."
+    "watchlist": "Saves the supplist list of tickers to your watchlist. These equity symbol are used by the screening algorithms when searching for stocks that trade at a discount.", 
+
+    "yield_curve": "Displays the current yield curve."
 
 }
 

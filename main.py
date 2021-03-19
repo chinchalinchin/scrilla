@@ -371,10 +371,17 @@ if __name__ == "__main__":
                     logger.comment("Watchlist saved. Use -ls option to print watchlist.")
                 else:
                     logger.comment('Error encountered while calculating. Try -ex flag for example usage.')
+    
+            ### FUNCTION: Yield Curve
+            elif opt == formatter.FUNC_ARG_DICT['yield_curve']:
+                for rate in settings.ARG_Q_YIELD_CURVE:
+                    curve_rate = services.get_daily_stats_latest(statistic=settings.ARG_Q_YIELD_CURVE[rate])
+                    outputter.scalar_result(calculation=rate, result=curve_rate, currency=False)
             else:
                 logger.comment('No function supplied. Please review Function Summary below and re-execute with appropriate arguments.')
                 outputter.help_msg()
             
+    
             outputter.print_line()
     else:
         logger.comment('No arguments Supplied. Please review function summary below and re-execute with appropriate arguments.')
