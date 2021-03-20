@@ -126,34 +126,6 @@ def moving_averages(request):
     
     averages_output = statistics.calculate_moving_averages(tickers=tickers, sample_prices=sample_prices)
 
-    these_moving_averages, dates = averages_output
-
-    response = {}
-    for i in range(len(tickers)):
-        ticker_str=f'{tickers[i]}'
-        MA_1_str, MA_2_str, MA_3_str = f'{ticker_str}_MA_1', f'{ticker_str}_MA_2', f'{ticker_str}_MA_3'    
-
-        subresponse = {}
-        if parsed_args['start_date'] is None and parsed_args['end_date'] is None:
-            subresponse[MA_1_str] = these_moving_averages[i][0]
-            subresponse[MA_2_str] = these_moving_averages[i][1]
-            subresponse[MA_3_str] = these_moving_averages[i][2]
-
-        else:
-            subsubresponse_1, subsubresponse_2, subsubresponse_3 = {}, {}, {}
-    
-            for j in range(len(dates)):
-                date_str=helper.date_to_string(dates[j])
-                subsubresponse_1[date_str] = these_moving_averages[i][0][j]
-                subsubresponse_2[date_str] = these_moving_averages[i][1][j]
-                subsubresponse_3[date_str] = these_moving_averages[i][2][j]
-
-            subresponse[MA_1_str] = subsubresponse_1
-            subresponse[MA_2_str] = subsubresponse_2
-            subresponse[MA_3_str] = subsubresponse_3
-
-        response[ticker_str] = subresponse
-
     if parsed_args['jpeg']:
         periods = [app_settings.MA_1_PERIOD, app_settings.MA_2_PERIOD, app_settings.MA_3_PERIOD]
         graph = plotter.plot_moving_averages(symbols=tickers, averages_output=averages_output, periods=periods,
@@ -161,7 +133,8 @@ def moving_averages(request):
         response = HttpResponse(content_type="image/png")
         graph.print_png(response)
         return response
-
+        
+    response = files.format_moving_averages(tickers=tickers, averages_output=averages_output)
     return JsonResponse(data = response, status=status, safe=False)
 
 def discount_dividend(request):

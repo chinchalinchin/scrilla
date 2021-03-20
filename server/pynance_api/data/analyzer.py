@@ -12,7 +12,7 @@ logger = outputter.Logger("server.pynance_api.api.anaylzer", settings.LOG_LEVEL)
 
 
 def market_queryset_gap_analysis(symbol, start_date=None, end_date=None):
-    logger.info('Searching for gaps in Market querysets.')
+    logger.info(f'Searching for gaps in {symbol} Market queryset.')
 
     asset_type = markets.get_asset_type(symbol=symbol)
 
@@ -59,6 +59,13 @@ def market_queryset_gap_analysis(symbol, start_date=None, end_date=None):
                     logger.debug(f'No gap detected on {date} for {symbol}.')
 
 def dividend_queryset_gap_analysis(symbol):
+    logger.info(f'Searching for gaps in {symbol} Dividend queryset.')
+
+    ticker = EquityTicker.objects.get_or_create(ticker=symbol)
+    queryset = Dividends.objects.filter(ticker=ticker)
+
+    if queryset.count() == 0:
+        dividends = services.query_service_for_dividend_history(ticker=ticker)
     # TODO:
     pass
 

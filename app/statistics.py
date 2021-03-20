@@ -604,8 +604,8 @@ def calculate_ito_correlation(ticker_1, ticker_2, start_date=None, end_date=None
     
     ### START SAMPLE STATISTICS CALCULATION ###
     logger.debug(f'Preparing to calculate correlation for ({ticker_1},{ticker_2})')
-    stats_1 = calculate_risk_return(ticker_1, start_date, end_date, sample_prices)
-    stats_2 = calculate_risk_return(ticker_2, start_date, end_date, sample_prices)
+    stats_1 = calculate_risk_return(ticker_1, start_date, end_date, sample_prices[ticker_1])
+    stats_2 = calculate_risk_return(ticker_2, start_date, end_date, sample_prices[ticker_2])
 
     if (not stats_1) or (not stats_2):
         logger.info("Sample statistics cannot be calculated for correlation calculation")
