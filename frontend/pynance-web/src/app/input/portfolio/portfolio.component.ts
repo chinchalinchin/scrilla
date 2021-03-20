@@ -55,9 +55,7 @@ export class PortfolioComponent implements OnInit {
         // empty portfolio passed in
         if(changes.allocations.currentValue.length == 0){ 
           this.displayedColumns = [ 'ticker' ]
-          for(let holding of this.portfolio){
-            holding.allocation = null;
-          }
+          for(let holding of this.portfolio){ holding.allocation = null; }
         }
 
         // allocation portfolio passed in

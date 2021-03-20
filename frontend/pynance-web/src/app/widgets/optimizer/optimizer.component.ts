@@ -1,4 +1,5 @@
 import { Component, Input, OnInit, SimpleChanges, ViewChild } from '@angular/core';
+import { PynanceService } from 'src/app/services/pynance.service';
 import { ArgumentsComponent } from '../../input/args/arguments.component';
 import { PortfolioComponent } from '../../input/portfolio/portfolio.component';
 
@@ -21,7 +22,7 @@ export class OptimizerComponent implements OnInit {
   @ViewChild(ArgumentsComponent)
   public arguments : ArgumentsComponent;
 
-  constructor() { }
+  constructor(private pynanceService: PynanceService) { }
 
 
   ngOnInit() {
