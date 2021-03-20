@@ -255,6 +255,37 @@ def format_frontier(portfolio, frontier, investment=None):
 
     return json_format
 
+def format_moving_averages(tickers, averages_output):
+    these_moving_averages, dates = averages_output
+
+    response = {}
+    for i in range(len(tickers)):
+        ticker_str=f'{tickers[i]}'
+        MA_1_str, MA_2_str, MA_3_str = f'{ticker_str}_MA_1', f'{ticker_str}_MA_2', f'{ticker_str}_MA_3'    
+
+        subresponse = {}
+        if dates is None:
+            subresponse[MA_1_str] = these_moving_averages[i][0]
+            subresponse[MA_2_str] = these_moving_averages[i][1]
+            subresponse[MA_3_str] = these_moving_averages[i][2]
+
+        else:
+            subsubresponse_1, subsubresponse_2, subsubresponse_3 = {}, {}, {}
+    
+            for j in range(len(dates)):
+                date_str=helper.date_to_string(dates[j])
+                subsubresponse_1[date_str] = these_moving_averages[i][0][j]
+                subsubresponse_2[date_str] = these_moving_averages[i][1][j]
+                subsubresponse_3[date_str] = these_moving_averages[i][2][j]
+
+            subresponse[MA_1_str] = subsubresponse_1
+            subresponse[MA_2_str] = subsubresponse_2
+            subresponse[MA_3_str] = subsubresponse_3
+
+        response[ticker_str] = subresponse
+    
+    return response
+
 def save_allocation(allocation, portfolio, file_name, investment=None):
     save_format = format_allocation(allocation=allocation, portfolio=portfolio, investment=investment)
     save_file(file_to_save=save_format, file_name=file_name)
@@ -263,7 +294,10 @@ def save_frontier(portfolio, frontier, file_name, investment=None):
     save_format = format_frontier(portfolio=portfolio, frontier=frontier,investment=investment)
     save_file(file_to_save=save_format, file_name=file_name)
 
-
+def save_moving_averages(tickers, averages_output, file_name):
+    save_format = format_moving_averages(tickers=tickers,averages_output=averages_output)
+    save_file(file_to_save=save_format, file_name=file_name)
+    
 ################################################
 ##### FILE MANAGEMENT FUNCTIONS
 

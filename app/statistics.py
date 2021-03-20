@@ -135,7 +135,6 @@ def regression_alpha(x, y):
     alpha = y_mean - regression_beta(x=x, y=y)*x_mean
     return alpha
     
-
 def calculate_moving_averages(tickers, start_date=None, end_date=None, sample_prices=None):
     """
     Parameters

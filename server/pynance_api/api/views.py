@@ -87,49 +87,23 @@ def efficient_frontier(request):
     tickers = parsed_args_or_err_msg['tickers']
     parsed_args = parsed_args_or_err_msg['parsed_args']
 
-    prices, sample_prices = {}, {}
-    null_result = False
+    prices = {}
 
-    # TODO: what is querysets.count() != each other?
     for ticker in tickers:
+        analyzer.market_queryset_gap_analysis(symbol=ticker,start_date=parsed_args['start_date'],
+                                                end_date=parsed_args['end_date'])
         prices[ticker] = parser.parse_args_into_market_queryset(ticker, parsed_args)
-        if prices[ticker].count() == 0:
-            null_result=True
-            break
 
-    if null_result:
-        output.debug('No prices found in database, passing query to service.')
-        portfolio = Portfolio(tickers=tickers, start_date=parsed_args['start_date'], end_date=parsed_args['end_date'])
-    else:
-        output.debug('Prices found in database, passing result to statistics.')
-        for ticker in tickers:
-            sample_prices[ticker] = parser.market_queryset_to_list(price_set=prices[ticker])[ticker]
-        portfolio = Portfolio(tickers=tickers, sample_prices=sample_prices)  
-        
+    portfolio = Portfolio(tickers=tickers, sample_prices=prices)    
     frontier = optimizer.calculate_efficient_frontier(portfolio=portfolio)
-
-    response = {}
-    for i in range(len(frontier)):
-        subresponse, subsubresponse = {}, {}
-        port_string =  f'portfolio_{i}'
-
-        allocation = helper.round_array(array=frontier[i], decimals=4)
-        subresponse['portfolio_return'] = helper.truncate(portfolio.return_function(allocation), 4)
-        subresponse['portfolio_volatility'] = helper.truncate(portfolio.volatility_function(allocation), 4)
-
-        for j in range(len(tickers)):
-            allocation_string = f'{tickers[j]}_allocation'
-            subsubresponse[allocation_string] = allocation[j]
-
-        subresponse['allocation']=subsubresponse
-        response[port_string] = subresponse
     
     if parsed_args['jpeg']:
         graph = plotter.plot_frontier(portfolio=portfolio, frontier=frontier, show=False)
         response = HttpResponse(content_type="image/png")
         graph.print_png(response)
         return response
-    
+
+    response = files.format_frontier(portfolio=portfolio,frontier=frontier,investment=parsed_args['investment'])
     return JsonResponse(data=response, status=status, safe=False) 
 
 # TODO: in future allow user to specify moving average periods through query parameters! 
@@ -145,22 +119,12 @@ def moving_averages(request):
     prices, sample_prices = {}, {}
     null_result = False
 
-    # TODO: what is querysets.count() != each other?
     for ticker in tickers:
-        prices[ticker] = parser.parse_args_into_queryset(ticker, parsed_args)
-        if prices[ticker].count() == 0:
-            null_result=True
-            break
-
-    if null_result:
-        output.debug('No prices found in database, passing query to service.')
-        averages_output = statistics.calculate_moving_averages(tickers=tickers, start_date=parsed_args['start_date'],
-                                                                end_date=parsed_args['end_date'])
-    else: 
-        output.debug('Prices found in database, passing result to statistics.')
-        for ticker in tickers:
-            sample_prices[ticker] = parser.market_queryset_to_list(price_set=prices[ticker])[ticker]
-        averages_output = statistics.calculate_moving_averages(tickers=tickers, sample_prices=sample_prices)
+        analyzer.market_queryset_gap_analysis(symbol=ticker,start_date=parsed_args['start_date'],
+                                                end_date=parsed_args['end_date'])
+        prices[ticker] = parser.parse_args_into_market_queryset(ticker, parsed_args)
+    
+    averages_output = statistics.calculate_moving_averages(tickers=tickers, sample_prices=sample_prices)
 
     these_moving_averages, dates = averages_output
 

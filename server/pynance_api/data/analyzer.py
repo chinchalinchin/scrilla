@@ -57,3 +57,11 @@ def market_queryset_gap_analysis(symbol, start_date=None, end_date=None):
                     logger.debug(f'Gap filled on {date} for {symbol} with price open={open_price} - close={close_price}.')
                 else:
                     logger.debug(f'No gap detected on {date} for {symbol}.')
+
+def dividend_queryset_gap_analysis(symbol):
+    # TODO:
+    pass
+
+def economy_queryset_gap_analysis(symbol, start_date=None, end_date=None):
+    # TODO:
+    pass
