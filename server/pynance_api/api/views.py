@@ -41,7 +41,8 @@ def risk_return(request):
                                                 end_date=parsed_args['end_date'])
         prices = parser.parse_args_into_market_queryset(ticker=tickers[i], parsed_args=parsed_args)
         sample_prices = parser.market_queryset_to_list(price_set=prices)
-        profile = statistics.calculate_risk_return(ticker=tickers[i], sample_prices=sample_prices)
+        print(sample_prices)
+        profile = statistics.calculate_risk_return(ticker=tickers[i], sample_prices=sample_prices[tickers[i]])
 
         response[ticker_str] = profile
 

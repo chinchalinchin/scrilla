@@ -7,8 +7,8 @@ services:
       ports:
         - "8000:8000"
       volumes:
-        - static:/home/static/
-        - cache:/home/cache
+        - static:/home/data/static/
+        - cache:/home/data/cache
       networks:
         - the_pit
       env_file: 

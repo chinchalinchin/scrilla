@@ -34,12 +34,11 @@ class EquityMarket(models.Model):
         return '{} {} : {}'.format(self.ticker, self.date, self.closing_price)
     
     # TODO: may need to change AV_RES_EQUITY_CLOSE_PRICE key to something more generalized.
-    def to_list(self):
+    def to_dict(self):
         date_string = helper.date_to_string(self.date)
         formatted_self = {}
-        formatted_self[date_string] = {}
-        formatted_self[date_string][app_settings.AV_RES_EQUITY_OPEN_PRICE] = self.open_price
-        formatted_self[date_string][app_settings.AV_RES_EQUITY_CLOSE_PRICE] = self.close_price 
+        formatted_self[app_settings.AV_RES_EQUITY_OPEN_PRICE] = self.open_price
+        formatted_self[app_settings.AV_RES_EQUITY_CLOSE_PRICE] = self.close_price 
         return formatted_self
     
     def to_date(self):
@@ -54,11 +53,10 @@ class Dividends(models.Model):
         return '{} {}: {}'.format(self.ticker, self.date, self.amount)
 
     # TODO: may need to change IEX_RES_DIV_KEY key to something more generalized.
-    def to_list(self):
+    def to_dict(self):
         date_string = helper.date_to_string(self.date)
         formatted_self = {}
-        formatted_self[date_string] = {}
-        formatted_self[date_string][app_settings.IEX_RES_DIV_KEY] = self.amount
+        formatted_self[app_settings.IEX_RES_DIV_KEY] = self.amount
         return formatted_self
     
     def to_date(self):
@@ -73,12 +71,11 @@ class CryptoMarket(models.Model):
     def __str__(self):
         return '{} {} : {}'.format(self.ticker, self.date, self.closing_price)
     
-    def to_list(self):
+    def to_dict(self):
         date_string = helper.date_to_string(self.date)
         formatted_self = {}
-        formatted_self[date] = {}
-        formatted_self[date][app_settings.AV_RES_CRYPTO_OPEN_PRICE] = self.open_price
-        formatted_self[date][app_settings.AV_RES_CRYPTO_CLOSE_PRICE] = self.close_price 
+        formatted_self[app_settings.AV_RES_CRYPTO_OPEN_PRICE] = self.open_price
+        formatted_self[app_settings.AV_RES_CRYPTO_CLOSE_PRICE] = self.close_price 
         return formatted_self
 
     def to_date(self):

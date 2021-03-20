@@ -143,11 +143,10 @@ def parse_args_into_dividend_queryset(ticker, parsed_args):
 # Note: model must implement to_date() and to_list() methods and have
 #       ticker attribute
 def market_queryset_to_list(price_set):
-    set_list, price_list = {}, {}
+    price_list = {}
     for price in price_set:
-        price_list[price.to_date()] = price.to_list() 
-    set_list[price_set[0].ticker] = price_list
-    return set_list
+        price_list[price.to_date()] = price.to_dict() 
+    return price_list
 
 # Note: model must implement to_list() methods.
 def dividend_queryset_to_list(dividend_set):

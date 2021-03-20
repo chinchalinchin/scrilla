@@ -468,7 +468,7 @@ def calculate_risk_return(ticker, start_date=None, end_date=None, sample_prices=
             prices = services.get_daily_price_history(ticker=ticker, start_date=start_date, end_date=end_date)
     else:
         logger.debug(f'{ticker} sample prices provided, skipping service call.')
-        prices = sample_prices[ticker]
+        prices = sample_prices
 
     if not prices:
         logger.debug(f'No prices could be retrieved for {ticker}')
