@@ -94,7 +94,7 @@ for more examples of additional arguments that can be provided to functions.
 
 ### Local Setup
 
-The application's functions can also be exposed through an API (a work in progress). To launch the API on your <i>localhost</i>, first configure the <b>APP_PORT</b> in the <i>/env/local.env</i> file. Then, from the <i>/server/pynance-api</i> directory execute,
+The application's functions can also be exposed through an API (a work in progress). To launch the API on your <i>localhost</i>, first configure the <b>APP_PORT</b> in the <i>/env/local.env</i> file. Then, from the <i>/server/pynance_api</i> directory execute,
 
 > python manage.py runserver $APP_PORT
 
@@ -379,7 +379,7 @@ not affect the application.
 
 23. Research annotations for cashflow object's growth function and portfolio's return/volatility functions. Perhaps a way of injecting them into the GUI easier. Not sure.
 
-25. Integrate a Redis instance with Celery to allow a background process to scrap the cache for missing prices every hour or so. Register `scrap_from_cache` function <i>/server/pynance-api/scrap.py</i> script as job in the Redis queue. Likewise, `scrap_prices`, `scrap_stats` and  `scrap_dividends`, plus any future scrapping functions.
+25. Integrate a Redis instance with Celery to allow a background process to scrap the cache for missing prices every hour or so. Register `scrap_from_cache` function <i>/server/pynance_api/scrap.py</i> script as job in the Redis queue. Likewise, `scrap_prices`, `scrap_stats` and  `scrap_dividends`, plus any future scrapping functions.
 
 26. Document how to use objects and functions in shell/scripts.
 

@@ -21,13 +21,13 @@ else
     ROOT_DIR=$SCRIPT_DIR/../..
     UTIL_DIR=$SCRIPT_DIR/../util
     DOCKER_DIR=$SCRIPT_DIR/../docker
-    SERVER_DIR=$ROOT_DIR/server/pynance-api
+    SERVER_DIR=$ROOT_DIR/server/pynance_api
     APP_DIR=$ROOT_DIR/app
     ENV_DIR=$ROOT_DIR/env
     CACHE_DIR=$ROOT_DIR/data/cache
     STATIC_DIR=$ROOT_DIR/data/static
     # PYTHON SCRIPTS
-    LOG_DJANGO_SETTINGS="import server.pynance-api.core.settings as settings; from util.logger import Logger; \
+    LOG_DJANGO_SETTINGS="import server.pynance_api.core.settings as settings; from util.logger import Logger; \
         logger=Logger('scripts.server.pynance-server','info'); logger.log_django_settings(settings);"
     CLEAR_CACHE="import app.settings as settings; import app.files as files; \
         files.clear_directory(directory=settings.CACHE_DIR, retain=True, outdated_only=True)"

@@ -10,11 +10,11 @@ source /home/scripts/util/logging.sh
 # DIRECTORIES
 ROOT_DIR=/home/
 APP_DIR=/home/app/
-SERVER_DIR=/home/server/pynance-api/
+SERVER_DIR=/home/server/pynance_api/
 
 # PYTHON SCRIPTS
-LOG_DJANGO_SETTINGS="import server.pynance-api.core.settings as settings; from util.outputter import Logger; \
-        logger=Logger('scripts.server.pynance-server','$LOG_LEVEL'); logger.info('test'); logger.log_django_settings(settings=settings);"
+LOG_DJANGO_SETTINGS="import server.pynance_api.core.settings as settings; from util.outputter import Logger; \
+        logger=Logger('scripts.server.pynance-server','$LOG_LEVEL'); logger.log_django_settings(settings=settings);"
 CLEAR_CACHE="import app.settings as settings; import app.files as files; \
         files.clear_directory(directory=settings.CACHE_DIR, retain=True, outdated_only=True)"
 
@@ -58,12 +58,13 @@ then
     fi
     if [ "$1" == "bash" ]
     then
-        log "Starting BASH shell session." $SCRIPT_NAME
+        log "Starting \e[3mBASH\e[0m shell session." $SCRIPT_NAME
         $@
         exit 0
     fi
     if [ "$1" == "psql" ]
     then
+        log "Starting \e[3mpsql\e[0m shell session"
         PGPASSWORD=$POSTGRES_PASSWORD psql --host=$POSTGRES_HOST --port=$POSTGRES_PORT --username=$POSTGRES_USER 
         exit 0
     fi

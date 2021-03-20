@@ -8,7 +8,7 @@ import app.markets as markets
 import app.settings as app_settings
 import app.services as services
 
-logger = outputter.Logger("server.pynance-api.api.anaylzer", settings.LOG_LEVEL)
+logger = outputter.Logger("server.pynance_api.api.anaylzer", settings.LOG_LEVEL)
 
 
 def market_queryset_gap_analysis(symbol, start_date=None, end_date=None):
@@ -21,7 +21,7 @@ def market_queryset_gap_analysis(symbol, start_date=None, end_date=None):
             end_date = helper.get_previous_business_date(date=helper.get_today())
         if start_date is None:
             start_date = helper.decrement_date_by_business_days(start_date=end_date, 
-                                                                business_days=app_settings.DEFAULT_ANAYLIS_PERIOD)
+                                                                business_days=app_settings.DEFAULT_ANALYSIS_PERIOD)
         
         ticker = EquityTicker.objects.get_or_create(ticker=symbol)
         date_range = helper.business_dates_between(start_date=start_date, end_date=end_date)
@@ -31,7 +31,7 @@ def market_queryset_gap_analysis(symbol, start_date=None, end_date=None):
         if end_date is None:
             end_date = helper.get_today()
         if start_date is None:
-            start_date = helper.decrement_date_by_days(start_date=end_date, days=app_settings.DEFAULT_ANAYLIS_PERIOD)
+            start_date = helper.decrement_date_by_days(start_date=end_date, days=app_settings.DEFAULT_ANALYSIS_PERIOD)
         
         ticker = CryptoTicker.objects.get_or_create(ticker=symbol)
         date_range = helper.dates_between(start_date=start_date, end_date=end_date)

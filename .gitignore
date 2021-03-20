@@ -9,5 +9,5 @@ data/common/*
 data/sql/*
 !/data/sql/.gitkeep
 *.pyc
-/server/pynance-api/db.sqlite3
+/server/pynance_api/db.sqlite3
 /frontend/pynance-web/node_modules
