@@ -5,7 +5,6 @@ from django.contrib.auth import authenticate
 import app.settings as app_settings
 import util.outputter as outputter
 
-# TODO: use django user's password as API key
 class APIKeyMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response

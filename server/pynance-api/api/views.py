@@ -5,6 +5,7 @@ from django.http import JsonResponse, HttpResponse
 # Server Imports
 from core import settings
 from api import parser
+from data import analyzer
 from data.models import EquityMarket, CryptoMarket, EquityTicker, CryptoTicker, Dividends, Economy, StatSymbol
 
 # Application Imports
@@ -29,27 +30,18 @@ def risk_return(request):
     if status in [400, 405]:
         return JsonResponse(data=parsed_args_or_err_msg, status=status, safe=False)
 
-    tickers = parsed_args_or_err_msg['tickers']
-    parsed_args = parsed_args_or_err_msg['parsed_args']
-
-    response = {}
-    profiles = []
+    tickers, parsed_args = parsed_args_or_err_msg['tickers'], parsed_args_or_err_msg['parsed_args']
+    response, profiles = {}, []
 
     for i in range(len(tickers)):
         ticker_str = f'{tickers[i]}'
         output.debug(f'Calculating risk-return profile for {tickers[i]}')
 
+        analyzer.market_queryset_gap_analysis(symbol=tickers[i],start_date=parsed_args['start_date'],
+                                                end_date=parsed_args['end_date'])
         prices = parser.parse_args_into_market_queryset(ticker=tickers[i], parsed_args=parsed_args)
-
-        if prices.count() == 0:
-            output.debug('No prices found in database, passing query call to application.')
-            profile = statistics.calculate_risk_return(ticker=tickers[i], start_date=parsed_args['start_date'], 
-                                                        end_date=parsed_args['end_date'])
-
-        else:
-            output.debug('Prices found in database, passing result to application.')
-            sample_prices = parser.market_queryset_to_list(price_models=prices)
-            profile = statistics.calculate_risk_return(ticker=tickers[i], sample_prices=sample_prices)
+        sample_prices = parser.market_queryset_to_list(price_models=prices)
+        profile = statistics.calculate_risk_return(ticker=tickers[i], sample_prices=sample_prices)
 
         response[ticker_str] = profile
 

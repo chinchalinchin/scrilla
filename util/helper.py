@@ -29,6 +29,9 @@ def round_array(array, decimals):
 ################################################
 ##### DATE FUNCTIONS
 
+def get_today():
+    return datetime.date.today()
+
 def validate_date_string(parsed_date_string):
     length_check = (len(parsed_date_string) == 3 )
     year_check = (int(parsed_date_string[0]) > 1950)
@@ -172,6 +175,12 @@ def weekends_between(start_date, end_date):
     start_date, end_date = verify_date_types(dates=[start_date, end_date])
     dates = dates_between(start_date, end_date)
     return len([1 for day in dates if day.weekday() > 4])
+
+def decrement_date_by_days(start_date, days):
+    while days > 0:
+        days -= 1
+        start_date -= datetime.timedelta(days=1)
+    return start_date
 
 def decrement_date_by_business_days(start_date, business_days):
     days_to_subtract = business_days

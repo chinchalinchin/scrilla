@@ -13,13 +13,13 @@ APP_DIR=/home/app/
 SERVER_DIR=/home/server/pynance-api/
 
 # PYTHON SCRIPTS
-LOG_DJANGO_SETTINGS="import server.pynance-api.core.settings as settings; from util.logger import Logger; \
-        logger=Logger('scripts.server.pynance-server','$LOG_LEVEL'); logger.log_django_settings(settings);"
+LOG_DJANGO_SETTINGS="import server.pynance-api.core.settings as settings; from util.outputter import Logger; \
+        logger=Logger('scripts.server.pynance-server','$LOG_LEVEL'); logger.info('test'); logger.log_django_settings(settings=settings);"
 CLEAR_CACHE="import app.settings as settings; import app.files as files; \
         files.clear_directory(directory=settings.CACHE_DIR, retain=True, outdated_only=True)"
 
 log "Entrypoint Argument(s): \e[3m$(concat_args $@)\e[0m" $SCRIPT_NAME
-log "Executing from $(pwd)" $SCRIPT_NAME
+log "Executing from \e[3m$(pwd)\e[0m" $SCRIPT_NAME
 
 if [ $# -eq 0 ] || [ "$1" == "wait-for-it" ] || [ "$1" == "bash" ] || [ "$1" == "psql" ]
 then

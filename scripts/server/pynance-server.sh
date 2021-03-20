@@ -24,8 +24,8 @@ else
     SERVER_DIR=$ROOT_DIR/server/pynance-api
     APP_DIR=$ROOT_DIR/app
     ENV_DIR=$ROOT_DIR/env
-    CACHE_DIR=$ROOT_DIR/cache
-    STATIC_DIR=$ROOT_DIR/static
+    CACHE_DIR=$ROOT_DIR/data/cache
+    STATIC_DIR=$ROOT_DIR/data/static
     # PYTHON SCRIPTS
     LOG_DJANGO_SETTINGS="import server.pynance-api.core.settings as settings; from util.logger import Logger; \
         logger=Logger('scripts.server.pynance-server','info'); logger.log_django_settings(settings);"

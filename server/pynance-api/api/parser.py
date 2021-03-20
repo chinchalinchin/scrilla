@@ -57,10 +57,16 @@ def parse_secondary_args(request):
     else:
         discount = None
 
+    if settings.REQUEST_PARAMS['investment'] in request.GET:
+        investment = request.GET.get(settings.REQUEST_PARAMS['investment'])
+    else:
+        investment = None
+
     parsed_args = {
         'start_date': start_date,
         'end_date': end_date,
         'target_return': target_return,
+        'investment': investment,
         'jpeg': jpeg,
         'discount_rate': discount
     }
@@ -86,9 +92,9 @@ def parse_args_into_market_queryset(ticker, parsed_args):
 
     if parsed_args['start_date'] is None and parsed_args['end_date'] is None:
         if asset_type == app_settings.ASSET_EQUITY:
-            return EquityMarket.objects.filter(ticker=ticker).order_by('-date')[:100]
+            return EquityMarket.objects.filter(ticker=ticker).order_by('-date')[:app_settings.DEFAULT_ANALYSIS_PERIOD]
         if asset_type == app_settings.ASSET_CRYPTO:
-            return CryptoMarket.objects.filter(ticker=ticker).order_by('-date')[:100]
+            return CryptoMarket.objects.filter(ticker=ticker).order_by('-date')[:app_settings.DEFAULT_ANALYSIS_PERIOD]
         return False
 
     if parsed_args['start_date'] is None and parsed_args['end_date'] is not None:
@@ -118,6 +124,7 @@ def parse_args_into_market_queryset(ticker, parsed_args):
         return CryptoMarket.objects.filter(ticker=ticker,
                                                 date_gte=parsed_args['start_date']).order_by('-date')
     return False
+
 
 def parse_args_into_dividend_queryset(ticker, parsed_args):
     if parsed_args['start_date'] is None and parsed_args['end_date'] is None:
