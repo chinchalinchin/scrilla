@@ -23,8 +23,6 @@ def market_queryset_gap_analysis(symbol, start_date=None, end_date=None):
             start_date = helper.decrement_date_by_business_days(start_date=end_date, 
                                                                 business_days=(app_settings.DEFAULT_ANALYSIS_PERIOD-1))
         
-        print('end_date', end_date)
-        print('start_date', start_date)
         ticker = EquityTicker.objects.get_or_create(ticker=symbol)
         date_range = helper.business_dates_between(start_date=start_date, end_date=end_date)
         queryset = EquityMarket.objects.filter(ticker=ticker[0], date__gt=start_date, date__lte=end_date)
@@ -40,10 +38,6 @@ def market_queryset_gap_analysis(symbol, start_date=None, end_date=None):
         date_range = helper.dates_between(start_date=start_date, end_date=end_date)
         queryset = CryptoMarket.objects.filer(ticker=ticker[0], date__gt=start_date, date__lte=end_date)
     
-    print('count', queryset.count())
-    print('date_range', len(date_range))
-    print('date_first', date_range[0])
-    print('date_last', date_range[-1])
     if queryset.count() != len(date_range): 
             logger.info('Gaps detected.')
             price_history = services.query_service_for_daily_price_history(ticker=symbol, start_date=start_date, 
