@@ -159,10 +159,11 @@ def dates_between(start_date, end_date):
 def days_between(start_date, end_date):
     return (end_date - start_date).days
 
+# Inclusive
 def business_dates_between(start_date, end_date):
     dates = []
-    for x in range((end_date - start_date).days):
-        this_date = start_date + datetime.timedelta(x+1)
+    for x in range((end_date - start_date).days+1):
+        this_date = start_date + datetime.timedelta(x)
         if not (is_date_weekend(this_date) or is_date_holiday(this_date)):
             dates.append(this_date)
     return dates
