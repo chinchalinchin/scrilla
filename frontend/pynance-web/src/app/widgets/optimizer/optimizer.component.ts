@@ -31,12 +31,26 @@ export class OptimizerComponent implements OnInit {
     this.calculated = true;
     this.optimizeDisabled = true;
     this.clearDisabled = false;
+    /**
+     * TODO: check if tickers on portfolio have been set.
+     *       check if target return has been set.
+     *       check if optimization method has been set
+     *       create service to query backend
+     *       pass (tickers, dates, target return)
+     *       store allocations somewhere
+     * 
+     *       if conditions for query haven't been met,
+     *        print invalidation messages (component specific messages?) 
+     */
   }
 
   public clear(){
     this.calculated = false;
     this.optimizeDisabled = false;
     this.clearDisabled = true;
+    /**
+     * TODO: clear portfolio holding.tickers
+     */
   }
 
   public getAllocations(): number[]{

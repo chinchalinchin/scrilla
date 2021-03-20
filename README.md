@@ -379,23 +379,15 @@ not affect the application.
 
 23. Research annotations for cashflow object's growth function and portfolio's return/volatility functions. Perhaps a way of injecting them into the GUI easier. Not sure.
 
-25. Integrate a Redis instance with Celery to allow a background process to scrap the cache for missing prices every hour or so. Register `scrap_from_cache` function <i>/server/pynance_api/scrap.py</i> script as job in the Redis queue. Likewise, `scrap_prices`, `scrap_stats` and  `scrap_dividends`, plus any future scrapping functions.
-
 26. Document how to use objects and functions in shell/scripts.
 
 27. Raise Exceptions instead of returning False when functions fail. See #4: https://deepsource.io/blog/8-new-python-antipatterns/
-
-28. Wire sharpe ratio maximization into <i>/api/optimize</i> using the new query parameter, <b>sharpe</b>.
 
 29. Return <b>sharpe ratio</b> with response at <i>/api/risk-return</i>. Considering returning the portfolio beta, as well. We'll see. Functionality exists, just needs wired in.
 
 30. Does it make sense to calculate the 'Sharpe Frontier'?
 
 31. Allow relative file references when saving analysis. Right now needs to be absolute path inputted into -save argument. Also, save return profiles. 
-
-33. Incorporate new formatting methods in files.py into django responses.
-
-34. Implement price_history and stat_history function.
 
 ### NOTES
 

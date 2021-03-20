@@ -20,6 +20,7 @@ else
     # DIRECTORIES
     ROOT_DIR=$SCRIPT_DIR/../..
     FRONTEND_DIR=$ROOT_DIR/frontend/pynance-web
+    UTIL_DIR=$ROOT_DIR/scripts/util
     ENV_DIR=$ROOT_DIR/env
 
     # Run in local mode
@@ -29,8 +30,8 @@ else
         source $UTIL_DIR/env-vars.sh local
 
         cd $FRONTEND_DIR
-        log "Launching Angular Development server on \e[3mlocalhost:$WEB_PORT" $SCRIPT_NAME
-        ng server --port $WEB_PORT
+        log "Launching Angular Development server on \e[3mlocalhost:$WEB_PORT\e[0m" $SCRIPT_NAME
+        ng serve --port $WEB_PORT
     fi
 
     # Run in container mode

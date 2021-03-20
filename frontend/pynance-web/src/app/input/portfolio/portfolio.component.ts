@@ -36,6 +36,7 @@ export class PortfolioComponent implements OnInit {
 
   public startDate: string;
   public endDate: string;
+  public targetReturn: number;
 
   @ViewChild('portfolioTable')
   private portfolioTable : MatTable<Holding[]>;
@@ -48,6 +49,9 @@ export class PortfolioComponent implements OnInit {
   ngOnChanges(changes: SimpleChanges) {    
     if (changes.allocations) {
       if(this.portfolio.length != 0){
+
+        // TODO: allocations not changing for ticker in portfolio
+
         // empty portfolio passed in
         if(changes.allocations.currentValue.length == 0){ 
           this.displayedColumns = [ 'ticker' ]
@@ -55,6 +59,7 @@ export class PortfolioComponent implements OnInit {
             holding.allocation = null;
           }
         }
+
         // allocation portfolio passed in
         else{
           this.displayedColumns = [ 'ticker', 'allocation']
@@ -83,9 +88,7 @@ export class PortfolioComponent implements OnInit {
     let portfolioTickers : string[] = this.getTickers();
     
     for(let ticker of inputTickers){
-      if(!containsObject(ticker, portfolioTickers)){
-        unduplicatedTickers.push(ticker);
-      }
+      if(!containsObject(ticker, portfolioTickers)){ unduplicatedTickers.push(ticker); }
     }
 
     for(let ticker of unduplicatedTickers){
@@ -107,12 +110,27 @@ export class PortfolioComponent implements OnInit {
     this.endDate = inputDates[0]
   }
 
-  public setAllocations(allocations : number[]) : void{
-    for(let portion of allocations){
-      let thisIndex : number = allocations.indexOf(portion)
+  public getStartDate(): string { return this.startDate; }
+
+  public getEndDate(): string { return this.endDate; }
+
+  public setAllocations(theseAllocations : number[]) : void{
+    for(let portion of theseAllocations){
+      let thisIndex : number = theseAllocations.indexOf(portion)
       this.portfolio[thisIndex].allocation = portion
     }
   }
+
+  public getAllocations(): number[]{
+    return this.allocations;
+  }
+
+  public setTargetReturn(inputTarget : number){
+    console.log(`received inputTarget: ${inputTarget}`)
+    this.targetReturn = inputTarget;
+  }
+
+  public getTargetReturn(): number{ return this.targetReturn; }
 
   public clearPortfolio() : void{
     this.portfolio = [];
