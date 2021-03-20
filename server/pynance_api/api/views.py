@@ -9,13 +9,14 @@ from data import analyzer
 from data.models import EquityMarket, CryptoMarket, EquityTicker, CryptoTicker, Dividends, Economy, StatSymbol
 
 # Application Imports
+import app.settings as app_settings
 from app.objects.portfolio import Portfolio
 from app.objects.cashflow import Cashflow
 import app.statistics as statistics
 import app.services as services
 import app.optimizer as optimizer
-import app.settings as app_settings
 import app.markets as markets
+import app.files as files
 
 # Utility Imports
 import util.helper as helper
@@ -40,8 +41,7 @@ def risk_return(request):
         analyzer.market_queryset_gap_analysis(symbol=tickers[i],start_date=parsed_args['start_date'],
                                                 end_date=parsed_args['end_date'])
         prices = parser.parse_args_into_market_queryset(ticker=tickers[i], parsed_args=parsed_args)
-        sample_prices = parser.market_queryset_to_list(price_set=prices)
-        profile = statistics.calculate_risk_return(ticker=tickers[i], sample_prices=sample_prices)
+        profile = statistics.calculate_risk_return(ticker=tickers[i], sample_prices=prices)
 
         response[ticker_str] = profile
 
@@ -62,41 +62,20 @@ def optimize(request):
     if status in [400, 405]:
         return JsonResponse(data=parsed_args_or_err_msg, status=status, safe=False)
 
-    tickers = parsed_args_or_err_msg['tickers']
-    parsed_args = parsed_args_or_err_msg['parsed_args']
-    prices, sample_prices = {}, {}
-    null_result = False
+    tickers, parsed_args = parsed_args_or_err_msg['tickers'], parsed_args_or_err_msg['parsed_args']
+    prices, subresponse = {}, {}
 
-    # TODO: what is querysets.count() != each other?
     for ticker in tickers:
+        analyzer.market_queryset_gap_analysis(symbol=ticker,start_date=parsed_args['start_date'],
+                                                end_date=parsed_args['end_date'])
         prices[ticker] = parser.parse_args_into_market_queryset(ticker, parsed_args)
-        if prices[ticker].count() == 0:
-            null_result=True
-            break
-    
-    if null_result:
-        output.debug('No prices found in database, passing query call to application.')
-        portfolio = Portfolio(tickers=tickers, start_date=parsed_args['start_date'], end_date=parsed_args['end_date'])
-    else:
-        output.debug('Prices found in database, passing query call to application.')
-        for ticker in tickers:
-            sample_prices[ticker] = parser.market_queryset_to_list(price_set=prices[ticker])[ticker]
-        portfolio = Portfolio(tickers=tickers, sample_prices=sample_prices)  
 
+    portfolio = Portfolio(tickers=tickers, sample_prices=prices)    
     allocation = optimizer.optimize_portfolio_variance(portfolio=portfolio, target_return=parsed_args['target_return'])
     allocation = helper.round_array(array=allocation, decimals=4)
 
-    response = {
-        'portfolio_return' : portfolio.return_function(allocation),
-        'portfolio_volatility': portfolio.volatility_function(allocation)
-    }
-    subresponse = {}
+    response = files.format_allocation(allocation=allocation, portfolio=portfolio, investment=parsed_args['investment'])
 
-    for i in range(len(tickers)):
-        allocation_string = f'{tickers[i]}_allocation'
-        subresponse[allocation_string] = allocation[i]
-
-    response['allocations'] = subresponse
     return JsonResponse(data=response, status=status, safe=False)
 
 def efficient_frontier(request):
