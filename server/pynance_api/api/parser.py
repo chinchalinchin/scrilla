@@ -25,6 +25,15 @@ def log_secondary_args(parsed_args):
     if parsed_args['target_return'] is not None:
         logger.debug(f'>> Target: {parsed_args["target_return"]}')
     
+    if parsed_args['sharpe_ratio'] is not None:
+        logger.debug(f'>> Sharpe Ratio: {parsed_args["sharpe_ratio"]}')
+
+    if parsed_args['investment'] is not None:
+        logger.debug(f'>> Investment: {parsed_args["investment"]}')
+    
+    if parsed_args['discount_rate'] is not None:
+        logger.debug(f'>> Discount RATE: {parsed_args["discount_rate"]}')
+
     if parsed_args['jpeg'] is not None:
         logger.debug(f'>> JPEG: {parsed_args["jpeg"]}')
 
@@ -45,6 +54,12 @@ def parse_secondary_args(request):
         target_return = request.GET.get(settings.REQUEST_PARAMS['target_return'])
     else:
         target_return = None
+
+    if settings.REQUEST_PARAMS['sharpe_ratio'] in request.GET:
+        sharpe = str(request.GET.get(settings.REQUEST_PARAMS['sharpe_ratio']))
+        sharpe = sharpe.lower() == 'true'
+    else:
+        sharpe = None
 
     if settings.REQUEST_PARAMS['jpeg'] in request.GET:
         jpeg = str(request.GET.get(settings.REQUEST_PARAMS['jpeg']))
@@ -67,8 +82,9 @@ def parse_secondary_args(request):
         'end_date': end_date,
         'target_return': target_return,
         'investment': investment,
+        'sharpe_ratio': sharpe,
+        'discount_rate': discount,
         'jpeg': jpeg,
-        'discount_rate': discount
     }
     log_secondary_args(parsed_args)
 

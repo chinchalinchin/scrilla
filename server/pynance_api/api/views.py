@@ -42,7 +42,6 @@ def risk_return(request):
                                                 end_date=parsed_args['end_date'])
         prices = parser.parse_args_into_market_queryset(ticker=tickers[i], parsed_args=parsed_args)
         profile = statistics.calculate_risk_return(ticker=tickers[i], sample_prices=prices)
-
         response[ticker_str] = profile
 
         if parsed_args['jpeg']:
@@ -63,7 +62,7 @@ def optimize(request):
         return JsonResponse(data=parsed_args_or_err_msg, status=status, safe=False)
 
     tickers, parsed_args = parsed_args_or_err_msg['tickers'], parsed_args_or_err_msg['parsed_args']
-    prices, subresponse = {}, {}
+    prices = {}
 
     for ticker in tickers:
         analyzer.market_queryset_gap_analysis(symbol=ticker,start_date=parsed_args['start_date'],
@@ -84,9 +83,7 @@ def efficient_frontier(request):
     if status in [400, 405]:
         return JsonResponse(data=parsed_args_or_err_msg, status=status, safe=False)
     
-    tickers = parsed_args_or_err_msg['tickers']
-    parsed_args = parsed_args_or_err_msg['parsed_args']
-
+    tickers, parsed_args = parsed_args_or_err_msg['tickers'], parsed_args_or_err_msg['parsed_args']
     prices = {}
 
     for ticker in tickers:
@@ -113,11 +110,9 @@ def moving_averages(request):
     if status in [400, 405]:
         return JsonResponse(data=parsed_args_or_err_msg, status=status, safe=False)
 
-    tickers = parsed_args_or_err_msg['tickers']
-    parsed_args = parsed_args_or_err_msg['parsed_args']
+    tickers, parsed_args = parsed_args_or_err_msg['tickers'], parsed_args_or_err_msg['parsed_args']
+    prices = {}
 
-    prices, sample_prices = {}, {}
-    null_result = False
 
     for ticker in tickers:
         analyzer.market_queryset_gap_analysis(symbol=ticker,start_date=parsed_args['start_date'],
@@ -143,12 +138,9 @@ def discount_dividend(request):
     if status in [400, 405]:
         return JsonResponse(data=parsed_args_or_err_msg, status=status, safe=False)
 
-    
-    tickers = parsed_args_or_err_msg['tickers']
-    parsed_args = parsed_args_or_err_msg['parsed_args']
+    tickers, parsed_args = parsed_args_or_err_msg['tickers'], parsed_args_or_err_msg['parsed_args']
+    response, cashflow_to_plot = {}, None
 
-    response = {}
-    cashflow_to_plot = None
     for ticker in tickers:
         if parsed_args['discount_rate'] is None:
             discount_rate = markets.cost_of_equity(ticker)
@@ -157,7 +149,6 @@ def discount_dividend(request):
 
         analyzer.dividend_queryset_gap_analysis(symbol=ticker)
         dividends = parser.parse_args_into_dividend_queryset(ticker=ticker, parsed_args=parsed_args)
-
         present_value = Cashflow(sample=dividends,discount_rate=discount_rate).calculate_net_present_value()
 
         # Save first ticker's dividend cash flow history to pass to plotter in case the JPEG argument 
@@ -171,7 +162,7 @@ def discount_dividend(request):
             }
         else:
             response[ticker] = {
-                'error' : 'discount_dividend_model cannot be computed.'
+                'error' : 'discount_dividend_model cannot be computed for this equity.'
             }
     
     if parsed_args['jpeg']:

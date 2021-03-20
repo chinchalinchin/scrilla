@@ -129,5 +129,6 @@ REQUEST_PARAMS = {
     'target_return': 'target',
     'investment': 'invest',
     'discount_rate': 'discount',
+    'sharpe_ratio': 'sharpe',
     'jpeg': 'jpeg'
 }
