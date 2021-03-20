@@ -155,14 +155,8 @@ def discount_dividend(request):
         else:
             discount_rate = parsed_args['discount_rate']
 
+        analyzer.dividend_queryset_gap_analysis(symbol=ticker)
         dividends = parser.parse_args_into_dividend_queryset(ticker=ticker, parsed_args=parsed_args)
-
-        if dividends.count() == 0:
-            output.debug('No dividends found in database, passing query call to application.')
-            dividends = services.query_service_for_dividend_history(ticker=ticker)
-        else:
-            output.debug('Dividends found in database, passing result to application.')
-            dividends = parser.dividend_queryset_to_list(dividend_set=dividends)
 
         present_value = Cashflow(sample=dividends,discount_rate=discount_rate).calculate_net_present_value()
 

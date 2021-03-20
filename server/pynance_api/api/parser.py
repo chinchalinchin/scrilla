@@ -82,7 +82,7 @@ def parse_tickers(request):
 
 # Note: model must implement to_date() and to_dict() methods and have
 #       ticker attribute
-def market_queryset_to_list(price_set):
+def market_queryset_to_dict(price_set):
     price_list = {}
     for price in price_set:
         price_list[price.to_date()] = price.to_dict() 
@@ -101,22 +101,22 @@ def parse_args_into_market_queryset(ticker, parsed_args):
     if parsed_args['start_date'] is None and parsed_args['end_date'] is None:
         if asset_type == app_settings.ASSET_EQUITY:
             queryset = EquityMarket.objects.filter(ticker=ticker).order_by('-date')[:app_settings.DEFAULT_ANALYSIS_PERIOD]
-            return market_queryset_to_list(price_set=queryset)
+            return market_queryset_to_dict(price_set=queryset)
         if asset_type == app_settings.ASSET_CRYPTO:
             queryset = CryptoMarket.objects.filter(ticker=ticker).order_by('-date')[:app_settings.DEFAULT_ANALYSIS_PERIOD]
-            return market_queryset_to_list(price_set=queryset)
+            return market_queryset_to_dict(price_set=queryset)
         return False
 
     if parsed_args['start_date'] is None and parsed_args['end_date'] is not None:
         if asset_type == app_settings.ASSET_EQUITY:
             queryset= EquityMarket.objects.filter(ticker=ticker,
                                                     date__lte=parsed_args['end_date']).order_by('-date')
-            return market_queryset_to_list(price_set=queryset)
+            return market_queryset_to_dict(price_set=queryset)
 
         if asset_type == app_settings.ASSET_CRYPTO:
             queryset = CryptoMarket.objects.filter(ticker=ticker,
                                                     date__lte=parsed_args['end_date']).order_by('-date')
-            return market_queryset_to_list(price_set=queryset)
+            return market_queryset_to_dict(price_set=queryset)
 
         return False
         
@@ -124,47 +124,54 @@ def parse_args_into_market_queryset(ticker, parsed_args):
         if asset_type == app_settings.ASSET_EQUITY:
             queryset = EquityMarket.objects.filter(ticker=ticker, date__gte=parsed_args['start_date'], 
                                                     date__lte=parsed_args['end_date']).order_by('-date')
-            return market_queryset_to_list(price_set=queryset)
+            return market_queryset_to_dict(price_set=queryset)
 
         if asset_type == app_settings.ASSET_CRYPTO:
             queryset = CryptoMarket.objects.filter(ticker=ticker, date__gte=parsed_args['start_date'],
                                                     date_lte=parsed_args['end_date']).order_by('-date')
-            return market_queryset_to_list(price_set=queryset)
+            return market_queryset_to_dict(price_set=queryset)
 
         return False
 
     # start_date is not None and end_date is None
     
     if asset_type == app_settings.ASSET_EQUITY:
-        return EquityMarket.objects.filter(ticker=ticker,
+        queryset = EquityMarket.objects.filter(ticker=ticker,
                                                 date__gte=parsed_args['start_date']).order_by('-date')
+        return market_queryset_to_dict(price_set=queryset)
+
     if asset_type == app_settings.ASSET_CRYPTO:
-        return CryptoMarket.objects.filter(ticker=ticker,
+        queryset = CryptoMarket.objects.filter(ticker=ticker,
                                                 date_gte=parsed_args['start_date']).order_by('-date')
+        return market_queryset_to_dict(price_set=queryset)
+
     return False
 
+# Note: model must implement to_list() methods.
+def dividend_queryset_to_dict(dividend_set):
+    div_list = {}
+    for dividend in dividend_set:
+        div_list[dividend.to_date()] = dividend.to_dict()
+    return div_list
 
 def parse_args_into_dividend_queryset(ticker, parsed_args):
     if parsed_args['start_date'] is None and parsed_args['end_date'] is None:
-        return Dividends.objects.filter(ticker=ticker).order_by('-date')
+        queryset = Dividends.objects.filter(ticker=ticker).order_by('-date')
+        return dividend_queryset_to_dict(dividend_set=queryset)
 
     if parsed_args['start_date'] is None and parsed_args['end_date'] is not None:
-        return Dividends.objects.filter(ticker=ticker, date__lte=parsed_args['end_date']).order_by('-date')
+        queryset = Dividends.objects.filter(ticker=ticker, date__lte=parsed_args['end_date']).order_by('-date')
+        return dividend_queryset_to_dict(dividend_set=queryset)
 
     if parsed_args['start_date'] is not None and parsed_args['end_date'] is None:
-        return Dividends.objects.filter(ticker=ticker, date__gte=parsed_args['start_date']).order_by('-date')
-    
+        queryset = Dividends.objects.filter(ticker=ticker, date__gte=parsed_args['start_date']).order_by('-date')
+        return dividend_queryset_to_dict(dividend_set=queryset)
+
     # start_date is not None and end_date is not None
-    return Dividends.objects.filter(ticker=ticker, date__gte=parsed_args['start_date'],
+    queryset = Dividends.objects.filter(ticker=ticker, date__gte=parsed_args['start_date'],
                                         date__lte=parsed_args['end_date']).order_by('-date')
+    return dividend_queryset_to_dict(dividend_set=queryset)
 
-
-# Note: model must implement to_list() methods.
-def dividend_queryset_to_list(dividend_set):
-    div_list = {}
-    for dividend in dividend_set:
-        div_list.append(dividend.to_dict())
-    return div_list
 
 def validate_request(request, allowed_methods=None):
     if allowed_methods is None:

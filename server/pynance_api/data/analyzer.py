@@ -65,9 +65,15 @@ def dividend_queryset_gap_analysis(symbol):
     queryset = Dividends.objects.filter(ticker=ticker)
 
     if queryset.count() == 0:
+        logger.info('Gaps detected.')
         dividends = services.query_service_for_dividend_history(ticker=ticker)
-    # TODO:
-    pass
+        for date in dividends:
+            logger.debug(f'Checking {date} for gaps.')
+            entry =Dividends.objects.get_or_create(ticker=ticker, date=date, amount=dividends[date])
+            if entry[1]:
+                logger.debug(f'Gap filled on {date} for {symbol} with amount {dividends[date]}.')
+            else:
+                logger.debug(f'No gap detected on {date} for {symbol}.')
 
 def economy_queryset_gap_analysis(symbol, start_date=None, end_date=None):
     # TODO:
