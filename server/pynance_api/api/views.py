@@ -70,9 +70,12 @@ def optimize(request):
         prices[ticker] = parser.parse_args_into_market_queryset(ticker, parsed_args)
 
     portfolio = Portfolio(tickers=tickers, sample_prices=prices)    
-    allocation = optimizer.optimize_portfolio_variance(portfolio=portfolio, target_return=parsed_args['target_return'])
-    allocation = helper.round_array(array=allocation, decimals=4)
+    if parsed_args['sharpe_ratio'] is None:
+        allocation = optimizer.optimize_portfolio_variance(portfolio=portfolio, target_return=parsed_args['target_return'])
+    else:
+        allocation = optimizer.maximize_sharpe_ratio(portfolio=portfolio, target_return=parsed_args['target_return'])
 
+    allocation = helper.round_array(array=allocation, decimals=5)
     response = files.format_allocation(allocation=allocation, portfolio=portfolio, investment=parsed_args['investment'])
 
     return JsonResponse(data=response, status=status, safe=False)
