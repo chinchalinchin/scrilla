@@ -226,7 +226,7 @@ class Logger():
 
     def log_django_settings(self, settings):
             print_line()
-            self.title_line('SETTINGS.PY Configuration')
+            title_line('SETTINGS.PY Configuration')
             print_line()
             self.debug("# Environment Configuration")
             self.debug(f'> Directory Location : {settings.BASE_DIR}')

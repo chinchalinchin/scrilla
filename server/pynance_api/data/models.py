@@ -37,6 +37,7 @@ class EquityMarket(models.Model):
     def to_list(self):
         date_string = helper.date_to_string(self.date)
         formatted_self = {}
+        formatted_self[date_string] = {}
         formatted_self[date_string][app_settings.AV_RES_EQUITY_OPEN_PRICE] = self.open_price
         formatted_self[date_string][app_settings.AV_RES_EQUITY_CLOSE_PRICE] = self.close_price 
         return formatted_self
@@ -56,6 +57,7 @@ class Dividends(models.Model):
     def to_list(self):
         date_string = helper.date_to_string(self.date)
         formatted_self = {}
+        formatted_self[date_string] = {}
         formatted_self[date_string][app_settings.IEX_RES_DIV_KEY] = self.amount
         return formatted_self
     
@@ -72,9 +74,11 @@ class CryptoMarket(models.Model):
         return '{} {} : {}'.format(self.ticker, self.date, self.closing_price)
     
     def to_list(self):
+        date_string = helper.date_to_string(self.date)
         formatted_self = {}
-        formatted_self[app_settings.AV_RES_CRYPTO_OPEN_PRICE] = self.open_price
-        formatted_self[app_settings.AV_RES_CRYPTO_CLOSE_PRICE] = self.close_price 
+        formatted_self[date] = {}
+        formatted_self[date][app_settings.AV_RES_CRYPTO_OPEN_PRICE] = self.open_price
+        formatted_self[date][app_settings.AV_RES_CRYPTO_CLOSE_PRICE] = self.close_price 
         return formatted_self
 
     def to_date(self):
