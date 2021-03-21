@@ -240,7 +240,7 @@ def format_allocation(allocation, portfolio, investment=None):
             shares_format[f'{portfolio.tickers[j]}_shares'] = float(shares[j])
 
     json_format = {}
-    json_format['allocation'] = allocation_format
+    json_format['portfolio'] = allocation_format
 
     if investment is not None:
         json_format['shares'] = shares_format
