@@ -1,4 +1,4 @@
-import { THIS_EXPR } from '@angular/compiler/src/output/output_ast';
+import { ReturnStatement, THIS_EXPR } from '@angular/compiler/src/output/output_ast';
 import { Component, Input, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 import { Portfolio } from 'src/app/models/portfolio';
 import { LogService } from 'src/app/services/log.service';
@@ -81,7 +81,7 @@ export class OptimizerComponent implements OnInit {
     }
   }
 
-  public getAllocations(): number[]{
+  public getAllocations() : number[]{
     let allocations : number[] = []
     if (this.calculated && this.optimizedPortfolio){ 
       for(let holding of Object.entries(this.optimizedPortfolio.holdings)){
@@ -91,7 +91,27 @@ export class OptimizerComponent implements OnInit {
     return allocations;
   }
 
-  public getShares(): number[]{
+  public getReturns() : number[]{
+    let returns : number[] = [];
+    if(this.calculated && this.optimizedPortfolio){
+      for(let holding of Object.entries(this.optimizedPortfolio.holdings)){
+        returns.push(holding[1].annual_return)
+      }
+    }
+    return returns;
+  }
+
+  public getVolatilities() : number[]{
+    let volatilities : number[] = [];
+    if(this.calculated && this.optimizedPortfolio){
+      for(let holding of Object.entries(this.optimizedPortfolio.holdings)){
+        volatilities.push(holding[1].annual_volatility)
+      }
+    }
+    return volatilities;
+  }
+
+  public getShares() : number[]{
     let shares: number [] = [];
     // check for existence of portfolioComponent since this method gets 
     // invoked before portfolioComponent is initialized. NOTE: this method

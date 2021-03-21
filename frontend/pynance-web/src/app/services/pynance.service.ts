@@ -59,7 +59,7 @@ export class PynanceService {
 
     let queryUrl = baseUrl + "?" + query
 
-    this.logs.log(`Querying backend for ${queryUrl}`, this.location)
+    this.logs.log(`Querying backend at ${queryUrl}`, this.location)
 
     // may have to manually map response
     return this.http.get<Portfolio>(queryUrl)

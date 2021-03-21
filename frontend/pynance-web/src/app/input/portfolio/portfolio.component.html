@@ -1,6 +1,7 @@
 <mat-card class="mat-elevation-z2">
     <mat-card-title>Portfolio</mat-card-title>
     
+    {{displayedColumns}}
     <mat-card-content>
         <!--TODO: Make portfolio component only responsible for displaying portfolio and allocations
                     i.e., remove app-args. Pass tickers into portfolio from parent component. In 
@@ -23,7 +24,17 @@
                 <th mat-header-cell *matHeaderCellDef> Shares </th>
                 <td mat-cell *matCellDef="let holding"> {{holding.shares}} </td>
             </ng-container>
-            
+
+            <ng-container matColumnDef="return">
+                <th mat-header-cell *matHeaderCellDef> Return </th>
+                <td mat-cell *matCellDef="let holding"> {{holding.annual_return}} </td>
+            </ng-container>
+
+            <ng-container matColumnDef="volatility">
+                <th mat-header-cell *matHeaderCellDef> Volatility</th>
+                <td mat-cell *matCellDef="let holding"> {{holding.annual_volatility}} </td>
+            </ng-container>
+
             <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
             <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>    
         </table>
