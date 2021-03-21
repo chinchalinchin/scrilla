@@ -107,7 +107,7 @@ export class PortfolioComponent implements OnInit {
     }
 
     for(let ticker of unduplicatedTickers){
-      this.portfolio.push({ ticker: ticker, allocation: null, return: null, volatility: null})
+      this.portfolio.push({ ticker: ticker, allocation: null, annual_return: null, annual_volatility: null})
     }
   
     if(this.portfolio.length != 0){
