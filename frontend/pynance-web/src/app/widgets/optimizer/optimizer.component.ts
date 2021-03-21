@@ -36,25 +36,14 @@ export class OptimizerComponent implements OnInit {
   }
 
   ngOnChanges(changes: SimpleChanges){
-
+    // TODO: 
   }
 
   public optimize(){
     this.calculated = true;
     this.optimizeDisabled = true;
     this.clearDisabled = false;
-    /**
-     * TODO: check if tickers on portfolio have been set.
-     *       check if target return has been set.
-     *       check if optimization method has been set
-     *       check if dates have been set
-     *       create service to query backend
-     *       pass (tickers, dates, target return)
-     *       store allocations somewhere
-     * 
-     *       if conditions for query haven't been met,
-     *        print invalidation messages (component specific messages?) 
-     */
+   
     let tickers = this.portfolioComponent.getTickers();
     if (tickers){
       let start = this.portfolioComponent.getStartDate()
@@ -62,23 +51,20 @@ export class OptimizerComponent implements OnInit {
       let target = this.portfolioComponent.getTargetReturn();
       let invest = this.portfolioComponent.getInvestment();
       this.pynance.optimize(tickers, end, start,target,invest,this.optimizeVariance)
-                    .subscribe((resPortfolio: Portfolio)=>{
-                      this.optimizedPortfolio = resPortfolio;
-                      console.log(this.optimizedPortfolio)
-                      Object.keys(this.optimizedPortfolio).forEach((prop)=> console.log(prop));
-                    })
+                    .subscribe((resPortfolio: Portfolio)=>{ this.optimizedPortfolio = resPortfolio; })
     }
+
   }
 
   public clear(){
     this.calculated = false;
-    this.optimizeDisabled = true;
+    this.optimizeDisabled = false;
     this.clearDisabled = true;
-    // TODO: clear allocations in portfolio. call setAllocations and pass in null array.
   }
 
   public setOptimizeMethod(method : string){
     // if method is sharpe ratio maximization, switch off optimization method
+    let currentMethod : boolean = this.optimizeVariance;
     if(method == OPTIMIZATION_METHODS[1].value){
       this.logs.log(`Switching to Sharpe Ratio maximization`, this.location);
       this.optimizeVariance = false;
@@ -88,13 +74,18 @@ export class OptimizerComponent implements OnInit {
       this.logs.log(`Switching to Portfolio Variance minimization`, this.location)
       this.optimizeVariance = true;
     }
+    // if already calculated and method is changed
+    if (this.calculated && currentMethod != this.optimizeVariance){
+      this.optimizeDisabled = false;
+      // TODO: possibly clear portfolio allocations? 
+    }
   }
 
   public getAllocations(): number[]{
     let allocations : number[] = []
     if (this.calculated && this.optimizedPortfolio){ 
-      for(let holding of this.optimizedPortfolio.holdings){
-        allocations.push(holding.allocation);
+      for(let holding of Object.entries(this.optimizedPortfolio.holdings)){
+        allocations.push(holding[1].allocation);
       }
     }
     return allocations;

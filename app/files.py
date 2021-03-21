@@ -234,16 +234,15 @@ def format_allocation(allocation, portfolio, investment=None):
         allocation_format[j] = {}
         allocation_format[j]['ticker'] = portfolio.tickers[j]
         allocation_format[j]['allocation'] = allocation[j]
+        if investment is not None:
+            allocation_format[j]['shares'] = float(shares[j])
         allocation_format[j]['annual_return'] = portfolio.mean_return[j] 
         allocation_format[j]['annual_volatility'] = portfolio.sample_vol[j]
-        if investment is not None:
-            shares_format[f'{portfolio.tickers[j]}_shares'] = float(shares[j])
 
     json_format = {}
     json_format['holdings'] = allocation_format
 
     if investment is not None:
-        json_format['shares'] = shares_format
         json_format['total'] = float(total)
         
     json_format['portfolio_return'] = annual_return

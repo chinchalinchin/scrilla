@@ -32,3 +32,7 @@ export function getColumnFromList(column_name, list ){
     for(let entry of list){ parsed_list.push(entry[column_name]) }
     return parsed_list;
 }
+
+export function logAllObjectProperties(thisObject: Object): void{
+    Object.keys(thisObject).forEach((prop)=> console.log(prop));
+}

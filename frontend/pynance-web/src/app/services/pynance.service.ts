@@ -64,7 +64,7 @@ export class PynanceService {
     // may have to manually map response
     return this.http.get<Portfolio>(queryUrl)
       .pipe( 
-        tap( response => {this.logs.log(`Received response from backend`, this.location); console.log(response);} ),
+        tap( response => {this.logs.log(`Received response from backend`, this.location); } ),
         catchError(this.handleError<Portfolio>('optimize', null))
     );
   }
