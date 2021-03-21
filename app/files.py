@@ -233,9 +233,9 @@ def format_allocation(allocation, portfolio, investment=None):
     for j in range(len(portfolio.tickers)):
         allocation_format[j] = {}
         allocation_format[j]['ticker'] = portfolio.tickers[j]
-        allocation_format[j]['allocation'] = allocation[j]
+        allocation_format[j]['allocation'] = round(allocation[j], settings.ACCURACY)
         if investment is not None:
-            allocation_format[j]['shares'] = round(float(shares[j]), settings.ACCURACY)
+            allocation_format[j]['shares'] = float(shares[j])
         allocation_format[j]['annual_return'] = round(portfolio.mean_return[j], settings.ACCURACY) 
         allocation_format[j]['annual_volatility'] = round(portfolio.sample_vol[j], settings.ACCURACY)
 
