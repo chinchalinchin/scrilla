@@ -40,10 +40,10 @@ export class PortfolioComponent implements OnInit {
   public portfolio: Holding[] = [];
   public clearDisabled : boolean = true;
   public displayedColumns: string[] = [];
-  public startDate: string;
-  public endDate: string;
-  public targetReturn: number;
-  public investment: number;
+  public startDate: string = null;
+  public endDate: string = null;
+  public targetReturn: number = null;
+  public investment: number = null;
 
   @ViewChild('portfolioTable')
   private portfolioTable : MatTable<Holding[]>;
@@ -72,7 +72,7 @@ export class PortfolioComponent implements OnInit {
 
           // allocation portfolio passed in
           else{
-            if (changes.allocations.currentValue == this.portfolio.length){
+            if (changes.allocations.currentValue.length == this.portfolio.length){
               this.setPortfolioAllocations(changes.allocations.currentValue)
               this.displayedColumns = [ 'ticker', 'allocation']
             }

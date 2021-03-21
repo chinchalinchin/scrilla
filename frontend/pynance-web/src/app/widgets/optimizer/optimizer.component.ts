@@ -1,3 +1,4 @@
+import { THIS_EXPR } from '@angular/compiler/src/output/output_ast';
 import { Component, Input, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 import { Portfolio } from 'src/app/models/portfolio';
 import { LogService } from 'src/app/services/log.service';
@@ -27,7 +28,7 @@ export class OptimizerComponent implements OnInit {
   public argsComponent : ArgumentsComponent;
 
   constructor(private logs: LogService,
-              private pynanceService: PynanceService) { }
+              private pynance: PynanceService) { }
 
 
   ngOnInit() {
@@ -59,6 +60,13 @@ export class OptimizerComponent implements OnInit {
       let start = this.portfolioComponent.getStartDate()
       let end = this.portfolioComponent.getEndDate();
       let target = this.portfolioComponent.getTargetReturn();
+      let invest = this.portfolioComponent.getInvestment();
+      this.pynance.optimize(tickers, end, start,target,invest,this.optimizeVariance)
+                    .subscribe((resPortfolio: Portfolio)=>{
+                      this.optimizedPortfolio = resPortfolio;
+                      console.log(this.optimizedPortfolio)
+                      Object.keys(this.optimizedPortfolio).forEach((prop)=> console.log(prop));
+                    })
     }
   }
 
@@ -83,7 +91,12 @@ export class OptimizerComponent implements OnInit {
   }
 
   public getAllocations(): number[]{
-    if (this.calculated){ return [0.2, 0.2, 0.2, 0.2, 0.2] }
-    else{ return [] }
+    let allocations : number[] = []
+    if (this.calculated && this.optimizedPortfolio){ 
+      for(let holding of this.optimizedPortfolio.holdings){
+        allocations.push(holding.allocation);
+      }
+    }
+    return allocations;
   }
 }

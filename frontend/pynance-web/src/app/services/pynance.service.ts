@@ -48,7 +48,7 @@ export class PynanceService {
   public optimize(tickers: string[], endDate : string = null, startDate : string = null, 
                   targetReturn : number = null, investment : number = null,
                   method: boolean): Observable<Portfolio>{
-    let baseUrl: string = `${environment.backendUrl}/${ENDPOINTS.optimize.endpoint}?`;
+    let baseUrl: string = `${environment.backendUrl}/${ENDPOINTS.optimize.endpoint}`;
     let query: string = this.formatQueryTickers(tickers)
 
     if (endDate){ query = query + `&${ENDPOINTS.optimize.parameters.endDate}=${endDate}`; }
@@ -56,14 +56,15 @@ export class PynanceService {
     if(targetReturn){ query = query + `&${ENDPOINTS.optimize.parameters.targetReturn}=${targetReturn}`; }
     if(investment){ query = query + `&${ENDPOINTS.optimize.parameters.investment}=${investment}`}
     if(!method){ query = query + `&${ENDPOINTS.optimize.parameters.sharpeRatio}=true`}
-    
+
     let queryUrl = baseUrl + "?" + query
 
     this.logs.log(`Querying backend for ${queryUrl}`, this.location)
 
+    // may have to manually map response
     return this.http.get<Portfolio>(queryUrl)
       .pipe( 
-        tap((response) => this.logs.log(`Received response ${response}`, this.location)),
+        tap( response => {this.logs.log(`Received response from backend`, this.location); console.log(response);} ),
         catchError(this.handleError<Portfolio>('optimize', null))
     );
   }
