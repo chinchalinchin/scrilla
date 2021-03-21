@@ -231,9 +231,13 @@ def format_allocation(allocation, portfolio, investment=None):
     annual_return = portfolio.volatility_function(x=allocation)
 
     for j in range(len(portfolio.tickers)):
-        allocation_format[f'{portfolio.tickers[j]}_allocation'] = allocation[j] 
+        allocation_format[f'{portfolio.tickers[j]}'] = {}
+
+        allocation_format[f'{portfolio.tickers[j]}']['allocation'] = allocation[j]
         if investment is not None:
             shares_format[f'{portfolio.tickers[j]}_shares'] = float(shares[j])
+        allocation_format[f'{portfolio.tickers[j]}']['annual_return'] = portfolio.mean_return[j] 
+        allocation_format[f'{portfolio.tickers[j]}']['annual_volatility'] = portfolio.sample_vol[j]
 
     json_format = {}
     json_format['allocation'] = allocation_format
@@ -242,8 +246,8 @@ def format_allocation(allocation, portfolio, investment=None):
         json_format['shares'] = shares_format
         json_format['total'] = float(total)
         
-    json_format['annual_return'] = annual_return
-    json_format['annual_volatility'] = annual_volatility
+    json_format['portfolio_return'] = annual_return
+    json_format['portfolio_volatility'] = annual_volatility
     
     return json_format
 
