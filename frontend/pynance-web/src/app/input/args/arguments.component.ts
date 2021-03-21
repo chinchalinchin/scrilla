@@ -41,11 +41,11 @@ import { containsObject, dateToString, getColumnFromList } from 'src/utilities';
  * method: maximize sharpe or minimize volatilty
  **  */
 
- const PRICING_MODELS=[
+ export const PRICING_MODELS=[
    { value: 'DDM', viewValue: 'Discount Dividend Model' },
    { value: 'DCF', viewValue: 'Discount Cashflow Model'}
  ]
- const OPTIMIZATION_METHODS=[
+ export const OPTIMIZATION_METHODS=[
    { value: 'MVP', viewValue: 'Minimum Variance Portfolio' },
    { value: 'MSR', viewValue: 'Maximize Sharpe Ratio'}
  ]
@@ -55,6 +55,25 @@ import { containsObject, dateToString, getColumnFromList } from 'src/utilities';
   templateUrl: './arguments.component.html'
 })
 export class ArgumentsComponent implements OnInit {
+  private location = "app.input.args.ArgumentsComponent"
+
+  public inputTickers: string;
+  public inputInvestment: number;
+  public inputTarget: number;
+  public inputModel: string;
+  public inputMethod: string = OPTIMIZATION_METHODS[0].value;
+  public range = new FormGroup({
+    start: new FormControl(),
+    end: new FormControl()
+  });
+  public pricingModels = PRICING_MODELS;
+  public optMethods = OPTIMIZATION_METHODS;
+
+  private savedTickers : string[] = [];
+  private savedStartDate : Date;
+  private savedEndDate : Date;
+  private today: Date;
+
   // Input: Displayed argument subcomponents
   @Input()
   public tickers : boolean = false;
@@ -82,24 +101,6 @@ export class ArgumentsComponent implements OnInit {
   private addInvestment = new EventEmitter<number>();
   @Output()
   private addMethod = new EventEmitter<string>();
-
-  public inputTickers: string;
-  public inputInvestment: number;
-  public inputTarget: number;
-  public inputModel: string;
-  public inputMethod: string;
-  public range = new FormGroup({
-    start: new FormControl(),
-    end: new FormControl()
-  });
-  public pricingModels = PRICING_MODELS;
-  public optMethods = OPTIMIZATION_METHODS;
-
-  private savedTickers : string[] = [];
-  private savedStartDate : Date;
-  private savedEndDate : Date;
-  private today : Date;
-  private location = "app.input.args.ArgumentsComponent"
 
   constructor(private logs: LogService) { }
 

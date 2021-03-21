@@ -10,32 +10,40 @@ import { LogService } from 'src/app/services/log.service';
   templateUrl: './portfolio.component.html'
 })
 /**PortfolioComponent
- * This component receives ticker symbols inputted by the user in the child ArgumentsComponent
- *  and gets loaded by its parent component, whether that be OptimizerComponent or 
- *  EfficientFrontierComponent, with the percentage of the portfolio that should be dedicated
- *  to each asset in the user ticker symbol list. 
+ *  This component receives ticker symbols inputted by the user in the child ArgumentsComponent
+ *    and gets loaded by its parent component, whether that be OptimizerComponent or 
+ *    EfficientFrontierComponent, with the percentage of the portfolio that should be dedicated
+ *    to each asset in the user ticker symbol list. 
  * 
  * Input:
- * This component requires a number array as an argument,
+ *  This component requires a number array as an argument,
  * 
- * <app-portfolio [allocations]="[0,0.5,0.25,0.25]"></app-portfolio>
+ *        <app-portfolio [allocations]="[0,0.5,0.25,0.25]"></app-portfolio>
  * 
- * 'allocations' must be an ordered array of portfolio allocations corresponding to the 
- *  the tickers passed in through the ArgumentsComponent child. In other words, if the user
- *  specifies the ticker list of ["ALLY", "BX", "SNE"], then the allocation array of, say,
- *  [0.25, 0.3, 0.45] would represent an 25% ALLY allocation, a 30% BX allocation and a 45%
- *  SNE allocation.
+ *  'allocations' must be an ordered array of portfolio allocations corresponding to the 
+ *    the tickers passed in through the ArgumentsComponent child. In other words, if the user
+ *    specifies the ticker list of ["ALLY", "BX", "SNE"], then the allocation array of, say,
+ *    [0.25, 0.3, 0.45] would represent an 25% ALLY allocation, a 30% BX allocation and a 45%
+ *    SNE allocation.
+ * 
+ * Output:
+ *  This component emits a clear event signalling the user has cleared all ticker symbols
+ *    from the portfolio. To hook into the event,
+ * 
+ *        <app-portfolio [allocations] = "[array]" (clearEvent) = "doSomething()"></app-portfolio>
  * 
  * 
  */
 export class PortfolioComponent implements OnInit {
+  private location : string = "app.input.portfolio.PortfolioComponent"
+
   public portfolio: Holding[] = [];
   public clearDisabled : boolean = true;
   public displayedColumns: string[] = [];
   public startDate: string;
   public endDate: string;
   public targetReturn: number;
-  private location : string = "app.input.portfolio.PortfolioComponent"
+  public investment: number;
 
   @ViewChild('portfolioTable')
   private portfolioTable : MatTable<Holding[]>;
@@ -55,6 +63,7 @@ export class PortfolioComponent implements OnInit {
 
       if(changes.allocations.currentValue != changes.allocations.previousValue){
         if(this.portfolio.length != 0){
+
           // empty portfolio passed in
           if(changes.allocations.currentValue.length == 0){ 
             for(let holding of this.portfolio){ holding.allocation = null; }
@@ -63,16 +72,8 @@ export class PortfolioComponent implements OnInit {
 
           // allocation portfolio passed in
           else{
-            // check if allocations.length = portfolio.length
             if (changes.allocations.currentValue == this.portfolio.length){
-              let index = 0;
-              for(let newAllocation of changes.allocations.currentValue){
-                let logMessage =`Changing ${this.portfolio[index].ticker} allocation from `
-                                  + `${this.portfolio[index].allocation} to ${newAllocation}`
-                this.logs.log(logMessage, this.location)
-                this.portfolio[index].allocation = newAllocation
-                index++;
-              }
+              this.setPortfolioAllocations(changes.allocations.currentValue)
               this.displayedColumns = [ 'ticker', 'allocation']
             }
             else{
@@ -88,7 +89,7 @@ export class PortfolioComponent implements OnInit {
 
   }
 
-  public getTickers(): string[]{
+  public getTickers() : string[]{
     let tickers : string [] = []
     for(let holding of this.portfolio){
       tickers.push(holding.ticker)
@@ -122,37 +123,45 @@ export class PortfolioComponent implements OnInit {
   public setDates(inputDates: string[]) : void {
     this.logs.log(`Received dates ${inputDates}`, this.location)
     this.startDate = inputDates[0]
-    this.endDate = inputDates[0]
+    // TODO: this looks wrong
+    this.endDate = inputDates[1]
   }
 
-  public getStartDate(): string { return this.startDate; }
+  public getStartDate() : string { return this.startDate; }
 
-  public getEndDate(): string { return this.endDate; }
+  public getEndDate() : string { return this.endDate; }
 
-  public setAllocations(theseAllocations : number[]) : void{
-    this.logs.log('Passing allocations to portfolio', this.location)
-    for(let portion of theseAllocations){
-      let thisIndex : number = theseAllocations.indexOf(portion)
-      this.portfolio[thisIndex].allocation = portion
+  public setPortfolioAllocations(theseAllocations : number[]) : void{
+    this.logs.log('Passing allocations to portfolio', this.location);
+    let index = 0;
+    for(let allocation of theseAllocations){
+      let logMessage =`Changing ${this.portfolio[index].ticker} allocation from `
+                        + `${this.portfolio[index].allocation} to ${allocation}`;
+      this.logs.log(logMessage, this.location);
+      this.portfolio[index].allocation = allocation;
+      index++;
     }
   }
 
-  public getAllocations(): number[]{
-    return this.allocations;
-  }
-
-  public getPortfolioAllocations(): number[]{
+  public getPortfolioAllocations() : number[]{
     let portfolioAllocations: number[] = [];
     for(let holding of this.portfolio){ portfolioAllocations.push(holding.allocation); }
     return portfolioAllocations;
   }
 
-  public setTargetReturn(inputTarget : number){
+  public setTargetReturn(inputTarget : number) : void{
     this.logs.log(`Received target return: ${inputTarget}`, this.location)
     this.targetReturn = inputTarget;
   }
 
-  public getTargetReturn(): number{ return this.targetReturn; }
+  public getTargetReturn() : number{ return this.targetReturn; }
+
+  public getInvestment() : number { return this.investment; }
+
+  public setInvestment(inputInvestment : number) : void{
+    this.logs.log(`Received investment : ${inputInvestment}`, this.location);
+    this.investment = inputInvestment;
+  }
 
   public clearPortfolio() : void{
     this.logs.log('Clearing portfolio and table', this.location)

@@ -14,7 +14,8 @@ const ENDPOINTS ={
       startDate: 'start',
       endDate: 'end',
       targetReturn: 'target',
-      investment: 'invest'
+      investment: 'invest',
+      sharpeRatio: 'sharpe'
     }
   }
 }
@@ -45,7 +46,8 @@ export class PynanceService {
   }
 
   public optimize(tickers: string[], endDate : string = null, startDate : string = null, 
-                  targetReturn : number = null, investment : number = null): Observable<Portfolio>{
+                  targetReturn : number = null, investment : number = null,
+                  method: boolean): Observable<Portfolio>{
     let baseUrl: string = `${environment.backendUrl}/${ENDPOINTS.optimize.endpoint}?`;
     let query: string = this.formatQueryTickers(tickers)
 
@@ -53,7 +55,8 @@ export class PynanceService {
     if(startDate){ query = query + `&${ENDPOINTS.optimize.parameters.startDate}=${startDate}`; }
     if(targetReturn){ query = query + `&${ENDPOINTS.optimize.parameters.targetReturn}=${targetReturn}`; }
     if(investment){ query = query + `&${ENDPOINTS.optimize.parameters.investment}=${investment}`}
-
+    if(!method){ query = query + `&${ENDPOINTS.optimize.parameters.sharpeRatio}=true`}
+    
     let queryUrl = baseUrl + "?" + query
 
     this.logs.log(`Querying backend for ${queryUrl}`, this.location)
