@@ -10,7 +10,6 @@
                 (addTarget)="this.portfolioComponent.setTargetReturn($event)"
                 (addInvestment)="this.portfolioComponent.setInvestment($event)"
                 (addMethod)="this.setOptimizeMethod($event)"></app-args><br>
-                <!--TODO: use addMethod event to add optimization method-->
 
         <app-portfolio id="optimizer-card-portfolio" class="app-card" 
                 [allocations]="getAllocations()" [shares]="getShares()"
@@ -21,7 +20,6 @@
     <mat-card-actions id="optimizer-card-actions" class="align-right">
         <button mat-raised-button color="primary" 
                 [disabled]="optimizeDisabled" (click)="optimize()"> Optimize</button>
-                <!--TODO: allocations not working/changing-->
         <button mat-raised-button color="warn"
                 [disabled]="clearDisabled" (click)="clear()">Clear</button>
     </mat-card-actions>

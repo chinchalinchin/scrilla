@@ -393,6 +393,8 @@ not affect the application.
 
 33. Facts/opinion tabs.
 
+34. Mark important points of Efficient Frontier, i.e. minimum variance, maximum return, maximum sharpe ratio.
+
 ### NOTES
 
 1. All date strings should be converted to <b>datetime.dates</b> at point of contact with user, i.e. in the main.py file where CLI arguments are parsed, within the gui where user arguments are pulled from widgets or in the server's endpoint views where user arguments are provided through query parameters, before passing it the service/statistics/portfolio functions. All functions in the <i>/app/</i> module assume dates are passed in as <b>datetime.dates</b>.
