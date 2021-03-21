@@ -1,8 +1,9 @@
 import { MatTable } from '@angular/material/table';
-import { Component, Input, OnInit, SimpleChanges, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { Holding } from 'src/app/models/holding';
 import { containsObject } from 'src/utilities';
 import { mockPortfolio } from 'src/app/models/holding'
+import { LogService } from 'src/app/services/log.service';
 
 @Component({
   selector: 'app-portfolio',
@@ -28,15 +29,13 @@ import { mockPortfolio } from 'src/app/models/holding'
  * 
  */
 export class PortfolioComponent implements OnInit {
-
-  // public portfolio : Holding[] = [];
   public portfolio: Holding[] = [];
   public clearDisabled : boolean = true;
   public displayedColumns: string[] = [];
-
   public startDate: string;
   public endDate: string;
   public targetReturn: number;
+  private location : string = "app.input.PortfolioComponent"
 
   @ViewChild('portfolioTable')
   private portfolioTable : MatTable<Holding[]>;
@@ -44,27 +43,45 @@ export class PortfolioComponent implements OnInit {
   @Input()
   private allocations: number[]
 
+  @Output()
+  private clearEvent = new EventEmitter<boolean>();
+
+  constructor(private logs: LogService){ }
+
   ngOnInit() { } 
   
   ngOnChanges(changes: SimpleChanges) {    
     if (changes.allocations) {
-      if(this.portfolio.length != 0){
 
-        // TODO: allocations not changing for ticker in portfolio
-
-        // empty portfolio passed in
-        if(changes.allocations.currentValue.length == 0){ 
-          this.displayedColumns = [ 'ticker' ]
-          for(let holding of this.portfolio){ holding.allocation = null; }
-        }
-
-        // allocation portfolio passed in
-        else{
-          this.displayedColumns = [ 'ticker', 'allocation']
-          for(let newAllocation of changes.allocations.currentValue){
-            let tickerIndex=changes.allocations.currentValue.indexOf(newAllocation)
-            this.portfolio[tickerIndex].allocation = newAllocation
+      if(changes.allocations.currentValue != changes.allocations.previousValue){
+        if(this.portfolio.length != 0){
+          // empty portfolio passed in
+          if(changes.allocations.currentValue.length == 0){ 
+            for(let holding of this.portfolio){ holding.allocation = null; }
+            this.displayedColumns = [ 'ticker' ]
           }
+
+          // allocation portfolio passed in
+          else{
+            // check if allocations.length = portfolio.length
+            if (changes.allocations.currentValue == this.portfolio.length){
+              let index = 0;
+              for(let newAllocation of changes.allocations.currentValue){
+                let logMessage =`Changing ${this.portfolio[index].ticker} allocation from `
+                                  + `${this.portfolio[index].allocation} to ${newAllocation}`
+                this.logs.log(logMessage, this.location)
+                this.portfolio[index].allocation = newAllocation
+                index++;
+              }
+              this.displayedColumns = [ 'ticker', 'allocation']
+            }
+            else{
+              let logMessage = `Portfolio length ${this.portfolio.length} does not equal `
+                                + `new allocation length ${changes.allocations.currentValue.length}`
+              this.logs.log(logMessage, this.location)
+            }
+          } 
+
         }
       }
     }
@@ -80,7 +97,7 @@ export class PortfolioComponent implements OnInit {
   }
 
   public setTickers(inputTickers: string[]) : void{
-    console.log(`received inputTickers: ${inputTickers}`)
+    this.logs.log(`received inputTickers: ${inputTickers}`, this.location)
 
     let unduplicatedTickers : string[] = [];
     let portfolioTickers : string[] = this.getTickers();
@@ -103,7 +120,7 @@ export class PortfolioComponent implements OnInit {
   }
   
   public setDates(inputDates: string[]) : void {
-    console.log(`received inputDates ${inputDates}`)
+    this.logs.log(`received inputDates ${inputDates}`, this.location)
     this.startDate = inputDates[0]
     this.endDate = inputDates[0]
   }
@@ -113,6 +130,7 @@ export class PortfolioComponent implements OnInit {
   public getEndDate(): string { return this.endDate; }
 
   public setAllocations(theseAllocations : number[]) : void{
+    this.logs.log('Passing allocations to portfolio', this.location)
     for(let portion of theseAllocations){
       let thisIndex : number = theseAllocations.indexOf(portion)
       this.portfolio[thisIndex].allocation = portion
@@ -123,17 +141,25 @@ export class PortfolioComponent implements OnInit {
     return this.allocations;
   }
 
+  public getPortfolioAllocations(): number[]{
+    let portfolioAllocations: number[] = [];
+    for(let holding of this.portfolio){ portfolioAllocations.push(holding.allocation); }
+    return portfolioAllocations;
+  }
+
   public setTargetReturn(inputTarget : number){
-    console.log(`received inputTarget: ${inputTarget}`)
+    this.logs.log(`Received inputTarget: ${inputTarget}`, this.location)
     this.targetReturn = inputTarget;
   }
 
   public getTargetReturn(): number{ return this.targetReturn; }
 
   public clearPortfolio() : void{
+    this.logs.log('Clearing portfolio and table', this.location)
     this.portfolio = [];
     this.clearDisabled = true;
     this.displayedColumns = [];
+    this.clearEvent.emit(true);
   }
 
 }

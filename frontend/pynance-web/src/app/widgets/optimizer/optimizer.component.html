@@ -5,13 +5,14 @@
         <app-args id="optimizer-card-arguments" class="app-card" 
                 [tickers]="true" [dates]="true" [target]="true" 
                 [investment]="true" [method]="true"
-                (addTickers)="portfolio.setTickers($event)"
-                (addDates)="portfolio.setDates($event)"></app-args><br>
+                (addTickers)="this.portfolioComponent.setTickers($event)"
+                (addDates)="this.portfolioComponent.setDates($event)"></app-args><br>
                 <!--TODO: use addTargetReturn event to add to portfolio-->
                 <!--TODO: use addMethod event to add optimization method-->
 
         <app-portfolio id="optimizer-card-portfolio" class="app-card" 
-                [allocations]="getAllocations()"></app-portfolio>
+                [allocations]="getAllocations()"
+                (clearEvent)="clear();"></app-portfolio>
     </mat-card-content>
 
     <mat-card-actions id="optimizer-card-actions" class="align-right">

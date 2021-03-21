@@ -1,3 +1,4 @@
+import { THIS_EXPR } from '@angular/compiler/src/output/output_ast';
 import { Component, Input, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 import { PynanceService } from 'src/app/services/pynance.service';
 import { ArgumentsComponent } from '../../input/args/arguments.component';
@@ -18,9 +19,9 @@ export class OptimizerComponent implements OnInit {
   public explanationDisabled;
 
   @ViewChild(PortfolioComponent)
-  public portfolio : PortfolioComponent;
+  public portfolioComponent : PortfolioComponent;
   @ViewChild(ArgumentsComponent)
-  public arguments : ArgumentsComponent;
+  public argsComponent : ArgumentsComponent;
 
   constructor(private pynanceService: PynanceService) { }
 

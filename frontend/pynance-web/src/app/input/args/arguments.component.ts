@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormGroup, FormControl } from '@angular/forms';
+import { VirtualTimeScheduler } from 'rxjs';
 import { containsObject, dateToString, getColumnFromList } from 'src/utilities';
 
 /** ArgumentsComponent
@@ -119,6 +120,7 @@ export class ArgumentsComponent implements OnInit {
     for(let ticker of parsedTickers){ this.savedTickers.push(ticker); }
     this.addTickers.emit(this.savedTickers);
     this.inputTickers = null;
+    this.savedTickers = [];
   }
   
   public saveDates(){
