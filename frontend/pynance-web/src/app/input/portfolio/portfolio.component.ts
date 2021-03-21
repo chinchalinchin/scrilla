@@ -16,15 +16,21 @@ import { LogService } from 'src/app/services/log.service';
  *    to each asset in the user ticker symbol list. 
  * 
  * Input:
- *  This component requires a number array as an argument,
+ *  This component requires two number arrays as an argument,
  * 
- *        <app-portfolio [allocations]="[0,0.5,0.25,0.25]"></app-portfolio>
+ *        <app-portfolio [allocations]="[0,0.5,0.25,0.25]"
+ *                        [shares] = "[0,2,1,1]"></app-portfolio>
  * 
  *  'allocations' must be an ordered array of portfolio allocations corresponding to the 
- *    the tickers passed in through the ArgumentsComponent child. In other words, if the user
- *    specifies the ticker list of ["ALLY", "BX", "SNE"], then the allocation array of, say,
- *    [0.25, 0.3, 0.45] would represent an 25% ALLY allocation, a 30% BX allocation and a 45%
- *    SNE allocation.
+ *    the tickers inputted into the ArgumentsComponent and passed into this component
+ *    from its parent component. In other words, if the user specifies the ticker list of 
+ *    ["ALLY", "BX", "SNE"], then the allocation array of, say, [0.25, 0.3, 0.45] would represent 
+ *    an 25% ALLY allocation, a 30% BX allocation and a 45% SNE allocation.
+ * 
+ *  'shares' must be an ordered array of portfolio shares corresponding to the tickers inputted 
+ *    into the ArgumentsComponent and passed into this component from its parent component. In
+ *    other words, if the user specifies the ticker list of ["ALLY", "BX", "SNE"], then the shares
+ *    array of, say, [1, 2, 3] would represent 1 ALLY share, 2 BX shares and 3 SNE shares.
  * 
  * Output:
  *  This component emits a clear event signalling the user has cleared all ticker symbols

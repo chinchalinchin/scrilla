@@ -13,7 +13,7 @@
                 <!--TODO: use addMethod event to add optimization method-->
 
         <app-portfolio id="optimizer-card-portfolio" class="app-card" 
-                [allocations]="getAllocations()"
+                [allocations]="getAllocations()" [shares] ="getShares()"
                 (clearEvent)="clear(); this.optimizeDisabled=true;"></app-portfolio>
     </mat-card-content>
 

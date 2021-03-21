@@ -93,9 +93,14 @@ export class OptimizerComponent implements OnInit {
 
   public getShares(): number[]{
     let shares: number [] = [];
-    if(this.portfolioComponent.getInvestment() && this.calculated && this.optimizedPortfolio){
-      for(let holding of Object.entries(this.optimizedPortfolio.holdings)){
-        shares.push(holding[1].shares)
+    // check for existence of portfolioComponent since this method gets 
+    // invoked before portfolioComponent is initialized. NOTE: this method
+    // is inputted into the portfolioComponent HTML template.
+    if(this.portfolioComponent && this.calculated && this.optimizedPortfolio){
+      if(this.portfolioComponent.getInvestment()){
+        for(let holding of Object.entries(this.optimizedPortfolio.holdings)){
+          shares.push(holding[1].shares)
+        } 
       }
     }
     return shares;
