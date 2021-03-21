@@ -157,8 +157,6 @@ export class ArgumentsComponent implements OnInit {
     }
   }
 
-  // ngModel doesn't get updated until after click, so have to 
-  //  inject the click event itself into the saveMethod function.
   public saveMethod(event) : void{
     let valueList = getColumnFromList("value", this.optMethods)
     if(containsObject(event.value, valueList)){
@@ -169,12 +167,16 @@ export class ArgumentsComponent implements OnInit {
 
   public clearInvestment() : void {
     this.inputInvestment = null;
+    this.logs.log('Emitting null investment', this.location)
     this.addInvestment.emit(null);
   }
 
   public clearTarget() : void {
     this.inputTarget = null;
+    this.logs.log('Emitting null target return', this.location)
     this.addTarget.emit(null);
   }
+
+  // TODO: emit null dates 
 
 }
