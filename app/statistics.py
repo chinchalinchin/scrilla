@@ -595,7 +595,7 @@ def calculate_ito_correlation(ticker_1, ticker_2, start_date=None, end_date=None
 
     else:
         logger.debug('Sample prices provided, skipping service calls.')
-        prices_1, prices_2 = sample_prices[ticker_1], prices_2[ticker_2]
+        prices_1, prices_2 = sample_prices[ticker_1], sample_prices[ticker_2]
         
     if (not prices_1) or (not prices_2):
         logger.info("Prices cannot be retrieved for correlation calculation")
