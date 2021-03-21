@@ -19,6 +19,11 @@
                 <td mat-cell *matCellDef="let holding"> {{holding.allocation}} </td>
             </ng-container>
 
+            <ng-container matColumnDef="shares">
+                <th mat-header-cell *matHeaderCellDef> Shares </th>
+                <td mat-cell *matCellDef="let holding"> {{holding.shares}} </td>
+            </ng-container>
+            
             <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
             <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>    
         </table>

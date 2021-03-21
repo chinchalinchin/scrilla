@@ -90,4 +90,14 @@ export class OptimizerComponent implements OnInit {
     }
     return allocations;
   }
+
+  public getShares(): number[]{
+    let shares: number [] = [];
+    if(this.portfolioComponent.getInvestment() && this.calculated && this.optimizedPortfolio){
+      for(let holding of Object.entries(this.optimizedPortfolio.holdings)){
+        shares.push(holding[1].shares)
+      }
+    }
+    return shares;
+  }
 }

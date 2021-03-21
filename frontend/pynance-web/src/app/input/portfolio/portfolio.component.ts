@@ -50,6 +50,8 @@ export class PortfolioComponent implements OnInit {
 
   @Input()
   private allocations: number[]
+  @Input()
+  private shares: number[];
 
   @Output()
   private clearEvent = new EventEmitter<boolean>();
@@ -86,6 +88,31 @@ export class PortfolioComponent implements OnInit {
         }
       }
     }
+    if(changes.shares){
+      if(changes.shares.currentValue != changes.shares.previousValue){
+        if(this.portfolio.length != 0){
+
+          // empty portfolio passed in
+          if(changes.shares.currentValue.length == 0){
+            for(let holding of this.portfolio) { holding.shares= null; }
+            this.displayedColumns = ['ticker'];
+          }
+
+          // shares portfolio passed in
+          else{
+            if(changes.shares.currentValue.length == this.portfolio.length){
+              this.setPortfolioShares(changes.shares.currentValue);
+              this.displayedColumns = [ 'ticker', 'allocation', 'shares'];
+            }
+            else{
+              let logMessage = `Portfolio length ${this.portfolio.length} does not equal `
+                                + `new shares length ${changes.shares.currentValue.length}`;
+              this.logs.log(logMessage, this.location);
+            }
+          }
+        }
+      }
+    }
 
   }
 
@@ -108,7 +135,7 @@ export class PortfolioComponent implements OnInit {
     }
 
     for(let ticker of unduplicatedTickers){
-      this.portfolio.push({ ticker: ticker, allocation: null, annual_return: null, annual_volatility: null})
+      this.portfolio.push({ ticker: ticker, allocation: null, shares: null, annual_return: null, annual_volatility: null})
     }
   
     if(this.portfolio.length != 0){
@@ -147,6 +174,24 @@ export class PortfolioComponent implements OnInit {
     let portfolioAllocations: number[] = [];
     for(let holding of this.portfolio){ portfolioAllocations.push(holding.allocation); }
     return portfolioAllocations;
+  }
+
+  public setPortfolioShares(theseShares: number[]): void{
+    this.logs.log('Passing shares to portfolio', this.location);
+    let index = 0;
+    for(let shares of theseShares){
+      let logMessage = `Changing ${this.portfolio[index].ticker} shares from`
+                        + `${this.portfolio[index].shares} to ${shares}`;
+      this.logs.log(logMessage, this.location);
+      this.portfolio[index].shares = shares
+      index++;
+    }
+  }
+
+  public getPortfolioShares(): number[]{
+    let portfolioShares: number[] = [];
+    for(let holding of this.portfolio){ portfolioShares.push(holding.shares); }
+    return portfolioShares;
   }
 
   public setTargetReturn(inputTarget : number) : void{
