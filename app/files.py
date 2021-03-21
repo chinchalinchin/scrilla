@@ -227,8 +227,8 @@ def format_allocation(allocation, portfolio, investment=None):
         shares = portfolio.calculate_approximate_shares(x=allocation, total=investment)
         total = portfolio.calculate_actual_total(x=allocation, total=investment)
 
-        annual_volatility = portfolio.volatility_function(x=allocation) 
-        annual_return = portfolio.volatility_function(x=allocation)
+    annual_volatility = portfolio.volatility_function(x=allocation) 
+    annual_return = portfolio.volatility_function(x=allocation)
 
     for j in range(len(portfolio.tickers)):
         allocation_format[f'{portfolio.tickers[j]}_allocation'] = allocation[j] 
