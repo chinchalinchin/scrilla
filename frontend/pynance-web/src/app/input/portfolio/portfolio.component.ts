@@ -35,7 +35,7 @@ export class PortfolioComponent implements OnInit {
   public startDate: string;
   public endDate: string;
   public targetReturn: number;
-  private location : string = "app.input.PortfolioComponent"
+  private location : string = "app.input.portfolio.PortfolioComponent"
 
   @ViewChild('portfolioTable')
   private portfolioTable : MatTable<Holding[]>;
@@ -97,7 +97,7 @@ export class PortfolioComponent implements OnInit {
   }
 
   public setTickers(inputTickers: string[]) : void{
-    this.logs.log(`received inputTickers: ${inputTickers}`, this.location)
+    this.logs.log(`received tickers: ${inputTickers}`, this.location)
 
     let unduplicatedTickers : string[] = [];
     let portfolioTickers : string[] = this.getTickers();
@@ -120,7 +120,7 @@ export class PortfolioComponent implements OnInit {
   }
   
   public setDates(inputDates: string[]) : void {
-    this.logs.log(`received inputDates ${inputDates}`, this.location)
+    this.logs.log(`Received dates ${inputDates}`, this.location)
     this.startDate = inputDates[0]
     this.endDate = inputDates[0]
   }
@@ -148,7 +148,7 @@ export class PortfolioComponent implements OnInit {
   }
 
   public setTargetReturn(inputTarget : number){
-    this.logs.log(`Received inputTarget: ${inputTarget}`, this.location)
+    this.logs.log(`Received target return: ${inputTarget}`, this.location)
     this.targetReturn = inputTarget;
   }
 

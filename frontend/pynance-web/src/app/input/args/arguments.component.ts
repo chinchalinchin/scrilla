@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormGroup, FormControl } from '@angular/forms';
 import { VirtualTimeScheduler } from 'rxjs';
+import { LogService } from 'src/app/services/log.service';
 import { containsObject, dateToString, getColumnFromList } from 'src/utilities';
 
 /** ArgumentsComponent
@@ -98,8 +99,9 @@ export class ArgumentsComponent implements OnInit {
   private savedStartDate : Date;
   private savedEndDate : Date;
   private today : Date;
+  private location = "app.input.args.ArgumentsComponent"
 
-  constructor() { }
+  constructor(private logs: LogService) { }
 
   // TODO: query backend for static dropdown list of pricing models
   // TODO: ??? maybe not ??? query backend for static list of optimization methods.
@@ -116,6 +118,7 @@ export class ArgumentsComponent implements OnInit {
   }
 
   public saveTickers(){
+    this.logs.log('Emitting tickers', this.location)
     let parsedTickers : string[] = this.inputTickers.replace(/\s/g, "").toUpperCase().split(',');
     for(let ticker of parsedTickers){ this.savedTickers.push(ticker); }
     this.addTickers.emit(this.savedTickers);
@@ -127,23 +130,29 @@ export class ArgumentsComponent implements OnInit {
     let emittedDates: string[]
     if(this.savedStartDate){ emittedDates.push(dateToString(this.savedStartDate)); }
     if(this.savedEndDate) { emittedDates.push(dateToString(this.savedEndDate)); }
-    if(emittedDates.length>0){ this.addDates.emit(emittedDates); }
+    if(emittedDates.length>0){ 
+      this.logs.log('Emitting dates', this.location);
+      this.addDates.emit(emittedDates); 
+    }
   }
 
   public saveInvestment() : void {
     if(this.inputInvestment){
+      this.logs.log('Emitting investment', this.location);
       this.addInvestment.emit(this.inputInvestment);
     }
   }
 
   public saveTarget() : void {
     if(this.inputTarget){
+      this.logs.log('Emitting target return', this.location);
       this.addTarget.emit(this.inputTarget);
     }
   }
 
   public saveModel() : void{
     if(this.inputModel){
+      this.logs.log('Emitting valuation model', this.location)
       this.addModel.emit(this.inputModel)
     }
   }
@@ -153,6 +162,7 @@ export class ArgumentsComponent implements OnInit {
   public saveMethod(event) : void{
     let valueList = getColumnFromList("value", this.optMethods)
     if(containsObject(event.value, valueList)){
+      this.logs.log('Emitting optimization method', this.location)
       this.addMethod.emit(event.value)
     }
   }
