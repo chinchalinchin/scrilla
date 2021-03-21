@@ -42,11 +42,11 @@ import { containsObject, dateToString, getColumnFromList } from 'src/utilities';
  **  */
 
  const PRICING_MODELS=[
-   { value:'DDM', viewValue:'Discount Dividend Model' },
-   { value:'DCF', viewValue:'Discount Cashflow Model'}
+   { value: 'DDM', viewValue: 'Discount Dividend Model' },
+   { value: 'DCF', viewValue: 'Discount Cashflow Model'}
  ]
  const OPTIMIZATION_METHODS=[
-   { value: 'MVP', viewValue:'Minimum Variance Portfolio' },
+   { value: 'MVP', viewValue: 'Minimum Variance Portfolio' },
    { value: 'MSR', viewValue: 'Maximize Sharpe Ratio'}
  ]
 

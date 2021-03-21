@@ -389,6 +389,10 @@ not affect the application.
 
 31. Allow relative file references when saving analysis. Right now needs to be absolute path inputted into -save argument. Also, save return profiles. 
 
+32. Export function results as JSON on Angular frontend, i.e. allow users to save results.
+
+33. Facts/opinion tabs.
+
 ### NOTES
 
 1. All date strings should be converted to <b>datetime.dates</b> at point of contact with user, i.e. in the main.py file where CLI arguments are parsed, within the gui where user arguments are pulled from widgets or in the server's endpoint views where user arguments are provided through query parameters, before passing it the service/statistics/portfolio functions. All functions in the <i>/app/</i> module assume dates are passed in as <b>datetime.dates</b>.

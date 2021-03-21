@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'corsheaders',
     'api.apps.ApiConfig',
     'data.apps.DataConfig'
 ]
@@ -57,6 +58,8 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -92,6 +95,9 @@ STATIC_URL = '/static/'
 
 ### HEADER CONFIGURATION ###
 ALLOWED_HOSTS = [ 'localhost' ]
+# TODO: restrict origins once frontend is working
+CORS_ALLOW_ALL_ORIGINS = True
+
 
 ### DATABASE CONFIGURATION
 if APP_ENV == 'local':
