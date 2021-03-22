@@ -29,6 +29,8 @@ import { MatRadioModule } from '@angular/material/radio';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatListModule } from '@angular/material/list';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatChipsModule } from '@angular/material/chips';
+
 
 
 
@@ -68,6 +70,7 @@ import { ValuationComponent } from './widgets/valuation/valuation.component';
     MatListModule,
     MatCurrencyFormatModule,
     MatProgressBarModule,
+    MatChipsModule,
     ReactiveFormsModule,
   ],
   providers: [],

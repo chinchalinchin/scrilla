@@ -55,6 +55,8 @@ export class OptimizerComponent implements OnInit {
       this.pynance.optimize(tickers, end, start,target,invest,this.optimizeVariance)
                     .subscribe((resPortfolio: Portfolio)=>{ 
                       this.optimizedPortfolio = resPortfolio; 
+                      this.portfolioComponent.setOverallReturn(this.optimizedPortfolio.portfolio_return);
+                      this.portfolioComponent.setOverallVolatility(this.optimizedPortfolio.portfolio_volatility);
                       this.loading = false;
                     })
     }
@@ -65,8 +67,13 @@ export class OptimizerComponent implements OnInit {
     this.calculated = false;
     this.optimizeDisabled = false;
     this.clearDisabled = true;
+    this.optimizedPortfolio = null;
     this.portfolioComponent.setPortfolioAllocations([])
     this.portfolioComponent.setPortfolioShares([])
+    this.portfolioComponent.setPortfolioReturns([])
+    this.portfolioComponent.setPortfolioVolatilities([])
+    this.portfolioComponent.setOverallReturn(null);
+    this.portfolioComponent.setOverallVolatility(null);
   }
 
   public setOptimizeMethod(method : string){

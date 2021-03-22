@@ -29,7 +29,7 @@ mat-radio-button{ padding-right:10px;padding-left:10px;}
 .indent { text-indent: 50px; }
 .align-left{ text-align: left !important; }
 .align-right{ text-align: right !important; }
-.align-cetner{ text-align: center !important;}
+.align-center{ text-align: center !important;}
 
 .component-title { font-size: medium; }
 .component-text { font-size: small; }

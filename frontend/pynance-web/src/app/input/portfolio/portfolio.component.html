@@ -2,11 +2,14 @@
     <mat-card-title>Portfolio</mat-card-title>
     
     <mat-card-content>
-        <!--TODO: Make portfolio component only responsible for displaying portfolio and allocations
-                    i.e., remove app-args. Pass tickers into portfolio from parent component. In 
-                    other words, Portfolio and Arguments component will be on same level. Parent
-                    will listen for argument events on ArgumentsComponents and then call
-                    set methods on PortfolioComponent. -->
+        <mat-chip-list *ngIf="this.overallReturn&&this.overallVolatility" class="mat-chip-list-stacked align-center">
+            <mat-chip color="accent">
+                Portfolio Annual Return  {{this.overallReturn | number : '1.3-5' | percent : '1.3-5' }}
+            </mat-chip>
+            <mat-chip color="accent">
+                Portfolio Annual Volatility {{this.overallVolatility | number : '1.3-5' | percent : '1.3-5' }}
+            </mat-chip>
+        </mat-chip-list>
         <table #portfolioTable mat-table [dataSource]="portfolio"  class="fill-width">
 
             <ng-container matColumnDef="ticker">

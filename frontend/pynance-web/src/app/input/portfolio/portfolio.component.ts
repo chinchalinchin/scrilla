@@ -49,6 +49,8 @@ export class PortfolioComponent implements OnInit {
   public endDate: string = null;
   public targetReturn: number = null;
   public investment: number = null;
+  public overallReturn : number = null;
+  public overallVolatility : number = null;
 
   @ViewChild('portfolioTable')
   private portfolioTable : MatTable<Holding[]>;
@@ -218,6 +220,14 @@ export class PortfolioComponent implements OnInit {
   public getStartDate() : string { return this.startDate; }
 
   public getEndDate() : string { return this.endDate; }
+
+  public setOverallReturn(portfolioReturn : number) : void{ this.overallReturn = portfolioReturn; }
+
+  public getOverallReturn() : number { return this.overallReturn; }
+
+  public setOverallVolatility(portfolioVolatility : number) : void { this.overallVolatility = portfolioVolatility; }
+
+  public getOverallVolatility () : number { return this.overallVolatility; }
 
   public setPortfolioAllocations(theseAllocations : number[]) : void{
     this.logs.log('Passing allocations to portfolio', this.location);
