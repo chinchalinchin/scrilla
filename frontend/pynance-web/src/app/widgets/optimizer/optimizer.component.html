@@ -17,6 +17,9 @@
                 (clearEvent)="clear(); this.optimizeDisabled=true;"></app-portfolio>
     </mat-card-content>
 
+    <mat-progress-bar *ngIf="loading" mode="buffer"></mat-progress-bar>
+
+    <!-- TODO: buffer progress bar displays while waiting for backend query -->
     <mat-card-actions id="optimizer-card-actions" class="align-right">
         <button mat-raised-button color="primary" 
                 [disabled]="optimizeDisabled" (click)="optimize()"> Optimize</button>

@@ -28,6 +28,8 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatListModule } from '@angular/material/list';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+
 
 
 // Third Party Material
@@ -65,6 +67,7 @@ import { ValuationComponent } from './widgets/valuation/valuation.component';
     MatTabsModule,
     MatListModule,
     MatCurrencyFormatModule,
+    MatProgressBarModule,
     ReactiveFormsModule,
   ],
   providers: [],

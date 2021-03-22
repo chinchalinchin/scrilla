@@ -27,7 +27,12 @@ else
     CACHE_DIR=$ROOT_DIR/data/cache
     STATIC_DIR=$ROOT_DIR/data/static
     # PYTHON SCRIPTS
-    LOG_DJANGO_SETTINGS="import server.pynance_api.core.settings as settings; from util.logger import Logger; \
+    LOG_DJANGO_SETTINGS="import server.pynance_api.core.settings as settings; from util.outputter import Logger; \
+        logger=Logger('scripts.server.pynance-server','$LOG_LEVEL'); logger.log_django_settings(settings=settings);"
+    CLEAR_CACHE="import app.settings as settings; import app.files as files; \
+        files.clear_directory(directory=settings.CACHE_DIR, retain=True, outdated_only=True)"
+    
+    LOG_DJANGO_SETTINGS="import server.pynance_api.core.settings as settings; from util.outputter import Logger; \
         logger=Logger('scripts.server.pynance-server','info'); logger.log_django_settings(settings);"
     CLEAR_CACHE="import app.settings as settings; import app.files as files; \
         files.clear_directory(directory=settings.CACHE_DIR, retain=True, outdated_only=True)"
@@ -40,10 +45,10 @@ else
 
         cd $ROOT_DIR
         log "Logging non-sensitive Django settings." $SCRIPT_NAME
-        python -c $LOG_DJANGO_SETTINGS
+        python -c "$LOG_DJANGO_SETTINGS"
    
         log "Clearing \e[3m/cache/\e[0m directory of outdated price histories." $SCRIPT_NAME
-        python -c $CLEAR_CACHE
+        python -c "$CLEAR_CACHE"
 
         cd $SERVER_DIR
         log "Verifying migrations are up-to-date." $SCRIPT_NAME

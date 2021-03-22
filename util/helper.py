@@ -213,6 +213,7 @@ def get_next_business_date(date):
     return date
 
 def get_previous_business_date(date):
+    date = decrement_date_by_days(start_date=date, days=1)
     while is_date_weekend(date) or is_date_holiday(date):
         date -= datetime.timedelta(days=1)
     return date

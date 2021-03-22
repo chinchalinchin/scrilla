@@ -101,10 +101,20 @@ CORS_ALLOW_ALL_ORIGINS = True
 
 ### DATABASE CONFIGURATION
 if APP_ENV == 'local':
+    ## DATABASES = {
+       ## 'default': {
+        ##   'ENGINE': 'django.db.backends.sqlite3',
+        ##    'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        ## }
+    ## }
     DATABASES = {
         'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql',
+        'HOST': os.getenv('POSTGRES_HOST'),
+        'NAME': os.getenv('POSTGRES_DB'),
+        'USER': os.getenv('POSTGRES_USER'),
+        'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
+        'PORT': os.getenv('POSTGRES_PORT')
         }
     }
 elif APP_ENV == 'container':

@@ -80,8 +80,12 @@ class Portfolio:
 
         else:
             for ticker in self.tickers:
-                stats = statistics.calculate_risk_return(ticker=ticker, start_date=self.start_date, end_date=self.end_date, 
-                                                            sample_prices=self.sample_prices[ticker])
+                if self.sample_prices is not None:
+                    stats = statistics.calculate_risk_return(ticker=ticker, start_date=self.start_date, end_date=self.end_date, 
+                                                                sample_prices=self.sample_prices[ticker])
+                else: 
+                    stats = statistics.calculate_risk_return(ticker=ticker, start_date=self.start_date, end_date=self.end_date)
+
                 if not stats:
                     return False
                 self.mean_return.append(stats['annual_return'])

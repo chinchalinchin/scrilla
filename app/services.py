@@ -36,6 +36,7 @@ def validate_order_of_dates(start_date, end_date):
         if helper.is_date_today(end_date):
             logger.debug(f'End Date {end_date} is today!')
             end_date = None
+            switch_flag = False
 
     if switch_flag:
         time_delta = end_date - start_date
@@ -140,7 +141,7 @@ def query_service_for_daily_price_history(ticker, start_date=None, end_date=None
 
     ### START: ARGUMENT VALIDATION ###
     if not full:
-        if start_date is not None or end_date is not None:
+        if start_date is not None and end_date is not None:
             valid_dates, start_date, end_date = validate_order_of_dates(start_date, end_date)
             if not valid_dates:
                 return False

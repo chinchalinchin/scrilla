@@ -18,6 +18,7 @@ export class OptimizerComponent implements OnInit {
   public clearDisabled : boolean = true;
   public optimizeVariance : boolean = true;
   public optimizedPortfolio : Portfolio = null;
+  public loading : boolean = false;
 
   @Input() 
   public explanationDisabled;
@@ -50,8 +51,12 @@ export class OptimizerComponent implements OnInit {
       let end = this.portfolioComponent.getEndDate();
       let target = this.portfolioComponent.getTargetReturn();
       let invest = this.portfolioComponent.getInvestment();
+      this.loading = true;
       this.pynance.optimize(tickers, end, start,target,invest,this.optimizeVariance)
-                    .subscribe((resPortfolio: Portfolio)=>{ this.optimizedPortfolio = resPortfolio; })
+                    .subscribe((resPortfolio: Portfolio)=>{ 
+                      this.optimizedPortfolio = resPortfolio; 
+                      this.loading = false;
+                    })
     }
 
   }
@@ -60,6 +65,8 @@ export class OptimizerComponent implements OnInit {
     this.calculated = false;
     this.optimizeDisabled = false;
     this.clearDisabled = true;
+    this.portfolioComponent.setPortfolioAllocations([])
+    this.portfolioComponent.setPortfolioShares([])
   }
 
   public setOptimizeMethod(method : string){
@@ -82,8 +89,11 @@ export class OptimizerComponent implements OnInit {
   }
 
   public getAllocations() : number[]{
-    let allocations : number[] = []
-    if (this.calculated && this.optimizedPortfolio){ 
+    let allocations : number[] = [];
+    // check for existence of portfolioComponent since this method gets 
+    // invoked before portfolioComponent is initialized. NOTE: this method
+    // is inputted into the portfolioComponent HTML template.
+    if (this.portfolioComponent && this.calculated && this.optimizedPortfolio){ 
       for(let holding of Object.entries(this.optimizedPortfolio.holdings)){
         allocations.push(holding[1].allocation);
       }
@@ -93,7 +103,10 @@ export class OptimizerComponent implements OnInit {
 
   public getReturns() : number[]{
     let returns : number[] = [];
-    if(this.calculated && this.optimizedPortfolio){
+    // check for existence of portfolioComponent since this method gets 
+    // invoked before portfolioComponent is initialized. NOTE: this method
+    // is inputted into the portfolioComponent HTML template.
+    if(this.portfolioComponent && this.calculated && this.optimizedPortfolio){
       for(let holding of Object.entries(this.optimizedPortfolio.holdings)){
         returns.push(holding[1].annual_return)
       }
@@ -103,7 +116,10 @@ export class OptimizerComponent implements OnInit {
 
   public getVolatilities() : number[]{
     let volatilities : number[] = [];
-    if(this.calculated && this.optimizedPortfolio){
+    // check for existence of portfolioComponent since this method gets 
+    // invoked before portfolioComponent is initialized. NOTE: this method
+    // is inputted into the portfolioComponent HTML template.
+    if(this.portfolioComponent && this.calculated && this.optimizedPortfolio){
       for(let holding of Object.entries(this.optimizedPortfolio.holdings)){
         volatilities.push(holding[1].annual_volatility)
       }

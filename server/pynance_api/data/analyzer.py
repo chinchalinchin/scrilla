@@ -29,7 +29,8 @@ def market_queryset_gap_analysis(symbol, start_date=None, end_date=None):
         
     elif asset_type == app_settings.ASSET_CRYPTO:
         if end_date is None:
-            end_date = helper.get_today()
+            end_date = helper.decrement_date_by_business_days(start_date=helper.get_today(),
+                                                                business_days=1)
         if start_date is None:
             start_date = helper.decrement_date_by_days(start_date=end_date, 
                                                         days=app_settings.DEFAULT_ANALYSIS_PERIOD)

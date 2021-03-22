@@ -24,9 +24,20 @@ If this script is provided an argument, it will search for an <i>.env</i> file w
 
 will attempt to export the <i>/env/container.env</i> variables into your session. If it does not find this file, it will copy the <i>/env/.sample.env</i> into a new file with that name and ask you configure it before executing the script again. If no argument is provided, it will search for <i>/env/.env</i> and perform the same checks.
 
-## CLI Application
+## Package
 
-- Note : the first time the CLI application is invoked, it loads a huge amount of data into the <i>/static/</i> directory. This may take a few moments to complete. Subsequent invocations of the CLI application will not take anywhere near as long (unless the <b>INIT</b> environment variable is set to <i>True</i>; see [Environment section below](#CLI-Configuration). )
+The application module can also be installed through <b>pip</b> by installing its <i>Pypi</i> package,
+
+`pip install pynance`
+
+Before using the package, make sure to register for API keys at [AlphaVantage](https://www.alphavantage.co), [IEX](https://iexcloud.io/) and [Quandl](https://www.quandl.com/). Store your keys in environment keys named <b>ALPHA_VANTAGE_KEY</b>, <b>QUANDL_KEY</b> and <b>IEX_KEY</b> respectively. 
+
+
+# CLI Application
+
+## Building From Source Code 
+
+- Note : the first time the CLI application is invoked, it loads a huge amount of data into the <i>/static/</i> directory. This may take a few moments to complete. Subsequent invocations of the CLI application will not take anywhere near as long.
 
 First, from the project root directory, (activate your virtual environment, if using one, and) install all of the requirements,
 
@@ -90,9 +101,37 @@ or
 
 for more examples of additional arguments that can be provided to functions.
 
-## WSGI Application
 
-### Local Setup
+
+
+
+
+
+
+
+# PyPi Module
+
+## Setup
+
+TODO: Explain how to install package from PyPi.
+
+TODO: Explain how to set API Key environment variables before using pynance.
+
+### Using Pynance Objects In Your Own Program
+
+TODO: Explain how to use Portfolio objects, Cashflow objects, statistics.py module, markets.py module, services.py module, optimizer.py module, calculator.py module and files.py module. 
+
+
+
+
+
+
+
+
+
+# WSGI Application
+
+## Local Setup
 
 The application's functions can also be exposed through an API (a work in progress). To launch the API on your <i>localhost</i>, first configure the <b>APP_PORT</b> in the <i>/env/local.env</i> file. Then, from the <i>/server/pynance_api</i> directory execute,
 
@@ -104,7 +143,7 @@ Alternatively, you can run the <i>/scripts/server/launch-server.sh</i> script wi
 
 This will launch the Django app and expose it on your <i>localhost</i>.
 
-### Container Setup
+## Container Setup
 
 First create a new environment file,
 
@@ -154,7 +193,7 @@ NOTE: if the <b>APP_ENV</b> in the environment file is set to <i>container</i>, 
 
 to orchestrate the application with a <b>postgres</b> container. Verify the environment variable <b>POSTGRES_HOST</b> is set to the name of the database service defined in the <i>docker-compose.yml</i>, i.e. <b>POSTGRES_HOST</b> = <i>datasource</i>, if you are running the application as a container through <i>docker-compose</i>.
 
-## API
+### API
 
 Some endpoints have unique query parameters, but all endpoints accept the following list of query parameters. See below for more information. 
 
@@ -270,11 +309,16 @@ Some endpoints have unique query parameters, but all endpoints accept the follow
     <b>Note</b><br>
     If the <i>jpeg</i> parameter is specified for this endpoint, the resulting graph will only contain the plot of the first ticker's dividend history and its accompanying linear regression model; only one equity's dividend graphic can be computed and returned at once. The DDM model price will be output onto the graph's legend. 
 
-## Environment Variables
+
+
+
+
+
+# Environment Variables
 
 See the comments in the <i>/env/.sample.env</i> for more information on each variable. Most of the defaults shouldn't need changed except for <b>ALPHA_VANTAGE_KEY</b>, <b>IEX_KEY</b> and <b>QUANDL_KEY</b>.
 
-### Service Configuration
+## Service Configuration
 
 1. <b>PRICE_MANAGER</b>: defines the service manager in charge of retrieving asset price historical data.
 2. <b>STAT_MANAGER</b>: defines the service manager in charge of retrieving economic statistics historical data.
@@ -288,7 +332,7 @@ See the comments in the <i>/env/.sample.env</i> for more information on each var
 10. <b>IEX_URL</b>: URL used to query <b>IEX</b> for dividend histories.
 11. <b>IEX_KEY</b>: API key required to authenticate <b>IEX</b> queries. 
 
-### Algorithm Configuration
+## Algorithm Configuration
 
 12. <b>ITO_STEPS</b>: The number of segments into which the integration domain is divided during the calculation of Ito Integrals.
 13. <b>FRONTIER_STEPS</b>: Number of data points calculated in a portfolio's efficient frontier. Each data point consists of a (return, volatility)-tuple for a specific allocation of assets. 
@@ -298,17 +342,17 @@ See the comments in the <i>/env/.sample.env</i> for more information on each var
 17. <b>RISK_FREE</b>: values = ("3-Month", "5-Year", "10-Year", "30-Year"). The US Treasury yield used as a proxy for the risk free rate when valuing securities and equities.
 18. <b>MARKET_PROXY</b>: Recommend values: ("SPY", "DIA", "QQQ"). Defines the equity ticker symbol used by the application as a proxy for market return. While the recommended values are preferred, there is nothing preventing more obscure ticker symbols from being used the MARKET. GME, for instance. ;)
 
-### CLI Configuration
+## CLI Configuration
 
 19. <b>LOG_LEVEL</b>: values = ("info", "debug", "verbose"). Verbose is <i>extremely</i> verbose. The result of every single calculation within the application will be outputted. 
 20. <b>FILE_EXT</b>: values = ("json"). Determines in what format cached price, statistic and dividend histories are saved. Currently only supports JSON. In the future, will support XML and CSV.
 
-### GUI Configuration
+## GUI Configuration
 
 21. <b>GUI_WIDTH</b>: Defines the width in pixels of the application's root <b>PyQt</b> widget. Defaults to 800 if not provided.
 22. <b>GUI_HEIGHT</b>: Defines the height in pixels of the application's root <b>PyQt</b> widget. Defaults to 800 if not provided.
 
-### Application Server Configuration
+## Application Server Configuration
 
 23. <b>SECRET_KEY</b>: The secret used by Django to sign requests.
 24. <b>APP_ENV</b>: Informs the application which environment is it running in, i.e. either <i>local</i> or <i>container</i>
@@ -318,7 +362,7 @@ See the comments in the <i>/env/.sample.env</i> for more information on each var
 28. <b>DJANGO_SUPERUSER_USERNAME</b>:
 29. <b>DJANGO_SUPERUSER_PASSWORD</b>:
 
-### Database Configuration
+## Database Configuration
 
 - Note: If `APP_ENV == local`, then the server will default to a SQLite database and the following environment variables will 
 not affect the application. 
@@ -335,6 +379,14 @@ not affect the application.
 23. <b>APP_TAG_NAME</b>: Tag applied to the application image created during the Docker build.
 24. <b>APP_CONTAINER_NAME</b>: Container name applied to the running application image when it is spun up.
 25. <b>SCRAPPER_ENABLED</b>: If set to True, the container will scrap price histories from the external services for storage in the <b>postgres</b> instance orchestrated with the application. 
+
+
+
+
+
+
+
+
 
 # TODOS
 
@@ -399,4 +451,4 @@ not affect the application.
 
 1. All date strings should be converted to <b>datetime.dates</b> at point of contact with user, i.e. in the main.py file where CLI arguments are parsed, within the gui where user arguments are pulled from widgets or in the server's endpoint views where user arguments are provided through query parameters, before passing it the service/statistics/portfolio functions. All functions in the <i>/app/</i> module assume dates are passed in as <b>datetime.dates</b>.
 
-2. The first time the CLI application is invoked, it loads a huge amount of data in the <i>/static/</i> directory. This may take a few moments to complete. Subsequent invocations of the CLI application will not take anywhere near as long (unless the <b>INIT</b> environment variable is set to <i>True</i>; see [Environment section below](#CLI-Configuration). )
+2. The first time the CLI application is invoked, it loads a huge amount of data in the <i>/static/</i> directory. This may take a few moments to complete. Subsequent invocations of the CLI application will not take anywhere near as long.

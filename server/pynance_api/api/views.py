@@ -56,6 +56,7 @@ def risk_return(request):
     return JsonResponse(data=response, status=status, safe=False)
 
 def optimize(request):
+    output.info('here')
     status, parsed_args_or_err_msg = parser.validate_request(request, ["GET"])
     
     if status in [400, 405]:
