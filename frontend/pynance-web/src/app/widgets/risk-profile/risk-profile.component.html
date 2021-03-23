@@ -1,0 +1,43 @@
+<mat-card id="risk-profile-card" class="background">
+    <mat-card-title id="risk-profile-card-title" class="component-title">
+        Risk Return Profile</mat-card-title>
+
+    <mat-card-content id="risk-profile-card-body">
+        <app-args id="optimizer-card-arguments" class="app-card" 
+                [tickers]="true" [dates]="true" [target]="false" 
+                [investment]="false" [method]="false"
+                (addTickers)="this.setTickers($event);"
+                (addDates)="this.setDates($event)"></app-args><br>
+    </mat-card-content>
+
+    <mat-card-actions id="risk-profile-card-actions" class="align-right">
+        <button mat-raised-button color="primary" id="risk-profile-calculate-button"
+                [disabled]="calculateDisabled" (click)="calculate()"> Calculate</button>
+        <button mat-raised-button color="warn" id="risk-profile-clear-button"
+                [disabled]="clearDisabled" (click)="clear()">Clear</button>
+    </mat-card-actions>
+</mat-card>
+
+
+<div *ngIf="!explanationDisabled" id="risk-profile-explanation-panels">
+    <div class="box">
+        <h1>Risk vs Return Primer</h1>
+
+        <h2>Risk Return Calculation</h2>
+            <p>
+                TODO: explanation goes here
+            </p>
+        <h2>Capital Markets Line</h2>
+            <p>
+                TODO: explanation goes here
+            </p>
+        <h2>Market Premium</h2>
+            <p>
+                TODO: explanation goes here
+            </p>
+        <h2>Sharpe Ratio</h2>
+            <p>
+                TODO: explanation goes here
+            </p>
+    </div>
+</div>

@@ -11,9 +11,9 @@ export function containsObject(obj, list) {
 
 // YYYY-MM-DD
 export function dateToString(date: Date) : string{
-    let year = date.getUTCFullYear();
-    let month = date.getUTCMonth();
-    let day = date.getDay();
+    let year = date.getFullYear();
+    let month = date.getMonth() + 1;
+    let day = date.getDate();
 
     let month_string : string;
     if(month<10){ month_string = "0".concat(`${month}`); }

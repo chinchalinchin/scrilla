@@ -128,7 +128,7 @@ export class ArgumentsComponent implements OnInit {
   }
   
   public saveDates(){
-    let emittedDates: string[]
+    let emittedDates: string[] = [];
     if(this.savedStartDate){ emittedDates.push(dateToString(this.savedStartDate)); }
     if(this.savedEndDate) { emittedDates.push(dateToString(this.savedEndDate)); }
     if(emittedDates.length>0){ 

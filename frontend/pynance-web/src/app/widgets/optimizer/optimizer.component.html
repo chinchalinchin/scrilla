@@ -19,18 +19,23 @@
                 
     </mat-card-content>
 
-    <mat-progress-bar *ngIf="loading" mode="buffer"></mat-progress-bar>
+    <mat-progress-bar id="buffer-bar" *ngIf="loading" mode="buffer"></mat-progress-bar>
 
-    <!-- TODO: buffer progress bar displays while waiting for backend query -->
     <mat-card-actions id="optimizer-card-actions" class="align-right">
         <button mat-raised-button color="primary" 
                 [disabled]="optimizeDisabled" (click)="optimize()"> Optimize</button>
         <button mat-raised-button color="warn"
                 [disabled]="clearDisabled" (click)="clear()">Clear</button>
     </mat-card-actions>
+
+    <!-- Conditionally display download link for json file-->
+    <!--<a *ngIf="downloadable" [href]="JSONLink">Export As JSON</a>-->
+    <!--<a *ngIf="downloadable" [href]="CSVLink> Export as CSV</a>"-->
+    <!--TODO:  create CSV endpoint in server -->
+
 </mat-card>
 
-<div *ngIf="!explanationDisabled" id="explanation-panel">
+<div *ngIf="!explanationDisabled" id="optimizer-explanation-panel">
     <div class="box">
     <h1>Portfolio Optimization Primer</h1>
 

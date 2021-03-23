@@ -11,6 +11,7 @@ import { AppComponent } from './app.component';
 import { AnalysisComponent } from './tabs/analysis/analysis.component';
 import { ArgumentsComponent } from './input/args/arguments.component';
 import { PortfolioComponent } from './input/portfolio/portfolio.component';
+import { RiskProfileComponent } from './widgets/risk-profile/risk-profile.component'
 import { OptimizerComponent } from './widgets/optimizer/optimizer.component';
 import { EfficientFrontierComponent } from './widgets/efficient-frontier/efficient-frontier.component';
 
@@ -48,7 +49,8 @@ import { ValuationComponent } from './widgets/valuation/valuation.component';
     PortfolioComponent,
     AnalysisComponent,
     EfficientFrontierComponent,
-    ValuationComponent
+    ValuationComponent,
+    RiskProfileComponent
   ],
   imports: [
     BrowserModule,
