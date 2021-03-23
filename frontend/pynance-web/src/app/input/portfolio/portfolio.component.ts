@@ -186,6 +186,16 @@ export class PortfolioComponent implements OnInit {
     }
     return tickers;
   }
+  
+  public removeHolding(holding : Holding){
+    let index = this.portfolio.indexOf(holding);
+    this.portfolio.splice(index, 1);
+    if(this.portfolio.length==0){
+      this.clearDisabled=true;
+      this.displayedColumns = [];
+    }
+    this.portfolioTable.renderRows()
+  }
 
   public setTickers(inputTickers: string[]) : void{
     this.logs.log(`received tickers: ${inputTickers}`, this.location)

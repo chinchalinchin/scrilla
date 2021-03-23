@@ -1,7 +1,16 @@
 <mat-card class="mat-elevation-z2">
-    <mat-card-title>Portfolio</mat-card-title>
+    <mat-card-title>
+        Portfolio
+        <mat-chip-list #chipList *ngIf="this.portfolio" color="primary">
+            <mat-chip *ngFor="let holding of portfolio" [selectable]="true"
+                        [removable]="true" (removed)="this.removeHolding(holding)"> {{holding.ticker}} 
+                <mat-icon matChipRemove>cancel</mat-icon>
+            </mat-chip>
+        </mat-chip-list>
+    </mat-card-title>
     
     <mat-card-content>
+        <div style="width: 300px">
         <mat-chip-list *ngIf="this.overallReturn&&this.overallVolatility" class="mat-chip-list-stacked align-center">
             <mat-chip color="accent">
                 Portfolio Annual Return  {{this.overallReturn | number : '1.3-5' | percent : '1.3-5' }}
@@ -10,6 +19,7 @@
                 Portfolio Annual Volatility {{this.overallVolatility | number : '1.3-5' | percent : '1.3-5' }}
             </mat-chip>
         </mat-chip-list>
+    </div>
         <table #portfolioTable mat-table [dataSource]="portfolio"  class="fill-width">
 
             <ng-container matColumnDef="ticker">
