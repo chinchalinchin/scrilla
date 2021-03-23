@@ -35,14 +35,23 @@ def risk_return(request):
     response, profiles = {}, []
 
     for i in range(len(tickers)):
+        profile = {}
         ticker_str = f'{tickers[i]}'
         output.debug(f'Calculating risk-return profile for {tickers[i]}')
 
         analyzer.market_queryset_gap_analysis(symbol=tickers[i],start_date=parsed_args['start_date'],
                                                 end_date=parsed_args['end_date'])
         prices = parser.parse_args_into_market_queryset(ticker=tickers[i], parsed_args=parsed_args)
-        profile = statistics.calculate_risk_return(ticker=tickers[i], sample_prices=prices)
-        response[ticker_str] = profile
+        result = statistics.calculate_risk_return(ticker=tickers[i], sample_prices=prices)
+        
+        profile['ticker'] = ticker_str
+        profile['annual_return'] = result['annual_return']
+        profile['annual_volatility'] =  result['annual_volatility']
+        profile['sharpe_ratio'] = markets.sharpe_ratio(ticker=tickers[i], start_date=parsed_args['start_date'],
+                                                        end_date=parsed_args['end_date'])
+        profile['asset_beta'] = markets.market_beta(ticker=tickers[i], start_date=parsed_args['start_date'],
+                                                        end_date=parsed_args['end_date'])
+        response[i] = profile
 
         if parsed_args['jpeg']:
             profiles.append(profile)

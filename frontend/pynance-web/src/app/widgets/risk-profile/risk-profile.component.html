@@ -8,17 +8,55 @@
                 [investment]="false" [method]="false"
                 (addTickers)="this.setTickers($event);"
                 (addDates)="this.setDates($event)"></app-args><br>
+        
+        <!-- TODO: chip list uses portfolio, so when portfolio is overwritten 
+                    by observable subscription, chips disappear-->
+        <mat-card>
+            <mat-chip-list #profileChipList color="primary">
+                <mat-chip *ngFor="let holding of portfolio" [selectable]="true"
+                            [removable]="true" (removed)="removeHolding(holding)"> {{holding.ticker}} 
+                    <mat-icon matChipRemove>cancel</mat-icon>
+                </mat-chip>
+            </mat-chip-list>
+        </mat-card>
+        
 
         <mat-grid-list *ngIf="loaded" cols="2" rowHeight="200px">
-            <mat-grid-tile colspan="1" rowspan=2>
+
+            <mat-grid-tile id="risk-profile-image" colspan="1" rowspan=2>
                 <img *ngIf="loaded" mat-card-image [src]="img" id="risk-profile-image" 
                     alt="Risk Return Profile" width="100" height="400">
             </mat-grid-tile>
-            <mat-grid-tile colspan="1" rowspan="1"> table goes here</mat-grid-tile>
-            <mat-grid-tile colspan="1" rowspan="1"> other tables goes here</mat-grid-tile>
+
+            <mat-grid-tile id="risk-profile-table" colspan="1" rowspan="2">
+                <table #statisticsTable mat-table [dataSource]="portfolio" class="fill-width">
+                    <ng-container matColumnDef="ticker">
+                        <th mat-header-cell *matHeaderCellDef> Symbol </th>
+                        <td mat-cell *matCellDef="let holding"> {{holding.ticker}} </td>
+                    </ng-container>
+                    <ng-container matColumnDef="return">
+                        <th mat-header-cell *matHeaderCellDef> Return </th>
+                        <td mat-cell *matCellDef="let holding"> {{holding.annual_return}} </td>
+                    </ng-container>
+                    <ng-container matColumnDef="volatility">
+                        <th mat-header-cell *matHeaderCellDef> volatility </th>
+                        <td mat-cell *matCellDef="let holding"> {{holding.annual_volatility}} </td>
+                    </ng-container>
+                    <ng-container matColumnDef="sharpe">
+                        <th mat-header-cell *matHeaderCellDef> Return </th>
+                        <td mat-cell *matCellDef="let holding"> {{holding.sharpe_ratio}} </td>
+                    </ng-container>
+                    <ng-container matColumnDef="beta">
+                        <th mat-header-cell *matHeaderCellDef> Return </th>
+                        <td mat-cell *matCellDef="let holding"> {{holding.asset_beta}} </td>
+                    </ng-container>
+
+                    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr> 
+                </table>
+            </mat-grid-tile>
         </mat-grid-list>
 
- 
     </mat-card-content>
 
     <mat-progress-bar id="buffer-bar" *ngIf="loading" mode="buffer"></mat-progress-bar>

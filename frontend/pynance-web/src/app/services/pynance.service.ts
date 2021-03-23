@@ -69,13 +69,13 @@ export class PynanceService {
   }
 
   public riskProfile(tickers : string[], endDate : string = null, 
-                      startDate : string = null) : Observable<Holding[]> {
+                      startDate : string = null) : Observable<Portfolio> {
     let queryUrl = this.getRiskProfileUrl(tickers, endDate, startDate);
     this.logs.log(`Querying backend at ${queryUrl}`, this.location)
-    return this.http.get<Holding[]>(queryUrl)
+    return this.http.get<Portfolio>(queryUrl)
                 .pipe(
                   tap( _ => {this.logs.log(`Received response from backend risk profile endpoint`, this.location)}),
-                  catchError(this.handleError<Holding[]>('riskProfile', null))
+                  catchError(this.handleError<Portfolio>('riskProfile', null))
                 );
   }
 

@@ -1,10 +1,12 @@
 import { THIS_EXPR } from '@angular/compiler/src/output/output_ast';
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 import { Holding } from 'src/app/models/holding';
 import { LogService } from 'src/app/services/log.service';
 import { PynanceService } from 'src/app/services/pynance.service';
 import { containsObject } from 'src/utilities';
 import { DomSanitizer } from '@angular/platform-browser';
+import { MatTable } from '@angular/material/table';
+import { Portfolio } from 'src/app/models/portfolio';
 
 
 @Component({
@@ -14,6 +16,7 @@ import { DomSanitizer } from '@angular/platform-browser';
 export class RiskProfileComponent implements OnInit {
   private location : string = "app.widgets.risk-profile.RiskProfileComponent"
   public portfolio : Holding[] = [];
+  public displayedColumns: string[] = [];
   public calculateDisabled :boolean = true;
   public clearDisabled : boolean = true;
   public loaded : boolean = false;
@@ -24,6 +27,9 @@ export class RiskProfileComponent implements OnInit {
 
   @Input() 
   public explanationDisabled;
+  
+  @ViewChild('statisticsTable')
+  private statisticsTable : MatTable<Holding[]>;
   
   constructor(private pynance : PynanceService,
               private sanitizer : DomSanitizer,
@@ -36,13 +42,29 @@ export class RiskProfileComponent implements OnInit {
     this.calculateDisabled = true;
     this.clearDisabled = false;
     this.loading = true;
+    let imgLoaded = false;
+    let jsonLoaded = false;
     this.pynance.riskProfileJPEG(this.getTickers(), this.getEndDate(), this.getStartDate())
                   .subscribe( (imgData) =>{
                     let imgUrl = URL.createObjectURL(imgData)
                     this.img = this.sanitizer.bypassSecurityTrustUrl(imgUrl);
-                    this.loaded = true;
-                    this.loading = false;
-                  })
+                    imgLoaded = true;
+                    if(jsonLoaded){
+                      this.loading = false;
+                      this.loaded = true;
+                      this.displayedColumns=[ 'ticker', 'return', 'volatility', 'sharpe', 'beta']
+                    };
+                  });
+    this.pynance.riskProfile(this.getTickers(), this.getEndDate(), this.getStartDate())
+                  .subscribe( (profileData : Portfolio) => {
+                    this.portfolio = profileData.holdings
+                    jsonLoaded = true;
+                    if(imgLoaded){
+                      this.loading = false;
+                      this.loaded = true;
+                      this.displayedColumns=['ticker','return','volatility','sharpe','beta']
+                    };
+                  });
 
   }
 
@@ -51,7 +73,22 @@ export class RiskProfileComponent implements OnInit {
     this.clearDisabled = true;
     this.loaded = false;
     this.loading = false;
+    this.portfolio = [];
+    this.displayedColumns = [];
+    this.statisticsTable.renderRows()
     this.img = null;
+  }
+
+  public removeHolding(holding : Holding) : void{
+    let index = this.portfolio.indexOf(holding);
+    this.portfolio.splice(index, 1);
+
+    if(this.portfolio.length==0){
+      this.clearDisabled=true;
+      this.displayedColumns = [];
+    }
+    
+    this.statisticsTable.renderRows()
   }
 
   public getTickers() : string[]{
@@ -73,7 +110,9 @@ export class RiskProfileComponent implements OnInit {
     }
 
     for(let ticker of unduplicatedTickers){
-      this.portfolio.push({ ticker: ticker, allocation: null, shares: null, annual_return: null, annual_volatility: null})
+      this.portfolio.push({ ticker: ticker, allocation: null, shares: null, 
+                            annual_return: null, annual_volatility: null,
+                            sharpe_ratio: null, asset_beta: null})
     }
 
     this.calculateDisabled = false;

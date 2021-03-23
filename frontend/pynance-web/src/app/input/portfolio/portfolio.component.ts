@@ -187,9 +187,22 @@ export class PortfolioComponent implements OnInit {
     return tickers;
   }
   
-  public removeHolding(holding : Holding){
+  public removeHolding(holding : Holding) : void{
     let index = this.portfolio.indexOf(holding);
     this.portfolio.splice(index, 1);
+
+    this.setPortfolioAllocations([]);
+    if(this.displayedColumns.includes('allocation')){
+      index = this.displayedColumns.indexOf('allocation')
+      this.displayedColumns.splice(index,1);
+    }
+
+    this.setPortfolioShares([]);
+    if(this.displayedColumns.includes('shares')){
+      index = this.displayedColumns.indexOf('shares');
+      this.displayedColumns.splice(index, 1)
+    }
+
     if(this.portfolio.length==0){
       this.clearDisabled=true;
       this.displayedColumns = [];
@@ -208,7 +221,9 @@ export class PortfolioComponent implements OnInit {
     }
 
     for(let ticker of unduplicatedTickers){
-      this.portfolio.push({ ticker: ticker, allocation: null, shares: null, annual_return: null, annual_volatility: null})
+      this.portfolio.push({ ticker: ticker, allocation: null, shares: null, 
+                            annual_return: null, annual_volatility: null,
+                            sharpe_ratio: null, asset_beta: null})
     }
   
     if(this.portfolio.length != 0){
