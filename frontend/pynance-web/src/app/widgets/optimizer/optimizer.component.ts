@@ -16,7 +16,7 @@ export class OptimizerComponent implements OnInit {
 
   public optimizeDisabled : boolean = false;
   public clearDisabled : boolean = true;
-  public optimizeVariance : boolean = true;
+  public optimizeSharpe : boolean = false;
   public optimizedPortfolio : Portfolio = null;
   public loading : boolean = false;
 
@@ -52,7 +52,7 @@ export class OptimizerComponent implements OnInit {
       let target = this.portfolioComponent.getTargetReturn();
       let invest = this.portfolioComponent.getInvestment();
       this.loading = true;
-      this.pynance.optimize(tickers, end, start,target,invest,this.optimizeVariance)
+      this.pynance.optimize(tickers, end, start, target, invest, this.optimizeSharpe)
                     .subscribe((resPortfolio: Portfolio)=>{ 
                       this.optimizedPortfolio = resPortfolio; 
                       this.portfolioComponent.setOverallReturn(this.optimizedPortfolio.portfolio_return);
@@ -78,18 +78,18 @@ export class OptimizerComponent implements OnInit {
 
   public setOptimizeMethod(method : string){
     // if method is sharpe ratio maximization, switch off optimization method
-    let currentMethod : boolean = this.optimizeVariance;
+    let currentMethod : boolean = this.optimizeSharpe;
     if(method == OPTIMIZATION_METHODS[1].value){
       this.logs.log(`Switching to Sharpe Ratio maximization`, this.location);
-      this.optimizeVariance = false;
+      this.optimizeSharpe = true;
     }
     // otherwise default to optimizing variance
     else{
       this.logs.log(`Switching to Portfolio Variance minimization`, this.location)
-      this.optimizeVariance = true;
+      this.optimizeSharpe = false;
     }
     // if already calculated and method is changed
-    if (this.calculated && currentMethod != this.optimizeVariance){
+    if (this.calculated && currentMethod != this.optimizeSharpe){
       this.optimizeDisabled = false;
       // TODO: possibly clear portfolio allocations? 
     }

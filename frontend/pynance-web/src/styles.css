@@ -25,7 +25,8 @@ mat-radio-button{ padding-right:10px;padding-left:10px;}
 .fill-height { height: 100%; }
 .squeeze-height { height: 75%; }
 .squeeze-width { width: 75%; }
-
+.image-card {max-width: 400px; max-height: 400px; }
+  
 .indent { text-indent: 50px; }
 .align-left{ text-align: left !important; }
 .align-right{ text-align: right !important; }

@@ -1,8 +1,11 @@
+import { THIS_EXPR } from '@angular/compiler/src/output/output_ast';
 import { Component, Input, OnInit } from '@angular/core';
 import { Holding } from 'src/app/models/holding';
 import { LogService } from 'src/app/services/log.service';
 import { PynanceService } from 'src/app/services/pynance.service';
 import { containsObject } from 'src/utilities';
+import { DomSanitizer } from '@angular/platform-browser';
+
 
 @Component({
   selector: 'app-risk-profile',
@@ -11,29 +14,44 @@ import { containsObject } from 'src/utilities';
 export class RiskProfileComponent implements OnInit {
   private location : string = "app.widgets.risk-profile.RiskProfileComponent"
   public portfolio : Holding[] = [];
-  public calculateDisabled = true;
-  public clearDisabled = true;
+  public calculateDisabled :boolean = true;
+  public clearDisabled : boolean = true;
+  public loaded : boolean = false;
+  public loading : boolean = false;
   public startDate : string = null;
   public endDate : string = null;
+  public img: any = null
 
   @Input() 
   public explanationDisabled;
   
   constructor(private pynance : PynanceService,
+              private sanitizer : DomSanitizer,
               private logs : LogService) { }
 
   ngOnInit(): void {
   }
   
   public calculate() : void{
-
     this.calculateDisabled = true;
+    this.clearDisabled = false;
+    this.loading = true;
+    this.pynance.riskProfileJPEG(this.getTickers(), this.getEndDate(), this.getStartDate())
+                  .subscribe( (imgData) =>{
+                    let imgUrl = URL.createObjectURL(imgData)
+                    this.img = this.sanitizer.bypassSecurityTrustUrl(imgUrl);
+                    this.loaded = true;
+                    this.loading = false;
+                  })
+
   }
 
   public clear() : void {
-
     this.calculateDisabled = true;
     this.clearDisabled = true;
+    this.loaded = false;
+    this.loading = false;
+    this.img = null;
   }
 
   public getTickers() : string[]{

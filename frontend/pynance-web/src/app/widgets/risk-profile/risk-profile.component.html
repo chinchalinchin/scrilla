@@ -8,7 +8,20 @@
                 [investment]="false" [method]="false"
                 (addTickers)="this.setTickers($event);"
                 (addDates)="this.setDates($event)"></app-args><br>
+
+        <mat-grid-list *ngIf="loaded" cols="2" rowHeight="200px">
+            <mat-grid-tile colspan="1" rowspan=2>
+                <img *ngIf="loaded" mat-card-image [src]="img" id="risk-profile-image" 
+                    alt="Risk Return Profile" width="100" height="400">
+            </mat-grid-tile>
+            <mat-grid-tile colspan="1" rowspan="1"> table goes here</mat-grid-tile>
+            <mat-grid-tile colspan="1" rowspan="1"> other tables goes here</mat-grid-tile>
+        </mat-grid-list>
+
+ 
     </mat-card-content>
+
+    <mat-progress-bar id="buffer-bar" *ngIf="loading" mode="buffer"></mat-progress-bar>
 
     <mat-card-actions id="risk-profile-card-actions" class="align-right">
         <button mat-raised-button color="primary" id="risk-profile-calculate-button"
@@ -17,7 +30,6 @@
                 [disabled]="clearDisabled" (click)="clear()">Clear</button>
     </mat-card-actions>
 </mat-card>
-
 
 <div *ngIf="!explanationDisabled" id="risk-profile-explanation-panels">
     <div class="box">

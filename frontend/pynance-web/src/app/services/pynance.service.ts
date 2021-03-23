@@ -1,22 +1,23 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
 import { Portfolio } from '../models/portfolio';
 import { LogService } from './log.service';
 import {environment} from '../../environments/environment'
+import { Holding } from '../models/holding';
 
 const ENDPOINTS ={
-  optimize:{
-    endpoint:'api/optimize',
-    parameters:{
-      tickers: 'tickers',
-      startDate: 'start',
-      endDate: 'end',
-      targetReturn: 'target',
-      investment: 'invest',
-      sharpeRatio: 'sharpe'
-    }
+  optimize:'api/optimize',
+  riskprofile:'api/risk-return',
+  parameters:{
+    tickers: 'tickers',
+    startDate: 'start',
+    endDate: 'end',
+    targetReturn: 'target',
+    investment: 'invest',
+    sharpeRatio: 'sharpe',
+    jpeg : 'jpeg'
   }
 }
 
@@ -35,38 +36,77 @@ export class PynanceService {
     let first: boolean = true;
     for(let ticker of tickers){
       if (first){
-        query = query + `${ENDPOINTS.optimize.parameters.tickers}=${ticker}`;
+        query = query.concat(`${ENDPOINTS.parameters.tickers}=${ticker}`);
         first = false;
       }
       else{
-        query = query + `&${ENDPOINTS.optimize.parameters.tickers}=${ticker}`;
+        query = query.concat(`&${ENDPOINTS.parameters.tickers}=${ticker}`);
       }
     }
     return query;
   }
 
+  public formatSecondaryArguments(endDate : string = null, startDate: string = null,
+                                  targetReturn : number = null, investment : number = null,
+                                  method: boolean = false, jpeg : boolean = false): string {
+    let query : string = ""
+    if (endDate){ query = query.concat(`&${ENDPOINTS.parameters.endDate}=${endDate}`); }
+    if(startDate){ query = query.concat(`&${ENDPOINTS.parameters.startDate}=${startDate}`); }
+    if(targetReturn){ query = query.concat(`&${ENDPOINTS.parameters.targetReturn}=${targetReturn}`); }
+    if(investment){ query = query.concat(`&${ENDPOINTS.parameters.investment}=${investment}`); }
+    if(method){ query = query.concat(`&${ENDPOINTS.parameters.sharpeRatio}=true`)}
+    if(jpeg){ query = query.concat(`&${ENDPOINTS.parameters.jpeg}=true`); }
+    return query;
+  }
+
+  public getRiskProfileUrl(tickers : string [], endDate : string = null, startDate  : string = null,
+                            jpeg : boolean = false) : string{
+    let baseUrl : string = `${environment.backendUrl}/${ENDPOINTS.riskprofile}`;
+    let query : string = this.formatQueryTickers(tickers);
+    let queryArgs : string = this.formatSecondaryArguments(endDate, startDate, null, null, false, jpeg);
+    let queryUrl : string = baseUrl.concat("?", query, queryArgs);
+    return queryUrl;
+  }
+
+  public riskProfile(tickers : string[], endDate : string = null, 
+                      startDate : string = null) : Observable<Holding[]> {
+    let queryUrl = this.getRiskProfileUrl(tickers, endDate, startDate);
+    this.logs.log(`Querying backend at ${queryUrl}`, this.location)
+    return this.http.get<Holding[]>(queryUrl)
+                .pipe(
+                  tap( _ => {this.logs.log(`Received response from backend risk profile endpoint`, this.location)}),
+                  catchError(this.handleError<Holding[]>('riskProfile', null))
+                );
+  }
+
+  public riskProfileJPEG(tickers: string[], endDate : string = null, 
+                          startDate : string = null) : Observable<Blob>{
+      let queryUrl = this.getRiskProfileUrl(tickers, endDate, startDate, true);
+      this.logs.log(`Querying backend at ${queryUrl}`, this.location);
+      return this.http.get(queryUrl, 
+                          { headers: new HttpHeaders({'Content-Type': 'img/png'}), observe: 'body', responseType: 'blob'})
+                  .pipe(
+                    tap( _ => {this.logs.log(`Received response from backend risk profile endpoint`, this.location)}),
+                    catchError(this.handleError<Blob>('riskProfile', null))
+                  );
+  }
+
   public optimize(tickers: string[], endDate : string = null, startDate : string = null, 
                   targetReturn : number = null, investment : number = null,
-                  method: boolean): Observable<Portfolio>{
-    let baseUrl: string = `${environment.backendUrl}/${ENDPOINTS.optimize.endpoint}`;
-    let query: string = this.formatQueryTickers(tickers)
+                  method: boolean = true): Observable<Portfolio>{
+    let baseUrl : string = `${environment.backendUrl}/${ENDPOINTS.optimize}`;
+    let query : string = this.formatQueryTickers(tickers); 
+    let queryArgs : string = this.formatSecondaryArguments(endDate, startDate, targetReturn, investment, method);
+    let queryUrl : string = baseUrl.concat("?", query, queryArgs);
 
-    if (endDate){ query = query + `&${ENDPOINTS.optimize.parameters.endDate}=${endDate}`; }
-    if(startDate){ query = query + `&${ENDPOINTS.optimize.parameters.startDate}=${startDate}`; }
-    if(targetReturn){ query = query + `&${ENDPOINTS.optimize.parameters.targetReturn}=${targetReturn}`; }
-    if(investment){ query = query + `&${ENDPOINTS.optimize.parameters.investment}=${investment}`}
-    if(!method){ query = query + `&${ENDPOINTS.optimize.parameters.sharpeRatio}=true`}
-
-    let queryUrl = baseUrl + "?" + query
-
-    this.logs.log(`Querying backend at ${queryUrl}`, this.location)
+    this.logs.log(`Querying backend at ${queryUrl}`, this.location);
 
     // may have to manually map response
     return this.http.get<Portfolio>(queryUrl)
-      .pipe( 
-        tap( response => {this.logs.log(`Received response from backend`, this.location); } ),
-        catchError(this.handleError<Portfolio>('optimize', null))
-    );
+              .pipe( 
+                tap( _ => {this.logs.log(`Received response from backend optimize endpoint`, this.location); } ),
+                catchError(this.handleError<Portfolio>('optimize', null))
+            );
   }
 
 
