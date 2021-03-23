@@ -6,8 +6,7 @@ import { containsObject } from 'src/utilities';
 
 @Component({
   selector: 'app-risk-profile',
-  templateUrl: './risk-profile.component.html',
-  styleUrls: ['./risk-profile.component.css']
+  templateUrl: './risk-profile.component.html'
 })
 export class RiskProfileComponent implements OnInit {
   private location : string = "app.widgets.risk-profile.RiskProfileComponent"
