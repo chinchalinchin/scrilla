@@ -45,6 +45,8 @@ def risk_return(request):
             if profile:
                 output.debug(f'Found profile cache.')
                 response[i] = profile
+                if parsed_args['jpeg']:
+                    profiles.append(profile)
                 continue 
             else:
                 output.debug(f'No profile cache.')
