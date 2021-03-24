@@ -11,6 +11,7 @@ from decimal import Decimal
 
 logger = outputter.Logger("app.objects.portfolio", settings.LOG_LEVEL)
 
+# TODO: allow user to specify bounds for equities, i.e. min and max allocations.
 class Portfolio:
     """
     Description

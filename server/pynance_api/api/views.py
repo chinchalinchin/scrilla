@@ -37,7 +37,18 @@ def risk_return(request):
     for i in range(len(tickers)):
         profile = {}
         ticker_str = f'{tickers[i]}'
-        output.debug(f'Calculating risk-return profile for {tickers[i]}')
+        output.debug(f'Calculating risk-return profile for {tickers[i]}.')
+
+        if parsed_args['start_date'] is None and parsed_args['end_date'] is None:
+            output.debug(f'Checking for {tickers[i]} profile in the cache.')
+            profile = parser.check_cache_for_recent_result(ticker=tickers[i])
+            if profile:
+                output.debug(f'Found profile cache.')
+                response[i] = profile
+                continue 
+            else:
+                output.debug(f'No profile cache.')
+                profile = {}
 
         analyzer.market_queryset_gap_analysis(symbol=tickers[i],start_date=parsed_args['start_date'],
                                                 end_date=parsed_args['end_date'])
@@ -51,6 +62,9 @@ def risk_return(request):
                                                         end_date=parsed_args['end_date'])
         profile['asset_beta'] = markets.market_beta(ticker=tickers[i], start_date=parsed_args['start_date'],
                                                         end_date=parsed_args['end_date'])
+        
+        output.debug(f'Saving {tickers[i]} profile to cache')
+        parser.save_result_to_cache(profile=profile)
         response[i] = profile
 
         if parsed_args['jpeg']:

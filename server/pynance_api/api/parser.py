@@ -1,5 +1,6 @@
 from core import settings
-from data.models import EquityMarket, CryptoMarket, EquityTicker, CryptoTicker, Dividends, Economy, StatSymbol
+from data.models import EquityMarket, CryptoMarket, EquityTicker, CryptoTicker, EquityProfileCache,\
+                         Dividends, Economy, StatSymbol
 
 import util.helper as helper
 import util.outputter as outputter
@@ -104,6 +105,36 @@ def market_queryset_to_dict(price_set):
         price_list[price.to_date()] = price.to_dict() 
     return price_list
 
+# Save equity cache to market
+def save_result_to_cache(profile):
+    ticker = EquityTicker.objects.get_or_create(ticker=profile['ticker'])
+    result = EquityProfileCache.objects.get_or_create(ticker=ticker[0])
+    result[0].date = helper.get_today()
+    result[0].annual_return = profile['annual_return']
+    result[0].annual_volatility = profile['annual_volatility']
+    result[0].sharpe_ratio = profile['sharpe_ratio']
+    result[0].asset_beta = profile['asset_beta']
+    result[0].save()
+    
+# If no start and end date are provided, since the default time period is 100
+#   prices, stash equity profile statistics for quick retrieval instead of 
+#   calculating from scratch each time the profile is requested for the default
+#   time period. 
+def check_cache_for_recent_result(ticker):
+    ticker = EquityTicker.objects.get_or_create(ticker=ticker)
+    today = helper.get_today()
+    result = EquityProfileCache.objects.get_or_create(ticker=ticker[0], date=today)
+    if result[1]:
+        return False
+    else:
+        profile = {}
+        profile['ticker'] = ticker[0].ticker
+        profile['annual_return'] = result[0].annual_return
+        profile['annual_volatility'] = result[0].annual_volatility
+        profile['sharpe_ratio'] = result[0].sharpe_ratio
+        profile['asset_beta'] = result[0].asset_beta
+        return profile
+
 # If end_date and start_date are not provided, defaults to last 100 prices.
 # If either end_date and start_date are provided, will return ALL records
 # that match the criteria, i.e. less than or equal to end_date and greater_than
@@ -187,7 +218,6 @@ def parse_args_into_dividend_queryset(ticker, parsed_args):
     queryset = Dividends.objects.filter(ticker=ticker, date__gte=parsed_args['start_date'],
                                         date__lte=parsed_args['end_date']).order_by('-date')
     return dividend_queryset_to_dict(dividend_set=queryset)
-
 
 def validate_request(request, allowed_methods=None):
     if allowed_methods is None:

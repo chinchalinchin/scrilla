@@ -32,4 +32,4 @@ def ito_integral(mean_function, volatilty_function, time_to_expiration=None):
             pass
     else:
         logger.info('Supplied volatility function does not meet condition : ')
-        logger.info('E(Integral(volatility_function^2 dt) from 0 to infinity)')
+        logger.info('E(Integral(volatility_function^2 dt) from 0 to infinity < infinity)')

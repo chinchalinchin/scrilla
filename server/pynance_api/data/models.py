@@ -44,6 +44,14 @@ class EquityMarket(models.Model):
     def to_date(self):
         return helper.date_to_string(self.date)
 
+class EquityProfileCache(models.Model):
+    ticker = models.ForeignKey(EquityTicker,on_delete=models.CASCADE)
+    date = models.DateField('Date')
+    annual_return = models.DecimalField(max_digits=20, decimal_places=6, null=True)
+    annual_volatility = models.DecimalField(max_digits=20, decimal_places=6, null=True)
+    sharpe_ratio = models.DecimalField(max_digits=20, decimal_places=6, null=True)
+    asset_beta = models.DecimalField(max_digits=20, decimal_places=6, null=True)
+
 class Dividends(models.Model):
     ticker = models.ForeignKey(EquityTicker, on_delete=models.CASCADE)
     date = models.DateField('Payment Date')
