@@ -18,10 +18,10 @@ mat-radio-button{ padding-right:10px;padding-left:10px;}
 
 .box{ margin-left: 10px; margin-right:10px; margin-top:10px; margin-bottom:10px;}
 .text-background{background-color:rgb(116, 116, 116);}
-.app-card { max-width: 600px; }
+.app-card { max-width: 650px; background-color:rgb(53, 53, 53); }
 .app-card-nested { max-width: 450px; }
 
-.vertical-scroll { overflow-y: scroll; }
+.vertical-scroll { overflow-y: auto; }
 
 .fill-width { width: 100%; }
 .fill-height { height: 100%; }
