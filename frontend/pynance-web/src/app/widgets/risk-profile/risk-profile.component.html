@@ -11,9 +11,11 @@
         
         <!-- TODO: chip list uses portfolio, so when portfolio is overwritten 
                     by observable subscription, chips disappear-->
-        <mat-card>
+        <mat-card id="ticker-list" class="input box">
+            <mat-card-title id="ticker-list-title" ></mat-card-title>
             <mat-chip-list #profileChipList color="primary">
-                <mat-chip *ngFor="let holding of portfolio" [selectable]="true"
+                <mat-chip id="ticker-list-chip" 
+                            *ngFor="let holding of portfolio" [selectable]="true"
                             [removable]="true" (removed)="removeHolding(holding)"> {{holding.ticker}} 
                     <mat-icon matChipRemove>cancel</mat-icon>
                 </mat-chip>
@@ -23,32 +25,34 @@
 
         <mat-grid-list *ngIf="loaded" cols="2" rowHeight="200px">
 
-            <mat-grid-tile id="risk-profile-image" colspan="1" rowspan=2>
+            <mat-grid-tile id="risk-profile-image" class="output box"
+                            colspan="1" rowspan=2>
                 <img *ngIf="loaded" mat-card-image [src]="img" id="risk-profile-image" 
                     alt="Risk Return Profile" width="100" height="400">
             </mat-grid-tile>
 
-            <mat-grid-tile id="risk-profile-table" colspan="1" rowspan="2">
-                <table #statisticsTable mat-table [dataSource]="portfolio" class="fill-width">
+            <mat-grid-tile id="risk-profile-table" class="output box"
+                            colspan="1" rowspan="2">
+                <table #statisticsTable mat-table [dataSource]="portfolio" class="fill-width fill-height">
                     <ng-container matColumnDef="ticker">
                         <th mat-header-cell *matHeaderCellDef> Symbol </th>
                         <td mat-cell *matCellDef="let holding"> {{holding.ticker}} </td>
                     </ng-container>
                     <ng-container matColumnDef="return">
                         <th mat-header-cell *matHeaderCellDef> Return </th>
-                        <td mat-cell *matCellDef="let holding"> {{holding.annual_return}} </td>
+                        <td mat-cell *matCellDef="let holding"> {{holding.annual_return | number : '1.3-5' | percent : '1.3-5'}} </td>
                     </ng-container>
                     <ng-container matColumnDef="volatility">
-                        <th mat-header-cell *matHeaderCellDef> volatility </th>
-                        <td mat-cell *matCellDef="let holding"> {{holding.annual_volatility}} </td>
+                        <th mat-header-cell *matHeaderCellDef> Volatility </th>
+                        <td mat-cell *matCellDef="let holding"> {{holding.annual_volatility | number : '1.3-5' | percent : '1.3-5'}} </td>
                     </ng-container>
                     <ng-container matColumnDef="sharpe">
-                        <th mat-header-cell *matHeaderCellDef> Return </th>
-                        <td mat-cell *matCellDef="let holding"> {{holding.sharpe_ratio}} </td>
+                        <th mat-header-cell *matHeaderCellDef> Sharpe Ratio</th>
+                        <td mat-cell *matCellDef="let holding"> {{holding.sharpe_ratio | number : '1.3-5' | percent : '1.3-5'}} </td>
                     </ng-container>
                     <ng-container matColumnDef="beta">
-                        <th mat-header-cell *matHeaderCellDef> Return </th>
-                        <td mat-cell *matCellDef="let holding"> {{holding.asset_beta}} </td>
+                        <th mat-header-cell *matHeaderCellDef> Asset Beta</th>
+                        <td mat-cell *matCellDef="let holding"> {{holding.asset_beta | number : '1.3-5' | percent : '1.3-5'}} </td>
                     </ng-container>
 
                     <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
@@ -70,7 +74,7 @@
 </mat-card>
 
 <div *ngIf="!explanationDisabled" id="risk-profile-explanation-panels">
-    <div class="box">
+    <div class="box text-background">
         <h1>Risk vs Return Primer</h1>
 
         <h2>Risk Return Calculation</h2>

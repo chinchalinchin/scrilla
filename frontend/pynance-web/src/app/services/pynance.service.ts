@@ -4,7 +4,7 @@ import { Observable, of } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
 import { Portfolio } from '../models/portfolio';
 import { LogService } from './log.service';
-import {environment} from '../../environments/environment'
+import { environment } from '../../environments/environment'
 import { Holding } from '../models/holding';
 
 const ENDPOINTS ={
@@ -69,14 +69,19 @@ export class PynanceService {
   }
 
   public riskProfile(tickers : string[], endDate : string = null, 
-                      startDate : string = null) : Observable<Portfolio> {
+                      startDate : string = null) : Observable<Holding[]> {
     let queryUrl = this.getRiskProfileUrl(tickers, endDate, startDate);
     this.logs.log(`Querying backend at ${queryUrl}`, this.location)
-    return this.http.get<Portfolio>(queryUrl)
-                .pipe(
-                  tap( _ => {this.logs.log(`Received response from backend risk profile endpoint`, this.location)}),
-                  catchError(this.handleError<Portfolio>('riskProfile', null))
-                );
+    return this.http.get<Holding[]>(queryUrl)
+                      .pipe(
+                        map((data) =>{
+                          let holdings : Holding[] = []
+                          Object.entries(data).forEach((element)=>{holdings.push(element[1])})
+                          return holdings;
+                        }),
+                        tap( _ => {this.logs.log(`Received response from backend risk profile endpoint`, this.location)}),
+                        catchError(this.handleError<Holding[]>('riskProfile', null))
+                      );
   }
 
   public riskProfileJPEG(tickers: string[], endDate : string = null, 
@@ -84,11 +89,11 @@ export class PynanceService {
       let queryUrl = this.getRiskProfileUrl(tickers, endDate, startDate, true);
       this.logs.log(`Querying backend at ${queryUrl}`, this.location);
       return this.http.get(queryUrl, 
-                          { headers: new HttpHeaders({'Content-Type': 'img/png'}), observe: 'body', responseType: 'blob'})
-                  .pipe(
-                    tap( _ => {this.logs.log(`Received response from backend risk profile endpoint`, this.location)}),
-                    catchError(this.handleError<Blob>('riskProfile', null))
-                  );
+                            { headers: new HttpHeaders({'Content-Type': 'img/png'}), observe: 'body', responseType: 'blob'})
+                          .pipe(
+                              tap( _ => {this.logs.log(`Received response from backend risk profile endpoint`, this.location)}),
+                              catchError(this.handleError<Blob>('riskProfile', null))
+                        );
   }
 
   public optimize(tickers: string[], endDate : string = null, startDate : string = null, 
@@ -101,12 +106,11 @@ export class PynanceService {
 
     this.logs.log(`Querying backend at ${queryUrl}`, this.location);
 
-    // may have to manually map response
     return this.http.get<Portfolio>(queryUrl)
-              .pipe( 
-                tap( _ => {this.logs.log(`Received response from backend optimize endpoint`, this.location); } ),
-                catchError(this.handleError<Portfolio>('optimize', null))
-            );
+                        .pipe( 
+                            tap( _ => {this.logs.log(`Received response from backend optimize endpoint`, this.location); } ),
+                            catchError(this.handleError<Portfolio>('optimize', null))
+                        );
   }
 
 

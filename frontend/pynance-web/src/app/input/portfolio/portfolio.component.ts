@@ -1,7 +1,7 @@
 import { MatTable } from '@angular/material/table';
 import { Component, EventEmitter, Input, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { Holding } from 'src/app/models/holding';
-import { containsObject, arraysEqual } from 'src/utilities';
+import { containsObject, arraysEqual, uniqueArray } from 'src/utilities';
 import { LogService } from 'src/app/services/log.service';
 
 @Component({
@@ -215,8 +215,10 @@ export class PortfolioComponent implements OnInit {
 
     let unduplicatedTickers : string[] = [];
     let portfolioTickers : string[] = this.getTickers();
-    
-    for(let ticker of inputTickers){
+    let filteredInput : string [] = uniqueArray(inputTickers);
+
+    // TODO: use array filtering to do this
+    for(let ticker of filteredInput){
       if(!containsObject(ticker, portfolioTickers)){ unduplicatedTickers.push(ticker); }
     }
 

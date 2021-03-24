@@ -1,12 +1,10 @@
-import { THIS_EXPR } from '@angular/compiler/src/output/output_ast';
 import { Component, Input, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 import { Holding } from 'src/app/models/holding';
 import { LogService } from 'src/app/services/log.service';
 import { PynanceService } from 'src/app/services/pynance.service';
-import { containsObject } from 'src/utilities';
+import { containsObject, uniqueArray } from 'src/utilities';
 import { DomSanitizer } from '@angular/platform-browser';
 import { MatTable } from '@angular/material/table';
-import { Portfolio } from 'src/app/models/portfolio';
 
 
 @Component({
@@ -46,24 +44,24 @@ export class RiskProfileComponent implements OnInit {
     let jsonLoaded = false;
     this.pynance.riskProfileJPEG(this.getTickers(), this.getEndDate(), this.getStartDate())
                   .subscribe( (imgData) =>{
-                    let imgUrl = URL.createObjectURL(imgData)
-                    this.img = this.sanitizer.bypassSecurityTrustUrl(imgUrl);
-                    imgLoaded = true;
-                    if(jsonLoaded){
-                      this.loading = false;
-                      this.loaded = true;
-                      this.displayedColumns=[ 'ticker', 'return', 'volatility', 'sharpe', 'beta']
-                    };
+                      let imgUrl = URL.createObjectURL(imgData)
+                      this.img = this.sanitizer.bypassSecurityTrustUrl(imgUrl);
+                      imgLoaded = true;
+                      if(jsonLoaded){
+                        this.loading = false;
+                        this.loaded = true;
+                        this.displayedColumns = [ 'ticker', 'return', 'volatility', 'sharpe', 'beta']
+                      };
                   });
     this.pynance.riskProfile(this.getTickers(), this.getEndDate(), this.getStartDate())
-                  .subscribe( (profileData : Portfolio) => {
-                    this.portfolio = profileData.holdings
-                    jsonLoaded = true;
-                    if(imgLoaded){
-                      this.loading = false;
-                      this.loaded = true;
-                      this.displayedColumns=['ticker','return','volatility','sharpe','beta']
-                    };
+                  .subscribe( (profileData : Holding[]) => {
+                      this.portfolio = profileData
+                      jsonLoaded = true;
+                      if(imgLoaded){
+                        this.loading = false;
+                        this.loaded = true;
+                        this.displayedColumns = ['ticker','return','volatility','sharpe','beta']
+                      };
                   });
 
   }
@@ -83,19 +81,12 @@ export class RiskProfileComponent implements OnInit {
     let index = this.portfolio.indexOf(holding);
     this.portfolio.splice(index, 1);
 
-    if(this.portfolio.length==0){
-      this.clearDisabled=true;
-      this.displayedColumns = [];
-    }
-    
-    this.statisticsTable.renderRows()
+    if(this.portfolio.length==0){ this.clear(); }
   }
 
   public getTickers() : string[]{
     let tickers : string [] = []
-    for(let holding of this.portfolio){
-      tickers.push(holding.ticker)
-    }
+    for(let holding of this.portfolio){ tickers.push(holding.ticker); }
     return tickers;
   }
 
@@ -104,15 +95,17 @@ export class RiskProfileComponent implements OnInit {
 
     let unduplicatedTickers : string[] = [];
     let portfolioTickers : string[] = this.getTickers();
-    
-    for(let ticker of inputTickers){
+    let filteredInput : string [] = uniqueArray(inputTickers);
+
+    // TODO: use array filtering to do this
+    for(let ticker of filteredInput){
       if(!containsObject(ticker, portfolioTickers)){ unduplicatedTickers.push(ticker); }
     }
 
     for(let ticker of unduplicatedTickers){
       this.portfolio.push({ ticker: ticker, allocation: null, shares: null, 
-                            annual_return: null, annual_volatility: null,
-                            sharpe_ratio: null, asset_beta: null})
+                                      annual_return: null, annual_volatility: null,
+                                      sharpe_ratio: null, asset_beta: null})
     }
 
     this.calculateDisabled = false;
