@@ -39,6 +39,13 @@ def validate_date_string(parsed_date_string):
     day_check = (int(parsed_date_string[2])>0 and int(parsed_date_string[2])<32)
     return (length_check and year_check and month_check and day_check)
 
+def validate_order_of_dates(start_date, end_date):
+    delta = (end_date - start_date).days
+    if delta > 0 or delta == 0:
+        return start_date, end_date
+    else:
+        return end_date, start_date
+
 # YYYY-MM-DD
 def parse_date_string(date_string) -> datetime.date:
     parsed = str(date_string).split('-')
@@ -101,6 +108,7 @@ def is_date_holiday(date_string) -> bool:
 def is_date_string_holiday(date) -> bool:
     return is_date_holiday(parse_date_string(date))
 
+
 # YYYY-MM-DD
 def get_holidays_between(start_date_string, end_date_string) -> int:
     us_holidays = holidays.UnitedStates()
@@ -161,20 +169,23 @@ def days_between(start_date, end_date):
 
 # excludes start_date
 def business_dates_between(start_date, end_date):
+    new_start, new_end = validate_order_of_dates(start_date, end_date)
     dates = []
-    for x in range((end_date - start_date).days):
-        this_date = start_date + datetime.timedelta(x+1)
+    for x in range((new_end - new_start).days):
+        this_date = new_start + datetime.timedelta(x+1)
         if not (is_date_weekend(this_date) or is_date_holiday(this_date)):
             dates.append(this_date)
     return dates
 
 def business_days_between(start_date, end_date):
-    dates = dates_between(start_date, end_date)
+    new_start, new_end = validate_order_of_dates(start_date, end_date)
+    dates = dates_between(new_start, new_end)
     return len([1 for day in dates if day.weekday() < 5])
 
 def weekends_between(start_date, end_date):
     start_date, end_date = verify_date_types(dates=[start_date, end_date])
-    dates = dates_between(start_date, end_date)
+    new_start, new_end = validate_order_of_dates(start_date, end_date)
+    dates = dates_between(new_start, new_end)
     return len([1 for day in dates if day.weekday() > 4])
 
 def decrement_date_by_days(start_date, days):

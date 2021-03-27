@@ -25,11 +25,9 @@ def validate_order_of_dates(start_date, end_date):
         if helper.is_date_today(start_date):
             time_delta = end_date - start_date
             if time_delta.days == 0:
-                logger.debug(f'End Date {end_date} = Start Date {start_date}')
                 return True, start_date, None
 
             else:
-                logger.INFO(f'Invalid date range, {start_date} - {end_date}.')
                 return False, None, None
 
     if end_date is not None:

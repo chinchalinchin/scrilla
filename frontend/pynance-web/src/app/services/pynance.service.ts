@@ -101,8 +101,7 @@ export class PynanceService {
     return queryUrl;
   }
 
-  public riskProfile(tickers : string[], endDate : string = null,  startDate : string = null) 
-          : Observable<Holding[]> {
+  public riskProfile(tickers : string[], endDate : string = null,  startDate : string = null) : Observable<Holding[]> {
     let queryUrl = this.getRiskProfileUrl(tickers, endDate, startDate);
     this.logs.log(`Querying backend at ${queryUrl}`, this.location);
     return this.http.get<Holding[]>(queryUrl)
@@ -117,8 +116,7 @@ export class PynanceService {
                       );
   }
 
-  public riskProfileJPEG(tickers: string[], endDate : string = null, startDate : string = null) 
-        : Observable<Blob>{
+  public riskProfileJPEG(tickers: string[], endDate : string = null, startDate : string = null) : Observable<Blob>{
       let queryUrl = this.getRiskProfileUrl(tickers, endDate, startDate, true);
       this.logs.log(`Querying backend at ${queryUrl}`, this.location);
       return this.http.get(queryUrl, 
@@ -154,8 +152,7 @@ export class PynanceService {
                               
   }
 
-  public efficientFrontierJPEG(tickers: string[], endDate : string = null, startDate : string = null) 
-        : Observable<Blob>{
+  public efficientFrontierJPEG(tickers: string[], endDate : string = null, startDate : string = null) : Observable<Blob>{
       let queryUrl = this.getEfficientFrontierUrl(tickers, endDate, startDate, null, true);
       this.logs.log(`Querying backend at ${queryUrl}`, this.location);
       return this.http.get(queryUrl, 

@@ -808,6 +808,39 @@ def get_ito_correlation_matrix_string(tickers, indent=0, start_date=None, end_da
     whole_thing = formatted_title + entire_formatted_result
     return whole_thing
 
+
+def calculate_ito_correlation_Series(ticker_1, ticker_2, start_date=None, end_date=None):
+    asset_type_1 = markets.get_asset_type(ticker_1)
+    asset_type_2 = markets.get_asset_type(ticker_2)
+    same_type = False
+    correlation_series={}
+
+    if asset_type_1 == asset_type_2:
+        same_type = True
+    
+    if same_type:
+        if asset_type_1 == settings.ASSET_EQUITY:
+            date_range = [helper.get_previous_business_date(start_date)] + helper.business_dates_between(start_date,end_date)
+        elif asset_type_1 == settings.ASSET_CRYPTO:
+            date_range = [start_date] + helper.dates_between(start_date, end_date)
+    else: # default to business days
+        date_range = [helper.get_previous_business_date(start_date)] + helper.business_dates_between(start_date,end_date)
+
+    for date in date_range:
+        calc_date_end = date
+        
+        if same_type and asset_type_1 == settings.ASSET_EQUITY:
+            calc_date_start = helper.decrement_date_by_business_days(start_date=date, 
+                                                                        business_days=settings.DEFAULT_ANALYSIS_PERIOD)
+        elif same_type and asset_type_1 == settings.ASSET_CRYPTO:
+            calc_date_start = helper.decrement_date_by_days(start_date=date, days=settings.DEFAULT_ANALYIS_PERIOD)
+
+        todays_cor = calculate_ito_correlation(ticker_1, ticker_2, start_date=calc_date_start, end_date=calc_date_end)
+        correlation_series[date] = todays_cor['correlation']
+    
+    result = {}
+    result[f'{ticker_1}_{ticker_2}_correlation_time_series'] = correlation_series
+
 def calculate_return_covariance(ticker_1, ticker_2, start_date=None, end_date=None, sample_prices=None):
     correlation = calculate_ito_correlation(ticker_1=ticker_1, ticker_2=ticker_2, start_date=start_date, 
                                               end_date=end_date, sample_prices=sample_prices)
@@ -817,7 +850,7 @@ def calculate_return_covariance(ticker_1, ticker_2, start_date=None, end_date=No
                                         sample_prices=sample_prices)
     covariance = profile_1['annual_volatility']*profile_2['annual_volatility']*correlation['correlation']
     return covariance
-    
+   
 if __name__=="__main__":
     data = [[1, 2, 3, 4, 5, 6, 7],[20, 19, 23, 20, 26, 22, 30]]
 

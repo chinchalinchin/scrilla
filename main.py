@@ -39,12 +39,14 @@ First, before the containerized version of this application can be spun up, the 
 non_container_functions = [formatter.FUNC_ARG_DICT['plot_dividends'], formatter.FUNC_ARG_DICT['plot_moving_averages'],
                                formatter.FUNC_ARG_DICT['plot_risk_profile'], formatter.FUNC_ARG_DICT['plot_frontier']]
 
-def validate_function_usage(selection, wrapper_function, required_length=1):
+def validate_function_usage(selection, wrapper_function, required_length=1, exact=False):
     if selection in non_container_functions and settings.APP_ENV == 'container':
         logger.comment('GUI functionality disabled when application is containerized.')
 
     else:
-        if(len(main_args)>(required_length-1)):
+        if(not exact and (len(main_args)>(required_length-1))):
+            wrapper_function()
+        elif(exact and (len(main_args)==required_length)):
             wrapper_function()
         else:
             logger.comment('Error encountered while calculating. Try -ex flag for example usage.')
@@ -130,6 +132,7 @@ if __name__ == "__main__":
             xtra_args, xtra_values, main_args = helper.separate_and_parse_args(args)
             xtra_list = helper.format_xtra_args_list(xtra_args, xtra_values)
             logger.log_arguments(main_args=main_args, xtra_args=xtra_args, xtra_values=xtra_values)
+            exact = False
 
             outputter.title_line('Results')
             outputter.print_line()
@@ -180,6 +183,13 @@ if __name__ == "__main__":
                                                                         end_date=xtra_list['end_date'])
                     outputter.print_below_new_line(f'\n{result}')
                 selected_function, required_length = cli_correlation, 2
+
+            ### FUNCTION: Correlation Time Series
+            elif opt == formatter.FUNC_ARG_DICT['correlation_time_series']:
+                def cli_correlation_series():
+                    ticker_1, ticker_2 = main_args[0], main_args[1]
+                    pass
+                selected_function, required_length, exact = cli_correlation_series, 2, True
 
             ### FUNCTION: Discount Dividend Model
             elif opt == formatter.FUNC_ARG_DICT["discount_dividend"]:
@@ -260,17 +270,14 @@ if __name__ == "__main__":
             
             ### FUNCTION: Plot Dividend History With Linear Regression Model
             elif opt == formatter.FUNC_ARG_DICT['plot_dividends']:
-                if len(main_args)==1:
+                def cli_plot_dividends():
                     dividends = services.get_dividend_history(ticker=main_args[0])
                     if xtra_list['discount'] is None:
                         xtra_list['discount'] = markets.cost_of_equity(ticker=main_args[0])
                     div_cashflow = Cashflow(sample=dividends, discount_rate=xtra_list['discount'])
                     plotter.plot_cashflow(ticker=main_args[0], cashflow=div_cashflow, show=True, 
                                             savefile=xtra_list['save_file'])
-                elif len(main_args) > 1:
-                    logger.comment('Only one equity\'s dividend history can be plotted at a time.')
-                else: 
-                    logger.comment('Invalid input. Try -ex flag for example usage.')
+                selected_function, required_length, exact = cli_plot_dividends, 1, True
 
             ### FUNCTION: Plot Efficient Frontier
             elif opt == formatter.FUNC_ARG_DICT['plot_frontier']:
@@ -388,7 +395,8 @@ if __name__ == "__main__":
                 logger.comment('No function supplied. Please review Function Summary below and re-execute with appropriate arguments.')
                 outputter.help_msg()
             
-            validate_function_usage(selection=opt, wrapper_function=selected_function, required_length=required_length)
+            validate_function_usage(selection=opt, wrapper_function=selected_function, 
+                                    required_length=required_length)
             outputter.print_line()
     else:
         logger.comment('No arguments Supplied. Please review function summary below and re-execute with appropriate arguments.')
