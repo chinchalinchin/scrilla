@@ -41,7 +41,7 @@ def risk_return(request):
 
         if parsed_args['start_date'] is None and parsed_args['end_date'] is None:
             output.debug(f'Checking for {tickers[i]} profile in the cache.')
-            profile = parser.check_cache_for_recent_result(ticker=tickers[i])
+            profile = analyzer.check_cache_for_profile(ticker=tickers[i])
             if profile:
                 output.debug(f'Found profile cache.')
                 response[i] = profile
@@ -55,18 +55,18 @@ def risk_return(request):
         analyzer.market_queryset_gap_analysis(symbol=tickers[i],start_date=parsed_args['start_date'],
                                                 end_date=parsed_args['end_date'])
         prices = parser.parse_args_into_market_queryset(ticker=tickers[i], parsed_args=parsed_args)
-        result = statistics.calculate_risk_return(ticker=tickers[i], sample_prices=prices)
+        stats = statistics.calculate_risk_return(ticker=tickers[i], sample_prices=prices)
         
         profile['ticker'] = ticker_str
-        profile['annual_return'] = result['annual_return']
-        profile['annual_volatility'] =  result['annual_volatility']
+        profile['annual_return'] = stats['annual_return']
+        profile['annual_volatility'] =  stats['annual_volatility']
         profile['sharpe_ratio'] = markets.sharpe_ratio(ticker=tickers[i], start_date=parsed_args['start_date'],
                                                         end_date=parsed_args['end_date'])
         profile['asset_beta'] = markets.market_beta(ticker=tickers[i], start_date=parsed_args['start_date'],
                                                         end_date=parsed_args['end_date'])
         
         output.debug(f'Saving {tickers[i]} profile to cache')
-        parser.save_result_to_cache(profile=profile)
+        analyzer.save_profile_to_cache(profile=profile)
         response[i] = profile
 
         if parsed_args['jpeg']:
