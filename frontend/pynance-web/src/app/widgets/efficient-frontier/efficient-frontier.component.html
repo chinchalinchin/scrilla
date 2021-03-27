@@ -3,11 +3,14 @@
         Portfolio Efficient Frontier</mat-card-title>
     <mat-card-content id="frontier-card-body">
         <app-args id="frontier-card-arguments" class="app-card" 
-                [tickers]="true" [dates]="true" [target]="false"
+                [tickers]="true" [maxTickers]="null"
+                [dates]="true" [target]="false"
                 [investment]="true" [method]="false"
                 (addTickers)="portfolio.setTickers($event)"
                 (addDates)="portfolio.setDates($event)"></app-args><br>
 
+            <!-- TODO: create tabbed portfolio component to display
+                        all portfolios in efficient frontier-->
     </mat-card-content>
 
     <mat-card-actions id="frontier-card-actions" class="align-right">

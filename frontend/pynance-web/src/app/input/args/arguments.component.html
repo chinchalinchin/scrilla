@@ -5,9 +5,20 @@
     <mat-grid-tile *ngIf="tickers" id="tickers-tile" colspan="2" class="mat-elevation-z2">
             <mat-card id="tickers-card" class="fill-width fill-height">
                 <mat-card-title id="tickers-card-title" class="component-title">
-                    Asset Tickers</mat-card-title>
+                    Asset Tickers
+
+                    <mat-chip-list *ngIf="this.tickerMaxError">
+                        <mat-chip class="note align-right" color="primary" 
+                                [removable]="true" (removed)="this.clearTickerError()">
+                            function restricted to {{this.maxTickers}} ticker(s)!
+                            <mat-icon matChipRemove>cancel</mat-icon>
+                        </mat-chip>
+                    </mat-chip-list>
+                
+                </mat-card-title>
 
                 <mat-card-content id="tickers-card-body">
+
                         <mat-form-field class="fill-width">
                             <mat-label class="component-text">Enter ticker symbols separated by a comma</mat-label>
                             <input matInput [(ngModel)]="this.inputTickers" placeholder="Placeholder"

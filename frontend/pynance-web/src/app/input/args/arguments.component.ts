@@ -24,6 +24,9 @@ import { containsObject, dateToString, getColumnFromList } from 'src/utilities';
  *  a drop-down menu will be displayed which will allow users to select from the available pricing
  *  models (Discount Dividend Model, Discount Cashflow Model, etc.)
  * 
+ * You can limit the number of tickers allowed to be inputted by providing the [maxTickers] argument
+ *  a number.
+ * 
  * OUTPUT:
  * The ArgumentsComponent has four output events into which the parent component can wire in 
  *  functions,
@@ -60,12 +63,13 @@ export class ArgumentsComponent implements OnInit {
   public inputTickers: string;
   public inputInvestment: number;
   public inputTarget: number;
-  public inputModel: string;
+  public inputModel: string = PRICING_MODELS[0].value;
   public inputMethod: string = OPTIMIZATION_METHODS[0].value;
   public range = new FormGroup({
     start: new FormControl(),
     end: new FormControl()
   });
+  public tickerMaxError : boolean = false;
   public pricingModels = PRICING_MODELS;
   public optMethods = OPTIMIZATION_METHODS;
 
@@ -77,6 +81,8 @@ export class ArgumentsComponent implements OnInit {
   // Input: Displayed argument subcomponents
   @Input()
   public tickers : boolean = false;
+  @Input()
+  public maxTickers : number = null;
   @Input()
   public dates : boolean = false;
   @Input()
@@ -121,6 +127,12 @@ export class ArgumentsComponent implements OnInit {
   public saveTickers(){
     this.logs.log('Emitting tickers', this.location)
     let parsedTickers : string[] = this.inputTickers.replace(/\s/g, "").toUpperCase().split(',');
+    if(this.maxTickers){
+      if(parsedTickers.length > this.maxTickers){
+        this.tickerMaxError = true;
+        parsedTickers.length = this.maxTickers;
+      }
+    }
     for(let ticker of parsedTickers){ this.savedTickers.push(ticker); }
     this.addTickers.emit(this.savedTickers);
     this.inputTickers = null;
@@ -178,6 +190,9 @@ export class ArgumentsComponent implements OnInit {
     this.addTarget.emit(null);
   }
   
+  public clearTickerError() : void {
+    this.tickerMaxError = false;
+  }
   // TODO: emit null dates 
 
 }

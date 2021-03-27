@@ -3,7 +3,8 @@
         Portfolio Optimization</mat-card-title>
     <mat-card-content id="optimizer-card-body">
         <app-args id="optimizer-card-arguments" class="app-card" 
-                [tickers]="true" [dates]="true" [target]="true" 
+                [tickers]="true" [maxTickers]="null"
+                [dates]="true" [target]="true" 
                 [investment]="true" [method]="true"
                 (addTickers)="this.portfolioComponent.setTickers($event); this.optimizeDisabled=false;"
                 (addDates)="this.portfolioComponent.setDates($event)"

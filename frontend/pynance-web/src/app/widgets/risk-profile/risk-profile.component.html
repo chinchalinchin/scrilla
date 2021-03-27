@@ -4,7 +4,8 @@
 
     <mat-card-content id="risk-profile-card-body">
         <app-args id="optimizer-card-arguments" class="app-card" 
-                [tickers]="true" [dates]="true" [target]="false" 
+                [tickers]="true" [maxTickers]="null"
+                [dates]="true" [target]="false" 
                 [investment]="false" [method]="false"
                 (addTickers)="this.setTickers($event);"
                 (addDates)="this.setDates($event)"></app-args><br>

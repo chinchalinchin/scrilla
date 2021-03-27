@@ -105,7 +105,8 @@ export class RiskProfileComponent implements OnInit {
     for(let ticker of unduplicatedTickers){
       this.portfolio.push({ ticker: ticker, allocation: null, shares: null, 
                                       annual_return: null, annual_volatility: null,
-                                      sharpe_ratio: null, asset_beta: null})
+                                      sharpe_ratio: null, asset_beta: null,
+                                      discount_dividend: null})
     }
 
     this.calculateDisabled = false;

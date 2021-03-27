@@ -41,5 +41,6 @@ mat-radio-button{ padding-right:10px;padding-left:10px;}
 .tab-text{ color:darkslategrey !important; }
 .divide { border-top: 3px solid #bbb; }
 
+.note{ font-size:x-small; color:crimson !important; }
 .background { background-color:dimgray }
 .center-tile{ width: 100% !important;display: flex !important; align-items: flex-start !important; }
