@@ -38,6 +38,8 @@ import { MatChipsModule } from '@angular/material/chips';
 // Third Party Material
 import  { MatCurrencyFormatModule } from 'mat-currency-format';
 import { ValuationComponent } from './widgets/valuation/valuation.component';
+import { ImageComponent } from './output/image/image.component';
+import { TableComponent } from './output/table/table.component';
 
 
 
@@ -50,7 +52,9 @@ import { ValuationComponent } from './widgets/valuation/valuation.component';
     AnalysisComponent,
     EfficientFrontierComponent,
     ValuationComponent,
-    RiskProfileComponent
+    RiskProfileComponent,
+    ImageComponent,
+    TableComponent
   ],
   imports: [
     BrowserModule,

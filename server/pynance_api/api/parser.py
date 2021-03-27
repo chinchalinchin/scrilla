@@ -1,3 +1,4 @@
+from decimal import Decimal
 from core import settings
 from data.models import EquityMarket, CryptoMarket, EquityTicker, CryptoTicker, EquityProfileCache,\
                          Dividends, Economy, StatSymbol
@@ -106,27 +107,55 @@ def market_queryset_to_dict(price_set):
     return price_list
 
 # Save equity cache to market
+# NOTE: The EquityProfileCache object is created when the cache is initially
+#        checked for the result.
 def save_result_to_cache(profile):
     ticker = EquityTicker.objects.get_or_create(ticker=profile['ticker'])
-    result = EquityProfileCache.objects.get_or_create(ticker=ticker[0])
-    result[0].date = helper.get_today()
-    result[0].annual_return = profile['annual_return']
-    result[0].annual_volatility = profile['annual_volatility']
-    result[0].sharpe_ratio = profile['sharpe_ratio']
-    result[0].asset_beta = profile['asset_beta']
-    result[0].save()
+    result = EquityProfileCache.objects.filter(ticker=ticker[0]).order_by('-date')
+
+    print('result 0 date', result[0].date)
+    
+    for res in result:
+        print('res ticker', res.ticker)
+        print('res date', res.date)
+
+
+    print('annual_return', result[0].annual_return)
+    print(profile['annual_return'])
+    print(type(profile['annual_return']))
+
+    result[0].annual_return = Decimal(profile['annual_return'])
+    result[0].annual_volatility = Decimal(profile['annual_volatility'])
+    result[0].sharpe_ratio = Decimal(profile['sharpe_ratio'])
+    result[0].asset_beta = Decimal(profile['asset_beta'])
+
+    print(result[0].annual_return)
+
+    result[0].save(force_update=True)
     
 # If no start and end date are provided, since the default time period is 100
 #   prices, stash equity profile statistics for quick retrieval instead of 
 #   calculating from scratch each time the profile is requested for the default
 #   time period. 
+# NOTE: This creates the EquityProfileCache object if it does not exist. So,
+#           when saving, the QuerySet should be filtered and ordered by date.
 def check_cache_for_recent_result(ticker):
     ticker = EquityTicker.objects.get_or_create(ticker=ticker)
     today = helper.get_today()
     result = EquityProfileCache.objects.get_or_create(ticker=ticker[0], date=today)
+
     if result[1]:
         return False
     else:
+        if result[0].annual_return is None:
+            return False
+        if result[0].annual_volatility is None:
+            return False
+        if result[0].sharpe_ratio is None:
+            return False
+        if result[0].asset_beta is None:
+            return False
+        
         profile = {}
         profile['ticker'] = ticker[0].ticker
         profile['annual_return'] = result[0].annual_return

@@ -93,7 +93,7 @@ AUTH_PASSWORD_VALIDATORS = [
 STATIC_URL = '/static/'
 
 ### HEADER CONFIGURATION ###
-ALLOWED_HOSTS = [ 'localhost' ]
+ALLOWED_HOSTS = [ '*' ]
 # TODO: restrict origins once frontend is working
 CORS_ALLOW_ALL_ORIGINS = True
 

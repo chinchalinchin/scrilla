@@ -227,16 +227,27 @@ class Logger():
     def log_django_settings(self, settings):
             print_line()
             title_line('SETTINGS.PY Configuration')
+
             print_line()
             self.comment("# Environment Configuration")
             self.comment(f'> Directory Location : {settings.BASE_DIR}')
             self.comment(f'> Environment: {settings.APP_ENV}')
+
             print_line()
             self.comment("# Application Configuration")
             self.comment(f'> Debug : {settings.DEBUG}')
-            self.comment(f'> Enviroment: {settings.APP_ENV}')
             self.comment(f'> Log Level: {settings.LOG_LEVEL}')
+
+            print_line()
+            self.comment("# Headers Configuration")
+            self.comment(f'> ALLOWED_HOSTS: {settings.ALLOWED_HOSTS}')
+            if hasattr(settings, 'CORS_ALLOW_ALL_ORIGINS'):
+                self.comment(f'> CORS_ALLOW_ALL_ORIGINS: {settings.CORS_ALLOW_ALL_ORIGINS}')
+            if hasattr(settings, 'CORS_ALLOWED_ORIGINS'):
+                self.comment(f'> CORS_ALLOWED_ORIGINS {settings.CORS_ALLOWED_ORIGINS}')
+            
             print_line()
             self.comment("# Database Configuration")
             self.comment(f'> Database Engine: {settings.DATABASES["default"]["ENGINE"]}')
+            self.comment(f'> Database Host: {settings.DATABASES["default"]["HOST"]}')
             print_line()
