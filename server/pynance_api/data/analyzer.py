@@ -85,12 +85,11 @@ def market_queryset_gap_analysis(symbol, start_date=None, end_date=None):
         date_range = helper.dates_between(start_date=start_date, end_date=end_date)
         queryset = CryptoMarket.objects.filer(ticker=ticker[0], date__gt=start_date, date__lte=end_date).order_by('-date')
     
-    if (queryset.count()-1) != len(date_range): 
+    gaps = len(date_range) - queryset.count()  + 1
+    if gaps != 0: 
             logger.info(f'{len(date_range) - queryset.count() + 1} gaps detected.')
             price_history = services.query_service_for_daily_price_history(ticker=symbol, start_date=start_date, 
                                                                             end_date=end_date)
-            
-            initial_gaps = len(date_range) - queryset.count()  + 1
             count = 0
             for date in price_history:
                 logger.debug(f'Checking {date} for gaps.')
@@ -110,7 +109,7 @@ def market_queryset_gap_analysis(symbol, start_date=None, end_date=None):
                 else:
                     logger.debug(f'No gap detected on {date} for {symbol}.')
                 
-                if count == initial_gaps:
+                if count == gaps:
                     logger.debug(f'All gaps filled, breaking loop.')
                     break
 

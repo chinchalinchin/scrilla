@@ -9,7 +9,9 @@ import { Holding } from '../models/holding';
 
 const ENDPOINTS ={
   optimize:'api/optimize',
-  riskprofile:'api/risk-return',
+  riskProfile:'api/risk-return',
+  efficientFrontier: 'api/efficient-frontier',
+  discountDividend: 'api/discount-dividend',
   parameters:{
     tickers: 'tickers',
     startDate: 'start',
@@ -17,6 +19,7 @@ const ENDPOINTS ={
     targetReturn: 'target',
     investment: 'invest',
     sharpeRatio: 'sharpe',
+    discountRate: 'discount',
     jpeg : 'jpeg'
   }
 }
@@ -48,7 +51,8 @@ export class PynanceService {
 
   public formatSecondaryArguments(endDate : string = null, startDate: string = null,
                                   targetReturn : number = null, investment : number = null,
-                                  method: boolean = false, jpeg : boolean = false): string {
+                                  method: boolean = false, jpeg : boolean = false,
+                                  discount : number = null): string {
     let query : string = ""
     if (endDate){ query = query.concat(`&${ENDPOINTS.parameters.endDate}=${endDate}`); }
     if(startDate){ query = query.concat(`&${ENDPOINTS.parameters.startDate}=${startDate}`); }
@@ -56,22 +60,51 @@ export class PynanceService {
     if(investment){ query = query.concat(`&${ENDPOINTS.parameters.investment}=${investment}`); }
     if(method){ query = query.concat(`&${ENDPOINTS.parameters.sharpeRatio}=true`)}
     if(jpeg){ query = query.concat(`&${ENDPOINTS.parameters.jpeg}=true`); }
+    if(discount) { query = query.concat(`&${ENDPOINTS.parameters.discountRate}=${discount}`)}
     return query;
   }
 
   public getRiskProfileUrl(tickers : string [], endDate : string = null, startDate  : string = null,
                             jpeg : boolean = false) : string{
-    let baseUrl : string = `${environment.backendUrl}/${ENDPOINTS.riskprofile}`;
+    let baseUrl : string = `${environment.backendUrl}/${ENDPOINTS.riskProfile}`;
     let query : string = this.formatQueryTickers(tickers);
-    let queryArgs : string = this.formatSecondaryArguments(endDate, startDate, null, null, false, jpeg);
+    let queryArgs : string = this.formatSecondaryArguments(endDate, startDate, null, null, false, jpeg, null);
     let queryUrl : string = baseUrl.concat("?", query, queryArgs);
     return queryUrl;
   }
 
-  public riskProfile(tickers : string[], endDate : string = null, 
-                      startDate : string = null) : Observable<Holding[]> {
+  public getOptimizeUrl(tickers: string[], endDate : string = null, startDate : string = null,
+                        targetReturn : number = null, investment : number = null,
+                        method : boolean = true) : string{
+    let baseUrl : string = `${environment.backendUrl}/${ENDPOINTS.optimize}`;
+    let query : string = this.formatQueryTickers(tickers); 
+    let queryArgs : string = this.formatSecondaryArguments(endDate, startDate, targetReturn, investment, method, null);
+    let queryUrl : string = baseUrl.concat("?", query, queryArgs);
+    return queryUrl;
+  }
+
+  public getEfficientFrontierUrl(tickers : string[], endDate: string = null, startDate : string = null, 
+                                  investment : number = null, jpeg : boolean = false) : string{
+    let baseUrl : string = `${environment.backendUrl}/${ENDPOINTS.efficientFrontier}`
+    let query : string = this.formatQueryTickers(tickers);
+    let queryArgs : string = this.formatSecondaryArguments(endDate, startDate,null,investment,null,jpeg, null)
+    let queryUrl : string = baseUrl.concat("?", query, queryArgs)
+    return queryUrl;
+  }
+
+  public getDiscountDividendUrl(tickers: string[], endDate : string =null, startDate : string = null,
+                                jpeg : boolean = false, discount: number = null) : string {
+    let baseUrl : string = `${environment.backendUrl}/${ENDPOINTS.discountDividend}`
+    let query : string = this.formatQueryTickers(tickers);
+    let queryArgs : string = this.formatSecondaryArguments(endDate, startDate, null,null,null,jpeg,discount)
+    let queryUrl : string = baseUrl.concat("?", query, queryArgs)
+    return queryUrl;
+  }
+
+  public riskProfile(tickers : string[], endDate : string = null,  startDate : string = null) 
+          : Observable<Holding[]> {
     let queryUrl = this.getRiskProfileUrl(tickers, endDate, startDate);
-    this.logs.log(`Querying backend at ${queryUrl}`, this.location)
+    this.logs.log(`Querying backend at ${queryUrl}`, this.location);
     return this.http.get<Holding[]>(queryUrl)
                       .pipe(
                         map((data) =>{
@@ -84,32 +117,71 @@ export class PynanceService {
                       );
   }
 
-  public riskProfileJPEG(tickers: string[], endDate : string = null, 
-                          startDate : string = null) : Observable<Blob>{
+  public riskProfileJPEG(tickers: string[], endDate : string = null, startDate : string = null) 
+        : Observable<Blob>{
       let queryUrl = this.getRiskProfileUrl(tickers, endDate, startDate, true);
       this.logs.log(`Querying backend at ${queryUrl}`, this.location);
       return this.http.get(queryUrl, 
                             { headers: new HttpHeaders({'Content-Type': 'img/png'}), observe: 'body', responseType: 'blob'})
                           .pipe(
                               tap( _ => {this.logs.log(`Received response from backend risk profile endpoint`, this.location)}),
-                              catchError(this.handleError<Blob>('riskProfile', null))
+                              catchError(this.handleError<Blob>('riskProfileJPEG', null))
                         );
   }
 
   public optimize(tickers: string[], endDate : string = null, startDate : string = null, 
                   targetReturn : number = null, investment : number = null,
                   method: boolean = true): Observable<Portfolio>{
-    let baseUrl : string = `${environment.backendUrl}/${ENDPOINTS.optimize}`;
-    let query : string = this.formatQueryTickers(tickers); 
-    let queryArgs : string = this.formatSecondaryArguments(endDate, startDate, targetReturn, investment, method);
-    let queryUrl : string = baseUrl.concat("?", query, queryArgs);
-
+    let queryUrl : string = this.getOptimizeUrl(tickers, endDate, startDate, targetReturn, investment, method)
     this.logs.log(`Querying backend at ${queryUrl}`, this.location);
-
     return this.http.get<Portfolio>(queryUrl)
                         .pipe( 
                             tap( _ => {this.logs.log(`Received response from backend optimize endpoint`, this.location); } ),
                             catchError(this.handleError<Portfolio>('optimize', null))
+                        );
+  }
+
+  public efficientFrontier(tickers: string[], endDate : string = null, startDate : string = null,
+                            investment: number = null){
+    let queryUrl : string = this.getEfficientFrontierUrl(tickers,endDate,startDate,investment, false)
+    this.logs.log(`Querying backend at ${queryUrl}`, this.location)
+    return this.http.get<Portfolio[]>(queryUrl)
+                          .pipe(
+                            map( (data) => { return data; }),
+                            tap( _ => {this.logs.log(`Received response from backend efficient frontier endpoint`, this.location)}),
+                            catchError(this.handleError<Portfolio[]>('optimize', null))
+                          );
+                              
+  }
+
+  public efficientFrontierJPEG(tickers: string[], endDate : string = null, startDate : string = null) 
+        : Observable<Blob>{
+      let queryUrl = this.getEfficientFrontierUrl(tickers, endDate, startDate, null, true);
+      this.logs.log(`Querying backend at ${queryUrl}`, this.location);
+      return this.http.get(queryUrl, 
+                            { headers: new HttpHeaders({'Content-Type': 'img/png'}), observe: 'body', responseType: 'blob'})
+                          .pipe(
+                              tap( _ => {this.logs.log(`Received response from efficient frontier endpoint`, this.location)}),
+                              catchError(this.handleError<Blob>('efficientFrontierJPEG', null))
+                        );
+  }
+
+  public discountDividend(tickers: string[], endDate : string = null, startDate : string = null,
+                          discount : number = null){
+    let queryUrl : string = this.getDiscountDividendUrl(tickers, endDate, startDate,false, discount)
+    this.logs.log(`Querying backend at ${queryUrl}`, this.location)
+    // TODO: create interface to hold discount dividend reponse
+  }
+
+  public discountDividendJPEG(tickers: string[], endDate : string = null, startDate : string = null,
+                              discount : number = null) : Observable<Blob>{
+      let queryUrl = this.getDiscountDividendUrl(tickers,endDate, startDate,true,discount)
+      this.logs.log(`Querying backend at ${queryUrl}`, this.location);
+      return this.http.get(queryUrl, 
+                            { headers: new HttpHeaders({'Content-Type': 'img/png'}), observe: 'body', responseType: 'blob'})
+                          .pipe(
+                              tap( _ => {this.logs.log(`Received response from backend discount dividend endpoint`, this.location)}),
+                              catchError(this.handleError<Blob>('discountDividendJPEG', null))
                         );
   }
 

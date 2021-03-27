@@ -14,6 +14,7 @@ import { PortfolioComponent } from './input/portfolio/portfolio.component';
 import { RiskProfileComponent } from './widgets/risk-profile/risk-profile.component'
 import { OptimizerComponent } from './widgets/optimizer/optimizer.component';
 import { EfficientFrontierComponent } from './widgets/efficient-frontier/efficient-frontier.component';
+import { ValuationComponent } from './widgets/valuation/valuation.component';
 
 // Angular Material Imports
 import { MatCardModule } from '@angular/material/card';
@@ -32,14 +33,9 @@ import { MatListModule } from '@angular/material/list';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatChipsModule } from '@angular/material/chips';
 
-
-
-
 // Third Party Material
 import  { MatCurrencyFormatModule } from 'mat-currency-format';
-import { ValuationComponent } from './widgets/valuation/valuation.component';
-import { ImageComponent } from './output/image/image.component';
-import { TableComponent } from './output/table/table.component';
+
 
 
 
@@ -53,8 +49,6 @@ import { TableComponent } from './output/table/table.component';
     EfficientFrontierComponent,
     ValuationComponent,
     RiskProfileComponent,
-    ImageComponent,
-    TableComponent
   ],
   imports: [
     BrowserModule,
