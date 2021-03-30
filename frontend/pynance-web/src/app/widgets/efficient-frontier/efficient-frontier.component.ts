@@ -50,7 +50,6 @@ export class EfficientFrontierComponent implements OnInit {
                   .subscribe( (frontier_result)=> {
                       this.frontier=frontier_result;
                       this.cd.detectChanges();
-                      this.propagateTickers();
                   });
   }
 
@@ -59,7 +58,6 @@ export class EfficientFrontierComponent implements OnInit {
       console.log(changes.portfolioChildren.currentValue.length)
     }
   }
-
 
   public clear(): void{
     this.loading = false;
@@ -74,29 +72,12 @@ export class EfficientFrontierComponent implements OnInit {
     this.img = null;
   }
   
-  // TODO: don't need to do this, take care of all duplication 
-  //      inside of portfoliocomponent itself.
   public setTickers(inputTickers : string[]) : void{
-    let unduplicatedTickers : string[] = [];
-    let filteredInput : string [] = uniqueArray(inputTickers);
-
-    // TODO: use array filtering to do this
-    for(let ticker of filteredInput){
-      if(!containsObject(ticker, this.tickers)){ unduplicatedTickers.push(ticker); }
-    }
-    this.tickers = unduplicatedTickers;
+    this.tickers = inputTickers;
     this.frontierDisabled=false;
   }
 
   public getTickers(): string[]{ return this.tickers; }
-
-  // note: children don't exist until frontier exists
-  public propagateTickers(): void{
-    this.logs.log('Propagating tickers down through portfolio children', this.location)
-    for(let child of this.portfolioChildren){
-      child.setTickers(this.tickers)
-    }
-  }
 
   public setDates(inputDates : string[]) : void{
     this.startDate = inputDates[0];

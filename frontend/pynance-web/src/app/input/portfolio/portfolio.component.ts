@@ -89,14 +89,18 @@ export class PortfolioComponent implements OnInit {
   
   // detect changes to input and pass to interface for re-rendering.
   ngOnChanges(changes: SimpleChanges) {    
+
     if(changes.tickers){
       if(!arraysEqual(changes.tickers.currentValue, changes.tickers.previousValue)){
+        this.logs.log('Ticker changes detected', this.location)
         this.setTickers(changes.tickers.currentValue);
       }
     }
 
     if (changes.allocations) {
       if(!arraysEqual(changes.allocations.currentValue, changes.allocations.previousValue)){
+        this.logs.log('Allocation changes detected', this.location)
+
         if(this.portfolio.length != 0){
           if(changes.allocations.currentValue.length == 0){ 
             for(let holding of this.portfolio){ holding.allocation = null; }
@@ -106,6 +110,7 @@ export class PortfolioComponent implements OnInit {
             if (changes.allocations.currentValue.length == this.portfolio.length){
               this.setPortfolioAllocations(changes.allocations.currentValue)
               this.displayedColumns = [ 'ticker', 'allocation' ]
+              this.portfolioTable.renderRows();
             }
             else{
               let logMessage = `Portfolio length ${this.portfolio.length} does not equal `
@@ -119,6 +124,8 @@ export class PortfolioComponent implements OnInit {
 
     if(changes.shares){
       if(!arraysEqual(changes.shares.currentValue, changes.shares.previousValue)){
+        this.logs.log('Share changes detected', this.location)
+
         if(this.portfolio.length != 0){
           if(changes.shares.currentValue.length == 0){
             for(let holding of this.portfolio) { holding.shares= null; }
@@ -128,6 +135,7 @@ export class PortfolioComponent implements OnInit {
             if(changes.shares.currentValue.length == this.portfolio.length){
               this.setPortfolioShares(changes.shares.currentValue);
               this.displayedColumns = [ 'ticker', 'allocation', 'shares'];
+              this.portfolioTable.renderRows();
             }
             else{
               let logMessage = `Portfolio length ${this.portfolio.length} does not equal `
@@ -140,7 +148,10 @@ export class PortfolioComponent implements OnInit {
     }
 
     if(changes.returns){
+
       if(!arraysEqual(changes.returns.currentValue, changes.returns.previousValue)){
+        this.logs.log('Return changes detected', this.location)
+
         if(this.portfolio.length != 0){
           if(changes.returns.currentValue.length == 0){
             for(let holding of this.portfolio) { holding.annual_return = null; }
@@ -155,6 +166,7 @@ export class PortfolioComponent implements OnInit {
               else{
                 this.displayedColumns = [ 'ticker', 'allocation', 'return']
               }
+              this.portfolioTable.renderRows();
             }
             else{
               let logMessage = `Portfolio length ${this.portfolio.length} does not equal `
@@ -168,6 +180,8 @@ export class PortfolioComponent implements OnInit {
 
     if(changes.volatilities){
       if(!arraysEqual(changes.volatilities.currentValue, changes.volatilities.previousValue)){
+        this.logs.log('Volatility changes detected', this.location)
+
         if(this.portfolio.length != 0){
           if(changes.volatilities.currentValue.length == 0){
             for(let holding of this.portfolio) { holding.annual_volatility = null; }
@@ -183,6 +197,7 @@ export class PortfolioComponent implements OnInit {
               else{
                 this.displayedColumns = [ 'ticker', 'allocation', 'return', 'volatility']
               }
+              this.portfolioTable.renderRows();
             }
             else{
               let logMessage = `Portfolio length ${this.portfolio.length} does not equal `
@@ -277,10 +292,12 @@ export class PortfolioComponent implements OnInit {
         *       with the results before it has had its ticker symbols set, an additional
         *       check is required here to see if more columns on the table need displayed.
         */
-      //if(this.allocations.length>0){ this.displayedColumns.push('allocation'); }
-      //if(this.shares.length>0){ this.displayedColumns.push('shares'); }
-      //if(this.returns.length>0) { this.displayedColumns.push('return'); }
-      //if(this.volatilities.length>0) { this.displayedColumns.push('volatility'); }
+      this.logs.log(`this is the shares length ${this.shares.length}`, this.location)
+      // make sure array and values are defined
+      if(this.allocations.length>0 && this.allocations[0]){ this.displayedColumns.push('allocation'); }
+      if(this.shares.length>0 && this.shares[0]){ this.displayedColumns.push('shares'); }
+      if(this.returns.length>0 && this.returns[0]) { this.displayedColumns.push('return'); }
+      if(this.volatilities.length>0 && this.volatilities[0]) { this.displayedColumns.push('volatility'); }
     }
     
     this.cd.detectChanges();
@@ -307,7 +324,6 @@ export class PortfolioComponent implements OnInit {
   public getOverallVolatility () : number { return this.overallVolatility; }
 
   public setPortfolioAllocations(theseAllocations : number[]) : void{
-    this.logs.log('Passing allocations to portfolio', this.location);
     let index = 0;
     for(let allocation of theseAllocations){
       let logMessage =`Changing ${this.portfolio[index].ticker} allocation from `
@@ -325,7 +341,6 @@ export class PortfolioComponent implements OnInit {
   }
 
   public setPortfolioShares(theseShares : number[]): void{
-    this.logs.log('Passing shares to portfolio', this.location);
     let index = 0;
     for(let shares of theseShares){
       let logMessage = `Changing ${this.portfolio[index].ticker} shares from `
@@ -343,7 +358,6 @@ export class PortfolioComponent implements OnInit {
   }
 
   public setPortfolioReturns(theseRates : number[]) : void{
-    this.logs.log('Passing rates of return to portfolio', this.location);
     let index = 0;
     for(let rate of theseRates){
       let logMessage = `Changing ${this.portfolio[index].ticker} rate from `
@@ -361,7 +375,6 @@ export class PortfolioComponent implements OnInit {
   }
 
   public setPortfolioVolatilities(theseVolatilities : number[]) : void{
-    this.logs.log('Passing volatilities to portfolio', this.location);
     let index = 0;
     for(let volatility of theseVolatilities){
       let logMessage = `Changing ${this.portfolio[index].ticker} rate from `

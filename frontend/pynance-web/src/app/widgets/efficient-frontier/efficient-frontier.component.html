@@ -9,14 +9,6 @@
                 (addTickers)="this.setTickers($event);"
                 (addDates)="this.setDates($event)"
                 (addInvestment)="this.setInvestment($event)"></app-args><br>
-
-            <!-- TODO: create tabbed portfolio component to display
-                        all portfolios in efficient frontier-->
-            <!--
-            <mat-tab-group headerPosition="below">
-
-            </mat-tab-group>
-            -->
             
         <mat-tab-group headerPosition="below">
             <mat-tab *ngFor="let portfolio of frontier">
