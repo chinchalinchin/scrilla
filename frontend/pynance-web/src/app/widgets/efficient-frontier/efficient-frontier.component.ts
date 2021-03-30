@@ -1,11 +1,10 @@
-import { THIS_EXPR } from '@angular/compiler/src/output/output_ast';
 import { ChangeDetectorRef, Component, Input, OnInit, SimpleChanges, ViewChild, ViewChildren } from '@angular/core';
+import { DomSanitizer } from '@angular/platform-browser';
 import { ArgumentsComponent } from 'src/app/input/args/arguments.component';
 import { PortfolioComponent } from 'src/app/input/portfolio/portfolio.component';
 import { Portfolio } from 'src/app/models/portfolio';
 import { LogService } from 'src/app/services/log.service';
 import { PynanceService } from 'src/app/services/pynance.service';
-import { containsObject, uniqueArray } from 'src/utilities';
 
 @Component({
   selector: 'app-efficient-frontier',
@@ -37,6 +36,7 @@ export class EfficientFrontierComponent implements OnInit {
   
   constructor(private logs: LogService,
               private pynance: PynanceService,
+              private sanitizer : DomSanitizer,
               private cd: ChangeDetectorRef) { }
 
   ngOnInit(): void { }
@@ -46,12 +46,30 @@ export class EfficientFrontierComponent implements OnInit {
     this.frontierDisabled = true;
     this.clearDisabled = false;
 
+    let imgLoaded = false;
+    let jsonLoaded = false;
+
     this.pynance.efficientFrontier(this.tickers, this.startDate, this.endDate, this.investment)
                   .subscribe( (frontier_result)=> {
                       this.frontier=frontier_result;
                       this.cd.detectChanges();
-                      this.loading = false;
+                      //TODO: iterate through frontier and set portfoliocomponents return and vol
+                      jsonLoaded = true;
+                      if(imgLoaded){
+                        this.loading = false;
+                        this.loaded = true;
+                      }
                   });
+    this.pynance.efficientFrontierJPEG(this.tickers, this.startDate, this.endDate)
+                  .subscribe( (imgData) =>{
+                    let imgUrl = URL.createObjectURL(imgData)
+                    this.img = this.sanitizer.bypassSecurityTrustUrl(imgUrl);
+                    imgLoaded = true;
+                    if(jsonLoaded){
+                      this.loading = false;
+                      this.loaded = true;
+                    }
+                  })
   }
 
   ngOnChanges(changes: SimpleChanges){ 
