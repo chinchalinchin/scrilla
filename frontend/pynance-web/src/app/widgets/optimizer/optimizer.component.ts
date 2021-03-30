@@ -18,6 +18,7 @@ export class OptimizerComponent implements OnInit {
   public optimizeSharpe : boolean = false;
   public optimizedPortfolio : Portfolio = null;
   public loading : boolean = false;
+  public tickers: string[] = [];
 
   @Input() 
   public explanationDisabled;
@@ -33,7 +34,7 @@ export class OptimizerComponent implements OnInit {
 
   ngOnInit() {  }
 
-  ngOnChanges(changes: SimpleChanges){  }
+  ngOnChanges(changes: SimpleChanges){ }
 
   public optimize(){
     this.calculated = true;
@@ -90,6 +91,10 @@ export class OptimizerComponent implements OnInit {
     }
   }
 
+  public setTickers(theseTickers: string[]) : void{ this.tickers = theseTickers; }
+
+  public getTickers(): string[] { return this.tickers; }
+  
   public getAllocations() : number[]{
     let allocations : number[] = [];
     // check for existence of portfolioComponent since this method gets 

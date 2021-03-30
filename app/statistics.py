@@ -569,6 +569,7 @@ def calculate_ito_correlation(ticker_1, ticker_2, start_date=None, end_date=None
 
         sample_prices = {}
         
+        # TODO: or if (end_date - start_date).days == settings.DEFAULT_ANALYSIS_PERIOD
         if start_date is None and end_date is None:
             # check if results exist in cache location 1
             logger.debug('Checking for correlation calculation in cache.')
@@ -596,6 +597,9 @@ def calculate_ito_correlation(ticker_1, ticker_2, start_date=None, end_date=None
     else:
         logger.debug('Sample prices provided, skipping service calls.')
         prices_1, prices_2 = sample_prices[ticker_1], sample_prices[ticker_2]
+        # TODO: infer start_date and end_date from sample prices. without doing so,
+        #       the mean and volatilities subsequently calculcated a few lines down
+        #       will be wrong!
         
     if (not prices_1) or (not prices_2):
         logger.info("Prices cannot be retrieved for correlation calculation")
@@ -739,6 +743,7 @@ def calculate_ito_correlation(ticker_1, ticker_2, start_date=None, end_date=None
 
     result = { 'correlation' : correlation }
 
+    # TODO: or if (start_date - end_date).days() == settings.DEFAULT_ANALYSIS_PERIOD
     if start_date is None and end_date is None:
         logger.debug(f'Storing ({ticker_1}, {ticker_2}) correlation in cache...')
         files.save_file(file_to_save=result, file_name=buffer_store_1)

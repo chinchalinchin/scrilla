@@ -1,4 +1,5 @@
-import { Component, Input, OnInit, ViewChild, ViewChildren } from '@angular/core';
+import { THIS_EXPR } from '@angular/compiler/src/output/output_ast';
+import { ChangeDetectorRef, Component, Input, OnInit, SimpleChanges, ViewChild, ViewChildren } from '@angular/core';
 import { ArgumentsComponent } from 'src/app/input/args/arguments.component';
 import { PortfolioComponent } from 'src/app/input/portfolio/portfolio.component';
 import { Portfolio } from 'src/app/models/portfolio';
@@ -30,11 +31,13 @@ export class EfficientFrontierComponent implements OnInit {
 
   @ViewChildren(PortfolioComponent)
   public portfolioChildren : PortfolioComponent[];
+
   @ViewChild(ArgumentsComponent)
   public args : ArgumentsComponent;
   
   constructor(private logs: LogService,
-              private pynance: PynanceService) { }
+              private pynance: PynanceService,
+              private cd: ChangeDetectorRef) { }
 
   ngOnInit(): void { }
 
@@ -46,9 +49,15 @@ export class EfficientFrontierComponent implements OnInit {
     this.pynance.efficientFrontier(this.tickers, this.startDate, this.endDate, this.investment)
                   .subscribe( (frontier_result)=> {
                       this.frontier=frontier_result;
-                      // todo: propagate overall return and volatilities down through children
+                      this.cd.detectChanges();
+                      this.propagateTickers();
                   });
-    
+  }
+
+  ngOnChanges(changes: SimpleChanges){ 
+    if(changes.portfolioChildren){
+      console.log(changes.portfolioChildren.currentValue.length)
+    }
   }
 
 
@@ -65,6 +74,8 @@ export class EfficientFrontierComponent implements OnInit {
     this.img = null;
   }
   
+  // TODO: don't need to do this, take care of all duplication 
+  //      inside of portfoliocomponent itself.
   public setTickers(inputTickers : string[]) : void{
     let unduplicatedTickers : string[] = [];
     let filteredInput : string [] = uniqueArray(inputTickers);
@@ -77,6 +88,16 @@ export class EfficientFrontierComponent implements OnInit {
     this.frontierDisabled=false;
   }
 
+  public getTickers(): string[]{ return this.tickers; }
+
+  // note: children don't exist until frontier exists
+  public propagateTickers(): void{
+    this.logs.log('Propagating tickers down through portfolio children', this.location)
+    for(let child of this.portfolioChildren){
+      child.setTickers(this.tickers)
+    }
+  }
+
   public setDates(inputDates : string[]) : void{
     this.startDate = inputDates[0];
     this.endDate = inputDates[1];
@@ -84,21 +105,6 @@ export class EfficientFrontierComponent implements OnInit {
 
   public setInvestment(inputInvest : number): void{
     this.investment = inputInvest;
-  }
-
-  public propagateFrontiers(): void{
-    for(let child of this.portfolioChildren){
-      let index = this.portfolioChildren.indexOf(child);
-      // TODO: pass frontier to portfolioChildren
-      //    tickers: 
-      //    shares:
-      //    allocations:
-      //    returns:
-      //    volatilities:
-      //    overall_return
-      //    overall_volatility
-      this.frontier[index]
-    }
   }
 
   public getAllocations(thisPortfolio: Portfolio) : number[]{

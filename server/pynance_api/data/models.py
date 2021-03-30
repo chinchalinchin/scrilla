@@ -52,6 +52,12 @@ class EquityProfileCache(models.Model):
     sharpe_ratio = models.DecimalField(max_digits=20, decimal_places=6, null=True)
     asset_beta = models.DecimalField(max_digits=20, decimal_places=6, null=True)
 
+class EquityCorrelationCache(models.Model):
+    ticker_1 = models.ForeignKey(EquityTicker, on_delete=models.CASCADE, related_name="ticker_1")
+    ticker_2 = models.ForeignKey(EquityTicker, on_delete=models.CASCADE, related_name="ticker_2")
+    date = models.DateField('Date')
+    correlation = models.DecimalField(max_digits=20, decimal_places=6, null=True)
+    
 class Dividends(models.Model):
     ticker = models.ForeignKey(EquityTicker, on_delete=models.CASCADE)
     date = models.DateField('Payment Date')

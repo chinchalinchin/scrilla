@@ -17,10 +17,13 @@
 
             </mat-tab-group>
             -->
+            
         <mat-tab-group headerPosition="below">
             <mat-tab *ngFor="let portfolio of frontier">
-                <app-portfolio [allocations]="this.getAllocations(portfolio)" [shares]="this.getShares(portfolio)"
-                                [returns]="this.getReturns(portfolio)" [volatilities]="this.getVolatilities(portfolio)"
+                <app-portfolio id="efficient-frontier-portfolio" class="app-card"
+                                [tickers]="this.getTickers()" [allocations]="this.getAllocations(portfolio)" 
+                                [shares]="this.getShares(portfolio)" [returns]="this.getReturns(portfolio)" 
+                                [volatilities]="this.getVolatilities(portfolio)"
                                 (clearEvent)="this.clear(); this.frontierDisabled=true;">
                 </app-portfolio>
             </mat-tab>

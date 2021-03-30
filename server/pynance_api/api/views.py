@@ -60,12 +60,18 @@ def risk_return(request):
         profile['ticker'] = ticker_str
         profile['annual_return'] = stats['annual_return']
         profile['annual_volatility'] =  stats['annual_volatility']
+        # TODO: pass in annual_return and annual_volatility
+        # TODO: check app_settings.RISK_FREE_RATE for gaps (stat_queryset_gap_analysis)
         profile['sharpe_ratio'] = markets.sharpe_ratio(ticker=tickers[i], start_date=parsed_args['start_date'],
                                                         end_date=parsed_args['end_date'])
+        # TODO: check app_settings.MARKET_PROXY for gaps
+        # TODO: check app_settings.MARKET_PROXY profile cache
+        # TODO: calculate app_settings.MARKET_PROXY profile
+        # TODO: save app_settings.MARKET_PROXY profile to cache
+        # TODO: pass in statistics as arguments
         profile['asset_beta'] = markets.market_beta(ticker=tickers[i], start_date=parsed_args['start_date'],
                                                         end_date=parsed_args['end_date'])
         
-        output.debug(f'Saving {tickers[i]} profile to cache')
         analyzer.save_profile_to_cache(profile=profile)
         response[i] = profile
 
@@ -95,6 +101,8 @@ def optimize(request):
                                                 end_date=parsed_args['end_date'])
         prices[ticker] = parser.parse_args_into_market_queryset(ticker, parsed_args)
 
+    # TODO: check correlation cache for correlation matrix (anaylzer function)
+    # TODO: pass correlation matrix into portfolio as argument to prevent overusing services
     portfolio = Portfolio(tickers=tickers, sample_prices=prices)    
     if parsed_args['sharpe_ratio'] is None:
         allocation = optimizer.optimize_portfolio_variance(portfolio=portfolio, target_return=parsed_args['target_return'])

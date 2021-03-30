@@ -6,15 +6,22 @@
                 [tickers]="true" [maxTickers]="null"
                 [dates]="true" [target]="true" 
                 [investment]="true" [method]="true"
-                (addTickers)="this.portfolioComponent.setTickers($event); this.optimizeDisabled=false;"
+                (addTickers)="this.setTickers($event); this.optimizeDisabled=false;"
                 (addDates)="this.portfolioComponent.setDates($event)"
                 (addTarget)="this.portfolioComponent.setTargetReturn($event)"
                 (addInvestment)="this.portfolioComponent.setInvestment($event)"
                 (addMethod)="this.setOptimizeMethod($event)"></app-args><br>
 
+                <!--TODO: make tickers an input into the portfolio component
+                        catch tickers coming out of app-args and store them in
+                        variable in optimizerclass. call getter method when
+                        passing them into portfolio component.
+                -->
+
         <app-portfolio id="optimizer-card-portfolio" class="app-card" 
-                [allocations]="getAllocations()" [shares]="getShares()"
-                [returns]="getReturns()" [volatilities]="getVolatilities()"
+                [tickers]="this.getTickers()"
+                [allocations]="this.getAllocations()" [shares]="this.getShares()"
+                [returns]="this.getReturns()" [volatilities]="this.getVolatilities()"
                 (clearEvent)="clear(); this.optimizeDisabled=true;"></app-portfolio>
 
                 

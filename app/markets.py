@@ -103,6 +103,8 @@ def get_risk_free_rate():
         risk_free_rate = services.get_daily_stats_latest(statistic=risk_free_rate_key)
         return (risk_free_rate)/100
 
+# TODO: pass in profile=None as optional argument to prevent overusing services
+# TODO: pass in risk_free_rate=None as optional argument to prevent overusing services
 def sharpe_ratio(ticker, start_date=None, end_date=None):
     """
     Description

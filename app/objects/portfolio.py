@@ -12,6 +12,8 @@ from decimal import Decimal
 logger = outputter.Logger("app.objects.portfolio", settings.LOG_LEVEL)
 
 # TODO: allow user to specify bounds for equities, i.e. min and max allocations.
+# TODO: allow user to pass in correlation matrix
+# TODO: instead of nulling start and end date, infer start and date from sample prices
 class Portfolio:
     """
     Description

@@ -16,15 +16,17 @@ logger = outputter.Logger("server.pynance_api.api.anaylzer", settings.LOG_LEVEL)
 # NOTE: The EquityProfileCache object is created when the cache is initially
 #        checked for the result.
 def save_profile_to_cache(profile):
-    ticker = EquityTicker.objects.get_or_create(ticker=profile['ticker'])
-    result = EquityProfileCache.objects.filter(ticker=ticker[0]).order_by('-date')
+    ticker = EquityTicker.objects.get(ticker=profile['ticker'])
+    result = EquityProfileCache.objects.get(ticker=ticker, date=helper.get_today())
 
-    result[0].annual_return = Decimal(profile['annual_return'])
-    result[0].annual_volatility = Decimal(profile['annual_volatility'])
-    result[0].sharpe_ratio = Decimal(profile['sharpe_ratio'])
-    result[0].asset_beta = Decimal(profile['asset_beta'])
+    logger.info(f'Saving {ticker.ticker} profile to cache')
 
-    result[0].save(force_update=True)
+    result.annual_return = Decimal(profile['annual_return'])
+    result.annual_volatility = Decimal(profile['annual_volatility'])
+    result.sharpe_ratio = Decimal(profile['sharpe_ratio'])
+    result.asset_beta = Decimal(profile['asset_beta'])
+
+    result.save()
     
 # If no start and end date are provided, since the default time period is 100
 #   prices, stash equity profile statistics for quick retrieval instead of 
@@ -38,6 +40,7 @@ def check_cache_for_profile(ticker):
     result = EquityProfileCache.objects.get_or_create(ticker=ticker[0], date=today)
 
     if result[1]:
+        logger.info(f'No cache found for {ticker[0].ticker}')
         return False
     else:
         if result[0].annual_return is None:
@@ -49,6 +52,7 @@ def check_cache_for_profile(ticker):
         if result[0].asset_beta is None:
             return False
         
+        logger.info(f'Cache found for {ticker[0].ticker}')
         profile = {}
         profile['ticker'] = ticker[0].ticker
         profile['annual_return'] = result[0].annual_return

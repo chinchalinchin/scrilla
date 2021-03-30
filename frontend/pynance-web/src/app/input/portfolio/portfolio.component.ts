@@ -1,8 +1,9 @@
 import { MatTable } from '@angular/material/table';
-import { Component, EventEmitter, Input, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { Holding } from 'src/app/models/holding';
 import { containsObject, arraysEqual, uniqueArray } from 'src/utilities';
 import { LogService } from 'src/app/services/log.service';
+import { THIS_EXPR } from '@angular/compiler/src/output/output_ast';
 
 @Component({
   selector: 'app-portfolio',
@@ -56,31 +57,51 @@ export class PortfolioComponent implements OnInit {
   private portfolioTable : MatTable<Holding[]>;
 
   @Input()
-  private allocations: number[]
+  private allocations: number[]=null;
   @Input()
-  private shares: number[];
+  private shares: number[]=null;
   @Input()
-  private returns: number[];
+  private returns: number[]=null;
   @Input()
-  private volatilities: number[];
+  private volatilities: number[]=null;
+  @Input()
+  private tickers: string[]=null;
+
+  @Input()
+  private tickersRemovable: boolean = true;
 
   @Output()
   private clearEvent = new EventEmitter<boolean>();
 
-  constructor(private logs: LogService){ }
+  constructor(private logs: LogService, private cd: ChangeDetectorRef){ }
 
-  ngOnInit() { } 
+  // pass input to model interface for rendering
+  ngOnInit() {
+    if(this.allocations.length>0 && this.shares.length>0 && this.returns.length>0 
+        && this.volatilities.length>0 && this.tickers.length>0){ 
+      this.setTickers(this.tickers);
+      this.setPortfolioAllocations(this.allocations); 
+      this.setPortfolioShares(this.shares);
+      this.setPortfolioReturns(this.returns);
+      this.setPortfolioVolatilities(this.volatilities); 
+    }
+  } 
   
+  // detect changes to input and pass to interface for re-rendering.
   ngOnChanges(changes: SimpleChanges) {    
+    if(changes.tickers){
+      if(!arraysEqual(changes.tickers.currentValue, changes.tickers.previousValue)){
+        this.setTickers(changes.tickers.currentValue);
+      }
+    }
+
     if (changes.allocations) {
       if(!arraysEqual(changes.allocations.currentValue, changes.allocations.previousValue)){
         if(this.portfolio.length != 0){
-          // empty portfolio passed in
           if(changes.allocations.currentValue.length == 0){ 
             for(let holding of this.portfolio){ holding.allocation = null; }
             this.displayedColumns = [ 'ticker' ]
           }
-          // allocation portfolio passed in
           else{
             if (changes.allocations.currentValue.length == this.portfolio.length){
               this.setPortfolioAllocations(changes.allocations.currentValue)
@@ -99,12 +120,10 @@ export class PortfolioComponent implements OnInit {
     if(changes.shares){
       if(!arraysEqual(changes.shares.currentValue, changes.shares.previousValue)){
         if(this.portfolio.length != 0){
-          // empty portfolio passed in
           if(changes.shares.currentValue.length == 0){
             for(let holding of this.portfolio) { holding.shares= null; }
             this.displayedColumns = ['ticker'];
           }
-          // shares portfolio passed in
           else{
             if(changes.shares.currentValue.length == this.portfolio.length){
               this.setPortfolioShares(changes.shares.currentValue);
@@ -123,7 +142,6 @@ export class PortfolioComponent implements OnInit {
     if(changes.returns){
       if(!arraysEqual(changes.returns.currentValue, changes.returns.previousValue)){
         if(this.portfolio.length != 0){
-          //empty portfolio passed in
           if(changes.returns.currentValue.length == 0){
             for(let holding of this.portfolio) { holding.annual_return = null; }
             this.displayedColumns = ['ticker']
@@ -151,7 +169,6 @@ export class PortfolioComponent implements OnInit {
     if(changes.volatilities){
       if(!arraysEqual(changes.volatilities.currentValue, changes.volatilities.previousValue)){
         if(this.portfolio.length != 0){
-          //empty portfolio passed in
           if(changes.volatilities.currentValue.length == 0){
             for(let holding of this.portfolio) { holding.annual_volatility = null; }
             this.displayedColumns = ['ticker']
@@ -176,7 +193,18 @@ export class PortfolioComponent implements OnInit {
         }
       }
     }
+  }
 
+  public initNullPortfolio(){
+    if(this.shares.length == this.allocations.length && this.volatilities.length == this.returns.length
+        && this.shares.length == this.volatilities.length){
+          for(let index of this.shares){
+            this.portfolio.push({ ticker: null, allocation: null, shares: null, 
+                                  annual_return: null, annual_volatility: null,
+                                  sharpe_ratio: null, asset_beta: null,
+                                  discount_dividend: null})
+          }
+    }
   }
 
   public getTickers() : string[]{
@@ -223,6 +251,10 @@ export class PortfolioComponent implements OnInit {
     }
 
     for(let ticker of unduplicatedTickers){
+      // I SEE WHAT'S GOING ON. this is creating empty holdings with just tickers
+      //  whereas when the component is initialized with shares, allocations, etc,
+      //  the portfolio has already been initialized, so you can the ucrrent 
+      //  behavior. Possible solution: pass in tickers as input.
       this.portfolio.push({ ticker: ticker, allocation: null, shares: null, 
                             annual_return: null, annual_volatility: null,
                             sharpe_ratio: null, asset_beta: null,
@@ -231,10 +263,28 @@ export class PortfolioComponent implements OnInit {
   
     if(this.portfolio.length != 0){
       this.clearDisabled = false;
-      this.displayedColumns = [ 'ticker' ]
+      this.displayedColumns = ['ticker'];
+       /**
+        * Note: the portfolio components for each spot on the efficient frontier
+        *        are dynamically generated from the response received. Because 
+        *        the components do not exist in the DOM before the response is
+        *        received and because they can get initialized with result already 
+        *        calculated, the change detection in the component life cycle hook 
+        *        does not register the result as having changed. Thus, the correct 
+        *        columns are not displayed in the component table.
+        * 
+        *       In other words, because it is possible to initialize this component
+        *       with the results before it has had its ticker symbols set, an additional
+        *       check is required here to see if more columns on the table need displayed.
+        */
+      //if(this.allocations.length>0){ this.displayedColumns.push('allocation'); }
+      //if(this.shares.length>0){ this.displayedColumns.push('shares'); }
+      //if(this.returns.length>0) { this.displayedColumns.push('return'); }
+      //if(this.volatilities.length>0) { this.displayedColumns.push('volatility'); }
     }
     
-    this.portfolioTable.renderRows()
+    this.cd.detectChanges();
+    this.portfolioTable.renderRows();
 
   }
   
