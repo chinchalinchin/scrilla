@@ -1,4 +1,3 @@
-import { ReturnStatement, THIS_EXPR } from '@angular/compiler/src/output/output_ast';
 import { Component, Input, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 import { Portfolio } from 'src/app/models/portfolio';
 import { LogService } from 'src/app/services/log.service';
@@ -14,7 +13,7 @@ export class OptimizerComponent implements OnInit {
   private location : string = "app.widgets.optimizer.OptimizerComponent";
   private calculated : boolean = false; 
 
-  public optimizeDisabled : boolean = false;
+  public optimizeDisabled : boolean = true;
   public clearDisabled : boolean = true;
   public optimizeSharpe : boolean = false;
   public optimizedPortfolio : Portfolio = null;
@@ -32,13 +31,9 @@ export class OptimizerComponent implements OnInit {
               private pynance: PynanceService) { }
 
 
-  ngOnInit() {
-    this.optimizeDisabled = true;
-  }
+  ngOnInit() {  }
 
-  ngOnChanges(changes: SimpleChanges){
-    // TODO: 
-  }
+  ngOnChanges(changes: SimpleChanges){  }
 
   public optimize(){
     this.calculated = true;

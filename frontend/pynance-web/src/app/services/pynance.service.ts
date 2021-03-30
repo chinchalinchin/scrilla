@@ -145,7 +145,21 @@ export class PynanceService {
     this.logs.log(`Querying backend at ${queryUrl}`, this.location)
     return this.http.get<Portfolio[]>(queryUrl)
                           .pipe(
-                            map( (data) => { return data; }),
+                            map( (data) => { 
+                              let portfolios : Portfolio[] = [];
+                              Object.entries(data).forEach((element)=>{
+                                let port : Portfolio = {holdings: null, portfolio_return: null, 
+                                                        portfolio_volatility: null, total: null};
+                                Object.entries(element[1]).forEach((second)=>{
+                                  if(second[0] == "holdings"){ port.holdings = second[1]; };
+                                  if(second[0] == "portfolio_return"){ port.portfolio_return = second[1]; };
+                                  if(second[0] == "portfolio_volatility"){ port.portfolio_volatility = second[1]; };
+                                  if(second[0]=="total"){ port.total = second[1]; }
+                                })
+                                portfolios.push(port);
+                              });
+                              return portfolios; 
+                            }),
                             tap( _ => {this.logs.log(`Received response from backend efficient frontier endpoint`, this.location)}),
                             catchError(this.handleError<Portfolio[]>('optimize', null))
                           );

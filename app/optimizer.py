@@ -141,10 +141,7 @@ def calculate_efficient_frontier(portfolio, steps=None):
     frontier=[]
     for i in range(steps+1):
         target_return = minimum_return + return_width*i
-
-        logger.debug(f'Optimizing {tickers} Portfolio Return Subject To {target_return}')
         allocation = optimize_portfolio_variance(portfolio=portfolio, target_return=target_return)
-        
         frontier.append(allocation)
         
     return frontier

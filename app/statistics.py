@@ -818,6 +818,7 @@ def calculate_ito_correlation_Series(ticker_1, ticker_2, start_date=None, end_da
     if asset_type_1 == asset_type_2:
         same_type = True
     
+    # TODO: what if start_date or end_date is None?
     if same_type:
         if asset_type_1 == settings.ASSET_EQUITY:
             date_range = [helper.get_previous_business_date(start_date)] + helper.business_dates_between(start_date,end_date)

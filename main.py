@@ -188,7 +188,13 @@ if __name__ == "__main__":
             elif opt == formatter.FUNC_ARG_DICT['correlation_time_series']:
                 def cli_correlation_series():
                     ticker_1, ticker_2 = main_args[0], main_args[1]
-                    pass
+                    result = statistics.calculate_ito_correlation_series(ticker_1=ticker_1,ticker_2=ticker_2,
+                                                                            start_date=xtra_list['start_date'],
+                                                                            end_date=xtra_list['end_date'])
+                    for date in result:
+                        outputter.scalar_result(calculation=f'{date}_{ticker_1}_{ticker_2}_correlation', 
+                                                result=float(result[date]), currency=False)
+                    
                 selected_function, required_length, exact = cli_correlation_series, 2, True
 
             ### FUNCTION: Discount Dividend Model

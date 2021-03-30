@@ -6,21 +6,26 @@
                 [tickers]="true" [maxTickers]="null"
                 [dates]="true" [target]="false"
                 [investment]="true" [method]="false"
-                (addTickers)="portfolio.setTickers($event)"
-                (addDates)="portfolio.setDates($event)"></app-args><br>
+                (addTickers)="this.setTickers($event);"
+                (addDates)="this.setDates($event)"
+                (addInvestment)="this.setInvestment($event)"></app-args><br>
 
             <!-- TODO: create tabbed portfolio component to display
                         all portfolios in efficient frontier-->
             <!--
             <mat-tab-group headerPosition="below">
-                <mat-tab *ngFor="let portfolio of frontier">
-                    <app-portfolio [allocations]="getAllocations(portfolio)" [shares]="getShares(portfolio)"
-                                    [returns]="getReturns(portfolio)" [volatilities]="getVolatilities(portfolio)"
-                                    (clearEvent)="clear(); this.optimizeDisabled=true;">
-                    </app-portfolio>
-                </mat-tab>
+
             </mat-tab-group>
             -->
+        <mat-tab-group headerPosition="below">
+            <mat-tab *ngFor="let portfolio of frontier">
+                <app-portfolio [allocations]="this.getAllocations(portfolio)" [shares]="this.getShares(portfolio)"
+                                [returns]="this.getReturns(portfolio)" [volatilities]="this.getVolatilities(portfolio)"
+                                (clearEvent)="this.clear(); this.frontierDisabled=true;">
+                </app-portfolio>
+            </mat-tab>
+        </mat-tab-group>
+
     </mat-card-content>
 
     <mat-card-actions id="frontier-card-actions" class="align-right">

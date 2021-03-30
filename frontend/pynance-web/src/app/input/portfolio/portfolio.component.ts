@@ -241,7 +241,6 @@ export class PortfolioComponent implements OnInit {
   public setDates(inputDates: string[]) : void {
     this.logs.log(`Received dates ${inputDates}`, this.location)
     this.startDate = inputDates[0]
-    // TODO: this looks wrong
     this.endDate = inputDates[1]
   }
 
