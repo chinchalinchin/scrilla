@@ -50,6 +50,7 @@ export class EfficientFrontierComponent implements OnInit {
                   .subscribe( (frontier_result)=> {
                       this.frontier=frontier_result;
                       this.cd.detectChanges();
+                      this.loading = false;
                   });
   }
 

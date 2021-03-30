@@ -11,7 +11,7 @@
                 (addInvestment)="this.setInvestment($event)"></app-args><br>
             
         <mat-tab-group headerPosition="below">
-            <mat-tab *ngFor="let portfolio of frontier">
+            <mat-tab *ngFor="let portfolio of frontier" [label]="frontier.indexOf(portfolio)">
                 <app-portfolio id="efficient-frontier-portfolio" class="app-card"
                                 [tickers]="this.getTickers()" [allocations]="this.getAllocations(portfolio)" 
                                 [shares]="this.getShares(portfolio)" [returns]="this.getReturns(portfolio)" 
@@ -22,6 +22,8 @@
         </mat-tab-group>
 
     </mat-card-content>
+
+    <mat-progress-bar id="buffer-bar" *ngIf="loading" mode="buffer"></mat-progress-bar>
 
     <mat-card-actions id="frontier-card-actions" class="align-right">
         <button mat-raised-button color="primary" 
