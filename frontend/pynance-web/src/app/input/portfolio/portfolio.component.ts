@@ -68,7 +68,7 @@ export class PortfolioComponent implements OnInit {
   private tickers: string[]=null;
 
   @Input()
-  private tickersRemovable: boolean = true;
+  public tickersRemovable: boolean = true;
 
   @Output()
   private clearEvent = new EventEmitter<boolean>();

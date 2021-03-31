@@ -4,8 +4,8 @@
         <mat-chip-list #portfolioChipList *ngIf="this.portfolio" color="primary">
             <!--TODO: bind removable to input for efficient frontier-->
             <mat-chip *ngFor="let holding of portfolio" [selectable]="true"
-                        [removable]="true" (removed)="removeHolding(holding)"> {{holding.ticker}} 
-                <mat-icon matChipRemove>cancel</mat-icon>
+                        [removable]="tickersRemovable" (removed)="removeHolding(holding)"> {{holding.ticker}} 
+                <mat-icon *ngIf="tickersRemovable" matChipRemove>cancel</mat-icon>
             </mat-chip>
         </mat-chip-list>
     </mat-card-title>

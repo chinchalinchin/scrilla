@@ -18,18 +18,17 @@ mat-radio-button{ padding-right:10px;padding-left:10px;}
 
 .box{ margin-left: 10px; margin-right:10px; margin-top:10px; margin-bottom:10px;}
 .text-background{background-color:rgb(116, 116, 116);}
-.app-card { max-width: 650px; background-color:rgb(53, 53, 53); }
-.app-card-nested { max-width: 450px; }
+.app-card { width:100%; max-height: 800px; min-height:600px; background-color:rgb(53, 53, 53); }
 
-.vertical-scroll { overflow-y: auto; }
-.horizontal-scroll { overflow-x: auto; }
-.all-scroll{ overflow-y: auto; overflow-x: auto; }
+.vert-scroll { overflow-y: auto !important; }
+.hori-scroll { overflow-x: auto !important; }
+.scroll {overflow:auto !important;}
+
 .fill-width { width: 100%; }
 .fill-height { height: 100%; }
-.squeeze-height { height: 75%; }
-.squeeze-width { width: 75%; }
-.image-card {max-width: 400px; max-height: 400px; }
-  
+
+.tile{ max-width:500px; max-height:500px; } 
+
 .indent { text-indent: 50px; }
 .align-left{ text-align: left !important; }
 .align-right{ text-align: right !important; }
@@ -38,8 +37,9 @@ mat-radio-button{ padding-right:10px;padding-left:10px;}
 .component-title { font-size: medium; }
 .component-text { font-size: small; }
 .component-note { font-size: x-small; }
+
 .foot-note{ text-align: center; font-size:xx-small; }
-.tab-text{ color:darkslategrey !important; }
+
 .divide { border-top: 3px solid #bbb; }
 
 .note{ font-size:x-small; color:crimson !important; }

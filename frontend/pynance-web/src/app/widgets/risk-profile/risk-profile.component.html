@@ -24,17 +24,18 @@
         </mat-card>
         
 
-        <mat-grid-list *ngIf="loaded" cols="2" rowHeight="200px">
+        <mat-grid-list *ngIf="loaded" cols="3" class="app-card" rowHeight="fit">
 
             <mat-grid-tile id="risk-profile-image"
                             colspan="1" rowspan=2>
-                <img *ngIf="loaded" mat-card-image [src]="img" id="risk-profile-image" 
-                    alt="Risk Return Profile" width="100" height="400">
+                <div class="tile" >
+                    <img *ngIf="loaded" mat-card-image [src]="img" id="risk-profile-image" 
+                        alt="Risk Return Profile">
+                </div>
             </mat-grid-tile>
 
             <mat-grid-tile id="risk-profile-table" 
-                            colspan="1" rowspan="2">
-                
+                            colspan="2" rowspan="2">
                 <table #statisticsTable mat-table [dataSource]="portfolio" class="fill-width fill-height">
                     <ng-container matColumnDef="ticker">
                         <th mat-header-cell *matHeaderCellDef> Symbol </th>
@@ -60,7 +61,6 @@
                     <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
                     <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr> 
                 </table>
-            
             </mat-grid-tile>
 
         </mat-grid-list>

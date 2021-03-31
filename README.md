@@ -451,6 +451,10 @@ not affect the application.
 
 36. In order for correlation time series to work, the ito_correlation method needs fixed. See TODOS within script.
 
+37. Look into why U risk profile calculation breaks function.
+
+38. Removing chips from risk-profile components should remove them from table.
+
 ### NOTES
 
 1. All date strings should be converted to <b>datetime.dates</b> at point of contact with user, i.e. in the main.py file where CLI arguments are parsed, within the gui where user arguments are pulled from widgets or in the server's endpoint views where user arguments are provided through query parameters, before passing it the service/statistics/portfolio functions. All functions in the <i>/app/</i> module assume dates are passed in as <b>datetime.dates</b>.

@@ -3,28 +3,27 @@
         Portfolio Efficient Frontier</mat-card-title>
     <mat-card-content id="frontier-card-body">
         <app-args id="frontier-card-arguments" class="app-card" 
-                [tickers]="true" [maxTickers]="null"
-                [dates]="true" [target]="false"
-                [investment]="true" [method]="false"
-                (addTickers)="this.setTickers($event);"
-                (addDates)="this.setDates($event)"
-                (addInvestment)="this.setInvestment($event)"></app-args><br>
+                [tickers]="true" [maxTickers]="null" [dates]="true" [target]="false"
+                [investment]="true" [method]="false" (addTickers)="this.setTickers($event);"
+                (addDates)="this.setDates($event)" (addInvestment)="this.setInvestment($event)"></app-args><br>
             
-        <mat-grid-list *ngIf="loaded" cols="2" rowHeight="200px">
-            <mat-grid-tile id="risk-profile-image"
-                            colspan="1" rowspan=2>
-                <img *ngIf="loaded" mat-card-image [src]="img" id="efficient-frontier-image" 
-                        alt="Risk Return Profile" width="100" height="400">
+        <mat-grid-list *ngIf="loaded" class="app-card" cols="3" rowHeight="fit">
+            <mat-grid-tile id="risk-profile-image" colspan="1" rowspan=2>
+                <div class="tile">
+                    <img *ngIf="loaded" mat-card-image [src]="img" id="efficient-frontier-image" 
+                           alt="Risk Return Profile" width="100" height="400">
+                </div>
             </mat-grid-tile>
 
             <mat-grid-tile id="frontier-portfolios-tab" 
-                            colspan="1" rowspan="2">
+                            colspan="2" rowspan="2">
                 <mat-tab-group headerPosition="below">
                     <mat-tab *ngFor="let portfolio of frontier" [label]="frontier.indexOf(portfolio)">
                         <app-portfolio id="efficient-frontier-portfolio" class="app-card"
                                         [tickers]="this.getTickers()" [allocations]="this.getAllocations(portfolio)" 
                                         [shares]="this.getShares(portfolio)" [returns]="this.getReturns(portfolio)" 
                                         [volatilities]="this.getVolatilities(portfolio)"
+                                        [tickersRemovable]="false"
                                         (clearEvent)="this.clear(); this.frontierDisabled=true;">
                         </app-portfolio>
                     </mat-tab>

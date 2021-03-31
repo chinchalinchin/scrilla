@@ -50,6 +50,9 @@ else
         log "Clearing \e[3m/cache/\e[0m directory of outdated price histories." $SCRIPT_NAME
         python3 -c "$CLEAR_CACHE"
 
+        log "Invoking \e[2mpynance CLI\e[0m to initalize \e[3m/static/\e[0m directory; This may take a while!" $SCRIPT_NAME
+        python3 main.py -init-static
+        
         cd $SERVER_DIR
         log "Verifying migrations are up-to-date." $SCRIPT_NAME
         python3 manage.py makemigrations
