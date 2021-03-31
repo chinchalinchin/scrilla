@@ -455,6 +455,9 @@ not affect the application.
 
 38. Removing chips from risk-profile components should remove them from table.
 
+39. Use recursion estimation for mean, variance and covariance by building from cached values of previous estimates. Remember the statistics are calculated on a rolling 100 day period. Recursion should be derived using a constant number of observations. 
+
+40. Include derivation of recursive estimation in the documentation pages.
 ### NOTES
 
 1. All date strings should be converted to <b>datetime.dates</b> at point of contact with user, i.e. in the main.py file where CLI arguments are parsed, within the gui where user arguments are pulled from widgets or in the server's endpoint views where user arguments are provided through query parameters, before passing it the service/statistics/portfolio functions. All functions in the <i>/app/</i> module assume dates are passed in as <b>datetime.dates</b>.

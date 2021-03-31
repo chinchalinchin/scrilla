@@ -41,6 +41,8 @@ def check_cache_for_profile(ticker):
 
     if result[1]:
         logger.info(f'No cache found for {ticker[0].ticker}')
+        # check for any dates and recursively build profiles
+        #   
         return False
     else:
         if result[0].annual_return is None:

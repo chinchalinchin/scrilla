@@ -63,6 +63,11 @@ def sample_correlation(x, y):
 
     return correlation
 
+def recursive_correlation(correl_previous, new_x_observation, lost_x_obs, 
+                            new_y_obs, lost_y_obs, n=settings.DEFAULT_ANALYSIS_PERIOD):
+    
+    pass
+
 def sample_mean(x):
     xbar, n = 0, len(x)
     if n == 0:
@@ -73,6 +78,10 @@ def sample_mean(x):
         xbar += i/n
     return xbar
 
+def recursive_mean(xbar_previous, new_obs, lost_obs, n=settings.DEFAULT_ANALYSIS_PERIOD):
+    xbar_next = xbar_previous + (new_obs - lost_obs)/n
+    return xbar_next
+
 def sample_variance(x):
     mu, sigma, n = sample_mean(x=x), 0, len(x)
     if n in [0, 1]:
@@ -82,6 +91,13 @@ def sample_variance(x):
     for i in x:
         sigma += ((i-mu)**2)/(n-1)
     return sigma
+
+def recursive_variance(vol_previous, xbar_previous, new_obs, 
+                        lost_obs, n=settings.DEFAULT_ANALYSIS_PERIOD):
+    xbar_new = recursive_mean(xbar_previous=xbar_previous, new_obs=new_obs,
+                                lost_obs=lost_obs)
+    vol_new = (n/(n-1))*(new_obs**2 - lost_obs**2 + (xbar_previous**2-xbar_new**2))
+    return vol_new
 
 def sample_covariance(x, y):
     if len(x) != len(y):
@@ -98,6 +114,13 @@ def sample_covariance(x, y):
         covariance += (x[i] - x_mean)*(y[i] - y_mean) / (n -1) 
 
     return covariance
+
+def recursive_covariance(covar_previous, new_x_obs, lost_x_obs, 
+                            new_y_obs, lost_y_obs, n=settings.DEFAULT_ANALYSIS_PERIOD):
+    cross_delta = (new_x_obs*new_y_obs - lost_x_obs*lost_y_obs)
+    uni_delta = (lost_x_obs - new_x_obs + lost_y_obs - new_y_obs)
+    covar_new = covar_previous +(cross_delta + uni_delta)/(n-1)
+    return covar_new
 
 def regression_beta(x, y):
     if len(x) != len(y):
@@ -814,7 +837,7 @@ def get_ito_correlation_matrix_string(tickers, indent=0, start_date=None, end_da
     return whole_thing
 
 
-def calculate_ito_correlation_Series(ticker_1, ticker_2, start_date=None, end_date=None):
+def calculate_ito_correlation_series(ticker_1, ticker_2, start_date=None, end_date=None):
     asset_type_1 = markets.get_asset_type(ticker_1)
     asset_type_2 = markets.get_asset_type(ticker_2)
     same_type = False
@@ -875,3 +898,4 @@ if __name__=="__main__":
     outputter.scalar_result(calculation='correct regression intercept',  result=17.28571, currency=False)
     outputter.scalar_result(calculation='regression_alpha(x,y)',  result=regression_alpha(data[0],data[1]), currency=False)
     outputter.print_line()
+    # TODO: test recursive functions
