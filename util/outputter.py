@@ -250,4 +250,5 @@ class Logger():
             self.comment("# Database Configuration")
             self.comment(f'> Database Engine: {settings.DATABASES["default"]["ENGINE"]}')
             self.comment(f'> Database Host: {settings.DATABASES["default"]["HOST"]}')
+            self.comment(f'> Database Port: {settings.DATABASES["default"]["PORT"]}')
             print_line()

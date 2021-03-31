@@ -45,23 +45,24 @@ else
 
         cd $ROOT_DIR
         log "Logging non-sensitive Django settings." $SCRIPT_NAME
-        python -c "$LOG_DJANGO_SETTINGS"
+        python3 -c "$LOG_DJANGO_SETTINGS"
    
         log "Clearing \e[3m/cache/\e[0m directory of outdated price histories." $SCRIPT_NAME
-        python -c "$CLEAR_CACHE"
+        python3 -c "$CLEAR_CACHE"
 
         cd $SERVER_DIR
         log "Verifying migrations are up-to-date." $SCRIPT_NAME
-        python manage.py makemigrations
+        python3 manage.py makemigrations
 
         log 'Migrating Django database models.' $SCRIPT_NAME
-        python manage.py migrate
+        python3 manage.py migrate
 
         log 'Creating Django Admin from environment variables.' $SCRIPT_NAME
-        python manage.py createsuperuser --no-input --username $DJANGO_SUPERUSER_USERNAME --email $DJANGO_SUPERUSER_EMAIL
+        python3 manage.py createsuperuser --no-input --username "$DJANGO_SUPERUSER_USERNAME" --email "$DJANGO_SUPERUSER_EMAIL"
                 
-        log "Starting Django Development server On \e[3mlocalhost:$APP_PORT\e[0m." $SCRIPT_NAME
-        python manage.py runserver $APP_PORT
+        HOST=localhost:$APP_PORT        
+        log "Starting Django Development server On \e[3m$HOST\e[0m." $SCRIPT_NAME
+        python3 manage.py runserver $HOST
     fi
 
     # Run in container mode

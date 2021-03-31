@@ -12,4 +12,4 @@ do
     # looks for single dashed arguments
 done
 
-python $SCRIPT_DIR/../main.py $@
+python3 $SCRIPT_DIR/../main.py $@

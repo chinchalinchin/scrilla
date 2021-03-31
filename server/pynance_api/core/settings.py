@@ -19,7 +19,7 @@ sys.path.append(PROJECT_DIR)
 
 ### ENVIRONMENT INITIALIZATION ###
 
-APP_ENV = os.environ.setdefault('APP_ENV', 'local')
+APP_ENV = os.environ.setdefault('APP_ENV', 'local').strip()
 
 # Load in local.env file if not running application container. Container should 
 # already have the container.env file preloaded in its environment.
@@ -28,10 +28,9 @@ if APP_ENV != 'container':
 
 ### APPLICATION ENVIRONMENT CONFIGURATION ###
 ## APP SETTINGS
-APP_ENV = os.environ.setdefault('APP_ENV', 'local')
-SECRET_KEY = os.environ.setdefault('SECRET_KEY', 'NoIAmYourFather')
-DEBUG= os.getenv('DEBUG').lower() == 'true'
-LOG_LEVEL = str(os.environ.setdefault('LOG_LEVEL', "info")).lower()
+SECRET_KEY = os.environ.setdefault('SECRET_KEY', 'NoIAmYourFather').strip()
+DEBUG= os.getenv('DEBUG').strip().lower() == 'true'
+LOG_LEVEL = str(os.environ.setdefault('LOG_LEVEL', "info")).strip().lower()
 
 ## LOCALIZATION SETTINGS
 LANGUAGE_CODE = 'en-us'
@@ -109,22 +108,22 @@ if APP_ENV == 'local':
     DATABASES = {
         'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'HOST': os.getenv('POSTGRES_HOST'),
-        'NAME': os.getenv('POSTGRES_DB'),
-        'USER': os.getenv('POSTGRES_USER'),
-        'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
-        'PORT': os.getenv('POSTGRES_PORT')
+        'HOST': os.getenv('POSTGRES_HOST').strip(),
+        'NAME': os.getenv('POSTGRES_DB').strip(),
+        'USER': os.getenv('POSTGRES_USER').strip(),
+        'PASSWORD': os.getenv('POSTGRES_PASSWORD').strip(),
+        'PORT': os.getenv('POSTGRES_PORT').strip()
         }
     }
 elif APP_ENV == 'container':
     DATABASES = {
         'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'HOST': os.getenv('POSTGRES_HOST'),
-        'NAME': os.getenv('POSTGRES_DB'),
-        'USER': os.getenv('POSTGRES_USER'),
-        'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
-        'PORT': os.getenv('POSTGRES_PORT')
+        'HOST': os.getenv('POSTGRES_HOST').strip(),
+        'NAME': os.getenv('POSTGRES_DB').strip(),
+        'USER': os.getenv('POSTGRES_USER').strip(),
+        'PASSWORD': os.getenv('POSTGRES_PASSWORD').strip(),
+        'PORT': os.getenv('POSTGRES_PORT').strip()
         }
     }
 
