@@ -6,4 +6,4 @@ The program's functions are wrapped in [PyQt5](https://doc.qt.io/qtforpython/ind
 
 The program's functions can also be wired into a WSGI Application using the [Django framework](https://docs.djangoproject.com/en/3.1/) provided in the <i>/server/</i> directory. See <b>[WSGI Application](#WSGI-Application)</b> for more information. The WSGI application can be containerized using the <i>Dockerfile</i> in the project root and deployed as a microservice.
 
-See [Setup](docs/SETUP.md) for more information setting the application for the first time. See [Environment](docs/configuration/ENVIRONMENT.md) for more information on configuration options. See [Examples](docs/EXAMPLES.md) for example usage of the application.
+See [Setup](SETUP.md) for more information setting the application for the first time. See [Environment](docs/configuration/ENVIRONMENT.md) for more information on configuration options. See [Examples](EXAMPLES.md) for example usage of the application.
