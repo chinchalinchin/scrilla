@@ -92,12 +92,11 @@ def sample_variance(x):
         sigma += ((i-mu)**2)/(n-1)
     return sigma
 
-def recursive_variance(vol_previous, xbar_previous, new_obs, 
-                        lost_obs, n=settings.DEFAULT_ANALYSIS_PERIOD):
+def recursive_variance(var_previous, xbar_previous, new_obs, lost_obs, n=settings.DEFAULT_ANALYSIS_PERIOD):
     xbar_new = recursive_mean(xbar_previous=xbar_previous, new_obs=new_obs,
-                                lost_obs=lost_obs)
-    vol_new = (n/(n-1))*(new_obs**2 - lost_obs**2 + (xbar_previous**2-xbar_new**2))
-    return vol_new
+                                lost_obs=lost_obs, n=n)
+    var_new = var_previous + (n/(n-1))*((new_obs**2 - lost_obs**2 )/n + (xbar_previous**2-xbar_new**2))
+    return var_new
 
 def sample_covariance(x, y):
     if len(x) != len(y):
@@ -115,8 +114,7 @@ def sample_covariance(x, y):
 
     return covariance
 
-def recursive_covariance(covar_previous, new_x_obs, lost_x_obs, 
-                            new_y_obs, lost_y_obs, n=settings.DEFAULT_ANALYSIS_PERIOD):
+def recursive_covariance(covar_previous, new_x_obs, lost_x_obs, new_y_obs, lost_y_obs, n=settings.DEFAULT_ANALYSIS_PERIOD):
     cross_delta = (new_x_obs*new_y_obs - lost_x_obs*lost_y_obs)
     uni_delta = (lost_x_obs - new_x_obs + lost_y_obs - new_y_obs)
     covar_new = covar_previous +(cross_delta + uni_delta)/(n-1)
@@ -881,8 +879,19 @@ def calculate_return_covariance(ticker_1, ticker_2, start_date=None, end_date=No
     return covariance
    
 if __name__=="__main__":
+
+    # REGRESSION DATA
     data = [[1, 2, 3, 4, 5, 6, 7],[20, 19, 23, 20, 26, 22, 30]]
 
+    # REGRESSION CALCULATIONS
+    correl = sample_correlation(data[0], data[1])
+    beta = regression_beta(data[0],data[1])
+    alpha = regression_alpha(data[0],data[1])
+    
+    # TEST RESULTS
+    outputter.print_line()
+    outputter.center("Regression Testing")
+    outputter.print_line()
     outputter.title_line('X Data')
     outputter.print_list(data[0])
     outputter.title_line('Y Data')
@@ -890,12 +899,85 @@ if __name__=="__main__":
     outputter.title_line('Test Results')
     outputter.print_line()
     outputter.scalar_result(calculation='correct correlation', result=0.764852927, currency=False)
-    outputter.scalar_result(calculation='sample_correlation(x, y)',  result=sample_correlation(data[0], data[1]), currency=False)
+    outputter.scalar_result(calculation='sample_correlation(x, y)',  result=correl, currency=False)
     outputter.print_line()
     outputter.scalar_result(calculation='correct regression slope', result= 1.39286, currency=False)
-    outputter.scalar_result(calculation='regression_beta(x,y)',  result=regression_beta(data[0],data[1]), currency=False)
+    outputter.scalar_result(calculation='regression_beta(x,y)',  result=beta, currency=False)
     outputter.print_line()
     outputter.scalar_result(calculation='correct regression intercept',  result=17.28571, currency=False)
-    outputter.scalar_result(calculation='regression_alpha(x,y)',  result=regression_alpha(data[0],data[1]), currency=False)
+    outputter.scalar_result(calculation='regression_alpha(x,y)',  result=alpha, currency=False)
     outputter.print_line()
-    # TODO: test recursive functions
+
+    # ROLLING RECURSION DATA
+    rolling_1 = [1, 3, 5, 2, 6, 10]
+    rolling_2 = [3, 5, 2, 6, 10, 8]
+    rolling_3 = [5, 2, 6, 10, 8, 2]
+    rolling_4 = [2, 6, 10, 8, 2, 3]
+    rolling_y_1 = [4, 5, 3, 6, 2, 8]
+    rolling_y_2 = [5, 3, 6, 2, 8, 5]
+    rolling_y_3 = [3, 6, 2, 8, 5, 10]
+    rolling_y_4 = [6, 2, 8, 5, 10, 9]
+
+    length = len(rolling_1)
+    
+    # ACTUAL MEANS
+    mean_1 = sample_mean(rolling_1)
+    mean_2 = sample_mean(rolling_2)
+    mean_3 = sample_mean(rolling_3)
+    mean_4 = sample_mean(rolling_4)
+
+    # RECURSIVE MEANS
+    recursive_mean_2 = recursive_mean(xbar_previous=mean_1,new_obs=8, lost_obs=1, n=length)
+    recursive_mean_3 = recursive_mean(xbar_previous=mean_2, new_obs=2, lost_obs=3, n=length)
+    recursive_mean_4 = recursive_mean(xbar_previous=mean_3, new_obs=3, lost_obs=5, n=length)
+
+    # ACTUAL VARIANCES
+    var_1 = sample_variance(rolling_1)
+    var_2 = sample_variance(rolling_2)
+    var_3 = sample_variance(rolling_3)
+    var_4 = sample_variance(rolling_4)
+
+    # RECURSIVE VARIANCES
+    recursive_var_2 = recursive_variance(var_previous=var_1, xbar_previous=mean_1, new_obs=8, lost_obs=1, n=length)
+    recursive_var_3 = recursive_variance(var_previous=var_2, xbar_previous=recursive_mean_2, new_obs=2, lost_obs=3, n=length)
+    recursive_var_4 = recursive_variance(var_previous=var_3, xbar_previous=recursive_mean_3, new_obs=3, lost_obs=5, n=length)
+
+    # ACTUAL COVARIANCES
+    covar_1 = sample_covariance(x=rolling_1, y=rolling_y_1)
+    covar_2 = sample_covariance(x=rolling_2, y=rolling_y_2)
+    covar_3 = sample_covariance(x=rolling_3, y=rolling_3)
+    covar_4 = sample_covariance(x=rolling_4, y=rolling_y_4)
+
+    # RECURSIVE COVARIANCES
+    recursive_covar_2 = recursive_covariance(covar_previous=covar_1, new_x_obs=8, lost_x_obs=1, new_y_obs=5, lost_y_obs=4, n=length)
+    recursive_covar_3 = recursive_covariance(covar_previous=covar_2, new_x_obs=2, lost_x_obs=3, new_y_obs=10, lost_y_obs=5, n=length)
+    recursive_covar_4 = recursive_covariance(covar_previous=covar_3, new_x_obs=3, lost_x_obs=5, new_y_obs=9, lost_y_obs=3, n=length)
+
+    # TEST RESULTS
+    outputter.print_line()
+    outputter.center("Rolling Sample Statistics Recursion Testing")
+    outputter.print_line()
+    outputter.title_line('Test Results')
+    outputter.print_line()
+    outputter.scalar_result(calculation="Actual Mean 2", result=mean_2, currency=False)
+    outputter.scalar_result(calculation="Recursive Mean 2", result=recursive_mean_2, currency=False)
+    outputter.scalar_result(calculation="Actual Variance 2", result=var_2, currency=False)
+    outputter.scalar_result(calculation="Recursive Variance 2", result=recursive_var_2, currency=False)
+    outputter.scalar_result(calculation="Actual Covariance 2", result=covar_2, currency=False)
+    outputter.scalar_result(calculation="Recursive Covariance 2", result=recursive_covar_2, currency=False)
+    outputter.print_line()
+    outputter.scalar_result(calculation="Actual Mean 3", result=mean_3, currency=False)
+    outputter.scalar_result(calculation="Recursive Mean 3", result=recursive_mean_3, currency=False)
+    outputter.scalar_result(calculation="Actual Variance 3", result=var_3, currency=False)
+    outputter.scalar_result(calculation="Recursive Variance 3", result=recursive_var_3, currency=False)
+    outputter.scalar_result(calculation="Actual Covariance 3", result=covar_3, currency=False)
+    outputter.scalar_result(calculation="Recursive Covariance 3", result=recursive_covar_3, currency=False)
+    outputter.print_line()
+    outputter.scalar_result(calculation="Actual Mean 4", result=mean_4, currency=False)
+    outputter.scalar_result(calculation="Recursive Mean 4", result=recursive_mean_4, currency=False)
+    outputter.scalar_result(calculation="Actual Variance 4", result=var_4, currency=False)
+    outputter.scalar_result(calculation="Recursive Variance 4", result=recursive_var_4, currency=False)
+    outputter.scalar_result(calculation="Actual Covariance 4", result=covar_4, currency=False)
+    outputter.scalar_result(calculation="Recursive Covariance 4", result=recursive_covar_4, currency=False)
+    outputter.print_line()
+    
