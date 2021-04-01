@@ -14,7 +14,7 @@ The program's functions can also be wired into a WSGI Application using the [Dja
 
 ## Environment 
 
-You will want to export the environment variables defined in the <i>/env/</i><b>ENVIRONMENT</b><i>.env</i> file into your current terminal session while using and developing the application. You can `source` the <i>scripts/util/env-vars.sh</i> shell script to load these variables,
+You will want to export the environment variables defined in the <i>/env/<b>environment</b>.env</i> file into your current terminal session while using and developing the application. You can `source` the <i>scripts/util/env-vars.sh</i> shell script to load these variables,
 
 > source ./scripts/util/env-vars.sh
 
