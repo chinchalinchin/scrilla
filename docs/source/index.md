@@ -7,28 +7,28 @@ Welcome to pynance-docs's documentation!
 ========================================
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
    :caption: Contents:
 
-   README
-   main/SETUP
-   main/EXAMPLES
-   configuration/ENVIRONMENT
-   configuration/SERVICES
-   basic-application/STATISTICS
-   basic-application/SERVICES
-   basic-application/OPTIMIZER
-   basic-application/MARKETS
-   basic-application/OBJECTS
-   gui-application/QT
-   wsgi-application/SERVER
-   wsgi-application/CONTAINER
-   wsgi-application/FRONTEND
-   wsgi-application/DATABASE
-   wsgi-application/API
-   appendix/LINKS
-   appendix/NOTES
-   appendix/DERIVATIONS
+   ReadMe <README>
+   Setup <main/SETUP>
+   Examples <main/EXAMPLES>
+   Environment Configuration<configuration/ENVIRONMENT>
+   Service Configuration <configuration/SERVICES>
+   Application - Statistics.py Module <basic-application/STATISTICS>
+   Application - Services.py Module <basic-application/SERVICES>
+   Application - Optimizer.py Module <basic-application/OPTIMIZER>
+   Application - Markets.py Module<basic-application/MARKETS>
+   Application - Objects <basic-application/OBJECTS>
+   GUI <gui-application/QT>
+   WSGI - Server <wsgi-application/SERVER>
+   WSGI - Container <wsgi-application/CONTAINER>
+   WSGI - Frontend <wsgi-application/FRONTEND>
+   WSGI - Database <wsgi-application/DATABASE>
+   WSGI - API <wsgi-application/API>
+   Appendix A: Links <appendix/LINKS>
+   Appendix B: Notes <appendix/NOTES>
+   Appendix C: Derivations <appendix/DERIVATIONS>
 
 Indices and tables
 ==================

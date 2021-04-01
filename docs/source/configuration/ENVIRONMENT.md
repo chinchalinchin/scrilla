@@ -62,8 +62,7 @@ See the comments in the <i>/env/.sample.env</i> for more information on each var
 
 ### Database Configuration
 
-- Note: If `APP_ENV not in ['local', 'container']`, then the server will default to a SQLite database and the following environment variables will 
-not affect the application. 
+- Note: If `APP_ENV not in ['local', 'container']`, then the server will default to a SQLite database and the following environment variables will not affect the application. 
 
 25. <b>POSTGRES_HOST</b>: should be set equal to the name of the <b>postgres</b> service defined in the <i>docker-compose.yml</i>; the default is <i>datasource</i>
 26. <b>POSTGRES_PORT</b>:

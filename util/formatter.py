@@ -91,6 +91,8 @@ FUNC_DICT = {
     
     "correlation": "Calculate pair-wise correlation for the supplied list of ticker symbols. If no start or end dates are specified, calculations default to the last 100 days of prices. ADDITIONAL OPTIONS:  -start (format: \"YYYY-MM-DD\"), -end  (format :\"YYYY-MM-DD\")",
     
+    "correlation_time_series": "Calculate correlation for a pair of tickers over a specified date range. If no start or end dates are specified, the default analysis period of 100 days is applied. ADDITIONAL OPTIONS:  -start (format: \"YYYY-MM-DD\"), -end  (format :\"YYYY-MM-DD\")",
+
     "discount_dividend": "Extrapolates future dividend cashflows from historical dividend payments with linear regression and then uses that model to calculate the net present value of all future dividends. If no discount rate is specified, the calculations default to the risk-free rate, i.e. the 10-Year US Treasury yield. ADDITIONAL OPTIONS: -discount (float)",
     
     "dividends": "Displays the price history over the specific date range. If no dates are provided, returns the entire dividend history. -start (format: \"YYYY-MM-DD\"), -end  (format :\"YYYY-MM-DD\")",
@@ -113,6 +115,8 @@ FUNC_DICT = {
     
     "optimize_portfolio": "Optimize the volatility of the portfolio\'s variance subject to the supplied return target.  Returns an array representing the allocations to be made for each asset in a portfolio. The target return must be specified with the '-target' flag. If no target return is specified, the portfolio's volatility is minimized. If no start or end dates are specified with the '-start' and '-end' flags, calculations default to the last 100 days of prices. You can specify an investment with the '-invest' flag, otherwise the result will be output in percentage terms. If the -sh flag is specified, the function will maximize the portfolio's sharpe ratio instead of minimizing it's volatility. ADDITIONAL OPTIONS:  -start (format: \"YYYY-MM-DD\"), -end  (format :\"YYYY-MM-DD\"), -target (format: decimal), -invest (format: float), -save (format: /path/to/file/filename.json), -sh (binary flag; no format. include it or don't.)",
     
+    "plot_correlation": "Generates a time series for the correlation of two ticker symbols over the specified date range. ADDITIONAL OPTIONS:  -start (format: \"YYYY-MM-DD\"), -end  (format :\"YYYY-MM-DD\"), -save (format: /path/to/file/filename.jpeg)",
+
     "plot_dividends": "Generates a scatter plot graphic of the dividend history for the supplied list of tickers with a superimposed simple linear regression line. ADDITIONAL OPTIONS: -save (format: /path/to/file/filename.jpeg)",
     
     "plot_frontier": "Generates a scatter plot graphic of the portfolio\'s efficient frontier for the supplied list of tickers. Not available when running inside of a Docker container.The number of points calculated in the efficient frontier can be specifed as an integer with the -steps. If no -steps is provided, the value of the environment variable FRONTIER_STEPS will be used. ADDITIONAL OPTIONS: -start (format: \"YYYY-MM-DD\"), -end  (format :\"YYYY-MM-DD\"), -save (format: /path/to/file/filename.jpeg), -steps (format: integer)",
