@@ -117,12 +117,12 @@ def sample_covariance(x, y):
 
 def recursive_covariance(covar_previous, new_x_obs, lost_x_obs, previous_x_bar, 
                             new_y_obs, lost_y_obs, previous_y_bar, n=settings.DEFAULT_ANALYSIS_PERIOD):
-    first_weighted_term = new_y_obs*((n-1)*new_x_obs+lost_x_obs)
-    second_weighted_term = lost_y_obs*(new_x_obs-(n+1)*lost_x_obs)
-    first_cross_term = previous_x_bar*(new_y_obs-lost_y_obs)
-    second_cross_term = previous_y_bar*(new_x_obs - lost_x_obs)
-    numerator = first_weighted_term+second_weighted_term-first_cross_term-second_cross_term
-    covar_new = covar_previous + numerator /(n*(n-1))
+    new_sum_term = new_x_obs*new_y_obs - lost_x_obs*lost_y_obs
+    xy_cross_term = previous_x_bar*(new_y_obs-lost_y_obs)
+    yx_cross_term = previous_y_bar*(new_x_obs-lost_x_obs)
+    perturbation = (new_x_obs-lost_x_obs)*(new_y_obs-lost_y_obs) / n
+    numerator = new_sum_term - xy_cross_term - yx_cross_term - perturbation    
+    covar_new = covar_previous + numerator / (n-1)
     return covar_new
 
 def regression_beta(x, y):
