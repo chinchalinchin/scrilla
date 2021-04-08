@@ -107,6 +107,7 @@ def sample_covariance(x, y):
         logger.info('Sample correlation cannot be computed for a sample size less than or equal to 1.')
         return False
 
+    # TODO: probably a faster way of calculating this.
     n, covariance = len(x), 0
     x_mean, y_mean = sample_mean(x=x), sample_mean(x=y)
     for i in range(len(x)):
@@ -114,10 +115,14 @@ def sample_covariance(x, y):
 
     return covariance
 
-def recursive_covariance(covar_previous, new_x_obs, lost_x_obs, new_y_obs, lost_y_obs, n=settings.DEFAULT_ANALYSIS_PERIOD):
-    cross_delta = (new_x_obs*new_y_obs - lost_x_obs*lost_y_obs)
-    uni_delta = (lost_x_obs - new_x_obs + lost_y_obs - new_y_obs)
-    covar_new = covar_previous +(cross_delta + uni_delta)/(n-1)
+def recursive_covariance(covar_previous, new_x_obs, lost_x_obs, previous_x_bar, 
+                            new_y_obs, lost_y_obs, previous_y_bar, n=settings.DEFAULT_ANALYSIS_PERIOD):
+    first_weighted_term = new_y_obs*((n-1)*new_x_obs+lost_x_obs)
+    second_weighted_term = lost_y_obs*(new_x_obs-(n+1)*lost_x_obs)
+    first_cross_term = previous_x_bar*(new_y_obs-lost_y_obs)
+    second_cross_term = previous_y_bar*(new_x_obs - lost_x_obs)
+    numerator = first_weighted_term+second_weighted_term-first_cross_term-second_cross_term
+    covar_new = covar_previous + numerator /(n*(n-1))
     return covar_new
 
 def regression_beta(x, y):
@@ -925,11 +930,18 @@ if __name__=="__main__":
     mean_2 = sample_mean(rolling_2)
     mean_3 = sample_mean(rolling_3)
     mean_4 = sample_mean(rolling_4)
+    y_mean_1 = sample_mean(rolling_y_1)
+    y_mean_2 = sample_mean(rolling_y_2)
+    y_mean_3 = sample_mean(rolling_y_3)
+    y_mean_4 = sample_mean(rolling_y_4)
 
     # RECURSIVE MEANS
     recursive_mean_2 = recursive_mean(xbar_previous=mean_1,new_obs=8, lost_obs=1, n=length)
     recursive_mean_3 = recursive_mean(xbar_previous=mean_2, new_obs=2, lost_obs=3, n=length)
     recursive_mean_4 = recursive_mean(xbar_previous=mean_3, new_obs=3, lost_obs=5, n=length)
+    recursive_y_mean_2 = recursive_mean(xbar_previous=y_mean_1, new_obs=5, lost_obs=4, n=length)
+    recursive_y_mean_3 = recursive_mean(xbar_previous=y_mean_2, new_obs=10, lost_obs=5, n=length)
+    recursive_y_mean_4 = recursive_mean(xbar_previous=y_mean_3, new_obs=9, lost_obs=3, n=length)
 
     # ACTUAL VARIANCES
     var_1 = sample_variance(rolling_1)
@@ -945,13 +957,16 @@ if __name__=="__main__":
     # ACTUAL COVARIANCES
     covar_1 = sample_covariance(x=rolling_1, y=rolling_y_1)
     covar_2 = sample_covariance(x=rolling_2, y=rolling_y_2)
-    covar_3 = sample_covariance(x=rolling_3, y=rolling_3)
+    covar_3 = sample_covariance(x=rolling_3, y=rolling_y_3)
     covar_4 = sample_covariance(x=rolling_4, y=rolling_y_4)
 
     # RECURSIVE COVARIANCES
-    recursive_covar_2 = recursive_covariance(covar_previous=covar_1, new_x_obs=8, lost_x_obs=1, new_y_obs=5, lost_y_obs=4, n=length)
-    recursive_covar_3 = recursive_covariance(covar_previous=covar_2, new_x_obs=2, lost_x_obs=3, new_y_obs=10, lost_y_obs=5, n=length)
-    recursive_covar_4 = recursive_covariance(covar_previous=covar_3, new_x_obs=3, lost_x_obs=5, new_y_obs=9, lost_y_obs=3, n=length)
+    recursive_covar_2 = recursive_covariance(covar_previous=covar_1, new_x_obs=8, lost_x_obs=1, previous_x_bar= mean_1,
+                                                new_y_obs=5, lost_y_obs=4, previous_y_bar=y_mean_1, n=length)
+    recursive_covar_3 = recursive_covariance(covar_previous=covar_2, new_x_obs=2, lost_x_obs=3, previous_x_bar = mean_2,
+                                                new_y_obs=10, lost_y_obs=5, previous_y_bar = y_mean_2, n=length)
+    recursive_covar_4 = recursive_covariance(covar_previous=covar_3, new_x_obs=3, lost_x_obs=5, previous_x_bar=mean_3, 
+                                                new_y_obs=9, lost_y_obs=3, previous_y_bar=y_mean_3, n=length)
 
     # TEST RESULTS
     outputter.print_line()
@@ -961,22 +976,37 @@ if __name__=="__main__":
     outputter.print_line()
     outputter.scalar_result(calculation="Actual Mean 2", result=mean_2, currency=False)
     outputter.scalar_result(calculation="Recursive Mean 2", result=recursive_mean_2, currency=False)
+    outputter.print_line()
+    outputter.scalar_result(calculation="Actual Y Mean 2", result=y_mean_2, currency=False)
+    outputter.scalar_result(calculation="Recursive Y Mean 2", result=recursive_y_mean_2, currency=False)
+    outputter.print_line()
     outputter.scalar_result(calculation="Actual Variance 2", result=var_2, currency=False)
     outputter.scalar_result(calculation="Recursive Variance 2", result=recursive_var_2, currency=False)
+    outputter.print_line()
     outputter.scalar_result(calculation="Actual Covariance 2", result=covar_2, currency=False)
     outputter.scalar_result(calculation="Recursive Covariance 2", result=recursive_covar_2, currency=False)
     outputter.print_line()
     outputter.scalar_result(calculation="Actual Mean 3", result=mean_3, currency=False)
     outputter.scalar_result(calculation="Recursive Mean 3", result=recursive_mean_3, currency=False)
+    outputter.print_line()
+    outputter.scalar_result(calculation="Actual Y Mean 3", result=y_mean_3, currency=False)
+    outputter.scalar_result(calculation="Recursive Y Mean 3", result=recursive_y_mean_3, currency=False)
+    outputter.print_line()
     outputter.scalar_result(calculation="Actual Variance 3", result=var_3, currency=False)
     outputter.scalar_result(calculation="Recursive Variance 3", result=recursive_var_3, currency=False)
+    outputter.print_line()
     outputter.scalar_result(calculation="Actual Covariance 3", result=covar_3, currency=False)
     outputter.scalar_result(calculation="Recursive Covariance 3", result=recursive_covar_3, currency=False)
     outputter.print_line()
     outputter.scalar_result(calculation="Actual Mean 4", result=mean_4, currency=False)
     outputter.scalar_result(calculation="Recursive Mean 4", result=recursive_mean_4, currency=False)
+    outputter.print_line()
+    outputter.scalar_result(calculation="Actual Y Mean 4", result=y_mean_4, currency=False)
+    outputter.scalar_result(calculation="Recursive Y Mean 4", result=recursive_y_mean_4, currency=False)
+    outputter.print_line()
     outputter.scalar_result(calculation="Actual Variance 4", result=var_4, currency=False)
     outputter.scalar_result(calculation="Recursive Variance 4", result=recursive_var_4, currency=False)
+    outputter.print_line()
     outputter.scalar_result(calculation="Actual Covariance 4", result=covar_4, currency=False)
     outputter.scalar_result(calculation="Recursive Covariance 4", result=recursive_covar_4, currency=False)
     outputter.print_line()
