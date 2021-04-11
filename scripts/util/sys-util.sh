@@ -10,7 +10,7 @@ function unixify(){
             if [ ${f: -3} == ".sh" ]
             then
                 echo "$f"
-                dos2unix $f
+                dos2unix "$f"
             fi
         fi
     done
@@ -26,7 +26,7 @@ function make_scripts_executable(){
             if [ ${f: -3} == ".sh" ]
             then
                 echo "$f"
-                chmod +x $f
+                chmod u+x "$f"
             fi
         fi
     done

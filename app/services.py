@@ -23,10 +23,10 @@ def validate_order_of_dates(start_date, end_date):
 
     if start_date is not None:
         if helper.is_date_today(start_date):
-            time_delta = end_date - start_date
-            if time_delta.days == 0:
-                return True, start_date, None
-
+            time_delta = (end_date - start_date).days
+            if time_delta == 0:
+                logger.debug(f'End and Start Date {start_date}=={end_date} are today!')
+                return True, start_date, end_date
             else:
                 return False, None, None
 
@@ -46,31 +46,19 @@ def validate_order_of_dates(start_date, end_date):
 
 def validate_tradeability_of_dates(start_date, end_date):
     if start_date is not None:
-        if helper.is_date_holiday(start_date):
-            logger.debug(f'{start_date} is a holiday. Equities do not trade on holidays.')
+        if helper.is_date_holiday(start_date) or helper.is_date_weekend(start_date):
+            logger.debug(f'{start_date} is invalid. Equities do not trade on holidays or weekends.')
 
             start_date = helper.get_previous_business_date(start_date)
             logger.debug(f'Setting start date to next business day, {start_date}')
 
-        elif helper.is_date_weekend(start_date):
-            logger.debug(f'{start_date} is a weekend. Equities do not trade on weekends.')
-
-            start_date = helper.get_previous_business_date(start_date)
-            logger.debug(f'Setting start date to previous business day, {start_date}')
-    
     if end_date is not None:
-        if helper.is_date_holiday(end_date):
-            logger.debug(f'{end_date} is a holiday. Equities do not trade on holidays.')
+        if helper.is_date_holiday(end_date) or helper.is_date_weekend(end_date):
+            logger.debug(f'{end_date} is invalid. Equities do not trade on holidays or weekends.')
 
             end_date = helper.get_previous_business_date(end_date)
             logger.debug(f'Setting end date to previous business day, {end_date}.')
 
-        elif helper.is_date_weekend(end_date):
-            logger.debug(f'{end_date} is a weekend. Equities do not trade on weekends.')
-            
-            end_date = helper.get_previous_business_date(end_date)
-            logger.debug(f'Setting end date to previous business day, {end_date}.')
-    
     return start_date, end_date
 
 def parse_price_from_date(prices, date, asset_type, which_price=CLOSE_PRICE):
@@ -173,8 +161,7 @@ def query_service_for_daily_price_history(ticker, start_date=None, end_date=None
 
             # NOTE: only need to modify EQUITY query, CRYPTO always returns full history
         if (full or start_date is not None or end_date is not None) and (asset_type == settings.ASSET_EQUITY):
-            if asset_type == settings.ASSET_EQUITY:
-                query += f'&{settings.PARAM_AV_SIZE}={settings.ARG_AV_SIZE_FULL}'
+            query += f'&{settings.PARAM_AV_SIZE}={settings.ARG_AV_SIZE_FULL}'
 
         auth_query = query + f'&{settings.PARAM_AV_KEY}={settings.AV_KEY}'
         url=f'{settings.AV_URL}?{auth_query}'  
@@ -197,7 +184,7 @@ def query_service_for_daily_price_history(ticker, start_date=None, end_date=None
             else:
                 logger.debug('Waiting.')
             
-            time.sleep(10)
+            time.sleep(settings.BACKOFF_PERIOD)
             prices = requests.get(url).json()
             first_element = helper.get_first_json_key(prices)
 
@@ -205,7 +192,7 @@ def query_service_for_daily_price_history(ticker, start_date=None, end_date=None
             if first_element == settings.AV_RES_DAY_LIMIT:
                 logger.info('Daily AlphaVantage rate limit exceeded. No more queries possible!')
                 return False
-        ### END: AlphaVantage sService Query ###
+        ### END: AlphaVantage Service Query ###
 
         ### START: AlphaVantage Equity Response Parsing ###
         # TODO: could possibly initial start_index = 0 and end_index = len(prices)
@@ -296,6 +283,8 @@ def query_service_for_daily_price_history(ticker, start_date=None, end_date=None
         logger.info("No PRICE_MANAGER set in .env file!")
         return False
 
+# Checks the file cache for price histories if start_date and end_date are 
+#   None. Otherwise, it hands the request off to the service manager.
 # TODO: Crypto queries return all dates and price even if no start_date is provided.
 #       Need to truncuate crypto queries to last 100 days for caching. 
 def get_daily_price_history(ticker, start_date=None, end_date=None):
@@ -355,7 +344,7 @@ def get_daily_price_latest(ticker):
         return None
 
 # NOTE: if no start_date and end_date are provided to Quandl API, entire price history is returned.
-# NOTE: by default, returns last 100 days of data.
+# NOTE: by default, returns last 100 points of data.
 def query_service_for_daily_stats_history(statistic, start_date=None, end_date=None, full=False):
     if settings.STAT_MANAGER == "quandl":
         stat = {}
@@ -394,7 +383,7 @@ def query_service_for_daily_stats_history(statistic, start_date=None, end_date=N
         formatted_stat = {}
 
         if not full:
-            raw_stat = raw_stat[:100]
+            raw_stat = raw_stat[:settings.DEFAULT_ANALYSIS_PERIOD]
 
         for stat in raw_stat:
             formatted_stat[stat[0]] = stat[1]
@@ -404,6 +393,8 @@ def query_service_for_daily_stats_history(statistic, start_date=None, end_date=N
         logger.info("No STAT_MANAGER set in .env file!")
         return None
 
+# Goes through file cache if start_date and end_date are not provided,
+#   otherwise, hands the call off to the service manager.
 def get_daily_stats_history(statistic, start_date=None, end_date=None):
     if start_date is None and end_date is None:
         logger.debug(f'Checking for {statistic} statistics in cache')
