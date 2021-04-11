@@ -94,7 +94,7 @@ def market_queryset_gap_analysis(symbol, start_date=None, end_date=None):
     gaps = len(date_range) - queryset.count()  + 1
     if gaps != 0: 
             logger.info(f'{len(date_range) - queryset.count() + 1} gaps detected.')
-            price_history = services.query_service_for_daily_price_history(ticker=symbol, start_date=start_date, 
+            price_history = services.get_daily_price_history(ticker=symbol, start_date=start_date, 
                                                                             end_date=end_date)
             count = 0
             for date in price_history:
@@ -127,7 +127,7 @@ def dividend_queryset_gap_analysis(symbol):
 
     if queryset.count() == 0:
         logger.info('Gaps detected.')
-        dividends = services.query_service_for_dividend_history(ticker=symbol)
+        dividends = services.get_dividend_history(ticker=symbol)
         for date in dividends:
             logger.debug(f'Checking {date} for gaps.')
             entry =Dividends.objects.get_or_create(ticker=ticker[0], date=date, amount=dividends[date])
