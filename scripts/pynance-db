@@ -1,0 +1,3 @@
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+source "$SCRIPT_DIR/util/env-vars.sh" "$1"
+PGPASSWORD=$POSTGRES_PASSWORD psql --username=$POSTGRES_USER --host=$POSTGRES_HOST --dbname=$POSTGRES_DB
