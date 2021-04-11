@@ -873,12 +873,16 @@ def calculate_ito_correlation_series(ticker_1, ticker_2, start_date=None, end_da
     result = {}
     result[f'{ticker_1}_{ticker_2}_correlation_time_series'] = correlation_series
 
-def calculate_return_covariance(ticker_1, ticker_2, start_date=None, end_date=None, sample_prices=None):
-    correlation = calculate_ito_correlation(ticker_1=ticker_1, ticker_2=ticker_2, start_date=start_date, 
-                                              end_date=end_date, sample_prices=sample_prices)
-    profile_1 = calculate_risk_return(ticker=ticker_1, start_date=start_date, end_date=end_date, 
-                                        sample_prices=sample_prices)
-    profile_2 = calculate_risk_return(ticker=ticker_2, start_date=start_date, end_date=end_date,
-                                        sample_prices=sample_prices)
+def calculate_return_covariance(ticker_1, ticker_2, start_date=None, end_date=None, sample_prices=None, 
+                                correlation=None, profile_1=None, profile_2=None):
+    if correlation is None:
+        correlation = calculate_ito_correlation(ticker_1=ticker_1, ticker_2=ticker_2, start_date=start_date, 
+                                                  end_date=end_date, sample_prices=sample_prices)
+    if profile_1 is None:
+        profile_1 = calculate_risk_return(ticker=ticker_1, start_date=start_date, end_date=end_date, 
+                                            sample_prices=sample_prices)
+    if profile_2 is None:
+        profile_2 = calculate_risk_return(ticker=ticker_2, start_date=start_date, end_date=end_date,
+                                            sample_prices=sample_prices)
     covariance = profile_1['annual_volatility']*profile_2['annual_volatility']*correlation['correlation']
     return covariance

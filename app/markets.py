@@ -103,7 +103,7 @@ def get_risk_free_rate():
         risk_free_rate = services.get_daily_stats_latest(statistic=risk_free_rate_key)
         return (risk_free_rate)/100
 
-# TODO: pass in profile=None as optional argument to prevent overusing services
+# NOTE: if ticker_profile is provided, it effectively nullifies start_date and end_date.
 # TODO: pass in risk_free_rate=None as optional argument to prevent overusing services
 def sharpe_ratio(ticker, start_date=None, end_date=None, ticker_profile=None):
     """
@@ -152,7 +152,7 @@ def market_premium(start_date=None, end_date=None, market_profile = None):
 
     return (market_profile['annual_return'] - get_risk_free_rate())
 
-def market_beta(ticker, start_date=None, end_date=None, market_profile=None, market_covariance=None):
+def market_beta(ticker, start_date=None, end_date=None, market_profile=None, market_correlation=None, ticker_profile=None):
     """
     Description
     -----------
@@ -173,8 +173,12 @@ def market_beta(ticker, start_date=None, end_date=None, market_profile=None, mar
     if market_profile is None:
         market_profile = statistics.calculate_risk_return(ticker=settings.MARKET_PROXY, start_date=start_date, 
                                                             end_date=end_date)
-    if market_covariance is None:
-        market_covariance = statistics.calculate_return_covariance(ticker_1=ticker, ticker_2=settings.MARKET_PROXY,
+    if ticker_profile is None:
+        ticker_profile = statistics.calculate_risk_return(ticker=ticker,start_date=start_date,end_date=end_date)
+
+    market_covariance = statistics.calculate_return_covariance(ticker_1=ticker, ticker_2=settings.MARKET_PROXY,
+                                                                profile_1=ticker_profile, profile_2=market_profile,
+                                                                correlation = market_correlation,
                                                                 start_date=start_date, end_date=end_date)
     return market_covariance / (market_profile['annual_volatility']**2)
 

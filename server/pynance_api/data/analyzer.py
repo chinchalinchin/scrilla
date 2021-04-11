@@ -1,4 +1,6 @@
 from decimal import Decimal
+
+import api.parser as parser
 from core import settings
 from data.models import EquityMarket, CryptoMarket, EquityTicker, CryptoTicker, \
                         EquityProfileCache, Dividends, Economy, StatSymbol
@@ -9,6 +11,7 @@ import util.outputter as outputter
 import app.markets as markets
 import app.settings as app_settings
 import app.services as services
+import app.statistics as statistics
 
 logger = outputter.Logger("server.pynance_api.api.anaylzer", settings.LOG_LEVEL)
 
@@ -90,7 +93,8 @@ def market_queryset_gap_analysis(symbol, start_date=None, end_date=None):
         if start_date is None:
             start_date = helper.decrement_date_by_business_days(start_date=end_date, 
                                                                 business_days=app_settings.DEFAULT_ANALYSIS_PERIOD)
-        
+        # TODO: valid order of dates if not None
+
         ticker = EquityTicker.objects.get_or_create(ticker=symbol)
         date_range = helper.business_dates_between(start_date=start_date, end_date=end_date)
         queryset = EquityMarket.objects.filter(ticker=ticker[0], date__gt=start_date, date__lte=end_date).order_by('-date')
@@ -102,7 +106,8 @@ def market_queryset_gap_analysis(symbol, start_date=None, end_date=None):
         if start_date is None:
             start_date = helper.decrement_date_by_days(start_date=end_date, 
                                                         days=app_settings.DEFAULT_ANALYSIS_PERIOD)
-        
+        # TODO: valid order of dates if not None
+
         ticker = CryptoTicker.objects.get_or_create(ticker=symbol)
         date_range = helper.dates_between(start_date=start_date, end_date=end_date)
         queryset = CryptoMarket.objects.filer(ticker=ticker[0], date__gt=start_date, date__lte=end_date).order_by('-date')
@@ -135,6 +140,24 @@ def market_queryset_gap_analysis(symbol, start_date=None, end_date=None):
                     logger.debug(f'All gaps filled, breaking loop.')
                     break
 
+# returns market_profile
+def market_proxy_gap_analysis(start_date=None, end_date=None):
+    market_queryset_gap_analysis(symbol=app_settings.MARKET_PROXY, start_date=start_date)
+
+    if start_date is None and end_date is None:
+        market_profile = check_cache_for_profile(ticker=settings.MARKET_PROXY)
+        if not market_profile:
+            market_prices = parser.parse_args_into_market_queryset(ticker=settings.MARKET_PROXY)
+            market_profile = statistics.calculate_risk_return(ticker=settings.MARKET_PROXY, sample_prices=market_prices)
+            market_profile['ticker'], market_profile['asset_beta'] = settings.MARKET_PROXY, 1
+            market_profile['sharpe_ratio'] = markets.sharpe_ratio(ticker=settings.MARKET_PROXY, ticker_profile=market_profile)
+            save_profile_to_cache(profile=market_profile)
+    else:
+        market_prices = parser.parse_args_into_market_queryset(ticker=settings.MARKET_PROXY)
+        market_profile = statistics.calculate_risk_return(ticker=settings.MARKET_PROXY, start_date=start_date,
+                                                            end_date=end_date,sample_prices=market_prices)
+    return market_profile
+
 def dividend_queryset_gap_analysis(symbol):
     logger.info(f'Searching for gaps in {symbol} Dividend queryset.')
 
@@ -146,7 +169,7 @@ def dividend_queryset_gap_analysis(symbol):
         dividends = services.get_dividend_history(ticker=symbol)
         for date in dividends:
             logger.debug(f'Checking {date} for gaps.')
-            entry =Dividends.objects.get_or_create(ticker=ticker[0], date=date, amount=dividends[date])
+            entry = Dividends.objects.get_or_create(ticker=ticker[0], date=date, amount=dividends[date])
             if entry[1]:
                 logger.debug(f'Gap filled on {date} for {symbol} with amount {dividends[date]}.')
             else:
@@ -155,3 +178,4 @@ def dividend_queryset_gap_analysis(symbol):
 def economy_queryset_gap_analysis(symbol, start_date=None, end_date=None):
     # TODO:
     pass
+

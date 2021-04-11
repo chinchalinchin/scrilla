@@ -34,6 +34,10 @@ def risk_return(request):
     tickers, parsed_args = parsed_args_or_err_msg['tickers'], parsed_args_or_err_msg['parsed_args']
     response, profiles = {}, []
 
+    market_profile = analyzer.market_proxy_gap_analysis(start_date=parsed_args['start_date'], end_date=parsed_args['end_date'])
+
+    # TODO: check app_settings.RISK_FREE_RATE for gaps (stat_queryset_gap_analysis)
+
     for i in range(len(tickers)):
         profile = {}
         ticker_str = f'{tickers[i]}'
@@ -57,20 +61,15 @@ def risk_return(request):
         prices = parser.parse_args_into_market_queryset(ticker=tickers[i], parsed_args=parsed_args)
         stats = statistics.calculate_risk_return(ticker=tickers[i], sample_prices=prices)
         
-        profile['ticker'] = ticker_str
-        profile['annual_return'] = stats['annual_return']
-        profile['annual_volatility'] =  stats['annual_volatility']
-        # TODO: pass in annual_return and annual_volatility
-        # TODO: check app_settings.RISK_FREE_RATE for gaps (stat_queryset_gap_analysis)
+        profile['ticker'], profile['annual_return'], profile['annual_volatility'] = ticker_str, stats['annual_return'], stats['annual_volatility']
         profile['sharpe_ratio'] = markets.sharpe_ratio(ticker=tickers[i], start_date=parsed_args['start_date'],
-                                                        end_date=parsed_args['end_date'])
-        # TODO: check app_settings.MARKET_PROXY for gaps
-        # TODO: check app_settings.MARKET_PROXY profile cache
-        # TODO: calculate app_settings.MARKET_PROXY profile
-        # TODO: save app_settings.MARKET_PROXY profile to cache
-        # TODO: pass in statistics as arguments
+                                                        end_date=parsed_args['end_date'], ticker_profile = profile)
+ 
+        # TODO: check correlation cache for market and ticker
+        # TODO: if correlation is None:
+        #           statistics.c
         profile['asset_beta'] = markets.market_beta(ticker=tickers[i], start_date=parsed_args['start_date'],
-                                                        end_date=parsed_args['end_date'])
+                                                        end_date=parsed_args['end_date'], market_profile=market_profile)
         
         analyzer.save_profile_to_cache(profile=profile)
         response[i] = profile
