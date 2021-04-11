@@ -46,31 +46,19 @@ def validate_order_of_dates(start_date, end_date):
 
 def validate_tradeability_of_dates(start_date, end_date):
     if start_date is not None:
-        if helper.is_date_holiday(start_date):
-            logger.debug(f'{start_date} is a holiday. Equities do not trade on holidays.')
+        if helper.is_date_holiday(start_date) or helper.is_date_weekend(start_date):
+            logger.debug(f'{start_date} is invalid. Equities do not trade on holidays or weekends.')
 
             start_date = helper.get_previous_business_date(start_date)
             logger.debug(f'Setting start date to next business day, {start_date}')
 
-        elif helper.is_date_weekend(start_date):
-            logger.debug(f'{start_date} is a weekend. Equities do not trade on weekends.')
-
-            start_date = helper.get_previous_business_date(start_date)
-            logger.debug(f'Setting start date to previous business day, {start_date}')
-    
     if end_date is not None:
-        if helper.is_date_holiday(end_date):
-            logger.debug(f'{end_date} is a holiday. Equities do not trade on holidays.')
+        if helper.is_date_holiday(end_date) or helper.is_date_weekend(end_date):
+            logger.debug(f'{end_date} is invalid. Equities do not trade on holidays or weekends.')
 
             end_date = helper.get_previous_business_date(end_date)
             logger.debug(f'Setting end date to previous business day, {end_date}.')
 
-        elif helper.is_date_weekend(end_date):
-            logger.debug(f'{end_date} is a weekend. Equities do not trade on weekends.')
-            
-            end_date = helper.get_previous_business_date(end_date)
-            logger.debug(f'Setting end date to previous business day, {end_date}.')
-    
     return start_date, end_date
 
 def parse_price_from_date(prices, date, asset_type, which_price=CLOSE_PRICE):
