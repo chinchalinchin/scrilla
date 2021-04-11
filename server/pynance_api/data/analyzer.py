@@ -34,6 +34,8 @@ def save_profile_to_cache(profile):
 #   time period. 
 # NOTE: This creates the EquityProfileCache object if it does not exist. So,
 #           when saving, the QuerySet should be filtered and ordered by date.
+# TODO: must be careful to verify when testing this that it actually calculates the profile
+#        recursively correctly.
 def check_cache_for_profile(ticker):
     ticker = EquityTicker.objects.get_or_create(ticker=ticker)
     today = helper.get_today()
@@ -42,7 +44,21 @@ def check_cache_for_profile(ticker):
     if result[1]:
         logger.info(f'No cache found for {ticker[0].ticker}')
         # check for any dates and recursively build profiles
-        #   
+        # cache = EquityProfileCache.objects.filter(date__lte=today).order_by('-date')
+        # if cache.count() > 0:
+            #  last_dated_profile = cache[0]
+            #  date = last_dated_profile.date
+            #  dates_missing = helper.business_dates_between(start_date=today, end_date=date)
+            #  missing_prices = EquityMarket.objects.filter(ticker=ticker[0], date__lte=today, date__gte=date).order_by('-date')
+            #  trading_period = markets.get_trading_period(settings.EQUITY_ASSET_TYPE)
+            #   for this_date in dates_missing:
+            #       missing_price = missing_prices.get(date=this_date)
+            #       missing_price_less_one = EquityMarket.objects.get(ticker=ticker[0], 
+            #                                                           date=helper.decrement_by_business_days(date=this_date, days=1))
+            #       lost_date = helper.decrement_by_business_days(date=this_date, business_days=settings.DEFAULT_ANALYSIS_PERIOD)
+            #       lost_price = EquityMarket.objects.get(ticker=ticker[0], date=lost_date)
+            #       lost_price_less_one = EquityMarkets.objects.get(ticker=ticker[0],
+            #                                                           date=helper.decrement_by_business_days(date=this_date, days=1))
         return False
     else:
         if result[0].annual_return is None:
