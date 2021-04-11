@@ -65,9 +65,13 @@ def risk_return(request):
         profile['sharpe_ratio'] = markets.sharpe_ratio(ticker=tickers[i], start_date=parsed_args['start_date'],
                                                         end_date=parsed_args['end_date'], ticker_profile = profile)
  
+        # TODO: function in analyzer: correlation_gap_analysis(ticker_1, ticker_1, start_date, end_date):
         # TODO: check correlation cache for market and ticker
         # TODO: if correlation is None:
-        #           statistics.c
+        #           get market price queryset. parse sample_prices[settings.MARKET_PROXY] = market_queryset
+        #                                            sample_prices[tickers[i]] = prices
+        #           statistics.calculate_ito_correlation(ticker_1=settings.MARKET_PROXY, ticker_1=tickers[i], sample_prices=sample_proces)
+        #           save correlation to cache
         profile['asset_beta'] = markets.market_beta(ticker=tickers[i], start_date=parsed_args['start_date'],
                                                         end_date=parsed_args['end_date'], market_profile=market_profile)
         

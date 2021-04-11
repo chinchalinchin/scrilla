@@ -82,6 +82,9 @@ def check_cache_for_profile(ticker):
         profile['asset_beta'] = result[0].asset_beta
         return profile
 
+def check_cache_for_correlation(ticker_1, ticker_2):
+    pass
+
 def market_queryset_gap_analysis(symbol, start_date=None, end_date=None):
     logger.info(f'Searching for gaps in {symbol} Market queryset.')
 

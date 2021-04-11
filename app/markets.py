@@ -182,7 +182,7 @@ def market_beta(ticker, start_date=None, end_date=None, market_profile=None, mar
                                                                 start_date=start_date, end_date=end_date)
     return market_covariance / (market_profile['annual_volatility']**2)
 
-def cost_of_equity(ticker, start_date=None, end_date=None, market_profile=None, market_covariance=None):
+def cost_of_equity(ticker, start_date=None, end_date=None, market_profile=None, market_correlation=None):
     """
     Description
     -----------
@@ -200,7 +200,7 @@ def cost_of_equity(ticker, start_date=None, end_date=None, market_profile=None, 
 
     """
     beta = market_beta(ticker=ticker, start_date=start_date, end_date=end_date,
-                        market_profile=market_profile, market_covariance=market_covariance)
+                        market_profile=market_profile, market_correlation=market_correlation)
     premium = market_premium(start_date=start_date, end_date=end_date, market_profile=market_profile)
 
     return (premium*beta + get_risk_free_rate())
