@@ -865,7 +865,7 @@ def calculate_ito_correlation_series(ticker_1, ticker_2, start_date=None, end_da
             calc_date_start = helper.decrement_date_by_business_days(start_date=date, 
                                                                         business_days=settings.DEFAULT_ANALYSIS_PERIOD)
         elif same_type and asset_type_1 == settings.ASSET_CRYPTO:
-            calc_date_start = helper.decrement_date_by_days(start_date=date, days=settings.DEFAULT_ANALYIS_PERIOD)
+            calc_date_start = helper.decrement_date_by_days(start_date=date, days=settings.DEFAULT_ANALYSIS_PERIOD)
 
         todays_cor = calculate_ito_correlation(ticker_1, ticker_2, start_date=calc_date_start, end_date=calc_date_end)
         correlation_series[date] = todays_cor['correlation']

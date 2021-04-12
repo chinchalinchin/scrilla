@@ -154,7 +154,7 @@ def rolling_recursion_tests_with_financial_data():
             prices = services.get_daily_price_history(ticker=ticker, start_date=previous_start_date, end_date=end_date)
             previous_prices = dict(prices)
             new_prices = dict(prices)
-                # TODO: what is end_date and previous_start_date are holidays/weekends?
+                # TODO: what if end_date and previous_start_date are holidays/weekends?
             del previous_prices[end_date]
             del new_prices[previous_start_date]
 
