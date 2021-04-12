@@ -75,7 +75,7 @@ def check_cache_for_profile(ticker):
         if result[0].asset_beta is None:
             return False
         
-        logger.info(f'Database cache found for {ticker[0].ticker}')
+        logger.info(f'Database cache found for {ticker[0].ticker} profile.')
         profile = {}
         profile['ticker'] = ticker[0].ticker
         profile['annual_return'] = result[0].annual_return
@@ -210,6 +210,8 @@ def economy_queryset_gap_analysis(symbol, start_date=None, end_date=None):
         for date in stat_history:
             logger.debug(f'Checking {date} for gaps.')
             value = stat_history[date]
+            # TODO: if stat_symbol.symbol in YIELD_CURVE
+            #           DIVIDE BY 100
             entry = Economy.objects.get_or_create(statistic=stat_symbol[0],date=date,value=value)
             if entry[1]:
                 logger.debug(f'Gap filled on {date} for {stat_symbol[0]} with value={value}')

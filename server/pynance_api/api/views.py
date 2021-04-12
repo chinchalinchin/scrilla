@@ -41,7 +41,7 @@ def risk_return(request):
                                                             end_date=parsed_args['end_date'])
 
     for i in range(len(tickers)):
-        profile = {}
+        profile, prices = {}, {}
         ticker_str = f'{tickers[i]}'
         output.debug(f'Calculating risk-return profile for {tickers[i]}.')
 
@@ -49,7 +49,7 @@ def risk_return(request):
             output.debug(f'Checking for {tickers[i]} profile in the database cache.')
             profile = analyzer.check_cache_for_profile(ticker=tickers[i])
             if profile:
-                output.debug(f'Found profile in databasecache.')
+                output.debug(f'Found profile in database cache.')
                 response[i] = profile
                 if parsed_args['jpeg']:
                     profiles.append(profile)
@@ -63,8 +63,10 @@ def risk_return(request):
         # analyzer.correlation_gap_analysis(ticker_1=tickers[i], ticker_2=app_settings.MARKET_PROXY,
         #                                   start_date=parsed_args['start_date'],
         #                                   end_date=parsed_args['end_date'])
-        prices = parser.parse_args_into_market_queryset(ticker=tickers[i], parsed_args=parsed_args)
-        stats = statistics.calculate_risk_return(ticker=tickers[i], sample_prices=prices)
+        prices[tickers[i]] = parser.parse_args_into_market_queryset(ticker=tickers[i], parsed_args=parsed_args)
+        prices[app_settings.MARKET_PROXY] = parser.parse_args_into_market_queryset(ticker=app_settings.MARKET_PROXY,
+                                                                                    parsed_args=parsed_args)
+        stats = statistics.calculate_risk_return(ticker=tickers[i], sample_prices=prices[tickers[i]])
         
         profile['ticker'] = ticker_str
         profile['annual_return'], profile['annual_volatility'] = stats['annual_return'], stats['annual_volatility']
@@ -86,7 +88,8 @@ def risk_return(request):
         #           save correlation to cache
         profile['asset_beta'] = markets.market_beta(ticker=tickers[i], start_date=parsed_args['start_date'],
                                                         end_date=parsed_args['end_date'], 
-                                                        market_profile=market_profile)
+                                                        market_profile=market_profile,
+                                                        sample_prices=prices)
         
         analyzer.save_profile_to_cache(profile=profile)
         response[i] = profile

@@ -160,7 +160,7 @@ def market_premium(start_date=None, end_date=None, market_profile = None):
 
     return (market_profile['annual_return'] - get_risk_free_rate())
 
-def market_beta(ticker, start_date=None, end_date=None, market_profile=None, market_correlation=None, ticker_profile=None):
+def market_beta(ticker, start_date=None, end_date=None, market_profile=None, market_correlation=None, ticker_profile=None, sample_prices=None):
     """
     Description
     -----------
@@ -179,10 +179,21 @@ def market_beta(ticker, start_date=None, end_date=None, market_profile=None, mar
 
     """
     if market_profile is None:
-        market_profile = statistics.calculate_risk_return(ticker=settings.MARKET_PROXY, start_date=start_date, 
+        if sample_prices is None:
+            market_profile = statistics.calculate_risk_return(ticker=settings.MARKET_PROXY, 
+                                                            start_date=start_date, 
                                                             end_date=end_date)
+        else:   
+            market_profile = statistics.calculate_risk_return(ticker=settings.MARKET_PROXY,
+                                                            sample_prices=sample_prices[settings.MARKET_PROXY])
     if ticker_profile is None:
-        ticker_profile = statistics.calculate_risk_return(ticker=ticker,start_date=start_date,end_date=end_date)
+        if sample_prices is None:
+            ticker_profile = statistics.calculate_risk_return(ticker=ticker,
+                                                            start_date=start_date,
+                                                            end_date=end_date)
+        else:
+            ticker_profile = statistics.calculate_risk_return(ticker=ticker, 
+                                                            sample_prices=sample_prices[ticker])
 
     market_covariance = statistics.calculate_return_covariance(ticker_1=ticker, ticker_2=settings.MARKET_PROXY,
                                                                 profile_1=ticker_profile, profile_2=market_profile,
