@@ -34,46 +34,62 @@ def risk_return(request):
     tickers, parsed_args = parsed_args_or_err_msg['tickers'], parsed_args_or_err_msg['parsed_args']
     response, profiles = {}, []
 
-    market_profile = analyzer.market_proxy_gap_analysis(start_date=parsed_args['start_date'], end_date=parsed_args['end_date'])
-
-    # TODO: check app_settings.RISK_FREE_RATE for gaps (stat_queryset_gap_analysis)
+    market_profile = analyzer.market_proxy_gap_analysis(start_date=parsed_args['start_date'], 
+                                                            end_date=parsed_args['end_date'])
+    risk_free_rate = analyzer.economy_queryset_gap_analysis(symbol=app_settings.RISK_FREE_RATE,
+                                                            start_date=parsed_args['start_date'], 
+                                                            end_date=parsed_args['end_date'])
 
     for i in range(len(tickers)):
-        profile = {}
+        profile, prices = {}, {}
         ticker_str = f'{tickers[i]}'
         output.debug(f'Calculating risk-return profile for {tickers[i]}.')
 
         if parsed_args['start_date'] is None and parsed_args['end_date'] is None:
-            output.debug(f'Checking for {tickers[i]} profile in the cache.')
+            output.debug(f'Checking for {tickers[i]} profile in the database cache.')
             profile = analyzer.check_cache_for_profile(ticker=tickers[i])
             if profile:
-                output.debug(f'Found profile cache.')
+                output.debug(f'Found profile in database cache.')
                 response[i] = profile
                 if parsed_args['jpeg']:
                     profiles.append(profile)
-                continue 
+                continue # halt this iteration of loop if profile cache found
             else:
                 output.debug(f'No profile cache.')
                 profile = {}
 
         analyzer.market_queryset_gap_analysis(symbol=tickers[i],start_date=parsed_args['start_date'],
                                                 end_date=parsed_args['end_date'])
-        prices = parser.parse_args_into_market_queryset(ticker=tickers[i], parsed_args=parsed_args)
-        stats = statistics.calculate_risk_return(ticker=tickers[i], sample_prices=prices)
+        # analyzer.correlation_gap_analysis(ticker_1=tickers[i], ticker_2=app_settings.MARKET_PROXY,
+        #                                   start_date=parsed_args['start_date'],
+        #                                   end_date=parsed_args['end_date'])
+        prices[tickers[i]] = parser.parse_args_into_market_queryset(ticker=tickers[i], parsed_args=parsed_args)
+        prices[app_settings.MARKET_PROXY] = parser.parse_args_into_market_queryset(ticker=app_settings.MARKET_PROXY,
+                                                                                    parsed_args=parsed_args)
+        stats = statistics.calculate_risk_return(ticker=tickers[i], sample_prices=prices[tickers[i]])
         
-        profile['ticker'], profile['annual_return'], profile['annual_volatility'] = ticker_str, stats['annual_return'], stats['annual_volatility']
+        profile['ticker'] = ticker_str
+        profile['annual_return'], profile['annual_volatility'] = stats['annual_return'], stats['annual_volatility']
         profile['sharpe_ratio'] = markets.sharpe_ratio(ticker=tickers[i], start_date=parsed_args['start_date'],
-                                                        end_date=parsed_args['end_date'], ticker_profile = profile)
+                                                        end_date=parsed_args['end_date'], 
+                                                        ticker_profile = profile, 
+                                                        risk_free_rate=float(risk_free_rate))
  
-        # TODO: function in analyzer: correlation_gap_analysis(ticker_1, ticker_1, start_date, end_date):
-        # TODO: check correlation cache for market and ticker
+        # TODO: if start_date and end_date are None:
+        #           check correlation cache for market and ticker
         # TODO: if correlation is None:
-        #           get market price queryset. parse sample_prices[settings.MARKET_PROXY] = market_queryset
-        #                                            sample_prices[tickers[i]] = prices
-        #           statistics.calculate_ito_correlation(ticker_1=settings.MARKET_PROXY, ticker_1=tickers[i], sample_prices=sample_proces)
+        #           sample_prices = {}
+        #           get market price queryset 
+        #           sample_prices[settings.MARKET_PROXY] = market_queryset
+        #           sample_prices[tickers[i]] = prices
+        #           # NOTE: dates not needed since sample prices are provided.
+        #           statistics.calculate_ito_correlation(ticker_1=tickers[i], ticker_2=app_settings.MARKET_PROXY 
+        #                                                   sample_prices=sample_proces)
         #           save correlation to cache
         profile['asset_beta'] = markets.market_beta(ticker=tickers[i], start_date=parsed_args['start_date'],
-                                                        end_date=parsed_args['end_date'], market_profile=market_profile)
+                                                        end_date=parsed_args['end_date'], 
+                                                        market_profile=market_profile,
+                                                        sample_prices=prices)
         
         analyzer.save_profile_to_cache(profile=profile)
         response[i] = profile

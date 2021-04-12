@@ -127,46 +127,56 @@ def rolling_recursion_test():
     outputter.print_line()
 
 def rolling_recursion_tests_with_financial_data():
-    # TODO: 
-    # for each date in test period:
-        # end date = whatever
-        # start_date = end_date - settings.DEFAULT_ANALYSIS_PERIOD
-        # previous_end_date = end_date - 1 business day
-        # previous_start_date = start_date - 1 business day
-
-        # Get settings.DEFAULT_ANALYSIS_PERIOD worth of prices on each date
-        # compute risk_return
-        # verify actual return on end_date can be recursively calculated using:
-            # end_date_price, previous_start_date_price, previous_end_date_risk/_return
-            # NOTE: remember mean is taken of (ln(price/price-1)/trading_period)
-            # so the new_obs is actually ln(end_date_price/end_date_price -1)/trading_period
-            # lost_obs = ln(start_date_price/start_date_price-1)/trading period
-            # previous_x_bar = risk_return(end_date -1) 
     trading_period = markets.get_trading_period(asset_type=settings.ASSET_EQUITY)
+    outputter.print_line()
+    outputter.center('Rolling Recursive Risk Profile Test')
+    outputter.print_line()
+    outputter.title_line('Test Results')
+    outputter.print_line()
 
     for ticker in test_tickers:
         for date in test_dates:
             end_date = helper.parse_date_string(date)
-            start_date = helper.decrement_date_by_business_days(start_date=end_date, business_days=settings.DEFAULT_ANALYSIS_PERIOD)
-            previous_end_date = helper.decrement_date_by_business_days(start_date=end_date, business_days=1)
-            previous_start_date = helper.decrement_date_by_business_days(start_date=start_date, business_days=1)
+            start_date = helper.decrement_date_by_business_days(start_date=end_date, 
+                                                                business_days=settings.DEFAULT_ANALYSIS_PERIOD)
+            previous_end_date = helper.decrement_date_by_business_days(start_date=end_date, 
+                                                                        business_days=1)
+            previous_start_date = helper.decrement_date_by_business_days(start_date=start_date, 
+                                                                            business_days=1)
             
-            prices = services.get_daily_price_history(ticker=ticker, start_date=previous_start_date, end_date=end_date)
+            prices = services.get_daily_price_history(ticker=ticker, start_date=previous_start_date, 
+                                                        end_date=end_date)
             previous_prices = dict(prices)
             new_prices = dict(prices)
-                # TODO: what if end_date and previous_start_date are holidays/weekends?
-            del previous_prices[end_date]
-            del new_prices[previous_start_date]
+                # TODO: what is end_date and previous_start_date are holidays/weekends?
+                    # They can't be because decrement_by_business_days only returns business days.
+            del previous_prices[helper.date_to_string(end_date)]
+            del new_prices[helper.date_to_string(previous_start_date)]
+            
+            end_date_price = services.parse_price_from_date(prices=prices,
+                                                            date=helper.date_to_string(end_date), 
+                                                            asset_type=settings.ASSET_EQUITY)
+            previous_end_date_price = services.parse_price_from_date(prices=prices, 
+                                                            date=helper.date_to_string(previous_end_date), 
+                                                            asset_type=settings.ASSET_EQUITY)
+            start_date_price = services.parse_price_from_date(prices=prices,
+                                                            date=helper.date_to_string(start_date), 
+                                                            asset_type=settings.ASSET_EQUITY)
+            previous_start_date_price = services.parse_price_from_date(prices=prices,
+                                                            date=helper.date_to_string(previous_start_date),
+                                                            asset_type=settings.ASSET_EQUITY)
 
-            end_date_price = services.parse_price_from_date(prices=prices,date=end_date, asset_type=settings.ASSET_EQUITY)
-            previous_end_date_price = services.parse_price_from_date(prices=prices, date=previous_end_date, asset_type=settings.ASSET_EQUITY)
-            start_date_price = services.parse_price_from_date(prices=prices,date=start_date, asset_type=settings.ASSET_EQUITY)
-            previous_start_date_price = services.parse_price_from_date(prices=prices,date=previous_start_date, asset_type=settings.ASSET_EQUITY)
+            print('end_date, previous_end_date, start_date, previous_start_date and prices')
+            print(end_date, previous_end_date, start_date, previous_start_date)
+            print(end_date_price, previous_end_date_price, start_date_price, previous_start_date_price)
 
             new_return = numpy.log(float(end_date_price)/float(previous_end_date_price))/trading_period
             lost_return = numpy.log(float(start_date_price)/float(previous_start_date_price))/trading_period
+            new_mod_return = new_return*numpy.sqrt(trading_period)
+            lost_mod_return = lost_return*numpy.sqrt(trading_period)
 
             old_profile = statistics.calculate_risk_return(ticker=ticker, sample_prices=previous_prices)
+            old_mod_return = old_profile['annual_return']*numpy.sqrt(trading_period)
 
             new_actual_profile = statistics.calculate_risk_return(ticker=ticker, sample_prices=new_prices)
 
@@ -175,10 +185,15 @@ def rolling_recursion_tests_with_financial_data():
                                                                                 new_obs=new_return,
                                                                                 lost_obs=lost_return)
             new_recursive_profile['annual_volatility'] = statistics.recursive_variance(var_previous=old_profile['annual_volatility'],
-                                                                                        xbar_previous=old_profile['annual_return'],
-                                                                                        new_obs=new_return,
-                                                                                        lost_obs=lost_return)
-            
+                                                                                        xbar_previous=old_mod_return,
+                                                                                        new_obs=new_mod_return,
+                                                                                        lost_obs=lost_mod_return)
+            new_recursive_profile['annual_volatility'] = numpy.sqrt(new_recursive_profile['annual_volatility'])
+
+            outputter.scalar_result(calculation=f'{ticker}_return({date})_actual', result=new_actual_profile['annual_return'],currency=False)
+            outputter.scalar_result(calculation=f'{ticker}_return({date})_recursive', result=new_recursive_profile['annual_return'], currency=False)
+            outputter.scalar_result(calculation=f'{ticker}_vol({date})_actual', result=new_actual_profile['annual_volatility'], currency=False)
+            outputter.scalar_result(calculation=f'{ticker}_vol({date})_recursive', result=new_recursive_profile['annual_volatility'], currency=False)
             # calculate rolling recursive end_date sample return
             # calculate actual end_date sample return
 
@@ -187,3 +202,4 @@ def rolling_recursion_tests_with_financial_data():
 if __name__ == "__main__":
     regression_test()
     rolling_recursion_test()
+    rolling_recursion_tests_with_financial_data()

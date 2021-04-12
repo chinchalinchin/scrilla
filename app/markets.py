@@ -98,18 +98,17 @@ def get_risk_free_rate():
     -----------
     Returns as a decimal the risk free rate defined by the RISK_FREE environment variable (and passed into `app.settings` as the variable RISK_FREE_RATE). \n \n 
     """
-    if settings.STAT_MANAGER == "quandl":
-        risk_free_rate_key = settings.ARG_Q_YIELD_CURVE[settings.RISK_FREE_RATE]
-        risk_free_rate = services.get_daily_stats_latest(statistic=risk_free_rate_key)
-        return (risk_free_rate)/100
+    risk_free_rate_key = settings.RISK_FREE_RATE
+    risk_free_rate = services.get_daily_stats_latest(statistic=risk_free_rate_key)
+    return (risk_free_rate)/100
 
 # NOTE: if ticker_profile is provided, it effectively nullifies start_date and end_date.
 # TODO: pass in risk_free_rate=None as optional argument to prevent overusing services
-def sharpe_ratio(ticker, start_date=None, end_date=None, ticker_profile=None):
+def sharpe_ratio(ticker, start_date=None, end_date=None, risk_free_rate=None, ticker_profile=None):
     """
     Description
     -----------
-    Returns the value of the sharpe ratio for the supplied ticker over the specified time range. If no start and end date are supplied, calculation will default to the last 100 days of prices. \n \n 
+    Returns the value of the sharpe ratio for the supplied ticker over the specified time range. If no start and end date are supplied, calculation will default to the last 100 days of prices. The risk_free_rate and ticker_profile can be provided to avoid excessive service calls. \n \n 
 
     Parameters
     ----------
@@ -120,14 +119,23 @@ def sharpe_ratio(ticker, start_date=None, end_date=None, ticker_profile=None):
         Start date of the time period for which the sharpe ratio will be computed. \n \n 
 
     3. end_date : datetime.date \n 
-        End_date of the time period for which the sharpe ratio will be computed. \n \n 
+        End_date of the time period for which the sharpe ratio will be computed. \n \n
+
+    4. risk_free_rate : float \n
+        Risk free rate used to evaluate excess return. Defaults to settings.RISK_FREE_RATE. \n \n
+
+    5. ticker_profile : dict{ { 'annual_return': float, 'annual_volatility': float } }
+        Risk-return profile for the supplied ticker. If provided, start_date and end_date are ignored and the values in ticker_profile are used to calculate the Sharpe ratio.
 
     """
     if ticker_profile is None:
         ticker_profile = statistics.calculate_risk_return(ticker=ticker, start_date=start_date,
                                                         end_date=end_date)
 
-    return (ticker_profile['annual_return'] - get_risk_free_rate())/ticker_profile['annual_volatility']
+    if risk_free_rate is None:
+        risk_free_rate = get_risk_free_rate()
+
+    return (ticker_profile['annual_return'] - risk_free_rate)/ticker_profile['annual_volatility']
 
 # if no dates are specified, defaults to last 100 days
 def market_premium(start_date=None, end_date=None, market_profile = None):
@@ -152,7 +160,7 @@ def market_premium(start_date=None, end_date=None, market_profile = None):
 
     return (market_profile['annual_return'] - get_risk_free_rate())
 
-def market_beta(ticker, start_date=None, end_date=None, market_profile=None, market_correlation=None, ticker_profile=None):
+def market_beta(ticker, start_date=None, end_date=None, market_profile=None, market_correlation=None, ticker_profile=None, sample_prices=None):
     """
     Description
     -----------
@@ -171,10 +179,21 @@ def market_beta(ticker, start_date=None, end_date=None, market_profile=None, mar
 
     """
     if market_profile is None:
-        market_profile = statistics.calculate_risk_return(ticker=settings.MARKET_PROXY, start_date=start_date, 
+        if sample_prices is None:
+            market_profile = statistics.calculate_risk_return(ticker=settings.MARKET_PROXY, 
+                                                            start_date=start_date, 
                                                             end_date=end_date)
+        else:   
+            market_profile = statistics.calculate_risk_return(ticker=settings.MARKET_PROXY,
+                                                            sample_prices=sample_prices[settings.MARKET_PROXY])
     if ticker_profile is None:
-        ticker_profile = statistics.calculate_risk_return(ticker=ticker,start_date=start_date,end_date=end_date)
+        if sample_prices is None:
+            ticker_profile = statistics.calculate_risk_return(ticker=ticker,
+                                                            start_date=start_date,
+                                                            end_date=end_date)
+        else:
+            ticker_profile = statistics.calculate_risk_return(ticker=ticker, 
+                                                            sample_prices=sample_prices[ticker])
 
     market_covariance = statistics.calculate_return_covariance(ticker_1=ticker, ticker_2=settings.MARKET_PROXY,
                                                                 profile_1=ticker_profile, profile_2=market_profile,

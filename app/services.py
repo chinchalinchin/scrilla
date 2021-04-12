@@ -206,7 +206,7 @@ def query_service_for_daily_price_history(ticker, start_date=None, end_date=None
                     start_string, end_string = helper.date_to_string(start_date), helper.date_to_string(end_date)
                     start_index = list(prices[settings.AV_RES_EQUITY_FIRST_LAYER].keys()).index(start_string)
                     end_index = list(prices[settings.AV_RES_EQUITY_FIRST_LAYER].keys()).index(end_string)
-                    prices = dict(itertools.islice(prices[settings.AV_RES_EQUITY_FIRST_LAYER].items(), end_index, start_index))
+                    prices = dict(itertools.islice(prices[settings.AV_RES_EQUITY_FIRST_LAYER].items(), end_index, start_index+1))
                     return prices
 
                 if not full and (start_date is None and end_date is not None):
@@ -218,7 +218,7 @@ def query_service_for_daily_price_history(ticker, start_date=None, end_date=None
                 if not full and (start_date is not None and end_date is None):
                     start_string = helper.date_to_string(start_date)
                     start_index = list(prices[settings.AV_RES_EQUITY_FIRST_LAYER].keys()).index(start_string)
-                    prices = dict(itertools.islice(prices[settings.AV_RES_EQUITY_FIRST_LAYER].items(), 0, start_index))
+                    prices = dict(itertools.islice(prices[settings.AV_RES_EQUITY_FIRST_LAYER].items(), 0, start_index+1))
                     return prices
 
                 prices = prices[settings.AV_RES_EQUITY_FIRST_LAYER]
@@ -466,3 +466,8 @@ def get_dividend_history(ticker):
         logger.debug(f'Storing {ticker} price history in cache.')
         files.save_file(file_to_save=dividends, file_name=buffer_store)
         return dividends
+
+def get_percent_stat_symbols():
+    if settings.STAT_MANAGER == 'quandl':
+        percent_stats = settings.ARG_Q_YIELD_CURVE.values()
+        return percent_stats
