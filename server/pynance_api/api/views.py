@@ -36,12 +36,10 @@ def risk_return(request):
 
     market_profile = analyzer.market_proxy_gap_analysis(start_date=parsed_args['start_date'], 
                                                             end_date=parsed_args['end_date'])
-    print('here')
     risk_free_rate = analyzer.economy_queryset_gap_analysis(symbol=app_settings.RISK_FREE_RATE,
                                                             start_date=parsed_args['start_date'], 
                                                             end_date=parsed_args['end_date'])
 
-    print('now here')
     for i in range(len(tickers)):
         profile = {}
         ticker_str = f'{tickers[i]}'

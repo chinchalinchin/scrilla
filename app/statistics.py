@@ -884,7 +884,5 @@ def calculate_return_covariance(ticker_1, ticker_2, start_date=None, end_date=No
     if profile_2 is None:
         profile_2 = calculate_risk_return(ticker=ticker_2, start_date=start_date, end_date=end_date,
                                             sample_prices=sample_prices)
-    print(type(profile_1['annual_volatility']))
-    print(type(correlation['correlation']))
     covariance = profile_1['annual_volatility']*profile_2['annual_volatility']*correlation['correlation']
     return covariance

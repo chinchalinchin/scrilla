@@ -117,15 +117,6 @@ def market_queryset_gap_analysis(symbol, start_date=None, end_date=None):
         date_range = helper.dates_between(start_date=start_date, end_date=end_date)
         queryset = CryptoMarket.objects.filer(ticker=ticker[0], date__gte=start_date, date__lte=end_date).order_by('-date')
 
-    print('date_range', len(date_range))
-    print('queryset.count', queryset.count())
-    print('end_date', end_date)
-    print('start_date', start_date)
-    print('time delta', (end_date - start_date).days)
-    print('queryset.first,date', queryset.first().date)
-    print('queryset.last,date', queryset.last().date)
-    print('query time delta', (queryset.first().date-queryset.last().date).days)
-
     gaps = len(date_range) - queryset.count()
     if gaps != 0: 
         logger.info(f'{len(date_range) - queryset.count() + 1} gaps detected.')
@@ -209,15 +200,6 @@ def economy_queryset_gap_analysis(symbol, start_date=None, end_date=None):
     stat_symbol = StatSymbol.objects.get_or_create(symbol=symbol)
     date_range = helper.business_dates_between(start_date=start_date,end_date=end_date)
     queryset = Economy.objects.filter(statistic=stat_symbol[0],date__gte=start_date,date__lte=end_date).order_by('-date')
-
-    print('date_range', len(date_range))
-    print('queryset.count', queryset.count())
-    print('end_date', end_date)
-    print('start_date', start_date)
-    print('time delta', (end_date - start_date).days)
-    print('queryset.first,date', queryset.first().date)
-    print('queryset.last,date', queryset.last().date)
-    print('query time delta', (queryset.first().date-queryset.last().date).days)
 
     gaps = len(date_range) - queryset.count()
     if gaps != 0: 
