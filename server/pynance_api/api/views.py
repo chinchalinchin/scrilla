@@ -5,8 +5,7 @@ from django.http import JsonResponse, HttpResponse
 # Server Imports
 from core import settings
 from api import parser
-from data import analyzer
-from data.models import EquityMarket, CryptoMarket, EquityTicker, CryptoTicker, Dividends, Economy, StatSymbol
+from data import analyzer, cache, models
 
 # Application Imports
 import app.settings as app_settings
@@ -40,24 +39,32 @@ def risk_return(request):
         ticker_str = f'{tickers[i]}'
         output.debug(f'Calculating risk-return profile for {tickers[i]}.')
 
-        if parsed_args['start_date'] is None and parsed_args['end_date'] is None:
-            output.debug(f'Checking for {tickers[i]} profile in the database cache.')
-            profile = analyzer.check_cache_for_profile(ticker=tickers[i])
+        time_delta = helper.business_days_between(start_date=parsed_args['start_date'],
+                                                    end_date=parsed_args['end_date'])
+        default_call = (time_delta == app_settings.DEFAULT_ANALYSIS_PERIOD)
+
+        if (parsed_args['start_date'] is None and parsed_args['end_date'] is None) or default_call:
+            output.debug(f'Default analysis period detected. Checking for {tickers[i]} profile in the database cache.')
+            profile = cache.check_cache_for_profile(ticker=tickers[i])
             if profile:
-                output.debug(f'Found profile in database cache.')
+                output.debug(f'Found profile in database cache, halting calculation.')
                 response[i] = profile
                 if parsed_args['jpeg']:
                     profiles.append(profile)
                 continue # halt this iteration of loop if profile cache found
             else:
-                output.debug(f'No profile cache.')
+                output.debug(f'No profile found in database cache, proceeding with calculation.')
                 profile = {}
 
         analyzer.market_queryset_gap_analysis(symbol=tickers[i],start_date=parsed_args['start_date'],
                                                 end_date=parsed_args['end_date'])
-        # analyzer.correlation_gap_analysis(ticker_1=tickers[i], ticker_2=app_settings.MARKET_PROXY,
-        #                                   start_date=parsed_args['start_date'],
-        #                                   end_date=parsed_args['end_date'])
+        # correlation = None
+        # if (parsed_args['end_date] is None and parsed_args['start_date'] is None) or default_call:
+        #   correlation = analyzer.check_cache_for_correlation(ticker_1=tickers[i], ticker_2=app_settings.MARKET_PROXY)
+        # if not correlation:
+        #   correlation = statistics.calculate_ito_correlation(ticker_1=tickers[i], ticker_2=app_settings.MARKET_PROXY, start_date=parsed_args['start_date'], end_date=parsed_args['end_date'])
+        # if (parsed_args['end_date] is None and parsed_args['start_date'] is None) or default_call: 
+        #   analyzer.save_correlation_to_cache(ticker_1=tickers[i], ticker_2=app_settings.MARKET_PROXY)
 
         prices[tickers[i]] = parser.parse_args_into_market_queryset(ticker=tickers[i], parsed_args=parsed_args)
         prices[app_settings.MARKET_PROXY] = parser.parse_args_into_market_queryset(ticker=app_settings.MARKET_PROXY,
@@ -66,28 +73,19 @@ def risk_return(request):
         
         profile['ticker'] = ticker_str
         profile['annual_return'], profile['annual_volatility'] = stats['annual_return'], stats['annual_volatility']
-        profile['sharpe_ratio'] = markets.sharpe_ratio(ticker=tickers[i], start_date=parsed_args['start_date'],
+        profile['sharpe_ratio'] = markets.sharpe_ratio(ticker=tickers[i], 
+                                                        start_date=parsed_args['start_date'],
                                                         end_date=parsed_args['end_date'], 
                                                         ticker_profile = profile, 
                                                         risk_free_rate=float(risk_free_rate))
  
-        # TODO: if start_date and end_date are None:
-        #           check correlation cache for market and ticker
-        # TODO: if correlation is None:
-        #           sample_prices = {}
-        #           get market price queryset 
-        #           sample_prices[settings.MARKET_PROXY] = market_queryset
-        #           sample_prices[tickers[i]] = prices
-        #           # NOTE: dates not needed since sample prices are provided.
-        #           statistics.calculate_ito_correlation(ticker_1=tickers[i], ticker_2=app_settings.MARKET_PROXY 
-        #                                                   sample_prices=sample_proces)
-        #           save correlation to cache
-        profile['asset_beta'] = markets.market_beta(ticker=tickers[i], start_date=parsed_args['start_date'],
+        profile['asset_beta'] = markets.market_beta(ticker=tickers[i], 
+                                                        start_date=parsed_args['start_date'],
                                                         end_date=parsed_args['end_date'], 
                                                         market_profile=market_profile,
                                                         sample_prices=prices)
         
-        analyzer.save_profile_to_cache(profile=profile)
+        cache.save_profile_to_cache(profile=profile)
         response[i] = profile
 
         if parsed_args['jpeg']:
