@@ -98,10 +98,9 @@ def get_risk_free_rate():
     -----------
     Returns as a decimal the risk free rate defined by the RISK_FREE environment variable (and passed into `app.settings` as the variable RISK_FREE_RATE). \n \n 
     """
-    if settings.STAT_MANAGER == "quandl":
-        risk_free_rate_key = settings.ARG_Q_YIELD_CURVE[settings.RISK_FREE_RATE]
-        risk_free_rate = services.get_daily_stats_latest(statistic=risk_free_rate_key)
-        return (risk_free_rate)/100
+    risk_free_rate_key = settings.RISK_FREE_RATE
+    risk_free_rate = services.get_daily_stats_latest(statistic=risk_free_rate_key)
+    return (risk_free_rate)/100
 
 # NOTE: if ticker_profile is provided, it effectively nullifies start_date and end_date.
 # TODO: pass in risk_free_rate=None as optional argument to prevent overusing services

@@ -180,9 +180,12 @@ def dividend_queryset_gap_analysis(symbol):
             else:
                 logger.debug(f'No gap detected on {date} for {symbol}.')
 
+# NOTE: Returns latest value of Economy model for the provided symbol.
+# TODO: analyzes the date range for gaps when all I really need is the latest value of
+#       the interest rate.
 def economy_queryset_gap_analysis(symbol, start_date=None, end_date=None):
     if end_date is None: 
-            end_date = helper.get_previous_business_date(date=helper.get_today())
+        end_date = helper.get_previous_business_date(date=helper.get_today())
     if start_date is None:
         start_date = helper.decrement_date_by_business_days(start_date=end_date, 
                                                             business_days=app_settings.DEFAULT_ANALYSIS_PERIOD)
@@ -190,7 +193,7 @@ def economy_queryset_gap_analysis(symbol, start_date=None, end_date=None):
 
     stat_symbol = StatSymbol.objects.get_or_create(symbol=symbol)
     date_range = helper.business_dates_between(start_date=start_date,end_date=end_date)
-    queryset = Economy.objects.filter(statistics=stat_symbol[0],date__gt=start_date,date__lte=end_date).order_by('-date')
+    queryset = Economy.objects.filter(statistic=stat_symbol[0],date__gt=start_date,date__lte=end_date).order_by('-date')
 
     gaps = len(date_range) - queryset.count()  + 1
     if gaps != 0: 
@@ -212,3 +215,5 @@ def economy_queryset_gap_analysis(symbol, start_date=None, end_date=None):
             if count == gaps:
                 logger.debug(f'All gaps filled, breaking loop.')
                 break
+    
+    return Economy.objects.get(statistic=stat_symbol[0], date=end_date).value

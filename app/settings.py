@@ -259,6 +259,7 @@ if STAT_MANAGER == "quandl":
         '10-Year': 'DGS10',
         '30-Year': 'DGS30'
     }
+    RISK_FREE_RATE=ARG_Q_YIELD_CURVE[RISK_FREE_RATE]
         
     # Query Parameters
     PARAM_Q_KEY="api_key"
