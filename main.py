@@ -322,14 +322,20 @@ if __name__ == "__main__":
             ### FUNCTION: Price History
             elif opt == formatter.FUNC_ARG_DICT['price_history']:
                 def cli_price_history():
+                    all_prices = {}
                     for arg in main_args:
                         prices = services.get_daily_price_history(ticker=arg, start_date=xtra_list['start_date'],
                                                                     end_date=xtra_list['end_date'])
                         asset_type = markets.get_asset_type(symbol=arg)
+                        all_prices[arg] = {}
                         for date in prices:
                             price = services.parse_price_from_date(prices=prices, date=date, asset_type=asset_type)
                             outputter.scalar_result(calculation=f'{arg}({date})', result = float(price))
-                selected_functio, required_length = cli_price_history, 1
+                            all_prices[arg][date] = price
+                    if xtra_list['save_file'] is not None:
+                        files.save_file(file_to_save=all_prices, file_name=xtra_list['save_file'])
+
+                selected_function, required_length = cli_price_history, 1
 
             ### FUNCTION: Risk-Return Profile
             elif opt == formatter.FUNC_ARG_DICT["risk_return"]:

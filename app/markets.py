@@ -103,9 +103,9 @@ def get_risk_free_rate():
         risk_free_rate = services.get_daily_stats_latest(statistic=risk_free_rate_key)
         return (risk_free_rate)/100
 
-# TODO: pass in profile=None as optional argument to prevent overusing services
+# NOTE: if ticker_profile is provided, it effectively nullifies start_date and end_date.
 # TODO: pass in risk_free_rate=None as optional argument to prevent overusing services
-def sharpe_ratio(ticker, start_date=None, end_date=None):
+def sharpe_ratio(ticker, start_date=None, end_date=None, ticker_profile=None):
     """
     Description
     -----------
@@ -123,12 +123,14 @@ def sharpe_ratio(ticker, start_date=None, end_date=None):
         End_date of the time period for which the sharpe ratio will be computed. \n \n 
 
     """
-    ticker_profile = statistics.calculate_risk_return(ticker=ticker, start_date=start_date,
+    if ticker_profile is None:
+        ticker_profile = statistics.calculate_risk_return(ticker=ticker, start_date=start_date,
                                                         end_date=end_date)
+
     return (ticker_profile['annual_return'] - get_risk_free_rate())/ticker_profile['annual_volatility']
 
 # if no dates are specified, defaults to last 100 days
-def market_premium(start_date=None, end_date=None):
+def market_premium(start_date=None, end_date=None, market_profile = None):
     """
     Description
     -----------
@@ -143,12 +145,14 @@ def market_premium(start_date=None, end_date=None):
         End_date of the time period for which the market premium will be computed. \n \n 
 
     """
-    market_profile = statistics.calculate_risk_return(ticker=settings.MARKET_PROXY, 
-                                                        start_date=start_date, 
-                                                        end_date=end_date)
+    if market_profile is None:
+        market_profile = statistics.calculate_risk_return(ticker=settings.MARKET_PROXY, 
+                                                            start_date=start_date, 
+                                                            end_date=end_date)
+
     return (market_profile['annual_return'] - get_risk_free_rate())
 
-def market_beta(ticker, start_date=None, end_date=None):
+def market_beta(ticker, start_date=None, end_date=None, market_profile=None, market_correlation=None, ticker_profile=None):
     """
     Description
     -----------
@@ -166,13 +170,19 @@ def market_beta(ticker, start_date=None, end_date=None):
         End_date of the time period for which the asset beta will be computed. \n \n 
 
     """
-    market_profile = statistics.calculate_risk_return(ticker=settings.MARKET_PROXY, start_date=start_date, 
-                                                        end_date=end_date)
+    if market_profile is None:
+        market_profile = statistics.calculate_risk_return(ticker=settings.MARKET_PROXY, start_date=start_date, 
+                                                            end_date=end_date)
+    if ticker_profile is None:
+        ticker_profile = statistics.calculate_risk_return(ticker=ticker,start_date=start_date,end_date=end_date)
+
     market_covariance = statistics.calculate_return_covariance(ticker_1=ticker, ticker_2=settings.MARKET_PROXY,
-                                                            start_date=start_date, end_date=end_date)
+                                                                profile_1=ticker_profile, profile_2=market_profile,
+                                                                correlation = market_correlation,
+                                                                start_date=start_date, end_date=end_date)
     return market_covariance / (market_profile['annual_volatility']**2)
 
-def cost_of_equity(ticker, start_date=None, end_date=None):
+def cost_of_equity(ticker, start_date=None, end_date=None, market_profile=None, market_correlation=None):
     """
     Description
     -----------
@@ -189,8 +199,9 @@ def cost_of_equity(ticker, start_date=None, end_date=None):
         End_date of the time period for which the cost of equity ratio will be computed. \n \n 
 
     """
-    beta = market_beta(ticker=ticker, start_date=start_date, end_date=end_date)
-    premium = market_premium(start_date=start_date, end_date=end_date)
+    beta = market_beta(ticker=ticker, start_date=start_date, end_date=end_date,
+                        market_profile=market_profile, market_correlation=market_correlation)
+    premium = market_premium(start_date=start_date, end_date=end_date, market_profile=market_profile)
 
     return (premium*beta + get_risk_free_rate())
 
