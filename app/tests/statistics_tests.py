@@ -149,8 +149,6 @@ def rolling_recursion_tests_with_financial_data():
                                                         end_date=end_date)
             previous_prices = dict(prices)
             new_prices = dict(prices)
-                # TODO: what is end_date and previous_start_date are holidays/weekends?
-                    # They can't be because decrement_by_business_days only returns business days.
             del previous_prices[helper.date_to_string(end_date)]
             del new_prices[helper.date_to_string(previous_start_date)]
             
@@ -174,7 +172,7 @@ def rolling_recursion_tests_with_financial_data():
 
             old_profile = statistics.calculate_risk_return(ticker=ticker, sample_prices=previous_prices)
             old_var = old_profile['annual_volatility']**2
-            # old_mod_return = old_profile['annual_return']*numpy.sqrt(trading_period)
+            old_mod_return = old_profile['annual_return']*numpy.sqrt(trading_period)
 
             new_actual_profile = statistics.calculate_risk_return(ticker=ticker, sample_prices=new_prices)
 
@@ -183,7 +181,7 @@ def rolling_recursion_tests_with_financial_data():
                                                                                 new_obs=new_return,
                                                                                 lost_obs=lost_return)
             new_recursive_profile['annual_volatility'] = statistics.recursive_variance(var_previous=old_var,
-                                                                                        xbar_previous=old_profile['annual_return'],
+                                                                                        xbar_previous=old_mod_return,
                                                                                         new_obs=new_mod_return,
                                                                                         lost_obs=lost_mod_return)
             new_recursive_profile['annual_volatility'] = numpy.sqrt(new_recursive_profile['annual_volatility'])

@@ -32,6 +32,9 @@ SECRET_KEY = os.environ.setdefault('SECRET_KEY', 'NoIAmYourFather').strip()
 DEBUG= os.getenv('DEBUG').strip().lower() == 'true'
 LOG_LEVEL = str(os.environ.setdefault('LOG_LEVEL', "info")).strip().lower()
 
+# See .sample.env for more information.
+RECURSION = os.getenv('RECURSION_ENABLED').strip().lower() == 'true'
+
 ## LOCALIZATION SETTINGS
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
