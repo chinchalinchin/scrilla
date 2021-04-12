@@ -51,7 +51,7 @@ def risk_return(request):
                 response[i] = profile
                 if parsed_args['jpeg']:
                     profiles.append(profile)
-                continue # end loop iteration
+                continue # halt this iteration of loop if profile cache found
             else:
                 output.debug(f'No profile cache.')
                 profile = {}
@@ -66,14 +66,16 @@ def risk_return(request):
                                                         end_date=parsed_args['end_date'], ticker_profile = profile)
  
         # TODO: function in analyzer: correlation_gap_analysis(ticker_1, ticker_1, start_date, end_date):
-        # TODO: check correlation cache for market and ticker
+        # TODO: if start_date and end_date are None:
+        #           check correlation cache for market and ticker
         # TODO: if correlation is None:
         #           get market price queryset. parse sample_prices[settings.MARKET_PROXY] = market_queryset
         #                                            sample_prices[tickers[i]] = prices
         #           statistics.calculate_ito_correlation(ticker_1=settings.MARKET_PROXY, ticker_1=tickers[i], sample_prices=sample_proces)
         #           save correlation to cache
         profile['asset_beta'] = markets.market_beta(ticker=tickers[i], start_date=parsed_args['start_date'],
-                                                        end_date=parsed_args['end_date'], market_profile=market_profile)
+                                                        end_date=parsed_args['end_date'], 
+                                                        market_profile=market_profile)
         
         analyzer.save_profile_to_cache(profile=profile)
         response[i] = profile

@@ -119,35 +119,35 @@ def market_queryset_gap_analysis(symbol, start_date=None, end_date=None):
     
     gaps = len(date_range) - queryset.count()  + 1
     if gaps != 0: 
-            logger.info(f'{len(date_range) - queryset.count() + 1} gaps detected.')
-            price_history = services.get_daily_price_history(ticker=symbol, start_date=start_date, 
-                                                                            end_date=end_date)
-            count = 0
-            for date in price_history:
-                logger.debug(f'Checking {date} for gaps.')
-                close_price = services.parse_price_from_date(prices=price_history, date=date, asset_type=asset_type, 
-                                                                which_price=services.CLOSE_PRICE)
-                open_price = services.parse_price_from_date(prices=price_history, date=date, asset_type=asset_type, 
-                                                                which_price=services.OPEN_PRICE)
-                if asset_type == app_settings.ASSET_EQUITY:
-                    entry = EquityMarket.objects.get_or_create(ticker=ticker[0], date=date, open_price=open_price, close_price=close_price)
-                elif asset_type == app_settings.ASSET_CRYPTO:
-                    entry = CryptoMarket.objects.get_or_create(ticker=ticker[0], date=date, open_price=open_price, close_price=close_price)
+        logger.info(f'{len(date_range) - queryset.count() + 1} gaps detected.')
+        price_history = services.get_daily_price_history(ticker=symbol, start_date=start_date, 
+                                                                        end_date=end_date)
+        count = 0
+        for date in price_history:
+            logger.debug(f'Checking {date} for gaps.')
+            close_price = services.parse_price_from_date(prices=price_history, date=date, asset_type=asset_type, 
+                                                            which_price=services.CLOSE_PRICE)
+            open_price = services.parse_price_from_date(prices=price_history, date=date, asset_type=asset_type, 
+                                                            which_price=services.OPEN_PRICE)
+            if asset_type == app_settings.ASSET_EQUITY:
+                entry = EquityMarket.objects.get_or_create(ticker=ticker[0], date=date, open_price=open_price, close_price=close_price)
+            elif asset_type == app_settings.ASSET_CRYPTO:
+                entry = CryptoMarket.objects.get_or_create(ticker=ticker[0], date=date, open_price=open_price, close_price=close_price)
 
-                if entry[1]:
-                    logger.debug(f'Gap filled on {date} for {symbol} with price open={open_price} - close={close_price}.')
-                    count += 1
-                    logger.debug(f'{count} gaps filled.')
-                else:
-                    logger.debug(f'No gap detected on {date} for {symbol}.')
-                
-                if count == gaps:
-                    logger.debug(f'All gaps filled, breaking loop.')
-                    break
+            if entry[1]:
+                logger.debug(f'Gap filled on {date} for {symbol} with price open={open_price} - close={close_price}.')
+                count += 1
+                logger.debug(f'{count} gaps filled.')
+            else:
+                logger.debug(f'No gap detected on {date} for {symbol}.')
+            
+            if count == gaps:
+                logger.debug(f'All gaps filled, breaking loop.')
+                break
 
 # returns market_profile
 def market_proxy_gap_analysis(start_date=None, end_date=None):
-    market_queryset_gap_analysis(symbol=app_settings.MARKET_PROXY, start_date=start_date)
+    market_queryset_gap_analysis(symbol=app_settings.MARKET_PROXY, start_date=start_date, end_date=end_date)
 
     if start_date is None and end_date is None:
         market_profile = check_cache_for_profile(ticker=settings.MARKET_PROXY)
@@ -181,6 +181,34 @@ def dividend_queryset_gap_analysis(symbol):
                 logger.debug(f'No gap detected on {date} for {symbol}.')
 
 def economy_queryset_gap_analysis(symbol, start_date=None, end_date=None):
-    # TODO:
-    pass
+    if end_date is None: 
+            end_date = helper.get_previous_business_date(date=helper.get_today())
+    if start_date is None:
+        start_date = helper.decrement_date_by_business_days(start_date=end_date, 
+                                                            business_days=app_settings.DEFAULT_ANALYSIS_PERIOD)
+    # TODO: valid order of dates if not None
 
+    stat_symbol = StatSymbol.objects.get_or_create(symbol=symbol)
+    date_range = helper.business_dates_between(start_date=start_date,end_date=end_date)
+    queryset = Economy.objects.filter(statistics=stat_symbol[0],date__gt=start_date,date__lte=end_date).order_by('-date')
+
+    gaps = len(date_range) - queryset.count()  + 1
+    if gaps != 0: 
+        logger.info(f'{len(date_range) - queryset.count() + 1} gaps detected.')
+        stat_history = services.get_daily_stats_history(statistic=stat_symbol[0], start_date=start_date,
+                                                            end_date=end_date)
+        count = 0
+        for date in stat_history:
+            logger.debug(f'Checking {date} for gaps.')
+            value = stat_history[date]
+            entry = Economy.objects.get_or_create(statistic=stat_symbol[0],date=date,value=value)
+            if entry[1]:
+                logger.debug(f'Gap filled on {date} for {stat_symbol[0]} with value={value}')
+                count += 1
+                logger.debug(f'{count} gaps filled.')
+            else:
+                logger.debug(f'No gap detected on {date} for {stat_symbol[0]}.')
+            
+            if count == gaps:
+                logger.debug(f'All gaps filled, breaking loop.')
+                break

@@ -128,6 +128,11 @@ def rolling_recursion_test():
 
 def rolling_recursion_tests_with_financial_data():
     trading_period = markets.get_trading_period(asset_type=settings.ASSET_EQUITY)
+    outputter.print_line()
+    outputter.center('Rolling Recursive Risk Profile Test')
+    outputter.print_line()
+    outputter.title_line('Test Results')
+    outputter.print_line()
 
     for ticker in test_tickers:
         for date in test_dates:
@@ -147,9 +152,7 @@ def rolling_recursion_tests_with_financial_data():
                     # They can't be because decrement_by_business_days only returns business days.
             del previous_prices[helper.date_to_string(end_date)]
             del new_prices[helper.date_to_string(previous_start_date)]
-            print(previous_prices.keys())
-            print(new_prices.keys())
-
+            
             end_date_price = services.parse_price_from_date(prices=prices,
                                                             date=helper.date_to_string(end_date), 
                                                             asset_type=settings.ASSET_EQUITY)
@@ -166,10 +169,14 @@ def rolling_recursion_tests_with_financial_data():
             print('end_date, previous_end_date, start_date, previous_start_date and prices')
             print(end_date, previous_end_date, start_date, previous_start_date)
             print(end_date_price, previous_end_date_price, start_date_price, previous_start_date_price)
+
             new_return = numpy.log(float(end_date_price)/float(previous_end_date_price))/trading_period
             lost_return = numpy.log(float(start_date_price)/float(previous_start_date_price))/trading_period
+            new_mod_return = new_return*numpy.sqrt(trading_period)
+            lost_mod_return = lost_return*numpy.sqrt(trading_period)
 
             old_profile = statistics.calculate_risk_return(ticker=ticker, sample_prices=previous_prices)
+            old_mod_return = old_profile['annual_return']*numpy.sqrt(trading_period)
 
             new_actual_profile = statistics.calculate_risk_return(ticker=ticker, sample_prices=new_prices)
 
@@ -178,19 +185,13 @@ def rolling_recursion_tests_with_financial_data():
                                                                                 new_obs=new_return,
                                                                                 lost_obs=lost_return)
             new_recursive_profile['annual_volatility'] = statistics.recursive_variance(var_previous=old_profile['annual_volatility'],
-                                                                                        xbar_previous=old_profile['annual_return'],
-                                                                                        new_obs=new_return,
-                                                                                        lost_obs=lost_return)
+                                                                                        xbar_previous=old_mod_return,
+                                                                                        new_obs=new_mod_return,
+                                                                                        lost_obs=lost_mod_return)
             new_recursive_profile['annual_volatility'] = numpy.sqrt(new_recursive_profile['annual_volatility'])
 
-    outputter.print_line()
-    outputter.center('Rolling Recursive Risk Profile Test')
-    outputter.print_line()
-    outputter.title_line('Test Results')
-    for ticker in test_tickers:
-        for date in test_dates:
             outputter.scalar_result(calculation=f'{ticker}_return({date})_actual', result=new_actual_profile['annual_return'],currency=False)
-            outputter.scalar_result(calculation=f'{ticker}_return({date})_recursive', result=new_recursive_profile['annual_return'])
+            outputter.scalar_result(calculation=f'{ticker}_return({date})_recursive', result=new_recursive_profile['annual_return'], currency=False)
             outputter.scalar_result(calculation=f'{ticker}_vol({date})_actual', result=new_actual_profile['annual_volatility'], currency=False)
             outputter.scalar_result(calculation=f'{ticker}_vol({date})_recursive', result=new_recursive_profile['annual_volatility'], currency=False)
             # calculate rolling recursive end_date sample return

@@ -105,11 +105,11 @@ def get_risk_free_rate():
 
 # NOTE: if ticker_profile is provided, it effectively nullifies start_date and end_date.
 # TODO: pass in risk_free_rate=None as optional argument to prevent overusing services
-def sharpe_ratio(ticker, start_date=None, end_date=None, ticker_profile=None):
+def sharpe_ratio(ticker, start_date=None, end_date=None, risk_free_rate=None, ticker_profile=None):
     """
     Description
     -----------
-    Returns the value of the sharpe ratio for the supplied ticker over the specified time range. If no start and end date are supplied, calculation will default to the last 100 days of prices. \n \n 
+    Returns the value of the sharpe ratio for the supplied ticker over the specified time range. If no start and end date are supplied, calculation will default to the last 100 days of prices. The risk_free_rate and ticker_profile can be provided to avoid excessive service calls. \n \n 
 
     Parameters
     ----------
@@ -120,14 +120,23 @@ def sharpe_ratio(ticker, start_date=None, end_date=None, ticker_profile=None):
         Start date of the time period for which the sharpe ratio will be computed. \n \n 
 
     3. end_date : datetime.date \n 
-        End_date of the time period for which the sharpe ratio will be computed. \n \n 
+        End_date of the time period for which the sharpe ratio will be computed. \n \n
+
+    4. risk_free_rate : float \n
+        Risk free rate used to evaluate excess return. Defaults to settings.RISK_FREE_RATE. \n \n
+
+    5. ticker_profile : dict{ { 'annual_return': float, 'annual_volatility': float } }
+        Risk-return profile for the supplied ticker. If provided, start_date and end_date are ignored and the values in ticker_profile are used to calculate the Sharpe ratio.
 
     """
     if ticker_profile is None:
         ticker_profile = statistics.calculate_risk_return(ticker=ticker, start_date=start_date,
                                                         end_date=end_date)
 
-    return (ticker_profile['annual_return'] - get_risk_free_rate())/ticker_profile['annual_volatility']
+    if risk_free_rate is None:
+        risk_free_rate = get_risk_free_rate()
+
+    return (ticker_profile['annual_return'] - risk_free_rate)/ticker_profile['annual_volatility']
 
 # if no dates are specified, defaults to last 100 days
 def market_premium(start_date=None, end_date=None, market_profile = None):
