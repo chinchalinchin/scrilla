@@ -591,7 +591,7 @@ def calculate_ito_correlation(ticker_1, ticker_2, start_date=None, end_date=None
 
     if sample_prices is None:
         # reset sample price and set entries to None for consistency in calculate_risk_return call below.
-        logger.debug('No sample prices provided. Calling service for prices.')
+        logger.debug('No sample prices provided.')
 
         sample_prices = {}
         
@@ -609,6 +609,7 @@ def calculate_ito_correlation(ticker_1, ticker_2, start_date=None, end_date=None
                 logger.debug(f'Loading in cached ({ticker_1}, {ticker_2}) correlation.')
                 correlation = files.load_file(file_name=buffer_store_2)
                 return correlation
+
             else:
                 logger.debug(f'No cached ({ticker_1}, {ticker_2}) correlation found, retrieving price histories for calculation.')
                 prices_1 = services.get_daily_price_history(ticker=ticker_1)
@@ -694,6 +695,7 @@ def calculate_ito_correlation(ticker_1, ticker_2, start_date=None, end_date=None
 
     # make sure datasets are only compared over corresponding intervals, i.e.
     # always calculate correlation over smallest interval.
+    # NOTE: at this point, sample_prices is only really used to iterate over date range.
     if (len(prices_1) - weekend_offset_1) == (len(prices_2) - weekend_offset_2) \
         or (len(prices_1) - weekend_offset_1) < (len(prices_2) - weekend_offset_2):
         sample_prices = prices_1
@@ -876,13 +878,23 @@ def calculate_ito_correlation_series(ticker_1, ticker_2, start_date=None, end_da
 def calculate_return_covariance(ticker_1, ticker_2, start_date=None, end_date=None, sample_prices=None, 
                                 correlation=None, profile_1=None, profile_2=None):
     if correlation is None:
-        correlation = calculate_ito_correlation(ticker_1=ticker_1, ticker_2=ticker_2, start_date=start_date, 
-                                                  end_date=end_date, sample_prices=sample_prices)
+        if sample_prices is None:
+            correlation = calculate_ito_correlation(ticker_1=ticker_1, ticker_2=ticker_2, start_date=start_date, 
+                                                  end_date=end_date)
+        else:
+            correlation = calculate_ito_correlation(ticker_1=ticker_1, ticker_2=ticker_2, sample_prices=sample_prices)
+
     if profile_1 is None:
-        profile_1 = calculate_risk_return(ticker=ticker_1, start_date=start_date, end_date=end_date, 
-                                            sample_prices=sample_prices)
+        if sample_prices is None:
+            profile_1 = calculate_risk_return(ticker=ticker_1, start_date=start_date, end_date=end_date)
+        else:
+            profile_1 = calculate_risk_return(ticker=ticker_1, sample_prices=sample_prices[ticker_1])
+
     if profile_2 is None:
-        profile_2 = calculate_risk_return(ticker=ticker_2, start_date=start_date, end_date=end_date,
-                                            sample_prices=sample_prices)
+        if sample_prices is None:
+            profile_2 = calculate_risk_return(ticker=ticker_2, start_date=start_date, end_date=end_date)
+        else:
+            profile_2 = calculate_risk_return(ticker=ticker_2,sample_prices=sample_prices[ticker_2])
+
     covariance = profile_1['annual_volatility']*profile_2['annual_volatility']*correlation['correlation']
     return covariance

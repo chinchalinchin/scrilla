@@ -32,13 +32,8 @@ def risk_return(request):
         return JsonResponse(data=parsed_args_or_err_msg, status=status, safe=False)
 
     tickers, parsed_args = parsed_args_or_err_msg['tickers'], parsed_args_or_err_msg['parsed_args']
+    market_profile, risk_free_rate = analyzer.initialize_market_info(parsed_args=parsed_args)
     response, profiles = {}, []
-
-    market_profile = analyzer.market_proxy_gap_analysis(start_date=parsed_args['start_date'], 
-                                                            end_date=parsed_args['end_date'])
-    risk_free_rate = analyzer.economy_queryset_gap_analysis(symbol=app_settings.RISK_FREE_RATE,
-                                                            start_date=parsed_args['start_date'], 
-                                                            end_date=parsed_args['end_date'])
 
     for i in range(len(tickers)):
         profile, prices = {}, {}
@@ -63,6 +58,7 @@ def risk_return(request):
         # analyzer.correlation_gap_analysis(ticker_1=tickers[i], ticker_2=app_settings.MARKET_PROXY,
         #                                   start_date=parsed_args['start_date'],
         #                                   end_date=parsed_args['end_date'])
+
         prices[tickers[i]] = parser.parse_args_into_market_queryset(ticker=tickers[i], parsed_args=parsed_args)
         prices[app_settings.MARKET_PROXY] = parser.parse_args_into_market_queryset(ticker=app_settings.MARKET_PROXY,
                                                                                     parsed_args=parsed_args)

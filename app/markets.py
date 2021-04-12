@@ -198,6 +198,7 @@ def market_beta(ticker, start_date=None, end_date=None, market_profile=None, mar
     market_covariance = statistics.calculate_return_covariance(ticker_1=ticker, ticker_2=settings.MARKET_PROXY,
                                                                 profile_1=ticker_profile, profile_2=market_profile,
                                                                 correlation = market_correlation,
+                                                                sample_prices=sample_prices,
                                                                 start_date=start_date, end_date=end_date)
     return market_covariance / (market_profile['annual_volatility']**2)
 

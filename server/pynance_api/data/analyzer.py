@@ -119,7 +119,7 @@ def market_queryset_gap_analysis(symbol, start_date=None, end_date=None):
 
     gaps = len(date_range) - queryset.count()
     if gaps != 0: 
-        logger.info(f'{len(date_range) - queryset.count() + 1} gaps detected.')
+        logger.info(f'{gaps} gaps detected.')
         price_history = services.get_daily_price_history(ticker=symbol, start_date=start_date, 
                                                                         end_date=end_date)
         count = 0
@@ -203,7 +203,7 @@ def economy_queryset_gap_analysis(symbol, start_date=None, end_date=None):
 
     gaps = len(date_range) - queryset.count()
     if gaps != 0: 
-        logger.info(f'{len(date_range) - queryset.count() + 1} gaps detected.')
+        logger.info(f'{gaps} gaps detected.')
         stat_history = services.get_daily_stats_history(statistic=stat_symbol[0], start_date=start_date,
                                                             end_date=end_date)
         count = 0
@@ -225,3 +225,12 @@ def economy_queryset_gap_analysis(symbol, start_date=None, end_date=None):
                 break
     
     return queryset.first().value
+
+
+def initialize_market_info(parsed_args):
+    market_profile = market_proxy_gap_analysis(start_date=parsed_args['start_date'], 
+                                                            end_date=parsed_args['end_date'])
+    risk_free_rate = economy_queryset_gap_analysis(symbol=app_settings.RISK_FREE_RATE,
+                                                            start_date=parsed_args['start_date'], 
+                                                            end_date=parsed_args['end_date'])
+    return market_profile, risk_free_rate
