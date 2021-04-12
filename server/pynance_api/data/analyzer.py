@@ -40,7 +40,9 @@ def check_cache_for_profile(ticker):
     result = EquityProfileCache.objects.get_or_create(ticker=ticker[0], date=today)
 
     if result[1]:
-        logger.info(f'No cache found for {ticker[0].ticker}')
+        logger.info(f'No cache found for {ticker[0].ticker} on {today}')
+
+        logger.info('Determining if result can be built recursively...')
         # check for any dates and recursively build profiles
         #   
         return False
