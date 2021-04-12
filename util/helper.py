@@ -196,10 +196,17 @@ def decrement_date_by_days(start_date, days):
 
 def decrement_date_by_business_days(start_date, business_days):
     days_to_subtract = business_days
+    first_pass=True
     while days_to_subtract > 0:
         if not (is_date_weekend(start_date) or is_date_holiday(start_date)):
-            days_to_subtract -= 1
-        start_date -= datetime.timedelta(days=1)
+            if first_pass:
+                first_pass = False
+            else:
+                days_to_subtract -= 1
+                
+        if days_to_subtract > 0:
+            start_date -= datetime.timedelta(days=1)
+            
     return start_date
 
 def decrement_date_string_by_business_days(start_date_string, business_days):
