@@ -36,20 +36,22 @@ def risk_return(request):
 
     market_profile = analyzer.market_proxy_gap_analysis(start_date=parsed_args['start_date'], 
                                                             end_date=parsed_args['end_date'])
+    print('here')
     risk_free_rate = analyzer.economy_queryset_gap_analysis(symbol=app_settings.RISK_FREE_RATE,
                                                             start_date=parsed_args['start_date'], 
                                                             end_date=parsed_args['end_date'])
 
+    print('now here')
     for i in range(len(tickers)):
         profile = {}
         ticker_str = f'{tickers[i]}'
         output.debug(f'Calculating risk-return profile for {tickers[i]}.')
 
         if parsed_args['start_date'] is None and parsed_args['end_date'] is None:
-            output.debug(f'Checking for {tickers[i]} profile in the cache.')
+            output.debug(f'Checking for {tickers[i]} profile in the database cache.')
             profile = analyzer.check_cache_for_profile(ticker=tickers[i])
             if profile:
-                output.debug(f'Found profile cache.')
+                output.debug(f'Found profile in databasecache.')
                 response[i] = profile
                 if parsed_args['jpeg']:
                     profiles.append(profile)
@@ -71,7 +73,7 @@ def risk_return(request):
         profile['sharpe_ratio'] = markets.sharpe_ratio(ticker=tickers[i], start_date=parsed_args['start_date'],
                                                         end_date=parsed_args['end_date'], 
                                                         ticker_profile = profile, 
-                                                        risk_free_rate=risk_free_rate)
+                                                        risk_free_rate=float(risk_free_rate))
  
         # TODO: if start_date and end_date are None:
         #           check correlation cache for market and ticker

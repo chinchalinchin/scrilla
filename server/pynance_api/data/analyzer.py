@@ -22,7 +22,7 @@ def save_profile_to_cache(profile):
     ticker = EquityTicker.objects.get(ticker=profile['ticker'])
     result = EquityProfileCache.objects.get(ticker=ticker, date=helper.get_today())
 
-    logger.info(f'Saving {ticker.ticker} profile to cache')
+    logger.info(f'Saving {ticker.ticker} profile to database cache')
 
     result.annual_return = Decimal(profile['annual_return'])
     result.annual_volatility = Decimal(profile['annual_volatility'])
@@ -45,7 +45,7 @@ def check_cache_for_profile(ticker):
     result = EquityProfileCache.objects.get_or_create(ticker=ticker[0], date=today)
 
     if result[1]:
-        logger.info(f'No cache found for {ticker[0].ticker} on {today}')
+        logger.info(f'No database cache found for {ticker[0].ticker} on {today}')
 
         logger.info('Determining if result can be built recursively...')
         # check for any dates and recursively build profiles
@@ -75,7 +75,7 @@ def check_cache_for_profile(ticker):
         if result[0].asset_beta is None:
             return False
         
-        logger.info(f'Cache found for {ticker[0].ticker}')
+        logger.info(f'Database cache found for {ticker[0].ticker}')
         profile = {}
         profile['ticker'] = ticker[0].ticker
         profile['annual_return'] = result[0].annual_return
@@ -102,12 +102,12 @@ def market_queryset_gap_analysis(symbol, start_date=None, end_date=None):
 
         ticker = EquityTicker.objects.get_or_create(ticker=symbol)
         date_range = helper.business_dates_between(start_date=start_date, end_date=end_date)
-        queryset = EquityMarket.objects.filter(ticker=ticker[0], date__gt=start_date, date__lte=end_date).order_by('-date')
+        queryset = EquityMarket.objects.filter(ticker=ticker[0], date__gte=start_date, date__lte=end_date).order_by('-date')
         
     elif asset_type == app_settings.ASSET_CRYPTO:
         if end_date is None:
-            end_date = helper.decrement_date_by_business_days(start_date=helper.get_today(),
-                                                                business_days=1)
+            end_date = helper.decrement_date_by_days(start_date=helper.get_today(),
+                                                                days=1)
         if start_date is None:
             start_date = helper.decrement_date_by_days(start_date=end_date, 
                                                         days=app_settings.DEFAULT_ANALYSIS_PERIOD)
@@ -115,9 +115,18 @@ def market_queryset_gap_analysis(symbol, start_date=None, end_date=None):
 
         ticker = CryptoTicker.objects.get_or_create(ticker=symbol)
         date_range = helper.dates_between(start_date=start_date, end_date=end_date)
-        queryset = CryptoMarket.objects.filer(ticker=ticker[0], date__gt=start_date, date__lte=end_date).order_by('-date')
-    
-    gaps = len(date_range) - queryset.count()  + 1
+        queryset = CryptoMarket.objects.filer(ticker=ticker[0], date__gte=start_date, date__lte=end_date).order_by('-date')
+
+    print('date_range', len(date_range))
+    print('queryset.count', queryset.count())
+    print('end_date', end_date)
+    print('start_date', start_date)
+    print('time delta', (end_date - start_date).days)
+    print('queryset.first,date', queryset.first().date)
+    print('queryset.last,date', queryset.last().date)
+    print('query time delta', (queryset.first().date-queryset.last().date).days)
+
+    gaps = len(date_range) - queryset.count()
     if gaps != 0: 
         logger.info(f'{len(date_range) - queryset.count() + 1} gaps detected.')
         price_history = services.get_daily_price_history(ticker=symbol, start_date=start_date, 
@@ -150,16 +159,20 @@ def market_proxy_gap_analysis(start_date=None, end_date=None):
     market_queryset_gap_analysis(symbol=app_settings.MARKET_PROXY, start_date=start_date, end_date=end_date)
 
     if start_date is None and end_date is None:
-        market_profile = check_cache_for_profile(ticker=settings.MARKET_PROXY)
+        market_profile = check_cache_for_profile(ticker=app_settings.MARKET_PROXY)
         if not market_profile:
-            market_prices = parser.parse_args_into_market_queryset(ticker=settings.MARKET_PROXY)
-            market_profile = statistics.calculate_risk_return(ticker=settings.MARKET_PROXY, sample_prices=market_prices)
-            market_profile['ticker'], market_profile['asset_beta'] = settings.MARKET_PROXY, 1
-            market_profile['sharpe_ratio'] = markets.sharpe_ratio(ticker=settings.MARKET_PROXY, ticker_profile=market_profile)
+            market_prices = parser.parse_args_into_market_queryset(ticker=app_settings.MARKET_PROXY)
+            market_profile = statistics.calculate_risk_return(ticker=app_settings.MARKET_PROXY, sample_prices=market_prices)
+            market_profile['ticker'], market_profile['asset_beta']=app_settings.MARKET_PROXY, 1
+            market_profile['sharpe_ratio'] = markets.sharpe_ratio(ticker=app_settings.MARKET_PROXY, ticker_profile=market_profile)
             save_profile_to_cache(profile=market_profile)
+        else:
+            for stat in market_profile:
+                if stat != 'ticker':
+                    market_profile[stat] = float(market_profile[stat])
     else:
-        market_prices = parser.parse_args_into_market_queryset(ticker=settings.MARKET_PROXY)
-        market_profile = statistics.calculate_risk_return(ticker=settings.MARKET_PROXY, start_date=start_date,
+        market_prices = parser.parse_args_into_market_queryset(ticker=app_settings.MARKET_PROXY)
+        market_profile = statistics.calculate_risk_return(ticker=app_settings.MARKET_PROXY, start_date=start_date,
                                                             end_date=end_date,sample_prices=market_prices)
     return market_profile
 
@@ -184,6 +197,8 @@ def dividend_queryset_gap_analysis(symbol):
 # TODO: analyzes the date range for gaps when all I really need is the latest value of
 #       the interest rate.
 def economy_queryset_gap_analysis(symbol, start_date=None, end_date=None):
+    logger.info(f'Searching for gaps in {symbol} Economy queryset.')
+
     if end_date is None: 
         end_date = helper.get_previous_business_date(date=helper.get_today())
     if start_date is None:
@@ -193,9 +208,18 @@ def economy_queryset_gap_analysis(symbol, start_date=None, end_date=None):
 
     stat_symbol = StatSymbol.objects.get_or_create(symbol=symbol)
     date_range = helper.business_dates_between(start_date=start_date,end_date=end_date)
-    queryset = Economy.objects.filter(statistic=stat_symbol[0],date__gt=start_date,date__lte=end_date).order_by('-date')
+    queryset = Economy.objects.filter(statistic=stat_symbol[0],date__gte=start_date,date__lte=end_date).order_by('-date')
 
-    gaps = len(date_range) - queryset.count()  + 1
+    print('date_range', len(date_range))
+    print('queryset.count', queryset.count())
+    print('end_date', end_date)
+    print('start_date', start_date)
+    print('time delta', (end_date - start_date).days)
+    print('queryset.first,date', queryset.first().date)
+    print('queryset.last,date', queryset.last().date)
+    print('query time delta', (queryset.first().date-queryset.last().date).days)
+
+    gaps = len(date_range) - queryset.count()
     if gaps != 0: 
         logger.info(f'{len(date_range) - queryset.count() + 1} gaps detected.')
         stat_history = services.get_daily_stats_history(statistic=stat_symbol[0], start_date=start_date,
@@ -216,4 +240,4 @@ def economy_queryset_gap_analysis(symbol, start_date=None, end_date=None):
                 logger.debug(f'All gaps filled, breaking loop.')
                 break
     
-    return Economy.objects.get(statistic=stat_symbol[0], date=end_date).value
+    return queryset.first().value

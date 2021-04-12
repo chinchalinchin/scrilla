@@ -113,19 +113,18 @@ def market_queryset_to_dict(price_set):
 # contain all left-hand or right-hand records that match the criteria, i.e.
 # if only start date is specified in, then it will return ALL records greater
 # than or equal to the start_date
-def parse_args_into_market_queryset(ticker, parsed_args):
+def parse_args_into_market_queryset(ticker, parsed_args=None):
     asset_type = markets.get_asset_type(ticker)
 
-    if parsed_args['start_date'] is None and parsed_args['end_date'] is None:
+    if parsed_args is None or (parsed_args['start_date'] is None and parsed_args['end_date'] is None):
         if asset_type == app_settings.ASSET_EQUITY:
             queryset = EquityMarket.objects.filter(ticker=ticker).order_by('-date')[:app_settings.DEFAULT_ANALYSIS_PERIOD]
             return market_queryset_to_dict(price_set=queryset)
         if asset_type == app_settings.ASSET_CRYPTO:
             queryset = CryptoMarket.objects.filter(ticker=ticker).order_by('-date')[:app_settings.DEFAULT_ANALYSIS_PERIOD]
             return market_queryset_to_dict(price_set=queryset)
-        return False
 
-    if parsed_args['start_date'] is None and parsed_args['end_date'] is not None:
+    elif parsed_args['start_date'] is None and parsed_args['end_date'] is not None:
         if asset_type == app_settings.ASSET_EQUITY:
             queryset= EquityMarket.objects.filter(ticker=ticker,
                                                     date__lte=parsed_args['end_date']).order_by('-date')
@@ -135,10 +134,8 @@ def parse_args_into_market_queryset(ticker, parsed_args):
             queryset = CryptoMarket.objects.filter(ticker=ticker,
                                                     date__lte=parsed_args['end_date']).order_by('-date')
             return market_queryset_to_dict(price_set=queryset)
-
-        return False
         
-    if parsed_args['start_date'] is not None and parsed_args['end_date'] is not None:
+    elif parsed_args['start_date'] is not None and parsed_args['end_date'] is not None:
         if asset_type == app_settings.ASSET_EQUITY:
             queryset = EquityMarket.objects.filter(ticker=ticker, date__gte=parsed_args['start_date'], 
                                                     date__lte=parsed_args['end_date']).order_by('-date')
@@ -149,20 +146,18 @@ def parse_args_into_market_queryset(ticker, parsed_args):
                                                     date_lte=parsed_args['end_date']).order_by('-date')
             return market_queryset_to_dict(price_set=queryset)
 
-        return False
+    elif parsed_args['start_date'] is not None and parsed_args['end_date'] is None:
+        if asset_type == app_settings.ASSET_EQUITY:
+            queryset = EquityMarket.objects.filter(ticker=ticker,
+                                                    date__gte=parsed_args['start_date']).order_by('-date')
+            return market_queryset_to_dict(price_set=queryset)
 
-    # start_date is not None and end_date is None
-    
-    if asset_type == app_settings.ASSET_EQUITY:
-        queryset = EquityMarket.objects.filter(ticker=ticker,
-                                                date__gte=parsed_args['start_date']).order_by('-date')
-        return market_queryset_to_dict(price_set=queryset)
+        if asset_type == app_settings.ASSET_CRYPTO:
+            queryset = CryptoMarket.objects.filter(ticker=ticker,
+                                                    date_gte=parsed_args['start_date']).order_by('-date')
+            return market_queryset_to_dict(price_set=queryset)
 
-    if asset_type == app_settings.ASSET_CRYPTO:
-        queryset = CryptoMarket.objects.filter(ticker=ticker,
-                                                date_gte=parsed_args['start_date']).order_by('-date')
-        return market_queryset_to_dict(price_set=queryset)
-
+    # TODO: raise exception instead of returning False
     return False
 
 # Note: model must implement to_list() methods.
