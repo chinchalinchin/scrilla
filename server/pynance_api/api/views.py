@@ -51,7 +51,7 @@ def risk_return(request):
                 response[i] = profile
                 if parsed_args['jpeg']:
                     profiles.append(profile)
-                continue 
+                continue # end loop iteration
             else:
                 output.debug(f'No profile cache.')
                 profile = {}

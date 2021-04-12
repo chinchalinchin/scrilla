@@ -190,11 +190,9 @@ def parse_args_into_dividend_queryset(ticker, parsed_args):
                                         date__lte=parsed_args['end_date']).order_by('-date')
     return dividend_queryset_to_dict(dividend_set=queryset)
 
-def validate_request(request, allowed_methods=None):
-    if allowed_methods is None:
-        allowed_methods = ["GET"]
-        
+def validate_request(request, allowed_methods=["GET"]):
     logger.debug('Verifying request method.')
+    
     if verify_method(request, allowed_methods):
         logger.debug('Request method verified!')
 
