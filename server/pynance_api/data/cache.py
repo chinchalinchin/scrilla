@@ -15,7 +15,6 @@ import app.statistics as statistics
 
 logger = outputter.Logger("server.pynance_api.data.cache", settings.LOG_LEVEL)
 
-# TODO: extend statistic caching across dates. right now only 
 def determine_date_range(start_date=None, end_date=None):
     if start_date is None and end_date is None:
         end_date = helper.get_today()
@@ -26,7 +25,6 @@ def determine_date_range(start_date=None, end_date=None):
         end_date = helper.get_today()
     return start_date, end_date
 
-# Save equity cache to market
 # NOTE: The EquityProfileCache object is created when the cache is initially
 #        checked for the result.
 def save_profile(profile, start_date=None, end_date=None):
@@ -36,7 +34,7 @@ def save_profile(profile, start_date=None, end_date=None):
         
     result = EquityProfileCache.objects.get(ticker=ticker, start_date=start_date, end_date=end_date)
 
-    logger.info(f'Saving {ticker.ticker} profile({start_date}-{end_date}) to database cache')
+    logger.debug(f'Saving {ticker.ticker} profile({start_date} to {end_date}) to database cache')
 
     result.annual_return = Decimal(profile['annual_return'])
     result.annual_volatility = Decimal(profile['annual_volatility'])
@@ -52,25 +50,22 @@ def save_correlation(correlation, this_ticker_1, this_ticker_2, start_date=None,
 
     start_date, end_date = determine_date_range(start_date=start_date, end_date=end_date)
 
-    correl_cache_1 = EquityCorrelationCache.objects.get_or_create(ticker_1=ticker_1, 
-                                                                    ticker_2=ticker_2, 
-                                                                    start_date=start_date,
-                                                                    end_date=end_date)
-    correl_cache_2 = EquityCorrelationCache.objects.get_or_create(ticker_1=ticker_2, 
-                                                                    ticker_2=ticker_1, 
-                                                                    start_date=start_date,
-                                                                    end_date=end_date)
+    logger.debug(f'Saving {this_ticker_1}_{this_ticker_2} correlation to database cache')
+    correl_cache_1 = EquityCorrelationCache.objects.get(ticker_1=ticker_1, 
+                                                            ticker_2=ticker_2, 
+                                                            start_date=start_date,
+                                                            end_date=end_date)
+    correl_cache_2 = EquityCorrelationCache.objects.get(ticker_1=ticker_2, 
+                                                            ticker_2=ticker_1, 
+                                                            start_date=start_date,
+                                                            end_date=end_date)
 
-    correl_cache_1.correlation = correlation
-    correl_cache_2.correlation = correlation
+    correl_cache_1.correlation = correlation['correlation']
+    correl_cache_2.correlation = correlation['correlation']
 
     correl_cache_1.save()
     correl_cache_2.save()
     
-# If no start and end date are provided, since the default time period is 100
-#   prices, stash equity profile statistics for quick retrieval instead of 
-#   calculating from scratch each time the profile is requested for the default
-#   time period. 
 # NOTE: This creates the EquityProfileCache object if it does not exist. So,
 #           when saving, the QuerySet should be filtered and ordered by date.
 # TODO: must be careful to verify when testing this that it actually calculates the profile
@@ -83,7 +78,7 @@ def check_for_profile(ticker, start_date=None, end_date=None):
                                                         end_date=end_date)
 
     if result[1]:
-        logger.info(f'No database cache found for {ticker[0].ticker} over {start_date}-{end_date}')
+        logger.info(f'No database cache found for {ticker[0].ticker} over {start_date} to {end_date}')
 
         if settings.RECURSION:
             logger.info('Determining if result can be built recursively...')

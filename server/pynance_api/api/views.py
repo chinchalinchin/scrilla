@@ -57,24 +57,25 @@ def risk_return(request):
         analyzer.market_queryset_gap_analysis(symbol=tickers[i],start_date=parsed_args['start_date'],
                                                 end_date=parsed_args['end_date'])
 
-        correlation = analyzer.check_for_correlation(ticker_1=tickers[i], 
-                                                            ticker_2=app_settings.MARKET_PROXY,
-                                                            start_date=parsed_args['start_date'], 
-                                                            end_date=parsed_args['end_date'])
-        if correlation is None:
-            correlation = statistics.calculate_ito_correlation(ticker_1=tickers[i], 
-                                                                ticker_2=app_settings.MARKET_PROXY, 
-                                                                start_date=parsed_args['start_date'], 
-                                                                end_date=parsed_args['end_date'])
-            analyzer.save_correlation(ticker_1=tickers[i], ticker_2=app_settings.MARKET_PROXY, 
-                                                start_date=parsed_args['start_date'], 
-                                                end_date=parsed_args['end_date'])
+        correlation = cache.check_for_correlation(this_ticker_1=tickers[i], 
+                                                    this_ticker_2=app_settings.MARKET_PROXY,
+                                                    start_date=parsed_args['start_date'], 
+                                                    end_date=parsed_args['end_date'])
 
         prices[tickers[i]] = parser.parse_args_into_market_queryset(ticker=tickers[i], parsed_args=parsed_args)
         prices[app_settings.MARKET_PROXY] = parser.parse_args_into_market_queryset(ticker=app_settings.MARKET_PROXY,
                                                                                     parsed_args=parsed_args)
         stats = statistics.calculate_risk_return(ticker=tickers[i], sample_prices=prices[tickers[i]])
         
+        if correlation is None:
+            correlation = statistics.calculate_ito_correlation(ticker_1=tickers[i], 
+                                                                ticker_2=app_settings.MARKET_PROXY, 
+                                                                sample_prices=prices)
+            cache.save_correlation(this_ticker_1=tickers[i], 
+                                    this_ticker_2=app_settings.MARKET_PROXY, 
+                                    correlation=correlation,
+                                    start_date=parsed_args['start_date'], 
+                                    end_date=parsed_args['end_date'])
         profile['ticker'] = ticker_str
         profile['annual_return'], profile['annual_volatility'] = stats['annual_return'], stats['annual_volatility']
         profile['sharpe_ratio'] = markets.sharpe_ratio(ticker=tickers[i], 

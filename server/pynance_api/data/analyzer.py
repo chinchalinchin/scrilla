@@ -76,24 +76,26 @@ def market_queryset_gap_analysis(symbol, start_date=None, end_date=None):
 def market_proxy_gap_analysis(start_date=None, end_date=None):
     market_queryset_gap_analysis(symbol=app_settings.MARKET_PROXY, start_date=start_date, end_date=end_date)
 
-    if start_date is None and end_date is None:
-        market_profile = cache.check_cache_for_profile(ticker=app_settings.MARKET_PROXY)
-        if not market_profile:
-            market_prices = parser.parse_args_into_market_queryset(ticker=app_settings.MARKET_PROXY)
-            market_profile = statistics.calculate_risk_return(ticker=app_settings.MARKET_PROXY, sample_prices=market_prices)
-            market_profile['ticker'], market_profile['asset_beta']=app_settings.MARKET_PROXY, 1
-            market_profile['sharpe_ratio'] = markets.sharpe_ratio(ticker=app_settings.MARKET_PROXY, ticker_profile=market_profile)
-            cache.save_profile_to_cache(profile=market_profile)
-        else:
-            for stat in market_profile:
-                if stat != 'ticker':
-                    market_profile[stat] = float(market_profile[stat])
+    market_profile = cache.check_for_profile(ticker=app_settings.MARKET_PROXY, start_date=start_date,
+                                                    end_date=end_date)
+    if not market_profile:
+        market_prices = parser.parse_args_into_market_queryset(ticker=app_settings.MARKET_PROXY,
+                                                                parsed_args={ 'start_date': start_date, 'end_date': end_date})
+        market_profile = statistics.calculate_risk_return(ticker=app_settings.MARKET_PROXY, 
+                                                            sample_prices=market_prices)
+        market_profile['ticker'], market_profile['asset_beta']=app_settings.MARKET_PROXY, 1
+        market_profile['sharpe_ratio'] = markets.sharpe_ratio(ticker=app_settings.MARKET_PROXY, 
+                                                                ticker_profile=market_profile,
+                                                                start_date=start_date,
+                                                                end_date=end_date)
+        cache.save_profile(profile=market_profile)
     else:
-        market_prices = parser.parse_args_into_market_queryset(ticker=app_settings.MARKET_PROXY)
-        market_profile = statistics.calculate_risk_return(ticker=app_settings.MARKET_PROXY, start_date=start_date,
-                                                            end_date=end_date,sample_prices=market_prices)
+        for stat in market_profile:
+            if stat != 'ticker':
+                market_profile[stat] = float(market_profile[stat])
     return market_profile
 
+# Returns latest dividend amount for provided symbol
 def dividend_queryset_gap_analysis(symbol):
     logger.info(f'Searching for gaps in {symbol} Dividend queryset.')
 
@@ -110,6 +112,7 @@ def dividend_queryset_gap_analysis(symbol):
                 logger.debug(f'Gap filled on {date} for {symbol} with amount {dividends[date]}.')
             else:
                 logger.debug(f'No gap detected on {date} for {symbol}.')
+    return queryset.first().amount
 
 # NOTE: Returns latest value of Economy model for the provided symbol.
 # TODO: analyzes the date range for gaps when all I really need is the latest value of
@@ -158,6 +161,6 @@ def initialize_market_info(parsed_args):
     market_profile = market_proxy_gap_analysis(start_date=parsed_args['start_date'], 
                                                             end_date=parsed_args['end_date'])
     risk_free_rate = economy_queryset_gap_analysis(symbol=app_settings.RISK_FREE_RATE,
-                                                            start_date=parsed_args['start_date'], 
-                                                            end_date=parsed_args['end_date'])
+                                                        start_date=parsed_args['start_date'], 
+                                                        end_date=parsed_args['end_date'])
     return market_profile, risk_free_rate

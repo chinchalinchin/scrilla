@@ -17,6 +17,15 @@ def verify_method(request, allowed_methods):
     return True
 
 def log_secondary_args(parsed_args):
+    # Determine if logging needs to be done, i.e. if any arguments are not None
+    logging = False
+    for arg in parsed_args.values():
+        if arg is not None:
+            logging = True
+            break
+    if not logging:
+        return
+
     logger.debug('> Request Parameters')
     if parsed_args['start_date'] is not None:
         logger.debug(f'>> Start : {parsed_args["start_date"]}')

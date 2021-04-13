@@ -466,6 +466,7 @@ def calculate_risk_return(ticker, start_date=None, end_date=None, sample_prices=
     -----
     NOTE #1: assumes price history is ordered from latest to earliest date. \n \n 
     """
+    # TODO: file manipulations should go in files.py
     now = datetime.datetime.now()
     timestamp = '{}{}{}'.format(now.month, now.day, now.year)
     buffer_store= os.path.join(settings.CACHE_DIR, f'{timestamp}_{ticker}_{settings.CACHE_STAT_KEY}.{settings.FILE_EXT}')
@@ -584,6 +585,7 @@ def calculate_ito_correlation(ticker_1, ticker_2, start_date=None, end_date=None
           i.e. only caches current correlation from the last 100 days.\n \n
     """
     ### START DATA RETRIEVAL ###
+    # TODO: file manipulations should go in files.py
     now = datetime.datetime.now()
     timestamp = '{}{}{}'.format(now.month, now.day, now.year)
     buffer_store_1= os.path.join(settings.CACHE_DIR, f'{timestamp}_{ticker_1}_{ticker_2}_correlation.json')
