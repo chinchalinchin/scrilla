@@ -85,7 +85,9 @@ def risk_return(request):
                                                         market_profile=market_profile,
                                                         sample_prices=prices)
         
-        cache.save_profile_to_cache(profile=profile)
+        if (parsed_args['start_date'] is None and parsed_args['end_date'] is None) or default_call:
+            cache.save_profile_to_cache(profile=profile)
+            
         response[i] = profile
 
         if parsed_args['jpeg']:
