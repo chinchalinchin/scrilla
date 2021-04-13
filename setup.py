@@ -14,6 +14,21 @@ setuptools.setup(
     long_description_content_type="text/raw",
     url="https://github.com/chinchalinchin/pynance",
     packages=setuptools.find_packages(),
+    include_package_data=True,
+    install_requires = [
+        'python-dotenv==0.15.0',
+        'requests==2.25.0',
+        'numpy==1.19.3',
+        'scipy==1.5.4',
+        'matplotlib==3.3.3',
+        'holidays==0.10.4'
+        'PyQt5==5.15.2'
+    ],
+    entry_points={
+        "console_scripts": [
+            "pynance = pynance:main"
+        ]
+    },
     classifers=[
         "Programming Language :: Python :: 3",
         "License:: GNU GPL v3",

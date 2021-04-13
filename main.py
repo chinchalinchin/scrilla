@@ -52,6 +52,10 @@ def validate_function_usage(selection, wrapper_function, required_length=1, exac
             logger.comment('Error encountered while calculating. Try -ex flag for example usage.')
 
 if __name__ == "__main__": 
+    # TODO: check for API key and if none exists, prompt user to define ALPHA_VANTAGE_KEY, QUANDL_KEY and
+    #       IEX_KEY environment variables. Then exit. 
+    # TODO: possibly create PyQt widget to prompt user to enter credentials and save them to creds.json
+    #       in /data/common/
 
     if len(sys.argv)>0:
         logger.debug('Parsing and invoking command line arguments')
