@@ -15,14 +15,28 @@ import app.statistics as statistics
 
 logger = outputter.Logger("server.pynance_api.data.cache", settings.LOG_LEVEL)
 
+# TODO: extend statistic caching across dates. right now only 
+def determine_date_range(start_date=None, end_date=None):
+    if start_date is None and end_date is None:
+        end_date = helper.get_today()
+        start_date = helper.decrement_date_by_business_days(end_date, app_settings.DEFAULT_ANALYSIS_PERIOD)
+    elif start_date is None:
+        start_date = helper.decrement_date_by_business_days(end_date, app_settings.DEFAULT_ANALYSIS_PERIOD)
+    elif end_date is None:
+        end_date = helper.get_today()
+    return start_date, end_date
+
 # Save equity cache to market
 # NOTE: The EquityProfileCache object is created when the cache is initially
 #        checked for the result.
-def save_profile_to_cache(profile):
+def save_profile(profile, start_date=None, end_date=None):
     ticker = EquityTicker.objects.get(ticker=profile['ticker'])
-    result = EquityProfileCache.objects.get(ticker=ticker, date=helper.get_today())
+    
+    start_date, end_date = determine_date_range(start_date=start_date, end_date=end_date)
+        
+    result = EquityProfileCache.objects.get(ticker=ticker, start_date=start_date, end_date=end_date)
 
-    logger.info(f'Saving {ticker.ticker} profile to database cache')
+    logger.info(f'Saving {ticker.ticker} profile({start_date}-{end_date}) to database cache')
 
     result.annual_return = Decimal(profile['annual_return'])
     result.annual_volatility = Decimal(profile['annual_volatility'])
@@ -32,12 +46,20 @@ def save_profile_to_cache(profile):
     result.save()
 
 # TODO: allow for correlations between asset_types of tickers.
-def save_correlation_to_cache(correlation, this_ticker_1, this_ticker_2):
+def save_correlation(correlation, this_ticker_1, this_ticker_2, start_date=None, end_date=None):
     ticker_1 = EquityTicker.objects.get(ticker=this_ticker_1)
     ticker_2 = EquityTicker.objects.get(ticker=this_ticker_2)
 
-    correl_cache_1 = EquityCorrelationCache.objects.get_or_create(ticker_1=ticker_1, ticker_2=ticker_2, date=helper.get_today())
-    correl_cache_2 = EquityCorrelationCache.objects.get_or_create(ticker_1=ticker_2, ticker_2=ticker_1, date=helper.get_today())
+    start_date, end_date = determine_date_range(start_date=start_date, end_date=end_date)
+
+    correl_cache_1 = EquityCorrelationCache.objects.get_or_create(ticker_1=ticker_1, 
+                                                                    ticker_2=ticker_2, 
+                                                                    start_date=start_date,
+                                                                    end_date=end_date)
+    correl_cache_2 = EquityCorrelationCache.objects.get_or_create(ticker_1=ticker_2, 
+                                                                    ticker_2=ticker_1, 
+                                                                    start_date=start_date,
+                                                                    end_date=end_date)
 
     correl_cache_1.correlation = correlation
     correl_cache_2.correlation = correlation
@@ -53,15 +75,18 @@ def save_correlation_to_cache(correlation, this_ticker_1, this_ticker_2):
 #           when saving, the QuerySet should be filtered and ordered by date.
 # TODO: must be careful to verify when testing this that it actually calculates the profile
 #        recursively correctly.
-def check_cache_for_profile(ticker):
+def check_for_profile(ticker, start_date=None, end_date=None):
     ticker = EquityTicker.objects.get_or_create(ticker=ticker)
-    today = helper.get_today()
-    result = EquityProfileCache.objects.get_or_create(ticker=ticker[0], date=today)
+    start_date, end_date = determine_date_range(start_date=start_date, end_date=end_date)
+    result = EquityProfileCache.objects.get_or_create(ticker=ticker[0], 
+                                                        start_date=start_date,
+                                                        end_date=end_date)
 
     if result[1]:
-        logger.info(f'No database cache found for {ticker[0].ticker} on {today}')
+        logger.info(f'No database cache found for {ticker[0].ticker} over {start_date}-{end_date}')
 
-        logger.info('Determining if result can be built recursively...')
+        if settings.RECURSION:
+            logger.info('Determining if result can be built recursively...')
         ###########################
         # TODO: implement recursion
         ###########################
@@ -82,16 +107,16 @@ def check_cache_for_profile(ticker):
             #       lost_price = EquityMarket.objects.get(ticker=ticker[0], date=lost_date)
             #       lost_price_less_one = EquityMarkets.objects.get(ticker=ticker[0],
             #                                                           date=helper.decrement_by_business_days(date=this_date, days=1))
-        return False
+        return None
     else:
         if result[0].annual_return is None:
-            return False
+            return None
         if result[0].annual_volatility is None:
-            return False
+            return None
         if result[0].sharpe_ratio is None:
-            return False
+            return None
         if result[0].asset_beta is None:
-            return False
+            return None
         
         logger.info(f'Database cache found for {ticker[0].ticker} profile.')
         profile = {}
@@ -102,38 +127,54 @@ def check_cache_for_profile(ticker):
         profile['asset_beta'] = result[0].asset_beta
         return profile
 
-def check_cache_for_correlation(this_ticker_1, this_ticker_2):
+def check_for_correlation(this_ticker_1, this_ticker_2, start_date=None, end_date=None):
     ticker_1 = EquityTicker.objects.get(ticker=this_ticker_1)
     ticker_2 = EquityTicker.objects.get(ticker=this_ticker_2)
 
-    correl_cache_1 = EquityCorrelationCache.objects.get_or_create(ticker_1=ticker_1, ticker_2=ticker_2, date=helper.get_today())
-    correl_cache_2 = EquityCorrelationCache.objects.get_or_create(ticker_1=ticker_2, ticker_2=ticker_1, date=helper.get_today())
+    start_date, end_date = determine_date_range(start_date=start_date, end_date=end_date)
+
+    correl_cache_1 = EquityCorrelationCache.objects.get_or_create(ticker_1=ticker_1, 
+                                                                    ticker_2=ticker_2, 
+                                                                    start_date=start_date,
+                                                                    end_date=end_date)
+    correl_cache_2 = EquityCorrelationCache.objects.get_or_create(ticker_1=ticker_2, 
+                                                                    ticker_2=ticker_1, 
+                                                                    start_date=start_date,
+                                                                    end_date=end_date)
 
     if (correl_cache_1[1] and correl_cache_2):
         logger.info(f'No database cache found for {ticker_1}_{ticker_2} correlation.')
 
-        logger.info(f'Determining if result can be recursively built...')
-        ###########################
-        # TODO: implement recursion
-        ###########################
-        return False
+        if settings.RECURSION:
+            logger.info(f'Determining if result can be recursively built...')
+            ###########################
+            # TODO: implement recursion
+            ###########################
+        return None
     elif (correl_cache_1[1] and not correl_cache_2[1]) or \
          (not correl_cache_1[1] and correl_cache_2[1]):
         if correl_cache_1[1]:
             if correl_cache_1[0].correlation:
+                logger.debug('Cached correlation found in 1,2 mapping, passing to 2,1 mapping and returning.')
                 correl_cache_1[0].correlation = correl_cache_2[0].correlation
                 correl_cache_1[0].save()
                 return correl_cache_1[0].correlation
             else:
-                return False
+                logger.debug('Correlation 1,2 exists, but has no value!')
+                return None
         else:
             if correl_cache_2[0].correlation:
+                logger.debug('Cached correlation found in 2,1 mapping, passing to 1,2 mapping and returning.')
                 correl_cache_2[0].correlation = correl_cache_1[0].correlation
                 correl_cache_2[0].save()
                 return correl_cache_2[0].correlation
             else:
-                return False
+                logger.debug('Correlation 2,1 exists, but has no value!')
+                return None
     else:
-        # BOTH CORRELATION CACHE FOUND
-        # return found correlation
-        pass
+        if correl_cache_1[0].correlation == correl_cache_2[0].correlation:
+            logger.debug('Cached correlations equal, returning result.')
+            return correl_cache_1[0].correlation
+        else:
+            logger.debug('Cached correlations not equal, returning null.')
+            return None

@@ -24,6 +24,8 @@ import util.outputter as outputter
 
 output = outputter.Logger("server.pynance_api.api.views", settings.LOG_LEVEL)
 
+# TODO: add start and end date to cache models and cache everything!
+
 def risk_return(request):
     status, parsed_args_or_err_msg = parser.validate_request(request, ["GET"])
 
@@ -39,32 +41,34 @@ def risk_return(request):
         ticker_str = f'{tickers[i]}'
         output.debug(f'Calculating risk-return profile for {tickers[i]}.')
 
-        time_delta = helper.business_days_between(start_date=parsed_args['start_date'],
+        output.debug(f'Checking for {tickers[i]} profile in the database cache.')
+        profile = cache.check_for_profile(ticker=tickers[i], start_date=parsed_args['start_date'],
                                                     end_date=parsed_args['end_date'])
-        default_call = (time_delta == app_settings.DEFAULT_ANALYSIS_PERIOD)
-
-        if (parsed_args['start_date'] is None and parsed_args['end_date'] is None) or default_call:
-            output.debug(f'Default analysis period detected. Checking for {tickers[i]} profile in the database cache.')
-            profile = cache.check_cache_for_profile(ticker=tickers[i])
-            if profile:
-                output.debug(f'Found profile in database cache, halting calculation.')
-                response[i] = profile
-                if parsed_args['jpeg']:
-                    profiles.append(profile)
-                continue # halt this iteration of loop if profile cache found
-            else:
-                output.debug(f'No profile found in database cache, proceeding with calculation.')
-                profile = {}
+        if profile is not None:
+            output.debug(f'Found profile in database cache, halting calculation.')
+            response[i] = profile
+            if parsed_args['jpeg']:
+                profiles.append(profile)
+            continue # halt this iteration of loop if profile cache found
+        else:
+            output.debug(f'No profile found in database cache, proceeding with calculation.')
+            profile = {}
 
         analyzer.market_queryset_gap_analysis(symbol=tickers[i],start_date=parsed_args['start_date'],
                                                 end_date=parsed_args['end_date'])
-        # correlation = None
-        # if (parsed_args['end_date] is None and parsed_args['start_date'] is None) or default_call:
-        #   correlation = analyzer.check_cache_for_correlation(ticker_1=tickers[i], ticker_2=app_settings.MARKET_PROXY)
-        # if not correlation:
-        #   correlation = statistics.calculate_ito_correlation(ticker_1=tickers[i], ticker_2=app_settings.MARKET_PROXY, start_date=parsed_args['start_date'], end_date=parsed_args['end_date'])
-        # if (parsed_args['end_date] is None and parsed_args['start_date'] is None) or default_call: 
-        #   analyzer.save_correlation_to_cache(ticker_1=tickers[i], ticker_2=app_settings.MARKET_PROXY)
+
+        correlation = analyzer.check_for_correlation(ticker_1=tickers[i], 
+                                                            ticker_2=app_settings.MARKET_PROXY,
+                                                            start_date=parsed_args['start_date'], 
+                                                            end_date=parsed_args['end_date'])
+        if correlation is None:
+            correlation = statistics.calculate_ito_correlation(ticker_1=tickers[i], 
+                                                                ticker_2=app_settings.MARKET_PROXY, 
+                                                                start_date=parsed_args['start_date'], 
+                                                                end_date=parsed_args['end_date'])
+            analyzer.save_correlation(ticker_1=tickers[i], ticker_2=app_settings.MARKET_PROXY, 
+                                                start_date=parsed_args['start_date'], 
+                                                end_date=parsed_args['end_date'])
 
         prices[tickers[i]] = parser.parse_args_into_market_queryset(ticker=tickers[i], parsed_args=parsed_args)
         prices[app_settings.MARKET_PROXY] = parser.parse_args_into_market_queryset(ticker=app_settings.MARKET_PROXY,
@@ -83,11 +87,12 @@ def risk_return(request):
                                                         start_date=parsed_args['start_date'],
                                                         end_date=parsed_args['end_date'], 
                                                         market_profile=market_profile,
+                                                        market_correlation=correlation,
                                                         sample_prices=prices)
         
-        if (parsed_args['start_date'] is None and parsed_args['end_date'] is None) or default_call:
-            cache.save_profile_to_cache(profile=profile)
-            
+        cache.save_profile(profile=profile,start_date=parsed_args['start_date'], 
+                                        end_date=parsed_args['end_date'])
+
         response[i] = profile
 
         if parsed_args['jpeg']:

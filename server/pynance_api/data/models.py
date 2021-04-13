@@ -31,11 +31,10 @@ class EquityMarket(models.Model):
     close_price = models.DecimalField(max_digits=20, decimal_places=4)
     
     def __str__(self):
-        return '{} {} : {}'.format(self.ticker, self.date, self.closing_price)
+        return '{} {} : {}'.format(self.ticker, self.date, self.close_price)
     
     # TODO: may need to change AV_RES_EQUITY_CLOSE_PRICE key to something more generalized.
     def to_dict(self):
-        date_string = helper.date_to_string(self.date)
         formatted_self = {}
         formatted_self[app_settings.AV_RES_EQUITY_OPEN_PRICE] = float(self.open_price)
         formatted_self[app_settings.AV_RES_EQUITY_CLOSE_PRICE] = float(self.close_price) 
@@ -46,7 +45,8 @@ class EquityMarket(models.Model):
 
 class EquityProfileCache(models.Model):
     ticker = models.ForeignKey(EquityTicker,on_delete=models.CASCADE)
-    date = models.DateField('Date')
+    start_date = models.DateField('Start Date')
+    end_date = models.DateField('End Date')
     annual_return = models.DecimalField(max_digits=20, decimal_places=6, null=True)
     annual_volatility = models.DecimalField(max_digits=20, decimal_places=6, null=True)
     sharpe_ratio = models.DecimalField(max_digits=20, decimal_places=6, null=True)
@@ -55,7 +55,8 @@ class EquityProfileCache(models.Model):
 class EquityCorrelationCache(models.Model):
     ticker_1 = models.ForeignKey(EquityTicker, on_delete=models.CASCADE, related_name="ticker_1")
     ticker_2 = models.ForeignKey(EquityTicker, on_delete=models.CASCADE, related_name="ticker_2")
-    date = models.DateField('Date')
+    start_date = models.DateField('Start Date')
+    end_date = models.DateField('End Date')
     correlation = models.DecimalField(max_digits=20, decimal_places=6, null=True)
     
 class Dividends(models.Model):
