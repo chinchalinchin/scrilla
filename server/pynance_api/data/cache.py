@@ -62,6 +62,10 @@ def check_cache_for_profile(ticker):
         logger.info(f'No database cache found for {ticker[0].ticker} on {today}')
 
         logger.info('Determining if result can be built recursively...')
+        ###########################
+        # TODO: implement recursion
+        ###########################
+
         # check for any dates and recursively build profiles
         # cache = EquityProfileCache.objects.filter(date__lte=today).order_by('-date')
         # if cache.count() > 0:
@@ -104,3 +108,32 @@ def check_cache_for_correlation(this_ticker_1, this_ticker_2):
 
     correl_cache_1 = EquityCorrelationCache.objects.get_or_create(ticker_1=ticker_1, ticker_2=ticker_2, date=helper.get_today())
     correl_cache_2 = EquityCorrelationCache.objects.get_or_create(ticker_1=ticker_2, ticker_2=ticker_1, date=helper.get_today())
+
+    if (correl_cache_1[1] and correl_cache_2):
+        logger.info(f'No database cache found for {ticker_1}_{ticker_2} correlation.')
+
+        logger.info(f'Determining if result can be recursively built...')
+        ###########################
+        # TODO: implement recursion
+        ###########################
+        return False
+    elif (correl_cache_1[1] and not correl_cache_2[1]) or \
+         (not correl_cache_1[1] and correl_cache_2[1]):
+        if correl_cache_1[1]:
+            if correl_cache_1[0].correlation:
+                correl_cache_1[0].correlation = correl_cache_2[0].correlation
+                correl_cache_1[0].save()
+                return correl_cache_1[0].correlation
+            else:
+                return False
+        else:
+            if correl_cache_2[0].correlation:
+                correl_cache_2[0].correlation = correl_cache_1[0].correlation
+                correl_cache_2[0].save()
+                return correl_cache_2[0].correlation
+            else:
+                return False
+    else:
+        # BOTH CORRELATION CACHE FOUND
+        # return found correlation
+        pass

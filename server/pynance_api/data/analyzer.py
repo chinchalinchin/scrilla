@@ -2,8 +2,7 @@ from decimal import Decimal
 
 import api.parser as parser
 from core import settings
-from data.models import EquityMarket, CryptoMarket, EquityTicker, CryptoTicker, \
-                        EquityProfileCache, EquityCorrelationCache, Dividends, Economy, StatSymbol
+from data import models, cache
 
 import util.helper as helper
 import util.outputter as outputter
@@ -28,9 +27,9 @@ def market_queryset_gap_analysis(symbol, start_date=None, end_date=None):
                                                                 business_days=app_settings.DEFAULT_ANALYSIS_PERIOD)
         # TODO: valid order of dates if not None
 
-        ticker = EquityTicker.objects.get_or_create(ticker=symbol)
+        ticker = models.EquityTicker.objects.get_or_create(ticker=symbol)
         date_range = helper.business_dates_between(start_date=start_date, end_date=end_date)
-        queryset = EquityMarket.objects.filter(ticker=ticker[0], date__gte=start_date, date__lte=end_date).order_by('-date')
+        queryset = models.EquityMarket.objects.filter(ticker=ticker[0], date__gte=start_date, date__lte=end_date).order_by('-date')
         
     elif asset_type == app_settings.ASSET_CRYPTO:
         if end_date is None:
@@ -41,9 +40,9 @@ def market_queryset_gap_analysis(symbol, start_date=None, end_date=None):
                                                         days=app_settings.DEFAULT_ANALYSIS_PERIOD)
         # TODO: valid order of dates if not None
 
-        ticker = CryptoTicker.objects.get_or_create(ticker=symbol)
+        ticker = models.CryptoTicker.objects.get_or_create(ticker=symbol)
         date_range = helper.dates_between(start_date=start_date, end_date=end_date)
-        queryset = CryptoMarket.objects.filer(ticker=ticker[0], date__gte=start_date, date__lte=end_date).order_by('-date')
+        queryset = models.CryptoMarket.objects.filer(ticker=ticker[0], date__gte=start_date, date__lte=end_date).order_by('-date')
 
     gaps = len(date_range) - queryset.count()
     if gaps != 0: 
@@ -58,9 +57,9 @@ def market_queryset_gap_analysis(symbol, start_date=None, end_date=None):
             open_price = services.parse_price_from_date(prices=price_history, date=date, asset_type=asset_type, 
                                                             which_price=services.OPEN_PRICE)
             if asset_type == app_settings.ASSET_EQUITY:
-                entry = EquityMarket.objects.get_or_create(ticker=ticker[0], date=date, open_price=open_price, close_price=close_price)
+                entry = models.EquityMarket.objects.get_or_create(ticker=ticker[0], date=date, open_price=open_price, close_price=close_price)
             elif asset_type == app_settings.ASSET_CRYPTO:
-                entry = CryptoMarket.objects.get_or_create(ticker=ticker[0], date=date, open_price=open_price, close_price=close_price)
+                entry = models.CryptoMarket.objects.get_or_create(ticker=ticker[0], date=date, open_price=open_price, close_price=close_price)
 
             if entry[1]:
                 logger.debug(f'Gap filled on {date} for {symbol} with price open={open_price} - close={close_price}.')
@@ -78,13 +77,13 @@ def market_proxy_gap_analysis(start_date=None, end_date=None):
     market_queryset_gap_analysis(symbol=app_settings.MARKET_PROXY, start_date=start_date, end_date=end_date)
 
     if start_date is None and end_date is None:
-        market_profile = check_cache_for_profile(ticker=app_settings.MARKET_PROXY)
+        market_profile = cache.check_cache_for_profile(ticker=app_settings.MARKET_PROXY)
         if not market_profile:
             market_prices = parser.parse_args_into_market_queryset(ticker=app_settings.MARKET_PROXY)
             market_profile = statistics.calculate_risk_return(ticker=app_settings.MARKET_PROXY, sample_prices=market_prices)
             market_profile['ticker'], market_profile['asset_beta']=app_settings.MARKET_PROXY, 1
             market_profile['sharpe_ratio'] = markets.sharpe_ratio(ticker=app_settings.MARKET_PROXY, ticker_profile=market_profile)
-            save_profile_to_cache(profile=market_profile)
+            cache.save_profile_to_cache(profile=market_profile)
         else:
             for stat in market_profile:
                 if stat != 'ticker':
@@ -98,15 +97,15 @@ def market_proxy_gap_analysis(start_date=None, end_date=None):
 def dividend_queryset_gap_analysis(symbol):
     logger.info(f'Searching for gaps in {symbol} Dividend queryset.')
 
-    ticker = EquityTicker.objects.get_or_create(ticker=symbol)
-    queryset = Dividends.objects.filter(ticker=ticker[0])
+    ticker = models.EquityTicker.objects.get_or_create(ticker=symbol)
+    queryset = models.Dividends.objects.filter(ticker=ticker[0])
 
     if queryset.count() == 0:
         logger.info('Gaps detected.')
         dividends = services.get_dividend_history(ticker=symbol)
         for date in dividends:
             logger.debug(f'Checking {date} for gaps.')
-            entry = Dividends.objects.get_or_create(ticker=ticker[0], date=date, amount=dividends[date])
+            entry = models.Dividends.objects.get_or_create(ticker=ticker[0], date=date, amount=dividends[date])
             if entry[1]:
                 logger.debug(f'Gap filled on {date} for {symbol} with amount {dividends[date]}.')
             else:
@@ -125,9 +124,9 @@ def economy_queryset_gap_analysis(symbol, start_date=None, end_date=None):
                                                             business_days=app_settings.DEFAULT_ANALYSIS_PERIOD)
     # TODO: valid order of dates if not None
 
-    stat_symbol = StatSymbol.objects.get_or_create(symbol=symbol)
+    stat_symbol = models.StatSymbol.objects.get_or_create(symbol=symbol)
     date_range = helper.business_dates_between(start_date=start_date,end_date=end_date)
-    queryset = Economy.objects.filter(statistic=stat_symbol[0],date__gte=start_date,date__lte=end_date).order_by('-date')
+    queryset = models.Economy.objects.filter(statistic=stat_symbol[0],date__gte=start_date,date__lte=end_date).order_by('-date')
 
     gaps = len(date_range) - queryset.count()
     if gaps != 0: 
@@ -140,7 +139,7 @@ def economy_queryset_gap_analysis(symbol, start_date=None, end_date=None):
             value = stat_history[date]
             if stat_symbol[0].symbol in services.get_percent_stat_symbols():
                 value = value / 100
-            entry = Economy.objects.get_or_create(statistic=stat_symbol[0],date=date,value=value)
+            entry = models.Economy.objects.get_or_create(statistic=stat_symbol[0],date=date,value=value)
             if entry[1]:
                 logger.debug(f'Gap filled on {date} for {stat_symbol[0]} with value={value}')
                 count += 1
