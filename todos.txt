@@ -1,3 +1,3 @@
 TODO: 
 1. add start and end dates to cache models and cache everything!
-2. need to drop equityprofile table.
+2. need to drop equityprofile, equitycorrelation table again. end_date is not properly set.

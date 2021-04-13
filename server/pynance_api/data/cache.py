@@ -17,12 +17,12 @@ logger = outputter.Logger("server.pynance_api.data.cache", settings.LOG_LEVEL)
 
 def determine_date_range(start_date=None, end_date=None):
     if start_date is None and end_date is None:
-        end_date = helper.get_today()
+        end_date = helper.decrement_date_by_business_days(start_date=helper.get_today(), business_days=1)
         start_date = helper.decrement_date_by_business_days(end_date, app_settings.DEFAULT_ANALYSIS_PERIOD)
     elif start_date is None:
         start_date = helper.decrement_date_by_business_days(end_date, app_settings.DEFAULT_ANALYSIS_PERIOD)
     elif end_date is None:
-        end_date = helper.get_today()
+        end_date = helper.decrement_date_by_business_days(start_date=helper.get_today(), business_days=1)
     return start_date, end_date
 
 # NOTE: The EquityProfileCache object is created when the cache is initially
