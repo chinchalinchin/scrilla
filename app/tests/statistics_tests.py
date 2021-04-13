@@ -47,17 +47,17 @@ def rolling_recursion_test():
     y_mean_4 = statistics.sample_mean(x=rolling_x_y_4[1])
 
     # RECURSIVE MEANS
-    recursive_x_mean_2 = statistics.recursive_mean(xbar_previous=x_mean_1, new_obs=rolling_x_y_2[0][-1], 
+    recursive_x_mean_2 = statistics.recursive_rolling_mean(xbar_previous=x_mean_1, new_obs=rolling_x_y_2[0][-1], 
                                                     lost_obs=rolling_x_y_1[0][0], n=length)
-    recursive_x_mean_3 = statistics.recursive_mean(xbar_previous=x_mean_2, new_obs=rolling_x_y_3[0][-1], 
+    recursive_x_mean_3 = statistics.recursive_rolling_mean(xbar_previous=x_mean_2, new_obs=rolling_x_y_3[0][-1], 
                                                     lost_obs=rolling_x_y_2[0][0], n=length)
-    recursive_x_mean_4 = statistics.recursive_mean(xbar_previous=x_mean_3, new_obs=rolling_x_y_4[0][-1], 
+    recursive_x_mean_4 = statistics.recursive_rolling_mean(xbar_previous=x_mean_3, new_obs=rolling_x_y_4[0][-1], 
                                                     lost_obs=rolling_x_y_3[0][0], n=length)
-    recursive_y_mean_2 = statistics.recursive_mean(xbar_previous=y_mean_1, new_obs=rolling_x_y_2[1][-1], 
+    recursive_y_mean_2 = statistics.recursive_rolling_mean(xbar_previous=y_mean_1, new_obs=rolling_x_y_2[1][-1], 
                                                     lost_obs=rolling_x_y_1[1][0], n=length)
-    recursive_y_mean_3 = statistics.recursive_mean(xbar_previous=y_mean_2, new_obs=rolling_x_y_3[1][-1], 
+    recursive_y_mean_3 = statistics.recursive_rolling_mean(xbar_previous=y_mean_2, new_obs=rolling_x_y_3[1][-1], 
                                                     lost_obs=rolling_x_y_2[1][0], n=length)
-    recursive_y_mean_4 = statistics.recursive_mean(xbar_previous=y_mean_3, new_obs=rolling_x_y_4[1][-1], 
+    recursive_y_mean_4 = statistics.recursive_rolling_mean(xbar_previous=y_mean_3, new_obs=rolling_x_y_4[1][-1], 
                                                     lost_obs=rolling_x_y_3[1][0], n=length)
 
     # ACTUAL VARIANCES
@@ -67,11 +67,11 @@ def rolling_recursion_test():
     var_4 = statistics.sample_variance(x=rolling_x_y_4[0])
 
     # RECURSIVE VARIANCES
-    recursive_var_2 = statistics.recursive_variance(var_previous=var_1, xbar_previous=x_mean_1, new_obs=rolling_x_y_2[0][-1], 
+    recursive_var_2 = statistics.recursive_rolling_variance(var_previous=var_1, xbar_previous=x_mean_1, new_obs=rolling_x_y_2[0][-1], 
                                                     lost_obs=rolling_x_y_1[0][0], n=length)
-    recursive_var_3 = statistics.recursive_variance(var_previous=var_2, xbar_previous=recursive_x_mean_2, new_obs=rolling_x_y_3[0][-1], 
+    recursive_var_3 = statistics.recursive_rolling_variance(var_previous=var_2, xbar_previous=recursive_x_mean_2, new_obs=rolling_x_y_3[0][-1], 
                                                     lost_obs=rolling_x_y_2[0][0], n=length)
-    recursive_var_4 = statistics.recursive_variance(var_previous=var_3, xbar_previous=recursive_x_mean_3, new_obs=rolling_x_y_4[0][-1], 
+    recursive_var_4 = statistics.recursive_rolling_variance(var_previous=var_3, xbar_previous=recursive_x_mean_3, new_obs=rolling_x_y_4[0][-1], 
                                                     lost_obs=rolling_x_y_3[0][0], n=length)
 
     # ACTUAL COVARIANCES
@@ -81,15 +81,15 @@ def rolling_recursion_test():
     covar_4 = statistics.sample_covariance(x=rolling_x_y_4[0], y=rolling_x_y_4[1])
 
     # RECURSIVE COVARIANCES
-    recursive_covar_2 = statistics.recursive_covariance(covar_previous=covar_1, new_x_obs=rolling_x_y_2[0][-1], 
+    recursive_covar_2 = statistics.recursive_rolling_covariance(covar_previous=covar_1, new_x_obs=rolling_x_y_2[0][-1], 
                                                         lost_x_obs=rolling_x_y_1[0][0], previous_x_bar= x_mean_1,
                                                         new_y_obs=rolling_x_y_2[1][-1], lost_y_obs=rolling_x_y_1[1][0], 
                                                         previous_y_bar=y_mean_1, n=length)
-    recursive_covar_3 = statistics.recursive_covariance(covar_previous=covar_2, new_x_obs=rolling_x_y_3[0][-1], 
+    recursive_covar_3 = statistics.recursive_rolling_covariance(covar_previous=covar_2, new_x_obs=rolling_x_y_3[0][-1], 
                                                         lost_x_obs=rolling_x_y_2[0][0], previous_x_bar = x_mean_2,
                                                         new_y_obs=rolling_x_y_3[1][-1], lost_y_obs=rolling_x_y_2[1][0],
                                                         previous_y_bar = y_mean_2, n=length)
-    recursive_covar_4 = statistics.recursive_covariance(covar_previous=covar_3, new_x_obs=rolling_x_y_4[0][-1], 
+    recursive_covar_4 = statistics.recursive_rolling_covariance(covar_previous=covar_3, new_x_obs=rolling_x_y_4[0][-1], 
                                                         lost_x_obs=rolling_x_y_3[0][0], previous_x_bar=x_mean_3, 
                                                         new_y_obs=rolling_x_y_4[1][-1], lost_y_obs=rolling_x_y_3[1][0], 
                                                         previous_y_bar=y_mean_3, n=length)
@@ -177,10 +177,10 @@ def rolling_recursion_tests_with_financial_data():
             new_actual_profile = statistics.calculate_risk_return(ticker=ticker, sample_prices=new_prices)
 
             new_recursive_profile = {}
-            new_recursive_profile['annual_return'] = statistics.recursive_mean(xbar_previous=old_profile['annual_return'],
+            new_recursive_profile['annual_return'] = statistics.recursive_rolling_mean(xbar_previous=old_profile['annual_return'],
                                                                                 new_obs=new_return,
                                                                                 lost_obs=lost_return)
-            new_recursive_profile['annual_volatility'] = statistics.recursive_variance(var_previous=old_var,
+            new_recursive_profile['annual_volatility'] = statistics.recursive_rolling_variance(var_previous=old_var,
                                                                                         xbar_previous=old_mod_return,
                                                                                         new_obs=new_mod_return,
                                                                                         lost_obs=lost_mod_return)

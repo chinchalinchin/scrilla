@@ -163,4 +163,4 @@ def initialize_market_info(parsed_args):
     risk_free_rate = economy_queryset_gap_analysis(symbol=app_settings.RISK_FREE_RATE,
                                                         start_date=parsed_args['start_date'], 
                                                         end_date=parsed_args['end_date'])
-    return market_profile, risk_free_rate
+    return market_profile, float(risk_free_rate)

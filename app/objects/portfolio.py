@@ -35,9 +35,11 @@ class Portfolio:
     Optional. The end date for the range of historical prices over which the portfolio will be optimized. \n \n
     4. sample_prices: { 'date' : 'price', 'date': 'price' } \n
     Optional. A list representing a sample of historical data over a time range. The list must be ordered in descending order, i.e. from latest to earliest. \n \n 
-    5. asset_return_functions: [ function(t) ] \n
+    5. correlation_matrix : [ float ][ float ] \n
+    Optional: Rather than use correlations calculated from historical data, this argument can override the historical data.
+    6. asset_return_functions: [ function(t) ] \n
     Optional. An array of function that describes the expected logarithmic rate of return of each asset in the portfolio with respect to time. The order between `asset_return_functions` and `tickers` be must be preserved, i.e. the index of tickers must correspond to the symbol described by the function with same index in `asset_return_functions`. \n \n 
-    6. asset_volatility_funtions: [ function(t) ] \n
+    7. asset_volatility_funtions: [ function(t) ] \n
     Optional. An array of functions that describe the mean volatility of each asset in the portfolio with respect to time. The order between `asset_volatility_functions` and `tickers` be must be preserved, i.e. the index of tickers must correspond to the symbol described by the function with the same index in `asset_volatility_functions`. \n \n 
 
     Notes
@@ -50,7 +52,7 @@ class Portfolio:
     NOTE #2: The `asset_return_functions` and `asset_volatility_functions` can be understood as the drift and noise functions for a Geometric Brownian Motion stochastic process. \n \n
     """
     def __init__(self, tickers, start_date=None, end_date=None, sample_prices=None,
-                    asset_return_functions=None, asset_volatility_functions=None):
+                    correlation_matrix=None, asset_return_functions=None, asset_volatility_functions=None):
         if sample_prices is None:
             self.start_date = start_date
             self.end_date = end_date
@@ -63,12 +65,12 @@ class Portfolio:
         self.asset_volatility_functions = asset_volatility_functions
         self.asset_return_functions = asset_return_functions
         
-        self.error = not self.calculate_stats()
+        self.error = not self.calculate_stats(correlation_matrix=correlation_matrix)
 
         self.risk_free_rate = markets.get_risk_free_rate()
 
         # todo: calculate stats with lambda functions.
-    def calculate_stats(self):
+    def calculate_stats(self, correlation_matrix=None):
         self.mean_return = []
         self.sample_vol = []
         self.correlation_matrix = [[0 for x in range(len(self.tickers))] for y in range(len(self.tickers))]
@@ -84,8 +86,7 @@ class Portfolio:
         else:
             for ticker in self.tickers:
                 if self.sample_prices is not None:
-                    stats = statistics.calculate_risk_return(ticker=ticker, start_date=self.start_date, end_date=self.end_date, 
-                                                                sample_prices=self.sample_prices[ticker])
+                    stats = statistics.calculate_risk_return(ticker=ticker, sample_prices=self.sample_prices[ticker])
                 else: 
                     stats = statistics.calculate_risk_return(ticker=ticker, start_date=self.start_date, end_date=self.end_date)
 
@@ -94,19 +95,24 @@ class Portfolio:
                 self.mean_return.append(stats['annual_return'])
                 self.sample_vol.append(stats['annual_volatility'])
 
-            if(len(self.tickers) > 1):
-                for i in range(len(self.tickers)):
-                    for j in range(i+1, len(self.tickers)):
+            if correlation_matrix is None:
+                if(len(self.tickers) > 1):
+                    for i in range(len(self.tickers)):
                         self.correlation_matrix[i][i] = 1
-                        cor_list = statistics.calculate_ito_correlation(ticker_1 = self.tickers[i], ticker_2=self.tickers[j],
-                                                                    start_date = self.start_date, end_date = self.end_date,
-                                                                    sample_prices = self.sample_prices)
-                        correlation = cor_list['correlation']
-                        if not correlation:
-                            return False
-                        self.correlation_matrix[i][j] = correlation
-                        self.correlation_matrix[j][i] = self.correlation_matrix[i][j]
-                self.correlation_matrix[len(self.tickers) - 1][len(self.tickers) - 1] = 1
+                        for j in range(i+1, len(self.tickers)):
+                            cor_list = statistics.calculate_ito_correlation(ticker_1 = self.tickers[i], ticker_2=self.tickers[j],
+                                                                        start_date = self.start_date, end_date = self.end_date,
+                                                                        sample_prices = self.sample_prices)
+                            correlation = cor_list['correlation']
+                            if not correlation:
+                                return False
+                            self.correlation_matrix[i][j] = correlation
+                            self.correlation_matrix[j][i] = self.correlation_matrix[i][j]
+                    self.correlation_matrix[len(self.tickers) - 1][len(self.tickers) - 1] = 1
+                else:
+                    self.correlation_matrix[0][0] = 1    
+            else:
+                self.correlation_matrix = correlation_matrix
             return True
 
 

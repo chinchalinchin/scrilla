@@ -173,3 +173,36 @@ def check_for_correlation(this_ticker_1, this_ticker_2, start_date=None, end_dat
         else:
             logger.debug('Cached correlations not equal, returning null.')
             return None
+
+# TODO: mix of asset types
+def build_correlation_matrix(these_tickers, start_date=None, end_date=None, sample_prices=None):
+    start_date, end_date = determine_date_range(start_date=start_date, end_date=end_date)
+    correlation_matrix = [[0 for x in range(len(these_tickers))] for y in range(len(these_tickers))]
+
+    logger.debug('Building correlation matrix.')
+
+    if(len(these_tickers) > 1):
+        for i in range(len(these_tickers)):
+            correlation_matrix[i][i] = 1
+            for j in range(i+1, len(these_tickers)):
+                these_prices = {}
+                these_prices[these_tickers[i]] = sample_prices[these_tickers[i]]
+                these_prices[these_tickers[j]] = sample_prices[these_tickers[j]]
+                correlation = check_for_correlation(this_ticker_1=these_tickers[i], this_ticker_2=these_tickers[j],
+                                                    start_date=start_date, end_date=end_date)
+                if correlation is None: 
+                    cor_calculation = statistics.calculate_ito_correlation(ticker_1=these_tickers[i], ticker_2=these_tickers[j],
+                                                                            start_date=start_date, end_date=end_date,
+                                                                            sample_prices=these_prices)
+                    save_correlation(correlation=cor_calculation,this_ticker_1=these_tickers[i], this_ticker_2=these_tickers[j],
+                                        start_date=start_date, end_date=end_date)
+                    correlation = cor_calculation['correlation']
+                if not correlation:
+                    return False
+                correlation_matrix[i][j] = float(correlation)
+                correlation_matrix[j][i] = correlation_matrix[i][j]
+        correlation_matrix[len(these_tickers) - 1][len(these_tickers) - 1] = 1
+    else:
+        correlation_matrix[0][0] = 1
+    
+    return correlation_matrix
