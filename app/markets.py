@@ -24,14 +24,16 @@ logger = outputter.Logger('app.markets', settings.LOG_LEVEL)
 
 # TODO: need some way to distinguish between overlap.
 
-def get_overlapping_symbols():
+def get_overlapping_symbols(equities=None, cryptos=None):
     """
     Description
     -----------
     Returns an array of symbols which are contained in both the STATIC_TICKERS_FILE and STATIC_CRYPTO_FILE, i.e. ticker symbols which have both a tradeable equtiy and a tradeable crypto asset. 
     """
-    equities = list(files.get_static_data(settings.ASSET_EQUITY))
-    cryptos = list(files.get_static_data(settings.ASSET_CRYPTO))
+    if equities is None:
+        equities = list(files.get_static_data(settings.ASSET_EQUITY))
+    if cryptos is None:
+        cryptos = list(files.get_static_data(settings.ASSET_CRYPTO))
     overlap = []
     for crypto in cryptos:
         if crypto in equities:
@@ -49,7 +51,7 @@ def get_asset_type(symbol):
     A string representing the type of asset of the symbol. Types are statically accessible through the `app.settings` variables: ASSET_EQUITY and ASSET_CRYPTO. \n \n 
     """
     symbols = list(files.get_static_data(settings.ASSET_CRYPTO))
-    overlap = get_overlapping_symbols()
+    overlap = get_overlapping_symbols(cryptos=symbols)
 
     if symbol not in overlap:
         if symbol in symbols:

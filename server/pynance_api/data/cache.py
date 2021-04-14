@@ -174,7 +174,8 @@ def check_for_correlation(this_ticker_1, this_ticker_2, start_date=None, end_dat
             logger.debug('Cached correlations not equal, returning null.')
             return None
 
-# TODO: mix of asset types
+# TODO: mix of asset types. actually, does it matter at this point? all conversion should
+#       happen in statistics.py, if I'm not mistaken.
 def build_correlation_matrix(these_tickers, start_date=None, end_date=None, sample_prices=None):
     start_date, end_date = determine_date_range(start_date=start_date, end_date=end_date)
     correlation_matrix = [[0 for x in range(len(these_tickers))] for y in range(len(these_tickers))]
@@ -192,7 +193,6 @@ def build_correlation_matrix(these_tickers, start_date=None, end_date=None, samp
                                                     start_date=start_date, end_date=end_date)
                 if correlation is None: 
                     cor_calculation = statistics.calculate_ito_correlation(ticker_1=these_tickers[i], ticker_2=these_tickers[j],
-                                                                            start_date=start_date, end_date=end_date,
                                                                             sample_prices=these_prices)
                     save_correlation(correlation=cor_calculation,this_ticker_1=these_tickers[i], this_ticker_2=these_tickers[j],
                                         start_date=start_date, end_date=end_date)

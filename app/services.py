@@ -24,15 +24,13 @@ def validate_order_of_dates(start_date, end_date):
     if start_date is not None:
         if helper.is_date_today(start_date):
             time_delta = (end_date - start_date).days
-            if time_delta == 0:
-                logger.debug(f'End and Start Date {start_date}=={end_date} are today!')
+            if time_delta == 0: # either end_date is also today
                 return True, start_date, end_date
-            else:
+            else: # or impossible
                 return False, None, None
 
     if end_date is not None:
         if helper.is_date_today(end_date):
-            logger.debug(f'End Date {end_date} is today!')
             end_date = None
             switch_flag = False
 
@@ -305,22 +303,15 @@ def get_daily_price_history(ticker, start_date=None, end_date=None):
     """
 
     if start_date is None and end_date is None:
-        logger.debug(f'Checking for {ticker} prices in cache..')
-        now = datetime.datetime.now()
-        timestamp = '{}{}{}'.format(now.month, now.day, now.year)
-        buffer_store= os.path.join(settings.CACHE_DIR, f'{timestamp}_{ticker}.{settings.FILE_EXT}')
+        prices = files.retrieve_local_object(local_object=files.OBJECTS['prices'], args={"ticker": ticker})
         
-        if os.path.isfile(buffer_store):
-            logger.debug(f'Loading in cached {ticker} prices.')
-            
-            prices = files.load_file(file_name=buffer_store)
+        if prices is not None:
             return prices
         
         logger.debug(f'Retrieving {ticker} prices from Service Manager.')  
         prices = query_service_for_daily_price_history(ticker=ticker)
 
-        logger.debug(f'Storing {ticker} price history in cache.')
-        files.save_file(file_to_save=prices, file_name=buffer_store)
+        files.store_local_object(local_object=files.OBJECTS['prices'],value=prices, args={"ticker": ticker})
         return prices
     
     logger.info('No cached prices for date ranges past default. Passing to service call.')

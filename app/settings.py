@@ -122,6 +122,10 @@ COMMON_WATCHLIST_FILE=os.path.join(COMMON_DIR, f'watchlist.{FILE_EXT}')
 ACCURACY=5
 
 BACKOFF_PERIOD=30
+
+# See .sample.env for more information.
+LOCAL_CACHE = os.getenv('LOCAL_CACHE_ENABLED').strip().lower() == 'true'
+
 ## GUI CONFIGURATION
 
 POPUP_WIDTH, POPUP_HEIGHT = 150, 150

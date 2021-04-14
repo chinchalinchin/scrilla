@@ -15,7 +15,12 @@ import util.helper as helper
 CLOSE_PRICE = "close"
 OPEN_PRICE = "open"
 
-logger = outputter.Logger("app.services", settings.LOG_LEVEL)
+OBJECTS={
+    "correlation": 1,
+    "risk_profile": 2,
+    "prices": 3
+}
+logger = outputter.Logger("app.files", settings.LOG_LEVEL)
 
 def load_file(file_name):
     with open(file_name, 'r') as infile:
@@ -27,8 +32,70 @@ def load_file(file_name):
 def save_file(file_to_save, file_name):
     with open(file_name, 'w') as outfile:
         if settings.FILE_EXT == "json":
-            json.dump(file_to_save, outfile)
+            try:
+                json.dump(file_to_save, outfile)
+                return True
+            except:
+                return False
         # TODO: implement other file saving extensions.
+
+def store_local_object(local_object, value, args):
+    if settings.LOCAL_CACHE:
+        now = datetime.datetime.now()
+        timestamp = '{}{}{}'.format(now.month, now.day, now.year)
+        
+        if local_object == OBJECTS['correlation']:
+            logger.debug(f'Storing ({args["ticker_1"]}, {args["ticker_2"]}) correlation in local cache.')
+            buffer_store= os.path.join(settings.CACHE_DIR, f'{timestamp}_{args["ticker_1"]}_{args["ticker_2"]}_correlation.{settings.FILE_EXT}')
+        if local_object == OBJECTS['prices']:
+            logger.debug(f'Storing {args["ticker"]} price history in local cache.')
+            buffer_store= os.path.join(settings.CACHE_DIR, f'{timestamp}_{args["ticker"]}.{settings.FILE_EXT}')
+        if local_object == OBJECTS['risk_profile']:
+            logger.debug(f'Storing {args["ticker"]} risk profile in local cache.')
+            buffer_store= os.path.join(settings.CACHE_DIR, f'{timestamp}_{args["ticker"]}_{settings.CACHE_STAT_KEY}.{settings.FILE_EXT}')
+
+        return save_file(file_to_save=value, file_name=buffer_store)
+    return False
+
+def retrieve_local_object(local_object, args):
+    if settings.LOCAL_CACHE:
+        now = datetime.datetime.now()
+        timestamp = '{}{}{}'.format(now.month, now.day, now.year)
+        
+        if local_object == OBJECTS['correlation']:
+            buffer_store_1= os.path.join(settings.CACHE_DIR, f'{timestamp}_{args["ticker_1"]}_{args["ticker_2"]}_correlation.{settings.FILE_EXT}')
+            buffer_store_2= os.path.join(settings.CACHE_DIR, f'{timestamp}_{args["ticker_2"]}_{args["ticker_2"]}_correlation.{settings.FILE_EXT}')
+
+            logger.debug(f'Checking for ({args["ticker_1"]}, {args["ticker_2"]}) correlation calculation in local cache.')
+            if os.path.isfile(buffer_store_1):
+                logger.debug(f'Loading in cached ({args["ticker_1"]}, {args["ticker_2"]}) correlation.')
+                correlation = load_file(file_name=buffer_store_1)
+                return correlation
+            elif os.path.isfile(buffer_store_2):
+                logger.debug(f'Loading in cached ({args["ticker_2"]}, {args["ticker_1"]}) correlation.')
+                correlation = load_file(file_name=buffer_store_2)
+                return correlation
+
+        if local_object == OBJECTS['risk_profile']:
+            buffer_store= os.path.join(settings.CACHE_DIR, f'{timestamp}_{args["ticker"]}_{settings.CACHE_STAT_KEY}.{settings.FILE_EXT}')
+
+            logger.debug(f'Checking for {args["ticker"]} statistics in local cache.')
+            if os.path.isfile(buffer_store):
+                logger.debug(f'Loading in cached {args["ticker"]} statistics.')
+                results = load_file(buffer_store)
+                return results
+        
+        if local_object == OBJECTS['prices']:
+            buffer_store= os.path.join(settings.CACHE_DIR, f'{timestamp}_{args["ticker"]}.{settings.FILE_EXT}')
+            
+            logger.debug(f'Checking for {args["ticker"]} prices in local cache.')
+            if os.path.isfile(buffer_store):
+                logger.debug(f'Loading in cached {args["ticker"]} prices.')
+                
+                prices = load_file(file_name=buffer_store)
+                return prices
+    
+    return None
 
 def parse_csv_response_column(column, url, firstRowHeader=None, savefile=None, zipped=None):
     """

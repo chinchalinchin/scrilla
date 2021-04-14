@@ -445,7 +445,7 @@ def calculate_moving_averages(tickers, start_date=None, end_date=None, sample_pr
     ### END RESPONSE FORMATTING ###
     return moving_averages, dates_between 
 
-def calculate_risk_return(ticker, start_date=None, end_date=None, sample_prices=None):
+def calculate_risk_return(ticker, start_date=None, end_date=None, sample_prices=None, asset_type=None):
     """
     Parameters
     ----------
@@ -455,9 +455,10 @@ def calculate_risk_return(ticker, start_date=None, end_date=None, sample_prices=
         Start date of the time period over which the risk-return profile is to be calculated. Defaults to None. \n \n
     3. end_date : datetime.date \n 
         End date of the time period over which the risk-return profile is to be calculated. Defaults to None. \n \n
-    5. sample_prices : { 'date' (str) : 'price' (str) } \n
+    4. sample_prices : { 'date' (str) : 'price' (str) } \n
         A list of the asset prices for which correlation will be calculated. Overrides calls to service and calculates correlation for sample of prices supplied. Function will disregard start_date and end_date if sample_price is specified:  { 'ticker' : { 'date_1' : 'price_1', 'date_2': 'price_2' ... } }  and ordered from latest date to earliest date.  \n \n
-
+    5. asset_type : str
+         Optional. Specify asset type to prevent overusing redundant calculations. Allowable values: settings.ASSET_TYPE_EQUITY, settings.ASSET_TYPE_CRYPTO \n \n
     Output
     ------
     { 'annual_return' : float, 'annual_volatility': float } \n \n
@@ -466,12 +467,9 @@ def calculate_risk_return(ticker, start_date=None, end_date=None, sample_prices=
     -----
     NOTE #1: assumes price history is ordered from latest to earliest date. \n \n 
     """
-    # TODO: file manipulations should go in files.py
-    now = datetime.datetime.now()
-    timestamp = '{}{}{}'.format(now.month, now.day, now.year)
-    buffer_store= os.path.join(settings.CACHE_DIR, f'{timestamp}_{ticker}_{settings.CACHE_STAT_KEY}.{settings.FILE_EXT}')
 
-    asset_type = markets.get_asset_type(ticker)
+    if asset_type is None:
+        asset_type = markets.get_asset_type(ticker)
     trading_period = markets.get_trading_period(asset_type)
 
     if not trading_period:
@@ -482,11 +480,11 @@ def calculate_risk_return(ticker, start_date=None, end_date=None, sample_prices=
         if start_date is None and end_date is None:
             logger.debug(f'Checking for cached {ticker} statistics.')
 
-            if os.path.isfile(buffer_store):
-                logger.debug(f'Loading in cached {ticker} statistics.')
-                results = files.load_file(buffer_store)
-                return results
+            results = files.retrieve_local_object(object=files.OBJECTS['risk_profile'], 
+                                                        args = { "ticker": ticker })
             
+            if results is not None:
+                return results
             logger.debug(f'No cached {ticker} statistics found, calling service.')
             prices = services.get_daily_price_history(ticker=ticker)
         else: 
@@ -553,12 +551,11 @@ def calculate_risk_return(ticker, start_date=None, end_date=None, sample_prices=
 
     # store results in buffer for quick access
     if start_date is None and end_date is None:
-        logger.debug(f'Storing {ticker} statistics in cache...')
-        files.save_file(file_to_save=results, file_name=buffer_store)
+        files.store_local_object(local_object=files.OBJECTS['risk_profile'], value=results, args={"ticker": ticker})
 
     return results
 
-def calculate_ito_correlation(ticker_1, ticker_2, start_date=None, end_date=None, sample_prices=None):
+def calculate_ito_correlation(ticker_1, ticker_2, asset_type_1=None, asset_type_2=None, start_date=None, end_date=None, sample_prices=None):
     """
     Parameters
     ----------
@@ -566,11 +563,15 @@ def calculate_ito_correlation(ticker_1, ticker_2, start_date=None, end_date=None
         Ticker symbol for first asset. \n \n
     2. ticker_2 : str \n 
         Ticker symbol for second asset \n \n
-    3. start_date : datetime.date \n 
+    3. asset_type_1 : str \n
+        Optional. Specify asset type to prevent overusing redundant calculations. Allowable values: settings.ASSET_TYPE_EQUITY, settings.ASSET_TYPE_CRYPTO \n \n
+    4. asset_type_2 : str \n
+        Optional. Specify asset type to prevent overusing redundant calculations. Allowable values: settings.ASSET_TYPE_EQUITY, settings.ASSET_TYPE_CRYPTO \n \n 
+    5. start_date : datetime.date \n 
         Start date of the time period over which correlation will be calculated. \n \n 
-    4. end_date : datetime.date \n 
+    6. end_date : datetime.date \n 
         End date of the time period over which correlation will be calculated. \n \n  
-    5. sample_prices : { 'ticker' (str) : { 'date' (str) : 'price' (str) } } \n
+    7. sample_prices : { 'ticker' (str) : { 'date' (str) : 'price' (str) } } \n
         A list of the asset prices for which correlation will be calculated. Overrides calls to service and calculates correlation for sample of prices supplied. Will disregard start_date and end_date. Must be of the format: {'AAPL': { 'date_1' : 'price_1', 'date_2': 'price_2' ...}, 'BX': { 'date_1' : 'price_1:, ... } } and ordered from latest date to earliest date.  \n \n
     
     Output
@@ -584,34 +585,15 @@ def calculate_ito_correlation(ticker_1, ticker_2, start_date=None, end_date=None
     NOTE #3: does not cache correlation if start_date and end_date are specified, 
           i.e. only caches current correlation from the last 100 days.\n \n
     """
-    ### START DATA RETRIEVAL ###
-    # TODO: file manipulations should go in files.py
-    now = datetime.datetime.now()
-    timestamp = '{}{}{}'.format(now.month, now.day, now.year)
-    buffer_store_1= os.path.join(settings.CACHE_DIR, f'{timestamp}_{ticker_1}_{ticker_2}_correlation.json')
-    buffer_store_2= os.path.join(settings.CACHE_DIR, f'{timestamp}_{ticker_2}_{ticker_1}_correlation.json')
-
     if sample_prices is None:
-        # reset sample price and set entries to None for consistency in calculate_risk_return call below.
         logger.debug('No sample prices provided.')
-
         sample_prices = {}
         
-        # TODO: or if (end_date - start_date).days == settings.DEFAULT_ANALYSIS_PERIOD
-        if start_date is None and end_date is None:
-            # check if results exist in cache location 1
-            logger.debug('Checking for correlation calculation in cache.')
-            if os.path.isfile(buffer_store_1):
-                logger.debug(f'Loading in cached ({ticker_1}, {ticker_2}) correlation.')
-                correlation = files.load_file(file_name=buffer_store_1)
+        if (start_date is None and end_date is None):
+            correlation = files.retrieve_local_object(object=files.OBJECTS['correlation'], 
+                                                                args = { "ticker_1": ticker_1, "ticker_2": ticker_2})
+            if correlation is not None:
                 return correlation
-
-            # check if results exist in cache location 2
-            elif os.path.isfile(buffer_store_2):
-                logger.debug(f'Loading in cached ({ticker_1}, {ticker_2}) correlation.')
-                correlation = files.load_file(file_name=buffer_store_2)
-                return correlation
-
             else:
                 logger.debug(f'No cached ({ticker_1}, {ticker_2}) correlation found, retrieving price histories for calculation.')
                 prices_1 = services.get_daily_price_history(ticker=ticker_1)
@@ -626,13 +608,10 @@ def calculate_ito_correlation(ticker_1, ticker_2, start_date=None, end_date=None
     else:
         logger.debug('Sample prices provided, skipping service calls.')
         prices_1, prices_2 = sample_prices[ticker_1], sample_prices[ticker_2]
-        # TODO: infer start_date and end_date from sample prices. without doing so,
-        #       the mean and volatilities subsequently calculcated a few lines down
-        #       will be wrong!
         
     if (not prices_1) or (not prices_2):
         logger.info("Prices cannot be retrieved for correlation calculation")
-        return False 
+        return None
     ### END DATA RETRIEVAL ###
     
     ### START SAMPLE STATISTICS CALCULATION ###
@@ -641,11 +620,13 @@ def calculate_ito_correlation(ticker_1, ticker_2, start_date=None, end_date=None
     stats_2 = calculate_risk_return(ticker_2, start_date, end_date, sample_prices[ticker_2])
 
     if (not stats_1) or (not stats_2):
-        logger.info("Sample statistics cannot be calculated for correlation calculation")
-        return False
+        logger.info("Sample statistics cannot be calculated for correlation calculation.")
+        return None
 
-    asset_type_1 = markets.get_asset_type(ticker_1)
-    asset_type_2 = markets.get_asset_type(ticker_2)
+    if asset_type_1 is None:
+        asset_type_1 = markets.get_asset_type(symbol=ticker_1)
+    if asset_type_2 is None:
+        asset_type_2 = markets.get_asset_type(symbol=ticker_2)
     
     # ito's lemma
     if asset_type_1 == settings.ASSET_EQUITY:
@@ -658,16 +639,9 @@ def calculate_ito_correlation(ticker_1, ticker_2, start_date=None, end_date=None
     elif asset_type_2 == settings.ASSET_CRYPTO:
         mod_mean_2 = (stats_2['annual_return'] - 0.5*(stats_2['annual_volatility'])**2)*numpy.sqrt((1/365))
 
-    # TODO: Pretty sure I no longer need these constants. The correlation loop implicitly ignores
-    # dates where both assets do not have corresponding prices, i.e. if price 1 is None and price 2
-    # is not None, the loop will skip that date.
-    # I could possibly use these constants to retrieve a longer price history for equities, so
-    # the sample size isn't decreased by mismatched trading days between asset types.
     weekend_offset_1, weekend_offset_2 = 0, 0
 
-    # if asset_types are same
     if asset_type_1 == asset_type_2:
-        same_type = True
         logger.debug(f'Asset({ticker_1}) and Asset({ticker_2}) are the same type of asset')
 
         if asset_type_1 == settings.ASSET_CRYPTO:
@@ -677,10 +651,8 @@ def calculate_ito_correlation(ticker_1, ticker_2, start_date=None, end_date=None
         else:
             trading_period = settings.ONE_TRADING_DAY
 
-
     # if asset_types are different, collect # of days where one assets trades and the other does not.
     else:
-        same_type = False
         logger.debug(f'Asset({ticker_1}) and Asset({ticker_2}) are not the same type of asset')
 
         if asset_type_1 == settings.ASSET_CRYPTO and asset_type_2 == settings.ASSET_EQUITY:
@@ -723,7 +695,7 @@ def calculate_ito_correlation(ticker_1, ticker_2, start_date=None, end_date=None
             
         # if both prices exist, proceed
         if todays_price_1 and todays_price_2 and tomorrows_price_1 and tomorrows_price_2:
-            if i != 0:
+            if i != 0: # skip first iteration
                 logger.verbose(f'Iteration #{i}')
                 logger.verbose(f'(todays_price, tomorrows_price)_{ticker_1} = ({todays_price_1}, {tomorrows_price_1})')
                 logger.verbose(f'(todays_price, tomorrows_price)_{ticker_2} = ({todays_price_2}, {tomorrows_price_2})')
@@ -757,8 +729,9 @@ def calculate_ito_correlation(ticker_1, ticker_2, start_date=None, end_date=None
                 covariance = revised_covariance/(sample - 1)
             except ZeroDivisionError:
                 logger.info('Lost entire sample!')
-                return False
+                return None
 
+            # accumulate lost days to adjust return
             delta += 1
             if i == 0:
                 i += 1
@@ -766,17 +739,16 @@ def calculate_ito_correlation(ticker_1, ticker_2, start_date=None, end_date=None
         
         tomorrows_price_1 = services.parse_price_from_date(prices_1, date, asset_type_1)
         tomorrows_price_2 = services.parse_price_from_date(prices_2, date, asset_type_2)
-        tomorrows_date = date
     #### END CORRELATION LOOP ####
 
+    # Scale covariance into correlation
     correlation = covariance/(stats_1['annual_volatility']*stats_2['annual_volatility'])
 
     result = { 'correlation' : correlation }
 
-    # TODO: or if (start_date - end_date).days() == settings.DEFAULT_ANALYSIS_PERIOD
-    if start_date is None and end_date is None:
-        logger.debug(f'Storing ({ticker_1}, {ticker_2}) correlation in cache...')
-        files.save_file(file_to_save=result, file_name=buffer_store_1)
+    if (start_date is None and end_date is None):
+        files.store_local_object(local_object=files.OBJECTS['correlation'], value=result,
+                                        args={ "ticker_1": ticker_1, "ticker_2": ticker_2})
     return result
 
 def get_ito_correlation_matrix_string(tickers, indent=0, start_date=None, end_date=None, sample_prices=None):
