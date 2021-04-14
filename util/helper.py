@@ -340,8 +340,6 @@ def get_sharpe(xtra_args):
     return sharpe
 
 def get_investment(xtra_args, xtra_values):
-    print('xtra args here', xtra_args)
-    print('xtra_values here', xtra_values)
     if formatter.FUNC_XTRA_VALUED_ARGS_DICT['investment'] in xtra_args:
         try:
             investment = float(xtra_values[xtra_args.index(formatter.FUNC_XTRA_VALUED_ARGS_DICT['investment'])])
@@ -382,7 +380,6 @@ def separate_and_parse_args(args):
     reduced_args = args
     
     for arg in args:
-        print('arg', arg)
         if arg in formatter.FUNC_XTRA_VALUED_ARGS_DICT.values() or arg in formatter.FUNC_XTRA_SINGLE_ARGS_DICT.values():
             extra_args.append(arg)
             if arg not in formatter.FUNC_XTRA_SINGLE_ARGS_DICT.values():

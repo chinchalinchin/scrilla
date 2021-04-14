@@ -590,15 +590,15 @@ def calculate_ito_correlation(ticker_1, ticker_2, asset_type_1=None, asset_type_
         sample_prices = {}
         
         if (start_date is None and end_date is None):
-            correlation = files.retrieve_local_object(object=files.OBJECTS['correlation'], 
+            correlation = files.retrieve_local_object(local_object=files.OBJECTS['correlation'], 
                                                                 args = { "ticker_1": ticker_1, "ticker_2": ticker_2})
             if correlation is not None:
                 return correlation
-            else:
-                logger.debug(f'No cached ({ticker_1}, {ticker_2}) correlation found, retrieving price histories for calculation.')
-                prices_1 = services.get_daily_price_history(ticker=ticker_1)
-                prices_2 = services.get_daily_price_history(ticker=ticker_2)
-                sample_prices[ticker_1], sample_prices[ticker_2] = prices_1, prices_2
+                
+            logger.debug(f'No cached ({ticker_1}, {ticker_2}) correlation found, retrieving price histories for calculation.')
+            prices_1 = services.get_daily_price_history(ticker=ticker_1)
+            prices_2 = services.get_daily_price_history(ticker=ticker_2)
+            sample_prices[ticker_1], sample_prices[ticker_2] = prices_1, prices_2
         else:
             logger.debug('No sample prices provided, retrieving price histories for calculation.')
             prices_1 = services.get_daily_price_history(ticker=ticker_1, start_date=start_date, end_date=end_date)

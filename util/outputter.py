@@ -87,6 +87,7 @@ def help_msg():
     for opt in options:
         option(formatter.FUNC_ARG_DICT[opt], formatter.FUNC_DICT[opt])
         return_line()
+        
  # APPLICATION SPECIFIC FORMATTING FUNCTIONS
 
 def spot_price(ticker, this_spot_price):
@@ -134,7 +135,6 @@ def screen_results(info, model):
         scalar_result(f'{ticker} discount', info[ticker]['discount'])
         print_line()
 
-# TODO: parse investment argument from command line instead of getting number input like this.
 # TODO: can probably combine optimal_result and efficient_frontier into a single function
 #         by wrapping the optimal_results in an array so when it iterates through frontier
 #         in efficient_frontier, it will only pick up the single allocation array for the

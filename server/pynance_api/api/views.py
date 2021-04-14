@@ -110,15 +110,19 @@ def optimize(request):
 
     correlation_matrix = cache.build_correlation_matrix(these_tickers=tickers, start_date=parsed_args['start_date'],
                                                         end_date=parsed_args['end_date'], sample_prices=prices)
-    portfolio = Portfolio(tickers=tickers, sample_prices=prices,correlation_matrix=correlation_matrix)    
+    print('here1')
+    portfolio = Portfolio(tickers=tickers, sample_prices=prices, correlation_matrix=correlation_matrix)    
+    print('here2')
     if parsed_args['sharpe_ratio'] is None:
         allocation = optimizer.optimize_portfolio_variance(portfolio=portfolio, target_return=parsed_args['target_return'])
     else:
         allocation = optimizer.maximize_sharpe_ratio(portfolio=portfolio, target_return=parsed_args['target_return'])
 
+    print('here3')
     allocation = helper.round_array(array=allocation, decimals=5)
+    print('here4')
     response = files.format_allocation(allocation=allocation, portfolio=portfolio, investment=parsed_args['investment'])
-
+    print('here5')
     return JsonResponse(data=response, status=status, safe=False)
 
 def efficient_frontier(request):

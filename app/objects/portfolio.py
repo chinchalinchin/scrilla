@@ -52,7 +52,8 @@ class Portfolio:
     NOTE #2: The `asset_return_functions` and `asset_volatility_functions` can be understood as the drift and noise functions for a Geometric Brownian Motion stochastic process. \n \n
     """
     def __init__(self, tickers, start_date=None, end_date=None, sample_prices=None,
-                    correlation_matrix=None, asset_return_functions=None, asset_volatility_functions=None):
+                    correlation_matrix=None, risk_free_rate=None,
+                    asset_return_functions=None, asset_volatility_functions=None):
         if sample_prices is None:
             self.start_date = start_date
             self.end_date = end_date
@@ -67,7 +68,10 @@ class Portfolio:
         
         self.error = not self.calculate_stats(correlation_matrix=correlation_matrix)
 
-        self.risk_free_rate = markets.get_risk_free_rate()
+        if risk_free_rate is None:
+            self.risk_free_rate = markets.get_risk_free_rate()
+        else:
+            self.risk_free_rate=risk_free_rate
 
         # todo: calculate stats with lambda functions.
     def calculate_stats(self, correlation_matrix=None):
@@ -144,19 +148,17 @@ class Portfolio:
     def get_target_return_constraint(self, x):
         return (numpy.dot(x, self.mean_return) - self.target_return)
 
-    def calculate_approximate_shares(self, x, total):
+    def calculate_approximate_shares(self, x, latest_prices, total):
         shares = []
         for i in range(len(x)):
-            price = services.get_daily_price_latest(self.tickers[i])
-            share = Decimal(x[i]) * Decimal(total) / Decimal(price)
+            share = Decimal(x[i]) * Decimal(total) / Decimal(latest_prices[i])
             shares.append(math.trunc(share))
         return shares
 
-    def calculate_actual_total(self, x, total):
+    def calculate_actual_total(self, x, latest_prices, total):
         actual_total = 0
-        shares = self.calculate_approximate_shares(x, total)
+        shares = self.calculate_approximate_shares(x, latest_prices, total)
         for i in range(len(shares)):
-            price = services.get_daily_price_latest(self.tickers[i])
-            portion = Decimal(shares[i]) * Decimal(price)
+            portion = Decimal(shares[i]) * Decimal(latest_prices[i])
             actual_total = actual_total + portion
         return actual_total
