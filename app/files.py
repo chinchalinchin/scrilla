@@ -288,7 +288,7 @@ def add_watchlist(new_tickers):
         # TODO: implement other file extensions
 
 def format_allocation(allocation, portfolio, investment=None):
-    allocation_format, shares_format = {}, {}
+    allocation_format = {}
 
     if investment is not None:
         shares = portfolio.calculate_approximate_shares(x=allocation, total=investment)

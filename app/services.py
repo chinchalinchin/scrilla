@@ -59,6 +59,14 @@ def validate_tradeability_of_dates(start_date, end_date):
 
     return start_date, end_date
 
+def validate_asset_type(asset_type, ticker):
+    if asset_type is None:
+        logger.debug('No asset type provided, determining from ticker.')
+        asset_type=markets.get_asset_type(ticker)  
+    else: 
+        logger.debug(f'Asset type {asset_type} provided')
+    return asset_type
+
 def parse_price_from_date(prices, date, asset_type, which_price=CLOSE_PRICE):
     """
     Parameters
@@ -133,12 +141,8 @@ def query_service_for_daily_price_history(ticker, start_date=None, end_date=None
         logger.debug('Full price history requested, nulling start_date and end_date')
         start_date, end_date = None, None
 
-    if asset_type is None:
-        logger.debug('No asset type provided, determining from ticker.')
-        asset_type=markets.get_asset_type(ticker)  
-    else: 
-        logger.debug(f'Asset type {asset_type} provided')
-
+    asset_type = validate_asset_type(asset_type=asset_type, ticker=ticker)
+    
         # Verify dates fall on trading days (i.e. not weekends or holidays) if asset_type is ASSET_EQUITY
     if asset_type == settings.ASSET_EQUITY and (start_date is not None or end_date is not None):
         start_date, end_date = validate_tradeability_of_dates(start_date, end_date)

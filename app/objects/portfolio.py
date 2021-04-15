@@ -54,6 +54,8 @@ class Portfolio:
     def __init__(self, tickers, start_date=None, end_date=None, sample_prices=None,
                     correlation_matrix=None, risk_free_rate=None,
                     asset_return_functions=None, asset_volatility_functions=None):
+        self.shares = None
+        self.actual_total = None
         if sample_prices is None:
             self.start_date = start_date
             self.end_date = end_date
@@ -148,17 +150,39 @@ class Portfolio:
     def get_target_return_constraint(self, x):
         return (numpy.dot(x, self.mean_return) - self.target_return)
 
-    def calculate_approximate_shares(self, x, latest_prices, total):
-        shares = []
-        for i in range(len(x)):
-            share = Decimal(x[i]) * Decimal(total) / Decimal(latest_prices[i])
-            shares.append(math.trunc(share))
-        return shares
+    def calculate_approximate_shares(self, x, total, latest_prices=None):
+        if self.shares is None:
+            self.shares = []
+            for i in range(len(x)):
+                if latest_prices is not None:
+                    price = latest_prices[i]
+                elif self.sample_prices is not None:
+                    asset_type = markets.get_asset_type(symbol=self.tickers[i])
+                    price = services.parse_price_from_date(prices=self.sample_prices[self.tickers[i]],
+                                                            date=list(self.sample_prices[self.tickers[i]].keys())[0],
+                                                            asset_type=asset_type)                                 
+                else:
+                    price = services.get_daily_price_latest(self.tickers[i])
 
-    def calculate_actual_total(self, x, latest_prices, total):
-        actual_total = 0
-        shares = self.calculate_approximate_shares(x, latest_prices, total)
-        for i in range(len(shares)):
-            portion = Decimal(shares[i]) * Decimal(latest_prices[i])
-            actual_total = actual_total + portion
-        return actual_total
+                share = Decimal(x[i]) * Decimal(total) / Decimal(price) 
+                self.shares.append(math.trunc(share))
+
+        return self.shares
+
+    def calculate_actual_total(self, x, total, latest_prices=None):
+        if self.actual_total is None:
+            self.actual_total = 0
+            shares = self.calculate_approximate_shares(x=x, total=total, latest_prices=latest_prices)
+            for i in range(len(shares)):
+                if latest_prices is not None:
+                    price = latest_prices[i]
+                elif self.sample_prices is not None:
+                    asset_type = markets.get_asset_type(symbol=self.tickers[i])
+                    price = services.parse_price_from_date(prices=self.sample_prices[self.tickers[i]],
+                                                            date=list(self.sample_prices[self.tickers[i]].keys())[0],
+                                                            asset_type=asset_type)                                   
+                else:
+                    price = services.get_daily_price_latest(self.tickers[i])
+                portion = Decimal(shares[i]) * Decimal(price)
+                self.actual_total = self.actual_total + portion
+        return self.actual_total
