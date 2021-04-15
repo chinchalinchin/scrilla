@@ -110,6 +110,7 @@ def optimize(request):
 
     correlation_matrix = cache.build_correlation_matrix(these_tickers=tickers, start_date=parsed_args['start_date'],
                                                         end_date=parsed_args['end_date'], sample_prices=prices)
+    # TODO: 
     portfolio = Portfolio(tickers=tickers, sample_prices=prices, correlation_matrix=correlation_matrix)    
     if parsed_args['sharpe_ratio'] is None:
         allocation = optimizer.optimize_portfolio_variance(portfolio=portfolio, target_return=parsed_args['target_return'])

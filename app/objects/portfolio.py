@@ -12,8 +12,6 @@ from decimal import Decimal
 logger = outputter.Logger("app.objects.portfolio", settings.LOG_LEVEL)
 
 # TODO: allow user to specify bounds for equities, i.e. min and max allocations.
-# TODO: allow user to pass in correlation matrix
-# TODO: instead of nulling start and end date, infer start and date from sample prices
 class Portfolio:
     """
     Description
@@ -27,20 +25,22 @@ class Portfolio:
     Parameters
     ----------
     1. tickers : [ str ] \n
-    Required. An array of ticker symbols that define the assets in a portfolio. \n \n
+        Required. An array of ticker symbols that define the assets in a portfolio. \n \n
     2. start_date: datetime.date \n
-    Optional. The start date for the range of historical prices over which the portfolio will be optimized. 
+        Optional. The start date for the range of historical prices over which the portfolio will be optimized. 
     \n \n
     3. end_date: datetime.date \n
-    Optional. The end date for the range of historical prices over which the portfolio will be optimized. \n \n
+        Optional. The end date for the range of historical prices over which the portfolio will be optimized. \n \n
     4. sample_prices: { 'date' : 'price', 'date': 'price' } \n
-    Optional. A list representing a sample of historical data over a time range. The list must be ordered in descending order, i.e. from latest to earliest. \n \n 
-    5. correlation_matrix : [ float ][ float ] \n
-    Optional: Rather than use correlations calculated from historical data, this argument can override the historical data.
+        Optional. A list representing a sample of historical data over a time range. The list must be ordered in descending order, i.e. from latest to earliest. \n \n 
+    5. risk_profile : { ticker: { 'annual_return': float, 'annual_volatility': float }} \n
+        Optional: Rather than use sample statistics calculated from historical data, this argument can override the calculated values.
+    6. correlation_matrix : [ float ][ float ] \n
+        Optional: Rather than use correlations calculated from historical data, this argument can override the calculated vlaues.
     6. asset_return_functions: [ function(t) ] \n
-    Optional. An array of function that describes the expected logarithmic rate of return of each asset in the portfolio with respect to time. The order between `asset_return_functions` and `tickers` be must be preserved, i.e. the index of tickers must correspond to the symbol described by the function with same index in `asset_return_functions`. \n \n 
+        Optional. An array of function that describes the expected logarithmic rate of return of each asset in the portfolio with respect to time. The order between `asset_return_functions` and `tickers` be must be preserved, i.e. the index of tickers must correspond to the symbol described by the function with same index in `asset_return_functions`. \n \n 
     7. asset_volatility_funtions: [ function(t) ] \n
-    Optional. An array of functions that describe the mean volatility of each asset in the portfolio with respect to time. The order between `asset_volatility_functions` and `tickers` be must be preserved, i.e. the index of tickers must correspond to the symbol described by the function with the same index in `asset_volatility_functions`. \n \n 
+        Optional. An array of functions that describe the mean volatility of each asset in the portfolio with respect to time. The order between `asset_volatility_functions` and `tickers` be must be preserved, i.e. the index of tickers must correspond to the symbol described by the function with the same index in `asset_volatility_functions`. \n \n 
 
     Notes
     -----
@@ -52,21 +52,23 @@ class Portfolio:
     NOTE #2: The `asset_return_functions` and `asset_volatility_functions` can be understood as the drift and noise functions for a Geometric Brownian Motion stochastic process. \n \n
     """
     def __init__(self, tickers, start_date=None, end_date=None, sample_prices=None,
-                    correlation_matrix=None, risk_free_rate=None,
+                    correlation_matrix=None, risk_profiles=None, risk_free_rate=None,
                     asset_return_functions=None, asset_volatility_functions=None):
         self.shares = None
         self.actual_total = None
+
         if sample_prices is None:
             self.start_date = start_date
             self.end_date = end_date
         else:
-            self.start_date = None
-            self.end_date = None
+            self.start_date = list(sample_prices.key())[-1]
+            self.end_date = list(sample_prices.key())[0]
 
         self.tickers = tickers
         self.sample_prices = sample_prices
         self.asset_volatility_functions = asset_volatility_functions
         self.asset_return_functions = asset_return_functions
+        self.risk_profiles = risk_profiles
         
         self.error = not self.calculate_stats(correlation_matrix=correlation_matrix)
 
@@ -90,16 +92,23 @@ class Portfolio:
             pass
 
         else:
-            for ticker in self.tickers:
-                if self.sample_prices is not None:
-                    stats = statistics.calculate_risk_return(ticker=ticker, sample_prices=self.sample_prices[ticker])
-                else: 
-                    stats = statistics.calculate_risk_return(ticker=ticker, start_date=self.start_date, end_date=self.end_date)
 
-                if not stats:
-                    return False
-                self.mean_return.append(stats['annual_return'])
-                self.sample_vol.append(stats['annual_volatility'])
+            if self.risk_profiles is None:
+                for ticker in self.tickers:
+                    if self.sample_prices is not None:
+                        stats = statistics.calculate_risk_return(ticker=ticker, sample_prices=self.sample_prices[ticker])
+                    else: 
+                        stats = statistics.calculate_risk_return(ticker=ticker, start_date=self.start_date, end_date=self.end_date)
+
+                    if not stats:
+                        return False
+                    self.mean_return.append(stats['annual_return'])
+                    self.sample_vol.append(stats['annual_volatility'])
+            else:
+                for ticker in self.risk_profiles:
+                    self.mean_return.append(self.risk_profiles[ticker]['annual_return'])
+                    self.mean_return.append(self.risk_profiles[ticker]['annual_volatility'])
+                
 
             if correlation_matrix is None:
                 if(len(self.tickers) > 1):
