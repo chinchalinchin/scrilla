@@ -75,7 +75,7 @@ class Portfolio:
         if risk_free_rate is None:
             self.risk_free_rate = markets.get_risk_free_rate()
         else:
-            self.risk_free_rate=risk_free_rate
+            self.risk_free_rate = risk_free_rate
 
         # todo: calculate stats with lambda functions.
     def calculate_stats(self, correlation_matrix=None):
@@ -86,7 +86,7 @@ class Portfolio:
         if self.asset_volatility_functions is not None and self.asset_return_functions is not None:
             # use return and volatility functions to integrate over time period [0, infinity] for each asset. don't forget to 
             #   discount! I(x) = discounted expected payoff
-            #   Integral(d ln S) = Integral(Mean dt) + Integral(Vol dZs)
+            #   Integral(d ln S) = Integral(Mean dt) + Integral(Vol dZ)
             #   Need methods to compute ito Integrals in...statistics.py? markets.py? Perhaps a new module.
             # https://math.stackexchange.com/questions/1780956/mean-and-variance-geometric-brownian-motion-with-not-constant-drift-and-volatili
             pass
@@ -107,7 +107,7 @@ class Portfolio:
             else:
                 for ticker in self.risk_profiles:
                     self.mean_return.append(self.risk_profiles[ticker]['annual_return'])
-                    self.mean_return.append(self.risk_profiles[ticker]['annual_volatility']) 
+                    self.sample_vol.append(self.risk_profiles[ticker]['annual_volatility']) 
 
             if correlation_matrix is None:
                 if(len(self.tickers) > 1):

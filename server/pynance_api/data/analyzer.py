@@ -88,7 +88,7 @@ def market_proxy_gap_analysis(start_date=None, end_date=None):
                                                                 ticker_profile=market_profile,
                                                                 start_date=start_date,
                                                                 end_date=end_date)
-        cache.save_profile(profile=market_profile)
+        cache.save_profile(profile=market_profile, this_ticker=app_settings.MARKET_PROXY)
     else:
         for stat in market_profile:
             if stat != 'ticker':

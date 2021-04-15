@@ -27,8 +27,8 @@ def determine_date_range(start_date=None, end_date=None):
 
 # NOTE: The EquityProfileCache object is created when the cache is initially
 #        checked for the result.
-def save_profile(profile, start_date=None, end_date=None):
-    ticker = EquityTicker.objects.get(ticker=profile['ticker'])
+def save_profile(profile, this_ticker, start_date=None, end_date=None):
+    ticker = EquityTicker.objects.get(this_ticker=ticker)
     
     start_date, end_date = determine_date_range(start_date=start_date, end_date=end_date)
         
@@ -115,11 +115,10 @@ def check_for_profile(ticker, start_date=None, end_date=None):
         
         logger.info(f'Database cache found for {ticker[0].ticker} profile.')
         profile = {}
-        profile['ticker'] = ticker[0].ticker
-        profile['annual_return'] = result[0].annual_return
-        profile['annual_volatility'] = result[0].annual_volatility
-        profile['sharpe_ratio'] = result[0].sharpe_ratio
-        profile['asset_beta'] = result[0].asset_beta
+        profile['annual_return'] = float(result[0].annual_return)
+        profile['annual_volatility'] = float(result[0].annual_volatility)
+        profile['sharpe_ratio'] = float(result[0].sharpe_ratio)
+        profile['asset_beta'] = float(result[0].asset_beta)
         return profile
 
 def check_for_correlation(this_ticker_1, this_ticker_2, start_date=None, end_date=None):
@@ -206,3 +205,39 @@ def build_correlation_matrix(these_tickers, start_date=None, end_date=None, samp
         correlation_matrix[0][0] = 1
     
     return correlation_matrix
+
+def build_risk_profiles(tickers, sample_prices, parsed_args, market_profile, risk_free_rate):
+    profiles = {}
+    for ticker in tickers:
+        logger.debug(f'Checking for {ticker} profile in the database cache.')
+        profile = check_for_profile(ticker=ticker, start_date=parsed_args['start_date'], end_date=parsed_args['end_date'])
+        if profile is not None:
+            logger.debug(f'Found profile in database cache, halting calculation.')
+            profiles[ticker] = profile
+            continue # halt this iteration of loop if profile cache found
+        else:
+            logger.debug(f'No profile found in database cache, proceeding with calculation.')
+            profile = {}
+
+        stats = statistics.calculate_risk_return(ticker=ticker, sample_prices=sample_prices[ticker])
+        correlation = check_for_correlation(this_ticker_1=ticker, this_ticker_2=app_settings.MARKET_PROXY,
+                                                    start_date=parsed_args['start_date'], 
+                                                    end_date=parsed_args['end_date'])
+        if correlation is None:
+            correlation = statistics.calculate_ito_correlation(ticker_1=ticker, 
+                                                                ticker_2=app_settings.MARKET_PROXY, 
+                                                                sample_prices=sample_prices)
+            save_correlation(this_ticker_1=ticker, this_ticker_2=app_settings.MARKET_PROXY, 
+                                    correlation=correlation, start_date=parsed_args['start_date'], 
+                                    end_date=parsed_args['end_date'])
+        profile['annual_return'], profile['annual_volatility'] = stats['annual_return'], stats['annual_volatility']
+        profile['sharpe_ratio'] = markets.sharpe_ratio(ticker=ticker, start_date=parsed_args['start_date'], 
+                                                        end_date=parsed_args['end_date'], ticker_profile = profile, 
+                                                        risk_free_rate=risk_free_rate)
+        profile['asset_beta'] = markets.market_beta(ticker=ticker, start_date=parsed_args['start_date'], 
+                                                        end_date=parsed_args['end_date'], market_profile=market_profile, 
+                                                        market_correlation=correlation, sample_prices=sample_prices)
+        save_profile(profile=profile, this_ticker=ticker, start_date=parsed_args['start_date'], 
+                            end_date=parsed_args['end_date'])
+        profiles[ticker] = profile
+    return profiles
