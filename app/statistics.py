@@ -474,7 +474,7 @@ def calculate_risk_return(ticker, start_date=None, end_date=None, sample_prices=
 
     if not trading_period:
         logger.debug("Asset did not map to (crypto, equity) grouping")
-        return False
+        return None
 
     if sample_prices is None:
         if start_date is None and end_date is None:
@@ -496,7 +496,7 @@ def calculate_risk_return(ticker, start_date=None, end_date=None, sample_prices=
 
     if not prices:
         logger.debug(f'No prices could be retrieved for {ticker}')
-        return False
+        return None
     
     sample = len(prices)
     # calculate sample mean annual return

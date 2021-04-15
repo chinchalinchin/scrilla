@@ -78,12 +78,14 @@ class Portfolio:
             self.risk_free_rate = risk_free_rate
 
         # todo: calculate stats with lambda functions.
+    # Returns False if calculations fail
     def calculate_stats(self, correlation_matrix=None):
         self.mean_return = []
         self.sample_vol = []
         self.correlation_matrix = [[0 for x in range(len(self.tickers))] for y in range(len(self.tickers))]
 
         if self.asset_volatility_functions is not None and self.asset_return_functions is not None:
+            # TODO: implement ito integration and calculate asset return and volatilities!
             # use return and volatility functions to integrate over time period [0, infinity] for each asset. don't forget to 
             #   discount! I(x) = discounted expected payoff
             #   Integral(d ln S) = Integral(Mean dt) + Integral(Vol dZ)
@@ -99,9 +101,9 @@ class Portfolio:
                         stats = statistics.calculate_risk_return(ticker=ticker, sample_prices=self.sample_prices[ticker])
                     else: 
                         stats = statistics.calculate_risk_return(ticker=ticker, start_date=self.start_date, end_date=self.end_date)
-
-                    if not stats:
+                    if stats is None:
                         return False
+
                     self.mean_return.append(stats['annual_return'])
                     self.sample_vol.append(stats['annual_volatility'])
             else:
@@ -117,9 +119,12 @@ class Portfolio:
                             cor_list = statistics.calculate_ito_correlation(ticker_1 = self.tickers[i], ticker_2=self.tickers[j],
                                                                         start_date = self.start_date, end_date = self.end_date,
                                                                         sample_prices = self.sample_prices)
-                            correlation = cor_list['correlation']
-                            if not correlation:
+                            if cor_list is None:
                                 return False
+                            correlation = cor_list['correlation']
+                            if correlation is None:
+                                return False
+
                             self.correlation_matrix[i][j] = correlation
                             self.correlation_matrix[j][i] = self.correlation_matrix[i][j]
                     self.correlation_matrix[len(self.tickers) - 1][len(self.tickers) - 1] = 1
