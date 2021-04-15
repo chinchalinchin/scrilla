@@ -480,7 +480,7 @@ def calculate_risk_return(ticker, start_date=None, end_date=None, sample_prices=
         if start_date is None and end_date is None:
             logger.debug(f'Checking for cached {ticker} statistics.')
 
-            results = files.retrieve_local_object(object=files.OBJECTS['risk_profile'], 
+            results = files.retrieve_local_object(local_object=files.OBJECTS['risk_profile'], 
                                                         args = { "ticker": ticker })
             
             if results is not None:
