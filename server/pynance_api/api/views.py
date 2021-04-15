@@ -54,12 +54,10 @@ def risk_return(request):
 
         analyzer.market_queryset_gap_analysis(symbol=tickers[i],start_date=parsed_args['start_date'],
                                                 end_date=parsed_args['end_date'])
-
         prices[tickers[i]] = parser.parse_args_into_market_queryset(ticker=tickers[i], parsed_args=parsed_args)
         prices[app_settings.MARKET_PROXY] = parser.parse_args_into_market_queryset(ticker=app_settings.MARKET_PROXY,
                                                                                     parsed_args=parsed_args)
         stats = statistics.calculate_risk_return(ticker=tickers[i], sample_prices=prices[tickers[i]])
-        
         correlation = cache.check_for_correlation(this_ticker_1=tickers[i], this_ticker_2=app_settings.MARKET_PROXY,
                                                     start_date=parsed_args['start_date'], end_date=parsed_args['end_date'])
         if correlation is None:
@@ -74,15 +72,11 @@ def risk_return(request):
         profile['sharpe_ratio'] = markets.sharpe_ratio(ticker=tickers[i], start_date=parsed_args['start_date'],
                                                         end_date=parsed_args['end_date'], ticker_profile = profile, 
                                                         risk_free_rate=risk_free_rate)
- 
         profile['asset_beta'] = markets.market_beta(ticker=tickers[i], start_date=parsed_args['start_date'],
                                                         end_date=parsed_args['end_date'], market_profile=market_profile,
                                                         market_correlation=correlation, sample_prices=prices)
-        
         cache.save_profile(profile=profile,start_date=parsed_args['start_date'], end_date=parsed_args['end_date'])
-
         response[i] = profile
-
         if parsed_args['jpeg']:
             profiles.append(profile)
 
@@ -110,7 +104,7 @@ def optimize(request):
 
     correlation_matrix = cache.build_correlation_matrix(these_tickers=tickers, start_date=parsed_args['start_date'],
                                                         end_date=parsed_args['end_date'], sample_prices=prices)
-    # TODO: 
+    # TODO: build risk_profiles and pass into portfolio.
     portfolio = Portfolio(tickers=tickers, sample_prices=prices, correlation_matrix=correlation_matrix)    
     if parsed_args['sharpe_ratio'] is None:
         allocation = optimizer.optimize_portfolio_variance(portfolio=portfolio, target_return=parsed_args['target_return'])
@@ -137,6 +131,7 @@ def efficient_frontier(request):
 
     correlation_matrix = cache.build_correlation_matrix(these_tickers=tickers, start_date=parsed_args['start_date'],
                                                         end_date=parsed_args['end_date'], sample_prices=prices)
+    # TODO: build risk_profiles and pass into portfolio.
     portfolio = Portfolio(tickers=tickers, sample_prices=prices, correlation_matrix=correlation_matrix)    
     frontier = optimizer.calculate_efficient_frontier(portfolio=portfolio)
     

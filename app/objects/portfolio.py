@@ -61,8 +61,8 @@ class Portfolio:
             self.start_date = start_date
             self.end_date = end_date
         else:
-            self.start_date = list(sample_prices.key())[-1]
-            self.end_date = list(sample_prices.key())[0]
+            self.start_date = list(sample_prices.keys())[-1]
+            self.end_date = list(sample_prices.keys())[0]
 
         self.tickers = tickers
         self.sample_prices = sample_prices
@@ -107,8 +107,7 @@ class Portfolio:
             else:
                 for ticker in self.risk_profiles:
                     self.mean_return.append(self.risk_profiles[ticker]['annual_return'])
-                    self.mean_return.append(self.risk_profiles[ticker]['annual_volatility'])
-                
+                    self.mean_return.append(self.risk_profiles[ticker]['annual_volatility']) 
 
             if correlation_matrix is None:
                 if(len(self.tickers) > 1):
