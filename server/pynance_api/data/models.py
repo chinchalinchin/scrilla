@@ -69,10 +69,7 @@ class Dividends(models.Model):
 
     # TODO: may need to change IEX_RES_DIV_KEY key to something more generalized.
     def to_dict(self):
-        date_string = helper.date_to_string(self.date)
-        formatted_self = {}
-        formatted_self[app_settings.IEX_RES_DIV_KEY] = float(self.amount)
-        return formatted_self
+        return float(self.amount)
     
     def to_date(self):
         return helper.date_to_string(self.date)

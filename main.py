@@ -69,12 +69,12 @@ if __name__ == "__main__":
         ### FUNCTION: Clear Cache
         elif opt == formatter.FUNC_ARG_DICT["clear_cache"]:
             logger.comment(f'Clearing {settings.CACHE_DIR}')
-            files.clear_directory(directory=settings.CACHE_DIR, retain=True, outdated_only=False)
+            files.clear_directory(directory=settings.CACHE_DIR, retain=True)
 
         ### FUNCTION: Clear Watchlist
         elif opt == formatter.FUNC_ARG_DICT["clear_watchlist"]:
             logger.comment(f'Clearing {settings.COMMON_DIR}')
-            files.clear_directory(directory=settings.COMMON_DIR, retain=True, outdated_only=False)
+            files.clear_directory(directory=settings.COMMON_DIR, retain=True)
 
         ### FUNCTION: Function Examples
         elif opt == formatter.FUNC_ARG_DICT["examples"]:
@@ -115,8 +115,8 @@ if __name__ == "__main__":
         ### FUNCTION: Purge Data Directories
         elif opt == formatter.FUNC_ARG_DICT["purge"]:
             logger.comment(f'Clearing {settings.STATIC_DIR} and {settings.CACHE_DIR}')
-            files.clear_directory(directory=settings.STATIC_DIR, retain=True, outdated_only=False)
-            files.clear_directory(directory=settings.CACHE_DIR, retain=True, outdated_only=False)
+            files.clear_directory(directory=settings.STATIC_DIR, retain=True)
+            files.clear_directory(directory=settings.CACHE_DIR, retain=True)
 
         ### FUNCTION: Yield Curve
         elif opt == formatter.FUNC_ARG_DICT['yield_curve']:

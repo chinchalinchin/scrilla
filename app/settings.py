@@ -19,7 +19,7 @@ Attributes
 5. LOG_LEVEL: Debug output level. \n \n
 6. CONFIG_FILE: Location of secondary credentials file. \n \n
 7. CACHE_DIR: Folder where cached price histories reside. \n \n
-8. CACHE_STAT_KEY: File name where calculations are saved. \n \n
+8. CACHE_PRO_KEY: File name where risk-profile calculations are saved. \n \n
 9. FILE_EXT: File extension used in CACHE_DIR. \n \n
 10. STATIC_DIR: Folder where static data reside. \n \n
 11. FILE_EXT: File extension used in STATIC_DIR. \n \n
@@ -106,10 +106,13 @@ logger = outputter.Logger('app.settings', LOG_LEVEL)
 
 # TODO: CACHE only supports JSON currently. Future file extensions: csv and txt.
 FILE_EXT = os.environ.setdefault("FILE_EXT", "json")
+KEEP_EXT = ".gitkeep"
 
 CACHE_DIR = os.path.join(APP_DIR, 'data', 'cache')
-CACHE_STAT_KEY = "statistics"
-CACHE_COR_KEY = "correlation"
+CACHE_PRO_KEY="profile"
+CACHE_COR_KEY="correlation"
+CACHE_DIV_KEY="dividends"
+CACHE_STAT_KEY="statistic"
 
 STATIC_DIR = os.path.join(APP_DIR, 'data', 'static')
 

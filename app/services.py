@@ -382,26 +382,18 @@ def query_service_for_daily_stats_history(statistic, start_date=None, end_date=N
 # Goes through file cache if start_date and end_date are not provided,
 #   otherwise, hands the call off to the service manager.
 def get_daily_stats_history(statistic, start_date=None, end_date=None):
-    if start_date is None and end_date is None:
-        logger.debug(f'Checking for {statistic} statistics in cache')
-        now = datetime.datetime.now()
-        timestamp = '{}{}{}'.format(now.month, now.day, now.year)
-        buffer_store = os.path.join(settings.CACHE_DIR, f'{timestamp}_{statistic}.{settings.FILE_EXT}')
-
-        if os.path.isfile(buffer_store):
-            logger.debug(f'Loading in cached {statistic} statistics.')
-            stats = files.load_file(file_name=buffer_store)         
-            return stats
-        
-        logger.debug(f'Retrieivng {statistic} statistics from Service Manager')
-        stats = query_service_for_daily_stats_history(statistic=statistic)
-
-        logger.debug(f'Storing {statistic} statistics in cache')
-        files.save_file(file_to_save=stats, file_name=buffer_store)
-        return stats
-
-    logger.info('No cached prices for date ranges past default. Passing to service call.')
+    stats = files.retrieve_local_object(local_object=files.OBJECTS['statistic'],
+                                        args={"stat_symbol": statistic,"start_date": start_date,
+                                              "end_date": end_date})
+    if stats is not None:
+        return stats 
+    logger.debug(f'Retrieivng {statistic} statistics from Service Manager')
     stats = query_service_for_daily_stats_history(statistic=statistic, start_date=start_date, end_date=end_date)
+
+    logger.debug(f'Storing {statistic} statistics in cache')
+    files.store_local_object(local_object=files.OBJECTS['statistic'], value=stats,
+                             args={"stat_symbol": statistic, "start_date": start_date,
+                                    "end_date": end_date})
     return stats
 
 def get_daily_stats_latest(statistic):
@@ -433,25 +425,18 @@ def query_service_for_dividend_history(ticker):
 
 def get_dividend_history(ticker):
     logger.debug(f'Checking for {ticker} dividend history in cache.')
-    now = datetime.datetime.now()
-    ### TODO: dividend payments occur less frequently than spot prices,
-    ###         so you can probably get away with using MM-YYYY as a timestamp,
-    ###         to avoid excessive calls to external services and longer caching.
-    timestamp = '{}{}{}'.format(now.month, now.day, now.year)
-    buffer_store= os.path.join(settings.CACHE_DIR, f'{timestamp}_{ticker}_dividends.{settings.FILE_EXT}')
-        
-    if os.path.isfile(buffer_store):
-        logger.debug(f'Loading in cached {ticker} dividend history.')
-        dividends = files.load_file(file_name=buffer_store)
+
+    dividends = files.retrieve_local_object(local_object=files.OBJECTS['dividends'],
+                                            args={"ticker": ticker})
+    if dividends is not None:
         return dividends
 
-    else:
-        logger.debug(f'Retrieving {ticker} prices from Service Manager.')  
-        dividends = query_service_for_dividend_history(ticker=ticker)
+    logger.debug(f'Retrieving {ticker} prices from Service Manager.')  
+    dividends = query_service_for_dividend_history(ticker=ticker)
 
-        logger.debug(f'Storing {ticker} price history in cache.')
-        files.save_file(file_to_save=dividends, file_name=buffer_store)
-        return dividends
+    logger.debug(f'Storing {ticker} price history in cache.')
+    files.store_local_object(local_object=files.OBJECTS['dividends'], value=dividends, args={"ticker": ticker})
+    return dividends
 
 def get_percent_stat_symbols():
     if settings.STAT_MANAGER == 'quandl':

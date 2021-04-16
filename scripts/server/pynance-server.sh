@@ -30,12 +30,7 @@ else
     LOG_DJANGO_SETTINGS="import server.pynance_api.core.settings as settings; from util.outputter import Logger; \
         logger=Logger('scripts.server.pynance-server','$LOG_LEVEL'); logger.log_django_settings(settings=settings);"
     CLEAR_CACHE="import app.settings as settings; import app.files as files; \
-        files.clear_directory(directory=settings.CACHE_DIR, retain=True, outdated_only=True)"
-    
-    LOG_DJANGO_SETTINGS="import server.pynance_api.core.settings as settings; from util.outputter import Logger; \
-        logger=Logger('scripts.server.pynance-server','info'); logger.log_django_settings(settings);"
-    CLEAR_CACHE="import app.settings as settings; import app.files as files; \
-        files.clear_directory(directory=settings.CACHE_DIR, retain=True, outdated_only=True)"
+        files.clear_directory(directory=settings.CACHE_DIR, retain=True)"
 
     # Run in local mode
     if [ "$1" == "--local" ] || [ "$1" == "-local" ] || [ "$1"  == "--l" ] || [ "$1" == "-l" ] || [ $# -eq 0 ]

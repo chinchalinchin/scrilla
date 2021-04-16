@@ -18,7 +18,7 @@ logger = outputter.Logger("server.pynance_api.data.cache", settings.LOG_LEVEL)
 # NOTE: The EquityProfileCache object is created when the cache is initially
 #        checked for the result.
 def save_profile(profile, this_ticker, start_date=None, end_date=None):
-    ticker = EquityTicker.objects.get(this_ticker=this_ticker)
+    ticker = EquityTicker.objects.get(ticker=this_ticker)
     
     start_date, end_date = files.determine_analysis_date_range(start_date=start_date, end_date=end_date)
         
@@ -117,14 +117,10 @@ def check_for_correlation(this_ticker_1, this_ticker_2, start_date=None, end_dat
 
     start_date, end_date = files.determine_analysis_date_range(start_date=start_date, end_date=end_date)
 
-    correl_cache_1 = EquityCorrelationCache.objects.get_or_create(ticker_1=ticker_1, 
-                                                                    ticker_2=ticker_2, 
-                                                                    start_date=start_date,
-                                                                    end_date=end_date)
-    correl_cache_2 = EquityCorrelationCache.objects.get_or_create(ticker_1=ticker_2, 
-                                                                    ticker_2=ticker_1, 
-                                                                    start_date=start_date,
-                                                                    end_date=end_date)
+    correl_cache_1 = EquityCorrelationCache.objects.get_or_create(ticker_1=ticker_1, ticker_2=ticker_2, 
+                                                                    start_date=start_date, end_date=end_date)
+    correl_cache_2 = EquityCorrelationCache.objects.get_or_create(ticker_1=ticker_2, ticker_2=ticker_1, 
+                                                                    start_date=start_date, end_date=end_date)
 
     if (correl_cache_1[1] and correl_cache_2):
         logger.info(f'No database cache found for {ticker_1}_{ticker_2} correlation.')
@@ -175,14 +171,11 @@ def build_correlation_matrix(these_tickers, start_date=None, end_date=None, samp
         for i in range(len(these_tickers)):
             correlation_matrix[i][i] = 1
             for j in range(i+1, len(these_tickers)):
-                these_prices = {}
-                these_prices[these_tickers[i]] = sample_prices[these_tickers[i]]
-                these_prices[these_tickers[j]] = sample_prices[these_tickers[j]]
                 correlation = check_for_correlation(this_ticker_1=these_tickers[i], this_ticker_2=these_tickers[j],
                                                     start_date=start_date, end_date=end_date)
                 if correlation is None: 
                     cor_calculation = statistics.calculate_ito_correlation(ticker_1=these_tickers[i], ticker_2=these_tickers[j],
-                                                                            sample_prices=these_prices)
+                                                                            sample_prices=sample_prices)
                     save_correlation(correlation=cor_calculation,this_ticker_1=these_tickers[i], this_ticker_2=these_tickers[j],
                                         start_date=start_date, end_date=end_date)
                     correlation = cor_calculation['correlation']

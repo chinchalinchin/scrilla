@@ -63,7 +63,7 @@ class Cashflow:
 
         # if constant is specified, override sample and growth_function
         if constant is not None:
-            logger.debug(f'constant = $ {self.constant}; period MUST NOT be null!')
+            logger.debug(f'constant = $ {constant}; period MUST NOT be null!')
             logger.debug(f'period = {self.period}')
             self.constant = constant
             self.sample = None
@@ -128,13 +128,12 @@ class Cashflow:
 
         if no_of_dates == 0:
             logger.debug('Cannot generate a time series for a sample size of 0.')
+            self.time_series = None
         else:
-            first_date = helper.parse_date_string(list(dates)[no_of_dates-1])
+            first_date = helper.parse_date_string(list(dates)[-1])
 
             for date in dates:
-                # print(date)
                 this_date = helper.parse_date_string(date)
-                # print(this_date)
                 delta = (this_date - first_date).days
                 time_in_years = delta / 365
                 self.time_series.append(time_in_years)

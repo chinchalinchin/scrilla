@@ -22,6 +22,8 @@ import util.helper as helper
 import util.plotter as plotter
 import util.outputter as outputter
 
+# TODO: discount dividend and moving averages need caching implemented. 
+
 output = outputter.Logger("server.pynance_api.api.views", settings.LOG_LEVEL)
 
 def risk_return(request):
@@ -38,7 +40,7 @@ def risk_return(request):
         analyzer.market_queryset_gap_analysis(symbol=tickers[i],start_date=parsed_args['start_date'],
                                                 end_date=parsed_args['end_date'])
         prices[tickers[i]] = parser.parse_args_into_market_queryset(ticker=tickers[i], parsed_args=parsed_args)
-        prices[app_settings.MARKET_PROXY] = parser.parse_args_into_market_queryset(ticker=app_settings.MARKET_PROXY,
+    prices[app_settings.MARKET_PROXY] = parser.parse_args_into_market_queryset(ticker=app_settings.MARKET_PROXY,
                                                                                     parsed_args=parsed_args)
 
     profiles = cache.build_risk_profiles(tickers=tickers, sample_prices=prices, parsed_args=parsed_args, 
@@ -66,6 +68,8 @@ def optimize(request):
         analyzer.market_queryset_gap_analysis(symbol=ticker,start_date=parsed_args['start_date'],
                                                 end_date=parsed_args['end_date'])
         prices[ticker] = parser.parse_args_into_market_queryset(ticker, parsed_args)
+    prices[app_settings.MARKET_PROXY] = parser.parse_args_into_market_queryset(ticker=app_settings.MARKET_PROXY,
+                                                                                    parsed_args=parsed_args)
 
     correlation_matrix = cache.build_correlation_matrix(these_tickers=tickers, start_date=parsed_args['start_date'],
                                                         end_date=parsed_args['end_date'], sample_prices=prices)
@@ -97,6 +101,8 @@ def efficient_frontier(request):
         analyzer.market_queryset_gap_analysis(symbol=ticker,start_date=parsed_args['start_date'],
                                                 end_date=parsed_args['end_date'])
         prices[ticker] = parser.parse_args_into_market_queryset(ticker, parsed_args)
+    prices[app_settings.MARKET_PROXY] = parser.parse_args_into_market_queryset(ticker=app_settings.MARKET_PROXY,
+                                                                                    parsed_args=parsed_args)
 
     correlation_matrix = cache.build_correlation_matrix(these_tickers=tickers, start_date=parsed_args['start_date'],
                                                         end_date=parsed_args['end_date'], sample_prices=prices)

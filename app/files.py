@@ -19,7 +19,9 @@ OPEN_PRICE = "open"
 OBJECTS={
     "correlation": 1,
     "risk_profile": 2,
-    "prices": 3
+    "prices": 3,
+    "dividends": 4,
+    "statistic": 5,
 }
 logger = outputter.Logger("app.files", settings.LOG_LEVEL)
 
@@ -66,11 +68,16 @@ def store_local_object(local_object, value, args):
             file_name_2 = f'{timestamp}_{args["ticker_2"]}_{args["ticker_1"]}_{settings.CACHE_COR_KEY}.{settings.FILE_EXT}'
         if local_object == OBJECTS['prices']:
             logger.debug(f'Storing {args["ticker"]} price history in local cache.')
-            file_name=f'{timestamp}_{args["ticker"]}.{settings.FILE_EXT}'
+            file_name = f'{timestamp}_{args["ticker"]}.{settings.FILE_EXT}'
         if local_object == OBJECTS['risk_profile']:
             logger.debug(f'Storing {args["ticker"]} risk profile in local cache.')
-            file_name= f'{timestamp}_{args["ticker"]}_{settings.CACHE_STAT_KEY}.{settings.FILE_EXT}'
-        
+            file_name = f'{timestamp}_{args["ticker"]}_{settings.CACHE_PRO_KEY}.{settings.FILE_EXT}'
+        if local_object == OBJECTS['dividends']:
+            logger.debug(f'Checking for {args["ticker"]} dividend history in local cache.')
+            file_name = os.path.join(settings.CACHE_DIR, f'{timestamp}_{args["ticker"]}_{settings.CACHE_DIV_KEY}.{settings.FILE_EXT}')
+        if local_object == OBJECTS['statistic']:
+            file_name = os.path.join(settings.CACHE_DIR, f'{timestamp}_{args["stat_symbol"]}_{settings.CACHE_STAT_KEY}.{settings.FILE_EXT}')
+
         buffer_store= os.path.join(settings.CACHE_DIR, file_name)
         return save_file(file_to_save=value, file_name=buffer_store)
     return False
@@ -80,8 +87,8 @@ def retrieve_local_object(local_object, args):
         timestamp = generate_timestamp(args=args)
         
         if local_object == OBJECTS['correlation']:
-            buffer_store_1= os.path.join(settings.CACHE_DIR, f'{timestamp}_{args["ticker_1"]}_{args["ticker_2"]}_correlation.{settings.FILE_EXT}')
-            buffer_store_2= os.path.join(settings.CACHE_DIR, f'{timestamp}_{args["ticker_2"]}_{args["ticker_1"]}_correlation.{settings.FILE_EXT}')
+            buffer_store_1= os.path.join(settings.CACHE_DIR, f'{timestamp}_{args["ticker_1"]}_{args["ticker_2"]}_{settings.CACHE_COR_KEY}.{settings.FILE_EXT}')
+            buffer_store_2= os.path.join(settings.CACHE_DIR, f'{timestamp}_{args["ticker_2"]}_{args["ticker_1"]}_{settings.CACHE_COR_KEY}.{settings.FILE_EXT}')
 
             logger.debug(f'Checking for ({args["ticker_1"]}, {args["ticker_2"]}) correlation calculation in local cache.')
             if os.path.isfile(buffer_store_1):
@@ -92,28 +99,31 @@ def retrieve_local_object(local_object, args):
                 logger.debug(f'Loading in cached ({args["ticker_2"]}, {args["ticker_1"]}) correlation.')
                 correlation = load_file(file_name=buffer_store_2)
                 return correlation
+            return None
 
-        if local_object == OBJECTS['risk_profile']:
-            buffer_store= os.path.join(settings.CACHE_DIR, f'{timestamp}_{args["ticker"]}_{settings.CACHE_STAT_KEY}.{settings.FILE_EXT}')
-
+        elif local_object == OBJECTS['risk_profile']:
+            file_name = os.path.join(settings.CACHE_DIR, f'{timestamp}_{args["ticker"]}_{settings.CACHE_PRO_KEY}.{settings.FILE_EXT}')
             logger.debug(f'Checking for {args["ticker"]} statistics in local cache.')
-            if os.path.isfile(buffer_store):
-                logger.debug(f'Loading in cached {args["ticker"]} statistics.')
-                results = load_file(buffer_store)
+            if os.path.isfile(file_name):
+                results = load_file(file_name=file_name)
                 return results
         
-        if local_object == OBJECTS['prices']:
+        elif local_object == OBJECTS['prices']:
             # TODO: with different time stamp implementation, this part of the method should search for price histories that contain
             # the range in start_date and end_date.
-            buffer_store= os.path.join(settings.CACHE_DIR, f'{timestamp}_{args["ticker"]}.{settings.FILE_EXT}')
-            
+            file_name = os.path.join(settings.CACHE_DIR, f'{timestamp}_{args["ticker"]}.{settings.FILE_EXT}')
             logger.debug(f'Checking for {args["ticker"]} prices in local cache.')
-            if os.path.isfile(buffer_store):
-                logger.debug(f'Loading in cached {args["ticker"]} prices.')
-                
-                prices = load_file(file_name=buffer_store)
-                return prices
-    
+            if os.path.isfile(file_name):
+                results = load_file(file_name=file_name)
+                return results
+
+        elif local_object == OBJECTS['statistic']:
+            file_name = os.path.join(settings.CACHE_DIR, f'{timestamp}_{args["stat_symbol"]}_{settings.CACHE_STAT_KEY}.{settings.FILE_EXT}')
+            logger.debug(f'Checking for {args["stat_symbol"]} statistics in cache')
+            if os.path.isfile(file_name):
+                results = load_file(file_name=file_name)
+                return results
+
     return None
 
 def parse_csv_response_column(column, url, firstRowHeader=None, savefile=None, zipped=None):
@@ -392,8 +402,7 @@ def save_moving_averages(tickers, averages_output, file_name):
 
 # TODO: this deletes subdirectories.
 # retain: keeps .gitkeep in directory
-# outdated_only: only deletes files with a timestamp != today
-def clear_directory(directory, retain=True, outdated_only=False):
+def clear_directory(directory, retain=True):
     """
     Description
     -----------
@@ -412,29 +421,11 @@ def clear_directory(directory, retain=True, outdated_only=False):
     """
     filelist = list(os.listdir(directory))
 
-    if outdated_only:
-        now = datetime.datetime.now()
-        timestamp = '{}{}{}'.format(now.month, now.day, now.year)
-        if retain:
-            for f in filelist:
-                filename = os.path.basename(f)
-                if filename != ".gitkeep" and timestamp not in filename:
-                    os.remove(os.path.join(directory, f))
-        else:
-            for f in filelist:
-                filename = os.path.basename(f)
-                if timestamp not in filename:
-                    os.remove(os.path.join(directory, f))
-
-    else:
-        if retain:
-            for f in filelist:
-                filename = os.path.basename(f)
-                if filename != ".gitkeep":
-                    os.remove(os.path.join(directory, f))
-        else:
-            for f in filelist:
-                os.remove(os.path.join(directory, f))
+    for f in filelist:
+        filename = os.path.basename(f)
+        if retain and filename == settings.KEEP_EXT:
+            continue
+        os.remove(os.path.join(directory, f))
 
 def is_non_zero_file(fpath):  
     return os.path.isfile(fpath) and os.path.getsize(fpath) > 0
