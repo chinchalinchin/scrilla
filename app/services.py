@@ -285,8 +285,7 @@ def query_service_for_daily_price_history(ticker, start_date=None, end_date=None
         logger.info("No PRICE_MANAGER set in .env file!")
         return False
 
-# Checks the file cache for price histories if start_date and end_date are 
-#   None. Otherwise, it hands the request off to the service manager.
+# Checks the file cache for price histories. Otherwise, it hands the request off to the service manager.
 # TODO: Crypto queries return all dates and price even if no start_date is provided.
 #       Need to truncuate crypto queries to last 100 days for caching. 
 def get_daily_price_history(ticker, start_date=None, end_date=None):
@@ -300,28 +299,20 @@ def get_daily_price_history(ticker, start_date=None, end_date=None):
     ------
     { date (str) : price (str) }
         List of prices and their corresponding dates. 
-    Notes
-    -----
-    Only recent prices are cached, i.e. the last 100 days of prices. Calls for other periods of time will not be cached and can take considerably longer to load, due to the API rate limits on AlphaVantage. This function
-    should only be used to retrieve the last 100 days of prices. 
     """
 
-    if start_date is None and end_date is None:
-        prices = files.retrieve_local_object(local_object=files.OBJECTS['prices'], args={"ticker": ticker})
-        
-        if prices is not None:
-            return prices
-        
-        logger.debug(f'Retrieving {ticker} prices from Service Manager.')  
-        prices = query_service_for_daily_price_history(ticker=ticker)
-
-        files.store_local_object(local_object=files.OBJECTS['prices'],value=prices, args={"ticker": ticker})
+    prices = files.retrieve_local_object(local_object=files.OBJECTS['prices'], 
+                                                args={"ticker": ticker, "start_date": start_date, "end_date": end_date})
+    if prices is not None:
         return prices
-    
-    logger.info('No cached prices for date ranges past default. Passing to service call.')
+        
+    logger.debug(f'Retrieving {ticker} prices from Service Manager.')  
     prices = query_service_for_daily_price_history(ticker=ticker, start_date=start_date, end_date=end_date)
-    return prices
 
+    files.store_local_object(local_object=files.OBJECTS['prices'],value=prices, 
+                                args={"ticker": ticker, "start_date": start_date, "end_date": end_date})
+    return prices
+    
 def get_daily_price_latest(ticker):
     if settings.PRICE_MANAGER == "alpha_vantage":
         asset_type = markets.get_asset_type(ticker)

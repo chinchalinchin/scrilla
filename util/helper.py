@@ -278,6 +278,7 @@ def get_time_to_next_period(starting_date, period):
         starting_date += datetime.timedelta(days=floored_days)
     
     return ((today - starting_date).days / 365)
+
 ################################################
 ##### PARSING FUNCTIONS
 

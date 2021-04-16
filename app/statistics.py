@@ -468,6 +468,12 @@ def calculate_risk_return(ticker, start_date=None, end_date=None, sample_prices=
     NOTE #1: assumes price history is ordered from latest to earliest date. \n \n 
     """
 
+    results = files.retrieve_local_object(local_object=files.OBJECTS['risk_profile'], 
+                                            args = { "ticker": ticker, "start_date": start_date, 
+                                                     "end_date": end_date })
+    if results is not None:
+        return results
+
     if asset_type is None:
         asset_type = markets.get_asset_type(ticker)
     trading_period = markets.get_trading_period(asset_type)
@@ -476,20 +482,9 @@ def calculate_risk_return(ticker, start_date=None, end_date=None, sample_prices=
         logger.debug("Asset did not map to (crypto, equity) grouping")
         return None
 
-    if sample_prices is None:
-        if start_date is None and end_date is None:
-            logger.debug(f'Checking for cached {ticker} statistics.')
-
-            results = files.retrieve_local_object(local_object=files.OBJECTS['risk_profile'], 
-                                                        args = { "ticker": ticker })
-            
-            if results is not None:
-                return results
-            logger.debug(f'No cached {ticker} statistics found, calling service.')
-            prices = services.get_daily_price_history(ticker=ticker)
-        else: 
-            logger.debug('No sample prices provided, calling service.')
-            prices = services.get_daily_price_history(ticker=ticker, start_date=start_date, end_date=end_date)
+    if sample_prices is None: 
+        logger.debug('No sample prices provided, calling service.')
+        prices = services.get_daily_price_history(ticker=ticker, start_date=start_date, end_date=end_date)
     else:
         logger.debug(f'{ticker} sample prices provided, skipping service call.')
         prices = sample_prices
@@ -585,25 +580,19 @@ def calculate_ito_correlation(ticker_1, ticker_2, asset_type_1=None, asset_type_
     NOTE #3: does not cache correlation if start_date and end_date are specified, 
           i.e. only caches current correlation from the last 100 days.\n \n
     """
+    correlation = files.retrieve_local_object(local_object=files.OBJECTS['correlation'], 
+                                                args = { "ticker_1": ticker_1, "ticker_2": ticker_2, 
+                                                         "start_date": start_date, "end_date": end_date})
+    if correlation is not None:
+        return correlation
+
     if sample_prices is None:
-        logger.debug('No sample prices provided.')
         sample_prices = {}
-        
-        if (start_date is None and end_date is None):
-            correlation = files.retrieve_local_object(local_object=files.OBJECTS['correlation'], 
-                                                                args = { "ticker_1": ticker_1, "ticker_2": ticker_2})
-            if correlation is not None:
-                return correlation
-                
-            logger.debug(f'No cached ({ticker_1}, {ticker_2}) correlation found, retrieving price histories for calculation.')
-            prices_1 = services.get_daily_price_history(ticker=ticker_1)
-            prices_2 = services.get_daily_price_history(ticker=ticker_2)
-            sample_prices[ticker_1], sample_prices[ticker_2] = prices_1, prices_2
-        else:
-            logger.debug('No sample prices provided, retrieving price histories for calculation.')
-            prices_1 = services.get_daily_price_history(ticker=ticker_1, start_date=start_date, end_date=end_date)
-            prices_2 = services.get_daily_price_history(ticker=ticker_2, start_date=start_date, end_date=end_date)
-            sample_prices[ticker_1], sample_prices[ticker_2] = prices_1, prices_2
+        logger.debug(f'No sample prices provided or cached ({ticker_1}, {ticker_2}) correlation found.')
+        logger.debug(f'Retrieving price histories for calculation.')
+        prices_1 = services.get_daily_price_history(ticker=ticker_1, start_date=start_date, end_date=end_date)
+        prices_2 = services.get_daily_price_history(ticker=ticker_2, start_date=start_date, end_date=end_date)
+        sample_prices[ticker_1], sample_prices[ticker_2] = prices_1, prices_2
 
     else:
         logger.debug('Sample prices provided, skipping service calls.')
@@ -746,9 +735,9 @@ def calculate_ito_correlation(ticker_1, ticker_2, asset_type_1=None, asset_type_
 
     result = { 'correlation' : correlation }
 
-    if (start_date is None and end_date is None):
-        files.store_local_object(local_object=files.OBJECTS['correlation'], value=result,
-                                        args={ "ticker_1": ticker_1, "ticker_2": ticker_2})
+    files.store_local_object(local_object=files.OBJECTS['correlation'], value=result,
+                                args={ "ticker_1": ticker_1, "ticker_2": ticker_2, 
+                                        "start_date": start_date, "end_date": end_date})
     return result
 
 def get_ito_correlation_matrix_string(tickers, indent=0, start_date=None, end_date=None, sample_prices=None):

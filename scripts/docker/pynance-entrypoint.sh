@@ -27,8 +27,9 @@ then
     log "Invoking \e[2mpynance CLI\e[0m to initalize \e[3m/static/\e[0m directory; This may take a while!" $SCRIPT_NAME
     python main.py -init-static
 
-    log "Clearing \e[3m/cache/\e[0m directory of outdated price histories." $SCRIPT_NAME
-    python -c "$CLEAR_CACHE"
+    # TODO: argument to clear cache.
+    # log "Clearing \e[3m/cache/\e[0m directory of outdated price histories." $SCRIPT_NAME
+    # python -c "$CLEAR_CACHE"
 
     log "Logging Non-sensitive Django settings" $SCRIPT_NAME
     python -c "$LOG_DJANGO_SETTINGS"

@@ -126,9 +126,6 @@ if __name__ == "__main__":
 
         # variable argument functions
         else:
-            logger.debug('Clearing /cache/ directory of outdated data.')
-            files.clear_directory(directory=settings.CACHE_DIR, retain=True, outdated_only=True)
-
             logger.debug('Initialzing /static/ directory, if applicable.')
             files.init_static_data()
             

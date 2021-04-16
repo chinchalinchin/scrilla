@@ -109,6 +109,7 @@ FILE_EXT = os.environ.setdefault("FILE_EXT", "json")
 
 CACHE_DIR = os.path.join(APP_DIR, 'data', 'cache')
 CACHE_STAT_KEY = "statistics"
+CACHE_COR_KEY = "correlation"
 
 STATIC_DIR = os.path.join(APP_DIR, 'data', 'static')
 

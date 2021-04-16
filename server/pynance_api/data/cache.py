@@ -10,27 +10,17 @@ import util.outputter as outputter
 
 import app.markets as markets
 import app.settings as app_settings
-import app.services as services
 import app.statistics as statistics
+import app.files as files
 
 logger = outputter.Logger("server.pynance_api.data.cache", settings.LOG_LEVEL)
-
-def determine_date_range(start_date=None, end_date=None):
-    if start_date is None and end_date is None:
-        end_date = helper.decrement_date_by_business_days(start_date=helper.get_today(), business_days=1)
-        start_date = helper.decrement_date_by_business_days(end_date, app_settings.DEFAULT_ANALYSIS_PERIOD)
-    elif start_date is None:
-        start_date = helper.decrement_date_by_business_days(end_date, app_settings.DEFAULT_ANALYSIS_PERIOD)
-    elif end_date is None:
-        end_date = helper.decrement_date_by_business_days(start_date=helper.get_today(), business_days=1)
-    return start_date, end_date
 
 # NOTE: The EquityProfileCache object is created when the cache is initially
 #        checked for the result.
 def save_profile(profile, this_ticker, start_date=None, end_date=None):
-    ticker = EquityTicker.objects.get(this_ticker=ticker)
+    ticker = EquityTicker.objects.get(this_ticker=this_ticker)
     
-    start_date, end_date = determine_date_range(start_date=start_date, end_date=end_date)
+    start_date, end_date = files.determine_analysis_date_range(start_date=start_date, end_date=end_date)
         
     result = EquityProfileCache.objects.get(ticker=ticker, start_date=start_date, end_date=end_date)
 
@@ -48,7 +38,7 @@ def save_correlation(correlation, this_ticker_1, this_ticker_2, start_date=None,
     ticker_1 = EquityTicker.objects.get(ticker=this_ticker_1)
     ticker_2 = EquityTicker.objects.get(ticker=this_ticker_2)
 
-    start_date, end_date = determine_date_range(start_date=start_date, end_date=end_date)
+    start_date, end_date = files.determine_analysis_date_range(start_date=start_date, end_date=end_date)
 
     logger.debug(f'Saving {this_ticker_1}_{this_ticker_2} correlation to database cache')
     correl_cache_1 = EquityCorrelationCache.objects.get(ticker_1=ticker_1, 
@@ -72,7 +62,7 @@ def save_correlation(correlation, this_ticker_1, this_ticker_2, start_date=None,
 #        recursively correctly.
 def check_for_profile(ticker, start_date=None, end_date=None):
     ticker = EquityTicker.objects.get_or_create(ticker=ticker)
-    start_date, end_date = determine_date_range(start_date=start_date, end_date=end_date)
+    start_date, end_date = files.determine_analysis_date_range(start_date=start_date, end_date=end_date)
     result = EquityProfileCache.objects.get_or_create(ticker=ticker[0], 
                                                         start_date=start_date,
                                                         end_date=end_date)
@@ -125,7 +115,7 @@ def check_for_correlation(this_ticker_1, this_ticker_2, start_date=None, end_dat
     ticker_1 = EquityTicker.objects.get(ticker=this_ticker_1)
     ticker_2 = EquityTicker.objects.get(ticker=this_ticker_2)
 
-    start_date, end_date = determine_date_range(start_date=start_date, end_date=end_date)
+    start_date, end_date = files.determine_analysis_date_range(start_date=start_date, end_date=end_date)
 
     correl_cache_1 = EquityCorrelationCache.objects.get_or_create(ticker_1=ticker_1, 
                                                                     ticker_2=ticker_2, 
@@ -176,7 +166,7 @@ def check_for_correlation(this_ticker_1, this_ticker_2, start_date=None, end_dat
 # TODO: mix of asset types. actually, does it matter at this point? all conversion should
 #       happen in statistics.py, if I'm not mistaken.
 def build_correlation_matrix(these_tickers, start_date=None, end_date=None, sample_prices=None):
-    start_date, end_date = determine_date_range(start_date=start_date, end_date=end_date)
+    start_date, end_date = files.determine_analysis_date_range(start_date=start_date, end_date=end_date)
     correlation_matrix = [[0 for x in range(len(these_tickers))] for y in range(len(these_tickers))]
 
     logger.debug('Building correlation matrix.')

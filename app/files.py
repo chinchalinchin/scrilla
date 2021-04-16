@@ -12,6 +12,7 @@ import util.outputter as outputter
 import util.helper as helper
 
 # os.environ.setdefault("DJANGO_SETTINGS_MODULE", "core.settings")
+
 CLOSE_PRICE = "close"
 OPEN_PRICE = "open"
 
@@ -21,6 +22,21 @@ OBJECTS={
     "prices": 3
 }
 logger = outputter.Logger("app.files", settings.LOG_LEVEL)
+
+def determine_analysis_date_range(start_date=None, end_date=None):
+    if end_date is None:
+        end_date = helper.decrement_date_by_business_days(start_date=helper.get_today(), business_days=1)
+    if start_date is None:
+        start_date = helper.decrement_date_by_business_days(end_date, settings.DEFAULT_ANALYSIS_PERIOD)
+    
+    return start_date, end_date
+
+def generate_timestamp(args):
+    start_date = args.get('start_date')
+    end_date = args.get('end_date')
+    start_date, end_date = determine_analysis_date_range(start_date=start_date, end_date=end_date)
+    timestamp = '{}_{}'.format(helper.date_to_string(start_date),helper.date_to_string(end_date))
+    return timestamp
 
 def load_file(file_name):
     with open(file_name, 'r') as infile:
@@ -41,30 +57,31 @@ def save_file(file_to_save, file_name):
 
 def store_local_object(local_object, value, args):
     if settings.LOCAL_CACHE:
-        now = datetime.datetime.now()
-        timestamp = '{}{}{}'.format(now.month, now.day, now.year)
+        timestamp = generate_timestamp(args=args)
         
         if local_object == OBJECTS['correlation']:
+            # TODO: save second file 
             logger.debug(f'Storing ({args["ticker_1"]}, {args["ticker_2"]}) correlation in local cache.')
-            buffer_store= os.path.join(settings.CACHE_DIR, f'{timestamp}_{args["ticker_1"]}_{args["ticker_2"]}_correlation.{settings.FILE_EXT}')
+            file_name = f'{timestamp}_{args["ticker_1"]}_{args["ticker_2"]}_{settings.CACHE_COR_KEY}.{settings.FILE_EXT}'
+            file_name_2 = f'{timestamp}_{args["ticker_2"]}_{args["ticker_1"]}_{settings.CACHE_COR_KEY}.{settings.FILE_EXT}'
         if local_object == OBJECTS['prices']:
             logger.debug(f'Storing {args["ticker"]} price history in local cache.')
-            buffer_store= os.path.join(settings.CACHE_DIR, f'{timestamp}_{args["ticker"]}.{settings.FILE_EXT}')
+            file_name=f'{timestamp}_{args["ticker"]}.{settings.FILE_EXT}'
         if local_object == OBJECTS['risk_profile']:
             logger.debug(f'Storing {args["ticker"]} risk profile in local cache.')
-            buffer_store= os.path.join(settings.CACHE_DIR, f'{timestamp}_{args["ticker"]}_{settings.CACHE_STAT_KEY}.{settings.FILE_EXT}')
-
+            file_name= f'{timestamp}_{args["ticker"]}_{settings.CACHE_STAT_KEY}.{settings.FILE_EXT}'
+        
+        buffer_store= os.path.join(settings.CACHE_DIR, file_name)
         return save_file(file_to_save=value, file_name=buffer_store)
     return False
 
 def retrieve_local_object(local_object, args):
     if settings.LOCAL_CACHE:
-        now = datetime.datetime.now()
-        timestamp = '{}{}{}'.format(now.month, now.day, now.year)
+        timestamp = generate_timestamp(args=args)
         
         if local_object == OBJECTS['correlation']:
             buffer_store_1= os.path.join(settings.CACHE_DIR, f'{timestamp}_{args["ticker_1"]}_{args["ticker_2"]}_correlation.{settings.FILE_EXT}')
-            buffer_store_2= os.path.join(settings.CACHE_DIR, f'{timestamp}_{args["ticker_2"]}_{args["ticker_2"]}_correlation.{settings.FILE_EXT}')
+            buffer_store_2= os.path.join(settings.CACHE_DIR, f'{timestamp}_{args["ticker_2"]}_{args["ticker_1"]}_correlation.{settings.FILE_EXT}')
 
             logger.debug(f'Checking for ({args["ticker_1"]}, {args["ticker_2"]}) correlation calculation in local cache.')
             if os.path.isfile(buffer_store_1):
@@ -86,6 +103,8 @@ def retrieve_local_object(local_object, args):
                 return results
         
         if local_object == OBJECTS['prices']:
+            # TODO: with different time stamp implementation, this part of the method should search for price histories that contain
+            # the range in start_date and end_date.
             buffer_store= os.path.join(settings.CACHE_DIR, f'{timestamp}_{args["ticker"]}.{settings.FILE_EXT}')
             
             logger.debug(f'Checking for {args["ticker"]} prices in local cache.')
