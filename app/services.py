@@ -286,8 +286,6 @@ def query_service_for_daily_price_history(ticker, start_date=None, end_date=None
         return False
 
 # Checks the file cache for price histories. Otherwise, it hands the request off to the service manager.
-# TODO: Crypto queries return all dates and price even if no start_date is provided.
-#       Need to truncuate crypto queries to last 100 days for caching. 
 def get_daily_price_history(ticker, start_date=None, end_date=None):
     """
     Parameters

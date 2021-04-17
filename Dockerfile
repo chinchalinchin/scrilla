@@ -18,8 +18,7 @@ COPY /server/ /home/server/
 COPY /scripts/ /home/scripts/
 COPY /util/ /home/util/
 COPY /main.py /home/main.py
-RUN mkdir -p ./data/cache/ && mkdir -p ./data/static/
-RUN chown -R pynance:pyadmin /home/ && chmod -R 770 /home/
+RUN mkdir -p ./data/cache/ && mkdir -p ./data/static/ && chown -R pynance:pyadmin /home/ && chmod -R 770 /home/
 
 # ENTRYPOINT CONFIGURATION
 VOLUME /home/data/cache/ /home/data/static/

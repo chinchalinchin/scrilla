@@ -9,6 +9,7 @@ data/common/*
 !/data/common/latex/*
 data/sql/*
 !/data/sql/.gitkeep
+data/tests/*
 *.pyc
 /server/pynance_api/db.sqlite3
 /frontend/pynance-web/node_modules

@@ -27,10 +27,9 @@ logger = outputter.Logger("app.files", settings.LOG_LEVEL)
 
 def determine_analysis_date_range(start_date=None, end_date=None):
     if end_date is None:
-        end_date = helper.decrement_date_by_business_days(start_date=helper.get_today(), business_days=1)
+        end_date = helper.get_previous_business_date(date=helper.get_today())
     if start_date is None:
         start_date = helper.decrement_date_by_business_days(end_date, settings.DEFAULT_ANALYSIS_PERIOD)
-    
     return start_date, end_date
 
 def generate_timestamp(args):

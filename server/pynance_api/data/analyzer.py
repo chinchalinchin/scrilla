@@ -47,6 +47,9 @@ def market_queryset_gap_analysis(symbol, start_date=None, end_date=None):
     gaps = len(date_range) - queryset.count()
     if gaps != 0: 
         logger.info(f'{gaps} gaps detected.')
+        # NOTE: get_daily_price_history goes through local cache, where as query_service_for_daily_price_history
+        #       is a raw HTTP call to external service. May consider pinging the API directly instead of going
+        #       through cache. Not sure if having that extra layer is faster or not.
         price_history = services.get_daily_price_history(ticker=symbol, start_date=start_date, 
                                                                         end_date=end_date)
         count = 0

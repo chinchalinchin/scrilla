@@ -84,7 +84,6 @@ class CryptoMarket(models.Model):
         return '{} {} : {}'.format(self.ticker, self.date, self.closing_price)
     
     def to_dict(self):
-        date_string = helper.date_to_string(self.date)
         formatted_self = {}
         formatted_self[app_settings.AV_RES_CRYPTO_OPEN_PRICE] = float(self.open_price)
         formatted_self[app_settings.AV_RES_CRYPTO_CLOSE_PRICE] = float(self.close_price) 

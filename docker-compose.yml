@@ -15,14 +15,14 @@ services:
         - ./env/container.env
       command: ["wait-for-it"]
 
-    # web:
-      # image: pynance-web:latest
-      # ports: 
-        # - "8080:8080"
-      # networks:
-        # - the_pit
-      # env_file:
-        # - ./env/container.env
+    web:
+      image: pynance-web:latest
+      ports: 
+        - "8080:8080"
+      networks:
+        - the_pit
+      env_file:
+        - ./env/container.env
         
     datasource:
       image: postgres:11
@@ -36,10 +36,10 @@ services:
       env_file:
         - ./env/container.env 
     
-    queue:
-      image: redis:alpine
-      networks:
-        - the_pit
+    # queue:
+      # image: redis:alpine
+      # networks:
+        # - the_pit
 
 networks:
     the_pit: 
