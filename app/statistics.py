@@ -740,7 +740,44 @@ def calculate_ito_correlation(ticker_1, ticker_2, asset_type_1=None, asset_type_
                                         "start_date": start_date, "end_date": end_date})
     return result
 
-def get_ito_correlation_matrix_string(tickers, indent=0, start_date=None, end_date=None, sample_prices=None):
+def ito_correlation_matrix(tickers, asset_types=None, start_date=None, end_date=None, sample_prices=None):
+    correlation_matrix = [[0 for x in range(len(tickers))] for y in range(len(tickers))]
+    if(len(tickers) > 1):
+        for i in range(len(tickers)):
+            correlation_matrix[i][i] = 1
+            for j in range(i+1, len(tickers)):
+                if asset_types is None:
+                    cor_list = calculate_ito_correlation(ticker_1 = tickers[i], ticker_2=tickers[j],
+                                                                start_date = start_date, end_date = end_date,
+                                                                sample_prices = sample_prices)
+                else:
+                    cor_list = calculate_ito_correlation(ticker_1 = tickers[i], ticker_2=tickers[j],
+                                                            asset_type_1=asset_types[i], asset_type_2=asset_types[j],
+                                                            start_date = start_date, end_date = end_date,
+                                                            sample_prices = sample_prices)
+                if cor_list is None:
+                    #TODO: raise Exception
+                    return False
+                correlation = cor_list['correlation']
+                if correlation is None:
+                    #TODO: raise Exception
+                    return False
+
+                correlation_matrix[i][j] = correlation
+                correlation_matrix[j][i] = correlation_matrix[i][j]
+            correlation_matrix[len(tickers) - 1][len(tickers) - 1] = 1
+        return correlation_matrix
+    elif (len(tickers)==1):
+        correlation_matrix[0][0]=1
+        return correlation_matrix
+    else:
+        logger.debug('Cannot calculate correlation matrix for portfolio size < 1.')
+        # TODO: raise exception
+        return False
+
+def get_ito_correlation_matrix_string(tickers, indent=0, start_date=None, 
+                                        end_date=None, sample_prices=None,
+                                        correlation_matrix=None):
     """
     Parameters
     ----------
@@ -782,7 +819,11 @@ def get_ito_correlation_matrix_string(tickers, indent=0, start_date=None, end_da
             
             else:
                 that_symbol = tickers[j]
-                result = calculate_ito_correlation(this_symbol, that_symbol, start_date, end_date, sample_prices) 
+                if correlation_matrix is None:
+                    result = calculate_ito_correlation(this_symbol, that_symbol, start_date, end_date, sample_prices) 
+                else:
+                    result = correlation_matrix[i][j]
+                # TODO: raise exception instead of returning false!
                 if not result:
                     logger.debug(f'Cannot correlation for ({this_symbol}, {that_symbol})')
                     return False
