@@ -107,8 +107,12 @@ export class PynanceService {
     return this.http.get<Holding[]>(queryUrl)
                       .pipe(
                         map((data) =>{
+                          console.log(data);
                           let holdings : Holding[] = []
-                          Object.entries(data).forEach((element)=>{holdings.push(element[1])})
+                          Object.entries(data).forEach((element)=>{
+                            element[1]['ticker']=element[0]
+                            holdings.push(element[1])
+                          })
                           return holdings;
                         }),
                         tap( _ => {this.logs.log(`Received response from backend risk profile endpoint`, this.location)}),

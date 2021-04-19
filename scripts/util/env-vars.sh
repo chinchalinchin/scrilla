@@ -8,8 +8,7 @@ log "Verifying \e[3m$1.env\e[0m file existence." "env-vars"
 
 if [ -f "$SCRIPT_DIR/../../env/$1.env" ]
 then
-    log "Environment file detected." "env-vars"
-    log 'Initializing environment.' "env-vars"
+    log "Environment file detected. Initializing..." "env-vars"
     set -o allexport
     source $SCRIPT_DIR/../../env/$1.env
     set +o allexport

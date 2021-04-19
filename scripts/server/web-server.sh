@@ -1,5 +1,5 @@
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-SCRIPT_NAME='pynance-server'
+SCRIPT_NAME='web-server'
 nl=$'\n'
 tab="     "
 ind="   "
@@ -30,7 +30,10 @@ else
         source $UTIL_DIR/env-vars.sh local
 
         cd $FRONTEND_DIR
-        log "Launching Angular Development server on \e[3mlocalhost:$WEB_PORT\e[0m" $SCRIPT_NAME
+        log "Installing Node dependencies." $SCRIPT_NAME
+        npm install 
+
+        log "Launching Angular Development server on \e[3mlocalhost:$WEB_PORT\e[0m." $SCRIPT_NAME
         ng serve --port $WEB_PORT
     fi
 

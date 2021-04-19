@@ -69,8 +69,8 @@ def plot_profiles(symbols, profiles, show=True, savefile=None, subtitle=None):
 
     return_profile, risk_profile = [], []
     for profile in profiles:
-        return_profile.append(profile['annual_return'])
-        risk_profile.append(profile['annual_volatility'])
+        return_profile.append(profiles[profile]['annual_return'])
+        risk_profile.append(profiles[profile]['annual_volatility'])
 
     axes.plot(risk_profile, return_profile, linestyle='None', marker= ".", markersize=10.0)
     axes.set_xlabel('Volatility')

@@ -310,10 +310,10 @@ if __name__ == "__main__":
             ### FUNCTION: Plot Risk-Return Profile
             elif opt == formatter.FUNC_ARG_DICT['plot_risk_profile']:
                 def cli_plot_risk_profile():
-                    profiles = []
+                    profiles = {}
                     for arg in main_args:
-                        profiles.append(statistics.calculate_risk_return(ticker=arg, start_date=xtra_list['start_date'], 
-                                                                            end_date=xtra_list['end_date']))
+                        profiles[arg]=statistics.calculate_risk_return(ticker=arg, start_date=xtra_list['start_date'], 
+                                                                            end_date=xtra_list['end_date'])
                     plotter.plot_profiles(symbols=main_args, profiles=profiles, show=True, 
                                             savefile=xtra_list['save_file'], 
                                             subtitle=helper.format_date_range(start_date=xtra_list['start_date'], 
