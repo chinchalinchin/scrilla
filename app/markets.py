@@ -5,7 +5,7 @@ import app.services as services
 import app.files as files
 from app.objects.cashflow import Cashflow
 
-import util.outputter as outputter
+import app.util.outputter as outputter
 
 MODEL_DDM="ddm"
 # TODO: implement dcf model

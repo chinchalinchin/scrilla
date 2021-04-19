@@ -1,7 +1,7 @@
 import scipy.optimize as optimize
 
 import app.settings as settings
-import util.outputter as outputter
+import app.util.outputter as outputter
 
 logger = outputter.Logger('app.optimizer', settings.LOG_LEVEL)
 

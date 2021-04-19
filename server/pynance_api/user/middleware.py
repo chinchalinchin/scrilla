@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
 
 import app.settings as app_settings
-import util.outputter as outputter
+import app.util.outputter as outputter
 
 class APIKeyMiddleware:
     def __init__(self, get_response):

@@ -1,0 +1,223 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>API &#8212; pynance-docs 1.0 documentation</title>
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="api">
+<h1>API<a class="headerlink" href="#api" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="endpoints">
+<h2>Endpoints<a class="headerlink" href="#endpoints" title="Permalink to this headline">¶</a></h2>
+<p>Some endpoints have unique query parameters, but all endpoints accept the following list of query parameters. See below for more information.</p>
+<div class="section" id="query-parameters">
+<h3>Query Parameters<a class="headerlink" href="#query-parameters" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p><i>tickers</i>: an array of the stock/crypto tickers (specified by repeated instances of the <i>tickers</i> parameters).<br></p></li>
+<li><p><i>start</i>: start date of calculation’s time period. If not provided, defaults to 100 days ago. Format: YYYY-MM-DD<br></p></li>
+<li><p><i>end</i>: end date of calculation’s time period. If not provided, defaults to today. Format: YYYY-MM-DD<br></p></li>
+<li><p><i>jpeg</i>: will visualize and return the result as a JPEG. If not provided, defaults to <i>False</i>. Format: true, false. Case insensitive.<br></p></li>
+</ul>
+<ol>
+<li><h2>/api/risk-return</h2>
+ <b>Description</b><br>
+ Returns the annualized mean return and the annualized volatility over the specified date range for the supplied list of ticker symbols.<br><br>
+<p><b>Examples</b><br></p>
+<ul class="simple">
+<li><p>/api/risk-return?tickers=ALLY&amp;tickers=SNE&amp;tickers=GME<br></p></li>
+<li><p>/api/risk-return?tickers=TSLA&amp;start=2020-03-22<br><br></p></li>
+</ul>
+<p><b>Response JSON</b><br></p>
+<blockquote>
+<div><p>{ <br>
+‘annual_return’: double, <br>
+‘annual_volatility’: double, <br>
+‘sharpe_ratio’: double
+}<br><br></p>
+</div></blockquote>
+</li>
+<li><h2>/api/optimize</h2>
+ <b>Description</b><br>
+ Returns the optimal portfolio allocation (i.e. the portfolio with the minimal volatility) for the supplied list of ticker subject to the target return. If no target return is specified, the portfolio's volatility is minimized without constraints.<br><br>
+<p><b>Additional Query Parameters</b><br></p>
+<ul class="simple">
+<li><p><i>target</i>: Optional. The target return subject to which the portfolio will be optimized. If nothing is provided, function will minimize portfolio variance.<br></p></li>
+<li><p><i>sharpe</i>: Optional. Defaults to <i>false.</i> If a value of <i>true</i> is provided, the optimization function will <b>maximize</b> the portfolio’s Sharpe ratio instead of minimizing the portfolio’s volatility.<br><br>
+<b>Examples</b><br></p></li>
+<li><p>/api/optimize?tickers=SRAC&amp;tickers=SPCE&amp;tickers=AMZN<br></p></li>
+<li><p>/api/optimize?tickers=FB&amp;tickers=GOOG&amp;tickers=AMZN&amp;tickers=NFLX&amp;target=0.68<br><br></p></li>
+</ul>
+<p><b>Response JSON</b><br></p>
+<blockquote>
+<div><p>{<br>
+‘portfolio_return’: double, <br>
+‘portfolio_volatility’: double,<br>
+‘allocations’: {<br>
+    ‘ticker_allocation’: double,<br>
+    ‘ticker_allocation’: double,<br>
+    …<br>
+}<br>
+}<br></p>
+</div></blockquote>
+</li>
+<li><h2>/api/efficient-frontier</h2>
+ <b>Description</b><br>
+ Returns the efficient-frontier of a portfolio defined by the supplied list of tickers. Each point on the frontier tier consists of a mean annualized return, an annualized volatility and the portfolio allocations necessary to generate those two statistics.<br><br>
+<ul class="simple">
+<li><p><i>sharpe</i>: Optional. Defaults to <i>false.</i> If a value of <i>true</i> is provided, the optimization function will <b>maximize</b> the portfolio’s Sharpe ratio instead of minimizing the portfolio’s volatility.<br><br></p></li>
+</ul>
+<p><b>Examples</b><br>
+-/api/efficient-frontier?tickers=ENPH&amp;tickers=TTWO&amp;tickers=ATVI&amp;tickers=DE<br><br></p>
+<p><b>Response JSON</b><br></p>
+<blockquote>
+<div><p>{<br>
+‘portfolio_1’: { <br>
+    ‘portfolio_return’: double, <br>
+    ‘portfolio_volatility’: double,<br>
+    ‘allocations’: {<br>
+        ‘ticker_allocation’: double,<br>
+        ‘ticker_allocation’: double,<br>
+        …<br>
+    }<br>
+},<br>
+‘portfolio_2’: { <br>
+    ‘portfolio_return’: double,<br>
+    ‘portfolio_volatility’: double,<br>
+    ‘allocations’: {<br>
+        ‘ticker_allocation’: double,<br>
+        ‘ticker_allocation’: double,<br>
+        …<br>
+    }<br>
+},<br>
+…<br>
+}</p>
+</div></blockquote>
+</li>
+<li><h2>/api/moving-averages</h2>
+ <b>Description</b><br>
+ Returns the moving average of the return over the specified dates. The response will include three moving averages series with periods defined by the <b>MA_1</b>, <b>MA_2</b> and <b>MA_3</b> environment variables. In the future, this endpoint will accept user defined periods through request parameters. Note: if no start-date and end-date are supplied, this endpoint will return a snapshot of the current moving averages, not a time series.<br><br>
+<p><b>Examples</b><br><br></p>
+<p><b>Response JSON</b><br></p>
+<blockquote>
+<div><p>{ <br>
+‘ticker’:{ <br>
+    ‘ticker_MA_1’:{ <br>
+        ‘date’: double, <br>
+        ‘date’: double, <br>
+        … <br>
+    }, <br>
+    ‘ticker_MA_2:{ <br>
+        ‘date’: double, <br>
+        … <br>
+    }, <br>
+    ‘ticker_MA_3’: { <br>
+        ‘date’: double, <br>
+        … <br>
+    }<br>
+}<br></p>
+</div></blockquote>
+</li>
+<li><h2>/api/discount-dividend-model</h2>
+ <b>Description</b><br>
+ Returns the discount dividend model price for the given list of equities. Historical dividend prices are regressed against the distribution date and this linear equation is used to project future dividend cash flows. An additional parameter <i>discount</i> (see below) can be used to specify the rate used to discount the modeled future dividend cash flows.<br><br>
+<p><b>Additional Query Parameters</b><br></p>
+<ul class="simple">
+<li><p><i>discount</i>: Optional. The rate of return used to discount future dividend payments. If nothing is provided, the function will default to the cost of equity capital as estimated by the CAPM model.<br><br></p></li>
+</ul>
+<p><b>Examples</b><br></p>
+<p><b>Response JSON</b><br></p>
+<p><b>Note</b><br>
+If the <i>jpeg</i> parameter is specified for this endpoint, the resulting graph will only contain the plot of the first ticker’s dividend history and its accompanying linear regression model; only one equity’s dividend graphic can be computed and returned at once. The DDM model price will be output onto the graph’s legend. <br><br></p>
+<ol>
+<li><h2>/api/correlation</h2>
+</li>
+</ol>
+<p><b>Description</b><br>
+Returns the correlation matrix for the given list of assets (currently supports crypto and equities; cross-correlation between different asset types may still have some hiccups…) over the specific date range.</p>
+<p><b>Examples</b><br></p>
+<p><b>Response JSON</b><br></p>
+<p><b>Note<b><br>
+This endpoint does not currently support the <i>jpeg</i> endpoint parameters. In the future, if provided, the endpoint will return a time series of the correlations. Need to think about how to efficiently calculate such a complex operation.</p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">pynance-docs</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2021, Grant Moore.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.8</a>
+      
+      |
+      <a href="../_sources/wsgi-application/API.md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

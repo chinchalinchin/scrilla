@@ -12,12 +12,12 @@ from app.objects.cashflow import Cashflow
 
 if settings.APP_ENV != "container":
     from PyQt5 import QtWidgets
-    import gui.menu as menu
-    import util.plotter as plotter
+    import app.gui.menu as menu
+    import app.util.plotter as plotter
 
-import util.helper as helper
-import util.outputter as outputter
-import util.formatter as formatter
+import app.util.helper as helper
+import app.util.outputter as outputter
+import app.util.formatter as formatter
 
 logger = outputter.Logger('main', settings.LOG_LEVEL)
 

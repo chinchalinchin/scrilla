@@ -1,0 +1,165 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Statistics Module &#8212; pynance-docs 1.0 documentation</title>
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="statistics-module">
+<h1>Statistics Module<a class="headerlink" href="#statistics-module" title="Permalink to this headline">¶</a></h1>
+<p>This module provides functions for calculating basic sample statistics for any set of sample data and for quickly calculating statistics on a rolling sample taken from a incrementing time series (See <a class="reference external" href="#Rolling-Recursive-Functions">Rolling Recursive Functions</a> for more info). In addition, this module also provides functions for calculating fundamental financial statistics using <a class="reference external" href="https://en.wikipedia.org/wiki/It%C3%B4_calculus">Ito Calculus</a>.</p>
+<ol class="simple">
+<li><p>def sample_mean(x) : <br></p>
+<ul class="simple">
+<li><p>[x = Iterable] : Sample of numerical data.<br></p></li>
+<li><p><b>Description</b>: <br></p></li>
+</ul>
+</li>
+<li><p>def sample_variance(x) : <br></p>
+<ul class="simple">
+<li><p>[x = Iterable] : Sample of numerical data<br></p></li>
+<li><p><b>Description</b> : <br></p></li>
+</ul>
+</li>
+<li><p>def sample_covariance(x, y) : <br></p>
+<ul class="simple">
+<li><p>[x = Iterable] : Sample of numerical data<br></p></li>
+<li><p>[y = Iterable] : Sample of numerical data<br></p></li>
+<li><p><b>Notes</b> : <code class="docutils literal notranslate"><span class="pre">len(x)==len(y)</span></code> or else function returns False.<br></p></li>
+<li><p><b>Description</b> : <br></p></li>
+</ul>
+</li>
+<li><p>def sample_correlation(x, y) : <br></p>
+<ul class="simple">
+<li><p>[x = Iterable] : Sample of numerical data<br></p></li>
+<li><p>[y = Iterable] : Sample of numerical data<br></p></li>
+<li><p><b>Notes</b> : <code class="docutils literal notranslate"><span class="pre">len(x)==len(y)</span></code> or else function returns False.<br></p></li>
+<li><p><b>Description</b> : <br></p></li>
+</ul>
+</li>
+<li><p>def regression_beta(x, y) : <br></p>
+<ul class="simple">
+<li><p>[x = Iterable] : Sample of independent data<br></p></li>
+<li><p>[y = Iterable] : Sample of dependent data<br></p></li>
+<li><p><b>Notes</b> : <code class="docutils literal notranslate"><span class="pre">len(x)==len(y)</span></code> or else function returns False.<br></p></li>
+<li><p><b>Description</b> : <br></p></li>
+</ul>
+</li>
+<li><p>def regression_alpha(x, y) : <br></p>
+<ul class="simple">
+<li><p>[x = Iterable]<br></p></li>
+<li><p>[y = Iterable]<br></p></li>
+<li><p><b>Notes</b> : <code class="docutils literal notranslate"><span class="pre">len(x)==len(y)</span></code> or else function returns False.<br></p></li>
+<li><p><b>Description</b> : <br></p></li>
+</ul>
+</li>
+</ol>
+<div class="section" id="rolling-recursive-functions">
+<h2>Rolling Recursive Functions<a class="headerlink" href="#rolling-recursive-functions" title="Permalink to this headline">¶</a></h2>
+<p>These functions assume sample statistics are calculated on a rolling sample taken from an incrementing time series. Each time period, the sample gains a new observation and loses its oldest observation. For example, at time <i>t</i>=0 we have the sample [1, 2, 3, 4] and then at time <i>t</i>=1 we lose the first sample of “1” and gain a sample of “5”, [2, 3, 4, 5]. These functions will calculate the new value of the given sample statistic in terms of its previous value, the new observation and the lost observation.</p>
+<ol class="simple">
+<li><p>def recursive_mean(xbar_previous, new_obs, lost_obs, n=settings.DEFAULT_ANALYSIS_PERIOD) : <br></p>
+<ul class="simple">
+<li><p>[xbar_previous -&gt; float] : Previous value of the sample mean<br></p></li>
+<li><p>[new_obs -&gt; float] : New sample observation<br></p></li>
+<li><p>[lost_obs -&gt; float] : Lost sample observation.<br></p></li>
+<li><p>[n -&gt; int] : Sample size. Defaults to the value set in the <b>DEFAULT_ANALYSIS_PERIOD</b> environment variable.<br></p></li>
+<li><p><b>Description</b> : Recursively calculates the current mean using the previous value of the sample mean, the new observation, the lost observation and the sample size.<br></p></li>
+<li><p><b>Justification</b> :   <strong>LATEX DERIVATION GOES HERE</strong></p></li>
+</ul>
+</li>
+<li><p>def recursive_variance</p></li>
+<li><p>def recursive_covariance</p></li>
+<li><p>def recursive correlation</p></li>
+</ol>
+</div>
+<div class="section" id="financial-statistics">
+<h2>Financial Statistics<a class="headerlink" href="#financial-statistics" title="Permalink to this headline">¶</a></h2>
+<ol class="simple">
+<li><p>def calculate_moving_averages</p></li>
+<li><p>def calculate_risk_return</p></li>
+<li><p>def calculate_return_covariance</p></li>
+<li><p>def calculate_ito_correlation</p></li>
+<li><p>def calculate_ito_correlation_series</p></li>
+<li><p>def get_ito_correlation_matrix_string</p></li>
+</ol>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">pynance-docs</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2021, Grant Moore.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.8</a>
+      
+      |
+      <a href="../_sources/core-application/STATISTICS.md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

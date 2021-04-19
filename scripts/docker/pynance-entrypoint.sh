@@ -13,7 +13,7 @@ APP_DIR=/home/app/
 SERVER_DIR=/home/server/pynance_api/
 
 # PYTHON SCRIPTS
-LOG_DJANGO_SETTINGS="import server.pynance_api.core.settings as settings; from util.outputter import Logger; \
+LOG_DJANGO_SETTINGS="import server.pynance_api.core.settings as settings; from app.util.outputter import Logger; \
         logger=Logger('scripts.server.pynance-server','$LOG_LEVEL'); logger.log_django_settings(settings=settings);"
 CLEAR_CACHE="import app.settings as settings; import app.files as files; \
         files.clear_directory(directory=settings.CACHE_DIR, retain=True)"

@@ -2,7 +2,7 @@ from django.http.request import HttpRequest
 
 from core import settings
 
-import util.outputter as outputter
+import app.util.outputter as outputter
 
 class LogMiddleware:
     def __init__(self, get_response):

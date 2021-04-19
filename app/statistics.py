@@ -10,9 +10,9 @@ import app.services as services
 import app.markets as markets
 import app.files as files
 
-import util.outputter as outputter
-import util.formatter as formatter
-import util.helper as helper
+import app.util.outputter as outputter
+import app.util.formatter as formatter
+import app.util.helper as helper
 
 logger = outputter.Logger('app.statistics', settings.LOG_LEVEL)
 
@@ -766,7 +766,6 @@ def ito_correlation_matrix(tickers, asset_types=None, start_date=None, end_date=
                 correlation_matrix[i][j] = correlation
                 correlation_matrix[j][i] = correlation_matrix[i][j]
             correlation_matrix[len(tickers) - 1][len(tickers) - 1] = 1
-        print(correlation_matrix)
         return correlation_matrix
     elif (len(tickers)==1):
         correlation_matrix[0][0]=1

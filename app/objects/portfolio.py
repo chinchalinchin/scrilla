@@ -3,7 +3,7 @@ import app.services as services
 import app.settings as settings
 import app.markets as markets
 
-import util.outputter as outputter 
+import app.util.outputter as outputter 
 
 import numpy
 import math

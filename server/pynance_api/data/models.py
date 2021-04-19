@@ -1,7 +1,7 @@
 from django.db import models
 
 import app.settings as app_settings
-import util.helper as helper
+import app.util.helper as helper
 
 
 # Have to separate equity and crypto tickers since GLD exists in both

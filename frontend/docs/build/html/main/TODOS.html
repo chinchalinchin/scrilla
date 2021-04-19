@@ -1,0 +1,131 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TODOS &#8212; pynance-docs 1.0 documentation</title>
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="todos">
+<h1>TODOS<a class="headerlink" href="#todos" title="Permalink to this headline">¶</a></h1>
+<ol class="simple">
+<li><p>Rejigger GUI to have DateWidgets to select dates in GUI and take advantage of the new date filtering functionality.</p></li>
+<li><p>Hook up ‘Optimize’ widget to optimize subject to constraint.</p></li>
+<li><p>Create functions for calculation and plotting of yield curve. Relevant FRED symbols:</p>
+<ul class="simple">
+<li><p>DFF = Effective Federal Funds Rate<br></p></li>
+<li><p>DTB3 = 3 Month Treasury<br></p></li>
+<li><p>DGS5 = 5 Year Treasury Constant Maturity<br></p></li>
+<li><p>DGS10 = 10 Year Treasury Constant Maturity<br></p></li>
+<li><p>DGS30 = 30 Year Treausry Constant Maturity<br></p></li>
+<li><p>T5YIE = 5 Year Breakeven Inflation Rate<br></p></li>
+<li><p>T10YIE = 10 Year Breakeven Inflation Rate<br></p></li>
+</ul>
+</li>
+<li><p>Create tabs in GUI for: Markets, Fundamentals, Options, Economy. Markets will feature the portfolio optimization and financial price statistics such as moving averages and efficient frontiers. Fundamentals will feature graphs and calculations of accounting statistics like EBITDA, Enterprise Value, etc. Options will feature functions for calculating IV of options, displaying the volatility skew, historical vs. implied volatility, and option greeks. Economy will feature graphs of the yield curve, GDP, etc.</p></li>
+<li><p>Copy IV algorithm and option greek algorithms from old python cli program.</p></li>
+<li><p>TEST MOVING AVERAGE ALGORITHM FOR MIX OF ASSET TYPES. I think there may be some mismatch of types in date comparisons.</p></li>
+<li><p>Correlation algorithm needs tested for mix of asset types as well, i.e. equities and crypto.</p></li>
+<li><p>Create automated tests and integrate repo with a CircleCi pipeline that builds the image. Will need to find a cloud provider to deploy onto. Perhaps <a class="reference external" href="https://www.heroku.com/">Heroku</a></p></li>
+<li><p>Angular frontend! Separate container. Serve through nginx and queries backend <b>pynance</b> server.</p></li>
+<li><p>If an option prices API is found, then IV can be calculated for a specific equity. The optimization algorithm can be expanded to optimize over IV of a portfolio, instead of the Historical Volatility. Allow user to specify what type of volatility the portfolio will use in its optimization, historical or implied. Will need to account for skew, somehow.</p></li>
+<li><p>Test moving averages plot generation.</p></li>
+<li><p>Pretty sure the reason the len(moving_averages) != len(dates_between) in moving average algorithm is because dates_between doesn’t include the dates themselves; it’s only returning…dun dun dun…the dates between, not the dates themselves.</p></li>
+<li><p>Request parameters not being taken to uppercase.</p></li>
+<li><p>Other types of screening. Discounted Cash Flow, for instance.</p></li>
+<li><p>Add watchlist functionality for crypto assets. Differentiate in /data/common/ between watchlist_equity.json and watchlist_crypto.json. Integrate watchlist functionality into GUI and API. Will need to implement API Key authentication functionality before introducing watchlist to API to account for different users’s watchlist.</p></li>
+<li><p>Wire DDM functionality into API. Done. Now Test.</p></li>
+<li><p>Research annotations for cashflow object’s growth function and portfolio’s return/volatility functions. Perhaps a way of injecting them into the GUI easier. Not sure.</p></li>
+<li><p>Document how to use objects and functions in shell/scripts.</p></li>
+<li><p>Raise Exceptions instead of returning False when functions fail. See #4: https://deepsource.io/blog/8-new-python-antipatterns/</p></li>
+<li><p>Return <b>sharpe ratio</b> with response at <i>/api/risk-return</i>. Considering returning the portfolio beta, as well. We’ll see. Functionality exists, just needs wired in.</p></li>
+<li><p>Does it make sense to calculate the ‘Sharpe Frontier’?</p></li>
+<li><p>Allow relative file references when saving analysis. Right now needs to be absolute path inputted into -save argument. Also, save return profiles.</p></li>
+<li><p>Export function results as JSON on Angular frontend, i.e. allow users to save results.</p></li>
+<li><p>Facts/opinion tabs.</p></li>
+<li><p>Mark important points of Efficient Frontier, i.e. minimum variance, maximum return, maximum sharpe ratio.</p></li>
+<li><p>Correlation time series.</p></li>
+<li><p>In order for correlation time series to work, the ito_correlation method needs fixed. See TODOS within script.</p></li>
+<li><p>Look into why U risk profile calculation breaks function.</p></li>
+<li><p>Removing chips from risk-profile components should remove them from table.</p></li>
+<li><p>Use recursion estimation for mean, variance and covariance by building from cached values of previous estimates. Remember the statistics are calculated on a rolling 100 day period. Recursion should be derived using a constant number of observations.</p></li>
+<li><p>Include derivation of recursive estimation in the documentation pages.</p></li>
+</ol>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">pynance-docs</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2021, Grant Moore.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.8</a>
+      
+      |
+      <a href="../_sources/main/TODOS.md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

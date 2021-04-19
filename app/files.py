@@ -8,8 +8,8 @@ import requests
 
 import app.settings as settings
 
-import util.outputter as outputter
-import util.helper as helper
+import app.util.outputter as outputter
+import app.util.helper as helper
 
 # os.environ.setdefault("DJANGO_SETTINGS_MODULE", "core.settings")
 

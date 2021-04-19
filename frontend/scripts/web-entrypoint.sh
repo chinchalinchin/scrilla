@@ -1,3 +1,4 @@
+#!/bin/bash
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 SCRIPT_NAME='bootstrap-web'
 nl=$'\n'
@@ -12,7 +13,7 @@ then
 else
 
     log "Substituting Environment Variables In \e[3mnginx.conf\e[0m" $SCRIPT_NAME
-    envsubst '$NGINX_PORT,$WEB_HOST,$WEB_PORT' < /etc/nginx/nginx.conf | sponge /etc/nginx/nginx.conf
+    envsubst '$APP_PORT,$APP_HOST,$WEB_PORT' < /etc/nginx/nginx.conf | sponge /etc/nginx/nginx.conf
 
     log "Logging \e[3mnginx\e[0m Configuration" $SCRIPT_NAME
     cat /etc/nginx/nginx.conf

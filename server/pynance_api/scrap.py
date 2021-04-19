@@ -16,8 +16,8 @@ import app.settings as app_settings
 import app.files as files
 
 # Utility Imports
-import util.helper as helper
-import util.outputter as outputter
+import app.util.helper as helper
+import app.util.outputter as outputter
 
 logger = outputter.Logger("server.pynance_api.scrap", settings.LOG_LEVEL)
 

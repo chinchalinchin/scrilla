@@ -7,8 +7,8 @@ import app.settings as settings
 import app.markets as markets
 import app.files as files
 
-import util.outputter as outputter
-import util.helper as helper
+import app.util.outputter as outputter
+import app.util.helper as helper
 
 logger = outputter.Logger("app.services", settings.LOG_LEVEL)
 

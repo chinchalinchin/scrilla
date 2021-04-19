@@ -1,3 +1,6 @@
+##  TODO: build documentation with sphinx in pre build
+##          copy documentation into frontend image
+
 FROM nginx:latest
 
 # VERSION CONTROLS
@@ -15,18 +18,19 @@ RUN curl -sL https://deb.nodesource.com/setup_${NODE_VERSION}.x | bash - \
     && apt-get install -y nodejs && npm install -g @angular/cli@${ANGULAR_VERSION}
 
 # NGINX CONFIGURATION
-COPY /server/nginx.conf /etc/nginx/nginx.conf
-COPY /server/mime.types /etc/nginx/mime.types
+COPY --chown=pynance:pyadmin /server/nginx.conf /etc/nginx/nginx.conf
+COPY --chown=pynance:pyadmin /server/mime.types /etc/nginx/mime.types
 
 # FRONTEND CONFIGURATION
-RUN mkdir /home/build/ && mkdir /home/frontend/
-COPY /pynance-web/ /home/frontend/
+RUN mkdir /home/build/ && mkdir /home/frontend/ && mkdir /home/docs
+COPY --chown=pynance:pyadmin /pynance-web/ /home/frontend/
+COPY --chown=pynance:pyadmin /docs/ /home/docs/
 WORKDIR /home/frontend/
 RUN npm install && ng build --prod --output-hashing none
 
 # PERMISSION CONFIGURATOIN
-RUN chown -R pynance:pyadmin /home/frontend/ /home/build/ /etc/nginx/nginx.conf /var/cache/nginx/ /var/run/ /var/log/nginx/ && \
-    chmod -R 770 /home/frontend/ && chmod -R 770 /home/build/
+RUN chown -R pynance:pyadmin /home/ /etc/nginx/nginx.conf /var/cache/nginx/ /var/run/ /var/log/nginx/ && \
+    chmod -R 770 /home/
 
 # ENTRYPOINT CONFIGURATION
 EXPOSE 8080
@@ -34,4 +38,4 @@ RUN mkdir /home/scripts/
 COPY /scripts/web-entrypoint.sh /home/scripts/web-entrypoint.sh
 COPY /scripts/logging.sh /home/scripts/util/logging.sh
 USER pynance
-CMD [ "bash", "/home/scripts/web-entrypoint.sh" ]
+CMD [ "/home/scripts/web-entrypoint.sh" ]

@@ -18,9 +18,9 @@ import app.markets as markets
 import app.files as files
 
 # Utility Imports
-import util.helper as helper
-import util.plotter as plotter
-import util.outputter as outputter
+import app.util.helper as helper
+import app.util.plotter as plotter
+import app.util.outputter as outputter
 
 # TODO: discount dividend and moving averages need caching implemented. 
 

@@ -1,6 +1,6 @@
 import os, dotenv
 
-import util.outputter as outputter
+import app.util.outputter as outputter
 
 ## APPLICATION CONFIGURATION
 """

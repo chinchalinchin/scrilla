@@ -5,8 +5,8 @@ from core import settings
 from data.models import EquityMarket, CryptoMarket, EquityTicker, CryptoTicker, \
                         EquityProfileCache, EquityCorrelationCache, Dividends, Economy, StatSymbol
 
-import util.helper as helper
-import util.outputter as outputter
+import app.util.helper as helper
+import app.util.outputter as outputter
 
 import app.markets as markets
 import app.settings as app_settings
