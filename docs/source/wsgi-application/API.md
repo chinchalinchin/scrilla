@@ -104,6 +104,7 @@ Some endpoints have unique query parameters, but all endpoints accept the follow
 
 5. <h2>/api/discount-dividend-model</h2>
     <b>Description</b><br>
+    Returns the discount dividend model price for the given list of equities. Historical dividend prices are regressed against the distribution date and this linear equation is used to project future dividend cash flows. An additional parameter <i>discount</i> (see below) can be used to specify the rate used to discount the modeled future dividend cash flows.<br><br>
     
     <b>Additional Query Parameters</b><br>
     - <i>discount</i>: Optional. The rate of return used to discount future dividend payments. If nothing is provided, the function will default to the cost of equity capital as estimated by the CAPM model.<br><br>
@@ -113,4 +114,15 @@ Some endpoints have unique query parameters, but all endpoints accept the follow
     <b>Response JSON</b><br>
 
     <b>Note</b><br>
-    If the <i>jpeg</i> parameter is specified for this endpoint, the resulting graph will only contain the plot of the first ticker's dividend history and its accompanying linear regression model; only one equity's dividend graphic can be computed and returned at once. The DDM model price will be output onto the graph's legend. 
+    If the <i>jpeg</i> parameter is specified for this endpoint, the resulting graph will only contain the plot of the first ticker's dividend history and its accompanying linear regression model; only one equity's dividend graphic can be computed and returned at once. The DDM model price will be output onto the graph's legend. <br><br>
+
+    6. <h2>/api/correlation</h2>
+    <b>Description</b><br>
+    Returns the correlation matrix for the given list of assets (currently supports crypto and equities; cross-correlation between different asset types may still have some hiccups...) over the specific date range. 
+
+    <b>Examples</b><br>
+
+    <b>Response JSON</b><br>
+
+    <b>Note<b><br>
+    This endpoint does not currently support the <i>jpeg</i> endpoint parameters. In the future, if provided, the endpoint will return a time series of the correlations. Need to think about how to efficiently calculate such a complex operation.

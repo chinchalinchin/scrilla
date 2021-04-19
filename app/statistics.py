@@ -766,6 +766,7 @@ def ito_correlation_matrix(tickers, asset_types=None, start_date=None, end_date=
                 correlation_matrix[i][j] = correlation
                 correlation_matrix[j][i] = correlation_matrix[i][j]
             correlation_matrix[len(tickers) - 1][len(tickers) - 1] = 1
+        print(correlation_matrix)
         return correlation_matrix
     elif (len(tickers)==1):
         correlation_matrix[0][0]=1
