@@ -20,8 +20,31 @@
             "tsConfig": "tsconfig.app.json",
             "aot": true,
             "assets": [
-              "src/favicon.ico",
-              "src/assets"
+              {
+                "glob": "**/*",
+                "input": "src/assets/docs/",
+                "output": "/docs/"
+              },
+              {
+                "glob": "/",
+                "input": "src/assets/docs/",
+                "output": "/docs/index.html"
+              },
+              {
+                "glob": "",
+                "input": "src/assets/docs/",
+                "output": "/docs/index.html"
+              },
+              {
+                "glob": "**/*",
+                "input": "src/assets/",
+                "output": "/assets/"
+              },
+              {
+                "glob": "favicon.ico",
+                "input": "src/",
+                "output": "/"
+              }
             ],
             "styles": [
               "./node_modules/@angular/material/prebuilt-themes/purple-green.css",

@@ -29,6 +29,8 @@ else
         log "Invoking \e[3menv-vars\e[0m script." $SCRIPT_NAME
         source $UTIL_DIR/env-vars.sh local
 
+        # TODO: build documentation pages
+        
         cd $FRONTEND_DIR
         log "Installing Node dependencies." $SCRIPT_NAME
         npm install 

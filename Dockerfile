@@ -17,7 +17,6 @@ RUN pip install -r requirements.txt
 COPY --chown=pynance:pyadmin /app/ /home/app/
 COPY --chown=pynance:pyadmin /server/ /home/server/
 COPY --chown=pynance:pyadmin /scripts/ /home/scripts/
-COPY --chown=pynance:pyadmin /util/ /home/util/
 COPY --chown=pynance:pyadmin /main.py /home/main.py
 RUN mkdir -p /home/data/cache/ && mkdir -p /home/data/static/ && mkdir -p /home/data/common/ && \
      chown -R pynance:pyadmin /home/data/ && chmod -R 770 /home/
@@ -26,4 +25,4 @@ RUN mkdir -p /home/data/cache/ && mkdir -p /home/data/static/ && mkdir -p /home/
 VOLUME /home/data/cache/ /home/data/static/
 WORKDIR /home/server/pynance_api/
 USER pynance
-ENTRYPOINT [ "/home/scripts/docker/pynance-entrypoint.sh" ]
+ENTRYPOINT [ "bash", "/home/scripts/docker/pynance-entrypoint.sh" ]
