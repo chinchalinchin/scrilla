@@ -10,7 +10,8 @@ services:
         - static:/home/data/static/
         - cache:/home/data/cache
       networks:
-        - the_pit
+        - data_net
+        - app_net
       env_file: 
         - ./env/container.env
       command: ["wait-for-it"]
@@ -20,7 +21,7 @@ services:
       ports: 
         - "8080:8080"
       networks:
-        - the_pit
+        - app_net
       env_file:
         - ./env/container.env
         
@@ -32,7 +33,7 @@ services:
       volumes:
         - postgres:/var/lib/postgresql/data
       networks:
-        - the_pit
+        - data_net
       env_file:
         - ./env/container.env 
     
@@ -42,7 +43,8 @@ services:
         # - the_pit
 
 networks:
-    the_pit: 
+    data_net: 
+    app_net:
 
 volumes: 
     postgres:

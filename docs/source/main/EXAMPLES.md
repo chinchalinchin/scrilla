@@ -34,7 +34,7 @@ In addition, some of the functions have extra arguments that can be provided to 
 
 will output the (date, average)-tuple series of moving averages defined by the environment variables <b>MA_1</b>, <b>MA_2</b> and <b>MA_3</b> between the dates of 2020-03-05 and 2021-02-01. Note dates must be provided in the <i>YYYY-MM-DD</i> format. As another example, the risk-return profile for a list of equities over a specified date range can be saved to json in the current working directory in the following way,
 
-`python main.py -rr -save "$(pwd)/profile.json" -start "2020-10-02" -end "2021-02-10" MMM UPS LNT LMT `
+`python main.py -rr -save \"$(pwd)/profile.json\" -start \"2020-10-02\" -end \"2021-02-10\" MMM UPS LNT LMT `
 
 See
 

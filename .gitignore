@@ -10,6 +10,8 @@ data/common/*
 data/sql/*
 !/data/sql/.gitkeep
 data/tests/*
+docs/build/*
+!docs/build/.gitkeep
 *.pyc
 /server/pynance_api/db.sqlite3
 /frontend/pynance-web/node_modules

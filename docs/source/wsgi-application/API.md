@@ -1,4 +1,4 @@
-# API 
+# API
 
 ## Endpoints
 Some endpoints have unique query parameters, but all endpoints accept the following list of query parameters. See below for more information. 

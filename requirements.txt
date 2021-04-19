@@ -12,7 +12,8 @@ matplotlib==3.3.3
 holidays==0.10.4
 
 # Documentation Dependencies
-sphinx==3.5.3
+sphinx==3.5.4
+myst-parser==0.13.6
 
 # GUI Dependencies
 PyQt5==5.15.2
