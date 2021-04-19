@@ -54,6 +54,25 @@ def risk_return(request):
 
     return JsonResponse(data=profiles, status=status, safe=False)
 
+def correlation(request):
+    status, parsed_args_or_err_msg = parser.validate_request(request, ["GET"])
+
+    if status in [400, 405]:
+        return JsonResponse(data=parsed_args_or_err_msg, status=status, safe=False)
+
+    tickers, parsed_args = parsed_args_or_err_msg['tickers'], parsed_args_or_err_msg['parsed_args']
+    prices = {}
+
+    for i in range(len(tickers)):
+        analyzer.market_queryset_gap_analysis(symbol=tickers[i],start_date=parsed_args['start_date'],
+                                                end_date=parsed_args['end_date'])
+        prices[tickers[i]] = parser.parse_args_into_market_queryset(ticker=tickers[i], parsed_args=parsed_args)
+
+    correlation_matrix = cache.build_correlation_matrix(these_tickers=tickers, start_date=parsed_args['start_date'],
+                                                        end_date=parsed_args['end_date'], sample_prices=prices)
+    correlation = files.format_correlation_matrix(tickers=tickers,correlation_matrix=correlation_matrix)
+    return JsonResponse(data=correlation, status=status, safe=False)
+    
 def optimize(request):
     status, parsed_args_or_err_msg = parser.validate_request(request, ["GET"])
     

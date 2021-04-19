@@ -384,6 +384,14 @@ def format_moving_averages(tickers, averages_output):
     
     return response
 
+def format_correlation_matrix(tickers, correlation_matrix):
+    response = {}
+    for i in range(len(tickers)):
+        # correlation_matrix[i][i]
+        for j in range(i+1, len(tickers)):
+            response[f'{tickers[i]}_{tickers[j]}_correlation'] = correlation_matrix[j][i]
+    return response
+    
 def save_allocation(allocation, portfolio, file_name, investment=None):
     save_format = format_allocation(allocation=allocation, portfolio=portfolio, investment=investment)
     save_file(file_to_save=save_format, file_name=file_name)
@@ -395,7 +403,10 @@ def save_frontier(portfolio, frontier, file_name, investment=None):
 def save_moving_averages(tickers, averages_output, file_name):
     save_format = format_moving_averages(tickers=tickers,averages_output=averages_output)
     save_file(file_to_save=save_format, file_name=file_name)
-    
+
+def save_correlation_matrix(tickers, correlation_matrix, file_name):
+    save_format = format_correlation_matrix(tickers=tickers, correlation_matrix=correlation_matrix)
+    save_file(file_to_save=save_format, file_name=file_name)
 ################################################
 ##### FILE MANAGEMENT FUNCTIONS
 

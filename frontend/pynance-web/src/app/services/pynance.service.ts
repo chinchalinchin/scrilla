@@ -107,7 +107,6 @@ export class PynanceService {
     return this.http.get<Holding[]>(queryUrl)
                       .pipe(
                         map((data) =>{
-                          console.log(data);
                           let holdings : Holding[] = []
                           Object.entries(data).forEach((element)=>{
                             element[1]['ticker']=element[0]
