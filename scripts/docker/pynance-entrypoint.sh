@@ -1,16 +1,17 @@
 #!/bin/bash
+
+SCRIPT_NAME='pynance-entrypoint'
+source "/home/scripts/util/logging.sh"
 # Entrypoint script for Dockerfile that will deploy the application onto a gunicorn web server.
 # If the user provides arguments, the entrypoint will switch to CLI mode and execute the given
 # function and output results to the terminal.
 # 
 # NOTE: Dockerfile sets WORKDIR to /home/server/
-SCRIPT_NAME='pynance-entrypoint'
-source /home/scripts/util/logging.sh
-
 # DIRECTORIES
-ROOT_DIR=/home/
-APP_DIR=/home/app/
-SERVER_DIR=/home/server/pynance_api/
+
+ROOT_DIR="/home/"
+APP_DIR="/home/app/"
+SERVER_DIR="/home/server/pynance_api/"
 
 # PYTHON SCRIPTS
 LOG_DJANGO_SETTINGS="import server.pynance_api.core.settings as settings; from app.util.outputter import Logger; \
@@ -31,24 +32,24 @@ then
     # log "Clearing \e[3m/cache/\e[0m directory of outdated price histories." $SCRIPT_NAME
     # python -c "$CLEAR_CACHE"
 
-    log "Logging Non-sensitive Django settings" $SCRIPT_NAME
+    log "Logging Non-sensitive Django settings" "$SCRIPT_NAME"
     python -c "$LOG_DJANGO_SETTINGS"
 
     # 
     if [ "$1" == "wait-for-it" ]
     then
-        log "Waiting for \e[3m$POSTGRES_HOST:$POSTGRES_PORT\e[0m database service connection." $SCRIPT_NAME
-        wait-for-it $POSTGRES_HOST:$POSTGRES_PORT
+        log "Waiting for \e[3m$POSTGRES_HOST:$POSTGRES_PORT\e[0m database service connection." "$SCRIPT_NAME"
+        wait-for-it "$POSTGRES_HOST:$POSTGRES_PORT"
     fi
 
     cd $SERVER_DIR
-    log 'Checking for new migrations' $SCRIPT_NAME
+    log "Checking for new migrations" "$SCRIPT_NAME"
     python manage.py makemigrations
     
-    log 'Migrating Django database models' $SCRIPT_NAME
+    log "Migrating Django database models" "$SCRIPT_NAME"
     python manage.py migrate
 
-    python manage.py createsuperuser --no-input --username $DJANGO_SUPERUSER_USERNAME --email $DJANGO_SUPERUSER_EMAIL
+    python manage.py createsuperuser --no-input --username "$DJANGO_SUPERUSER_USERNAME" --email "$DJANGO_SUPERUSER_EMAIL"
 
     # SHELL ENTRYPOINTS
     if [ "${SCRAPPER_ENABLED,,}" == "true" ] # SCRAPPER_ENABLED to lower case
@@ -75,7 +76,7 @@ then
     then
         cd $SERVER_DIR
         log "Binding WSGI app To \e[2mgunicorn\e[0m Web Server On 0.0.0.0:8000" $SCRIPT_NAME 
-        gunicorn core.wsgi:application --bind=0.0.0.0:$APP_PORT --workers 1
+        gunicorn core.wsgi:application --bind="0.0.0.0:$APP_PORT" --workers 1
     fi
 
     # OTHER IMAGE DEPLOYMENTS GO HERE

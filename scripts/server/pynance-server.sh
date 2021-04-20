@@ -35,11 +35,15 @@ else
     # Run in local mode
     if [ "$1" == "--local" ] || [ "$1" == "-local" ] || [ "$1"  == "--l" ] || [ "$1" == "-l" ] || [ $# -eq 0 ]
     then
-        log "Invoking \e[3menv-vars\e[0m script." $SCRIPT_NAME
-        source $UTIL_DIR/env-vars.sh local
+        log "Invoking \e[3menv-vars\e[0m script." "$SCRIPT_NAME"
+        source "$UTIL_DIR/env-vars.sh" local
 
-        cd $ROOT_DIR
-        log "Logging non-sensitive Django settings." $SCRIPT_NAME
+        cd "$ROOT_DIR"
+
+        log "Installing Python dependencies." "$SCRIPT_NAME"
+        pip3 install -r requirements.txt
+
+        log "Logging non-sensitive Django settings." "$SCRIPT_NAME"
         python3 -c "$LOG_DJANGO_SETTINGS"
    
         # TODO: argument to clear cache 
@@ -49,47 +53,47 @@ else
         log "Invoking \e[2mpynance CLI\e[0m to initalize \e[3m/static/\e[0m directory; This may take a while!" $SCRIPT_NAME
         python3 main.py -init-static
         
-        cd $SERVER_DIR
-        log "Verifying migrations are up-to-date." $SCRIPT_NAME
+        cd "$SERVER_DIR"
+        log "Verifying migrations are up-to-date." "$SCRIPT_NAME"
         python3 manage.py makemigrations
 
-        log 'Migrating Django database models.' $SCRIPT_NAME
+        log 'Migrating Django database models.' "$SCRIPT_NAME"
         python3 manage.py migrate
 
         log 'Creating Django Admin from environment variables.' $SCRIPT_NAME
         python3 manage.py createsuperuser --no-input --username "$DJANGO_SUPERUSER_USERNAME" --email "$DJANGO_SUPERUSER_EMAIL"
                 
-        HOST=localhost:$APP_PORT        
+        HOST="localhost:$APP_PORT"      
         log "Starting Django Development server On \e[3m$HOST\e[0m." $SCRIPT_NAME
-        python3 manage.py runserver $HOST
+        python3 manage.py runserver "$HOST"
     fi
 
     # Run in container mode
     if [ "$1" == "--container" ] || [ "$1" = "-container" ] || [ "$1" == "--c" ] || [ "$1" == "-c" ]
     then
         log "Invoking \e[3menv-vars\e[0m script." $SCRIPT_NAME
-        source $UTIL_DIR/env-vars.sh container
+        source "$UTIL_DIR/env-vars.sh" "container"
 
         log "Checking if \e[3m$APP_CONTAINER_NAME\e[0m container is currently running." $SCRIPT_NAME
         if [ "$(docker ps -q -f name=$APP_CONTAINER_NAME)" ]
         then
             log "Stopping \e[3m$APP_CONTAINER_NAME\e[0m container." $SCRIPT_NAME
-            docker container stop $APP_CONTAINER_NAME
+            docker container stop "$APP_CONTAINER_NAME"
 
             log "Removing \e[3m$APP_CONTAINER_NAME\e[0m container." $SCRIPT_NAME
-            docker rm $APP_CONTAINER_NAME
+            docker rm "$APP_CONTAINER_NAME"
         fi
 
         log "Invoking \e[3mbuild-container\e[0m script with an argument of \e[1mapplication\e[0m." $SCRIPT_NAME
-        bash $DOCKER_DIR/build-container.sh application
+        bash "$DOCKER_DIR/build-container.sh" "application"
 
         log "Publishing \e[3m$APP_IMG_NAME:$APP_TAG_NAME\e[0m with container name \e[3m$APP_CONTAINER_NAME\e[0m on \e[3mlocalhost:$APP_PORT\e[0m." $SCRIPT_NAME
         docker run \
-        --name $APP_CONTAINER_NAME \
-        --publish $APP_PORT:$APP_PORT \
-        --env-file $ENV_DIR/container.env \
-        --mount type=bind,source=$CACHE_DIR,target=/home/cache/ \
-        --mount type=bind,source=$STATIC_DIR,target=/home/static/ \
-        $APP_IMG_NAME:$APP_TAG_NAME
+        --name "$APP_CONTAINER_NAME" \
+        --publish "$APP_PORT:$APP_PORT" \
+        --env-file "$ENV_DIR/container.env" \
+        --mount type=bind,source="$CACHE_DIR",target=/home/cache/ \
+        --mount type=bind,source="$STATIC_DIR,"target=/home/static/ \
+        "$APP_IMG_NAME:$APP_TAG_NAME"
     fi
 fi

@@ -193,7 +193,7 @@ DENOMINATION = "USD"
 NPV_DELTA_TOLERANCE = 0.0000001
 
 # SEE: ARG_Q_YIELD_CURVE for allowabled values
-RISK_FREE_RATE=os.environ.setdefault("RISK_FREE", "10-Year")
+RISK_FREE_RATE=os.environ.setdefault("RISK_FREE", "10-Year").strip("\"")
 
 MARKET_PROXY=os.environ.setdefault('MARKET_PROXY', 'SPY')
 

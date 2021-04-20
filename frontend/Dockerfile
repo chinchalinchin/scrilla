@@ -29,12 +29,15 @@ RUN npm install && ng build --prod --output-hashing none
 FROM nginx:latest
 
 # DEFAULT USER & GROUP
-RUN useradd -ms /bin/bash pynance && groupadd pyadmin && usermod -a -G pyadmin pynance && \ 
-    mkdir -p /home/build && mkdir -p /home/build/docs
+RUN apt-get update -y && apt-get install -y moreutils && useradd -ms /bin/bash pynance && \
+    groupadd pyadmin && usermod -a -G pyadmin pynance && mkdir -p /home/build && \ 
+    mkdir -p /home/build/docs && mkdir -p /home/scripts/
 
 # NGINX CONFIGURATION
 COPY --chown=pynance:pyadmin /server/nginx.conf /etc/nginx/nginx.conf
 COPY --chown=pynance:pyadmin /server/mime.types /etc/nginx/mime.types
+COPY --chown=pynance:pyadmin /scripts/web-entrypoint.sh /home/scripts/web-entrypoint.sh
+COPY --chown=pynance:pyadmin /scripts/logging.sh /home/scripts/util/logging.sh
 COPY --from=frontend --chown=pynance:pyadmin /home/build/ /home/build/
 
 # PERMISSION CONFIGURATOIN
@@ -43,8 +46,5 @@ RUN chown -R pynance:pyadmin /home/ /etc/nginx/nginx.conf /var/cache/nginx/ /var
 
 # ENTRYPOINT CONFIGURATION
 EXPOSE 8080
-RUN mkdir /home/scripts/
-COPY /scripts/web-entrypoint.sh /home/scripts/web-entrypoint.sh
-COPY /scripts/logging.sh /home/scripts/util/logging.sh
 USER pynance
 ENTRYPOINT [ "bash", "/home/scripts/web-entrypoint.sh" ]
