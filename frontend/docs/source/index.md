@@ -8,25 +8,26 @@ Welcome to pynance-docs's documentation!
 ========================================
 
 .. toctree::
-   :maxdepth: 3
+   :maxdepth: 2
    :caption: Contents:
 
-   ReadMe <README>
-   Setup <main/SETUP>
-   Examples <main/EXAMPLES>
-   Environment Configuration<configuration/ENVIRONMENT>
-   Service Configuration <configuration/SERVICES>
-   Application - Statistics.py Module <core-application/STATISTICS>
-   Application - Services.py Module <core-application/SERVICES>
-   Application - Optimizer.py Module <core-application/OPTIMIZER>
-   Application - Markets.py Module<core-application/MARKETS>
-   Application - Objects <core-application/OBJECTS>
+   README <README>
+   CLI : Setup <cli-application/SETUP>
+   CLI : Examples <cli-application/EXAMPLES>
+   App : Statistics Module <core-application/STATISTICS>
+   App : Services Module <core-application/SERVICES>
+   App : Optimizer.py Module <core-application/OPTIMIZER>
+   App : Markets.py Module<core-application/MARKETS>
+   App : Objects <core-application/OBJECTS>
    GUI <gui-application/QT>
-   WSGI - Server <wsgi-application/SERVER>
-   WSGI - Container <wsgi-application/CONTAINER>
-   WSGI - Frontend <wsgi-application/FRONTEND>
-   WSGI - Database <wsgi-application/DATABASE>
-   WSGI - API <wsgi-application/API>
+   WSGI : Setup <wsgi-application/SETUP>
+   WSGI : Server <wsgi-application/SERVER>
+   WSGI : Container <wsgi-application/CONTAINER>
+   WSGI : Frontend <wsgi-application/FRONTEND>
+   WSGI : Database <wsgi-application/DATABASE>
+   WSGI : API <wsgi-application/API>
+   Config : Environment <configuration/ENVIRONMENT>
+   Config : Services <configuration/SERVICES>
    Appendix A: Links <appendix/LINKS>
    Appendix B: Notes <appendix/NOTES>
 
