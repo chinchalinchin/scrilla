@@ -65,4 +65,4 @@
 
 40. Include derivation of recursive estimation in the documentation pages.
 
-41. Build documentation manually with `sphinx-build` and output into nginx root directory where angular project is also located.
+42. Figure out how to dynamically add the css and js assets from the sphinx build to the angular.json instead of hardcoding them.

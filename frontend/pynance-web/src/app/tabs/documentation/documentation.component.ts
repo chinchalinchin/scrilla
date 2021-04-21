@@ -2,7 +2,9 @@ import { Component, OnInit } from '@angular/core';
 
 @Component({
   selector: 'app-documentation',
-  templateUrl: 'src/assets/docs/index.html',
+  templateUrl: './documentation.component.html',
+  
+
 })
 export class DocumentationComponent implements OnInit {
 

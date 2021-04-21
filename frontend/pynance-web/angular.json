@@ -21,24 +21,20 @@
             "aot": true,
             "assets": [
               {
-                "glob": "**/*",
+                "glob": "index.html",
                 "input": "src/assets/docs/",
-                "output": "/docs/"
+                "output": "/docs"
               },
               {
-                "glob": "/",
-                "input": "src/assets/docs/",
-                "output": "/docs/index.html"
-              },
-              {
-                "glob": "",
-                "input": "src/assets/docs/",
-                "output": "/docs/index.html"
+                "glob": "*",
+                "input":"src/assets/docs",
+                "ignore": ["index.html"],
+                "output":"/"
               },
               {
                 "glob": "**/*",
-                "input": "src/assets/",
-                "output": "/assets/"
+                "input": "src/assets/docs",
+                "output": "/"
               },
               {
                 "glob": "favicon.ico",
@@ -50,7 +46,24 @@
               "./node_modules/@angular/material/prebuilt-themes/purple-green.css",
               "src/styles.css"
             ],
-            "scripts": []
+            "scripts": [
+              { "input": "src/assets/docs/_static/doctools.js",
+                "bundleName": "sphinx-docs"},
+              { "input": "src/assets/docs/_static/documentation_options.js",
+                "bundleName": "sphinx-docs"},
+              { "input": "src/assets/docs/_static/jquery-3.5.1.js",
+                "bundleName": "sphinx-docs"},
+              { "input": "src/assets/docs/_static/jquery.js",
+                "bundleName": "sphinx-docs"},
+              { "input": "src/assets/docs/_static/language_data.js",
+                "bundleName": "sphinx-docs"},
+              { "input": "src/assets/docs/_static/searchtools.js",
+                "bundleName": "sphinx-docs"},
+              { "input": "src/assets/docs/_static/underscore-1.12.0.js",
+                "bundleName": "sphinx-docs"},
+              { "input": "src/assets/docs/_static/underscore.js",
+                "bundleName": "sphinx-docs"}
+            ]
           },
           "configurations": {
             "production": {

@@ -20,9 +20,9 @@ else
     # DIRECTORIES
     ROOT_DIR="$SCRIPT_DIR/../.."
     FRONTEND_DIR="$ROOT_DIR/frontend/pynance-web"
-    FRONTEND_ASSET_DIR="$FRONTEND_DIR/src/assets"
-    DOCS_DIR="$FRONTEND_DIR/docs"
-    DOCS_BUILD_DIR="$DOCS_DIR/build/html"
+    FRONTEND_DOCS_DIR="$FRONTEND_DIR/src/assets/docs"
+    DOCS_RAW_DIR="$ROOT_DIR/frontend/docs"
+    DOCS_BUILD_DIR="$DOCS_RAW_DIR/build/html"
     UTIL_DIR="$ROOT_DIR/scripts/util"
     ENV_DIR="$ROOT_DIR/env"
 
@@ -33,11 +33,15 @@ else
         source "$UTIL_DIR/env-vars.sh" local
 
         # TODO: build documentation pages
-        cd "$DOCS_DIR"
+        cd "$DOCS_RAW_DIR"
+        log "Installing documentation dependencies." $SCRIPT_NAME
+        pip3 install -r requirements.txt
+
         log "Building documentation pages." $SCRIPT_NAME
         make html
+
         log "Copying generated documentation into Angular assets directory." $SCRIPT_NAME
-        cp "$DOCS_BUILD_DIR/" "$FRONTEND_ASSET_DIR/docs"
+        cp -r "$DOCS_BUILD_DIR"/* "$FRONTEND_DOCS_DIR/"
 
         cd "$FRONTEND_DIR"
         log "Installing Node dependencies." $SCRIPT_NAME

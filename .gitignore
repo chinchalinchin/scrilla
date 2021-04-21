@@ -14,6 +14,8 @@
 /server/pynance_api/db.sqlite3
 /frontend/pynance-web/node_modules
 /frontend/docs/build/*
+/frontend/build/*
+!/frontend/build/.gitkeep
 /frontend/pynance-web/src/assets/*
 !/frontend/pynance-web/src/assets/.gitkeep
 !/frontend/pynance-web/src/assets/docs/.gitkeep
