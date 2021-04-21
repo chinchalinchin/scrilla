@@ -37,7 +37,7 @@ else
         log "Building documentation pages." $SCRIPT_NAME
         make html
         log "Copying generated documentation into Angular assets directory." $SCRIPT_NAME
-        cp "$DOCS_BUILD_DIR/" "$FRONTEND_ASSET_DIR"
+        cp "$DOCS_BUILD_DIR/" "$FRONTEND_ASSET_DIR/docs"
 
         cd "$FRONTEND_DIR"
         log "Installing Node dependencies." $SCRIPT_NAME
