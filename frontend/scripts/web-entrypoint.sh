@@ -20,6 +20,6 @@ else
     echo "${nl}"
 
     log "Starting \e[3mnginx\e[0m Server..." $SCRIPT_NAME
-    log "Server Started. Vist \e[3m$WEB_HOST:$WEB_PORT\e[0m to Access \e[7mDX-SolutionID\e[0m Splash Page." $SCRIPT_NAME
+    log "Server Started. Vist \e[3m$WEB_HOST:$WEB_PORT\e[0m to Access \e[7mpynance\e[0m Splash Page." $SCRIPT_NAME
     nginx -g "daemon off;"
 fi

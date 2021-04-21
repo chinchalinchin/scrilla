@@ -13,7 +13,6 @@ this script."
 
 source "$SCRIPT_DIR/../../util/logging.sh"
 
-echo "$2"
 if [ "$1" == "--help" ] || [ "$1" == "--h" ] || [ "$1" == "-help" ] || [ "$1" == "-h" ]
 then
     help "$SCRIPT_DES" $SCRIPT_NAME
@@ -24,7 +23,6 @@ else
             # reset SCRIPT_DIR since sourcing overwrites it.
         SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
-        echo "here 1"
         if [ "$1" == "--data" ] || [ "$1" == "-data" ]
         then
             LOCAL_PATH="$SCRIPT_DIR/../../../data/sql/dumps/${POSTGRES_DB}_data_$2.sql"
@@ -32,17 +30,12 @@ else
         fi
         if [ "$1" == "--schema" ] || [ "$1" == " -schema" ]
         then
-            echo "here 2"
             LOCAL_PATH="$SCRIPT_DIR/../../../data/sql/dumps/${POSTGRES_DB}_schema_$2.sql"
-            echo "here 3"
             DUMP_PATH="/home/${POSTGRES_DB}_schema_$2.sql"
         fi
-        echo "here 4"
         CONTAINER_ID="$(docker container ps --filter name=$POSTGRES_HOST --quiet)"
-        echo "here 5"
         RESTORE_CMD="PGPASSWORD=$POSTGRES_PASSWORD psql --username=$POSTGRES_USER --dbname=$POSTGRES_DB -f $DUMP_PATH"
 
-        echo "here 6"
         log "Copying dump file from local filestem at \e[3m$LOCAL_PATH\e[0m to container file \e[3m$DUMP_PATH\[e0m" $SCRIPT_NAME
         docker cp "$LOCAL_PATH" "$CONTAINER_ID:$DUMP_PATH"
 
