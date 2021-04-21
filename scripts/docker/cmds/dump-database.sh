@@ -20,13 +20,13 @@ else
 
     if [ "$1" == "--data" ] || [ "$1" == "-data" ]
     then
-        DUMP_PATH="/home/$(POSTGRES_DB)_data_$(date +'%m-%d-%Y').gz"
+        DUMP_PATH="/home/${POSTGRES_DB}_data_$(date +'%m-%d-%Y').gz"
         DUMP_CMD="PGPASSWORD=$POSTGRES_PASSWORD pg_dump --data-only --username=$POSTGRES_USER --dbname=$POSTGRES_DB | gzip > $DUMP_PATH"
 
     fi
     if [ "$1" == "--schema" ] || [ "$1" == " -schema" ]
     then
-        DUMP_PATH="/home/$(POSTGRES_DB)_schema_$(date +'%m-%d-%Y').gz"
+        DUMP_PATH="/home/${POSTGRES_DB}_schema_$(date +'%m-%d-%Y').gz"
         DUMP_CMD="PGPASSWORD=$POSTGRES_PASSWORD pg_dump --schema-only --username=$POSTGRES_USER --dbname=$POSTGRES_DB | gzip > $DUMP_PATH"
     fi
    
@@ -35,7 +35,7 @@ else
     log "Executing dump command within Container ID # $CONTAINER_ID" $SCRIPT_NAME
     docker exec $CONTAINER_ID bash -c "$DUMP_CMD"
 
-    log "Copying container dump file to local filesytem at $LOCAL_PATH/$(POSTGRES_DB)_data_$(date +'%m-%d-%Y').gz" $SCRIPT_NAME
+    log "Copying container dump file to local filesytem at $LOCAL_PATH/$($POSTGRES_DB)_data_$(date +'%m-%d-%Y').gz" $SCRIPT_NAME
         # the cp command may or may not need quotes...
     docker cp "$CONTAINER_ID:$DUMP_PATH" "$LOCAL_PATH"
 
