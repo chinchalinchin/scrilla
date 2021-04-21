@@ -35,6 +35,7 @@ import { MatChipsModule } from '@angular/material/chips';
 
 // Third Party Material
 import  { MatCurrencyFormatModule } from 'mat-currency-format';
+import { DocumentationComponent } from './tabs/documentation/documentation.component';
 
 
 
@@ -49,6 +50,7 @@ import  { MatCurrencyFormatModule } from 'mat-currency-format';
     EfficientFrontierComponent,
     ValuationComponent,
     RiskProfileComponent,
+    DocumentationComponent,
   ],
   imports: [
     BrowserModule,
