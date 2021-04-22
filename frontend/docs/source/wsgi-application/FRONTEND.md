@@ -67,7 +67,7 @@ The frontend container can be launched by supplying an argument of <i>--containe
 The backend must be running or else the <b>nginx</b> server will fail due to the <b>upstream</b> server set in the <i>/frontend/server/nginx.conf</i> file,
 
 > upstream pynance{<br>
->        server $APP_HOST:$APP_PORT fail_timeout=60s;<br>
+> >       server "$APP_HOST:$APP_PORT" fail_timeout=60s;<br>
 >   }<br>
 
 Note, the <b>APP_HOST</b> and <b>APP_PORT</b> environment variables must point to the location and port on which the backend server is running.

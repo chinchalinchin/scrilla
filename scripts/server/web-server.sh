@@ -18,16 +18,16 @@ then
     help "$SCRIPT_DES" $SCRIPT_NAME
 else
     # DIRECTORIES
-    ROOT_DIR="$SCRIPT_DIR/../.."
-    DOCKER_DIR="$ROOT_DIR/scripts/docker"
-    FRONTEND_DIR="$ROOT_DIR/frontend/pynance-web"
-    BUILD_DIR="$ROOT_DIR/frontend/build"
-    SERVER_DIR="$ROOT_DIR/frontend/server"
+    PROJECT_DIR="$SCRIPT_DIR/../.."
+    DOCKER_DIR="$PROJECT_DIR/scripts/docker"
+    FRONTEND_DIR="$PROJECT_DIR/frontend/pynance-web"
+    BUILD_DIR="$PROJECT_DIR/frontend/build"
+    SERVER_DIR="$PROJECT_DIR/frontend/server"
     FRONTEND_DOCS_DIR="$FRONTEND_DIR/src/assets/docs"
-    DOCS_RAW_DIR="$ROOT_DIR/frontend/docs"
+    DOCS_RAW_DIR="$PROJECT_DIR/frontend/docs"
     DOCS_BUILD_DIR="$DOCS_RAW_DIR/build/html"
-    UTIL_DIR="$ROOT_DIR/scripts/util"
-    ENV_DIR="$ROOT_DIR/env"
+    UTIL_DIR="$PROJECT_DIR/scripts/util"
+    ENV_DIR="$PROJECT_DIR/env"
 
     # Run in development mode
     if [ "$1" == "--dev" ] || [ "$1" == "-dev" ] || [ "$1"  == "--d" ] || [ "$1" == "-d" ] || [ $# -eq 0 ]
@@ -74,18 +74,17 @@ else
         npm install 
 
         log "Building Angular webpacks." "$SCRIPT_NAME"
-        # todo: ng build
-
-        log "Copying artifacts into \e[3mnginx\e[0m root directory" "$SCRIPT_NAME"
-        # todo: cp artifacts onto nginx server
+        ng build --prod --output-hashing none
 
         log "Configuring nginx server." "$SCRIPT_NAME"
-        envsubst '$APP_PORT,$APP_HOST,$WEB_PORT, $ROOT_DIR' < "$SERVER_DIR/nginx.conf" | sponge "$SERVER_DIR/nginx.conf"
+        ROOT_DIR="$(cd $BUILD_DIR && pwd)"
+        echo "$ROOT_DIR"
+        envsubst '$APP_PORT,$APP_HOST,$WEB_PORT, $ROOT_DIR' < "$SERVER_DIR/nginx.template.conf" | sponge "$SERVER_DIR/nginx.conf"
 
-        log "Launching nginx server on "
-        nginx -c "$SERVER_DIR/nginx.conf" -s reload
+        log "Launching nginx server on $WEB_HOST:$WEB_PORT" "$SCRIPT_NAME"
+        # don't like having sudo here...
+        sudo nginx -c "$SERVER_DIR/nginx.conf" -s reload
     fi
-
 
     # Run in container mode
     if [ "$1" == "--container" ] || [ "$1" = "-container" ] || [ "$1" == "--c" ] || [ "$1" == "-c" ]
