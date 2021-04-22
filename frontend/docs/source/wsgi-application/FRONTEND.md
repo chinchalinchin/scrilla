@@ -70,6 +70,8 @@ The backend must be running or else the <b>nginx</b> server will fail due to the
 >        server $APP_HOST:$APP_PORT fail_timeout=60s;<br>
 >   }<br>
 
+Note, the <b>APP_HOST</b> and <b>APP_PORT</b> environment variables must point to the location and port on which the backend server is running.
+
 If you wish to run the frontend in standalone mode without the backend (be aware, none of the Angular components will function properly), remove these lines from the <i>nginx.conf</i>. 
 
 ### Notes
