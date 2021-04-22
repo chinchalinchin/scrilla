@@ -54,8 +54,8 @@ then
     # SHELL ENTRYPOINTS
     if [ "${SCRAPPER_ENABLED,,}" == "true" ] # SCRAPPER_ENABLED to lower case
     then
-        log "Scrapping price histories into $POSTGRES_HOST/$POSTGRES_DB; this may take a while!" $SCRIPT_NAME
-        cd $SERVER_DIR
+        log "Scrapping price histories into $POSTGRES_HOST/$POSTGRES_DB; this may take a while!" "$SCRIPT_NAME"
+        cd "$SERVER_DIR"
         python scrap.py 
     fi
     if [ "$1" == "bash" ]
@@ -74,16 +74,16 @@ then
 
     if [ "$APP_ENV" == "container" ]
     then
-        cd $SERVER_DIR
-        log "Binding WSGI app To \e[2mgunicorn\e[0m Web Server On 0.0.0.0:8000" $SCRIPT_NAME 
+        cd "$SERVER_DIR"
+        log "Binding WSGI app To \e[2mgunicorn\e[0m Web Server On 0.0.0.0:8000" "$SCRIPT_NAME" 
         gunicorn core.wsgi:application --bind="0.0.0.0:$APP_PORT" --workers 1
     fi
 
     # OTHER IMAGE DEPLOYMENTS GO HERE
 
 else
-    log "Argument(s) Provided: $(concat_args $@)" $SCRIPT_NAME
-    log "Switching to CLI Mode" $SCRIPT_NAME
+    log "Argument(s) Provided: $(concat_args $@)" "$SCRIPT_NAME"
+    log "Switching to CLI Mode" "$SCRIPT_NAME"
     cd $ROOT_DIR
     python main.py $@
 fi

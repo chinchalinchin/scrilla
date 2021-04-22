@@ -1,10 +1,10 @@
 ```{eval-rst}
-.. pynance-docs documentation master file, created by
+.. pynance documentation master file, created by
    sphinx-quickstart on Thu Apr  1 06:09:45 2021.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to pynance-docs's documentation!
+Welcome to pynance's documentation!
 ========================================
 
 .. toctree::
@@ -16,8 +16,8 @@ Welcome to pynance-docs's documentation!
    CLI : Examples <cli-application/EXAMPLES>
    App : Statistics Module <core-application/STATISTICS>
    App : Services Module <core-application/SERVICES>
-   App : Optimizer.py Module <core-application/OPTIMIZER>
-   App : Markets.py Module<core-application/MARKETS>
+   App : Optimizer Module <core-application/OPTIMIZER>
+   App : Markets Module<core-application/MARKETS>
    App : Objects <core-application/OBJECTS>
    GUI <gui-application/QT>
    WSGI : Setup <wsgi-application/SETUP>

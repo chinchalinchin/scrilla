@@ -29,7 +29,7 @@ RUN npm install && ng build --prod --output-hashing none
 FROM nginx:latest
 
 # DEFAULT USER & GROUP
-RUN apt-get update -y && apt-get install -y moreutils && useradd -ms /bin/bash pynance && \
+RUN apt-get update -y && apt-get install -y moreutils wait-for-it && useradd -ms /bin/bash pynance && \
     groupadd pyadmin && usermod -a -G pyadmin pynance && mkdir -p /home/build && \ 
     mkdir -p /home/build/docs && mkdir -p /home/scripts/
 

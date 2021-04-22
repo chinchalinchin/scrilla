@@ -67,7 +67,7 @@ def store_local_object(local_object, value, args):
             file_name_2 = f'{timestamp}_{args["ticker_2"]}_{args["ticker_1"]}_{settings.CACHE_COR_KEY}.{settings.FILE_EXT}'
         if local_object == OBJECTS['prices']:
             logger.debug(f'Storing {args["ticker"]} price history in local cache.')
-            file_name = f'{timestamp}_{args["ticker"]}.{settings.FILE_EXT}'
+            file_name = f'{timestamp}_{args["ticker"]}_{settings.CACHE_PRICE_KEY}.{settings.FILE_EXT}'
         if local_object == OBJECTS['risk_profile']:
             logger.debug(f'Storing {args["ticker"]} risk profile in local cache.')
             file_name = f'{timestamp}_{args["ticker"]}_{settings.CACHE_PRO_KEY}.{settings.FILE_EXT}'
@@ -110,7 +110,21 @@ def retrieve_local_object(local_object, args):
         elif local_object == OBJECTS['prices']:
             # TODO: with different time stamp implementation, this part of the method should search for price histories that contain
             # the range in start_date and end_date.
-            file_name = os.path.join(settings.CACHE_DIR, f'{timestamp}_{args["ticker"]}.{settings.FILE_EXT}')
+
+            # start_date, end_date = args.get('start_date'), args.get('end_date')
+            # start_date, end_date = determine_analysis_date_range(start_date, end_date)
+
+            # for file in path(settings.CACHE_DIR) or whatever:
+                # key_check = f'{args["ticker"]}_{settings.CACHE_PRICE_KEY}'
+                # if key_check in file.name:
+                    # components = file.name.split('_')
+                    # cached_start_date = parsed_date(components[0])
+                    # cached_end_date = parsed_date(components[1])
+                    
+                    # if cached_start_date <= start_date and cached_end_date >= end_date:
+                        # parsed start_date to end_date from cached_prices
+
+            file_name = os.path.join(settings.CACHE_DIR, f'{timestamp}_{args["ticker"]}_{settings.CACHE_PRICE_KEY}.{settings.FILE_EXT}')
             logger.debug(f'Checking for {args["ticker"]} prices in local cache.')
             if os.path.isfile(file_name):
                 results = load_file(file_name=file_name)

@@ -26,13 +26,12 @@ else
     UTIL_DIR="$ROOT_DIR/scripts/util"
     ENV_DIR="$ROOT_DIR/env"
 
-    # Run in local mode
-    if [ "$1" == "--local" ] || [ "$1" == "-local" ] || [ "$1"  == "--l" ] || [ "$1" == "-l" ] || [ $# -eq 0 ]
+    # Run in development mode
+    if [ "$1" == "--dev" ] || [ "$1" == "-dev" ] || [ "$1"  == "--d" ] || [ "$1" == "-d" ] || [ $# -eq 0 ]
     then
         log "Invoking \e[3menv-vars\e[0m script." $SCRIPT_NAME
         source "$UTIL_DIR/env-vars.sh" local
 
-        # TODO: build documentation pages
         cd "$DOCS_RAW_DIR"
         log "Installing documentation dependencies." $SCRIPT_NAME
         pip3 install -r requirements.txt
@@ -50,6 +49,33 @@ else
         log "Launching Angular Development server on \e[3mlocalhost:$WEB_PORT\e[0m." $SCRIPT_NAME
         ng serve --port "$WEB_PORT"
     fi
+
+    # Run in local mode
+    if [ "$1" == "--local" ] || [ "$1" == "-local" ] || [ "$1"  == "--l" ] || [ "$1" == "-l" ] || [ $# -eq 0 ]
+    then
+        log "Invoking \e[3menv-vars\e[0m script." $SCRIPT_NAME
+        source "$UTIL_DIR/env-vars.sh" local
+
+        cd "$DOCS_RAW_DIR"
+        log "Installing documentation dependencies." $SCRIPT_NAME
+        pip3 install -r requirements.txt
+
+        log "Building documentation pages." $SCRIPT_NAME
+        make html
+
+        log "Copying generated documentation into Angular assets directory." $SCRIPT_NAME
+        cp -r "$DOCS_BUILD_DIR"/* "$FRONTEND_DOCS_DIR/"
+
+        cd "$FRONTEND_DIR"
+        log "Installing Node dependencies." $SCRIPT_NAME
+        npm install 
+
+        # todo: ng build
+        # todo: cp artifacts onto nginx server
+        # todo: ensure nginx.conf is correct
+        # todo: start nginx daemon or whatever.
+    fi
+
 
     # Run in container mode
     if [ "$1" == "--container" ] || [ "$1" = "-container" ] || [ "$1" == "--c" ] || [ "$1" == "-c" ]

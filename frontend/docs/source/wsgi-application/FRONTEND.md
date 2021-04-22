@@ -60,6 +60,17 @@ A <b>Dockerfile</b> in the <i>/frontend/</i> directory isolates the application 
 
 Note, when the frontend is containerized, <b>Angular</b> does not directly communicate with the backend. Instead, the <b>nginx</b> server inside of the container is configured to proxy all requests made to the <i>/api/</i> path back to the <b>Django</b> application server. The client therefore sends all requests back to the frontend server, which in turns mediates access to the backend server.
 
+The frontend container can be launched by supplying an argument of <i>--container</i> to the <i>web-server.sh</i> script,
+
+`./scripts/server/web-server.sh --container`
+
+The backend must be running or else the <b>nginx</b> server will fail due to the <b>upstream</b> server set in the <i>/frontend/server/nginx.conf</i> file,
+
+> upstream pynance{<br>
+>        server $APP_HOST:$APP_PORT fail_timeout=60s;<br>
+>   }<br>.
+
+If you wish to run the frontend in standalone mode without the backend (be aware, none of the Angular components will function properly), remove these lines from the <i>nginx.conf</i>. 
 
 ### Notes
 

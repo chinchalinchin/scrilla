@@ -21,6 +21,4 @@ RUN mkdir -p /home/data/cache/ && mkdir -p /home/data/static/ && mkdir -p /home/
 # ENTRYPOINT CONFIGURATION
 VOLUME /home/data/cache/ /home/data/static/
 USER pynance
-WORKDIR /home/scripts/docker/
-RUN ls -al
 ENTRYPOINT [ "/home/scripts/docker/pynance-entrypoint.sh" ]

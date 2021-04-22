@@ -110,6 +110,7 @@ KEEP_EXT = ".gitkeep"
 
 CACHE_DIR = os.path.join(APP_DIR, 'data', 'cache')
 CACHE_PRO_KEY="profile"
+CACHE_PRICE_KEY="prices"
 CACHE_COR_KEY="correlation"
 CACHE_DIV_KEY="dividends"
 CACHE_STAT_KEY="statistic"
