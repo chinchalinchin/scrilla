@@ -68,7 +68,7 @@ The backend must be running or else the <b>nginx</b> server will fail due to the
 
 > upstream pynance{<br>
 >        server $APP_HOST:$APP_PORT fail_timeout=60s;<br>
->   }<br>.
+>   }<br>
 
 If you wish to run the frontend in standalone mode without the backend (be aware, none of the Angular components will function properly), remove these lines from the <i>nginx.conf</i>. 
 
