@@ -18,13 +18,16 @@ then
     help "$SCRIPT_DES" $SCRIPT_NAME
 else
     # DIRECTORIES
-    ROOT_DIR="$SCRIPT_DIR/../.."
-    FRONTEND_DIR="$ROOT_DIR/frontend/pynance-web"
+    PROJECT_DIR="$SCRIPT_DIR/../.."
+    DOCKER_DIR="$PROJECT_DIR/scripts/docker"
+    FRONTEND_DIR="$PROJECT_DIR/frontend/pynance-web"
+    BUILD_DIR="$PROJECT_DIR/frontend/build"
+    SERVER_DIR="$PROJECT_DIR/frontend/server"
     FRONTEND_DOCS_DIR="$FRONTEND_DIR/src/assets/docs"
-    DOCS_RAW_DIR="$ROOT_DIR/frontend/docs"
+    DOCS_RAW_DIR="$PROJECT_DIR/frontend/docs"
     DOCS_BUILD_DIR="$DOCS_RAW_DIR/build/html"
-    UTIL_DIR="$ROOT_DIR/scripts/util"
-    ENV_DIR="$ROOT_DIR/env"
+    UTIL_DIR="$PROJECT_DIR/scripts/util"
+    ENV_DIR="$PROJECT_DIR/env"
 
     # Run in development mode
     if [ "$1" == "--dev" ] || [ "$1" == "-dev" ] || [ "$1"  == "--d" ] || [ "$1" == "-d" ] || [ $# -eq 0 ]
@@ -53,29 +56,35 @@ else
     # Run in local mode
     if [ "$1" == "--local" ] || [ "$1" == "-local" ] || [ "$1"  == "--l" ] || [ "$1" == "-l" ] || [ $# -eq 0 ]
     then
-        log "Invoking \e[3menv-vars\e[0m script." $SCRIPT_NAME
+        log "Invoking \e[3menv-vars\e[0m script." "$SCRIPT_NAME"
         source "$UTIL_DIR/env-vars.sh" local
 
         cd "$DOCS_RAW_DIR"
-        log "Installing documentation dependencies." $SCRIPT_NAME
+        log "Installing documentation dependencies." "$SCRIPT_NAME"
         pip3 install -r requirements.txt
 
-        log "Building documentation pages." $SCRIPT_NAME
+        log "Building documentation pages." "$SCRIPT_NAME"
         make html
 
-        log "Copying generated documentation into Angular assets directory." $SCRIPT_NAME
+        log "Copying generated documentation into Angular assets directory." "$SCRIPT_NAME"
         cp -r "$DOCS_BUILD_DIR"/* "$FRONTEND_DOCS_DIR/"
 
         cd "$FRONTEND_DIR"
-        log "Installing Node dependencies." $SCRIPT_NAME
+        log "Installing Node dependencies." "$SCRIPT_NAME"
         npm install 
 
-        # todo: ng build
-        # todo: cp artifacts onto nginx server
-        # todo: ensure nginx.conf is correct
-        # todo: start nginx daemon or whatever.
-    fi
+        log "Building Angular webpacks." "$SCRIPT_NAME"
+        ng build --prod --output-hashing none
 
+        log "Configuring nginx server." "$SCRIPT_NAME"
+        ROOT_DIR="$(cd $BUILD_DIR && pwd)"
+        echo "$ROOT_DIR"
+        envsubst '$APP_PORT,$APP_HOST,$WEB_PORT, $ROOT_DIR' < "$SERVER_DIR/nginx.template.conf" | sponge "$SERVER_DIR/nginx.conf"
+
+        log "Launching nginx server on $WEB_HOST:$WEB_PORT" "$SCRIPT_NAME"
+        # don't like having sudo here...
+        sudo nginx -c "$SERVER_DIR/nginx.conf" -s reload
+    fi
 
     # Run in container mode
     if [ "$1" == "--container" ] || [ "$1" = "-container" ] || [ "$1" == "--c" ] || [ "$1" == "-c" ]

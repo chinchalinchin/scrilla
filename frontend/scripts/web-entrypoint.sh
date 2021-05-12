@@ -13,7 +13,7 @@ then
 else
 
     log "Substituting Environment Variables In \e[3mnginx.conf\e[0m" "$SCRIPT_NAME"
-    envsubst '$APP_PORT,$APP_HOST,$WEB_PORT' < /etc/nginx/nginx.conf | sponge /etc/nginx/nginx.conf
+    envsubst '$APP_PORT,$APP_HOST,$WEB_PORT, $ROOT_DIR' < /etc/nginx/nginx.conf | sponge /etc/nginx/nginx.conf
 
     log "Logging \e[3mnginx\e[0m Configuration" "$SCRIPT_NAME"
     cat /etc/nginx/nginx.conf

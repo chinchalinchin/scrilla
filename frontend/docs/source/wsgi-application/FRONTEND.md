@@ -67,7 +67,7 @@ The frontend container can be launched by supplying an argument of <i>--containe
 The backend must be running or else the <b>nginx</b> server will fail due to the <b>upstream</b> server set in the <i>/frontend/server/nginx.conf</i> file,
 
 > upstream pynance{<br>
->        server $APP_HOST:$APP_PORT fail_timeout=60s;<br>
+> >       server "$APP_HOST:$APP_PORT" fail_timeout=60s;<br>
 >   }<br>
 
 Note, the <b>APP_HOST</b> and <b>APP_PORT</b> environment variables must point to the location and port on which the backend server is running.
@@ -77,3 +77,5 @@ If you wish to run the frontend in standalone mode without the backend (be aware
 ### Notes
 
 1. Due to the way Angular's development server refresh works, changes made to the documentation will not get displayed through the development server when they are committed. Sphinx needs to repackage the new markdown files into static assets and Angular needs to repack those assets into webpack bundles. The development server must be restarted entirely and the documentation rebuilt if changes are made to the documentation.
+
+2. The documentation should ideally be served from the <i>docs</i> route. For some reason, when the application is deployed locally through `ng serve`, the generated sphinx documentations needs to be output into the root of the build directory, <i>/frontend/build/</i> while the <i>index.html</i> <b>only</b> needs to be output into the <i>/frontend/build/docs/</i> directory in order for the documentation to get properly served through the <i>docs</i> route by the Angular development server, but when the application is containerized and deployed onto <b>nginx</b>, all of the generated documentation needs to be output into <i>/frontend/build/docs/</i> directory, including the <i>index.html</i>, in order for the documentation and all of its css and js files to be served under the <i>docs</i> route. Not sure what is causing this issue. Needs further investigation; I suspect the answer lies somewhere in the <i>angular.json</i> or <i>nginx.conf</i>. Not quite sure yet.

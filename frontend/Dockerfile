@@ -34,8 +34,7 @@ RUN apt-get update -y && apt-get install -y moreutils wait-for-it && useradd -ms
     mkdir -p /home/build/docs && mkdir -p /home/scripts/
 
 # NGINX CONFIGURATION
-COPY --chown=pynance:pyadmin /server/nginx.conf /etc/nginx/nginx.conf
-COPY --chown=pynance:pyadmin /server/mime.types /etc/nginx/mime.types
+COPY --chown=pynance:pyadmin /server/ /etc/nginx/
 COPY --chown=pynance:pyadmin /scripts/web-entrypoint.sh /home/scripts/web-entrypoint.sh
 COPY --chown=pynance:pyadmin /scripts/logging.sh /home/scripts/util/logging.sh
 COPY --from=frontend --chown=pynance:pyadmin /home/build/ /home/build/

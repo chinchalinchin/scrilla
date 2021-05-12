@@ -18,14 +18,14 @@ then
     help "$SCRIPT_DES" $SCRIPT_NAME
 else
     # DIRECTORIES
-    ROOT_DIR=$SCRIPT_DIR/../..
+    PROJECT_DIR=$SCRIPT_DIR/../..
     UTIL_DIR=$SCRIPT_DIR/../util
     DOCKER_DIR=$SCRIPT_DIR/../docker
-    SERVER_DIR=$ROOT_DIR/server/pynance_api
-    APP_DIR=$ROOT_DIR/app
-    ENV_DIR=$ROOT_DIR/env
-    CACHE_DIR=$ROOT_DIR/data/cache
-    STATIC_DIR=$ROOT_DIR/data/static
+    SERVER_DIR=$PROJECT_DIR/server/pynance_api
+    APP_DIR=$PROJECT_DIR/app
+    ENV_DIR=$PROJECT_DIR/env
+    CACHE_DIR=$PROJECT_DIR/data/cache
+    STATIC_DIR=$PROJECT_DIR/data/static
     # PYTHON SCRIPTS
     LOG_DJANGO_SETTINGS="import server.pynance_api.core.settings as settings; from app.util.outputter import Logger; \
         logger=Logger('scripts.server.pynance-server','$LOG_LEVEL'); logger.log_django_settings(settings=settings);"
@@ -38,7 +38,7 @@ else
         log "Invoking \e[3menv-vars\e[0m script." "$SCRIPT_NAME"
         source "$UTIL_DIR/env-vars.sh" local
 
-        cd "$ROOT_DIR"
+        cd "$PROJECT_DIR"
 
         log "Installing Python dependencies." "$SCRIPT_NAME"
         pip3 install -r requirements.txt
