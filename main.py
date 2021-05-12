@@ -110,7 +110,7 @@ if __name__ == "__main__":
         elif opt == formatter.FUNC_ARG_DICT['risk_free_rate']:
             outputter.title_line("Risk Free Rate")
             outputter.scalar_result(calculation=formatter.RISK_FREE_TITLE, 
-                                    result=markets.get_risk_free_rate(), 
+                                    result=services.get_risk_free_rate(), 
                                     currency=False)
 
         ### FUNCTION: Purge Data Directories

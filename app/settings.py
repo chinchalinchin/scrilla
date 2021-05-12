@@ -2,9 +2,6 @@ import os, sys, dotenv
 
 import app.util.outputter as outputter
 
-
-print('settings.py', os.getcwd())
-
 ## APPLICATION CONFIGURATION
 """
 Application Configuration

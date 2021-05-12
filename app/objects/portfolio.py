@@ -1,13 +1,11 @@
-import app.statistics as statistics
+import numpy, math
+from decimal import Decimal
+
+import app.analysis.statistics as statistics
 import app.services as services
 import app.settings as settings
-import app.markets as markets
 
 import app.util.outputter as outputter 
-
-import numpy
-import math
-from decimal import Decimal
 
 logger = outputter.Logger("app.objects.portfolio", settings.LOG_LEVEL)
 
@@ -74,7 +72,7 @@ class Portfolio:
         self.error = not self.calculate_stats()
 
         if risk_free_rate is None:
-            self.risk_free_rate = markets.get_risk_free_rate()
+            self.risk_free_rate = services.get_risk_free_rate()
         else:
             self.risk_free_rate = risk_free_rate
 

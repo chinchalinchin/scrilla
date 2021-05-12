@@ -1,7 +1,4 @@
-import os, json
-import itertools
-import datetime, time
-import requests
+import itertools, time, requests
 
 import app.settings as settings
 import app.files as files
@@ -439,3 +436,19 @@ def get_percent_stat_symbols():
     if settings.STAT_MANAGER == 'quandl':
         percent_stats = settings.ARG_Q_YIELD_CURVE.values()
         return percent_stats
+
+        # NOTE: Quandl outputs interest in percentage terms
+# NOTE: This function sort of blurs the lines between services.py and markets.py
+#       I put it here because I want the markets.py class to be from where the 
+#       the risk_free_rate is accessed for now. It may make more sense to have this
+#       in services.py since it's basically just a call an external service.
+#       Haven't made up my mind yet. 
+def get_risk_free_rate():
+    """
+    Description
+    -----------
+    Returns as a decimal the risk free rate defined by the RISK_FREE environment variable (and passed into `app.settings` as the variable RISK_FREE_RATE). \n \n 
+    """
+    risk_free_rate_key = settings.RISK_FREE_RATE
+    risk_free_rate = get_daily_stats_latest(statistic=risk_free_rate_key)
+    return (risk_free_rate)/100

@@ -18,22 +18,6 @@ MODEL_DCF="dcf"
 
 logger = outputter.Logger('app.markets', settings.LOG_LEVEL)
 
-# NOTE: Quandl outputs interest in percentage terms
-# NOTE: This function sort of blurs the lines between services.py and markets.py
-#       I put it here because I want the markets.py class to be from where the 
-#       the risk_free_rate is accessed for now. It may make more sense to have this
-#       in services.py since it's basically just a call an external service.
-#       Haven't made up my mind yet. 
-def get_risk_free_rate():
-    """
-    Description
-    -----------
-    Returns as a decimal the risk free rate defined by the RISK_FREE environment variable (and passed into `app.settings` as the variable RISK_FREE_RATE). \n \n 
-    """
-    risk_free_rate_key = settings.RISK_FREE_RATE
-    risk_free_rate = services.get_daily_stats_latest(statistic=risk_free_rate_key)
-    return (risk_free_rate)/100
-
 # NOTE: if ticker_profile is provided, it effectively nullifies start_date and end_date.
 # TODO: pass in risk_free_rate=None as optional argument to prevent overusing services
 def sharpe_ratio(ticker, start_date=None, end_date=None, risk_free_rate=None, ticker_profile=None):
@@ -65,7 +49,7 @@ def sharpe_ratio(ticker, start_date=None, end_date=None, risk_free_rate=None, ti
                                                         end_date=end_date)
 
     if risk_free_rate is None:
-        risk_free_rate = get_risk_free_rate()
+        risk_free_rate = services.get_risk_free_rate()
 
     return (ticker_profile['annual_return'] - risk_free_rate)/ticker_profile['annual_volatility']
 
@@ -90,7 +74,7 @@ def market_premium(start_date=None, end_date=None, market_profile = None):
                                                             start_date=start_date, 
                                                             end_date=end_date)
 
-    return (market_profile['annual_return'] - get_risk_free_rate())
+    return (market_profile['annual_return'] - services.get_risk_free_rate())
 
 def market_beta(ticker, start_date=None, end_date=None, market_profile=None, market_correlation=None, ticker_profile=None, sample_prices=None):
     """
@@ -155,7 +139,7 @@ def cost_of_equity(ticker, start_date=None, end_date=None, market_profile=None, 
                         market_profile=market_profile, market_correlation=market_correlation)
     premium = market_premium(start_date=start_date, end_date=end_date, market_profile=market_profile)
 
-    return (premium*beta + get_risk_free_rate())
+    return (premium*beta + services.get_risk_free_rate())
 
 def screen_for_discount(model=None, discount_rate=None):
     """
