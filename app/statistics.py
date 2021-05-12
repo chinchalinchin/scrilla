@@ -14,6 +14,9 @@ import app.util.outputter as outputter
 import app.util.formatter as formatter
 import app.util.helper as helper
 
+
+print('statistics.py', os.getcwd())
+
 logger = outputter.Logger('app.statistics', settings.LOG_LEVEL)
 
 # NOTE: the format of 'sample_prices' was chosen so any function that accepts it as an argument

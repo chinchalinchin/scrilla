@@ -7,6 +7,10 @@ from app.objects.cashflow import Cashflow
 
 import app.util.outputter as outputter
 
+import os
+
+print('markets.py', os.getcwd())
+
 MODEL_DDM="ddm"
 # TODO: implement dcf model
 MODEL_DCF="dcf"
