@@ -4,6 +4,7 @@ from decimal import Decimal
 import app.analysis.statistics as statistics
 import app.services as services
 import app.settings as settings
+import app.files as files
 
 import app.util.outputter as outputter 
 
@@ -145,38 +146,36 @@ class Portfolio:
         return (numpy.dot(x, self.mean_return) - self.target_return)
 
     def calculate_approximate_shares(self, x, total, latest_prices=None):
-        if self.shares is None:
-            self.shares = []
-            for i in range(len(x)):
-                if latest_prices is not None:
-                    price = latest_prices[i]
-                elif self.sample_prices is not None:
-                    asset_type = markets.get_asset_type(symbol=self.tickers[i])
-                    price = services.parse_price_from_date(prices=self.sample_prices[self.tickers[i]],
-                                                            date=list(self.sample_prices[self.tickers[i]].keys())[0],
-                                                            asset_type=asset_type)                                 
-                else:
-                    price = services.get_daily_price_latest(self.tickers[i])
+        shares = []
+        for i in range(len(x)):
+            if latest_prices is not None:
+                price = latest_prices[i]
+            elif self.sample_prices is not None:
+                asset_type = files.get_asset_type(symbol=self.tickers[i])
+                price = services.parse_price_from_date(prices=self.sample_prices[self.tickers[i]],
+                                                        date=list(self.sample_prices[self.tickers[i]].keys())[0],
+                                                        asset_type=asset_type)                                 
+            else:
+                price = services.get_daily_price_latest(self.tickers[i])
 
-                share = Decimal(x[i]) * Decimal(total) / Decimal(price) 
-                self.shares.append(math.trunc(share))
+            share = Decimal(x[i]) * Decimal(total) / Decimal(price) 
+            shares.append(math.trunc(share))
 
-        return self.shares
+        return shares
 
     def calculate_actual_total(self, x, total, latest_prices=None):
-        if self.actual_total is None:
-            self.actual_total = 0
-            shares = self.calculate_approximate_shares(x=x, total=total, latest_prices=latest_prices)
-            for i in range(len(shares)):
-                if latest_prices is not None:
-                    price = latest_prices[i]
-                elif self.sample_prices is not None:
-                    asset_type = markets.get_asset_type(symbol=self.tickers[i])
-                    price = services.parse_price_from_date(prices=self.sample_prices[self.tickers[i]],
-                                                            date=list(self.sample_prices[self.tickers[i]].keys())[0],
-                                                            asset_type=asset_type)                                   
-                else:
-                    price = services.get_daily_price_latest(self.tickers[i])
-                portion = Decimal(shares[i]) * Decimal(price)
-                self.actual_total = self.actual_total + portion
-        return self.actual_total
+        actual_total = 0
+        shares = self.calculate_approximate_shares(x=x, total=total, latest_prices=latest_prices)
+        for i in range(len(shares)):
+            if latest_prices is not None:
+                price = latest_prices[i]
+            elif self.sample_prices is not None:
+                asset_type = files.get_asset_type(symbol=self.tickers[i])
+                price = services.parse_price_from_date(prices=self.sample_prices[self.tickers[i]],
+                                                        date=list(self.sample_prices[self.tickers[i]].keys())[0],
+                                                        asset_type=asset_type)                                   
+            else:
+                price = services.get_daily_price_latest(self.tickers[i])
+            portion = Decimal(shares[i]) * Decimal(price)
+            actual_total = actual_total + portion
+        return actual_total
