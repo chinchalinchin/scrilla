@@ -7,10 +7,10 @@ from data import models, cache
 import app.util.helper as helper
 import app.util.outputter as outputter
 
-import app.markets as markets
+import app.analysis.markets as markets
 import app.settings as app_settings
 import app.services as services
-import app.statistics as statistics
+import app.analysis.statistics as statistics
 
 logger = outputter.Logger("server.pynance_api.data.anaylzer", settings.LOG_LEVEL)
 

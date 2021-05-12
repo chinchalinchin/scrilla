@@ -1,4 +1,4 @@
-import os, dotenv
+import os, sys, dotenv
 
 import app.util.outputter as outputter
 
@@ -92,16 +92,21 @@ APP_NAME="PYNANCE"
 
 VERSION="0.0.1"
 
-APP_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+APP_DIR = os.path.dirname(os.path.abspath(__file__))
 
 PROJECT_DIR = os.path.dirname(APP_DIR)
+
+print(APP_DIR)
+print(PROJECT_DIR)
+
+sys.path.append(PROJECT_DIR)
 
 APP_ENV = os.environ.setdefault('APP_ENV', 'local')
 
 # NOTE: Load in local.env file if not running application container. Container should 
 # already have the container.env file preloaded in its environment.
 if APP_ENV != 'container':
-    dotenv.load_dotenv(os.path.join(os.path.join(APP_DIR,'env'), 'local.env'))
+    dotenv.load_dotenv(os.path.join(os.path.join(PROJECT_DIR,'env'), 'local.env'))
 
 LOG_LEVEL = str(os.environ.setdefault("LOG_LEVEL", "info")).lower()
 
@@ -111,20 +116,20 @@ logger = outputter.Logger('app.settings', LOG_LEVEL)
 FILE_EXT = os.environ.setdefault("FILE_EXT", "json")
 KEEP_EXT = ".gitkeep"
 
-CACHE_DIR = os.path.join(APP_DIR, 'data', 'cache')
+CACHE_DIR = os.path.join(PROJECT_DIR, 'data', 'cache')
 CACHE_PRO_KEY="profile"
 CACHE_PRICE_KEY="prices"
 CACHE_COR_KEY="correlation"
 CACHE_DIV_KEY="dividends"
 CACHE_STAT_KEY="statistic"
 
-STATIC_DIR = os.path.join(APP_DIR, 'data', 'static')
+STATIC_DIR = os.path.join(PROJECT_DIR, 'data', 'static')
 
 STATIC_TICKERS_FILE = os.path.join(STATIC_DIR, f'tickers.{FILE_EXT}')
 STATIC_ECON_FILE = os.path.join(STATIC_DIR, f'economics.{FILE_EXT}')
 STATIC_CRYPTO_FILE = os.path.join(STATIC_DIR, f'crypto.{FILE_EXT}')
 
-COMMON_DIR=os.path.join(APP_DIR, 'data', 'common')
+COMMON_DIR=os.path.join(PROJECT_DIR, 'data', 'common')
 COMMON_WATCHLIST_FILE=os.path.join(COMMON_DIR, f'watchlist.{FILE_EXT}')
 
 ACCURACY=5

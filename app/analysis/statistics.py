@@ -2,12 +2,13 @@ import os, sys, json
 import datetime
 import numpy
 
-PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.append(PROJECT_DIR)
+if __name__=="__main__":
+    PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    sys.path.append(PROJECT_DIR)
+    print('stats', PROJECT_DIR)
 
 import app.settings as settings
 import app.services as services
-import app.markets as markets
 import app.files as files
 
 import app.util.outputter as outputter
@@ -96,7 +97,7 @@ def sample_variance(x):
     return sigma
 
 def recursive_rolling_variance(var_previous, xbar_previous, new_obs, lost_obs, n=settings.DEFAULT_ANALYSIS_PERIOD):
-    xbar_new = recursive_mean(xbar_previous=xbar_previous, new_obs=new_obs,
+    xbar_new = recursive_rolling_mean(xbar_previous=xbar_previous, new_obs=new_obs,
                                 lost_obs=lost_obs, n=n)
     var_new = var_previous + (n/(n-1))*((new_obs**2 - lost_obs**2 )/n + (xbar_previous**2-xbar_new**2))
     return var_new
@@ -218,8 +219,8 @@ def calculate_moving_averages(tickers, start_date=None, end_date=None, sample_pr
             else:
                 prices = sample_prices[ticker]
 
-            asset_type = markets.get_asset_type(ticker)
-            trading_period = markets.get_trading_period(asset_type)
+            asset_type = files.get_asset_type(ticker)
+            trading_period = files.get_trading_period(asset_type)
 
             today = False
             count, tomorrows_price, MA_1, MA_2, MA_3 = 1, 0, 0, 0, 0
@@ -259,7 +260,7 @@ def calculate_moving_averages(tickers, start_date=None, end_date=None, sample_pr
     ### START ARGUMENT VALIDATION ###
     logger.debug('Checking provided tickers for mixed asset types.')
     for ticker in tickers:
-        asset_type = markets.get_asset_type(ticker)
+        asset_type = files.get_asset_type(ticker)
         portfolio_asset_type = asset_type
         if previous_asset_type is not None:
             if previous_asset_type != asset_type:
@@ -287,8 +288,8 @@ def calculate_moving_averages(tickers, start_date=None, end_date=None, sample_pr
     for ticker in tickers:
         logger.debug(f'Calculating Moving Average for {ticker}.')
 
-        asset_type = markets.get_asset_type(ticker)
-        trading_period = markets.get_trading_period(asset_type)
+        asset_type = files.get_asset_type(ticker)
+        trading_period = files.get_trading_period(asset_type)
 
         logger.debug('Offsetting start date to account for longest Moving Average period.')
         if asset_type == settings.ASSET_CRYPTO:
@@ -478,8 +479,8 @@ def calculate_risk_return(ticker, start_date=None, end_date=None, sample_prices=
         return results
 
     if asset_type is None:
-        asset_type = markets.get_asset_type(ticker)
-    trading_period = markets.get_trading_period(asset_type)
+        asset_type = files.get_asset_type(ticker)
+    trading_period = files.get_trading_period(asset_type)
 
     if not trading_period:
         logger.debug("Asset did not map to (crypto, equity) grouping")
@@ -616,9 +617,9 @@ def calculate_ito_correlation(ticker_1, ticker_2, asset_type_1=None, asset_type_
         return None
 
     if asset_type_1 is None:
-        asset_type_1 = markets.get_asset_type(symbol=ticker_1)
+        asset_type_1 = files.get_asset_type(symbol=ticker_1)
     if asset_type_2 is None:
-        asset_type_2 = markets.get_asset_type(symbol=ticker_2)
+        asset_type_2 = files.get_asset_type(symbol=ticker_2)
     
     # ito's lemma
     if asset_type_1 == settings.ASSET_EQUITY:
@@ -850,8 +851,8 @@ def get_ito_correlation_matrix_string(tickers, indent=0, start_date=None,
 
 
 def calculate_ito_correlation_series(ticker_1, ticker_2, start_date=None, end_date=None):
-    asset_type_1 = markets.get_asset_type(ticker_1)
-    asset_type_2 = markets.get_asset_type(ticker_2)
+    asset_type_1 = files.get_asset_type(ticker_1)
+    asset_type_2 = files.get_asset_type(ticker_2)
     same_type = False
     correlation_series={}
 

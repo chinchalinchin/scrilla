@@ -4,7 +4,8 @@ import numpy
 PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.append(PROJECT_DIR)
 
-from app import statistics, settings, services, markets
+from app import settings, services, files
+from app.analysis import statistics
 from app.util import outputter, helper
 
 rolling_x_y_1 = [[1, 3, 5, 2, 6, 10],[4, 5, 3, 6, 2, 8]]
@@ -133,7 +134,7 @@ def rolling_recursion_test():
     outputter.print_line()
 
 def rolling_recursion_tests_with_financial_data():
-    trading_period = markets.get_trading_period(asset_type=settings.ASSET_EQUITY)
+    trading_period = files.get_trading_period(asset_type=settings.ASSET_EQUITY)
 
     for ticker in test_tickers:
         for date in test_dates:

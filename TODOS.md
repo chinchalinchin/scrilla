@@ -56,3 +56,5 @@
 39. Figure out why recursive estimates of rolling mean returns and volatilitie are off by several decimal spots from their actual values.
 
 40. Include derivation of recursive estimation in the documentation pages.
+
+41. analysis module can import function module. function module scripts can import each other, as they should be static. analysis module is built out of function module. 

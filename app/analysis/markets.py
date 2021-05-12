@@ -1,96 +1,22 @@
 
-import app.statistics as statistics
 import app.settings as settings
 import app.services as services
 import app.files as files
+
+import app.analysis.statistics as statistics
+
 from app.objects.cashflow import Cashflow
 
 import app.util.outputter as outputter
 
 import os
 
-print('markets.py', os.getcwd())
 
 MODEL_DDM="ddm"
 # TODO: implement dcf model
 MODEL_DCF="dcf"
 
 logger = outputter.Logger('app.markets', settings.LOG_LEVEL)
-
-# NOTE: output from get_overlapping_symbols:
-# OVERLAP = ['ABT', 'AC', 'ADT', 'ADX', 'AE', 'AGI', 'AI', 'AIR', 'AMP', 'AVT', 'BCC', 'BCD', 'BCH', 'BCX', 'BDL', 'BFT', 'BIS', 'BLK', 'BQ', 'BRX', 
-# 'BTA', 'BTG', 'CAT', 'CMP', 'CMT', 'CNX', 'CTR', 'CURE', 'DAR', 'DASH', 'DBC', 'DCT', 'DDF', 'DFS', 'DTB', 'DYN', 'EBTC', 'ECC', 'EFL', 'ELA', 'ELF',
-# 'EMB', 'ENG', 'ENJ', 'EOS', 'EOT', 'EQT', 'ERC', 'ETH', 'ETN', 'EVX', 'EXP', 'FCT', 'FLO', 'FLT', 'FTC', 'FUN', 'GAM', 'GBX', 'GEO', 'GLD', 'GNT', 
-# 'GRC', 'GTO', 'INF', 'INS', 'INT', 'IXC', 'KIN', 'LBC', 'LEND', 'LTC', 'MAX', 'MCO', 'MEC', 'MED', 'MGC', 'MINT', 'MLN', 'MNE', 'MOD', 'MSP', 'MTH', 
-# 'MTN', 'MUE', 'NAV', 'NEO', 'NEOS', 'NET', 'NMR', 'NOBL', 'NXC', 'OCN', 'OPT', 'PBT', 'PING', 'PPC', 'PPT', 'PRG', 'PRO', 'PST', 'PTC', 'QLC', 'QTUM',
-# 'R', 'RDN', 'REC', 'RVT', 'SALT', 'SAN', 'SC', 'SKY', 'SLS', 'SPR', 'SNX', 'STK', 'STX', 'SUB', 'SWT', 'THC', 'TKR', 'TRC', 'TRST', 'TRUE', 'TRX', 
-# 'TX', 'UNB', 'VERI', 'VIVO', 'VOX', 'VPN', 'VRM', 'VRS', 'VSL', 'VTC', 'VTR', 'WDC', 'WGO', 'WTT', 'XEL', 'NEM', 'ZEN']
-
-# TODO: need some way to distinguish between overlap.
-
-def get_overlapping_symbols(equities=None, cryptos=None):
-    """
-    Description
-    -----------
-    Returns an array of symbols which are contained in both the STATIC_TICKERS_FILE and STATIC_CRYPTO_FILE, i.e. ticker symbols which have both a tradeable equtiy and a tradeable crypto asset. 
-    """
-    if equities is None:
-        equities = list(files.get_static_data(settings.ASSET_EQUITY))
-    if cryptos is None:
-        cryptos = list(files.get_static_data(settings.ASSET_CRYPTO))
-    overlap = []
-    for crypto in cryptos:
-        if crypto in equities:
-            overlap.append(crypto)
-    return overlap
-
-def get_asset_type(symbol):
-    """"
-    Description
-    -----------
-    Returns the asset type of the supplied ticker symbol. \n \n
-
-    Output
-    ------
-    A string representing the type of asset of the symbol. Types are statically accessible through the `app.settings` variables: ASSET_EQUITY and ASSET_CRYPTO. \n \n 
-    """
-    symbols = list(files.get_static_data(settings.ASSET_CRYPTO))
-    overlap = get_overlapping_symbols(cryptos=symbols)
-
-    if symbol not in overlap:
-        if symbol in symbols:
-            return settings.ASSET_CRYPTO
-            
-                # if other asset types are introduced, then uncomment these lines
-                # and add new asset type to conditional. Keep in mind the static
-                # equity data is HUGE.
-        # symbols = list(files.get_static_data(settings.ASSET_EQUITY))
-        # if symbol in symbols:
-            # return settings.ASSET_EQUITY
-        #return None
-        return settings.ASSET_EQUITY
-    # default to equity for overlap until a better method is determined. 
-    return settings.ASSET_EQUITY
-
-def get_trading_period(asset_type):
-    """
-    Description
-    -----------
-    Returns the value of one trading day measured in years of the asset_type passed in as an argument.
-
-    Parameters
-    ----------
-    1. asset_type : str\n
-    
-    A string that represents a type of tradeable asset. Types are statically accessible through the `app.settings` variables: ASSET_EQUITY and ASSET_CRYPTO.
-    """
-    if asset_type is None:
-        return False
-    if asset_type == settings.ASSET_CRYPTO:
-        return settings.ONE_TRADING_DAY
-    if asset_type == settings.ASSET_EQUITY:
-        return (1/365)
-    return settings.ONE_TRADING_DAY
 
 # NOTE: Quandl outputs interest in percentage terms
 # NOTE: This function sort of blurs the lines between services.py and markets.py

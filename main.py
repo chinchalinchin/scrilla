@@ -1,11 +1,12 @@
 import sys
 
 import app.settings as settings
-import app.statistics as statistics
-import app.optimizer as optimizer
 import app.services as services
-import app.markets as markets
 import app.files as files
+
+import app.analysis.statistics as statistics
+import app.analysis.optimizer as optimizer
+import app.analysis.markets as markets
 
 from app.objects.portfolio import Portfolio
 from app.objects.cashflow import Cashflow

@@ -4,7 +4,6 @@ import datetime, time
 import requests
 
 import app.settings as settings
-import app.markets as markets
 import app.files as files
 
 import app.util.outputter as outputter
@@ -62,7 +61,7 @@ def validate_tradeability_of_dates(start_date, end_date):
 def validate_asset_type(asset_type, ticker):
     if asset_type is None:
         logger.debug('No asset type provided, determining from ticker.')
-        asset_type=markets.get_asset_type(ticker)  
+        asset_type=files.get_asset_type(ticker)  
     else: 
         logger.debug(f'Asset type {asset_type} provided')
     return asset_type
@@ -313,7 +312,7 @@ def get_daily_price_history(ticker, start_date=None, end_date=None):
     
 def get_daily_price_latest(ticker):
     if settings.PRICE_MANAGER == "alpha_vantage":
-        asset_type = markets.get_asset_type(ticker)
+        asset_type = files.get_asset_type(ticker)
         prices = get_daily_price_history(ticker)
         first_element = helper.get_first_json_key(prices)
 

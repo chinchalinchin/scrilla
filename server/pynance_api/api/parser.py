@@ -6,7 +6,7 @@ from data.models import EquityMarket, CryptoMarket, EquityTicker, CryptoTicker, 
 import app.util.helper as helper
 import app.util.outputter as outputter
 
-import app.markets as markets
+import app.analysis.markets as markets
 import app.settings as app_settings
 
 logger = outputter.Logger("server.pynance_api.api.parser", settings.LOG_LEVEL)
