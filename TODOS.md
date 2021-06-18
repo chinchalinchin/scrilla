@@ -56,3 +56,5 @@
 39. Figure out why recursive estimates of rolling mean returns and volatilitie are off by several decimal spots from their actual values.
 
 40. Include derivation of recursive estimation in the documentation pages.
+
+41. Multiple entries unique entries getting assigned different ids in data_economy data. Must have to do with cache...

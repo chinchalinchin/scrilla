@@ -15,7 +15,7 @@ export class RiskProfileComponent implements OnInit {
   private location : string = "app.widgets.risk-profile.RiskProfileComponent"
   public portfolio : Holding[] = [];
   public displayedColumns: string[] = [];
-  public calculateDisabled :boolean = true;
+  public calculateDisabled : boolean = true;
   public clearDisabled : boolean = true;
   public loaded : boolean = false;
   public loading : boolean = false;
