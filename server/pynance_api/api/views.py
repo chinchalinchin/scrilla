@@ -11,10 +11,10 @@ from data import analyzer, cache, models
 import app.settings as app_settings
 from app.objects.portfolio import Portfolio
 from app.objects.cashflow import Cashflow
-import app.statistics as statistics
+import app.analysis.statistics as statistics
 import app.services as services
-import app.optimizer as optimizer
-import app.markets as markets
+import app.analysis.optimizer as optimizer
+import app.analysis.markets as markets
 import app.files as files
 
 # Utility Imports

@@ -58,3 +58,4 @@
 40. Include derivation of recursive estimation in the documentation pages.
 
 41. Multiple entries unique entries getting assigned different ids in data_economy data. Must have to do with cache...
+41. analysis module can import function module. function module scripts can import each other, as they should be static. analysis module is built out of function module. 

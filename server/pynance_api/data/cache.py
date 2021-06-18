@@ -8,9 +8,9 @@ from data.models import EquityMarket, CryptoMarket, EquityTicker, CryptoTicker, 
 import app.util.helper as helper
 import app.util.outputter as outputter
 
-import app.markets as markets
+import app.analysis.markets as markets
 import app.settings as app_settings
-import app.statistics as statistics
+import app.analysis.statistics as statistics
 import app.files as files
 
 logger = outputter.Logger("server.pynance_api.data.cache", settings.LOG_LEVEL)

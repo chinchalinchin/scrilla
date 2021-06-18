@@ -1,10 +1,6 @@
-import os, json
-import itertools
-import datetime, time
-import requests
+import itertools, time, requests
 
 import app.settings as settings
-import app.markets as markets
 import app.files as files
 
 import app.util.outputter as outputter
@@ -62,7 +58,7 @@ def validate_tradeability_of_dates(start_date, end_date):
 def validate_asset_type(asset_type, ticker):
     if asset_type is None:
         logger.debug('No asset type provided, determining from ticker.')
-        asset_type=markets.get_asset_type(ticker)  
+        asset_type=files.get_asset_type(ticker)  
     else: 
         logger.debug(f'Asset type {asset_type} provided')
     return asset_type
@@ -313,7 +309,7 @@ def get_daily_price_history(ticker, start_date=None, end_date=None):
     
 def get_daily_price_latest(ticker):
     if settings.PRICE_MANAGER == "alpha_vantage":
-        asset_type = markets.get_asset_type(ticker)
+        asset_type = files.get_asset_type(ticker)
         prices = get_daily_price_history(ticker)
         first_element = helper.get_first_json_key(prices)
 
@@ -440,3 +436,19 @@ def get_percent_stat_symbols():
     if settings.STAT_MANAGER == 'quandl':
         percent_stats = settings.ARG_Q_YIELD_CURVE.values()
         return percent_stats
+
+        # NOTE: Quandl outputs interest in percentage terms
+# NOTE: This function sort of blurs the lines between services.py and markets.py
+#       I put it here because I want the markets.py class to be from where the 
+#       the risk_free_rate is accessed for now. It may make more sense to have this
+#       in services.py since it's basically just a call an external service.
+#       Haven't made up my mind yet. 
+def get_risk_free_rate():
+    """
+    Description
+    -----------
+    Returns as a decimal the risk free rate defined by the RISK_FREE environment variable (and passed into `app.settings` as the variable RISK_FREE_RATE). \n \n 
+    """
+    risk_free_rate_key = settings.RISK_FREE_RATE
+    risk_free_rate = get_daily_stats_latest(statistic=risk_free_rate_key)
+    return (risk_free_rate)/100

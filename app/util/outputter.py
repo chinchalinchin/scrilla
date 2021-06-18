@@ -230,7 +230,8 @@ class Logger():
 
             print_line()
             self.comment("# Environment Configuration")
-            self.comment(f'> Directory Location : {settings.BASE_DIR}')
+            self.comment(f'> Server Location : {settings.BASE_DIR}')
+            self.comment(f'> App Location : {settings.APP_DIR}')
             self.comment(f'> Environment: {settings.APP_ENV}')
 
             print_line()

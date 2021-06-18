@@ -2,9 +2,9 @@ import time
 
 from PyQt5 import Qt, QtCore, QtWidgets
 
-import app.statistics as statistics
+import app.analysis.statistics as statistics
 import app.settings as settings
-import app.optimizer as optimizer
+import app.analysis.optimizer as optimizer
 import app.objects.portfolio as portfolio
 
 import app.util.outputter as outputter

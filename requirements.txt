@@ -12,7 +12,7 @@ matplotlib==3.3.3
 holidays==0.10.4
 
 # GUI Dependencies
-PyQt5==5.15.2
+PyQt5==5.14
 
 # Database Dependencies
 psycopg2==2.8.2
