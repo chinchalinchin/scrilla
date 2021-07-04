@@ -544,9 +544,10 @@ def calculate_risk_return(ticker, start_date=None, end_date=None, sample_prices=
         'annual_volatility': volatility
     }
 
-    # store results in buffer for quick access
-    if start_date is None and end_date is None:
-        files.store_local_object(local_object=files.OBJECTS['risk_profile'], value=results, args={"ticker": ticker})
+    
+    files.store_local_object(local_object=files.OBJECTS['risk_profile'], value=results, 
+                                args={"ticker": ticker, "start_date": start_date, 
+                                                     "end_date": end_date})
 
     return results
 
