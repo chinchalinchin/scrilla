@@ -354,9 +354,9 @@ def get_trading_period(asset_type):
     if asset_type is None:
         return False
     if asset_type == settings.ASSET_CRYPTO:
-        return settings.ONE_TRADING_DAY
-    if asset_type == settings.ASSET_EQUITY:
         return (1/365)
+    if asset_type == settings.ASSET_EQUITY:
+        return settings.ONE_TRADING_DAY
     return settings.ONE_TRADING_DAY
 
 def get_watchlist():
