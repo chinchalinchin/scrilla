@@ -1,4 +1,4 @@
-FROM python:3.8.10-slim
+FROM python:3.10.0b4-slim
 
 # DEFAULT USER & GROUP CONFIGURATION
 RUN useradd -ms /bin/bash pynance && groupadd pyadmin && usermod -a -G pyadmin pynance
