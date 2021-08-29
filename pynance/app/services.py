@@ -17,17 +17,18 @@ OPEN_PRICE = "open"
 def validate_order_of_dates(start_date, end_date):
     switch_flag = start_date is not None and end_date is not None
 
-    if start_date is not None:
-        if helper.is_date_today(start_date):
-            time_delta = (end_date - start_date).days
-            if time_delta == 0: # either end_date is also today
-                return True, start_date, end_date
-            return False, None, None
+    if (
+        start_date is not None
+        and helper.is_date_today(start_date)
+    ):
+        time_delta = (end_date - start_date).days
+        if time_delta == 0: # either end_date is also today
+            return True, start_date, end_date
+        return False, None, None
 
-    if end_date is not None:
-        if helper.is_date_today(end_date):
-            end_date = None
-            switch_flag = False
+    if end_date is not None and helper.is_date_today(end_date):
+        end_date = None
+        switch_flag = False
 
     if switch_flag:
         time_delta = end_date - start_date
@@ -38,19 +39,25 @@ def validate_order_of_dates(start_date, end_date):
     return True, start_date, end_date
 
 def validate_tradeability_of_dates(start_date, end_date):
-    if start_date is not None:
-        if helper.is_date_holiday(start_date) or helper.is_date_weekend(start_date):
-            logger.debug(f'{start_date} is invalid. Equities do not trade on holidays or weekends.')
+    if (
+        start_date is not None
+        and helper.is_date_holiday(start_date)
+        or helper.is_date_weekend(start_date)
+    ):
+        logger.debug(f'{start_date} is invalid. Equities do not trade on holidays or weekends.')
 
-            start_date = helper.get_previous_business_date(start_date)
-            logger.debug(f'Setting start date to next business day, {start_date}')
+        start_date = helper.get_previous_business_date(start_date)
+        logger.debug(f'Setting start date to next business day, {start_date}')
 
-    if end_date is not None:
-        if helper.is_date_holiday(end_date) or helper.is_date_weekend(end_date):
-            logger.debug(f'{end_date} is invalid. Equities do not trade on holidays or weekends.')
+    if (
+        end_date is not None
+        and helper.is_date_holiday(end_date)
+        or helper.is_date_weekend(end_date)
+    ):
+        logger.debug(f'{end_date} is invalid. Equities do not trade on holidays or weekends.')
 
-            end_date = helper.get_previous_business_date(end_date)
-            logger.debug(f'Setting end date to previous business day, {end_date}.')
+        end_date = helper.get_previous_business_date(end_date)
+        logger.debug(f'Setting end date to previous business day, {end_date}.')
 
     return start_date, end_date
 
