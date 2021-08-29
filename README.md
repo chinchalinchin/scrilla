@@ -7,8 +7,8 @@ The program's functions are wrapped in [PyQt5](https://doc.qt.io/qtforpython/ind
 ## Required Configuration
 
 In order to use this application, you will need to register for API keys at AlphaVantage, IEX and Quandl. Store these in your session's environment. <b>pynance</b> will search for environment variables named <b>ALPHA_VANTAGE_KEY</b>, <b>QUANDL_KEY</b> and <b>IEX_KEY</b>. You can add the following lines to your <i>.bashrc</i> profile,
-test
-`export ALPHA_VANTAGE_KEY=<key goes here>`<br><br>
+
+`export ALPHA_VANTAGE_KEY=<key goes here>`<br>
 `export QUANDL_KEY=<key goes here>`<br>
 `export IEX_KEY=<key goes here>`<br>
 
@@ -76,24 +76,24 @@ For example, the following command,
 
 Will optimize a portfolio consisting of <i>ALLY</i>, <i>BX</i> and <i>SONY</i> using historical data between the dates of January 1st, 2020 and May 15th, 2021. The portfolio will be constrained to return a rate of 25%. A total $10,000 will be invested into this portfolio (to the nearest whole share). The output of this command will look like this,
 
-`---------------------------------------------- Results ----------------------------------------------`<br>
-`----------------------------------------------------------------------------------------------------`<br>
-`----------------------------------- Optimal Percentage Allocation -----------------------------------`<br>
-           `ALLY = 22.83 %`<br>
-           `BX = 19.26 %`<br>
-           `SONY = 57.91 %`<br>
-`----------------------------------------------------------------------------------------------------`<br>
-`----------------------------------------------------------------------------------------------------`<br>
-`-------------------------------------- Optimal Share Allocation --------------------------------------`<br>
-           `ALLY = 42`<br>
-           `BX = 15`<br>
-           `SONY = 56`<br>
-`-------------------------------------- Optimal Portfolio Value --------------------------------------`<br>
-           `>> Total  = $ 9893.98`<br>
-`---------------------------------------- Risk-Return Profile ----------------------------------------`<br>
-           `>> Return  =  0.25`<br>
-           `>> Volatility  =  0.201`<br>
-`----------------------------------------------------------------------------------------------------`<br>
+> ---------------------------------------------- Results ----------------------------------------------<br>
+> ----------------------------------------------------------------------------------------------------<br>
+> ----------------------------------- Optimal Percentage Allocation -----------------------------------<br>
+>           ALLY = 22.83 %<br>
+>           BX = 19.26 %<br>
+>           SONY = 57.91 %<br>
+> ----------------------------------------------------------------------------------------------------<br>
+> ----------------------------------------------------------------------------------------------------<br>
+> -------------------------------------- Optimal Share Allocation --------------------------------------<br>
+>           ALLY = 42<br>
+>           BX = 15<br>
+>           SONY = 56<br>
+> -------------------------------------- Optimal Portfolio Value --------------------------------------<br>
+>           >> Total  = $ 9893.98<br>
+> ---------------------------------------- Risk-Return Profile ----------------------------------------<br>
+>           >> Return  =  0.25<br>
+>           >> Volatility  =  0.201<br>
+> ----------------------------------------------------------------------------------------------------<br>
 
 Note the optimal share allocation does not allow fractional shares. <b>pynance</b> will attempt to get as close to the total investment inputted without going over using only whole shares. Also note the return of this portfolio is 25%, as this was inputted into the target return constraint. 
 
