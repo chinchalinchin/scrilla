@@ -1,6 +1,7 @@
 # Application Configuration Dependencies
 python-dotenv==0.15.0
 setuptools==51.1.1
+build==0.6.0
 
 # Service Configuration Dependencies
 requests==2.25.0
@@ -13,13 +14,3 @@ holidays==0.10.4
 
 # GUI Dependencies
 PyQt5==5.14
-
-# Database Dependencies
-psycopg2==2.8.2
-
-# Server Dependencies
-django==3.1.12
-gunicorn==20.0.4
-whitenoise==5.1.0
-django-cors-headers==3.7.0
-django-referrer-policy==1.0.0

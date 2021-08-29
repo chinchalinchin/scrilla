@@ -195,9 +195,7 @@ def init_static_data():
             (not os.path.isfile(settings.STATIC_TICKERS_FILE)) or \
                 (not os.path.isfile(settings.STATIC_CRYPTO_FILE))):
 
-        logger.info('Initializing static data. Please wait. This may take a moment.')
-        logger.info('NOTE: set LOG_LEVEL = "debug" for more output while you wait.')
-        
+        logger.info('Initializing static data. Please wait. This may take a moment...')
 
         # grab ticker symbols and store in STATIC_DIR
         if not os.path.isfile(settings.STATIC_TICKERS_FILE):
