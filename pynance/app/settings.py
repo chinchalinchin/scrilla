@@ -131,22 +131,22 @@ ACCURACY=5
 BACKOFF_PERIOD=30
 
 # See .sample.env for more information.
-LOCAL_CACHE = os.getenv('LOCAL_CACHE_ENABLED').strip().lower() == 'true'
+LOCAL_CACHE = os.environ.setdefault('LOCAL_CACHE_ENABLED', 'true').strip().lower() == 'true'
 
 ## GUI CONFIGURATION
 
 POPUP_WIDTH, POPUP_HEIGHT = 150, 150
 
 try:
-    GUI_WIDTH = int(os.environ.setdefault('GUI_WIDTH', 800))
-except ValueError: 
-    logger.info('Failed to parse GUI_WIDTH from .env File. Setting to default value of 800. Please Ensure GUI_WIDTH is set to an integer value.')
+    GUI_WIDTH = int(os.getenv('GUI_WIDTH'))
+except (ValueError, TypeError) as ParseError: 
+    logger.info('Failed to parse GUI_WIDTH from environment. Setting to default value of 800. Please Ensure GUI_WIDTH is set to an integer value.')
     GUI_WIDTH = 800
 
 try:
-    GUI_HEIGHT = int(os.environ.setdefault('GUI_HEIGHT', 800))
-except ValueError:
-    logger.info('Failed to parse GUI_HEIGHT from .env File. Setting to default value of 800. Please Ensure GUI_HEIGHT is set to an integer value.')
+    GUI_HEIGHT = int(os.getenv('GUI_HEIGHT'))
+except (ValueError, TypeError) as ParseError:
+    logger.info('Failed to parse GUI_HEIGHT from enviroment. Setting to default value of 800. Please Ensure GUI_HEIGHT is set to an integer value.')
     GUI_HEIGHT = 800
 
 
@@ -155,34 +155,34 @@ except ValueError:
 OPTIMIZATION_METHOD="SLSQP"
 
 try:
-    FRONTIER_STEPS = int(os.environ.setdefault('FRONTIER_STEPS', 5))
+    FRONTIER_STEPS = int(os.getenv('FRONTIER_STEPS'))
 
-except ValueError:
-    logger.info('Failed to parse FRONTIER_STEPS from .env File. Setting to default value of 5. Please ensure FRONTIER_STEPS is set to an integer value.')
+except (ValueError, TypeError) as ParseError:
+    logger.info('Failed to parse FRONTIER_STEPS from enviroment. Setting to default value of 5. Please ensure FRONTIER_STEPS is set to an integer value.')
     FRONTIER_STEPS = 5
 
 try:
-    MA_1_PERIOD = int(os.environ.setdefault('MA_1', 20))
-except ValueError: 
-    logger.info('Failed to parse MA_1 from .env File. Setting to default value of 20. Please ensure MA_1 is set to an integer value.')
+    MA_1_PERIOD = int(os.getenv('MA_1'))
+except (ValueError, TypeError) as ParseError: 
+    logger.info('Failed to parse MA_1 from environment. Setting to default value of 20. Please ensure MA_1 is set to an integer value.')
     MA_1_PERIOD = 20
 
 try:
-    MA_2_PERIOD = int(os.environ.setdefault('MA_2', 60))
-except ValueError: 
-    logger.info('Failed to parse MA_2 from .env File. Setting to default value of 60. Please ensure MA_2 is set to an integer value.')
+    MA_2_PERIOD = int(os.getenv('MA_2'))
+except (ValueError, TypeError) as ParseError: 
+    logger.info('Failed to parse MA_2 from environment. Setting to default value of 60. Please ensure MA_2 is set to an integer value.')
     MA_2_PERIOD = 60
 
 try:
-    MA_3_PERIOD = int(os.environ.setdefault('MA_3', 100))
-except ValueError: 
-    logger.info('Failed to parse MA_3 from .env File. Setting to default value of 100. Please ensure MA_3 is set to an integer value.')
+    MA_3_PERIOD = int(os.getenv('MA_3'))
+except (ValueError, TypeError) as ParseError: 
+    logger.info('Failed to parse MA_3 from environment. Setting to default value of 100. Please ensure MA_3 is set to an integer value.')
     MA_3_PERIOD = 100
 
 try:
     ITO_STEPS = int(os.getenv('ITO_STEPS'))
-except ValueError:
-    logger.info('Failed to parsed ITO_STEPS from .env file. Setting to default of 10000. Please ensure ITO_STEPS is set to an integer value.')
+except (ValueError, TypeError) as ParseError:
+    logger.info('Failed to parsed ITO_STEPS from environment. Setting to default of 10000. Please ensure ITO_STEPS is set to an integer value.')
 
 ONE_TRADING_DAY=(1/252)
 
