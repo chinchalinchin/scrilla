@@ -11,3 +11,4 @@
 !/pynance/app/data/sql/.gitkeep
 /pynance/app/data/tests/*
 *.pyc
+/pynance/pynance_advisor.egg_info
