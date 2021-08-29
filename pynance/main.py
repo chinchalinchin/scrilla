@@ -40,24 +40,19 @@ First, before the containerized version of this application can be spun up, the 
 non_container_functions = [formatter.FUNC_ARG_DICT['plot_dividends'], formatter.FUNC_ARG_DICT['plot_moving_averages'],
                                formatter.FUNC_ARG_DICT['plot_risk_profile'], formatter.FUNC_ARG_DICT['plot_frontier']]
 
-def validate_function_usage(selection, wrapper_function, required_length=1, exact=False):
+def validate_function_usage(selection, args, wrapper_function, required_length=1, exact=False):
     if selection in non_container_functions and settings.APP_ENV == 'container':
         logger.comment('GUI functionality disabled when application is containerized.')
 
     else:
-        if(not exact and (len(main_args)>(required_length-1))):
+        if(not exact and (len(args)>(required_length-1))):
             wrapper_function()
-        elif(exact and (len(main_args)==required_length)):
+        elif(exact and (len(args)==required_length)):
             wrapper_function()
         else:
             logger.comment('Error encountered while calculating. Try -ex flag for example usage.')
 
-if __name__ == "__main__": 
-    # TODO: check for API key and if none exists, prompt user to define ALPHA_VANTAGE_KEY, QUANDL_KEY and
-    #       IEX_KEY environment variables. Then exit. 
-    # TODO: possibly create PyQt widget to prompt user to enter credentials and save them to creds.json
-    #       in /data/common/
-
+def do_program():
     if len(sys.argv)>0:
         logger.debug('Parsing and invoking command line arguments')
         opt = sys.argv[1]
@@ -409,9 +404,17 @@ if __name__ == "__main__":
                 logger.comment('No function supplied. Please review Function Summary below and re-execute with appropriate arguments.')
                 outputter.help_msg()
             
-            validate_function_usage(selection=opt, wrapper_function=selected_function, 
+            validate_function_usage(selection=opt, args=main_args, 
+                                    wrapper_function=selected_function, 
                                     required_length=required_length)
             outputter.print_line()
     else:
         logger.comment('No arguments Supplied. Please review function summary below and re-execute with appropriate arguments.')
         outputter.help_msg()
+
+if __name__ == "__main__": 
+    # TODO: check for API key and if none exists, prompt user to define ALPHA_VANTAGE_KEY, QUANDL_KEY and
+    #       IEX_KEY environment variables. Then exit. 
+    # TODO: possibly create PyQt widget to prompt user to enter credentials and save them to creds.json
+    #       in /data/common/
+    do_program()

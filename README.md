@@ -27,3 +27,7 @@ This variable will default to a value of `5`, but can be set equal to any intege
 4. <b>MA_1</b>, <b>MA_2</b>, <b>MA_3</b>: Determines the period in days used to calculuate moving average series.
 
 These variables default to the values of `20`, `60` and `100`, but can be set equal to any integer, as long as <b>MA_3</b> > <b>MA_2</b> > <b>MA_1</b>.
+
+5. <b>FILE_EXT</b>: Determines the type of files that are output by <b>pynance</b>. 
+
+This variable is ccurrently only defined for an argument of `json`. A future release will include `csv`. 
