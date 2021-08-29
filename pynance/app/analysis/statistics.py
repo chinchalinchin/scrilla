@@ -258,12 +258,14 @@ def calculate_moving_averages(tickers, start_date=None, end_date=None, sample_pr
     for ticker in tickers:
         asset_type = files.get_asset_type(ticker)
         portfolio_asset_type = asset_type
-        if previous_asset_type is not None:
-            if previous_asset_type != asset_type:
-                logger.debug('Tickers include mixed asset types, flagging calculation.')
-                portfolio_asset_type = None
-                mixed_flag = True
-                break
+        if (
+            previous_asset_type is not None
+            and previous_asset_type != asset_type
+        ):
+            logger.debug('Tickers include mixed asset types, flagging calculation.')
+            portfolio_asset_type = None
+            mixed_flag = True
+            break
         previous_asset_type = asset_type
 
     if not mixed_flag:
