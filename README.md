@@ -8,9 +8,9 @@ The program's functions are wrapped in [PyQt5](https://doc.qt.io/qtforpython/ind
 
 In order to use this application, you will need to register for API keys at AlphaVantage, IEX and Quandl. Store these in your session's environment. <b>pynance</b> will search for environment variables named <b>ALPHA_VANTAGE_KEY</b>, <b>QUANDL_KEY</b> and <b>IEX_KEY</b>. You can add the following lines to your <i>.bashrc</i> profile,
 
-`export ALPHA_VANTAGE_KEY=<key goes here>`
-`export QUANDL_KEY=<key goes here>`
-`export IEX_KEY=<key goes here>`
+`export ALPHA_VANTAGE_KEY=<key goes here>`<br>
+`export QUANDL_KEY=<key goes here>`<br>
+`export IEX_KEY=<key goes here>`<br>
 
 If no API keys are found in these variables, the application will not function properly; be sure to load these variables into your shell session before using <b>pynance</b>. The link below will take you to the registration pages for each service API Key,
 
@@ -48,7 +48,7 @@ For a full list of <b>pynance</b>'s functionality,
 
 `pynance -help`
 
-The main uses of <b>pynance</b> are detailed below.
+The main usage of <b>pynance</b> are detailed below.
 
 ### Optimization
 
@@ -76,23 +76,56 @@ For example, the following command,
 
 Will optimize a portfolio consisting of <i>ALLY</i>, <i>BX</i> and <i>SONY</i> using historical data between the dates of January 1st, 2020 and May 15th, 2021. The portfolio will be constrained to return a rate of 25%. A total $10,000 will be invested into this portfolio (to the nearest whole share). The output of this command will look like this,
 
-`---------------------------------------------- Results ----------------------------------------------`
-`----------------------------------------------------------------------------------------------------`
-`----------------------------------- Optimal Percentage Allocation -----------------------------------`
-           `ALLY = 22.83 %`
-           `BX = 19.26 %`
-           `SONY = 57.91 %`
-`----------------------------------------------------------------------------------------------------`
-`----------------------------------------------------------------------------------------------------`
-`-------------------------------------- Optimal Share Allocation --------------------------------------`
-           `ALLY = 42`
-           `BX = 15`
-           `SONY = 56`
-`-------------------------------------- Optimal Portfolio Value --------------------------------------`
-           `>> Total  = $ 9893.98`
-`---------------------------------------- Risk-Return Profile ----------------------------------------`
-           `>> Return  =  0.25`
-           `>> Volatility  =  0.201`
-`----------------------------------------------------------------------------------------------------`
+`---------------------------------------------- Results ----------------------------------------------`<br>
+`----------------------------------------------------------------------------------------------------`<br>
+`----------------------------------- Optimal Percentage Allocation -----------------------------------`<br>
+           `ALLY = 22.83 %`<br>
+           `BX = 19.26 %`<br>
+           `SONY = 57.91 %`<br>
+`----------------------------------------------------------------------------------------------------`<br>
+`----------------------------------------------------------------------------------------------------`<br>
+`-------------------------------------- Optimal Share Allocation --------------------------------------`<br>
+           `ALLY = 42`<br>
+           `BX = 15`<br>
+           `SONY = 56`<br>
+`-------------------------------------- Optimal Portfolio Value --------------------------------------`<br>
+           `>> Total  = $ 9893.98`<br>
+`---------------------------------------- Risk-Return Profile ----------------------------------------`<br>
+           `>> Return  =  0.25`<br>
+           `>> Volatility  =  0.201`<br>
+`----------------------------------------------------------------------------------------------------`<br>
+
+Note the optimal share allocation does not allow fractional shares. <b>pynance</b> will attempt to get as close to the total investment inputted without going over using only whole shares. Also note the return of this portfolio is 25%, as this was inputted into the target return constraint. 
+
+### Other Notable Features
+
+1. Discount Dividend Model
+
+<b>pynance</b> will pull an equity's dividend payment history, regress the payment amount against its date and infer a linear regression from this time series. It will use this model to project future dividend payments and then calculate the current cost of equity and use that to discount the sum of dividend payments back to the present,
+
+`pynance -ddm ALLY`
+
+Alternatively, you can visualize the dividend payments against the regression model,
+
+`pynance -plot-ddm ALLY`
+
+2. Financial Statistics
+    - Beta: `pynance -capm-beta [TICKERS]`
+    - Correlation Matrix: `pynance -cor [TICKERS]`
+    - Cost Of Equity: `pynance -capm-equity [TICKERS]`
+    - Sharpe Ratio: `pynance -sharpe [TICKERS]`
+
+3. Stock Watchlist and Screening
+
+Stocks can be added to your watchlist with,
+
+`pynance -watch [TICKERS]`
+
+You can then screen stocks according to some criteria. For example, the following command will search your watchlist for stock prices that are less than their Discount Dividend Model (very rare this happens...),
+
+`pynance -screen -model DDM`
+
+
+
 
 
