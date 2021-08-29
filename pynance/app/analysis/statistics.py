@@ -768,13 +768,12 @@ def ito_correlation_matrix(tickers, asset_types=None, start_date=None, end_date=
                 correlation_matrix[j][i] = correlation_matrix[i][j]
             correlation_matrix[len(tickers) - 1][len(tickers) - 1] = 1
         return correlation_matrix
-    elif (len(tickers)==1):
+    if (len(tickers)==1):
         correlation_matrix[0][0]=1
         return correlation_matrix
-    else:
-        logger.debug('Cannot calculate correlation matrix for portfolio size < 1.')
-        # TODO: raise exception
-        return False
+    logger.debug('Cannot calculate correlation matrix for portfolio size < 1.')
+    # TODO: raise exception
+    return False
 
 def get_ito_correlation_matrix_string(tickers, indent=0, start_date=None, 
                                         end_date=None, sample_prices=None,

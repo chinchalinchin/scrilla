@@ -43,8 +43,7 @@ def validate_order_of_dates(start_date, end_date):
     delta = (end_date - start_date).days
     if delta > 0 or delta == 0:
         return start_date, end_date
-    else:
-        return end_date, start_date
+    return end_date, start_date
 
 # YYYY-MM-DD
 def parse_date_string(date_string) -> datetime.date:
