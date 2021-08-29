@@ -4,9 +4,13 @@ This is a financial application that calculates asset correlations, statistics a
 
 The program's functions are wrapped in [PyQt5](https://doc.qt.io/qtforpython/index.html) widgets which provide a user interface. In addition, visualizations are created by [matplotlib](https://matplotlib.org/3.3.3/contents.html) for easier presentation.
 
-In order to use this application, you will need to register for API keys at AlphaVantage, IEX and Quandl. Store these in your session's environment. <b>pynance</b> will search for environment variables named ALPHA_VANTAGE_KEY, QUANDL_KEY and IEX_KEY. If no API keys are found in these variables, the application will not work properly. 
+## Required Configuration
 
-Other aspects of <b>pynance</b> can be configured through environment variables, as well,
+In order to use this application, you will need to register for API keys at AlphaVantage, IEX and Quandl. Store these in your session's environment. <b>pynance</b> will search for environment variables named <b>ALPHA_VANTAGE_KEY</b>, <b>QUANDL_KEY</b> and <b>IEX_KEY</b>. If no API keys are found in these variables, the application will not function properly; be sure to load these variables into your shell session before using <b>pynance</b>. 
+
+## Optional Configuration 
+
+<b>Pynance</b> can be configured with the following environment variables. Each variable in this list has a suitable default set and so does not need changed unless the user prefers a different setting.
 
 1. <b>RISK_FREE</b>: Determines which US-Treasury yield is used as the basis for the risk free rate. 
 
@@ -14,7 +18,7 @@ This variable will default to a value of `10-Year`, but can be modified to any o
 
 2. <b>MARKET_PROXY</b>: Determines which ticker symbol is used as a proxy for the market return.
 
-This variable will default ot a value of `SPY`, but can be set to any ticker on the stock market.
+This variable will default to a value of `SPY`, but can be set to any ticker on the stock market.
 
 3. <b>FRONTIER_STEPS</b>: Determines the number of data points in a portfolio's efficient frontier.
 

@@ -50,8 +50,6 @@ FUNC_ARG_DICT = {
     "risk_free_rate": "-rf",
     "risk_return" : "-rr",
     "screener": "-screen",
-    "server_local": "-local",
-    "server_container": "-container",
     "sharpe_ratio": "-sharpe",
     "statistic": "-stat",
     "statistic_history": "-stats",
@@ -136,10 +134,6 @@ FUNC_DICT = {
     "risk_return": "Calculate the risk-return profile for the supplied list of ticker symbols. If no start or end dates are specified, calculations default to the last 100 days of prices. ADDITIONAL OPTIONS:  -start (format: \"YYYY-MM-DD\"), -end  (format :\"YYYY-MM-DD\"), -save (format: /path/to/file/filename.json)",
     
     "screener": "Searchs equity spot prices that trade at a discount to the provided model. If no model is provided, the screener will default to the Discount Dividend Model. If no discount rate is provided, the screener will default to the cost of equity for a ticker calculated using the CAPM model and the ticker defined by environment variable MARKET_PROXY as a proxy for the market. ADDITION OPTIONS: -discount (format: decimal), -model (format: string, values: ddm)",
-    
-    "server_local": "Invokes 'python manage.py runserver' from /server/ directory. Configure .env file to change port.",
-    
-    "server_container": "Builds and runs a Docker image of the application on 'localhost'. Configure .env to change port.",
     
     "sharpe_ratio": "Computes the sharpe ratio for each of the supplied tickers. ADDITIONAL OPTIONS:  -start (format: \"YYYY-MM-DD\"), -end  (format :\"YYYY-MM-DD\")", 
 

@@ -1,13 +1,2 @@
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-declare -a SERVER_ARGS=("--local" "-local" "--l" "-l" "--container" "-container" "--c" "-c")
-
-for arg in ${SERVER_ARGS[@]}
-do
-    if [ "$1" == "$arg" ]
-    then
-        # bash $SCRIPT_DIR/server/pynance-server.sh $1
-        exit 0
-    fi
-done
-
 python3 $SCRIPT_DIR/../pynance/main.py $@
