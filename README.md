@@ -7,8 +7,8 @@ The program's functions are wrapped in [PyQt5](https://doc.qt.io/qtforpython/ind
 ## Required Configuration
 
 In order to use this application, you will need to register for API keys at AlphaVantage, IEX and Quandl. Store these in your session's environment. <b>pynance</b> will search for environment variables named <b>ALPHA_VANTAGE_KEY</b>, <b>QUANDL_KEY</b> and <b>IEX_KEY</b>. You can add the following lines to your <i>.bashrc</i> profile,
-
-`export ALPHA_VANTAGE_KEY=<key goes here>`<br>
+test
+`export ALPHA_VANTAGE_KEY=<key goes here>`<br><br>
 `export QUANDL_KEY=<key goes here>`<br>
 `export IEX_KEY=<key goes here>`<br>
 
