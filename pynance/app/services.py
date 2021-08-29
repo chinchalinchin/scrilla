@@ -22,8 +22,7 @@ def validate_order_of_dates(start_date, end_date):
             time_delta = (end_date - start_date).days
             if time_delta == 0: # either end_date is also today
                 return True, start_date, end_date
-            else: # or impossible
-                return False, None, None
+            return False, None, None
 
     if end_date is not None:
         if helper.is_date_today(end_date):
@@ -328,7 +327,7 @@ def get_daily_price_latest(ticker):
 def query_service_for_daily_stats_history(statistic, start_date=None, end_date=None, full=False):
     if settings.STAT_MANAGER == "quandl":
         stat = {}
-        
+    
         if full:
             start_date, end_date = None, None
 
@@ -341,7 +340,7 @@ def query_service_for_daily_stats_history(statistic, start_date=None, end_date=N
 
         url = f'{settings.Q_URL}/'
         query = f'{settings.PATH_Q_FRED}/{statistic}?'
-        
+    
         if end_date is not None:
             end_string = helper.date_to_string(end_date)
             query += f'&{settings.PARAM_Q_END}={end_string}' 
@@ -369,9 +368,8 @@ def query_service_for_daily_stats_history(statistic, start_date=None, end_date=N
             formatted_stat[stat[0]] = stat[1]
 
         return formatted_stat
-    else:
-        logger.info("No STAT_MANAGER set in .env file!")
-        return None
+    logger.info("No STAT_MANAGER set in .env file!")
+    return None
 
 # Goes through file cache if start_date and end_date are not provided,
 #   otherwise, hands the call off to the service manager.
