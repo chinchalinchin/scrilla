@@ -41,8 +41,6 @@
 
 31. Allow relative file references when saving analysis. Right now needs to be absolute path inputted into -save argument. Also, save return profiles. 
 
-32. Export function results as JSON on Angular frontend, i.e. allow users to save results.
-
 34. Mark important points of Efficient Frontier, i.e. minimum variance, maximum return, maximum sharpe ratio.
 
 35. Correlation time series.
@@ -51,11 +49,4 @@
 
 37. Look into why U risk profile calculation breaks function.
 
-38. Removing chips from risk-profile components should remove them from table.
-
-39. Figure out why recursive estimates of rolling mean returns and volatilitie are off by several decimal spots from their actual values.
-
-40. Include derivation of recursive estimation in the documentation pages.
-
-41. Multiple entries unique entries getting assigned different ids in data_economy data. Must have to do with cache...
 41. analysis module can import function module. function module scripts can import each other, as they should be static. analysis module is built out of function module. 

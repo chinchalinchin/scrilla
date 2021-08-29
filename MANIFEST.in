@@ -1,1 +1,4 @@
-include pynance/app/data/cache/.gitkeep pynance/app/data/common/.gitkeep pynance/app/data/static/.gitkeep
+include pynance/app/data/cache/.gitkeep 
+include pynance/app/data/common/.gitkeep 
+include pynance/app/data/static/.gitkeep
+include pynance/version.txt

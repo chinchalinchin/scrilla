@@ -3,6 +3,7 @@ MANIFEST.in
 README.md
 pyproject.toml
 setup.cfg
+pynance/version.txt
 pynance/app/__init__.py
 pynance/app/files.py
 pynance/app/main.py

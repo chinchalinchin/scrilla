@@ -28,9 +28,10 @@ In order to use this application, you will need to register for API keys at Alph
 
 If no API keys are found in these variables, the application will not function properly; be sure to load these variables into your shell session before using <b>pynance</b>. The link below will take you to the registration pages for each service API Key,
 
-[AlphaVantage API Key Registration](https://www.alphavantage.co/support/#api-key)
-[Quandl API Key Registration](https://www.quandl.com/account/api)
-[IEX API Key Registration](https://iexcloud.io/docs/api/)
+[AlphaVantage API Key Registration](https://www.alphavantage.co/support/#api-key)<br>
+[Quandl API Key Registration](https://www.quandl.com/account/api)<br>
+[IEX API Key Registration](https://iexcloud.io/docs/api/)<br>
+
 ## Optional Configuration 
 
 <b>pynance</b> can be configured with the following environment variables. Each variable in this list has a suitable default set and so does not need changed unless the user prefers a different setting.
