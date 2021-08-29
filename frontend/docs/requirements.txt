@@ -1,3 +1,0 @@
-# Documentation Dependencies
-sphinx==3.5.4
-myst-parser==0.13.6

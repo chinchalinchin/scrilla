@@ -5,11 +5,9 @@ for arg in ${SERVER_ARGS[@]}
 do
     if [ "$1" == "$arg" ]
     then
-        bash $SCRIPT_DIR/server/pynance-server.sh $1
+        # bash $SCRIPT_DIR/server/pynance-server.sh $1
         exit 0
     fi
-    # TODO: parse extra dash from arguments here since pynance only
-    # looks for single dashed arguments
 done
 
-python3 $SCRIPT_DIR/../main.py $@
+python3 $SCRIPT_DIR/../pynance/main.py $@

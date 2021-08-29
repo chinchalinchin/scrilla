@@ -4,6 +4,22 @@ This is a financial application that calculates asset correlations, statistics a
 
 The program's functions are wrapped in [PyQt5](https://doc.qt.io/qtforpython/index.html) widgets which provide a user interface. In addition, visualizations are created by [matplotlib](https://matplotlib.org/3.3.3/contents.html) for easier presentation.
 
-The program's functions can also be wired into a WSGI Application using the [Django framework](https://docs.djangoproject.com/en/3.1/) provided in the <i>/server/</i> directory. See <b>[WSGI Application](frontend/docs/source/wsgi-application/SETUP.md)</b> for more information. The WSGI application can be containerized using the <i>Dockerfile</i> in the project root and deployed as a microservice. An [Angular](https://angular.io/docs) frontend can be built and served up through an <b>[nginx](https://nginx.org/en/docs/)</b> container to provide a user interface for the backend service. See [WSGI Container](frontend/source/docs/wsgi-application/CONTAINER.md) and [Frontend](frontend/docs/source/wsgi-application/FRONTEND.md) for more information.
+In order to use this application, you will need to register for API keys at AlphaVantage, IEX and Quandl. Store these in your session's environment. <b>pynance</b> will search for environment variables named ALPHA_VANTAGE_KEY, QUANDL_KEY and IEX_KEY. If no API keys are found in these variables, the application will not work properly. 
 
-See [Setup](frontend/docs/source/cli-application/SETUP.md) for more information setting the application for the first time. See [Environment](frontend/docs/source/configuration/ENVIRONMENT.md) for more information on configuration options. See [Examples](frontend/docs/source/cli-application/EXAMPLES.md) for example usage of the application.
+Other aspects of <b>pynance</b> can be configured through environment variables, as well,
+
+1. <b>RISK_FREE</b>: Determines which US-Treasury yield is used as the basis for the risk free rate. 
+
+This variable will default to a value of `10-Year`, but can be modified to any of the following: `"3-Month"`, `"5-Year"`, `"10-Year"`, or `"30-Year"`.
+
+2. <b>MARKET_PROXY</b>: Determines which ticker symbol is used as a proxy for the market return.
+
+This variable will default ot a value of `SPY`, but can be set to any ticker on the stock market.
+
+3. <b>FRONTIER_STEPS</b>: Determines the number of data points in a portfolio's efficient frontier.
+
+This variable will default to a value of `5`, but can be set equal to any integer.
+
+4. <b>MA_1</b>, <b>MA_2</b>, <b>MA_3</b>: Determines the period in days used to calculuate moving average series.
+
+These variables default to the values of `20`, `60` and `100`, but can be set equal to any integer, as long as <b>MA_3</b> > <b>MA_2</b> > <b>MA_1</b>.
