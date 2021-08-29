@@ -19,27 +19,74 @@ commands:
       - run:
           name: artifact upload
           command: twine upload -u $PYPI_USERNAME -p $PYPI_PASSWORD dist/*
+  push:
+    description: push new version number to GitHub
+    steps:
+        - run: 
+            name: push version
+            command: |
+              echo "TODO"
+
   
 jobs:
-  pypi:
+  pypi_micro_update:
     docker:
       - image: cimg/python:3.9.6
     steps:
       - checkout
       - install
       - run:
-          name: iterate subminor version
+          name: iterate micro version
           command: |
-            VERSION
+            echo "TODO"
       - build
       - upload
+      - push
+
+  pypi_minor_update:
+    docker: 
+      - image: cimg/python:3.9.6
+    steps:
+      - checkout
+      - install
+      - run:
+          name: iterate minor version
+          command: | 
+            echo "TODO"
+      - build
+      - upload
+      - push
+
+  pypi_major_update:
+    docker: 
+      - image: cimg/python:3.9.6
+    steps:
+      - checkout 
+      - install
+      - run:
+          name: iterate major version
+          command: |
+            echo "TODO"
+      - build
+      - upload
+      - push
 
 workflows:
   version: 2
   build_and_push:
     jobs:
-      - pypi:
+      - pypi_micro_update:
           filters:
             branches:
               only:
-                - pypi/package-subminor
+                - pypi/micro-update
+      - pypi_minor_update:
+          filters: 
+            branches:
+              only:
+                - pypi/minor-update
+      - pypi_major_update:
+          filters:
+            branches:
+              only:
+                - pypi/major-update
