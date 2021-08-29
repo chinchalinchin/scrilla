@@ -17,6 +17,7 @@ If no API keys are found in these variables, the application will not function p
 [AlphaVantage API Key Registration](https://www.alphavantage.co/support/#api-key)<br>
 [Quandl API Key Registration](https://www.quandl.com/account/api)<br>
 [IEX API Key Registration](https://iexcloud.io/docs/api/)<br>
+
 ## Optional Configuration 
 
 <b>pynance</b> can be configured with the following environment variables. Each variable in this list has a suitable default set and so does not need changed unless the user prefers a different setting.

@@ -1,0 +1,17 @@
+version: 2.1
+
+jobs:
+  pypi_build:
+    docker:
+      - image: cimg/python:3.9.6
+    steps:
+      - checkout
+      - run:
+        name: install build dependencies
+        command: pip install twine setuptools build
+      - run:
+        name: compress and build wheel
+        command: python -m build
+      - run: 
+        name: upload artifacts to PyPi
+        command: twine upload -u $PYPI_USERNAME -p $PYPI_PASSWORD dist/*
