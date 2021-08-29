@@ -2,7 +2,7 @@ import os, sys
 
 MAJOR=0
 MINOR=1
-SUBMINOR=2
+MICRO=2
 
 script_dir = os.path.dirname(os.path.realpath(__file__))
 project_dir = os.path.dirname(os.path.dirname(script_dir))
@@ -42,6 +42,6 @@ if __name__=="__main__":
         version = iterate_index(version, MAJOR)
     if 'minor' in parsed_args:
         version = iterate_index(version, MINOR)
-    if 'subminor' in parsed_args:
-        version = iterate_index(version, SUBMINOR)
+    if 'micro' in parsed_args:
+        version = iterate_index(version, MICRO)
     save_new_version(version)

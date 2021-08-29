@@ -38,7 +38,7 @@ jobs:
       - run:
           name: iterate micro version
           command: |
-            echo "TODO"
+            python ./scripts/circleci/iterate_version.py micro
       - build
       - upload
       - push
@@ -52,7 +52,7 @@ jobs:
       - run:
           name: iterate minor version
           command: | 
-            echo "TODO"
+            python ./scripts/circleci/iterate_version.py minor
       - build
       - upload
       - push
@@ -66,7 +66,7 @@ jobs:
       - run:
           name: iterate major version
           command: |
-            echo "TODO"
+            python ./scripts/circleci/iterate_version.py major
       - build
       - upload
       - push
