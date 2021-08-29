@@ -1,3 +1,0 @@
-[console_scripts]
-pynance = app.main:do_program
-
