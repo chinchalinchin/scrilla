@@ -411,7 +411,7 @@ def do_program():
             
             validate_function_usage(selection=opt, args=main_args, 
                                     wrapper_function=selected_function, 
-                                    required_length=required_length)
+                                    required_length=required_length, exact=exact)
             outputter.print_line()
     else:
         logger.comment('No arguments Supplied. Please review function summary below and re-execute with appropriate arguments.')
