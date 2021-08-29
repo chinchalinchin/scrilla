@@ -147,7 +147,7 @@ class Portfolio:
 
     def calculate_approximate_shares(self, x, total, latest_prices=None):
         shares = []
-        for i in range(len(x)):
+        for i, item in enumerate(x):
             if latest_prices is not None:
                 price = latest_prices[i]
             elif self.sample_prices is not None:
@@ -158,7 +158,7 @@ class Portfolio:
             else:
                 price = services.get_daily_price_latest(self.tickers[i])
 
-            share = Decimal(x[i]) * Decimal(total) / Decimal(price) 
+            share = Decimal(item) * Decimal(total) / Decimal(price) 
             shares.append(math.trunc(share))
 
         return shares
@@ -166,7 +166,7 @@ class Portfolio:
     def calculate_actual_total(self, x, total, latest_prices=None):
         actual_total = 0
         shares = self.calculate_approximate_shares(x=x, total=total, latest_prices=latest_prices)
-        for i in range(len(shares)):
+        for i, item in enumerate(shares):
             if latest_prices is not None:
                 price = latest_prices[i]
             elif self.sample_prices is not None:
@@ -176,6 +176,6 @@ class Portfolio:
                                                         asset_type=asset_type)                                   
             else:
                 price = services.get_daily_price_latest(self.tickers[i])
-            portion = Decimal(shares[i]) * Decimal(price)
+            portion = Decimal(item) * Decimal(price)
             actual_total = actual_total + portion
         return actual_total
