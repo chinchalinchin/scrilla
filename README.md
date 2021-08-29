@@ -113,6 +113,7 @@ Alternatively, you can visualize the dividend payments against the regression mo
     - Beta: `pynance -capm-beta [TICKERS]`
     - Correlation Matrix: `pynance -cor [TICKERS]`
     - Cost Of Equity: `pynance -capm-equity [TICKERS]`
+    - Risk-Return Profile: `pynance -rr [TICKERS]`
     - Sharpe Ratio: `pynance -sharpe [TICKERS]`
 
 3. Stock Watchlist and Screening
@@ -125,7 +126,13 @@ You can then screen stocks according to some criteria. For example, the followin
 
 `pynance -screen -model DDM`
 
-
+4. Visualizations
+    - Discount Dividend Model: `pynance -plot-div [TICKER]`
+        - NOTE: THIS FUNCTION ONLY ACCEPTS ONE TICKER AT A TIME.
+    - Efficient Fronter: `pynance -plot-ef [TICKERS]`
+    - Moving Averages: `pynance -plot-mov [TICKERS]`
+    - Risk Return Profile: `pynance -plot-rr [TICKERS]`
+    - Yield Curve: `pynance -plot-yield` (not implemented yet)
 
 
 
