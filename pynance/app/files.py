@@ -84,7 +84,7 @@ def store_local_object(local_object, value, args):
 def retrieve_local_object(local_object, args):
     if settings.LOCAL_CACHE:
         timestamp = generate_timestamp(args=args)
-        
+
         if local_object == OBJECTS['correlation']:
             buffer_store_1= os.path.join(settings.CACHE_DIR, f'{timestamp}_{args["ticker_1"]}_{args["ticker_2"]}_{settings.CACHE_COR_KEY}.{settings.FILE_EXT}')
             buffer_store_2= os.path.join(settings.CACHE_DIR, f'{timestamp}_{args["ticker_2"]}_{args["ticker_1"]}_{settings.CACHE_COR_KEY}.{settings.FILE_EXT}')
@@ -94,13 +94,13 @@ def retrieve_local_object(local_object, args):
                 logger.debug(f'Loading in cached ({args["ticker_1"]}, {args["ticker_2"]}) correlation.')
                 correlation = load_file(file_name=buffer_store_1)
                 return correlation
-            elif os.path.isfile(buffer_store_2):
+            if os.path.isfile(buffer_store_2):
                 logger.debug(f'Loading in cached ({args["ticker_2"]}, {args["ticker_1"]}) correlation.')
                 correlation = load_file(file_name=buffer_store_2)
                 return correlation
             return None
 
-        elif local_object == OBJECTS['risk_profile']:
+        if local_object == OBJECTS['risk_profile']:
             file_name = os.path.join(settings.CACHE_DIR, f'{timestamp}_{args["ticker"]}_{settings.CACHE_PRO_KEY}.{settings.FILE_EXT}')
             logger.debug(f'Checking for {args["ticker"]} statistics in local cache.')
             if os.path.isfile(file_name):
@@ -120,7 +120,7 @@ def retrieve_local_object(local_object, args):
                     # components = file.name.split('_')
                     # cached_start_date = parsed_date(components[0])
                     # cached_end_date = parsed_date(components[1])
-                    
+            
                     # if cached_start_date <= start_date and cached_end_date >= end_date:
                         # parsed start_date to end_date from cached_prices
 
