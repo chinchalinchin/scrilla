@@ -43,6 +43,10 @@ Determines the period in days used to calculuate moving average series. These va
 
 Determines the type of files that are output by <b>scrilla</b>. This variable is ccurrently only defined for an argument of `json`. A future release will include `csv`. 
 
+- LOG_LEVEL
+
+Determines the amount of output. Defaults to `info`. Allowable values: `info`, `debug`, `verbose`. Be warned, `verbose` is <i>extremely</i> verbose.
+
 ## Usage
 
 For a full list of <b>scrilla</b>'s functionality,

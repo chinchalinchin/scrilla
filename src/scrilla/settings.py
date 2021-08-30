@@ -104,7 +104,7 @@ if APP_ENV != 'container':
 
 LOG_LEVEL = str(os.environ.setdefault("LOG_LEVEL", "info")).lower()
 
-logger = outputter.Logger(' settings', LOG_LEVEL)
+logger = outputter.Logger('settings', LOG_LEVEL)
 
 # TODO: CACHE only supports JSON currently. Future file extensions: csv and txt.
 FILE_EXT = os.environ.setdefault("FILE_EXT", "json")
