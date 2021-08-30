@@ -1,3 +1,0 @@
-[console_scripts]
-scrilla = scrilla.main:do_program
-

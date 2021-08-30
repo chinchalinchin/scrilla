@@ -1,7 +1,0 @@
-numpy==1.19.3
-scipy==1.5.4
-matplotlib==3.3.3
-holidays==0.10.4
-PyQt5==5.15.2
-python-dotenv==0.15.0
-requests==2.25.0

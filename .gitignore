@@ -11,6 +11,6 @@
 !/src/scrilla/data/sql/.gitkeep
 /src/scrilla/data/tests/*
 *.pyc
-/src/scrilla.egg_info/*
+/src/scrilla.egg-info/*
 /dist
 .vscode
