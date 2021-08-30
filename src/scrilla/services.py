@@ -1,5 +1,9 @@
 import itertools, time, requests
 
+#  Note: need to import from package when running from wheel.
+# if running locally through main.py file, these imports should be replaced
+#       from . import settings, from . import files
+# annoying, but it is what it is.
 from scrilla import settings
 from scrilla import files 
 

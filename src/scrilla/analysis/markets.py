@@ -16,7 +16,7 @@ MODEL_DDM="ddm"
 # TODO: implement dcf model
 MODEL_DCF="dcf"
 
-logger = outputter.Logger(' markets', settings.LOG_LEVEL)
+logger = outputter.Logger('markets', settings.LOG_LEVEL)
 
 # NOTE: if ticker_profile is provided, it effectively nullifies start_date and end_date.
 # TODO: pass in risk_free_rate=None as optional argument to prevent overusing services
@@ -44,6 +44,13 @@ def sharpe_ratio(ticker, start_date=None, end_date=None, risk_free_rate=None, ti
         Risk-return profile for the supplied ticker. If provided, start_date and end_date are ignored and the values in ticker_profile are used to calculate the Sharpe ratio.
 
     """
+
+    result = files.retrieve_local_object(local_object=files.OBJECTS['equity_statistic'],
+                                            args={ 'equity_stat_symbol': 'sharpe', 'ticker': ticker,
+                                                    'start_date': start_date, 'end_date': end_date })
+    if result is not None:
+        return result
+
     if ticker_profile is None:
         ticker_profile = statistics.calculate_risk_return(ticker=ticker, start_date=start_date,
                                                         end_date=end_date)
@@ -51,6 +58,11 @@ def sharpe_ratio(ticker, start_date=None, end_date=None, risk_free_rate=None, ti
     if risk_free_rate is None:
         risk_free_rate = services.get_risk_free_rate()
 
+    sharpe_ratio = (ticker_profile['annual_return'] - risk_free_rate)/ticker_profile['annual_volatility']
+
+    files.store_local_object(local_object=files.OBJECTS['equity_statistic'], 
+                                value=sharpe_ratio, args={ 'equity_stat_symbol': 'sharpe', 'ticker': ticker,
+                                                            'start_date': start_date, 'end_date': end_date })
     return (ticker_profile['annual_return'] - risk_free_rate)/ticker_profile['annual_volatility']
 
 # if no dates are specified, defaults to last 100 days
@@ -69,12 +81,24 @@ def market_premium(start_date=None, end_date=None, market_profile = None):
         End_date of the time period for which the market premium will be computed. \n \n 
 
     """
+    result = files.retrieve_local_object(local_object=files.OBJECTS['equity_statistic'], 
+                                            args={ 'equity_stat_symbol': 'premium', 'ticker': settings.MARKET_PROXY,
+                                                    'start_date': start_date, 'end_date': end_date})
+    if result is not None:
+        return result
+
     if market_profile is None:
         market_profile = statistics.calculate_risk_return(ticker=settings.MARKET_PROXY, 
                                                             start_date=start_date, 
                                                             end_date=end_date)
 
-    return (market_profile['annual_return'] - services.get_risk_free_rate())
+    market_premium = (market_profile['annual_return'] - services.get_risk_free_rate())
+
+    files.store_local_object(local_object=files.OBJECTS['equity_statistic'], value = market_premium,
+                                args={ 'equity_stat_symbol': 'premium', 'ticker': settings.MARKET_PROXY,
+                                        'start_date': start_date, 'end_date': end_date})
+
+    return market_premium
 
 def market_beta(ticker, start_date=None, end_date=None, market_profile=None, market_correlation=None, ticker_profile=None, sample_prices=None):
     """
@@ -94,6 +118,12 @@ def market_beta(ticker, start_date=None, end_date=None, market_profile=None, mar
         End_date of the time period for which the asset beta will be computed. \n \n 
 
     """
+    result = files.retrieve_local_object(local_object=files.OBJECTS['equity_statistic'], 
+                                            args={ 'equity_stat_symbol': 'beta', 'ticker': ticker,
+                                                    'start_date': start_date, 'end_date': end_date })
+    if result is not None:
+        return result
+
     if market_profile is None:
         if sample_prices is None:
             market_profile = statistics.calculate_risk_return(ticker=settings.MARKET_PROXY, 
@@ -116,7 +146,13 @@ def market_beta(ticker, start_date=None, end_date=None, market_profile=None, mar
                                                                 correlation = market_correlation,
                                                                 sample_prices=sample_prices,
                                                                 start_date=start_date, end_date=end_date)
-    return market_covariance / (market_profile['annual_volatility']**2)
+    beta = market_covariance / (market_profile['annual_volatility']**2)
+
+    files.store_local_object(local_object=files.OBJECTS['equity_statistics'], value=beta,
+                                args={ 'equity_stat_symbol': 'beta', 'ticker': ticker,
+                                        'start_date': start_date, 'end_date': end_date })
+
+    return beta
 
 def cost_of_equity(ticker, start_date=None, end_date=None, market_profile=None, market_correlation=None):
     """
@@ -135,11 +171,21 @@ def cost_of_equity(ticker, start_date=None, end_date=None, market_profile=None, 
         End_date of the time period for which the cost of equity ratio will be computed. \n \n 
 
     """
+    result = files.retrieve_local_object(local_object=files.OBJECTS['equity_statistic'],
+                                        args={ 'equity_stat_symbol': 'equity_cost', 'ticker': ticker,
+                                                    'start_date': start_date, 'end_date': end_date })
+    if result is not None:
+        return result
+
     beta = market_beta(ticker=ticker, start_date=start_date, end_date=end_date,
                         market_profile=market_profile, market_correlation=market_correlation)
     premium = market_premium(start_date=start_date, end_date=end_date, market_profile=market_profile)
+    equity_cost = (premium*beta + services.get_risk_free_rate())
 
-    return (premium*beta + services.get_risk_free_rate())
+    files.store_local_object(local_object=files.OBJECTS['equity_statistic'], equity_cost,
+                                args={ 'equity_stat_symbol': 'equity_cost', 'ticker': ticker,
+                                                    'start_date': start_date, 'end_date': end_date })
+    return equity_cost
 
 def screen_for_discount(model=None, discount_rate=None):
     """

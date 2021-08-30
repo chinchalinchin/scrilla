@@ -1,13 +1,17 @@
 import sys
 
-from scrilla import settings
-from scrilla import services
-from scrilla import files
+#  Note: need to import from package when running from wheel.
+# if running locally through main.py file, these imports should be replaced
+#       from . import settings, from . import services, from . import files
+# annoying, but it is what it is.
+if __name__=="__main__":
+    import settings, services, files
 
-import analysis.statistics as statistics
-import analysis.optimizer as optimizer
-import analysis.markets as markets
+else:
+    from scrilla import settings, services, files
 
+from util import helper, outputter, formatter
+from analysis import statistics, optimizer, markets
 from objects.portfolio import Portfolio
 from objects.cashflow import Cashflow
 
@@ -15,10 +19,6 @@ if settings.APP_ENV != "container":
     from PyQt5 import QtWidgets
     import gui.menu as menu
     import util.plotter as plotter
-
-import util.helper as helper
-import util.outputter as outputter
-import util.formatter as formatter
 
 logger = outputter.Logger('main', settings.LOG_LEVEL)
 
@@ -32,10 +32,6 @@ Description
 This script acts as the entrypoint for the CLI application. It parses the arguments supplied through the command line, delegates them to the appropriate application function and then passes the results to the Logger class for formatting and printing to screen. \n \n 
 
 The arguments are parsed in such a way that arguments which are not supplied are set to None. All application functions are set up to accept None as a value for their optional arguments. This makes passing arguments to application functions easier as the `main.py` script doesn't have to worry about their values. In other words, `main.py` always passes all arguments to application functions, even if they aren't supplied through the command line; it just sets the ones which aren't supplied to None.  \n \n
-
-Note, several of the application's function are not dealt with inside of this entrypoint script, namely the `-local` and `-container` flags, which start up a local Django development server or a containerized **gunicorn** server with the WSGI Application deployed onto it, respectively. For several reasons, the wrapper script '/scripts/scrilla' takes cares of those arguments within the shell the `scrilla` command is invoked from before passing the arguments to python. \n \n
-
-First, before the containerized version of this application can be spun up, the Docker image must be built. This is easier to do from a shell script. Second, there are several 'manage.py' processes that must be completed before the server goes up, such as making migrations and migrating them to the database service. Doing so from inside of this script would be unnecessarily messy. Third, this application is designed to keep functionality as modularized as possible, i.e. the 'app' module is in charge purely of application calculations and algorithms, whereas the 'server' module is in charge of exposing the functions as an API and setting up all the necessary database tables, etc. Mixing and matching server tasks in this script would couple the application and server in ways that go counter to the design principles adopted for this package. \n \n
 """
 non_container_functions = [formatter.FUNC_ARG_DICT['plot_dividends'], formatter.FUNC_ARG_DICT['plot_moving_averages'],
                                formatter.FUNC_ARG_DICT['plot_risk_profile'], formatter.FUNC_ARG_DICT['plot_frontier']]
@@ -84,7 +80,7 @@ def do_program():
             widget.resize(settings.GUI_WIDTH, settings.GUI_HEIGHT)
             widget.show()
 
-            sys.exit( exec_())
+            sys.exit(app.exec_())
 
         # NOTE: Docker doesn't support windowing libraries
         elif opt == formatter.FUNC_ARG_DICT["gui"] and settings.APP_ENV == "container":

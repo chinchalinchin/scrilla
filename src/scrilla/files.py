@@ -6,6 +6,11 @@ Description
 import os, io, json, csv, zipfile
 import requests
 
+
+#  Note: need to import from package when running from wheel.
+# if running locally through main.py file, these imports should be replaced
+#       from . import settings
+# annoying, but it is what it is.
 from scrilla import settings
 
 import util.outputter as outputter
@@ -22,7 +27,7 @@ OBJECTS={
     "statistic": 5,
     "equity_statistic":6
 }
-logger = outputter.Logger(" files", settings.LOG_LEVEL)
+logger = outputter.Logger("files", settings.LOG_LEVEL)
 
 def determine_analysis_date_range(start_date=None, end_date=None):
     if end_date is None:
@@ -62,22 +67,31 @@ def store_local_object(local_object, value, args):
     ----------
     1. local_object: int \n
         index of object type you wish to store. Types are statically accessible through OBJECTS dictionary property. \n \n 
+
     2. value: dict
-        dictionary of object key-value pairs to store.
+        dictionary of object key-value pairs to store. \n \n 
+
     3. args: dict
-        dictionary of object-specific arguments
-        1. if local_object = correlation
-            args: ticker_1, ticker_2
-        2. if local_object = prices
-            args: ticker
-        3. if local_objecct = risk_profile
-            args: ticker
-        4. if local_object = dividends
-            args: ticker
-        5. if local_object = statistic
-            args: stat_symbol
-        6. if local_object = equity_statistic
-            args: ticker, equity_stat_symbol
+        dictionary of general and object-specific arguments. \n \n
+        
+        optional arguments: \n
+        1. end_date, start_date: datetime.date \n
+            range defaults to last 100 days if no dates are provided. \n \n 
+
+        required arguments: \n
+            NOTE: required arguments are a function of the object-type. \n 
+        1. if local_object = correlation \n 
+            args: { 'ticker_1' : value , 'ticker_2': value }  \n 
+        2. if local_object = prices \n 
+            args: { 'ticker' : value } \n 
+        3. if local_objecct = risk_profile \n 
+            args: { 'ticker' : value } \n
+        4. if local_object = dividends \n 
+            args: { 'ticker' : value } \n 
+        5. if local_object = statistic \n 
+            args: { 'stat_symbol' : value } \n 
+        6. if local_object = equity_statistic \n 
+            args: { 'ticker' : value , 'equity_stat_symbol' : value } \n \n
 
     """
     if settings.LOCAL_CACHE:
@@ -157,7 +171,7 @@ def retrieve_local_object(local_object, args):
             logger.debug(f'Checking for {args["ticker"]}\'s {args["equity_stat_symbol"]} statistics in cache ')
         
         if file_name is not None and os.path.isfile(file_name):
-            logger.debug(f'Loading in {args["ticker"]} cache')
+            logger.debug(f'Loading in cache')
             results = load_file(file_name = file_name)
             return results
 
