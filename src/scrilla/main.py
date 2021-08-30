@@ -1,13 +1,8 @@
-import sys, os
+import sys
 
-APP_DIR = os.path.dirname(os.path.abspath(__file__))
-PROJECT_DIR = os.path.dirname(APP_DIR)
-
-sys.path.append(APP_DIR)
-
-import settings
-import services
-import files
+from scrilla import settings
+from scrilla import services
+from scrilla import files
 
 import analysis.statistics as statistics
 import analysis.optimizer as optimizer

@@ -1,13 +1,13 @@
 
-import  settings
-import  services
-import  files
+import settings
+import services
+import files
 
-import  analysis.statistics as statistics
+import analysis.statistics as statistics
 
-from  objects.cashflow import Cashflow
+from objects.cashflow import Cashflow
 
-import  util.outputter as outputter
+import util.outputter as outputter
 
 import os
 

@@ -1,9 +1,9 @@
 import scipy.optimize as optimize
 
-import  settings
-import  util.outputter as outputter
+import settings
+import util.outputter as outputter
 
-logger = outputter.Logger(' optimizer', settings.LOG_LEVEL)
+logger = outputter.Logger('optimizer', settings.LOG_LEVEL)
 
 def optimize_portfolio_variance(portfolio, target_return=None):
     """

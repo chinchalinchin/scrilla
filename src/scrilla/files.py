@@ -6,7 +6,7 @@ Description
 import os, io, json, csv, zipfile
 import requests
 
-import settings
+from scrilla import settings
 
 import util.outputter as outputter
 import util.helper as helper

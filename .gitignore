@@ -12,5 +12,5 @@
 /src/scrilla/data/tests/*
 *.pyc
 /src/scrilla.egg-info/*
-/dist
+/dist/*
 .vscode

@@ -1,12 +1,12 @@
 import itertools, time, requests
 
-import  settings
-import  files
+from scrilla import settings
+from scrilla import files 
 
-import  util.outputter as outputter
-import  util.helper as helper
+import util.outputter as outputter
+import util.helper as helper
 
-logger = outputter.Logger(" services", settings.LOG_LEVEL)
+logger = outputter.Logger("services", settings.LOG_LEVEL)
 
 CLOSE_PRICE = "close"
 OPEN_PRICE = "open"
