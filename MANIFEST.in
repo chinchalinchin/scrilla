@@ -1,4 +1,4 @@
-include pynance/app/data/cache/.gitkeep 
-include pynance/app/data/common/.gitkeep 
-include pynance/app/data/static/.gitkeep
-include pynance/version.txt
+include scrilla/app/data/cache/.gitkeep 
+include scrilla/app/data/common/.gitkeep 
+include scrilla/app/data/static/.gitkeep
+include scrilla/version.txt

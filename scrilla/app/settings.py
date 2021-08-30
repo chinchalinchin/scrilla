@@ -12,7 +12,7 @@ import app.util.outputter as outputter
 """
 Application Configuration
 -------------------------
-Not to be confused with server.pynance_api.core.settings, which configures the server side of the 
+Not to be confused with server.scrilla_api.core.settings, which configures the server side of the 
 application. The settings in this file only affect the optimization and statistical calculations 
 performed by the application. \n \n
 
@@ -91,7 +91,7 @@ Attributes
 66. ARG_Q_YIELD_CURVE: Quandl constant for interest rate histories. \n \n
 """
 
-APP_NAME="PYNANCE"
+APP_NAME="scrilla"
 
 VERSION="0.0.1"
 

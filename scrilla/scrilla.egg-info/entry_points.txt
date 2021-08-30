@@ -1,0 +1,3 @@
+[console_scripts]
+scrilla = app.main:do_program
+

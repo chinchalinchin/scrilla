@@ -374,7 +374,7 @@ def format_xtra_args_list(xtra_args, xtra_values):
     return arg_list
 
 # TODO: single arg functions screw up argument parsing.
-#       example: pynance -opt-
+#       example: scrilla -opt-
 def separate_and_parse_args(args):
     extra_args, extra_values= [], []
     reduced_args = args

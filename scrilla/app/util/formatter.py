@@ -1,4 +1,4 @@
-APP_NAME="Pynance"
+APP_NAME="scrilla"
 
 SIG_FIGS=5
 

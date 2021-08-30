@@ -17,7 +17,7 @@ def get_title_font():
 class MenuWidget(QtWidgets.QWidget):
     def __init__(self):
         super().__init__()
-        self.title = QtWidgets.QLabel("Pynance", alignment=QtCore.Qt.AlignTop)
+        self.title = QtWidgets.QLabel("scrilla", alignment=QtCore.Qt.AlignTop)
         self.title.setFont(get_title_font())
 
         self.back_button = QtWidgets.QPushButton("Menu")
