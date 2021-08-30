@@ -182,7 +182,7 @@ def cost_of_equity(ticker, start_date=None, end_date=None, market_profile=None, 
     premium = market_premium(start_date=start_date, end_date=end_date, market_profile=market_profile)
     equity_cost = (premium*beta + services.get_risk_free_rate())
 
-    files.store_local_object(local_object=files.OBJECTS['equity_statistic'], equity_cost,
+    files.store_local_object(local_object=files.OBJECTS['equity_statistic'], value=equity_cost,
                                 args={ 'equity_stat_symbol': 'equity_cost', 'ticker': ticker,
                                                     'start_date': start_date, 'end_date': end_date })
     return equity_cost
