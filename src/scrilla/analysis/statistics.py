@@ -6,9 +6,9 @@ if __name__=="__main__":
     APP_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     sys.path.append(APP_DIR)
 
-import settings as settings
-import services as services
-import files as files
+import settings
+import services
+import files
 
 import util.outputter as outputter
 import util.formatter as formatter

@@ -1,6 +1,6 @@
 import scipy.optimize as optimize
 
-import  settings as settings
+import  settings
 import  util.outputter as outputter
 
 logger = outputter.Logger(' optimizer', settings.LOG_LEVEL)
