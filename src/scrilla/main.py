@@ -8,9 +8,9 @@ print(PROJECT_DIR)
 
 sys.path.append(APP_DIR)
 
-import settings as settings
-import services as services
-import files as files
+import settings
+import services
+import files
 
 import analysis.statistics as statistics
 import analysis.optimizer as optimizer

@@ -3,7 +3,7 @@ import time
 from PyQt5 import Qt, QtCore, QtWidgets
 
 import  analysis.statistics as statistics
-import  settings as settings
+import  settings
 import  analysis.optimizer as optimizer
 import  objects.portfolio as portfolio
 

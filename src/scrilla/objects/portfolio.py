@@ -2,9 +2,9 @@ import numpy, math
 from decimal import Decimal
 
 import  analysis.statistics as statistics
-import  services as services
-import  settings as settings
-import  files as files
+import  services
+import  settings
+import  files
 
 import  util.outputter as outputter 
 
