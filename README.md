@@ -108,7 +108,7 @@ Note the optimal share allocation does not allow fractional shares. <b>scrilla</
 
 Alternatively, you can visualize the dividend payments against the regression model,
 
-`scrilla -plot-ddm ALLY`
+`scrilla -plot-div ALLY`
 
 2. Financial Statistics
     - Beta: `scrilla -capm-beta [TICKERS]`
