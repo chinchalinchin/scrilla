@@ -71,7 +71,7 @@ class Cashflow:
         else:
             self.constant = None
 
-        # If no sample provided, use simple linear regression
+        # If sample provided, use simple linear regression
         if self.sample is not None and self.growth_function is None:
             self.generate_time_series_for_sample()
             self.regress_growth_function()
