@@ -1,4 +1,4 @@
-include scrilla/app/data/cache/.gitkeep 
-include scrilla/app/data/common/.gitkeep 
-include scrilla/app/data/static/.gitkeep
-include scrilla/version.txt
+include src/scrilla/data/cache/.gitkeep 
+include src/scrilla/data/common/.gitkeep 
+include src/scrilla/data/static/.gitkeep
+include src/version.txt

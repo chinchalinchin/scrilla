@@ -1,16 +1,16 @@
 import scipy.optimize as optimize
 
-import app.settings as settings
-import app.util.outputter as outputter
+import  settings as settings
+import  util.outputter as outputter
 
-logger = outputter.Logger('app.optimizer', settings.LOG_LEVEL)
+logger = outputter.Logger(' optimizer', settings.LOG_LEVEL)
 
 def optimize_portfolio_variance(portfolio, target_return=None):
     """
     Parameters
     ----------
     * portfolio : Portfolio \n
-        An instance of the Portfolio class defined in app.objects.portfolio. Must be initialized with an array of ticker symbols. Optionally, it can be initialized with a start_date and end_date datetime. If start_date and end_date are specified, the portfolio will be optimized over the stated time period.\n \n
+        An instance of the Portfolio class defined in  objects.portfolio. Must be initialized with an array of ticker symbols. Optionally, it can be initialized with a start_date and end_date datetime. If start_date and end_date are specified, the portfolio will be optimized over the stated time period.\n \n
     * target_return : float \n
         The target return, as a decimal, subject to which the portfolio's volatility will be minimized.
 
@@ -51,7 +51,7 @@ def maximize_sharpe_ratio(portfolio, target_return=None):
     Parameters
     ----------
     * portfolio : Portfolio \n
-        An instance of the Portfolio class defined in app.objects.portfolio. Must be initialized with an array of ticker symbols. Optionally, it can be initialized with a start_date and end_date datetime. If start_date and end_date are specified, the portfolio will be optimized over the stated time period.\n \n
+        An instance of the Portfolio class defined in  objects.portfolio. Must be initialized with an array of ticker symbols. Optionally, it can be initialized with a start_date and end_date datetime. If start_date and end_date are specified, the portfolio will be optimized over the stated time period.\n \n
     * target_return : float \n
         The target return, as a decimal, subject to which the portfolio's volatility will be minimized.
 
@@ -93,7 +93,7 @@ def maximize_portfolio_return(portfolio):
     Parameters
     ----------
     * portfolio : Portfolio \n
-        An instance of the Portfolio class defined in app.objects.portfolio. Must be initialized with an array of ticker symbols. Optionally, it can be initialized with a start_date and end_date datetime. If start_date and end_date are specified, the portfolio will be optimized over the stated time period.\n \n
+        An instance of the Portfolio class defined in  objects.portfolio. Must be initialized with an array of ticker symbols. Optionally, it can be initialized with a start_date and end_date datetime. If start_date and end_date are specified, the portfolio will be optimized over the stated time period.\n \n
 
     Output
     ------
@@ -120,7 +120,7 @@ def calculate_efficient_frontier(portfolio, steps=None):
     Parameters
     ----------
     1. portfolio : Portfolio \n
-        An instance of the Portfolio class defined in app.objects.portfolio. Must be initialized with an array of ticker symbols. Optionally, it can be initialized with a start_date and end_date datetime. If start_date and end_date are specified, the portfolio will be optimized over the stated time period.\n \n
+        An instance of the Portfolio class defined in  objects.portfolio. Must be initialized with an array of ticker symbols. Optionally, it can be initialized with a start_date and end_date datetime. If start_date and end_date are specified, the portfolio will be optimized over the stated time period.\n \n
 
     2. steps : int \n
         The number of points calculated in the efficient frontier. If none is provided, it defaults to the environment variable FRONTIER_STEPS.

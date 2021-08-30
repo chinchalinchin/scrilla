@@ -2,9 +2,9 @@ import sys
 
 from PyQt5 import QtCore, QtWidgets, QtGui
 
-import app.settings as settings
+import  settings as settings
 
-from app.gui.functions import RiskReturnWidget, CorrelationWidget, \
+from  gui.functions import RiskReturnWidget, CorrelationWidget, \
                             MovingAverageWidget, EfficientFrontierWidget, \
                                 OptimizerWidget
 
@@ -100,4 +100,4 @@ if __name__ == "__main__":
     widget.resize(settings.GUI_WIDTH, settings.GUI_HEIGHT)
     widget.show()
 
-    sys.exit(app.exec_())
+    sys.exit( exec_())

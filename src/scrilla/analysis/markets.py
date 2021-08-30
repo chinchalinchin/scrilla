@@ -1,13 +1,13 @@
 
-import app.settings as settings
-import app.services as services
-import app.files as files
+import  settings as settings
+import  services as services
+import  files as files
 
-import app.analysis.statistics as statistics
+import  analysis.statistics as statistics
 
-from app.objects.cashflow import Cashflow
+from  objects.cashflow import Cashflow
 
-import app.util.outputter as outputter
+import  util.outputter as outputter
 
 import os
 
@@ -16,7 +16,7 @@ MODEL_DDM="ddm"
 # TODO: implement dcf model
 MODEL_DCF="dcf"
 
-logger = outputter.Logger('app.markets', settings.LOG_LEVEL)
+logger = outputter.Logger(' markets', settings.LOG_LEVEL)
 
 # NOTE: if ticker_profile is provided, it effectively nullifies start_date and end_date.
 # TODO: pass in risk_free_rate=None as optional argument to prevent overusing services
@@ -146,7 +146,7 @@ def screen_for_discount(model=None, discount_rate=None):
     Parameters
     ----------
     model : str \n
-        Model used to value the equities saved in the watchlist. If no model is specified, the function will default to MODEL_DDM. Model constants are statically accessible through the `app.settings` variables: MODEL_DDM (Discount Dividend Model), MODEL_DCF (Discounted Cash Flow Model, not yet implemented) \n \n
+        Model used to value the equities saved in the watchlist. If no model is specified, the function will default to MODEL_DDM. Model constants are statically accessible through the ` settings` variables: MODEL_DDM (Discount Dividend Model), MODEL_DCF (Discounted Cash Flow Model, not yet implemented) \n \n
 
     Output
     ------

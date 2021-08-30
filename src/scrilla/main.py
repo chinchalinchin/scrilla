@@ -3,27 +3,30 @@ import sys, os
 APP_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_DIR = os.path.dirname(APP_DIR)
 
-sys.path.append(PROJECT_DIR)
+print(APP_DIR)
+print(PROJECT_DIR)
 
-import app.settings as settings
-import app.services as services
-import app.files as files
+sys.path.append(APP_DIR)
 
-import app.analysis.statistics as statistics
-import app.analysis.optimizer as optimizer
-import app.analysis.markets as markets
+import settings as settings
+import services as services
+import files as files
 
-from app.objects.portfolio import Portfolio
-from app.objects.cashflow import Cashflow
+import analysis.statistics as statistics
+import analysis.optimizer as optimizer
+import analysis.markets as markets
+
+from objects.portfolio import Portfolio
+from objects.cashflow import Cashflow
 
 if settings.APP_ENV != "container":
     from PyQt5 import QtWidgets
-    import app.gui.menu as menu
-    import app.util.plotter as plotter
+    import gui.menu as menu
+    import util.plotter as plotter
 
-import app.util.helper as helper
-import app.util.outputter as outputter
-import app.util.formatter as formatter
+import util.helper as helper
+import util.outputter as outputter
+import util.formatter as formatter
 
 logger = outputter.Logger('main', settings.LOG_LEVEL)
 
@@ -89,7 +92,7 @@ def do_program():
             widget.resize(settings.GUI_WIDTH, settings.GUI_HEIGHT)
             widget.show()
 
-            sys.exit(app.exec_())
+            sys.exit( exec_())
 
         # NOTE: Docker doesn't support windowing libraries
         elif opt == formatter.FUNC_ARG_DICT["gui"] and settings.APP_ENV == "container":

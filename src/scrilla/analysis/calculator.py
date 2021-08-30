@@ -5,10 +5,10 @@ import numpy
 
 import random
 
-import app.settings as settings
-import app.util.outputter as outputter
+import  settings as settings
+import  util.outputter as outputter
 
-logger = outputter.Logger("app.calculator", settings.LOG_LEVEL)
+logger = outputter.Logger(" calculator", settings.LOG_LEVEL)
 
 def generate_random_walk(periods):
     return [stats.norm.ppf(random.uniform(0,1)) for i in range(periods)]

@@ -1,12 +1,12 @@
 import itertools, time, requests
 
-import app.settings as settings
-import app.files as files
+import  settings as settings
+import  files as files
 
-import app.util.outputter as outputter
-import app.util.helper as helper
+import  util.outputter as outputter
+import  util.helper as helper
 
-logger = outputter.Logger("app.services", settings.LOG_LEVEL)
+logger = outputter.Logger(" services", settings.LOG_LEVEL)
 
 CLOSE_PRICE = "close"
 OPEN_PRICE = "open"
@@ -81,7 +81,7 @@ def parse_price_from_date(prices, date, asset_type, which_price=CLOSE_PRICE):
         must be formatted YYYY-MM-DD \n \n
     3. asset_type : str \n
         String that specifies what type of asset price is being parsed. Options are statically
-        typed in the app.settings.py file: app.settings.ASSET_EQUITY, app.settings.ASSET_CRYPTO \n \n
+        typed in the  settings.py file:  settings.ASSET_EQUITY,  settings.ASSET_CRYPTO \n \n
     
     Output
     ------
@@ -452,7 +452,7 @@ def get_risk_free_rate():
     """
     Description
     -----------
-    Returns as a decimal the risk free rate defined by the RISK_FREE environment variable (and passed into `app.settings` as the variable RISK_FREE_RATE). \n \n 
+    Returns as a decimal the risk free rate defined by the RISK_FREE environment variable (and passed into ` settings` as the variable RISK_FREE_RATE). \n \n 
     """
     risk_free_rate_key = settings.RISK_FREE_RATE
     risk_free_rate = get_daily_stats_latest(statistic=risk_free_rate_key)

@@ -1,12 +1,12 @@
 import datetime
-import app.util.helper as helper
-import app.util.outputter as outputter
+import  util.helper as helper
+import  util.outputter as outputter
 
-import app.services as services
-import app.settings as settings
-import app.analysis.statistics as statistics
+import  services as services
+import  settings as settings
+import  analysis.statistics as statistics
 
-logger = outputter.Logger('app.objects.cashflow', settings.LOG_LEVEL)
+logger = outputter.Logger(' objects.cashflow', settings.LOG_LEVEL)
 
 # Technically these are periods
 FREQ_DAY=1/365

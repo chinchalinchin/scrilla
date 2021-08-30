@@ -3,18 +3,18 @@ import datetime
 import numpy
 
 if __name__=="__main__":
-    PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    sys.path.append(PROJECT_DIR)
+    APP_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    sys.path.append(APP_DIR)
 
-import app.settings as settings
-import app.services as services
-import app.files as files
+import settings as settings
+import services as services
+import files as files
 
-import app.util.outputter as outputter
-import app.util.formatter as formatter
-import app.util.helper as helper
+import util.outputter as outputter
+import util.formatter as formatter
+import util.helper as helper
 
-logger = outputter.Logger('app.statistics', settings.LOG_LEVEL)
+logger = outputter.Logger(' statistics', settings.LOG_LEVEL)
 
 # NOTE: the format of 'sample_prices' was chosen so any function that accepts it as an argument
 #       can pass the same argument to other statistical functions with minimal formatting.

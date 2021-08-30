@@ -1,6 +1,6 @@
 import requests
 
-import app.util.helper as helper
+import  util.helper as helper
 
 def test_av_key(key):
     test_url = f'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=GOOG&apikey={key}'

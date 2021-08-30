@@ -1,17 +1,15 @@
 """
 Description
 -----------
-`app.files` is in charge of all application file handling. In addition, this module handles requests for large csv files retrieved from external services. The metadata files from 'AlphaVantage' and 'Quandl' are returned as zipped csv files. The functions within in this module perform all the tasks necessary for parsing this response into the application file system, whether on the localhost or a containerized filesytem.
+` files` is in charge of all application file handling. In addition, this module handles requests for large csv files retrieved from external services. The metadata files from 'AlphaVantage' and 'Quandl' are returned as zipped csv files. The functions within in this module perform all the tasks necessary for parsing this response into the application file system, whether on the localhost or a containerized filesytem.
 """
-import os, io, json, datetime, csv, zipfile
+import os, io, json, csv, zipfile
 import requests
 
-import app.settings as settings
+import settings as settings
 
-import app.util.outputter as outputter
-import app.util.helper as helper
-
-# os.environ.setdefault("DJANGO_SETTINGS_MODULE", "core.settings")
+import util.outputter as outputter
+import util.helper as helper
 
 CLOSE_PRICE = "close"
 OPEN_PRICE = "open"
@@ -23,7 +21,7 @@ OBJECTS={
     "dividends": 4,
     "statistic": 5,
 }
-logger = outputter.Logger("app.files", settings.LOG_LEVEL)
+logger = outputter.Logger(" files", settings.LOG_LEVEL)
 
 def determine_analysis_date_range(start_date=None, end_date=None):
     if end_date is None:
@@ -189,7 +187,7 @@ def init_static_data():
     """
     Description
     -----------
-    Initializes the three static files defined in app.settings: `STATIC_TICKERS_FILE`, `STATIC_CRYPTO_FILE` and `STATIC_ECON_FILE`. The data for these files is retrieved from the service managers. While this function blurs the lines between file management and service management, the function has been included in the `files.py` module rather than the `services.py` module due the unique response types of static metadata. All metadata is returned a csv or zipped csvs. These responses require specialized functions. Moreover, these files should only be initialized the first time the application executes. Subsequent executions will refer to their cached versions residing in the local or containerized filesytems. 
+    Initializes the three static files defined in  settings: `STATIC_TICKERS_FILE`, `STATIC_CRYPTO_FILE` and `STATIC_ECON_FILE`. The data for these files is retrieved from the service managers. While this function blurs the lines between file management and service management, the function has been included in the `files.py` module rather than the `services.py` module due the unique response types of static metadata. All metadata is returned a csv or zipped csvs. These responses require specialized functions. Moreover, these files should only be initialized the first time the application executes. Subsequent executions will refer to their cached versions residing in the local or containerized filesytems. 
     """
     if ((not os.path.isfile(settings.STATIC_ECON_FILE)) or \
             (not os.path.isfile(settings.STATIC_TICKERS_FILE)) or \
@@ -253,7 +251,7 @@ def get_static_data(static_type):
     Parameters
     ----------
     1. `static_type` : str \n
-    A string corresponding to the type of static data to be retrieved. The types can be statically accessed through the `app.settings` variables: ASSET_CRYPTO, ASSET_EQUITY and STAT_ECON. \n \n
+    A string corresponding to the type of static data to be retrieved. The types can be statically accessed through the ` settings` variables: ASSET_CRYPTO, ASSET_EQUITY and STAT_ECON. \n \n
     """
     logger.debug(f'Loading in cached {static_type} symbols.')
     path = None
@@ -317,7 +315,7 @@ def get_asset_type(symbol):
 
     Output
     ------
-    A string representing the type of asset of the symbol. Types are statically accessible through the `app.settings` variables: ASSET_EQUITY and ASSET_CRYPTO. \n \n 
+    A string representing the type of asset of the symbol. Types are statically accessible through the ` settings` variables: ASSET_EQUITY and ASSET_CRYPTO. \n \n 
     """
     symbols = list(get_static_data(settings.ASSET_CRYPTO))
     overlap = get_overlapping_symbols(cryptos=symbols)
@@ -347,7 +345,7 @@ def get_trading_period(asset_type):
     ----------
     1. asset_type : str\n
     
-    A string that represents a type of tradeable asset. Types are statically accessible through the `app.settings` variables: ASSET_EQUITY and ASSET_CRYPTO.
+    A string that represents a type of tradeable asset. Types are statically accessible through the ` settings` variables: ASSET_EQUITY and ASSET_CRYPTO.
     """
     if asset_type is None:
         return False

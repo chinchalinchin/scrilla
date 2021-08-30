@@ -1,7 +1,7 @@
 import datetime, os, math, json
 import holidays
 
-import app.util.formatter as formatter
+import util.formatter as formatter
 
 ################################################
 ##### FORMATTING FUNCTIONS
@@ -16,7 +16,7 @@ def get_number_input(msg_prompt) -> str:
             return user_input
         print('Input Not Understood. Please Enter A Numerical Value.')
     
-def strip_string_array(array) -> [str]:
+def strip_string_array(array) -> list:
     new_array = []
     for string in array:
         new_array.append(string.strip())

@@ -2,17 +2,17 @@ import time
 
 from PyQt5 import Qt, QtCore, QtWidgets
 
-import app.analysis.statistics as statistics
-import app.settings as settings
-import app.analysis.optimizer as optimizer
-import app.objects.portfolio as portfolio
+import  analysis.statistics as statistics
+import  settings as settings
+import  analysis.optimizer as optimizer
+import  objects.portfolio as portfolio
 
-import app.util.outputter as outputter
-import app.util.formatter as formatter
-import app.util.helper as helper
-import app.util.plotter as plotter
+import  util.outputter as outputter
+import  util.formatter as formatter
+import  util.helper as helper
+import  util.plotter as plotter
 
-from app.gui.widgets import CompositeWidget, GraphWidget, \
+from  gui.widgets import CompositeWidget, GraphWidget, \
                             TableWidget, PortfolioWidget
 
 logger = outputter.Logger('gui.functions', settings.LOG_LEVEL)

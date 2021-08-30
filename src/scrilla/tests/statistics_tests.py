@@ -5,8 +5,8 @@ PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__
 sys.path.append(PROJECT_DIR)
 
 from app import settings, services, files
-from app.analysis import statistics
-from app.util import outputter, helper
+from  analysis import statistics
+from  util import outputter, helper
 
 rolling_x_y_1 = [[1, 3, 5, 2, 6, 10],[4, 5, 3, 6, 2, 8]]
 rolling_x_y_2 = [[3, 5, 2, 6, 10, 8], [5, 3, 6, 2, 8, 5]]
