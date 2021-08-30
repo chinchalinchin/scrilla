@@ -2,8 +2,8 @@ import datetime
 import  util.helper as helper
 import  util.outputter as outputter
 
-import  services as services
-import  settings as settings
+import  services
+import  settings
 import  analysis.statistics as statistics
 
 logger = outputter.Logger(' objects.cashflow', settings.LOG_LEVEL)

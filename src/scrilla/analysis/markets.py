@@ -1,7 +1,7 @@
 
-import  settings as settings
-import  services as services
-import  files as files
+import  settings
+import  services
+import  files
 
 import  analysis.statistics as statistics
 

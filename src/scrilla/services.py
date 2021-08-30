@@ -1,7 +1,7 @@
 import itertools, time, requests
 
-import  settings as settings
-import  files as files
+import  settings
+import  files
 
 import  util.outputter as outputter
 import  util.helper as helper

@@ -5,7 +5,7 @@ import numpy
 
 import random
 
-import  settings as settings
+import  settings
 import  util.outputter as outputter
 
 logger = outputter.Logger(" calculator", settings.LOG_LEVEL)
