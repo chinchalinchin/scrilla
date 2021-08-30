@@ -148,7 +148,7 @@ def market_beta(ticker, start_date=None, end_date=None, market_profile=None, mar
                                                                 start_date=start_date, end_date=end_date)
     beta = market_covariance / (market_profile['annual_volatility']**2)
 
-    files.store_local_object(local_object=files.OBJECTS['equity_statistics'], value=beta,
+    files.store_local_object(local_object=files.OBJECTS['equity_statistic'], value=beta,
                                 args={ 'equity_stat_symbol': 'beta', 'ticker': ticker,
                                         'start_date': start_date, 'end_date': end_date })
 
