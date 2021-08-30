@@ -3,9 +3,6 @@ import sys, os
 APP_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_DIR = os.path.dirname(APP_DIR)
 
-print(APP_DIR)
-print(PROJECT_DIR)
-
 sys.path.append(APP_DIR)
 
 import settings as settings
