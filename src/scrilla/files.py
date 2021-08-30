@@ -20,6 +20,7 @@ OBJECTS={
     "prices": 3,
     "dividends": 4,
     "statistic": 5,
+    "equity_statistic":6
 }
 logger = outputter.Logger(" files", settings.LOG_LEVEL)
 
@@ -54,7 +55,31 @@ def save_file(file_to_save, file_name):
                 return False
         # TODO: implement other file saving extensions.
 
+
 def store_local_object(local_object, value, args):
+    """
+    Parameters
+    ----------
+    1. local_object: int \n
+        index of object type you wish to store. Types are statically accessible through OBJECTS dictionary property. \n \n 
+    2. value: dict
+        dictionary of object key-value pairs to store.
+    3. args: dict
+        dictionary of object-specific arguments
+        1. if local_object = correlation
+            args: ticker_1, ticker_2
+        2. if local_object = prices
+            args: ticker
+        3. if local_objecct = risk_profile
+            args: ticker
+        4. if local_object = dividends
+            args: ticker
+        5. if local_object = statistic
+            args: stat_symbol
+        6. if local_object = equity_statistic
+            args: ticker, equity_stat_symbol
+
+    """
     if settings.LOCAL_CACHE:
         timestamp = generate_timestamp(args=args)
         
@@ -74,7 +99,8 @@ def store_local_object(local_object, value, args):
             file_name = os.path.join(settings.CACHE_DIR, f'{timestamp}_{args["ticker"]}_{settings.CACHE_DIV_KEY}.{settings.FILE_EXT}')
         if local_object == OBJECTS['statistic']:
             file_name = os.path.join(settings.CACHE_DIR, f'{timestamp}_{args["stat_symbol"]}_{settings.CACHE_STAT_KEY}.{settings.FILE_EXT}')
-
+        if local_object == OBJECTS['equity_statistic']:
+            file_name = os.path.join(settings.CACHE_DIR,f'{timestamp}_{args["ticker"]}_{args["equity_stat_symbol"]}_{settings.CACHE_EQUITY_KEY}.{settings.FILE_EXT}')
         buffer_store= os.path.join(settings.CACHE_DIR, file_name)
         return save_file(file_to_save=value, file_name=buffer_store)
     return False
@@ -101,9 +127,6 @@ def retrieve_local_object(local_object, args):
         if local_object == OBJECTS['risk_profile']:
             file_name = os.path.join(settings.CACHE_DIR, f'{timestamp}_{args["ticker"]}_{settings.CACHE_PRO_KEY}.{settings.FILE_EXT}')
             logger.debug(f'Checking for {args["ticker"]} statistics in local cache.')
-            if os.path.isfile(file_name):
-                results = load_file(file_name=file_name)
-                return results
         
         elif local_object == OBJECTS['prices']:
             # TODO: with different time stamp implementation, this part of the method should search for price histories that contain
@@ -124,16 +147,19 @@ def retrieve_local_object(local_object, args):
 
             file_name = os.path.join(settings.CACHE_DIR, f'{timestamp}_{args["ticker"]}_{settings.CACHE_PRICE_KEY}.{settings.FILE_EXT}')
             logger.debug(f'Checking for {args["ticker"]} prices in local cache.')
-            if os.path.isfile(file_name):
-                results = load_file(file_name=file_name)
-                return results
 
         elif local_object == OBJECTS['statistic']:
             file_name = os.path.join(settings.CACHE_DIR, f'{timestamp}_{args["stat_symbol"]}_{settings.CACHE_STAT_KEY}.{settings.FILE_EXT}')
             logger.debug(f'Checking for {args["stat_symbol"]} statistics in cache')
-            if os.path.isfile(file_name):
-                results = load_file(file_name=file_name)
-                return results
+        
+        elif local_object == OBJECTS['equity_statistic']:
+            file_name = os.path.join(settings.CACHE_DIR,f'{timestamp}_{args["ticker"]}_{args["equity_stat_symbol"]}_{settings.CACHE_EQUITY_KEY}.{settings.FILE_EXT}')
+            logger.debug(f'Checking for {args["ticker"]}\'s {args["equity_stat_symbol"]} statistics in cache ')
+        
+        if file_name is not None and os.path.isfile(file_name):
+            logger.debug(f'Loading in {args["ticker"]} cache')
+            results = load_file(file_name = file_name)
+            return results
 
     return None
 

@@ -9,9 +9,9 @@ def optimize_portfolio_variance(portfolio, target_return=None):
     """
     Parameters
     ----------
-    * portfolio : Portfolio \n
+    1. portfolio : Portfolio \n
         An instance of the Portfolio class defined in  objects.portfolio. Must be initialized with an array of ticker symbols. Optionally, it can be initialized with a start_date and end_date datetime. If start_date and end_date are specified, the portfolio will be optimized over the stated time period.\n \n
-    * target_return : float \n
+    2. target_return : float \n
         The target return, as a decimal, subject to which the portfolio's volatility will be minimized.
 
     Output

@@ -116,6 +116,7 @@ CACHE_PRICE_KEY="prices"
 CACHE_COR_KEY="correlation"
 CACHE_DIV_KEY="dividends"
 CACHE_STAT_KEY="statistic"
+CACHE_EQUITY_KEY="equity_statistic"
 
 STATIC_DIR = os.path.join(APP_DIR, 'data', 'static')
 
