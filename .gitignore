@@ -11,5 +11,5 @@
 !/scrilla/app/data/sql/.gitkeep
 /scrilla/app/data/tests/*
 *.pyc
-/scrilla/scrilla_advisor.egg_info
+/scrilla/scrilla.egg_info
 /dist
