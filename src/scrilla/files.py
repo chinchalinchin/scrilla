@@ -160,18 +160,22 @@ def retrieve_local_object(local_object, args):
                         # parsed start_date to end_date from cached_prices
 
             file_name = os.path.join(settings.CACHE_DIR, f'{timestamp}_{args["ticker"]}_{settings.CACHE_PRICE_KEY}.{settings.FILE_EXT}')
-            logger.debug(f'Checking for {args["ticker"]} prices in local cache.')
+            logger.debug(f'Checking for {args["ticker"]} prices in local cache')
 
+        elif local_object == OBJECTS['dividends']:
+            file_name = os.path.join(settings.CACHE_DIR, f'{timestamp}_{args["ticker"]}_{settings.CACHE_DIV_KEY}.{settings.FILE_EXT}')
+            logger.debug(f'Checking for {args["ticker"]} prices in local cache')
+            
         elif local_object == OBJECTS['statistic']:
             file_name = os.path.join(settings.CACHE_DIR, f'{timestamp}_{args["stat_symbol"]}_{settings.CACHE_STAT_KEY}.{settings.FILE_EXT}')
-            logger.debug(f'Checking for {args["stat_symbol"]} statistics in cache')
+            logger.debug(f'Checking for {args["stat_symbol"]} statistics in local cache')
         
         elif local_object == OBJECTS['equity_statistic']:
             file_name = os.path.join(settings.CACHE_DIR,f'{timestamp}_{args["ticker"]}_{args["equity_stat_symbol"]}_{settings.CACHE_EQUITY_KEY}.{settings.FILE_EXT}')
-            logger.debug(f'Checking for {args["ticker"]}\'s {args["equity_stat_symbol"]} statistics in cache ')
+            logger.debug(f'Checking for {args["ticker"]}\'s {args["equity_stat_symbol"]} statistics in local cache')
         
         if file_name is not None and os.path.isfile(file_name):
-            logger.debug(f'Loading in cache')
+            logger.debug(f'Loading in local cache')
             results = load_file(file_name = file_name)
             return results
 
