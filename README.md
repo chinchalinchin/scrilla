@@ -210,7 +210,7 @@ The four functions of interest in this module are:
 
 1. `services.get_daily_price_history(ticker, start_date=None, end_date=None)`<br>
     <b>Description:</b><br>
-        This function will retrieve the price history for the equity specified by the `ticker` argument. `ticker` must be the symbol associated with the equity on the stock exchange, e.g. MSFT = Microsft, TSLA = Tesla, etc. 
+        This function will retrieve the price history for the equity specified by the `ticker` argument. `ticker` must be the symbol associated with the equity on the stock exchange, e.g. MSFT = Microsft, TSLA = Tesla, etc. If no `start_date` or `end_date` are provided, the function returns the last 100 trading days worth of information.
     <b>Arguments:</b><br>
     - `ticker : str` : Required. Ticker symbol of the equity.<br>
     - `start_date: datetime.date` : Optional. Defaults to `None`<br> 
