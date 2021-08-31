@@ -40,8 +40,11 @@ if __name__=="__main__":
     parsed_args = [ str(x).lower() for x in sys.argv]
     if 'major' in parsed_args:
         version = iterate_index(version, MAJOR)
+        version = reset_index(version, MINOR)
+        version = reset_index(version, MICRO)
     if 'minor' in parsed_args:
         version = iterate_index(version, MINOR)
+        version = reset_index(version, MICRO)
     if 'micro' in parsed_args:
         version = iterate_index(version, MICRO)
     save_new_version(version)
