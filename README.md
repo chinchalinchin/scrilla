@@ -184,35 +184,110 @@ You can then screen stocks according to some criteria. For example, the followin
 
 This package is made up of several top-level modules and various submodules, grouped according to the following name space:
 
-- main<br>
-- files<br>
-- services<br>
-- settings<br>
-- analysis.<br>
-    - calculator<br>
-    - markets<br>
-    - optimizer<br>
-    - statistics<br>
-- objects.
-    - cashflow<br>
-    - portfolio<br>
-- util.<br>
-    - formatter<br>
-    - helper<br>
-    - outputter<br>
-    - plotter<br>
+- scrilla<br>
+    - main<br>
+    - files<br>
+    - services<br>
+    - settings<br>
+    - analysis<br>
+        - calculator<br>
+        - markets<br>
+        - optimizer<br>
+        - statistics<br>
+    - objects
+        - cashflow<br>
+        - portfolio<br>
+    - util<br>
+        - formatter<br>
+        - helper<br>
+        - outputter<br>
+        - plotter<br>
 
 In general, you should not need to interact with any of the top level modules. <b>main</b> is the entrypoint for the CLI application, <b>files</b> is used to format and parse files and manage the local cache, <b>settings</b> parses environment variables to configure the application; these modules function entirely under the hood. On occasion, however, you may need to access <b>services</b>, as this is where raw data from the external services is requested and parsed. 
 
-### services
+### scrilla.services
 
 The four functions of interest in this module are:
 
-1. `services.get_daily_price_history(ticker, start_date=None, end_date=None)`<br>
+1. `scrilla.services.get_daily_price_history(ticker, start_date=None, end_date=None)`<br>
     <b>Description:</b><br>
         This function will retrieve the price history for the equity specified by the `ticker` argument. `ticker` must be the symbol associated with the equity on the stock exchange, e.g. MSFT = Microsft, TSLA = Tesla, etc. If no `start_date` or `end_date` are provided, the function returns the last 100 trading days worth of information.
     <b>Arguments:</b><br>
     - `ticker : str` : Required. Ticker symbol of the equity.<br>
-    - `start_date: datetime.date` : Optional. Defaults to `None`<br> 
-    - `end_date: datetime.date` : Optional. Defaults to `None`<br>
+    - `start_date: datetime.date` : Optional. Start date of analysis range. Defaults to `None`<br> 
+    - `end_date: datetime.date` : Optional. End date of analysis range. Defaults to `None`<br>
     
+2. `scrilla.services.get_daily_stat_history(statistic, start_date=None, end_date=None)`<br>
+    <b>Description:</b><br>
+        This function will retrieve the price history for the financial statistic specifed by the `statistic` argument. 
+    <b>Arguments:</b><br>
+    - `statistic : str`: Required. Statistic symbol for quantity of interest. A list of allowable values can be found [here](https://www.quandl.com/data/FRED-Federal-Reserve-Economic-Data/documentation)<br>
+    - `start_date: datetime.date` : Optional. Start date of analysis range. Defaults to `None`<br> 
+    - `end_date: datetime.date` : Optional. End date of analysis range. Defaults to `None`<br>
+
+3. `scrilla.services.get_dividend_history(ticker)`<br>
+    <b>Description:</b><br>
+        This function will retrieve the dividend payment history (i.e. the date on which the payment was <i>made</i>, not the date the payment was declared) for the equity specified by the `ticker` arugment. `ticker` must be the symobl assoccaited with the equity on the stock exchange.
+    <b>Arguments:</b><br>
+    - `ticker : str` : Required. Ticker symbol of the equity.<br>
+
+4. `scrilla.services.get_risk_free_rate()`
+    <b>Description: </b><b>
+        This function will retrieve the current value of the risk free rate (yield on a Treasury). The risk free rate can be configured through the <b>RISK_FREE</b> environment variable. See [optional configuration](#optional-configuration) for more details.
+
+### scrilla.analysis.markets
+
+1. `scrilla.analysis.markets.sharpe_ratio`
+
+2. `scrilla.analysis.markets.market_premium`
+
+3. `scrilla.analysis.markets.market_beta`
+
+4. `scrilla.analysis.markets.cost_of_equity`
+
+### scrilla.analysis.optimizer
+
+1. `scrilla.analysis.optimizer.optimize_portfolio_variance`
+
+2. `scrilla.analysis.optimizer.maximize_sharpe_ratio`
+
+3. `scrilla.analysis.optimizer.maximize_portfolio_return`
+    <b>Description:</b><br>
+    <b>Note:</b><br>
+    The rate of return of a portfolio of assets is a linear function with respect to the asset weights. IAs a result, this function should always allocate 100% of any given portfolio to the asset with the highest expected rate of return, i.e. if you have two assets where one asset has a 10% rate of return and a second asset has a 20% rate of return, the maximum rate of return for a portfolio composed of both assets is produced when 100% of the portfolio is invested in the asset with a 20% rate of return.<br>
+
+### scrilla.analysis.statistics
+
+1. `scrilla.analysis.statistics.sample_correlation`
+
+2. `scrilla.analysis.statistics.recursive_rolling_correlation`
+
+3. `scrilla.analysis.statistics.sample_mean`
+
+4. `scrilla.anaylsis.statistics.recursive_rolling_mean`
+
+5. `scrilla.anaylsis.statistics.sample_variance`
+
+6. `scrilla.analysis.statistics.recursive_rolling_variance`
+
+7. `scrilla.anaylsis.statistics.sample_covariance`
+
+8. `scrilla.anaylsis.statistics.recursive_rolling_covariance`
+
+9. `scrilla.analysis.statistics.regression_beta`
+
+10. `scrilla.analysis.statistics.regression_alpha`
+
+11. `scrilla.analysis.statistics.calculate_moving_averages`
+
+12. `scrilla.analysis.statistics.calculate_risk_return`
+
+13. `scrilla.analysis.statistics.calculate_return_covariance`
+
+14. `scrilla.analysis.statistics.calculate_ito_correlation`
+
+15. `scrilla.anaylsis.statistics.ito_correlation_matrix`
+
+### scrilla.objects.cashflow.Cashflow
+
+### scrilla.objects.portfolio.Portfolio
