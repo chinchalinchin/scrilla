@@ -1,12 +1,51 @@
 # scrilla: A Financial Optimization Application
 
+## Table of Contaners
+- Setup 
+- Environment
+    - [Required Configuration](/#required-configuration)
+    - [Optional Configuration](/#optional-configuration)
+- Usage
+    - [Command Line](/#command-line)
+    - [Programmatic](/#programmatic)
+
 This is a financial application that calculates asset correlations, statistics and optimal portfolio allocations using data it retrieves from external services (currently: [AlphaVantage](https://www.alphavantage.co), [IEX](https://iexcloud.io/) and [Quandl](https://www.quandl.com/)). Statistics are calculated using [Ito Calculus](https://en.wikipedia.org/wiki/It%C3%B4_calculus) and should be consistent with the results demanded by [Modern Portfolio Theory](https://en.wikipedia.org/wiki/Modern_portfolio_theory) and [Financial Engineering](https://en.wikipedia.org/wiki/Black%E2%80%93Scholes_equation). The portfolios are optimized by minimizing the portfolio's variance/volatility, i.e. by finding the optimal spot on the portfolio's efficient frontier as defined by the [CAPM model](https://en.wikipedia.org/wiki/Capital_asset_pricing_model), or alternatively, by maximizing the portfolio's [Sharpe ratio](https://en.wikipedia.org/wiki/Sharpe_ratio).
 
 The program's functions are wrapped in [PyQt5](https://doc.qt.io/qtforpython/index.html) widgets which provide a user interface (this feature is still in development and may explode). In addition, visualizations are created by [matplotlib](https://matplotlib.org/3.3.3/contents.html) for easier presentation.
 
+# Setup
+
+## Installation
+
+Simply execute,
+
+`pip install scrilla` 
+
+## Dependencies
+
+You will need Python3.8 or greater. This application depends on the following <b>Python</b> libraries: 
+
+- [python-dotenv](https://pypi.org/project/python-dotenv/)>=0.17.0<br>
+- [requests](https://pypi.org/project/requests/)>=2.25.0<br>
+- [numpy](https://pypi.org/project/numpy/)>=1.19.3<br>
+- [scipy](https://pypi.org/project/scipy/)>=1.5.4<br>
+- [matplotlib](https://pypi.org/project/matplotlib/)>=3.3.3<br>
+- [holidays](https://pypi.org/project/holidays/)>=0.10.4<br>
+- [PyQt5](https://pypi.org/project/PyQt5/)>=5.14<br>
+
+This libraries will be installed during the `pip` command. If you wish to use the GUI, you will need to install [Qt](https://doc.qt.io/) separately,
+
+`sudo apt-get install qt5-default`
+
+The GUI will not function without a <b>Qt</b> library.
+
+# Environment
+
+A sample environment file is located [here](https://github.com/chinchalinchin/scrilla/blob/development/env/.sample.env), along with some comments regarding their purpose. The application sets defaults for more of these, but there are several required environment variables you will need to set up yourself. 
+
 ## Required Configuration
 
-In order to use this application, you will need to register for API keys at AlphaVantage, IEX and Quandl. Store these in your session's environment. <b>scrilla</b> will search for environment variables named <b>ALPHA_VANTAGE_KEY</b>, <b>QUANDL_KEY</b> and <b>IEX_KEY</b>. You can add the following lines to your <i>.bashrc</i> profile,
+In order to use this application, you will need to register for API keys at <b>AlphaVantage</b>, <b>IEX</b> and <b>Quandl</b>. Store these in your session's environment. <b>scrilla</b> will search for environment variables named <b>ALPHA_VANTAGE_KEY</b>, <b>QUANDL_KEY</b> and <b>IEX_KEY</b>. You can add the following lines to your <i>.bashrc</i> profile,
 
 `export ALPHA_VANTAGE_KEY=<key goes here>`<br>
 `export QUANDL_KEY=<key goes here>`<br>
@@ -16,7 +55,7 @@ If no API keys are found in these variables, the application will not function p
 
 [AlphaVantage API Key Registration](https://www.alphavantage.co/support/#api-key)<br>
 [Quandl API Key Registration](https://www.quandl.com/account/api)<br>
-[IEX API Key Registration](https://iexcloud.io/docs/api/)<br>
+[IEX API Key Registration](https://iexcloud.io/)<br>
 
 ## Optional Configuration 
 
@@ -47,13 +86,15 @@ Determines the type of files that are output by <b>scrilla</b>. This variable is
 
 Determines the amount of output. Defaults to `info`. Allowable values: `info`, `debug`, `verbose`. Be warned, `verbose` is <i>extremely</i> verbose.
 
-## Usage
+# Usage
 
-For a full list of <b>scrilla</b>'s functionality,
+## Command Line 
+
+Most functions have been wired into command line arguments. For a full list of <b>scrilla</b>'s functionality,
 
 `scrilla -help`
 
-The main usage of <b>scrilla</b> are detailed below.
+The main usage of <b>scrilla</b> is detailed below.
 
 ### Optimization
 
@@ -139,5 +180,39 @@ You can then screen stocks according to some criteria. For example, the followin
     - Risk Return Profile: `scrilla -plot-rr [TICKERS]`
     - Yield Curve: `scrilla -plot-yield` (not implemented yet)
 
+## Programmatic 
 
+This package is made up of several top-level modules and various submodules, grouped according to the following name space:
 
+- main<br>
+- files<br>
+- services<br>
+- settings<br>
+- analysis.<br>
+    - calculator<br>
+    - markets<br>
+    - optimizer<br>
+    - statistics<br>
+- objects.
+    - cashflow<br>
+    - portfolio<br>
+- util.<br>
+    - formatter<br>
+    - helper<br>
+    - outputter<br>
+    - plotter<br>
+
+In general, you should not need to interact with any of the top level modules. <b>main</b> is the entrypoint for the CLI application, <b>files</b> is used to format and parse files and manage the local cache, <b>settings</b> parses environment variables to configure the application; these modules function entirely under the hood. On occasion, however, you may need to access <b>services</b>, as this is where raw data from the external services is requested and parsed. 
+
+### services
+
+The four functions of interest in this module are:
+
+1. `services.get_daily_price_history(ticker, start_date=None, end_date=None)`
+    <b>Arguments:<b><br>
+    - `ticker : str` : Required. Ticker symbol of the equity.<br>
+    - `start_date: datetime.date` : Optional. Defaults to `None`<br> 
+    - `end_date: datetime.date` : Optional. Defaults to `None`<br>
+    <b>Description:<b><br>
+    This function will retrieve the price history for the equity specified by the `ticker` argument. `ticker` must be the symbol associated with the equity on the stock exchange, e.g. MSFT = Microsft, TSLA = Tesla, etc. 
+    

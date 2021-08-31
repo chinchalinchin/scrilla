@@ -100,7 +100,7 @@ APP_ENV = os.environ.setdefault('APP_ENV', 'local')
 # NOTE: Load in local.env file if not running application container. Container should 
 # already have the container.env file preloaded in its environment.
 if APP_ENV != 'container':
-    dotenv.load_dotenv(os.path.join(os.path.join(ROOT_DIR,'env'), 'local.env'))
+    dotenv.load_dotenv(os.path.join(os.path.join(ROOT_DIR,'env'), '.env'))
 
 LOG_LEVEL = str(os.environ.setdefault("LOG_LEVEL", "info")).lower()
 

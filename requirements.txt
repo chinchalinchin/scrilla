@@ -1,7 +1,10 @@
 # Application Configuration Dependencies
 python-dotenv>=0.17.0
+
+# Build Dependencies
 setuptools>=51.1.1
 build>=0.6.0
+twine>=3.4.2
 
 # Service Configuration Dependencies
 requests>=2.25.0
