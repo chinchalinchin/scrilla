@@ -99,7 +99,7 @@ class CorrelationWidget(TableWidget):
             self.table.setVerticalHeader(QtWidgets.QHeaderView(QtCore.Qt.Vertical))
             self.table.setVerticalHeaderLabels(user_symbols)
 
-            for i in range(len(user_symbols)):
+            for i, value in enumerate(user_symbols):
                 for j in range(i, len(user_symbols)):
                     if i == j:
                         item = QtWidgets.QTableWidgetItem("100.0%")
@@ -107,8 +107,8 @@ class CorrelationWidget(TableWidget):
                         self.table.setItem(i, j, item)
                         
                     else:    
-                        logger.debug(f'Calculating correlation for ({user_symbols[i]}, {user_symbols[j]})')
-                        correlation = statistics.calculate_ito_correlation(user_symbols[i], user_symbols[j])
+                        logger.debug(f'Calculating correlation for ({value}, {user_symbols[j]})')
+                        correlation = statistics.calculate_ito_correlation(value, user_symbols[j])
                         formatted_correlation = str(100*correlation["correlation"])[:formatter.SIG_FIGS]+"%"
                         item_1 = QtWidgets.QTableWidgetItem(formatted_correlation)
                         item_1.setTextAlignment(QtCore.Qt.AlignHCenter)
