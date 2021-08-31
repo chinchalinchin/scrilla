@@ -175,7 +175,7 @@ def retrieve_local_object(local_object, args):
             logger.debug(f'Checking for {args["ticker"]}\'s {args["equity_stat_symbol"]} statistics in local cache')
         
         if file_name is not None and os.path.isfile(file_name):
-            logger.debug(f'Loading in local cache')
+            logger.debug('Loading in local cache')
             results = load_file(file_name = file_name)
             return results
 

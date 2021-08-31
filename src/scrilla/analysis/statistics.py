@@ -592,7 +592,7 @@ def calculate_ito_correlation(ticker_1, ticker_2, asset_type_1=None, asset_type_
     if sample_prices is None:
         sample_prices = {}
         logger.debug(f'No sample prices provided or cached ({ticker_1}, {ticker_2}) correlation found.')
-        logger.debug(f'Retrieving price histories for calculation.')
+        logger.debug('Retrieving price histories for calculation.')
         prices_1 = services.get_daily_price_history(ticker=ticker_1, start_date=start_date, end_date=end_date)
         prices_2 = services.get_daily_price_history(ticker=ticker_2, start_date=start_date, end_date=end_date)
         sample_prices[ticker_1], sample_prices[ticker_2] = prices_1, prices_2
