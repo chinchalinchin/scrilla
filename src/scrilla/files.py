@@ -56,8 +56,10 @@ def save_file(file_to_save, file_name):
             try:
                 json.dump(file_to_save, outfile)
                 return True
-            except:
+            except Exception as e:
+                logger.info(f'A {e.__class__} exception occured.')
                 return False
+            
         # TODO: implement other file saving extensions.
 
 
