@@ -212,7 +212,7 @@ The four functions of interest in this module are:
 1. `scrilla.services.get_daily_price_history(ticker, start_date=None, end_date=None)`<br>
     <b>Description:</b><br>
         This function will retrieve the price history for the equity specified by the `ticker` argument. `ticker` must be the symbol associated with the equity on the stock exchange, e.g. MSFT = Microsft, TSLA = Tesla, etc. If no `start_date` or `end_date` are provided, the function returns the last 100 trading days worth of information.
-    <br>
+    <br><br>
     <b>Arguments:</b><br>
     - `ticker : str` : Required. Ticker symbol of the equity.<br>
     - `start_date: datetime.date` : Optional. Start date of analysis range. Defaults to `None`<br> 
@@ -221,7 +221,7 @@ The four functions of interest in this module are:
 2. `scrilla.services.get_daily_stat_history(statistic, start_date=None, end_date=None)`<br>
     <b>Description:</b><br>
         This function will retrieve the price history for the financial statistic specifed by the `statistic` argument. 
-    <br>
+    <br><br>
     <b>Arguments:</b><br>
     - `statistic : str`: Required. Statistic symbol for quantity of interest. A list of allowable values can be found [here](https://www.quandl.com/data/FRED-Federal-Reserve-Economic-Data/documentation)<br>
     - `start_date: datetime.date` : Optional. Start date of analysis range. Defaults to `None`<br> 
@@ -230,7 +230,7 @@ The four functions of interest in this module are:
 3. `scrilla.services.get_dividend_history(ticker)`<br>
     <b>Description:</b><br>
         This function will retrieve the dividend payment history (i.e. the date on which the payment was <i>made</i>, not the date the payment was declared) for the equity specified by the `ticker` arugment. `ticker` must be the symobl assoccaited with the equity on the stock exchange. 
-    <br>
+    <br><br>
     <b>Arguments:</b><br>
     - `ticker : str` : Required. Ticker symbol of the equity.<br>
 
@@ -257,8 +257,10 @@ The four functions of interest in this module are:
 
 3. `scrilla.analysis.optimizer.maximize_portfolio_return`<br>
     <b>Description:</b><br>
+        description goes here
+    <br><br>
     <b>Note:</b><br>
-    The rate of return of a portfolio of assets is a linear function with respect to the asset weights. IAs a result, this function should always allocate 100% of any given portfolio to the asset with the highest expected rate of return, i.e. if you have two assets where one asset has a 10% rate of return and a second asset has a 20% rate of return, the maximum rate of return for a portfolio composed of both assets is produced when 100% of the portfolio is invested in the asset with a 20% rate of return.<br>
+        The rate of return of a portfolio of assets is a linear function with respect to the asset weights. IAs a result, this function should always allocate 100% of any given portfolio to the asset with the highest expected rate of return, i.e. if you have two assets where one asset has a 10% rate of return and a second asset has a 20% rate of return, the maximum rate of return for a portfolio composed of both assets is produced when 100% of the portfolio is invested in the asset with a 20% rate of return.<br>
 
 ### scrilla.analysis.statistics
 
