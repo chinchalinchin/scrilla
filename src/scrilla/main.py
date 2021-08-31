@@ -106,9 +106,10 @@ def do_program():
 
         ### FUNCTION: Purge Data Directories
         elif opt == formatter.FUNC_ARG_DICT["purge"]:
-            logger.comment(f'Clearing {settings.STATIC_DIR} and {settings.CACHE_DIR}')
+            logger.comment(f'Clearing {settings.STATIC_DIR}, {settings.CACHE_DIR} and {settings.CACHE_DIR}')
             files.clear_directory(directory=settings.STATIC_DIR, retain=True)
             files.clear_directory(directory=settings.CACHE_DIR, retain=True)
+            files.clear_directory(directory=settings.COMMON_DIR, retain=True)
 
         ### FUNCTION: Yield Curve
         elif opt == formatter.FUNC_ARG_DICT['yield_curve']:
