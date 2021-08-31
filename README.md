@@ -232,7 +232,7 @@ The four functions of interest in this module are:
     - `ticker : str` : Required. Ticker symbol of the equity.<br>
 
 4. `scrilla.services.get_risk_free_rate()`
-    <b>Description: </b><b>
+    <b>Description: </b><br>
         This function will retrieve the current value of the risk free rate (yield on a Treasury). The risk free rate can be configured through the <b>RISK_FREE</b> environment variable. See [optional configuration](#optional-configuration) for more details.
 
 ### scrilla.analysis.markets
