@@ -212,6 +212,7 @@ The four functions of interest in this module are:
 1. `scrilla.services.get_daily_price_history(ticker, start_date=None, end_date=None)`<br>
     <b>Description:</b><br>
         This function will retrieve the price history for the equity specified by the `ticker` argument. `ticker` must be the symbol associated with the equity on the stock exchange, e.g. MSFT = Microsft, TSLA = Tesla, etc. If no `start_date` or `end_date` are provided, the function returns the last 100 trading days worth of information.
+    <br>
     <b>Arguments:</b><br>
     - `ticker : str` : Required. Ticker symbol of the equity.<br>
     - `start_date: datetime.date` : Optional. Start date of analysis range. Defaults to `None`<br> 
@@ -220,6 +221,7 @@ The four functions of interest in this module are:
 2. `scrilla.services.get_daily_stat_history(statistic, start_date=None, end_date=None)`<br>
     <b>Description:</b><br>
         This function will retrieve the price history for the financial statistic specifed by the `statistic` argument. 
+    <br>
     <b>Arguments:</b><br>
     - `statistic : str`: Required. Statistic symbol for quantity of interest. A list of allowable values can be found [here](https://www.quandl.com/data/FRED-Federal-Reserve-Economic-Data/documentation)<br>
     - `start_date: datetime.date` : Optional. Start date of analysis range. Defaults to `None`<br> 
@@ -227,13 +229,15 @@ The four functions of interest in this module are:
 
 3. `scrilla.services.get_dividend_history(ticker)`<br>
     <b>Description:</b><br>
-        This function will retrieve the dividend payment history (i.e. the date on which the payment was <i>made</i>, not the date the payment was declared) for the equity specified by the `ticker` arugment. `ticker` must be the symobl assoccaited with the equity on the stock exchange.
+        This function will retrieve the dividend payment history (i.e. the date on which the payment was <i>made</i>, not the date the payment was declared) for the equity specified by the `ticker` arugment. `ticker` must be the symobl assoccaited with the equity on the stock exchange. 
+    <br>
     <b>Arguments:</b><br>
     - `ticker : str` : Required. Ticker symbol of the equity.<br>
 
 4. `scrilla.services.get_risk_free_rate()`<br>
     <b>Description: </b><br>
         This function will retrieve the current value of the risk free rate (yield on a Treasury). The risk free rate can be configured through the <b>RISK_FREE</b> environment variable. See [optional configuration](#optional-configuration) for more details.
+    <br>
 
 ### scrilla.analysis.markets
 
