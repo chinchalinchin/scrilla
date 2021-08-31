@@ -130,7 +130,7 @@ def calculate_efficient_frontier(portfolio, steps=None):
     """
     if steps is None:
         steps = settings.FRONTIER_STEPS
-    tickers = portfolio.tickers
+
     minimum_allocation = optimize_portfolio_variance(portfolio=portfolio)
     maximum_allocation = maximize_portfolio_return(portfolio=portfolio)
 

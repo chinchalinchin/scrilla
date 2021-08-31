@@ -100,4 +100,4 @@ if __name__ == "__main__":
     widget.resize(settings.GUI_WIDTH, settings.GUI_HEIGHT)
     widget.show()
 
-    sys.exit( exec_())
+    sys.exit(app.exec_())
