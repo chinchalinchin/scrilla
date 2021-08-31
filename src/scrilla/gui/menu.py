@@ -96,8 +96,8 @@ class MenuWidget(QtWidgets.QWidget):
 if __name__ == "__main__":
     app = QtWidgets.QApplication([])
 
-    widget = MenuWidget()
-    widget.resize(settings.GUI_WIDTH, settings.GUI_HEIGHT)
-    widget.show()
+    mainWidget = MenuWidget()
+    mainWidget.resize(settings.GUI_WIDTH, settings.GUI_HEIGHT)
+    mainWidget.show()
 
     sys.exit(app.exec_())
