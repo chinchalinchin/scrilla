@@ -501,8 +501,8 @@ def format_moving_averages(tickers, averages_output):
         else:
             subsubresponse_1, subsubresponse_2, subsubresponse_3 = {}, {}, {}
     
-            for j, item in enumerate(dates):
-                date_str=helper.date_to_string(item)
+            for j, this_item in enumerate(dates):
+                date_str=helper.date_to_string(this_item)
                 subsubresponse_1[date_str] = these_moving_averages[i][0][j]
                 subsubresponse_2[date_str] = these_moving_averages[i][1][j]
                 subsubresponse_3[date_str] = these_moving_averages[i][2][j]
