@@ -231,62 +231,62 @@ The four functions of interest in this module are:
     <b>Arguments:</b><br>
     - `ticker : str` : Required. Ticker symbol of the equity.<br>
 
-4. `scrilla.services.get_risk_free_rate()`
+4. `scrilla.services.get_risk_free_rate()`<br>
     <b>Description: </b><br>
         This function will retrieve the current value of the risk free rate (yield on a Treasury). The risk free rate can be configured through the <b>RISK_FREE</b> environment variable. See [optional configuration](#optional-configuration) for more details.
 
 ### scrilla.analysis.markets
 
-1. `scrilla.analysis.markets.sharpe_ratio`
+1. `scrilla.analysis.markets.sharpe_ratio`<br>
 
-2. `scrilla.analysis.markets.market_premium`
+2. `scrilla.analysis.markets.market_premium`<br>
 
-3. `scrilla.analysis.markets.market_beta`
+3. `scrilla.analysis.markets.market_beta`<br>
 
-4. `scrilla.analysis.markets.cost_of_equity`
+4. `scrilla.analysis.markets.cost_of_equity`<br>
 
 ### scrilla.analysis.optimizer
 
-1. `scrilla.analysis.optimizer.optimize_portfolio_variance`
+1. `scrilla.analysis.optimizer.optimize_portfolio_variance`<br>
 
-2. `scrilla.analysis.optimizer.maximize_sharpe_ratio`
+2. `scrilla.analysis.optimizer.maximize_sharpe_ratio`<br>
 
-3. `scrilla.analysis.optimizer.maximize_portfolio_return`
+3. `scrilla.analysis.optimizer.maximize_portfolio_return`<br>
     <b>Description:</b><br>
     <b>Note:</b><br>
     The rate of return of a portfolio of assets is a linear function with respect to the asset weights. IAs a result, this function should always allocate 100% of any given portfolio to the asset with the highest expected rate of return, i.e. if you have two assets where one asset has a 10% rate of return and a second asset has a 20% rate of return, the maximum rate of return for a portfolio composed of both assets is produced when 100% of the portfolio is invested in the asset with a 20% rate of return.<br>
 
 ### scrilla.analysis.statistics
 
-1. `scrilla.analysis.statistics.sample_correlation`
+1. `scrilla.analysis.statistics.sample_correlation`<br>
 
-2. `scrilla.analysis.statistics.recursive_rolling_correlation`
+2. `scrilla.analysis.statistics.recursive_rolling_correlation`<br>
 
-3. `scrilla.analysis.statistics.sample_mean`
+3. `scrilla.analysis.statistics.sample_mean`<br>
 
-4. `scrilla.anaylsis.statistics.recursive_rolling_mean`
+4. `scrilla.anaylsis.statistics.recursive_rolling_mean`<br>
 
-5. `scrilla.anaylsis.statistics.sample_variance`
+5. `scrilla.anaylsis.statistics.sample_variance`<br>
 
-6. `scrilla.analysis.statistics.recursive_rolling_variance`
+6. `scrilla.analysis.statistics.recursive_rolling_variance`<br>
 
-7. `scrilla.anaylsis.statistics.sample_covariance`
+7. `scrilla.anaylsis.statistics.sample_covariance`<br>
 
-8. `scrilla.anaylsis.statistics.recursive_rolling_covariance`
+8. `scrilla.anaylsis.statistics.recursive_rolling_covariance`<br>
 
-9. `scrilla.analysis.statistics.regression_beta`
+9. `scrilla.analysis.statistics.regression_beta`<br>
 
-10. `scrilla.analysis.statistics.regression_alpha`
+10. `scrilla.analysis.statistics.regression_alpha`<br>
 
-11. `scrilla.analysis.statistics.calculate_moving_averages`
+11. `scrilla.analysis.statistics.calculate_moving_averages`<br>
 
-12. `scrilla.analysis.statistics.calculate_risk_return`
+12. `scrilla.analysis.statistics.calculate_risk_return`<br>
 
-13. `scrilla.analysis.statistics.calculate_return_covariance`
+13. `scrilla.analysis.statistics.calculate_return_covariance`<br>
 
-14. `scrilla.analysis.statistics.calculate_ito_correlation`
+14. `scrilla.analysis.statistics.calculate_ito_correlation`<br>
 
-15. `scrilla.anaylsis.statistics.ito_correlation_matrix`
+15. `scrilla.anaylsis.statistics.ito_correlation_matrix`<br>
 
 ### scrilla.objects.cashflow.Cashflow
 
