@@ -3,11 +3,11 @@
 ## Table of Contaners
 - Setup 
 - Environment
-    - [Required Configuration](/#required-configuration)
-    - [Optional Configuration](/#optional-configuration)
+    - [Required Configuration](#required-configuration)
+    - [Optional Configuration](#optional-configuration)
 - Usage
-    - [Command Line](/#command-line)
-    - [Programmatic](/#programmatic)
+    - [Command Line](#command-line)
+    - [Programmatic](#programmatic)
 
 This is a financial application that calculates asset correlations, statistics and optimal portfolio allocations using data it retrieves from external services (currently: [AlphaVantage](https://www.alphavantage.co), [IEX](https://iexcloud.io/) and [Quandl](https://www.quandl.com/)). Statistics are calculated using [Ito Calculus](https://en.wikipedia.org/wiki/It%C3%B4_calculus) and should be consistent with the results demanded by [Modern Portfolio Theory](https://en.wikipedia.org/wiki/Modern_portfolio_theory) and [Financial Engineering](https://en.wikipedia.org/wiki/Black%E2%80%93Scholes_equation). The portfolios are optimized by minimizing the portfolio's variance/volatility, i.e. by finding the optimal spot on the portfolio's efficient frontier as defined by the [CAPM model](https://en.wikipedia.org/wiki/Capital_asset_pricing_model), or alternatively, by maximizing the portfolio's [Sharpe ratio](https://en.wikipedia.org/wiki/Sharpe_ratio).
 
