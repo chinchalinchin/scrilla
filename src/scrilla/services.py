@@ -511,12 +511,8 @@ def get_percent_stat_symbols():
         percent_stats = settings.ARG_Q_YIELD_CURVE.values()
         return percent_stats
 
-        # NOTE: Quandl outputs interest in percentage terms
-# NOTE: This function sort of blurs the lines between services.py and markets.py
-#       I put it here because I want the markets.py class to be from where the 
-#       the risk_free_rate is accessed for now. It may make more sense to have this
-#       in services.py since it's basically just a call an external service.
-#       Haven't made up my mind yet. 
+# NOTE: Quandl outputs interest in percentage terms. 
+# TODO: verify the interest rate is annual. may need to convert.
 def get_risk_free_rate():
     """
     Description

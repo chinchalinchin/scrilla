@@ -1,14 +1,14 @@
 import numpy, math
 from decimal import Decimal
 
-import  analysis.statistics as statistics
-import  services
-import  settings
-import  files
+import analysis.statistics as statistics
+import services
+import settings
+import files
 
-import  util.outputter as outputter 
+import util.outputter as outputter 
 
-logger = outputter.Logger(" objects.portfolio", settings.LOG_LEVEL)
+logger = outputter.Logger("objects.portfolio", settings.LOG_LEVEL)
 
 # TODO: allow user to specify bounds for equities, i.e. min and max allocations.
 class Portfolio:
