@@ -18,11 +18,11 @@ elif APP_ENV == 'container':
 
 def plot_frontier(portfolio, frontier, show=True, savefile=None):
     title = " ("
-    for i in range(len(portfolio.tickers)):
+    for i, item in enumerate(portfolio.tickers):
         if i != (len(portfolio.tickers) - 1):
-            title += portfolio.tickers[i] + ", "
+            title += item + ", "
         else:
-            title += portfolio.tickers[i] + ") Efficient Frontier"
+            title += item + ") Efficient Frontier"
     
     return_profile, risk_profile = [], []
     for allocation in frontier:
@@ -127,9 +127,9 @@ def plot_moving_averages(symbols, averages_output, periods, show=True, savefile=
         date_locator = matplotlib.dates.WeekdayLocator(byweekday=(matplotlib.dates.WE))
         date_format = matplotlib.dates.DateFormatter('%m-%d')
         
-        for i in range(len(symbols)):
+        for i, item in enumerate(symbols):
             ma1s, ma2s, ma3s = [], [], []
-            ma1_label, ma2_label, ma3_label = f'{symbols[i]}_{ma1_label}', f'{symbols[i]}_{ma2_label}', f'{symbols[i]}_{ma3_label}'
+            ma1_label, ma2_label, ma3_label = f'{item}_{ma1_label}', f'{item}_{ma2_label}', f'{item}_{ma3_label}'
             for j in range(len(dates)):
                 MA_1 = averages[i][0][j]
                 ma1s.append(MA_1)

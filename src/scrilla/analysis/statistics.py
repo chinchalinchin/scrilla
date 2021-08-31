@@ -35,10 +35,10 @@ def sample_correlation(x, y):
 
     sumproduct, sum_x_squared, sum_x, sum_y, sum_y_squared= 0, 0, 0, 0, 0
     n = len(x)
-    for i in range(len(x)):
-        sumproduct += x[i]*y[i]
-        sum_x += x[i]
-        sum_x_squared += x[i]**2
+    for i, item in enumerate(x):
+        sumproduct += item*y[i]
+        sum_x += item
+        sum_x_squared += item**2
         sum_y += y[i]
         sum_y_squared += y[i]**2
     correl_num = ((n*sumproduct) - sum_x*sum_y)
@@ -110,8 +110,8 @@ def sample_covariance(x, y):
     # TODO: probably a faster way of calculating this.
     n, covariance = len(x), 0
     x_mean, y_mean = sample_mean(x=x), sample_mean(x=y)
-    for i in range(len(x)):
-        covariance += (x[i] - x_mean)*(y[i] - y_mean) / (n -1) 
+    for i, item in enumerate(x):
+        covariance += (item - x_mean)*(y[i] - y_mean) / (n -1) 
 
     return covariance
 
@@ -592,7 +592,7 @@ def calculate_ito_correlation(ticker_1, ticker_2, asset_type_1=None, asset_type_
     if sample_prices is None:
         sample_prices = {}
         logger.debug(f'No sample prices provided or cached ({ticker_1}, {ticker_2}) correlation found.')
-        logger.debug(f'Retrieving price histories for calculation.')
+        logger.debug('Retrieving price histories for calculation.')
         prices_1 = services.get_daily_price_history(ticker=ticker_1, start_date=start_date, end_date=end_date)
         prices_2 = services.get_daily_price_history(ticker=ticker_2, start_date=start_date, end_date=end_date)
         sample_prices[ticker_1], sample_prices[ticker_2] = prices_1, prices_2
@@ -746,15 +746,15 @@ def calculate_ito_correlation(ticker_1, ticker_2, asset_type_1=None, asset_type_
 def ito_correlation_matrix(tickers, asset_types=None, start_date=None, end_date=None, sample_prices=None):
     correlation_matrix = [[0 for x in range(len(tickers))] for y in range(len(tickers))]
     if(len(tickers) > 1):
-        for i in range(len(tickers)):
+        for i, item in enumerate(tickers):
             correlation_matrix[i][i] = 1
             for j in range(i+1, len(tickers)):
                 if asset_types is None:
-                    cor_list = calculate_ito_correlation(ticker_1 = tickers[i], ticker_2=tickers[j],
+                    cor_list = calculate_ito_correlation(ticker_1 = item, ticker_2=tickers[j],
                                                                 start_date = start_date, end_date = end_date,
                                                                 sample_prices = sample_prices)
                 else:
-                    cor_list = calculate_ito_correlation(ticker_1 = tickers[i], ticker_2=tickers[j],
+                    cor_list = calculate_ito_correlation(ticker_1 = item, ticker_2=tickers[j],
                                                             asset_type_1=asset_types[i], asset_type_2=asset_types[j],
                                                             start_date = start_date, end_date = end_date,
                                                             sample_prices = sample_prices)

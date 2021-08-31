@@ -175,7 +175,7 @@ def retrieve_local_object(local_object, args):
             logger.debug(f'Checking for {args["ticker"]}\'s {args["equity_stat_symbol"]} statistics in local cache')
         
         if file_name is not None and os.path.isfile(file_name):
-            logger.debug(f'Loading in local cache')
+            logger.debug('Loading in local cache')
             results = load_file(file_name = file_name)
             return results
 
@@ -454,9 +454,9 @@ def format_allocation(allocation, portfolio, investment=None):
     annual_volatility = portfolio.volatility_function(x=allocation) 
     annual_return = portfolio.return_function(x=allocation)
 
-    for j in range(len(portfolio.tickers)):
+    for j, item in enumerate(portfolio.tickers):
         allocation_format[j] = {}
-        allocation_format[j]['ticker'] = portfolio.tickers[j]
+        allocation_format[j]['ticker'] = item
         allocation_format[j]['allocation'] = round(allocation[j], settings.ACCURACY)
         if investment is not None:
             allocation_format[j]['shares'] = float(shares[j])
@@ -476,8 +476,8 @@ def format_allocation(allocation, portfolio, investment=None):
 
 def format_frontier(portfolio, frontier, investment=None):
     json_format = {}
-    for i in range(len(frontier)):
-        json_format[f'portfolio_{i}'] = format_allocation(allocation=frontier[i], portfolio=portfolio, 
+    for i, item in enumerate(frontier):
+        json_format[f'portfolio_{i}'] = format_allocation(allocation=item, portfolio=portfolio, 
                                                             investment=investment)
 
     return json_format
@@ -486,8 +486,8 @@ def format_moving_averages(tickers, averages_output):
     these_moving_averages, dates = averages_output
 
     response = {}
-    for i in range(len(tickers)):
-        ticker_str=f'{tickers[i]}'
+    for i, item in enumerate(tickers):
+        ticker_str=f'{item}'
         MA_1_str, MA_2_str, MA_3_str = f'{ticker_str}_MA_1', f'{ticker_str}_MA_2', f'{ticker_str}_MA_3'    
 
         subresponse = {}
@@ -499,8 +499,8 @@ def format_moving_averages(tickers, averages_output):
         else:
             subsubresponse_1, subsubresponse_2, subsubresponse_3 = {}, {}, {}
     
-            for j in range(len(dates)):
-                date_str=helper.date_to_string(dates[j])
+            for j, item in enumerate(dates):
+                date_str=helper.date_to_string(item)
                 subsubresponse_1[date_str] = these_moving_averages[i][0][j]
                 subsubresponse_2[date_str] = these_moving_averages[i][1][j]
                 subsubresponse_3[date_str] = these_moving_averages[i][2][j]
@@ -515,10 +515,10 @@ def format_moving_averages(tickers, averages_output):
 
 def format_correlation_matrix(tickers, correlation_matrix):
     response = {}
-    for i in range(len(tickers)):
+    for i, item in enumerate(tickers):
         # correlation_matrix[i][i]
         for j in range(i+1, len(tickers)):
-            response[f'{tickers[i]}_{tickers[j]}_correlation'] = correlation_matrix[j][i]
+            response[f'{item}_{tickers[j]}_correlation'] = correlation_matrix[j][i]
     return response
     
 def save_allocation(allocation, portfolio, file_name, investment=None):
