@@ -7,7 +7,7 @@
 - [Environment](#environment)
     - [Required Configuration](#required-configuration)
     - [Optional Configuration](#optional-configuration)
-- Usage
+- [Usage](#usage)
     - [Command Line](#command-line)
     - [Programmatic](#programmatic)
 
