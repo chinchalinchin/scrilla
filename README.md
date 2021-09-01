@@ -1,6 +1,6 @@
 # scrilla: A Financial Optimization Application
 
-## Table of Contaners
+## Table of Contents
 - [Setup](#setup)
     - [Installation](#installation)
     - [Dependencies](#dependencies)
