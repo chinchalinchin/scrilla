@@ -16,6 +16,10 @@ import util.helper as helper
 
 logger = outputter.Logger(' statistics', settings.LOG_LEVEL)
 
+class SampleSizeError(Exception):
+    def __init__(self, message):
+        super().__init__(message)
+
 # NOTE: the format of 'sample_prices' was chosen so any function that accepts it as an argument
 #       can pass the same argument to other statistical functions with minimal formatting.
 #       While some of the information in 'sample_prices' may be redundant, i.e. 'tickers' is a subset
@@ -25,13 +29,17 @@ logger = outputter.Logger(' statistics', settings.LOG_LEVEL)
 #       is passing in a 'None'-type object, or a list of prices ordered by date.
 
 def sample_correlation(x, y):
+    """
+    
+    Raises 
+    ------
+    1. scrilla.analysis.statistics.SampleSizeError
+    """
     if len(x) != len(y):
-        logger.info('Samples are not of comparable lengths')
-        return False
+        raise SampleSizeError('Samples are not of comparable lengths')
 
     if len(x) in [0, 1]:
-        logger.info('Sample correlation cannot be computed for a sample size less than or equal to 1.')
-        return False
+        raise SampleSizeError('Sample correlation cannot be computed for a sample size less than or equal to 1.')
 
     sumproduct, sum_x_squared, sum_x, sum_y, sum_y_squared= 0, 0, 0, 0, 0
     n = len(x)
@@ -70,10 +78,10 @@ def recursive_rolling_correlation(correl_previous, new_x_observation, lost_x_obs
 
 def sample_mean(x):
     xbar, n = 0, len(x)
+
     if n == 0:
-        logger.info('Sample mean cannot be computed for a sample size of 0.')
-        return False
-    
+        raise SampleSizeError('Sample mean cannot be computed for a sample size of 0.')
+
     for i in x:
         xbar += i/n
     return xbar
@@ -83,10 +91,14 @@ def recursive_rolling_mean(xbar_previous, new_obs, lost_obs, n=settings.DEFAULT_
     return xbar_next
 
 def sample_variance(x):
-    mu, sigma, n = sample_mean(x=x), 0, len(x)
+    try:
+        mu, sigma, n = sample_mean(x=x), 0, len(x)
+
+    except SampleSizeError as e:
+        raise SampleSizeError(e)
+
     if n in [0, 1]:
-        logger.info('Sample variance cannot be computed for a sample size less than or equal to 1.')
-        return False
+        raise SampleSizeError('Sample variance cannot be computed for a sample size less than or equal to 1.')
 
     for i in x:
         sigma += ((i-mu)**2)/(n-1)
@@ -100,16 +112,19 @@ def recursive_rolling_variance(var_previous, xbar_previous, new_obs, lost_obs, n
 
 def sample_covariance(x, y):
     if len(x) != len(y):
-        logger.info('Samples are not of comparable length')
-        return False
+        raise SampleSizeError('Samples are not of comparable length')
 
     if len(x) in [0, 1]:
-        logger.info('Sample correlation cannot be computed for a sample size less than or equal to 1.')
-        return False
+        raise SampleSizeError('Sample correlation cannot be computed for a sample size less than or equal to 1.')
 
     # TODO: probably a faster way of calculating this.
     n, covariance = len(x), 0
-    x_mean, y_mean = sample_mean(x=x), sample_mean(x=y)
+
+    try:
+        x_mean, y_mean = sample_mean(x=x), sample_mean(x=y)
+    except SampleSizeError as e:
+        raise SampleSizeError(e)
+
     for i, item in enumerate(x):
         covariance += (item - x_mean)*(y[i] - y_mean) / (n -1) 
 
@@ -127,33 +142,32 @@ def recursive_rolling_covariance(covar_previous, new_x_obs, lost_x_obs, previous
 
 def regression_beta(x, y):
     if len(x) != len(y):
-        logger.info(f'len(x) = {len(x)} != len(y) = {len(y)}')
-        return False
+        raise SampleSizeError(f'len(x) = {len(x)} != len(y) = {len(y)}')
     if len(x) < 3:
-        logger.info(f'Sample size of {len(x)} is less than the necessary degrees of freedom (n > 2) for regression estimation.')
-        return False
+        raise SampleSizeError(f'Sample size of {len(x)} is less than the necessary degrees of freedom (n > 2) for regression estimation.')
     
-    correl = sample_correlation(x=x, y=y)
-    vol_x = numpy.sqrt(sample_variance(x=x))
-    vol_y = numpy.sqrt(sample_variance(x=y))
-
-    if not correl or not vol_x or not vol_y:
-        logger.info('Error calculating statistics for regression Beta.')
-        return False
+    try:
+        correl = sample_correlation(x=x, y=y)
+        vol_x = numpy.sqrt(sample_variance(x=x))
+        vol_y = numpy.sqrt(sample_variance(x=y))
+    except SampleSizeError as e:
+        raise SampleSizeError(e)
 
     beta = correl * vol_y / vol_x
     return beta
 
 def regression_alpha(x, y):
     if len(x) != len(y):
-        logger.info(f'len(x) == {len(x)} != len(y) == {len(y)}')
-        return False
+        raise SampleSizeError(f'len(x) == {len(x)} != len(y) == {len(y)}')
 
     if len(x) < 3:
-        logger.info(f'Sample size of {len(x)} is less than the necessary degrees of freedom (n > 2) for regression estimation.')
-        return False
+        raise SampleSizeError(f'Sample size of {len(x)} is less than the necessary degrees of freedom (n > 2) for regression estimation.')
     
-    y_mean, x_mean = sample_mean(y), sample_mean(x)
+    try:
+        y_mean, x_mean = sample_mean(y), sample_mean(x)
+    except SampleSizeError as e:
+        raise SampleSizeError(e)
+
     if not y_mean or not x_mean:
         logger.info('Error calculating statistics for regression alpha')
         return False
@@ -500,21 +514,13 @@ def calculate_risk_return(ticker, start_date=None, end_date=None, sample_prices=
     i, mean_return, tomorrows_price = 0, 0, 0 
     logger.debug(f'Calculating mean annual return over last {sample} days for {ticker}')
 
-    for date in prices:
-        todays_price = services.parse_price_from_date(prices, date, asset_type)
-
-        if i != 0:
-            logger.verbose(f'{date}: (todays_price, tomorrows_price) = ({todays_price}, {tomorrows_price})')
-            daily_return = numpy.log(float(tomorrows_price)/float(todays_price))/trading_period
-            mean_return = mean_return + daily_return/sample
-            logger.verbose(f'{date}: (daily_return, mean_return) = ({round(daily_return, 2)}, {round(mean_return, 2)})')
-
-        else:
-            logger.verbose('Skipping first date.')
-            i += 1  
-
-        tomorrows_price = services.parse_price_from_date(prices, date, asset_type)
-        
+    # mean return is a telescoping series, i.e. sum of log(x1/x0). only the first and
+    # last terms contribute...which raises the question how accurate of a measure is
+    # the sample mean of the mean rate of return?
+    last_price = services.parse_price_from_date(prices, list(prices)[0], asset_type)
+    first_price = services.parse_price_from_date(prices, list(prices)[-1], asset_type)
+    mean_return = numpy.log(float(last_price)/float(first_price))/(trading_period*sample)
+    
     # calculate sample annual volatility
     today = False
     variance, tomorrows_price = 0, 0
@@ -540,6 +546,9 @@ def calculate_risk_return(ticker, start_date=None, end_date=None, sample_prices=
     # ito's lemma
     mean_return = mean_return + 0.5*(volatility**2)
     logger.debug(f'(mean_return, sample_volatility) = ({round(mean_return, 2)}, {round(volatility, 2)})')
+
+    mean_test_return = test_return + 0.5*(volatility**2)
+    print(mean_test_return)
 
     results = {
         'annual_return': mean_return,
