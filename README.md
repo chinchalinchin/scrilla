@@ -221,7 +221,7 @@ The four functions of interest in this module are:
     - `end_date: datetime.date` : Optional. End date of analysis range. Defaults to `None`<br>
 
     <b>Returns:</b><br>
-    dictionary : a dictionary of prices with the `YYYY-MM-DD` formatted date as key. The dictionary is sorted latest price to earliest price.<br>
+    a dictionary of prices with the `YYYY-MM-DD` formatted date as key. The dictionary is sorted latest price to earliest price.<br>
     
 2. `scrilla.services.get_daily_stat_history(statistic, start_date=None, end_date=None)`<br>
     <b>Description:</b><br>
