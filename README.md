@@ -23,11 +23,11 @@ Install the package with the <b>Python</b> package manager,
 
 `pip install scrilla` 
 
-If you prefer, you can build from source in the root directory,
+If you prefer, you can build from source. `git clone` the [repository](https://github.com/chinchalinchin/scrilla) and then from the root directory build the library,
 
 `python3 -m build` 
 
-and then `cd` into the generated <i>/dist/</i>  to manually install the packaged code,
+`cd` into the generated <i>/dist/</i>  to manually install the packaged code,
 
 `pip install scrilla-<major>.<minor>.<micro>-py3-none-any.whl`
 
