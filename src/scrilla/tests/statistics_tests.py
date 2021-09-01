@@ -134,7 +134,7 @@ def rolling_recursion_test():
     outputter.print_line()
 
 def rolling_recursion_tests_with_financial_data():
-    trading_period = files.get_trading_period(asset_type=settings.ASSET_EQUITY)
+    trading_period = settings.get_trading_period(asset_type=settings.ASSET_EQUITY)
 
     for ticker in test_tickers:
         for date in test_dates:

@@ -381,26 +381,6 @@ def get_asset_type(symbol):
     # default to equity for overlap until a better method is determined. 
     return settings.ASSET_EQUITY
 
-def get_trading_period(asset_type):
-    """
-    Description
-    -----------
-    Returns the value of one trading day measured in years of the asset_type passed in as an argument.
-
-    Parameters
-    ----------
-    1. asset_type : str\n
-    
-    A string that represents a type of tradeable asset. Types are statically accessible through the ` settings` variables: ASSET_EQUITY and ASSET_CRYPTO.
-    """
-    if asset_type is None:
-        return False
-    if asset_type == settings.ASSET_CRYPTO:
-        return (1/365)
-    if asset_type == settings.ASSET_EQUITY:
-        return settings.ONE_TRADING_DAY
-    return settings.ONE_TRADING_DAY
-
 def get_watchlist():
     """
     Description

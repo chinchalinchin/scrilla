@@ -1,4 +1,3 @@
-import os, sys, datetime
 from os import path
 from datetime import timedelta
 from sys import path as sys_path
@@ -19,6 +18,10 @@ import util.helper as helper
 logger = outputter.Logger(' statistics', settings.LOG_LEVEL)
 
 class SampleSizeError(Exception):
+    def __init__(self, message):
+        super().__init__(message)
+
+class PriceError(Exception):
     def __init__(self, message):
         super().__init__(message)
 
@@ -211,11 +214,11 @@ def calculate_moving_averages(tickers, start_date=None, end_date=None, sample_pr
     1. tickers : [ str ] \n
         array of ticker symbols correspond to the moving averages to be calculated. \n \n 
     2. start_date : datetime.date \n 
-        start date of the time period over which the moving averages will be calculated. \n \n 
+        Optional. Defaults to `None`. start date of the time period over which the moving averages will be calculated. \n \n 
     3. end_date : datetime.date\n 
-        end date of the time period over which the moving averages will be calculated. \n \n 
+        Optional. Defaults to `None`. end date of the time period over which the moving averages will be calculated. \n \n 
     4. sample_prices : { 'ticker' (str) : { 'date' (str) : 'price' (str) } } \n
-        A list of the asset prices for which moving_averages will be calculated. Overrides calls to service and calculates correlation for sample of prices supplied. Function will disregard start_date and end_date if sample_price is specified. Must be of the format: {'ticker_1': { 'date_1' : 'price_1', 'date_2': 'price_2' .}, 'ticker_2': { 'date_1' : 'price_1:, ... } } and ordered from latest date to earliest date.  \n \n
+        Optional. Defaults to `None`. A list of the asset prices for which moving_averages will be calculated. Overrides calls to service and calculates correlation for sample of prices supplied. Function will disregard start_date and end_date if sample_price is specified. Must be of the format: {'ticker_1': { 'date_1' : 'price_1', 'date_2': 'price_2' .}, 'ticker_2': { 'date_1' : 'price_1:, ... } } and ordered from latest date to earliest date.  \n \n
     
     Output
     ------
@@ -258,8 +261,11 @@ def calculate_moving_averages(tickers, start_date=None, end_date=None, sample_pr
             else:
                 prices = sample_prices[ticker]
 
+            if not prices:
+                raise PriceError(f'Prices could not be retrieved for {ticker}')
+
             asset_type = files.get_asset_type(ticker)
-            trading_period = files.get_trading_period(asset_type)
+            trading_period = settings.get_trading_period(asset_type)
 
             today = False
             count, tomorrows_price, MA_1, MA_2, MA_3 = 1, 0, 0, 0, 0
@@ -330,7 +336,7 @@ def calculate_moving_averages(tickers, start_date=None, end_date=None, sample_pr
         logger.debug(f'Calculating Moving Average for {ticker}.')
 
         asset_type = files.get_asset_type(ticker)
-        trading_period = files.get_trading_period(asset_type)
+        trading_period = settings.get_trading_period(asset_type)
 
         logger.debug('Offsetting start date to account for longest Moving Average period.')
         if asset_type == settings.ASSET_CRYPTO:
@@ -366,6 +372,9 @@ def calculate_moving_averages(tickers, start_date=None, end_date=None, sample_pr
         else:
             logger.debug(f'{ticker} sample prices provided, skipping service call.')
             prices = sample_prices[ticker]
+
+        if not prices:
+            raise PriceError(f'Prices could not be retrieved for {ticker}')
     ### END ARGUMENT VALIDATION ###
 
     ### START MOVING AVERAGE CALCULATION ###
@@ -511,7 +520,8 @@ def calculate_risk_return(ticker, start_date=None, end_date=None, sample_prices=
     
     Raises 
     ------
-    1. scrilla.analysis.statistics.SampleSizeError \n \n
+    1. scrilla.analysis.statistics.SampleSizeError \n 
+    3. scrilla.anaylsis.statistics.PriceError
 
     Notes
     -----
@@ -526,11 +536,8 @@ def calculate_risk_return(ticker, start_date=None, end_date=None, sample_prices=
 
     if asset_type is None:
         asset_type = files.get_asset_type(ticker)
-    trading_period = files.get_trading_period(asset_type)
 
-    if not trading_period:
-        logger.debug("Asset did not map to (crypto, equity) grouping")
-        return None
+    trading_period = settings.get_trading_period(asset_type)
 
     if sample_prices is None: 
         logger.debug('No sample prices provided, calling service.')
@@ -540,17 +547,16 @@ def calculate_risk_return(ticker, start_date=None, end_date=None, sample_prices=
         prices = sample_prices
 
     if not prices:
-        logger.debug(f'No prices could be retrieved for {ticker}')
-        return None
+        raise PriceError(f'No prices could be retrieved for {ticker}')
     
     sample = len(prices)
     # calculate sample mean annual return
     i, mean_return, tomorrows_price = 0, 0, 0 
     logger.debug(f'Calculating mean annual return over last {sample} days for {ticker}')
 
-    # mean return is a telescoping series, i.e. sum of log(x1/x0). only the first and
-    # last terms contribute...which raises the question how accurate of a measure is
-    # the sample mean of the mean rate of return?
+    # NOTE: mean return is a telescoping series, i.e. sum of log(x1/x0) only depends on the first and
+    # last terms' contributions (because log(x1/x0) = log(x1) - log(x0))...which raises the question 
+    # how accurate of a measure the sample mean is of the mean rate of return for an asset?
     last_price = services.parse_price_from_date(prices, list(prices)[0], asset_type)
     first_price = services.parse_price_from_date(prices, list(prices)[-1], asset_type)
     mean_return = log(float(last_price)/float(first_price))/(trading_period*sample)
@@ -585,7 +591,6 @@ def calculate_risk_return(ticker, start_date=None, end_date=None, sample_prices=
         'annual_return': mean_return,
         'annual_volatility': volatility
     }
-
     
     files.store_local_object(local_object=files.OBJECTS['risk_profile'], value=results, 
                                 args={"ticker": ticker, "start_date": start_date, 
@@ -642,18 +647,18 @@ def calculate_ito_correlation(ticker_1, ticker_2, asset_type_1=None, asset_type_
         prices_1, prices_2 = sample_prices[ticker_1], sample_prices[ticker_2]
         
     if (not prices_1) or (not prices_2):
-        logger.info("Prices cannot be retrieved for correlation calculation")
-        return None
+        raise PriceError("Prices cannot be retrieved for correlation calculation")
     ### END DATA RETRIEVAL ###
     
     ### START SAMPLE STATISTICS CALCULATION ###
     logger.debug(f'Preparing to calculate correlation for ({ticker_1},{ticker_2})')
-    stats_1 = calculate_risk_return(ticker_1, start_date, end_date, sample_prices[ticker_1])
-    stats_2 = calculate_risk_return(ticker_2, start_date, end_date, sample_prices[ticker_2])
-
-    if (not stats_1) or (not stats_2):
-        logger.info("Sample statistics cannot be calculated for correlation calculation.")
-        return None
+    try:
+        stats_1 = calculate_risk_return(ticker_1, start_date, end_date, sample_prices[ticker_1])
+        stats_2 = calculate_risk_return(ticker_2, start_date, end_date, sample_prices[ticker_2])
+    except SampleSizeError as se:
+        raise SampleSizeError(se)
+    except PriceError as pe:
+        raise PriceError(pe)
 
     if asset_type_1 is None:
         asset_type_1 = files.get_asset_type(symbol=ticker_1)
