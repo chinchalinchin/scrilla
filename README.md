@@ -1,8 +1,10 @@
 # scrilla: A Financial Optimization Application
 
 ## Table of Contaners
-- Setup 
-- Environment
+- [Setup](#setup)
+    - [Installation](#installation)
+    - [Dependencies](#dependencies)
+- [Environment](#environment)
     - [Required Configuration](#required-configuration)
     - [Optional Configuration](#optional-configuration)
 - Usage
