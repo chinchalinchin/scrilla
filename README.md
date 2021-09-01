@@ -43,7 +43,7 @@ You will need Python3.8 or greater. This application depends on the following <b
 - [holidays](https://pypi.org/project/holidays/)>=0.10.4<br>
 - [PyQt5](https://pypi.org/project/PyQt5/)>=5.14<br>
 
-This libraries will be installed during the `pip` command. If you wish to use the GUI, you will need to install [Qt](https://doc.qt.io/) separately,
+This libraries will be installed during the `pip` command. If you wish to use the GUI, you will alsoneed to ensure your operating system has a [Qt5](https://doc.qt.io/) library,
 
 `sudo apt-get install qt5-default`
 
