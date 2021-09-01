@@ -219,6 +219,9 @@ The four functions of interest in this module are:
     - `ticker : str` : Required. Ticker symbol of the equity.<br>
     - `start_date: datetime.date` : Optional. Start date of analysis range. Defaults to `None`<br> 
     - `end_date: datetime.date` : Optional. End date of analysis range. Defaults to `None`<br>
+
+    <b>Returns:</b><br>
+    dictionary : a dictionary of prices with the `YYYY-MM-DD` formatted date as key. The dictionary is sorted latest price to earliest price.<br>
     
 2. `scrilla.services.get_daily_stat_history(statistic, start_date=None, end_date=None)`<br>
     <b>Description:</b><br>
@@ -238,7 +241,7 @@ The four functions of interest in this module are:
 
 4. `scrilla.services.get_risk_free_rate()`<br>
     <b>Description: </b><br>
-        This function will retrieve the current value of the risk free rate (yield on a Treasury). The risk free rate can be configured through the <b>RISK_FREE</b> environment variable. See [optional configuration](#optional-configuration) for more details.
+        This function will retrieve the current value of the risk free rate (annualized yield on a US Treasury). The risk free rate can be configured through the <b>RISK_FREE</b> environment variable. See [optional configuration](#optional-configuration) for more details.
     <br>
 
 ### scrilla.analysis.markets
