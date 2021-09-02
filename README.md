@@ -51,11 +51,11 @@ The GUI will not function without a <b>Qt</b> library.
 
 # Environment
 
-A sample environment file is located [here](https://github.com/chinchalinchin/scrilla/blob/development/env/.sample.env), along with some comments regarding their purpose. The application sets defaults for more of these, but there are several required environment variables you will need to set up yourself. 
+A sample environment file is located [here](https://github.com/chinchalinchin/scrilla/blob/development/env/.sample.env), along with comments describing the purpose of each variable. The application sets sensible defaults for most of the environment variable configurations, but there are several required environment variables you will need to set yourself. 
 
 ## Required Configuration
 
-In order to use this application, you will need to register for API keys at <b>AlphaVantage</b>, <b>IEX</b> and <b>Quandl</b>. Store these in your session's environment. <b>scrilla</b> will search for environment variables named <b>ALPHA_VANTAGE_KEY</b>, <b>QUANDL_KEY</b> and <b>IEX_KEY</b>. You can add the following lines to your <i>.bashrc</i> profile,
+In order to use this application, you will need to register for API keys at <b>AlphaVantage</b>, <b>IEX</b> and <b>Quandl</b>. Store these in your session's environment. <b>scrilla</b> will search for environment variables named <b>ALPHA_VANTAGE_KEY</b>, <b>QUANDL_KEY</b> and <b>IEX_KEY</b>. You can add the following lines to your <i>.bashrc</i> profile or corresponding configuration file for whatever shell you are using,
 
 `export ALPHA_VANTAGE_KEY=<key goes here>`<br>
 `export QUANDL_KEY=<key goes here>`<br>
@@ -69,15 +69,15 @@ If no API keys are found in these variables, the application will not function p
 
 ## Optional Configuration 
 
-<b>scrilla</b> can be configured with the following environment variables. Each variable in this list has a suitable default set and so does not need changed unless the user prefers a different setting.
+<b>scrilla</b> can be configured with the following optional environment variables. Each variable in this list has a suitable default set and so does not need changed unless the user prefers a different setting.
 
 - RISK_FREE
 
-Determines which US-Treasury yield is used as the basis for the risk free rate. This variable will default to a value of `10-Year`, but can be modified to any of the following: `"3-Month"`, `"5-Year"`, `"10-Year"`, or `"30-Year"`.
+Determines which annualized US-Treasury yield is used as stand-in for the risk free rate. This variable will default to a value of `10-Year`, but can be modified to any of the following: `3-Month`, `5-Year`, `10-Year`, or `30-Year`.
 
 - MARKET_PROXY
 
-Determines which ticker symbol is used as a proxy for the market return. This variable will default to a value of `SPY`, but can be set to any ticker on the stock market.
+Determines which ticker symbol is used as a proxy for the overall market return. This variable will default to a value of `SPY`, but can be set to any ticker on the stock market. Recommended values: `SPY`, `QQQ`, `DJI` or `VTI`.
 
 - FRONTIER_STEPS
 
@@ -86,15 +86,15 @@ Determines the number of data points in a portfolio's efficient frontier. This v
 
 - MA_1, MA_2, MA_3
 
-Determines the period in days used to calculuate moving average series. These variables default to the values of `20`, `60` and `100`, but can be set equal to any integer, as long as <b>MA_3</b> > <b>MA_2</b> > <b>MA_1</b>.
+Determines the number of days used in the sample for moving average series and plots. These variables default to the values of `20`, `60` and `100`. In other words, by default, moving average plots will display the 20-day moving average, the 60-day moving average and the 100-day moving average. These variables can be set equal to any integer, as long as <b>MA_1</b> < <b>MA_2</b> < <b>MA_3</b>. 
 
 - FILE_EXT 
 
-Determines the type of files that are output by <b>scrilla</b>. This variable is ccurrently only defined for an argument of `json`. A future release will include `csv`. 
+Determines the type of files that are output by <b>scrilla</b>. This variable is currently only defined for an argument of `json`. A future release will include `csv`. 
 
 - LOG_LEVEL
 
-Determines the amount of output. Defaults to `info`. Allowable values: `info`, `debug`, `verbose`. Be warned, `verbose` is <i>extremely</i> verbose.
+Determines the amount of output. Defaults to `info`. Allowable values: `none`, `info`, `debug` or `verbose`. Be warned, `verbose` is <i>extremely</i> verbose.
 
 # Usage
 
