@@ -126,7 +126,7 @@ class Portfolio:
     def sharpe_ratio_function(self, x):
         return (numpy.dot(x, self.mean_return) - self.risk_free_rate) / (self.volatility_function(x))
 
-    def bs_var_function(self, x, time, prob):
+    def bs_var_function(self, x, time, prob, latest_prices = None):
         """
         Description
         -----------
@@ -141,6 +141,11 @@ class Portfolio:
         3. prob : float \n
             desired probability of loss. \n
         """
+        if latest_prices is None:
+            latest_prices = []
+            for ticker in self.tickers:
+                latest_prices.append(services.get_daily_price_latest(ticker))
+                
         portfolio_return = self.return_function(x) * time
         portfolio_volatility = self.volatility_function(x) * numpy.sqrt(time)
         pass
