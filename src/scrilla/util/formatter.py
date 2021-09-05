@@ -65,7 +65,9 @@ FUNC_XTRA_VALUED_ARGS_DICT = {
     'discount': '-discount',
     'model': '-model',
     'investment': '-invest',
-    'steps': '-steps'
+    'steps': '-steps',
+    'expiry': '-expiry',
+    'allocate': '-allocate'
 }
 
 FUNC_XTRA_SINGLE_ARGS_DICT = {

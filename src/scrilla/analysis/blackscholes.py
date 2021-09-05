@@ -29,7 +29,7 @@ def percentile(S0, vol, ret, expiry, percentile, div=0):
     exponent = (ret - div - 0.5*(vol**2))*expiry + vol*sqrt(expiry)*inv_norm
     return (S0*exp(exponent))
 
-def conditional_expected_value(S0, vol, ret, expiry, conditional_value,  greater = True, div=0,):
+def conditional_expected_value(S0, vol, ret, expiry, conditional_value,  greater = False, div=0,):
     """
     Description
     -----------
@@ -54,7 +54,7 @@ def conditional_expected_value(S0, vol, ret, expiry, conditional_value,  greater
     5. conditional_value: float \n
         The value of the equity conditioned on at time 'expiry' \n
     6. greater : boolean \n
-        Defaults to `True`. Determines the direction of the inequality as the condition for the expectation. See Description for more information. \n
+        Defaults to `False`. Determines the direction of the inequality as the condition for the expectation. See Description for more information. \n
     7. div : float \n
         Defaults to `0`. Annualized dividend yield. 
     Notes
