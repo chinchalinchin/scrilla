@@ -1,4 +1,6 @@
 
+from scipy.stats import norm
+from numpy import log, sqrt
 import settings
 import services
 import files
@@ -186,6 +188,32 @@ def cost_of_equity(ticker, start_date=None, end_date=None, market_profile=None, 
                                 args={ 'equity_stat_symbol': 'equity_cost', 'ticker': ticker,
                                                     'start_date': start_date, 'end_date': end_date })
     return equity_cost
+
+def bs_d1(S0, ST, vol, ret, exp, div = 0):
+    numerator = log(S0/ST) + (ret - div + 0.5 * (vol **2))*exp
+    denominator = vol * sqrt(exp)
+    return (numerator/denominator)
+
+def bs_d2(S0, ST, vol, ret, exp, div = 0):
+    d1 = bs_d1(S0=S0, ST=ST, vol=vol, ret=ret, exp=exp, div=div)
+    adjust = vol * sqrt(exp)
+    return (d1 - adjust)
+
+def bs_prob_d1(S0, ST, vol, ret, exp, div=0):
+    d1 = bs_d1(S0=S0, ST=ST, vol=vol, ret=ret, exp=exp, div=div)
+    return norm.cdf(d1)
+
+def bs_prob_neg_d1(S0, ST, vol, ret, exp, div=0):
+    d1 = bs_d1(S0=S0, ST=ST, vol=vol, ret=ret, exp=exp, div=div)
+    return norm.cdf(-d1)
+
+def bs_prob_d2(S0, ST, vol, ret, exp, div=0):
+    d2 = bs_d2(S0=S0, ST=ST, vol=vol, ret=ret, exp=exp, div=div)
+    return norm.cdf(d2)
+
+def bs_prob_neg_d2(S0, ST, vol, ret, exp, div=0):
+    d2 = bs_d2(S0=S0, ST=ST, vol=vol, ret=ret, exp=exp, div=div)
+    return norm.cdf(-d2)
 
 def screen_for_discount(model=None, discount_rate=None):
     """

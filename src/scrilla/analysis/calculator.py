@@ -1,7 +1,7 @@
 
-import scipy.stats as stats
-import scipy.integrate as integrate
-import numpy
+from scipy.stats import norm
+from scipy.integrate import quad
+from numpy import isinf, inf
 
 import random
 
@@ -11,12 +11,12 @@ import  util.outputter as outputter
 logger = outputter.Logger(" calculator", settings.LOG_LEVEL)
 
 def generate_random_walk(periods):
-    return [stats.norm.ppf(random.uniform(0,1)) for i in range(periods)]
+    return [norm.ppf(random.uniform(0,1)) for i in range(periods)]
 
 # Condition: E(integral of vol ^2 dt) < inf
 def verify_volatility_condition(volatility_function):
-    integral = integrate.quad(func=lambda x: volatility_function(x)**2, a=0, b=numpy.inf)
-    return not numpy.isinf(x = integral)
+    integral = quad(func=lambda x: volatility_function(x)**2, a=0, b=inf)
+    return not isinf(x = integral)
 
 # Remember forward increments!
 def ito_integral(mean_function, volatilty_function, time_to_expiration=None):

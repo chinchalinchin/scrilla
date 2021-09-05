@@ -126,6 +126,42 @@ class Portfolio:
     def sharpe_ratio_function(self, x):
         return (numpy.dot(x, self.mean_return) - self.risk_free_rate) / (self.volatility_function(x))
 
+    def bs_var_function(self, x, time, prob):
+        """
+        Description
+        -----------
+        Calculates the Black Scholes' unconditional value at risk for a portfolio of stocks over a specified time horizon. 
+
+        Parameters
+        ----------
+        1. x : float[] \n
+            an array of decimals representing percentage allocations of the portfolio. Must preserve order with self.tickers.\n \n
+        2. time : float \n
+            time horizon (in years) of the value at risk, i.e. the period of time into the future at which the value at risk is being calculated \n \n
+        3. prob : float \n
+            desired probability of loss. \n
+        """
+        portfolio_return = self.return_function(x) * time
+        portfolio_volatility = self.volatility_function(x) * numpy.sqrt(time)
+        pass
+
+    def bs_cvar_function(self, x, time, prob):
+        """
+        Description
+        -----------
+        Calculates the Black Scholes' value at risk for a portfolio of stocks over a specified time horizon conditional on the portfolio loss exceeding the critical value. 
+
+        Parameters
+        ----------
+        1. x : float[] \n
+            an array of decimals representing percentage allocations of the portfolio. Must preserve order with self.tickers.\n \n
+        2. time : float \n
+            time horizon (in years) of the value at risk, i.e. the period of time into the future at which the value at risk is being calculated \n \n
+        3. prob : float \n
+            desired probability of loss. \n
+        """
+        pass
+
     def get_init_guess(self):
         length = len(self.tickers)
         uniform_guess = 1/length
