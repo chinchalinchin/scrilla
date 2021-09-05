@@ -46,7 +46,7 @@ def validate_function_usage(selection, args, wrapper_function, required_length=1
         elif(exact and (len(args)==required_length)):
             wrapper_function()
         else:
-            logger.comment('Error encountered while calculating. Try -ex flag for example usage.')
+            logger.comment(f'Invalid number of arguments for \'{selection}\' function.')
 
 def do_program():
     if len(sys.argv)>0:

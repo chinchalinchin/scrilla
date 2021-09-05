@@ -68,8 +68,11 @@ def examples():
     
 def option(opt, explanation):
     print(' '*formatter.INDENT, opt, " :")
-    for l in break_lines(explanation):
+    exp_array = explanation.split('__')
+    for l in break_lines(exp_array[0]):
         print(' '*formatter.INDENT*2, l)
+    if len(exp_array) > 1:
+        print(exp_array[1])
 
 def help_msg():
     title_line(formatter.APP_NAME)
@@ -82,7 +85,7 @@ def help_msg():
     center(formatter.SYNTAX)
     return_line()
 
-    title_line('OPTIONS')
+    title_line('FUNCTIONS')
     options = formatter.FUNC_ARG_DICT.keys()
     for opt in options:
         option(formatter.FUNC_ARG_DICT[opt], formatter.FUNC_DICT[opt])
