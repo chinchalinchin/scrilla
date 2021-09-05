@@ -20,6 +20,8 @@ TAB = "      "
 
 FUNC_ARG_DICT = {
     "asset_type": "-asset",
+    "bs_cvar": "-bs-cvar",
+    "bs_var": "-bs-var",
     "capm_equity_cost": "-capm-equity",
     "capm_beta": "-capm-beta",
     "clear_cache": "-clear-cache",
@@ -79,6 +81,10 @@ FUNC_XTRA_SINGLE_ARGS_DICT = {
 FUNC_DICT = {
     "asset_type": "Outputs the asset type for the supplied symbol.",
     
+    "bs_var": "Calculates the Black Scholes value at risk, i.e. for a given p, the S0 such that Prob(St<S0) = p. 'expiry' and 'prob' are required arguments for this function. Note: 'expiry' is measured in years and is different from the `start` and `end` dates. `start` and `end` are used to calibrate the model to a historical sample and `expiry` is used as the time horizon over which the value at risk is calculated into the future. ADDITIONAL_OPTIONS: -prob (format: decimal) REQUIRED, -expiry (format: decimal) REQUIRED, -start (format: \"YYYY-MM-DD\"), -end  (format :\"YYYY-MM-DD\")",
+
+    "bs_cvar": "Calculates the Black Scholes conditional value at risk, i.e. E(St | St < K), for the list of inputted ticker symbols. 'expiry' and 'prob' are required arguments for this function.Note: 'expiry' is measured in years and is different from the `start` and `end` dates. `start` and `end` are used to calibrate the model to a historical sample and `expiry` is used as the time horizon over which the value at risk is calculated into the future. ADDITIONAL_OPTIONS: -prob (format: decimal) REQUIRED, -expiry (format: decimal) REQUIRED, -start (format: \"YYYY-MM-DD\"), -end  (format :\"YYYY-MM-DD\")",
+
     "capm_equity_cost": "Computes the cost of equity according to CAPM for the supplied list of tickers. If no start or end dates are specified, calculations default to the last 100 days of prices. The environment variable MARKET_PROXY defines which ticker serves as a proxy for the market as whole. ADDITIONAL OPTIONS:  -start (format: \"YYYY-MM-DD\"), -end  (format :\"YYYY-MM-DD\")",
 
     "capm_beta": "Computes the market beta according to CAPM for the supplied list of tickers. If no start or end dates are specified, calculations default to the last 100 days of prices. The environment variable MARKET_PROXY defines which ticker serves as a proxy for the market as whole. ADDITIONAL OPTIONS:  -start (format: \"YYYY-MM-DD\"), -end  (format :\"YYYY-MM-DD\")",
@@ -117,8 +123,8 @@ FUNC_DICT = {
     
     "optimize_portfolio_variance": "Optimize the volatility of the portfolio\'s variance subject to the supplied return target.  Returns an array representing the allocations to be made for each asset in a portfolio. The target return must be specified with the '-target' flag. If no target return is specified, the portfolio's volatility is minimized. If no start or end dates are specified with the '-start' and '-end' flags, calculations default to the last 100 days of prices. You can specify an investment with the '-invest' flag, otherwise the result will be output in percentage terms. If the -sh flag is specified, the function will maximize the portfolio's sharpe ratio instead of minimizing it's volatility. ADDITIONAL OPTIONS:  -start (format: \"YYYY-MM-DD\"), -end  (format :\"YYYY-MM-DD\"), -target (format: decimal), -invest (format: float), -save (format: /path/to/file/filename.json), -sh (binary flag; no format. include it or don't.)",
     
-    "optimize_portfolio_conditional_var":"description goes here",
-    
+    "optimize_portfolio_conditional_var":"Optimizes the Black Scholes conditional value at risk, i.e. E(St | St < K), for the portfolio defined by the list of inputted ticker symbols. 'expiry' and 'prob' are required arguments for this function. Note: 'expiry' is measured in years and is different from the `start` and `end` dates. `start` and `end` are used to calibrate the model to a historical sample and `expiry` is used as the time horizon over which the value at risk is calculated into the future. ADDITIONAL_OPTIONS: -prob (format: decimal) REQUIRED, -expiry (format: decimal), -start (format: \"YYYY-MM-DD\"), -end  (format :\"YYYY-MM-DD\")",
+
     "plot_correlation": "EXPERIMENTAL. PROBABLY WON'T WORK. Generates a time series for the correlation of two ticker symbols over the specified date range. ADDITIONAL OPTIONS:  -start (format: \"YYYY-MM-DD\"), -end  (format :\"YYYY-MM-DD\"), -save (format: /path/to/file/filename.jpeg)",
 
     "plot_dividends": "Generates a scatter plot graphic of the dividend history for the supplied list of tickers with a superimposed simple linear regression line. ADDITIONAL OPTIONS: -save (format: /path/to/file/filename.jpeg)",
