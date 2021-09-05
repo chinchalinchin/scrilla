@@ -46,13 +46,52 @@ def optimize_portfolio_variance(portfolio, target_return=None):
 
     return allocation.x
 
+def optimize_conditional_value_at_risk(portfolio, prob, expiry, target_return=None):
+    """
+    Parameters
+    ----------
+    1, portfolio : Portfolio \n
+        An instance of the Portfolio class defined in  objects.portfolio. Must be initialized with an array of ticker symbols. Optionally, it can be initialized with a start_date and end_date datetime. If start_date and end_date are specified, the portfolio will be optimized over the stated time period.\n \n
+    2. prob: float \n
+        Confidence level for value at risk. \n \n
+    3. expiry: float \n
+        Time horizon for the value at risk expectation, i.e. the time in the future at which point the portfolio will be considered 'closed'. 
+    """
+    tickers = portfolio.tickers
+    init_guess = portfolio.get_init_guess()
+    equity_bounds = portfolio.get_default_bounds()
+
+    equity_constraint = {
+            'type': 'eq',
+            'fun': portfolio.get_constraint
+    }
+
+    if target_return is not None:
+        logger.debug(f'Optimizing {tickers} Portfolio Conditional Value at Risk Subject To Return = {target_return}')
+
+        return_constraint = {
+            'type': 'eq',
+            'fun': portfolio.get_target_return_constraint
+        }
+        portfolio_constraints = [equity_constraint, return_constraint]
+    else:
+        logger.debug(f'Minimizing {tickers} Portfolio Conditional Value at Risk')
+        portfolio_constraints = equity_constraint
+
+    allocation = optimize.minimize(fun = lambda x: portfolio.conditional_value_at_risk_function(x, expiry, prob), 
+                                    x0 = init_guess, 
+                                    method=settings.OPTIMIZATION_METHOD, bounds=equity_bounds, 
+                                    constraints=portfolio_constraints, options={'disp': False})
+
+    return allocation.x
+
 def maximize_sharpe_ratio(portfolio, target_return=None):
     """
     Parameters
     ----------
-    * portfolio : Portfolio \n
+    1. portfolio : Portfolio \n
         An instance of the Portfolio class defined in  objects.portfolio. Must be initialized with an array of ticker symbols. Optionally, it can be initialized with a start_date and end_date datetime. If start_date and end_date are specified, the portfolio will be optimized over the stated time period.\n \n
-    * target_return : float \n
+    2. target_return : float \n
         The target return, as a decimal, subject to which the portfolio's volatility will be minimized.
 
     Output

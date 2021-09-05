@@ -254,8 +254,8 @@ def do_program():
                 selected_function, required_length = cli_moving_averages, 1
 
             ### FUNCTION: Optimize Portfolio Variance/Volatility
-            elif opt == formatter.FUNC_ARG_DICT['optimize_portfolio']:
-                def cli_optimize_portfolio():
+            elif opt == formatter.FUNC_ARG_DICT['optimize_portfolio_variance']:
+                def cli_optimize_portfolio_variance():
                     portfolio = Portfolio(tickers=main_args, start_date=xtra_list['start_date'], end_date=xtra_list['end_date'])
                     if xtra_list['optimize_sharpe']:
                         allocation = optimizer.maximize_sharpe_ratio(portfolio=portfolio, target_return=xtra_list['target'])
@@ -266,8 +266,21 @@ def do_program():
                     if xtra_list['save_file'] is not None:
                         files.save_allocation(allocation=allocation, portfolio=portfolio, file_name=xtra_list['save_file'],
                                                 investment=xtra_list['investment'])
-                selected_function, required_length = cli_optimize_portfolio, 2
+                selected_function, required_length = cli_optimize_portfolio_variance, 2
             
+            elif opt == formatter.FUNC_ARG_DICT['optimize_portfolio_conditional_var']:
+                def cli_optimize_conditional_value_at_risk():
+                    portfolio = Portfolio(tickers=main_args, start_date=xtra_list['start_date'], end_date=xtra_list['end_date'])
+                    allocation = optimizer.optimize_conditional_value_at_risk(portfolio=portfolio,
+                                                                                prob=xtra_list['probability'],
+                                                                                expiry=xtra_list['expiry'],
+                                                                                target_return=xtra_list['target'])
+                    outputter.optimal_result(portfolio=portfolio, allocation=allocation, investment=xtra_list['investment'])
+
+                    if xtra_list['save_file'] is not None:
+                        files.save_allocation(allocation=allocation, portfolio=portfolio, file_name=xtra_list['save_file'],
+                                                investment=xtra_list['investment'])
+                selected_function, required_length = cli_optimize_conditional_value_at_risk, 2
             ### FUNCTION: Plot Dividend History With Linear Regression Model
             elif opt == formatter.FUNC_ARG_DICT['plot_dividends']:
                 def cli_plot_dividends():
