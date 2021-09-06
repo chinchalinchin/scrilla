@@ -1,4 +1,4 @@
-import os, sys, dotenv
+import os, sys, dotenv, json
 
 APP_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_DIR = os.path.dirname(APP_DIR)
@@ -213,8 +213,15 @@ PRICE_MANAGER = os.environ.setdefault('PRICE_MANAGER', 'alpha_vantage')
 #### ALPHAVANTAGE CONFIGURATION
 if PRICE_MANAGER == 'alpha_vantage':
     AV_URL = os.environ.setdefault('ALPHA_VANTAGE_URL', 'https://www.alphavantage.co/query').strip("\"").strip("'")
-    AV_KEY = os.getenv('ALPHA_VANTAGE_KEY')
-
+    
+    AV_KEY = os.environ.setdefault('ALPHA_VANTAGE_KEY', '')
+    if AV_KEY is None:
+        keystore = os.path.join(COMMON_DIR, f'ALPHA_VANTAGE_KEY.{FILE_EXT}')
+        if os.path.isfile(keystore):
+            with open(keystore, 'r') as infile:
+                if FILE_EXT == "json":
+                    AV_KEY = json.load(infile)['ALPHA_VANTAGE_KEY']
+                    
     # Metadata Endpoints
     AV_CRYPTO_LIST=os.environ.setdefault('ALPHA_VANTAGE_CRYPTO_META_URL', 'https://www.alphavantage.co/digital_currency_list/')
     
@@ -250,7 +257,14 @@ STAT_MANAGER = os.environ.setdefault('STAT_MANAGER', 'quandl')
 #### QUANDL CONFIGURAITON
 if STAT_MANAGER == "quandl":
     Q_URL = os.environ.setdefault('QUANDL_URL', 'https://www.quandl.com/api/v3/datasets').strip("\"").strip("'")
-    Q_KEY = os.getenv('QUANDL_KEY')
+    
+    Q_KEY = os.environ.setdefault('QUANDL_KEY', '')
+    if Q_KEY is None:
+        keystore = os.path.join(COMMON_DIR, f'QUANDL_KEY.{FILE_EXT}')
+        if os.path.isfile(keystore):
+            with open(keystore, 'r') as infile:
+                if FILE_EXT == "json":
+                    Q_KEY = json.load(infile)['QUANDL_KEY']
 
     # Metadata Endpoints
     Q_META_URL = os.environ.setdefault('QUANDL_META_URL' ,'https://www.quandl.com/api/v3/databases')
@@ -285,7 +299,14 @@ DIV_MANAGER=os.environ.setdefault("DIV_MANAGER", 'iex')
 
 if DIV_MANAGER == "iex":
     IEX_URL = os.environ.setdefault("IEX_URL", 'https://cloud.iexapis.com/stable/stock')
-    IEX_KEY = os.getenv("IEX_KEY")
+    
+    IEX_KEY = os.environ.setdefault("IEX_KEY", '')
+    if IEX_KEY is None:
+        keystore = os.path.join(COMMON_DIR, f'IEX_KEY.{FILE_EXT}')
+        if os.path.isfile(keystore):
+            with open(keystore, 'r') as infile:
+                if FILE_EXT == "json":
+                    IEX_KEY = json.load(infile)['IEX_KEY']
 
     IEX_RES_DATE_KEY="paymentDate"
     IEX_RES_DIV_KEY="amount"

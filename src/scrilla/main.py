@@ -100,9 +100,23 @@ def do_program():
         ### FUNCTION: Risk Free Rate
         elif opt == formatter.FUNC_ARG_DICT['risk_free_rate']:
             outputter.title_line("Risk Free Rate")
-            outputter.scalar_result(calculation=formatter.RISK_FREE_TITLE, 
+            outputter.scalar_result(calculation=formatter.RISK_FREE_TITLE.format(settings.RISK_FREE_RATE), 
                                     result=services.get_risk_free_rate(), 
                                     currency=False)
+
+        ### FUNCTION: Store Key
+            # NOTE: not technically a single argument function, but requires special parsing, so
+            #       treat it here.
+        elif opt == formatter.FUNC_ARG_DICT['store']:
+            keyvalue = sys.argv[2].split("=")
+            if keyvalue[0] in ["ALPHA_VANTAGE_KEY", "QUANDL_KEY", "IEX_KEY"]:
+               keystore = {}
+               keystore[keyvalue[0]] = keyvalue[1]
+               args = { 'key_name': keyvalue[0], 'key_value': keyvalue[1]}
+               files.store_local_object(local_object=files.OBJECTS['api_key'],value=keystore, args=args)
+            else:
+                outputter.comment(f'Key of {keyvalue[0]} not recognized. See -help for more information.')
+            pass
 
         ### FUNCTION: Purge Data Directories
         elif opt == formatter.FUNC_ARG_DICT["purge"]:

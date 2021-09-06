@@ -25,7 +25,8 @@ OBJECTS={
     "prices": 3,
     "dividends": 4,
     "statistic": 5,
-    "equity_statistic":6
+    "equity_statistic":6,
+    "api_key": 7
 }
 logger = outputter.Logger("files", settings.LOG_LEVEL)
 
@@ -46,8 +47,8 @@ def generate_timestamp(args):
 def load_file(file_name):
     with open(file_name, 'r') as infile:
         if settings.FILE_EXT == "json":
-            prices = json.load(infile)
-        return prices
+            file = json.load(infile)
+        return file
         # TODO: implement other file loading extensions
 
 def save_file(file_to_save, file_name):
@@ -94,6 +95,8 @@ def store_local_object(local_object, value, args):
             args: { 'stat_symbol' : value } \n 
         6. if local_object = equity_statistic \n 
             args: { 'ticker' : value , 'equity_stat_symbol' : value } \n \n
+        7. if local_object = api_key \n
+            args: { 'key_name': value, 'key_value': value }
 
     """
     if settings.LOCAL_CACHE:
@@ -117,6 +120,9 @@ def store_local_object(local_object, value, args):
             file_name = os.path.join(settings.CACHE_DIR, f'{timestamp}_{args["stat_symbol"]}_{settings.CACHE_STAT_KEY}.{settings.FILE_EXT}')
         if local_object == OBJECTS['equity_statistic']:
             file_name = os.path.join(settings.CACHE_DIR,f'{timestamp}_{args["ticker"]}_{args["equity_stat_symbol"]}_{settings.CACHE_EQUITY_KEY}.{settings.FILE_EXT}')
+        if local_object == OBJECTS['api_key']:
+            file_name = os.path.join(settings.COMMON_DIR, f'{args["key_name"]}.{settings.FILE_EXT}')
+        
         buffer_store= os.path.join(settings.CACHE_DIR, file_name)
         return save_file(file_to_save=value, file_name=buffer_store)
     return False
@@ -176,6 +182,10 @@ def retrieve_local_object(local_object, args):
             file_name = os.path.join(settings.CACHE_DIR,f'{timestamp}_{args["ticker"]}_{args["equity_stat_symbol"]}_{settings.CACHE_EQUITY_KEY}.{settings.FILE_EXT}')
             logger.debug(f'Checking for {args["ticker"]}\'s {args["equity_stat_symbol"]} statistics in local cache')
         
+        elif local_object == OBJECTS['api_key']:
+            file_name = os.path.join(settings.COMMON_DIR, f'{args["key_name"]}.{settings.FILE_EXT}')
+            logger.debug(f'Checking for {args["key_name"]} API key in local commons')
+
         if file_name is not None and os.path.isfile(file_name):
             logger.debug('Loading in local cache')
             results = load_file(file_name = file_name)

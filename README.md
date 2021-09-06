@@ -4,6 +4,7 @@
 - [Setup](#setup)
     - [Installation](#installation)
     - [Dependencies](#dependencies)
+    - [Configuration](#configuration)
 - [Environment](#environment)
     - [Required Configuration](#required-configuration)
     - [Optional Configuration](#optional-configuration)
@@ -14,6 +15,12 @@
 This is a financial application that calculates asset correlations, statistics and optimal portfolio allocations using data it retrieves from external services (currently: [AlphaVantage](https://www.alphavantage.co), [IEX](https://iexcloud.io/) and [Quandl](https://www.quandl.com/)). Statistics are calculated using [Ito Calculus](https://en.wikipedia.org/wiki/It%C3%B4_calculus) and should be consistent with the results demanded by [Modern Portfolio Theory](https://en.wikipedia.org/wiki/Modern_portfolio_theory) and [Financial Engineering](https://en.wikipedia.org/wiki/Black%E2%80%93Scholes_equation). The portfolios are optimized by minimizing the portfolio's variance/volatility, i.e. by finding the optimal spot on the portfolio's efficient frontier as defined by the [CAPM model](https://en.wikipedia.org/wiki/Capital_asset_pricing_model). Alternatively, portfolios can be optimized by maximizing the portfolio's [Sharpe ratio](https://en.wikipedia.org/wiki/Sharpe_ratio) or by minimizing the portfolio's [Conditional Value at Risk](https://en.wikipedia.org/wiki/Expected_shortfall#Optimization_of_expected_shortfall).
 
 The program's functions are wrapped in [PyQt5](https://doc.qt.io/qtforpython/index.html) widgets which provide a user interface (this feature is still in development and may explode). In addition, visualizations are created by [matplotlib](https://matplotlib.org/3.3.3/contents.html) for easier presentation.
+
+The links below will take you to the registration pages for each API service Key,
+
+[AlphaVantage API Key Registration](https://www.alphavantage.co/support/#api-key)<br>
+[Quandl API Key Registration](https://www.quandl.com/account/api)<br>
+[IEX API Key Registration](https://iexcloud.io/)<br>
 
 # Setup
 
@@ -49,23 +56,27 @@ This libraries will be installed during the `pip` command. If you wish to use th
 
 The GUI will not function without a <b>Qt</b> library.
 
+## Configuration
+
+In order to use this application, you will need to register for API keys. The program will need to be made aware of these keys somehow. The best option is storing these credentials in environment variables. See [Required Configuration](#required-configuration) for more information. You can also invoke the CLI function `store` to store the credentials in the local installation <i>/data/common/</i> directory. To do so,
+
+`scrilla -store <key>=<value>`
+
+where `key` is one of the values: `ALPHA_VANTAGE_KEY`, `QUANDL_KEY` or `IEX_KEY`. `value` is the corresponding key itself given to you after registration. The `key` is case-sensitive and there should be no spaces in the expression `key=value`
+
 # Environment
 
 A sample environment file is located [here](https://github.com/chinchalinchin/scrilla/blob/development/env/.sample.env), along with comments describing the purpose of each variable. The application sets sensible defaults for most of the environment variable configurations, but there are several required environment variables you will need to set yourself. 
 
 ## Required Configuration
 
-In order to use this application, you will need to register for API keys at <b>AlphaVantage</b>, <b>IEX</b> and <b>Quandl</b>. Store these in your session's environment. <b>scrilla</b> will search for environment variables named <b>ALPHA_VANTAGE_KEY</b>, <b>QUANDL_KEY</b> and <b>IEX_KEY</b>. You can add the following lines to your <i>.bashrc</i> profile or corresponding configuration file for whatever shell you are using,
+As mentioned, you will need to register for API keys at <b>AlphaVantage</b>, <b>IEX</b> and <b>Quandl</b>. One way of passing API keys to the program is by storing these in your session's environment. <b>scrilla</b> will search for environment variables named <b>ALPHA_VANTAGE_KEY</b>, <b>QUANDL_KEY</b> and <b>IEX_KEY</b>. You can add the following lines to your <i>.bashrc</i> profile or corresponding configuration file for whatever shell you are using,
 
 `export ALPHA_VANTAGE_KEY=<key goes here>`<br>
 `export QUANDL_KEY=<key goes here>`<br>
 `export IEX_KEY=<key goes here>`<br>
 
-If no API keys are found in these variables, the application will not function properly; be sure to load these variables into your shell session before using <b>scrilla</b>. The link below will take you to the registration pages for each service API Key,
-
-[AlphaVantage API Key Registration](https://www.alphavantage.co/support/#api-key)<br>
-[Quandl API Key Registration](https://www.quandl.com/account/api)<br>
-[IEX API Key Registration](https://iexcloud.io/)<br>
+If no API keys are found in these variables, the application will not function properly; be sure to load these variables into your shell session before using <b>scrilla</b>. 
 
 ## Optional Configuration 
 

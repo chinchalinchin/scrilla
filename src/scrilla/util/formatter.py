@@ -10,7 +10,7 @@ BAR_WIDTH = 0.10
 
 INDENT = 10
 
-RISK_FREE_TITLE = "10-Year US Treasury"
+RISK_FREE_TITLE = "{} US Treasury"
 
 HELP_MSG = "A financial application written in python to determine optimal portfolio allocations subject to various constraints and to calculate fundamental statistics concerning a given portfolio allocation. Note: all calculations are based on an equity's closing price for the past 100 trading days. "
 
@@ -56,6 +56,7 @@ FUNC_ARG_DICT = {
     "sharpe_ratio": "-sharpe",
     "statistic": "-stat",
     "statistic_history": "-stats",
+    "store": "-store",
     "watchlist": "-watch",
     "yield_curve": "-yield"
 }
@@ -81,9 +82,10 @@ FUNC_XTRA_SINGLE_ARGS_DICT = {
 FUNC_DICT = {
     "asset_type": "Outputs the asset type for the supplied symbol.",
     
-    "bs_var": "Calculates the Black Scholes value at risk, i.e. for a given p, the S0 such that Prob(St<S0) = p. 'expiry' and 'prob' are required arguments for this function. Note: 'expiry' is measured in years and is different from the `start` and `end` dates. `start` and `end` are used to calibrate the model to a historical sample and `expiry` is used as the time horizon over which the value at risk is calculated into the future.__\n\t \t\tOPTIONS: \n\t\t\t\t -prob (format: decimal) REQUIRED \n\t\t\t\t -expiry (format: decimal) REQUIRED \n\t\t\t\t -start (format: \"YYYY-MM-DD\")\n\t\t\t\t-end  (format :\"YYYY-MM-DD\")",
-
     "bs_cvar": "Calculates the Black Scholes conditional value at risk, i.e. E(St | St < K), for the list of inputted ticker symbols. 'expiry' and 'prob' are required arguments for this function. Note: 'expiry' is measured in years and is different from the `start` and `end` dates. `start` and `end` are used to calibrate the model to a historical sample and `expiry` is used as the time horizon over which the value at risk is calculated into the future.__\n\t\t\tOPTIONS: \n\t\t\t\t-prob (format: decimal) REQUIRED\n\t\t\t\t-expiry (format: decimal) REQUIRED\n\t\t\t\t-start (format: \"YYYY-MM-DD\")\n\t\t\t\t-end  (format :\"YYYY-MM-DD\")",
+
+   "bs_var": "Calculates the Black Scholes value at risk, i.e. for a given p, the S0 such that Prob(St<S0) = p. 'expiry' and 'prob' are required arguments for this function. Note: 'expiry' is measured in years and is different from the `start` and `end` dates. `start` and `end` are used to calibrate the model to a historical sample and `expiry` is used as the time horizon over which the value at risk is calculated into the future.__\n\t \t\tOPTIONS: \n\t\t\t\t -prob (format: decimal) REQUIRED \n\t\t\t\t -expiry (format: decimal) REQUIRED \n\t\t\t\t -start (format: \"YYYY-MM-DD\")\n\t\t\t\t-end  (format :\"YYYY-MM-DD\")",
+
 
     "capm_equity_cost": "Computes the cost of equity according to CAPM for the supplied list of tickers. If no start or end dates are specified, calculations default to the last 100 days of prices. The environment variable MARKET_PROXY defines which ticker serves as a proxy for the market as whole.__\n\t\t\tOPTIONS:\n\t\t\t\t-start (format: \"YYYY-MM-DD\")\n\t\t\t\t-end  (format :\"YYYY-MM-DD\")",
 
@@ -152,6 +154,8 @@ FUNC_DICT = {
     "statistic": "Retrieves the latest value for the supplied list of economic statistics. The available list of economic statistic can be found at https://www.quandl.com/data/FRED-Federal-Reserve-Economic-Data/documentation?anchor=growth; it is also stored in the /static/ directory of the application ",
     
     "statistic_history": "Prints the statistic history for the supplied list of economic statistics.__\n\t\t\tOPTIONS:\n\t\t\t\t-save (format: /path/to/file/filename.jpeg)",
+
+    "store": "Save API key to local installation/data/common/ directory. Keys must be input one at a time. ALLOWABLE KEYS: ALPHA_VANTAGE_KEY, QUANDL_KEY, IEX_KEY. Case sensitive.",
 
     "watchlist": "Saves the supplist list of tickers to your watchlist. These equity symbol are used by the screening algorithms when searching for stocks that trade at a discount.", 
 
