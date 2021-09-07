@@ -86,7 +86,7 @@ def parse_price_from_date(prices, date, asset_type, which_price=CLOSE_PRICE):
     
     Output
     ------
-    String containing the price on the specified date.
+    String containing the price on the specified date or None if price unable to be parsed.
     """
     try:
         if settings.PRICE_MANAGER == 'alpha_vantage':
@@ -104,8 +104,8 @@ def parse_price_from_date(prices, date, asset_type, which_price=CLOSE_PRICE):
                     return prices[date][settings.AV_RES_CRYPTO_OPEN_PRICE]
 
     except KeyError:
-        logger.info('Price unable to be parsed from date.')
-        return False
+        logger.debug('Price unable to be parsed from date.')
+        return None
 
 def query_service_for_daily_price_history(ticker, start_date=None, end_date=None, asset_type=None, full=False):
     """

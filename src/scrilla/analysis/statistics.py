@@ -573,8 +573,9 @@ def calculate_risk_return(ticker, start_date=None, end_date=None, sample_prices=
         if today:
             logger.verbose(f'{date}: (todays_price, tomorrows_price) = ({todays_price}, {tomorrows_price})')
             current_mod_return= log(float(tomorrows_price)/float(todays_price))/sqrt(trading_period) 
-            variance = variance + (current_mod_return - mean_mod_return)**2/(sample - 1)
-            logger.verbose(f'{date}: (daily_variance, sample_variance) = ({round(current_mod_return, 2)}, {round(variance, 2)})')
+            daily = (current_mod_return - mean_mod_return)**2/(sample - 1)
+            variance = variance + daily
+            logger.verbose(f'{date}: (daily_variance, sample_variance) = ({round(daily, 4)}, {round(variance, 4)})')
 
         else:
             today = True
@@ -653,6 +654,7 @@ def calculate_ito_correlation(ticker_1, ticker_2, asset_type_1=None, asset_type_
     ### START SAMPLE STATISTICS CALCULATION ###
     logger.debug(f'Preparing to calculate correlation for ({ticker_1},{ticker_2})')
     try:
+        # here I should use an adjusted function when a crypto asset is inputted. remove weekends from sample. 
         stats_1 = calculate_risk_return(ticker_1, start_date, end_date, sample_prices[ticker_1])
         stats_2 = calculate_risk_return(ticker_2, start_date, end_date, sample_prices[ticker_2])
     except SampleSizeError as se:
@@ -666,6 +668,8 @@ def calculate_ito_correlation(ticker_1, ticker_2, asset_type_1=None, asset_type_
         asset_type_2 = files.get_asset_type(symbol=ticker_2)
     
     # ito's lemma
+    # instead of all these conditionals, use adjusted_risk_return for crypto and set period to ONE_TRADING_DAY
+    # regardless of asset types.
     if asset_type_1 == settings.ASSET_EQUITY:
         mod_mean_1 = (stats_1['annual_return'] - 0.5*(stats_1['annual_volatility'])**2)*sqrt(settings.ONE_TRADING_DAY)
     elif asset_type_1 == settings.ASSET_CRYPTO:
@@ -692,6 +696,9 @@ def calculate_ito_correlation(ticker_1, ticker_2, asset_type_1=None, asset_type_
     else:
         logger.debug(f'Asset({ticker_1}) and Asset({ticker_2}) are not the same type of asset')
 
+        # TODO: at this point, i should remove weekends from crypto prices instead of doing all of this. 
+        # create new method in services for getting only weekday crypto data. Will need to use that method to get price data for crypto assets 
+        # instead of the current way. calculate_risk_return will be affected.
         if asset_type_1 == settings.ASSET_CRYPTO and asset_type_2 == settings.ASSET_EQUITY:
             for date in prices_1:
                 if helper.is_date_string_weekend(date):
@@ -724,6 +731,8 @@ def calculate_ito_correlation(ticker_1, ticker_2, asset_type_1=None, asset_type_
     sample = len(sample_prices)
 
     #### START CORRELATION LOOP ####
+
+    ### NOTE: losing a sample affects the mean. can't use same mean. that's why inter-asset correlation is off. i think.
     for date in sample_prices:
         todays_price_1 = services.parse_price_from_date(prices_1, date, asset_type_1)
         todays_price_2 = services.parse_price_from_date(prices_2, date, asset_type_2)

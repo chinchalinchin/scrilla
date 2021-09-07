@@ -149,7 +149,7 @@ def do_program():
             if opt == formatter.FUNC_ARG_DICT['asset_type']:
                 def cli_asset_type():
                     for arg in main_args:
-                        asset_type = markets.get_asset_type(arg)
+                        asset_type = files.get_asset_type(arg)
                         if asset_type:
                             outputter.string_result(f'asset_type({arg})', asset_type)
                         else: 
@@ -347,7 +347,7 @@ def do_program():
                     for arg in main_args:
                         prices = services.get_daily_price_history(ticker=arg, start_date=xtra_list['start_date'],
                                                                     end_date=xtra_list['end_date'])
-                        asset_type = markets.get_asset_type(symbol=arg)
+                        asset_type = files.get_asset_type(symbol=arg)
                         all_prices[arg] = {}
                         for date in prices:
                             price = services.parse_price_from_date(prices=prices, date=date, asset_type=asset_type)
