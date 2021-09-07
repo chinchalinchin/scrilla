@@ -1,4 +1,4 @@
-import os, sys, dotenv
+import os, sys, dotenv, json
 
 APP_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_DIR = os.path.dirname(APP_DIR)
@@ -100,7 +100,7 @@ APP_ENV = os.environ.setdefault('APP_ENV', 'local')
 # NOTE: Load in local.env file if not running application container. Container should 
 # already have the container.env file preloaded in its environment.
 if APP_ENV != 'container':
-    dotenv.load_dotenv(os.path.join(os.path.join(ROOT_DIR,'env'), 'local.env'))
+    dotenv.load_dotenv(os.path.join(os.path.join(ROOT_DIR,'env'), '.env'))
 
 LOG_LEVEL = str(os.environ.setdefault("LOG_LEVEL", "info")).lower()
 
@@ -116,6 +116,7 @@ CACHE_PRICE_KEY="prices"
 CACHE_COR_KEY="correlation"
 CACHE_DIV_KEY="dividends"
 CACHE_STAT_KEY="statistic"
+CACHE_EQUITY_KEY="equity_statistic"
 
 STATIC_DIR = os.path.join(APP_DIR, 'data', 'static')
 
@@ -212,8 +213,15 @@ PRICE_MANAGER = os.environ.setdefault('PRICE_MANAGER', 'alpha_vantage')
 #### ALPHAVANTAGE CONFIGURATION
 if PRICE_MANAGER == 'alpha_vantage':
     AV_URL = os.environ.setdefault('ALPHA_VANTAGE_URL', 'https://www.alphavantage.co/query').strip("\"").strip("'")
-    AV_KEY = os.getenv('ALPHA_VANTAGE_KEY')
-
+    
+    AV_KEY = os.environ.setdefault('ALPHA_VANTAGE_KEY', '')
+    if AV_KEY is None:
+        keystore = os.path.join(COMMON_DIR, f'ALPHA_VANTAGE_KEY.{FILE_EXT}')
+        if os.path.isfile(keystore):
+            with open(keystore, 'r') as infile:
+                if FILE_EXT == "json":
+                    AV_KEY = json.load(infile)['ALPHA_VANTAGE_KEY']
+                    
     # Metadata Endpoints
     AV_CRYPTO_LIST=os.environ.setdefault('ALPHA_VANTAGE_CRYPTO_META_URL', 'https://www.alphavantage.co/digital_currency_list/')
     
@@ -249,7 +257,14 @@ STAT_MANAGER = os.environ.setdefault('STAT_MANAGER', 'quandl')
 #### QUANDL CONFIGURAITON
 if STAT_MANAGER == "quandl":
     Q_URL = os.environ.setdefault('QUANDL_URL', 'https://www.quandl.com/api/v3/datasets').strip("\"").strip("'")
-    Q_KEY = os.getenv('QUANDL_KEY')
+    
+    Q_KEY = os.environ.setdefault('QUANDL_KEY', '')
+    if Q_KEY is None:
+        keystore = os.path.join(COMMON_DIR, f'QUANDL_KEY.{FILE_EXT}')
+        if os.path.isfile(keystore):
+            with open(keystore, 'r') as infile:
+                if FILE_EXT == "json":
+                    Q_KEY = json.load(infile)['QUANDL_KEY']
 
     # Metadata Endpoints
     Q_META_URL = os.environ.setdefault('QUANDL_META_URL' ,'https://www.quandl.com/api/v3/databases')
@@ -284,7 +299,14 @@ DIV_MANAGER=os.environ.setdefault("DIV_MANAGER", 'iex')
 
 if DIV_MANAGER == "iex":
     IEX_URL = os.environ.setdefault("IEX_URL", 'https://cloud.iexapis.com/stable/stock')
-    IEX_KEY = os.getenv("IEX_KEY")
+    
+    IEX_KEY = os.environ.setdefault("IEX_KEY", '')
+    if IEX_KEY is None:
+        keystore = os.path.join(COMMON_DIR, f'IEX_KEY.{FILE_EXT}')
+        if os.path.isfile(keystore):
+            with open(keystore, 'r') as infile:
+                if FILE_EXT == "json":
+                    IEX_KEY = json.load(infile)['IEX_KEY']
 
     IEX_RES_DATE_KEY="paymentDate"
     IEX_RES_DIV_KEY="amount"
@@ -295,3 +317,19 @@ if DIV_MANAGER == "iex":
     PARAM_IEX_RANGE_2YR="2y"
     PARAM_IEX_RANGE_1YR="1y"
     PARAM_IEX_KEY="token"
+
+def get_trading_period(asset_type):
+    """
+    Description
+    -----------
+    Returns the value of one trading day measured in years of the asset_type passed in as an argument.
+
+    Parameters
+    ----------
+    1. asset_type : str\n
+    
+    A string that represents a type of tradeable asset. Types are statically accessible through the ` settings` variables: ASSET_EQUITY and ASSET_CRYPTO.
+    """
+    if asset_type == ASSET_CRYPTO:
+        return (1/365)
+    return ONE_TRADING_DAY

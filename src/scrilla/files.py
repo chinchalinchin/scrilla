@@ -6,6 +6,11 @@ Description
 import os, io, json, csv, zipfile
 import requests
 
+
+#  Note: need to import from package when running from wheel.
+# if running locally through main.py file, these imports should be replaced
+#       from . import settings
+# annoying, but it is what it is.
 from scrilla import settings
 
 import util.outputter as outputter
@@ -20,8 +25,10 @@ OBJECTS={
     "prices": 3,
     "dividends": 4,
     "statistic": 5,
+    "equity_statistic":6,
+    "api_key": 7
 }
-logger = outputter.Logger(" files", settings.LOG_LEVEL)
+logger = outputter.Logger("files", settings.LOG_LEVEL)
 
 def determine_analysis_date_range(start_date=None, end_date=None):
     if end_date is None:
@@ -40,8 +47,8 @@ def generate_timestamp(args):
 def load_file(file_name):
     with open(file_name, 'r') as infile:
         if settings.FILE_EXT == "json":
-            prices = json.load(infile)
-        return prices
+            file = json.load(infile)
+        return file
         # TODO: implement other file loading extensions
 
 def save_file(file_to_save, file_name):
@@ -50,11 +57,48 @@ def save_file(file_to_save, file_name):
             try:
                 json.dump(file_to_save, outfile)
                 return True
-            except:
+            except Exception as e:
+                logger.info(f'A {e.__class__} exception occured.')
                 return False
+            
         # TODO: implement other file saving extensions.
 
+
 def store_local_object(local_object, value, args):
+    """
+    Parameters
+    ----------
+    1. local_object: int \n
+        index of object type you wish to store. Types are statically accessible through OBJECTS dictionary property. \n \n 
+
+    2. value: dict
+        dictionary of object key-value pairs to store. \n \n 
+
+    3. args: dict
+        dictionary of general and object-specific arguments. \n \n
+        
+        optional arguments: \n
+        1. end_date, start_date: datetime.date \n
+            range defaults to last 100 days if no dates are provided. \n \n 
+
+        required arguments: \n
+            NOTE: required arguments are a function of the object-type. \n 
+        1. if local_object = correlation \n 
+            args: { 'ticker_1' : value , 'ticker_2': value }  \n 
+        2. if local_object = prices \n 
+            args: { 'ticker' : value } \n 
+        3. if local_objecct = risk_profile \n 
+            args: { 'ticker' : value } \n
+        4. if local_object = dividends \n 
+            args: { 'ticker' : value } \n 
+        5. if local_object = statistic \n 
+            args: { 'stat_symbol' : value } \n 
+        6. if local_object = equity_statistic \n 
+            args: { 'ticker' : value , 'equity_stat_symbol' : value } \n \n
+        7. if local_object = api_key \n
+            args: { 'key_name': value, 'key_value': value }
+
+    """
     if settings.LOCAL_CACHE:
         timestamp = generate_timestamp(args=args)
         
@@ -74,7 +118,11 @@ def store_local_object(local_object, value, args):
             file_name = os.path.join(settings.CACHE_DIR, f'{timestamp}_{args["ticker"]}_{settings.CACHE_DIV_KEY}.{settings.FILE_EXT}')
         if local_object == OBJECTS['statistic']:
             file_name = os.path.join(settings.CACHE_DIR, f'{timestamp}_{args["stat_symbol"]}_{settings.CACHE_STAT_KEY}.{settings.FILE_EXT}')
-
+        if local_object == OBJECTS['equity_statistic']:
+            file_name = os.path.join(settings.CACHE_DIR,f'{timestamp}_{args["ticker"]}_{args["equity_stat_symbol"]}_{settings.CACHE_EQUITY_KEY}.{settings.FILE_EXT}')
+        if local_object == OBJECTS['api_key']:
+            file_name = os.path.join(settings.COMMON_DIR, f'{args["key_name"]}.{settings.FILE_EXT}')
+        
         buffer_store= os.path.join(settings.CACHE_DIR, file_name)
         return save_file(file_to_save=value, file_name=buffer_store)
     return False
@@ -101,9 +149,6 @@ def retrieve_local_object(local_object, args):
         if local_object == OBJECTS['risk_profile']:
             file_name = os.path.join(settings.CACHE_DIR, f'{timestamp}_{args["ticker"]}_{settings.CACHE_PRO_KEY}.{settings.FILE_EXT}')
             logger.debug(f'Checking for {args["ticker"]} statistics in local cache.')
-            if os.path.isfile(file_name):
-                results = load_file(file_name=file_name)
-                return results
         
         elif local_object == OBJECTS['prices']:
             # TODO: with different time stamp implementation, this part of the method should search for price histories that contain
@@ -123,17 +168,28 @@ def retrieve_local_object(local_object, args):
                         # parsed start_date to end_date from cached_prices
 
             file_name = os.path.join(settings.CACHE_DIR, f'{timestamp}_{args["ticker"]}_{settings.CACHE_PRICE_KEY}.{settings.FILE_EXT}')
-            logger.debug(f'Checking for {args["ticker"]} prices in local cache.')
-            if os.path.isfile(file_name):
-                results = load_file(file_name=file_name)
-                return results
+            logger.debug(f'Checking for {args["ticker"]} prices in local cache')
 
+        elif local_object == OBJECTS['dividends']:
+            file_name = os.path.join(settings.CACHE_DIR, f'{timestamp}_{args["ticker"]}_{settings.CACHE_DIV_KEY}.{settings.FILE_EXT}')
+            logger.debug(f'Checking for {args["ticker"]} prices in local cache')
+            
         elif local_object == OBJECTS['statistic']:
             file_name = os.path.join(settings.CACHE_DIR, f'{timestamp}_{args["stat_symbol"]}_{settings.CACHE_STAT_KEY}.{settings.FILE_EXT}')
-            logger.debug(f'Checking for {args["stat_symbol"]} statistics in cache')
-            if os.path.isfile(file_name):
-                results = load_file(file_name=file_name)
-                return results
+            logger.debug(f'Checking for {args["stat_symbol"]} statistics in local cache')
+        
+        elif local_object == OBJECTS['equity_statistic']:
+            file_name = os.path.join(settings.CACHE_DIR,f'{timestamp}_{args["ticker"]}_{args["equity_stat_symbol"]}_{settings.CACHE_EQUITY_KEY}.{settings.FILE_EXT}')
+            logger.debug(f'Checking for {args["ticker"]}\'s {args["equity_stat_symbol"]} statistics in local cache')
+        
+        elif local_object == OBJECTS['api_key']:
+            file_name = os.path.join(settings.COMMON_DIR, f'{args["key_name"]}.{settings.FILE_EXT}')
+            logger.debug(f'Checking for {args["key_name"]} API key in local commons')
+
+        if file_name is not None and os.path.isfile(file_name):
+            logger.debug('Loading in local cache')
+            results = load_file(file_name = file_name)
+            return results
 
     return None
 
@@ -335,26 +391,6 @@ def get_asset_type(symbol):
     # default to equity for overlap until a better method is determined. 
     return settings.ASSET_EQUITY
 
-def get_trading_period(asset_type):
-    """
-    Description
-    -----------
-    Returns the value of one trading day measured in years of the asset_type passed in as an argument.
-
-    Parameters
-    ----------
-    1. asset_type : str\n
-    
-    A string that represents a type of tradeable asset. Types are statically accessible through the ` settings` variables: ASSET_EQUITY and ASSET_CRYPTO.
-    """
-    if asset_type is None:
-        return False
-    if asset_type == settings.ASSET_CRYPTO:
-        return (1/365)
-    if asset_type == settings.ASSET_EQUITY:
-        return settings.ONE_TRADING_DAY
-    return settings.ONE_TRADING_DAY
-
 def get_watchlist():
     """
     Description
@@ -410,9 +446,9 @@ def format_allocation(allocation, portfolio, investment=None):
     annual_volatility = portfolio.volatility_function(x=allocation) 
     annual_return = portfolio.return_function(x=allocation)
 
-    for j in range(len(portfolio.tickers)):
+    for j, item in enumerate(portfolio.tickers):
         allocation_format[j] = {}
-        allocation_format[j]['ticker'] = portfolio.tickers[j]
+        allocation_format[j]['ticker'] = item
         allocation_format[j]['allocation'] = round(allocation[j], settings.ACCURACY)
         if investment is not None:
             allocation_format[j]['shares'] = float(shares[j])
@@ -432,8 +468,8 @@ def format_allocation(allocation, portfolio, investment=None):
 
 def format_frontier(portfolio, frontier, investment=None):
     json_format = {}
-    for i in range(len(frontier)):
-        json_format[f'portfolio_{i}'] = format_allocation(allocation=frontier[i], portfolio=portfolio, 
+    for i, item in enumerate(frontier):
+        json_format[f'portfolio_{i}'] = format_allocation(allocation=item, portfolio=portfolio, 
                                                             investment=investment)
 
     return json_format
@@ -442,8 +478,8 @@ def format_moving_averages(tickers, averages_output):
     these_moving_averages, dates = averages_output
 
     response = {}
-    for i in range(len(tickers)):
-        ticker_str=f'{tickers[i]}'
+    for i, item in enumerate(tickers):
+        ticker_str=f'{item}'
         MA_1_str, MA_2_str, MA_3_str = f'{ticker_str}_MA_1', f'{ticker_str}_MA_2', f'{ticker_str}_MA_3'    
 
         subresponse = {}
@@ -455,8 +491,8 @@ def format_moving_averages(tickers, averages_output):
         else:
             subsubresponse_1, subsubresponse_2, subsubresponse_3 = {}, {}, {}
     
-            for j in range(len(dates)):
-                date_str=helper.date_to_string(dates[j])
+            for j, this_item in enumerate(dates):
+                date_str=helper.date_to_string(this_item)
                 subsubresponse_1[date_str] = these_moving_averages[i][0][j]
                 subsubresponse_2[date_str] = these_moving_averages[i][1][j]
                 subsubresponse_3[date_str] = these_moving_averages[i][2][j]
@@ -471,10 +507,10 @@ def format_moving_averages(tickers, averages_output):
 
 def format_correlation_matrix(tickers, correlation_matrix):
     response = {}
-    for i in range(len(tickers)):
+    for i, item in enumerate(tickers):
         # correlation_matrix[i][i]
         for j in range(i+1, len(tickers)):
-            response[f'{tickers[i]}_{tickers[j]}_correlation'] = correlation_matrix[j][i]
+            response[f'{item}_{tickers[j]}_correlation'] = correlation_matrix[j][i]
     return response
     
 def save_allocation(allocation, portfolio, file_name, investment=None):

@@ -1,14 +1,15 @@
 import numpy, math
 from decimal import Decimal
 
-import  analysis.statistics as statistics
-import  services
-import  settings
-import  files
+import analysis.statistics as statistics
+import analysis.blackscholes as blackscholes
+import services
+import settings
+import files
 
-import  util.outputter as outputter 
+import util.outputter as outputter 
 
-logger = outputter.Logger(" objects.portfolio", settings.LOG_LEVEL)
+logger = outputter.Logger("objects.portfolio", settings.LOG_LEVEL)
 
 # TODO: allow user to specify bounds for equities, i.e. min and max allocations.
 class Portfolio:
@@ -125,6 +126,49 @@ class Portfolio:
 
     def sharpe_ratio_function(self, x):
         return (numpy.dot(x, self.mean_return) - self.risk_free_rate) / (self.volatility_function(x))
+
+    def percentile_function(self, x, time, prob):
+        """
+        Description
+        -----------
+
+        Returns the normalized percentile. In other words, returns Z-score for the portfolio. \n
+
+        Parameters
+        ----------
+        1. x: float[] \n
+            an array of decimals representing percentage allocations of the portfolio. Must preserve order with self.tickers.\n \n
+        2: time : float \n
+            time horizon (in years) of the value at risk, i.e. the period of time into the future at which the value at risk is being calculated \n \n
+        3. prob: float \b
+            percentile desired
+        """
+        portfolio_return = self.return_function(x) * time
+        portfolio_volatility = self.volatility_function(x) * numpy.sqrt(time)
+
+        return blackscholes.percentile(S0=1, vol=portfolio_volatility, ret=portfolio_return, 
+                                        expiry=time, percentile=prob)
+
+    def conditional_value_at_risk_function(self, x, time, prob):
+        """
+        Description
+        -----------
+        Calculates the Black Scholes' conditional value at risk for a portfolio of stocks over a specified time horizon. The value will be given in percentage terms relative to the initial value of the portfolio at the beginning of the time horizon, i.e. a return value of 5% would mean 5% of your portfolio's initial value is at risk with probability `prob`. A negative value would indicate there is no value at risk, i.e. value would actually accrue. 
+
+        Parameters
+        ----------
+        1. x : float[] \n
+            an array of decimals representing percentage allocations of the portfolio. Must preserve order with self.tickers.\n \n
+        2. time : float \n
+            time horizon (in years) of the value at risk, i.e. the period of time into the future at which the value at risk is being calculated \n \n
+        3. prob : float \n
+            desired probability of loss. \n
+        """
+        portfolio_return = self.return_function(x) * time
+        portfolio_volatility = self.volatility_function(x) * numpy.sqrt(time)
+        value_at_risk = self.percentile_function(x=x, time=time,prob=prob)
+        return (1 - blackscholes.conditional_expected_value(S0=1,vol=portfolio_volatility, ret=portfolio_return,
+                                                    expiry=time, conditional_value=value_at_risk))
 
     def get_init_guess(self):
         length = len(self.tickers)

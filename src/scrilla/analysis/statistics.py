@@ -1,10 +1,11 @@
-import os, sys, json
-import datetime
-import numpy
+from os import path
+from datetime import timedelta
+from sys import path as sys_path
+from numpy import log, sqrt, exp
 
 if __name__=="__main__":
-    APP_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    sys.path.append(APP_DIR)
+    APP_DIR = path.dirname(path.dirname(path.abspath(__file__)))
+    sys_path.append(APP_DIR)
 
 import settings
 import services
@@ -16,33 +17,39 @@ import util.helper as helper
 
 logger = outputter.Logger(' statistics', settings.LOG_LEVEL)
 
-# NOTE: the format of 'sample_prices' was chosen so any function that accepts it as an argument
-#       can pass the same argument to other statistical functions with minimal formatting.
-#       While some of the information in 'sample_prices' may be redundant, i.e. 'tickers' is a subset
-#       of 'sample_prices', this format provides an easier method of communication between functions.
-#       In particular, the call to 'calculate_risk_return' inside of 'calculate_ito_correlation' is able
-#       pass 'sample_prices' directly into 'calculate_risk_return' without having to worry whether it
-#       is passing in a 'None'-type object, or a list of prices ordered by date.
+class SampleSizeError(Exception):
+    def __init__(self, message):
+        super().__init__(message)
+
+class PriceError(Exception):
+    def __init__(self, message):
+        super().__init__(message)
 
 def sample_correlation(x, y):
+    """
+    
+    Raises 
+    ------
+    1. scrilla.analysis.statistics.SampleSizeError \n \n
+
+    Notes
+    """
     if len(x) != len(y):
-        logger.info('Samples are not of comparable lengths')
-        return False
+        raise SampleSizeError('Samples are not of comparable lengths')
 
     if len(x) in [0, 1]:
-        logger.info('Sample correlation cannot be computed for a sample size less than or equal to 1.')
-        return False
+        raise SampleSizeError('Sample correlation cannot be computed for a sample size less than or equal to 1.')
 
     sumproduct, sum_x_squared, sum_x, sum_y, sum_y_squared= 0, 0, 0, 0, 0
     n = len(x)
-    for i in range(len(x)):
-        sumproduct += x[i]*y[i]
-        sum_x += x[i]
-        sum_x_squared += x[i]**2
+    for i, item in enumerate(x):
+        sumproduct += item*y[i]
+        sum_x += item
+        sum_x_squared += item**2
         sum_y += y[i]
         sum_y_squared += y[i]**2
     correl_num = ((n*sumproduct) - sum_x*sum_y)
-    correl_den = numpy.sqrt((n*sum_x_squared-sum_x**2)*(n*sum_y_squared-sum_y**2))
+    correl_den = sqrt((n*sum_x_squared-sum_x**2)*(n*sum_y_squared-sum_y**2))
 
     # LET'S DO SOME MATHEMATICS! (to get around division by zero!)
     #   Unfortunately, this only works when A and B > 0 because log
@@ -52,8 +59,8 @@ def sample_correlation(x, y):
     #   3. exp(log(correl)) = exp(log(A/B))
     #   4. correl = exp(log(A/B))
     if correl_num > 0 and correl_den > 0:
-        log_correl = numpy.log(correl_num) - numpy.log(correl_den)
-        correlation = numpy.exp(log_correl)
+        log_correl = log(correl_num) - log(correl_den)
+        correlation = exp(log_correl)
     else:
         if correl_den != 0:
             correlation = correl_num / correl_den
@@ -69,11 +76,17 @@ def recursive_rolling_correlation(correl_previous, new_x_observation, lost_x_obs
     pass
 
 def sample_mean(x):
-    xbar, n = 0, len(x)
-    if n == 0:
-        logger.info('Sample mean cannot be computed for a sample size of 0.')
-        return False
+    """
     
+    Raises 
+    ------
+    1. scrilla.analysis.statistics.SampleSizeError \n \n
+    """
+    xbar, n = 0, len(x)
+
+    if n == 0:
+        raise SampleSizeError('Sample mean cannot be computed for a sample size of 0.')
+
     for i in x:
         xbar += i/n
     return xbar
@@ -83,10 +96,20 @@ def recursive_rolling_mean(xbar_previous, new_obs, lost_obs, n=settings.DEFAULT_
     return xbar_next
 
 def sample_variance(x):
-    mu, sigma, n = sample_mean(x=x), 0, len(x)
+    """
+    
+    Raises 
+    ------
+    1. scrilla.analysis.statistics.SampleSizeError \n \n
+    """
+
+    try:
+        mu, sigma, n = sample_mean(x=x), 0, len(x)
+    except SampleSizeError as e:
+        raise SampleSizeError(e)
+
     if n in [0, 1]:
-        logger.info('Sample variance cannot be computed for a sample size less than or equal to 1.')
-        return False
+        raise SampleSizeError('Sample variance cannot be computed for a sample size less than or equal to 1.')
 
     for i in x:
         sigma += ((i-mu)**2)/(n-1)
@@ -99,19 +122,29 @@ def recursive_rolling_variance(var_previous, xbar_previous, new_obs, lost_obs, n
     return var_new
 
 def sample_covariance(x, y):
+    """
+    
+    Raises 
+    ------
+    1. scrilla.analysis.statistics.SampleSizeError \n \n
+    """
+
     if len(x) != len(y):
-        logger.info('Samples are not of comparable length')
-        return False
+        raise SampleSizeError('Samples are not of comparable length')
 
     if len(x) in [0, 1]:
-        logger.info('Sample correlation cannot be computed for a sample size less than or equal to 1.')
-        return False
+        raise SampleSizeError('Sample correlation cannot be computed for a sample size less than or equal to 1.')
 
     # TODO: probably a faster way of calculating this.
     n, covariance = len(x), 0
-    x_mean, y_mean = sample_mean(x=x), sample_mean(x=y)
-    for i in range(len(x)):
-        covariance += (x[i] - x_mean)*(y[i] - y_mean) / (n -1) 
+
+    try:
+        x_mean, y_mean = sample_mean(x=x), sample_mean(x=y)
+    except SampleSizeError as e:
+        raise SampleSizeError(e)
+
+    for i, item in enumerate(x):
+        covariance += (item - x_mean)*(y[i] - y_mean) / (n -1) 
 
     return covariance
 
@@ -126,34 +159,47 @@ def recursive_rolling_covariance(covar_previous, new_x_obs, lost_x_obs, previous
     return covar_new
 
 def regression_beta(x, y):
-    if len(x) != len(y):
-        logger.info(f'len(x) = {len(x)} != len(y) = {len(y)}')
-        return False
-    if len(x) < 3:
-        logger.info(f'Sample size of {len(x)} is less than the necessary degrees of freedom (n > 2) for regression estimation.')
-        return False
+    """
     
-    correl = sample_correlation(x=x, y=y)
-    vol_x = numpy.sqrt(sample_variance(x=x))
-    vol_y = numpy.sqrt(sample_variance(x=y))
+    Raises 
+    ------
+    1. scrilla.analysis.statistics.SampleSizeError \n \n
+    """
 
-    if not correl or not vol_x or not vol_y:
-        logger.info('Error calculating statistics for regression Beta.')
-        return False
+    if len(x) != len(y):
+        raise SampleSizeError(f'len(x) = {len(x)} != len(y) = {len(y)}')
+    if len(x) < 3:
+        raise SampleSizeError(f'Sample size of {len(x)} is less than the necessary degrees of freedom (n > 2) for regression estimation.')
+    
+    try:
+        correl = sample_correlation(x=x, y=y)
+        vol_x = sqrt(sample_variance(x=x))
+        vol_y = sqrt(sample_variance(x=y))
+    except SampleSizeError as e:
+        raise SampleSizeError(e)
 
     beta = correl * vol_y / vol_x
     return beta
 
 def regression_alpha(x, y):
+    """
+    
+    Raises 
+    ------
+    1. scrilla.analysis.statistics.SampleSizeError
+    """
+
     if len(x) != len(y):
-        logger.info(f'len(x) == {len(x)} != len(y) == {len(y)}')
-        return False
+        raise SampleSizeError(f'len(x) == {len(x)} != len(y) == {len(y)}')
 
     if len(x) < 3:
-        logger.info(f'Sample size of {len(x)} is less than the necessary degrees of freedom (n > 2) for regression estimation.')
-        return False
+        raise SampleSizeError(f'Sample size of {len(x)} is less than the necessary degrees of freedom (n > 2) for regression estimation.')
     
-    y_mean, x_mean = sample_mean(y), sample_mean(x)
+    try:
+        y_mean, x_mean = sample_mean(y), sample_mean(x)
+    except SampleSizeError as e:
+        raise SampleSizeError(e)
+
     if not y_mean or not x_mean:
         logger.info('Error calculating statistics for regression alpha')
         return False
@@ -168,11 +214,11 @@ def calculate_moving_averages(tickers, start_date=None, end_date=None, sample_pr
     1. tickers : [ str ] \n
         array of ticker symbols correspond to the moving averages to be calculated. \n \n 
     2. start_date : datetime.date \n 
-        start date of the time period over which the moving averages will be calculated. \n \n 
+        Optional. Defaults to `None`. start date of the time period over which the moving averages will be calculated. \n \n 
     3. end_date : datetime.date\n 
-        end date of the time period over which the moving averages will be calculated. \n \n 
+        Optional. Defaults to `None`. end date of the time period over which the moving averages will be calculated. \n \n 
     4. sample_prices : { 'ticker' (str) : { 'date' (str) : 'price' (str) } } \n
-        A list of the asset prices for which moving_averages will be calculated. Overrides calls to service and calculates correlation for sample of prices supplied. Function will disregard start_date and end_date if sample_price is specified. Must be of the format: {'ticker_1': { 'date_1' : 'price_1', 'date_2': 'price_2' .}, 'ticker_2': { 'date_1' : 'price_1:, ... } } and ordered from latest date to earliest date.  \n \n
+        Optional. Defaults to `None`. A list of the asset prices for which moving_averages will be calculated. Overrides calls to service and calculates correlation for sample of prices supplied. Function will disregard start_date and end_date if sample_price is specified. Must be of the format: {'ticker_1': { 'date_1' : 'price_1', 'date_2': 'price_2' .}, 'ticker_2': { 'date_1' : 'price_1:, ... } } and ordered from latest date to earliest date.  \n \n
     
     Output
     ------
@@ -215,8 +261,11 @@ def calculate_moving_averages(tickers, start_date=None, end_date=None, sample_pr
             else:
                 prices = sample_prices[ticker]
 
+            if not prices:
+                raise PriceError(f'Prices could not be retrieved for {ticker}')
+
             asset_type = files.get_asset_type(ticker)
-            trading_period = files.get_trading_period(asset_type)
+            trading_period = settings.get_trading_period(asset_type)
 
             today = False
             count, tomorrows_price, MA_1, MA_2, MA_3 = 1, 0, 0, 0, 0
@@ -224,7 +273,7 @@ def calculate_moving_averages(tickers, start_date=None, end_date=None, sample_pr
             for date in prices:
                 todays_price = services.parse_price_from_date(prices, date, asset_type)
                 if today:
-                    todays_return = numpy.log(float(tomorrows_price) / float(todays_price))/trading_period
+                    todays_return = log(float(tomorrows_price) / float(todays_price))/trading_period
                     logger.verbose(f'todays_return == {tomorrows_price}/({todays_price}*{round(trading_period,2)}) = {todays_return}') 
 
                     if count < settings.MA_1_PERIOD:
@@ -287,14 +336,14 @@ def calculate_moving_averages(tickers, start_date=None, end_date=None, sample_pr
         logger.debug(f'Calculating Moving Average for {ticker}.')
 
         asset_type = files.get_asset_type(ticker)
-        trading_period = files.get_trading_period(asset_type)
+        trading_period = settings.get_trading_period(asset_type)
 
         logger.debug('Offsetting start date to account for longest Moving Average period.')
         if asset_type == settings.ASSET_CRYPTO:
             logger.debug(f'{ticker}_asset_type = Crypto')
 
             logger.debug('Configuring date variables to account for all dates.')
-            new_start_date = start_date - datetime.timedelta(days=settings.MA_3_PERIOD)
+            new_start_date = start_date - timedelta(days=settings.MA_3_PERIOD)
             new_day_count = (end_date - new_start_date).days
 
             # amend equity trading dates to take account of weekends
@@ -323,6 +372,9 @@ def calculate_moving_averages(tickers, start_date=None, end_date=None, sample_pr
         else:
             logger.debug(f'{ticker} sample prices provided, skipping service call.')
             prices = sample_prices[ticker]
+
+        if not prices:
+            raise PriceError(f'Prices could not be retrieved for {ticker}')
     ### END ARGUMENT VALIDATION ###
 
     ### START MOVING AVERAGE CALCULATION ###
@@ -337,7 +389,7 @@ def calculate_moving_averages(tickers, start_date=None, end_date=None, sample_pr
             todays_price = services.parse_price_from_date(prices, date, asset_type)
 
             if today:
-                todays_return = numpy.log(float(tomorrows_price) / float(todays_price))/trading_period
+                todays_return = log(float(tomorrows_price) / float(todays_price))/trading_period
                 logger.verbose(f'todays_return == ln({tomorrows_price}/{todays_price})/{round(trading_period,4)}) = {round(todays_return,4)}') 
 
                 for MA in MAs_1:
@@ -348,9 +400,9 @@ def calculate_moving_averages(tickers, start_date=None, end_date=None, sample_pr
                             if asset_type == settings.ASSET_EQUITY:
                                 date_of_MA1 = helper.decrement_date_string_by_business_days(date, MAs_1.index(MA))
                             elif asset_type == settings.ASSET_CRYPTO:
-                                date_of_MA1 = helper.string_to_date(date) - datetime.timedelta(days=MAs_1.index(MA))
+                                date_of_MA1 = helper.string_to_date(date) - timedelta(days=MAs_1.index(MA))
                             else: 
-                                date_of_MA1 = helper.string_to_date(date) - datetime.timedelta(days=MAs_1.index(MA)) 
+                                date_of_MA1 = helper.string_to_date(date) - timedelta(days=MAs_1.index(MA)) 
 
                         MA += todays_return / settings.MA_1_PERIOD
 
@@ -372,9 +424,9 @@ def calculate_moving_averages(tickers, start_date=None, end_date=None, sample_pr
                             if asset_type == settings.ASSET_EQUITY:
                                 date_of_MA2 = helper.decrement_date_string_by_business_days(date, MAs_2.index(MA))
                             elif asset_type == settings.ASSET_CRYPTO:
-                                date_of_MA2 = helper.string_to_date(date) + datetime.timedelta(days=MAs_2.index(MA))
+                                date_of_MA2 = helper.string_to_date(date) + timedelta(days=MAs_2.index(MA))
                             else: 
-                                date_of_MA2 = helper.string_to_date(date) + datetime.timedelta(days=MAs_2.index(MA)) 
+                                date_of_MA2 = helper.string_to_date(date) + timedelta(days=MAs_2.index(MA)) 
                             
                         MA += todays_return / settings.MA_2_PERIOD
 
@@ -396,9 +448,9 @@ def calculate_moving_averages(tickers, start_date=None, end_date=None, sample_pr
                             if asset_type == settings.ASSET_EQUITY:
                                 date_of_MA3 = helper.decrement_date_string_by_business_days(date, MAs_3.index(MA))
                             elif asset_type == settings.ASSET_CRYPTO:
-                                date_of_MA3 = helper.string_to_date(date) + datetime.timedelta(days=MAs_3.index(MA))
+                                date_of_MA3 = helper.string_to_date(date) + timedelta(days=MAs_3.index(MA))
                             else: 
-                                date_of_MA3 = helper.string_to_date(date) + datetime.timedelta(days=MAs_3.index(MA)) 
+                                date_of_MA3 = helper.string_to_date(date) + timedelta(days=MAs_3.index(MA)) 
 
                         MA += todays_return / settings.MA_3_PERIOD
 
@@ -465,6 +517,12 @@ def calculate_risk_return(ticker, start_date=None, end_date=None, sample_prices=
     ------
     { 'annual_return' : float, 'annual_volatility': float } \n \n
 
+    
+    Raises 
+    ------
+    1. scrilla.analysis.statistics.SampleSizeError \n 
+    3. scrilla.anaylsis.statistics.PriceError
+
     Notes
     -----
     NOTE #1: assumes price history is ordered from latest to earliest date. \n \n 
@@ -478,11 +536,8 @@ def calculate_risk_return(ticker, start_date=None, end_date=None, sample_prices=
 
     if asset_type is None:
         asset_type = files.get_asset_type(ticker)
-    trading_period = files.get_trading_period(asset_type)
 
-    if not trading_period:
-        logger.debug("Asset did not map to (crypto, equity) grouping")
-        return None
+    trading_period = settings.get_trading_period(asset_type)
 
     if sample_prices is None: 
         logger.debug('No sample prices provided, calling service.')
@@ -492,33 +547,24 @@ def calculate_risk_return(ticker, start_date=None, end_date=None, sample_prices=
         prices = sample_prices
 
     if not prices:
-        logger.debug(f'No prices could be retrieved for {ticker}')
-        return None
+        raise PriceError(f'No prices could be retrieved for {ticker}')
     
     sample = len(prices)
     # calculate sample mean annual return
     i, mean_return, tomorrows_price = 0, 0, 0 
     logger.debug(f'Calculating mean annual return over last {sample} days for {ticker}')
 
-    for date in prices:
-        todays_price = services.parse_price_from_date(prices, date, asset_type)
-
-        if i != 0:
-            logger.verbose(f'{date}: (todays_price, tomorrows_price) = ({todays_price}, {tomorrows_price})')
-            daily_return = numpy.log(float(tomorrows_price)/float(todays_price))/trading_period
-            mean_return = mean_return + daily_return/sample
-            logger.verbose(f'{date}: (daily_return, mean_return) = ({round(daily_return, 2)}, {round(mean_return, 2)})')
-
-        else:
-            logger.verbose('Skipping first date.')
-            i += 1  
-
-        tomorrows_price = services.parse_price_from_date(prices, date, asset_type)
-        
+    # NOTE: mean return is a telescoping series, i.e. sum of log(x1/x0) only depends on the first and
+    # last terms' contributions (because log(x1/x0) = log(x1) - log(x0))...which raises the question 
+    # how accurate of a measure the sample mean is of the mean rate of return for an asset?
+    last_price = services.parse_price_from_date(prices, list(prices)[0], asset_type)
+    first_price = services.parse_price_from_date(prices, list(prices)[-1], asset_type)
+    mean_return = log(float(last_price)/float(first_price))/(trading_period*sample)
+    
     # calculate sample annual volatility
     today = False
     variance, tomorrows_price = 0, 0
-    mean_mod_return = mean_return*numpy.sqrt(trading_period)
+    mean_mod_return = mean_return*sqrt(trading_period)
     logger.debug(f'Calculating mean annual volatility over last {sample} days for {ticker}')
 
     for date in prices:
@@ -526,7 +572,7 @@ def calculate_risk_return(ticker, start_date=None, end_date=None, sample_prices=
 
         if today:
             logger.verbose(f'{date}: (todays_price, tomorrows_price) = ({todays_price}, {tomorrows_price})')
-            current_mod_return= numpy.log(float(tomorrows_price)/float(todays_price))/numpy.sqrt(trading_period) 
+            current_mod_return= log(float(tomorrows_price)/float(todays_price))/sqrt(trading_period) 
             variance = variance + (current_mod_return - mean_mod_return)**2/(sample - 1)
             logger.verbose(f'{date}: (daily_variance, sample_variance) = ({round(current_mod_return, 2)}, {round(variance, 2)})')
 
@@ -536,7 +582,7 @@ def calculate_risk_return(ticker, start_date=None, end_date=None, sample_prices=
         tomorrows_price = services.parse_price_from_date(prices, date, asset_type)
 
     # adjust for output
-    volatility = numpy.sqrt(variance)
+    volatility = sqrt(variance)
     # ito's lemma
     mean_return = mean_return + 0.5*(volatility**2)
     logger.debug(f'(mean_return, sample_volatility) = ({round(mean_return, 2)}, {round(volatility, 2)})')
@@ -545,7 +591,6 @@ def calculate_risk_return(ticker, start_date=None, end_date=None, sample_prices=
         'annual_return': mean_return,
         'annual_volatility': volatility
     }
-
     
     files.store_local_object(local_object=files.OBJECTS['risk_profile'], value=results, 
                                 args={"ticker": ticker, "start_date": start_date, 
@@ -592,7 +637,7 @@ def calculate_ito_correlation(ticker_1, ticker_2, asset_type_1=None, asset_type_
     if sample_prices is None:
         sample_prices = {}
         logger.debug(f'No sample prices provided or cached ({ticker_1}, {ticker_2}) correlation found.')
-        logger.debug(f'Retrieving price histories for calculation.')
+        logger.debug('Retrieving price histories for calculation.')
         prices_1 = services.get_daily_price_history(ticker=ticker_1, start_date=start_date, end_date=end_date)
         prices_2 = services.get_daily_price_history(ticker=ticker_2, start_date=start_date, end_date=end_date)
         sample_prices[ticker_1], sample_prices[ticker_2] = prices_1, prices_2
@@ -602,18 +647,18 @@ def calculate_ito_correlation(ticker_1, ticker_2, asset_type_1=None, asset_type_
         prices_1, prices_2 = sample_prices[ticker_1], sample_prices[ticker_2]
         
     if (not prices_1) or (not prices_2):
-        logger.info("Prices cannot be retrieved for correlation calculation")
-        return None
+        raise PriceError("Prices cannot be retrieved for correlation calculation")
     ### END DATA RETRIEVAL ###
     
     ### START SAMPLE STATISTICS CALCULATION ###
     logger.debug(f'Preparing to calculate correlation for ({ticker_1},{ticker_2})')
-    stats_1 = calculate_risk_return(ticker_1, start_date, end_date, sample_prices[ticker_1])
-    stats_2 = calculate_risk_return(ticker_2, start_date, end_date, sample_prices[ticker_2])
-
-    if (not stats_1) or (not stats_2):
-        logger.info("Sample statistics cannot be calculated for correlation calculation.")
-        return None
+    try:
+        stats_1 = calculate_risk_return(ticker_1, start_date, end_date, sample_prices[ticker_1])
+        stats_2 = calculate_risk_return(ticker_2, start_date, end_date, sample_prices[ticker_2])
+    except SampleSizeError as se:
+        raise SampleSizeError(se)
+    except PriceError as pe:
+        raise PriceError(pe)
 
     if asset_type_1 is None:
         asset_type_1 = files.get_asset_type(symbol=ticker_1)
@@ -622,14 +667,14 @@ def calculate_ito_correlation(ticker_1, ticker_2, asset_type_1=None, asset_type_
     
     # ito's lemma
     if asset_type_1 == settings.ASSET_EQUITY:
-        mod_mean_1 = (stats_1['annual_return'] - 0.5*(stats_1['annual_volatility'])**2)*numpy.sqrt(settings.ONE_TRADING_DAY)
+        mod_mean_1 = (stats_1['annual_return'] - 0.5*(stats_1['annual_volatility'])**2)*sqrt(settings.ONE_TRADING_DAY)
     elif asset_type_1 == settings.ASSET_CRYPTO:
-        mod_mean_1 = (stats_1['annual_return'] - 0.5*(stats_1['annual_volatility'])**2)*numpy.sqrt((1/365))
+        mod_mean_1 = (stats_1['annual_return'] - 0.5*(stats_1['annual_volatility'])**2)*sqrt((1/365))
 
     if asset_type_2 == settings.ASSET_EQUITY:
-        mod_mean_2 = (stats_2['annual_return'] - 0.5*(stats_2['annual_volatility'])**2)*numpy.sqrt(settings.ONE_TRADING_DAY)
+        mod_mean_2 = (stats_2['annual_return'] - 0.5*(stats_2['annual_volatility'])**2)*sqrt(settings.ONE_TRADING_DAY)
     elif asset_type_2 == settings.ASSET_CRYPTO:
-        mod_mean_2 = (stats_2['annual_return'] - 0.5*(stats_2['annual_volatility'])**2)*numpy.sqrt((1/365))
+        mod_mean_2 = (stats_2['annual_return'] - 0.5*(stats_2['annual_volatility'])**2)*sqrt((1/365))
 
     weekend_offset_1, weekend_offset_2 = 0, 0
 
@@ -695,9 +740,9 @@ def calculate_ito_correlation(ticker_1, ticker_2, asset_type_1=None, asset_type_
                 if delta != 0:
                     logger.verbose(f'current delta = {delta}')
 
-                time_delta = (1+delta)/numpy.sqrt(trading_period)
-                current_mod_return_1= numpy.log(float(tomorrows_price_1)/float(todays_price_1))*time_delta
-                current_mod_return_2= numpy.log(float(tomorrows_price_2)/float(todays_price_2))*time_delta
+                time_delta = (1+delta)/sqrt(trading_period)
+                current_mod_return_1= log(float(tomorrows_price_1)/float(todays_price_1))*time_delta
+                current_mod_return_2= log(float(tomorrows_price_2)/float(todays_price_2))*time_delta
                 current_sample_covariance = (current_mod_return_1 - mod_mean_1)*(current_mod_return_2 - mod_mean_2)/(sample - 1)
                 covariance = covariance + current_sample_covariance
             
@@ -746,15 +791,15 @@ def calculate_ito_correlation(ticker_1, ticker_2, asset_type_1=None, asset_type_
 def ito_correlation_matrix(tickers, asset_types=None, start_date=None, end_date=None, sample_prices=None):
     correlation_matrix = [[0 for x in range(len(tickers))] for y in range(len(tickers))]
     if(len(tickers) > 1):
-        for i in range(len(tickers)):
+        for i, item in enumerate(tickers):
             correlation_matrix[i][i] = 1
             for j in range(i+1, len(tickers)):
                 if asset_types is None:
-                    cor_list = calculate_ito_correlation(ticker_1 = tickers[i], ticker_2=tickers[j],
+                    cor_list = calculate_ito_correlation(ticker_1 = item, ticker_2=tickers[j],
                                                                 start_date = start_date, end_date = end_date,
                                                                 sample_prices = sample_prices)
                 else:
-                    cor_list = calculate_ito_correlation(ticker_1 = tickers[i], ticker_2=tickers[j],
+                    cor_list = calculate_ito_correlation(ticker_1 = item, ticker_2=tickers[j],
                                                             asset_type_1=asset_types[i], asset_type_2=asset_types[j],
                                                             start_date = start_date, end_date = end_date,
                                                             sample_prices = sample_prices)

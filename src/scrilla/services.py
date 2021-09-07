@@ -1,5 +1,9 @@
 import itertools, time, requests
 
+#  Note: need to import from package when running from wheel.
+# if running locally through main.py file, these imports should be replaced
+#       from . import settings, from . import files
+# annoying, but it is what it is.
 from scrilla import settings
 from scrilla import files 
 
@@ -17,10 +21,7 @@ OPEN_PRICE = "open"
 def validate_order_of_dates(start_date, end_date):
     switch_flag = start_date is not None and end_date is not None
 
-    if (
-        start_date is not None
-        and helper.is_date_today(start_date)
-    ):
+    if start_date is not None and helper.is_date_today(start_date):
         time_delta = (end_date - start_date).days
         if time_delta == 0: # either end_date is also today
             return True, start_date, end_date
@@ -290,15 +291,24 @@ def query_service_for_daily_price_history(ticker, start_date=None, end_date=None
 # Checks the file cache for price histories. Otherwise, it hands the request off to the service manager.
 def get_daily_price_history(ticker, start_date=None, end_date=None):
     """
+    Description
+    -----------
+    Wrapper around external service request. Checks if response is in local cache before calling service. \n \n
+
+
     Parameters
     ----------
-    tickers : [ str ]
-        Required. List of ticker symbols corresponding to the price histories to be retrieved.
+    1. tickers : [ str ] \n 
+        Required. List of ticker symbols corresponding to the price histories to be retrieved. \n \n
+    2. start_date : datetime.date \n 
+        Optional: Start date of historical range. Defaults to None. \n \n 
+    3. end_date: datetime.date \n 
+        Optional: End date of historical range. Defaults to None. 
 
     Output
     ------
     { date (str) : price (str) }
-        List of prices and their corresponding dates. 
+        Dictionary of prices and their corresponding dates as keys. 
     """
 
     prices = files.retrieve_local_object(local_object=files.OBJECTS['prices'], 
@@ -314,6 +324,16 @@ def get_daily_price_history(ticker, start_date=None, end_date=None):
     return prices
     
 def get_daily_price_latest(ticker):
+    """
+    Description
+    -----------
+    Returns the latest closing price. \n \n
+
+    Parameters
+    ----------
+    1. ticker: str \n 
+        Required: ticker symbol whose latest closing price is to be retrieved. \n \n
+    """
     if settings.PRICE_MANAGER == "alpha_vantage":
         asset_type = files.get_asset_type(ticker)
         prices = get_daily_price_history(ticker)
@@ -329,9 +349,21 @@ def get_daily_price_latest(ticker):
         logger.info("No PRICE_MANAGER set in .env file!")
         return None
 
-# NOTE: if no start_date and end_date are provided to Quandl API, entire price history is returned.
-# NOTE: by default, returns last 100 points of data.
 def query_service_for_daily_stats_history(statistic, start_date=None, end_date=None, full=False):
+    """
+    Description
+    -----------
+    Makes an HTTP request to the STAT_MANAGER defined in the settings.py and configured through the environment variable STAT_MANAGER. \n \n 
+
+    Parameters
+    ----------
+    1. statistic: str \n 
+        Required. Symbol representing the statistic whose history is to be retrieved. \n \n
+    2. start_date: datetime.date \n 
+        Optional: Start date of historical range. Defaults to None. \n \n 
+    3. end_date: datetime.date \n 
+        Optional: End date of historical range. Defaults to None.
+    """
     if settings.STAT_MANAGER == "quandl":
         stat = {}
     
@@ -368,6 +400,9 @@ def query_service_for_daily_stats_history(statistic, start_date=None, end_date=N
         raw_stat = response[settings.Q_FIRST_LAYER][settings.Q_SECOND_LAYER]
         formatted_stat = {}
 
+        # TODO: this method always returns the last 100, even if end_date - start_date < 100. Need to change the next
+        # few lines to only select response entries that fall within dates.
+
         if not full:
             raw_stat = raw_stat[:settings.DEFAULT_ANALYSIS_PERIOD]
 
@@ -381,6 +416,20 @@ def query_service_for_daily_stats_history(statistic, start_date=None, end_date=N
 # Goes through file cache if start_date and end_date are not provided,
 #   otherwise, hands the call off to the service manager.
 def get_daily_stats_history(statistic, start_date=None, end_date=None):
+    """
+    Description
+    -----------
+    Wrapper around external service call. Checks if response is in local cache before making service call.
+
+    Parameters
+    ----------
+    1. statistic: str \n 
+        Required. Symbol representing the statistic whose history is to be retrieved. \n \n
+    2. start_date: datetime.date \n 
+        Optional: Start date of historical range. Defaults to None. \n \n 
+    3. end_date: datetime.date \n 
+        Optional: End date of historical range. Defaults to None.
+    """
     stats = files.retrieve_local_object(local_object=files.OBJECTS['statistic'],
                                         args={"stat_symbol": statistic,"start_date": start_date,
                                               "end_date": end_date})
@@ -396,6 +445,16 @@ def get_daily_stats_history(statistic, start_date=None, end_date=None):
     return stats
 
 def get_daily_stats_latest(statistic):
+    """
+    Description
+    -----------
+    Returns the latest value for the inputted statistic symbol. \n \n
+
+    Parameters
+    ----------
+    1. statistic: str \n 
+        Required. Symbol representing the statistc whose value it to be retrieved. \n \n
+    """
     if settings.STAT_MANAGER == "quandl":
         stats_history = get_daily_stats_history(statistic=statistic)
         first_element = helper.get_first_json_key(stats_history)
@@ -405,6 +464,16 @@ def get_daily_stats_latest(statistic):
     return None
 
 def query_service_for_dividend_history(ticker):
+    """
+    Description
+    -----------
+    Makes HTTP request to the DIV_MANAGER defined in the settings.py and configured through the DIV_MANAGER environment variable. \n \n 
+
+    Parameters
+    ----------
+    1. ticker : str \n 
+        Required. Tickery symbol of the equity whose dividend history is to be retrieved. \n \n 
+    """
     if settings.DIV_MANAGER == "iex":
         
         query=f'{ticker}/{settings.PATH_IEX_DIV}/{settings.PARAM_IEX_RANGE_5YR}'
@@ -442,17 +511,13 @@ def get_percent_stat_symbols():
         percent_stats = settings.ARG_Q_YIELD_CURVE.values()
         return percent_stats
 
-        # NOTE: Quandl outputs interest in percentage terms
-# NOTE: This function sort of blurs the lines between services.py and markets.py
-#       I put it here because I want the markets.py class to be from where the 
-#       the risk_free_rate is accessed for now. It may make more sense to have this
-#       in services.py since it's basically just a call an external service.
-#       Haven't made up my mind yet. 
+# NOTE: Quandl outputs interest in percentage terms. 
+# TODO: verify the interest rate is annual. may need to convert.
 def get_risk_free_rate():
     """
     Description
     -----------
-    Returns as a decimal the risk free rate defined by the RISK_FREE environment variable (and passed into ` settings` as the variable RISK_FREE_RATE). \n \n 
+    Returns the risk free rate as a decimal. The risk free rate is defined in the `settings.py` file and is configured through the RISK_FREE environment variable. \n \n 
     """
     risk_free_rate_key = settings.RISK_FREE_RATE
     risk_free_rate = get_daily_stats_latest(statistic=risk_free_rate_key)

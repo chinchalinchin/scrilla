@@ -315,6 +315,26 @@ def get_target(xtra_args, xtra_values):
         target = None
     return target
 
+def get_expiry(xtra_args, xtra_values):
+    if formatter.FUNC_XTRA_VALUED_ARGS_DICT['expiry'] in xtra_args:
+        try:
+            expiry = float(xtra_values[xtra_args.index(formatter.FUNC_XTRA_VALUED_ARGS_DICT['expiry'])])
+        except ValueError:
+            expiry = None
+    else:
+        expiry = None
+    return expiry
+
+def get_probability(xtra_args, xtra_values):
+    if formatter.FUNC_XTRA_VALUED_ARGS_DICT['probability'] in xtra_args:
+        try:
+            probability = float(xtra_values[xtra_args.index(formatter.FUNC_XTRA_VALUED_ARGS_DICT['probability'])])
+        except ValueError:
+            probability = None
+    else:
+        probability = None
+    return probability
+
 def get_discount(xtra_args, xtra_values):
     if formatter.FUNC_XTRA_VALUED_ARGS_DICT['discount'] in xtra_args:
         try:
@@ -369,7 +389,9 @@ def format_xtra_args_list(xtra_args, xtra_values):
         'model': get_model(xtra_args, xtra_values),
         'investment': get_investment(xtra_args, xtra_values),
         'steps': get_steps(xtra_args, xtra_values),
-        'optimize_sharpe': get_sharpe(xtra_args)
+        'optimize_sharpe': get_sharpe(xtra_args),
+        'expiry': get_expiry(xtra_args, xtra_values),
+        'probability': get_probability(xtra_args, xtra_values)
     }
     return arg_list
 
@@ -400,6 +422,7 @@ def separate_and_parse_args(args):
     return (extra_args, extra_values, reduced_args)
     
 ### APPLICATION PARSING
+#should be in formatter.py
 def format_allocation_profile(allocation, portfolio) -> str:
     port_return, port_volatility = portfolio.return_function(allocation), portfolio.volatility_function(allocation)
     formatted_result = "("+str(100*port_return)[:5]+"%, " + str(100*port_volatility)[:5]+"%)"

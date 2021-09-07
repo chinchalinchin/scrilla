@@ -1,11 +1,10 @@
 version = 1
 
 exclude_patterns = [
-    "migrations/**",
-    "data/cache/**",
-    "data/common/**",
-    "data/sql/**",
-    "data/static/**",
+    "src/scrilla/data/cache/**",
+    "src/scrilla/data/common/**",
+    "src/scrilla/data/sql/**",
+    "src/scrilla/data/static/**",
     "env/**",
     "*.env",
     "*.pyc",
@@ -18,21 +17,6 @@ name = "python"
 enabled = true
 dependency_file_paths = [
   "requirements.txt",
-  "requirements-docker.txt"
 ]
     [analyzers.meta]
     runtime_version = "3.x.x"
-
-[[analyzers]]
-name = "docker"
-enabled = true
-    [analyzers.meta]
-    dockerfile_paths = [
-        "Dockerfile"
-    ]
-
-[[analyzers]]
-name = "shell"
-enabled = true
-    [analyzers.meta]
-    dialect = "bash"
