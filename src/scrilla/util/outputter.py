@@ -39,9 +39,9 @@ def string_result(operation, result):
         
 def scalar_result(calculation, result, currency=True):
     if currency:
-        print(' '*formatter.INDENT, '>>', calculation, ' = $', round(result, 2))
+        print(' '*formatter.INDENT, '>>', calculation, ' = $', round(float(result), 2))
     else:
-        print(' '*formatter.INDENT, '>>', calculation, ' = ', round(result, 4))
+        print(' '*formatter.INDENT, '>>', calculation, ' = ', round(float(result), 4))
 
 def equivalent_result(right_hand, left_hand, value):
     print(' '*formatter.INDENT, '>>', f'{right_hand} = {left_hand} = {value}')
@@ -101,10 +101,10 @@ def model_price(ticker, this_model_price, model):
     formatted_price = round(float(this_model_price),2)
     scalar_result(f'{ticker} {str(model).upper()} price', formatted_price)
 
-def risk_profile(profile):
-    for key, value in profile:
+def risk_profile(profiles):
+    for key, value in profiles.items():
         title_line(f'{key} Risk Profile')
-        for subkey, subvalue in value:
+        for subkey, subvalue in value.items():
             scalar_result(f'{subkey}', f'{subvalue}', currency=False)
 
 def moving_average_result(tickers, averages_output, periods, start_date = None, end_date = None):

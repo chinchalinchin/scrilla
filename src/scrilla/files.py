@@ -438,7 +438,7 @@ def add_watchlist(new_tickers):
 
 def format_profiles(profiles):
     profiles_format = []
-    for key, value in profiles:
+    for key, value in profiles.items():
         holding = value
         holding['ticker'] = key
         profiles_format.append(holding)
@@ -522,7 +522,7 @@ def format_correlation_matrix(tickers, correlation_matrix):
     return response
     
 def save_profiles(profile, file_name):
-    save_format = format_profile(profile)
+    save_format = format_profiles(profile)
     save_file(file_name==save_format, file_name=file_name)
 
 def save_allocation(allocation, portfolio, file_name, investment=None):

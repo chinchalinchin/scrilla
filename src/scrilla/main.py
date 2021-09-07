@@ -52,6 +52,7 @@ def do_program():
     if len(sys.argv)>0:
         logger.debug('Parsing and invoking command line arguments')
         opt = sys.argv[1]
+        logger.debug(f'Selected Function: {opt}')
         
         # single argument functions
         ### FUNCTION: Help Message
@@ -140,7 +141,7 @@ def do_program():
             xtra_args, xtra_values, main_args = helper.separate_and_parse_args(args)
             xtra_list = helper.format_xtra_args_list(xtra_args, xtra_values)
             logger.log_arguments(main_args=main_args, xtra_args=xtra_args, xtra_values=xtra_values)
-            exact = False
+            exact, selected_function = False, None
 
             outputter.title_line('Results')
             outputter.print_line()
@@ -359,7 +360,7 @@ def do_program():
                 selected_function, required_length = cli_price_history, 1
 
             ### FUNCTION: Risk-Return Profile
-            elif opt == formatter.FUNC_ARG_DICT["risk_return"]:
+            elif opt == formatter.FUNC_ARG_DICT["risk_profile"]:
                 def cli_risk_return():
                     profiles = {}
                     for arg in main_args:
@@ -369,14 +370,18 @@ def do_program():
                             profiles[arg]['sharpe_ratio'] = markets.sharpe_ratio(ticker=arg, start_date=xtra_list['start_date'],
                                                                                 end_date=xtra_list['end_date'])
                             profiles[arg]['asset_beta'] = markets.market_beta(ticker=arg, start_date=xtra_list['start_date'],
-                                                                end_date=xtra_list['end_date'])
+                                                                                end_date=xtra_list['end_date'])
+                            profiles[arg]['equity_cost'] = markets.cost_of_equity(ticker=arg, start_date=xtra_list['start_date'],
+                                                                                end_date=xtra_list['end_date'])
+
                             if xtra_list['save_file'] is not None:
-                                files.save_profile(file_to_save=profiles, file_name=xtra_list['save_file'])
-                            ## outputter.profile()
+                                files.save_profiles(file_to_save=profiles, file_name=xtra_list['save_file'])
+
                         except statistics.PriceError as pe:
                             logger.comment(str(pe))
                         except statistics.SampleSizeError as se:
                             logger.comment(str(se))
+                    outputter.risk_profile(profiles=profiles)
 
                 selected_function, required_length = cli_risk_return, 1
 
@@ -429,9 +434,10 @@ def do_program():
                 logger.comment('No function supplied. Please review Function Summary below and re-execute with appropriate arguments.')
                 outputter.help_msg()
             
-            validate_function_usage(selection=opt, args=main_args, 
-                                    wrapper_function=selected_function, 
-                                    required_length=required_length, exact=exact)
+            if selected_function is not None:
+                validate_function_usage(selection=opt, args=main_args, 
+                                        wrapper_function=selected_function, 
+                                        required_length=required_length, exact=exact)
             outputter.print_line()
     else:
         logger.comment('No arguments Supplied. Please review function summary below and re-execute with appropriate arguments.')
