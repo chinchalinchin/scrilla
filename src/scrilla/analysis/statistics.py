@@ -635,6 +635,18 @@ def calculate_ito_correlation(ticker_1, ticker_2, asset_type_1=None, asset_type_
     if correlation is not None:
         return correlation
 
+    ### START ARGUMENT PARSING ###
+
+    if asset_type_1 is None:
+        asset_type_1 = files.get_asset_type(symbol=ticker_1)
+    if asset_type_2 is None:
+        asset_type_2 = files.get_asset_type(symbol=ticker_2)
+
+    if start_date is None:
+        if end_date is None:
+            end_date = helper.get_today()
+        start_date = helper.decrement_date_by_business_days(start_date=end_date, 
+                                                                business_days=settings.DEFAULT_ANALYSIS_PERIOD)
     if sample_prices is None:
         sample_prices = {}
         logger.debug(f'No sample prices provided or cached ({ticker_1}, {ticker_2}) correlation found.')
@@ -649,8 +661,13 @@ def calculate_ito_correlation(ticker_1, ticker_2, asset_type_1=None, asset_type_
         
     if (not prices_1) or (not prices_2):
         raise PriceError("Prices cannot be retrieved for correlation calculation")
-    ### END DATA RETRIEVAL ###
     
+    if asset_type_1 != asset_type_2:
+        # remove weekends and holidays from crypto prices
+            # this messes up the risk_return stats, though. since the daily return on weekends is ln(st/s0)=mu*(3 days) + noise.
+            # will need special risk_return function for modified crypto stats? so correlations make sense. must think on the matter.
+        sample_prices[ticker_1], sample_prices[ticker_2] = helper.intersect_dict_keys(sample_prices[ticker_1], sample_prices[ticker_2])
+            
     ### START SAMPLE STATISTICS CALCULATION ###
     logger.debug(f'Preparing to calculate correlation for ({ticker_1},{ticker_2})')
     try:
@@ -662,11 +679,6 @@ def calculate_ito_correlation(ticker_1, ticker_2, asset_type_1=None, asset_type_
     except PriceError as pe:
         raise PriceError(pe)
 
-    if asset_type_1 is None:
-        asset_type_1 = files.get_asset_type(symbol=ticker_1)
-    if asset_type_2 is None:
-        asset_type_2 = files.get_asset_type(symbol=ticker_2)
-    
     # ito's lemma
     # instead of all these conditionals, use adjusted_risk_return for crypto and set period to ONE_TRADING_DAY
     # regardless of asset types.
@@ -680,49 +692,11 @@ def calculate_ito_correlation(ticker_1, ticker_2, asset_type_1=None, asset_type_
     elif asset_type_2 == settings.ASSET_CRYPTO:
         mod_mean_2 = (stats_2['annual_return'] - 0.5*(stats_2['annual_volatility'])**2)*sqrt((1/365))
 
-    weekend_offset_1, weekend_offset_2 = 0, 0
-
-    if asset_type_1 == asset_type_2:
-        logger.debug(f'Asset({ticker_1}) and Asset({ticker_2}) are the same type of asset')
-
-        if asset_type_1 == settings.ASSET_CRYPTO:
-            trading_period = (1/365)
-        elif asset_type_1 == settings.ASSET_EQUITY:
-            trading_period = settings.ONE_TRADING_DAY
-        else:
-            trading_period = settings.ONE_TRADING_DAY
-
-    # if asset_types are different, collect # of days where one assets trades and the other does not.
+    if asset_type_1 == asset_type_2 and asset_type_1 == settings.ASSET_CRYPTO:
+        trading_period = (1/365)
     else:
-        logger.debug(f'Asset({ticker_1}) and Asset({ticker_2}) are not the same type of asset')
-
-        # TODO: at this point, i should remove weekends from crypto prices instead of doing all of this. 
-        # create new method in services for getting only weekday crypto data. Will need to use that method to get price data for crypto assets 
-        # instead of the current way. calculate_risk_return will be affected.
-        if asset_type_1 == settings.ASSET_CRYPTO and asset_type_2 == settings.ASSET_EQUITY:
-            for date in prices_1:
-                if helper.is_date_string_weekend(date):
-                    weekend_offset_1 += 1
-            trading_period = settings.ONE_TRADING_DAY
-
-        elif asset_type_1 == settings.ASSET_EQUITY and asset_type_2 == settings.ASSET_CRYPTO:
-            for date in prices_2:
-                if helper.is_date_string_weekend(date):
-                    weekend_offset_1 += 1
-            trading_period = settings.ONE_TRADING_DAY
-
-    # make sure datasets are only compared over corresponding intervals, i.e.
-    # always calculate correlation over smallest interval.
-    # NOTE: at this point, sample_prices is only really used to iterate over date range.
-    if (len(prices_1) - weekend_offset_1) == (len(prices_2) - weekend_offset_2) \
-        or (len(prices_1) - weekend_offset_1) < (len(prices_2) - weekend_offset_2):
-        sample_prices = prices_1
-        offset = weekend_offset_1
-    else:
-        sample_prices = prices_2
-        offset = weekend_offset_2
+        trading_period = settings.ONE_TRADING_DAY
     
-    logger.debug(f'(trading_period, offset) = ({trading_period}, {offset})')
     logger.debug(f'Calculating ({ticker_1}, {ticker_2}) correlation.')
 
     # Initialize loop variables
