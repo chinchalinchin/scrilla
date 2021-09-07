@@ -445,7 +445,7 @@ def format_profiles(profiles):
     return profiles_format
 
 def format_allocation(allocation, portfolio, investment=None):
-    allocation_format = {}
+    allocation_format = []
 
     if investment is not None:
         shares = portfolio.calculate_approximate_shares(x=allocation, total=investment)
@@ -455,13 +455,14 @@ def format_allocation(allocation, portfolio, investment=None):
     annual_return = portfolio.return_function(x=allocation)
 
     for j, item in enumerate(portfolio.tickers):
-        allocation_format[j] = {}
-        allocation_format[j]['ticker'] = item
-        allocation_format[j]['allocation'] = round(allocation[j], settings.ACCURACY)
+        holding = {}
+        holding['ticker'] = item
+        holding['allocation'] = round(allocation[j], settings.ACCURACY)
         if investment is not None:
-            allocation_format[j]['shares'] = float(shares[j])
-        allocation_format[j]['annual_return'] = round(portfolio.mean_return[j], settings.ACCURACY) 
-        allocation_format[j]['annual_volatility'] = round(portfolio.sample_vol[j], settings.ACCURACY)
+            holding['shares'] = float(shares[j])
+        holding['annual_return'] = round(portfolio.mean_return[j], settings.ACCURACY) 
+        holding['annual_volatility'] = round(portfolio.sample_vol[j], settings.ACCURACY)
+        allocation_format.append(holding)
 
     json_format = {}
     json_format['holdings'] = allocation_format
