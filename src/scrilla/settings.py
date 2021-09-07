@@ -8,6 +8,10 @@ sys.path.append(APP_DIR)
 
 import util.outputter as outputter
 
+class APIKeyError(Exception):
+    def __init__(self, message):
+        super().__init__(message)
+
 ## APPLICATION CONFIGURATION
 """
 Application Configuration
@@ -215,13 +219,16 @@ if PRICE_MANAGER == 'alpha_vantage':
     AV_URL = os.environ.setdefault('ALPHA_VANTAGE_URL', 'https://www.alphavantage.co/query').strip("\"").strip("'")
     
     AV_KEY = os.environ.setdefault('ALPHA_VANTAGE_KEY', '')
-    if AV_KEY is None:
+    if not AV_KEY:
         keystore = os.path.join(COMMON_DIR, f'ALPHA_VANTAGE_KEY.{FILE_EXT}')
         if os.path.isfile(keystore):
             with open(keystore, 'r') as infile:
                 if FILE_EXT == "json":
                     AV_KEY = json.load(infile)['ALPHA_VANTAGE_KEY']
-                    
+
+    if not AV_KEY:
+        raise APIKeyError('Alpha Vantage API Key not found. Either set ALPHA_VANTAGE_KEY environment variable or use "-store" CLI function to save key.')
+             
     # Metadata Endpoints
     AV_CRYPTO_LIST=os.environ.setdefault('ALPHA_VANTAGE_CRYPTO_META_URL', 'https://www.alphavantage.co/digital_currency_list/')
     
@@ -259,12 +266,15 @@ if STAT_MANAGER == "quandl":
     Q_URL = os.environ.setdefault('QUANDL_URL', 'https://www.quandl.com/api/v3/datasets').strip("\"").strip("'")
     
     Q_KEY = os.environ.setdefault('QUANDL_KEY', '')
-    if Q_KEY is None:
+    if not Q_KEY:
         keystore = os.path.join(COMMON_DIR, f'QUANDL_KEY.{FILE_EXT}')
         if os.path.isfile(keystore):
             with open(keystore, 'r') as infile:
                 if FILE_EXT == "json":
                     Q_KEY = json.load(infile)['QUANDL_KEY']
+
+    if not Q_KEY:
+        raise APIKeyError('Quandl API Key not found. Either set QUANDL_KEY environment variable or use "-store" CLI function to save key.')
 
     # Metadata Endpoints
     Q_META_URL = os.environ.setdefault('QUANDL_META_URL' ,'https://www.quandl.com/api/v3/databases')
@@ -301,12 +311,15 @@ if DIV_MANAGER == "iex":
     IEX_URL = os.environ.setdefault("IEX_URL", 'https://cloud.iexapis.com/stable/stock')
     
     IEX_KEY = os.environ.setdefault("IEX_KEY", '')
-    if IEX_KEY is None:
+    if not IEX_KEY:
         keystore = os.path.join(COMMON_DIR, f'IEX_KEY.{FILE_EXT}')
         if os.path.isfile(keystore):
             with open(keystore, 'r') as infile:
                 if FILE_EXT == "json":
                     IEX_KEY = json.load(infile)['IEX_KEY']
+
+    if not IEX_KEY:
+        raise APIKeyError('IEX API Key cannot be found. Either set IEX_KEY environment variable or use "-store" CLI function to save key.')
 
     IEX_RES_DATE_KEY="paymentDate"
     IEX_RES_DIV_KEY="amount"
