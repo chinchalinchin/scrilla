@@ -476,11 +476,10 @@ def format_allocation(allocation, portfolio, investment=None):
     return json_format
 
 def format_frontier(portfolio, frontier, investment=None):
-    json_format = {}
+    json_format = []
     for i, item in enumerate(frontier):
-        json_format[f'portfolio_{i}'] = format_allocation(allocation=item, portfolio=portfolio, 
-                                                            investment=investment)
-
+        json_format.append(format_allocation(allocation=item, portfolio=portfolio, 
+                                                            investment=investment))
     return json_format
 
 def format_moving_averages(tickers, averages_output):
