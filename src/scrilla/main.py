@@ -362,21 +362,22 @@ def do_program():
             elif opt == formatter.FUNC_ARG_DICT["risk_return"]:
                 def cli_risk_return():
                     profiles = {}
-                    failed = False
                     for arg in main_args:
-                        result = statistics.calculate_risk_return(ticker=arg, start_date=xtra_list['start_date'], 
-                                                                    end_date=xtra_list['end_date'])
-                        if result:
-                            outputter.scalar_result(calculation=f'mean_{arg}', result=result['annual_return'],
-                                                    currency=False)
-                            outputter.scalar_result(calculation=f'vol_{arg}', result=result['annual_volatility'],
-                                                    currency=False)
-                            profiles[arg] = result
-                        else:
-                            failed = True
-                            logger.comment('Error Encountered While Calculating. Try -ex Flag For Example Usage.')
-                        if not failed and xtra_list['save_file'] is not None:
-                            files.save_file(file_to_save=profiles, file_name=xtra_list['save_file'])
+                        try:
+                            profiles[arg] = statistics.calculate_risk_return(ticker=arg, start_date=xtra_list['start_date'], 
+                                                                                end_date=xtra_list['end_date'])
+                            profiles[arg]['sharpe_ratio'] = markets.sharpe_ratio(ticker=arg, start_date=xtra_list['start_date'],
+                                                                                end_date=xtra_list['end_date'])
+                            profiles[arg]['asset_beta'] = markets.market_beta(ticker=arg, start_date=xtra_list['start_date'],
+                                                                end_date=xtra_list['end_date'])
+                            if xtra_list['save_file'] is not None:
+                                files.save_profile(file_to_save=profiles, file_name=xtra_list['save_file'])
+                            ## outputter.profile()
+                        except statistics.PriceError as pe:
+                            logger.comment(str(pe))
+                        except statistics.SampleSizeError as se:
+                            logger.comment(str(se))
+
                 selected_function, required_length = cli_risk_return, 1
 
             ### FUNCTION: Model Discount Screener 

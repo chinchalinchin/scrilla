@@ -101,6 +101,12 @@ def model_price(ticker, this_model_price, model):
     formatted_price = round(float(this_model_price),2)
     scalar_result(f'{ticker} {str(model).upper()} price', formatted_price)
 
+def risk_profile(profile):
+    for key, value in profile:
+        title_line(f'{key} Risk Profile')
+        for subkey, subvalue in value:
+            scalar_result(f'{subkey}', f'{subvalue}', currency=False)
+
 def moving_average_result(tickers, averages_output, periods, start_date = None, end_date = None):
     averages, dates = averages_output
     MA1_prefix, MA2_prefix, MA3_prefix = f'MA({periods[0]})', f'MA({periods[1]})', f'MA({periods[2]})'

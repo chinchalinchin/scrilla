@@ -436,6 +436,14 @@ def add_watchlist(new_tickers):
             json.dump(current_tickers, outfile)
         # TODO: implement other file extensions
 
+def format_profiles(profiles):
+    profiles_format = []
+    for key, value in profiles:
+        holding = value
+        holding['ticker'] = key
+        profiles_format.append(holding)
+    return profiles_format
+
 def format_allocation(allocation, portfolio, investment=None):
     allocation_format = {}
 
@@ -513,6 +521,10 @@ def format_correlation_matrix(tickers, correlation_matrix):
             response[f'{item}_{tickers[j]}_correlation'] = correlation_matrix[j][i]
     return response
     
+def save_profiles(profile, file_name):
+    save_format = format_profile(profile)
+    save_file(file_name==save_format, file_name=file_name)
+
 def save_allocation(allocation, portfolio, file_name, investment=None):
     save_format = format_allocation(allocation=allocation, portfolio=portfolio, investment=investment)
     save_file(file_to_save=save_format, file_name=file_name)
