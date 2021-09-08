@@ -785,6 +785,9 @@ def calculate_ito_correlation(ticker_1, ticker_2, asset_type_1=None, asset_type_
         
         tomorrows_price_1 = services.parse_price_from_date(prices_1, date, asset_type_1)
         tomorrows_price_2 = services.parse_price_from_date(prices_2, date, asset_type_2)
+
+    print(mod_mean_1)
+    print(mod_mean_2)
     #### END CORRELATION LOOP ####
 
     # Scale covariance into correlation
