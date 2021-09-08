@@ -303,8 +303,6 @@ def get_daily_price_history(ticker, start_date=None, end_date=None):
     { date (str) : price (str) }
         Dictionary of prices and their corresponding dates as keys. 
     """
-    print('hi there', start_date)
-    print('ho there', end_date)
     prices = files.retrieve_local_object(local_object=files.OBJECTS['prices'], 
                                                 args={"ticker": ticker, "start_date": start_date, "end_date": end_date})
     if prices is not None:

@@ -706,7 +706,7 @@ def calculate_ito_correlation(ticker_1, ticker_2, asset_type_1=None, asset_type_
     # Initialize loop variables
     i, covariance, time_delta = 0, 0, 1
     today, tomorrows_date = False, None
-    sample = len(sample_prices)
+    sample = len(sample_prices[ticker_1])
 
     #### START CORRELATION LOOP ####
     ### NOTE: should calculate time delta manually instead of using constant trading_period...
