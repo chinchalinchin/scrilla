@@ -26,11 +26,32 @@ def round_array(array, decimals):
     cutoff = (1/10**decimals)
     return [0 if element < cutoff else truncate(element, decimals) for element in array]
 
+def intersect_dict_keys(dict1, dict2):
+    intersection = [x for x in dict1.keys() if x in dict2.keys()]
+
+    new_dict1, new_dict2 = {}, {}
+    for key, value in dict1.items():
+        if key in intersection:
+            new_dict1[key] = value
+    for key, value in dict2.items():
+        if key in intersection:
+            new_dict2[key] = value
+    
+    return new_dict1, new_dict2
+
 ################################################
 ##### DATE FUNCTIONS
 
 def get_today():
     return datetime.date.today()
+
+def get_last_trading_date():
+    today = datetime.datetime.now()
+    trading_close_today = today.replace(hour=16)
+    if today > trading_close_today:
+        return today.date()
+    else:
+        return get_previous_business_date(today.date())
 
 def validate_date_string(parsed_date_string):
     length_check = (len(parsed_date_string) == 3 )

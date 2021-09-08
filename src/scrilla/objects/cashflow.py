@@ -21,7 +21,7 @@ class Cashflow:
     -----------
     A class that represents a set of future cashflows. The class is initialized with the 'sample' variable, a list of past cashflows and their dates, and a linear regression model is inferred from the sample. Alternatively, a `growth_function` can be provided that describes the cash flow as a function of time in years. If a `growth_function` is provided, the class skips the linear regression model. \n \n
 
-    If the sample of data is not large enough to infer a linear regression model, the estimation model will default to Markovian process where E(X2|X1) = X1, i.e. the next expected value given the current value is the current value, or put in plain english, without more information the best guess for the future value of an asset is its current value. \n \n
+    If the sample of data is not large enough to infer a linear regression model, the estimation model will default to simplge Martingale process where E(X2|X1) = X1, i.e. the next expected value given the current value is the current value, or put in plain english, without more information the best guess for the future value of an asset is its current value. \n \n
 
     The growth model, whether estimated or provided, is used to project the future value of cashflows and then these projections are discounted back to the present by the risk free rate. A discount rate different from the risk free rate can be specified by providing the constructor a value for discount_rate. \n \n
 
@@ -56,7 +56,7 @@ class Cashflow:
     1. Implement prediction interval function to get error bars for graphs and general usage.
 
     """
-    def __init__(self, sample=None, period=None, growth_function=None, discount_rate=None, constant=None):
+    def __init__(self, sample=None, period=None, growth_function=None, constant=None, discount_rate=None, ):
         self.sample = sample
         self.period = period
         self.growth_function = growth_function
