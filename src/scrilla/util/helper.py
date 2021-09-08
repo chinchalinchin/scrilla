@@ -47,7 +47,7 @@ def get_today():
 
 def get_last_trading_date():
     today = datetime.datetime.now()
-    trading_close_today = today.replace(hour=16)
+    trading_close_today = today.replace(hour=20)
     if today > trading_close_today:
         return today.date()
     else:
