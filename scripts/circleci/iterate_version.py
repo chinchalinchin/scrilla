@@ -33,7 +33,7 @@ def iterate_index(version_string, version_index):
 def reset_index(version_string, version_index):
     version_array = to_version_array(version_string)
     version_array[version_index] = 0
-    return to_version_string(version)
+    return to_version_string(version_array)
 
 if __name__=="__main__":
     version = load_current_version()
