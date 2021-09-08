@@ -126,7 +126,6 @@ def query_service_for_daily_price_history(ticker, start_date=None, end_date=None
     #       mess up statistical calculations, i.e. statistics.py expects a sample 
     #       of a certain size and gets a different size.
 
-    print('here now', start_date, end_date)
     ### START: ARGUMENT VALIDATION ###
     if not full:
         if start_date is not None and end_date is not None:
@@ -140,7 +139,6 @@ def query_service_for_daily_price_history(ticker, start_date=None, end_date=None
 
     asset_type = validate_asset_type(asset_type=asset_type, ticker=ticker)
     
-    print('now here', start_date, end_date)
         # Verify dates fall on trading days (i.e. not weekends or holidays) if asset_type is ASSET_EQUITY
     if asset_type == settings.ASSET_EQUITY and (start_date is not None or end_date is not None):
         start_date, end_date = validate_tradeability_of_dates(start_date, end_date)

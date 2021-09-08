@@ -654,29 +654,19 @@ def calculate_ito_correlation(ticker_1, ticker_2, asset_type_1=None, asset_type_
 
     if start_date is None:
         if end_date is None:
-            end_date = helper.get_today()
-        print(end_date)
-        print(start_date)
-        print('hello world')
+            end_date = helper.get_last_trading_date()
+
         start_date = helper.decrement_date_by_business_days(start_date=end_date, 
                                                                 business_days=settings.DEFAULT_ANALYSIS_PERIOD)
-        print(start_date)
-        print(type(start_date))
-        print(type(end_date))
-        
+
     if sample_prices is None:
         sample_prices = {}
         logger.debug(f'No sample prices provided or cached ({ticker_1}, {ticker_2}) correlation found.')
         logger.debug('Retrieving price histories for calculation.')
-        prices_1 = services.get_daily_price_history(ticker=ticker_1, start_date=start_date, end_date=end_date)
-        prices_2 = services.get_daily_price_history(ticker=ticker_2, start_date=start_date, end_date=end_date)
-        sample_prices[ticker_1], sample_prices[ticker_2] = prices_1, prices_2
-
-    else:
-        logger.debug('Sample prices provided, skipping service calls.')
-        prices_1, prices_2 = sample_prices[ticker_1], sample_prices[ticker_2]
+        sample_prices[ticker_1] = services.get_daily_price_history(ticker=ticker_1, start_date=start_date, end_date=end_date)
+        sample_prices[ticker_2] = services.get_daily_price_history(ticker=ticker_2, start_date=start_date, end_date=end_date)
         
-    if (not prices_1) or (not prices_2):
+    if (len(sample_prices[ticker_1]) == 0) or (len(sample_prices[ticker_2]) == 0):
         raise PriceError("Prices cannot be retrieved for correlation calculation")
     
     if asset_type_1 != asset_type_2:
@@ -686,13 +676,20 @@ def calculate_ito_correlation(ticker_1, ticker_2, asset_type_1=None, asset_type_
     ### START SAMPLE STATISTICS CALCULATION ###
     logger.debug(f'Preparing to calculate correlation for ({ticker_1},{ticker_2})')
     try:
-        stats_1 = calculate_risk_return(ticker_1, start_date, end_date, sample_prices[ticker_1])
-        stats_2 = calculate_risk_return(ticker_2, start_date, end_date, sample_prices[ticker_2])
+        stats_1 = calculate_risk_return(ticker=ticker_1, start_date=start_date, end_date=end_date, 
+                                        sample_prices=sample_prices[ticker_1])
+        stats_2 = calculate_risk_return(ticker=ticker_2, start_date=start_date, end_date=end_date, 
+                                        sample_prices=sample_prices[ticker_2])
     except SampleSizeError as se:
         raise SampleSizeError(se)
     except PriceError as pe:
         raise PriceError(pe)
 
+    if asset_type_1 == asset_type_2 and asset_type_1 == settings.ASSET_CRYPTO:
+        trading_period = (1/365)
+    else:
+        trading_period = settings.ONE_TRADING_DAY
+        
     # ito's lemma
     if asset_type_1 == settings.ASSET_EQUITY:
         mod_mean_1 = (stats_1['annual_return'] - 0.5*(stats_1['annual_volatility'])**2)*sqrt(settings.ONE_TRADING_DAY)
@@ -703,26 +700,20 @@ def calculate_ito_correlation(ticker_1, ticker_2, asset_type_1=None, asset_type_
         mod_mean_2 = (stats_2['annual_return'] - 0.5*(stats_2['annual_volatility'])**2)*sqrt(settings.ONE_TRADING_DAY)
     elif asset_type_2 == settings.ASSET_CRYPTO:
         mod_mean_2 = (stats_2['annual_return'] - 0.5*(stats_2['annual_volatility'])**2)*sqrt((1/365))
-
-    if asset_type_1 == asset_type_2 and asset_type_1 == settings.ASSET_CRYPTO:
-        trading_period = (1/365)
-    else:
-        trading_period = settings.ONE_TRADING_DAY
     
     logger.debug(f'Calculating ({ticker_1}, {ticker_2}) correlation.')
 
     # Initialize loop variables
-    i, covariance, tomorrows_price_1, tomorrows_price_2, time_delta = 0, 0, 1, 1, 0
+    i, covariance, time_delta = 0, 0, 1
     today, tomorrows_date = False, None
     sample = len(sample_prices)
 
     #### START CORRELATION LOOP ####
-
     ### NOTE: should calculate time delta manually instead of using constant trading_period...
     ### NOTE: losing a sample affects the mean. can't use same mean. that's why inter-asset correlation is off. i think.
-    for date in sample_prices:
-        todays_price_1 = services.parse_price_from_date(prices_1, date, asset_type_1)
-        todays_price_2 = services.parse_price_from_date(prices_2, date, asset_type_2)
+    for date in sample_prices[ticker_1]:
+        todays_price_1 = services.parse_price_from_date(sample_prices[ticker_1], date, asset_type_1)
+        todays_price_2 = services.parse_price_from_date(sample_prices[ticker_2], date, asset_type_2)
         logger.verbose(f'(todays_date, todays_price_{ticker_1}, todays_price_{ticker_2}) = ({date}, {todays_price_1}, {todays_price_2})')
             
         if today:
@@ -735,7 +726,7 @@ def calculate_ito_correlation(ticker_1, ticker_2, asset_type_1=None, asset_type_
             # the time_delta by the number of missed days. 
             if asset_type_1 == settings.ASSET_CRYPTO or \
                 (asset_type_1 == settings.ASSET_EQUITY and not helper.consecutive_trading_days(tomorrows_date, date)):
-                time_delta = (tomorrows_date - date).days 
+                time_delta = (helper.parse_date_string(tomorrows_date) - helper.parse_date_string(date)).days 
             else:
                 time_delta = 1
 
@@ -746,23 +737,23 @@ def calculate_ito_correlation(ticker_1, ticker_2, asset_type_1=None, asset_type_
             # the time_delta by the number of missed days. 
             if asset_type_2 == settings.ASSET_CRYPTO or \
                 (asset_type_2 == settings.ASSET_EQUITY and not helper.consecutive_trading_days(tomorrows_date, date)):
-                time_delta = (tomorrows_date - date).days 
+                time_delta = (helper.parse_date_string(tomorrows_date) - helper.parse_date_string(date)).days 
             else:
                 time_delta = 1
 
             current_mod_return_2= log(float(tomorrows_price_2)/float(todays_price_2))/sqrt(time_delta*trading_period)
+
             current_sample_covariance = (current_mod_return_1 - mod_mean_1)*(current_mod_return_2 - mod_mean_2)/(sample - 1)
             covariance = covariance + current_sample_covariance
         
+            logger.verbose(f'(return_1, return_2) = ({round(current_mod_return_1, 2)}, {round(current_mod_return_2, 2)})')
             logger.verbose(f'(current_sample_covariance, covariance) = ({round(current_sample_covariance, 2)}, {round(covariance, 2)})')
                 
         else:
             today = True
-
-       
-        tomorrows_price_1 = services.parse_price_from_date(prices_1, date, asset_type_1)
-        tomorrows_price_2 = services.parse_price_from_date(prices_2, date, asset_type_2)
-        tomorrows_date = date
+        
+        i += 1
+        tomorrows_price_1, tomorrows_price_2, tomorrows_date = todays_price_1, todays_price_2, date
     #### END CORRELATION LOOP ####
 
     # Scale covariance into correlation
