@@ -576,7 +576,7 @@ def calculate_risk_return(ticker, start_date=None, end_date=None, sample_prices=
             # the time_delta by the number of missed days. 
             if asset_type == settings.ASSET_CRYPTO or \
                 (asset_type == settings.ASSET_EQUITY and not helper.consecutive_trading_days(tomorrows_date, date)):
-                time_delta = (tomorrows_date - date).days 
+                time_delta = (helper.parse_date_string(tomorrows_date) - helper.parse_date_string(date)).days 
             else:
                 time_delta = 1
 
