@@ -128,7 +128,7 @@ def do_program():
         
         ### FUNCTION: Display Version
         elif opt == formatter.FUNC_ARG_DICT["version"]:
-            version_file = os.path.join(settings.PROJECT_DIR, 'version.txt')
+            version_file = os.path.join(settings.APP_DIR, 'version.txt')
             with open(version_file, 'r') as f:
                 print(f.read())
 
