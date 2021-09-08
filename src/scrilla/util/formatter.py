@@ -57,6 +57,7 @@ FUNC_ARG_DICT = {
     "statistic": "-stat",
     "statistic_history": "-stats",
     "store": "-store",
+    "version": "-version",
     "watchlist": "-watch",
     "yield_curve": "-yield"
 }
@@ -159,6 +160,8 @@ FUNC_DICT = {
 
     "watchlist": "Saves the supplist list of tickers to your watchlist. These equity symbol are used by the screening algorithms when searching for stocks that trade at a discount.", 
 
+    "version": "Display version.", 
+    
     "yield_curve": "Displays the current United States Treasury Yield Curve using the Federal Funds Rate, the 3-Month Rate, the 3-Year Rate, the 5-Year Rate, the 10-Year Rate and the 30-Year Rate."
 
 }

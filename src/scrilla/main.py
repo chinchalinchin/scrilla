@@ -1,4 +1,4 @@
-import sys
+import sys, os
 
 #  Note: need to import from package when running from wheel.
 # if running locally through main.py file, these imports should be replaced
@@ -125,6 +125,12 @@ def do_program():
             files.clear_directory(directory=settings.STATIC_DIR, retain=True)
             files.clear_directory(directory=settings.CACHE_DIR, retain=True)
             files.clear_directory(directory=settings.COMMON_DIR, retain=True)
+        
+        ### FUNCTION: Display Version
+        elif opt == formatter.FUNC_ARG_DICT["version"]:
+            version_file = os.path.join(settings.PROJECT_DIR, 'version.txt')
+            with open(version_file, 'r') as f:
+                print(f.read())
 
         ### FUNCTION: Yield Curve
         elif opt == formatter.FUNC_ARG_DICT['yield_curve']:
