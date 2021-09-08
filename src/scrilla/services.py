@@ -15,46 +15,38 @@ logger = outputter.Logger("services", settings.LOG_LEVEL)
 CLOSE_PRICE = "close"
 OPEN_PRICE = "open"
 
+class DateOrderError(Exception):
+    def __init__(self, message):
+        super().__init__(message)
+
 # TODO: if start_date = end_date, then return only todays date?
 # TODO: these functions, validate_order and validate_tradeability, should probably go in util.helper
 #       however, they won't have logging output in helper!
 def validate_order_of_dates(start_date, end_date):
-    switch_flag = start_date is not None and end_date is not None
-
-    if start_date is not None and helper.is_date_today(start_date):
+    if helper.is_date_today(start_date):
         time_delta = (end_date - start_date).days
-        if time_delta == 0: # either end_date is also today
+        if time_delta == 0: # only valid case is end_date is also today
             return True, start_date, end_date
         return False, None, None
 
-    if end_date is not None and helper.is_date_today(end_date):
-        end_date = None
-        switch_flag = False
+    if helper.is_date_today(end_date):
+        return True, start_date, end_date
 
-    if switch_flag:
-        time_delta = end_date - start_date
-        
-        if time_delta.days < 0:
-            start_date, end_date = end_date, start_date
+    time_delta = end_date - start_date
+    
+    if time_delta.days < 0:
+        start_date, end_date = end_date, start_date
     
     return True, start_date, end_date
 
 def validate_tradeability_of_dates(start_date, end_date):
-    if (
-        start_date is not None
-        and helper.is_date_holiday(start_date)
-        or helper.is_date_weekend(start_date)
-    ):
+    if (start_date is not None and helper.is_date_holiday(start_date) or helper.is_date_weekend(start_date)):
         logger.debug(f'{start_date} is invalid. Equities do not trade on holidays or weekends.')
 
         start_date = helper.get_previous_business_date(start_date)
         logger.debug(f'Setting start date to next business day, {start_date}')
 
-    if (
-        end_date is not None
-        and helper.is_date_holiday(end_date)
-        or helper.is_date_weekend(end_date)
-    ):
+    if (end_date is not None and helper.is_date_holiday(end_date) or helper.is_date_weekend(end_date)):
         logger.debug(f'{end_date} is invalid. Equities do not trade on holidays or weekends.')
 
         end_date = helper.get_previous_business_date(end_date)
@@ -134,18 +126,21 @@ def query_service_for_daily_price_history(ticker, start_date=None, end_date=None
     #       mess up statistical calculations, i.e. statistics.py expects a sample 
     #       of a certain size and gets a different size.
 
+    print('here now', start_date, end_date)
     ### START: ARGUMENT VALIDATION ###
     if not full:
         if start_date is not None and end_date is not None:
             valid_dates, start_date, end_date = validate_order_of_dates(start_date, end_date)
             if not valid_dates:
-                return False
+                raise DateOrderError(f'{start_date} to {end_date} is not a valid date range.')
+
     else:
         logger.debug('Full price history requested, nulling start_date and end_date')
         start_date, end_date = None, None
 
     asset_type = validate_asset_type(asset_type=asset_type, ticker=ticker)
     
+    print('now here', start_date, end_date)
         # Verify dates fall on trading days (i.e. not weekends or holidays) if asset_type is ASSET_EQUITY
     if asset_type == settings.ASSET_EQUITY and (start_date is not None or end_date is not None):
         start_date, end_date = validate_tradeability_of_dates(start_date, end_date)
@@ -310,7 +305,8 @@ def get_daily_price_history(ticker, start_date=None, end_date=None):
     { date (str) : price (str) }
         Dictionary of prices and their corresponding dates as keys. 
     """
-
+    print('hi there', start_date)
+    print('ho there', end_date)
     prices = files.retrieve_local_object(local_object=files.OBJECTS['prices'], 
                                                 args={"ticker": ticker, "start_date": start_date, "end_date": end_date})
     if prices is not None:
@@ -370,7 +366,7 @@ def query_service_for_daily_stats_history(statistic, start_date=None, end_date=N
         if full:
             start_date, end_date = None, None
 
-        if start_date is not None or end_date is not None:
+        if start_date is not None and end_date is not None:
             valid_dates, start_date, end_date = validate_order_of_dates(start_date, end_date)
             if not valid_dates:
                 return False

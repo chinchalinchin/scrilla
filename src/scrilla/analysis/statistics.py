@@ -549,21 +549,19 @@ def calculate_risk_return(ticker, start_date=None, end_date=None, sample_prices=
     if not prices:
         raise PriceError(f'No prices could be retrieved for {ticker}')
     
-    sample = len(prices)
-    # calculate sample mean annual return
-    i, mean_return, tomorrows_price = 0, 0, 0 
+    # Log of difference loses a sample
+    sample = len(prices) - 1
     logger.debug(f'Calculating mean annual return over last {sample} days for {ticker}')
 
     # NOTE: mean return is a telescoping series, i.e. sum of log(x1/x0) only depends on the first and
-    # last terms' contributions (because log(x1/x0) = log(x1) - log(x0))...which raises the question 
-    # how accurate of a measure the sample mean is of the mean rate of return for an asset?
+    # last terms' contributions (because log(x1/x0) + log(x2/x1)= log(x2) - log(x1) + log(x1) - log(x0)) = log(x2/x0))
+    # which raises the question how accurate of a measure the population mean is of the mean rate of return for an asset?
     last_price = services.parse_price_from_date(prices, list(prices)[0], asset_type)
     first_price = services.parse_price_from_date(prices, list(prices)[-1], asset_type)
     mean_return = log(float(last_price)/float(first_price))/(trading_period*sample)
     
     # calculate sample annual volatility
-    today = False
-    variance, tomorrows_price = 0, 0
+    today, variance, tomorrows_price, tomorrows_date = False, 0, 0, None
     mean_mod_return = mean_return*sqrt(trading_period)
     logger.debug(f'Calculating mean annual volatility over last {sample} days for {ticker}')
 
@@ -572,15 +570,27 @@ def calculate_risk_return(ticker, start_date=None, end_date=None, sample_prices=
 
         if today:
             logger.verbose(f'{date}: (todays_price, tomorrows_price) = ({todays_price}, {tomorrows_price})')
-            current_mod_return= log(float(tomorrows_price)/float(todays_price))/sqrt(trading_period) 
+
+            # crypto prices may have weekends and holidays removed during correlation algorithm 
+            # so samples can be compared to equities, need to account for these dates by increasing
+            # the time_delta by the number of missed days. 
+            if asset_type == settings.ASSET_CRYPTO or \
+                (asset_type == settings.ASSET_EQUITY and not helper.consecutive_trading_days(tomorrows_date, date)):
+                time_delta = (tomorrows_date - date).days 
+            else:
+                time_delta = 1
+
+            current_mod_return = log(float(tomorrows_price)/float(todays_price))/sqrt(time_delta*trading_period) 
             daily = (current_mod_return - mean_mod_return)**2/(sample - 1)
             variance = variance + daily
+
             logger.verbose(f'{date}: (daily_variance, sample_variance) = ({round(daily, 4)}, {round(variance, 4)})')
 
         else:
             today = True
 
         tomorrows_price = services.parse_price_from_date(prices, date, asset_type)
+        tomorrows_date = date
 
     # adjust for output
     volatility = sqrt(variance)
@@ -645,8 +655,15 @@ def calculate_ito_correlation(ticker_1, ticker_2, asset_type_1=None, asset_type_
     if start_date is None:
         if end_date is None:
             end_date = helper.get_today()
+        print(end_date)
+        print(start_date)
+        print('hello world')
         start_date = helper.decrement_date_by_business_days(start_date=end_date, 
                                                                 business_days=settings.DEFAULT_ANALYSIS_PERIOD)
+        print(start_date)
+        print(type(start_date))
+        print(type(end_date))
+        
     if sample_prices is None:
         sample_prices = {}
         logger.debug(f'No sample prices provided or cached ({ticker_1}, {ticker_2}) correlation found.')
@@ -663,15 +680,12 @@ def calculate_ito_correlation(ticker_1, ticker_2, asset_type_1=None, asset_type_
         raise PriceError("Prices cannot be retrieved for correlation calculation")
     
     if asset_type_1 != asset_type_2:
-        # remove weekends and holidays from crypto prices
-            # this messes up the risk_return stats, though. since the daily return on weekends is ln(st/s0)=mu*(3 days) + noise.
-            # will need special risk_return function for modified crypto stats? so correlations make sense. must think on the matter.
+        # remove weekends and holidays from crypto prices so samples can be compared
         sample_prices[ticker_1], sample_prices[ticker_2] = helper.intersect_dict_keys(sample_prices[ticker_1], sample_prices[ticker_2])
             
     ### START SAMPLE STATISTICS CALCULATION ###
     logger.debug(f'Preparing to calculate correlation for ({ticker_1},{ticker_2})')
     try:
-        # here I should use an adjusted function when a crypto asset is inputted. remove weekends from sample. 
         stats_1 = calculate_risk_return(ticker_1, start_date, end_date, sample_prices[ticker_1])
         stats_2 = calculate_risk_return(ticker_2, start_date, end_date, sample_prices[ticker_2])
     except SampleSizeError as se:
@@ -680,8 +694,6 @@ def calculate_ito_correlation(ticker_1, ticker_2, asset_type_1=None, asset_type_
         raise PriceError(pe)
 
     # ito's lemma
-    # instead of all these conditionals, use adjusted_risk_return for crypto and set period to ONE_TRADING_DAY
-    # regardless of asset types.
     if asset_type_1 == settings.ASSET_EQUITY:
         mod_mean_1 = (stats_1['annual_return'] - 0.5*(stats_1['annual_volatility'])**2)*sqrt(settings.ONE_TRADING_DAY)
     elif asset_type_1 == settings.ASSET_CRYPTO:
@@ -700,65 +712,57 @@ def calculate_ito_correlation(ticker_1, ticker_2, asset_type_1=None, asset_type_
     logger.debug(f'Calculating ({ticker_1}, {ticker_2}) correlation.')
 
     # Initialize loop variables
-    i, covariance, tomorrows_price_1, tomorrows_price_2 = 0, 0, 1, 1
-    delta = 0
+    i, covariance, tomorrows_price_1, tomorrows_price_2, time_delta = 0, 0, 1, 1, 0
+    today, tomorrows_date = False, None
     sample = len(sample_prices)
 
     #### START CORRELATION LOOP ####
 
+    ### NOTE: should calculate time delta manually instead of using constant trading_period...
     ### NOTE: losing a sample affects the mean. can't use same mean. that's why inter-asset correlation is off. i think.
     for date in sample_prices:
         todays_price_1 = services.parse_price_from_date(prices_1, date, asset_type_1)
         todays_price_2 = services.parse_price_from_date(prices_2, date, asset_type_2)
-        todays_date = date
-        logger.verbose(f'(todays_date, todays_price_{ticker_1}, todays_price_{ticker_2}) = ({todays_date}, {todays_price_1}, {todays_price_2})')
+        logger.verbose(f'(todays_date, todays_price_{ticker_1}, todays_price_{ticker_2}) = ({date}, {todays_price_1}, {todays_price_2})')
             
-        # if both prices exist, proceed
-        if todays_price_1 and todays_price_2 and tomorrows_price_1 and tomorrows_price_2:
-            if i != 0: # skip first iteration
-                logger.verbose(f'Iteration #{i}')
-                logger.verbose(f'(todays_price, tomorrows_price)_{ticker_1} = ({todays_price_1}, {tomorrows_price_1})')
-                logger.verbose(f'(todays_price, tomorrows_price)_{ticker_2} = ({todays_price_2}, {tomorrows_price_2})')
-                
-                if delta != 0:
-                    logger.verbose(f'current delta = {delta}')
+        if today:
+            logger.verbose(f'Iteration #{i}')
+            logger.verbose(f'(todays_price, tomorrows_price)_{ticker_1} = ({todays_price_1}, {tomorrows_price_1})')
+            logger.verbose(f'(todays_price, tomorrows_price)_{ticker_2} = ({todays_price_2}, {tomorrows_price_2})')
 
-                time_delta = (1+delta)/sqrt(trading_period)
-                current_mod_return_1= log(float(tomorrows_price_1)/float(todays_price_1))*time_delta
-                current_mod_return_2= log(float(tomorrows_price_2)/float(todays_price_2))*time_delta
-                current_sample_covariance = (current_mod_return_1 - mod_mean_1)*(current_mod_return_2 - mod_mean_2)/(sample - 1)
-                covariance = covariance + current_sample_covariance
-            
-                logger.verbose(f'(return_1, return_2) = ({round(current_mod_return_1, 2)}, {round(current_mod_return_2, 2)})')
-                logger.verbose(f'(current_sample_covariance, covariance) = ({round(current_sample_covariance, 2)}, {round(covariance, 2)})')
-                
-                # once missed data points are skipped, annihiliate delta
-                if delta != 0:
-                    delta = 0
-                
-            i += 1
+            # crypto prices may have weekends and holidays removed during correlation algorithm 
+            # so samples can be compared to equities, need to account for these dates by increasing
+            # the time_delta by the number of missed days. 
+            if asset_type_1 == settings.ASSET_CRYPTO or \
+                (asset_type_1 == settings.ASSET_EQUITY and not helper.consecutive_trading_days(tomorrows_date, date)):
+                time_delta = (tomorrows_date - date).days 
+            else:
+                time_delta = 1
 
-        # if one price doesn't exist, then a data point has been lost, so revise sample. 
-        # collect number of missed data points (delta) to offset return calculation
-        else: 
-            logger.verbose('Lost a day. Revising covariance and sample.')
-            revised_covariance = covariance*(sample - 1)
-            sample -= 1 
-            
-            try:
-                covariance = revised_covariance/(sample - 1)
-            except ZeroDivisionError:
-                logger.info('Lost entire sample!')
-                return None
+            current_mod_return_1= log(float(tomorrows_price_1)/float(todays_price_1))/sqrt(time_delta*trading_period)
 
-            # accumulate lost days to adjust return
-            delta += 1
-            if i == 0:
-                i += 1
-            logger.verbose(f'(revised_covariance, revised_sample) = ({covariance}, {sample})')
+            # crypto prices may have weekends and holidays removed during correlation algorithm 
+            # so samples can be compared to equities, need to account for these dates by increasing
+            # the time_delta by the number of missed days. 
+            if asset_type_2 == settings.ASSET_CRYPTO or \
+                (asset_type_2 == settings.ASSET_EQUITY and not helper.consecutive_trading_days(tomorrows_date, date)):
+                time_delta = (tomorrows_date - date).days 
+            else:
+                time_delta = 1
+
+            current_mod_return_2= log(float(tomorrows_price_2)/float(todays_price_2))/sqrt(time_delta*trading_period)
+            current_sample_covariance = (current_mod_return_1 - mod_mean_1)*(current_mod_return_2 - mod_mean_2)/(sample - 1)
+            covariance = covariance + current_sample_covariance
         
+            logger.verbose(f'(current_sample_covariance, covariance) = ({round(current_sample_covariance, 2)}, {round(covariance, 2)})')
+                
+        else:
+            today = True
+
+       
         tomorrows_price_1 = services.parse_price_from_date(prices_1, date, asset_type_1)
         tomorrows_price_2 = services.parse_price_from_date(prices_2, date, asset_type_2)
+        tomorrows_date = date
     #### END CORRELATION LOOP ####
 
     # Scale covariance into correlation
