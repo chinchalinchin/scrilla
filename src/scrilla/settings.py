@@ -147,14 +147,14 @@ try:
 except (ValueError, TypeError) as ParseError: 
     logger.debug('Failed to parse GUI_WIDTH from environment. Setting to default value of 800.')
     GUI_WIDTH = 800
-    os.environ['GUI_WIDTH'] = GUI_WIDTH
+    os.environ['GUI_WIDTH'] = str(GUI_WIDTH)
 
 try:
     GUI_HEIGHT = int(os.getenv('GUI_HEIGHT'))
 except (ValueError, TypeError) as ParseError:
     logger.debug('Failed to parse GUI_HEIGHT from enviroment. Setting to default value of 800.')
     GUI_HEIGHT = 800
-    os.environ['GUI_HEIGHT'] = GUI_HEIGHT
+    os.environ['GUI_HEIGHT'] = str(GUI_HEIGHT)
 
 
 ## FINANCIAL ALGORITHM CONFIGURATION
@@ -167,35 +167,35 @@ try:
 except (ValueError, TypeError) as ParseError:
     logger.debug('Failed to parse FRONTIER_STEPS from enviroment. Setting to default value of 5.')
     FRONTIER_STEPS = 5
-    os.environ['FRONTIER_STEPS'] = FRONTIER_STEPS
+    os.environ['FRONTIER_STEPS'] = str(FRONTIER_STEPS)
 
 try:
     MA_1_PERIOD = int(os.getenv('MA_1'))
 except (ValueError, TypeError) as ParseError: 
     logger.debug('Failed to parse MA_1 from environment. Setting to default value of 20.')
     MA_1_PERIOD = 20
-    os.environ['MA_1_PERIOD'] = MA_1_PERIOD
+    os.environ['MA_1_PERIOD'] = str(MA_1_PERIOD)
 
 try:
     MA_2_PERIOD = int(os.getenv('MA_2'))
 except (ValueError, TypeError) as ParseError: 
     logger.debug('Failed to parse MA_2 from environment. Setting to default value of 60.')
     MA_2_PERIOD = 60
-    os.environ['MA_2_PERIOD'] = MA_2_PERIOD
+    os.environ['MA_2_PERIOD'] = str(MA_2_PERIOD)
 
 try:
     MA_3_PERIOD = int(os.getenv('MA_3'))
 except (ValueError, TypeError) as ParseError: 
     logger.debug('Failed to parse MA_3 from environment. Setting to default value of 100.')
     MA_3_PERIOD = 100
-    os.environ['MA_3_PERIOD'] = MA_3_PERIOD
+    os.environ['MA_3_PERIOD'] = str(MA_3_PERIOD)
 
 try:
     ITO_STEPS = int(os.getenv('ITO_STEPS'))
 except (ValueError, TypeError) as ParseError:
     logger.debug('Failed to parsed ITO_STEPS from environment. Setting to default of 10000.')
     ITO_STEPS = 10000
-    os.environ['ITO_STEPS'] = ITO_STEPS
+    os.environ['ITO_STEPS'] = str(ITO_STEPS)
 
 ONE_TRADING_DAY=(1/252)
 
@@ -232,7 +232,7 @@ if PRICE_MANAGER == 'alpha_vantage':
             with open(keystore, 'r') as infile:
                 if FILE_EXT == "json":
                     AV_KEY = json.load(infile)['ALPHA_VANTAGE_KEY']
-                    os.environ['ALPHA_VANTAGE_KEY'] = AV_KEY
+                    os.environ['ALPHA_VANTAGE_KEY'] = str(AV_KEY)
 
     if not AV_KEY:
         raise APIKeyError('Alpha Vantage API Key not found. Either set ALPHA_VANTAGE_KEY environment variable or use "-store" CLI function to save key.')
@@ -281,7 +281,7 @@ if STAT_MANAGER == "quandl":
             with open(keystore, 'r') as infile:
                 if FILE_EXT == "json":
                     Q_KEY = json.load(infile)['QUANDL_KEY']
-                    os.environ['QUANDL_KEY'] = Q_KEY
+                    os.environ['QUANDL_KEY'] = str(Q_KEY)
 
     if not Q_KEY:
         raise APIKeyError('Quandl API Key not found. Either set QUANDL_KEY environment variable or use "-store" CLI function to save key.')
@@ -327,7 +327,7 @@ if DIV_MANAGER == "iex":
             with open(keystore, 'r') as infile:
                 if FILE_EXT == "json":
                     IEX_KEY = json.load(infile)['IEX_KEY']
-                    os.environ['IEX_KEY'] = IEX_KEY
+                    os.environ['IEX_KEY'] = str(IEX_KEY)
 
     if not IEX_KEY:
         raise APIKeyError('IEX API Key cannot be found. Either set IEX_KEY environment variable or use "-store" CLI function to save key.')
