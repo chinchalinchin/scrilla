@@ -174,21 +174,21 @@ try:
 except (ValueError, TypeError) as ParseError: 
     logger.debug('Failed to parse MA_1 from environment. Setting to default value of 20.')
     MA_1_PERIOD = 20
-    os.environ['MA_1_PERIOD'] = str(MA_1_PERIOD)
+    os.environ['MA_1'] = str(MA_1_PERIOD)
 
 try:
     MA_2_PERIOD = int(os.getenv('MA_2'))
 except (ValueError, TypeError) as ParseError: 
     logger.debug('Failed to parse MA_2 from environment. Setting to default value of 60.')
     MA_2_PERIOD = 60
-    os.environ['MA_2_PERIOD'] = str(MA_2_PERIOD)
+    os.environ['MA_2'] = str(MA_2_PERIOD)
 
 try:
     MA_3_PERIOD = int(os.getenv('MA_3'))
 except (ValueError, TypeError) as ParseError: 
     logger.debug('Failed to parse MA_3 from environment. Setting to default value of 100.')
     MA_3_PERIOD = 100
-    os.environ['MA_3_PERIOD'] = str(MA_3_PERIOD)
+    os.environ['MA_3'] = str(MA_3_PERIOD)
 
 try:
     ITO_STEPS = int(os.getenv('ITO_STEPS'))
