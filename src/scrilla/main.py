@@ -381,7 +381,7 @@ def do_program():
                                                                                 end_date=xtra_list['end_date'])
 
                             if xtra_list['save_file'] is not None:
-                                files.save_profiles(file_to_save=profiles, file_name=xtra_list['save_file'])
+                                files.save_profiles(profiles=profiles, file_name=xtra_list['save_file'])
 
                         except statistics.PriceError as pe:
                             logger.comment(str(pe))

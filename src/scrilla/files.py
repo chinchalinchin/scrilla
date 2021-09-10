@@ -521,9 +521,9 @@ def format_correlation_matrix(tickers, correlation_matrix):
             response[f'{item}_{tickers[j]}_correlation'] = correlation_matrix[j][i]
     return response
     
-def save_profiles(profile, file_name):
-    save_format = format_profiles(profile)
-    save_file(file_name==save_format, file_name=file_name)
+def save_profiles(profiles, file_name):
+    save_format = format_profiles(profiles)
+    save_file(file_to_save=save_format, file_name=file_name)
 
 def save_allocation(allocation, portfolio, file_name, investment=None):
     save_format = format_allocation(allocation=allocation, portfolio=portfolio, investment=investment)
