@@ -165,10 +165,11 @@ class Cashflow:
 
     def generate_model_comparison(self):
         model_prices= self.generate_model_series()
-        actual_prices = [ self.sample[date] for date in self.sample ]
-        dates = [ date for date in self.sample ]
-        return list({f'{date}':  { 'model_price': model_prices[dates.index(date)],
-                                    'actual_price': actual_prices[dates.index(date)]}} for date in dates)
+
+        return[ { 'date': date, 
+                  'model_price': self.sample[date], 
+                  'actual_price': model_prices[self.sample.index(date)] } 
+                for date in self.sample ]
         
     def get_growth_function(self, x):
         if self.growth_function is None:
