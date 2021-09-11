@@ -146,7 +146,7 @@ class Cashflow:
 
     def regress_growth_function(self):
         to_array = [ self.sample[date] for date in self.sample ]
-        
+
         self.beta = statistics.regression_beta(x=self.time_series, y=to_array)
         self.alpha = statistics.regression_alpha(x=self.time_series, y=to_array)
         
@@ -163,6 +163,13 @@ class Cashflow:
     def generate_model_series(self):
         return [self.alpha + self.beta*time for time in self.time_series]
 
+    def generate_model_comparison(self):
+        model_prices= self.generate_model_series()
+        actual_prices = [ self.sample[date] for date in self.sample ]
+        dates = [ date for date in self.sample ]
+        return dict((date, { 'model_price': model_prices[dates.index(date)],
+                                'actual_price': actual_prices[dates.index(date)]}) for date in dates)
+        
     def get_growth_function(self, x):
         if self.growth_function is None:
             if self.constant is not None:
