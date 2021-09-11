@@ -64,6 +64,11 @@ def do_program():
             logger.comment(f'Clearing {settings.CACHE_DIR}')
             files.clear_directory(directory=settings.CACHE_DIR, retain=True)
 
+        ### FUNCTION: Clear Static
+        elif opt == formatter.FUNC_ARG_DICT["clear_static"]:
+            logger.comment(f'Clearing {settings.STATIC_DIR}')
+            files.clear_directory(directory=settings.STATIC_DIR, retain=True)
+
         ### FUNCTION: Clear Watchlist
         elif opt == formatter.FUNC_ARG_DICT["clear_watchlist"]:
             logger.comment(f'Clearing {settings.COMMON_DIR}')

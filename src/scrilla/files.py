@@ -28,7 +28,10 @@ OBJECTS={
     "equity_statistic":6,
     "api_key": 7
 }
+
 logger = outputter.Logger("files", settings.LOG_LEVEL)
+
+static_crypto_blob, static_econ_blob, static_tickers_blob = None, None, None
 
 def determine_analysis_date_range(start_date=None, end_date=None):
     if end_date is None:
@@ -245,6 +248,10 @@ def init_static_data():
     -----------
     Initializes the three static files defined in  settings: `STATIC_TICKERS_FILE`, `STATIC_CRYPTO_FILE` and `STATIC_ECON_FILE`. The data for these files is retrieved from the service managers. While this function blurs the lines between file management and service management, the function has been included in the `files.py` module rather than the `services.py` module due the unique response types of static metadata. All metadata is returned a csv or zipped csvs. These responses require specialized functions. Moreover, these files should only be initialized the first time the application executes. Subsequent executions will refer to their cached versions residing in the local or containerized filesytems. 
     """
+    global static_tickers_blob
+    global static_econ_blob
+    global static_crypto_blob
+
     if ((not os.path.isfile(settings.STATIC_ECON_FILE)) or \
             (not os.path.isfile(settings.STATIC_TICKERS_FILE)) or \
                 (not os.path.isfile(settings.STATIC_CRYPTO_FILE))):
@@ -263,7 +270,7 @@ def init_static_data():
                 url = f'{settings.AV_URL}?{query}&{settings.PARAM_AV_KEY}={settings.AV_KEY}'
 
                 logger.debug(f'Preparsing to parse \'{settings.PRICE_MANAGER}\' Response to query: {query}')
-                parse_csv_response_column(column=0, url=url, firstRowHeader=settings.AV_RES_EQUITY_KEY, 
+                static_tickers_blob = parse_csv_response_column(column=0, url=url, firstRowHeader=settings.AV_RES_EQUITY_KEY, 
                                                         savefile=settings.STATIC_TICKERS_FILE)
 
             else:
@@ -276,7 +283,7 @@ def init_static_data():
                 url = settings.AV_CRYPTO_LIST
 
                 logger.debug(f'Preparsing to parse \'{settings.PRICE_MANAGER}\' Response to query: {query}')
-                parse_csv_response_column(column=0, url=url, firstRowHeader=settings.AV_RES_CRYPTO_KEY, 
+                static_crypto_blob = parse_csv_response_column(column=0, url=url, firstRowHeader=settings.AV_RES_CRYPTO_KEY, 
                                                     savefile=settings.STATIC_CRYPTO_FILE)
             else:
                 logger.info("No PRICE_MANAGER set in .env file!")
@@ -290,7 +297,7 @@ def init_static_data():
                 url = f'{settings.Q_META_URL}/{query}?{settings.PARAM_Q_KEY}={settings.Q_KEY}'
 
                 logger.debug(f'Preparsing to parse \'{settings.PRICE_MANAGER}\' Response to query: {query}')
-                parse_csv_response_column(column=0, url=url, firstRowHeader=settings.Q_RES_STAT_KEY,
+                static_econ_blob = parse_csv_response_column(column=0, url=url, firstRowHeader=settings.Q_RES_STAT_KEY,
                                                     savefile=settings.STATIC_ECON_FILE, zipped=settings.Q_RES_STAT_ZIP_KEY)
 
             else:
@@ -309,32 +316,55 @@ def get_static_data(static_type):
     1. `static_type` : str \n
     A string corresponding to the type of static data to be retrieved. The types can be statically accessed through the ` settings` variables: ASSET_CRYPTO, ASSET_EQUITY and STAT_ECON. \n \n
     """
-    logger.debug(f'Loading in cached {static_type} symbols.')
-    path = None
+    path, blob = None, None
+    global static_crypto_blob 
+    global static_econ_blob 
+    global static_tickers_blob
 
     if static_type == settings.ASSET_CRYPTO:
-        path = settings.STATIC_CRYPTO_FILE
+        if static_crypto_blob is not None:
+            blob = static_crypto_blob
+        else:
+            path = settings.STATIC_CRYPTO_FILE
     
     elif static_type == settings.ASSET_EQUITY:
-        path = settings.STATIC_TICKERS_FILE
+        if static_tickers_blob:
+            blob = static_tickers_blob
+        else:
+            path = settings.STATIC_TICKERS_FILE
     
     elif static_type == settings.STAT_ECON:
-        path = settings.STATIC_ECON_FILE
+        if static_econ_blob:
+            blob = static_econ_blob
+        else:
+            path = settings.STATIC_ECON_FILE
     
     else:
-        return False
+        return None
+
+    if blob is not None:
+        logger.debug(f'Found in-memory {static_type} symbols.')
+        return blob
 
     if path is not None:
         if not os.path.isfile(path):
             init_static_data()
 
+        logger.debug(f'Loading in cached {static_type} symbols.')
         with open(path, 'r') as infile:
             if settings.FILE_EXT == "json":
-                symbols = json.load(infile)   
-            # TODO: implement other file loading exts    
+                symbols = json.load(infile)
+            # TODO: implement other file loading exts 
+               
+        if static_type == settings.ASSET_CRYPTO:
+            static_crypto_blob = symbols
+        elif static_type == settings.ASSET_EQUITY:
+            static_tickers_blob = symbols
+        elif static_type == settings.STAT_ECON:
+            static_econ_blob = symbols
         return symbols
         
-    return False
+    return None
     
 # NOTE: output from get_overlapping_symbols:
 # OVERLAP = ['ABT', 'AC', 'ADT', 'ADX', 'AE', 'AGI', 'AI', 'AIR', 'AMP', 'AVT', 'BCC', 'BCD', 'BCH', 'BCX', 'BDL', 'BFT', 'BIS', 'BLK', 'BQ', 'BRX', 
