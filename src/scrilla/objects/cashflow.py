@@ -167,8 +167,8 @@ class Cashflow:
         model_prices= self.generate_model_series()
         actual_prices = [ self.sample[date] for date in self.sample ]
         dates = [ date for date in self.sample ]
-        return dict((date, { 'model_price': model_prices[dates.index(date)],
-                                'actual_price': actual_prices[dates.index(date)]}) for date in dates)
+        return list({f'{date}':  { 'model_price': model_prices[dates.index(date)],
+                                    'actual_price': actual_prices[dates.index(date)]}} for date in dates)
         
     def get_growth_function(self, x):
         if self.growth_function is None:
