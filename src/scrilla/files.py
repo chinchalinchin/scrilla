@@ -112,23 +112,22 @@ def store_local_object(local_object, value, args):
         file_name_2, in_memory_key = None, None
 
         if local_object == OBJECTS['correlation']:
-            logger.debug(f'Storing ({args["ticker_1"]}, {args["ticker_2"]}) correlation in local cache.')
             in_memory_key_1=f'{args["ticker_1"]}_{args["ticker_2"]}_{settings.CACHE_COR_KEY}'
             in_memory_key_2=f'{args["ticker_2"]}_{args["ticker_1"]}_{settings.CACHE_COR_KEY}'
+            
+            logger.debug(f'Storing {in_memory_key_1} in-memory')
             object_blob_dict[in_memory_key_1], object_blob_dict[in_memory_key_2] = value, value
+            
             file_name = f'{timestamp}_{in_memory_key_1}.{settings.FILE_EXT}'
             file_name_2 = f'{timestamp}_{in_memory_key_2}.{settings.FILE_EXT}'
         
         elif local_object == OBJECTS['prices']:
-            logger.debug(f'Storing {args["ticker"]} price history in local cache.')
             in_memory_key = f'{args["ticker"]}_{settings.CACHE_PRICE_KEY}'
 
         elif local_object == OBJECTS['risk_profile']:
-            logger.debug(f'Storing {args["ticker"]} risk profile in local cache.')
             in_memory_key = f'{args["ticker"]}_{settings.CACHE_PRO_KEY}'
 
         elif local_object == OBJECTS['dividends']:
-            logger.debug(f'Checking for {args["ticker"]} dividend history in local cache.')
             in_memory_key=f'{args["ticker"]}_{settings.CACHE_DIV_KEY}'
         
         elif local_object == OBJECTS['statistic']:
@@ -142,6 +141,7 @@ def store_local_object(local_object, value, args):
         
 
         if in_memory_key is not None:
+            logger.debug(f'Storing {in_memory_key} in-memory')
             object_blob_dict[in_memory_key] = value
             file_name = os.path.join(settings.CACHE_DIR,f'{timestamp}_{in_memory_key}.{settings.FILE_EXT}')
 
@@ -150,12 +150,17 @@ def store_local_object(local_object, value, args):
             save_file(file_to_save=value, file_name=buffer_store)
 
         if file_name is not None:
+            logger.debug(f'Storing {file_name} in local cache')
             buffer_store= os.path.join(settings.CACHE_DIR, file_name)
             return save_file(file_to_save=value, file_name=buffer_store) 
+
         return None
+        
     return None
 
 def retrieve_local_object(local_object, args):
+    global object_blob_dict
+
     if settings.LOCAL_CACHE:
         timestamp = generate_timestamp(args=args)
         in_memory_key = None
@@ -164,30 +169,33 @@ def retrieve_local_object(local_object, args):
             in_memory_key_1=f'{args["ticker_1"]}_{args["ticker_2"]}_{settings.CACHE_COR_KEY}'
             in_memory_key_2=f'{args["ticker_2"]}_{args["ticker_1"]}_{settings.CACHE_COR_KEY}'
 
+            logger.debug(f'Checking for {in_memory_key_1}')
+
             if in_memory_key_1 in object_blob_dict.keys():
-                logger.debug(f'Found in-memory {in_memory_key_1}')
+                logger.debug(f'Loading in-memory {in_memory_key_1}')
                 return object_blob_dict[in_memory_key_1]
             if in_memory_key_2 in object_blob_dict.keys():
-                logger.debug(f'Fpund in-memomry {in_memory_key_2}')
+                logger.debug(f'Loading in-memomry {in_memory_key_2}')
                 return object_blob_dict[in_memory_key_2]
 
             buffer_store_1= os.path.join(settings.CACHE_DIR, f'{timestamp}_{in_memory_key_1}.{settings.FILE_EXT}')
             buffer_store_2= os.path.join(settings.CACHE_DIR, f'{timestamp}_{in_memory_key_2}.{settings.FILE_EXT}')
 
-            logger.debug(f'Checking for ({args["ticker_1"]}, {args["ticker_2"]}) correlation calculation in local cache.')
             if os.path.isfile(buffer_store_1):
-                logger.debug(f'Loading in cached ({args["ticker_1"]}, {args["ticker_2"]}) correlation.')
+                logger.debug(f'Loading in {in_memory_key_1} from local cache')
                 correlation = load_file(file_name=buffer_store_1)
+                object_blob_dict[in_memory_key_1] = correlation
                 return correlation
+
             if os.path.isfile(buffer_store_2):
-                logger.debug(f'Loading in cached ({args["ticker_2"]}, {args["ticker_1"]}) correlation.')
+                logger.debug(f'Loading in {in_memory_key_2} from local cache')
                 correlation = load_file(file_name=buffer_store_2)
+                object_blob_dict[in_memory_key_2] = correlation
                 return correlation
             return None
 
         elif local_object == OBJECTS['risk_profile']:
             in_memory_key =f'{args["ticker"]}_{settings.CACHE_PRO_KEY}'
-            logger.debug(f'Checking for {args["ticker"]} statistics in local cache.')
         
         elif local_object == OBJECTS['prices']:
             # TODO: with different time stamp implementation, this part of the method should search for price histories that contain
@@ -206,32 +214,32 @@ def retrieve_local_object(local_object, args):
                     # if cached_start_date <= start_date and cached_end_date >= end_date:
                         # parsed start_date to end_date from cached_prices
             in_memory_key=f'{args["ticker"]}_{settings.CACHE_PRICE_KEY}'
-            logger.debug(f'Checking for {args["ticker"]} prices in local cache')
 
         elif local_object == OBJECTS['dividends']:
             in_memory_key=f'{args["ticker"]}_{settings.CACHE_DIV_KEY}'
-            logger.debug(f'Checking for {args["ticker"]} prices in local cache')
             
         elif local_object == OBJECTS['statistic']:
             in_memory_key=f'{args["stat_symbol"]}_{settings.CACHE_STAT_KEY}'
-            logger.debug(f'Checking for {args["stat_symbol"]} statistics in local cache')
         
         elif local_object == OBJECTS['equity_statistic']:
             in_memory_key=f'{args["ticker"]}_{args["equity_stat_symbol"]}_{settings.CACHE_EQUITY_KEY}'
-            logger.debug(f'Checking for {args["ticker"]}\'s {args["equity_stat_symbol"]} statistics in local cache')
         
         elif local_object == OBJECTS['api_key']:
             file_name = os.path.join(settings.COMMON_DIR, f'{args["key_name"]}.{settings.FILE_EXT}')
-            logger.debug(f'Checking for {args["key_name"]} API key in local commons')
+
 
         if in_memory_key is not None:
+            logger.debug(f'Checking for {in_memory_key} data locally')
+
             if in_memory_key in object_blob_dict.keys():
+                logger.debug(f'Found in-memory {in_memory_key}')
                 return object_blob_dict[in_memory_key]
             file_name = os.path.join(settings.CACHE_DIR, f'{timestamp}_{in_memory_key}.{settings.FILE_EXT}')
 
         if file_name is not None and os.path.isfile(file_name):
-            logger.debug('Loading in local cache')
+            logger.debug(f'Loading {file_name} in local cache')
             results = load_file(file_name = file_name)
+            object_blob_dict[in_memory_key] = results
             return results
 
     return None
