@@ -15,7 +15,7 @@ import util.outputter as outputter
 import util.formatter as formatter
 import util.helper as helper
 
-logger = outputter.Logger(' statistics', settings.LOG_LEVEL)
+logger = outputter.Logger('statistics', settings.LOG_LEVEL)
 
 class SampleSizeError(Exception):
     def __init__(self, message):
@@ -551,7 +551,7 @@ def calculate_risk_return(ticker, start_date=None, end_date=None, sample_prices=
     
     # Log of difference loses a sample
     sample = len(prices) - 1
-    logger.debug(f'Calculating mean annual return over last {sample} days for {ticker}')
+    logger.debug(f'Calculating mean annual return over last {sample+1} days for {ticker}')
 
     # NOTE: mean return is a telescoping series, i.e. sum of log(x1/x0) only depends on the first and
     # last terms' contributions (because log(x1/x0) + log(x2/x1)= log(x2) - log(x1) + log(x1) - log(x0)) = log(x2/x0))
@@ -563,7 +563,7 @@ def calculate_risk_return(ticker, start_date=None, end_date=None, sample_prices=
     # calculate sample annual volatility
     today, variance, tomorrows_price, tomorrows_date = False, 0, 0, None
     mean_mod_return = mean_return*sqrt(trading_period)
-    logger.debug(f'Calculating mean annual volatility over last {sample} days for {ticker}')
+    logger.debug(f'Calculating mean annual volatility over last {sample+1} days for {ticker}')
 
     for date in prices:
         todays_price = services.parse_price_from_date(prices, date, asset_type)

@@ -8,7 +8,7 @@ import random
 import  settings
 import  util.outputter as outputter
 
-logger = outputter.Logger(" calculator", settings.LOG_LEVEL)
+logger = outputter.Logger("calculator", settings.LOG_LEVEL)
 
 def generate_random_walk(periods):
     return [norm.ppf(random.uniform(0,1)) for i in range(periods)]
