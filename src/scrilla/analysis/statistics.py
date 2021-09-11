@@ -759,6 +759,8 @@ def calculate_ito_correlation(ticker_1, ticker_2, asset_type_1=None, asset_type_
     # Scale covariance into correlation
     correlation = covariance/(stats_1['annual_volatility']*stats_2['annual_volatility'])
 
+    logger.debug(f'correlation = ({round(correlation, 2)})')
+
     result = { 'correlation' : correlation }
 
     files.store_local_object(local_object=files.OBJECTS['correlation'], value=result,

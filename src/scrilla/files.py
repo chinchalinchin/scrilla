@@ -155,7 +155,7 @@ def store_local_object(local_object, value, args):
             return save_file(file_to_save=value, file_name=buffer_store) 
 
         return None
-        
+
     return None
 
 def retrieve_local_object(local_object, args):
@@ -226,7 +226,6 @@ def retrieve_local_object(local_object, args):
         
         elif local_object == OBJECTS['api_key']:
             file_name = os.path.join(settings.COMMON_DIR, f'{args["key_name"]}.{settings.FILE_EXT}')
-
 
         if in_memory_key is not None:
             logger.debug(f'Checking for {in_memory_key} data locally')
