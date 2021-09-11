@@ -167,8 +167,8 @@ class Cashflow:
         model_prices= self.generate_model_series()
 
         return[ { 'date': date, 
-                  'model_price': self.sample[date], 
-                  'actual_price': model_prices[index] } 
+                  'model_price': model_prices[index], 
+                  'actual_price': self.sample[date] } 
                 for index, date in enumerate(self.sample.keys()) ]
         
     def get_growth_function(self, x):
