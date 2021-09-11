@@ -51,12 +51,13 @@ FUNC_ARG_DICT = {
     "price_history": "-prices",
     "purge": "-purge",
     "risk_free_rate": "-rf",
-    "risk_return" : "-rr",
+    "risk_profile" : "-profile",
     "screener": "-screen",
     "sharpe_ratio": "-sharpe",
     "statistic": "-stat",
     "statistic_history": "-stats",
     "store": "-store",
+    "version": "-version",
     "watchlist": "-watch",
     "yield_curve": "-yield"
 }
@@ -103,11 +104,11 @@ FUNC_DICT = {
     
     "correlation_time_series": "EXPERIMENTAL. PROBABLY WON'T WORK. Calculate correlation for a pair of tickers over a specified date range. If no start or end dates are specified, the default analysis period of 100 days is applied. __\n\t\t\tOPTIONS:\n\t\t\t\t-start (format: \"YYYY-MM-DD\")\n\t\t\t\t-end  (format :\"YYYY-MM-DD\")",
 
-    "discount_dividend": "Extrapolates future dividend cashflows from historical dividend payments with linear regression and then uses that model to calculate the net present value of all future dividends. If no discount rate is specified, the calculations default to the risk-free rate, i.e. the 10-Year US Treasury yield.__\n\t\t\tOPTIONS:\n\t\t\t\t -discount (float)",
+    "discount_dividend": "Extrapolates future dividend cashflows from historical dividend payments with linear regression and then uses that model to calculate the net present value of all future dividends. If no discount rate is specified, the calculations default to the risk-free rate, i.e. the 10-Year US Treasury yield.__\n\t\t\tOPTIONS:\n\t\t\t\t -discount (format: decimal)",
     
     "dividends": "Displays the price history over the specific date range. If no dates are provided, returns the entire dividend history.__\n\t\t\tOPTIONS:\n\t\t\t\t-start (format: \"YYYY-MM-DD\")\n\t\t\t\t-end  (format :\"YYYY-MM-DD\")",
 
-    "efficient_frontier": "Generate a sample of the portfolio's efficient frontier for the supplied list of tickers. By default, the efficient frontier will minimize a portfolio's volality for a given rate of return. The number of points calculated in the efficient frontier can be specifed as an integer with the -steps. If no -steps is provided, the value of the environment variable FRONTIER_STEPS will be used.__\n\t\t\t OPTIONS:\n\t\t\t\t-steps (format: integer)\n\t\t\t\t-invest (format: float)\n\t\t\t\t-start (format: \"YYYY-MM-DD\")\n\t\t\t\t-end  (format :\"YYYY-MM-DD\")\n\t\t\t\t-save (format: /path/to/file/filename.json)",
+    "efficient_frontier": "Generate a sample of the portfolio's efficient frontier for the supplied list of tickers. By default, the efficient frontier will minimize a portfolio's volality for a given rate of return. The number of points calculated in the efficient frontier can be specifed as an integer with the -steps. If no -steps is provided, the value of the environment variable FRONTIER_STEPS will be used.__\n\t\t\t OPTIONS:\n\t\t\t\t-steps (format: integer)\n\t\t\t\t-invest (format: decimal)\n\t\t\t\t-start (format: \"YYYY-MM-DD\")\n\t\t\t\t-end  (format :\"YYYY-MM-DD\")\n\t\t\t\t-save (format: /path/to/file/filename.json)",
     
     "examples": "Display examples of syntax.",
     
@@ -117,13 +118,13 @@ FUNC_DICT = {
     
     "initialize": "Initializes the data in the /static/ directory. Local application automatically initializes this data. This option is used to initialize static data inside of a Docker container, where the application entrypoint doesn't invoke the CLI automatically.",
     
-    "maximize_return": "Maximize the return of the portfolio defined by the supplied list of ticker symbols. Returns an array representing the allocations to be made for each asset in a portfolio. If no start or end dates are specified, calculations default to the last 100 days of prices. You can specify an investment with the '-invest' flag, otherwise the result will be output in percentage terms. Note: This function will always allocate 100% to the asset with the highest return. It's a good way to check and see if there are bugs in the algorithm after changes.__\n\t\t\tOPTIONS:\n\t\t\t\t-start (format: \"YYYY-MM-DD\")\n\t\t\t\t-end (format :\"YYYY-MM-DD\")\n\t\t\t\t-invest (format: float)",
+    "maximize_return": "Maximize the return of the portfolio defined by the supplied list of ticker symbols. Returns an array representing the allocations to be made for each asset in a portfolio. If no start or end dates are specified, calculations default to the last 100 days of prices. You can specify an investment with the '-invest' flag, otherwise the result will be output in percentage terms. Note: This function will always allocate 100% to the asset with the highest return. It's a good way to check and see if there are bugs in the algorithm after changes.__\n\t\t\tOPTIONS:\n\t\t\t\t-start (format: \"YYYY-MM-DD\")\n\t\t\t\t-end (format :\"YYYY-MM-DD\")\n\t\t\t\t-invest (format: decimal)",
     
     "list_watchlist": "Lists the equity symbols currently saved to your watchlist.",
     
     "moving_averages": "Calculate the current moving averages. If no start or end dates are specified, calculations default to the last 100 days of prices.__\n\t\t\tOPTIONS:\n\t\t\t\t-start (format: \"YYYY-MM-DD\")\n\t\t\t\t-end  (format :\"YYYY-MM-DD\")",
     
-    "optimize_portfolio_variance": "Optimize the volatility of the portfolio\'s variance subject to the supplied return target.  Returns an array representing the allocations to be made for each asset in a portfolio. The target return must be specified with the '-target' flag. If no target return is specified, the portfolio's volatility is minimized. If no start or end dates are specified with the '-start' and '-end' flags, calculations default to the last 100 days of prices. You can specify an investment with the '-invest' flag, otherwise the result will be output in percentage terms. If the -sh flag is specified, the function will maximize the portfolio's sharpe ratio instead of minimizing it's volatility.__\n\t\t\tOPTIONS:  -start (format: \"YYYY-MM-DD\")\n\t\t\t\t-end (format :\"YYYY-MM-DD\")\n\t\t\t\t-target (format: decimal)\n\t\t\t\t-invest (format: float)\n\t\t\t\t-save (format: /path/to/file/filename.json)\n\t\t\t\t-sh (binary flag; no format. include it or don't.)",
+    "optimize_portfolio_variance": "Optimize the volatility of the portfolio\'s variance subject to the supplied return target.  Returns an array representing the allocations to be made for each asset in a portfolio. The target return must be specified with the '-target' flag. If no target return is specified, the portfolio's volatility is minimized. If no start or end dates are specified with the '-start' and '-end' flags, calculations default to the last 100 days of prices. You can specify an investment with the '-invest' flag, otherwise the result will be output in percentage terms. If the -sh flag is specified, the function will maximize the portfolio's sharpe ratio instead of minimizing it's volatility.__\n\t\t\tOPTIONS:  -start (format: \"YYYY-MM-DD\")\n\t\t\t\t-end (format :\"YYYY-MM-DD\")\n\t\t\t\t-target (format: decimal)\n\t\t\t\t-invest (format: decimal)\n\t\t\t\t-save (format: /path/to/file/filename.json)\n\t\t\t\t-sh (binary flag; no format. include it or don't.)",
     
     "optimize_portfolio_conditional_var":"Optimizes the Black Scholes conditional value at risk, i.e. E(St | St < K), for the portfolio defined by the list of inputted ticker symbols. 'expiry' and 'prob' are required arguments for this function. Note: 'expiry' is measured in years and is different from the `start` and `end` dates. `start` and `end` are used to calibrate the model to a historical sample and `expiry` is used as the time horizon over which the value at risk is calculated into the future.__\n\t\t\tOPTIONS:\n\t\t\t\t-prob (format: decimal) REQUIRED\n\t\t\t\t-expiry (format: decimal)\n\t\t\t\t-start (format: \"YYYY-MM-DD\")\n\t\t\t\t-end (format :\"YYYY-MM-DD\")",
 
@@ -145,7 +146,7 @@ FUNC_DICT = {
     
     "risk_free_rate": "Returns current 10-year, annualized US Treasury yield.",
     
-    "risk_return": "Calculate the risk-return profile for the supplied list of ticker symbols. If no start or end dates are specified, calculations default to the last 100 days of prices.__\n\t\t\tOPTIONS:\n\t\t\t\t -start (format: \"YYYY-MM-DD\")\n\t\t\t\t-end  (format :\"YYYY-MM-DD\")\n\t\t\t\t-save (format: /path/to/file/filename.json)",
+    "risk_profile": "Calculate the risk-return profile for the supplied list of ticker symbols. If no start or end dates are specified, calculations default to the last 100 days of prices.__\n\t\t\tOPTIONS:\n\t\t\t\t -start (format: \"YYYY-MM-DD\")\n\t\t\t\t-end  (format :\"YYYY-MM-DD\")\n\t\t\t\t-save (format: /path/to/file/filename.json)",
     
     "screener": "Searchs equity spot prices that trade at a discount to the provided model. If no model is provided, the screener will default to the Discount Dividend Model. If no discount rate is provided, the screener will default to the cost of equity for a ticker calculated using the CAPM model and the ticker defined by environment variable MARKET_PROXY as a proxy for the market.__\n\t\t\tADDITION OPTIONS:\n\t\t\t\t-discount (format: decimal)\n\t\t\t\t-model (format: string, values: ddm)",
     
@@ -159,6 +160,8 @@ FUNC_DICT = {
 
     "watchlist": "Saves the supplist list of tickers to your watchlist. These equity symbol are used by the screening algorithms when searching for stocks that trade at a discount.", 
 
+    "version": "Display version.", 
+    
     "yield_curve": "Displays the current United States Treasury Yield Curve using the Federal Funds Rate, the 3-Month Rate, the 3-Year Rate, the 5-Year Rate, the 10-Year Rate and the 30-Year Rate."
 
 }

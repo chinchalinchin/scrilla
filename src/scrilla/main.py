@@ -1,4 +1,4 @@
-import sys
+import sys, os
 
 #  Note: need to import from package when running from wheel.
 # if running locally through main.py file, these imports should be replaced
@@ -52,6 +52,7 @@ def do_program():
     if len(sys.argv)>0:
         logger.debug('Parsing and invoking command line arguments')
         opt = sys.argv[1]
+        logger.debug(f'Selected Function: {opt}')
         
         # single argument functions
         ### FUNCTION: Help Message
@@ -62,6 +63,11 @@ def do_program():
         elif opt == formatter.FUNC_ARG_DICT["clear_cache"]:
             logger.comment(f'Clearing {settings.CACHE_DIR}')
             files.clear_directory(directory=settings.CACHE_DIR, retain=True)
+
+        ### FUNCTION: Clear Static
+        elif opt == formatter.FUNC_ARG_DICT["clear_static"]:
+            logger.comment(f'Clearing {settings.STATIC_DIR}')
+            files.clear_directory(directory=settings.STATIC_DIR, retain=True)
 
         ### FUNCTION: Clear Watchlist
         elif opt == formatter.FUNC_ARG_DICT["clear_watchlist"]:
@@ -124,6 +130,12 @@ def do_program():
             files.clear_directory(directory=settings.STATIC_DIR, retain=True)
             files.clear_directory(directory=settings.CACHE_DIR, retain=True)
             files.clear_directory(directory=settings.COMMON_DIR, retain=True)
+        
+        ### FUNCTION: Display Version
+        elif opt == formatter.FUNC_ARG_DICT["version"]:
+            version_file = os.path.join(settings.APP_DIR, 'version.txt')
+            with open(version_file, 'r') as f:
+                print(f.read())
 
         ### FUNCTION: Yield Curve
         elif opt == formatter.FUNC_ARG_DICT['yield_curve']:
@@ -140,7 +152,7 @@ def do_program():
             xtra_args, xtra_values, main_args = helper.separate_and_parse_args(args)
             xtra_list = helper.format_xtra_args_list(xtra_args, xtra_values)
             logger.log_arguments(main_args=main_args, xtra_args=xtra_args, xtra_values=xtra_values)
-            exact = False
+            exact, selected_function = False, None
 
             outputter.title_line('Results')
             outputter.print_line()
@@ -149,7 +161,7 @@ def do_program():
             if opt == formatter.FUNC_ARG_DICT['asset_type']:
                 def cli_asset_type():
                     for arg in main_args:
-                        asset_type = markets.get_asset_type(arg)
+                        asset_type = files.get_asset_type(arg)
                         if asset_type:
                             outputter.string_result(f'asset_type({arg})', asset_type)
                         else: 
@@ -347,7 +359,7 @@ def do_program():
                     for arg in main_args:
                         prices = services.get_daily_price_history(ticker=arg, start_date=xtra_list['start_date'],
                                                                     end_date=xtra_list['end_date'])
-                        asset_type = markets.get_asset_type(symbol=arg)
+                        asset_type = files.get_asset_type(symbol=arg)
                         all_prices[arg] = {}
                         for date in prices:
                             price = services.parse_price_from_date(prices=prices, date=date, asset_type=asset_type)
@@ -359,24 +371,29 @@ def do_program():
                 selected_function, required_length = cli_price_history, 1
 
             ### FUNCTION: Risk-Return Profile
-            elif opt == formatter.FUNC_ARG_DICT["risk_return"]:
+            elif opt == formatter.FUNC_ARG_DICT["risk_profile"]:
                 def cli_risk_return():
                     profiles = {}
-                    failed = False
                     for arg in main_args:
-                        result = statistics.calculate_risk_return(ticker=arg, start_date=xtra_list['start_date'], 
-                                                                    end_date=xtra_list['end_date'])
-                        if result:
-                            outputter.scalar_result(calculation=f'mean_{arg}', result=result['annual_return'],
-                                                    currency=False)
-                            outputter.scalar_result(calculation=f'vol_{arg}', result=result['annual_volatility'],
-                                                    currency=False)
-                            profiles[arg] = result
-                        else:
-                            failed = True
-                            logger.comment('Error Encountered While Calculating. Try -ex Flag For Example Usage.')
-                        if not failed and xtra_list['save_file'] is not None:
-                            files.save_file(file_to_save=profiles, file_name=xtra_list['save_file'])
+                        try:
+                            profiles[arg] = statistics.calculate_risk_return(ticker=arg, start_date=xtra_list['start_date'], 
+                                                                                end_date=xtra_list['end_date'])
+                            profiles[arg]['sharpe_ratio'] = markets.sharpe_ratio(ticker=arg, start_date=xtra_list['start_date'],
+                                                                                end_date=xtra_list['end_date'])
+                            profiles[arg]['asset_beta'] = markets.market_beta(ticker=arg, start_date=xtra_list['start_date'],
+                                                                                end_date=xtra_list['end_date'])
+                            profiles[arg]['equity_cost'] = markets.cost_of_equity(ticker=arg, start_date=xtra_list['start_date'],
+                                                                                end_date=xtra_list['end_date'])
+
+                            if xtra_list['save_file'] is not None:
+                                files.save_profiles(profiles=profiles, file_name=xtra_list['save_file'])
+
+                        except statistics.PriceError as pe:
+                            logger.comment(str(pe))
+                        except statistics.SampleSizeError as se:
+                            logger.comment(str(se))
+                    outputter.risk_profile(profiles=profiles)
+
                 selected_function, required_length = cli_risk_return, 1
 
             ### FUNCTION: Model Discount Screener 
@@ -428,9 +445,10 @@ def do_program():
                 logger.comment('No function supplied. Please review Function Summary below and re-execute with appropriate arguments.')
                 outputter.help_msg()
             
-            validate_function_usage(selection=opt, args=main_args, 
-                                    wrapper_function=selected_function, 
-                                    required_length=required_length, exact=exact)
+            if selected_function is not None:
+                validate_function_usage(selection=opt, args=main_args, 
+                                        wrapper_function=selected_function, 
+                                        required_length=required_length, exact=exact)
             outputter.print_line()
     else:
         logger.comment('No arguments Supplied. Please review function summary below and re-execute with appropriate arguments.')

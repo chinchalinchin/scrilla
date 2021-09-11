@@ -28,7 +28,12 @@ OBJECTS={
     "equity_statistic":6,
     "api_key": 7
 }
+
 logger = outputter.Logger("files", settings.LOG_LEVEL)
+
+static_crypto_blob, static_econ_blob, static_tickers_blob = None, None, None
+
+object_blob_dict = {}
 
 def determine_analysis_date_range(start_date=None, end_date=None):
     if end_date is None:
@@ -99,56 +104,98 @@ def store_local_object(local_object, value, args):
             args: { 'key_name': value, 'key_value': value }
 
     """
+    global object_blob_dict
+
     if settings.LOCAL_CACHE:
         timestamp = generate_timestamp(args=args)
         
+        file_name_2, in_memory_key = None, None
+
         if local_object == OBJECTS['correlation']:
-            # TODO: save second file 
-            logger.debug(f'Storing ({args["ticker_1"]}, {args["ticker_2"]}) correlation in local cache.')
-            file_name = f'{timestamp}_{args["ticker_1"]}_{args["ticker_2"]}_{settings.CACHE_COR_KEY}.{settings.FILE_EXT}'
-            file_name_2 = f'{timestamp}_{args["ticker_2"]}_{args["ticker_1"]}_{settings.CACHE_COR_KEY}.{settings.FILE_EXT}'
-        if local_object == OBJECTS['prices']:
-            logger.debug(f'Storing {args["ticker"]} price history in local cache.')
-            file_name = f'{timestamp}_{args["ticker"]}_{settings.CACHE_PRICE_KEY}.{settings.FILE_EXT}'
-        if local_object == OBJECTS['risk_profile']:
-            logger.debug(f'Storing {args["ticker"]} risk profile in local cache.')
-            file_name = f'{timestamp}_{args["ticker"]}_{settings.CACHE_PRO_KEY}.{settings.FILE_EXT}'
-        if local_object == OBJECTS['dividends']:
-            logger.debug(f'Checking for {args["ticker"]} dividend history in local cache.')
-            file_name = os.path.join(settings.CACHE_DIR, f'{timestamp}_{args["ticker"]}_{settings.CACHE_DIV_KEY}.{settings.FILE_EXT}')
-        if local_object == OBJECTS['statistic']:
-            file_name = os.path.join(settings.CACHE_DIR, f'{timestamp}_{args["stat_symbol"]}_{settings.CACHE_STAT_KEY}.{settings.FILE_EXT}')
-        if local_object == OBJECTS['equity_statistic']:
-            file_name = os.path.join(settings.CACHE_DIR,f'{timestamp}_{args["ticker"]}_{args["equity_stat_symbol"]}_{settings.CACHE_EQUITY_KEY}.{settings.FILE_EXT}')
-        if local_object == OBJECTS['api_key']:
+            in_memory_key_1=f'{args["ticker_1"]}_{args["ticker_2"]}_{settings.CACHE_COR_KEY}'
+            in_memory_key_2=f'{args["ticker_2"]}_{args["ticker_1"]}_{settings.CACHE_COR_KEY}'
+            
+            logger.debug(f'Storing {in_memory_key_1} in-memory')
+            object_blob_dict[in_memory_key_1], object_blob_dict[in_memory_key_2] = value, value
+            
+            file_name = f'{timestamp}_{in_memory_key_1}.{settings.FILE_EXT}'
+            file_name_2 = f'{timestamp}_{in_memory_key_2}.{settings.FILE_EXT}'
+        
+        elif local_object == OBJECTS['prices']:
+            in_memory_key = f'{args["ticker"]}_{settings.CACHE_PRICE_KEY}'
+
+        elif local_object == OBJECTS['risk_profile']:
+            in_memory_key = f'{args["ticker"]}_{settings.CACHE_PRO_KEY}'
+
+        elif local_object == OBJECTS['dividends']:
+            in_memory_key=f'{args["ticker"]}_{settings.CACHE_DIV_KEY}'
+        
+        elif local_object == OBJECTS['statistic']:
+            in_memory_key = f'{args["stat_symbol"]}_{settings.CACHE_STAT_KEY}'
+        
+        elif local_object == OBJECTS['equity_statistic']:
+            in_memory_key = f'{args["ticker"]}_{args["equity_stat_symbol"]}_{settings.CACHE_EQUITY_KEY}'
+        
+        elif local_object == OBJECTS['api_key']:
             file_name = os.path.join(settings.COMMON_DIR, f'{args["key_name"]}.{settings.FILE_EXT}')
         
-        buffer_store= os.path.join(settings.CACHE_DIR, file_name)
-        return save_file(file_to_save=value, file_name=buffer_store)
-    return False
+
+        if in_memory_key is not None:
+            logger.debug(f'Storing {in_memory_key} in-memory')
+            object_blob_dict[in_memory_key] = value
+            file_name = os.path.join(settings.CACHE_DIR,f'{timestamp}_{in_memory_key}.{settings.FILE_EXT}')
+
+        if file_name_2 is not None:
+            buffer_store= os.path.join(settings.CACHE_DIR, file_name_2)
+            save_file(file_to_save=value, file_name=buffer_store)
+
+        if file_name is not None:
+            logger.debug(f'Storing {file_name} in local cache')
+            buffer_store= os.path.join(settings.CACHE_DIR, file_name)
+            return save_file(file_to_save=value, file_name=buffer_store) 
+
+        return None
+
+    return None
 
 def retrieve_local_object(local_object, args):
+    global object_blob_dict
+
     if settings.LOCAL_CACHE:
         timestamp = generate_timestamp(args=args)
-
+        in_memory_key = None
+        
         if local_object == OBJECTS['correlation']:
-            buffer_store_1= os.path.join(settings.CACHE_DIR, f'{timestamp}_{args["ticker_1"]}_{args["ticker_2"]}_{settings.CACHE_COR_KEY}.{settings.FILE_EXT}')
-            buffer_store_2= os.path.join(settings.CACHE_DIR, f'{timestamp}_{args["ticker_2"]}_{args["ticker_1"]}_{settings.CACHE_COR_KEY}.{settings.FILE_EXT}')
+            in_memory_key_1=f'{args["ticker_1"]}_{args["ticker_2"]}_{settings.CACHE_COR_KEY}'
+            in_memory_key_2=f'{args["ticker_2"]}_{args["ticker_1"]}_{settings.CACHE_COR_KEY}'
 
-            logger.debug(f'Checking for ({args["ticker_1"]}, {args["ticker_2"]}) correlation calculation in local cache.')
+            logger.debug(f'Checking for {in_memory_key_1}')
+
+            if in_memory_key_1 in object_blob_dict.keys():
+                logger.debug(f'Loading in-memory {in_memory_key_1}')
+                return object_blob_dict[in_memory_key_1]
+            if in_memory_key_2 in object_blob_dict.keys():
+                logger.debug(f'Loading in-memomry {in_memory_key_2}')
+                return object_blob_dict[in_memory_key_2]
+
+            buffer_store_1= os.path.join(settings.CACHE_DIR, f'{timestamp}_{in_memory_key_1}.{settings.FILE_EXT}')
+            buffer_store_2= os.path.join(settings.CACHE_DIR, f'{timestamp}_{in_memory_key_2}.{settings.FILE_EXT}')
+
             if os.path.isfile(buffer_store_1):
-                logger.debug(f'Loading in cached ({args["ticker_1"]}, {args["ticker_2"]}) correlation.')
+                logger.debug(f'Loading in {in_memory_key_1} from local cache')
                 correlation = load_file(file_name=buffer_store_1)
+                object_blob_dict[in_memory_key_1] = correlation
                 return correlation
+
             if os.path.isfile(buffer_store_2):
-                logger.debug(f'Loading in cached ({args["ticker_2"]}, {args["ticker_1"]}) correlation.')
+                logger.debug(f'Loading in {in_memory_key_2} from local cache')
                 correlation = load_file(file_name=buffer_store_2)
+                object_blob_dict[in_memory_key_2] = correlation
                 return correlation
             return None
 
-        if local_object == OBJECTS['risk_profile']:
-            file_name = os.path.join(settings.CACHE_DIR, f'{timestamp}_{args["ticker"]}_{settings.CACHE_PRO_KEY}.{settings.FILE_EXT}')
-            logger.debug(f'Checking for {args["ticker"]} statistics in local cache.')
+        elif local_object == OBJECTS['risk_profile']:
+            in_memory_key =f'{args["ticker"]}_{settings.CACHE_PRO_KEY}'
         
         elif local_object == OBJECTS['prices']:
             # TODO: with different time stamp implementation, this part of the method should search for price histories that contain
@@ -166,29 +213,32 @@ def retrieve_local_object(local_object, args):
             
                     # if cached_start_date <= start_date and cached_end_date >= end_date:
                         # parsed start_date to end_date from cached_prices
-
-            file_name = os.path.join(settings.CACHE_DIR, f'{timestamp}_{args["ticker"]}_{settings.CACHE_PRICE_KEY}.{settings.FILE_EXT}')
-            logger.debug(f'Checking for {args["ticker"]} prices in local cache')
+            in_memory_key=f'{args["ticker"]}_{settings.CACHE_PRICE_KEY}'
 
         elif local_object == OBJECTS['dividends']:
-            file_name = os.path.join(settings.CACHE_DIR, f'{timestamp}_{args["ticker"]}_{settings.CACHE_DIV_KEY}.{settings.FILE_EXT}')
-            logger.debug(f'Checking for {args["ticker"]} prices in local cache')
+            in_memory_key=f'{args["ticker"]}_{settings.CACHE_DIV_KEY}'
             
         elif local_object == OBJECTS['statistic']:
-            file_name = os.path.join(settings.CACHE_DIR, f'{timestamp}_{args["stat_symbol"]}_{settings.CACHE_STAT_KEY}.{settings.FILE_EXT}')
-            logger.debug(f'Checking for {args["stat_symbol"]} statistics in local cache')
+            in_memory_key=f'{args["stat_symbol"]}_{settings.CACHE_STAT_KEY}'
         
         elif local_object == OBJECTS['equity_statistic']:
-            file_name = os.path.join(settings.CACHE_DIR,f'{timestamp}_{args["ticker"]}_{args["equity_stat_symbol"]}_{settings.CACHE_EQUITY_KEY}.{settings.FILE_EXT}')
-            logger.debug(f'Checking for {args["ticker"]}\'s {args["equity_stat_symbol"]} statistics in local cache')
+            in_memory_key=f'{args["ticker"]}_{args["equity_stat_symbol"]}_{settings.CACHE_EQUITY_KEY}'
         
         elif local_object == OBJECTS['api_key']:
             file_name = os.path.join(settings.COMMON_DIR, f'{args["key_name"]}.{settings.FILE_EXT}')
-            logger.debug(f'Checking for {args["key_name"]} API key in local commons')
+
+        if in_memory_key is not None:
+            logger.debug(f'Checking for {in_memory_key} data locally')
+
+            if in_memory_key in object_blob_dict.keys():
+                logger.debug(f'Found in-memory {in_memory_key}')
+                return object_blob_dict[in_memory_key]
+            file_name = os.path.join(settings.CACHE_DIR, f'{timestamp}_{in_memory_key}.{settings.FILE_EXT}')
 
         if file_name is not None and os.path.isfile(file_name):
-            logger.debug('Loading in local cache')
+            logger.debug(f'Loading {file_name} in local cache')
             results = load_file(file_name = file_name)
+            object_blob_dict[in_memory_key] = results
             return results
 
     return None
@@ -245,6 +295,10 @@ def init_static_data():
     -----------
     Initializes the three static files defined in  settings: `STATIC_TICKERS_FILE`, `STATIC_CRYPTO_FILE` and `STATIC_ECON_FILE`. The data for these files is retrieved from the service managers. While this function blurs the lines between file management and service management, the function has been included in the `files.py` module rather than the `services.py` module due the unique response types of static metadata. All metadata is returned a csv or zipped csvs. These responses require specialized functions. Moreover, these files should only be initialized the first time the application executes. Subsequent executions will refer to their cached versions residing in the local or containerized filesytems. 
     """
+    global static_tickers_blob
+    global static_econ_blob
+    global static_crypto_blob
+
     if ((not os.path.isfile(settings.STATIC_ECON_FILE)) or \
             (not os.path.isfile(settings.STATIC_TICKERS_FILE)) or \
                 (not os.path.isfile(settings.STATIC_CRYPTO_FILE))):
@@ -263,7 +317,7 @@ def init_static_data():
                 url = f'{settings.AV_URL}?{query}&{settings.PARAM_AV_KEY}={settings.AV_KEY}'
 
                 logger.debug(f'Preparsing to parse \'{settings.PRICE_MANAGER}\' Response to query: {query}')
-                parse_csv_response_column(column=0, url=url, firstRowHeader=settings.AV_RES_EQUITY_KEY, 
+                static_tickers_blob = parse_csv_response_column(column=0, url=url, firstRowHeader=settings.AV_RES_EQUITY_KEY, 
                                                         savefile=settings.STATIC_TICKERS_FILE)
 
             else:
@@ -276,7 +330,7 @@ def init_static_data():
                 url = settings.AV_CRYPTO_LIST
 
                 logger.debug(f'Preparsing to parse \'{settings.PRICE_MANAGER}\' Response to query: {query}')
-                parse_csv_response_column(column=0, url=url, firstRowHeader=settings.AV_RES_CRYPTO_KEY, 
+                static_crypto_blob = parse_csv_response_column(column=0, url=url, firstRowHeader=settings.AV_RES_CRYPTO_KEY, 
                                                     savefile=settings.STATIC_CRYPTO_FILE)
             else:
                 logger.info("No PRICE_MANAGER set in .env file!")
@@ -290,7 +344,7 @@ def init_static_data():
                 url = f'{settings.Q_META_URL}/{query}?{settings.PARAM_Q_KEY}={settings.Q_KEY}'
 
                 logger.debug(f'Preparsing to parse \'{settings.PRICE_MANAGER}\' Response to query: {query}')
-                parse_csv_response_column(column=0, url=url, firstRowHeader=settings.Q_RES_STAT_KEY,
+                static_econ_blob = parse_csv_response_column(column=0, url=url, firstRowHeader=settings.Q_RES_STAT_KEY,
                                                     savefile=settings.STATIC_ECON_FILE, zipped=settings.Q_RES_STAT_ZIP_KEY)
 
             else:
@@ -309,32 +363,55 @@ def get_static_data(static_type):
     1. `static_type` : str \n
     A string corresponding to the type of static data to be retrieved. The types can be statically accessed through the ` settings` variables: ASSET_CRYPTO, ASSET_EQUITY and STAT_ECON. \n \n
     """
-    logger.debug(f'Loading in cached {static_type} symbols.')
-    path = None
+    path, blob = None, None
+    global static_crypto_blob 
+    global static_econ_blob 
+    global static_tickers_blob
 
     if static_type == settings.ASSET_CRYPTO:
-        path = settings.STATIC_CRYPTO_FILE
+        if static_crypto_blob is not None:
+            blob = static_crypto_blob
+        else:
+            path = settings.STATIC_CRYPTO_FILE
     
     elif static_type == settings.ASSET_EQUITY:
-        path = settings.STATIC_TICKERS_FILE
+        if static_tickers_blob:
+            blob = static_tickers_blob
+        else:
+            path = settings.STATIC_TICKERS_FILE
     
     elif static_type == settings.STAT_ECON:
-        path = settings.STATIC_ECON_FILE
+        if static_econ_blob:
+            blob = static_econ_blob
+        else:
+            path = settings.STATIC_ECON_FILE
     
     else:
-        return False
+        return None
+
+    if blob is not None:
+        logger.debug(f'Found in-memory {static_type} symbols.')
+        return blob
 
     if path is not None:
         if not os.path.isfile(path):
             init_static_data()
 
+        logger.debug(f'Loading in cached {static_type} symbols.')
         with open(path, 'r') as infile:
             if settings.FILE_EXT == "json":
-                symbols = json.load(infile)   
-            # TODO: implement other file loading exts    
+                symbols = json.load(infile)
+            # TODO: implement other file loading exts 
+               
+        if static_type == settings.ASSET_CRYPTO:
+            static_crypto_blob = symbols
+        elif static_type == settings.ASSET_EQUITY:
+            static_tickers_blob = symbols
+        elif static_type == settings.STAT_ECON:
+            static_econ_blob = symbols
         return symbols
         
-    return False
+    return None
     
 # NOTE: output from get_overlapping_symbols:
 # OVERLAP = ['ABT', 'AC', 'ADT', 'ADX', 'AE', 'AGI', 'AI', 'AIR', 'AMP', 'AVT', 'BCC', 'BCD', 'BCH', 'BCX', 'BDL', 'BFT', 'BIS', 'BLK', 'BQ', 'BRX', 
@@ -436,8 +513,16 @@ def add_watchlist(new_tickers):
             json.dump(current_tickers, outfile)
         # TODO: implement other file extensions
 
+def format_profiles(profiles):
+    profiles_format = []
+    for key, value in profiles.items():
+        holding = value
+        holding['ticker'] = key
+        profiles_format.append(holding)
+    return profiles_format
+
 def format_allocation(allocation, portfolio, investment=None):
-    allocation_format = {}
+    allocation_format = []
 
     if investment is not None:
         shares = portfolio.calculate_approximate_shares(x=allocation, total=investment)
@@ -447,13 +532,14 @@ def format_allocation(allocation, portfolio, investment=None):
     annual_return = portfolio.return_function(x=allocation)
 
     for j, item in enumerate(portfolio.tickers):
-        allocation_format[j] = {}
-        allocation_format[j]['ticker'] = item
-        allocation_format[j]['allocation'] = round(allocation[j], settings.ACCURACY)
+        holding = {}
+        holding['ticker'] = item
+        holding['allocation'] = round(allocation[j], settings.ACCURACY)
         if investment is not None:
-            allocation_format[j]['shares'] = float(shares[j])
-        allocation_format[j]['annual_return'] = round(portfolio.mean_return[j], settings.ACCURACY) 
-        allocation_format[j]['annual_volatility'] = round(portfolio.sample_vol[j], settings.ACCURACY)
+            holding['shares'] = float(shares[j])
+        holding['annual_return'] = round(portfolio.mean_return[j], settings.ACCURACY) 
+        holding['annual_volatility'] = round(portfolio.sample_vol[j], settings.ACCURACY)
+        allocation_format.append(holding)
 
     json_format = {}
     json_format['holdings'] = allocation_format
@@ -467,11 +553,10 @@ def format_allocation(allocation, portfolio, investment=None):
     return json_format
 
 def format_frontier(portfolio, frontier, investment=None):
-    json_format = {}
+    json_format = []
     for i, item in enumerate(frontier):
-        json_format[f'portfolio_{i}'] = format_allocation(allocation=item, portfolio=portfolio, 
-                                                            investment=investment)
-
+        json_format.append(format_allocation(allocation=item, portfolio=portfolio, 
+                                                            investment=investment))
     return json_format
 
 def format_moving_averages(tickers, averages_output):
@@ -513,6 +598,10 @@ def format_correlation_matrix(tickers, correlation_matrix):
             response[f'{item}_{tickers[j]}_correlation'] = correlation_matrix[j][i]
     return response
     
+def save_profiles(profiles, file_name):
+    save_format = format_profiles(profiles)
+    save_file(file_to_save=save_format, file_name=file_name)
+
 def save_allocation(allocation, portfolio, file_name, investment=None):
     save_format = format_allocation(allocation=allocation, portfolio=portfolio, investment=investment)
     save_file(file_to_save=save_format, file_name=file_name)

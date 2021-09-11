@@ -22,6 +22,8 @@ The links below will take you to the registration pages for each API service Key
 [Quandl API Key Registration](https://www.quandl.com/account/api)<br>
 [IEX API Key Registration](https://iexcloud.io/)<br>
 
+Note this application optimizes across asset classes, i.e. the theoretical portfolio being constructed can be composed of equities, cryptocurrencies or both. In a future release, I would like to include fixed income assets, volatility assets (<i>VIX</i> futures, options, etc.) and other derivatives, but for now, only those two asset types are supported. I am looking for a good API that provides historical data on the other types of financial instruments before I bring them into the optimization algorithm, so if you know of one, contact me. 
+
 # Setup
 
 ## Installation
@@ -50,7 +52,7 @@ You will need Python3.8 or greater. This application depends on the following <b
 - [holidays](https://pypi.org/project/holidays/)>=0.10.4<br>
 - [PyQt5](https://pypi.org/project/PyQt5/)>=5.14<br>
 
-This libraries will be installed during the `pip` command. If you wish to use the GUI, you will alsoneed to ensure your operating system has a [Qt5](https://doc.qt.io/) library,
+This libraries will be installed during the `pip install` command. If you wish to use the GUI, you will also need to ensure your operating system has a [Qt5](https://doc.qt.io/) library,
 
 `sudo apt-get install qt5-default`
 
