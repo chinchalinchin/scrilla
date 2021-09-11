@@ -262,6 +262,10 @@ def get_time_to_next_month():
     next_month=datetime.date(year=today.year, month=(today.month+1), day=1)
     return ((next_month - today).days / 365)
 
+def get_time_to_next_year():
+    today = datetime.date.today()
+    next_year=datetime.datetime(year=today.year+1, day=1, month=1)
+    return ((next_year - today).days / 365)
 # in years
 # 365 or 252? 
 def get_time_to_next_quarter():
