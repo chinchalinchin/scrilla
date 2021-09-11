@@ -168,8 +168,8 @@ class Cashflow:
 
         return[ { 'date': date, 
                   'model_price': self.sample[date], 
-                  'actual_price': model_prices[self.sample.index(date)] } 
-                for date in self.sample ]
+                  'actual_price': model_prices[index] } 
+                for index, date in enumerate(self.sample.keys()) ]
         
     def get_growth_function(self, x):
         if self.growth_function is None:
