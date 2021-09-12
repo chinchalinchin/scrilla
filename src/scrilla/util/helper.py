@@ -47,6 +47,8 @@ def get_today():
 
 def get_last_trading_date():
     today = datetime.datetime.now()
+    if is_date_holiday(today) or is_date_weekend(today):
+        today = get_previous_business_date(today)
     trading_close_today = today.replace(hour=20)
     if today > trading_close_today:
         return today.date()

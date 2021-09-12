@@ -15,29 +15,26 @@ logger = outputter.Logger("services", settings.LOG_LEVEL)
 CLOSE_PRICE = "close"
 OPEN_PRICE = "open"
 
-class DateOrderError(Exception):
+class InputValidationError(Exception):
     def __init__(self, message):
         super().__init__(message)
 
-# TODO: if start_date = end_date, then return only todays date?
-# TODO: these functions, validate_order and validate_tradeability, should probably go in util.helper
-#       however, they won't have logging output in helper!
-def validate_order_of_dates(start_date, end_date):
-    if helper.is_date_today(start_date):
-        time_delta = (end_date - start_date).days
-        if time_delta == 0: # only valid case is end_date is also today
-            return True, start_date, end_date
-        return False, None, None
+class APIResponseError(Exception):
+    def __init__(self, message):
+        super().__init__(message)
 
-    if helper.is_date_today(end_date):
-        return True, start_date, end_date
+def validate_dates(start_date, end_date):
+    if (start_date - helper.get_today()).days > 0:
+        raise InputValidationError(f'{start_date} is in the future')
 
-    time_delta = end_date - start_date
+    if (end_date - helper.get_today()).days > 0:
+        logger.debug(f'{end_date} is in the future, setting equal to today')
+        end_date = helper.get_today()
     
-    if time_delta.days < 0:
+    if (end_date - start_date).days < 0:
         start_date, end_date = end_date, start_date
     
-    return True, start_date, end_date
+    return start_date, end_date
 
 def validate_tradeability_of_dates(start_date, end_date):
     if (start_date is not None and helper.is_date_holiday(start_date) or helper.is_date_weekend(start_date)):
@@ -53,14 +50,6 @@ def validate_tradeability_of_dates(start_date, end_date):
         logger.debug(f'Setting end date to previous business day, {end_date}.')
 
     return start_date, end_date
-
-def validate_asset_type(asset_type, ticker):
-    if asset_type is None:
-        logger.debug('No asset type provided, determining from ticker.')
-        asset_type=files.get_asset_type(ticker)  
-    else: 
-        logger.debug(f'Asset type {asset_type} provided')
-    return asset_type
 
 def parse_price_from_date(prices, date, asset_type, which_price=CLOSE_PRICE):
     """
@@ -116,28 +105,38 @@ def query_service_for_daily_price_history(ticker, start_date=None, end_date=None
     4. full: boolean \n
         Optional: If specified, will return the entire price history. Will override start_date and end_date if provided. Defaults to False. \n \n
     
+    Raises
+    ------
+    1. InputValidationException \n
+        This 
+    2. APIErrorException \n
     Notes
     -----
     By default, AlphaVantage returns the last 100 days of prices for equities, while returning the entire price history for crypto asset. If no start_date or end_date are specified, this function will truncate the crypto price histories to have a length of 100 so the price histories across asset types are the same length. 
     """
-    # TODO: price histories aren't the same length, though, because of weekends. 
-    # TODO: retrieve crypto history for len(crypto_prices) = 100 + weekends
-    # TODO: checking end and start dates for holiday/weekend in this method may 
-    #       mess up statistical calculations, i.e. statistics.py expects a sample 
-    #       of a certain size and gets a different size.
-
     ### START: ARGUMENT VALIDATION ###
-    if not full:
-        if start_date is not None and end_date is not None:
-            valid_dates, start_date, end_date = validate_order_of_dates(start_date, end_date)
-            if not valid_dates:
-                raise DateOrderError(f'{start_date} to {end_date} is not a valid date range.')
+    if asset_type is not None:
+        asset_type = files.get_asset_type(ticker) 
 
-    else:
+    if end_date is None:
+        if asset_type == settings.ASSET_CRYPTO:
+            end_date = helper.get_today()
+        else:
+            end_date = helper.get_last_trading_date()
+
+
+    if start_date is None:
+        start_date = helper.decrement_date_by_business_days(end_date, settings.DEFAULT_ANALYSIS_PERIOD)
+
+    if not full and start_date is not None and end_date is not None:
+        try:
+            start_date, end_date = validate_dates(start_date, end_date)
+        except InputValidationError as ve:
+            raise ve
+
+    elif full:
         logger.debug('Full price history requested, nulling start_date and end_date')
         start_date, end_date = None, None
-
-    asset_type = validate_asset_type(asset_type=asset_type, ticker=ticker)
     
         # Verify dates fall on trading days (i.e. not weekends or holidays) if asset_type is ASSET_EQUITY
     if asset_type == settings.ASSET_EQUITY and (start_date is not None or end_date is not None):
@@ -154,8 +153,6 @@ def query_service_for_daily_price_history(ticker, start_date=None, end_date=None
             query += f'&{settings.PARAM_AV_FUNC}={settings.ARG_AV_FUNC_EQUITY_DAILY}'
         elif asset_type == settings.ASSET_CRYPTO:
             query += f'&{settings.PARAM_AV_FUNC}={settings.ARG_AV_FUNC_CRYPTO_DAILY}&{settings.PARAM_AV_DENOM}={settings.DENOMINATION}'
-        else:
-            return False
 
             # NOTE: only need to modify EQUITY query, CRYPTO always returns full history
         if (full or start_date is not None or end_date is not None) and (asset_type == settings.ASSET_EQUITY):
@@ -170,8 +167,7 @@ def query_service_for_daily_price_history(ticker, start_date=None, end_date=None
 
             # check for bad response
         if first_element == settings.AV_RES_ERROR:
-            logger.info(prices[settings.AV_RES_ERROR])
-            return False
+            raise APIResponseError(prices[settings.AV_RES_ERROR])
 
             # check and wait for API rate limit refresh
         first_pass = True
@@ -188,8 +184,7 @@ def query_service_for_daily_price_history(ticker, start_date=None, end_date=None
 
                 # end function is daily rate limit is reached 
             if first_element == settings.AV_RES_DAY_LIMIT:
-                logger.info('Daily AlphaVantage rate limit exceeded. No more queries possible!')
-                return False
+                raise APIResponseError('Daily AlphaVantage rate limit exceeded. No more queries possible!')
         ### END: AlphaVantage Service Query ###
 
         ### START: AlphaVantage Equity Response Parsing ###
@@ -311,7 +306,7 @@ def get_daily_price_history(ticker, start_date=None, end_date=None):
     logger.debug(f'Retrieving {ticker} prices from Service Manager.')  
     prices = query_service_for_daily_price_history(ticker=ticker, start_date=start_date, end_date=end_date)
 
-    files.store_local_object(local_object=files.OBJECTS['prices'],value=prices, 
+    files.store_local_object(local_object=files.OBJECTS['prices'], value=prices, 
                                 args={"ticker": ticker, "start_date": start_date, "end_date": end_date})
     return prices
     

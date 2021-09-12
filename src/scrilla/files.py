@@ -466,8 +466,8 @@ def get_asset_type(symbol):
         #return None
         return settings.ASSET_EQUITY
     # default to equity for overlap until a better method is determined. 
-    return settings.ASSET_EQUITY
-
+    return None
+    
 def get_watchlist():
     """
     Description
