@@ -4,7 +4,7 @@ import itertools, time, requests
 # if running locally through main.py file, these imports should be replaced
 #       from . import settings, from . import files
 # annoying, but it is what it is.
-from scrilla import settings, files, errors
+from scrilla import settings, files, errors, models
 
 import util.outputter as outputter
 import util.helper as helper
@@ -225,6 +225,21 @@ def query_service_for_daily_price_history(ticker, start_date=None, end_date=None
         raise api
 
     # store prices before slicing
+
+    # TODO: will no longer need to call parse_price_from_date from outside of this module. dictionary response
+    # will be formatted to be accessed through OPEN_CLOSE and CLOSE_PRICE constants. 
+
+    # PROBLEM: the slice_prices method peels off from the first layer of the response. the parse_price_from_daet
+    #   method won't accurately parse the raw response. need to remove first layer peeling from slice_prices
+    #   and put it in the parse_price_from_date method.
+
+    # cache, parsed_prices = models.PriceCache(), {}
+    # for date in prices:
+    #   close = price_manager.parse_price_from_date(prices=prices, date=date, asset_type=asset_type)
+    #   open = price_manager.parse_price_from_date(prices=prices, date=date, asset_type=asset_type, which_price=OPEN_PRICE)
+    #   parsed_prices = { date: { 'open' : open, 'close' : close } }
+    #   cache.save_row(ticker, date, open, close)
+
     files.store_local_object(local_object=files.OBJECTS['prices'], value=prices, 
                                 args={"ticker": ticker, "end_date": end_date})
 
@@ -264,6 +279,8 @@ def get_daily_price_history(ticker, start_date=None, end_date=None, asset_type=N
         start_date, end_date = errors.validate_dates(start_date, end_date, asset_type)
     except errors.InputValidationError as ive:
         raise ive
+
+    # prices = models.PriceCache().filter_price_cache(ticker=ticker, start_date=start_date, end_date=end_date)
 
     prices = files.retrieve_local_object(local_object=files.OBJECTS['prices'], 
                                                 args={"ticker": ticker, "start_date": start_date, "end_date": end_date})

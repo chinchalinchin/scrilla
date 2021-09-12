@@ -53,17 +53,21 @@ class PriceCache(Cache):
     insert_row_query="INSERT INTO prices VALUES (:ticker, :date, :open, :close)"
     date_lte_query="SELECT * from (:date_lte_subquery) WHERE date <= date(:end_date)"
     date_gte_query="SELECT * from (:date_gte_subquery) WHERE date >= date(:start_date)"
-    ticker_query="SELECT :price from prices WHERE ticker = :ticker"
+    ticker_query="SELECT date, open, close from prices WHERE ticker = :ticker"
 
     def __init__(self):
         self.execute_transaction((PriceCache.create_table_transaction, None))
+
+    @staticmethod
+    def to_dict(query_results):
+        return { result[0]: { 'open': result[1], 'close': result[2] } for result in query_results }
 
     def save_row(self, ticker, date, open, close):
         formatter = { ticker: 'ticker', date: 'date', open: 'open', close: 'close'}
         self.execute_transaction((PriceCache.insert_row_query, formatter))
 
-    def filter_price_cache(self, ticker, price="close", start_date=None, end_date=None):
-        args = { "ticker" : ticker, "price": price }
+    def filter_price_cache(self, ticker, start_date=None, end_date=None):
+        args = { "ticker" : ticker }
 
         if end_date is not None and start_date is not None:
             query = PriceCache.date_gte_query
@@ -71,17 +75,20 @@ class PriceCache(Cache):
             args['end_date'] = end_date
             args['date_gte_subquery'] = PriceCache.date_lte_query
             args['date_lte_subquery'] = PriceCache.ticker_query
+
         elif end_date is not None and start_date is None:
             query = PriceCache.date_gte_query
             args['end_date'] = end_date
             args['date_gte_subquery'] = PriceCache.ticker_query
+
         elif end_date is None and start_date is not None:
             query = PriceCache.date_lte_query
             args['start_date'] = start_date
             args['date_lte_subquery'] = PriceCache.ticker_query
+
         else:
             query = PriceCache.ticker_query
 
-        query_args = (query, args)
+        results = self.query_database(query=query, formatter=args)
 
-        return self.query_database(query_args)
+        return self.to_dict(results)

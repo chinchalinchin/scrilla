@@ -272,6 +272,7 @@ def calculate_moving_averages(tickers, start_date=None, end_date=None, sample_pr
     
             for date in prices:
                 todays_price = services.price_manager.parse_price_from_date(prices, date, asset_type)
+                # TODO: todays_price = prices[date][services.CLOSE_PRICE]
                 if today:
                     todays_return = log(float(tomorrows_price) / float(todays_price))/trading_period
                     logger.verbose(f'todays_return == {tomorrows_price}/({todays_price}*{round(trading_period,2)}) = {todays_return}') 
@@ -290,6 +291,7 @@ def calculate_moving_averages(tickers, start_date=None, end_date=None, sample_pr
                     today = True
 
                 tomorrows_price = services.price_manager.parse_price_from_date(prices, date, asset_type)
+                # tomorrows_price = prices[date][services.CLOSE_PRICE]
 
             logger.verbose(f'(MA_1, MA_2, MA_3)_{ticker} = ({MA_1}, {MA_2}, {MA_3}')
             moving_averages.append([MA_1, MA_2, MA_3])
