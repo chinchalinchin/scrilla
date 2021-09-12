@@ -271,7 +271,7 @@ def calculate_moving_averages(tickers, start_date=None, end_date=None, sample_pr
             count, tomorrows_price, MA_1, MA_2, MA_3 = 1, 0, 0, 0, 0
     
             for date in prices:
-                todays_price = services.parse_price_from_date(prices, date, asset_type)
+                todays_price = services.price_manager.parse_price_from_date(prices, date, asset_type)
                 if today:
                     todays_return = log(float(tomorrows_price) / float(todays_price))/trading_period
                     logger.verbose(f'todays_return == {tomorrows_price}/({todays_price}*{round(trading_period,2)}) = {todays_return}') 
@@ -289,7 +289,7 @@ def calculate_moving_averages(tickers, start_date=None, end_date=None, sample_pr
                 else:
                     today = True
 
-                tomorrows_price = services.parse_price_from_date(prices, date, asset_type)
+                tomorrows_price = services.price_manager.parse_price_from_date(prices, date, asset_type)
 
             logger.verbose(f'(MA_1, MA_2, MA_3)_{ticker} = ({MA_1}, {MA_2}, {MA_3}')
             moving_averages.append([MA_1, MA_2, MA_3])
@@ -386,7 +386,7 @@ def calculate_moving_averages(tickers, start_date=None, end_date=None, sample_pr
         # See NOTE #4
         for date in prices:
             logger.verbose(f'date: {date}')
-            todays_price = services.parse_price_from_date(prices, date, asset_type)
+            todays_price = services.price_manager.parse_price_from_date(prices, date, asset_type)
 
             if today:
                 todays_return = log(float(tomorrows_price) / float(todays_price))/trading_period
@@ -467,7 +467,7 @@ def calculate_moving_averages(tickers, start_date=None, end_date=None, sample_pr
             else:
                 today = True
                 
-            tomorrows_price = services.parse_price_from_date(prices, date, asset_type)
+            tomorrows_price = services.price_manager.parse_price_from_date(prices, date, asset_type)
 
         MAs_1 = MAs_1[:original_day_count]
         MAs_2 = MAs_2[:original_day_count]
@@ -556,8 +556,8 @@ def calculate_risk_return(ticker, start_date=None, end_date=None, sample_prices=
     # NOTE: mean return is a telescoping series, i.e. sum of log(x1/x0) only depends on the first and
     # last terms' contributions (because log(x1/x0) + log(x2/x1)= log(x2) - log(x1) + log(x1) - log(x0)) = log(x2/x0))
     # which raises the question how accurate of a measure the population mean is of the mean rate of return for an asset?
-    last_price = services.parse_price_from_date(prices, list(prices)[0], asset_type)
-    first_price = services.parse_price_from_date(prices, list(prices)[-1], asset_type)
+    last_price = services.price_manager.parse_price_from_date(prices, list(prices)[0], asset_type)
+    first_price = services.price_manager.parse_price_from_date(prices, list(prices)[-1], asset_type)
     mean_return = log(float(last_price)/float(first_price))/(trading_period*sample)
     
     # calculate sample annual volatility
@@ -566,7 +566,7 @@ def calculate_risk_return(ticker, start_date=None, end_date=None, sample_prices=
     logger.debug(f'Calculating mean annual volatility over last {sample+1} days for {ticker}')
 
     for date in prices:
-        todays_price = services.parse_price_from_date(prices, date, asset_type)
+        todays_price = services.price_manager.parse_price_from_date(prices, date, asset_type)
 
         if today:
             logger.verbose(f'{date}: (todays_price, tomorrows_price) = ({todays_price}, {tomorrows_price})')
@@ -589,7 +589,7 @@ def calculate_risk_return(ticker, start_date=None, end_date=None, sample_prices=
         else:
             today = True
 
-        tomorrows_price = services.parse_price_from_date(prices, date, asset_type)
+        tomorrows_price = services.price_manager.parse_price_from_date(prices, date, asset_type)
         tomorrows_date = date
 
     # adjust for output
@@ -715,8 +715,8 @@ def calculate_ito_correlation(ticker_1, ticker_2, asset_type_1=None, asset_type_
     ### NOTE: should calculate time delta manually instead of using constant trading_period...
     ### NOTE: losing a sample affects the mean. can't use same mean. that's why inter-asset correlation is off. i think.
     for date in sample_prices[ticker_1]:
-        todays_price_1 = services.parse_price_from_date(sample_prices[ticker_1], date, asset_type_1)
-        todays_price_2 = services.parse_price_from_date(sample_prices[ticker_2], date, asset_type_2)
+        todays_price_1 = services.price_manager.parse_price_from_date(sample_prices[ticker_1], date, asset_type_1)
+        todays_price_2 = services.price_manager.parse_price_from_date(sample_prices[ticker_2], date, asset_type_2)
         logger.verbose(f'(todays_date, todays_price_{ticker_1}, todays_price_{ticker_2}) = ({date}, {todays_price_1}, {todays_price_2})')
             
         if today:

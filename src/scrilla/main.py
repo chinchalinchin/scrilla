@@ -362,7 +362,7 @@ def do_program():
                         asset_type = files.get_asset_type(symbol=arg)
                         all_prices[arg] = {}
                         for date in prices:
-                            price = services.parse_price_from_date(prices=prices, date=date, asset_type=asset_type)
+                            price = services.price_manager.parse_price_from_date(prices=prices, date=date, asset_type=asset_type)
                             outputter.scalar_result(calculation=f'{arg}({date})', result = float(price))
                             all_prices[arg][date] = price
                     if xtra_list['save_file'] is not None:

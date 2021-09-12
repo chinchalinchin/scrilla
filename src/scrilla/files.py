@@ -35,18 +35,14 @@ static_crypto_blob, static_econ_blob, static_tickers_blob = None, None, None
 
 object_blob_dict = {}
 
-def determine_analysis_date_range(start_date=None, end_date=None):
-    if end_date is None:
-        end_date = helper.get_previous_business_date(date=helper.get_today())
-    if start_date is None:
-        start_date = helper.decrement_date_by_business_days(end_date, settings.DEFAULT_ANALYSIS_PERIOD)
-    return start_date, end_date
-
-def generate_timestamp(args):
-    start_date = args.get('start_date')
-    end_date = args.get('end_date')
-    start_date, end_date = determine_analysis_date_range(start_date=start_date, end_date=end_date)
-    timestamp = '{}_{}'.format(helper.date_to_string(start_date),helper.date_to_string(end_date))
+def generate_timestamp(args, price_flag):
+    if price_flag:
+        end_date = args.get('end_date')
+        timestamp = helper.date_to_string(end_date)
+    else:
+        start_date = args.get('start_date')
+        end_date = args.get('end_date')
+        timestamp = '{}_{}'.format(helper.date_to_string(end_date), helper.date_to_string(start_date))
     return timestamp
 
 def load_file(file_name):
@@ -63,10 +59,25 @@ def save_file(file_to_save, file_name):
                 json.dump(file_to_save, outfile)
                 return True
             except Exception as e:
-                logger.info(f'A {e.__class__} exception occured.')
+                logger.debug(f'A {e.__class__} exception occured.')
                 return False
             
         # TODO: implement other file saving extensions.
+
+def filter_price_cache(end_date, ticker):
+    date = helper.parse_date_string(end_date)
+
+    filenames = [f for f in os.listdir(settings.CACHE_DIR) if 
+                        (os.path.isfile(os.path.join(settings.CACHE_DIR, f))
+                            and ticker in f and settings.CACHE_PRICE_KEY in f)]
+
+    for filename in filenames:
+        cached_date = helper.parse_date_string(filename.split('_')[0])
+        if (cached_date - date).days > 0 or (cached_date - date).days == 0:
+            return filename
+    
+    return None
+
 
 
 def store_local_object(local_object, value, args):
@@ -107,7 +118,8 @@ def store_local_object(local_object, value, args):
     global object_blob_dict
 
     if settings.LOCAL_CACHE:
-        timestamp = generate_timestamp(args=args)
+        price_flag = (local_object == OBJECTS['prices'])
+        timestamp = generate_timestamp(args=args, price_flag=price_flag)
         
         file_name_2, in_memory_key = None, None
 
@@ -138,8 +150,8 @@ def store_local_object(local_object, value, args):
         
         elif local_object == OBJECTS['api_key']:
             file_name = os.path.join(settings.COMMON_DIR, f'{args["key_name"]}.{settings.FILE_EXT}')
+            return save_file(file_to_save=value, file_name=file_name)
         
-
         if in_memory_key is not None:
             logger.debug(f'Storing {in_memory_key} in-memory')
             object_blob_dict[in_memory_key] = value
@@ -198,22 +210,10 @@ def retrieve_local_object(local_object, args):
             in_memory_key =f'{args["ticker"]}_{settings.CACHE_PRO_KEY}'
         
         elif local_object == OBJECTS['prices']:
-            # TODO: with different time stamp implementation, this part of the method should search for price histories that contain
-            # the range in start_date and end_date.
+            file_name = filter_price_cache(ticker = args['ticker'], end_date=args['end_date'])
+            if file_name is None:
+                in_memory_key=f'{args["ticker"]}_{settings.CACHE_PRICE_KEY}'
 
-            # start_date, end_date = args.get('start_date'), args.get('end_date')
-            # start_date, end_date = determine_analysis_date_range(start_date, end_date)
-
-            # for file in path(settings.CACHE_DIR) or whatever:
-                # key_check = f'{args["ticker"]}_{settings.CACHE_PRICE_KEY}'
-                # if key_check in file.name:
-                    # components = file.name.split('_')
-                    # cached_start_date = parsed_date(components[0])
-                    # cached_end_date = parsed_date(components[1])
-            
-                    # if cached_start_date <= start_date and cached_end_date >= end_date:
-                        # parsed start_date to end_date from cached_prices
-            in_memory_key=f'{args["ticker"]}_{settings.CACHE_PRICE_KEY}'
 
         elif local_object == OBJECTS['dividends']:
             in_memory_key=f'{args["ticker"]}_{settings.CACHE_DIV_KEY}'
@@ -233,6 +233,7 @@ def retrieve_local_object(local_object, args):
             if in_memory_key in object_blob_dict.keys():
                 logger.debug(f'Found in-memory {in_memory_key}')
                 return object_blob_dict[in_memory_key]
+
             file_name = os.path.join(settings.CACHE_DIR, f'{timestamp}_{in_memory_key}.{settings.FILE_EXT}')
 
         if file_name is not None and os.path.isfile(file_name):

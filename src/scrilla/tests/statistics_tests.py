@@ -153,16 +153,16 @@ def rolling_recursion_tests_with_financial_data():
             del previous_prices[helper.date_to_string(end_date)]
             del new_prices[helper.date_to_string(previous_start_date)]
             
-            end_date_price = services.parse_price_from_date(prices=prices,
+            end_date_price = services.price_manager.parse_price_from_date(prices=prices,
                                                             date=helper.date_to_string(end_date), 
                                                             asset_type=settings.ASSET_EQUITY)
-            previous_end_date_price = services.parse_price_from_date(prices=prices, 
+            previous_end_date_price = services.price_manager.parse_price_from_date(prices=prices, 
                                                             date=helper.date_to_string(previous_end_date), 
                                                             asset_type=settings.ASSET_EQUITY)
-            start_date_price = services.parse_price_from_date(prices=prices,
+            start_date_price = services.price_manager.parse_price_from_date(prices=prices,
                                                             date=helper.date_to_string(start_date), 
                                                             asset_type=settings.ASSET_EQUITY)
-            previous_start_date_price = services.parse_price_from_date(prices=prices,
+            previous_start_date_price = services.price_manager.parse_price_from_date(prices=prices,
                                                             date=helper.date_to_string(previous_start_date),
                                                             asset_type=settings.ASSET_EQUITY)
 
