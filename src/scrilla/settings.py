@@ -115,6 +115,8 @@ FILE_EXT = os.environ.setdefault("FILE_EXT", "json")
 KEEP_EXT = ".gitkeep"
 
 CACHE_DIR = os.path.join(APP_DIR, 'data', 'cache')
+CACHE_SQLITE_FILE = os.path.join(CACHE_DIR, 'scrilla.db')
+
 CACHE_PRO_KEY="profile"
 CACHE_PRICE_KEY="prices"
 CACHE_COR_KEY="correlation"
