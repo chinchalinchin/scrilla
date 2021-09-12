@@ -23,33 +23,42 @@ class APIResponseError(Exception):
     def __init__(self, message):
         super().__init__(message)
 
-def validate_dates(start_date, end_date):
-    if (start_date - helper.get_today()).days > 0:
-        raise InputValidationError(f'{start_date} is in the future')
 
-    if (end_date - helper.get_today()).days > 0:
-        logger.debug(f'{end_date} is in the future, setting equal to today')
-        end_date = helper.get_today()
-    
-    if (end_date - start_date).days < 0:
-        start_date, end_date = end_date, start_date
-    
-    return start_date, end_date
+def validate_dates(start_date, end_date, asset_type):
+    # verify dates are in order if they exist
+    if end_date is not None and start_date is not None:
+        start_date, end_date = helper.validate_order_of_dates(start_date, end_date)
 
-def validate_tradeability_of_dates(start_date, end_date):
-    if (start_date is not None and helper.is_date_holiday(start_date) or helper.is_date_weekend(start_date)):
-        logger.debug(f'{start_date} is invalid. Equities do not trade on holidays or weekends.')
+    # if end date exists, make sure it is valid
+    if end_date is not None:
+        end_date = helper.truncate_future_from_date(end_date)
+        if asset_type == settings.ASSET_EQUITY and not helper.is_trading_date(end_date):
+            end_date = helper.get_previous_business_date(end_date)
+    # else create a sensible end date
+    else:
+        if asset_type == settings.ASSET_CRYPTO:
+            end_date = helper.get_today()
+        else:
+            end_date = helper.get_last_trading_date()        
 
-        start_date = helper.get_previous_business_date(start_date)
-        logger.debug(f'Setting start date to next business day, {start_date}')
+    # if start date exists, make sure it is valide
+    if start_date is not None:
+        if helper.is_future_date(start_date):
+            # only invalid user input is if start date doesn't exist yet
+            raise InputValidationError(f'Start Date of {helper.date_to_string(start_date)} is in the future')
 
-    if (end_date is not None and helper.is_date_holiday(end_date) or helper.is_date_weekend(end_date)):
-        logger.debug(f'{end_date} is invalid. Equities do not trade on holidays or weekends.')
+        if asset_type == settings.ASSET_EQUITY and not helper.is_trading_date(start_date):
+            start_date = helper.get_previous_business_date(start_date)
 
-        end_date = helper.get_previous_business_date(end_date)
-        logger.debug(f'Setting end date to previous business day, {end_date}.')
+    # else create a sensible start date
+    else:
+        if asset_type == settings.ASSET_CRYPTO:
+            start_date = helper.decrement_date_by_days(end_date, settings.DEFAULT_ANALYSIS_PERIOD)
+        else:
+            start_date = helper.decrement_date_by_business_days(end_date, settings.DEFAULT_ANALYSIS_PERIOD)
 
-    return start_date, end_date
+    return start_date, end_date    
+
 
 def parse_price_from_date(prices, date, asset_type, which_price=CLOSE_PRICE):
     """
@@ -88,7 +97,7 @@ def parse_price_from_date(prices, date, asset_type, which_price=CLOSE_PRICE):
         logger.debug('Price unable to be parsed from date.')
         return None
 
-def query_service_for_daily_price_history(ticker, start_date=None, end_date=None, asset_type=None, full=False):
+def query_service_for_daily_price_history(ticker, start_date=None, end_date=None, asset_type=None):
     """
     Description
     -----------
@@ -96,52 +105,30 @@ def query_service_for_daily_price_history(ticker, start_date=None, end_date=None
 
     Parameters
     ----------
-    1. tickers : [ str ] \n
-        Required. List of ticker symbols corresponding to the price histories to be retrieved. \n \n
+    1. ticker : [ str ] \n
+        Required. Ticker symbol corresponding to the price history to be retrieved. \n \n
     2. start_date : datetime.date \n 
-        Optional. Start date of price history. Defaults to None. \n \n
+        Optional. Start date of price history. Defaults to None. If `start_date is None`, the calculation is made as if the `start_date` were set to 100 trading days ago. If `get_asset_type(ticker)=="crypto"`, this includes weekends and holidays. If `get_asset_type(ticker)=="equity"`, this excludes weekends and holidays. \n \n
     3. end_date : datetime.date \n 
-        Optional: End date of price history. Defaults to None. \n \n
-    4. full: boolean \n
-        Optional: If specified, will return the entire price history. Will override start_date and end_date if provided. Defaults to False. \n \n
-    
+        Optional End date of price history. Defaults to None. If `end_date is None`, the calculation is made as if the `end_date` were set to today. If `get_asset_type(ticker)=="crypto"`, this means today regardless. If `get_asset_type(ticker)=="equity"`, this excludes weekends and holidays and `end_date` is set to the previous business date. \n \n
+    4. asset_type : string \n
+        Optional. Asset type of the ticker whose history is to be retrieved. Used to prevent excessive calls to IO and list searching. `asset_type` is determined by comparing the ticker symbol `ticker` to a large static list of ticker symbols maintained in installation directory's /data/static/ subdirectory, which can slow the program down if the file is constantly accessed and lots of comparison are made against it. Once an asset_type is calculated, it is best to preserve it in the process environment somehow, so this function allows the value to be passed in. If no value is detected, it will make a call to the aforementioned directory and parse the file to determine to the `asset_type`. There may be a better way of doing this, in fact I imagine there is, but for now, this works. If it starts getting too complicated as the program grows, this is the first area that should be refactored, i.e. how to preserve a ticker's asset type in memory instead of determining it from a large IO file. 
     Raises
     ------
     1. InputValidationException \n
-        This 
     2. APIErrorException \n
+
     Notes
     -----
-    By default, AlphaVantage returns the last 100 days of prices for equities, while returning the entire price history for crypto asset. If no start_date or end_date are specified, this function will truncate the crypto price histories to have a length of 100 so the price histories across asset types are the same length. 
+    The default analysis period, if no `start_date` and `end_date` are specified, is determined by the *DEFAULT_ANALYSIS_PERIOD* variable in the `settings,py` file. The hardcoded value of this setting is 100. Should probably put this variable into the enviroment in the future and allow user to configure it. 
     """
-    ### START: ARGUMENT VALIDATION ###
     if asset_type is not None:
         asset_type = files.get_asset_type(ticker) 
 
-    if end_date is None:
-        if asset_type == settings.ASSET_CRYPTO:
-            end_date = helper.get_today()
-        else:
-            end_date = helper.get_last_trading_date()
-
-
-    if start_date is None:
-        start_date = helper.decrement_date_by_business_days(end_date, settings.DEFAULT_ANALYSIS_PERIOD)
-
-    if not full and start_date is not None and end_date is not None:
-        try:
-            start_date, end_date = validate_dates(start_date, end_date)
-        except InputValidationError as ve:
-            raise ve
-
-    elif full:
-        logger.debug('Full price history requested, nulling start_date and end_date')
-        start_date, end_date = None, None
-    
-        # Verify dates fall on trading days (i.e. not weekends or holidays) if asset_type is ASSET_EQUITY
-    if asset_type == settings.ASSET_EQUITY and (start_date is not None or end_date is not None):
-        start_date, end_date = validate_tradeability_of_dates(start_date, end_date)
-    ### END: Argument Validation ###
+    try:
+        validate_dates(start_date, end_date, asset_type)
+    except InputValidationError as ive:
+        raise ive
 
     ### START: Service Query ###
     if settings.PRICE_MANAGER == "alpha_vantage":
@@ -155,7 +142,7 @@ def query_service_for_daily_price_history(ticker, start_date=None, end_date=None
             query += f'&{settings.PARAM_AV_FUNC}={settings.ARG_AV_FUNC_CRYPTO_DAILY}&{settings.PARAM_AV_DENOM}={settings.DENOMINATION}'
 
             # NOTE: only need to modify EQUITY query, CRYPTO always returns full history
-        if (full or start_date is not None or end_date is not None) and (asset_type == settings.ASSET_EQUITY):
+        if (asset_type == settings.ASSET_EQUITY):
             query += f'&{settings.PARAM_AV_SIZE}={settings.ARG_AV_SIZE_FULL}'
 
         auth_query = query + f'&{settings.PARAM_AV_KEY}={settings.AV_KEY}'

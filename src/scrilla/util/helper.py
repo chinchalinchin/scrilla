@@ -64,9 +64,9 @@ def validate_date_string(parsed_date_string):
 
 def validate_order_of_dates(start_date, end_date):
     delta = (end_date - start_date).days
-    if delta > 0 or delta == 0:
-        return start_date, end_date
-    return end_date, start_date
+    if delta < 0:
+        return end_date, start_date
+    return start_date, end_date
 
 # YYYY-MM-DD
 def parse_date_string(date_string) -> datetime.date:
@@ -118,6 +118,15 @@ def is_date_string_today(date) -> bool:
 def is_date_weekend(date) -> bool:
     return date.weekday() in [5, 6]
 
+
+def is_future_date(date):
+    return (date - get_today()).days > 0
+
+def truncate_future_from_date(date):
+    if is_future_date(date):
+        return get_today()
+    return date
+
 # YYYY-MM-DD
 def is_date_string_weekend(date_string) -> bool:
     return is_date_weekend(parse_date_string(date_string))
@@ -130,6 +139,8 @@ def is_date_holiday(date_string) -> bool:
 def is_date_string_holiday(date) -> bool:
     return is_date_holiday(parse_date_string(date))
 
+def is_trading_date(date):
+    return not is_date_weekend(date) and not is_date_holiday(date)
 
 # YYYY-MM-DD
 def get_holidays_between(start_date_string, end_date_string) -> int:

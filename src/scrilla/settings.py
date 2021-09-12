@@ -143,64 +143,68 @@ LOCAL_CACHE = os.environ.setdefault('LOCAL_CACHE_ENABLED', 'true').strip().lower
 POPUP_WIDTH, POPUP_HEIGHT = 150, 150
 
 try:
-    GUI_WIDTH = int(os.getenv('GUI_WIDTH'))
+    GUI_WIDTH = int(os.environ.setdefault('GUI_WIDTH', '800'))
 except (ValueError, TypeError) as ParseError: 
     logger.debug('Failed to parse GUI_WIDTH from environment. Setting to default value of 800.')
     GUI_WIDTH = 800
-    os.environ['GUI_WIDTH'] = str(GUI_WIDTH)
+    os.environ['GUI_WIDTH'] = '800'
 
 try:
-    GUI_HEIGHT = int(os.getenv('GUI_HEIGHT'))
+    GUI_HEIGHT = int(os.environ.setdefault('GUI_HEIGHT', '800'))
 except (ValueError, TypeError) as ParseError:
     logger.debug('Failed to parse GUI_HEIGHT from enviroment. Setting to default value of 800.')
     GUI_HEIGHT = 800
-    os.environ['GUI_HEIGHT'] = str(GUI_HEIGHT)
-
+    os.environ['GUI_HEIGHT'] = '800'
 
 ## FINANCIAL ALGORITHM CONFIGURATION
 
 OPTIMIZATION_METHOD="SLSQP"
 
 try:
-    FRONTIER_STEPS = int(os.getenv('FRONTIER_STEPS'))
-
+    FRONTIER_STEPS = int(os.environ.setdefault('FRONTIER_STEPS', '5'))
 except (ValueError, TypeError) as ParseError:
     logger.debug('Failed to parse FRONTIER_STEPS from enviroment. Setting to default value of 5.')
     FRONTIER_STEPS = 5
-    os.environ['FRONTIER_STEPS'] = str(FRONTIER_STEPS)
+    os.environ['FRONTIER_STEPS'] = '5'
 
 try:
-    MA_1_PERIOD = int(os.getenv('MA_1'))
+    MA_1_PERIOD = int(os.environ.setdefault('MA_1', '20'))
 except (ValueError, TypeError) as ParseError: 
     logger.debug('Failed to parse MA_1 from environment. Setting to default value of 20.')
     MA_1_PERIOD = 20
-    os.environ['MA_1'] = str(MA_1_PERIOD)
+    os.environ['MA_1'] = '20'
 
 try:
-    MA_2_PERIOD = int(os.getenv('MA_2'))
+    MA_2_PERIOD = int(os.environ.setdefault('MA_2', '60'))
 except (ValueError, TypeError) as ParseError: 
     logger.debug('Failed to parse MA_2 from environment. Setting to default value of 60.')
     MA_2_PERIOD = 60
-    os.environ['MA_2'] = str(MA_2_PERIOD)
+    os.environ['MA_2'] = '60'
 
 try:
-    MA_3_PERIOD = int(os.getenv('MA_3'))
+    MA_3_PERIOD = int(os.environ.setdefault('MA_3', '100'))
 except (ValueError, TypeError) as ParseError: 
     logger.debug('Failed to parse MA_3 from environment. Setting to default value of 100.')
     MA_3_PERIOD = 100
-    os.environ['MA_3'] = str(MA_3_PERIOD)
+    os.environ['MA_3'] = '100'
 
 try:
-    ITO_STEPS = int(os.getenv('ITO_STEPS'))
+    ITO_STEPS = int(os.environ.setdefault('ITO_STEPS', '10000'))
 except (ValueError, TypeError) as ParseError:
-    logger.debug('Failed to parsed ITO_STEPS from environment. Setting to default of 10000.')
+    logger.debug('Failed to parse ITO_STEPS from environment. Setting to default of 10000.')
     ITO_STEPS = 10000
-    os.environ['ITO_STEPS'] = str(ITO_STEPS)
+    os.environ['ITO_STEPS'] = '10000'
+
+try:
+    DEFAULT_ANALYSIS_PERIOD=int(os.environ.setdefault('DEFAULT_ANALYSIS_PERIOD', '100'))
+except:
+    logger.debug('Failed to parse DEFAULT_ANALYSIS_PERIOD from environment. Setting to default of 100.')
+    DEFAULT_ANALYSIS_PERIOD=100
+    os.environ['DEFAULT_ANALYSIS_PERIOD']=100
 
 ONE_TRADING_DAY=(1/252)
 
 # Number of days
-DEFAULT_ANALYSIS_PERIOD=100
 
 PRICE_YEAR_CUTOFF=1950
 
