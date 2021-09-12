@@ -666,7 +666,10 @@ def calculate_ito_correlation(ticker_1, ticker_2, asset_type_1=None, asset_type_
         sample_prices[ticker_1] = services.get_daily_price_history(ticker=ticker_1, start_date=start_date, end_date=end_date)
         sample_prices[ticker_2] = services.get_daily_price_history(ticker=ticker_2, start_date=start_date, end_date=end_date)
         
-    if (len(sample_prices[ticker_1]) == 0) or (len(sample_prices[ticker_2]) == 0):
+    if (len(sample_prices[ticker_1]) == 0) \
+        or (len(sample_prices[ticker_2]) == 0 \
+        or len(sample_prices[ticker_1]) != len(sample_prices[ticker_2]) \
+        or len(helper.intersect_dict_keys(sample_prices[ticker_1], sample_prices[ticker_2]) == 0)):
         raise PriceError("Prices cannot be retrieved for correlation calculation")
     
     if asset_type_1 != asset_type_2:
