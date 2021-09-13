@@ -259,13 +259,13 @@ The four functions of interest in this module are:
     Before deferring to the `PriceManager` and letting it call the external service, however, this function checks if response is in local cache. If the response is not in the cache, it will pass the request off to `PriceManager` and then save the resposne in the cache so subsequent calls to the function can bypass the service request. Used to prevent excessive external HTTP requests and improve the performance of the application. Other parts of the program should interface with the external price data services through this function to utilize the cache functionality. 
     <br><br>
     <b>Arguments:</b><br>
-    1. ticker :  `str`  
+    1. ticker :  `str`<br>
         Required. Ticker symbol corresponding to the price history to be retrieved. <br>
-    2. start_date : `datetime.date`  
+    2. start_date : `datetime.date`<br>  
         Optional. Start date of price history. Defaults to None. If `start_date is None`, the calculation is made as if the `start_date` were set to 100 trading days ago. If `get_asset_type(ticker)=="crypto"`, this includes weekends and holidays. If `get_asset_type(ticker)=="equity"`, this excludes weekends and holidays. <br>
-    3. end_date : `datetime.date` 
+    3. end_date : `datetime.date`<br> 
         Optional End date of price history. Defaults to None. If `end_date is None`, the calculation is made as if the `end_date` were set to today. If `get_asset_type(ticker)=="crypto"`, this means today regardless. If `get_asset_type(ticker)=="equity"`, this excludes weekends and holidays so that `end_date` is set to the previous business date. <br>
-    4. asset_type : `str`
+    4. asset_type : `str`<br>
         Optional. Asset type of the ticker whose history is to be retrieved. Used to prevent excessive calls to IO and list searching. `asset_type` is determined by comparing the ticker symbol `ticker` to a large static list of ticker symbols maintained in installation directory's <i>/data/static/</i> subdirectory, which can slow the program down if the file is constantly accessed and lots of comparison are made against it. Once an `asset_type` is calculated, it is best to preserve it in the process environment somehow, so this function allows the value to be passed in. If no value is detected, it will make a call to the aforementioned directory and parse the file to determine to the `asset_type`. Asset types are statically accessible through the `scrilla.static.keys['ASSETS']` dictionary.<br>
 
     <b>Returns:</b><br>
