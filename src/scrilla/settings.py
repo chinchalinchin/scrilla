@@ -37,8 +37,6 @@ Attributes
 13. STATIC_ECON_FILE: File containg a list of all economic statistics with sample histories that can be retrieved from external services. \n \n
 14. STATIC_CRYPTO_FILE: File containing a list of all crypto ticker symbols with price histories that can be retrieved from external services. \n \n
 15. ACCURACY: Number of decimals place saved in calculations. \n \n
-16. POPUP_WIDTH: Width of popup that prompts for API keys. \n \n
-17. POPUP_HEIGHT: Height of popup that prompts for API keys. \n \n
 18. GUI_WIDTH: Width of root widget in GUI. \n \n
 19. GUI_HEIGHT: Height of root widget in GUI. \n \n
 20. OPTIMIZATION_METHOD: Scipy method used to optimize portfolios. \n \n
@@ -53,8 +51,6 @@ Attributes
 29. NPV_DELTA_TOLERANCE: NPV calculations stop when the next value adds less than this amount. \n \n 
 29. RISK_FREE_RATE: Interest rate used for cashflow valuations. \n \n
 30. MARKET_PROXY: Ticker symbol used to calculate market rate of return
-28. ASSET_EQUITY: Constant for assets of type equity. \n \n
-29. ASSET_CRYPTO: Constant for assets of type crypto. \n \n
 30. STAT_ECON: Constant for economic statistics. \n \n
 31. INIT: Flag to initialize STATIC_DIR \n \n
 32. PRICE_MANAGER: Service in charge of price histories. \n \n
@@ -133,17 +129,12 @@ STATIC_CRYPTO_FILE = os.path.join(STATIC_DIR, f'crypto.{FILE_EXT}')
 COMMON_DIR=os.path.join(APP_DIR, 'data', 'common')
 COMMON_WATCHLIST_FILE=os.path.join(COMMON_DIR, f'watchlist.{FILE_EXT}')
 
-ACCURACY=5
-
-BACKOFF_PERIOD=30
+ACCURACY, BACKOFF_PERIOD=5, 30
 
 # See .sample.env for more information.
 LOCAL_CACHE = os.environ.setdefault('LOCAL_CACHE_ENABLED', 'true').strip().lower() == 'true'
 
 ## GUI CONFIGURATION
-
-POPUP_WIDTH, POPUP_HEIGHT = 150, 150
-
 try:
     GUI_WIDTH = int(os.environ.setdefault('GUI_WIDTH', '800'))
 except (ValueError, TypeError) as ParseError: 
@@ -204,24 +195,19 @@ except:
     DEFAULT_ANALYSIS_PERIOD=100
     os.environ['DEFAULT_ANALYSIS_PERIOD']=100
 
-ONE_TRADING_DAY=(1/252)
-
 # Number of days
 
+# TODO: candidates for static.py
 PRICE_YEAR_CUTOFF=1950
-
 DENOMINATION = "USD"
-
 NPV_DELTA_TOLERANCE = 0.0000001
+STAT_ECON="statistic"
+
 
 # SEE: ARG_Q_YIELD_CURVE for allowabled values
 RISK_FREE_RATE=os.environ.setdefault("RISK_FREE", "10-Year").strip("\"")
 
 MARKET_PROXY=os.environ.setdefault('MARKET_PROXY', 'SPY')
-
-ASSET_EQUITY="equity"
-ASSET_CRYPTO="crypto"
-STAT_ECON="statistic"
 
 ## SERVICE CONFIGURATION
 ### PRICE_MANAGER CONFIGRUATION
@@ -247,6 +233,7 @@ if PRICE_MANAGER == 'alpha_vantage':
     AV_CRYPTO_LIST=os.environ.setdefault('ALPHA_VANTAGE_CRYPTO_META_URL', 'https://www.alphavantage.co/digital_currency_list/')
     
     # Response Keys
+        # SHOULD BE PART OF PRICE_MANAGER class properties!
     AV_RES_EQUITY_FIRST_LAYER='Time Series (Daily)'
     AV_RES_EQUITY_CLOSE_PRICE="4. close"
     AV_RES_EQUITY_OPEN_PRICE="1. open"
@@ -347,19 +334,3 @@ if DIV_MANAGER == "iex":
     PARAM_IEX_RANGE_2YR="2y"
     PARAM_IEX_RANGE_1YR="1y"
     PARAM_IEX_KEY="token"
-
-def get_trading_period(asset_type):
-    """
-    Description
-    -----------
-    Returns the value of one trading day measured in years of the asset_type passed in as an argument.
-
-    Parameters
-    ----------
-    1. asset_type : str\n
-    
-    A string that represents a type of tradeable asset. Types are statically accessible through the ` settings` variables: ASSET_EQUITY and ASSET_CRYPTO.
-    """
-    if asset_type == ASSET_CRYPTO:
-        return (1/365)
-    return ONE_TRADING_DAY

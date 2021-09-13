@@ -11,39 +11,13 @@ import requests
 # if running locally through main.py file, these imports should be replaced
 #       from . import settings
 # annoying, but it is what it is.
-from scrilla import settings
+from scrilla import settings, static
 
 import util.outputter as outputter
 import util.helper as helper
 
-CLOSE_PRICE = "close"
-OPEN_PRICE = "open"
-
-OBJECTS={
-    "correlation": 1,
-    "risk_profile": 2,
-    "prices": 3,
-    "dividends": 4,
-    "statistic": 5,
-    "equity_statistic":6,
-    "api_key": 7
-}
-
 logger = outputter.Logger("files", settings.LOG_LEVEL)
 
-static_crypto_blob, static_econ_blob, static_tickers_blob = None, None, None
-
-object_blob_dict = {}
-
-def generate_timestamp(args, price_flag):
-    if price_flag:
-        end_date = args.get('end_date')
-        timestamp = helper.date_to_string(end_date)
-    else:
-        start_date = args.get('start_date')
-        end_date = args.get('end_date')
-        timestamp = '{}_{}'.format(helper.date_to_string(end_date), helper.date_to_string(start_date))
-    return timestamp
 
 def load_file(file_name):
     with open(file_name, 'r') as infile:
@@ -63,22 +37,6 @@ def save_file(file_to_save, file_name):
                 return False
             
         # TODO: implement other file saving extensions.
-
-def filter_price_cache(end_date, ticker):
-    date = helper.parse_date_string(end_date)
-
-    filenames = [f for f in os.listdir(settings.CACHE_DIR) if 
-                        (os.path.isfile(os.path.join(settings.CACHE_DIR, f))
-                            and ticker in f and settings.CACHE_PRICE_KEY in f)]
-
-    for filename in filenames:
-        cached_date = helper.parse_date_string(filename.split('_')[0])
-        if (cached_date - date).days > 0 or (cached_date - date).days == 0:
-            return filename
-    
-    return None
-
-
 
 def store_local_object(local_object, value, args):
     """
@@ -101,8 +59,6 @@ def store_local_object(local_object, value, args):
             NOTE: required arguments are a function of the object-type. \n 
         1. if local_object = correlation \n 
             args: { 'ticker_1' : value , 'ticker_2': value }  \n 
-        2. if local_object = prices \n 
-            args: { 'ticker' : value } \n 
         3. if local_objecct = risk_profile \n 
             args: { 'ticker' : value } \n
         4. if local_object = dividends \n 
@@ -118,8 +74,7 @@ def store_local_object(local_object, value, args):
     global object_blob_dict
 
     if settings.LOCAL_CACHE:
-        price_flag = (local_object == OBJECTS['prices'])
-        timestamp = generate_timestamp(args=args, price_flag=price_flag)
+        timestamp = generate_timestamp(args=args)
         
         file_name_2, in_memory_key = None, None
 
@@ -133,11 +88,6 @@ def store_local_object(local_object, value, args):
             file_name = f'{timestamp}_{in_memory_key_1}.{settings.FILE_EXT}'
             file_name_2 = f'{timestamp}_{in_memory_key_2}.{settings.FILE_EXT}'
         
-        elif local_object == OBJECTS['prices']:
-            in_memory_key = f'{args["ticker"]}_{settings.CACHE_PRICE_KEY}'
-
-        elif local_object == OBJECTS['risk_profile']:
-            in_memory_key = f'{args["ticker"]}_{settings.CACHE_PRO_KEY}'
 
         elif local_object == OBJECTS['dividends']:
             in_memory_key=f'{args["ticker"]}_{settings.CACHE_DIV_KEY}'
@@ -205,16 +155,7 @@ def retrieve_local_object(local_object, args):
                 object_blob_dict[in_memory_key_2] = correlation
                 return correlation
             return None
-
-        elif local_object == OBJECTS['risk_profile']:
-            in_memory_key =f'{args["ticker"]}_{settings.CACHE_PRO_KEY}'
         
-        elif local_object == OBJECTS['prices']:
-            file_name = filter_price_cache(ticker = args['ticker'], end_date=args['end_date'])
-            if file_name is None:
-                in_memory_key=f'{args["ticker"]}_{settings.CACHE_PRICE_KEY}'
-
-
         elif local_object == OBJECTS['dividends']:
             in_memory_key=f'{args["ticker"]}_{settings.CACHE_DIV_KEY}'
             
@@ -369,13 +310,13 @@ def get_static_data(static_type):
     global static_econ_blob 
     global static_tickers_blob
 
-    if static_type == settings.ASSET_CRYPTO:
+    if static_type == static.keys['ASSETS']['CRYPTO']:
         if static_crypto_blob is not None:
             blob = static_crypto_blob
         else:
             path = settings.STATIC_CRYPTO_FILE
     
-    elif static_type == settings.ASSET_EQUITY:
+    elif static_type == static.keys['ASSETS']['EQUITY']:
         if static_tickers_blob:
             blob = static_tickers_blob
         else:
@@ -404,9 +345,9 @@ def get_static_data(static_type):
                 symbols = json.load(infile)
             # TODO: implement other file loading exts 
                
-        if static_type == settings.ASSET_CRYPTO:
+        if static_type == static.keys['ASSETS']['CRYPTO']:
             static_crypto_blob = symbols
-        elif static_type == settings.ASSET_EQUITY:
+        elif static_type == static.keys['ASSETS']['EQUITY']:
             static_tickers_blob = symbols
         elif static_type == settings.STAT_ECON:
             static_econ_blob = symbols
@@ -432,9 +373,9 @@ def get_overlapping_symbols(equities=None, cryptos=None):
     Returns an array of symbols which are contained in both the STATIC_TICKERS_FILE and STATIC_CRYPTO_FILE, i.e. ticker symbols which have both a tradeable equtiy and a tradeable crypto asset. 
     """
     if equities is None:
-        equities = list(get_static_data(settings.ASSET_EQUITY))
+        equities = list(get_static_data(static.keys['ASSETS']['EQUITY']))
     if cryptos is None:
-        cryptos = list(get_static_data(settings.ASSET_CRYPTO))
+        cryptos = list(get_static_data(static.keys['ASSETS']['CRYPTO']))
     overlap = []
     for crypto in cryptos:
         if crypto in equities:
@@ -451,21 +392,21 @@ def get_asset_type(symbol):
     ------
     A string representing the type of asset of the symbol. Types are statically accessible through the ` settings` variables: ASSET_EQUITY and ASSET_CRYPTO. \n \n 
     """
-    symbols = list(get_static_data(settings.ASSET_CRYPTO))
+    symbols = list(get_static_data(static.keys['ASSETS']['CRYPTO']))
     overlap = get_overlapping_symbols(cryptos=symbols)
 
     if symbol not in overlap:
         if symbol in symbols:
-            return settings.ASSET_CRYPTO
+            return static.keys['ASSETS']['CRYPTO']
             
                 # if other asset types are introduced, then uncomment these lines
                 # and add new asset type to conditional. Keep in mind the static
                 # equity data is HUGE.
-        # symbols = list(get_static_data(settings.ASSET_EQUITY))
+        # symbols = list(get_static_data(static.keys['ASSETS']['EQUITY']))
         # if symbol in symbols:
-            # return settings.ASSET_EQUITY
+            # return static.keys['ASSETS']['EQUITY']
         #return None
-        return settings.ASSET_EQUITY
+        return static.keys['ASSETS']['EQUITY']
     # default to equity for overlap until a better method is determined. 
     return None
     
@@ -500,7 +441,7 @@ def add_watchlist(new_tickers):
     logger.debug('Saving tickers to Watchlist')
 
     current_tickers = get_watchlist()
-    all_tickers = get_static_data(settings.ASSET_EQUITY)
+    all_tickers = get_static_data(static.keys['ASSETS']['EQUITY'])
 
     for ticker in new_tickers:
         if ticker not in current_tickers and ticker in all_tickers:

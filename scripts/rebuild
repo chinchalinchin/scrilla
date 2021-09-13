@@ -1,0 +1,15 @@
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+PROJECT_DIR=$SCRIPT_DIR/..
+BUILD_DIR=$PROJECT_DIR/dist
+SRC_DIR=$PROJECT_DIR/src
+
+VERSION="$(cat $SRC_DIR/scrilla/version.txt)"
+
+cd $PROJECT_DIR
+rm -r $BUILD_DIR
+rm -r $SRC_DIR/scrilla.egg-info
+pip uninstall -y scrilla
+python3 -m build
+cd $BUILD_DIR
+pip install "scrilla-$VERSION-py3-none-any.whl"
+

@@ -5,10 +5,10 @@ import sys, os
 #       from . import settings, from . import services, from . import files
 # annoying, but it is what it is.
 if __name__=="__main__":
-    import settings, services, files
+    import settings, services, files, errors
 
 else:
-    from scrilla import settings, services, files
+    from scrilla import settings, services, files, errors
 
 from util import helper, outputter, formatter
 from analysis import statistics, optimizer, markets
@@ -41,12 +41,25 @@ def validate_function_usage(selection, args, wrapper_function, required_length=1
         logger.comment('GUI functionality disabled when application is containerized.')
 
     else:
-        if(not exact and (len(args)>(required_length-1))):
-            wrapper_function()
-        elif(exact and (len(args)==required_length)):
-            wrapper_function()
-        else:
-            logger.comment(f'Invalid number of arguments for \'{selection}\' function.')
+        try:
+            if(not exact and (len(args)>(required_length-1))):
+                wrapper_function()
+            elif(exact and (len(args)==required_length)):
+                wrapper_function()
+            else:
+                logger.comment(f'Invalid number of arguments for \'{selection}\' function.')
+
+        # TODO: CLI APPLICATION ERROR HANDLING GOES HERE 
+        except errors.PriceError as pe:
+            logger.comment(str(pe))
+        except errors.SampleSizeError as se:
+            logger.comment(str(se))
+        except errors.APIResponseError as api:
+            logger.comment(str(api))
+        except errors.InputValidationError as ive:
+            logger.comment(str(ive))
+        except errors.ConfigurationError as ce:
+            logger.comment(str(ce))
 
 def do_program():
     if len(sys.argv)>0:
@@ -375,23 +388,18 @@ def do_program():
                 def cli_risk_return():
                     profiles = {}
                     for arg in main_args:
-                        try:
-                            profiles[arg] = statistics.calculate_risk_return(ticker=arg, start_date=xtra_list['start_date'], 
-                                                                                end_date=xtra_list['end_date'])
-                            profiles[arg]['sharpe_ratio'] = markets.sharpe_ratio(ticker=arg, start_date=xtra_list['start_date'],
-                                                                                end_date=xtra_list['end_date'])
-                            profiles[arg]['asset_beta'] = markets.market_beta(ticker=arg, start_date=xtra_list['start_date'],
-                                                                                end_date=xtra_list['end_date'])
-                            profiles[arg]['equity_cost'] = markets.cost_of_equity(ticker=arg, start_date=xtra_list['start_date'],
-                                                                                end_date=xtra_list['end_date'])
+                        profiles[arg] = statistics.calculate_risk_return(ticker=arg, start_date=xtra_list['start_date'], 
+                                                                            end_date=xtra_list['end_date'])
+                        profiles[arg]['sharpe_ratio'] = markets.sharpe_ratio(ticker=arg, start_date=xtra_list['start_date'],
+                                                                            end_date=xtra_list['end_date'])
+                        profiles[arg]['asset_beta'] = markets.market_beta(ticker=arg, start_date=xtra_list['start_date'],
+                                                                            end_date=xtra_list['end_date'])
+                        profiles[arg]['equity_cost'] = markets.cost_of_equity(ticker=arg, start_date=xtra_list['start_date'],
+                                                                            end_date=xtra_list['end_date'])
 
-                            if xtra_list['save_file'] is not None:
-                                files.save_profiles(profiles=profiles, file_name=xtra_list['save_file'])
+                    if xtra_list['save_file'] is not None:
+                        files.save_profiles(profiles=profiles, file_name=xtra_list['save_file'])
 
-                        except statistics.PriceError as pe:
-                            logger.comment(str(pe))
-                        except statistics.SampleSizeError as se:
-                            logger.comment(str(se))
                     outputter.risk_profile(profiles=profiles)
 
                 selected_function, required_length = cli_risk_return, 1
