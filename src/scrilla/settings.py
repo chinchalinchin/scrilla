@@ -10,8 +10,7 @@ sys.path.append(APP_DIR)
 import util.outputter as outputter
 
 class APIKeyError(Exception):
-    def __init__(self, message):
-        super().__init__(message)
+    pass
 
 ## APPLICATION CONFIGURATION
 """
