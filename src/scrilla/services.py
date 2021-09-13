@@ -277,7 +277,7 @@ def get_daily_price_history(ticker, start_date=None, end_date=None, asset_type=N
     3. end_date : datetime.date \n 
         Optional End date of price history. Defaults to None. If `end_date is None`, the calculation is made as if the `end_date` were set to today. If `get_asset_type(ticker)=="crypto"`, this means today regardless. If `get_asset_type(ticker)=="equity"`, this excludes weekends and holidays so that `end_date` is set to the previous business date. \n \n
     4. asset_type : string \n
-        Optional. Asset type of the ticker whose history is to be retrieved. Used to prevent excessive calls to IO and list searching. `asset_type` is determined by comparing the ticker symbol `ticker` to a large static list of ticker symbols maintained in installation directory's /data/static/ subdirectory, which can slow the program down if the file is constantly accessed and lots of comparison are made against it. Once an `asset_type` is calculated, it is best to preserve it in the process environment somehow, so this function allows the value to be passed in. If no value is detected, it will make a call to the aforementioned directory and parse the file to determine to the `asset_type`. There may be a better way of doing this, in fact I imagine there is, but for now, this works. If it starts getting too complicated as the program grows, this is the first area that should be refactored, i.e. how to preserve a ticker's asset type in memory instead of determining it from a large IO file. \n \n
+        Optional. Asset type of the ticker whose history is to be retrieved. Used to prevent excessive calls to IO and list searching. `asset_type` is determined by comparing the ticker symbol `ticker` to a large static list of ticker symbols maintained in installation directory's /data/static/ subdirectory, which can slow the program down if the file is constantly accessed and lots of comparison are made against it. Once an `asset_type` is calculated, it is best to preserve it in the process environment somehow, so this function allows the value to be passed in. If no value is detected, it will make a call to the aforementioned directory and parse the file to determine to the `asset_type`. Asset types are statically accessible through the `scrilla.static.keys['ASSETS']` dictionary. \n \n
 
     Raises
     ------
@@ -290,8 +290,8 @@ def get_daily_price_history(ticker, start_date=None, end_date=None, asset_type=N
 
     Returns
     ------
-    { 'date' (str) : { 'open': value (str), 'close': value (str) }, 'date' (str): { 'open' : value (str), 'close' : value(str) } }
-        Dictionary with dates as keys and a nested dictionary containing the 'open' and 'close' price as values. . 
+    { 'date' (str) : { 'open': value (str), 'close': value (str) }, 'date' (str): { 'open' : value (str), 'close' : value(str) }, ... }
+        Dictionary with dates as keys and a nested dictionary containing the 'open' and 'close' price as values. Ordered from latest to earliest. \n \n
     
     Notes
     -----
