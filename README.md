@@ -256,8 +256,8 @@ The four functions of interest in this module are:
     <b>Description:</b><br>
     Wrapper around external service request for price data. Relies on an instance of `PriceManager` configured by `settings.PRICE_MANAGER` value, which in turn is configured by the `PRICE_MANAGER` environment variable, to hydrate with data. <br>
     
-    Before deferring to the `PriceManager` and letting it call the external service, however, this function checks if response is in local cache. If the response is not in the cache, it will pass the request off to `PriceManager` and then save the resposne in the cache so subsequent calls to the function can bypass the service request. Used to prevent excessive external HTTP requests and improve the performance of the application. Other parts of the program should interface with the external price data services through this function to utilize the cache functionality. 
-    <br><br>
+    Before deferring to the `PriceManager` and letting it call the external service, however, this function checks if response is in local cache. If the response is not in the cache, it will pass the request off to `PriceManager` and then save the resposne in the cache so subsequent calls to the function can bypass the service request. Used to prevent excessive external HTTP requests and improve the performance of the application. Other parts of the program should interface with the external price data services through this function to utilize the cache functionality.<br>
+
     <b>Arguments:</b><br>
     1. ticker :  `str`<br>
         Required. Ticker symbol corresponding to the price history to be retrieved. <br>
@@ -269,17 +269,47 @@ The four functions of interest in this module are:
         Optional. Asset type of the ticker whose history is to be retrieved. Used to prevent excessive calls to IO and list searching. `asset_type` is determined by comparing the ticker symbol `ticker` to a large static list of ticker symbols maintained in installation directory's <i>/data/static/</i> subdirectory, which can slow the program down if the file is constantly accessed and lots of comparison are made against it. Once an `asset_type` is calculated, it is best to preserve it in the process environment somehow, so this function allows the value to be passed in. If no value is detected, it will make a call to the aforementioned directory and parse the file to determine to the `asset_type`. Asset types are statically accessible through the `scrilla.static.keys['ASSETS']` dictionary.<br>
 
     <b>Returns:</b><br>
-    `{ 'date' (str) : { 'open': value (str), 'close': value (str) }, 'date' (str): { 'open' : value (str), 'close' : value(str) }, ...}`
-        Dictionary with dates as keys and a nested dictionary containing the 'open' and 'close' price as values. Ordered from latest to earliest. \n \n
+    `{ 'date' (str) : { 'open': value (str), 'close': value (str) }, 'date' (str): { 'open' : value (str), 'close' : value(str) }, ...}`<br>
+    Dictionary with dates as keys and a nested dictionary containing the 'open' and 'close' price as values. Ordered from latest to earliest. <br>
+
+    <b>Raises:</b><br>
+    1. scrilla.errors.InputValidationError<br>
+        If the arguments inputted into the function fail to exist within the domain the function, this error will be thrown.<br>
+    2. scrilla.errors.APIResponseError<br>
+        If the external service rejects the request for price data, whether because of rate limits or some other factor, the function will raise this exception.<br>
+    3. KeyError<br>
+        If the inputted or validated dates do not exist in the price history, a KeyError will be thrown. This could be due to the equity not having enough price history, i.e. it started trading a month ago and doesn't have 100 days worth of prices yet, or some other anomalous event in an equity's history.<br>
+    4. errors.ConfigurationError<br>
+        If one of the settings is improperly configured or one of the environment variables was unable to be parsed from the environment, this error will be thrown.<br>
+
     
 2. `scrilla.services.get_daily_stat_history(symbol, start_date=None, end_date=None, asset_type=None)`<br>
     <b>Description:</b><br>
-        This function will retrieve the price history for the financial statistic specifed by the `statistic` argument. 
-    <br><br>
+    Wrapper around external service request for financial statistics data. Relies on an instance of `StatManager` configured by `settings.STAT_MANAGER` value, which in turn is configured by the `STAT_MANAGER` environment variable, to hydrate with data.<br>
+    
+    Before deferring to the `StatManager` and letting it call the external service, however, this function checks if response is in local cache. If the response is not in the cache, it will pass the request off to `StatManager` and then save the resposne in the cache so subsequent calls to the function can bypass the service request. Used to prevent excessive external HTTP requests and improve the performance of the application. Other parts of the program should interface with the external statistics data services through this function to utilize the cache functionality.<br>
+
     <b>Arguments:</b><br>
-    - `symbol : str`: Required. Statistic symbol for quantity of interest. A list of allowable values can be found [here](https://www.quandl.com/data/FRED-Federal-Reserve-Economic-Data/documentation)<br>
-    - `start_date: datetime.date` : Optional. Start date of analysis range. Defaults to `None`<br> 
-    - `end_date: datetime.date` : Optional. End date of analysis range. Defaults to `None`<br>
+    1. symbol: `str`<br>
+        Required. Symbol representing the statistic whose history is to be retrieved. List of allowable values can be found [here](https://www.quandl.com/data/FRED-Federal-Reserve-Economic-Data/documentation)<br>
+    2. start_date : `datetime.date`<br>
+        Optional. Start date of price history. Defaults to None. If `start_date is None`, the calculation is made as if the `start_date` were set to 100 trading days ago. This excludes weekends and holidays.<br>
+    3. end_date :  `datetime.date`<br>
+        Optional End date of price history. Defaults to None. If `end_date is None`, the calculation is made as if the `end_date` were set to today. This excludes weekends and holidays so that `end_date` is set to the last previous business date.<br>
+
+    <b>Returns:</b><br>
+    `{ 'date' (str) :  value (str),  'date' (str):  value (str), ... }`<br>
+    Dictionary with dates as keys and the statistic on that date as the corresponding value.<br>
+
+    <b>Raises</b><br>
+    1. scrilla.errors.InputValidationError<br>
+        If the arguments inputted into the function fail to exist within the domain the function, this error will be thrown<br>
+    2. scrilla.errors.APIResponseError<br>
+        If the external service rejects the request for price data, whether because of rate limits or some other factor, the function will raise this exception<br>
+    3. KeyError<br>
+        If the inputted or validated dates do not exist in the price history, a KeyError will be thrown. This could be due to the equity not having enough price history, i.e. it started trading a month ago and doesn't have 100 days worth of prices yet, or some other anomalous event in an equity's history.<br> 
+    4. errors.ConfigurationError<br>
+        If one of the settings is improperly configured or one of the environment variables was unable to be parsed from the environment, this error will be thrown.<br>
 
 3. `scrilla.services.get_dividend_history(ticker)`<br>
     <b>Description:</b><br>
