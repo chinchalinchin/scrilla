@@ -226,31 +226,33 @@ You can then screen stocks according to some criteria. For example, the followin
 This package is made up of several top-level modules and various submodules, grouped according to the following name space:
 
 - scrilla<br>
-    - main<br>
-    - files<br>
-    - services<br>
-    - settings<br>
     - analysis<br>
         - calculator<br>
         - markets<br>
         - optimizer<br>
         - statistics<br>
-    - objects
+    - cache<br>
+    - errors<br>
+    - files<br>
+    - main<br>
+    - objects<br>
         - cashflow<br>
         - portfolio<br>
+    - services<br>
+    - settings<br>
     - util<br>
         - formatter<br>
         - helper<br>
         - outputter<br>
         - plotter<br>
 
-In general, you should not need to interact with any of the top level modules. <b>main</b> is the entrypoint for the CLI application, <b>files</b> is used to format and parse files and manage the local cache, <b>settings</b> parses environment variables to configure the application; these modules function entirely under the hood. On occasion, however, you may need to access <b>services</b>, as this is where raw data from the external services is requested and parsed. 
+In general, you should not need to interact with any of the top level modules. <b>main</b> is the entrypoint for the CLI application, <b>files</b> is used to format and parse files, <b>cache</b> manages the local <b>sqlite</b> cache, <b>settings</b> parses environment variables to configure the application, <b>static</b> provides a dictionary of constants, <b>errors</b> provides the Exception classes for the application; these modules function entirely under the hood. On occasion, however, you may need to access <b>services</b>, as this is where raw data from the external services is requested and parsed. 
 
 ### scrilla.services
 
 The four functions of interest in this module are:
 
-1. `scrilla.services.get_daily_price_history(ticker, start_date=None, end_date=None)`<br>
+1. `scrilla.services.get_daily_price_history(ticker, start_date=None, end_date=None, asset_type=None)`<br>
     <b>Description:</b><br>
         This function will retrieve the price history for the equity specified by the `ticker` argument. `ticker` must be the symbol associated with the equity on the stock exchange, e.g. MSFT = Microsft, TSLA = Tesla, etc. If no `start_date` or `end_date` are provided, the function returns the last 100 trading days worth of information.
     <br><br>
@@ -262,7 +264,7 @@ The four functions of interest in this module are:
     <b>Returns:</b><br>
     a dictionary of prices with the `YYYY-MM-DD` formatted date as key. The dictionary is sorted latest price to earliest price.<br>
     
-2. `scrilla.services.get_daily_stat_history(symbol, start_date=None, end_date=None)`<br>
+2. `scrilla.services.get_daily_stat_history(symbol, start_date=None, end_date=None, asset_type=None)`<br>
     <b>Description:</b><br>
         This function will retrieve the price history for the financial statistic specifed by the `statistic` argument. 
     <br><br>
@@ -341,3 +343,27 @@ The four functions of interest in this module are:
 ### scrilla.objects.cashflow.Cashflow
 
 ### scrilla.objects.portfolio.Portfolio
+
+# Notes
+
+1. The following symbols have both equity and crypto assets trading on exchanges:
+
+['ABT', 'AC', 'ADT', 'ADX', 'AE', 'AGI', 'AI', 'AIR', 'AMP', 'AVT', 'BCC', 'BCD', 'BCH', 'BCX', 'BDL', 'BFT', 'BIS', 'BLK', 'BQ', 'BRX', 'BTA', 'BTG', 'CAT', 'CMP', 'CMT', 'CNX', 'CTR', 'CURE', 'DAR', 'DASH', 'DBC', 'DCT', 'DDF', 'DFS', 'DTB', 'DYN', 'EBTC', 'ECC', 'EFL', 'ELA', 'ELF','EMB', 'ENG', 'ENJ', 'EOS', 'EOT', 'EQT', 'ERC', 'ETH', 'ETN', 'EVX', 'EXP', 'FCT', 'FLO', 'FLT', 'FTC', 'FUN', 'GAM', 'GBX', 'GEO', 'GLD', 'GNT', 'GRC', 'GTO', 'INF', 'INS', 'INT', 'IXC', 'KIN', 'LBC', 'LEND', 'LTC', 'MAX', 'MCO', 'MEC', 'MED', 'MGC', 'MINT', 'MLN', 'MNE', 'MOD', 'MSP', 'MTH', 'MTN', 'MUE', 'NAV', 'NEO', 'NEOS', 'NET', 'NMR', 'NOBL', 'NXC', 'OCN', 'OPT', 'PBT', 'PING', 'PPC', 'PPT', 'PRG', 'PRO', 'PST', 'PTC', 'QLC', 'QTUM','R', 'RDN', 'REC', 'RVT', 'SALT', 'SAN', 'SC', 'SKY', 'SLS', 'SPR', 'SNX', 'STK', 'STX', 'SUB', 'SWT', 'THC', 'TKR', 'TRC', 'TRST', 'TRUE', 'TRX', 'TX', 'UNB', 'VERI', 'VIVO', 'VOX', 'VPN', 'VRM', 'VRS', 'VSL', 'VTC', 'VTR', 'WDC', 'WGO', 'WTT', 'XEL', 'NEM', 'ZEN']
+
+Since there is no way good way to distinguish whether or not the asset is an equity or a cryptocurrency based on the value of the ticker alone, the module functions `scrilla.files.get_asset_type` and `scrilla.errors.validate_asset_type` will always default to the equity ticker for the above symbols. 
+
+This is not the greatest solution, as all the crypto symbols given above are inaccessible to analysis. In particular, `ETH` represents a popular crypto that cannot be analyzed, which represents a major failing of the current application.
+
+The way the `service` module works, `PriceManager` can be forced to retrieve the crypto asset's prices instead of the equity asset's through the `services.PriceManager.get_prices` method by providing the method an argument of `asset_type='crypto'`; However, the `service` module function `services.get_daily_price_history`, which is the point of contact between the `PriceManager` and the rest of the application, wraps calls to the `PriceManager.get_prices` method in a cache persistence layer (meaning, `get_daily_price_history` checks if prices exist in the cache before passing the request off to an external service query). The cache doesn't distinguish asset types currently. The `PriceCache` stores prices based on the inputs (<i>ticker, date, open close, close price</i>). So, even if the `PriceManager` is forced to get crypto prices on the first call, subsequent calls to the same `get_daily_price_history` function will likely break the application, or at least lead to misleading results, since the cache will contain a set of prices that doesn't necessarily map one-to-one with its ticker symbol.
+
+If the above problem is to be solved, the cache needs modified to separate prices based on asset type.
+
+
+# Documentation
+- [holidays](https://github.com/dr-prodigy/python-holidays)
+- [matplotlib](https://matplotlib.org/)
+- [numpy](https://numpy.org/doc/)
+- [pyqt](https://doc.qt.io/qtforpython/)
+- [requests](https://docs.python-requests.org/en/latest/)
+- [scipy](https://www.scipy.org/docs.html)
+- [sqlite3](https://docs.python.org/3/library/sqlite3.html)

@@ -43,7 +43,5 @@
 
 37. Look into why U risk profile calculation breaks function.
 
-41. analysis module can import function module. function module scripts can import each other, as they should be static. analysis module is built out of function module. 
-
 42. review monte carlo simulation. allow value at risk function to specify SDE. look into MLE for parameters.
 
