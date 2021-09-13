@@ -51,8 +51,7 @@ def get_last_trading_date():
     trading_close_today = today.replace(hour=20)
     if today > trading_close_today:
         return today.date()
-    else:
-        return get_previous_business_date(today.date())
+    return get_previous_business_date(today.date())
 
 def validate_date_string(parsed_date_string):
     length_check = (len(parsed_date_string) == 3 )

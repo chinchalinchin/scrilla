@@ -81,8 +81,7 @@ class PriceCache(Cache):
         if len(results)>0:
             logger.verbose(f'Found {ticker} prices in the cache')
             return self.to_dict(results)
-        else:
-            return None
+        return None
 
 class StatCache(Cache):
     create_table_transaction="CREATE TABLE IF NOT EXISTS statistics (symbol text, date text, value real)"
@@ -109,8 +108,7 @@ class StatCache(Cache):
         if len(results)>0:
             logger.verbose(f'Found {symbol} statistics in the cache')
             return self.to_dict(results)
-        else:
-            return None
+        return None
 
 class DividendCache(Cache):
     create_table_transaction="CREATE TABLE IF NOT EXISTS dividends (ticker text, date text, amount real)"
@@ -133,13 +131,12 @@ class DividendCache(Cache):
         logger.verbose(f'Querying SQLite cache \n\t{DividendCache.dividend_query}\n\t\t with :ticker={ticker}')
         formatter = { 'ticker': ticker }
         results = self.execute_query(query=DividendCache.dividend_query, formatter=formatter)
-        
+
         if len(results)>0:
             logger.verbose(f'Found {ticker} dividends in the cache')
             # TODO: need to ensure new dividend prices are ALWAYS saved somehow. Can't always defer to the cache as the source of truth.
             return self.to_dict(results)
-        else:
-            return None
+        return None
 
 class CorrelationCache(Cache):
     create_table_transaction="CREATE TABLE IF NOT EXISTS correlations (ticker_1 text, ticker_2 text, start_date text, end_date text, correlation real)"
@@ -173,13 +170,11 @@ class CorrelationCache(Cache):
         if len(results)>0:
             logger.verbose(f'Found ({ticker_1},{ticker_2}) correlation in the cache')
             return self.to_dict(results)
-        else:
-            results = self.execute_query(query=CorrelationCache.correlation_query, formatter=formatter_2)
-            if len(results)>0:
-                logger.verbose(f'Found ({ticker_1},{ticker_2}) correlation in the cache')
-                return self.to_dict(results)
-            else:
-                return None
+        results = self.execute_query(query=CorrelationCache.correlation_query, formatter=formatter_2)
+        if len(results)>0:
+            logger.verbose(f'Found ({ticker_1},{ticker_2}) correlation in the cache')
+            return self.to_dict(results)
+        return None
 
 class ProfileCache(Cache):
     create_table_transaction="CREATE TABLE IF NOT EXISTS profile (id INTEGER PRIMARY KEY, ticker TEXT, start_date TEXT, end_date TEXT, annual_return REAL, annual_volatility REAL, sharpe_ratio REAL, asset_beta REAL, equity_cost REAL)"
@@ -246,8 +241,7 @@ class ProfileCache(Cache):
         logger.verbose(f'Querying SQLite cache: \n\t{ProfileCache.profile_query}\n\t\t with :ticker={ticker}, :start_date={start_date}, :end_date={end_date}') 
         formatter = { 'ticker': ticker, 'start_date': start_date, 'end_date': end_date}
         result = self.execute_query(query=ProfileCache.profile_query, formatter=formatter)
-        
+
         if len(result)>0:
             return self.to_dict(result)
-        else: 
-            return None
+        return None
