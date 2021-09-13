@@ -266,7 +266,7 @@ def get_daily_price_history(ticker, start_date=None, end_date=None, asset_type=N
     -----------
     Wrapper around external service request for price data. Relies on an instance of `PriceManager` configured by `settings.PRICE_MANAGER` value, which in turn is configured by the `PRICE_MANAGER` environment variable, to hydrate with data. \n \n
     
-    Before deferring to the `PriceManager` and letting it call the external service, however, this function checks if response is in local cache. If the response is not in the cache, it will pass the request off to `PriceManager` and then save the resposne in the cache so subsequent calls to the function can bypass the service request. Used to prevent excessive external HTTP requests and improve the performance of the application. Other parts of the program should interface with the external price data services through this function to utilize the cache functionality.  \n \n
+    Before deferring to the `PriceManager` and letting it call the external service, however, this function checks if response is in local cache. If the response is not in the cache, it will pass the request off to `PriceManager` and then save the response in the cache so subsequent calls to the function can bypass the service request. Used to prevent excessive external HTTP requests and improve the performance of the application. Other parts of the program should interface with the external price data services through this function to utilize the cache functionality.  \n \n
 
     Parameters
     ----------
@@ -360,7 +360,7 @@ def get_daily_stats_history(symbol, start_date=None, end_date=None):
     -----------
     Wrapper around external service request for financial statistics data. Relies on an instance of `StatManager` configured by `settings.STAT_MANAGER` value, which in turn is configured by the `STAT_MANAGER` environment variable, to hydrate with data. \n \n
     
-    Before deferring to the `StatManager` and letting it call the external service, however, this function checks if response is in local cache. If the response is not in the cache, it will pass the request off to `StatManager` and then save the resposne in the cache so subsequent calls to the function can bypass the service request. Used to prevent excessive external HTTP requests and improve the performance of the application. Other parts of the program should interface with the external statistics data services through this function to utilize the cache functionality.  \n \n
+    Before deferring to the `StatManager` and letting it call the external service, however, this function checks if response is in local cache. If the response is not in the cache, it will pass the request off to `StatManager` and then save the response in the cache so subsequent calls to the function can bypass the service request. Used to prevent excessive external HTTP requests and improve the performance of the application. Other parts of the program should interface with the external statistics data services through this function to utilize the cache functionality.  \n \n
 
     Parameters
     ----------
@@ -432,12 +432,14 @@ def get_dividend_history(ticker):
     """
     Description
     -----------
-    Makes HTTP request to the DIV_MANAGER defined in the settings.py and configured through the DIV_MANAGER environment variable. \n \n 
+    Wrapper around external service request for dividend payment data. Relies on an instance of `DivManager` configured by `settings.DIV_MANAGER` value, which in turn is configured by the `DIV_MANAGER` environment variable, to hydrate with data. \n \n
+    
+    Before deferring to the `DivManager` and letting it call the external service, however, this function checks if response is in local cache. If the response is not in the cache, it will pass the request off to `DivManager` and then save the response in the cache so subsequent calls to the function can bypass the service request. Used to prevent excessive external HTTP requests and improve the performance of the application. Other parts of the program should interface with the external statistics data services through this function to utilize the cache functionality.  \n \n
 
     Parameters
     ----------
     1. ticker : str \n 
-        Required. Tickery symbol of the equity whose dividend history is to be retrieved. \n \n 
+        Required. Ticker symbol of the equity whose dividend history is to be retrieved. \n \n 
     
     Raises
     ------

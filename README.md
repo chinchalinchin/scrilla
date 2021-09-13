@@ -313,11 +313,27 @@ The four functions of interest in this module are:
 
 3. `scrilla.services.get_dividend_history(ticker)`<br>
     <b>Description:</b><br>
-        This function will retrieve the dividend payment history (i.e. the date on which the payment was <i>made</i>, not the date the payment was declared) for the equity specified by the `ticker` arugment. `ticker` must be the symobl assoccaited with the equity on the stock exchange. 
+     Wrapper around external service request for dividend payment data. Relies on an instance of `DivManager` configured by `settings.DIV_MANAGER` value, which in turn is configured by the `DIV_MANAGER` environment variable, to hydrate with data.<br>
+    
+    Before deferring to the `DivManager` and letting it call the external service, however, this function checks if response is in local cache. If the response is not in the cache, it will pass the request off to `DivManager` and then save the response in the cache so subsequent calls to the function can bypass the service request. Used to prevent excessive external HTTP requests and improve the performance of the application. Other parts of the program should interface with the external statistics data services through this function to utilize the cache functionality.<br>
     <br><br>
-    <b>Arguments:</b><br>
-    - `ticker : str` : Required. Ticker symbol of the equity.<br>
 
+    <b>Arguments:</b><br>
+    1. ticker : `str` : Required. Ticker symbol of the equity whose dividend history is to be retrieved.<br>
+
+    <b>Returns:</b><br>
+    `{ 'date' (str) :  amount (str),  'date' (str):  amount (str), ... }`<br>
+    Dictionary with date strings formatted `YYYY-MM-DD` as keys and the dividend payment amount on that date as the corresponding value.<br>
+
+    <b>Raises</b><br>
+    1. scrilla.errors.InputValidationError<br>
+        If the arguments inputted into the function fail to exist within the domain the function, this error will be thrown<br>
+    2. scrilla.errors.APIResponseError<br>
+        If the external service rejects the request for price data, whether because of rate limits or some other factor, the function will raise this exception<br>
+    3. KeyError<br>
+        If the inputted or validated dates do not exist in the price history, a KeyError will be thrown. This could be due to the equity not having enough price history, i.e. it started trading a month ago and doesn't have 100 days worth of prices yet, or some other anomalous event in an equity's history.<br> 
+    4. errors.ConfigurationError<br>
+        If one of the settings is improperly configured or one of the environment variables was unable to be parsed from the environment, this error will be thrown.<br>
 4. `scrilla.services.get_risk_free_rate()`<br>
     <b>Description: </b><br>
         This function will retrieve the current value of the risk free rate (annualized yield on a US Treasury). The risk free rate can be configured through the <b>RISK_FREE</b> environment variable. See [optional configuration](#optional-configuration) for more details.
