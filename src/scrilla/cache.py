@@ -68,9 +68,9 @@ class PriceCache(Cache):
     def to_dict(query_results):
         return { result[0]: { static.keys['PRICES']['OPEN']: result[1], static.keys['PRICES']['CLOSE']: result[2] } for result in query_results }
 
-    def save_row(self, ticker, date, open, close):
+    def save_row(self, ticker, date, open_price, close_price):
         logger.verbose(F'Saving {ticker} prices on {date} to cache')
-        formatter = { 'ticker': ticker, 'date': date, 'open': open, 'close': close}
+        formatter = { 'ticker': ticker, 'date': date, 'open': open_price, 'close': close_price}
         self.execute_transaction(transaction=PriceCache.insert_row_transaction, formatter=formatter)
 
     def filter_price_cache(self, ticker, start_date, end_date):

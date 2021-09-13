@@ -324,12 +324,12 @@ def get_daily_price_history(ticker, start_date=None, end_date=None, asset_type=N
 
     parsed_prices ={}
     for date in prices:
-        close = price_manager.parse_price_from_date(prices=prices, date=date, asset_type=asset_type, 
+        close_price = price_manager.parse_price_from_date(prices=prices, date=date, asset_type=asset_type, 
                                                     which_price=static.keys['PRICES']['CLOSE'])
-        open = price_manager.parse_price_from_date(prices=prices, date=date, asset_type=asset_type, 
+        open_price = price_manager.parse_price_from_date(prices=prices, date=date, asset_type=asset_type, 
                                                     which_price=static.keys['PRICES']['OPEN'])
-        parsed_prices[date] = { static.keys['PRICES']['OPEN'] : open, static.keys['PRICES']['CLOSE'] : close }
-        price_cache.save_row(ticker, date, open, close)
+        parsed_prices[date] = { static.keys['PRICES']['OPEN'] : open_price, static.keys['PRICES']['CLOSE'] : close_price }
+        price_cache.save_row(ticker=ticker, date=date, open_price=open_price, close_price=close_price)
 
     return parsed_prices
     
