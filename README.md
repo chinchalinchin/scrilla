@@ -261,9 +261,9 @@ The four functions of interest in this module are:
     <b>Arguments:</b><br>
     1. ticker :  `str`<br>
         Required. Ticker symbol corresponding to the price history to be retrieved. <br>
-    2. start_date : `datetime.date`<br>  
+    2. start_date : `datetime.date`<br>
         Optional. Start date of price history. Defaults to None. If `start_date is None`, the calculation is made as if the `start_date` were set to 100 trading days ago. If `get_asset_type(ticker)=="crypto"`, this includes weekends and holidays. If `get_asset_type(ticker)=="equity"`, this excludes weekends and holidays. <br>
-    3. end_date : `datetime.date`<br> 
+    3. end_date : `datetime.date`<br>
         Optional End date of price history. Defaults to None. If `end_date is None`, the calculation is made as if the `end_date` were set to today. If `get_asset_type(ticker)=="crypto"`, this means today regardless. If `get_asset_type(ticker)=="equity"`, this excludes weekends and holidays so that `end_date` is set to the previous business date. <br>
     4. asset_type : `str`<br>
         Optional. Asset type of the ticker whose history is to be retrieved. Used to prevent excessive calls to IO and list searching. `asset_type` is determined by comparing the ticker symbol `ticker` to a large static list of ticker symbols maintained in installation directory's <i>/data/static/</i> subdirectory, which can slow the program down if the file is constantly accessed and lots of comparison are made against it. Once an `asset_type` is calculated, it is best to preserve it in the process environment somehow, so this function allows the value to be passed in. If no value is detected, it will make a call to the aforementioned directory and parse the file to determine to the `asset_type`. Asset types are statically accessible through the `scrilla.static.keys['ASSETS']` dictionary.<br>
