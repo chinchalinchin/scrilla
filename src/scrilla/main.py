@@ -1,4 +1,5 @@
 import sys, os, traceback
+from scrilla.errors import APIResponseError, ConfigurationError, InputValidationError, SampleSizeError
 
 #  Note: need to import from package when running from wheel.
 # if running locally through main.py file, these imports should be replaced
@@ -50,15 +51,9 @@ def validate_function_usage(selection, args, wrapper_function, required_length=1
                 logger.comment(f'Invalid number of arguments for \'{selection}\' function.')
 
         # TODO: CLI APPLICATION ERROR HANDLING GOES HERE 
-        except errors.PriceError as pe:
-            traceback.print_exc()
-        except errors.SampleSizeError as se:
-            traceback.print_exc()
-        except errors.APIResponseError as api:
-            traceback.print_exc()
-        except errors.InputValidationError as ive:
-            traceback.print_exc()
-        except errors.ConfigurationError as ce:
+        except (errors.PriceError, errors.SampleSizeError, errors.APIResponseError, \
+                    errors.InputValidationError, errors.ConfigurationError) as e:
+            print(str(e))
             traceback.print_exc()
 
 def do_program():
