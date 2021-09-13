@@ -36,7 +36,8 @@ class Cache():
     def __init__(self, table_transaction):
         self.execute_transaction(table_transaction)
 
-    def execute_transaction(self, transaction, formatter=None):
+    @staticmethod
+    def execute_transaction(transaction, formatter=None):
         con = sqlite3.connect(settings.CACHE_SQLITE_FILE)
         executor =  con.cursor()
         if formatter is not None:
@@ -46,7 +47,8 @@ class Cache():
         con.commit()
         con.close()
 
-    def execute_query(self, query, formatter=None):
+    @staticmethod
+    def execute_query(query, formatter=None):
         con = sqlite3.connect(settings.CACHE_SQLITE_FILE)
         con.row_factory = sqlite3.Row
         executor = con.cursor()

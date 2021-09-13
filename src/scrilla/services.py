@@ -55,7 +55,8 @@ class DividendManager():
     def __init__(self, type):
         self.type = type
 
-    def construct_url(self, ticker):
+    @staticmethod
+    def construct_url(ticker):
         if settings.DIV_MANAGER == "iex":
         
             query=f'{ticker}/{settings.PATH_IEX_DIV}/{settings.PARAM_IEX_RANGE_5YR}'
