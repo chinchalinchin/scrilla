@@ -1,7 +1,6 @@
-import datetime, os, math, json
-import holidays
+import datetime, math, holidays
 
-import util.formatter as formatter
+import scrilla.util.formatter as formatter
 
 ################################################
 ##### FORMATTING FUNCTIONS
@@ -213,7 +212,7 @@ def business_dates_between(start_date, end_date):
 def business_days_between(start_date, end_date):
     new_start, new_end = validate_order_of_dates(start_date, end_date)
     dates = dates_between(new_start, new_end)
-    return len([1 for day in dates if day.weekday() < 5])
+    return len([1 for date in dates if not (is_date_weekend(date) or is_date_holiday(date))])
 
 def weekends_between(start_date, end_date):
     start_date, end_date = verify_date_types(dates=[start_date, end_date])

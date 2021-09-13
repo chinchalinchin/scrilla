@@ -11,13 +11,14 @@ import requests
 # if running locally through main.py file, these imports should be replaced
 #       from . import settings
 # annoying, but it is what it is.
-from scrilla import settings, static
+from scrilla import settings, static, errors
 
 import util.outputter as outputter
 import util.helper as helper
 
 logger = outputter.Logger("files", settings.LOG_LEVEL)
 
+static_tickers_blob, static_econ_blob, static_crypto_blob = None, None, None
 
 def load_file(file_name):
     with open(file_name, 'r') as infile:
@@ -96,7 +97,12 @@ def init_static_data():
     """
     Description
     -----------
-    Initializes the three static files defined in  settings: `STATIC_TICKERS_FILE`, `STATIC_CRYPTO_FILE` and `STATIC_ECON_FILE`. The data for these files is retrieved from the service managers. While this function blurs the lines between file management and service management, the function has been included in the `files.py` module rather than the `services.py` module due the unique response types of static metadata. All metadata is returned a csv or zipped csvs. These responses require specialized functions. Moreover, these files should only be initialized the first time the application executes. Subsequent executions will refer to their cached versions residing in the local or containerized filesytems. 
+    Initializes the three static files defined in  settings: `STATIC_TICKERS_FILE`, `STATIC_CRYPTO_FILE` and `STATIC_ECON_FILE`. The data for these files is retrieved from the service managers. While this function blurs the lines between file management and service management, the function has been included in the `files.py` module rather than the `services.py` module due the unique response types of static metadata. All metadata is returned as a csv or zipped csvs. These responses require specialized functions. Moreover, these files should only be initialized the first time the application executes. Subsequent executions will refer to their cached versions residing in the local filesytems. 
+
+    Raises
+    ------
+    1. errors.ConfigurationError \n
+        If `scrilla.settings.PRICE_MANAGER` and `scrilla.settings.STAT_MANAGER` are not configured through the environment variables `PRICE_MANAGER` and `STAT_MANAGER`, the function will throw this error.
     """
     global static_tickers_blob
     global static_econ_blob
@@ -123,8 +129,7 @@ def init_static_data():
                 static_tickers_blob = parse_csv_response_column(column=0, url=url, firstRowHeader=settings.AV_RES_EQUITY_KEY, 
                                                         savefile=settings.STATIC_TICKERS_FILE)
 
-            else:
-                logger.info("No PRICE_MANAGER set in .env file!")
+            raise errors.ConfigurationError("No PRICE_MANAGER set in .env file!")
 
         # grab crypto symbols and store in STATIC_DIR
         if not os.path.isfile(settings.STATIC_CRYPTO_FILE):
@@ -135,8 +140,7 @@ def init_static_data():
                 logger.debug(f'Preparsing to parse \'{settings.PRICE_MANAGER}\' Response to query: {query}')
                 static_crypto_blob = parse_csv_response_column(column=0, url=url, firstRowHeader=settings.AV_RES_CRYPTO_KEY, 
                                                     savefile=settings.STATIC_CRYPTO_FILE)
-            else:
-                logger.info("No PRICE_MANAGER set in .env file!")
+            raise errors.ConfigurationError("No PRICE_MANAGER set in .env file!")
             
         # grab econominc indicator symbols and store in STATIC_DIR
         if not os.path.isfile(settings.STATIC_ECON_FILE):
@@ -150,8 +154,8 @@ def init_static_data():
                 static_econ_blob = parse_csv_response_column(column=0, url=url, firstRowHeader=settings.Q_RES_STAT_KEY,
                                                     savefile=settings.STATIC_ECON_FILE, zipped=settings.Q_RES_STAT_ZIP_KEY)
 
-            else:
-                logger.info("No STAT_MANAGER set in .env file!")
+            raise errors.ConfigurationError("No STAT_MANAGER set in .env file!")
+
     else:
         logger.debug('Static data already initialized!')
 

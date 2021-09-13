@@ -1,12 +1,8 @@
 import itertools, time, requests
 
-#  Note: need to import from package when running from wheel.
-# if running locally through main.py file, these imports should be replaced
-#       from . import settings, from . import files
-# annoying, but it is what it is.
-from scrilla import settings, files, errors, cache, static
-import util.outputter as outputter
-import util.helper as helper
+from scrilla import settings, errors, cache, static
+import scrilla.util.outputter as outputter
+import scrilla.util.helper as helper
 
 logger = outputter.Logger("services", settings.LOG_LEVEL)
 
@@ -41,9 +37,9 @@ class StatManager():
 
     def get_stats(self, symbol, start_date, end_date):
         url = self.construct_url(symbol, start_date, end_date)
+        response = requests.get(url).json()
 
         if self.type == static.keys['SERVICE']['STATISTICS']['QUANDL']:
-            response = requests.get(url).json()
 
             raw_stat = response[settings.Q_FIRST_LAYER][settings.Q_SECOND_LAYER]
             formatted_stat = {}
@@ -54,6 +50,35 @@ class StatManager():
 
         raise errors.ConfigurationError('No STAT_MANAGER found in the parsed environment settings')
 
+class DividendManager():
+    
+    def __init__(self, type):
+        self.type = type
+
+    def construct_url(self, ticker):
+        if settings.DIV_MANAGER == "iex":
+        
+            query=f'{ticker}/{settings.PATH_IEX_DIV}/{settings.PARAM_IEX_RANGE_5YR}'
+            url = f'{settings.IEX_URL}/{query}?{settings.PARAM_IEX_KEY}={settings.IEX_KEY}'
+    
+            logger.debug(f'IEX Cloud Path Query (w/o key) = {query}')
+
+            return url
+            
+        raise errors.ConfigurationError('No DIV_MANAGER found in the parsed environment settings')
+
+    def get_dividends(self, ticker):
+        url = self.construct_url(ticker)
+        response = requests.get(url).json()
+
+        formatted_response = {}
+
+        for item in response:
+            date = str(item[settings.IEX_RES_DATE_KEY])
+            div = item[settings.IEX_RES_DIV_KEY]
+            formatted_response[date] = div
+        
+        return formatted_response
 
 class PriceManager():
     """
@@ -229,6 +254,7 @@ class PriceManager():
 
 price_manager = PriceManager(settings.PRICE_MANAGER)
 stat_manager = StatManager(settings.STAT_MANAGER)
+div_manager = DividendManager(settings.DIV_MANAGER)
 price_cache = cache.PriceCache()        
 stat_cache = cache.StatCache()
 div_cache = cache.DividendCache()
@@ -278,11 +304,18 @@ def get_daily_price_history(ticker, start_date=None, end_date=None, asset_type=N
 
     prices = price_cache.filter_price_cache(ticker=ticker, start_date=start_date, end_date=end_date)
 
-    if prices is not None:
+    # if end_date not in prices.keys() or if prices != days_between(start, end), then cache is out of date
+    if prices is not None and helper.date_to_string(end_date) in prices.keys() and (
+        (asset_type == static.keys['ASSETS']['EQUITY']
+            and (helper.business_days_between(start_date, end_date) + 1) == len(prices))
+        or 
+        (asset_type == static.keys['ASSET']['CRYPTO']
+            and (helper.days_between(start_date, end_date) + 1) == len(prices))
+    ):
         return prices
         
     try:
-        prices = price_manager.get_prices(ticker, asset_type, start_date=start_date, end_date=end_date)
+        prices = price_manager.get_prices(ticker=ticker,start_date=start_date, end_date=end_date, asset_type=asset_type)
     except errors.APIResponseError as api:
         raise api
     except errors.InputValidationError as ive:
@@ -359,7 +392,7 @@ def get_daily_stats_history(symbol, start_date=None, end_date=None):
 
     return stats
 
-def get_daily_stats_latest(statistic):
+def get_daily_stats_latest(symbol):
     """
     Description
     -----------
@@ -370,12 +403,12 @@ def get_daily_stats_latest(statistic):
     1. statistic: str \n 
         Required. Symbol representing the statistc whose value it to be retrieved. \n \n
     """
-    stats_history = get_daily_stats_history(statistic=statistic)
+    stats_history = get_daily_stats_history(symbol=symbol)
     first_element = helper.get_first_json_key(stats_history)
     return stats_history[first_element]
 
 
-def query_service_for_dividend_history(ticker):
+def get_dividend_history(ticker):
     """
     Description
     -----------
@@ -386,42 +419,28 @@ def query_service_for_dividend_history(ticker):
     1. ticker : str \n 
         Required. Tickery symbol of the equity whose dividend history is to be retrieved. \n \n 
     """
-    if settings.DIV_MANAGER == "iex":
-        
-        query=f'{ticker}/{settings.PATH_IEX_DIV}/{settings.PARAM_IEX_RANGE_5YR}'
-        url = f'{settings.IEX_URL}/{query}?{settings.PARAM_IEX_KEY}={settings.IEX_KEY}'
-    
-        logger.debug(f'IEX Cloud Path Query (w/o key) = {query}')
-        response = requests.get(url).json()
-
-        formatted_response = {}
-
-        for item in response:
-            date_string = str(item[settings.IEX_RES_DATE_KEY])
-            div_string = item[settings.IEX_RES_DIV_KEY]
-            formatted_response[date_string] = div_string
-
-        return formatted_response
-
-def get_dividend_history(ticker):
     logger.debug(f'Checking for {ticker} dividend history in cache.')
+    divs = div_cache.filter_dividend_cache(ticker=ticker)
 
-    dividends = files.retrieve_local_object(local_object=files.OBJECTS['dividends'],
-                                            args={"ticker": ticker})
-    if dividends is not None:
-        return dividends
+    if divs is not None:
+        # TODO: same as others
+        return divs 
 
-    logger.debug(f'Retrieving {ticker} prices from Service Manager.')  
-    dividends = query_service_for_dividend_history(ticker=ticker)
+    try:
+        logger.debug(f'Retrieving {ticker} dividends from service')  
+        divs = div_manager.get_dividends(ticker=ticker)
+    except errors.APIResponseError as api:
+        raise api
+    except errors.InputValidationError as ive:
+        raise ive
+    
+    logger.debug(f'Storing {ticker} dividend history in cache.')
 
-    logger.debug(f'Storing {ticker} price history in cache.')
-    files.store_local_object(local_object=files.OBJECTS['dividends'], value=dividends, args={"ticker": ticker})
-    return dividends
+    for date in divs:
+        div_cache.save_row(ticker=ticker, date=date, amount=divs[date])
 
-def get_percent_stat_symbols():
-    if settings.STAT_MANAGER == 'quandl':
-        percent_stats = settings.ARG_Q_YIELD_CURVE.values()
-        return percent_stats
+    return divs
+
 
 # NOTE: Quandl outputs interest in percentage terms. 
 # TODO: verify the interest rate is annual. may need to convert.
@@ -432,5 +451,5 @@ def get_risk_free_rate():
     Returns the risk free rate as a decimal. The risk free rate is defined in the `settings.py` file and is configured through the RISK_FREE environment variable. \n \n 
     """
     risk_free_rate_key = settings.RISK_FREE_RATE
-    risk_free_rate = get_daily_stats_latest(statistic=risk_free_rate_key)
+    risk_free_rate = get_daily_stats_latest(symbol=risk_free_rate_key)
     return (risk_free_rate)/100

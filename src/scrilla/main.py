@@ -150,7 +150,7 @@ def do_program():
         ### FUNCTION: Yield Curve
         elif opt == formatter.FUNC_ARG_DICT['yield_curve']:
                 for rate in settings.ARG_Q_YIELD_CURVE:
-                    curve_rate = services.get_daily_stats_latest(statistic=settings.ARG_Q_YIELD_CURVE[rate])
+                    curve_rate = services.get_daily_stats_latest(symbol=settings.ARG_Q_YIELD_CURVE[rate])
                     outputter.scalar_result(calculation=rate, result=curve_rate, currency=False)
 
         # variable argument functions
@@ -388,9 +388,11 @@ def do_program():
                         profiles[arg] = statistics.calculate_risk_return(ticker=arg, start_date=xtra_list['start_date'], 
                                                                             end_date=xtra_list['end_date'])
                         profiles[arg]['sharpe_ratio'] = markets.sharpe_ratio(ticker=arg, start_date=xtra_list['start_date'],
-                                                                            end_date=xtra_list['end_date'])
+                                                                            end_date=xtra_list['end_date'], 
+                                                                            ticker_profile=profiles[arg])
                         profiles[arg]['asset_beta'] = markets.market_beta(ticker=arg, start_date=xtra_list['start_date'],
-                                                                            end_date=xtra_list['end_date'])
+                                                                            end_date=xtra_list['end_date'],
+                                                                            ticker_profile=profiles[arg])
                         profiles[arg]['equity_cost'] = markets.cost_of_equity(ticker=arg, start_date=xtra_list['start_date'],
                                                                             end_date=xtra_list['end_date'])
 
@@ -424,7 +426,7 @@ def do_program():
                 def cli_statistic():
                     for stat in main_args:
                         outputter.scalar_result(calculation=stat, 
-                                                result=services.get_daily_stats_latest(stat),
+                                                result=services.get_daily_stats_latest(symbol=stat),
                                                 currency=False)
                 selected_function, required_length = cli_statistic, 1
             
@@ -432,7 +434,7 @@ def do_program():
             elif opt == formatter.FUNC_ARG_DICT['statistic_history']:
                 def cli_statistic_history():
                     for arg in main_args:
-                        stats = services.get_daily_stats_history(statistic=arg, start_date=xtra_list['start_date'],
+                        stats = services.get_daily_stats_history(symbol=arg, start_date=xtra_list['start_date'],
                                                             end_date=xtra_list['end_date'])
                         for date in stats:
                             outputter.scalar_result(calculation=f'{arg}({date})', result=stats[date], 

@@ -502,11 +502,11 @@ def calculate_risk_return(ticker, start_date=None, end_date=None, sample_prices=
     1. ticker : str \n
         Required. Ticker symbol whose risk-return profile is to be calculated. \n \n 
     2. start_date : datetime.date \n 
-        Optional. Start date of the time period over which the risk-return profile is to be calculated. Defaults to `None`, in which case the calculation proceeds as if `start_date` were set to 100 trading days prior to `end_date`. If `get_asset_type(ticker)=static.keys['ASSET']['CRYPTO']`, this means 100 days regardless. If `get_asset_type(ticker)=static.keys['ASSET']['EQUITY']`, this excludes weekends and holidays and decrements the `end_date` by 100 trading days.\n \n
+        Optional. Start date of the time period over which the risk-return profile is to be calculated. Defaults to `None`, in which case the calculation proceeds as if `start_date` were set to 100 trading days prior to `end_date`. If `get_asset_type(ticker)=static.keys['ASSETS']['CRYPTO']`, this means 100 days regardless. If `get_asset_type(ticker)=static.keys['ASSETS']['EQUITY']`, this excludes weekends and holidays and decrements the `end_date` by 100 trading days.\n \n
     3. end_date : datetime.date \n 
-        Optional. End date of the time period over which the risk-return profile is to be calculated. Defaults to `None`, in which the calculation proceeds as if `end_date` were set to today. If the `get_asset_type(ticker)==static.keys['ASSETS']['CRYPTO']` this means today regardless. If `get_asset_type(ticker)=static.keys['ASSET']['EQUITY']` this excludes holidays and weekends and sets the end date to the last valid trading date. \n \n
-    4. sample_prices : { 'date' (str) : 'price' (str) } \n
-        Optional. A list of the asset prices for which correlation will be calculated. Overrides calls to service and calculates correlation for sample of prices supplied. Function will disregard start_date and end_date if sample_price is specified:  { 'date_1' : { 'open' : number, 'close' : number}, 'date_2': { 'open': number, 'close': number} ... }  and ordered from latest date to earliest date.  \n \n
+        Optional. End date of the time period over which the risk-return profile is to be calculated. Defaults to `None`, in which the calculation proceeds as if `end_date` were set to today. If the `get_asset_type(ticker)==static.keys['ASSETS']['CRYPTO']` this means today regardless. If `get_asset_type(ticker)=static.keys['ASSETS']['EQUITY']` this excludes holidays and weekends and sets the end date to the last valid trading date. \n \n
+    4. sample_prices : { 'date_1' : { 'open' : number, 'close' : number}, 'date_2': { 'open': number, 'close': number} ... } \n
+        Optional. A list of the asset prices for which correlation will be calculated. Overrides calls to service and forces calculation of correlation for sample of prices supplied. Function will disregard `start_date` and `end_date` and use the first and last key as the latest and earliest date, respectively. In other words, the `sample_prices` dictionary must be ordered from latest to earliest.   \n \n
     5. asset_type : str
          Optional. Specify asset type to prevent overusing redundant calculations. Allowable values: settings.ASSET_TYPE_EQUITY, settings.ASSET_TYPE_CRYPTO \n \n
 
@@ -535,9 +535,12 @@ def calculate_risk_return(ticker, start_date=None, end_date=None, sample_prices=
         except errors.InputValidationError as ive:
            raise ive
 
+        print('inside statistics.calculate_risk_return')
         results = profile_cache.filter_profile_cache(ticker=ticker, start_date=start_date, end_date=end_date)
 
-        if results[static.keys['STATISTICS']['RETURN']] is not None \
+        print('results', results)
+        if results is not None \
+                and results[static.keys['STATISTICS']['RETURN']] is not None \
                 and results[static.keys['STATISTICS']['VOLATILITY']] is not None:
             return results
 
@@ -549,13 +552,18 @@ def calculate_risk_return(ticker, start_date=None, end_date=None, sample_prices=
     else:
         logger.debug(f'{ticker} sample prices provided, skipping service call.')
         prices = sample_prices
+        try:
+           asset_type = errors.validate_asset_type(ticker, asset_type)
+           trading_period = static.get_trading_period(asset_type)
+        except errors.InputValidationError as ive:
+           raise ive
 
     if not prices:
         raise errors.PriceError(f'No prices could be retrieved for {ticker}')
     
     # Log of difference loses a sample
     sample = len(prices) - 1
-    logger.debug(f'Calculating mean annual return over last {sample+1} days for {ticker}')
+    logger.debug(f'Calculating mean annual return over last {sample} days for {ticker}')
 
     ### MEAN CALCULATION
     # NOTE: mean return is a telescoping series, i.e. sum of log(x1/x0) only depends on the first and
@@ -571,7 +579,7 @@ def calculate_risk_return(ticker, start_date=None, end_date=None, sample_prices=
     today, variance, tomorrows_price, tomorrows_date = False, 0, 0, None
         # adjust the random variable being measured so expectation is easier to calculate. 
     mean_mod_return = mean_return*sqrt(trading_period)
-    logger.debug(f'Calculating mean annual volatility over last {sample+1} days for {ticker}')
+    logger.debug(f'Calculating mean annual volatility over last {sample} days for {ticker}')
 
     for date in prices:
         todays_price = prices[date][static.keys['PRICES']['CLOSE']]
@@ -682,9 +690,9 @@ def calculate_ito_correlation(ticker_1, ticker_2, asset_type_1=None, asset_type_
             raise api
         
     if (len(sample_prices[ticker_1]) == 0) \
-        or (len(sample_prices[ticker_2]) == 0 \
-        or len(sample_prices[ticker_1]) != len(sample_prices[ticker_2]) \
-        or len(helper.intersect_dict_keys(sample_prices[ticker_1], sample_prices[ticker_2]) == 0)):
+        or (len(sample_prices[ticker_2]) == 0) \
+        or (len(sample_prices[ticker_1]) != len(sample_prices[ticker_2])) \
+        or (len(helper.intersect_dict_keys(sample_prices[ticker_1], sample_prices[ticker_2])) == 0):
         raise errors.PriceError("Prices cannot be retrieved for correlation calculation")
     
     if asset_type_1 != asset_type_2:

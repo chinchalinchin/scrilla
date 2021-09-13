@@ -262,12 +262,12 @@ The four functions of interest in this module are:
     <b>Returns:</b><br>
     a dictionary of prices with the `YYYY-MM-DD` formatted date as key. The dictionary is sorted latest price to earliest price.<br>
     
-2. `scrilla.services.get_daily_stat_history(statistic, start_date=None, end_date=None)`<br>
+2. `scrilla.services.get_daily_stat_history(symbol, start_date=None, end_date=None)`<br>
     <b>Description:</b><br>
         This function will retrieve the price history for the financial statistic specifed by the `statistic` argument. 
     <br><br>
     <b>Arguments:</b><br>
-    - `statistic : str`: Required. Statistic symbol for quantity of interest. A list of allowable values can be found [here](https://www.quandl.com/data/FRED-Federal-Reserve-Economic-Data/documentation)<br>
+    - `symbol : str`: Required. Statistic symbol for quantity of interest. A list of allowable values can be found [here](https://www.quandl.com/data/FRED-Federal-Reserve-Economic-Data/documentation)<br>
     - `start_date: datetime.date` : Optional. Start date of analysis range. Defaults to `None`<br> 
     - `end_date: datetime.date` : Optional. End date of analysis range. Defaults to `None`<br>
 

@@ -36,13 +36,21 @@ def sharpe_ratio(ticker, start_date=None, end_date=None, risk_free_rate=None, ti
         Risk-return profile for the supplied ticker. If provided, start_date and end_date are ignored and the values in ticker_profile are used to calculate the Sharpe ratio.
 
     """
+    try:
+        start_date, end_date = errors.validate_dates(start_date=start_date, end_date=end_date, 
+                                                        asset_type=static.keys['ASSETS']['EQUITY'])
+    except errors.InputValidationError as ive:
+        raise ive
 
+    print('inside markets.sharpe_ratio')
     result = profile_cache.filter_profile_cache(ticker=ticker, start_date=start_date, end_date=end_date)
 
-    if result[static.keys['STATISTICS']['SHARPE']] is not None:
-        return result
+    print('result', result)
+    if result is not None and result[static.keys['STATISTICS']['SHARPE']] is not None:
+        return result[static.keys['STATISTICS']['SHARPE']]
 
-    if ticker_profile is None:
+    if ticker_profile is None:  
+        print('calcuatling rr from markets.sharpe_ratio')
         ticker_profile = statistics.calculate_risk_return(ticker=ticker, start_date=start_date,
                                                         end_date=end_date)
 
@@ -51,6 +59,7 @@ def sharpe_ratio(ticker, start_date=None, end_date=None, risk_free_rate=None, ti
 
     sharpe_ratio = (ticker_profile['annual_return'] - risk_free_rate)/ticker_profile['annual_volatility']
 
+    print('RRRRRRIGGGHHHHTTT FUCKING HERE!!!')
     profile_cache.save_or_update_row(ticker=ticker, start_date=start_date,
                                         end_date=end_date,sharpe_ratio=sharpe_ratio)
 
@@ -131,8 +140,8 @@ def market_beta(ticker, start_date=None, end_date=None, market_profile=None, mar
 
     result = profile_cache.filter_profile_cache(ticker=ticker, start_date=start_date, end_date=end_date)
 
-    if result['STATISTICS']['BETA'] is not None:
-        return result
+    if result is not None and result[static.keys['STATISTICS']['BETA']] is not None:
+        return result[static.keys['STATISTICS']['BETA']]
 
     try:
         if market_profile is None:
@@ -195,8 +204,8 @@ def cost_of_equity(ticker, start_date=None, end_date=None, market_profile=None, 
 
     result = profile_cache.filter_profile_cache(ticker=ticker, start_date=start_date, end_date=end_date)
 
-    if result['STATISTICS']['EQUITY'] is not None:
-        return result
+    if result is not None and result[static.keys['STATISTICS']['EQUITY']] is not None:
+        return result[static.keys['STATISTICS']['EQUITY']]
 
     try:
         beta = market_beta(ticker=ticker, start_date=start_date, end_date=end_date,
@@ -209,6 +218,9 @@ def cost_of_equity(ticker, start_date=None, end_date=None, market_profile=None, 
     except errors.APIResponseError as api:
         raise api
 
+    print('prem', premium)
+    print('beta', beta)
+    print('risk_free', services.get_risk_free_rate())
     equity_cost = (premium*beta + services.get_risk_free_rate())
 
     profile_cache.save_or_update_row(ticker=ticker, start_date=start_date, end_date=end_date, equity_cost=equity_cost)
