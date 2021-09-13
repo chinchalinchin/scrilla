@@ -42,15 +42,12 @@ def sharpe_ratio(ticker, start_date=None, end_date=None, risk_free_rate=None, ti
     except errors.InputValidationError as ive:
         raise ive
 
-    print('inside markets.sharpe_ratio')
     result = profile_cache.filter_profile_cache(ticker=ticker, start_date=start_date, end_date=end_date)
 
-    print('result', result)
     if result is not None and result[static.keys['STATISTICS']['SHARPE']] is not None:
         return result[static.keys['STATISTICS']['SHARPE']]
 
     if ticker_profile is None:  
-        print('calcuatling rr from markets.sharpe_ratio')
         ticker_profile = statistics.calculate_risk_return(ticker=ticker, start_date=start_date,
                                                         end_date=end_date)
 
@@ -59,7 +56,6 @@ def sharpe_ratio(ticker, start_date=None, end_date=None, risk_free_rate=None, ti
 
     sharpe_ratio = (ticker_profile['annual_return'] - risk_free_rate)/ticker_profile['annual_volatility']
 
-    print('RRRRRRIGGGHHHHTTT FUCKING HERE!!!')
     profile_cache.save_or_update_row(ticker=ticker, start_date=start_date,
                                         end_date=end_date,sharpe_ratio=sharpe_ratio)
 
@@ -218,9 +214,6 @@ def cost_of_equity(ticker, start_date=None, end_date=None, market_profile=None, 
     except errors.APIResponseError as api:
         raise api
 
-    print('prem', premium)
-    print('beta', beta)
-    print('risk_free', services.get_risk_free_rate())
     equity_cost = (premium*beta + services.get_risk_free_rate())
 
     profile_cache.save_or_update_row(ticker=ticker, start_date=start_date, end_date=end_date, equity_cost=equity_cost)

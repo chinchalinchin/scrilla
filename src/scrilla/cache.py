@@ -149,7 +149,7 @@ class CorrelationCache(Cache):
     
     @staticmethod
     def to_dict(query_results):
-        return { static.keys['STATISTICS']['CORRELATION']: query_results[0] }
+        return { static.keys['STATISTICS']['CORRELATION']: query_results[0][0] }
 
     def save_row(self, ticker_1, ticker_2, start_date, end_date, correlation):
         logger.verbose(f'Saving ({ticker_1}, {ticker_2}) correlation from {start_date} to {end_date} to the cacche')
@@ -245,10 +245,6 @@ class ProfileCache(Cache):
         formatter = { 'ticker': ticker, 'start_date': start_date, 'end_date': end_date}
         result = self.execute_query(query=ProfileCache.profile_query, formatter=formatter)
         
-        print(result)
-        for r in result:
-            for p in r:
-                print(p)
         if len(result)>0:
             return self.to_dict(result)
         else: 

@@ -273,7 +273,7 @@ def get_asset_type(symbol):
         #return None
         return static.keys['ASSETS']['EQUITY']
     # default to equity for overlap until a better method is determined. 
-    return None
+    return static.keys['ASSETS']['EQUITY']
     
 def get_watchlist():
     """

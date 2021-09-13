@@ -223,7 +223,7 @@ class PriceManager():
                 elif asset_type == static.keys['ASSETS']['CRYPTO']:
                     start_index = list(prices[settings.AV_RES_CRYPTO_FIRST_LAYER].keys()).index(start_string)
                     end_index = list(prices[settings.AV_RES_CRYPTO_FIRST_LAYER].keys()).index(end_string)
-                    prices = dict(itertools.islice(prices[settings.AV_RES_CRYPTO_FIRST_LAYER].items(), end_index, start_index))
+                    prices = dict(itertools.islice(prices[settings.AV_RES_CRYPTO_FIRST_LAYER].items(), end_index, start_index+1))
                     return prices
                 
             except KeyError as ke:
@@ -309,7 +309,7 @@ def get_daily_price_history(ticker, start_date=None, end_date=None, asset_type=N
         (asset_type == static.keys['ASSETS']['EQUITY']
             and (helper.business_days_between(start_date, end_date) + 1) == len(prices))
         or 
-        (asset_type == static.keys['ASSET']['CRYPTO']
+        (asset_type == static.keys['ASSETS']['CRYPTO']
             and (helper.days_between(start_date, end_date) + 1) == len(prices))
     ):
         return prices

@@ -1,4 +1,4 @@
-import sys, os
+import sys, os, traceback
 
 #  Note: need to import from package when running from wheel.
 # if running locally through main.py file, these imports should be replaced
@@ -51,15 +51,15 @@ def validate_function_usage(selection, args, wrapper_function, required_length=1
 
         # TODO: CLI APPLICATION ERROR HANDLING GOES HERE 
         except errors.PriceError as pe:
-            logger.comment(str(pe))
+            traceback.print_exc()
         except errors.SampleSizeError as se:
-            logger.comment(str(se))
+            traceback.print_exc()
         except errors.APIResponseError as api:
-            logger.comment(str(api))
+            traceback.print_exc()
         except errors.InputValidationError as ive:
-            logger.comment(str(ive))
+            traceback.print_exc()
         except errors.ConfigurationError as ce:
-            logger.comment(str(ce))
+            traceback.print_exc()
 
 def do_program():
     if len(sys.argv)>0:

@@ -535,10 +535,8 @@ def calculate_risk_return(ticker, start_date=None, end_date=None, sample_prices=
         except errors.InputValidationError as ive:
            raise ive
 
-        print('inside statistics.calculate_risk_return')
         results = profile_cache.filter_profile_cache(ticker=ticker, start_date=start_date, end_date=end_date)
 
-        print('results', results)
         if results is not None \
                 and results[static.keys['STATISTICS']['RETURN']] is not None \
                 and results[static.keys['STATISTICS']['VOLATILITY']] is not None:
@@ -689,16 +687,14 @@ def calculate_ito_correlation(ticker_1, ticker_2, asset_type_1=None, asset_type_
         except errors.APIResponseError as api:
             raise api
         
-    if (len(sample_prices[ticker_1]) == 0) \
-        or (len(sample_prices[ticker_2]) == 0) \
-        or (len(sample_prices[ticker_1]) != len(sample_prices[ticker_2])) \
-        or (len(helper.intersect_dict_keys(sample_prices[ticker_1], sample_prices[ticker_2])) == 0):
-        raise errors.PriceError("Prices cannot be retrieved for correlation calculation")
-    
     if asset_type_1 != asset_type_2:
         # remove weekends and holidays from crypto prices so samples can be compared
         sample_prices[ticker_1], sample_prices[ticker_2] = helper.intersect_dict_keys(sample_prices[ticker_1], sample_prices[ticker_2])
-            
+
+    if (len(sample_prices[ticker_1]) == 0) \
+        or (len(sample_prices[ticker_2]) == 0):
+        raise errors.PriceError("Prices cannot be retrieved for correlation calculation")
+
     if asset_type_1 == asset_type_2 and asset_type_1 == static.keys['ASSETS']['CRYPTO']:
         trading_period = static.constants['ONE_TRADING_DAY']['CRYPTO']
     else:
