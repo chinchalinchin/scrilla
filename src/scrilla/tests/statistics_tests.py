@@ -4,9 +4,9 @@ import numpy
 PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(PROJECT_DIR)
 
-import settings, services
-from analysis import statistics
-from util import outputter, helper
+from scrilla import settings, services, static
+from scrilla.analysis import statistics
+from scrilla.util import outputter, helper
 
 rolling_x_y_1 = [[1, 3, 5, 2, 6, 10],[4, 5, 3, 6, 2, 8]]
 rolling_x_y_2 = [[3, 5, 2, 6, 10, 8], [5, 3, 6, 2, 8, 5]]
@@ -134,7 +134,7 @@ def rolling_recursion_test():
     outputter.print_line()
 
 def rolling_recursion_tests_with_financial_data():
-    trading_period = settings.get_trading_period(asset_type=settings.ASSET_EQUITY)
+    trading_period = static.get_trading_period(asset_type=static.keys['ASSETS']['EQUITY'])
 
     for ticker in test_tickers:
         for date in test_dates:
@@ -153,18 +153,18 @@ def rolling_recursion_tests_with_financial_data():
             del previous_prices[helper.date_to_string(end_date)]
             del new_prices[helper.date_to_string(previous_start_date)]
             
-            end_date_price = services.parse_price_from_date(prices=prices,
+            end_date_price = services.price_manager.parse_price_from_date(prices=prices,
                                                             date=helper.date_to_string(end_date), 
-                                                            asset_type=settings.ASSET_EQUITY)
-            previous_end_date_price = services.parse_price_from_date(prices=prices, 
+                                                            asset_type=static.keys['ASSETS']['EQUITY'])
+            previous_end_date_price = services.price_manager.parse_price_from_date(prices=prices, 
                                                             date=helper.date_to_string(previous_end_date), 
-                                                            asset_type=settings.ASSET_EQUITY)
-            start_date_price = services.parse_price_from_date(prices=prices,
+                                                            asset_type=static.keys['ASSETS']['EQUITY'])
+            start_date_price = services.price_manager.parse_price_from_date(prices=prices,
                                                             date=helper.date_to_string(start_date), 
-                                                            asset_type=settings.ASSET_EQUITY)
-            previous_start_date_price = services.parse_price_from_date(prices=prices,
+                                                            asset_type=static.keys['ASSETS']['EQUITY'])
+            previous_start_date_price = services.price_manager.parse_price_from_date(prices=prices,
                                                             date=helper.date_to_string(previous_start_date),
-                                                            asset_type=settings.ASSET_EQUITY)
+                                                            asset_type=static.keys['ASSETS']['EQUITY'])
 
             new_return = numpy.log(float(end_date_price)/float(previous_end_date_price))/trading_period
             lost_return = numpy.log(float(start_date_price)/float(previous_start_date_price))/trading_period

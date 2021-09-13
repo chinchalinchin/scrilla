@@ -196,7 +196,7 @@ class Portfolio:
                 price = latest_prices[i]
             elif self.sample_prices is not None:
                 asset_type = files.get_asset_type(symbol=self.tickers[i])
-                price = services.parse_price_from_date(prices=self.sample_prices[self.tickers[i]],
+                price = services.price_manager.parse_price_from_date(prices=self.sample_prices[self.tickers[i]],
                                                         date=list(self.sample_prices[self.tickers[i]].keys())[0],
                                                         asset_type=asset_type)                                 
             else:
@@ -215,7 +215,7 @@ class Portfolio:
                 price = latest_prices[i]
             elif self.sample_prices is not None:
                 asset_type = files.get_asset_type(symbol=self.tickers[i])
-                price = services.parse_price_from_date(prices=self.sample_prices[self.tickers[i]],
+                price = services.price_manager.parse_price_from_date(prices=self.sample_prices[self.tickers[i]],
                                                         date=list(self.sample_prices[self.tickers[i]].keys())[0],
                                                         asset_type=asset_type)                                   
             else:

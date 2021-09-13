@@ -1,4 +1,5 @@
 import datetime
+from scrilla import static
 import util.helper as helper
 import util.outputter as outputter
 
@@ -145,9 +146,7 @@ class Cashflow:
         
 
     def regress_growth_function(self):
-        to_array = []
-        for date in self.sample:
-            to_array.append(self.sample[date])
+        to_array = [ self.sample[date] for date in self.sample ]
 
         self.beta = statistics.regression_beta(x=self.time_series, y=to_array)
         self.alpha = statistics.regression_alpha(x=self.time_series, y=to_array)
@@ -162,6 +161,17 @@ class Cashflow:
         else:
             logger.debug(f'Linear regression model : y = {self.beta} * x + {self.alpha}')
 
+    def generate_model_series(self):
+        return [self.alpha + self.beta*time for time in self.time_series]
+
+    def generate_model_comparison(self):
+        model_prices= self.generate_model_series()
+
+        return[ { 'date': date, 
+                  'model_price': model_prices[index], 
+                  'actual_price': self.sample[date] } 
+                for index, date in enumerate(self.sample.keys()) ]
+        
     def get_growth_function(self, x):
         if self.growth_function is None:
             if self.constant is not None:
@@ -207,7 +217,7 @@ class Cashflow:
             
             self.NPV += self.get_growth_function(current_time) / ((1 + self.discount_rate)**current_time)
 
-            if self.NPV - previous_value < settings.NPV_DELTA_TOLERANCE:
+            if self.NPV - previous_value < static.keys['NPV_DELTA_TOLERANCE']:
                 calculating = False
             i += 1
 

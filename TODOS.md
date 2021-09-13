@@ -17,15 +17,11 @@
 
 6. TEST MOVING AVERAGE ALGORITHM FOR MIX OF ASSET TYPES. I think there may be some mismatch of types in date comparisons.
 
-7. Correlation algorithm needs tested for mix of asset types as well, i.e. equities and crypto.
-
 16. If an option prices API is found, then IV can be calculated for a specific equity. The optimization algorithm can be expanded to optimize over IV of a portfolio, instead of the Historical Volatility. Allow user to specify what type of volatility the portfolio will use in its optimization, historical or implied. Will need to account for skew, somehow. 
 
 17. Test moving averages plot generation.
 
 18. Pretty sure the reason the len(moving_averages) != len(dates_between) in moving average algorithm is because dates_between doesn't include the dates themselves; it's only returning...dun dun dun...the dates between, not the dates themselves. 
-
-19. Request parameters not being taken to uppercase.
 
 20. Other types of screening. Discounted Cash Flow, for instance. 
 
@@ -36,8 +32,6 @@
 26. Document how to use objects and functions in shell/scripts.
 
 27. Raise Exceptions instead of returning False when functions fail. See #4: https://deepsource.io/blog/8-new-python-antipatterns/
-
-30. Does it make sense to calculate the 'Sharpe Frontier'?
 
 31. Allow relative file references when saving analysis. Right now needs to be absolute path inputted into -save argument. Also, save return profiles. 
 
@@ -50,3 +44,6 @@
 37. Look into why U risk profile calculation breaks function.
 
 41. analysis module can import function module. function module scripts can import each other, as they should be static. analysis module is built out of function module. 
+
+42. review monte carlo simulation. allow value at risk function to specify SDE. look into MLE for parameters.
+

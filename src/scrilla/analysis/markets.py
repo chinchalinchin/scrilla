@@ -1,18 +1,14 @@
-import settings
-import services
-import files
-
-import analysis.statistics as statistics
-
-from objects.cashflow import Cashflow
-
-import util.outputter as outputter
+from scrilla import settings, services, files, cache, static, errors
+from scrilla.objects.cashflow import Cashflow
+import scrilla.analysis.statistics as statistics
+import scrilla.util.outputter as outputter
 
 MODEL_DDM="ddm"
 # TODO: implement dcf model
 MODEL_DCF="dcf"
 
 logger = outputter.Logger('markets', settings.LOG_LEVEL)
+profile_cache = cache.ProfileCache()
 
 # NOTE: if ticker_profile is provided, it effectively nullifies start_date and end_date.
 # TODO: pass in risk_free_rate=None as optional argument to prevent overusing services
@@ -40,14 +36,18 @@ def sharpe_ratio(ticker, start_date=None, end_date=None, risk_free_rate=None, ti
         Risk-return profile for the supplied ticker. If provided, start_date and end_date are ignored and the values in ticker_profile are used to calculate the Sharpe ratio.
 
     """
+    try:
+        start_date, end_date = errors.validate_dates(start_date=start_date, end_date=end_date, 
+                                                        asset_type=static.keys['ASSETS']['EQUITY'])
+    except errors.InputValidationError as ive:
+        raise ive
 
-    result = files.retrieve_local_object(local_object=files.OBJECTS['equity_statistic'],
-                                            args={ 'equity_stat_symbol': 'sharpe', 'ticker': ticker,
-                                                    'start_date': start_date, 'end_date': end_date })
-    if result is not None:
-        return result
+    result = profile_cache.filter_profile_cache(ticker=ticker, start_date=start_date, end_date=end_date)
 
-    if ticker_profile is None:
+    if result is not None and result[static.keys['STATISTICS']['SHARPE']] is not None:
+        return result[static.keys['STATISTICS']['SHARPE']]
+
+    if ticker_profile is None:  
         ticker_profile = statistics.calculate_risk_return(ticker=ticker, start_date=start_date,
                                                         end_date=end_date)
 
@@ -56,10 +56,10 @@ def sharpe_ratio(ticker, start_date=None, end_date=None, risk_free_rate=None, ti
 
     sharpe_ratio = (ticker_profile['annual_return'] - risk_free_rate)/ticker_profile['annual_volatility']
 
-    files.store_local_object(local_object=files.OBJECTS['equity_statistic'], 
-                                value=sharpe_ratio, args={ 'equity_stat_symbol': 'sharpe', 'ticker': ticker,
-                                                            'start_date': start_date, 'end_date': end_date })
-    return (ticker_profile['annual_return'] - risk_free_rate)/ticker_profile['annual_volatility']
+    profile_cache.save_or_update_row(ticker=ticker, start_date=start_date,
+                                        end_date=end_date,sharpe_ratio=sharpe_ratio)
+
+    return sharpe_ratio
 
 # if no dates are specified, defaults to last 100 days
 def market_premium(start_date=None, end_date=None, market_profile = None):
@@ -76,25 +76,33 @@ def market_premium(start_date=None, end_date=None, market_profile = None):
     2. end_date : datetime.date \n 
         End_date of the time period for which the market premium will be computed. \n \n 
 
+    Raises
+    ------
+    1. errors.InputValidationError \n
+    2. errors.SampleSizeError \n
+    3. errors.PriceError \n
+    4. errors.APIResponseError \n
     """
-    result = files.retrieve_local_object(local_object=files.OBJECTS['equity_statistic'], 
-                                            args={ 'equity_stat_symbol': 'premium', 'ticker': settings.MARKET_PROXY,
-                                                    'start_date': start_date, 'end_date': end_date})
-    if result is not None:
-        return result
+    try:
+        start_date, end_date = errors.validate_dates(start_date=start_date, end_date=end_date, 
+                                                        asset_type=static.keys['ASSETS']['EQUITY'])
+    except errors.InputValidationError as ive:
+        raise ive
 
     if market_profile is None:
-        market_profile = statistics.calculate_risk_return(ticker=settings.MARKET_PROXY, 
-                                                            start_date=start_date, 
-                                                            end_date=end_date)
-
+        try:
+            market_profile = statistics.calculate_risk_return(ticker=settings.MARKET_PROXY, 
+                                                                start_date=start_date, end_date=end_date)
+        except errors.SampleSizeError as se:
+            raise se
+        except errors.PriceError as pe:
+            raise pe
+        except errors.APIResponseError as api:
+            raise api
+    
     market_premium = (market_profile['annual_return'] - services.get_risk_free_rate())
-
-    files.store_local_object(local_object=files.OBJECTS['equity_statistic'], value = market_premium,
-                                args={ 'equity_stat_symbol': 'premium', 'ticker': settings.MARKET_PROXY,
-                                        'start_date': start_date, 'end_date': end_date})
-
     return market_premium
+        
 
 def market_beta(ticker, start_date=None, end_date=None, market_profile=None, market_correlation=None, ticker_profile=None, sample_prices=None):
     """
@@ -113,40 +121,57 @@ def market_beta(ticker, start_date=None, end_date=None, market_profile=None, mar
     3. end_date : datetime.date \n 
         End_date of the time period for which the asset beta will be computed. \n \n 
 
+    Raises  
+    ------
+    1. errors.InputValidationError \n
+    2. errors.SampleSizeError \n
+    3. errors.PriceError \n
+    4. errors.APIResponseError \n
     """
-    result = files.retrieve_local_object(local_object=files.OBJECTS['equity_statistic'], 
-                                            args={ 'equity_stat_symbol': 'beta', 'ticker': ticker,
-                                                    'start_date': start_date, 'end_date': end_date })
-    if result is not None:
-        return result
+    try:
+        start_date, end_date = errors.validate_dates(start_date=start_date, end_date=end_date, 
+                                                        asset_type=static.keys['ASSETS']['EQUITY'])
+    except errors.InputValidationError as ive:
+        raise ive
 
-    if market_profile is None:
-        if sample_prices is None:
-            market_profile = statistics.calculate_risk_return(ticker=settings.MARKET_PROXY, 
-                                                            start_date=start_date, 
-                                                            end_date=end_date)
-        else:   
-            market_profile = statistics.calculate_risk_return(ticker=settings.MARKET_PROXY,
-                                                            sample_prices=sample_prices[settings.MARKET_PROXY])
-    if ticker_profile is None:
-        if sample_prices is None:
-            ticker_profile = statistics.calculate_risk_return(ticker=ticker,
-                                                            start_date=start_date,
-                                                            end_date=end_date)
-        else:
-            ticker_profile = statistics.calculate_risk_return(ticker=ticker, 
-                                                            sample_prices=sample_prices[ticker])
+    result = profile_cache.filter_profile_cache(ticker=ticker, start_date=start_date, end_date=end_date)
 
-    market_covariance = statistics.calculate_return_covariance(ticker_1=ticker, ticker_2=settings.MARKET_PROXY,
-                                                                profile_1=ticker_profile, profile_2=market_profile,
-                                                                correlation = market_correlation,
-                                                                sample_prices=sample_prices,
-                                                                start_date=start_date, end_date=end_date)
+    if result is not None and result[static.keys['STATISTICS']['BETA']] is not None:
+        return result[static.keys['STATISTICS']['BETA']]
+
+    try:
+        if market_profile is None:
+            if sample_prices is None:
+                market_profile = statistics.calculate_risk_return(ticker=settings.MARKET_PROXY, 
+                                                                start_date=start_date, 
+                                                                end_date=end_date)
+            else:   
+                market_profile = statistics.calculate_risk_return(ticker=settings.MARKET_PROXY,
+                                                                sample_prices=sample_prices[settings.MARKET_PROXY])
+        if ticker_profile is None:
+            if sample_prices is None:
+                ticker_profile = statistics.calculate_risk_return(ticker=ticker,
+                                                                start_date=start_date,
+                                                                end_date=end_date)
+            else:
+                ticker_profile = statistics.calculate_risk_return(ticker=ticker, 
+                                                                sample_prices=sample_prices[ticker])
+
+        market_covariance = statistics.calculate_return_covariance(ticker_1=ticker, ticker_2=settings.MARKET_PROXY,
+                                                                    profile_1=ticker_profile, profile_2=market_profile,
+                                                                    correlation = market_correlation,
+                                                                    sample_prices=sample_prices,
+                                                                    start_date=start_date, end_date=end_date)
+    except errors.SampleSizeError as se:
+        raise se
+    except errors.PriceError as pe:
+        raise pe
+    except errors.APIResponseError as api:
+        raise api
+
     beta = market_covariance / (market_profile['annual_volatility']**2)
 
-    files.store_local_object(local_object=files.OBJECTS['equity_statistic'], value=beta,
-                                args={ 'equity_stat_symbol': 'beta', 'ticker': ticker,
-                                        'start_date': start_date, 'end_date': end_date })
+    profile_cache.save_or_update_row(ticker=ticker, start_date=start_date, end_date=end_date, asset_beta=beta)
 
     return beta
 
@@ -167,20 +192,31 @@ def cost_of_equity(ticker, start_date=None, end_date=None, market_profile=None, 
         End_date of the time period for which the cost of equity ratio will be computed. \n \n 
 
     """
-    result = files.retrieve_local_object(local_object=files.OBJECTS['equity_statistic'],
-                                        args={ 'equity_stat_symbol': 'equity_cost', 'ticker': ticker,
-                                                    'start_date': start_date, 'end_date': end_date })
-    if result is not None:
-        return result
+    try:
+        start_date, end_date = errors.validate_dates(start_date=start_date, end_date=end_date, 
+                                                        asset_type=static.keys['ASSETS']['EQUITY'])
+    except errors.InputValidationError as ive:
+        raise ive
 
-    beta = market_beta(ticker=ticker, start_date=start_date, end_date=end_date,
-                        market_profile=market_profile, market_correlation=market_correlation)
-    premium = market_premium(start_date=start_date, end_date=end_date, market_profile=market_profile)
+    result = profile_cache.filter_profile_cache(ticker=ticker, start_date=start_date, end_date=end_date)
+
+    if result is not None and result[static.keys['STATISTICS']['EQUITY']] is not None:
+        return result[static.keys['STATISTICS']['EQUITY']]
+
+    try:
+        beta = market_beta(ticker=ticker, start_date=start_date, end_date=end_date,
+                            market_profile=market_profile, market_correlation=market_correlation)
+        premium = market_premium(start_date=start_date, end_date=end_date, market_profile=market_profile)
+    except errors.SampleSizeError as se:
+        raise se
+    except errors.PriceError as pe:
+        raise pe
+    except errors.APIResponseError as api:
+        raise api
+
     equity_cost = (premium*beta + services.get_risk_free_rate())
 
-    files.store_local_object(local_object=files.OBJECTS['equity_statistic'], value=equity_cost,
-                                args={ 'equity_stat_symbol': 'equity_cost', 'ticker': ticker,
-                                                    'start_date': start_date, 'end_date': end_date })
+    profile_cache.save_or_update_row(ticker=ticker, start_date=start_date, end_date=end_date, equity_cost=equity_cost)
     return equity_cost
 
 def screen_for_discount(model=None, discount_rate=None):

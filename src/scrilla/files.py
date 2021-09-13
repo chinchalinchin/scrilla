@@ -11,38 +11,14 @@ import requests
 # if running locally through main.py file, these imports should be replaced
 #       from . import settings
 # annoying, but it is what it is.
-from scrilla import settings
+from scrilla import settings, static, errors
 
 import util.outputter as outputter
 import util.helper as helper
 
-CLOSE_PRICE = "close"
-OPEN_PRICE = "open"
-
-OBJECTS={
-    "correlation": 1,
-    "risk_profile": 2,
-    "prices": 3,
-    "dividends": 4,
-    "statistic": 5,
-    "equity_statistic":6,
-    "api_key": 7
-}
 logger = outputter.Logger("files", settings.LOG_LEVEL)
 
-def determine_analysis_date_range(start_date=None, end_date=None):
-    if end_date is None:
-        end_date = helper.get_previous_business_date(date=helper.get_today())
-    if start_date is None:
-        start_date = helper.decrement_date_by_business_days(end_date, settings.DEFAULT_ANALYSIS_PERIOD)
-    return start_date, end_date
-
-def generate_timestamp(args):
-    start_date = args.get('start_date')
-    end_date = args.get('end_date')
-    start_date, end_date = determine_analysis_date_range(start_date=start_date, end_date=end_date)
-    timestamp = '{}_{}'.format(helper.date_to_string(start_date),helper.date_to_string(end_date))
-    return timestamp
+static_tickers_blob, static_econ_blob, static_crypto_blob = None, None, None
 
 def load_file(file_name):
     with open(file_name, 'r') as infile:
@@ -58,140 +34,18 @@ def save_file(file_to_save, file_name):
                 json.dump(file_to_save, outfile)
                 return True
             except Exception as e:
-                logger.info(f'A {e.__class__} exception occured.')
+                logger.debug(f'A {e.__class__} exception occured.')
                 return False
             
         # TODO: implement other file saving extensions.
 
+def set_credentials(value, which_key):
+    file_name = os.path.join(settings.COMMON_DIR, f'{which_key}.{settings.FILE_EXT}')
+    return save_file(file_to_save=value, file_name=file_name)
 
-def store_local_object(local_object, value, args):
-    """
-    Parameters
-    ----------
-    1. local_object: int \n
-        index of object type you wish to store. Types are statically accessible through OBJECTS dictionary property. \n \n 
-
-    2. value: dict
-        dictionary of object key-value pairs to store. \n \n 
-
-    3. args: dict
-        dictionary of general and object-specific arguments. \n \n
-        
-        optional arguments: \n
-        1. end_date, start_date: datetime.date \n
-            range defaults to last 100 days if no dates are provided. \n \n 
-
-        required arguments: \n
-            NOTE: required arguments are a function of the object-type. \n 
-        1. if local_object = correlation \n 
-            args: { 'ticker_1' : value , 'ticker_2': value }  \n 
-        2. if local_object = prices \n 
-            args: { 'ticker' : value } \n 
-        3. if local_objecct = risk_profile \n 
-            args: { 'ticker' : value } \n
-        4. if local_object = dividends \n 
-            args: { 'ticker' : value } \n 
-        5. if local_object = statistic \n 
-            args: { 'stat_symbol' : value } \n 
-        6. if local_object = equity_statistic \n 
-            args: { 'ticker' : value , 'equity_stat_symbol' : value } \n \n
-        7. if local_object = api_key \n
-            args: { 'key_name': value, 'key_value': value }
-
-    """
-    if settings.LOCAL_CACHE:
-        timestamp = generate_timestamp(args=args)
-        
-        if local_object == OBJECTS['correlation']:
-            # TODO: save second file 
-            logger.debug(f'Storing ({args["ticker_1"]}, {args["ticker_2"]}) correlation in local cache.')
-            file_name = f'{timestamp}_{args["ticker_1"]}_{args["ticker_2"]}_{settings.CACHE_COR_KEY}.{settings.FILE_EXT}'
-            file_name_2 = f'{timestamp}_{args["ticker_2"]}_{args["ticker_1"]}_{settings.CACHE_COR_KEY}.{settings.FILE_EXT}'
-        if local_object == OBJECTS['prices']:
-            logger.debug(f'Storing {args["ticker"]} price history in local cache.')
-            file_name = f'{timestamp}_{args["ticker"]}_{settings.CACHE_PRICE_KEY}.{settings.FILE_EXT}'
-        if local_object == OBJECTS['risk_profile']:
-            logger.debug(f'Storing {args["ticker"]} risk profile in local cache.')
-            file_name = f'{timestamp}_{args["ticker"]}_{settings.CACHE_PRO_KEY}.{settings.FILE_EXT}'
-        if local_object == OBJECTS['dividends']:
-            logger.debug(f'Checking for {args["ticker"]} dividend history in local cache.')
-            file_name = os.path.join(settings.CACHE_DIR, f'{timestamp}_{args["ticker"]}_{settings.CACHE_DIV_KEY}.{settings.FILE_EXT}')
-        if local_object == OBJECTS['statistic']:
-            file_name = os.path.join(settings.CACHE_DIR, f'{timestamp}_{args["stat_symbol"]}_{settings.CACHE_STAT_KEY}.{settings.FILE_EXT}')
-        if local_object == OBJECTS['equity_statistic']:
-            file_name = os.path.join(settings.CACHE_DIR,f'{timestamp}_{args["ticker"]}_{args["equity_stat_symbol"]}_{settings.CACHE_EQUITY_KEY}.{settings.FILE_EXT}')
-        if local_object == OBJECTS['api_key']:
-            file_name = os.path.join(settings.COMMON_DIR, f'{args["key_name"]}.{settings.FILE_EXT}')
-        
-        buffer_store= os.path.join(settings.CACHE_DIR, file_name)
-        return save_file(file_to_save=value, file_name=buffer_store)
-    return False
-
-def retrieve_local_object(local_object, args):
-    if settings.LOCAL_CACHE:
-        timestamp = generate_timestamp(args=args)
-
-        if local_object == OBJECTS['correlation']:
-            buffer_store_1= os.path.join(settings.CACHE_DIR, f'{timestamp}_{args["ticker_1"]}_{args["ticker_2"]}_{settings.CACHE_COR_KEY}.{settings.FILE_EXT}')
-            buffer_store_2= os.path.join(settings.CACHE_DIR, f'{timestamp}_{args["ticker_2"]}_{args["ticker_1"]}_{settings.CACHE_COR_KEY}.{settings.FILE_EXT}')
-
-            logger.debug(f'Checking for ({args["ticker_1"]}, {args["ticker_2"]}) correlation calculation in local cache.')
-            if os.path.isfile(buffer_store_1):
-                logger.debug(f'Loading in cached ({args["ticker_1"]}, {args["ticker_2"]}) correlation.')
-                correlation = load_file(file_name=buffer_store_1)
-                return correlation
-            if os.path.isfile(buffer_store_2):
-                logger.debug(f'Loading in cached ({args["ticker_2"]}, {args["ticker_1"]}) correlation.')
-                correlation = load_file(file_name=buffer_store_2)
-                return correlation
-            return None
-
-        if local_object == OBJECTS['risk_profile']:
-            file_name = os.path.join(settings.CACHE_DIR, f'{timestamp}_{args["ticker"]}_{settings.CACHE_PRO_KEY}.{settings.FILE_EXT}')
-            logger.debug(f'Checking for {args["ticker"]} statistics in local cache.')
-        
-        elif local_object == OBJECTS['prices']:
-            # TODO: with different time stamp implementation, this part of the method should search for price histories that contain
-            # the range in start_date and end_date.
-
-            # start_date, end_date = args.get('start_date'), args.get('end_date')
-            # start_date, end_date = determine_analysis_date_range(start_date, end_date)
-
-            # for file in path(settings.CACHE_DIR) or whatever:
-                # key_check = f'{args["ticker"]}_{settings.CACHE_PRICE_KEY}'
-                # if key_check in file.name:
-                    # components = file.name.split('_')
-                    # cached_start_date = parsed_date(components[0])
-                    # cached_end_date = parsed_date(components[1])
-            
-                    # if cached_start_date <= start_date and cached_end_date >= end_date:
-                        # parsed start_date to end_date from cached_prices
-
-            file_name = os.path.join(settings.CACHE_DIR, f'{timestamp}_{args["ticker"]}_{settings.CACHE_PRICE_KEY}.{settings.FILE_EXT}')
-            logger.debug(f'Checking for {args["ticker"]} prices in local cache')
-
-        elif local_object == OBJECTS['dividends']:
-            file_name = os.path.join(settings.CACHE_DIR, f'{timestamp}_{args["ticker"]}_{settings.CACHE_DIV_KEY}.{settings.FILE_EXT}')
-            logger.debug(f'Checking for {args["ticker"]} prices in local cache')
-            
-        elif local_object == OBJECTS['statistic']:
-            file_name = os.path.join(settings.CACHE_DIR, f'{timestamp}_{args["stat_symbol"]}_{settings.CACHE_STAT_KEY}.{settings.FILE_EXT}')
-            logger.debug(f'Checking for {args["stat_symbol"]} statistics in local cache')
-        
-        elif local_object == OBJECTS['equity_statistic']:
-            file_name = os.path.join(settings.CACHE_DIR,f'{timestamp}_{args["ticker"]}_{args["equity_stat_symbol"]}_{settings.CACHE_EQUITY_KEY}.{settings.FILE_EXT}')
-            logger.debug(f'Checking for {args["ticker"]}\'s {args["equity_stat_symbol"]} statistics in local cache')
-        
-        elif local_object == OBJECTS['api_key']:
-            file_name = os.path.join(settings.COMMON_DIR, f'{args["key_name"]}.{settings.FILE_EXT}')
-            logger.debug(f'Checking for {args["key_name"]} API key in local commons')
-
-        if file_name is not None and os.path.isfile(file_name):
-            logger.debug('Loading in local cache')
-            results = load_file(file_name = file_name)
-            return results
-
-    return None
+def get_credentials(which_key):
+    file_name = os.path.join(settings.COMMON_DIR, f'{which_key}.{settings.FILE_EXT}')
+    return load_file(file_name = file_name)
 
 def parse_csv_response_column(column, url, firstRowHeader=None, savefile=None, zipped=None):
     """
@@ -243,8 +97,17 @@ def init_static_data():
     """
     Description
     -----------
-    Initializes the three static files defined in  settings: `STATIC_TICKERS_FILE`, `STATIC_CRYPTO_FILE` and `STATIC_ECON_FILE`. The data for these files is retrieved from the service managers. While this function blurs the lines between file management and service management, the function has been included in the `files.py` module rather than the `services.py` module due the unique response types of static metadata. All metadata is returned a csv or zipped csvs. These responses require specialized functions. Moreover, these files should only be initialized the first time the application executes. Subsequent executions will refer to their cached versions residing in the local or containerized filesytems. 
+    Initializes the three static files defined in  settings: `STATIC_TICKERS_FILE`, `STATIC_CRYPTO_FILE` and `STATIC_ECON_FILE`. The data for these files is retrieved from the service managers. While this function blurs the lines between file management and service management, the function has been included in the `files.py` module rather than the `services.py` module due the unique response types of static metadata. All metadata is returned as a csv or zipped csvs. These responses require specialized functions. Moreover, these files should only be initialized the first time the application executes. Subsequent executions will refer to their cached versions residing in the local filesytems. 
+
+    Raises
+    ------
+    1. errors.ConfigurationError \n
+        If `scrilla.settings.PRICE_MANAGER` and `scrilla.settings.STAT_MANAGER` are not configured through the environment variables `PRICE_MANAGER` and `STAT_MANAGER`, the function will throw this error.
     """
+    global static_tickers_blob
+    global static_econ_blob
+    global static_crypto_blob
+
     if ((not os.path.isfile(settings.STATIC_ECON_FILE)) or \
             (not os.path.isfile(settings.STATIC_TICKERS_FILE)) or \
                 (not os.path.isfile(settings.STATIC_CRYPTO_FILE))):
@@ -263,11 +126,10 @@ def init_static_data():
                 url = f'{settings.AV_URL}?{query}&{settings.PARAM_AV_KEY}={settings.AV_KEY}'
 
                 logger.debug(f'Preparsing to parse \'{settings.PRICE_MANAGER}\' Response to query: {query}')
-                parse_csv_response_column(column=0, url=url, firstRowHeader=settings.AV_RES_EQUITY_KEY, 
+                static_tickers_blob = parse_csv_response_column(column=0, url=url, firstRowHeader=settings.AV_RES_EQUITY_KEY, 
                                                         savefile=settings.STATIC_TICKERS_FILE)
 
-            else:
-                logger.info("No PRICE_MANAGER set in .env file!")
+            raise errors.ConfigurationError("No PRICE_MANAGER set in .env file!")
 
         # grab crypto symbols and store in STATIC_DIR
         if not os.path.isfile(settings.STATIC_CRYPTO_FILE):
@@ -276,10 +138,9 @@ def init_static_data():
                 url = settings.AV_CRYPTO_LIST
 
                 logger.debug(f'Preparsing to parse \'{settings.PRICE_MANAGER}\' Response to query: {query}')
-                parse_csv_response_column(column=0, url=url, firstRowHeader=settings.AV_RES_CRYPTO_KEY, 
+                static_crypto_blob = parse_csv_response_column(column=0, url=url, firstRowHeader=settings.AV_RES_CRYPTO_KEY, 
                                                     savefile=settings.STATIC_CRYPTO_FILE)
-            else:
-                logger.info("No PRICE_MANAGER set in .env file!")
+            raise errors.ConfigurationError("No PRICE_MANAGER set in .env file!")
             
         # grab econominc indicator symbols and store in STATIC_DIR
         if not os.path.isfile(settings.STATIC_ECON_FILE):
@@ -290,11 +151,11 @@ def init_static_data():
                 url = f'{settings.Q_META_URL}/{query}?{settings.PARAM_Q_KEY}={settings.Q_KEY}'
 
                 logger.debug(f'Preparsing to parse \'{settings.PRICE_MANAGER}\' Response to query: {query}')
-                parse_csv_response_column(column=0, url=url, firstRowHeader=settings.Q_RES_STAT_KEY,
+                static_econ_blob = parse_csv_response_column(column=0, url=url, firstRowHeader=settings.Q_RES_STAT_KEY,
                                                     savefile=settings.STATIC_ECON_FILE, zipped=settings.Q_RES_STAT_ZIP_KEY)
 
-            else:
-                logger.info("No STAT_MANAGER set in .env file!")
+            raise errors.ConfigurationError("No STAT_MANAGER set in .env file!")
+
     else:
         logger.debug('Static data already initialized!')
 
@@ -309,32 +170,55 @@ def get_static_data(static_type):
     1. `static_type` : str \n
     A string corresponding to the type of static data to be retrieved. The types can be statically accessed through the ` settings` variables: ASSET_CRYPTO, ASSET_EQUITY and STAT_ECON. \n \n
     """
-    logger.debug(f'Loading in cached {static_type} symbols.')
-    path = None
+    path, blob = None, None
+    global static_crypto_blob 
+    global static_econ_blob 
+    global static_tickers_blob
 
-    if static_type == settings.ASSET_CRYPTO:
-        path = settings.STATIC_CRYPTO_FILE
+    if static_type == static.keys['ASSETS']['CRYPTO']:
+        if static_crypto_blob is not None:
+            blob = static_crypto_blob
+        else:
+            path = settings.STATIC_CRYPTO_FILE
     
-    elif static_type == settings.ASSET_EQUITY:
-        path = settings.STATIC_TICKERS_FILE
+    elif static_type == static.keys['ASSETS']['EQUITY']:
+        if static_tickers_blob:
+            blob = static_tickers_blob
+        else:
+            path = settings.STATIC_TICKERS_FILE
     
-    elif static_type == settings.STAT_ECON:
-        path = settings.STATIC_ECON_FILE
+    elif static_type == static.keys['ASSETS']['STAT']:
+        if static_econ_blob:
+            blob = static_econ_blob
+        else:
+            path = settings.STATIC_ECON_FILE
     
     else:
-        return False
+        return None
+
+    if blob is not None:
+        logger.debug(f'Found in-memory {static_type} symbols.')
+        return blob
 
     if path is not None:
         if not os.path.isfile(path):
             init_static_data()
 
+        logger.debug(f'Loading in cached {static_type} symbols.')
         with open(path, 'r') as infile:
             if settings.FILE_EXT == "json":
-                symbols = json.load(infile)   
-            # TODO: implement other file loading exts    
+                symbols = json.load(infile)
+            # TODO: implement other file loading exts 
+               
+        if static_type == static.keys['ASSETS']['CRYPTO']:
+            static_crypto_blob = symbols
+        elif static_type == static.keys['ASSETS']['EQUITY']:
+            static_tickers_blob = symbols
+        elif static_type == static.keys['ASSETS']['STAT']:
+            static_econ_blob = symbols
         return symbols
         
-    return False
+    return None
     
 # NOTE: output from get_overlapping_symbols:
 # OVERLAP = ['ABT', 'AC', 'ADT', 'ADX', 'AE', 'AGI', 'AI', 'AIR', 'AMP', 'AVT', 'BCC', 'BCD', 'BCH', 'BCX', 'BDL', 'BFT', 'BIS', 'BLK', 'BQ', 'BRX', 
@@ -354,9 +238,9 @@ def get_overlapping_symbols(equities=None, cryptos=None):
     Returns an array of symbols which are contained in both the STATIC_TICKERS_FILE and STATIC_CRYPTO_FILE, i.e. ticker symbols which have both a tradeable equtiy and a tradeable crypto asset. 
     """
     if equities is None:
-        equities = list(get_static_data(settings.ASSET_EQUITY))
+        equities = list(get_static_data(static.keys['ASSETS']['EQUITY']))
     if cryptos is None:
-        cryptos = list(get_static_data(settings.ASSET_CRYPTO))
+        cryptos = list(get_static_data(static.keys['ASSETS']['CRYPTO']))
     overlap = []
     for crypto in cryptos:
         if crypto in equities:
@@ -373,24 +257,24 @@ def get_asset_type(symbol):
     ------
     A string representing the type of asset of the symbol. Types are statically accessible through the ` settings` variables: ASSET_EQUITY and ASSET_CRYPTO. \n \n 
     """
-    symbols = list(get_static_data(settings.ASSET_CRYPTO))
+    symbols = list(get_static_data(static.keys['ASSETS']['CRYPTO']))
     overlap = get_overlapping_symbols(cryptos=symbols)
 
     if symbol not in overlap:
         if symbol in symbols:
-            return settings.ASSET_CRYPTO
+            return static.keys['ASSETS']['CRYPTO']
             
                 # if other asset types are introduced, then uncomment these lines
                 # and add new asset type to conditional. Keep in mind the static
                 # equity data is HUGE.
-        # symbols = list(get_static_data(settings.ASSET_EQUITY))
+        # symbols = list(get_static_data(static.keys['ASSETS']['EQUITY']))
         # if symbol in symbols:
-            # return settings.ASSET_EQUITY
+            # return static.keys['ASSETS']['EQUITY']
         #return None
-        return settings.ASSET_EQUITY
+        return static.keys['ASSETS']['EQUITY']
     # default to equity for overlap until a better method is determined. 
-    return settings.ASSET_EQUITY
-
+    return static.keys['ASSETS']['EQUITY']
+    
 def get_watchlist():
     """
     Description
@@ -422,7 +306,7 @@ def add_watchlist(new_tickers):
     logger.debug('Saving tickers to Watchlist')
 
     current_tickers = get_watchlist()
-    all_tickers = get_static_data(settings.ASSET_EQUITY)
+    all_tickers = get_static_data(static.keys['ASSETS']['EQUITY'])
 
     for ticker in new_tickers:
         if ticker not in current_tickers and ticker in all_tickers:
@@ -457,11 +341,11 @@ def format_allocation(allocation, portfolio, investment=None):
     for j, item in enumerate(portfolio.tickers):
         holding = {}
         holding['ticker'] = item
-        holding['allocation'] = round(allocation[j], settings.ACCURACY)
+        holding['allocation'] = round(allocation[j], static.constants['ACCURACY'])
         if investment is not None:
             holding['shares'] = float(shares[j])
-        holding['annual_return'] = round(portfolio.mean_return[j], settings.ACCURACY) 
-        holding['annual_volatility'] = round(portfolio.sample_vol[j], settings.ACCURACY)
+        holding['annual_return'] = round(portfolio.mean_return[j], static.constants['ACCURACY']) 
+        holding['annual_volatility'] = round(portfolio.sample_vol[j], static.constants['ACCURACY'])
         allocation_format.append(holding)
 
     json_format = {}
@@ -521,9 +405,9 @@ def format_correlation_matrix(tickers, correlation_matrix):
             response[f'{item}_{tickers[j]}_correlation'] = correlation_matrix[j][i]
     return response
     
-def save_profiles(profile, file_name):
-    save_format = format_profiles(profile)
-    save_file(file_name==save_format, file_name=file_name)
+def save_profiles(profiles, file_name):
+    save_format = format_profiles(profiles)
+    save_file(file_to_save=save_format, file_name=file_name)
 
 def save_allocation(allocation, portfolio, file_name, investment=None):
     save_format = format_allocation(allocation=allocation, portfolio=portfolio, investment=investment)
@@ -566,7 +450,7 @@ def clear_directory(directory, retain=True):
 
     for f in filelist:
         filename = os.path.basename(f)
-        if retain and filename == settings.KEEP_EXT:
+        if retain and filename == static.constants['KEEP_FILE']:
             continue
         os.remove(os.path.join(directory, f))
 

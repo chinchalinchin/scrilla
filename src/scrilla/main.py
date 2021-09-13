@@ -1,14 +1,14 @@
-import sys
+import sys, os, traceback
 
 #  Note: need to import from package when running from wheel.
 # if running locally through main.py file, these imports should be replaced
 #       from . import settings, from . import services, from . import files
 # annoying, but it is what it is.
 if __name__=="__main__":
-    import settings, services, files
+    import settings, services, files, errors
 
 else:
-    from scrilla import settings, services, files
+    from scrilla import settings, services, files, errors
 
 from util import helper, outputter, formatter
 from analysis import statistics, optimizer, markets
@@ -41,12 +41,25 @@ def validate_function_usage(selection, args, wrapper_function, required_length=1
         logger.comment('GUI functionality disabled when application is containerized.')
 
     else:
-        if(not exact and (len(args)>(required_length-1))):
-            wrapper_function()
-        elif(exact and (len(args)==required_length)):
-            wrapper_function()
-        else:
-            logger.comment(f'Invalid number of arguments for \'{selection}\' function.')
+        try:
+            if(not exact and (len(args)>(required_length-1))):
+                wrapper_function()
+            elif(exact and (len(args)==required_length)):
+                wrapper_function()
+            else:
+                logger.comment(f'Invalid number of arguments for \'{selection}\' function.')
+
+        # TODO: CLI APPLICATION ERROR HANDLING GOES HERE 
+        except errors.PriceError as pe:
+            traceback.print_exc()
+        except errors.SampleSizeError as se:
+            traceback.print_exc()
+        except errors.APIResponseError as api:
+            traceback.print_exc()
+        except errors.InputValidationError as ive:
+            traceback.print_exc()
+        except errors.ConfigurationError as ce:
+            traceback.print_exc()
 
 def do_program():
     if len(sys.argv)>0:
@@ -63,6 +76,11 @@ def do_program():
         elif opt == formatter.FUNC_ARG_DICT["clear_cache"]:
             logger.comment(f'Clearing {settings.CACHE_DIR}')
             files.clear_directory(directory=settings.CACHE_DIR, retain=True)
+
+        ### FUNCTION: Clear Static
+        elif opt == formatter.FUNC_ARG_DICT["clear_static"]:
+            logger.comment(f'Clearing {settings.STATIC_DIR}')
+            files.clear_directory(directory=settings.STATIC_DIR, retain=True)
 
         ### FUNCTION: Clear Watchlist
         elif opt == formatter.FUNC_ARG_DICT["clear_watchlist"]:
@@ -109,14 +127,11 @@ def do_program():
             # NOTE: not technically a single argument function, but requires special parsing, so
             #       treat it here.
         elif opt == formatter.FUNC_ARG_DICT['store']:
-            keyvalue = sys.argv[2].split("=")
-            if keyvalue[0] in ["ALPHA_VANTAGE_KEY", "QUANDL_KEY", "IEX_KEY"]:
-               keystore = {}
-               keystore[keyvalue[0]] = keyvalue[1]
-               args = { 'key_name': keyvalue[0], 'key_value': keyvalue[1]}
-               files.store_local_object(local_object=files.OBJECTS['api_key'],value=keystore, args=args)
+            key = sys.argv[2].split("=")
+            if key[0] in ["ALPHA_VANTAGE_KEY", "QUANDL_KEY", "IEX_KEY"]:
+               files.set_credentials(value=key[1], whichkey=key[0])
             else:
-                outputter.comment(f'Key of {keyvalue[0]} not recognized. See -help for more information.')
+                outputter.comment(f'Key of {key[0]} not recognized. See -help for more information.')
             pass
 
         ### FUNCTION: Purge Data Directories
@@ -125,11 +140,17 @@ def do_program():
             files.clear_directory(directory=settings.STATIC_DIR, retain=True)
             files.clear_directory(directory=settings.CACHE_DIR, retain=True)
             files.clear_directory(directory=settings.COMMON_DIR, retain=True)
+        
+        ### FUNCTION: Display Version
+        elif opt == formatter.FUNC_ARG_DICT["version"]:
+            version_file = os.path.join(settings.APP_DIR, 'version.txt')
+            with open(version_file, 'r') as f:
+                print(f.read())
 
         ### FUNCTION: Yield Curve
         elif opt == formatter.FUNC_ARG_DICT['yield_curve']:
                 for rate in settings.ARG_Q_YIELD_CURVE:
-                    curve_rate = services.get_daily_stats_latest(statistic=settings.ARG_Q_YIELD_CURVE[rate])
+                    curve_rate = services.get_daily_stats_latest(symbol=settings.ARG_Q_YIELD_CURVE[rate])
                     outputter.scalar_result(calculation=rate, result=curve_rate, currency=False)
 
         # variable argument functions
@@ -351,7 +372,7 @@ def do_program():
                         asset_type = files.get_asset_type(symbol=arg)
                         all_prices[arg] = {}
                         for date in prices:
-                            price = services.parse_price_from_date(prices=prices, date=date, asset_type=asset_type)
+                            price = services.price_manager.parse_price_from_date(prices=prices, date=date, asset_type=asset_type)
                             outputter.scalar_result(calculation=f'{arg}({date})', result = float(price))
                             all_prices[arg][date] = price
                     if xtra_list['save_file'] is not None:
@@ -364,23 +385,20 @@ def do_program():
                 def cli_risk_return():
                     profiles = {}
                     for arg in main_args:
-                        try:
-                            profiles[arg] = statistics.calculate_risk_return(ticker=arg, start_date=xtra_list['start_date'], 
-                                                                                end_date=xtra_list['end_date'])
-                            profiles[arg]['sharpe_ratio'] = markets.sharpe_ratio(ticker=arg, start_date=xtra_list['start_date'],
-                                                                                end_date=xtra_list['end_date'])
-                            profiles[arg]['asset_beta'] = markets.market_beta(ticker=arg, start_date=xtra_list['start_date'],
-                                                                                end_date=xtra_list['end_date'])
-                            profiles[arg]['equity_cost'] = markets.cost_of_equity(ticker=arg, start_date=xtra_list['start_date'],
-                                                                                end_date=xtra_list['end_date'])
+                        profiles[arg] = statistics.calculate_risk_return(ticker=arg, start_date=xtra_list['start_date'], 
+                                                                            end_date=xtra_list['end_date'])
+                        profiles[arg]['sharpe_ratio'] = markets.sharpe_ratio(ticker=arg, start_date=xtra_list['start_date'],
+                                                                            end_date=xtra_list['end_date'], 
+                                                                            ticker_profile=profiles[arg])
+                        profiles[arg]['asset_beta'] = markets.market_beta(ticker=arg, start_date=xtra_list['start_date'],
+                                                                            end_date=xtra_list['end_date'],
+                                                                            ticker_profile=profiles[arg])
+                        profiles[arg]['equity_cost'] = markets.cost_of_equity(ticker=arg, start_date=xtra_list['start_date'],
+                                                                            end_date=xtra_list['end_date'])
 
-                            if xtra_list['save_file'] is not None:
-                                files.save_profiles(file_to_save=profiles, file_name=xtra_list['save_file'])
+                    if xtra_list['save_file'] is not None:
+                        files.save_profiles(profiles=profiles, file_name=xtra_list['save_file'])
 
-                        except statistics.PriceError as pe:
-                            logger.comment(str(pe))
-                        except statistics.SampleSizeError as se:
-                            logger.comment(str(se))
                     outputter.risk_profile(profiles=profiles)
 
                 selected_function, required_length = cli_risk_return, 1
@@ -408,7 +426,7 @@ def do_program():
                 def cli_statistic():
                     for stat in main_args:
                         outputter.scalar_result(calculation=stat, 
-                                                result=services.get_daily_stats_latest(stat),
+                                                result=services.get_daily_stats_latest(symbol=stat),
                                                 currency=False)
                 selected_function, required_length = cli_statistic, 1
             
@@ -416,7 +434,7 @@ def do_program():
             elif opt == formatter.FUNC_ARG_DICT['statistic_history']:
                 def cli_statistic_history():
                     for arg in main_args:
-                        stats = services.get_daily_stats_history(statistic=arg, start_date=xtra_list['start_date'],
+                        stats = services.get_daily_stats_history(symbol=arg, start_date=xtra_list['start_date'],
                                                             end_date=xtra_list['end_date'])
                         for date in stats:
                             outputter.scalar_result(calculation=f'{arg}({date})', result=stats[date], 

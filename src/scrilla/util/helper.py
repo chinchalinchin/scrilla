@@ -1,7 +1,6 @@
-import datetime, os, math, json
-import holidays
+import datetime, math, holidays
 
-import util.formatter as formatter
+import scrilla.util.formatter as formatter
 
 ################################################
 ##### FORMATTING FUNCTIONS
@@ -47,7 +46,9 @@ def get_today():
 
 def get_last_trading_date():
     today = datetime.datetime.now()
-    trading_close_today = today.replace(hour=16)
+    if is_date_holiday(today) or is_date_weekend(today):
+        today = get_previous_business_date(today)
+    trading_close_today = today.replace(hour=20)
     if today > trading_close_today:
         return today.date()
     else:
@@ -62,9 +63,9 @@ def validate_date_string(parsed_date_string):
 
 def validate_order_of_dates(start_date, end_date):
     delta = (end_date - start_date).days
-    if delta > 0 or delta == 0:
-        return start_date, end_date
-    return end_date, start_date
+    if delta < 0:
+        return end_date, start_date
+    return start_date, end_date
 
 # YYYY-MM-DD
 def parse_date_string(date_string) -> datetime.date:
@@ -116,6 +117,15 @@ def is_date_string_today(date) -> bool:
 def is_date_weekend(date) -> bool:
     return date.weekday() in [5, 6]
 
+
+def is_future_date(date):
+    return (date - get_today()).days > 0
+
+def truncate_future_from_date(date):
+    if is_future_date(date):
+        return get_today()
+    return date
+
 # YYYY-MM-DD
 def is_date_string_weekend(date_string) -> bool:
     return is_date_weekend(parse_date_string(date_string))
@@ -128,6 +138,8 @@ def is_date_holiday(date_string) -> bool:
 def is_date_string_holiday(date) -> bool:
     return is_date_holiday(parse_date_string(date))
 
+def is_trading_date(date):
+    return not is_date_weekend(date) and not is_date_holiday(date)
 
 # YYYY-MM-DD
 def get_holidays_between(start_date_string, end_date_string) -> int:
@@ -200,7 +212,7 @@ def business_dates_between(start_date, end_date):
 def business_days_between(start_date, end_date):
     new_start, new_end = validate_order_of_dates(start_date, end_date)
     dates = dates_between(new_start, new_end)
-    return len([1 for day in dates if day.weekday() < 5])
+    return len([1 for date in dates if not (is_date_weekend(date) or is_date_holiday(date))])
 
 def weekends_between(start_date, end_date):
     start_date, end_date = verify_date_types(dates=[start_date, end_date])
@@ -262,6 +274,10 @@ def get_time_to_next_month():
     next_month=datetime.date(year=today.year, month=(today.month+1), day=1)
     return ((next_month - today).days / 365)
 
+def get_time_to_next_year():
+    today = datetime.date.today()
+    next_year=datetime.datetime(year=today.year+1, day=1, month=1)
+    return ((next_year - today).days / 365)
 # in years
 # 365 or 252? 
 def get_time_to_next_quarter():

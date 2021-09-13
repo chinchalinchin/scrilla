@@ -6,7 +6,7 @@ MICRO=2
 
 script_dir = os.path.dirname(os.path.realpath(__file__))
 project_dir = os.path.dirname(os.path.dirname(script_dir))
-version_file = os.path.join(project_dir, 'src', 'version.txt')
+version_file = os.path.join(project_dir, 'src', 'scrilla', 'version.txt')
 
 def load_current_version():
     with open(version_file, 'r') as f:

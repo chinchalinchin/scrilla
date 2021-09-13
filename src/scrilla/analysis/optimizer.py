@@ -1,4 +1,5 @@
 import scipy.optimize as optimize
+from scrilla import static
 
 import settings
 import util.outputter as outputter
@@ -41,7 +42,7 @@ def optimize_portfolio_variance(portfolio, target_return=None):
         portfolio_constraints = equity_constraint
 
     allocation = optimize.minimize(fun = portfolio.volatility_function, x0 = init_guess, 
-                                    method=settings.OPTIMIZATION_METHOD, bounds=equity_bounds, 
+                                    method=static.constants['OPTIMIZATION_METHOD'], bounds=equity_bounds, 
                                     constraints=portfolio_constraints, options={'disp': False})
 
     return allocation.x
@@ -80,7 +81,7 @@ def optimize_conditional_value_at_risk(portfolio, prob, expiry, target_return=No
 
     allocation = optimize.minimize(fun = lambda x: portfolio.conditional_value_at_risk_function(x, expiry, prob), 
                                     x0 = init_guess, 
-                                    method=settings.OPTIMIZATION_METHOD, bounds=equity_bounds, 
+                                    method=static.constants['OPTIMIZATION_METHOD'], bounds=equity_bounds, 
                                     constraints=portfolio_constraints, options={'disp': False})
 
     return allocation.x
@@ -122,7 +123,7 @@ def maximize_sharpe_ratio(portfolio, target_return=None):
 
     allocation = optimize.minimize(fun = lambda x: (-1)*portfolio.sharpe_ratio_function(x), 
                                     x0 = init_guess, 
-                                    method=settings.OPTIMIZATION_METHOD, bounds=equity_bounds, 
+                                    method=static.constants['OPTIMIZATION_METHOD'], bounds=equity_bounds, 
                                     constraints=portfolio_constraints, options={'disp': False})
 
     return allocation.x
@@ -148,7 +149,7 @@ def maximize_portfolio_return(portfolio):
     
     logger.debug(f'Maximizing {tickers} Portfolio Return')
     allocation = optimize.minimize(fun = lambda x: (-1)*portfolio.return_function(x),
-                                    x0 = init_guess, method=settings.OPTIMIZATION_METHOD,
+                                    x0 = init_guess, method=static.constants['OPTIMIZATION_METHOD'],
                                     bounds=equity_bounds, constraints=equity_constraint, 
                                     options={'disp': False})
 

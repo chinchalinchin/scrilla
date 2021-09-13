@@ -38,10 +38,16 @@ def string_result(operation, result):
     print(' '*formatter.INDENT, '>>', operation, ' = ', result)
         
 def scalar_result(calculation, result, currency=True):
-    if currency:
-        print(' '*formatter.INDENT, '>>', calculation, ' = $', round(float(result), 2))
-    else:
-        print(' '*formatter.INDENT, '>>', calculation, ' = ', round(float(result), 4))
+    try:
+        if currency:
+            print(' '*formatter.INDENT, '>>', calculation, ' = $', round(float(result), 2))
+        else:
+            print(' '*formatter.INDENT, '>>', calculation, ' = ', round(float(result), 4))
+    except ValueError:
+        if currency:
+            print(' '*formatter.INDENT, '>>', calculation, ' = $', result)
+        else:
+            print(' '*formatter.INDENT, '>>', calculation, ' = ', result)
 
 def equivalent_result(right_hand, left_hand, value):
     print(' '*formatter.INDENT, '>>', f'{right_hand} = {left_hand} = {value}')

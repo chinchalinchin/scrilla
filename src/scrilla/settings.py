@@ -1,4 +1,5 @@
 import os, sys, dotenv, json
+from scrilla import static
 
 APP_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_DIR = os.path.dirname(APP_DIR)
@@ -27,36 +28,21 @@ Attributes
 3. APP_DIR: Folder containing this file. \n \n
 4. APP_ENV: Application environment. \n \n
 5. LOG_LEVEL: Debug output level. \n \n
-6. CONFIG_FILE: Location of secondary credentials file. \n \n
 7. CACHE_DIR: Folder where cached price histories reside. \n \n
-8. CACHE_PRO_KEY: File name where risk-profile calculations are saved. \n \n
 9. FILE_EXT: File extension used in CACHE_DIR. \n \n
 10. STATIC_DIR: Folder where static data reside. \n \n
 11. FILE_EXT: File extension used in STATIC_DIR. \n \n
 12. STATIC_TICKERS_FILE: File containing a list of all equity ticker symbols with price histories that can be retrieved from external services. \n \n
 13. STATIC_ECON_FILE: File containg a list of all economic statistics with sample histories that can be retrieved from external services. \n \n
 14. STATIC_CRYPTO_FILE: File containing a list of all crypto ticker symbols with price histories that can be retrieved from external services. \n \n
-15. ACCURACY: Number of decimals place saved in calculations. \n \n
-16. POPUP_WIDTH: Width of popup that prompts for API keys. \n \n
-17. POPUP_HEIGHT: Height of popup that prompts for API keys. \n \n
 18. GUI_WIDTH: Width of root widget in GUI. \n \n
 19. GUI_HEIGHT: Height of root widget in GUI. \n \n
-20. OPTIMIZATION_METHOD: Scipy method used to optimize portfolios. \n \n
-21. INVESTMENT_MODE: Determines if output is percentage or absolute. \n \n
 22. FRONTIER_STEPS: Number of points in efficient frontier output. \n \n
 23. MA_1_PERIOD: Number of days in first moving average period. \n \n
 24. MA_2_PERIOD: Number of days in second moving average period. \n \n
 25. MA_3_PERIOD: Number of days in first moving average period. \n \n
-26. ONE_TRADING_DAY: Length of trading day in years. \n \n
-27. PRICE_YEAR_CUTOFF: Earliest year considered in price histories. \n \n
-28. DENOMINATION: Denomination in which prices are quoted. \n \n 
-29. NPV_DELTA_TOLERANCE: NPV calculations stop when the next value adds less than this amount. \n \n 
 29. RISK_FREE_RATE: Interest rate used for cashflow valuations. \n \n
 30. MARKET_PROXY: Ticker symbol used to calculate market rate of return
-28. ASSET_EQUITY: Constant for assets of type equity. \n \n
-29. ASSET_CRYPTO: Constant for assets of type crypto. \n \n
-30. STAT_ECON: Constant for economic statistics. \n \n
-31. INIT: Flag to initialize STATIC_DIR \n \n
 32. PRICE_MANAGER: Service in charge of price histories. \n \n
 33. STAT_MANAGER: Service in charge of statistic histories. \n \n
 34. DIVIDEND_MANAGER: Service in charge of dividend payment histories. \n \n
@@ -97,8 +83,6 @@ Attributes
 
 APP_NAME="scrilla"
 
-VERSION="0.0.1"
-
 APP_ENV = os.environ.setdefault('APP_ENV', 'local')
 
 # NOTE: Load in local.env file if not running application container. Container should 
@@ -112,15 +96,9 @@ logger = outputter.Logger('settings', LOG_LEVEL)
 
 # TODO: CACHE only supports JSON currently. Future file extensions: csv and txt.
 FILE_EXT = os.environ.setdefault("FILE_EXT", "json")
-KEEP_EXT = ".gitkeep"
 
 CACHE_DIR = os.path.join(APP_DIR, 'data', 'cache')
-CACHE_PRO_KEY="profile"
-CACHE_PRICE_KEY="prices"
-CACHE_COR_KEY="correlation"
-CACHE_DIV_KEY="dividends"
-CACHE_STAT_KEY="statistic"
-CACHE_EQUITY_KEY="equity_statistic"
+CACHE_SQLITE_FILE = os.path.join(CACHE_DIR, 'scrilla.db')
 
 STATIC_DIR = os.path.join(APP_DIR, 'data', 'static')
 
@@ -131,84 +109,71 @@ STATIC_CRYPTO_FILE = os.path.join(STATIC_DIR, f'crypto.{FILE_EXT}')
 COMMON_DIR=os.path.join(APP_DIR, 'data', 'common')
 COMMON_WATCHLIST_FILE=os.path.join(COMMON_DIR, f'watchlist.{FILE_EXT}')
 
-ACCURACY=5
-
-BACKOFF_PERIOD=30
-
 # See .sample.env for more information.
 LOCAL_CACHE = os.environ.setdefault('LOCAL_CACHE_ENABLED', 'true').strip().lower() == 'true'
 
 ## GUI CONFIGURATION
-
-POPUP_WIDTH, POPUP_HEIGHT = 150, 150
-
 try:
-    GUI_WIDTH = int(os.getenv('GUI_WIDTH'))
+    GUI_WIDTH = int(os.environ.setdefault('GUI_WIDTH', '800'))
 except (ValueError, TypeError) as ParseError: 
     logger.debug('Failed to parse GUI_WIDTH from environment. Setting to default value of 800.')
     GUI_WIDTH = 800
+    os.environ['GUI_WIDTH'] = '800'
 
 try:
-    GUI_HEIGHT = int(os.getenv('GUI_HEIGHT'))
+    GUI_HEIGHT = int(os.environ.setdefault('GUI_HEIGHT', '800'))
 except (ValueError, TypeError) as ParseError:
     logger.debug('Failed to parse GUI_HEIGHT from enviroment. Setting to default value of 800.')
     GUI_HEIGHT = 800
-
+    os.environ['GUI_HEIGHT'] = '800'
 
 ## FINANCIAL ALGORITHM CONFIGURATION
-
-OPTIMIZATION_METHOD="SLSQP"
-
 try:
-    FRONTIER_STEPS = int(os.getenv('FRONTIER_STEPS'))
-
+    FRONTIER_STEPS = int(os.environ.setdefault('FRONTIER_STEPS', '5'))
 except (ValueError, TypeError) as ParseError:
     logger.debug('Failed to parse FRONTIER_STEPS from enviroment. Setting to default value of 5.')
     FRONTIER_STEPS = 5
+    os.environ['FRONTIER_STEPS'] = '5'
 
 try:
-    MA_1_PERIOD = int(os.getenv('MA_1'))
+    MA_1_PERIOD = int(os.environ.setdefault('MA_1', '20'))
 except (ValueError, TypeError) as ParseError: 
     logger.debug('Failed to parse MA_1 from environment. Setting to default value of 20.')
     MA_1_PERIOD = 20
+    os.environ['MA_1'] = '20'
 
 try:
-    MA_2_PERIOD = int(os.getenv('MA_2'))
+    MA_2_PERIOD = int(os.environ.setdefault('MA_2', '60'))
 except (ValueError, TypeError) as ParseError: 
     logger.debug('Failed to parse MA_2 from environment. Setting to default value of 60.')
     MA_2_PERIOD = 60
+    os.environ['MA_2'] = '60'
 
 try:
-    MA_3_PERIOD = int(os.getenv('MA_3'))
+    MA_3_PERIOD = int(os.environ.setdefault('MA_3', '100'))
 except (ValueError, TypeError) as ParseError: 
     logger.debug('Failed to parse MA_3 from environment. Setting to default value of 100.')
     MA_3_PERIOD = 100
+    os.environ['MA_3'] = '100'
 
 try:
-    ITO_STEPS = int(os.getenv('ITO_STEPS'))
+    ITO_STEPS = int(os.environ.setdefault('ITO_STEPS', '10000'))
 except (ValueError, TypeError) as ParseError:
-    logger.debug('Failed to parsed ITO_STEPS from environment. Setting to default of 10000.')
+    logger.debug('Failed to parse ITO_STEPS from environment. Setting to default of 10000.')
     ITO_STEPS = 10000
+    os.environ['ITO_STEPS'] = '10000'
 
-ONE_TRADING_DAY=(1/252)
-
-# Number of days
-DEFAULT_ANALYSIS_PERIOD=100
-
-PRICE_YEAR_CUTOFF=1950
-
-DENOMINATION = "USD"
-
-NPV_DELTA_TOLERANCE = 0.0000001
+try:
+    DEFAULT_ANALYSIS_PERIOD=int(os.environ.setdefault('DEFAULT_ANALYSIS_PERIOD', '100'))
+except:
+    logger.debug('Failed to parse DEFAULT_ANALYSIS_PERIOD from environment. Setting to default of 100.')
+    DEFAULT_ANALYSIS_PERIOD=100
+    os.environ['DEFAULT_ANALYSIS_PERIOD']=100
 
 # SEE: ARG_Q_YIELD_CURVE for allowabled values
 RISK_FREE_RATE=os.environ.setdefault("RISK_FREE", "10-Year").strip("\"")
 
 MARKET_PROXY=os.environ.setdefault('MARKET_PROXY', 'SPY')
-
-ASSET_EQUITY="equity"
-ASSET_CRYPTO="crypto"
-STAT_ECON="statistic"
 
 ## SERVICE CONFIGURATION
 ### PRICE_MANAGER CONFIGRUATION
@@ -225,6 +190,7 @@ if PRICE_MANAGER == 'alpha_vantage':
             with open(keystore, 'r') as infile:
                 if FILE_EXT == "json":
                     AV_KEY = json.load(infile)['ALPHA_VANTAGE_KEY']
+                    os.environ['ALPHA_VANTAGE_KEY'] = str(AV_KEY)
 
     if not AV_KEY:
         raise APIKeyError('Alpha Vantage API Key not found. Either set ALPHA_VANTAGE_KEY environment variable or use "-store" CLI function to save key.')
@@ -233,14 +199,15 @@ if PRICE_MANAGER == 'alpha_vantage':
     AV_CRYPTO_LIST=os.environ.setdefault('ALPHA_VANTAGE_CRYPTO_META_URL', 'https://www.alphavantage.co/digital_currency_list/')
     
     # Response Keys
+        # SHOULD BE PART OF PRICE_MANAGER class properties!
     AV_RES_EQUITY_FIRST_LAYER='Time Series (Daily)'
     AV_RES_EQUITY_CLOSE_PRICE="4. close"
     AV_RES_EQUITY_OPEN_PRICE="1. open"
     AV_RES_EQUITY_KEY="symbol"
     AV_RES_CRYPTO_FIRST_LAYER='Time Series (Digital Currency Daily)'
     AV_RES_CRYPTO_KEY="currency code"
-    AV_RES_CRYPTO_CLOSE_PRICE=f'4a. close ({DENOMINATION})'
-    AV_RES_CRYPTO_OPEN_PRICE=f'1a. open ({DENOMINATION})'
+    AV_RES_CRYPTO_CLOSE_PRICE=f'4a. close ({static.constants["DENOMINATION"]})'
+    AV_RES_CRYPTO_OPEN_PRICE=f'1a. open ({static.constants["DENOMINATION"]})'
     AV_RES_ERROR='Error Message'
     AV_RES_LIMIT='Note'
     AV_RES_DAY_LIMIT='Information'
@@ -266,12 +233,14 @@ if STAT_MANAGER == "quandl":
     Q_URL = os.environ.setdefault('QUANDL_URL', 'https://www.quandl.com/api/v3/datasets').strip("\"").strip("'")
     
     Q_KEY = os.environ.setdefault('QUANDL_KEY', '')
+
     if not Q_KEY:
         keystore = os.path.join(COMMON_DIR, f'QUANDL_KEY.{FILE_EXT}')
         if os.path.isfile(keystore):
             with open(keystore, 'r') as infile:
                 if FILE_EXT == "json":
                     Q_KEY = json.load(infile)['QUANDL_KEY']
+                    os.environ['QUANDL_KEY'] = str(Q_KEY)
 
     if not Q_KEY:
         raise APIKeyError('Quandl API Key not found. Either set QUANDL_KEY environment variable or use "-store" CLI function to save key.')
@@ -317,6 +286,7 @@ if DIV_MANAGER == "iex":
             with open(keystore, 'r') as infile:
                 if FILE_EXT == "json":
                     IEX_KEY = json.load(infile)['IEX_KEY']
+                    os.environ['IEX_KEY'] = str(IEX_KEY)
 
     if not IEX_KEY:
         raise APIKeyError('IEX API Key cannot be found. Either set IEX_KEY environment variable or use "-store" CLI function to save key.')
@@ -330,19 +300,3 @@ if DIV_MANAGER == "iex":
     PARAM_IEX_RANGE_2YR="2y"
     PARAM_IEX_RANGE_1YR="1y"
     PARAM_IEX_KEY="token"
-
-def get_trading_period(asset_type):
-    """
-    Description
-    -----------
-    Returns the value of one trading day measured in years of the asset_type passed in as an argument.
-
-    Parameters
-    ----------
-    1. asset_type : str\n
-    
-    A string that represents a type of tradeable asset. Types are statically accessible through the ` settings` variables: ASSET_EQUITY and ASSET_CRYPTO.
-    """
-    if asset_type == ASSET_CRYPTO:
-        return (1/365)
-    return ONE_TRADING_DAY
