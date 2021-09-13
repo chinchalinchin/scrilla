@@ -27,6 +27,17 @@ keys= {
         'TICKERS': 'tickers',
         'START':'start_date',
         'END':'end_date'
+    },
+    'SERVICES':{
+        'PRICE':{
+            'ALPHA_VANTAGE': 'alpha_vantage',
+        },
+        'STATISTICS': {
+            'QUANDL': 'quandl'
+        },
+        'DIVIDENDS': {
+            'IEX': 'iex'
+        }
     }
 }
 constants = {

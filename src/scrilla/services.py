@@ -4,17 +4,62 @@ import itertools, time, requests
 # if running locally through main.py file, these imports should be replaced
 #       from . import settings, from . import files
 # annoying, but it is what it is.
-from scrilla import settings, files, errors, models, static
+from scrilla import settings, files, errors, cache, static
 import util.outputter as outputter
 import util.helper as helper
 
 logger = outputter.Logger("services", settings.LOG_LEVEL)
 
+class StatManager():
+    """
+    Description
+    -----------
+        StatManager is an interface between the application and the external services that hydrate it with financial statistics data. This class gets instantiated on the level of the scrilla.services module with the value defined in `scrilla.settings.STAT_MANAGER`. This value is in turn defined by the value of the `STAT_MANAGER` environment variable. This value determines how the url is constructed, which API credentials get appended to the external query and the keys used to parse the response JSON container the statistical data.
+    """
+    def __init__(self, type):
+        self.type = type
+
+    def construct_url(self, symbol, start_date, end_date):
+        if self.type == static.keys['SERVICE']['STATISTICS']['QUANDL']:
+            url = f'{settings.Q_URL}/'
+            query = f'{settings.PATH_Q_FRED}/{symbol}?'
+    
+            if end_date is not None:
+                end_string = helper.date_to_string(end_date)
+                query += f'&{settings.PARAM_Q_END}={end_string}' 
+                pass
+
+            if start_date is not None:
+                start_string = helper.date_to_string(start_date)
+                query += f'&{settings.PARAM_Q_START}={start_string}'
+
+            auth_query = f'{query}&{settings.PARAM_Q_KEY}={settings.Q_KEY}'
+            url += auth_query
+            logger.debug(f'Quandl query (w/o key) = {query}')
+            return url
+        raise errors.ConfigurationError('No STAT_MANAGER found in the parsed environment settings')
+
+    def get_stats(self, symbol, start_date, end_date):
+        url = self.construct_url(symbol, start_date, end_date)
+
+        if self.type == static.keys['SERVICE']['STATISTICS']['QUANDL']:
+            response = requests.get(url).json()
+
+            raw_stat = response[settings.Q_FIRST_LAYER][settings.Q_SECOND_LAYER]
+            formatted_stat = {}
+        
+            for stat in raw_stat:
+                formatted_stat[stat[0]] = stat[1]
+            return formatted_stat
+
+        raise errors.ConfigurationError('No STAT_MANAGER found in the parsed environment settings')
+
+
 class PriceManager():
     """
     Description
     -----------
-    PriceManager is an interface between the application and the external services that hydrate it with data. This class gets instantiated inside of service methods in this module (scrilla.services) with the value defined in `scrilla.settings.PRICE_MANAGER`. This value determines how the url is constructed, which API credentials get appended to the external query and the keys used to parse the response JSON containing the price data. \n \n
+        PriceManager is an interface between the application and the external services that hydrate it with price data. This class gets instantiated on the level of the scrilla.services module with the value defined in `scrilla.settings.PRICE_MANAGER`. This value is in turn defined by the value of the `PRICE_MANAGER` environment variable. This value determines how the url is constructed, which API credentials get appended to the external query and the keys used to parse the response JSON containing the price data. \n \n
 
     Methods 
     -------
@@ -84,7 +129,7 @@ class PriceManager():
         self.type = type
 
     def construct_url(self, ticker, asset_type):
-        if self.type == 'alpha_vantage':
+        if self.type == static.keys['SERVICE']['PRICES']['ALPHA_VANTAGE']:
             query = f'{settings.PARAM_AV_TICKER}={ticker}'
 
             if asset_type == static.keys['ASSETS']['EQUITY']:
@@ -104,11 +149,11 @@ class PriceManager():
         raise errors.ConfigurationError('No PRICE_MANAGER found in the parsed environment settings')
 
 
-    def get_prices(self, ticker, asset_type):
+    def get_prices(self, ticker, start_date, end_date, asset_type):
         url = self.construct_url(ticker, asset_type)
         response = requests.get(url).json()
 
-        if self.type == 'alpha_vantage':
+        if self.type == static.keys['SERVICE']['PRICES']['ALPHA_VANTAGE']:
             first_element = helper.get_first_json_key(response)
             # end function is daily rate limit is reached 
             if first_element == settings.AV_RES_DAY_LIMIT:
@@ -128,18 +173,19 @@ class PriceManager():
                     logger.debug('Waiting.')
                 
                 time.sleep(settings.BACKOFF_PERIOD)
-                prices = requests.get(url).json()
-                first_element = helper.get_first_json_key(prices)
+                response = requests.get(url).json()
+                first_element = helper.get_first_json_key(response)
 
                 if first_element == settings.AV_RES_ERROR:
                     raise errors.APIResponseError(response[settings.AV_RES_ERROR])
 
-            return response
+            return self.slice_prices(start_date=start_date, end_date=end_date, asset_type=asset_type, prices=response)
         
         raise errors.ConfigurationError('No PRICE_MANAGER found in the parsed environment settings')
 
     def slice_prices(self, start_date, end_date, asset_type, prices):
-        if self.type == 'alpha_vantage':
+        # NOTE: only really needed for `alpha_vantage` responses so far, due to the fact AlphaVantage either returns everything or 100 days or prices.
+        if self.type == static.keys['SERVICE']['PRICES']['ALPHA_VANTAGE']:
             # NOTE: Remember AlphaVantage is ordered current to earliest. END_INDEX is 
             # actually the beginning of slice and START_INDEX is actually end of slice. 
             try:
@@ -160,10 +206,9 @@ class PriceManager():
         
         raise errors.ConfigurationError('No PRICE_MANAGER found in the parsed environment settings')
     
-    def parse_price_from_date(self, prices, date, asset_type, which_price=static.keys['PRICES']['CLOSE']):
+    def parse_price_from_date(self, prices, date, asset_type, which_price):
         try:
             if self.type== 'alpha_vantage':
-            
                 if asset_type == static.keys['ASSETS']['EQUITY']:
                     if which_price == static.keys['PRICES']['CLOSE']:
                         return prices[date][settings.AV_RES_EQUITY_CLOSE_PRICE]
@@ -175,30 +220,36 @@ class PriceManager():
                         return prices[date][settings.AV_RES_CRYPTO_CLOSE_PRICE]
                     if which_price == static.keys['PRICES']['OPEN']:
                         return prices[date][settings.AV_RES_CRYPTO_OPEN_PRICE]
+            
+            raise errors.InputValidationError(f'Verify {asset_type}, {which_price} are allowable values')
 
         except KeyError as ke:
             logger.debug('Price unable to be parsed from date.')
             raise ke
 
 price_manager = PriceManager(settings.PRICE_MANAGER)
-price_cache = models.PriceCache()        
+stat_manager = StatManager(settings.STAT_MANAGER)
+price_cache = cache.PriceCache()        
+stat_cache = cache.StatCache()
 
-def query_service_for_daily_price_history(ticker, start_date=None, end_date=None, asset_type=None):
+def get_daily_price_history(ticker, start_date=None, end_date=None, asset_type=None):
     """
     Description
     -----------
-    Function in charge of querying external services for daily price history. \n \n
+    Wrapper around external service request. Relies on an instance of `PriceManager` configured by `settings.PRICE_MANAGER` value, which in turn is configured by the `PRICE_MANAGER` environment variable, to hydrate with data. \n \n
+    
+    Before deferring to the `PriceManager` and letting it call the external service, however, this function checks if response is in local cache. If the response is not in the cache, it will pass the request off to `PriceManager` and then save the resposne in the cache so subsequent calls to the function can bypass the service request. Used to prevent excessive external HTTP requests and improve the performance of the application. Other parts of the program should interface with the external price data services through this function to utilize the cache functionality.  \n \n
 
     Parameters
     ----------
-    1. ticker : [ str ] \n
+    1. ticker :  str  \n
         Required. Ticker symbol corresponding to the price history to be retrieved. \n \n
     2. start_date : datetime.date \n 
         Optional. Start date of price history. Defaults to None. If `start_date is None`, the calculation is made as if the `start_date` were set to 100 trading days ago. If `get_asset_type(ticker)=="crypto"`, this includes weekends and holidays. If `get_asset_type(ticker)=="equity"`, this excludes weekends and holidays. \n \n
     3. end_date : datetime.date \n 
         Optional End date of price history. Defaults to None. If `end_date is None`, the calculation is made as if the `end_date` were set to today. If `get_asset_type(ticker)=="crypto"`, this means today regardless. If `get_asset_type(ticker)=="equity"`, this excludes weekends and holidays so that `end_date` is set to the previous business date. \n \n
     4. asset_type : string \n
-        Optional. Asset type of the ticker whose history is to be retrieved. Used to prevent excessive calls to IO and list searching. `asset_type` is determined by comparing the ticker symbol `ticker` to a large static list of ticker symbols maintained in installation directory's /data/static/ subdirectory, which can slow the program down if the file is constantly accessed and lots of comparison are made against it. Once an `asset_type` is calculated, it is best to preserve it in the process environment somehow, so this function allows the value to be passed in. If no value is detected, it will make a call to the aforementioned directory and parse the file to determine to the `asset_type`. There may be a better way of doing this, in fact I imagine there is, but for now, this works. If it starts getting too complicated as the program grows, this is the first area that should be refactored, i.e. how to preserve a ticker's asset type in memory instead of determining it from a large IO file. \n \n 
+        Optional. Asset type of the ticker whose history is to be retrieved. Used to prevent excessive calls to IO and list searching. `asset_type` is determined by comparing the ticker symbol `ticker` to a large static list of ticker symbols maintained in installation directory's /data/static/ subdirectory, which can slow the program down if the file is constantly accessed and lots of comparison are made against it. Once an `asset_type` is calculated, it is best to preserve it in the process environment somehow, so this function allows the value to be passed in. If no value is detected, it will make a call to the aforementioned directory and parse the file to determine to the `asset_type`. There may be a better way of doing this, in fact I imagine there is, but for now, this works. If it starts getting too complicated as the program grows, this is the first area that should be refactored, i.e. how to preserve a ticker's asset type in memory instead of determining it from a large IO file. \n \n
 
     Raises
     ------
@@ -207,47 +258,16 @@ def query_service_for_daily_price_history(ticker, start_date=None, end_date=None
         If the external service rejects the request for price data, whether because of rate limits or some other factor, this function will raise this exception.
     3. KeyError \n
         If the inputted or validated dates do not exist in the price history, a KeyError will be thrown. This could be due to the equity not having enough price history, i.e. it started trading a month ago and doesn't have 100 days worth of prices yet, or some other anomalous event in an equity's history. 
-
-    Notes
-    -----
-    1. The default analysis period, if no `start_date` and `end_date` are specified, is determined by the *DEFAULT_ANALYSIS_PERIOD" variable in the `settings,py` file. The hardcoded value of this setting is 100. Should probably put this variable into the enviroment in the future and allow user to configure it. \n \n
-    """
-    try:
-        asset_type = errors.validate_asset_type(ticker, asset_type)
-        start_date, end_date = errors.validate_dates(start_date, end_date, asset_type)
-        prices = price_manager.get_prices(ticker, asset_type)
-        return price_manager.slice_prices(start_date=start_date, end_date=end_date, asset_type=asset_type, prices=prices)        
-
-    except errors.InputValidationError as ive:
-        raise ive 
-    except errors.APIResponseError as api:
-        raise api     
-    except KeyError as ke:
-        raise ke
-                
-# Checks the file cache for price histories. Otherwise, it hands the request off to the service manager.
-def get_daily_price_history(ticker, start_date=None, end_date=None, asset_type=None):
-    """
-    Description
-    -----------
-    Wrapper around external service request. Checks if response is in local cache before calling service. If the response is not in the cache, it will pass the request off to `query_service_for_daily_price_history` and then save the resposne in the cache so subsequent calls to the function can bypass the service request. Used to prevent excessive external HTTP requests and improve the performance of the application. Other parts of the program should interface with the external price data services through this function to utilize the cache functionality.  \n \n
-
-
-    Parameters
-    ----------
-    1. tickers : [ str ] \n 
-        Required. List of ticker symbols corresponding to the price histories to be retrieved. \n \n
-    2. start_date : datetime.date \n 
-        Optional: Start date of historical range. Defaults to None. \n \n 
-    3. end_date: datetime.date \n 
-        Optional: End date of historical range. Defaults to None. \n \n
-    4. asset_type : string \n
-        Optional. Asset type of the ticker whose history is to be retrieved. Will be calculated from the `ticker` symbol if not provided. \n \n
+    4. errors.ConfigurationError \n
 
     Returns
     ------
     { 'date' (str) : { 'open': value (str), 'close': value (str) }, 'date' (str): { 'open' : value (str), 'close' : value(str) } }
         Dictionary with dates as keys and a nested dictionary containing the 'open' and 'close' price as values. . 
+    
+    Notes
+    -----
+    1. The default analysis period, if no `start_date` and `end_date` are specified, is determined by the *DEFAULT_ANALYSIS_PERIOD" variable in the `settings,py` file. The hardcoded value of this setting is 100. Should probably put this variable into the enviroment in the future and allow user to configure it. \n \n
     """
     try:
         asset_type = errors.validate_asset_type(ticker, asset_type)
@@ -261,7 +281,7 @@ def get_daily_price_history(ticker, start_date=None, end_date=None, asset_type=N
         return prices
         
     try:
-        prices = query_service_for_daily_price_history(ticker=ticker, start_date=start_date, end_date=end_date)
+        prices = price_manager.get_prices(ticker, asset_type, start_date=start_date, end_date=end_date)
     except errors.APIResponseError as api:
         raise api
     except errors.InputValidationError as ive:
@@ -298,11 +318,11 @@ def get_daily_price_latest(ticker, asset_type=None):
     else:
         return None
 
-def query_service_for_daily_stats_history(statistic, start_date=None, end_date=None, full=False):
+def get_daily_stats_history(symbol, start_date=None, end_date=None):
     """
     Description
     -----------
-    Makes an HTTP request to the STAT_MANAGER defined in the settings.py and configured through the environment variable STAT_MANAGER. \n \n 
+    Function in charge of querying external services for statistics data. Relies on instance of `StatManager` configured by `settings.STAT_MANAGER` value, which in turn is configured by the `STAT_MANGER` environment variable, to hydrata with data.\n \n 
 
     Parameters
     ----------
@@ -313,84 +333,29 @@ def query_service_for_daily_stats_history(statistic, start_date=None, end_date=N
     3. end_date: datetime.date \n 
         Optional: End date of historical range. Defaults to None.
     """
-    if settings.STAT_MANAGER == "quandl":
-        stat = {}
-    
-        if full:
-            start_date, end_date = None, None
+    try:
+            # NOTE: financial statistics aren't reported on weekends or holidays, so their date validation is functionally
+            #       equivalent to an equity's date validation.
+        start_date,end_date=errors.validate_dates(start_date=start_date, end_date=end_date, asset_type=static.keys['ASSETS']['EQUITY'])
+    except errors.InputValidationError as ive:
+        raise ive
 
-        if start_date is not None and end_date is not None:
-            valid_dates, start_date, end_date = validate_order_of_dates(start_date, end_date)
-            if not valid_dates:
-                return False
+    stats = stat_cache.filter_stat_cache(symbol=symbol, start_date=start_date, end_date=end_date)
 
-            start_date, end_date = validate_tradeability_of_dates(start_date, end_date)
+    if stats is not None: # or in end_date is not in stats.keys() ? 
+        return stats
 
-        url = f'{settings.Q_URL}/'
-        query = f'{settings.PATH_Q_FRED}/{statistic}?'
-    
-        if end_date is not None:
-            end_string = helper.date_to_string(end_date)
-            query += f'&{settings.PARAM_Q_END}={end_string}' 
-            pass
+    try:
+        stats = stat_manager.get_stats(symbol=symbol, start_date=start_date, end_date=end_date)
+    except errors.APIResponseError as api:
+        raise api
+    except errors.InputValidationError as ive:
+        raise ive
+    # TODO: see other cache filters todos. Need to be more careful with new information. cache is NOT the source of truth. basically, need to check if the len(stats) = dates_between(start, end) and that start_Date in stat.keys() and end_date in stat.keys()!
 
-        if start_date is not None:
-            start_string = helper.date_to_string(start_date)
-            query += f'&{settings.PARAM_Q_START}={start_string}'
+    for date in stats:
+        stat_cache.save_row(symbol=symbol, date=date, value=stats[date])
 
-        auth_query = f'{query}&{settings.PARAM_Q_KEY}={settings.Q_KEY}'
-        url += auth_query
-        logger.debug(f'Quandl query (w/o key) = {query}')   
-
-        response = requests.get(url).json()
-
-        # TODO: test for error messages or API rate limits
-
-        raw_stat = response[settings.Q_FIRST_LAYER][settings.Q_SECOND_LAYER]
-        formatted_stat = {}
-
-        # TODO: this method always returns the last 100, even if end_date - start_date < 100. Need to change the next
-        # few lines to only select response entries that fall within dates.
-
-        if not full:
-            raw_stat = raw_stat[:settings.DEFAULT_ANALYSIS_PERIOD]
-
-        for stat in raw_stat:
-            formatted_stat[stat[0]] = stat[1]
-
-        return formatted_stat
-    logger.info("No STAT_MANAGER set in .env file!")
-    return None
-
-# Goes through file cache if start_date and end_date are not provided,
-#   otherwise, hands the call off to the service manager.
-def get_daily_stats_history(statistic, start_date=None, end_date=None):
-    """
-    Description
-    -----------
-    Wrapper around external service call. Checks if response is in local cache before making service call.
-
-    Parameters
-    ----------
-    1. statistic: str \n 
-        Required. Symbol representing the statistic whose history is to be retrieved. \n \n
-    2. start_date: datetime.date \n 
-        Optional: Start date of historical range. Defaults to None. \n \n 
-    3. end_date: datetime.date \n 
-        Optional: End date of historical range. Defaults to None.
-    """
-    stats = files.retrieve_local_object(local_object=files.OBJECTS['statistic'],
-                                        args={"stat_symbol": statistic,"start_date": start_date,
-                                              "end_date": end_date})
-    if stats is not None:
-        return stats 
-    logger.debug(f'Retrieivng {statistic} statistics from Service Manager')
-    stats = query_service_for_daily_stats_history(statistic=statistic, start_date=start_date, end_date=end_date)
-
-    logger.debug(f'Storing {statistic} statistics in cache')
-    files.store_local_object(local_object=files.OBJECTS['statistic'], value=stats,
-                             args={"stat_symbol": statistic, "start_date": start_date,
-                                    "end_date": end_date})
     return stats
 
 def get_daily_stats_latest(statistic):
@@ -404,13 +369,10 @@ def get_daily_stats_latest(statistic):
     1. statistic: str \n 
         Required. Symbol representing the statistc whose value it to be retrieved. \n \n
     """
-    if settings.STAT_MANAGER == "quandl":
-        stats_history = get_daily_stats_history(statistic=statistic)
-        first_element = helper.get_first_json_key(stats_history)
-        return stats_history[first_element]
+    stats_history = get_daily_stats_history(statistic=statistic)
+    first_element = helper.get_first_json_key(stats_history)
+    return stats_history[first_element]
 
-    logger.info("No STAT_MANAGER set in .env file!")
-    return None
 
 def query_service_for_dividend_history(ticker):
     """

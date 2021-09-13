@@ -7,13 +7,14 @@ if __name__=="__main__":
     APP_DIR = path.dirname(path.dirname(path.abspath(__file__)))
     sys_path.append(APP_DIR)
 
-from scrilla import static, services, files, settings, errors, models
+from scrilla import static, services, files, settings, errors, cache
 import scrilla.util.outputter as outputter
 import scrilla.util.formatter as formatter
 import scrilla.util.helper as helper
 
 logger = outputter.Logger('statistics', settings.LOG_LEVEL)
-profile_cache = models.ProfileCache()
+profile_cache = cache.ProfileCache()
+correlation_cache = cache.CorrelationCache()
 
 def sample_correlation(x, y):
     """
@@ -536,7 +537,8 @@ def calculate_risk_return(ticker, start_date=None, end_date=None, sample_prices=
 
         results = profile_cache.filter_profile_cache(ticker=ticker, start_date=start_date, end_date=end_date)
 
-        if results is not None:
+        if results[static.keys['STATISTICS']['RETURN']] is not None \
+                and results[static.keys['STATISTICS']['VOLATILITY']] is not None:
             return results
 
         try:
@@ -609,10 +611,8 @@ def calculate_risk_return(ticker, start_date=None, end_date=None, sample_prices=
         'annual_volatility': volatility
     }
     
-    files.store_local_object(local_object=files.OBJECTS['risk_profile'], value=results, 
-                                args={"ticker": ticker, "start_date": start_date, 
-                                                     "end_date": end_date})
-
+    profile_cache.save_or_update_row(ticker=ticker, start_date=start_date, end_date=end_date, 
+                                        annual_return=results['annual_return'], annual_volatility=results['annual_volatility'])
     return results
 
 def calculate_ito_correlation(ticker_1, ticker_2, asset_type_1=None, asset_type_2=None, start_date=None, end_date=None, sample_prices=None):
@@ -665,9 +665,8 @@ def calculate_ito_correlation(ticker_1, ticker_2, asset_type_1=None, asset_type_
         raise ive
 
     if sample_prices is None:
-        correlation = files.retrieve_local_object(local_object=files.OBJECTS['correlation'], 
-                                                    args = { "ticker_1": ticker_1, "ticker_2": ticker_2, 
-                                                            "start_date": start_date, "end_date": end_date})
+        correlation = correlation_cache.filter_correlation_cache(ticker_1=ticker_1, ticker_2=ticker_2,
+                                                                    start_date=start_date, end_date=end_date)
         if correlation is not None:
             return correlation
 
@@ -783,9 +782,8 @@ def calculate_ito_correlation(ticker_1, ticker_2, asset_type_1=None, asset_type_
 
     result = { 'correlation' : correlation }
 
-    files.store_local_object(local_object=files.OBJECTS['correlation'], value=result,
-                                args={ "ticker_1": ticker_1, "ticker_2": ticker_2, 
-                                        "start_date": start_date, "end_date": end_date})
+    correlation_cache.save_row(ticker_1=ticker_1, ticker_2=ticker_2, 
+                                start_date=start_date, end_date=end_date, correlation = correlation)
     return result
 
 def ito_correlation_matrix(tickers, asset_types=None, start_date=None, end_date=None, sample_prices=None):

@@ -127,14 +127,11 @@ def do_program():
             # NOTE: not technically a single argument function, but requires special parsing, so
             #       treat it here.
         elif opt == formatter.FUNC_ARG_DICT['store']:
-            keyvalue = sys.argv[2].split("=")
-            if keyvalue[0] in ["ALPHA_VANTAGE_KEY", "QUANDL_KEY", "IEX_KEY"]:
-               keystore = {}
-               keystore[keyvalue[0]] = keyvalue[1]
-               args = { 'key_name': keyvalue[0], 'key_value': keyvalue[1]}
-               files.store_local_object(local_object=files.OBJECTS['api_key'],value=keystore, args=args)
+            key = sys.argv[2].split("=")
+            if key[0] in ["ALPHA_VANTAGE_KEY", "QUANDL_KEY", "IEX_KEY"]:
+               files.set_credentials(value=key[1], whichkey=key[0])
             else:
-                outputter.comment(f'Key of {keyvalue[0]} not recognized. See -help for more information.')
+                outputter.comment(f'Key of {key[0]} not recognized. See -help for more information.')
             pass
 
         ### FUNCTION: Purge Data Directories
