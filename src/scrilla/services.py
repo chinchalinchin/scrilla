@@ -231,6 +231,7 @@ price_manager = PriceManager(settings.PRICE_MANAGER)
 stat_manager = StatManager(settings.STAT_MANAGER)
 price_cache = cache.PriceCache()        
 stat_cache = cache.StatCache()
+div_cache = cache.DividendCache()
 
 def get_daily_price_history(ticker, start_date=None, end_date=None, asset_type=None):
     """

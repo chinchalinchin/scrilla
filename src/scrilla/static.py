@@ -28,8 +28,8 @@ keys= {
         'START':'start_date',
         'END':'end_date'
     },
-    'SERVICES':{
-        'PRICE':{
+    'SERVICE':{
+        'PRICES':{
             'ALPHA_VANTAGE': 'alpha_vantage',
         },
         'STATISTICS': {
