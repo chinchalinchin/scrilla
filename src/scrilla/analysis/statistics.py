@@ -661,7 +661,7 @@ def calculate_ito_correlation(ticker_1, ticker_2, asset_type_1=None, asset_type_
     try:
         asset_type_1 = errors.validate_asset_type(ticker=ticker_1, asset_type=asset_type_1)
         asset_type_2 = errors.validate_asset_type(ticker=ticker_2, asset_type=asset_type_2)
-        if asset_type_1 == static.keys['ASSETS']['EQUITY'] or asset_type_2 == static.keys['ASSETS']['EQUITY']:
+        if asset_type_1 in [static.keys['ASSETS']['EQUITY'], static.keys['ASSETS']['EQUITY']]:
             start_date, end_date = errors.validate_dates(start_date=start_date, end_date=end_date,
                                                             asset_type=static.keys['ASSETS']['EQUITY'])
         else:
@@ -691,8 +691,7 @@ def calculate_ito_correlation(ticker_1, ticker_2, asset_type_1=None, asset_type_
         # remove weekends and holidays from crypto prices so samples can be compared
         sample_prices[ticker_1], sample_prices[ticker_2] = helper.intersect_dict_keys(sample_prices[ticker_1], sample_prices[ticker_2])
 
-    if (len(sample_prices[ticker_1]) == 0) \
-        or (len(sample_prices[ticker_2]) == 0):
+    if 0 in [len(sample_prices[ticker_1]), len(sample_prices[ticker_2])]:
         raise errors.PriceError("Prices cannot be retrieved for correlation calculation")
 
     if asset_type_1 == asset_type_2 and asset_type_1 == static.keys['ASSETS']['CRYPTO']:
