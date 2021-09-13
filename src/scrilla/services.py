@@ -293,7 +293,7 @@ def get_daily_price_history(ticker, start_date=None, end_date=None, asset_type=N
     Returns
     ------
     { 'date' (str) : { 'open': value (str), 'close': value (str) }, 'date' (str): { 'open' : value (str), 'close' : value(str) }, ... }
-        Dictionary with dates as keys and a nested dictionary containing the 'open' and 'close' price as values. Ordered from latest to earliest. \n \n
+        Dictionary with date strings formatted `YYYY-MM-DD` as keys and a nested dictionary containing the 'open' and 'close' price as values. Ordered from latest to earliest. \n \n
     
     Notes
     -----
@@ -385,7 +385,7 @@ def get_daily_stats_history(symbol, start_date=None, end_date=None):
     Returns
     ------
     { 'date' (str) :  value (str),  'date' (str):  value (str), ... }
-        Dictionary with dates as keys and the statistic on that date as the corresponding value. \n \n
+        Dictionary with date strings formatted `YYYY-MM-DD` as keys and the statistic on that date as the corresponding value. \n \n
     """
     try:
             # NOTE: financial statistics aren't reported on weekends or holidays, so their date validation is functionally
@@ -438,6 +438,22 @@ def get_dividend_history(ticker):
     ----------
     1. ticker : str \n 
         Required. Tickery symbol of the equity whose dividend history is to be retrieved. \n \n 
+    
+    Raises
+    ------
+    1. scrilla.errors.InputValidationError \n
+        If the arguments inputted into the function fail to exist within the domain the function, this error will be thrown.
+    2. scrilla.errors.APIResponseError \n
+        If the external service rejects the request for price data, whether because of rate limits or some other factor, the function will raise this exception.
+    3. KeyError \n
+        If the inputted or validated dates do not exist in the price history, a KeyError will be thrown. This could be due to the equity not having enough price history, i.e. it started trading a month ago and doesn't have 100 days worth of prices yet, or some other anomalous event in an equity's history. 
+    4. errors.ConfigurationError \n
+        If one of the settings is improperly configured or one of the environment variables was unable to be parsed from the environment, this error will be thrown. \n \n
+
+    Returns
+    ------
+    { 'date' (str) :  amount (str),  'date' (str):  amount (str), ... }
+        Dictionary with date strings formatted `YYYY-MM-DD` as keys and the dividend payment amount on that date as the corresponding value. \n \n
     """
     logger.debug(f'Checking for {ticker} dividend history in cache.')
     divs = div_cache.filter_dividend_cache(ticker=ticker)
