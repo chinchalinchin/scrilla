@@ -221,7 +221,7 @@ class PriceManager():
                     end_index = list(prices[settings.AV_RES_EQUITY_FIRST_LAYER].keys()).index(end_string)
                     prices = dict(itertools.islice(prices[settings.AV_RES_EQUITY_FIRST_LAYER].items(), end_index, start_index+1))
                     return prices
-                elif asset_type == static.keys['ASSETS']['CRYPTO']:
+                if asset_type == static.keys['ASSETS']['CRYPTO']:
                     start_index = list(prices[settings.AV_RES_CRYPTO_FIRST_LAYER].keys()).index(start_string)
                     end_index = list(prices[settings.AV_RES_CRYPTO_FIRST_LAYER].keys()).index(end_string)
                     prices = dict(itertools.islice(prices[settings.AV_RES_CRYPTO_FIRST_LAYER].items(), end_index, start_index+1))
@@ -350,8 +350,7 @@ def get_daily_price_latest(ticker, asset_type=None):
     if prices is not None:
         first_element = helper.get_first_json_key(prices)
         return prices[first_element][static.keys['PRICES']['OPEN']]
-    else:
-        return None
+    return None
 
 def get_daily_stats_history(symbol, start_date=None, end_date=None):
     """
