@@ -147,24 +147,16 @@ def rolling_recursion_tests_with_financial_data():
                                                                             business_days=1)
             
             prices = services.get_daily_price_history(ticker=ticker, start_date=previous_start_date, 
-                                                        end_date=end_date)
+                                                        end_date=end_date, asset_type=static.keys['ASSETS']['EQUITY'])
             previous_prices = dict(prices)
             new_prices = dict(prices)
             del previous_prices[helper.date_to_string(end_date)]
             del new_prices[helper.date_to_string(previous_start_date)]
             
-            end_date_price = services.price_manager.parse_price_from_date(prices=prices,
-                                                            date=helper.date_to_string(end_date), 
-                                                            asset_type=static.keys['ASSETS']['EQUITY'])
-            previous_end_date_price = services.price_manager.parse_price_from_date(prices=prices, 
-                                                            date=helper.date_to_string(previous_end_date), 
-                                                            asset_type=static.keys['ASSETS']['EQUITY'])
-            start_date_price = services.price_manager.parse_price_from_date(prices=prices,
-                                                            date=helper.date_to_string(start_date), 
-                                                            asset_type=static.keys['ASSETS']['EQUITY'])
-            previous_start_date_price = services.price_manager.parse_price_from_date(prices=prices,
-                                                            date=helper.date_to_string(previous_start_date),
-                                                            asset_type=static.keys['ASSETS']['EQUITY'])
+            end_date_price = prices[end_date][static.keys['PRICES']['CLOSE']]
+            previous_end_date_price = prices[previous_end_date][static.keys['PRICES']['CLOSE']]
+            start_date_price = prices[start_date][static.keys['PRICES']['CLOSE']]
+            previous_start_date_price = prices[start_date][static.keys['PRICES']['CLOSE']]
 
             new_return = numpy.log(float(end_date_price)/float(previous_end_date_price))/trading_period
             lost_return = numpy.log(float(start_date_price)/float(previous_start_date_price))/trading_period
