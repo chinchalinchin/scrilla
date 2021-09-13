@@ -3,28 +3,22 @@ from scrilla import settings, files, static
 import util.helper as helper
 
 class InputValidationError(Exception):
-    def __init__(self, message):
-        super().__init__(message)
+    pass
 
 class APIResponseError(Exception):
-    def __init__(self, message):
-        super().__init__(message)
+    pass
 
 class APIKeyError(Exception):
-    def __init__(self, message):
-        super().__init__(message)
+    pass
 
 class ConfigurationError(Exception):
-    def __init__(self, message):
-        super().__init__(message)
+    pass
 
 class SampleSizeError(Exception):
-    def __init__(self, message):
-        super().__init__(message)
+    pass
 
 class PriceError(Exception):
-    def __init__(self, message):
-        super().__init__(message)
+    pass
 
 def validate_asset_type(ticker, asset_type=None):
     if asset_type is None:
