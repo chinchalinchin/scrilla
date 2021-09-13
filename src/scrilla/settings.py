@@ -164,7 +164,7 @@ except (ValueError, TypeError) as ParseError:
 
 try:
     DEFAULT_ANALYSIS_PERIOD=int(os.environ.setdefault('DEFAULT_ANALYSIS_PERIOD', '100'))
-except:
+except (ValueError, TypeError) as ParseError:
     logger.debug('Failed to parse DEFAULT_ANALYSIS_PERIOD from environment. Setting to default of 100.')
     DEFAULT_ANALYSIS_PERIOD=100
     os.environ['DEFAULT_ANALYSIS_PERIOD']=100
