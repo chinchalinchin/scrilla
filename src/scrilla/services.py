@@ -16,7 +16,7 @@ class StatManager():
         self.type = type
 
     def construct_url(self, symbol, start_date, end_date):
-        if self.type == static.keys['SERVICE']['STATISTICS']['QUANDL']:
+        if self.type == static.keys['SERVICES']['STATISTICS']['QUANDL']['MANAGER']:
             url = f'{settings.Q_URL}/'
             query = f'{settings.PATH_Q_FRED}/{symbol}?'
     
@@ -39,7 +39,7 @@ class StatManager():
         url = self.construct_url(symbol, start_date, end_date)
         response = requests.get(url).json()
 
-        if self.type == static.keys['SERVICE']['STATISTICS']['QUANDL']:
+        if self.type == static.keys['SERVICES']['STATISTICS']['QUANDL']['MANAGER']:
 
             raw_stat = response[settings.Q_FIRST_LAYER][settings.Q_SECOND_LAYER]
             formatted_stat = {}
@@ -154,13 +154,13 @@ class PriceManager():
         self.type = type
 
     def construct_url(self, ticker, asset_type):
-        if self.type == static.keys['SERVICE']['PRICES']['ALPHA_VANTAGE']:
+        if self.type == static.keys['SERVICES']['PRICES']['ALPHA_VANTAGE']['MANAGER']:
             query = f'{settings.PARAM_AV_TICKER}={ticker}'
 
             if asset_type == static.keys['ASSETS']['EQUITY']:
                 query += f'&{settings.PARAM_AV_FUNC}={settings.ARG_AV_FUNC_EQUITY_DAILY}'
             elif asset_type == static.keys['ASSETS']['CRYPTO']:
-                query += f'&{settings.PARAM_AV_FUNC}={settings.ARG_AV_FUNC_CRYPTO_DAILY}&{settings.PARAM_AV_DENOM}={settings.DENOMINATION}'
+                query += f'&{settings.PARAM_AV_FUNC}={settings.ARG_AV_FUNC_CRYPTO_DAILY}&{settings.PARAM_AV_DENOM}={static.constants["DENOMINATION"]}'
 
                     # NOTE: only need to modify EQUITY query, CRYPTO always returns full history
             if (asset_type == static.keys['ASSETS']['EQUITY']):
@@ -178,7 +178,7 @@ class PriceManager():
         url = self.construct_url(ticker, asset_type)
         response = requests.get(url).json()
 
-        if self.type == static.keys['SERVICE']['PRICES']['ALPHA_VANTAGE']:
+        if self.type == static.keys['SERVICES']['PRICES']['ALPHA_VANTAGE']['MANAGER']:
             first_element = helper.get_first_json_key(response)
             # end function is daily rate limit is reached 
             if first_element == settings.AV_RES_DAY_LIMIT:
@@ -197,7 +197,7 @@ class PriceManager():
                 else:
                     logger.debug('Waiting.')
                 
-                time.sleep(settings.BACKOFF_PERIOD)
+                time.sleep(static.constants['BACKOFF_PERIOD'])
                 response = requests.get(url).json()
                 first_element = helper.get_first_json_key(response)
 
@@ -210,7 +210,7 @@ class PriceManager():
 
     def slice_prices(self, start_date, end_date, asset_type, prices):
         # NOTE: only really needed for `alpha_vantage` responses so far, due to the fact AlphaVantage either returns everything or 100 days or prices.
-        if self.type == static.keys['SERVICE']['PRICES']['ALPHA_VANTAGE']:
+        if self.type == static.keys['SERVICES']['PRICES']['ALPHA_VANTAGE']['MANAGER']:
             # NOTE: Remember AlphaVantage is ordered current to earliest. END_INDEX is 
             # actually the beginning of slice and START_INDEX is actually end of slice. 
             try:

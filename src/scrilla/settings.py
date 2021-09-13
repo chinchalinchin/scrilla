@@ -1,4 +1,5 @@
 import os, sys, dotenv, json
+from scrilla import static
 
 APP_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_DIR = os.path.dirname(APP_DIR)
@@ -27,32 +28,21 @@ Attributes
 3. APP_DIR: Folder containing this file. \n \n
 4. APP_ENV: Application environment. \n \n
 5. LOG_LEVEL: Debug output level. \n \n
-6. CONFIG_FILE: Location of secondary credentials file. \n \n
 7. CACHE_DIR: Folder where cached price histories reside. \n \n
-8. CACHE_PRO_KEY: File name where risk-profile calculations are saved. \n \n
 9. FILE_EXT: File extension used in CACHE_DIR. \n \n
 10. STATIC_DIR: Folder where static data reside. \n \n
 11. FILE_EXT: File extension used in STATIC_DIR. \n \n
 12. STATIC_TICKERS_FILE: File containing a list of all equity ticker symbols with price histories that can be retrieved from external services. \n \n
 13. STATIC_ECON_FILE: File containg a list of all economic statistics with sample histories that can be retrieved from external services. \n \n
 14. STATIC_CRYPTO_FILE: File containing a list of all crypto ticker symbols with price histories that can be retrieved from external services. \n \n
-15. ACCURACY: Number of decimals place saved in calculations. \n \n
 18. GUI_WIDTH: Width of root widget in GUI. \n \n
 19. GUI_HEIGHT: Height of root widget in GUI. \n \n
-20. OPTIMIZATION_METHOD: Scipy method used to optimize portfolios. \n \n
-21. INVESTMENT_MODE: Determines if output is percentage or absolute. \n \n
 22. FRONTIER_STEPS: Number of points in efficient frontier output. \n \n
 23. MA_1_PERIOD: Number of days in first moving average period. \n \n
 24. MA_2_PERIOD: Number of days in second moving average period. \n \n
 25. MA_3_PERIOD: Number of days in first moving average period. \n \n
-26. ONE_TRADING_DAY: Length of trading day in years. \n \n
-27. PRICE_YEAR_CUTOFF: Earliest year considered in price histories. \n \n
-28. DENOMINATION: Denomination in which prices are quoted. \n \n 
-29. NPV_DELTA_TOLERANCE: NPV calculations stop when the next value adds less than this amount. \n \n 
 29. RISK_FREE_RATE: Interest rate used for cashflow valuations. \n \n
 30. MARKET_PROXY: Ticker symbol used to calculate market rate of return
-30. STAT_ECON: Constant for economic statistics. \n \n
-31. INIT: Flag to initialize STATIC_DIR \n \n
 32. PRICE_MANAGER: Service in charge of price histories. \n \n
 33. STAT_MANAGER: Service in charge of statistic histories. \n \n
 34. DIVIDEND_MANAGER: Service in charge of dividend payment histories. \n \n
@@ -93,8 +83,6 @@ Attributes
 
 APP_NAME="scrilla"
 
-VERSION="0.0.1"
-
 APP_ENV = os.environ.setdefault('APP_ENV', 'local')
 
 # NOTE: Load in local.env file if not running application container. Container should 
@@ -108,17 +96,9 @@ logger = outputter.Logger('settings', LOG_LEVEL)
 
 # TODO: CACHE only supports JSON currently. Future file extensions: csv and txt.
 FILE_EXT = os.environ.setdefault("FILE_EXT", "json")
-KEEP_EXT = ".gitkeep"
 
 CACHE_DIR = os.path.join(APP_DIR, 'data', 'cache')
 CACHE_SQLITE_FILE = os.path.join(CACHE_DIR, 'scrilla.db')
-
-CACHE_PRO_KEY="profile"
-CACHE_PRICE_KEY="prices"
-CACHE_COR_KEY="correlation"
-CACHE_DIV_KEY="dividends"
-CACHE_STAT_KEY="statistic"
-CACHE_EQUITY_KEY="equity_statistic"
 
 STATIC_DIR = os.path.join(APP_DIR, 'data', 'static')
 
@@ -128,8 +108,6 @@ STATIC_CRYPTO_FILE = os.path.join(STATIC_DIR, f'crypto.{FILE_EXT}')
 
 COMMON_DIR=os.path.join(APP_DIR, 'data', 'common')
 COMMON_WATCHLIST_FILE=os.path.join(COMMON_DIR, f'watchlist.{FILE_EXT}')
-
-ACCURACY, BACKOFF_PERIOD=5, 30
 
 # See .sample.env for more information.
 LOCAL_CACHE = os.environ.setdefault('LOCAL_CACHE_ENABLED', 'true').strip().lower() == 'true'
@@ -150,9 +128,6 @@ except (ValueError, TypeError) as ParseError:
     os.environ['GUI_HEIGHT'] = '800'
 
 ## FINANCIAL ALGORITHM CONFIGURATION
-
-OPTIMIZATION_METHOD="SLSQP"
-
 try:
     FRONTIER_STEPS = int(os.environ.setdefault('FRONTIER_STEPS', '5'))
 except (ValueError, TypeError) as ParseError:
@@ -195,15 +170,6 @@ except:
     DEFAULT_ANALYSIS_PERIOD=100
     os.environ['DEFAULT_ANALYSIS_PERIOD']=100
 
-# Number of days
-
-# TODO: candidates for static.py
-PRICE_YEAR_CUTOFF=1950
-DENOMINATION = "USD"
-NPV_DELTA_TOLERANCE = 0.0000001
-STAT_ECON="statistic"
-
-
 # SEE: ARG_Q_YIELD_CURVE for allowabled values
 RISK_FREE_RATE=os.environ.setdefault("RISK_FREE", "10-Year").strip("\"")
 
@@ -240,8 +206,8 @@ if PRICE_MANAGER == 'alpha_vantage':
     AV_RES_EQUITY_KEY="symbol"
     AV_RES_CRYPTO_FIRST_LAYER='Time Series (Digital Currency Daily)'
     AV_RES_CRYPTO_KEY="currency code"
-    AV_RES_CRYPTO_CLOSE_PRICE=f'4a. close ({DENOMINATION})'
-    AV_RES_CRYPTO_OPEN_PRICE=f'1a. open ({DENOMINATION})'
+    AV_RES_CRYPTO_CLOSE_PRICE=f'4a. close ({static.constants["DENOMINATION"]})'
+    AV_RES_CRYPTO_OPEN_PRICE=f'1a. open ({static.constants["DENOMINATION"]})'
     AV_RES_ERROR='Error Message'
     AV_RES_LIMIT='Note'
     AV_RES_DAY_LIMIT='Information'

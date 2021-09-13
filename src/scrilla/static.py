@@ -13,7 +13,8 @@ keys= {
     },
     'ASSETS':{
         'EQUITY': 'equity',
-        'CRYPTO': 'crypto'
+        'CRYPTO': 'crypto',
+        'STAT': 'statistics'
     },
     'CACHE':{
         'PRICES': 'prices',
@@ -28,15 +29,21 @@ keys= {
         'START':'start_date',
         'END':'end_date'
     },
-    'SERVICE':{
+    'SERVICES':{
         'PRICES':{
-            'ALPHA_VANTAGE': 'alpha_vantage',
+            'ALPHA_VANTAGE': {
+                'MANAGER': 'alpha_vantage'
+            }
         },
         'STATISTICS': {
-            'QUANDL': 'quandl'
+            'QUANDL': {
+                'MANAGER': 'quandl'
+            }
         },
         'DIVIDENDS': {
-            'IEX': 'iex'
+            'IEX': {
+                'MANAGER': 'iex'
+            }
         }
     }
 }
@@ -44,7 +51,15 @@ constants = {
     'ONE_TRADING_DAY': {
         'EQUITY': (1/252),
         'CRYPTO': (1/365)
-    }
+    },
+    'ACCURACY': 5,
+    'BACKOFF_PERIOD': 30,
+    'KEEP_FILE': '.gitkeep',
+    'PRICE_YEAR_CUTOFF': 1950,
+    'DENOMINATION': 'USD',
+    'NPV_DELTA_TOLERANCE': 0.0000001,
+    'OPTIMIZATION_METHOD': "SLSQP"
+
 }
 
 def get_trading_period(asset_type):

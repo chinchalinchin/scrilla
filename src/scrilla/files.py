@@ -187,7 +187,7 @@ def get_static_data(static_type):
         else:
             path = settings.STATIC_TICKERS_FILE
     
-    elif static_type == settings.STAT_ECON:
+    elif static_type == static.keys['ASSETS']['STAT']:
         if static_econ_blob:
             blob = static_econ_blob
         else:
@@ -214,7 +214,7 @@ def get_static_data(static_type):
             static_crypto_blob = symbols
         elif static_type == static.keys['ASSETS']['EQUITY']:
             static_tickers_blob = symbols
-        elif static_type == settings.STAT_ECON:
+        elif static_type == static.keys['ASSETS']['STAT']:
             static_econ_blob = symbols
         return symbols
         
@@ -341,11 +341,11 @@ def format_allocation(allocation, portfolio, investment=None):
     for j, item in enumerate(portfolio.tickers):
         holding = {}
         holding['ticker'] = item
-        holding['allocation'] = round(allocation[j], settings.ACCURACY)
+        holding['allocation'] = round(allocation[j], static.constants['ACCURACY'])
         if investment is not None:
             holding['shares'] = float(shares[j])
-        holding['annual_return'] = round(portfolio.mean_return[j], settings.ACCURACY) 
-        holding['annual_volatility'] = round(portfolio.sample_vol[j], settings.ACCURACY)
+        holding['annual_return'] = round(portfolio.mean_return[j], static.constants['ACCURACY']) 
+        holding['annual_volatility'] = round(portfolio.sample_vol[j], static.constants['ACCURACY'])
         allocation_format.append(holding)
 
     json_format = {}
@@ -450,7 +450,7 @@ def clear_directory(directory, retain=True):
 
     for f in filelist:
         filename = os.path.basename(f)
-        if retain and filename == settings.KEEP_EXT:
+        if retain and filename == static.constants['KEEP_FILE']:
             continue
         os.remove(os.path.join(directory, f))
 
