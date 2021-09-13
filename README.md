@@ -270,7 +270,7 @@ The four functions of interest in this module are:
 
     <b>Returns:</b><br>
     `{ 'date' (str) : { 'open': value (str), 'close': value (str) }, 'date' (str): { 'open' : value (str), 'close' : value(str) }, ...}`<br>
-    Dictionary with dates as keys and a nested dictionary containing the 'open' and 'close' price as values. Ordered from latest to earliest. <br>
+    Dictionary with date strings formatted `YYYY-MM-DD` as keys and a nested dictionary containing the 'open' and 'close' price as values. Ordered from latest to earliest. <br>
 
     <b>Raises:</b><br>
     1. scrilla.errors.InputValidationError<br>
@@ -299,7 +299,7 @@ The four functions of interest in this module are:
 
     <b>Returns:</b><br>
     `{ 'date' (str) :  value (str),  'date' (str):  value (str), ... }`<br>
-    Dictionary with dates as keys and the statistic on that date as the corresponding value.<br>
+    Dictionary with date strings formatted `YYYY-MM-DD` as keys and the statistic on that date as the corresponding value.<br>
 
     <b>Raises</b><br>
     1. scrilla.errors.InputValidationError<br>
