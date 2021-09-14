@@ -1,15 +1,15 @@
 import sys, os, traceback
-from scrilla.errors import APIResponseError, ConfigurationError, InputValidationError, SampleSizeError
+from scrilla.errors import APIResponseError, ConfigurationError, InputValidationError, SampleSizeError, PriceError
 
 #  Note: need to import from package when running from wheel.
 # if running locally through main.py file, these imports should be replaced
 #       from . import settings, from . import services, from . import files
 # annoying, but it is what it is.
 if __name__=="__main__":
-    import settings, services, files, errors
+    import settings, services, files, errors, static
 
 else:
-    from scrilla import settings, services, files, errors
+    from scrilla import settings, services, files, errors, static
 
 from util import helper, outputter, formatter
 from analysis import statistics, optimizer, markets
@@ -51,8 +51,8 @@ def validate_function_usage(selection, args, wrapper_function, required_length=1
                 logger.comment(f'Invalid number of arguments for \'{selection}\' function.')
 
         # TODO: CLI APPLICATION ERROR HANDLING GOES HERE 
-        except (errors.PriceError, errors.SampleSizeError, errors.APIResponseError, \
-                    errors.InputValidationError, errors.ConfigurationError) as e:
+        except (PriceError, SampleSizeError, APIResponseError, \
+                    InputValidationError, ConfigurationError) as e:
             print(str(e))
             traceback.print_exc()
 
@@ -99,11 +99,6 @@ def do_program():
         # NOTE: Docker doesn't support windowing libraries
         elif opt == formatter.FUNC_ARG_DICT["gui"] and settings.APP_ENV == "container":
             logger.comment("GUI functionality disabled when application is containerized.")
-
-        ### FUNCTION: Static Data Initialization
-        elif opt == formatter.FUNC_ARG_DICT['initialize']:
-            logger.comment("Initializing /static/ directory")       
-            files.init_static_data()
 
         ### FUNCTION: Print Stock Watchlist
         elif opt == formatter.FUNC_ARG_DICT['list_watchlist']:
@@ -364,10 +359,9 @@ def do_program():
                     for arg in main_args:
                         prices = services.get_daily_price_history(ticker=arg, start_date=xtra_list['start_date'],
                                                                     end_date=xtra_list['end_date'])
-                        asset_type = files.get_asset_type(symbol=arg)
                         all_prices[arg] = {}
                         for date in prices:
-                            price = services.price_manager.parse_price_from_date(prices=prices, date=date, asset_type=asset_type)
+                            price = prices[date][static.keys['PRICES']['CLOSE']]
                             outputter.scalar_result(calculation=f'{arg}({date})', result = float(price))
                             all_prices[arg][date] = price
                     if xtra_list['save_file'] is not None:

@@ -414,6 +414,7 @@ If the above problem is to be solved, the cache needs modified to separate price
 
 
 # Documentation
+- [dateutil](https://dateutil.readthedocs.io/en/stable/index.html)
 - [holidays](https://github.com/dr-prodigy/python-holidays)
 - [matplotlib](https://matplotlib.org/)
 - [numpy](https://numpy.org/doc/)

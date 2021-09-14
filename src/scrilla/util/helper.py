@@ -1,5 +1,7 @@
 import datetime, math, holidays
 
+import dateutil.easter as easter
+
 import scrilla.util.formatter as formatter
 
 ################################################
@@ -130,12 +132,17 @@ def is_date_string_weekend(date_string) -> bool:
     return is_date_weekend(parse_date_string(date_string))
 
 # YYYY-MM-DD
-def is_date_holiday(date_string) -> bool:
-    us_holidays = holidays.UnitedStates()
-    return (date_string in us_holidays)
+def is_date_holiday(date : datetime.date) -> bool:
+    us_holidays = holidays.UnitedStates(years=date.year)
+    # generate list without columbus day since markets are open on columbus day
+    custom_holidays = [ date for date in us_holidays if us_holidays[date] != "Columbus Day" ]
+    # add good friday to list markets are closed on good friday
+    custom_holidays.append(easter.easter(year=date.year) - datetime.timedelta(days=2))
 
-def is_date_string_holiday(date) -> bool:
-    return is_date_holiday(parse_date_string(date))
+    return (date in custom_holidays)
+
+def is_date_string_holiday(date_string) -> bool:
+    return is_date_holiday(parse_date_string(date_string))
 
 def is_trading_date(date):
     return not is_date_weekend(date) and not is_date_holiday(date)

@@ -36,7 +36,6 @@ FUNC_ARG_DICT = {
     "examples": "-ex",
     "gui": "-gui",
     "help": "-help",
-    "initialize": "-init-static",
     "list_watchlist": "-ls-watch",
     "maximize_return": "-max",
     "moving_averages": "-mov",
@@ -102,22 +101,20 @@ FUNC_DICT = {
     
     "correlation": "Calculate pair-wise correlation for the supplied list of ticker symbols. If no start or end dates are specified, calculations default to the last 100 days of prices.__\n\t\t\tOPTIONS:\n\t\t\t\t-start (format: \"YYYY-MM-DD\")\n\t\t\t\t-end  (format :\"YYYY-MM-DD\")",
     
-    "correlation_time_series": "EXPERIMENTAL. PROBABLY WON'T WORK. Calculate correlation for a pair of tickers over a specified date range. If no start or end dates are specified, the default analysis period of 100 days is applied. __\n\t\t\tOPTIONS:\n\t\t\t\t-start (format: \"YYYY-MM-DD\")\n\t\t\t\t-end  (format :\"YYYY-MM-DD\")",
+    "correlation_time_series": "EXPERIMENTAL. PROBABLY WON'T WORK. Calculate correlation time series for a pair of tickers over a specified date range. If no start or end dates are specified, the default analysis period of 100 days is applied. __\n\t\t\tOPTIONS:\n\t\t\t\t-start (format: \"YYYY-MM-DD\")\n\t\t\t\t-end  (format :\"YYYY-MM-DD\")",
 
     "discount_dividend": "Extrapolates future dividend cashflows from historical dividend payments with linear regression and then uses that model to calculate the net present value of all future dividends. If no discount rate is specified, the calculations default to the risk-free rate, i.e. the 10-Year US Treasury yield.__\n\t\t\tOPTIONS:\n\t\t\t\t -discount (format: decimal)",
     
     "dividends": "Displays the price history over the specific date range. If no dates are provided, returns the entire dividend history.__\n\t\t\tOPTIONS:\n\t\t\t\t-start (format: \"YYYY-MM-DD\")\n\t\t\t\t-end  (format :\"YYYY-MM-DD\")",
 
-    "efficient_frontier": "Generate a sample of the portfolio's efficient frontier for the supplied list of tickers. By default, the efficient frontier will minimize a portfolio's volality for a given rate of return. The number of points calculated in the efficient frontier can be specifed as an integer with the -steps. If no -steps is provided, the value of the environment variable FRONTIER_STEPS will be used.__\n\t\t\t OPTIONS:\n\t\t\t\t-steps (format: integer)\n\t\t\t\t-invest (format: decimal)\n\t\t\t\t-start (format: \"YYYY-MM-DD\")\n\t\t\t\t-end  (format :\"YYYY-MM-DD\")\n\t\t\t\t-save (format: /path/to/file/filename.json)",
+    "efficient_frontier": "Generate a sample of the portfolio's efficient frontier for the supplied list of tickers. The efficient frontier algorithm will minimize a portfolio's volality for a given rate of return and then maximize its return, and then use these points to generate the rest of the frontier by taking increments along the line connecting the (risk,return) profile of the minimum volatility portfolio to the (risk, return) profile of the maximum return portfolio. The number of points calculated in the efficient frontier can be specifed as an integer with the -steps (TODO: this argument doesn't work yet). If no -steps is provided, the value of the environment variable FRONTIER_STEPS will be used (TODO part 2: environment variable does, though!).__\n\t\t\t OPTIONS:\n\t\t\t\t-steps (format: integer)\n\t\t\t\t-invest (format: decimal)\n\t\t\t\t-start (format: \"YYYY-MM-DD\")\n\t\t\t\t-end  (format :\"YYYY-MM-DD\")\n\t\t\t\t-save (format: /path/to/file/filename.json)",
     
     "examples": "Display examples of syntax.",
     
-    "gui": "Brings up a Qt GUI for the application (work in progress!)",
+    "gui": "Brings up a Qt GUI for the application (TODO: work in progress!)",
     
     "help": "Print this help message.",
-    
-    "initialize": "Initializes the data in the /static/ directory. Local application automatically initializes this data. This option is used to initialize static data inside of a Docker container, where the application entrypoint doesn't invoke the CLI automatically.",
-    
+        
     "maximize_return": "Maximize the return of the portfolio defined by the supplied list of ticker symbols. Returns an array representing the allocations to be made for each asset in a portfolio. If no start or end dates are specified, calculations default to the last 100 days of prices. You can specify an investment with the '-invest' flag, otherwise the result will be output in percentage terms. Note: This function will always allocate 100% to the asset with the highest return. It's a good way to check and see if there are bugs in the algorithm after changes.__\n\t\t\tOPTIONS:\n\t\t\t\t-start (format: \"YYYY-MM-DD\")\n\t\t\t\t-end (format :\"YYYY-MM-DD\")\n\t\t\t\t-invest (format: decimal)",
     
     "list_watchlist": "Lists the equity symbols currently saved to your watchlist.",

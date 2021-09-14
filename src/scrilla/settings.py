@@ -23,7 +23,6 @@ performed by the application. \n \n
 Attributes
 ----------
 1. APP_NAME: Name of the application. \n \n
-2. VERSION: Version of the application. \n \n
 3. APP_DIR: Folder containing this file. \n \n
 4. APP_ENV: Application environment. \n \n
 5. LOG_LEVEL: Debug output level. \n \n
@@ -93,11 +92,12 @@ LOG_LEVEL = str(os.environ.setdefault("LOG_LEVEL", "info")).lower()
 
 logger = outputter.Logger('settings', LOG_LEVEL)
 
-# TODO: CACHE only supports JSON currently. Future file extensions: csv and txt.
+# TODO: save formatting only supports JSON currently. Future file extensions: csv and txt.
 FILE_EXT = os.environ.setdefault("FILE_EXT", "json")
 
 CACHE_DIR = os.path.join(APP_DIR, 'data', 'cache')
-CACHE_SQLITE_FILE = os.path.join(CACHE_DIR, 'scrilla.db')
+
+CACHE_SQLITE_FILE = os.environ.setdefault('SQLITE_FILE', os.path.join(CACHE_DIR, 'scrilla.db'))
 
 STATIC_DIR = os.path.join(APP_DIR, 'data', 'static')
 
@@ -107,9 +107,6 @@ STATIC_CRYPTO_FILE = os.path.join(STATIC_DIR, f'crypto.{FILE_EXT}')
 
 COMMON_DIR=os.path.join(APP_DIR, 'data', 'common')
 COMMON_WATCHLIST_FILE=os.path.join(COMMON_DIR, f'watchlist.{FILE_EXT}')
-
-# See .sample.env for more information.
-LOCAL_CACHE = os.environ.setdefault('LOCAL_CACHE_ENABLED', 'true').strip().lower() == 'true'
 
 ## GUI CONFIGURATION
 try:

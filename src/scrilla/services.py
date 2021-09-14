@@ -329,6 +329,15 @@ def get_daily_price_history(ticker, start_date=None, end_date=None, asset_type=N
 
     prices = price_cache.filter_price_cache(ticker=ticker, start_date=start_date, end_date=end_date)
 
+    print('start_date', start_date)
+    print('end_date', end_date)
+    if prices is not None:
+        print('\n\n\n\n\n\n')
+        print('prices.keys', prices.keys())
+        print('\n\n\n\n\n\n')
+        print('len(prices)', len(prices))
+
+    print('business_days_between', helper.business_days_between(start_date, end_date) +1)
     # if end_date not in prices.keys() or if prices != days_between(start, end), then cache is out of date
     if prices is not None and helper.date_to_string(end_date) in prices.keys() and (
         (asset_type == static.keys['ASSETS']['EQUITY']
@@ -346,6 +355,10 @@ def get_daily_price_history(ticker, start_date=None, end_date=None, asset_type=N
     except errors.InputValidationError as ive:
         raise ive
 
+    # TODO: need some way to only save the new prices, since the cache will have most of the prices if used 
+    # frequently. don't want to waste time attempting to insert things that already exist.
+
+    # 
     parsed_prices ={}
     for date in prices:
         close_price = price_manager.parse_price_from_date(prices=prices, date=date, asset_type=asset_type, 
@@ -427,8 +440,11 @@ def get_daily_stats_history(symbol, start_date=None, end_date=None):
         raise api
     except errors.InputValidationError as ive:
         raise ive
-    # TODO: see other cache filters todos. Need to be more careful with new information. cache is NOT the source of truth. basically, need to check if the len(stats) = dates_between(start, end) and that start_Date in stat.keys() and end_date in stat.keys()!
+    
+    # TODO: Need to be more careful with new information. cache is NOT the source of truth. basically, need to check if the len(stats) = dates_between(start, end) and that start_Date in stat.keys() and end_date in stat.keys()!
 
+    # TODO: need some way to only save the new prices, since the cache will have most of the prices if used 
+    # frequently. don't want to waste time attempting to insert things that already exist.
     for date in stats:
         stat_cache.save_row(symbol=symbol, date=date, value=stats[date])
 
@@ -478,6 +494,11 @@ def get_dividend_history(ticker):
     ------
     { 'date' (str) :  amount (str),  'date' (str):  amount (str), ... }
         Dictionary with date strings formatted `YYYY-MM-DD` as keys and the dividend payment amount on that date as the corresponding value. \n \n
+
+    Notes
+    -----
+    1. There is no nice way to determine whether or not the in-cache dividend history is out of date since dividend payments are not made with regularity, i.e. you can't look at today's date and the last dividend payment's date and see if there are any missing data points like you can with price history (since each day has a price, it is easy to determine if a price is missing). For that reason, it might make more sense to skip the cache altogether for dividends. There is no sense having a cache if there isn't a reliable way to determine if it's accurate and up-to-date. TODO. 
+
     """
     logger.debug(f'Checking for {ticker} dividend history in cache.')
     divs = div_cache.filter_dividend_cache(ticker=ticker)
@@ -496,6 +517,8 @@ def get_dividend_history(ticker):
     
     logger.debug(f'Storing {ticker} dividend history in cache.')
 
+    # TODO: need some way to only save the new prices, since the cache will have most of the prices if used 
+    # frequently. don't want to waste time attempting to insert things that already exist.
     for date in divs:
         div_cache.save_row(ticker=ticker, date=date, amount=divs[date])
 
