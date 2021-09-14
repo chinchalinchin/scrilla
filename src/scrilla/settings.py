@@ -67,15 +67,6 @@ Attributes
 54. Q_URL: Base URL for Quandl query. \n \n
 55. Q_KEY: Credentials for Quandl query. \n \n
 56. Q_META_URL: URL for economic statistics data. \n \n
-57. Q_FIRST_LAYER: First key for Quandl response. \n \n
-58. Q_SECOND_LAYER: Second key for Quandl response. \n \n
-59. Q_RES_STAT_KEY: Column key for Quandl response. \n \n
-60. Q_RES_STAT_ZIP_KEY: Column key for Quandl response. \n \n
-61. PATH_Q_FRED: Path parameter for Quandl query. \n \n
-62. PARAM_Q_KEY: Quandl API key query parameter. \n \n
-63. PARAM_Q_METADATA: Quandl metadata query parameter. \n \n
-64. PARAM_Q_START: Quandl start date query parameter. \n \n
-65. PARAM_Q_END: Quandl end date query parameter. \n \n
 66. ARG_Q_YIELD_CURVE: Quandl constant for interest rate histories. \n \n
 """
 
@@ -178,7 +169,8 @@ PRICE_MANAGER = os.environ.setdefault('PRICE_MANAGER', 'alpha_vantage')
 #### ALPHAVANTAGE CONFIGURATION
 if PRICE_MANAGER == 'alpha_vantage':
     AV_URL = os.environ.setdefault('ALPHA_VANTAGE_URL', 'https://www.alphavantage.co/query').strip("\"").strip("'")
-    
+    AV_CRYPTO_LIST=os.environ.setdefault('ALPHA_VANTAGE_CRYPTO_META_URL', 'https://www.alphavantage.co/digital_currency_list/')
+
     AV_KEY = os.environ.setdefault('ALPHA_VANTAGE_KEY', '')
     if not AV_KEY:
         keystore = os.path.join(COMMON_DIR, f'ALPHA_VANTAGE_KEY.{FILE_EXT}')
@@ -190,12 +182,9 @@ if PRICE_MANAGER == 'alpha_vantage':
 
     if not AV_KEY:
         raise APIKeyError('Alpha Vantage API Key not found. Either set ALPHA_VANTAGE_KEY environment variable or use "-store" CLI function to save key.')
-             
-    # Metadata Endpoints
-    AV_CRYPTO_LIST=os.environ.setdefault('ALPHA_VANTAGE_CRYPTO_META_URL', 'https://www.alphavantage.co/digital_currency_list/')
-    
+                 
     # Response Keys
-        # SHOULD BE PART OF PRICE_MANAGER class properties!
+        # should be part of static.py
     AV_RES_EQUITY_FIRST_LAYER='Time Series (Daily)'
     AV_RES_EQUITY_CLOSE_PRICE="4. close"
     AV_RES_EQUITY_OPEN_PRICE="1. open"
@@ -227,6 +216,8 @@ STAT_MANAGER = os.environ.setdefault('STAT_MANAGER', 'quandl')
 #### QUANDL CONFIGURAITON
 if STAT_MANAGER == "quandl":
     Q_URL = os.environ.setdefault('QUANDL_URL', 'https://www.quandl.com/api/v3/datasets').strip("\"").strip("'")
+    Q_META_URL = os.environ.setdefault('QUANDL_META_URL' ,'https://www.quandl.com/api/v3/databases')
+
     
     Q_KEY = os.environ.setdefault('QUANDL_KEY', '')
 
@@ -241,18 +232,6 @@ if STAT_MANAGER == "quandl":
     if not Q_KEY:
         raise APIKeyError('Quandl API Key not found. Either set QUANDL_KEY environment variable or use "-store" CLI function to save key.')
 
-    # Metadata Endpoints
-    Q_META_URL = os.environ.setdefault('QUANDL_META_URL' ,'https://www.quandl.com/api/v3/databases')
-
-    # Response Keys
-    Q_FIRST_LAYER="dataset"
-    Q_SECOND_LAYER="data"
-    Q_RES_STAT_KEY="code"
-    Q_RES_STAT_ZIP_KEY="FRED_metadata.csv"
-
-    # Path Paramaters
-    PATH_Q_FRED ="FRED"
-
     # Special Endpoints
     ARG_Q_YIELD_CURVE = {
         'Overnight': 'DFF',
@@ -262,12 +241,6 @@ if STAT_MANAGER == "quandl":
         '30-Year': 'DGS30'
     }
     RISK_FREE_RATE=ARG_Q_YIELD_CURVE[RISK_FREE_RATE]
-        
-    # Query Parameters
-    PARAM_Q_KEY="api_key"
-    PARAM_Q_METADATA="metadata.json"
-    PARAM_Q_START="start_date"
-    PARAM_Q_END="end_date"
 
 ### DIVIDEND_MANAGER CONFIGURATION
 DIV_MANAGER=os.environ.setdefault("DIV_MANAGER", 'iex')

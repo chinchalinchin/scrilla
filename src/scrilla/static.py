@@ -3,6 +3,13 @@ keys= {
         'OPEN': 'open',
         'CLOSE': 'close'
     },
+    'YIELD_CURVE':{
+        'OVERNIGHT':'Overnight',
+        '3M': '3-Month',
+        '5Y': '5-Year',
+        '10Y': '10-Year',
+        '30Y': '30-Year'
+    },
     'STATISTICS': {
         'RETURN': 'annual_return',
         'VOLATILITY': 'annual_volatility',
@@ -37,7 +44,31 @@ keys= {
         },
         'STATISTICS': {
             'QUANDL': {
-                'MANAGER': 'quandl'
+                'MANAGER': 'quandl',
+                'MAP':{
+                    'PATHS':{
+                        'FRED': 'FRED'
+                    },
+                    'KEYS':{
+                        'FIRST_LAYER': 'dataset',
+                        'SECOND_LAYER': 'data',
+                        'STATISTIC': 'code',
+                        'ZIPFILE': 'FRED_metadata.csv'
+                    },
+                    'PARAMS':{
+                        'KEY':'api_key',
+                        'METADATA': 'metadata.json',
+                        'START': 'start_date',
+                        'END': 'end_date'
+                    },
+                },
+                'YIELD_CURVE':{
+                    'Overnight': 'DFF',
+                    '3-Month': 'DTB3',
+                    '5-Year': 'DGS5',
+                    '10-Year': 'DGS10',
+                    '30-Year': 'DGS30' 
+                }
             }
         },
         'DIVIDENDS': {

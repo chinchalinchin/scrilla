@@ -6,15 +6,9 @@ Description
 import os, io, json, csv, zipfile
 import requests
 
-
-#  Note: need to import from package when running from wheel.
-# if running locally through main.py file, these imports should be replaced
-#       from . import settings
-# annoying, but it is what it is.
 from scrilla import settings, static, errors
-
-import util.outputter as outputter
-import util.helper as helper
+import scrilla.util.outputter as outputter
+import scrilla.util.helper as helper
 
 logger = outputter.Logger("files", settings.LOG_LEVEL)
 
@@ -124,10 +118,8 @@ def init_static_data():
                 #       into services.py in the future. 
                 query=f'{settings.PARAM_AV_FUNC}={settings.ARG_AV_FUNC_EQUITY_LISTINGS}'
                 url = f'{settings.AV_URL}?{query}&{settings.PARAM_AV_KEY}={settings.AV_KEY}'
-
-                logger.debug(f'Preparsing to parse \'{settings.PRICE_MANAGER}\' Response to query: {query}')
-                static_tickers_blob = parse_csv_response_column(column=0, url=url, firstRowHeader=settings.AV_RES_EQUITY_KEY, 
-                                                        savefile=settings.STATIC_TICKERS_FILE)
+                static_tickers_blob = parse_csv_response_column(column=0, url=url, savefile=settings.STATIC_TICKERS_FILE,
+                                                                    firstRowHeader=settings.AV_RES_EQUITY_KEY)
 
             raise errors.ConfigurationError("No PRICE_MANAGER set in .env file!")
 
@@ -136,23 +128,22 @@ def init_static_data():
             if settings.PRICE_MANAGER == "alpha_vantage": 
                 logger.debug(f'Missing {settings.STATIC_CRYPTO_FILE}, querying \'{settings.PRICE_MANAGER}\'.')
                 url = settings.AV_CRYPTO_LIST
-
-                logger.debug(f'Preparsing to parse \'{settings.PRICE_MANAGER}\' Response to query: {query}')
-                static_crypto_blob = parse_csv_response_column(column=0, url=url, firstRowHeader=settings.AV_RES_CRYPTO_KEY, 
-                                                    savefile=settings.STATIC_CRYPTO_FILE)
+                static_crypto_blob = parse_csv_response_column(column=0, url=url, savefile=settings.STATIC_CRYPTO_FILE,
+                                                                firstRowHeader=settings.AV_RES_CRYPTO_KEY)
             raise errors.ConfigurationError("No PRICE_MANAGER set in .env file!")
             
         # grab econominc indicator symbols and store in STATIC_DIR
         if not os.path.isfile(settings.STATIC_ECON_FILE):
             if settings.STAT_MANAGER == "quandl":
+                service_map = static.keys["SERVICES"]["STATISTICS"]["QUANDL"]["MAP"]
+
                 logger.debug(f'Missing {settings.STATIC_ECON_FILE}, querying \'{settings.STAT_MANAGER}\'.')
 
-                query = f'{settings.PATH_Q_FRED}/{settings.PARAM_Q_METADATA}'
-                url = f'{settings.Q_META_URL}/{query}?{settings.PARAM_Q_KEY}={settings.Q_KEY}'
-
-                logger.debug(f'Preparsing to parse \'{settings.PRICE_MANAGER}\' Response to query: {query}')
-                static_econ_blob = parse_csv_response_column(column=0, url=url, firstRowHeader=settings.Q_RES_STAT_KEY,
-                                                    savefile=settings.STATIC_ECON_FILE, zipped=settings.Q_RES_STAT_ZIP_KEY)
+                query = f'{service_map["PATHS"]["FRED"]}/{service_map["PARAMS"]["METADATA"]}'
+                url = f'{settings.Q_META_URL}/{query}?{service_map["PARAMS"]["KEY"]}={settings.Q_KEY}'
+                static_econ_blob = parse_csv_response_column(column=0, url=url, savefile=settings.STATIC_ECON_FILE,
+                                                            firstRowHeader=service_map["KEYS"]["STATISTICS"],
+                                                             zipped=service_map["KEYS"]["ZIPFILE"])
 
             raise errors.ConfigurationError("No STAT_MANAGER set in .env file!")
 

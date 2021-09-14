@@ -44,7 +44,7 @@ If you prefer, you can build from source. `git clone` the [repository](https://g
 
 You will need Python3.8 or greater. This application depends on the following <b>Python</b> libraries: 
 
-- [dateutil](https://dateutil.readthedocs.io/en/stable/index.html)]>=2.8.2<br>
+- [dateutil](https://dateutil.readthedocs.io/en/stable/index.html)>=2.8.2<br>
 - [holidays](https://pypi.org/project/holidays/)>=0.10.4<br>
 - [matplotlib](https://pypi.org/project/matplotlib/)>=3.3.3<br>
 - [numpy](https://pypi.org/project/numpy/)>=1.19.3<br>
@@ -96,7 +96,6 @@ Determines which ticker symbol is used as a proxy for the overall market return.
 - FRONTIER_STEPS
 
 Determines the number of data points in a portfolio's efficient frontier. This variable will default to a value of `5`, but can be set equal to any integer.
-
 
 - MA_1, MA_2, MA_3
 

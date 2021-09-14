@@ -17,19 +17,20 @@ class StatManager():
 
     def construct_url(self, symbol, start_date, end_date):
         if self.type == static.keys['SERVICES']['STATISTICS']['QUANDL']['MANAGER']:
+            service_map = static.keys["SERVICES"]["STATISTICS"]["QUANDL"]["MAP"]
             url = f'{settings.Q_URL}/'
-            query = f'{settings.PATH_Q_FRED}/{symbol}?'
+            query = f'{service_map["PATHS"]["FRED"]}/{symbol}?'
     
             if end_date is not None:
                 end_string = helper.date_to_string(end_date)
-                query += f'&{settings.PARAM_Q_END}={end_string}' 
+                query += f'&{service_map["PARAMS"]["END"]}={end_string}' 
                 pass
 
             if start_date is not None:
                 start_string = helper.date_to_string(start_date)
-                query += f'&{settings.PARAM_Q_START}={start_string}'
+                query += f'&{service_map["PARAMS"]["START"]}={start_string}'
 
-            auth_query = f'{query}&{settings.PARAM_Q_KEY}={settings.Q_KEY}'
+            auth_query = f'{query}&{service_map["PARAMS"]["KEY"]}={settings.Q_KEY}'
             url += auth_query
             logger.debug(f'Quandl query (w/o key) = {query}')
             return url
@@ -40,8 +41,8 @@ class StatManager():
         response = requests.get(url).json()
 
         if self.type == static.keys['SERVICES']['STATISTICS']['QUANDL']['MANAGER']:
-
-            raw_stat = response[settings.Q_FIRST_LAYER][settings.Q_SECOND_LAYER]
+            service_map = static.keys["SERVICES"]["STATISTICS"]["QUANDL"]["MAP"]
+            raw_stat = response[service_map["KEYS"]["FIRST_LAYER"]][service_map["KEYS"]["SECOND_LAYER"]]
             formatted_stat = {}
         
             for stat in raw_stat:
@@ -424,6 +425,7 @@ def get_daily_stats_history(symbol, start_date=None, end_date=None):
 
     # may need to adopt strategy where i check if symbol belongs to one of the statistics that are frequently accessed,
     # like US treasury yields...
+    stats = None
     stats = stat_cache.filter_stat_cache(symbol=symbol, start_date=start_date, end_date=end_date)
 
 
