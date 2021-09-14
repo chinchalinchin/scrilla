@@ -113,7 +113,7 @@ class StatCache(Cache):
 class DividendCache(Cache):
     create_table_transaction="CREATE TABLE IF NOT EXISTS dividends (ticker text, date text, amount real)"
     insert_row_transaction="INSERT INTO dividends (ticker, date, amount) VALUES (:ticker, :date, :amount)"
-    dividend_query="SELECT date, amount FROM dividend WHERE ticker=:ticker"
+    dividend_query="SELECT date, amount FROM dividends WHERE ticker=:ticker"
 
     def __init__(self):
         super().__init__(DividendCache.create_table_transaction)
