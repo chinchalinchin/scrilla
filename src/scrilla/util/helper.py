@@ -136,7 +136,7 @@ def is_date_holiday(date : datetime.date) -> bool:
     us_holidays = holidays.UnitedStates(years=date.year)
     # generate list without columbus day since markets are open on columbus day
     custom_holidays = [ date for date in us_holidays if us_holidays[date] != "Columbus Day" ]
-    # add good friday to list markets are closed on good friday
+    # add good friday to list since markets are closed on good friday
     custom_holidays.append(easter.easter(year=date.year) - datetime.timedelta(days=2))
 
     return (date in custom_holidays)
