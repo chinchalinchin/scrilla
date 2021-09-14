@@ -84,8 +84,8 @@ class PriceCache(Cache):
         return None
 
 class StatCache(Cache):
-    create_table_transaction="CREATE TABLE IF NOT EXISTS statistics (symbol text, date text, value real)"
-    insert_row_transaction="INSERT INTO statistics (symbol, date, value) VALUES (:symbol, :date, :value)"
+    create_table_transaction="CREATE TABLE IF NOT EXISTS statistics (symbol text, date text, value real, UNIQUE(symbol, date))"
+    insert_row_transaction="INSERT OR IGNORE INTO statistics (symbol, date, value) VALUES (:symbol, :date, :value)"
     stat_query="SELECT date, value FROM statistics WHERE symbol=:symbol AND date <=date(:end_date) AND date>=date(:start_date) ORDER BY date(date) DESC"
 
     def __init__(self):
@@ -111,8 +111,8 @@ class StatCache(Cache):
         return None
 
 class DividendCache(Cache):
-    create_table_transaction="CREATE TABLE IF NOT EXISTS dividends (ticker text, date text, amount real)"
-    insert_row_transaction="INSERT INTO dividends (ticker, date, amount) VALUES (:ticker, :date, :amount)"
+    create_table_transaction="CREATE TABLE IF NOT EXISTS dividends (ticker text, date text, amount real, UNIQUE(text, date))"
+    insert_row_transaction="INSERT OR IGNORE INTO dividends (ticker, date, amount) VALUES (:ticker, :date, :amount)"
     dividend_query="SELECT date, amount FROM dividends WHERE ticker=:ticker ORDER BY date(date) DESC"
 
     def __init__(self):

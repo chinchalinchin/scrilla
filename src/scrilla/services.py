@@ -329,16 +329,6 @@ def get_daily_price_history(ticker, start_date=None, end_date=None, asset_type=N
 
     prices = price_cache.filter_price_cache(ticker=ticker, start_date=start_date, end_date=end_date)
 
-    print('start_date', start_date)
-    print('end_date', end_date)
-    if prices is not None:
-        print('\n\n\n\n\n\n')
-        print('prices.keys', prices.keys())
-        print('\n\n\n\n\n\n')
-        print('len(prices)', len(prices))
-
-    print('business_days_between', helper.business_days_between(start_date, end_date) +1)
-    # if end_date not in prices.keys() or if prices != days_between(start, end), then cache is out of date
     if prices is not None and helper.date_to_string(end_date) in prices.keys() and (
         (asset_type == static.keys['ASSETS']['EQUITY']
             and (helper.business_days_between(start_date, end_date) + 1) == len(prices))
@@ -347,6 +337,8 @@ def get_daily_price_history(ticker, start_date=None, end_date=None, asset_type=N
             and (helper.days_between(start_date, end_date) + 1) == len(prices))
     ):
         return prices
+    elif prices is not None:
+        logger.debug(f'Cached {ticker} prices are out of date, passing request off to external service')
         
     try:
         prices = price_manager.get_prices(ticker=ticker,start_date=start_date, end_date=end_date, asset_type=asset_type)
@@ -355,10 +347,6 @@ def get_daily_price_history(ticker, start_date=None, end_date=None, asset_type=N
     except errors.InputValidationError as ive:
         raise ive
 
-    # TODO: need some way to only save the new prices, since the cache will have most of the prices if used 
-    # frequently. don't want to waste time attempting to insert things that already exist.
-
-    # 
     parsed_prices ={}
     for date in prices:
         close_price = price_manager.parse_price_from_date(prices=prices, date=date, asset_type=asset_type, 
@@ -421,18 +409,30 @@ def get_daily_stats_history(symbol, start_date=None, end_date=None):
     ------
     { 'date' (str) :  value (str),  'date' (str):  value (str), ... }
         Dictionary with date strings formatted `YYYY-MM-DD` as keys and the statistic on that date as the corresponding value. \n \n
+
+    Notes
+    -----
+    1. Most financial statistics are not reported on weekends or holidays, so the `asset_type` for financial statistics is functionally equivalent to equities, at least as far as date calculations are concerned. The dates inputted into this function are validated as if they were labelled as equity `asset_types` for this reason.
+
+    Note: there are probably cases where this function will break because the statistical data isn't reported on a daily basis. In fact, there are tons of cases where this doesn't work...
+
     """
     try:
-            # NOTE: financial statistics aren't reported on weekends or holidays, so their date validation is functionally
-            #       equivalent to an equity's date validation.
         start_date,end_date=errors.validate_dates(start_date=start_date, end_date=end_date, asset_type=static.keys['ASSETS']['EQUITY'])
     except errors.InputValidationError as ive:
         raise ive
 
+    # may need to adopt strategy where i check if symbol belongs to one of the statistics that are frequently accessed,
+    # like US treasury yields...
     stats = stat_cache.filter_stat_cache(symbol=symbol, start_date=start_date, end_date=end_date)
 
-    if stats is not None: # or in end_date is not in stats.keys() ? 
+
+    # TODO: this only works when stats are reported daily and that the latest date in the dataset is actually end_date.
+    if stats is not None and helper.date_to_string(end_date) in stats.keys(): 
+        # and (helper.business_days_between(start_date, end_date) + 1) == len(stats): 
         return stats
+    elif stats is not None:
+        logger.debug(f'Cached {symbol} data is out of date, passing request to external service')
 
     try:
         stats = stat_manager.get_stats(symbol=symbol, start_date=start_date, end_date=end_date)
@@ -440,11 +440,7 @@ def get_daily_stats_history(symbol, start_date=None, end_date=None):
         raise api
     except errors.InputValidationError as ive:
         raise ive
-    
-    # TODO: Need to be more careful with new information. cache is NOT the source of truth. basically, need to check if the len(stats) = dates_between(start, end) and that start_Date in stat.keys() and end_date in stat.keys()!
 
-    # TODO: need some way to only save the new prices, since the cache will have most of the prices if used 
-    # frequently. don't want to waste time attempting to insert things that already exist.
     for date in stats:
         stat_cache.save_row(symbol=symbol, date=date, value=stats[date])
 
@@ -497,7 +493,7 @@ def get_dividend_history(ticker):
 
     Notes
     -----
-    1. There is no nice way to determine whether or not the in-cache dividend history is out of date since dividend payments are not made with regularity, i.e. you can't look at today's date and the last dividend payment's date and see if there are any missing data points like you can with price history (since each day has a price, it is easy to determine if a price is missing). For that reason, it might make more sense to skip the cache altogether for dividends. There is no sense having a cache if there isn't a reliable way to determine if it's accurate and up-to-date. TODO. 
+    1. There is no nice way to determine whether or not the in-cache dividend history is out of date since dividend payments are not made with regularity, i.e. you can't look at today's date and the last dividend payment's date and see if there are any missing data points like you can with price history (since each day has a price, it is easy to determine if a price is missing). For that reason, it might make more sense to skip the cache altogether for dividends. There is no sense having a cache if there isn't a reliable way to determine if it's accurate and up-to-date. TODO.
 
     """
     logger.debug(f'Checking for {ticker} dividend history in cache.')
