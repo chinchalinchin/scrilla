@@ -95,7 +95,8 @@ class PriceManager():
         1. ticker : str \n
             Required. Ticker symbol of the asset whose prices are being retrieved. \n \n
         2. asset_type : str \n
-            Required: Asset type of the asset whose prices are being retrieved. Allowable values are statically accessible through the variables `static.keys['ASSETS']['CRYPTO']` and `static.keys['ASSETS']['EQUITY']`. \n \n
+            Required: Asset type of the asset whose prices are being retrieved. Options are statically
+            accessible in the `scrillla.static` module dictionary `scrilla.static.keys['ASSETS']`. \n \n
 
         Returns
         -------
@@ -103,6 +104,8 @@ class PriceManager():
 
         Raises
         ------
+        1. errors.ConfigurationError \n
+            If one of the settings is improperly configured or one of the environment variables was unable to be parsed from the environment, this error will be thrown. \n \n
 
     2. get_prices 
         Parameters
@@ -110,13 +113,18 @@ class PriceManager():
         1. ticker : str \n
             Required. Ticker symbol of the asset whose prices are being retrieved. \n \n
         2. asset_type : str \n
-            Required: Asset type of the asset whose prices are being retrieved. Allowable values are statically accessible through the variables `static.keys['ASSETS']['CRYPTO']` and `static.keys['ASSETS']['EQUITY']`. \n \n
+            Required: Asset type of the asset whose prices are being retrieved. Options are statically
+            accessible in the `scrillla.static` module dictionary `scrilla.static.keys['ASSETS']`. \n \n
         
         Returns
         -------
 
         Raises
         ------
+        1. errors.ConfigurationError \n
+            If one of the settings is improperly configured or one of the environment variables was unable to be parsed from the environment, this error will be thrown. \n \n
+        2. errors.APIResponseError \n
+            If the service from which data is being retrieved is down, the request has been rate limited or some otherwise anomalous event has taken place, this error will be thrown. \n \n
 
     3. slice_prices
         Parameters
@@ -124,7 +132,8 @@ class PriceManager():
         1. start_date : datetime.date \n 
         2. end_date : datetime.date \n
         3. asset_type : str \n
-            Required: Asset type of the asset whose prices are being retrieved. Allowable values are statically accessible through the variables `static.keys['ASSETS']['CRYPTO']` and `static.keys['ASSETS']['EQUITY']`. \n \n
+            Required: Asset type of the asset whose prices are being retrieved. Options are statically
+            accessible in the `scrillla.static` module dictionary `scrilla.static.keys['ASSETS']`. \n \n
         4. response : dict \n
             Required: the full response from the price manager, i.e. the entire price history returned by the external service in charge of retrieving pricce histories. \n \n
        
@@ -133,6 +142,10 @@ class PriceManager():
 
         Raises
         ------
+        1. KeyError \n
+            If the inputted or validated dates do not exist in the price history, a KeyError will be thrown. This could be due to the equity not having enough price history, i.e. it started trading a month ago and doesn't have 100 days worth of prices yet, or some other anomalous event in an equity's history. 
+        2. errors.ConfigurationError \n
+            If one of the settings is improperly configured or one of the environment variables was unable to be parsed from the environment, this error will be thrown. \n \n
     
     4. parse_price_from_date
         Parameters
@@ -145,11 +158,20 @@ class PriceManager():
             must be formatted YYYY-MM-DD \n \n
         3. asset_type : str \n
             String that specifies what type of asset price is being parsed. Options are statically
-            typed in the  settings.py file:  static.keys['ASSETS']['EQUITY'],  static.keys['ASSETS']['CRYPTO'] \n \n
+            accessible in the `scrillla.static` module dictionary `scrilla.static.keys['ASSETS']` \n \n
+        4. which_price : str \n
+            String that specifies which price is to be retrieved, the closing price or the opening prices. Options are statically accessible 
     
         Returns
         ------
-            String containing the price on the specified date or None if price unable to be parsed.
+            String containing the price on the specified date.
+        
+        Raises
+        ------
+        1. KeyError \n
+            If the inputted or validated dates do not exist in the price history, a KeyError will be thrown. This could be due to the equity not having enough price history, i.e. it started trading a month ago and doesn't have 100 days worth of prices yet, or some other anomalous event in an equity's history. 
+        2. errors.InputValidationError \n
+            If prices was unable to be grouped into a (crypto, equity)-asset class or the opening/closing price did not exist for whatever reason, this error will be thrown.
     """
     def __init__(self, type):
         self.type = type
@@ -486,7 +508,7 @@ def get_risk_free_rate():
     """
     Description
     -----------
-    Returns the risk free rate as a decimal. The risk free rate is defined in the `settings.py` file and is configured through the RISK_FREE environment variable. \n \n 
+    Returns the risk free rate, defined as the annualized yield on a specific US Treasury duration, as a decimal. The US Treasury yield used as a proxy for the risk free rate is defined in the `settings.py` file and is configured through the RISK_FREE environment variable. \n \n 
     """
     risk_free_rate_key = settings.RISK_FREE_RATE
     risk_free_rate = get_daily_stats_latest(symbol=risk_free_rate_key)

@@ -333,9 +333,10 @@ The four functions of interest in this module are:
         If the inputted or validated dates do not exist in the price history, a KeyError will be thrown. This could be due to the equity not having enough price history, i.e. it started trading a month ago and doesn't have 100 days worth of prices yet, or some other anomalous event in an equity's history.<br> 
     4. errors.ConfigurationError<br>
         If one of the settings is improperly configured or one of the environment variables was unable to be parsed from the environment, this error will be thrown.<br>
+        
 4. `scrilla.services.get_risk_free_rate()`<br>
     <b>Description: </b><br>
-        This function will retrieve the current value of the risk free rate (annualized yield on a US Treasury). The risk free rate can be configured through the <b>RISK_FREE</b> environment variable. See [optional configuration](#optional-configuration) for more details.
+        This function will retrieve the current value of the risk free rate (annualized yield on a US Treasury) as a decimal. The US Treasury yield used as a proxy for the risk free rate can be configured through the <b>RISK_FREE</b> environment variable. See [optional configuration](#optional-configuration) for more details.
     <br>
 
 ### scrilla.analysis.markets
