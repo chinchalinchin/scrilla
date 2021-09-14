@@ -217,7 +217,7 @@ class Cashflow:
             
             self.NPV += self.get_growth_function(current_time) / ((1 + self.discount_rate)**current_time)
 
-            if self.NPV - previous_value < static.keys['NPV_DELTA_TOLERANCE']:
+            if self.NPV - previous_value < static.constants['NPV_DELTA_TOLERANCE']:
                 calculating = False
             i += 1
 
