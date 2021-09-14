@@ -337,7 +337,7 @@ def get_daily_price_history(ticker, start_date=None, end_date=None, asset_type=N
             and (helper.days_between(start_date, end_date) + 1) == len(prices))
     ):
         return prices
-    elif prices is not None:
+    if prices is not None:
         logger.debug(f'Cached {ticker} prices are out of date, passing request off to external service')
         
     try:
@@ -431,7 +431,7 @@ def get_daily_stats_history(symbol, start_date=None, end_date=None):
     if stats is not None and helper.date_to_string(end_date) in stats.keys(): 
         # and (helper.business_days_between(start_date, end_date) + 1) == len(stats): 
         return stats
-    elif stats is not None:
+    if stats is not None:
         logger.debug(f'Cached {symbol} data is out of date, passing request to external service')
 
     try:
