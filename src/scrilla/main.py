@@ -1,4 +1,4 @@
-import sys, os, traceback
+import sys, os, traceback, json
 
 #  Note: need to import from package when running from wheel.
 # if running locally through main.py file, these imports should be replaced
@@ -180,7 +180,7 @@ def do_program():
                             outputter.scalar_result(f'{arg}_value_at_risk', valueatrisk)
 
                     if print_json_to_screen(xtra_dict):
-                        print(all_vars)
+                        print(json.dump(all_vars))
                     
                     if xtra_dict['save_file'] is not None:
                         files.save_file(file_to_save=all_vars, file_name=xtra_dict['save_file'])
@@ -208,7 +208,7 @@ def do_program():
                             outputter.scalar_result(f'{arg}_value_at_risk', valueatrisk)
 
                     if print_json_to_screen(xtra_dict):
-                        print(all_cvars)
+                        print(json.dumps(all_cvars))
                     
                     if xtra_dict['save_file'] is not None:
                         files.save_file(file_to_save=all_cvars, file_name=xtra_dict['save_file'])
@@ -228,7 +228,7 @@ def do_program():
                             outputter.scalar_result(f'{arg}_equity_cost', equity_cost, currency=False)
 
                     if print_json_to_screen(xtra_dict):
-                        print(all_costs)
+                        print(json.dumps(all_costs))
 
                     if xtra_dict['save_file'] is not None:
                         files.save_file(file_to_save=all_costs, file_name=xtra_dict['save_file'])
@@ -250,7 +250,7 @@ def do_program():
                             outputter.scalar_result(f'{arg}_beta', beta, currency=False)
 
                     if print_json_to_screen(xtra_dict):
-                        print(all_betas)
+                        print(json.loads(all_betas))
 
                     if xtra_dict['save_file'] is not None:
                         files.save_file(file_to_save=all_betas, file_name=xtra_dict['save_file'])
@@ -269,7 +269,7 @@ def do_program():
                             outputter.scalar_result(calculation=f'Last {arg} close price', result=float(price))
 
                     if print_json_to_screen(xtra_dict):
-                        print(all_prices)
+                        print(json.dumps(all_prices))
 
                     if xtra_dict['save_file'] is not None:
                         files.save_file(file_to_save=all_prices, file_name=xtra_dict['save_file'])
@@ -314,7 +314,7 @@ def do_program():
                                                     model_results[f'{arg}_discount_dividend'])
 
                     if print_json_to_screen(xtra_dict):
-                        print(model_results)
+                        print(json.dumps(model_results))
 
                     if xtra_dict['save_file'] is not None:
                         files.save_file(file_to_save=model_results, file_name=xtra_dict['save_file'])
@@ -332,7 +332,7 @@ def do_program():
                                 outputter.scalar_result(calculation=f'{arg}_dividend({date})', result=dividends[date])
                 
                     if print_json_to_screen(xtra_dict):
-                        print(all_dividends)
+                        print(json.dumps(all_dividends))
                 
                 selected_function, required_length = cli_dividends, 1
 
@@ -348,7 +348,7 @@ def do_program():
                             outputter.efficient_frontier(portfolio=portfolio, frontier=frontier,
                                                     investment=xtra_dict['investment'])
                         else:
-                            print(files.format_frontier(portfolio=portfolio, frontier=frontier, investment=xtra_dict['investment']))
+                            print(json.dumps(files.format_frontier(portfolio=portfolio, frontier=frontier, investment=xtra_dict['investment'])))
 
                     if xtra_dict['save_file'] is not None:
                         files.save_frontier(portfolio=portfolio, frontier=frontier,
@@ -368,7 +368,7 @@ def do_program():
                             outputter.optimal_result(portfolio=portfolio, allocation=allocation, 
                                                 investment=xtra_dict['investment'])
                         else:
-                            print(files.format_allocation(allocation=allocation, portfolio=portfolio, investment=xtra_dict['investment']))
+                            print(json.dumps(files.format_allocation(allocation=allocation, portfolio=portfolio, investment=xtra_dict['investment'])))
 
                     if xtra_dict['save_file'] is not None:
                         files.save_allocation(allocation=allocation, portfolio=portfolio, 
@@ -401,7 +401,7 @@ def do_program():
                         if xtra_dict['json'] is None:
                             outputter.optimal_result(portfolio=portfolio, allocation=allocation, investment=xtra_dict['investment'])
                         else:
-                            print(files.format_allocation(allocation=allocation,portfolio=portfolio, investment=xtra_dict['investment']))
+                            print(json.dumps(files.format_allocation(allocation=allocation,portfolio=portfolio, investment=xtra_dict['investment'])))
                     
                     if xtra_dict['save_file'] is not None:
                         files.save_allocation(allocation=allocation, portfolio=portfolio, file_name=xtra_dict['save_file'],
@@ -419,7 +419,7 @@ def do_program():
                         outputter.optimal_result(portfolio=portfolio, allocation=allocation, investment=xtra_dict['investment'])
 
                     if print_json_to_screen(xtra_dict):
-                        print(files.format_allocation(allocation=allocation, portfolio=portfolio, investment=xtra_dict['investment']))
+                        print(json.dumps(files.format_allocation(allocation=allocation, portfolio=portfolio, investment=xtra_dict['investment'])))
                     
                     if xtra_dict['save_file'] is not None:
                         files.save_allocation(allocation=allocation, portfolio=portfolio, file_name=xtra_dict['save_file'],
@@ -495,13 +495,13 @@ def do_program():
                         all_prices[arg] = {}
                         for date in prices:
                             price = prices[date][static.keys['PRICES']['CLOSE']]
+                            all_prices[arg][date] = price
 
                             if print_format_to_screen(xtra_dict):
                                 outputter.scalar_result(calculation=f'{arg}({date})', result = float(price))
-                            all_prices[arg][date] = price
 
                     if print_json_to_screen(xtra_dict):
-                        print(all_prices)
+                        print(json.dumps(all_prices))
 
                     if xtra_dict['save_file'] is not None:
                         files.save_file(file_to_save=all_prices, file_name=xtra_dict['save_file'])
@@ -521,7 +521,7 @@ def do_program():
                                 outputter.percent_result(calculation=f'{arg}_YIELD({date})', result=float(all_rates[arg][date]))
 
                     if print_json_to_screen(xtra_dict):
-                        print(all_rates)
+                        print(json.dumps(all_rates))
 
                     if xtra_dict['save_file'] is not None:
                         files.save_file(file_to_save=all_rates, file_name=xtra_dict['save_file'])
@@ -539,7 +539,7 @@ def do_program():
                             outputter.percent_result(calculation=formatter.RISK_FREE_TITLE.format(settings.RISK_FREE_RATE), 
                                                         result=rate[settings.RISK_FREE_RATE])
                         else:
-                            print(rate)
+                            print(json.dumps(rate))
 
                     if xtra_dict['save_file'] is not None:
                         files.save_file(file_to_save=rate, file_name=xtra_dict['save_file'])
@@ -566,7 +566,7 @@ def do_program():
                         if xtra_dict['json'] is None:
                             outputter.risk_profile(profiles=profiles)
                         else:
-                            print(profiles)
+                            print(json.dumps(profiles))
 
                     if xtra_dict['save_file'] is not None:
                         files.save_profiles(profiles=profiles, file_name=xtra_dict['save_file'])
@@ -595,7 +595,7 @@ def do_program():
                                                     currency=False)
 
                     if print_json_to_screen(xtra_dict):
-                        print(all_results)
+                        print(json.dumps(all_results))
 
                     if xtra_dict['save_file'] is not None:
                         files.save_file(file_to_save=all_results, file_name=xtra_dict['save_file'])
@@ -614,7 +614,7 @@ def do_program():
                             outputter.scalar_result(calculation=stat, result=result, currency=False)
     
                     if print_json_to_screen(xtra_dict):
-                        print(all_stats)
+                        print(json.dumps(all_stats))
                     if xtra_dict['save_file'] is not None:
                         files.save_file(file_to_save=all_stats, file_name=xtra_dict['save_file'])
 
@@ -634,7 +634,7 @@ def do_program():
                                                             currency=False) 
 
                     if print_json_to_screen(xtra_dict):
-                        print(all_stats)
+                        print(json.dumps(all_stats))
                     if xtra_dict['save_file'] is not None:
                         files.save_file(file_to_save=all_stats, file_name=xtra_dict['save_file'])
                         
@@ -658,7 +658,7 @@ def do_program():
                         outputter.scalar_result(calculation=maturity, result=curve_rate, currency=False)
 
                 if print_json_to_screen(xtra_dict):
-                    print(yield_curve)
+                    print(json.dumps(yield_curve))
                     
                 if xtra_dict['save_file'] is not None:
                     files.save_file(file_to_save=yield_curve, file_name=xtra_dict['save_fil'])
