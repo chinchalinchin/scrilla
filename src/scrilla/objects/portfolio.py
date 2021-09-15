@@ -56,6 +56,7 @@ class Portfolio:
                     asset_return_functions=None, asset_volatility_functions=None):
         self.shares = None
         self.actual_total = None
+        self.risk_free_rate = None
 
         if sample_prices is None:
             self.start_date = start_date
@@ -73,9 +74,7 @@ class Portfolio:
         
         self.error = not self.calculate_stats()
 
-        if risk_free_rate is None:
-            self.risk_free_rate = services.get_risk_free_rate()
-        else:
+        if risk_free_rate is not None:
             self.risk_free_rate = risk_free_rate
 
         # todo: calculate stats with lambda functions.
@@ -125,6 +124,8 @@ class Portfolio:
         return numpy.sqrt(numpy.multiply(x, self.sample_vol).dot(self.correlation_matrix).dot(numpy.transpose(numpy.multiply(x, self.sample_vol))))
 
     def sharpe_ratio_function(self, x):
+        if self.risk_free_rate is None:
+            self.risk_free_rate = services.get_risk_free_rate()
         return (numpy.dot(x, self.mean_return) - self.risk_free_rate) / (self.volatility_function(x))
 
     def percentile_function(self, x, time, prob):

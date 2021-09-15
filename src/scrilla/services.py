@@ -67,41 +67,35 @@ class StatManager():
 
         raise errors.ConfigurationError('No STAT_MANAGER found in the parsed environment settings')
 
-    def get_interest_rates(self, maturity, start_date, end_date):
+    def get_interest_rates(self, start_date, end_date):
         url = self.construct_interest_url(start_date=start_date, end_date=end_date)
         response = requests.get(url).json()
 
         if self.is_quandl():
             raw_interest = response[self.service_map["KEYS"]["FIRST_LAYER"]][self.service_map["KEYS"]["SECOND_LAYER"]]
 
-            response_index = None
-            if maturity == self.service_map['YIELD_CURVE']['ONE_MONTH']:
-                response_index = 1
-            elif maturity == self.service_map['YIELD_CURVE']['THREE_MONTH']:
-                response_index = 3
-            elif maturity == self.service_map['YIELD_CURVE']['SIX_MONTH']:
-                response_index = 4
-            elif maturity == self.service_map['YIELD_CURVE']['ONE_YEAR']:
-                response_index =5 
-            elif maturity == self.service_map['YIELD_CURVE']['THREE_YEAR']:
-                response_index = 7
-            elif maturity == self.service_map['YIELD_CURVE']['FIVE_YEAR']:
-                response_index = 8
-            elif maturity == self.service_map['YIELD_CURVE']['TEN_YEAR']:
-                response_index = 10 
-            elif maturity == self.service_map['YIELD_CURVE']['THIRTY_YEAR']:
-                response_index = 12
-            
             formatted_interest = {}
-            
-            if response_index is not None:
-                for rate in raw_interest:
-                    formatted_interest[rate[0]] = rate[response_index]
-                return formatted_interest
-
-            raise errors.InputValidationError(f'{maturity} is not a valid maturity for US Treasury Bonds')
+            for rate in raw_interest:
+                formatted_interest[rate[0]] = rate[1:]
+            return formatted_interest
 
         raise errors.ConfigurationError('No STAT_MANAGER found in the parsed environment settings')
+
+    def format_for_maturity(self, maturity, results):
+        try:
+            maturity_key = static.keys['YIELD_CURVE'].index(maturity)
+        except:
+            raise errors.InputValidationError(f'{maturity} is not a valid maturity for US Treasury Bonds')
+
+        if self.is_quandl():
+            
+            formatted_interest = {}
+            for result in results:
+                formatted_interest[result] = results[result][maturity_key]
+            return formatted_interest
+        
+        raise errors.ConfigurationError('No STAT_MANAGER found in the parsed environment settings')
+
 
 class DividendManager():
     
@@ -547,21 +541,23 @@ def get_daily_interest_history(maturity, start_date=None, end_date=None):
 
         # TODO: this only works when stats are reported daily and that the latest date in the dataset is actually end_date.
     if rates is not None and helper.date_to_string(end_date) in rates.keys() \
-        and (helper.business_days_between(start_date, end_date) + 1) == len(stats): 
+        and (helper.business_days_between(start_date, end_date) + 1) == len(rates): 
         return rates
     if rates is not None:
         logger.debug(f'Cached {maturity} data is out of date, passing request to external service')
     try:
-        stats = stat_manager.get_interest_rates(maturity=maturity, start_date=start_date, end_date=end_date)
+        rates = stat_manager.get_interest_rates(start_date=start_date, end_date=end_date)
     except errors.APIResponseError as api:
         raise api
     except errors.InputValidationError as ive:
         raise ive
 
-    for date in stats:
-        interest_cache.save_row(maturity=maturity, date=date, value=stats[date])
+    for date in rates:
+        interest_cache.save_row(date=date, value=rates[date])
 
-    return stats
+    rates = stat_manager.format_for_maturity(maturity=maturity, results=rates)
+
+    return rates
 
 def get_daily_interest_latest(maturity):
     """
@@ -574,7 +570,9 @@ def get_daily_interest_latest(maturity):
     1. maturity: str \n 
         Required. Maturity of the US Treasury security whose interest rate is to be retrieved. \n \n
     """
-    interest_history = get_daily_interest_history(maturity=maturity)
+    end_date = helper.get_last_trading_date()
+    start_date = end_date
+    interest_history = get_daily_interest_history(maturity=maturity, start_date=start_date, end_date=end_date)
     if interest_history is not None:
         first_element = helper.get_first_json_key(interest_history)
         return interest_history[first_element]
@@ -625,5 +623,4 @@ def get_risk_free_rate():
     -----------
     Returns the risk free rate, defined as the annualized yield on a specific US Treasury duration, as a decimal. The US Treasury yield used as a proxy for the risk free rate is defined in the `settings.py` file and is configured through the RISK_FREE environment variable. \n \n 
     """
-    maturity = static.keys['SERVICES']['STATISTICS']['QUANDL']['MAP']['YIELD_CURVE'][settings.RISK_FREE_RATE]
-    return get_daily_interest_latest(maturity=maturity)
+    return get_daily_interest_latest(maturity=settings.RISK_FREE_RATE)/100

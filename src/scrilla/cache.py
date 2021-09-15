@@ -78,6 +78,7 @@ class PriceCache(Cache):
         if len(results)>0:
             logger.debug(f'Found {ticker} prices in the cache')
             return self.to_dict(results)
+        logger.debug(f'No results found for {ticker} prices in the cache')
         return None
 
 class InterestCache(Cache):
@@ -92,10 +93,11 @@ class InterestCache(Cache):
     def to_dict(query_results):
         return { result[0]: result[1] for result in query_results }
 
-    def save_row(self, maturity, date, value):
-        logger.verbose(f'Saving {maturity} yield on {date} to cache')
-        formatter = { 'maturity': maturity, 'date': date, 'value': value }
-        self.execute_transaction(transaction=InterestCache.insert_row_transaction, formatter=formatter)
+    def save_row(self, date, value):
+        for index, maturity in enumerate(static.keys['YIELD_CURVE']):
+            logger.verbose(f'Saving {maturity} yield on {date} to cache')
+            formatter = { 'maturity': maturity, 'date': date, 'value': value[index] }
+            self.execute_transaction(transaction=InterestCache.insert_row_transaction, formatter=formatter)
     
     def filter_stat_cache(self, maturity, start_date, end_date):
         logger.debug(f'Querying SQLite cache \n\t{InterestCache.stat_query}\n\t\t with :maturity={maturity}, :start_date={start_date}, :end_date={end_date}')
@@ -105,6 +107,7 @@ class InterestCache(Cache):
         if len(results)>0:
             logger.debug(f'Found {maturity} yield on in the cache')
             return self.to_dict(results)
+        logger.debug(f'No results found for {maturity} yield in cache')
         return None
 
 # NOTE: do not need to order `correlation_query` and `profile_query` because profiles and correlations are uniquely 
@@ -149,6 +152,7 @@ class CorrelationCache(Cache):
         if len(results)>0:
             logger.debug(f'Found ({ticker_1},{ticker_2}) correlation in the cache')
             return self.to_dict(results)
+        logger.debug(f'No results found for ({ticker_1}, {ticker_2} correlation in the cache')
         return None
 
 class ProfileCache(Cache):
@@ -220,4 +224,5 @@ class ProfileCache(Cache):
         if len(result)>0:
             logger.debug(f'{ticker} profile found in cache')
             return self.to_dict(result)
+        logger.debug(f'No results found for {ticker} profile in the cache')
         return None

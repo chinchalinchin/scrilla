@@ -154,7 +154,7 @@ except (ValueError, TypeError) as ParseError:
     DEFAULT_ANALYSIS_PERIOD=100
     os.environ['DEFAULT_ANALYSIS_PERIOD']=100
 
-RISK_FREE_RATE=os.environ.setdefault("RISK_FREE", "10-Year").strip("\"")
+RISK_FREE_RATE=os.environ.setdefault("RISK_FREE", "TEN_YEAR").strip("\"")
 
 MARKET_PROXY=os.environ.setdefault('MARKET_PROXY', 'SPY')
 

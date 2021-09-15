@@ -139,7 +139,7 @@ def do_program():
 
         ### FUNCTION: Yield Curve
         elif opt == formatter.FUNC_ARG_DICT['yield_curve']:
-            for maturity in ["1 MO", "3 MO", "1 YR", "5 YR", "10 YR", "30 YR"]:
+            for maturity in static.keys['YIELD_CURVE']:
                 curve_rate = services.get_daily_interest_latest(maturity=maturity)
                 outputter.scalar_result(calculation=maturity, result=curve_rate, currency=False)
 

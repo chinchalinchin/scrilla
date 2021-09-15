@@ -17,6 +17,7 @@ keys= {
         'OPEN': 'open',
         'CLOSE': 'close'
     },
+    'YIELD_CURVE': ["ONE_MONTH", "TWO_MONTH", "THREE_MONTH", "SIX_MONTH", "ONE_YEAR", "TWO_YEAR", "THREE_YEAR", "FIVE_YEAR", "SEVEN_YEAR", "TEN_YEAR", "TWENTY_YEAR", "THIRTY_YEAR"],
     'STATISTICS': {
         'RETURN': 'annual_return',
         'VOLATILITY': 'annual_volatility',
@@ -103,12 +104,16 @@ keys= {
                     },
                     'YIELD_CURVE':{
                         'ONE_MONTH' : '1 MO',
+                        'TWO_MONTH': '2 MO',
                         'THREE_MONTH': '3 MO',
                         'SIX_MONTH': '6 MO',
                         'ONE_YEAR': '1 YR',
+                        'TWO_YEAR': '2 YR',
                         'THREE_YEAR': '3 YR',
                         'FIVE_YEAR': '5 YR',
+                        'SEVEN_YEAR': '7 YR',
                         'TEN_YEAR': '10 YR',
+                        'TWENTY_YEAR': '20 YR',
                         'THIRTY_YEAR': '30 YR'
                     }
                 },
