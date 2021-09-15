@@ -415,7 +415,7 @@ def get_steps(xtra_args, xtra_values):
             raise ve
     return None
 
-def format_xtra_args_list(xtra_args, xtra_values):
+def format_xtra_args_dict(xtra_args, xtra_values):
     return {
         'start_date': get_start_date(xtra_args, xtra_values),
         'end_date': get_end_date(xtra_args, xtra_values),
