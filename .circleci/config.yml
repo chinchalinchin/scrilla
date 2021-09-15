@@ -25,7 +25,11 @@ commands:
         - run: 
             name: push version
             command: |
-              echo "TODO"
+              git config user.email "chinchalinchin@gmail.com"
+              git config user.name "CircleCi Bot"
+              git add . 
+              git commit -m "Pipeline Build Version $(cat ./src/scrilla/version.txt)"
+              git push
 
   
 jobs:
