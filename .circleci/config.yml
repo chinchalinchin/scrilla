@@ -29,18 +29,17 @@ commands:
               git config user.name "CircleCi Bot"
               git add . 
               git commit -m "Pipeline Build Version $(cat ./src/scrilla/version.txt)"
-
   push_and_merge_from_micro:
     description: push new micro version number to GitHub
     steps:
-        - run: 
-            name: push micro version
-            command: |
-              git push --set-upstream origin pypi/micro-update
-              git checkout develop/main
-              git merge pypi/micro-update
-              git push --set-upstream origin develop/main
-  
+      - run: 
+          name: push micro version
+          command: |
+            git push --set-upstream origin pypi/micro-update
+            git checkout develop/main
+            git merge pypi/micro-update
+            git push --set-upstream origin develop/main
+
   push_and_merge_from_minor:
     description: push new minor version number to GitHub
     steps:
