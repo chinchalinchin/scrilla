@@ -28,8 +28,8 @@ commands:
               git config user.email "chinchalinchin@gmail.com"
               git config user.name "CircleCi Bot"
               git add . 
-              git commit -m "Pipeline Build Version $(cat ./src/scrilla/version.txt)"
               git checkout develop/main
+              git commit -m "Pipeline Build Version $(cat ./src/scrilla/version.txt)"
               git push --set-upstream origin develop/main
 
 jobs:
