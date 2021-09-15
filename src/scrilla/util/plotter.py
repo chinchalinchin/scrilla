@@ -4,8 +4,9 @@ from PIL import Image
 
 from matplotlib.figure import Figure
 
-import  util.formatter as formatter
-import  util.helper as helper
+from scrilla import static
+import scrilla.util.formatter as formatter
+import scrilla.util.helper as helper
 
 APP_ENV=os.environ.setdefault('APP_ENV', 'local')
 
@@ -28,17 +29,40 @@ def plot_frontier(portfolio, frontier, show=True, savefile=None):
     for allocation in frontier:
         return_profile.append(portfolio.return_function(allocation))
         risk_profile.append(portfolio.volatility_function(allocation))
-    
-        # don't think numpy arrays are needed...
-    # return_profile = numpy.array(return_profile)
-    # risk_profile = numpy.array(risk_profile)
-    
+
     canvas = FigureCanvas(Figure())
     axes = canvas.figure.subplots()
 
     axes.plot(risk_profile, return_profile, linestyle='dashed')
     axes.set_xlabel('Volatility')
     axes.set_ylabel('Return')
+    axes.set_title(title)
+
+    if savefile is not None:
+        canvas.print_jpeg(filename_or_obj=savefile)
+
+    if show:
+        s, (width, height) = canvas.print_to_buffer()
+        im = Image.frombytes("RGBA", (width, height), s)
+        im.show()
+    else:
+        canvas.draw()
+        return canvas
+
+def plot_yield_curve(yield_curve, show=True, savefile=None):
+    title = f'US Treasury Yield Curve On {list(yield_curve.keys())[0]}'
+
+    canvas = FigureCanvas(Figure())
+    axes = canvas.figure.subplots()
+
+    maturities, rates = [], yield_curve[list(yield_curve.keys())[0]]
+    yield_map = static.keys['SERVICES']['STATISTICS']['QUANDL']['MAP']['YIELD_CURVE']
+    for i, rate in enumerate(rates):
+        maturities.append(yield_map[static.keys['YIELD_CURVE'][i]])
+
+    axes.plot(maturities, rates)
+    axes.set_xlabel('Maturity')
+    axes.set_ylabel('Annual Yield')
     axes.set_title(title)
 
     if savefile is not None:

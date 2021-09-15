@@ -328,99 +328,82 @@ def get_time_to_next_period(starting_date, period):
 def get_start_date(xtra_args, xtra_values):
     if formatter.FUNC_XTRA_VALUED_ARGS_DICT['start_date'] in xtra_args:
         unparsed_start = xtra_values[xtra_args.index(formatter.FUNC_XTRA_VALUED_ARGS_DICT['start_date'])]
-        start_date = parse_date_string(unparsed_start)
-    else:
-        start_date = None
-    return start_date
+        return parse_date_string(unparsed_start)
+    return None
 
 def get_end_date(xtra_args, xtra_values):
     if formatter.FUNC_XTRA_VALUED_ARGS_DICT['end_date'] in xtra_args:
         unparsed_end = xtra_values[xtra_args.index(formatter.FUNC_XTRA_VALUED_ARGS_DICT['end_date'])]
-        end_date = parse_date_string(unparsed_end)
-    else:
-        end_date = None
-    return end_date
+        return parse_date_string(unparsed_end)
+    return None
 
 def get_save_file(xtra_args, xtra_values):
     if formatter.FUNC_XTRA_VALUED_ARGS_DICT['save'] in xtra_args:
-        save_file = xtra_values[xtra_args.index(formatter.FUNC_XTRA_VALUED_ARGS_DICT['save'])]
-    else:
-        save_file = None
-    return save_file
+        return xtra_values[xtra_args.index(formatter.FUNC_XTRA_VALUED_ARGS_DICT['save'])]
+    return None
 
 def get_target(xtra_args, xtra_values):
     if formatter.FUNC_XTRA_VALUED_ARGS_DICT['target'] in xtra_args:
         try:
-            target = float(xtra_values[xtra_args.index(formatter.FUNC_XTRA_VALUED_ARGS_DICT['target'])])
-        except ValueError:
-            target = None
-    else:
-        target = None
-    return target
+            return float(xtra_values[xtra_args.index(formatter.FUNC_XTRA_VALUED_ARGS_DICT['target'])])
+        except ValueError as ve:
+            raise ve
+    return None
 
 def get_expiry(xtra_args, xtra_values):
     if formatter.FUNC_XTRA_VALUED_ARGS_DICT['expiry'] in xtra_args:
         try:
-            expiry = float(xtra_values[xtra_args.index(formatter.FUNC_XTRA_VALUED_ARGS_DICT['expiry'])])
-        except ValueError:
-            expiry = None
-    else:
-        expiry = None
-    return expiry
+            return float(xtra_values[xtra_args.index(formatter.FUNC_XTRA_VALUED_ARGS_DICT['expiry'])])
+        except ValueError as ve:
+            raise ve
+    return None
 
 def get_probability(xtra_args, xtra_values):
     if formatter.FUNC_XTRA_VALUED_ARGS_DICT['probability'] in xtra_args:
         try:
-            probability = float(xtra_values[xtra_args.index(formatter.FUNC_XTRA_VALUED_ARGS_DICT['probability'])])
-        except ValueError:
-            probability = None
-    else:
-        probability = None
-    return probability
+            return float(xtra_values[xtra_args.index(formatter.FUNC_XTRA_VALUED_ARGS_DICT['probability'])])
+        except ValueError as ve:
+            raise ve
+    return None
 
 def get_discount(xtra_args, xtra_values):
     if formatter.FUNC_XTRA_VALUED_ARGS_DICT['discount'] in xtra_args:
         try:
-            discount = float(xtra_values[xtra_args.index(formatter.FUNC_XTRA_VALUED_ARGS_DICT['discount'])])
-        except ValueError:
-            discount = None
-    else:
-        discount = None
-    return discount
+            return float(xtra_values[xtra_args.index(formatter.FUNC_XTRA_VALUED_ARGS_DICT['discount'])])
+        except ValueError as ve:
+            raise ve
+    return None
 
 def get_model(xtra_args, xtra_values):
     if formatter.FUNC_XTRA_VALUED_ARGS_DICT['model'] in xtra_args:
-        model = str(xtra_values[xtra_args.index(formatter.FUNC_XTRA_VALUED_ARGS_DICT['model'])]).lower()
-    else:
-        model = None
-    return model
+        return str(xtra_values[xtra_args.index(formatter.FUNC_XTRA_VALUED_ARGS_DICT['model'])]).lower()
+    return None
 
 def get_sharpe(xtra_args):
     if formatter.FUNC_XTRA_SINGLE_ARGS_DICT['optimize_sharpe'] in xtra_args:
-        sharpe = formatter.FUNC_XTRA_SINGLE_ARGS_DICT['optimize_sharpe']
-    else:
-        sharpe = None
-    return sharpe
+        return formatter.FUNC_XTRA_SINGLE_ARGS_DICT['optimize_sharpe']
+    return None
+
+def get_suppress_output(xtra_args):
+    if formatter.FUNC_XTRA_SINGLE_ARGS_DICT['suppress_output'] in xtra_args:
+        return formatter.FUNC_XTRA_SINGLE_ARGS_DICT['suppress_output']
+    return None
 
 def get_investment(xtra_args, xtra_values):
     if formatter.FUNC_XTRA_VALUED_ARGS_DICT['investment'] in xtra_args:
         try:
-            investment = float(xtra_values[xtra_args.index(formatter.FUNC_XTRA_VALUED_ARGS_DICT['investment'])])
-        except ValueError:
-            investment = None
-    else:
-        investment = None
-    return investment
+            return float(xtra_values[xtra_args.index(formatter.FUNC_XTRA_VALUED_ARGS_DICT['investment'])])
+        except ValueError as ve:
+            raise ve
+    return None
 
 def get_steps(xtra_args, xtra_values):
     if formatter.FUNC_XTRA_VALUED_ARGS_DICT['steps'] in xtra_args:
         try:
-            steps = int(xtra_values[xtra_args.index(formatter.FUNC_XTRA_VALUED_ARGS_DICT)])
-        except ValueError:
-            steps = None
-    else:
-        steps = None
-    return steps
+            return int(xtra_values[xtra_args.index(formatter.FUNC_XTRA_VALUED_ARGS_DICT)])
+        except ValueError as ve:
+            raise ve
+    return None
 
 def format_xtra_args_list(xtra_args, xtra_values):
     arg_list = {
@@ -433,6 +416,7 @@ def format_xtra_args_list(xtra_args, xtra_values):
         'investment': get_investment(xtra_args, xtra_values),
         'steps': get_steps(xtra_args, xtra_values),
         'optimize_sharpe': get_sharpe(xtra_args),
+        'suppress': get_suppress_output(xtra_args),
         'expiry': get_expiry(xtra_args, xtra_values),
         'probability': get_probability(xtra_args, xtra_values)
     }

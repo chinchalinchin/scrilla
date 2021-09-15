@@ -49,6 +49,12 @@ def scalar_result(calculation, result, currency=True):
         else:
             print(' '*formatter.INDENT, '>>', calculation, ' = ', result)
 
+def percent_result(calculation, result):
+    try:
+        print(' '*formatter.INDENT, '>>', calculation, ' = ', round(float(result)/100, 8), '%')
+    except ValueError as ve:
+        raise ve
+
 def equivalent_result(right_hand, left_hand, value):
     print(' '*formatter.INDENT, '>>', f'{right_hand} = {left_hand} = {value}')
 
