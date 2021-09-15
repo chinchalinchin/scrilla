@@ -90,7 +90,7 @@ jobs:
             python ./scripts/circleci/iterate_version.py minor
       - build
       - upload
-      - commit
+      - commit_version
       - push_and_merge_from_minor
 
   pypi_major_update:
@@ -105,7 +105,7 @@ jobs:
             python ./scripts/circleci/iterate_version.py major
       - build
       - upload
-      - commit
+      - commit_version
       - push_and_merge_from_major
 
 workflows:
