@@ -139,9 +139,9 @@ def do_program():
 
         ### FUNCTION: Yield Curve
         elif opt == formatter.FUNC_ARG_DICT['yield_curve']:
-                for rate in settings.ARG_Q_YIELD_CURVE:
-                    curve_rate = services.get_daily_stats_latest(symbol=settings.ARG_Q_YIELD_CURVE[rate])
-                    outputter.scalar_result(calculation=rate, result=curve_rate, currency=False)
+            for maturity in ["1 MO", "3 MO", "1 YR", "5 YR", "10 YR", "30 YR"]:
+                curve_rate = services.get_daily_interest_latest(maturity=maturity)
+                outputter.scalar_result(calculation=maturity, result=curve_rate, currency=False)
 
         # variable argument functions
         else:
@@ -415,7 +415,7 @@ def do_program():
                 def cli_statistic():
                     for stat in main_args:
                         outputter.scalar_result(calculation=stat, 
-                                                result=services.get_daily_stats_latest(symbol=stat),
+                                                result=services.get_daily_fred_latest(symbol=stat),
                                                 currency=False)
                 selected_function, required_length = cli_statistic, 1
             
@@ -423,7 +423,7 @@ def do_program():
             elif opt == formatter.FUNC_ARG_DICT['statistic_history']:
                 def cli_statistic_history():
                     for arg in main_args:
-                        stats = services.get_daily_stats_history(symbol=arg, start_date=xtra_list['start_date'],
+                        stats = services.get_daily_fred_history(symbol=arg, start_date=xtra_list['start_date'],
                                                             end_date=xtra_list['end_date'])
                         for date in stats:
                             outputter.scalar_result(calculation=f'{arg}({date})', result=stats[date], 

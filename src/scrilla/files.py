@@ -142,7 +142,7 @@ def init_static_data():
                 query = f'{service_map["PATHS"]["FRED"]}/{service_map["PARAMS"]["METADATA"]}'
                 url = f'{settings.Q_META_URL}/{query}?{service_map["PARAMS"]["KEY"]}={settings.Q_KEY}'
                 static_econ_blob = parse_csv_response_column(column=0, url=url, savefile=settings.STATIC_ECON_FILE,
-                                                            firstRowHeader=service_map["KEYS"]["STATISTICS"],
+                                                            firstRowHeader=service_map["KEYS"]["HEADER"],
                                                              zipped=service_map["KEYS"]["ZIPFILE"])
 
             raise errors.ConfigurationError("No STAT_MANAGER set in .env file!")

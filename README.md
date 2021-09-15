@@ -283,9 +283,9 @@ The four functions of interest in this module are:
         If one of the settings is improperly configured or one of the environment variables was unable to be parsed from the environment, this error will be thrown.<br>
 
     
-2. `scrilla.services.get_daily_stat_history(symbol, start_date=None, end_date=None, asset_type=None)`<br>
+2. `scrilla.services.get_daily_fred_history(symbol, start_date=None, end_date=None, asset_type=None)`<br>
     <b>Description:</b><br>
-    Wrapper around external service request for financial statistics data. Relies on an instance of `StatManager` configured by `settings.STAT_MANAGER` value, which in turn is configured by the `STAT_MANAGER` environment variable, to hydrate with data.<br>
+    Wrapper around external service request for financial statistics data constructed by the Federal Reserve Economic Data. Relies on an instance of `StatManager` configured by `settings.STAT_MANAGER` value, which in turn is configured by the `STAT_MANAGER` environment variable, to hydrate with data.<br>
     
     Before deferring to the `StatManager` and letting it call the external service, however, this function checks if response is in local cache. If the response is not in the cache, it will pass the request off to `StatManager` and then save the resposne in the cache so subsequent calls to the function can bypass the service request. Used to prevent excessive external HTTP requests and improve the performance of the application. Other parts of the program should interface with the external statistics data services through this function to utilize the cache functionality.<br>
 

@@ -71,27 +71,24 @@ Attributes
 """
 
 APP_NAME="scrilla"
-
 APP_ENV = os.environ.setdefault('APP_ENV', 'local')
 
 # NOTE: Load in local.env file if not running application container. Container should 
 # already have the container.env file preloaded in its environment.
-if APP_ENV != 'container':
+env_file = os.path.join(os.path.join(ROOT_DIR,'env'), '.env')
+if APP_ENV != 'container' and os.path.isfile(env_file):
     dotenv.load_dotenv(os.path.join(os.path.join(ROOT_DIR,'env'), '.env'))
 
 LOG_LEVEL = str(os.environ.setdefault("LOG_LEVEL", "info")).lower()
-
 logger = outputter.Logger('settings', LOG_LEVEL)
 
 # TODO: save formatting only supports JSON currently. Future file extensions: csv and txt.
 FILE_EXT = os.environ.setdefault("FILE_EXT", "json")
 
 CACHE_DIR = os.path.join(APP_DIR, 'data', 'cache')
-
 CACHE_SQLITE_FILE = os.environ.setdefault('SQLITE_FILE', os.path.join(CACHE_DIR, 'scrilla.db'))
 
 STATIC_DIR = os.path.join(APP_DIR, 'data', 'static')
-
 STATIC_TICKERS_FILE = os.path.join(STATIC_DIR, f'tickers.{FILE_EXT}')
 STATIC_ECON_FILE = os.path.join(STATIC_DIR, f'economics.{FILE_EXT}')
 STATIC_CRYPTO_FILE = os.path.join(STATIC_DIR, f'crypto.{FILE_EXT}')
@@ -157,7 +154,6 @@ except (ValueError, TypeError) as ParseError:
     DEFAULT_ANALYSIS_PERIOD=100
     os.environ['DEFAULT_ANALYSIS_PERIOD']=100
 
-# SEE: ARG_Q_YIELD_CURVE for allowabled values
 RISK_FREE_RATE=os.environ.setdefault("RISK_FREE", "10-Year").strip("\"")
 
 MARKET_PROXY=os.environ.setdefault('MARKET_PROXY', 'SPY')
@@ -217,8 +213,6 @@ STAT_MANAGER = os.environ.setdefault('STAT_MANAGER', 'quandl')
 if STAT_MANAGER == "quandl":
     Q_URL = os.environ.setdefault('QUANDL_URL', 'https://www.quandl.com/api/v3/datasets').strip("\"").strip("'")
     Q_META_URL = os.environ.setdefault('QUANDL_META_URL' ,'https://www.quandl.com/api/v3/databases')
-
-    
     Q_KEY = os.environ.setdefault('QUANDL_KEY', '')
 
     if not Q_KEY:
@@ -231,16 +225,6 @@ if STAT_MANAGER == "quandl":
 
     if not Q_KEY:
         raise APIKeyError('Quandl API Key not found. Either set QUANDL_KEY environment variable or use "-store" CLI function to save key.')
-
-    # Special Endpoints
-    ARG_Q_YIELD_CURVE = {
-        'Overnight': 'DFF',
-        '3-Month': 'DTB3',
-        '5-Year': 'DGS5',
-        '10-Year': 'DGS10',
-        '30-Year': 'DGS30'
-    }
-    RISK_FREE_RATE=ARG_Q_YIELD_CURVE[RISK_FREE_RATE]
 
 ### DIVIDEND_MANAGER CONFIGURATION
 DIV_MANAGER=os.environ.setdefault("DIV_MANAGER", 'iex')

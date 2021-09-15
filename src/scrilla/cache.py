@@ -1,10 +1,7 @@
 import sqlite3
 
 from scrilla import settings, static
-from scrilla.files import clear_directory
 from scrilla.util import outputter
-
-# TODO: before hooking this into the application, i will need a method that returns a dict formatted in the way the application expects. before doing so, test out current cache methods to see if they still work after refactor (fingers crossed) and then test this class in isolation, i.e. build the latest wheel, install it (so settings import is accurate) and then start a python shell and see if class behaves as expected.
 
 logger = outputter.Logger("cache", settings.LOG_LEVEL)
 
@@ -83,66 +80,39 @@ class PriceCache(Cache):
             return self.to_dict(results)
         return None
 
-class StatCache(Cache):
-    create_table_transaction="CREATE TABLE IF NOT EXISTS statistics (symbol text, date text, value real, UNIQUE(symbol, date))"
-    insert_row_transaction="INSERT OR IGNORE INTO statistics (symbol, date, value) VALUES (:symbol, :date, :value)"
-    stat_query="SELECT date, value FROM statistics WHERE symbol=:symbol AND date <=date(:end_date) AND date>=date(:start_date) ORDER BY date(date) DESC"
+class InterestCache(Cache):
+    create_table_transaction="CREATE TABLE IF NOT EXISTS interest(maturity text, date text, value real, UNIQUE(maturity, date))"
+    insert_row_transaction="INSERT OR IGNORE INTO interest (maturity, date, value) VALUES (:maturity, :date, :value)"
+    stat_query="SELECT date, value FROM interest WHERE maturity=:maturity AND date <=date(:end_date) AND date>=date(:start_date) ORDER BY date(date) DESC"
 
     def __init__(self):
-        super().__init__(StatCache.create_table_transaction)
+        super().__init__(InterestCache.create_table_transaction)
 
     @staticmethod
     def to_dict(query_results):
         return { result[0]: result[1] for result in query_results }
 
-    def save_row(self, symbol, date, value):
-        logger.verbose(f'Saving {symbol} statistic on {date} to cache')
-        formatter = { 'symbol': symbol, 'date': date, 'value': value }
-        self.execute_transaction(transaction=StatCache.insert_row_transaction, formatter=formatter)
+    def save_row(self, maturity, date, value):
+        logger.verbose(f'Saving {maturity} yield on {date} to cache')
+        formatter = { 'maturity': maturity, 'date': date, 'value': value }
+        self.execute_transaction(transaction=InterestCache.insert_row_transaction, formatter=formatter)
     
-    def filter_stat_cache(self, symbol, start_date, end_date):
-        logger.debug(f'Querying SQLite cache \n\t{StatCache.stat_query}\n\t\t with :symbol={symbol}, :start_date={start_date}, :end_date={end_date}')
-        formatter = { 'symbol': symbol, 'start_date': start_date, 'end_date': end_date }
-        results = self.execute_query(query=StatCache.stat_query, formatter=formatter)
+    def filter_stat_cache(self, maturity, start_date, end_date):
+        logger.debug(f'Querying SQLite cache \n\t{InterestCache.stat_query}\n\t\t with :maturity={maturity}, :start_date={start_date}, :end_date={end_date}')
+        formatter = { 'maturity': maturity, 'start_date': start_date, 'end_date': end_date }
+        results = self.execute_query(query=InterestCache.stat_query, formatter=formatter)
 
         if len(results)>0:
-            logger.debug(f'Found {symbol} statistics in the cache')
+            logger.debug(f'Found {maturity} yield on in the cache')
             return self.to_dict(results)
         return None
 
-class DividendCache(Cache):
-    create_table_transaction="CREATE TABLE IF NOT EXISTS dividends (ticker text, date text, amount real, UNIQUE(text, date))"
-    insert_row_transaction="INSERT OR IGNORE INTO dividends (ticker, date, amount) VALUES (:ticker, :date, :amount)"
-    dividend_query="SELECT date, amount FROM dividends WHERE ticker=:ticker ORDER BY date(date) DESC"
-
-    def __init__(self):
-        super().__init__(DividendCache.create_table_transaction)
-    
-    @staticmethod
-    def to_dict(query_results):
-        return { result[0]: result[1]  for result in query_results }
-    
-    def save_row(self, ticker, date, amount):
-        logger.verbose(f'Saving {ticker} dividend on {date} to cache')
-        formatter = { 'ticker' : ticker, 'date': date, 'amount': amount}
-        self.execute_transaction(transaction=DividendCache.insert_row_transaction, formatter=formatter)
-    
-    def filter_dividend_cache(self, ticker):
-        logger.debug(f'Querying SQLite cache \n\t{DividendCache.dividend_query}\n\t\t with :ticker={ticker}')
-        formatter = { 'ticker': ticker }
-        results = self.execute_query(query=DividendCache.dividend_query, formatter=formatter)
-
-        if len(results)>0:
-            logger.debug(f'Found {ticker} dividends in the cache')
-            # TODO: need to ensure new dividend prices are ALWAYS saved somehow. Can't always defer to the cache as the source of truth.
-            return self.to_dict(results)
-        return None
-
-# NOTE: do not need to order `correlation_query` and `profile_query` because profiles and correlations are uniquely determined by 
-#       the (`start_date`, `end_date`, 'ticker_1', 'ticker_2')-tuple. More or less. There is a bit of fuzziness, since the permutation
-#       of the previous tuple, ('start_date', 'end_date', 'ticker_2', 'ticker_1'), will also be associated with the same correlation value. 
-#       No other mappings between a date's correlation value and the correlation's tickers are possible though. In other words, the query, 
-#       for a given (ticker_1, ticker_2)-permutation will only ever return one result.
+# NOTE: do not need to order `correlation_query` and `profile_query` because profiles and correlations are uniquely 
+#       determined by the (`start_date`, `end_date`, 'ticker_1', 'ticker_2')-tuple. More or less. There is a bit of 
+#       fuzziness, since the permutation of the previous tuple, ('start_date', 'end_date', 'ticker_2', 'ticker_1'), 
+#       will also be associated with the same correlation value. No other mappings between a date's correlation value
+#       and the correlation's tickers are possible though. In other words, the query, for a given 
+#       (ticker_1, ticker_2)-permutation will only ever return one result.
 class CorrelationCache(Cache):
     create_table_transaction="CREATE TABLE IF NOT EXISTS correlations (ticker_1 text, ticker_2 text, start_date text, end_date text, correlation real)"
     insert_row_transaction="INSERT INTO correlations (ticker_1, ticker_2, start_date, end_date, correlation) VALUES (:ticker_1, :ticker_2, :start_date, :end_date, :correlation)"

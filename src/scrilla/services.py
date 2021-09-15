@@ -14,40 +14,92 @@ class StatManager():
     """
     def __init__(self, type):
         self.type = type
+        if self.is_quandl():
+            self.service_map = static.keys["SERVICES"]["STATISTICS"]["QUANDL"]["MAP"]
 
-    def construct_url(self, symbol, start_date, end_date):
+    def is_quandl(self):
         if self.type == static.keys['SERVICES']['STATISTICS']['QUANDL']['MANAGER']:
-            service_map = static.keys["SERVICES"]["STATISTICS"]["QUANDL"]["MAP"]
-            url = f'{settings.Q_URL}/'
-            query = f'{service_map["PATHS"]["FRED"]}/{symbol}?'
+            return True
+        return False
+
+    def construct_query(self, start_date, end_date):
+        query = ""
+        if end_date is not None:
+            end_string = helper.date_to_string(end_date)
+            query += f'&{self.service_map["PARAMS"]["END"]}={end_string}' 
+
+        if start_date is not None:
+            start_string = helper.date_to_string(start_date)
+            query += f'&{self.service_map["PARAMS"]["START"]}={start_string}'
     
-            if end_date is not None:
-                end_string = helper.date_to_string(end_date)
-                query += f'&{service_map["PARAMS"]["END"]}={end_string}' 
-                pass
+        logger.debug(f'Quandl query (w/o key) = {query}')
+        if query:
+            return f'{query}&{self.service_map["PARAMS"]["KEY"]}={settings.Q_KEY}'
+        return f'{self.service_map["PARAMS"]["KEY"]}={settings.Q_KEY}'
 
-            if start_date is not None:
-                start_string = helper.date_to_string(start_date)
-                query += f'&{service_map["PARAMS"]["START"]}={start_string}'
 
-            auth_query = f'{query}&{service_map["PARAMS"]["KEY"]}={settings.Q_KEY}'
-            url += auth_query
-            logger.debug(f'Quandl query (w/o key) = {query}')
+    def construct_stat_url(self, symbol, start_date, end_date):
+        if self.is_quandl():
+            url = f'{settings.Q_URL}/{self.service_map["PATHS"]["FRED"]}/{symbol}?'
+            url += self.construct_query(start_date, end_date)
             return url
         raise errors.ConfigurationError('No STAT_MANAGER found in the parsed environment settings')
 
+    def construct_interest_url(self,start_date, end_date):
+        if self.is_quandl():
+            url = f'{settings.Q_URL}/{self.service_map["PATHS"]["YIELD"]}?'
+            url += self.construct_query(start_date=start_date, end_date=end_date)
+            return url
+        raise errors.ConfigurationError('No STAT_MANAGER found in the parsed environment settings')
+
+
     def get_stats(self, symbol, start_date, end_date):
-        url = self.construct_url(symbol, start_date, end_date)
+        url = self.construct_stat_url(symbol, start_date, end_date)
         response = requests.get(url).json()
 
-        if self.type == static.keys['SERVICES']['STATISTICS']['QUANDL']['MANAGER']:
-            service_map = static.keys["SERVICES"]["STATISTICS"]["QUANDL"]["MAP"]
-            raw_stat = response[service_map["KEYS"]["FIRST_LAYER"]][service_map["KEYS"]["SECOND_LAYER"]]
+        if self.is_quandl():
+            raw_stat = response[self.service_map["KEYS"]["FIRST_LAYER"]][self.service_map["KEYS"]["SECOND_LAYER"]]
             formatted_stat = {}
         
             for stat in raw_stat:
                 formatted_stat[stat[0]] = stat[1]
             return formatted_stat
+
+        raise errors.ConfigurationError('No STAT_MANAGER found in the parsed environment settings')
+
+    def get_interest_rates(self, maturity, start_date, end_date):
+        url = self.construct_interest_url(start_date=start_date, end_date=end_date)
+        response = requests.get(url).json()
+
+        if self.is_quandl():
+            raw_interest = response[self.service_map["KEYS"]["FIRST_LAYER"]][self.service_map["KEYS"]["SECOND_LAYER"]]
+
+            response_index = None
+            if maturity == self.service_map['YIELD_CURVE']['ONE_MONTH']:
+                response_index = 1
+            elif maturity == self.service_map['YIELD_CURVE']['THREE_MONTH']:
+                response_index = 3
+            elif maturity == self.service_map['YIELD_CURVE']['SIX_MONTH']:
+                response_index = 4
+            elif maturity == self.service_map['YIELD_CURVE']['ONE_YEAR']:
+                response_index =5 
+            elif maturity == self.service_map['YIELD_CURVE']['THREE_YEAR']:
+                response_index = 7
+            elif maturity == self.service_map['YIELD_CURVE']['FIVE_YEAR']:
+                response_index = 8
+            elif maturity == self.service_map['YIELD_CURVE']['TEN_YEAR']:
+                response_index = 10 
+            elif maturity == self.service_map['YIELD_CURVE']['THIRTY_YEAR']:
+                response_index = 12
+            
+            formatted_interest = {}
+            
+            if response_index is not None:
+                for rate in raw_interest:
+                    formatted_interest[rate[0]] = rate[response_index]
+                return formatted_interest
+
+            raise errors.InputValidationError(f'{maturity} is not a valid maturity for US Treasury Bonds')
 
         raise errors.ConfigurationError('No STAT_MANAGER found in the parsed environment settings')
 
@@ -280,8 +332,7 @@ price_manager = PriceManager(settings.PRICE_MANAGER)
 stat_manager = StatManager(settings.STAT_MANAGER)
 div_manager = DividendManager(settings.DIV_MANAGER)
 price_cache = cache.PriceCache()        
-stat_cache = cache.StatCache()
-div_cache = cache.DividendCache()
+interest_cache = cache.InterestCache()
 
 def get_daily_price_history(ticker, start_date=None, end_date=None, asset_type=None):
     """
@@ -378,11 +429,11 @@ def get_daily_price_latest(ticker, asset_type=None):
         return prices[first_element][static.keys['PRICES']['OPEN']]
     return None
 
-def get_daily_stats_history(symbol, start_date=None, end_date=None):
+def get_daily_fred_history(symbol, start_date=None, end_date=None):
     """
     Description
     -----------
-    Wrapper around external service request for financial statistics data. Relies on an instance of `StatManager` configured by `settings.STAT_MANAGER` value, which in turn is configured by the `STAT_MANAGER` environment variable, to hydrate with data. \n \n
+    Wrapper around external service request for financial statistics data constructed by the Federal Reserve Economic Data. Relies on an instance of `StatManager` configured by `settings.STAT_MANAGER` value, which in turn is configured by the `STAT_MANAGER` environment variable, to hydrate with data. \n \n
     
     Before deferring to the `StatManager` and letting it call the external service, however, this function checks if response is in local cache. If the response is not in the cache, it will pass the request off to `StatManager` and then save the response in the cache so subsequent calls to the function can bypass the service request. Used to prevent excessive external HTTP requests and improve the performance of the application. Other parts of the program should interface with the external statistics data services through this function to utilize the cache functionality.  \n \n
 
@@ -403,7 +454,7 @@ def get_daily_stats_history(symbol, start_date=None, end_date=None):
         If the external service rejects the request for price data, whether because of rate limits or some other factor, the function will raise this exception.
     3. KeyError \n
         If the inputted or validated dates do not exist in the price history, a KeyError will be thrown. This could be due to the equity not having enough price history, i.e. it started trading a month ago and doesn't have 100 days worth of prices yet, or some other anomalous event in an equity's history. 
-    4. errors.ConfigurationError \n
+    4. scrilla.errors.ConfigurationError \n
         If one of the settings is improperly configured or one of the environment variables was unable to be parsed from the environment, this error will be thrown. \n \n
 
     Returns
@@ -423,19 +474,6 @@ def get_daily_stats_history(symbol, start_date=None, end_date=None):
     except errors.InputValidationError as ive:
         raise ive
 
-    # may need to adopt strategy where i check if symbol belongs to one of the statistics that are frequently accessed,
-    # like US treasury yields...
-    stats = None
-    stats = stat_cache.filter_stat_cache(symbol=symbol, start_date=start_date, end_date=end_date)
-
-
-    # TODO: this only works when stats are reported daily and that the latest date in the dataset is actually end_date.
-    if stats is not None and helper.date_to_string(end_date) in stats.keys(): 
-        # and (helper.business_days_between(start_date, end_date) + 1) == len(stats): 
-        return stats
-    if stats is not None:
-        logger.debug(f'Cached {symbol} data is out of date, passing request to external service')
-
     try:
         stats = stat_manager.get_stats(symbol=symbol, start_date=start_date, end_date=end_date)
     except errors.APIResponseError as api:
@@ -443,12 +481,9 @@ def get_daily_stats_history(symbol, start_date=None, end_date=None):
     except errors.InputValidationError as ive:
         raise ive
 
-    for date in stats:
-        stat_cache.save_row(symbol=symbol, date=date, value=stats[date])
-
     return stats
 
-def get_daily_stats_latest(symbol):
+def get_daily_fred_latest(symbol):
     """
     Description
     -----------
@@ -459,10 +494,91 @@ def get_daily_stats_latest(symbol):
     1. statistic: str \n 
         Required. Symbol representing the statistc whose value it to be retrieved. \n \n
     """
-    stats_history = get_daily_stats_history(symbol=symbol)
-    first_element = helper.get_first_json_key(stats_history)
-    return stats_history[first_element]
+    stats_history = get_daily_fred_history(symbol=symbol)
+    if stats_history is not None:
+        first_element = helper.get_first_json_key(stats_history)
+        return stats_history[first_element]
+    return None
 
+def get_daily_interest_history(maturity, start_date=None, end_date=None):
+    """
+    Description
+    -----------
+    Wrapper around external service request for financial statistics data constructed by the Federal Reserve Economic Data. Relies on an instance of `StatManager` configured by `settings.STAT_MANAGER` value, which in turn is configured by the `STAT_MANAGER` environment variable, to hydrate with data. \n \n
+    
+    Before deferring to the `StatManager` and letting it call the external service, however, this function checks if response is in local cache. If the response is not in the cache, it will pass the request off to `StatManager` and then save the response in the cache so subsequent calls to the function can bypass the service request. Used to prevent excessive external HTTP requests and improve the performance of the application. Other parts of the program should interface with the external statistics data services through this function to utilize the cache functionality.  \n \n
+
+    Parameters
+    ----------
+    1. Maturity: str \n 
+        Required. Maturity of the US Treasury for which the interest rate will be retrieved. List of allowable values can in `scrilla.stats.keys['SERVICES']['STATISTICS']['QUANDL']['MAP']['YIELD_CURVE']` \n \n
+     2. start_date : datetime.date \n 
+        Optional. Start date of price history. Defaults to None. If `start_date is None`, the calculation is made as if the `start_date` were set to 100 trading days ago. This excludes weekends and holidays. \n \n
+    3. end_date : datetime.date \n 
+        Optional End date of price history. Defaults to None. If `end_date is None`, the calculation is made as if the `end_date` were set to today. This excludes weekends and holidays so that `end_date` is set to the last previous business date. \n \n
+    
+    Raises
+    ------
+    1. scrilla.errors.InputValidationError \n
+        If the arguments inputted into the function fail to exist within the domain the function, this error will be thrown.
+    2. scrilla.errors.APIResponseError \n
+        If the external service rejects the request for price data, whether because of rate limits or some other factor, the function will raise this exception.
+    3. KeyError \n
+        If the inputted or validated dates do not exist in the price history, a KeyError will be thrown. This could be due to the equity not having enough price history, i.e. it started trading a month ago and doesn't have 100 days worth of prices yet, or some other anomalous event in an equity's history. 
+    4. scrilla.errors.ConfigurationError \n
+        If one of the settings is improperly configured or one of the environment variables was unable to be parsed from the environment, this error will be thrown. \n \n
+
+    Returns
+    ------
+    { 'date' (str) :  value (str),  'date' (str):  value (str), ... }
+        Dictionary with date strings formatted `YYYY-MM-DD` as keys and the interest on that date as the corresponding value. \n \n
+
+    Notes
+    -----
+    1. Yield rates are not reported on weekends or holidays, so the `asset_type` for interest is functionally equivalent to equities, at least as far as date calculations are concerned. The dates inputted into this function are validated as if they were labelled as equity `asset_types` for this reason.
+    """
+    try:
+        start_date,end_date=errors.validate_dates(start_date=start_date, end_date=end_date, asset_type=static.keys['ASSETS']['EQUITY'])
+    except errors.InputValidationError as ive:
+        raise ive
+
+    rates = None
+    rates = interest_cache.filter_stat_cache(maturity, start_date=start_date, end_date=end_date)
+
+        # TODO: this only works when stats are reported daily and that the latest date in the dataset is actually end_date.
+    if rates is not None and helper.date_to_string(end_date) in rates.keys() \
+        and (helper.business_days_between(start_date, end_date) + 1) == len(stats): 
+        return rates
+    if rates is not None:
+        logger.debug(f'Cached {maturity} data is out of date, passing request to external service')
+    try:
+        stats = stat_manager.get_interest_rates(maturity=maturity, start_date=start_date, end_date=end_date)
+    except errors.APIResponseError as api:
+        raise api
+    except errors.InputValidationError as ive:
+        raise ive
+
+    for date in stats:
+        interest_cache.save_row(maturity=maturity, date=date, value=stats[date])
+
+    return stats
+
+def get_daily_interest_latest(maturity):
+    """
+    Description
+    -----------
+    Returns the latest interest rate for the inputted US Treasury maturity. \n \n
+
+    Parameters
+    ----------
+    1. maturity: str \n 
+        Required. Maturity of the US Treasury security whose interest rate is to be retrieved. \n \n
+    """
+    interest_history = get_daily_interest_history(maturity=maturity)
+    if interest_history is not None:
+        first_element = helper.get_first_json_key(interest_history)
+        return interest_history[first_element]
+    return None
 
 def get_dividend_history(ticker):
     """
@@ -470,7 +586,7 @@ def get_dividend_history(ticker):
     -----------
     Wrapper around external service request for dividend payment data. Relies on an instance of `DivManager` configured by `settings.DIV_MANAGER` value, which in turn is configured by the `DIV_MANAGER` environment variable, to hydrate with data. \n \n
     
-    Before deferring to the `DivManager` and letting it call the external service, however, this function checks if response is in local cache. If the response is not in the cache, it will pass the request off to `DivManager` and then save the response in the cache so subsequent calls to the function can bypass the service request. Used to prevent excessive external HTTP requests and improve the performance of the application. Other parts of the program should interface with the external statistics data services through this function to utilize the cache functionality.  \n \n
+    Note, since dividend payments do not occur every day (if only), dividend amounts do not get cached, as there is no nice way to determine on a given day whether or not a payment should have been made, and thus to determine whether or not the cache is out of date. In other words, you can't look at today's date and the date of the last payment in the cache and determine based solely on the dates whether or not the cache is outdated. 
 
     Parameters
     ----------
@@ -492,19 +608,7 @@ def get_dividend_history(ticker):
     ------
     { 'date' (str) :  amount (str),  'date' (str):  amount (str), ... }
         Dictionary with date strings formatted `YYYY-MM-DD` as keys and the dividend payment amount on that date as the corresponding value. \n \n
-
-    Notes
-    -----
-    1. There is no nice way to determine whether or not the in-cache dividend history is out of date since dividend payments are not made with regularity, i.e. you can't look at today's date and the last dividend payment's date and see if there are any missing data points like you can with price history (since each day has a price, it is easy to determine if a price is missing). For that reason, it might make more sense to skip the cache altogether for dividends. There is no sense having a cache if there isn't a reliable way to determine if it's accurate and up-to-date. TODO.
-
     """
-    logger.debug(f'Checking for {ticker} dividend history in cache.')
-    divs = div_cache.filter_dividend_cache(ticker=ticker)
-
-    if divs is not None:
-        # TODO: same as others
-        return divs 
-
     try:
         logger.debug(f'Retrieving {ticker} dividends from service')  
         divs = div_manager.get_dividends(ticker=ticker)
@@ -513,24 +617,13 @@ def get_dividend_history(ticker):
     except errors.InputValidationError as ive:
         raise ive
     
-    logger.debug(f'Storing {ticker} dividend history in cache.')
-
-    # TODO: need some way to only save the new prices, since the cache will have most of the prices if used 
-    # frequently. don't want to waste time attempting to insert things that already exist.
-    for date in divs:
-        div_cache.save_row(ticker=ticker, date=date, amount=divs[date])
-
     return divs
 
-
-# NOTE: Quandl outputs interest in percentage terms. 
-# TODO: verify the interest rate is annual. may need to convert.
 def get_risk_free_rate():
     """
     Description
     -----------
     Returns the risk free rate, defined as the annualized yield on a specific US Treasury duration, as a decimal. The US Treasury yield used as a proxy for the risk free rate is defined in the `settings.py` file and is configured through the RISK_FREE environment variable. \n \n 
     """
-    risk_free_rate_key = settings.RISK_FREE_RATE
-    risk_free_rate = get_daily_stats_latest(symbol=risk_free_rate_key)
-    return (risk_free_rate)/100
+    maturity = static.keys['SERVICES']['STATISTICS']['QUANDL']['MAP']['YIELD_CURVE'][settings.RISK_FREE_RATE]
+    return get_daily_interest_latest(maturity=maturity)

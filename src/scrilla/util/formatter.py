@@ -12,9 +12,9 @@ INDENT = 10
 
 RISK_FREE_TITLE = "{} US Treasury"
 
-HELP_MSG = "A financial application written in python to determine optimal portfolio allocations subject to various constraints and to calculate fundamental statistics concerning a given portfolio allocation. Note: all calculations are based on an equity's closing price for the past 100 trading days. "
+HELP_MSG = "A financial application for optimizing portfolio allocations and calculating various financial statistics. Requires API keys from Alpha Vantage (https://www.alphavantage.co), Quandl (https://www.quandl.com/) and IEX (https://iexcloud.io/) to hydrate with data. These keys should be stored in environment variables named ALPHA_VANTAGE_KEY, QUANDL_KEY and IEX_KEY, respectively. See documentation for more infromation on configuration: https://github.com/chinchalinchin/scrilla"
 
-SYNTAX = "command -FUNCTION -OPTIONS [tickers]"
+SYNTAX = "command -FUNCTION -OPTIONS [tickers/symbols]"
 
 TAB = "      "
 
@@ -139,7 +139,7 @@ FUNC_DICT = {
     
     "price_history": "Prints the price histories for each inputted asset over the specified date range. If no date range is given, price histories will default to the last 100 days.__\n\t\t\tOPTIONS:\n\t\t\t\t-start (format: \"YYYY-MM-DD\")\n\t\t\t\t-end  (format :\"YYYY-MM-DD\")\n\t\t\t\t-save (format: /path/to/file/filename.json)",
 
-    "purge": "Removes all files contained with the /static/ and /cache/ directory, but retains the directories themselves.",
+    "purge": "Removes all files contained with the _installation directory_/data/static/, _installation directory_/data/cache/ and _installation directory/data/common/ directory, but retains the directories themselves.",
     
     "risk_free_rate": "Returns current 10-year, annualized US Treasury yield.",
     
@@ -149,9 +149,9 @@ FUNC_DICT = {
     
     "sharpe_ratio": "Computes the sharpe ratio for each of the supplied tickers.__\n\t\t\tOPTIONS:\n\t\t\t\t-start (format: \"YYYY-MM-DD\")\n\t\t\t\t-end  (format :\"YYYY-MM-DD\")", 
 
-    "statistic": "Retrieves the latest value for the supplied list of economic statistics. The available list of economic statistic can be found at https://www.quandl.com/data/FRED-Federal-Reserve-Economic-Data/documentation?anchor=growth; it is also stored in the /static/ directory of the application ",
+    "statistic": "Retrieves the latest value for the supplied list of economic statistics. The available list of economic statistic can be found at https://www.quandl.com/data/FRED-Federal-Reserve-Economic-Data/documentation?anchor=growth; it is also stored in the _installation directory_/data/static/ directory of the application ",
     
-    "statistic_history": "Prints the statistic history for the supplied list of economic statistics.__\n\t\t\tOPTIONS:\n\t\t\t\t-save (format: /path/to/file/filename.jpeg)",
+    "statistic_history": "Prints the statistic history for the supplied list of economic statistics.The available list of economic statistic can be found at https://www.quandl.com/data/FRED-Federal-Reserve-Economic-Data/documentation?anchor=growth; it is also stored in the _installation directory_/data/static/ directory of the application__\n\t\t\tOPTIONS:\n\t\t\t\t-start (format: \"YYYY-MM-DD\")\n\t\t\t\t-end  (format :\"YYYY-MM-DD\")\n\t\t\t\t-save (format: /path/to/file/filename.jpeg)",
 
     "store": "Save API key to local installation/data/common/ directory. Keys must be input one at a time. ALLOWABLE KEYS: ALPHA_VANTAGE_KEY, QUANDL_KEY, IEX_KEY. Case sensitive.",
 

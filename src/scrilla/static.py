@@ -1,14 +1,21 @@
+constants = {
+    'ONE_TRADING_DAY': {
+        'EQUITY': (1/252),
+        'CRYPTO': (1/365)
+    },
+    'ACCURACY': 5,
+    'BACKOFF_PERIOD': 30,
+    'KEEP_FILE': '.gitkeep',
+    'PRICE_YEAR_CUTOFF': 1950,
+    'DENOMINATION': 'USD',
+    'NPV_DELTA_TOLERANCE': 0.0000001,
+    'OPTIMIZATION_METHOD': "SLSQP"
+
+}
 keys= {
     'PRICES': {
         'OPEN': 'open',
         'CLOSE': 'close'
-    },
-    'YIELD_CURVE':{
-        'OVERNIGHT':'Overnight',
-        '3M': '3-Month',
-        '5Y': '5-Year',
-        '10Y': '10-Year',
-        '30Y': '30-Year'
     },
     'STATISTICS': {
         'RETURN': 'annual_return',
@@ -39,7 +46,39 @@ keys= {
     'SERVICES':{
         'PRICES':{
             'ALPHA_VANTAGE': {
-                'MANAGER': 'alpha_vantage'
+                'MANAGER': 'alpha_vantage',
+                'MAP': {
+                    'KEYS':{
+                        'EQUITY':{
+                            'FIRST_LAYER': 'Time Series (Daily)',
+                            'CLOSE': '4. close',
+                            'OPEN': '1. open',
+                            'HEADER': 'symbol'
+                        },
+                        'CRYPTO': {
+                            'FIRST_LAYER' : 'Time Series (Digital Currency Daily)',
+                            'CLOSE': f'4a. close ({constants["DENOMINATION"]})',
+                            'OPEN': f'1a. open ({constants["DENOMINATION"]})',
+                            'HEADER': 'currency code'
+                        },
+                        'ERROR': 'Error Message',
+                        'THROTTLE': 'Note',
+                        'LIMIT': 'Information'
+                    },
+                    'PARAMS':{
+                        'TICKER': 'symbol',
+                        'FUNCTION': 'function',
+                        'DENOMINATION': 'market',
+                        'KEY': 'apikey',
+                        'SIZE': 'outputsize'
+                    },
+                    'ARGUMENTS': {
+                        'EQUITY_DAILY': 'TIME_SERIES_DAILY',
+                        'LISTING': 'LISTING_STATUS',
+                        'CRYPTO_DAILY': 'DIGITAL_CURRENCY_DAILY',
+                        'FULL': 'full'
+                    }
+                }
             }
         },
         'STATISTICS': {
@@ -47,12 +86,13 @@ keys= {
                 'MANAGER': 'quandl',
                 'MAP':{
                     'PATHS':{
-                        'FRED': 'FRED'
+                        'FRED': 'FRED',
+                        'YIELD': 'USTREASURY/YIELD'
                     },
                     'KEYS':{
                         'FIRST_LAYER': 'dataset',
                         'SECOND_LAYER': 'data',
-                        'STATISTIC': 'code',
+                        'HEADER': 'code',
                         'ZIPFILE': 'FRED_metadata.csv'
                     },
                     'PARAMS':{
@@ -61,14 +101,17 @@ keys= {
                         'START': 'start_date',
                         'END': 'end_date'
                     },
+                    'YIELD_CURVE':{
+                        'ONE_MONTH' : '1 MO',
+                        'THREE_MONTH': '3 MO',
+                        'SIX_MONTH': '6 MO',
+                        'ONE_YEAR': '1 YR',
+                        'THREE_YEAR': '3 YR',
+                        'FIVE_YEAR': '5 YR',
+                        'TEN_YEAR': '10 YR',
+                        'THIRTY_YEAR': '30 YR'
+                    }
                 },
-                'YIELD_CURVE':{
-                    'Overnight': 'DFF',
-                    '3-Month': 'DTB3',
-                    '5-Year': 'DGS5',
-                    '10-Year': 'DGS10',
-                    '30-Year': 'DGS30' 
-                }
             }
         },
         'DIVIDENDS': {
@@ -77,20 +120,6 @@ keys= {
             }
         }
     }
-}
-constants = {
-    'ONE_TRADING_DAY': {
-        'EQUITY': (1/252),
-        'CRYPTO': (1/365)
-    },
-    'ACCURACY': 5,
-    'BACKOFF_PERIOD': 30,
-    'KEEP_FILE': '.gitkeep',
-    'PRICE_YEAR_CUTOFF': 1950,
-    'DENOMINATION': 'USD',
-    'NPV_DELTA_TOLERANCE': 0.0000001,
-    'OPTIMIZATION_METHOD': "SLSQP"
-
 }
 
 def get_trading_period(asset_type):

@@ -45,3 +45,4 @@
 
 42. review monte carlo simulation. allow value at risk function to specify SDE. look into MLE for parameters.
 
+43. Use this for treasury yields instead of FRED delayed quotes: https://data.nasdaq.com/data/USTREASURY/YIELD-treasury-yield-curve-rates
