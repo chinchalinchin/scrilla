@@ -19,35 +19,49 @@ commands:
       - run:
           name: artifact upload
           command: twine upload -u $PYPI_USERNAME -p $PYPI_PASSWORD dist/*
-  push:
-    description: push new version number to GitHub
+  commit_version:
+    description: commit new version to git
     steps:
-        - run: 
-            name: push version
-            command: |
+      - run:
+          name: commit version
+          command: |
               git config user.email "chinchalinchin@gmail.com"
               git config user.name "CircleCi Bot"
               git add . 
               git commit -m "Pipeline Build Version $(cat ./src/scrilla/version.txt)"
-              git push
 
-  merge_with_micro:
-    description: merge micro update branch onto main branch
+  push_and_merge_from_micro:
+    description: push new micro version number to GitHub
     steps:
-      - run:
-          name: merge micro branch
-          command: |
+        - run: 
+            name: push micro version
+            command: |
+              git push --set-upstream origin pypi/micro-update
               git checkout develop/main
               git merge pypi/micro-update
+              git push --set-upstream origin develop/main
   
-  merge_with_minor:
-    description: merge minor update branch onto main branch
+  push_and_merge_from_minor:
+    description: push new minor version number to GitHub
     steps:
       - run:
-          name: merge minor branch
+          name: push minor version
           command: |
+              git push --set-upstream origin pypi/minor-update
               git checkout develop/main
               git merge pypi/minor-update
+              git push --set-upstream origin develop/main
+  
+  push_and_merge_from_major:
+    description: push new major version number to GitHub
+    steps:
+      - run:
+          name: push major version
+          command: |
+            git push --set-upstream origin pypi/major-update
+            git checkout develop/main
+            git merge pypi/major-update
+            git push --set-upstream origin develop/main
   
 jobs:
   pypi_micro_update:
@@ -62,8 +76,8 @@ jobs:
             python ./scripts/circleci/iterate_version.py micro
       - build
       - upload
-      - push
-      - merge_with_micro
+      - commit_version
+      - push_and_merge_from_micro
 
   pypi_minor_update:
     docker: 
@@ -77,8 +91,8 @@ jobs:
             python ./scripts/circleci/iterate_version.py minor
       - build
       - upload
-      - push
-      - merge_with_minor
+      - commit
+      - push_and_merge_from_minor
 
   pypi_major_update:
     docker: 
@@ -92,7 +106,8 @@ jobs:
             python ./scripts/circleci/iterate_version.py major
       - build
       - upload
-      - push
+      - commit
+      - push_and_merge_from_major
 
 workflows:
   version: 2
