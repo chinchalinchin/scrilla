@@ -31,6 +31,23 @@ commands:
               git commit -m "Pipeline Build Version $(cat ./src/scrilla/version.txt)"
               git push
 
+  merge_with_micro:
+    description: merge micro update branch onto main branch
+    steps:
+      - run:
+          name: merge micro branch
+          command: |
+              git checkout develop/main
+              git merge pypi/micro-update
+  
+  merge_with_minor:
+    description: merge minor update branch onto main branch
+    steps:
+      - run:
+          name: merge minor branch
+          command: |
+              git checkout develop/main
+              git merge pypi/minor-update
   
 jobs:
   pypi_micro_update:
@@ -46,6 +63,7 @@ jobs:
       - build
       - upload
       - push
+      - merge_with_micro
 
   pypi_minor_update:
     docker: 
@@ -60,6 +78,7 @@ jobs:
       - build
       - upload
       - push
+      - merge_with_minor
 
   pypi_major_update:
     docker: 
