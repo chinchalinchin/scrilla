@@ -108,13 +108,6 @@ def do_program():
             outputter.title_line("Stock Watchlist")
             outputter.print_list(tickers)
 
-        ### FUNCTION: Risk Free Rate
-        elif opt == formatter.FUNC_ARG_DICT['risk_free_rate']:
-            outputter.title_line("Risk Free Rate")
-            outputter.scalar_result(calculation=formatter.RISK_FREE_TITLE.format(settings.RISK_FREE_RATE), 
-                                    result=services.get_risk_free_rate(), 
-                                    currency=False)
-
         ### FUNCTION: Store Key
             # NOTE: not technically a single argument function, but requires special parsing, so
             #       treat it here.
@@ -137,12 +130,6 @@ def do_program():
             version_file = os.path.join(settings.APP_DIR, 'version.txt')
             with open(version_file, 'r') as f:
                 print(f.read())
-
-        ### FUNCTION: Yield Curve
-        elif opt == formatter.FUNC_ARG_DICT['yield_curve']:
-            for maturity in static.keys['YIELD_CURVE']:
-                curve_rate = services.get_daily_interest_latest(maturity=maturity)
-                outputter.scalar_result(calculation=maturity, result=curve_rate, currency=False)
 
         # variable argument functions
         else:
@@ -489,7 +476,25 @@ def do_program():
                         files.save_file(file_to_save=all_rates, file_name=xtra_list['save_file'])
                 
                 selected_function, required_length = cli_interest_history, 1
-                        
+            
+            ### FUNCTION: Risk Free Rate
+            elif opt == formatter.FUNC_ARG_DICT['risk_free_rate']:
+                def cli_risk_free_rate():
+                    rate = {}
+                    rate[settings.RISK_FREE_RATE] = services.get_risk_free_rate()
+                    if xtra_list['suppress'] is None:
+                        if xtra_list['json'] is None:
+                            outputter.title_line("Risk Free Rate")
+                            outputter.percent_result(calculation=formatter.RISK_FREE_TITLE.format(settings.RISK_FREE_RATE), 
+                                                        result=rate[settings.RISK_FREE_RATE])
+                        else:
+                            print(rate)
+
+                    if xtra_list['save_file'] is not None:
+                        files.save_file(file_to_save=rate, file_name=xtra_list['save_file'])
+
+                selected_function, required_length, exact = cli_risk_free_rate, 0, True
+
             ### FUNCTION: Risk-Return Profile
             elif opt == formatter.FUNC_ARG_DICT["risk_profile"]:
                 def cli_risk_return():
@@ -580,7 +585,7 @@ def do_program():
                     if xtra_list['suppress'] is None and xtra_list['json'] is not None:
                         print(all_stats)
                     if xtra_list['save_file'] is not None:
-                        files.save_file(filve_to_save=all_stats, file_name=xtra_list['save_file'])
+                        files.save_file(file_to_save=all_stats, file_name=xtra_list['save_file'])
                         
                 selected_function, required_length = cli_statistic_history, 1
 
@@ -591,6 +596,22 @@ def do_program():
                     logger.comment("Watchlist saved. Use -ls option to print watchlist.")
                 selected_function, required_length = cli_watchlist, 1
     
+            ### FUNCTION: Yield Curve
+            elif opt == formatter.FUNC_ARG_DICT['yield_curve']:
+                yield_curve = {}
+                for maturity in static.keys['YIELD_CURVE']:
+                    curve_rate = services.get_daily_interest_latest(maturity=maturity)
+                    yield_curve[maturity] = curve_rate
+
+                    if xtra_list['suppress'] is None and xtra_list['json'] is None:
+                        outputter.scalar_result(calculation=maturity, result=curve_rate, currency=False)
+
+                if xtra_list['suppress'] is None and xtra_list['json'] is not None:
+                    print(yield_curve)
+                    
+                if xtra_list['save_file'] is not None:
+                    files.save_file(file_to_save=yield_curve, file_name=xtra_list['save_fil'])
+
             else:
                 logger.comment('No function supplied. Please review Function Summary below and re-execute with appropriate arguments.')
                 outputter.help_msg()

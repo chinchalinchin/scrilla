@@ -46,7 +46,7 @@ FUNC_ARG_DICT = {
     "plot_dividends": "-plot-div",
     "plot_frontier": "-plot-ef",
     "plot_moving_averages": "-plot-mov",
-    "plot_risk_profile": "-plot-rr",
+    "plot_risk_profile": "-plot-profile",
     "plot_yield_curve":"-plot-yield",
     "price_history": "-prices",
     "purge": "-purge",
@@ -106,7 +106,7 @@ FUNC_DICT = {
     
     "correlation_time_series": "EXPERIMENTAL. PROBABLY WON'T WORK. Calculate correlation time series for a pair of tickers over a specified date range. If no start or end dates are specified, the default analysis period of 100 days is applied. __\n\t\t\tOPTIONS:\n\t\t\t\t-start (format: \"YYYY-MM-DD\")\n\t\t\t\t-end  (format :\"YYYY-MM-DD\")",
 
-    "discount_dividend": "Extrapolates future dividend cashflows from historical dividend payments with linear regression and then uses that model to calculate the net present value of all future dividends. If no discount rate is specified, the calculations default to the risk-free rate, i.e. the 10-Year US Treasury yield.__\n\t\t\tOPTIONS:\n\t\t\t\t -discount (format: decimal)\n\t\t\t\t-save (format: /path/to/file/filename.json)\n\t\t\t\t-json (print results to screen as JSON)\n\t\t\t\t-quiet (suppress console output)"",
+    "discount_dividend": "Extrapolates future dividend cashflows from historical dividend payments with linear regression and then uses that model to calculate the net present value of all future dividends. If no discount rate is specified, the calculations default to the risk-free rate, i.e. the 10-Year US Treasury yield.__\n\t\t\tOPTIONS:\n\t\t\t\t -discount (format: decimal)\n\t\t\t\t-save (format: /path/to/file/filename.json)\n\t\t\t\t-json (print results to screen as JSON)\n\t\t\t\t-quiet (suppress console output)",
     
     "dividends": "Displays the price history over the specific date range. If no dates are provided, returns the entire dividend history.__\n\t\t\tOPTIONS:\n\t\t\t\t-start (format: \"YYYY-MM-DD\")\n\t\t\t\t-end  (format :\"YYYY-MM-DD\")\n\t\t\t\t-save (format: /path/to/file/filename.json)\n\t\t\t\t-quiet (suppress console output)",
 
@@ -147,7 +147,7 @@ FUNC_DICT = {
 
     "purge": "Removes all files contained with the _installation directory_/data/static/, _installation directory_/data/cache/ and _installation directory/data/common/ directory, but retains the directories themselves.",
     
-    "risk_free_rate": "Returns current 10-year, annualized US Treasury yield.",
+    "risk_free_rate": "Returns the current annualized US Treasury yield specified by the RISK_FREE environment variables. Allowable values for RISK_FREE environment variable: ONE_MONTH, TWO_MONTH, THREE_MONTH, SIX_MONTH, ONE_YEAR, TWO_YEAR, THREE_YEAR, FIVE_YEAR, SEVEN_YEAR, TEN_YEAR, TWENTY_YEAR, THIRTY_YEAR.",
     
     "risk_profile": "Calculate the risk-return profile for the supplied list of ticker symbols. If no start or end dates are specified, calculations default to the last 100 days of prices.__\n\t\t\tOPTIONS:\n\t\t\t\t-start (format: \"YYYY-MM-DD\")\n\t\t\t\t-end  (format :\"YYYY-MM-DD\")\n\t\t\t\t-save (format: /path/to/file/filename.json)\n\t\t\t\t-json (print results to screen as JSON)\n\t\t\t\t-quiet (suppress console output)",
     
@@ -155,11 +155,11 @@ FUNC_DICT = {
     
     "sharpe_ratio": "Computes the sharpe ratio for each of the supplied tickers.__\n\t\t\tOPTIONS:\n\t\t\t\t-start (format: \"YYYY-MM-DD\")\n\t\t\t\t-end  (format :\"YYYY-MM-DD\")", 
 
-    "statistic": "Retrieves the latest value for the supplied list of economic statistics. The available list of economic statistic can be found at https://www.quandl.com/data/FRED-Federal-Reserve-Economic-Data/documentation?anchor=growth; it is also stored in the _installation directory_/data/static/ directory of the application.__\n\t\t\tOPTIONS:\n\t\t\t\t-json (print results to screen as JSON)\n\t\t\t\t-save (format: /path/to/file/filename.jpeg)\n\t\t\t\t-quiet (suppress console output)",
+    "statistic": "Retrieves the latest value for the supplied list of economic statistics. The available list of economic statistic can be found at https://www.quandl.com/data/FRED-Federal-Reserve-Economic-Data/documentation?anchor=growth; it is also stored in the _installation directory_/data/static/ directory of the application.__\n\t\t\tOPTIONS:\n\t\t\t\t-json (print results to screen as JSON)\n\t\t\t\t-save (format: /path/to/file/filename.json)\n\t\t\t\t-quiet (suppress console output)",
     
-    "statistic_history": "Prints the statistic history for the supplied list of economic statistics.The available list of economic statistic can be found at https://www.quandl.com/data/FRED-Federal-Reserve-Economic-Data/documentation?anchor=growth; it is also stored in the _installation directory_/data/static/ directory of the application.__\n\t\t\tOPTIONS:\n\t\t\t\t-start (format: \"YYYY-MM-DD\")\n\t\t\t\t-end  (format :\"YYYY-MM-DD\")\n\t\t\t\t-json (print results to screen as JSON)\n\t\t\t\t-save (format: /path/to/file/filename.jpeg)\n\t\t\t\t-quiet (suppress console output)",
+    "statistic_history": "Prints the statistic history for the supplied list of economic statistics.The available list of economic statistic can be found at https://www.quandl.com/data/FRED-Federal-Reserve-Economic-Data/documentation?anchor=growth; it is also stored in the _installation directory_/data/static/ directory of the application.__\n\t\t\tOPTIONS:\n\t\t\t\t-start (format: \"YYYY-MM-DD\")\n\t\t\t\t-end  (format :\"YYYY-MM-DD\")\n\t\t\t\t-save (format: /path/to/file/filename.json)\n\t\t\t\t-json (print results to screen as JSON)\n\t\t\t\t-quiet (suppress console output)",
 
-    "store": "Save API key to local installation/data/common/ directory. Keys must be input one at a time. ALLOWABLE KEYS: ALPHA_VANTAGE_KEY, QUANDL_KEY, IEX_KEY. Case sensitive.",
+    "store": "Save API key to local installation/data/common/ directory. Keys must be input one at a time. Allowable : ALPHA_VANTAGE_KEY, QUANDL_KEY, IEX_KEY. Case sensitive.",
 
     "watchlist": "Saves the supplist list of tickers to your watchlist. These equity symbol are used by the screening algorithms when searching for stocks that trade at a discount.", 
 
@@ -170,9 +170,11 @@ FUNC_DICT = {
 }
 
 EXAMPLES = { 
+    'scrilla -store ALPHA_VANTAGE_KEY=mykeygoeshere': 'Store your API credentials in the _installation directory_/data/common subdirectory. Note: credentials are stored unencrypted. It is recommended you store your API credentials in environment variables. See documentation for more information: https://pypi.org/project/scrilla/',
+
     'scrilla -ls-watch': 'Lists the stocks in your watchlist.',
 
-    'scrilla  -rr GOOG AMZN XOM AAPL': 'Calculate the risk-return profile for each equity in the portfolio composed of (GOOG, AMZN, XOM, APPL)',
+    'scrilla  -profile GOOG AMZN XOM AAPL': 'Calculate the risk-return profile for each equity in the portfolio composed of (GOOG, AMZN, XOM, APPL)',
 
     'scrilla  -cor GLD SPY SLV UUP TLT EWA': 'Calculate the correlation matrix for the portfolio composed of (GLD, SPY, SLV, UUP, TLT, EWA',
 
@@ -180,15 +182,15 @@ EXAMPLES = {
 
     'scrilla -opt -target 0.83 ALLY FB PFE SNE BX': 'Optimize the portfolio consisting of (ALLY, FB, PFE, SNE, BX) subject to the constraint their mean annual return equal 83%. Note the constrained return must reside within the feasible region of returns, i.e. the constrained return must be less than the maximum possible return and greater than the minimum possible return.',  
 
-    'scrilla -opt -sh -save /home/Desktop/max_sharpe_ratio.json LMT GD UPS MMM': 'Maximize the sharpe ratio of the portfolio consisting of (LMT, GD, UPS, MM) and ouput the portfolio allocation along with its risk-return profile to a json on the user Desktop.',
+    'scrilla -opt -sh -save /home/Desktop/max_sharpe_ratio.json LMT GD UPS MMM': 'Maximize the sharpe ratio of the portfolio consisting of (LMT, GD, UPS, MM) and ouput the portfolio allocation along with its risk-return profile to a json located at /home/Desktop/max_sharpe_ratio.json.',
 
-    'scrilla -ef QS DIS RUN': 'Calculate a five point sample of the efficient portfolio (risk, return) frontier for the portfolio composed of (QS, DIS, RUN). The number of points generated in the sample can be altered through the FRONTIER_STEPS environment variable.',
+    'scrilla -ef QS DIS RUN': 'Calculate a five point sample of the efficient (risk, return) frontier for the portfolio composed of (QS, DIS, RUN). The number of points generated in the sample can be altered through the FRONTIER_STEPS environment variable.',
 
     'scrilla -plot-ef QQQ SPY DIA': "Generate a graphical display of the (QQQ, SPY, DIA) portolio\'s efficient (risk, return) frontier. The number of points generated in the sample can be altered through the FRONTIER_STEPS environment variable. Note, if the graphical display does not show up, you may need to configure matplotlib\'s backend to be compatible with your OS.",
 
-    'scrilla -plot-mov -save /home/Desktop/moving_averages.jpeg QS ACI': "Generate a graphical display of the current moving averages of the (QS, ACI) portolio and saves it to the file named 'moving_averages.jpeg' located in the directory /home/Desktop/. The length of moving average periods can be adjusted by the MA_1_PERIOD, MA_2_PERIOD and MA_3_PERIOD environment variables. Note, if the graphical display does not show up, you may need to configure matplotlib\'s backend to be compatible with your OS.",
+    'scrilla -plot-profile -save /home/Desktop/profile.jpeg QS ACI': "Generate a graphical display of the current risk profile of the (QS, ACI) portolio and saves it to the file named 'profile.jpeg' located in the /home/Desktop/ directory.",
 
-    'scrilla -ind GDP BASE MI': "Display the latest values for the supplied list of economic indicators.",
+    'scrilla -stat GDP BASE MI': "Display the latest values for the supplied list of economic indicators.",
 
     'scrilla -close MSFT IBM FSLR NFLX BTC XRP': "Displays the last closing price for the supplied list of asset types",
 
