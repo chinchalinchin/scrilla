@@ -124,7 +124,6 @@ def do_program():
                files.set_credentials(value=key[1], whichkey=key[0])
             else:
                 outputter.comment(f'Key of {key[0]} not recognized. See -help for more information.')
-            pass
 
         ### FUNCTION: Purge Data Directories
         elif opt == formatter.FUNC_ARG_DICT["purge"]:
@@ -156,7 +155,7 @@ def do_program():
             logger.log_arguments(main_args=main_args, xtra_args=xtra_args, xtra_values=xtra_values)
             exact, selected_function = False, None
 
-            if xtra_list['suppress'] is None:
+            if xtra_list['suppress'] is None and xtra_list['json'] is None:
                 outputter.title_line('Results')
                 outputter.print_line()
 
@@ -171,31 +170,72 @@ def do_program():
                             logger.comment('Error encountered while determining asset Type. Try -ex flag for example usage.')
                 selected_function, required_length = cli_asset_type, 1
 
+            ### FUNCTION: Black-Scholes Conditional Value At Risk
+            elif opt == formatter.FUNC_ARG_DICT['bs_cvar']:
+                pass
+
+            ### FUNCTION: Black-Scholes Value At Risk
+            elif opt == formatter.FUNC_ARG_DICT['bs_var']:
+                pass
+
             ### FUNCTION: Capital Asset Pricing Model Cost of Equity
             elif opt == formatter.FUNC_ARG_DICT['capm_equity_cost']:
                 def cli_capm_equity_cost():
+                    all_costs = {}
                     for arg in main_args:
                         equity_cost = markets.cost_of_equity(ticker=arg, start_date=xtra_list['start_date'], 
                                                                 end_date=xtra_list['end_date'])
-                        outputter.scalar_result(f'{arg}_equity_cost', equity_cost, currency=False)
+                        all_costs[arg] = equity_cost
+
+                        if xtra_list['suppress'] is None and xtra_list['json'] is None:
+                            outputter.scalar_result(f'{arg}_equity_cost', equity_cost, currency=False)
+
+                    if xtra_list['json'] is not None and xtra_list['suppress'] is None:
+                        print(all_costs)
+
+                    if xtra_list['save_file'] is not None:
+                        files.save_file(file_to_save=all_costs, file_name=xtra_list['save_file'])
+
+
                 selected_function, required_length = cli_capm_equity_cost, 1
 
 
             ### FUNCTION: Capital Asset Pricing Model Beta
             elif opt == formatter.FUNC_ARG_DICT['capm_beta']:
                 def cli_capm_beta():
+                    all_betas = {}
                     for arg in main_args:
                         beta = markets.market_beta(ticker=arg, start_date=xtra_list['start_date'], 
                                                     end_date=xtra_list['end_date'])
-                        outputter.scalar_result(f'{arg}_beta', beta, currency=False)
+                        all_betas[arg] = beta
+
+                        if xtra_list['suppress'] is None and xtra_list['json'] is None:
+                            outputter.scalar_result(f'{arg}_beta', beta, currency=False)
+
+                    if xtra_list['json'] is not None and xtra_list['suppress'] is None:
+                        print(all_betas)
+
+                    if xtra_list['save_file'] is not None:
+                        files.save_file(file_to_save=all_betas, file_name=xtra_list['save_file'])
+
                 selected_function, required_length = cli_capm_beta, 1
 
             ### FUNCTION: Last Close Price
             elif opt == formatter.FUNC_ARG_DICT["close"]:
                 def cli_close():
+                    all_prices = {}
                     for arg in main_args:
                         price = services.get_daily_price_latest(arg)
-                        outputter.scalar_result(calculation=f'Last {arg} close price', result=float(price))
+                        all_prices[arg] = price
+
+                        if xtra_list['suppress'] is None and xtra_list['json'] is None:
+                            outputter.scalar_result(calculation=f'Last {arg} close price', result=float(price))
+
+                    if xtra_list['json'] is not None and xtra_list['suppress'] is None:
+                        print(all_prices)
+
+                    if xtra_list['save_file'] is not None:
+                        files.save_file(file_to_save=all_prices, file_name=xtra_list['save_file'])
                 selected_function, required_length = cli_close, 1
                     
             ### FUNCTION: Correlation Matrix
@@ -232,20 +272,31 @@ def do_program():
                             discount = xtra_list['discount']
                         model_results[f'{arg}_discount_dividend'] = Cashflow(sample=dividends, 
                                                                                 discount_rate=discount).calculate_net_present_value()
-                        if xtra_list['suppress'] is None:
+                        if xtra_list['suppress'] is None and xtra_list['json'] is None:
                             outputter.scalar_result(f'Net Present Value ({arg} dividends)', 
                                                     model_results[f'{arg}_discount_dividend'])
 
+                    if xtra_list['json'] is not None and xtra_list['suppress'] is None:
+                        print(model_results)
+
                     if xtra_list['save_file'] is not None:
                         files.save_file(file_to_save=model_results, file_name=xtra_list['save_file'])
+
                 selected_function, required_length = cli_discount_dividend, 1
 
             elif opt == formatter.FUNC_ARG_DICT['dividends']:
                 def cli_dividends():
+                    all_dividends = {}
                     for arg in main_args:
                         dividends = services.get_dividend_history(arg)
-                        for date in dividends:
-                            outputter.scalar_result(calculation=f'{arg}_dividend({date})', result=dividends[date])
+                        all_dividends[arg] = dividends
+                        if xtra_list['suppress'] is None and xtra_list['json'] is None:
+                            for date in dividends:
+                                outputter.scalar_result(calculation=f'{arg}_dividend({date})', result=dividends[date])
+                
+                    if xtra_list['json'] is not None and xtra_list['suppress'] is None:
+                        print(all_dividends)
+                
                 selected_function, required_length = cli_dividends, 1
 
             ### FUNCTION: Efficient Frontier
@@ -256,8 +307,12 @@ def do_program():
                     frontier = optimizer.calculate_efficient_frontier(portfolio=portfolio)
 
                     if xtra_list['suppress'] is None:
-                        outputter.efficient_frontier(portfolio=portfolio, frontier=frontier,
+                        if xtra_list['json'] is None:
+                            outputter.efficient_frontier(portfolio=portfolio, frontier=frontier,
                                                     investment=xtra_list['investment'])
+                        else:
+                            print(files.format_frontier(portfolio=portfolio, frontier=frontier, investment=xtra_list['investment']))
+
                     if xtra_list['save_file'] is not None:
                         files.save_frontier(portfolio=portfolio, frontier=frontier,
                                             investment=xtra_list['investment'], 
@@ -272,8 +327,12 @@ def do_program():
                     allocation = optimizer.maximize_portfolio_return(portfolio=portfolio)
 
                     if xtra_list['suppress'] is None:
-                        outputter.optimal_result(portfolio=portfolio, allocation=allocation, 
+                        if xtra_list['json'] is None:
+                            outputter.optimal_result(portfolio=portfolio, allocation=allocation, 
                                                 investment=xtra_list['investment'])
+                        else:
+                            print(files.format_allocation(allocation=allocation, portfolio=portfolio, investment=xtra_list['investment']))
+
                     if xtra_list['save_file'] is not None:
                         files.save_allocation(allocation=allocation, portfolio=portfolio, 
                                                 file_name=xtra_list['save_file'], investment=xtra_list['investment'])
@@ -302,8 +361,11 @@ def do_program():
                         allocation = optimizer.optimize_portfolio_variance(portfolio=portfolio, target_return=xtra_list['target'])   
                     
                     if xtra_list['suppress'] is None:
-                        outputter.optimal_result(portfolio=portfolio, allocation=allocation, investment=xtra_list['investment'])
-
+                        if xtra_list['json'] is None:
+                            outputter.optimal_result(portfolio=portfolio, allocation=allocation, investment=xtra_list['investment'])
+                        else:
+                            print(files.format_allocation(allocation=allocation,portfolio=portfolio, investment=xtra_list['investment']))
+                    
                     if xtra_list['save_file'] is not None:
                         files.save_allocation(allocation=allocation, portfolio=portfolio, file_name=xtra_list['save_file'],
                                                 investment=xtra_list['investment'])
@@ -316,9 +378,11 @@ def do_program():
                                                                                 prob=xtra_list['probability'],
                                                                                 expiry=xtra_list['expiry'],
                                                                                 target_return=xtra_list['target'])
-                    if xtra_list['suppress'] is None:
+                    if xtra_list['suppress'] is None and xtra_list['json'] is None:
                         outputter.optimal_result(portfolio=portfolio, allocation=allocation, investment=xtra_list['investment'])
 
+                    if xtra_list['suppress'] is None and xtra_list['json'] is not None:
+                        print(files.format_allocation(allocation=allocation, portfolio=portfolio, investment=xtra_list['investment']))
                     if xtra_list['save_file'] is not None:
                         files.save_allocation(allocation=allocation, portfolio=portfolio, file_name=xtra_list['save_file'],
                                                 investment=xtra_list['investment'])
@@ -371,8 +435,7 @@ def do_program():
             elif opt == formatter.FUNC_ARG_DICT['plot_yield_curve']:
                 def cli_plot_yield_curve():
                     yield_curve = {}
-                    if xtra_list['start_date'] is None:
-                        xtra_list['start_date'] = helper.get_last_trading_date()
+                    xtra_list['start_date'] = helper.get_next_business_date(xtra_list['start_date'])
                     start_date_string = helper.date_to_string(xtra_list['start_date'])
                     yield_curve[start_date_string] = []
                     for maturity in static.keys['YIELD_CURVE']:
@@ -395,9 +458,12 @@ def do_program():
                         for date in prices:
                             price = prices[date][static.keys['PRICES']['CLOSE']]
 
-                            if xtra_list['suppress'] is None:
+                            if xtra_list['suppress'] is None and xtra_list['json'] is None:
                                 outputter.scalar_result(calculation=f'{arg}({date})', result = float(price))
                             all_prices[arg][date] = price
+
+                    if xtra_list['suppress'] is None and xtra_list['json'] is not None:
+                        print(all_prices)
 
                     if xtra_list['save_file'] is not None:
                         files.save_file(file_to_save=all_prices, file_name=xtra_list['save_file'])
@@ -412,9 +478,12 @@ def do_program():
                         all_rates[arg] = services.get_daily_interest_history(maturity=arg, 
                                                                                 start_date=xtra_list['start_date'],
                                                                                 end_date=xtra_list['end_date'])
-                        if xtra_list['suppress'] is None:
+                        if xtra_list['suppress'] is None and xtra_list['json'] is None:
                             for date in all_rates[arg]:
                                 outputter.percent_result(calculation=f'{arg}_YIELD({date})', result=float(all_rates[arg][date]))
+
+                    if xtra_list['suppress'] and xtra_list['json'] is not None:
+                        print(all_rates)
 
                     if xtra_list['save_file'] is not None:
                         files.save_file(file_to_save=all_rates, file_name=xtra_list['save_file'])
@@ -436,12 +505,16 @@ def do_program():
                                                                             ticker_profile=profiles[arg])
                         profiles[arg]['equity_cost'] = markets.cost_of_equity(ticker=arg, start_date=xtra_list['start_date'],
                                                                             end_date=xtra_list['end_date'])
+                    
+                    if xtra_list['suppress'] is None:
+                        if xtra_list['json'] is None:
+                            outputter.risk_profile(profiles=profiles)
+                        else:
+                            print(profiles)
 
                     if xtra_list['save_file'] is not None:
                         files.save_profiles(profiles=profiles, file_name=xtra_list['save_file'])
 
-                    if xtra_list['suppress'] is None:
-                        outputter.risk_profile(profiles=profiles)
 
                 selected_function, required_length = cli_risk_return, 1
 
@@ -461,9 +534,12 @@ def do_program():
                                                         end_date=xtra_list['end_date'])
                         all_results[arg]=result
                         
-                        if xtra_list['suppress'] is None:
+                        if xtra_list['suppress'] is None and xtra_list['json'] is None:
                             outputter.scalar_result(calculation=f'{arg}_sharpe_ratio', result=result, 
                                                     currency=False)
+
+                    if xtra_list['suppress'] is None and xtra_list['json'] is not None:
+                        print(all_results)
 
                     if xtra_list['save_file'] is not None:
                         files.save_file(file_to_save=all_results, file_name=xtra_list['save_file'])
@@ -474,15 +550,17 @@ def do_program():
             elif opt == formatter.FUNC_ARG_DICT["statistic"]:
                 # TODO: implement start and end date and print eac.
                 def cli_statistic():
-                    all_results = {}
+                    all_stats = {}
                     for stat in main_args:
                         result = services.get_daily_fred_latest(symbol=stat)
-                        all_results[stat] = result
-                        if xtra_list['suppress'] is None:
+                        all_stats[stat] = result
+                        if xtra_list['suppress'] is None and xtra_list['json'] is not None:
                             outputter.scalar_result(calculation=stat, result=result, currency=False)
     
+                    if xtra_list['suppress'] is None and xtra_list['json'] is not None:
+                        print(all_stats)
                     if xtra_list['save_file'] is not None:
-                        files.save_file(file_to_save=all_results, file_name=xtra_list['save_file'])
+                        files.save_file(file_to_save=all_stats, file_name=xtra_list['save_file'])
 
                 selected_function, required_length = cli_statistic, 1
             
@@ -494,10 +572,13 @@ def do_program():
                         stats = services.get_daily_fred_history(symbol=arg, start_date=xtra_list['start_date'],
                                                             end_date=xtra_list['end_date'])
                         all_stats[arg] = stats
-                        if xtra_list['suppress'] is None:
+                        if xtra_list['suppress'] is None and xtra_list['json'] is None:
                             for date in stats:
                                 outputter.scalar_result(calculation=f'{arg}({date})', result=stats[date], 
                                                             currency=False) 
+
+                    if xtra_list['suppress'] is None and xtra_list['json'] is not None:
+                        print(all_stats)
                     if xtra_list['save_file'] is not None:
                         files.save_file(filve_to_save=all_stats, file_name=xtra_list['save_file'])
                         
@@ -519,7 +600,7 @@ def do_program():
                                         wrapper_function=selected_function, 
                                         required_length=required_length, exact=exact)
     
-            if xtra_list['suppress'] is None:
+            if xtra_list['suppress'] is None and xtra_list['json'] is None:
                 outputter.print_line()
     else:
         logger.comment('No arguments Supplied. Please review function summary below and re-execute with appropriate arguments.')

@@ -55,6 +55,11 @@ def get_last_trading_date():
         return today.date()
     return get_previous_business_date(today.date())
 
+def this_date_or_last_trading_date(date):
+    if is_date_holiday(date) or is_date_weekend(date):
+        date = get_previous_business_date(date)
+    return date
+
 def validate_date_string(parsed_date_string):
     length_check = (len(parsed_date_string) == 3 )
     year_check = (int(parsed_date_string[0]) > 1950)
@@ -389,6 +394,11 @@ def get_suppress_output(xtra_args):
         return formatter.FUNC_XTRA_SINGLE_ARGS_DICT['suppress_output']
     return None
 
+def get_json(xtra_args):
+    if formatter.FUNC_XTRA_SINGLE_ARGS_DICT['json'] in xtra_args:
+        return formatter.FUNC_XTRA_SINGLE_ARGS_DICT['json']
+    return None
+
 def get_investment(xtra_args, xtra_values):
     if formatter.FUNC_XTRA_VALUED_ARGS_DICT['investment'] in xtra_args:
         try:
@@ -406,7 +416,7 @@ def get_steps(xtra_args, xtra_values):
     return None
 
 def format_xtra_args_list(xtra_args, xtra_values):
-    arg_list = {
+    return {
         'start_date': get_start_date(xtra_args, xtra_values),
         'end_date': get_end_date(xtra_args, xtra_values),
         'save_file': get_save_file(xtra_args, xtra_values),
@@ -417,13 +427,11 @@ def format_xtra_args_list(xtra_args, xtra_values):
         'steps': get_steps(xtra_args, xtra_values),
         'optimize_sharpe': get_sharpe(xtra_args),
         'suppress': get_suppress_output(xtra_args),
+        'json': get_json(xtra_args),
         'expiry': get_expiry(xtra_args, xtra_values),
         'probability': get_probability(xtra_args, xtra_values)
     }
-    return arg_list
 
-# TODO: single arg functions screw up argument parsing.
-#       example: scrilla -opt-
 def separate_and_parse_args(args):
     extra_args, extra_values= [], []
     reduced_args = args
@@ -449,7 +457,7 @@ def separate_and_parse_args(args):
     return (extra_args, extra_values, reduced_args)
     
 ### APPLICATION PARSING
-#should be in formatter.py
+#should be in ...? somewhere that is not here. outputter, probably. 
 def format_allocation_profile(allocation, portfolio) -> str:
     port_return, port_volatility = portfolio.return_function(allocation), portfolio.volatility_function(allocation)
     formatted_result = "("+str(100*port_return)[:5]+"%, " + str(100*port_volatility)[:5]+"%)"

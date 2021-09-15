@@ -34,6 +34,7 @@ def plot_frontier(portfolio, frontier, show=True, savefile=None):
     axes = canvas.figure.subplots()
 
     axes.plot(risk_profile, return_profile, linestyle='dashed')
+    axes.grid()
     axes.set_xlabel('Volatility')
     axes.set_ylabel('Return')
     axes.set_title(title)
@@ -60,7 +61,8 @@ def plot_yield_curve(yield_curve, show=True, savefile=None):
     for i, rate in enumerate(rates):
         maturities.append(yield_map[static.keys['YIELD_CURVE'][i]])
 
-    axes.plot(maturities, rates)
+    axes.plot(maturities, rates, linestyle="dashed", marker= ".", markersize=10.0)
+    axes.grid()
     axes.set_xlabel('Maturity')
     axes.set_ylabel('Annual Yield')
     axes.set_title(title)
@@ -97,6 +99,7 @@ def plot_profiles(symbols, profiles, show=True, savefile=None, subtitle=None):
         risk_profile.append(profiles[profile]['annual_volatility'])
 
     axes.plot(risk_profile, return_profile, linestyle='None', marker= ".", markersize=10.0)
+    axes.grid()
     axes.set_xlabel('Volatility')
     axes.set_ylabel('Return')
     axes.set_title(title)
@@ -212,7 +215,7 @@ def plot_cashflow(ticker, cashflow, show=True, savefile=None):
     
     axes.scatter(ordinal_x, dividend_history, marker=".")
     axes.plot(ordinal_x, model_map)
-    
+    axes.grid()
     axes.xaxis.set_major_formatter(date_format)
     axes.set_xticklabels(ordered_dates)
     axes.set_ylabel('Dividend Payment')
