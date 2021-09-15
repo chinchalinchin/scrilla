@@ -51,7 +51,7 @@ def scalar_result(calculation, result, currency=True):
 
 def percent_result(calculation, result):
     try:
-        print(' '*formatter.INDENT, '>>', calculation, ' = ', round(float(result)/100, 8), '%')
+        print(' '*formatter.INDENT, '>>', calculation, ' = ', round(float(result), 4), '%')
     except ValueError as ve:
         raise ve
 

@@ -516,9 +516,12 @@ def do_program():
                         all_rates[arg] = services.get_daily_interest_history(maturity=arg, 
                                                                                 start_date=xtra_dict['start_date'],
                                                                                 end_date=xtra_dict['end_date'])
+                        for date in all_rates[arg]:
+                            all_rates[arg][date] = all_rates[arg][date]/100
+                            
                         if print_format_to_screen(xtra_dict):
                             for date in all_rates[arg]:
-                                outputter.percent_result(calculation=f'{arg}_YIELD({date})', result=float(all_rates[arg][date]))
+                                outputter.scalar_result(calculation=f'{arg}_YIELD({date})', result=float(all_rates[arg][date])/100, currency=False)
 
                     if print_json_to_screen(xtra_dict):
                         print(json.dumps(all_rates))
@@ -536,8 +539,8 @@ def do_program():
                     if xtra_dict['suppress'] is None:
                         if xtra_dict['json'] is None:
                             outputter.title_line("Risk Free Rate")
-                            outputter.percent_result(calculation=formatter.RISK_FREE_TITLE.format(settings.RISK_FREE_RATE), 
-                                                        result=rate[settings.RISK_FREE_RATE])
+                            outputter.scalar_result(calculation=formatter.RISK_FREE_TITLE.format(settings.RISK_FREE_RATE), 
+                                                        result=rate[settings.RISK_FREE_RATE], currency=False)
                         else:
                             print(json.dumps(rate))
 
@@ -652,16 +655,16 @@ def do_program():
                 yield_curve = {}
                 for maturity in static.keys['YIELD_CURVE']:
                     curve_rate = services.get_daily_interest_latest(maturity=maturity)
-                    yield_curve[maturity] = curve_rate
+                    yield_curve[maturity] = curve_rate/100
 
                     if print_format_to_screen(xtra_dict):
-                        outputter.scalar_result(calculation=maturity, result=curve_rate, currency=False)
+                        outputter.scalar_result(calculation=maturity, result=curve_rate/100, currency=False)
 
                 if print_json_to_screen(xtra_dict):
                     print(json.dumps(yield_curve))
                     
                 if xtra_dict['save_file'] is not None:
-                    files.save_file(file_to_save=yield_curve, file_name=xtra_dict['save_fil'])
+                    files.save_file(file_to_save=yield_curve, file_name=xtra_dict['save_file'])
 
             else:
                 logger.comment('No function supplied. Please review Function Summary below and re-execute with appropriate arguments.')
