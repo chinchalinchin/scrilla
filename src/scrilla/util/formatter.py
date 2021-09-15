@@ -106,7 +106,7 @@ FUNC_DICT = {
     
     "correlation_time_series": "EXPERIMENTAL. PROBABLY WON'T WORK. Calculate correlation time series for a pair of tickers over a specified date range. If no start or end dates are specified, the default analysis period of 100 days is applied. __\n\t\t\tOPTIONS:\n\t\t\t\t-start (format: \"YYYY-MM-DD\")\n\t\t\t\t-end  (format :\"YYYY-MM-DD\")",
 
-    "discount_dividend": "Extrapolates future dividend cashflows from historical dividend payments with linear regression and then uses that model to calculate the net present value of all future dividends. If no discount rate is specified, the calculations default to the risk-free rate, i.e. the 10-Year US Treasury yield.__\n\t\t\tOPTIONS:\n\t\t\t\t -discount (format: decimal)\n\t\t\t\t-save (format: /path/to/file/filename.json)\n\t\t\t\t-json (print results to screen as JSON)\n\t\t\t\t-quiet (suppress console output)",
+    "discount_dividend": "Extrapolates future dividend cashflows from historical dividend payments with linear regression and then uses that model to calculate the net present value of all future dividends. If no discount rate is specified, the calculations default to the asset's cost of equity as determined the by the CAPM model.__\n\t\t\tOPTIONS:\n\t\t\t\t -discount (format: decimal)\n\t\t\t\t-save (format: /path/to/file/filename.json)\n\t\t\t\t-json (print results to screen as JSON)\n\t\t\t\t-quiet (suppress console output)",
     
     "dividends": "Displays the price history over the specific date range. If no dates are provided, returns the entire dividend history.__\n\t\t\tOPTIONS:\n\t\t\t\t-start (format: \"YYYY-MM-DD\")\n\t\t\t\t-end  (format :\"YYYY-MM-DD\")\n\t\t\t\t-save (format: /path/to/file/filename.json)\n\t\t\t\t-quiet (suppress console output)",
 
@@ -122,7 +122,6 @@ FUNC_DICT = {
     
     "list_watchlist": "Lists the equity symbols currently saved to your watchlist.",
 
-    
     "maximize_return": "Maximize the return of the portfolio defined by the supplied list of ticker symbols. Returns an array representing the allocations to be made for each asset in a portfolio. If no start or end dates are specified, calculations default to the last 100 days of prices. You can specify an investment with the '-invest' flag, otherwise the result will be output in percentage terms. Note: This function will always allocate 100% to the asset with the highest return. It's a good way to check and see if there are bugs in the algorithm after changes.__\n\t\t\tOPTIONS:\n\t\t\t\t-start (format: \"YYYY-MM-DD\")\n\t\t\t\t-end (format :\"YYYY-MM-DD\")\n\t\t\t\t-invest (format: decimal)\n\t\t\t\t-save (format: /path/to/file/filename.json)\n\t\t\t\t-json (print results to screen as JSON)\n\t\t\t\t-quiet (suppress console output)",
         
     "moving_averages": "Calculate the current moving averages. If no start or end dates are specified, calculations default to the last 100 days of prices.__\n\t\t\tOPTIONS:\n\t\t\t\t-start (format: \"YYYY-MM-DD\")\n\t\t\t\t-end  (format :\"YYYY-MM-DD\")",
@@ -159,7 +158,7 @@ FUNC_DICT = {
     
     "statistic_history": "Prints the statistic history for the supplied list of economic statistics.The available list of economic statistic can be found at https://www.quandl.com/data/FRED-Federal-Reserve-Economic-Data/documentation?anchor=growth; it is also stored in the _installation directory_/data/static/ directory of the application.__\n\t\t\tOPTIONS:\n\t\t\t\t-start (format: \"YYYY-MM-DD\")\n\t\t\t\t-end  (format :\"YYYY-MM-DD\")\n\t\t\t\t-save (format: /path/to/file/filename.json)\n\t\t\t\t-json (print results to screen as JSON)\n\t\t\t\t-quiet (suppress console output)",
 
-    "store": "Save API key to local installation/data/common/ directory. Keys must be input one at a time. Allowable : ALPHA_VANTAGE_KEY, QUANDL_KEY, IEX_KEY. Case sensitive.",
+    "store": "Save API key to local installation/data/common/ directory.Keys must be input one at a time. Allowable <key>'s: ALPHA_VANTAGE_KEY, QUANDL_KEY, IEX_KEY. Case sensitive.__\n\t\t\tEXAMPLE:\n\t\t\t\tscrilla -store <key>=<value>",
 
     "watchlist": "Saves the supplist list of tickers to your watchlist. These equity symbol are used by the screening algorithms when searching for stocks that trade at a discount.", 
 

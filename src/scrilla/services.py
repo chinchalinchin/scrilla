@@ -262,10 +262,10 @@ class PriceManager():
 
             while first_element == settings.AV_RES_LIMIT:
                 if first_pass:
-                    logger.debug('AlphaVantage API rate limit per minute exceeded. Waiting.')
+                    logger.comment('AlphaVantage API rate limit per minute exceeded. Waiting...')
                     first_pass = False
                 else:
-                    logger.debug('Waiting.')
+                    logger.comment('Waiting...')
                 
                 time.sleep(static.constants['BACKOFF_PERIOD'])
                 response = requests.get(url).json()

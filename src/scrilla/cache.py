@@ -152,7 +152,7 @@ class CorrelationCache(Cache):
         if len(results)>0:
             logger.debug(f'Found ({ticker_1},{ticker_2}) correlation in the cache')
             return self.to_dict(results)
-        logger.debug(f'No results found for ({ticker_1}, {ticker_2} correlation in the cache')
+        logger.debug(f'No results found for ({ticker_1}, {ticker_2}) correlation in the cache')
         return None
 
 class ProfileCache(Cache):
