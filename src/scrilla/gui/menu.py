@@ -2,9 +2,9 @@ import sys
 
 from PyQt5 import QtCore, QtWidgets, QtGui
 
-import  settings
+from scrilla import settings
 
-from  gui.functions import RiskReturnWidget, CorrelationWidget, \
+from scrilla.gui.functions import RiskReturnWidget, CorrelationWidget, \
                             MovingAverageWidget, EfficientFrontierWidget, \
                                 OptimizerWidget
 

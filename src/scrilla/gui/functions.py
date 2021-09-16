@@ -2,17 +2,17 @@ import time
 
 from PyQt5 import Qt, QtCore, QtWidgets
 
-import  analysis.statistics as statistics
-import  settings
-import  analysis.optimizer as optimizer
-import  objects.portfolio as portfolio
+import scrilla.analysis.statistics as statistics
+from scrilla import settings
+import scrilla.analysis.optimizer as optimizer
+import scrilla.objects.portfolio as portfolio
 
-import  util.outputter as outputter
-import  util.formatter as formatter
-import  util.helper as helper
-import  util.plotter as plotter
+import scrilla.util.outputter as outputter
+import scrilla.util.formatter as formatter
+import scrilla.util.helper as helper
+import scrilla.util.plotter as plotter
 
-from  gui.widgets import CompositeWidget, GraphWidget, \
+from scrilla.gui.widgets import CompositeWidget, GraphWidget, \
                             TableWidget, PortfolioWidget
 
 logger = outputter.Logger('gui.functions', settings.LOG_LEVEL)

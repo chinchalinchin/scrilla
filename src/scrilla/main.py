@@ -19,8 +19,6 @@ from objects.portfolio import Portfolio
 from objects.cashflow import Cashflow
 
 if settings.APP_ENV != "container":
-    from PyQt5 import QtWidgets
-    import gui.menu as menu
     import util.plotter as plotter
 
 logger = outputter.Logger('main', settings.LOG_LEVEL)
@@ -41,7 +39,7 @@ non_container_functions = [formatter.FUNC_ARG_DICT['plot_dividends'], formatter.
 
 def validate_function_usage(selection, args, wrapper_function, required_length=1, exact=False):
     if selection in non_container_functions and settings.APP_ENV == 'container':
-        logger.comment('GUI functionality disabled when application is containerized.')
+        logger.comment('Graphics functionality disabled when application is containerized.')
 
     else:
         try:
@@ -93,20 +91,6 @@ def do_program():
         elif opt == formatter.FUNC_ARG_DICT["examples"]:
             outputter.examples()
         
-        ### FUNCTION: Graphical User Interface
-        elif opt == formatter.FUNC_ARG_DICT["gui"] and settings.APP_ENV != "container":
-            app = QtWidgets.QApplication([])
-
-            widget = menu.MenuWidget()
-            widget.resize(settings.GUI_WIDTH, settings.GUI_HEIGHT)
-            widget.show()
-
-            sys.exit(app.exec_())
-
-        # NOTE: Docker doesn't support windowing libraries
-        elif opt == formatter.FUNC_ARG_DICT["gui"] and settings.APP_ENV == "container":
-            logger.comment("GUI functionality disabled when application is containerized.")
-
         ### FUNCTION: Print Stock Watchlist
         elif opt == formatter.FUNC_ARG_DICT['list_watchlist']:
             tickers = files.get_watchlist()
