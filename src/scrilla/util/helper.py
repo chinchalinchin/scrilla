@@ -55,10 +55,13 @@ def get_last_trading_date():
         return today.date()
     return get_previous_business_date(today.date())
 
-def this_date_or_last_trading_date(date):
+def this_date_or_last_trading_date(date : datetime.date):
     if is_date_holiday(date) or is_date_weekend(date):
         date = get_previous_business_date(date)
-    return date
+    trading_close = date.replace(hour=20)
+    if date > trading_close:
+        return date
+    return get_previous_business_date(date)
 
 def validate_date_string(parsed_date_string):
     length_check = (len(parsed_date_string) == 3 )

@@ -29,7 +29,8 @@ keys= {
     'ASSETS':{
         'EQUITY': 'equity',
         'CRYPTO': 'crypto',
-        'STAT': 'statistics'
+        'STAT': 'statistics',
+        'BOND': 'bond'
     },
     'CACHE':{
         'PRICES': 'prices',

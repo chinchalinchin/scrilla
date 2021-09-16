@@ -571,7 +571,7 @@ def get_daily_interest_latest(maturity):
         Required. Maturity of the US Treasury security whose interest rate is to be retrieved. \n \n
     """
     end_date = helper.get_last_trading_date()
-    start_date = end_date
+    start_date = helper.decrement_date_by_business_days(end_date, 1)
     interest_history = get_daily_interest_history(maturity=maturity, start_date=start_date, end_date=end_date)
     if interest_history is not None:
         first_element = helper.get_first_json_key(interest_history)

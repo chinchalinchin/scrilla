@@ -26,7 +26,7 @@ def validate_asset_type(ticker, asset_type=None):
         if asset_type is None:
             raise InputValidationError(f'{ticker} cannot be mapped to (crypto, equity) asset classes')
         return asset_type
-    if asset_type in [static.keys['ASSETS']['CRYPTO'], static.keys['ASSETS']['EQUITY']]:
+    if asset_type in [static.keys['ASSETS']['CRYPTO'], static.keys['ASSETS']['EQUITY'], static.keys['ASSETS']['BOND']]:
         return asset_type
     raise InputValidationError(f'{ticker} cannot be mapped to (crypto, equity) asset classes')
 
