@@ -32,6 +32,10 @@ Install the package with the <b>Python</b> package manager,
 
 `pip install scrilla` 
 
+The base package does not include the GUI libraries to keep the installation minimal. You can install the optional GUI dependency with,
+
+`pip install scrilla[gui]`
+
 If you prefer, you can build from source. `git clone` the [repository](https://github.com/chinchalinchin/scrilla) and then from the root directory build the library,
 
 `python3 -m build` 
@@ -44,14 +48,17 @@ If you prefer, you can build from source. `git clone` the [repository](https://g
 
 You will need Python3.8 or greater. This application depends on the following <b>Python</b> libraries: 
 
+### Required
 - [dateutil](https://dateutil.readthedocs.io/en/stable/index.html)>=2.8.2<br>
 - [holidays](https://pypi.org/project/holidays/)>=0.10.4<br>
 - [matplotlib](https://pypi.org/project/matplotlib/)>=3.3.3<br>
 - [numpy](https://pypi.org/project/numpy/)>=1.19.3<br>
 - [python-dotenv](https://pypi.org/project/python-dotenv/)>=0.17.0<br>
-- [PyQt5](https://pypi.org/project/PyQt5/)>=5.14<br>
 - [requests](https://pypi.org/project/requests/)>=2.25.0<br>
 - [scipy](https://pypi.org/project/scipy/)>=1.5.4<br>
+
+### Optional
+- [PyQt5](https://pypi.org/project/PyQt5/)>=5.14<br>
 
 This libraries will be installed during the `pip install` command. If you wish to use the GUI, you will also need to ensure your operating system has a [Qt5](https://doc.qt.io/) library,
 
