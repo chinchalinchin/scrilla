@@ -7,10 +7,7 @@ from scrilla import settings
 import scrilla.analysis.optimizer as optimizer
 import scrilla.objects.portfolio as portfolio
 
-import scrilla.util.outputter as outputter
-import scrilla.util.formatter as formatter
-import scrilla.util.helper as helper
-import scrilla.util.plotter as plotter
+from scrilla.util import outputter, formatter, helper, plotter
 
 from scrilla.gui.widgets import CompositeWidget, GraphWidget, \
                             TableWidget, PortfolioWidget
@@ -155,8 +152,8 @@ class OptimizerWidget(PortfolioWidget):
             this_portfolio = portfolio.Portfolio(tickers=user_symbols)
             allocation = optimizer.optimize_portfolio_variance(portfolio=this_portfolio)
             
-            logger.debug(helper.format_allocation_profile(allocation, this_portfolio))
-            self.result.setText(helper.format_allocation_profile(allocation, this_portfolio))
+            logger.debug(formatter.format_allocation_profile(allocation, this_portfolio))
+            self.result.setText(formatter.format_allocation_profile(allocation, this_portfolio))
 
             self.result_table.setRowCount(no_symbols)
             self.result_table.setVerticalHeader(QtWidgets.QHeaderView(QtCore.Qt.Vertical))

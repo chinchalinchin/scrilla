@@ -332,7 +332,7 @@ def do_program():
                             outputter.efficient_frontier(portfolio=portfolio, frontier=frontier,
                                                     investment=xtra_dict['investment'])
                         else:
-                            print(json.dumps(files.format_frontier(portfolio=portfolio, frontier=frontier, investment=xtra_dict['investment'])))
+                            print(json.dumps(formatter.format_frontier(portfolio=portfolio, frontier=frontier, investment=xtra_dict['investment'])))
 
                     if xtra_dict['save_file'] is not None:
                         files.save_frontier(portfolio=portfolio, frontier=frontier,
@@ -352,7 +352,7 @@ def do_program():
                             outputter.optimal_result(portfolio=portfolio, allocation=allocation, 
                                                 investment=xtra_dict['investment'])
                         else:
-                            print(json.dumps(files.format_allocation(allocation=allocation, portfolio=portfolio, investment=xtra_dict['investment'])))
+                            print(json.dumps(formatter.format_allocation(allocation=allocation, portfolio=portfolio, investment=xtra_dict['investment'])))
 
                     if xtra_dict['save_file'] is not None:
                         files.save_allocation(allocation=allocation, portfolio=portfolio, 
@@ -385,7 +385,7 @@ def do_program():
                         if xtra_dict['json'] is None:
                             outputter.optimal_result(portfolio=portfolio, allocation=allocation, investment=xtra_dict['investment'])
                         else:
-                            print(json.dumps(files.format_allocation(allocation=allocation,portfolio=portfolio, investment=xtra_dict['investment'])))
+                            print(json.dumps(formatter.format_allocation(allocation=allocation,portfolio=portfolio, investment=xtra_dict['investment'])))
                     
                     if xtra_dict['save_file'] is not None:
                         files.save_allocation(allocation=allocation, portfolio=portfolio, file_name=xtra_dict['save_file'],
@@ -403,7 +403,7 @@ def do_program():
                         outputter.optimal_result(portfolio=portfolio, allocation=allocation, investment=xtra_dict['investment'])
 
                     if print_json_to_screen(xtra_dict):
-                        print(json.dumps(files.format_allocation(allocation=allocation, portfolio=portfolio, investment=xtra_dict['investment'])))
+                        print(json.dumps(formatter.format_allocation(allocation=allocation, portfolio=portfolio, investment=xtra_dict['investment'])))
                     
                     if xtra_dict['save_file'] is not None:
                         files.save_allocation(allocation=allocation, portfolio=portfolio, file_name=xtra_dict['save_file'],

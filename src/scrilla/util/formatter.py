@@ -1,3 +1,6 @@
+from scrilla import static
+from scrilla.util import helper
+
 APP_NAME="scrilla"
 
 SIG_FIGS=5
@@ -199,3 +202,90 @@ EXAMPLES = {
     
     'scrilla -watch ATVI TTWO EA': 'Adds the portfolio (ATVI, TTWO, EA) to the existing ticker symbols in your equity watchlist'  
 }
+
+def format_profiles(profiles):
+    profiles_format = []
+    for key, value in profiles.items():
+        holding = value
+        holding['ticker'] = key
+        profiles_format.append(holding)
+    return profiles_format
+
+def format_allocation(allocation, portfolio, investment=None):
+    allocation_format = []
+
+    if investment is not None:
+        shares = portfolio.calculate_approximate_shares(x=allocation, total=investment)
+        total = portfolio.calculate_actual_total(x=allocation, total=investment)
+
+    annual_volatility = portfolio.volatility_function(x=allocation) 
+    annual_return = portfolio.return_function(x=allocation)
+
+    for j, item in enumerate(portfolio.tickers):
+        holding = {}
+        holding['ticker'] = item
+        holding['allocation'] = round(allocation[j], static.constants['ACCURACY'])
+        if investment is not None:
+            holding['shares'] = float(shares[j])
+        holding['annual_return'] = round(portfolio.mean_return[j], static.constants['ACCURACY']) 
+        holding['annual_volatility'] = round(portfolio.sample_vol[j], static.constants['ACCURACY'])
+        allocation_format.append(holding)
+
+    json_format = {}
+    json_format['holdings'] = allocation_format
+
+    if investment is not None:
+        json_format['total'] = float(total)
+        
+    json_format['portfolio_return'] = annual_return
+    json_format['portfolio_volatility'] = annual_volatility
+    
+    return json_format
+
+def format_frontier(portfolio, frontier, investment=None):
+    json_format = []
+    for i, item in enumerate(frontier):
+        json_format.append(format_allocation(allocation=item, portfolio=portfolio, 
+                                                            investment=investment))
+    return json_format
+
+def format_moving_averages(tickers, averages_output):
+    these_moving_averages, dates = averages_output
+
+    response = {}
+    for i, item in enumerate(tickers):
+        ticker_str=f'{item}'
+        MA_1_str, MA_2_str, MA_3_str = f'{ticker_str}_MA_1', f'{ticker_str}_MA_2', f'{ticker_str}_MA_3'    
+
+        subresponse = {}
+        if dates is None:
+            subresponse[MA_1_str] = these_moving_averages[i][0]
+            subresponse[MA_2_str] = these_moving_averages[i][1]
+            subresponse[MA_3_str] = these_moving_averages[i][2]
+
+        else:
+            subsubresponse_1, subsubresponse_2, subsubresponse_3 = {}, {}, {}
+    
+            for j, this_item in enumerate(dates):
+                date_str=helper.date_to_string(this_item)
+                subsubresponse_1[date_str] = these_moving_averages[i][0][j]
+                subsubresponse_2[date_str] = these_moving_averages[i][1][j]
+                subsubresponse_3[date_str] = these_moving_averages[i][2][j]
+
+            subresponse[MA_1_str] = subsubresponse_1
+            subresponse[MA_2_str] = subsubresponse_2
+            subresponse[MA_3_str] = subsubresponse_3
+
+        response[ticker_str] = subresponse
+    
+    return response
+
+def format_correlation_matrix(tickers, correlation_matrix):
+    response = []
+    for i, item in enumerate(tickers):
+        # correlation_matrix[i][i]
+        for j in range(i+1, len(tickers)):
+            subresponse = {}
+            subresponse[f'{item}_{tickers[j]}_correlation'] = correlation_matrix[j][i]
+            response.append(subresponse)
+    return response
