@@ -32,9 +32,13 @@ Install the package with the <b>Python</b> package manager,
 
 `pip install scrilla` 
 
-The base package does not include the GUI libraries to keep the installation minimal. You can install the optional GUI dependency with,
+To keep the installation as minimal as possible, the base package does not include the GUI libraries. You can install the optional GUI dependency with,
 
 `pip install scrilla[gui]`
+
+Note, the GUI has a different CLI entrypoint, namely,
+
+`scrilla-gui`
 
 If you prefer, you can build from source. `git clone` the [repository](https://github.com/chinchalinchin/scrilla) and then from the root directory build the library,
 
