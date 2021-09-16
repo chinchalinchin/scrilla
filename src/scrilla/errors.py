@@ -34,8 +34,8 @@ def validate_dates(start_date, end_date, asset_type):
     # if end date exists, make sure it is valid
     if end_date is not None:
         end_date = helper.truncate_future_from_date(end_date)
-        if asset_type == static.keys['ASSETS']['EQUITY'] and not helper.is_trading_date(end_date):
-            end_date = helper.get_previous_business_date(end_date)
+        if asset_type == static.keys['ASSETS']['EQUITY']:
+            end_date = helper.this_date_or_last_trading_date(end_date)
     # else create a sensible end date
     else:
         if asset_type == static.keys['ASSETS']['CRYPTO']:
@@ -53,8 +53,8 @@ def validate_dates(start_date, end_date, asset_type):
             # only invalid user input is if start date doesn't exist yet
             raise InputValidationError(f'Start date of {helper.date_to_string(start_date)} is greater than today')
 
-        if asset_type == static.keys['ASSETS']['EQUITY'] and not helper.is_trading_date(start_date):
-            start_date = helper.get_previous_business_date(start_date)
+        if asset_type == static.keys['ASSETS']['EQUITY']:
+            start_date = helper.this_date_or_last_trading_date(start_date)
 
     # else create a sensible start date
     else:
