@@ -32,6 +32,10 @@ Install the package with the <b>Python</b> package manager,
 
 `pip install scrilla` 
 
+This will install a command line interface on your path under the name `scrilla`. Confirm your installation with with the `-version` flag,
+
+`scrilla -version`
+
 To keep the installation as minimal as possible, the base package does not include the GUI libraries. You can install the optional GUI dependency with,
 
 `pip install scrilla[gui]`
@@ -245,6 +249,7 @@ This package is made up of several top-level modules and various submodules, gro
     - cache<br>
     - errors<br>
     - files<br>
+    - graphics<br>
     - main<br>
     - objects<br>
         - cashflow<br>
@@ -257,7 +262,7 @@ This package is made up of several top-level modules and various submodules, gro
         - outputter<br>
         - plotter<br>
 
-In general, you should not need to interact with any of the top level modules. <b>main</b> is the entrypoint for the CLI application, <b>files</b> is used to format and parse files, <b>cache</b> manages the local <b>sqlite</b> cache, <b>settings</b> parses environment variables to configure the application, <b>static</b> provides a dictionary of constants, <b>errors</b> provides the Exception classes for the application; these modules function entirely under the hood. On occasion, however, you may need to access <b>services</b>, as this is where raw data from the external services is requested and parsed. 
+In general, you should not need to interact with most of the top level modules. <b>main</b> is the entrypoint for the CLI application where as <b>graphics</b> is the entrypoint for the GUI, <b>files</b> is used to format and parse files for IO, <b>cache</b> manages the local <b>sqlite</b> storage database, <b>settings</b> parses environment variables to configure the application, <b>static</b> provides a dictionary of constants, <b>errors</b> provides the Exception classes for the application; these modules function entirely under the hood. On occasion, however, you may need to access <b>services</b>, as this is where raw data from the external services is requested and parsed. 
 
 ### scrilla.services
 

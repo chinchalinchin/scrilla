@@ -13,7 +13,7 @@
 # along with scrilla.  If not, see <https://www.gnu.org/licenses/>
 # or <https://github.com/chinchalinchin/scrilla/blob/develop/main/LICENSE>.
 
-import itertools, time, requests
+import itertools, time, datetime, requests
 
 from scrilla import settings, errors, cache, static
 import scrilla.util.outputter as outputter
@@ -25,7 +25,7 @@ class StatManager():
     """
     Description
     -----------
-        StatManager is an interface between the application and the external services that hydrate it with financial statistics data. This class gets instantiated on the level of the scrilla.services module with the value defined in `scrilla.settings.STAT_MANAGER`. This value is in turn defined by the value of the `STAT_MANAGER` environment variable. This value determines how the url is constructed, which API credentials get appended to the external query and the keys used to parse the response JSON container the statistical data.
+        StatManager is an interface between the application and the external services that hydrate it with financial statistics data. This class gets instantiated on the level of the `scrilla.services` module with the value defined in `scrilla.settings.STAT_MANAGER`. This value is in turn defined by the value of the `STAT_MANAGER` environment variable. This value determines how the url is constructed, which API credentials get appended to the external query and the keys used to parse the response JSON container the statistical data.
     """
     def __init__(self, type):
         self.type = type
@@ -33,27 +33,91 @@ class StatManager():
             self.service_map = static.keys["SERVICES"]["STATISTICS"]["QUANDL"]["MAP"]
 
     def is_quandl(self):
+        """
+        Returns
+        -------
+        bool \n
+            `True` if this instace of `StatManager` is a Quandl interface. `False` otherwise. \n\n
+
+        Notes
+        -----
+        1. This is for use within the class and probably won't need to be accessed outside of it. `StatManager` is intended to hide the data implementation from the rest of the library, i.e. it is ultimately agnostic about where the data comes where. It should never need to know `StatManger` is a Quandl interface. Just in case the library ever needs to populate its data from another source. \n \n
+
+        """
         if self.type == static.keys['SERVICES']['STATISTICS']['QUANDL']['MANAGER']:
             return True
         return False
 
-    def construct_query(self, start_date, end_date):
-        query = ""
-        if end_date is not None:
-            end_string = helper.date_to_string(end_date)
-            query += f'&{self.service_map["PARAMS"]["END"]}={end_string}' 
+    def construct_query(self, start_date : datetime.date, end_date: datetime.date) -> str:
+        """
+        Description
+        -----------
+        Constructs and formats the query parameters for the external statistics service. Note, this method appends the API key to the query. Be careful with the returned value.
 
-        if start_date is not None:
-            start_string = helper.date_to_string(start_date)
-            query += f'&{self.service_map["PARAMS"]["START"]}={start_string}'
-    
-        logger.debug(f'Quandl query (w/o key) = {query}')
-        if query:
-            return f'{query}&{self.service_map["PARAMS"]["KEY"]}={settings.Q_KEY}'
-        return f'{self.service_map["PARAMS"]["KEY"]}={settings.Q_KEY}'
+        Parameters
+        ----------
+        1. start_date : datetime.date \n 
+            Start date of historical sample to be retrieved. \n \n
+        2. end_date : datetime.date \n 
+            End date of historical sample to be retrieved. \n \n
+
+        Raises
+        ------
+        1. scrilla.errors.ConfigurationError \n
+            If the `STAT_MANAGER` hasn't been set through an enviornment variable, this error will be thrown. \n \n
+
+        Returns
+        -------
+        str \n
+            The formatted query for the specific service defined by `self.type`. \n \n
+
+        """
+        query = ""
+        if self.is_quandl():
+
+            if end_date is not None:
+                end_string = helper.date_to_string(end_date)
+                query += f'&{self.service_map["PARAMS"]["END"]}={end_string}' 
+
+            if start_date is not None:
+                start_string = helper.date_to_string(start_date)
+                query += f'&{self.service_map["PARAMS"]["START"]}={start_string}'
+        
+            logger.debug(f'Quandl query (w/o key) = {query}')
+
+            if query:
+                return f'{query}&{self.service_map["PARAMS"]["KEY"]}={settings.Q_KEY}'
+
+            return f'{self.service_map["PARAMS"]["KEY"]}={settings.Q_KEY}'
+        raise errors.ConfigurationError('No STAT_MANAGER found in the parsed environment settings')
+
 
 
     def construct_stat_url(self, symbol, start_date, end_date):
+        """
+        Description
+        -----------
+        Constructs the full URL path for the external statistics service. Note, this method will return the URL with an API key appended as a query parameter. Be careful with the returned value. \n\n
+
+        Parameters
+        ----------
+        1. symbol: str \n
+            Symbol representing the statistical series to be retrieved. List of allowable symbols can be found here: https://data.nasdaq.com/data/FRED-federal-reserve-economic-data
+        2. start_date : datetime.date \n 
+            Start date of historical sample to be retrieved. \n \n
+        3. end_date : datetime.date \n 
+            End date of historical sample to be retrieved. \n \n
+ 
+        Raises
+        ------
+        1. scrilla.errors.ConfigurationError \n
+            If the `STAT_MANAGER` hasn't been set through an enviornment variable, this error will be thrown. \n \n
+
+        Returns
+        -------
+        str \n
+            The formatted URL for the specific statistics service defined by `self.type`. \n \n
+        """
         if self.is_quandl():
             url = f'{settings.Q_URL}/{self.service_map["PATHS"]["FRED"]}/{symbol}?'
             url += self.construct_query(start_date, end_date)
@@ -61,6 +125,32 @@ class StatManager():
         raise errors.ConfigurationError('No STAT_MANAGER found in the parsed environment settings')
 
     def construct_interest_url(self,start_date, end_date):
+        """
+        Description
+        -----------
+        Constructs the full URL path for the external interest rate service. Note, this method will return the URL with an API key appended as a query parameter. Be careful with the returned value. \n\n
+
+        Parameters
+        ----------
+        2. start_date : datetime.date \n 
+            Start date of historical sample to be retrieved. \n \n
+        3. end_date : datetime.date \n 
+            End date of historical sample to be retrieved. \n \n
+ 
+        Raises
+        ------
+        1. scrilla.errors.ConfigurationError \n
+            If the `STAT_MANAGER` hasn't been set through an enviornment variable, this error will be thrown. \n \n
+
+        Returns
+        -------
+        str \n
+            The formatted URL for the specific interest rate service defined by `self.type`. \n \n
+
+        Notes
+        -----
+        1. The URL returned by this method will always contain a query for a historical range of US Treasury Yields, i.e. this method is specifically for queries involving the "Risk-Free" (right? right? *crickets*) Yield Curve. 
+        """
         if self.is_quandl():
             url = f'{settings.Q_URL}/{self.service_map["PATHS"]["YIELD"]}?'
             url += self.construct_query(start_date=start_date, end_date=end_date)
@@ -162,6 +252,7 @@ class PriceManager():
 
         Returns
         -------
+        str \n
             The URL with the authenticated query appended, i.e. with the service's API key injected into the parameters. Be careful not to expose the return value of this function! \n \n
 
         Raises
