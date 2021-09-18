@@ -36,6 +36,9 @@ class PriceError(Exception):
     pass
 
 def validate_asset_type(ticker, asset_type=None):
+    """
+    
+    """
     if asset_type is None:
         asset_type = files.get_asset_type(ticker) 
         if asset_type is None:
