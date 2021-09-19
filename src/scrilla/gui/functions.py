@@ -49,7 +49,7 @@ class RiskReturnWidget(CompositeWidget):
 
         for symbol in user_symbols:
             logger.debug(f'Calculating {symbol} Risk-Return Profile')
-            stats = statistics.calculate_risk_return(symbol)
+            stats = statistics.calculate_moment_risk_return(symbol)
             if stats:
                 formatted_ret = str(100*stats['annual_return'])[:formatter.SIG_FIGS]+"%"
                 formatted_vol = str(100*stats['annual_volatility'])[:formatter.SIG_FIGS]+"%"
@@ -80,7 +80,7 @@ class RiskReturnWidget(CompositeWidget):
         user_symbols = helper.strip_string_array(self.symbol_input.text().upper().split(","))
         profiles = []
         for symbol in user_symbols:
-            profiles.append(statistics.calculate_risk_return(symbol))
+            profiles.append(statistics.calculate_moment_risk_return(symbol))
 
         figure = plotter.plot_profiles(symbols=user_symbols, profiles=profiles, show=False)
         self.figure = figure

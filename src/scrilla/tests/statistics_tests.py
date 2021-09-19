@@ -163,11 +163,11 @@ def rolling_recursion_tests_with_financial_data():
             new_mod_return = new_return*numpy.sqrt(trading_period)
             lost_mod_return = lost_return*numpy.sqrt(trading_period)
 
-            old_profile = statistics.calculate_risk_return(ticker=ticker, sample_prices=previous_prices)
+            old_profile = statistics.calculate_moment_risk_return(ticker=ticker, sample_prices=previous_prices)
             old_var = old_profile['annual_volatility']**2
             old_mod_return = old_profile['annual_return']*numpy.sqrt(trading_period)
 
-            new_actual_profile = statistics.calculate_risk_return(ticker=ticker, sample_prices=new_prices)
+            new_actual_profile = statistics.calculate_moment_risk_return(ticker=ticker, sample_prices=new_prices)
 
             new_recursive_profile = {}
             new_recursive_profile['annual_return'] = statistics.recursive_rolling_mean(xbar_previous=old_profile['annual_return'],

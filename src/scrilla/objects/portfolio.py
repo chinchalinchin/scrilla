@@ -112,9 +112,9 @@ class Portfolio:
             if self.risk_profiles is None:
                 for ticker in self.tickers:
                     if self.sample_prices is not None:
-                        stats = statistics.calculate_risk_return(ticker=ticker, sample_prices=self.sample_prices[ticker])
+                        stats = statistics.calculate_moment_risk_return(ticker=ticker, sample_prices=self.sample_prices[ticker])
                     else: 
-                        stats = statistics.calculate_risk_return(ticker=ticker, start_date=self.start_date, end_date=self.end_date)
+                        stats = statistics.calculate_moment_risk_return(ticker=ticker, start_date=self.start_date, end_date=self.end_date)
                     if stats is None:
                         return False
 

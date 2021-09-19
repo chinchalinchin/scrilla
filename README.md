@@ -402,7 +402,7 @@ The four functions of interest in this module are:
 
 11. `scrilla.analysis.statistics.calculate_moving_averages`<br>
 
-12. `scrilla.analysis.statistics.calculate_risk_return`<br>
+12. `scrilla.analysis.statistics.calculate_moment_risk_return`<br>
 
 13. `scrilla.analysis.statistics.calculate_return_covariance`<br>
 

@@ -169,7 +169,7 @@ def do_program():
                         prices = services.get_daily_price_history(ticker=arg, start_date=xtra_dict['start_date'],
                                                                     end_date=xtra_dict['end_date'])
                         latest_price = prices[helper.get_first_json_key(prices)]
-                        profile = statistics.calculate_risk_return(ticker=arg, sample_prices=prices)
+                        profile = statistics.calculate_moment_risk_return(ticker=arg, sample_prices=prices)
                         valueatrisk = blackscholes.percentile(S0=latest_price, vol=profile['annual_volatility'],
                                                                 ret=profile['annual_return'], expiry=xtra_dict['expiry'],
                                                                 percentile=xtra_dict['probability'])
@@ -194,7 +194,7 @@ def do_program():
                         prices = services.get_daily_price_history(ticker=arg, start_date=xtra_dict['start_date'],
                                                                     end_date=xtra_dict['end_date'])
                         latest_price = prices[helper.get_first_json_key(prices)]
-                        profile = statistics.calculate_risk_return(ticker=arg, sample_prices=prices)
+                        profile = statistics.calculate_moment_risk_return(ticker=arg, sample_prices=prices)
                         valueatrisk = blackscholes.percentile(S0=latest_price, vol=profile['annual_volatility'],
                                                                 ret=profile['annual_return'], expiry=xtra_dict['expiry'],
                                                                 percentile=xtra_dict['probability'])
@@ -461,7 +461,7 @@ def do_program():
                 def cli_plot_risk_profile():
                     profiles = {}
                     for arg in main_args:
-                        profiles[arg]=statistics.calculate_risk_return(ticker=arg, start_date=xtra_dict['start_date'], 
+                        profiles[arg]=statistics.calculate_moment_risk_return(ticker=arg, start_date=xtra_dict['start_date'], 
                                                                             end_date=xtra_dict['end_date'])
                     plotter.plot_profiles(symbols=main_args, profiles=profiles, show=True, 
                                             savefile=xtra_dict['save_file'], 
@@ -553,7 +553,7 @@ def do_program():
                 def cli_risk_return():
                     profiles = {}
                     for arg in main_args:
-                        profiles[arg] = statistics.calculate_risk_return(ticker=arg, start_date=xtra_dict['start_date'], 
+                        profiles[arg] = statistics.calculate_moment_risk_return(ticker=arg, start_date=xtra_dict['start_date'], 
                                                                             end_date=xtra_dict['end_date'])
                         profiles[arg]['sharpe_ratio'] = markets.sharpe_ratio(ticker=arg, start_date=xtra_dict['start_date'],
                                                                             end_date=xtra_dict['end_date'], 

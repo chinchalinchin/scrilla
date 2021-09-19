@@ -27,6 +27,11 @@ import scrilla.util.outputter as outputter
 import scrilla.util.formatter as formatter
 import scrilla.util.helper as helper
 
+ESTIMATION_MODES=[
+    'moment_matching',
+    'percentile_matching'
+]
+
 logger = outputter.Logger('statistics', settings.LOG_LEVEL)
 profile_cache = cache.ProfileCache()
 correlation_cache = cache.CorrelationCache()
@@ -71,8 +76,7 @@ def sample_correlation(x, y):
         if correl_den != 0:
             correlation = correl_num / correl_den
         else:
-            logger.info('Denominator for correlation formula to small for division')
-            return False
+            raise ValueError('Denominator for correlation formula to small for division')
 
     return correlation
 
@@ -510,8 +514,16 @@ def calculate_moving_averages(tickers, start_date=None, end_date=None, sample_pr
     ### END RESPONSE FORMATTING ###
     return moving_averages, dates_between 
 
-def calculate_risk_return(ticker, start_date=None, end_date=None, sample_prices=None, asset_type=None):
+def calculate_percentile_risk_return(ticker, start_date=None, end_date=None, sample_prices=None, asset_type=None):
+    pass
+
+def calculate_moment_risk_return(ticker, start_date=None, end_date=None, sample_prices=None, asset_type=None):
     """
+    Description
+    -----------
+
+    Estimates the mean rate of return and volatility for a sample of asset prices as if the asset price followed a Geometric Brownian Motion process, i.e. the mean rate of return and volatility are constant and not functions of time or the asset price. Moreover, the return and volatility are estimated using the method of moment matching, where the return is estimated by equating it to the first moment of the sample and the volatility is estimated by equating it to the square root of the second moment of the sample.
+    
     Parameters
     ----------
     1. ticker : str \n
@@ -714,13 +726,14 @@ def calculate_ito_correlation(ticker_1, ticker_2, asset_type_1=None, asset_type_
     else:
         trading_period = static.constants['ONE_TRADING_DAY']['EQUITY']
     ### END ARGUMENT PARSING ###
+
     ### START SAMPLE STATISTICS CALCULATION DEPENDENCIES ###
         ### i.e. statistics that need to be calculated before correlation can be calculated
     logger.debug(f'Preparing calculation dependencies for ({ticker_1},{ticker_2}) correlation')
     try:
-        stats_1 = calculate_risk_return(ticker=ticker_1, start_date=start_date, end_date=end_date, 
+        stats_1 = calculate_moment_risk_return(ticker=ticker_1, start_date=start_date, end_date=end_date, 
                                         sample_prices=sample_prices[ticker_1], asset_type=asset_type_1)
-        stats_2 = calculate_risk_return(ticker=ticker_2, start_date=start_date, end_date=end_date, 
+        stats_2 = calculate_moment_risk_return(ticker=ticker_2, start_date=start_date, end_date=end_date, 
                                         sample_prices=sample_prices[ticker_2], asset_type=asset_type_2)
     except errors.SampleSizeError as se:
         raise errors.SampleSizeError(se)
@@ -733,14 +746,15 @@ def calculate_ito_correlation(ticker_1, ticker_2, asset_type_1=None, asset_type_
     if asset_type_1 == static.keys['ASSETS']['EQUITY']:
         mod_mean_1 = (stats_1['annual_return'] - 0.5*(stats_1['annual_volatility'])**2)*sqrt(static.constants['ONE_TRADING_DAY']['EQUITY'])
     elif asset_type_1 == static.keys['ASSETS']['CRYPTO']:
-        mod_mean_1 = (stats_1['annual_return'] - 0.5*(stats_1['annual_volatility'])**2)*sqrt((1/365))
+        mod_mean_1 = (stats_1['annual_return'] - 0.5*(stats_1['annual_volatility'])**2)*sqrt(static.constants['ONE_TRADING_DAY']['CRYPTO'])
 
     if asset_type_2 == static.keys['ASSETS']['EQUITY']:
         mod_mean_2 = (stats_2['annual_return'] - 0.5*(stats_2['annual_volatility'])**2)*sqrt(static.constants['ONE_TRADING_DAY']['EQUITY'])
     elif asset_type_2 == static.keys['ASSETS']['CRYPTO']:
-        mod_mean_2 = (stats_2['annual_return'] - 0.5*(stats_2['annual_volatility'])**2)*sqrt((1/365))
+        mod_mean_2 = (stats_2['annual_return'] - 0.5*(stats_2['annual_volatility'])**2)*sqrt(static.constants['ONE_TRADING_DAY']['CRYPTO'])
     
     logger.debug(f'Calculating ({ticker_1}, {ticker_2}) correlation.')
+    ### END SAMPLE STATISTICS CALCULATION DEPENDENCIES
 
     # Initialize loop variables
     i, covariance, time_delta = 0, 0, 1
@@ -954,15 +968,15 @@ def calculate_return_covariance(ticker_1, ticker_2, start_date=None, end_date=No
 
         if profile_1 is None:
             if sample_prices is None:
-                profile_1 = calculate_risk_return(ticker=ticker_1, start_date=start_date, end_date=end_date)
+                profile_1 = calculate_moment_risk_return(ticker=ticker_1, start_date=start_date, end_date=end_date)
             else:
-                profile_1 = calculate_risk_return(ticker=ticker_1, sample_prices=sample_prices[ticker_1])
+                profile_1 = calculate_moment_risk_return(ticker=ticker_1, sample_prices=sample_prices[ticker_1])
 
         if profile_2 is None:
             if sample_prices is None:
-                profile_2 = calculate_risk_return(ticker=ticker_2, start_date=start_date, end_date=end_date)
+                profile_2 = calculate_moment_risk_return(ticker=ticker_2, start_date=start_date, end_date=end_date)
             else:
-                profile_2 = calculate_risk_return(ticker=ticker_2,sample_prices=sample_prices[ticker_2])
+                profile_2 = calculate_moment_risk_return(ticker=ticker_2,sample_prices=sample_prices[ticker_2])
     except errors.SampleSizeError as sse:
         raise sse
     except errors.PriceError as pe:

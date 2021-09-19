@@ -63,7 +63,7 @@ def sharpe_ratio(ticker, start_date=None, end_date=None, risk_free_rate=None, ti
         return result[static.keys['STATISTICS']['SHARPE']]
 
     if ticker_profile is None:  
-        ticker_profile = statistics.calculate_risk_return(ticker=ticker, start_date=start_date,
+        ticker_profile = statistics.calculate_moment_risk_return(ticker=ticker, start_date=start_date,
                                                         end_date=end_date)
 
     if risk_free_rate is None:
@@ -106,7 +106,7 @@ def market_premium(start_date=None, end_date=None, market_profile = None):
 
     if market_profile is None:
         try:
-            market_profile = statistics.calculate_risk_return(ticker=settings.MARKET_PROXY, 
+            market_profile = statistics.calculate_moment_risk_return(ticker=settings.MARKET_PROXY, 
                                                                 start_date=start_date, end_date=end_date)
         except errors.SampleSizeError as se:
             raise se
@@ -157,19 +157,19 @@ def market_beta(ticker, start_date=None, end_date=None, market_profile=None, mar
     try:
         if market_profile is None:
             if sample_prices is None:
-                market_profile = statistics.calculate_risk_return(ticker=settings.MARKET_PROXY, 
+                market_profile = statistics.calculate_moment_risk_return(ticker=settings.MARKET_PROXY, 
                                                                 start_date=start_date, 
                                                                 end_date=end_date)
             else:   
-                market_profile = statistics.calculate_risk_return(ticker=settings.MARKET_PROXY,
+                market_profile = statistics.calculate_moment_risk_return(ticker=settings.MARKET_PROXY,
                                                                 sample_prices=sample_prices[settings.MARKET_PROXY])
         if ticker_profile is None:
             if sample_prices is None:
-                ticker_profile = statistics.calculate_risk_return(ticker=ticker,
+                ticker_profile = statistics.calculate_moment_risk_return(ticker=ticker,
                                                                 start_date=start_date,
                                                                 end_date=end_date)
             else:
-                ticker_profile = statistics.calculate_risk_return(ticker=ticker, 
+                ticker_profile = statistics.calculate_moment_risk_return(ticker=ticker, 
                                                                 sample_prices=sample_prices[ticker])
 
         market_covariance = statistics.calculate_return_covariance(ticker_1=ticker, ticker_2=settings.MARKET_PROXY,
