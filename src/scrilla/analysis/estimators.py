@@ -16,7 +16,7 @@
 from os import path
 from sys import path as sys_path
 from numpy import log, sqrt, exp
-from scipy.stats import norm
+from scipy.stats import norm, multivariate_normal
 
 if __name__=="__main__":
     APP_DIR = path.dirname(path.dirname(path.abspath(__file__)))
@@ -29,22 +29,40 @@ logger = outputter.Logger('estimators', settings.LOG_LEVEL)
 profile_cache = cache.ProfileCache()
 correlation_cache = cache.CorrelationCache()
 
-def normal_likelihood_function(x : list, data : list):
+def univariate_normal_likelihood_function(params : list, data : list):
     """
     Description
     -----------
-    This function returns the likelihood of a vector of parameters being observed from a sample data of normal data. It is used as input in scipy.optimize. 
+    This function returns the likelihood of a vector of parameters being observed from a sample univariate data of normal data. It is used as input in scipy.optimize. 
 
     Parameters
     ----------
     1. x : list
         Array representing a vector of parameters to be estimated, in this case the mean rate of return and volatility from a sample of data.
     2. data : list
-        Array representing the set of data which has the assumed distribution set by the environment variable ANALYSIS_MODE. See env/.sample.env file for more information.
+        A list of data that has been drawn from a univariate normal population.
     """
     likelihood = 1
     for point in data:
-        likelihood *= norm.pdf(x=point, loc=x[0], scale=x[1])
+        likelihood *= norm.pdf(x=point, loc=params[0], scale=params[1])
+    return likelihood
+
+def multivariate_likelihood_function(params: list, data: list):
+    """
+    Description
+    -----------
+    This function returns the likelihood of a vector of parameters being observed from a sample bivariate data of normal data. It is used as input in scipy.optimize. 
+
+    Parameters
+    ----------
+    1. x : list \n
+        Array representing a vector of parameters to be estimated, in this case the mean rate of return and volatility from a sample of data. \n\n
+    2. data : list \n
+        A list of data that has been drawn from a bivariate normal population. Must be formatted like,\n\t\t\t[ [x1,y1], [x2,y2],...]\n
+    """
+    likelihood = 1
+    for point in data:
+        likelihood *= multivariate_normal.pdf(x=point, mean=params[0], cov=params[1])
     return likelihood
 
 def sample_percentile(data : list, percentile: float):

@@ -399,11 +399,15 @@ The four functions of interest in this module are:
 
 ### scrilla.analysis.optimizer
 
-1. `scrilla.analysis.optimizer.optimize_portfolio_variance`<br>
+1. `scrilla.analysis.optimizer.maximize_normal_likelihood`<br>
 
-2. `scrilla.analysis.optimizer.maximize_sharpe_ratio`<br>
+2. `scrilla.analysis.optimizer.optimize_portfolio_variance`<br>
 
-3. `scrilla.analysis.optimizer.maximize_portfolio_return`<br>
+3. `scrilla.analysis.optimizer.optimizer_conditional_value_at_risk`<br>
+
+4. `scrilla.analysis.optimizer.maximize_sharpe_ratio`<br>
+
+5. `scrilla.analysis.optimizer.maximize_portfolio_return`<br>
     <b>Description:</b><br>
         description goes here
     <br><br>
@@ -420,7 +424,7 @@ The four functions of interest in this module are:
 
 14. `scrilla.analysis.models.geometric.statistics.calculate_moment_correlation`<br>
 
-15. `scrilla.anaylsis.statistics.ito_correlation_matrix`<br>
+15. `scrilla.anaylsis.models.geoemetricstatistics.correlation_matrix`<br>
 
 ### scrilla.analysis.objects.cashflow.Cashflow
 

@@ -21,15 +21,22 @@ import scrilla.util.outputter as outputter
 
 logger = outputter.Logger('optimizer', settings.LOG_LEVEL)
 
-def maximize_normal_likelihood(data):
+def maximize_univariate_normal_likelihood(data):
+    """
+    
+    Returns
+    -------
+    list \n
+    A list containing the maximum likelihood estimates of the normal distribution's parameters. The first element of the list corresponds to the mean and the second element corresponds to the volatility.
+    """
 
-    likelihood = lambda x: (-1)*estimators.normal_likelihood_function(x, data)
+    likelihood = lambda x: (-1)*estimators.univariate_normal_likelihood_function(params=x, data=data)
 
     first_quartile = estimators.sample_percentile(data=data, percentile=0.25)
     median = estimators.sample_percentile(data=data, percentile=0.5)
     third_quartile = estimators.sample_percentile(data, percentile=0.75)
     guess = [median, (third_quartile-first_quartile)/2]
-    
+
     params = optimize.minimize(fun = likelihood, x0 = guess, options={'disp': False},
                                     method=static.constants['OPTIMIZATION_METHOD'])
     return params.x

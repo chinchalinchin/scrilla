@@ -125,7 +125,7 @@ class Portfolio:
                     self.sample_vol.append(self.risk_profiles[ticker]['annual_volatility']) 
 
             if self.correlation_matrix is None:
-                self.correlation_matrix =  statistics.ito_correlation_matrix(tickers=self.tickers,
+                self.correlation_matrix =  statistics.correlation_matrix(tickers=self.tickers,
                                                                 start_date=self.start_date, end_date=self.end_date,
                                                                 sample_prices=self.sample_prices)
 
