@@ -378,35 +378,35 @@ The four functions of interest in this module are:
     <b>Note:</b><br>
         The rate of return of a portfolio of assets is a linear function with respect to the asset weights. IAs a result, this function should always allocate 100% of any given portfolio to the asset with the highest expected rate of return, i.e. if you have two assets where one asset has a 10% rate of return and a second asset has a 20% rate of return, the maximum rate of return for a portfolio composed of both assets is produced when 100% of the portfolio is invested in the asset with a 20% rate of return.<br>
 
-### scrilla.analysis.statistics
+### scrilla.analysis.geometric.statistics
 
-1. `scrilla.analysis.statistics.sample_correlation`<br>
+1. `scrilla.analysis.geometric.statistics.sample_correlation`<br>
 
-2. `scrilla.analysis.statistics.recursive_rolling_correlation`<br>
+2. `scrilla.analysis.geometric.statistics.recursive_rolling_correlation`<br>
 
-3. `scrilla.analysis.statistics.sample_mean`<br>
+3. `scrilla.analysis.geometric.statistics.sample_mean`<br>
 
 4. `scrilla.anaylsis.statistics.recursive_rolling_mean`<br>
 
 5. `scrilla.anaylsis.statistics.sample_variance`<br>
 
-6. `scrilla.analysis.statistics.recursive_rolling_variance`<br>
+6. `scrilla.analysis.geometric.statistics.recursive_rolling_variance`<br>
 
 7. `scrilla.anaylsis.statistics.sample_covariance`<br>
 
 8. `scrilla.anaylsis.statistics.recursive_rolling_covariance`<br>
 
-9. `scrilla.analysis.statistics.regression_beta`<br>
+9. `scrilla.analysis.geometric.statistics.regression_beta`<br>
 
-10. `scrilla.analysis.statistics.regression_alpha`<br>
+10. `scrilla.analysis.geometric.statistics.regression_alpha`<br>
 
-11. `scrilla.analysis.statistics.calculate_moving_averages`<br>
+11. `scrilla.analysis.geometric.statistics.calculate_moving_averages`<br>
 
-12. `scrilla.analysis.statistics.calculate_moment_risk_return`<br>
+12. `scrilla.analysis.geometric.statistics.calculate_moment_risk_return`<br>
 
-13. `scrilla.analysis.statistics.calculate_return_covariance`<br>
+13. `scrilla.analysis.geometric.statistics.calculate_return_covariance`<br>
 
-14. `scrilla.analysis.statistics.calculate_ito_correlation`<br>
+14. `scrilla.analysis.geometric.statistics.calculate_ito_correlation`<br>
 
 15. `scrilla.anaylsis.statistics.ito_correlation_matrix`<br>
 

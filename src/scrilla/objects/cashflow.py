@@ -20,7 +20,7 @@ import util.outputter as outputter
 
 import services
 import settings
-import analysis.statistics as statistics
+import analysis.geometric.statistics as statistics
 
 logger = outputter.Logger('objects.cashflow', settings.LOG_LEVEL)
 

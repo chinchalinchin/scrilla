@@ -16,13 +16,12 @@
 import numpy, math
 from decimal import Decimal
 
-import analysis.statistics as statistics
-import analysis.blackscholes as blackscholes
-import services
-import settings
-import files
+from scrilla import services, settings, files
+import scrilla.util.outputter as outputter 
 
-import util.outputter as outputter 
+# TODO: conditional import module based on analysis_mode, i.e. geometric versus mean reverting.
+import scrilla.analysis.geometric.statistics as statistics
+import scrilla.analysis.geometric.probability as probability
 
 logger = outputter.Logger("objects.portfolio", settings.LOG_LEVEL)
 
@@ -162,7 +161,7 @@ class Portfolio:
         portfolio_return = self.return_function(x) * time
         portfolio_volatility = self.volatility_function(x) * numpy.sqrt(time)
 
-        return blackscholes.percentile(S0=1, vol=portfolio_volatility, ret=portfolio_return, 
+        return probability.percentile(S0=1, vol=portfolio_volatility, ret=portfolio_return, 
                                         expiry=time, percentile=prob)
 
     def conditional_value_at_risk_function(self, x, time, prob):
@@ -183,7 +182,7 @@ class Portfolio:
         portfolio_return = self.return_function(x) * time
         portfolio_volatility = self.volatility_function(x) * numpy.sqrt(time)
         value_at_risk = self.percentile_function(x=x, time=time,prob=prob)
-        return (1 - blackscholes.conditional_expected_value(S0=1,vol=portfolio_volatility, ret=portfolio_return,
+        return (1 - probability.conditional_expected_value(S0=1,vol=portfolio_volatility, ret=portfolio_return,
                                                     expiry=time, conditional_value=value_at_risk))
 
     def get_init_guess(self):

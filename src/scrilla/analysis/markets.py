@@ -15,7 +15,7 @@
 
 from scrilla import settings, services, files, cache, static, errors
 from scrilla.objects.cashflow import Cashflow
-import scrilla.analysis.statistics as statistics
+import scrilla.analysis.geometric.statistics as statistics
 import scrilla.util.outputter as outputter
 
 MODEL_DDM="ddm"

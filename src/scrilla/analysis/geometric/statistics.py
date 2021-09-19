@@ -41,7 +41,7 @@ def sample_correlation(x, y):
     
     Raises 
     ------
-    1. scrilla.analysis.statistics.SampleSizeError \n \n
+    1. scrilla.analysis.geometric.statistics.SampleSizeError \n \n
 
     Notes
     """
@@ -90,7 +90,7 @@ def sample_mean(x):
     
     Raises 
     ------
-    1. scrilla.analysis.statistics.SampleSizeError \n \n
+    1. scrilla.analysis.geometric.statistics.SampleSizeError \n \n
     """
     xbar, n = 0, len(x)
 
@@ -110,7 +110,7 @@ def sample_variance(x):
     
     Raises 
     ------
-    1. scrilla.analysis.statistics.SampleSizeError \n \n
+    1. scrilla.analysis.geometric.statistics.SampleSizeError \n \n
     """
 
     try:
@@ -136,7 +136,7 @@ def sample_covariance(x, y):
     
     Raises 
     ------
-    1. scrilla.analysis.statistics.SampleSizeError \n \n
+    1. scrilla.analysis.geometric.statistics.SampleSizeError \n \n
     """
 
     if len(x) != len(y):
@@ -173,7 +173,7 @@ def regression_beta(x, y):
     
     Raises 
     ------
-    1. scrilla.analysis.statistics.SampleSizeError \n \n
+    1. scrilla.analysis.geometric.statistics.SampleSizeError \n \n
     """
 
     if len(x) != len(y):
@@ -196,7 +196,7 @@ def regression_alpha(x, y):
     
     Raises 
     ------
-    1. scrilla.analysis.statistics.SampleSizeError
+    1. scrilla.analysis.geometric.statistics.SampleSizeError
     """
 
     if len(x) != len(y):
