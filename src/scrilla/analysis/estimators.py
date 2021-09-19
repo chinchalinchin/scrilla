@@ -29,16 +29,17 @@ logger = outputter.Logger('estimators', settings.LOG_LEVEL)
 profile_cache = cache.ProfileCache()
 correlation_cache = cache.CorrelationCache()
 
-def normal_likelihood_function(x : float, data : list):
+def normal_likelihood_function(x : list, data : list):
     """
     Description
     -----------
     This function returns the likelihood of a vector of parameters being observed from a sample data of normal data. It is used as input in scipy.optimize. 
+
     Parameters
     ----------
-    1. x : [ float ]
+    1. x : list
         Array representing a vector of parameters to be estimated, in this case the mean rate of return and volatility from a sample of data.
-    2. data : [ float ]
+    2. data : list
         Array representing the set of data which has the assumed distribution set by the environment variable ANALYSIS_MODE. See env/.sample.env file for more information.
     """
     likelihood = 1
@@ -50,19 +51,29 @@ def sample_percentile(data : list, percentile: float):
     """
     Description
     -----------
-    Returns the observation in a sample data corresponding to the given percentile. If the percentile falls between data points, the observation is extrapolated based on 
-    """
-    sorted_data = data.sort()
+    Returns the observation in a sample data corresponding to the given percentile, i.e. the observation from a sorted sample where the percentage of the observations below that point is specified by the percentile. If the percentile falls between data points, the observation is smoothed based on the distance from the adjoining observations. 
 
-    obs_number = (len(data)+1)*percentile
+    Parameters
+    ----------
+    1. data : list
+        Array representing the set of data whose percentile is to be calculated.
+    2. percentile: float
+        The percentile corresponding to the desired observation.
+    """
+    data.sort()
+
+    obs_number = (len(data) + 1)*percentile
     extrapolate = obs_number - int(obs_number)
+
     if extrapolate == 0:
-        return sorted_data[obs_number]
+        return data[int(obs_number)-1]
+    elif obs_number > len(data):
+        return data[-1]
     else:
-        first_index = int(obs_number)
+        first_index = int(obs_number) - 1
         second_index = first_index + 1
-        weight = obs_number - first_index
-        return (1-weight)*sorted_data[first_index] + weight*sorted_data[second_index]
+        weight = obs_number - int(obs_number)
+        return (1-weight)*data[first_index] + weight*data[second_index]
 
 def sample_correlation(x : list, y: list):
     """

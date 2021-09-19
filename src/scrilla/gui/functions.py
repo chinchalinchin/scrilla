@@ -120,7 +120,7 @@ class CorrelationWidget(TableWidget):
                         
                     else:    
                         logger.debug(f'Calculating correlation for ({value}, {user_symbols[j]})')
-                        correlation = statistics.calculate_ito_correlation(value, user_symbols[j])
+                        correlation = statistics.calculate_moment_correlation(value, user_symbols[j])
                         formatted_correlation = str(100*correlation["correlation"])[:formatter.SIG_FIGS]+"%"
                         item_1 = QtWidgets.QTableWidgetItem(formatted_correlation)
                         item_1.setTextAlignment(QtCore.Qt.AlignHCenter)
@@ -167,8 +167,8 @@ class OptimizerWidget(PortfolioWidget):
             this_portfolio = portfolio.Portfolio(tickers=user_symbols)
             allocation = optimizer.optimize_portfolio_variance(portfolio=this_portfolio)
             
-            logger.debug(formatter.format_allocation_profile(allocation, this_portfolio))
-            self.result.setText(formatter.format_allocation_profile(allocation, this_portfolio))
+            logger.debug(formatter.format_allocation_profile_title(allocation, this_portfolio))
+            self.result.setText(formatter.format_allocation_profile_title(allocation, this_portfolio))
 
             self.result_table.setRowCount(no_symbols)
             self.result_table.setVerticalHeader(QtWidgets.QHeaderView(QtCore.Qt.Vertical))

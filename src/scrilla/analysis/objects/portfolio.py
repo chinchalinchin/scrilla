@@ -16,7 +16,7 @@
 import numpy, math
 from decimal import Decimal
 
-from scrilla import services, settings, files
+from scrilla import services, settings, files, errors
 import scrilla.util.outputter as outputter 
 
 # TODO: conditional import module based on analysis_mode, i.e. geometric versus mean reverting.
@@ -26,6 +26,8 @@ import scrilla.analysis.models.geometric.probability as probability
 logger = outputter.Logger("analysis.objects.portfolio", settings.LOG_LEVEL)
 
 # TODO: allow user to specify bounds for equities, i.e. min and max allocations.
+
+# TODO: i think the portfolio will need to know the estimation_method. 
 class Portfolio:
     """
     Description
@@ -86,7 +88,7 @@ class Portfolio:
         self.asset_return_functions = asset_return_functions
         self.risk_profiles = risk_profiles
         
-        self.error = not self.calculate_stats()
+        self.calculate_stats()
 
         if risk_free_rate is not None:
             self.risk_free_rate = risk_free_rate
@@ -114,8 +116,6 @@ class Portfolio:
                         stats = statistics.calculate_moment_risk_return(ticker=ticker, sample_prices=self.sample_prices[ticker])
                     else: 
                         stats = statistics.calculate_moment_risk_return(ticker=ticker, start_date=self.start_date, end_date=self.end_date)
-                    if stats is None:
-                        return False
 
                     self.mean_return.append(stats['annual_return'])
                     self.sample_vol.append(stats['annual_volatility'])
@@ -128,7 +128,6 @@ class Portfolio:
                 self.correlation_matrix =  statistics.ito_correlation_matrix(tickers=self.tickers,
                                                                 start_date=self.start_date, end_date=self.end_date,
                                                                 sample_prices=self.sample_prices)
-            return True
 
 
     def return_function(self, x):
@@ -147,7 +146,7 @@ class Portfolio:
         Description
         -----------
 
-        Returns the normalized percentile. In other words, returns Z-score for the portfolio. \n
+        Returns the given percentile of the portfolio's assumed distribution.  \n
 
         Parameters
         ----------

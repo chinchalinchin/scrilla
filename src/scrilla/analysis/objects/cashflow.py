@@ -15,9 +15,9 @@
 
 import datetime
 
-from scrilla import static, services, settings, estimators
+from scrilla import static, services, settings
 from scrilla.util import helper, outputter
-import scrilla.analysis.models.geometric.statistics as statistics
+import scrilla.analysis.estimators as estimators
 
 logger = outputter.Logger('analysis.objects.cashflow', settings.LOG_LEVEL)
 

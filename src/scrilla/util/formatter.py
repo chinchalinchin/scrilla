@@ -1,5 +1,10 @@
+import os
 from scrilla import static
 from scrilla.util import helper
+
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(SCRIPT_DIR))))
+ENV_DIR = os.path.join(PROJECT_DIR, 'env')
 
 APP_NAME="scrilla"
 
@@ -15,7 +20,14 @@ INDENT = 10
 
 RISK_FREE_TITLE = "{} US Treasury"
 
-HELP_MSG = "A financial application for optimizing portfolio allocations and calculating various financial statistics. Requires API keys from Alpha Vantage (https://www.alphavantage.co), Quandl (https://www.quandl.com/) and IEX (https://iexcloud.io/) to hydrate with data. These keys should be stored in environment variables named ALPHA_VANTAGE_KEY, QUANDL_KEY and IEX_KEY, respectively. See documentation for more infromation on configuration: https://github.com/chinchalinchin/scrilla"
+HELP_MSG = [
+    "A financial application for optimizing portfolio allocations and calculating financial statistics. This library requires API keys from Alpha Vantage (https://www.alphavantage.co), Quandl (https://www.quandl.com/) and IEX (https://iexcloud.io/) to hydrate with data. These keys should be stored in environment variables named ALPHA_VANTAGE_KEY, QUANDL_KEY and IEX_KEY, respectively.",
+
+    "NOTE: The asset price model used for probability calculations can be changed by modifying the value of the ANALYSIS_MODE environment variable. Currently, scrilla supports a Geometric Brownian Motion mode, 'geometric', and a Mean Reversion motion mode, 'reversion'. The parameters of these distributions are estimated using the method set by the environment variable ESTIMATION_METHOD. Currently supported values for ESTIMATION_METHOD are: 'moments', 'percents' and 'likely'. Any function that returns a statistical calculation can have the default ESTIMATION_METHOD overridden with the '-moments', '-percents' or 'likely' flag.",
+
+    "See documentation for more information on configuration and usage: https://github.com/chinchalinchin/scrilla."
+]
+
 
 SYNTAX = "command -FUNCTION -OPTIONS [tickers/symbols]"
 
@@ -23,8 +35,8 @@ TAB = "      "
 
 FUNC_ARG_DICT = {
     "asset_type": "-asset",
-    "bs_cvar": "-bs-cvar",
-    "bs_var": "-bs-var",
+    "cvar": "-cvar",
+    "var": "-var",
     "capm_equity_cost": "-capm-equity",
     "capm_beta": "-capm-beta",
     "clear_cache": "-clear-cache",
@@ -82,20 +94,23 @@ FUNC_XTRA_VALUED_ARGS_DICT = {
 FUNC_XTRA_SINGLE_ARGS_DICT = {
     'optimize_sharpe': "-sh",
     'json': '-json',
-    'suppress_output': '-quiet'
+    'suppress_output': '-quiet',
+    'moments': '-moments',
+    'percentiles': '-percents',
+    'likelihood': '-likely'
 }
 
 FUNC_DICT = {
     "asset_type": "Outputs the asset type for the supplied symbol.",
     
-    "bs_cvar": "Calculates the Black Scholes conditional value at risk, i.e. E(St | St < K), for the list of inputted ticker symbols. 'expiry' and 'prob' are required arguments for this function. Note: 'expiry' is measured in years and is different from the `start` and `end` dates. `start` and `end` are used to calibrate the model to a historical sample and `expiry` is used as the time horizon over which the value at risk is calculated into the future.__\n\t\t\tOPTIONS: \n\t\t\t\t-prob (format: decimal) REQUIRED\n\t\t\t\t-expiry (format: decimal) REQUIRED\n\t\t\t\t-start (format: \"YYYY-MM-DD\")\n\t\t\t\t-end  (format :\"YYYY-MM-DD\")\n\t\t\t\t-json (print results to screen as JSON)\n\t\t\t\t-quiet (suppress console output",
+    "cvar": "Calculates the conditional value at risk, i.e. E(St | St < K), for the list of inputted ticker symbols. 'expiry' and 'prob' are required arguments for this function. Note: 'expiry' is measured in years and is different from the `start` and `end` dates. `start` and `end` are used to calibrate the model to a historical sample and `expiry` is used as the time horizon over which the value at risk is calculated into the future.__\n\t\t\tOPTIONS: \n\t\t\t\t-prob (format: decimal) REQUIRED\n\t\t\t\t-expiry (format: decimal) REQUIRED\n\t\t\t\t-start (format: \"YYYY-MM-DD\")\n\t\t\t\t-end  (format :\"YYYY-MM-DD\")\n\t\t\t\t-json (print results to screen as JSON)\n\t\t\t\t-quiet (suppress console output\n\t\t\t\t-moments (estimation method flag)\n\t\t\t\t-percents (estimation method flag)\n\t\t\t\t-likely (estimation method flag)",
 
-   "bs_var": "Calculates the Black Scholes value at risk, i.e. for a given p, the S0 such that Prob(St<S0) = p. 'expiry' and 'prob' are required arguments for this function. Note: 'expiry' is measured in years and is different from the `start` and `end` dates. `start` and `end` are used to calibrate the model to a historical sample and `expiry` is used as the time horizon over which the value at risk is calculated into the future.__\n\t \t\tOPTIONS: \n\t\t\t\t-prob (format: decimal) REQUIRED \n\t\t\t\t-expiry (format: decimal) REQUIRED \n\t\t\t\t-start (format: \"YYYY-MM-DD\")\n\t\t\t\t-end  (format :\"YYYY-MM-DD\")\n\t\t\t\t-save (format: /path/to/file/filename.json)\n\t\t\t\t-quiet (suppress console output)",
+   "var": "Calculates the value at risk, i.e. for a given p, the S0 such that Prob(St<S0) = p. 'expiry' and 'prob' are required arguments for this function. Note: 'expiry' is measured in years and is different from the `start` and `end` dates. `start` and `end` are used to calibrate the model to a historical sample and `expiry` is used as the time horizon over which the value at risk is calculated into the future. \n\t \t\tOPTIONS: \n\t\t\t\t-prob (format: decimal) REQUIRED \n\t\t\t\t-expiry (format: decimal) REQUIRED \n\t\t\t\t-start (format: \"YYYY-MM-DD\")\n\t\t\t\t-end  (format :\"YYYY-MM-DD\")\n\t\t\t\t-save (format: /path/to/file/filename.json)\n\t\t\t\t-quiet (suppress console output)\n\t\t\t\t-moments (estimation method flag)\n\t\t\t\t-percents (estimation method flag)\n\t\t\t\t-likely (estimation method flag)",
 
 
-    "capm_equity_cost": "Computes the cost of equity according to CAPM for the supplied list of tickers. If no start or end dates are specified, calculations default to the last 100 days of prices. The environment variable MARKET_PROXY defines which ticker serves as a proxy for the market as whole.__\n\t\t\tOPTIONS:\n\t\t\t\t-start (format: \"YYYY-MM-DD\")\n\t\t\t\t-end  (format :\"YYYY-MM-DD\")\n\t\t\t\t-save (format: /path/to/file/filename.json)\n\t\t\t\t-json (print results to screen as JSON)\n\t\t\t\t-quiet (suppress console output)",
+    "capm_equity_cost": "Computes the cost of equity according to CAPM for the supplied list of tickers. If no start or end dates are specified, calculations default to the last 100 days of prices. The environment variable MARKET_PROXY defines which ticker serves as a proxy for the market as whole.__\n\t\t\tOPTIONS:\n\t\t\t\t-start (format: \"YYYY-MM-DD\")\n\t\t\t\t-end  (format :\"YYYY-MM-DD\")\n\t\t\t\t-save (format: /path/to/file/filename.json)\n\t\t\t\t-json (print results to screen as JSON)\n\t\t\t\t-quiet (suppress console output)\n\t\t\t\t-moments (estimation method flag)\n\t\t\t\t-percents (estimation method flag)\n\t\t\t\t-likely (estimation method flag)",
 
-    "capm_beta": "Computes the market beta according to CAPM for the supplied list of tickers. If no start or end dates are specified, calculations default to the last 100 days of prices. The environment variable MARKET_PROXY defines which ticker serves as a proxy for the market as whole.__\n\t\t\tOPTIONS:\n\t\t\t\t-start (format: \"YYYY-MM-DD\")\n\t\t\t\t-end  (format :\"YYYY-MM-DD\")\n\t\t\t\t-save (format: /path/to/file/filename.json)\n\t\t\t\t-json (print results to screen as JSON)\n\t\t\t\t-quiet (suppress console output)",
+    "capm_beta": "Computes the market beta according to CAPM for the supplied list of tickers. If no start or end dates are specified, calculations default to the last 100 days of prices. The environment variable MARKET_PROXY defines which ticker serves as a proxy for the market as whole.__\n\t\t\tOPTIONS:\n\t\t\t\t-start (format: \"YYYY-MM-DD\")\n\t\t\t\t-end  (format :\"YYYY-MM-DD\")\n\t\t\t\t-save (format: /path/to/file/filename.json)\n\t\t\t\t-json (print results to screen as JSON)\n\t\t\t\t-quiet (suppress console output)\n\t\t\t\t-moments (estimation method flag)\n\t\t\t\t-percents (estimation method flag)\n\t\t\t\t-likely (estimation method flag)",
 
     "clear_cache": "Clears the /data/cache/ directory of all data, outdated or not.",
     
@@ -105,7 +120,7 @@ FUNC_DICT = {
     
     "close": "Return latest closing value for the supplied list of symbols (equity or crypto).",
     
-    "correlation": "Calculate pair-wise correlation for the supplied list of ticker symbols. If no start or end dates are specified, calculations default to the last 100 days of prices.__\n\t\t\tOPTIONS:\n\t\t\t\t-start (format: \"YYYY-MM-DD\")\n\t\t\t\t-end  (format :\"YYYY-MM-DD\")",
+    "correlation": "Calculate pair-wise correlation for the supplied list of ticker symbols. If no start or end dates are specified, calculations default to the last 100 days of prices.__\n\t\t\tOPTIONS:\n\t\t\t\t-start (format: \"YYYY-MM-DD\")\n\t\t\t\t-end  (format :\"YYYY-MM-DD\")\n\t\t\t\t-moments (estimation method flag)\n\t\t\t\t-percents (estimation method flag)\n\t\t\t\t-likely (estimation method flag)",
     
     "correlation_time_series": "EXPERIMENTAL. PROBABLY WON'T WORK. Calculate correlation time series for a pair of tickers over a specified date range. If no start or end dates are specified, the default analysis period of 100 days is applied. __\n\t\t\tOPTIONS:\n\t\t\t\t-start (format: \"YYYY-MM-DD\")\n\t\t\t\t-end  (format :\"YYYY-MM-DD\")",
 
@@ -113,7 +128,7 @@ FUNC_DICT = {
     
     "dividends": "Displays the price history over the specific date range. If no dates are provided, returns the entire dividend history.__\n\t\t\tOPTIONS:\n\t\t\t\t-start (format: \"YYYY-MM-DD\")\n\t\t\t\t-end  (format :\"YYYY-MM-DD\")\n\t\t\t\t-save (format: /path/to/file/filename.json)\n\t\t\t\t-quiet (suppress console output)",
 
-    "efficient_frontier": "Generate a sample of the portfolio's efficient frontier for the supplied list of tickers. The efficient frontier algorithm will minimize a portfolio's volality for a given rate of return and then maximize its return, and then use these points to generate the rest of the frontier by taking increments along the line connecting the (risk,return) profile of the minimum volatility portfolio to the (risk, return) profile of the maximum return portfolio. The number of points calculated in the efficient frontier can be specifed as an integer with the -steps (TODO: this argument doesn't work yet). If no -steps is provided, the value of the environment variable FRONTIER_STEPS will be used (TODO part 2: environment variable does, though!).__\n\t\t\t OPTIONS:\n\t\t\t\t-steps (format: integer)\n\t\t\t\t-invest (format: decimal)\n\t\t\t\t-start (format: \"YYYY-MM-DD\")\n\t\t\t\t-end  (format :\"YYYY-MM-DD\")\n\t\t\t\t-save (format: /path/to/file/filename.json)\n\t\t\t\t-json (print results to screen as JSON)\n\t\t\t\t-quiet (suppress console output)",
+    "efficient_frontier": "Generate a sample of the portfolio's efficient frontier for the supplied list of tickers. The efficient frontier algorithm will minimize a portfolio's volality for a given rate of return and then maximize its return, and then use these points to generate the rest of the frontier by taking increments along the line connecting the (risk,return) profile of the minimum volatility portfolio to the (risk, return) profile of the maximum return portfolio. The number of points calculated in the efficient frontier can be specifed as an integer with the -steps (TODO: this argument doesn't work yet). If no -steps is provided, the value of the environment variable FRONTIER_STEPS will be used (TODO part 2: environment variable does, though!).__\n\t\t\t OPTIONS:\n\t\t\t\t-steps (format: integer)\n\t\t\t\t-invest (format: decimal)\n\t\t\t\t-start (format: \"YYYY-MM-DD\")\n\t\t\t\t-end  (format :\"YYYY-MM-DD\")\n\t\t\t\t-save (format: /path/to/file/filename.json)\n\t\t\t\t-json (print results to screen as JSON)\n\t\t\t\t-quiet (suppress console output)\n\t\t\t\t-moments (estimation method flag)\n\t\t\t\t-percents (estimation method flag)\n\t\t\t\t-likely (estimation method flag)",
     
     "examples": "Display examples of syntax.",
     
@@ -125,23 +140,23 @@ FUNC_DICT = {
     
     "list_watchlist": "Lists the equity symbols currently saved to your watchlist.",
 
-    "maximize_return": "Maximize the return of the portfolio defined by the supplied list of ticker symbols. Returns an array representing the allocations to be made for each asset in a portfolio. If no start or end dates are specified, calculations default to the last 100 days of prices. You can specify an investment with the '-invest' flag, otherwise the result will be output in percentage terms. Note: This function will always allocate 100% to the asset with the highest return. It's a good way to check and see if there are bugs in the algorithm after changes.__\n\t\t\tOPTIONS:\n\t\t\t\t-start (format: \"YYYY-MM-DD\")\n\t\t\t\t-end (format :\"YYYY-MM-DD\")\n\t\t\t\t-invest (format: decimal)\n\t\t\t\t-save (format: /path/to/file/filename.json)\n\t\t\t\t-json (print results to screen as JSON)\n\t\t\t\t-quiet (suppress console output)",
+    "maximize_return": "Maximize the return of the portfolio defined by the supplied list of ticker symbols. Returns an array representing the allocations to be made for each asset in a portfolio. If no start or end dates are specified, calculations default to the last 100 days of prices. You can specify an investment with the '-invest' flag, otherwise the result will be output in percentage terms. Note: This function will always allocate 100% to the asset with the highest return. It's a good way to check and see if there are bugs in the algorithm after changes.__\n\t\t\tOPTIONS:\n\t\t\t\t-start (format: \"YYYY-MM-DD\")\n\t\t\t\t-end (format :\"YYYY-MM-DD\")\n\t\t\t\t-invest (format: decimal)\n\t\t\t\t-save (format: /path/to/file/filename.json)\n\t\t\t\t-json (print results to screen as JSON)\n\t\t\t\t-quiet (suppress console output)\n\t\t\t\t-moments (estimation method flag)\n\t\t\t\t-percents (estimation method flag)\n\t\t\t\t-likely (estimation method flag)",
         
     "moving_averages": "Calculate the current moving averages. If no start or end dates are specified, calculations default to the last 100 days of prices.__\n\t\t\tOPTIONS:\n\t\t\t\t-start (format: \"YYYY-MM-DD\")\n\t\t\t\t-end  (format :\"YYYY-MM-DD\")",
     
-    "optimize_portfolio_variance": "Optimize the volatility of the portfolio\'s variance subject to the supplied return target.  Returns an array representing the allocations to be made for each asset in a portfolio. The target return must be specified with the '-target' flag. If no target return is specified, the portfolio's volatility is minimized. If no start or end dates are specified with the '-start' and '-end' flags, calculations default to the last 100 days of prices. You can specify an investment with the '-invest' flag, otherwise the result will be output in percentage terms. If the -sh flag is specified, the function will maximize the portfolio's sharpe ratio instead of minimizing it's volatility.__\n\t\t\tOPTIONS:\n\t\t\t\t-start (format: \"YYYY-MM-DD\")\n\t\t\t\t-end (format :\"YYYY-MM-DD\")\n\t\t\t\t-target (format: decimal)\n\t\t\t\t-invest (format: decimal)\n\t\t\t\t-save (format: /path/to/file/filename.json)\n\t\t\t\t-sh (binary flag; no format. include it or don't.)\n\t\t\t\t-json (print results to screen as JSON)\n\t\t\t\t-quiet (suppress console output)",
+    "optimize_portfolio_variance": "Optimize the volatility of the portfolio\'s variance subject to the supplied return target.  Returns an array representing the allocations to be made for each asset in a portfolio. The target return must be specified with the '-target' flag. If no target return is specified, the portfolio's volatility is minimized. If no start or end dates are specified with the '-start' and '-end' flags, calculations default to the last 100 days of prices. You can specify an investment with the '-invest' flag, otherwise the result will be output in percentage terms. If the -sh flag is specified, the function will maximize the portfolio's sharpe ratio instead of minimizing it's volatility.__\n\t\t\tOPTIONS:\n\t\t\t\t-start (format: \"YYYY-MM-DD\")\n\t\t\t\t-end (format :\"YYYY-MM-DD\")\n\t\t\t\t-target (format: decimal)\n\t\t\t\t-invest (format: decimal)\n\t\t\t\t-save (format: /path/to/file/filename.json)\n\t\t\t\t-sh (binary flag; no format. include it or don't.)\n\t\t\t\t-json (print results to screen as JSON)\n\t\t\t\t-quiet (suppress console output)\n\t\t\t\t-moments (estimation method flag)\n\t\t\t\t-percents (estimation method flag)\n\t\t\t\t-likely (estimation method flag)",
     
-    "optimize_portfolio_conditional_var":"Optimizes the Black Scholes conditional value at risk, i.e. E(St | St < K), for the portfolio defined by the list of inputted ticker symbols. 'expiry' and 'prob' are required arguments for this function. Note: 'expiry' is measured in years and is different from the `start` and `end` dates. `start` and `end` are used to calibrate the model to a historical sample and `expiry` is used as the time horizon over which the value at risk is calculated into the future.__\n\t\t\tOPTIONS:\n\t\t\t\t-prob (format: decimal) REQUIRED\n\t\t\t\t-expiry (format: decimal)\n\t\t\t\t-start (format: \"YYYY-MM-DD\")\n\t\t\t\t-end (format :\"YYYY-MM-DD\")\n\t\t\t\t-json (print results to screen as JSON)\n\t\t\t\t-save (format: /path/to/file/filename.json)\n\t\t\t\t-quiet (suppress console output)",
+    "optimize_portfolio_conditional_var":"Optimizes the Black Scholes conditional value at risk, i.e. E(St | St < K), for the portfolio defined by the list of inputted ticker symbols. 'expiry' and 'prob' are required arguments for this function. Note: 'expiry' is measured in years and is different from the `start` and `end` dates. `start` and `end` are used to calibrate the model to a historical sample and `expiry` is used as the time horizon over which the value at risk is calculated into the future.__\n\t\t\tOPTIONS:\n\t\t\t\t-prob (format: decimal) REQUIRED\n\t\t\t\t-expiry (format: decimal)\n\t\t\t\t-start (format: \"YYYY-MM-DD\")\n\t\t\t\t-end (format :\"YYYY-MM-DD\")\n\t\t\t\t-json (print results to screen as JSON)\n\t\t\t\t-save (format: /path/to/file/filename.json)\n\t\t\t\t-quiet (suppress console output)\n\t\t\t\t-moments (estimation method flag)\n\t\t\t\t-percents (estimation method flag)\n\t\t\t\t-likely (estimation method flag)",
 
     "plot_correlation": "EXPERIMENTAL. PROBABLY WON'T WORK. Generates a time series for the correlation of two ticker symbols over the specified date range.__\n\t\t\tOPTIONS:\n\t\t\t\t-start (format: \"YYYY-MM-DD\")\n\t\t\t\t-end (format :\"YYYY-MM-DD\")\n\t\t\t\t-save (format: /path/to/file/filename.jpeg)",
 
     "plot_dividends": "Generates a scatter plot graphic of the dividend history for the supplied list of tickers with a superimposed simple linear regression line.__\n\t\t\tOPTIONS:\n\t\t\t\t-save (format: /path/to/file/filename.jpeg)",
     
-    "plot_frontier": "Generates a scatter plot graphic of the portfolio\'s efficient frontier for the supplied list of tickers. Not available when running inside of a Docker container.The number of points calculated in the efficient frontier can be specifed as an integer with the -steps. If no -steps is provided, the value of the environment variable FRONTIER_STEPS will be used.__\n\t\t\tOPTIONS:\n\t\t\t\t-start (format: \"YYYY-MM-DD\")\n\t\t\t\t-end  (format :\"YYYY-MM-DD\")\n\t\t\t\t-save (format: /path/to/file/filename.jpeg)\n\t\t\t\t-steps (format: integer)",
+    "plot_frontier": "Generates a scatter plot graphic of the portfolio\'s efficient frontier for the supplied list of tickers. Not available when running inside of a Docker container.The number of points calculated in the efficient frontier can be specifed as an integer with the -steps. If no -steps is provided, the value of the environment variable FRONTIER_STEPS will be used.__\n\t\t\tOPTIONS:\n\t\t\t\t-start (format: \"YYYY-MM-DD\")\n\t\t\t\t-end  (format :\"YYYY-MM-DD\")\n\t\t\t\t-save (format: /path/to/file/filename.jpeg)\n\t\t\t\t-steps (format: integer)\n\t\t\t\t-moments (estimation method flag)\n\t\t\t\t-percents (estimation method flag)\n\t\t\t\t-likely (estimation method flag)",
     
     "plot_moving_averages": "Generates a grouped bar chart of the moving averages for each equity in the supplied list of ticker symbols. Not available when running inside of a Docker container. If no start or end dates are specified, calculations default to the last 100 days of prices.__\n\t\t\tOPTIONS:\n\t\t\t\t-start (format: \"YYYY-MM-DD\")\n\t\t\t\t-end  (format :\"YYYY-MM-DD\")\n\t\t\t\t-save (format: /path/to/file/filename.jpeg)",
     
-    "plot_risk_profile": "Generates a scatter plot of the risk-return profile for symbol in the supplied list of ticker symbols. If no start or end dates are specified, calculations default to the last 100 days of prices.__\n\t\t\t OPTIONS:\n\t\t\t\t-start (format: \"YYYY-MM-DD\")\n\t\t\t\t-end  (format :\"YYYY-MM-DD\")\n\t\t\t\t-save (format: /path/to/file/filename.jpeg",
+    "plot_risk_profile": "Generates a scatter plot of the risk-return profile for symbol in the supplied list of ticker symbols. If no start or end dates are specified, calculations default to the last 100 days of prices.__\n\t\t\t OPTIONS:\n\t\t\t\t-start (format: \"YYYY-MM-DD\")\n\t\t\t\t-end  (format :\"YYYY-MM-DD\")\n\t\t\t\t-save (format: /path/to/file/filename.jpeg\n\t\t\t\t-moments (estimation method flag)\n\t\t\t\t-percents (estimation method flag)\n\t\t\t\t-likely (estimation method flag)",
 
     "plot_yield_curve": "Generates a plot of the latest United States Treasury Yield Curve. A yield curveo n a different date can be generated by specifying the date with an argument.__\n\t\t\tOPTIONS:\n\t\t\t\t-start (format: \"YYYY-MM-DD\")\n\t\t\t\t-save (format: /path/to/file/filename.jpeg",
     
@@ -151,11 +166,11 @@ FUNC_DICT = {
     
     "risk_free_rate": "Returns the current annualized US Treasury yield specified by the RISK_FREE environment variables. Allowable values for RISK_FREE environment variable: ONE_MONTH, TWO_MONTH, THREE_MONTH, SIX_MONTH, ONE_YEAR, TWO_YEAR, THREE_YEAR, FIVE_YEAR, SEVEN_YEAR, TEN_YEAR, TWENTY_YEAR, THIRTY_YEAR.",
     
-    "risk_profile": "Calculate the risk-return profile for the supplied list of ticker symbols. If no start or end dates are specified, calculations default to the last 100 days of prices.__\n\t\t\tOPTIONS:\n\t\t\t\t-start (format: \"YYYY-MM-DD\")\n\t\t\t\t-end  (format :\"YYYY-MM-DD\")\n\t\t\t\t-save (format: /path/to/file/filename.json)\n\t\t\t\t-json (print results to screen as JSON)\n\t\t\t\t-quiet (suppress console output)",
+    "risk_profile": "Calculate the risk-return profile for the supplied list of ticker symbols. If no start or end dates are specified, calculations default to the last 100 days of prices.__\n\t\t\tOPTIONS:\n\t\t\t\t-start (format: \"YYYY-MM-DD\")\n\t\t\t\t-end  (format :\"YYYY-MM-DD\")\n\t\t\t\t-save (format: /path/to/file/filename.json)\n\t\t\t\t-json (print results to screen as JSON)\n\t\t\t\t-quiet (suppress console output)\n\t\t\t\t-moments (estimation method flag)\n\t\t\t\t-percents (estimation method flag)\n\t\t\t\t-likely (estimation method flag)",
     
     "screener": "Searchs equity spot prices that trade at a discount to the provided model. If no model is provided, the screener will default to the Discount Dividend Model. If no discount rate is provided, the screener will default to the cost of equity for a ticker calculated using the CAPM model and the ticker defined by environment variable MARKET_PROXY as a proxy for the market.__\n\t\t\tADDITION OPTIONS:\n\t\t\t\t-discount (format: decimal)\n\t\t\t\t-model (format: string, values: ddm)",
     
-    "sharpe_ratio": "Computes the sharpe ratio for each of the supplied tickers.__\n\t\t\tOPTIONS:\n\t\t\t\t-start (format: \"YYYY-MM-DD\")\n\t\t\t\t-end  (format :\"YYYY-MM-DD\")", 
+    "sharpe_ratio": "Computes the sharpe ratio for each of the supplied tickers.__\n\t\t\tOPTIONS:\n\t\t\t\t-start (format: \"YYYY-MM-DD\")\n\t\t\t\t-end  (format :\"YYYY-MM-DD\")\n\t\t\t\t-moments (estimation method flag)\n\t\t\t\t-percents (estimation method flag)\n\t\t\t\t-likely (estimation method flag)", 
 
     "statistic": "Retrieves the latest value for the supplied list of economic statistics. The available list of economic statistic can be found at https://www.quandl.com/data/FRED-Federal-Reserve-Economic-Data/documentation?anchor=growth; it is also stored in the _installation directory_/data/static/ directory of the application.__\n\t\t\tOPTIONS:\n\t\t\t\t-json (print results to screen as JSON)\n\t\t\t\t-save (format: /path/to/file/filename.json)\n\t\t\t\t-quiet (suppress console output)",
     
@@ -203,6 +218,8 @@ EXAMPLES = {
     'scrilla -watch ATVI TTWO EA': 'Adds the portfolio (ATVI, TTWO, EA) to the existing ticker symbols in your equity watchlist'  
 }
 
+# TODO: come up with better names for the functions here now that GUI and CLI are grouped together
+# CLI FORMATTING
 def format_profiles(profiles):
     profiles_format = []
     for key, value in profiles.items():
@@ -289,3 +306,16 @@ def format_correlation_matrix(tickers, correlation_matrix):
             subresponse[f'{item}_{tickers[j]}_correlation'] = correlation_matrix[j][i]
             response.append(subresponse)
     return response
+
+# GUI FORMATTING
+def format_allocation_profile_title(allocation, portfolio) -> str:
+    port_return, port_volatility = portfolio.return_function(allocation), portfolio.volatility_function(allocation)
+    formatted_result = "("+str(100*port_return)[:5]+"%, " + str(100*port_volatility)[:5]+"%)"
+    formatted_result_title = "("
+    for symbol in portfolio.tickers:
+        if portfolio.tickers.index(symbol) != (len(portfolio.tickers) - 1):
+            formatted_result_title += symbol+", "
+        else:
+            formatted_result_title += symbol + ") Portfolio Return-Risk Profile"
+    whole_thing = formatted_result_title +" = "+formatted_result
+    return whole_thing

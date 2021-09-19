@@ -14,7 +14,6 @@
 # or <https://github.com/chinchalinchin/scrilla/blob/develop/main/LICENSE>.
 
 import os, sys, dotenv, json
-from scrilla import static
 
 APP_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_DIR = os.path.dirname(APP_DIR)
@@ -22,7 +21,8 @@ ROOT_DIR = os.path.dirname(PROJECT_DIR)
 
 sys.path.append(APP_DIR)
 
-import util.outputter as outputter
+
+import scrilla.util.outputter as outputter
 
 class APIKeyError(Exception):
     pass
@@ -175,7 +175,7 @@ MARKET_PROXY=os.environ.setdefault('MARKET_PROXY', 'SPY')
 
 ANALYSIS_MODE=os.environ.setdefault('ANALYSIS_MODE', 'geometric')
 
-ESTIMATION_METHOD=os.environ.setdefault('ESTIMATION_METHOD', 'moments')
+ESTIMATION_METHOD=os.environ.setdefault('DEFAULT_ESTIMATION_METHOD', 'moments')
 
 ## SERVICE CONFIGURATION
 ### PRICE_MANAGER CONFIGRUATION
@@ -203,11 +203,7 @@ if PRICE_MANAGER == 'alpha_vantage':
     AV_RES_EQUITY_FIRST_LAYER='Time Series (Daily)'
     AV_RES_EQUITY_CLOSE_PRICE="4. close"
     AV_RES_EQUITY_OPEN_PRICE="1. open"
-    AV_RES_EQUITY_KEY="symbol"
     AV_RES_CRYPTO_FIRST_LAYER='Time Series (Digital Currency Daily)'
-    AV_RES_CRYPTO_KEY="currency code"
-    AV_RES_CRYPTO_CLOSE_PRICE=f'4a. close ({static.constants["DENOMINATION"]})'
-    AV_RES_CRYPTO_OPEN_PRICE=f'1a. open ({static.constants["DENOMINATION"]})'
     AV_RES_ERROR='Error Message'
     AV_RES_LIMIT='Note'
     AV_RES_DAY_LIMIT='Information'

@@ -14,12 +14,25 @@
 # along with scrilla.  If not, see <https://www.gnu.org/licenses/>
 # or <https://github.com/chinchalinchin/scrilla/blob/develop/main/LICENSE>.
 import scipy.optimize as optimize
-from scrilla import static
 
-import settings
-import util.outputter as outputter
+from scrilla import static, settings
+from scrilla.analysis import estimators
+import scrilla.util.outputter as outputter
 
 logger = outputter.Logger('optimizer', settings.LOG_LEVEL)
+
+def maximize_normal_likelihood(data):
+
+    likelihood = lambda x: (-1)*estimators.normal_likelihood_function(x, data)
+
+    first_quartile = estimators.sample_percentile(data=data, percentile=0.25)
+    median = estimators.sample_percentile(data=data, percentile=0.5)
+    third_quartile = estimators.sample_percentile(data, percentile=0.75)
+    guess = [median, (third_quartile-first_quartile)/2]
+    
+    params = optimize.minimize(fun = likelihood, x0 = guess, options={'disp': False},
+                                    method=static.constants['OPTIMIZATION_METHOD'])
+    return params.x
 
 def optimize_portfolio_variance(portfolio, target_return=None):
     """

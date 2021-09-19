@@ -133,9 +133,10 @@ class InterestCache(Cache):
 #       and the correlation's tickers are possible though. In other words, the query, for a given 
 #       (ticker_1, ticker_2)-permutation will only ever return one result.
 class CorrelationCache(Cache):
-    create_table_transaction="CREATE TABLE IF NOT EXISTS correlations (ticker_1 text, ticker_2 text, start_date text, end_date text, correlation real)"
-    insert_row_transaction="INSERT INTO correlations (ticker_1, ticker_2, start_date, end_date, correlation) VALUES (:ticker_1, :ticker_2, :start_date, :end_date, :correlation)"
-    correlation_query="SELECT correlation FROM correlations WHERE ticker_1=:ticker_1 AND ticker_2=:ticker_2 AND start_date=date(:start_date) AND end_date=date(:end_date)"
+        # TODO: extra save_or_update argument for estimation method, i.e. moments, percentiles or likelihood, need to update tables
+    create_table_transaction="CREATE TABLE IF NOT EXISTS correlations (ticker_1 TEXT, ticker_2 TEXT, start_date TEXT, end_date TEXT, correlation REAL, method TEXT)"
+    insert_row_transaction="INSERT INTO correlations (ticker_1, ticker_2, start_date, end_date, correlation, method) VALUES (:ticker_1, :ticker_2, :start_date, :end_date, :correlation, :method)"
+    correlation_query="SELECT correlation FROM correlations WHERE ticker_1=:ticker_1 AND ticker_2=:ticker_2 AND start_date=date(:start_date) AND end_date=date(:end_date) AND method=:method"
 
     def __init__(self):
         super().__init__(CorrelationCache.create_table_transaction)
@@ -144,19 +145,19 @@ class CorrelationCache(Cache):
     def to_dict(query_results):
         return { static.keys['STATISTICS']['CORRELATION']: query_results[0][0] }
 
-    def save_row(self, ticker_1, ticker_2, start_date, end_date, correlation):
+    def save_row(self, ticker_1, ticker_2, start_date, end_date, correlation, method = settings.ESTIMATION_METHOD):
         logger.verbose(f'Saving ({ticker_1}, {ticker_2}) correlation from {start_date} to {end_date} to the cacche')
-        formatter_1 = { 'ticker_1': ticker_1, 'ticker_2': ticker_2, 
+        formatter_1 = { 'ticker_1': ticker_1, 'ticker_2': ticker_2, 'method': method,
                         'start_date': start_date, 'end_date': end_date, 'correlation': correlation}
-        formatter_2 = { 'ticker_1': ticker_2, 'ticker_2': ticker_1, 
+        formatter_2 = { 'ticker_1': ticker_2, 'ticker_2': ticker_1, 'method': method,
                         'start_date': start_date, 'end_date': end_date, 'correlation': correlation}
         self.execute_transaction(transaction=CorrelationCache.insert_row_transaction, formatter=formatter_1)
         self.execute_transaction(transaction=CorrelationCache.insert_row_transaction, formatter=formatter_2)
     
-    def filter_correlation_cache(self, ticker_1, ticker_2, start_date, end_date):
-        formatter_1 = { 'ticker_1': ticker_1, 'ticker_2': ticker_2, 
+    def filter_correlation_cache(self, ticker_1, ticker_2, start_date, end_date, method = settings.ESTIMATION_METHOD):
+        formatter_1 = { 'ticker_1': ticker_1, 'ticker_2': ticker_2, 'method': method,
                         'start_date': start_date, 'end_date': end_date}
-        formatter_2 = { 'ticker_1': ticker_2, 'ticker_2': ticker_1, 
+        formatter_2 = { 'ticker_1': ticker_2, 'ticker_2': ticker_1, 'method': method,
                         'start_date': start_date, 'end_date': end_date}
         
         logger.debug(f'Querying SQLite cache \n\t{CorrelationCache.correlation_query}\n\t\t with :ticker_1={ticker_1}, :ticker_2={ticker_2}')
@@ -172,11 +173,13 @@ class CorrelationCache(Cache):
         return None
 
 class ProfileCache(Cache):
-    create_table_transaction="CREATE TABLE IF NOT EXISTS profile (id INTEGER PRIMARY KEY, ticker TEXT, start_date TEXT, end_date TEXT, annual_return REAL, annual_volatility REAL, sharpe_ratio REAL, asset_beta REAL, equity_cost REAL)"
+    # TODO: extra save_or_update argument for estimation method, i.e. moments, percentiles or likelihood, need to update tables
+
+    create_table_transaction="CREATE TABLE IF NOT EXISTS profile (id INTEGER PRIMARY KEY, ticker TEXT, start_date TEXT, end_date TEXT, annual_return REAL, annual_volatility REAL, sharpe_ratio REAL, asset_beta REAL, equity_cost REAL, method TEXT)"
     
-    query_filter="ticker=:ticker AND start_date=date(:start_date) AND end_date=date(:end_date)"
-    identity_query="(SELECT id FROM profile WHERE ticker=:ticker AND start_date=:start_date AND end_date=:end_date)"
-    value_args="(id, ticker, start_date, end_date, annual_return, annual_volatility, sharpe_ratio, asset_beta, equity_cost)"
+    query_filter="ticker=:ticker AND start_date=date(:start_date) AND end_date=date(:end_date) AND :method=method"
+    identity_query="(SELECT id FROM profile WHERE ticker=:ticker AND start_date=:start_date AND end_date=:end_date AND :method=method)"
+    value_args="(id, ticker, start_date, end_date, annual_return, annual_volatility, sharpe_ratio, asset_beta, equity_cost, method)"
 
     return_query="(SELECT annual_return FROM profile WHERE {query_filter})".format(query_filter=query_filter)
     vol_query="(SELECT annual_volatility FROM profile WHERE {query_filter})".format(query_filter=query_filter)
@@ -184,15 +187,15 @@ class ProfileCache(Cache):
     beta_query="(SELECT asset_beta FROM profile WHERE {query_filter})".format(query_filter=query_filter)
     equity_query="(SELECT equity_cost FROM profile WHERE {query_filter})".format(query_filter=query_filter)
 
-    update_return_transaction="INSERT or REPLACE INTO profile {value_args} VALUES ({identity_query}, :ticker, :start_date, :end_date, :annual_return, {vol_query}, {sharpe_query}, {beta_query}, {equity_query})".format(
+    update_return_transaction="INSERT or REPLACE INTO profile {value_args} VALUES ({identity_query}, :ticker, :start_date, :end_date, :annual_return, {vol_query}, {sharpe_query}, {beta_query}, {equity_query}, :method)".format(
                                 identity_query=identity_query, value_args=value_args, vol_query=vol_query, sharpe_query=sharpe_query, beta_query=beta_query, equity_query=equity_query)
-    update_vol_transaction="INSERT or REPLACE INTO profile {value_args} VALUES ({identity_query}, :ticker, :start_date, :end_date, {return_query}, :annual_volatility, {sharpe_query}, {beta_query}, {equity_query})".format(
+    update_vol_transaction="INSERT or REPLACE INTO profile {value_args} VALUES ({identity_query}, :ticker, :start_date, :end_date, {return_query}, :annual_volatility, {sharpe_query}, {beta_query}, {equity_query}, :method)".format(
                                 identity_query=identity_query, value_args=value_args, return_query=return_query, sharpe_query=sharpe_query, beta_query=beta_query, equity_query=equity_query)
-    update_sharpe_transaction="INSERT or REPLACE INTO profile {value_args} VALUES ({identity_query}, :ticker, :start_date, :end_date, {return_query}, {vol_query}, :sharpe_ratio, {beta_query}, {equity_query})".format(
+    update_sharpe_transaction="INSERT or REPLACE INTO profile {value_args} VALUES ({identity_query}, :ticker, :start_date, :end_date, {return_query}, {vol_query}, :sharpe_ratio, {beta_query}, {equity_query}, :method)".format(
                                 identity_query=identity_query, value_args=value_args, return_query=return_query, vol_query=vol_query, beta_query=beta_query, equity_query=equity_query)
-    update_beta_transaction="INSERT or REPLACE INTO profile {value_args} VALUES ({identity_query}, :ticker, :start_date, :end_date, {return_query}, {vol_query}, {sharpe_query}, :asset_beta, {equity_query})".format(
+    update_beta_transaction="INSERT or REPLACE INTO profile {value_args} VALUES ({identity_query}, :ticker, :start_date, :end_date, {return_query}, {vol_query}, {sharpe_query}, :asset_beta, {equity_query}, :method)".format(
                                 identity_query=identity_query, value_args=value_args, return_query=return_query, vol_query=vol_query, sharpe_query=sharpe_query, equity_query=equity_query)
-    update_equity_tranasction="INSERT or REPLACE INTO profile {value_args} VALUES ({identity_query}, :ticker, :start_date, :end_date, {return_query}, {vol_query}, {sharpe_query}, {beta_query}, :equity_cost)".format(
+    update_equity_tranasction="INSERT or REPLACE INTO profile {value_args} VALUES ({identity_query}, :ticker, :start_date, :end_date, {return_query}, {vol_query}, {sharpe_query}, {beta_query}, :equity_cost, :method)".format(
                                 identity_query=identity_query, value_args=value_args, return_query=return_query, vol_query=vol_query, sharpe_query=sharpe_query, beta_query=beta_query)
 
     profile_query="SELECT ifnull(annual_return, 'empty'), ifnull(annual_volatility, 'empty'), ifnull(sharpe_ratio, 'empty'), ifnull(asset_beta, 'empty'), ifnull(equity_cost, 'empty') FROM profile WHERE {query_filter}".format(query_filter=query_filter)
@@ -208,8 +211,8 @@ class ProfileCache(Cache):
                   static.keys['STATISTICS']['BETA'] : query_result[0][3] if query_result[0][3] != 'empty' else None,
                   static.keys['STATISTICS']['EQUITY'] : query_result[0][4] if query_result[0][4] != 'empty' else None }
 
-    def save_or_update_row(self, ticker, start_date, end_date, annual_return=None, annual_volatility=None, sharpe_ratio=None, asset_beta=None, equity_cost=None):
-        formatter = { 'ticker': ticker, 'start_date': start_date, 'end_date': end_date}
+    def save_or_update_row(self, ticker, start_date, end_date, annual_return=None, annual_volatility=None, sharpe_ratio=None, asset_beta=None, equity_cost=None, method=settings.ESTIMATION_METHOD):
+        formatter = { 'ticker': ticker, 'start_date': start_date, 'end_date': end_date, 'method': method}
         
         if annual_return is not None:
             logger.verbose(f'Updating SQLite cache... \n\t{ProfileCache.update_return_transaction}\n\t\t with :ticker={ticker}, :start_date={start_date}, :end_date={end_date}, :annual_return={annual_return}')
@@ -232,9 +235,9 @@ class ProfileCache(Cache):
             formatter['equity_cost'] = equity_cost
             self.execute_transaction(transaction=ProfileCache.update_equity_tranasction, formatter=formatter)
 
-    def filter_profile_cache(self, ticker, start_date, end_date):
+    def filter_profile_cache(self, ticker, start_date, end_date, method = settings.ESTIMATION_METHOD):
         logger.debug(f'Querying SQLite cache: \n\t{ProfileCache.profile_query}\n\t\t with :ticker={ticker}, :start_date={start_date}, :end_date={end_date}') 
-        formatter = { 'ticker': ticker, 'start_date': start_date, 'end_date': end_date}
+        formatter = { 'ticker': ticker, 'start_date': start_date, 'end_date': end_date, 'method': method }
         result = self.execute_query(query=ProfileCache.profile_query, formatter=formatter)
 
         if len(result)>0:

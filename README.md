@@ -100,9 +100,19 @@ If no API keys are found in these variables, the application will not function p
 
 <b>scrilla</b> can be configured with the following optional environment variables. Each variable in this list has a suitable default set and so does not need changed unless the user prefers a different setting.
 
+- ANALYSIS_MODE
+
+The asset price model assumed during the estimation of statistics. A value of`geometric` corresponds geometric brownian motion model where the return is proportional to the asset price. The constant of proportionality is a random variable with a constant mean and volatility. A value of `reversion` refers to a mean reverting model where the return is proportional to the difference between the asset price and a stationary mean. The unit of proportionality is a random variable with constant mean and volatility.
+
+Note, it is highly recommended that if you change this value, you should clear the cache, as the cache stores frequent statistical calculations to speed up the program. The previous values of the statistics calculated under the prior model will be referenced and result in incorrect calculations.
+
+- ESTIMATION_METHOD
+
+Determines the method used to calculate risk-return profiles. If set to `moments`, the return and volatility will be estimated by setting them equal to the first and second sample moments. If set to `percents`, the return and volatilty will be estimated by setting the 25th percentile and 75th percentile of the assumed distribution (see above <b>ANALYSIS_MODE</b>) equal to the 25th and 75th percentile from the sample of data. If set to `likely`, the likelihood function calculated from the assumed distribution (see <b>ANALYSIS_MODE</b> again) will be maximized with respect to the return and volatility; the values which maximize will be used as the estimates. 
+
 - RISK_FREE
 
-Determines which annualized US-Treasury yield is used as stand-in for the risk free rate. This variable will default to a value of `10-Year`, but can be modified to any of the following: `3-Month`, `5-Year`, `10-Year`, or `30-Year`.
+Determines which annualized US-Treasury yield is used as stand-in for the risk free rate. This variable will default to a value of `ONE_YEAR`, but can be modified to any of the following: `ONE_MONTH`, `THREE_MONTH`, `SIX_MONTH`, `ONE_YEAR`, `THREE_YEAR`, `FIVE_YEAR`, `TEN_YEAR`, `THIRTY_YEAR`.
 
 - MARKET_PROXY
 
@@ -355,27 +365,27 @@ The four functions of interest in this module are:
         This function will retrieve the current value of the risk free rate (annualized yield on a US Treasury) as a decimal. The US Treasury yield used as a proxy for the risk free rate can be configured through the <b>RISK_FREE</b> environment variable. See [optional configuration](#optional-configuration) for more details.
     <br>
 
-### scrilla.estimators
+### scrilla.analysis.estimators
 
-1. `scrilla.estimators.sample_correlation`<br>
+1. `scrilla.analysis.estimators.sample_correlation`<br>
 
-2. `scrilla.estimators.recursive_rolling_correlation`<br>
+2. `scrilla.analysis.estimators.recursive_rolling_correlation`<br>
 
-3. `scrilla.estimators.sample_mean`<br>
+3. `scrilla.analysis.estimators.sample_mean`<br>
 
-4. `scrilla.estimators.recursive_rolling_mean`<br>
+4. `scrilla.analysis.estimators.recursive_rolling_mean`<br>
 
-5. `scrilla.estimators.sample_variance`<br>
+5. `scrilla.analysis.estimators.sample_variance`<br>
 
-6. `scrilla.estimators.recursive_rolling_variance`<br>
+6. `scrilla.analysis.estimators.recursive_rolling_variance`<br>
 
-7. `scrilla.estimators.sample_covariance`<br>
+7. `scrilla.analysis.estimators.sample_covariance`<br>
 
-8. `scrilla.estimators.recursive_rolling_covariance`<br>
+8. `scrilla.analysis.estimators.recursive_rolling_covariance`<br>
 
-9. `scrilla.estimators.simple_regression_beta`<br>
+9. `scrilla.analysis.estimators.simple_regression_beta`<br>
 
-10. `scrilla.estimators.simple_regression_alpha`<br>
+10. `scrilla.analysis.estimators.simple_regression_alpha`<br>
 
 ### scrilla.analysis.markets
 
@@ -408,7 +418,7 @@ The four functions of interest in this module are:
 
 13. `scrilla.analysis.models.geometric.statistics.calculate_return_covariance`<br>
 
-14. `scrilla.analysis.models.geometric.statistics.calculate_ito_correlation`<br>
+14. `scrilla.analysis.models.geometric.statistics.calculate_moment_correlation`<br>
 
 15. `scrilla.anaylsis.statistics.ito_correlation_matrix`<br>
 

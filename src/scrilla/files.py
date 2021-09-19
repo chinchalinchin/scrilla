@@ -127,7 +127,7 @@ def init_static_data():
         # grab ticker symbols and store in STATIC_DIR
         if not os.path.isfile(settings.STATIC_TICKERS_FILE):
             if settings.PRICE_MANAGER == "alpha_vantage": 
-
+                service_map = static.keys["SERVICES"]["PRICES"]["ALPHA_VANTAGE"]["MAP"]
                 logger.debug(f'Missing {settings.STATIC_TICKERS_FILE}, querying \'{settings.PRICE_MANAGER}\'')
 
                 # TODO: services calls should be in services.py! need to put this and the helper method 
@@ -135,17 +135,18 @@ def init_static_data():
                 query=f'{settings.PARAM_AV_FUNC}={settings.ARG_AV_FUNC_EQUITY_LISTINGS}'
                 url = f'{settings.AV_URL}?{query}&{settings.PARAM_AV_KEY}={settings.AV_KEY}'
                 static_tickers_blob = parse_csv_response_column(column=0, url=url, savefile=settings.STATIC_TICKERS_FILE,
-                                                                    firstRowHeader=settings.AV_RES_EQUITY_KEY)
+                                                                    firstRowHeader=service_map['KEYS']['EQUITY']['HEADER'])
 
             raise errors.ConfigurationError("No PRICE_MANAGER set in .env file!")
 
         # grab crypto symbols and store in STATIC_DIR
         if not os.path.isfile(settings.STATIC_CRYPTO_FILE):
             if settings.PRICE_MANAGER == "alpha_vantage": 
+                service_map = static.keys["SERVICES"]["PRICES"]["ALPHA_VANTAGE"]["MAP"]
                 logger.debug(f'Missing {settings.STATIC_CRYPTO_FILE}, querying \'{settings.PRICE_MANAGER}\'.')
                 url = settings.AV_CRYPTO_LIST
                 static_crypto_blob = parse_csv_response_column(column=0, url=url, savefile=settings.STATIC_CRYPTO_FILE,
-                                                                firstRowHeader=settings.AV_RES_CRYPTO_KEY)
+                                                                firstRowHeader=service_map['KEYS']['CRYPTO']['HEADER'])
             raise errors.ConfigurationError("No PRICE_MANAGER set in .env file!")
             
         # grab econominc indicator symbols and store in STATIC_DIR

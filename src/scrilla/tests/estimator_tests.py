@@ -4,8 +4,10 @@ import numpy
 PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(PROJECT_DIR)
 
-from scrilla import settings, services, static, estimators
+from scrilla import settings, services, static
 from scrilla.util import outputter, helper
+import scrilla.analysis.estimators as estimators
+import scrilla.analysis.models.geometric.statistics as statistics
 
 rolling_x_y_1 = [[1, 3, 5, 2, 6, 10],[4, 5, 3, 6, 2, 8]]
 rolling_x_y_2 = [[3, 5, 2, 6, 10, 8], [5, 3, 6, 2, 8, 5]]
@@ -15,6 +17,35 @@ x_y_data = [[1, 2, 3, 4, 5, 6, 7],[20, 19, 23, 20, 26, 22, 30]]
 x_y_correl, x_y_beta, x_y_alpha = 0.764852927, 1.39286, 17.28571
 test_dates = ["2021-03-29", "2020-10-20", "2019-12-10"]
 test_tickers = ["ALLY", "BX"]
+lots = [ 12, 32, 34, 11, 23, 44, 53, 25, 24, 31, 35, 36]
+
+def percentile_test():
+    print('data : ',x_y_data[1])
+    twenty_fifth = estimators.sample_percentile(data=x_y_data[1], percentile=0.25)
+    fiftieth = estimators.sample_percentile(data=x_y_data[1], percentile=0.5)
+    seventy_fifth = estimators.sample_percentile(data=x_y_data[1], percentile=0.75)
+    ninetieth = estimators.sample_percentile(data=x_y_data[1], percentile=0.90)
+
+    outputter.print_line()
+    outputter.scalar_result(calculation='25th percentile', result = twenty_fifth, currency=False)
+    outputter.scalar_result(calculation='50th percentile', result = fiftieth, currency=False)
+    outputter.scalar_result(calculation='75th percentile', result = seventy_fifth, currency=False)
+    outputter.scalar_result(calculation='90th percentile', result = ninetieth, currency=False)
+    outputter.print_line()
+
+    print('data : ', lots)
+    twenty_fifth = estimators.sample_percentile(data=lots, percentile=0.25)
+    fiftieth = estimators.sample_percentile(data=lots, percentile=0.5)
+    seventy_fifth = estimators.sample_percentile(data=lots, percentile=0.75)
+    ninetieth = estimators.sample_percentile(data=lots, percentile=0.90)
+
+    outputter.print_line()
+    outputter.scalar_result(calculation='25th percentile', result = twenty_fifth, currency=False)
+    outputter.scalar_result(calculation='50th percentile', result = fiftieth, currency=False)
+    outputter.scalar_result(calculation='75th percentile', result = seventy_fifth, currency=False)
+    outputter.scalar_result(calculation='90th percentile', result = ninetieth, currency=False)
+    outputter.print_line()
+
 
 def simple_regression_test():
     # REGRESSION CALCULATIONS
@@ -137,22 +168,23 @@ def rolling_recursion_tests_with_financial_data():
 
     for ticker in test_tickers:
         for date in test_dates:
-            end_date = helper.parse_date_string(date)
-            start_date = helper.decrement_date_by_business_days(start_date=end_date, 
+            start_date = helper.decrement_date_string_by_business_days(start_date_string=date, 
                                                                 business_days=settings.DEFAULT_ANALYSIS_PERIOD)
-            previous_end_date = helper.decrement_date_by_business_days(start_date=end_date, 
+            previous_end_date = helper.decrement_date_string_by_business_days(start_date_string=date, 
                                                                         business_days=1)
-            previous_start_date = helper.decrement_date_by_business_days(start_date=start_date, 
+            previous_start_date = helper.decrement_date_string_by_business_days(start_date_string=start_date, 
                                                                             business_days=1)
             
-            prices = services.get_daily_price_history(ticker=ticker, start_date=previous_start_date, 
-                                                        end_date=end_date, asset_type=static.keys['ASSETS']['EQUITY'])
+            prices = services.get_daily_price_history(ticker=ticker, 
+                                                        start_date=helper.parse_date_string(previous_start_date), 
+                                                        end_date=helper.parse_date_string(date), 
+                                                        asset_type=static.keys['ASSETS']['EQUITY'])
             previous_prices = dict(prices)
             new_prices = dict(prices)
-            del previous_prices[helper.date_to_string(end_date)]
-            del new_prices[helper.date_to_string(previous_start_date)]
+            del previous_prices[date]
+            del new_prices[previous_start_date]
             
-            end_date_price = prices[end_date][static.keys['PRICES']['CLOSE']]
+            end_date_price = prices[date][static.keys['PRICES']['CLOSE']]
             previous_end_date_price = prices[previous_end_date][static.keys['PRICES']['CLOSE']]
             start_date_price = prices[start_date][static.keys['PRICES']['CLOSE']]
             previous_start_date_price = prices[start_date][static.keys['PRICES']['CLOSE']]
@@ -162,11 +194,11 @@ def rolling_recursion_tests_with_financial_data():
             new_mod_return = new_return*numpy.sqrt(trading_period)
             lost_mod_return = lost_return*numpy.sqrt(trading_period)
 
-            old_profile = estimators.calculate_moment_risk_return(ticker=ticker, sample_prices=previous_prices)
+            old_profile = statistics.calculate_moment_risk_return(ticker=ticker, sample_prices=previous_prices)
             old_var = old_profile['annual_volatility']**2
             old_mod_return = old_profile['annual_return']*numpy.sqrt(trading_period)
 
-            new_actual_profile = estimators.calculate_moment_risk_return(ticker=ticker, sample_prices=new_prices)
+            new_actual_profile = statistics.calculate_moment_risk_return(ticker=ticker, sample_prices=new_prices)
 
             new_recursive_profile = {}
             new_recursive_profile['annual_return'] = estimators.recursive_rolling_mean(xbar_previous=old_profile['annual_return'],
@@ -189,6 +221,10 @@ def rolling_recursion_tests_with_financial_data():
 
 if __name__ == "__main__":
     outputter.print_line()
+    outputter.center('Percentile Testing')
+    percentile_test()
+
+    outputter.print_line()
     outputter.center("Regression Testing")
     outputter.print_line()
     outputter.title_line('Test Results')
@@ -202,9 +238,9 @@ if __name__ == "__main__":
     outputter.print_line()
     rolling_recursion_test()
 
-    outputter.print_line()
-    outputter.center('Rolling Recursive Risk Profile Test')
-    outputter.print_line()
-    outputter.title_line('Test Results')
-    outputter.print_line()
-    rolling_recursion_tests_with_financial_data()
+    # outputter.print_line()
+    # outputter.center('Rolling Recursive Risk Profile Test')
+    # outputter.print_line()
+    # outputter.title_line('Test Results')
+    # outputter.print_line()
+    # rolling_recursion_tests_with_financial_data()

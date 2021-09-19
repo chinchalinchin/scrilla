@@ -27,7 +27,7 @@ profile_cache = cache.ProfileCache()
 
 # NOTE: if ticker_profile is provided, it effectively nullifies start_date and end_date.
 # TODO: pass in risk_free_rate=None as optional argument to prevent overusing services
-def sharpe_ratio(ticker, start_date=None, end_date=None, risk_free_rate=None, ticker_profile=None):
+def sharpe_ratio(ticker, start_date=None, end_date=None, risk_free_rate=None, ticker_profile=None, method=settings.ESTIMATION_METHOD):
     """
     Description
     -----------
@@ -57,14 +57,13 @@ def sharpe_ratio(ticker, start_date=None, end_date=None, risk_free_rate=None, ti
     except errors.InputValidationError as ive:
         raise ive
 
-    result = profile_cache.filter_profile_cache(ticker=ticker, start_date=start_date, end_date=end_date)
+    result = profile_cache.filter_profile_cache(ticker=ticker, start_date=start_date, end_date=end_date, method=method)
 
     if result is not None and result[static.keys['STATISTICS']['SHARPE']] is not None:
         return result[static.keys['STATISTICS']['SHARPE']]
 
     if ticker_profile is None:  
-        ticker_profile = statistics.calculate_moment_risk_return(ticker=ticker, start_date=start_date,
-                                                        end_date=end_date)
+        ticker_profile = statistics.calculate_risk_return(ticker=ticker, start_date=start_date, end_date=end_date, method=method)
 
     if risk_free_rate is None:
         risk_free_rate = services.get_risk_free_rate()
@@ -72,12 +71,12 @@ def sharpe_ratio(ticker, start_date=None, end_date=None, risk_free_rate=None, ti
     sharpe_ratio = (ticker_profile['annual_return'] - risk_free_rate)/ticker_profile['annual_volatility']
 
     profile_cache.save_or_update_row(ticker=ticker, start_date=start_date,
-                                        end_date=end_date,sharpe_ratio=sharpe_ratio)
+                                        end_date=end_date,sharpe_ratio=sharpe_ratio, method=method)
 
     return sharpe_ratio
 
 # if no dates are specified, defaults to last 100 days
-def market_premium(start_date=None, end_date=None, market_profile = None):
+def market_premium(start_date=None, end_date=None, market_profile = None, method=settings.ESTIMATION_METHOD):
     """
     Description
     -----------
@@ -106,8 +105,7 @@ def market_premium(start_date=None, end_date=None, market_profile = None):
 
     if market_profile is None:
         try:
-            market_profile = statistics.calculate_moment_risk_return(ticker=settings.MARKET_PROXY, 
-                                                                start_date=start_date, end_date=end_date)
+            market_profile = statistics.calculate_risk_return(ticker=settings.MARKET_PROXY, start_date=start_date, end_date=end_date, method=method)
         except errors.SampleSizeError as se:
             raise se
         except errors.PriceError as pe:
@@ -119,7 +117,7 @@ def market_premium(start_date=None, end_date=None, market_profile = None):
     return market_premium
         
 
-def market_beta(ticker, start_date=None, end_date=None, market_profile=None, market_correlation=None, ticker_profile=None, sample_prices=None):
+def market_beta(ticker, start_date=None, end_date=None, market_profile=None, market_correlation=None, ticker_profile=None, sample_prices=None, method=settings.ESTIMATION_METHOD):
     """
     Description
     -----------
@@ -149,7 +147,7 @@ def market_beta(ticker, start_date=None, end_date=None, market_profile=None, mar
     except errors.InputValidationError as ive:
         raise ive
 
-    result = profile_cache.filter_profile_cache(ticker=ticker, start_date=start_date, end_date=end_date)
+    result = profile_cache.filter_profile_cache(ticker=ticker, start_date=start_date, end_date=end_date, method=method)
 
     if result is not None and result[static.keys['STATISTICS']['BETA']] is not None:
         return result[static.keys['STATISTICS']['BETA']]
@@ -157,20 +155,18 @@ def market_beta(ticker, start_date=None, end_date=None, market_profile=None, mar
     try:
         if market_profile is None:
             if sample_prices is None:
-                market_profile = statistics.calculate_moment_risk_return(ticker=settings.MARKET_PROXY, 
-                                                                start_date=start_date, 
-                                                                end_date=end_date)
+                market_profile = statistics.calculate_risk_return(ticker=settings.MARKET_PROXY, start_date=start_date, 
+                                                        end_date=end_date, method=method)
             else:   
-                market_profile = statistics.calculate_moment_risk_return(ticker=settings.MARKET_PROXY,
+                market_profile = statistics.calculate_risk_return(ticker=settings.MARKET_PROXY, method=method,
                                                                 sample_prices=sample_prices[settings.MARKET_PROXY])
         if ticker_profile is None:
             if sample_prices is None:
-                ticker_profile = statistics.calculate_moment_risk_return(ticker=ticker,
-                                                                start_date=start_date,
-                                                                end_date=end_date)
+                ticker_profile = statistics.calculate_risk_return(ticker=ticker,start_date=start_date,
+                                                        end_date=end_date, method=method)
             else:
-                ticker_profile = statistics.calculate_moment_risk_return(ticker=ticker, 
-                                                                sample_prices=sample_prices[ticker])
+                ticker_profile = statistics.calculate_risk_return(ticker=ticker, method=method,
+                                                        sample_prices=sample_prices[ticker])
 
         market_covariance = statistics.calculate_return_covariance(ticker_1=ticker, ticker_2=settings.MARKET_PROXY,
                                                                     profile_1=ticker_profile, profile_2=market_profile,
@@ -186,7 +182,7 @@ def market_beta(ticker, start_date=None, end_date=None, market_profile=None, mar
 
     beta = market_covariance / (market_profile['annual_volatility']**2)
 
-    profile_cache.save_or_update_row(ticker=ticker, start_date=start_date, end_date=end_date, asset_beta=beta)
+    profile_cache.save_or_update_row(ticker=ticker, start_date=start_date, end_date=end_date, asset_beta=beta, method=method)
 
     return beta
 

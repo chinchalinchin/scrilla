@@ -25,12 +25,20 @@ constants = {
     'DENOMINATION': 'USD',
     'NPV_DELTA_TOLERANCE': 0.0000001,
     'OPTIMIZATION_METHOD': "SLSQP"
-
 }
 keys= {
     'PRICES': {
         'OPEN': 'open',
         'CLOSE': 'close'
+    },
+    'ESTIMATION': {
+        'MOMENT': 'moments',
+        'PERCENT': 'percents',
+        'LIKE': 'likely'
+    },
+    'MODELS':{
+        'GBM': 'geometric',
+        'MEAN': 'reversion'
     },
     'YIELD_CURVE': ["ONE_MONTH", "TWO_MONTH", "THREE_MONTH", "SIX_MONTH", "ONE_YEAR", "TWO_YEAR", "THREE_YEAR", "FIVE_YEAR", "SEVEN_YEAR", "TEN_YEAR", "TWENTY_YEAR", "THIRTY_YEAR"],
     'STATISTICS': {

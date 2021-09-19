@@ -58,10 +58,7 @@ def get_last_trading_date():
 def this_date_or_last_trading_date(date : datetime.date):
     if is_date_holiday(date) or is_date_weekend(date):
         date = get_previous_business_date(date)
-    trading_close = date.replace(hour=20)
-    if date > trading_close:
-        return date
-    return get_previous_business_date(date)
+    return date
 
 def validate_date_string(parsed_date_string):
     length_check = (len(parsed_date_string) == 3 )
@@ -402,6 +399,21 @@ def get_json(xtra_args):
         return formatter.FUNC_XTRA_SINGLE_ARGS_DICT['json']
     return None
 
+def get_moments(xtra_args):
+    if formatter.FUNC_XTRA_SINGLE_ARGS_DICT['moments'] in xtra_args:
+        return formatter.FUNC_XTRA_SINGLE_ARGS_DICT['moments']
+    return None
+
+def get_percentiles(xtra_args):
+    if formatter.FUNC_XTRA_SINGLE_ARGS_DICT['percentiles'] in xtra_args:
+        return formatter.FUNC_XTRA_SINGLE_ARGS_DICT['percentiles']
+    return None
+
+def get_likelihood(xtra_args):
+    if formatter.FUNC_XTRA_SINGLE_ARGS_DICT['likelihood'] in xtra_args:
+        return formatter.FUNC_XTRA_SINGLE_ARGS_DICT['likelihood']
+    return None
+
 def get_investment(xtra_args, xtra_values):
     if formatter.FUNC_XTRA_VALUED_ARGS_DICT['investment'] in xtra_args:
         try:
@@ -432,6 +444,9 @@ def format_xtra_args_dict(xtra_args, xtra_values):
         'suppress': get_suppress_output(xtra_args),
         'json': get_json(xtra_args),
         'expiry': get_expiry(xtra_args, xtra_values),
+        'percentiles': get_percentiles(xtra_args),
+        'moments': get_moments(xtra_args),
+        'likelihood': get_likelihood(xtra_args), 
         'probability': get_probability(xtra_args, xtra_values)
     }
 
@@ -459,20 +474,6 @@ def separate_and_parse_args(args):
 
     return (extra_args, extra_values, reduced_args)
     
-### APPLICATION PARSING
-#should be in ...? somewhere that is not here. outputter, probably. 
-def format_allocation_profile(allocation, portfolio) -> str:
-    port_return, port_volatility = portfolio.return_function(allocation), portfolio.volatility_function(allocation)
-    formatted_result = "("+str(100*port_return)[:5]+"%, " + str(100*port_volatility)[:5]+"%)"
-    formatted_result_title = "("
-    for symbol in portfolio.tickers:
-        if portfolio.tickers.index(symbol) != (len(portfolio.tickers) - 1):
-            formatted_result_title += symbol+", "
-        else:
-            formatted_result_title += symbol + ") Portfolio Return-Risk Profile"
-    whole_thing = formatted_result_title +" = "+formatted_result
-    return whole_thing
-
 def get_first_json_key(this_json):
     return list(this_json.keys())[0]
 

@@ -1,7 +1,6 @@
 import datetime, sys
 
-import  util.helper as helper
-import  util.formatter as formatter
+import scrilla.util.formatter as formatter
 
 LOG_LEVEL_NONE = "none"
 LOG_LEVEL_INFO = "info"
@@ -88,10 +87,11 @@ def option(opt, explanation):
 
 def help_msg():
     title_line(formatter.APP_NAME)
-    explanation=break_lines(formatter.HELP_MSG)
-    for l in explanation:
-        center(l)
-    return_line()
+    for paragraph in formatter.HELP_MSG:
+        explanation=break_lines(paragraph)
+        for l in explanation:
+            center(l)
+        return_line()
 
     title_line('SYNTAX')
     center(formatter.SYNTAX)

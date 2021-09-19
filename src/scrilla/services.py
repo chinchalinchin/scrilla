@@ -201,7 +201,6 @@ class StatManager():
         
         raise errors.ConfigurationError('No STAT_MANAGER found in the parsed environment settings')
 
-
 class DividendManager():
     
     def __init__(self, type):
@@ -387,6 +386,8 @@ class PriceManager():
     def slice_prices(self, start_date, end_date, asset_type, prices):
         # NOTE: only really needed for `alpha_vantage` responses so far, due to the fact AlphaVantage either returns everything or 100 days or prices.
         if self.type == static.keys['SERVICES']['PRICES']['ALPHA_VANTAGE']['MANAGER']:
+            service_map = static.keys['SERVICES']['PRICES']['ALPHA_VANTAGE']['MAP']
+
             # NOTE: Remember AlphaVantage is ordered current to earliest. END_INDEX is 
             # actually the beginning of slice and START_INDEX is actually end of slice. 
             try:
@@ -410,17 +411,19 @@ class PriceManager():
     def parse_price_from_date(self, prices, date, asset_type, which_price):
         try:
             if self.type== 'alpha_vantage':
+                service_map = static.keys['SERVICES']['PRICES']['ALPHA_VANTAGE']['MAP']
+
                 if asset_type == static.keys['ASSETS']['EQUITY']:
                     if which_price == static.keys['PRICES']['CLOSE']:
-                        return prices[date][settings.AV_RES_EQUITY_CLOSE_PRICE]
+                        return prices[date][service_map['KEYS']['EQUITY']['CLOSE']]
                     if which_price == static.keys['PRICES']['OPEN']:
-                        return prices[date][settings.AV_RES_EQUITY_OPEN_PRICE]
+                        return prices[date][service_map['KEYS']['EQUITY']['CLOSE']]
 
                 elif asset_type == static.keys['ASSETS']['CRYPTO']:
                     if which_price == static.keys['PRICES']['CLOSE']:
-                        return prices[date][settings.AV_RES_CRYPTO_CLOSE_PRICE]
+                        return prices[date][service_map['KEYS']['CRYPTO']['CLOSE']]
                     if which_price == static.keys['PRICES']['OPEN']:
-                        return prices[date][settings.AV_RES_CRYPTO_OPEN_PRICE]
+                        return prices[date][service_map['KEYS']['CRYPTO']['OPEN']]
             
             raise errors.InputValidationError(f'Verify {asset_type}, {which_price} are allowable values')
 

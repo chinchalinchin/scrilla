@@ -14,22 +14,16 @@
 # or <https://github.com/chinchalinchin/scrilla/blob/develop/main/LICENSE>.
 
 import sys, os, traceback, json
-
-#  Note: need to import from package when running from wheel.
-# if running locally through main.py file, these imports should be replaced
-#       from . import settings, from . import services, from . import files
-# annoying, but it is what it is.
-if __name__=="__main__":
-    import settings, services, files, static
-    from errors import APIResponseError, ConfigurationError, InputValidationError, SampleSizeError, PriceError
-
-else:
-    from scrilla import settings, services, files, static
-    from scrilla.errors import APIResponseError, ConfigurationError, InputValidationError, SampleSizeError, PriceError
+from types import MethodType
 
 
-from util import helper, outputter, formatter
-from analysis import statistics, optimizer, markets, blackscholes
+from scrilla import settings, services, files, static
+from scrilla.errors import APIResponseError, ConfigurationError, InputValidationError, SampleSizeError, PriceError
+from scrilla.util import helper, outputter, formatter
+from scrilla.analysis import optimizer, markets
+from scrilla.analysis.models.geometric import statistics, probability
+# TODO: conditional imports based on value of ANALYSIS_MODE
+
 from analysis.objects.portfolio import Portfolio
 from analysis.objects.cashflow import Cashflow
 
@@ -69,6 +63,16 @@ def validate_function_usage(selection, args, wrapper_function, required_length=1
                     InputValidationError, ConfigurationError) as e:
             print(str(e))
             traceback.print_exc()
+
+def format_estimation_method(xtra_dict):
+    estimation_method = settings.ESTIMATION_METHOD
+    if xtra_dict['moments'] is not None:
+        estimation_method = static.keys['ESTIMATION']['MOMENT']
+    elif xtra_dict['percentiles'] is not None:
+        estimation_method = static.keys['ESTIMATION']['PERCENT']
+    elif xtra_dict['likelihood'] is not None:
+        estimation_method = static.keys['ESTIMATION']['LIKE']
+    return estimation_method
 
 def print_format_to_screen(xtra_dict):
     return xtra_dict['json'] is None and xtra_dict['suppress'] is None
@@ -143,6 +147,7 @@ def do_program():
             args = sys.argv[2:]
             xtra_args, xtra_values, main_args = helper.separate_and_parse_args(args)
             xtra_dict = helper.format_xtra_args_dict(xtra_args, xtra_values)
+            estimation_method = format_estimation_method(xtra_dict)
             logger.log_arguments(main_args=main_args, xtra_args=xtra_args, xtra_values=xtra_values)
             exact, selected_function = False, None
 
@@ -162,15 +167,15 @@ def do_program():
                 selected_function, required_length = cli_asset_type, 1
 
             ### FUNCTION: Black-Scholes Value At Risk
-            elif opt == formatter.FUNC_ARG_DICT['bs_var']:
-                def cli_bs_var():
+            elif opt == formatter.FUNC_ARG_DICT['var']:
+                def cli_var():
                     all_vars = {}
                     for arg in main_args:
                         prices = services.get_daily_price_history(ticker=arg, start_date=xtra_dict['start_date'],
                                                                     end_date=xtra_dict['end_date'])
                         latest_price = prices[helper.get_first_json_key(prices)]
                         profile = statistics.calculate_moment_risk_return(ticker=arg, sample_prices=prices)
-                        valueatrisk = blackscholes.percentile(S0=latest_price, vol=profile['annual_volatility'],
+                        valueatrisk = probability.percentile(S0=latest_price, vol=profile['annual_volatility'],
                                                                 ret=profile['annual_return'], expiry=xtra_dict['expiry'],
                                                                 percentile=xtra_dict['probability'])
                         all_vars[arg]=valueatrisk
@@ -184,21 +189,21 @@ def do_program():
                     if xtra_dict['save_file'] is not None:
                         files.save_file(file_to_save=all_vars, file_name=xtra_dict['save_file'])
 
-                selected_function, required_length = cli_bs_var, 2
+                selected_function, required_length = cli_var, 2
                 
             ### FUNCTION: Black-Scholes Conditional Value At Risk
-            elif opt == formatter.FUNC_ARG_DICT['bs_cvar']:
-                def cli_bs_var():
+            elif opt == formatter.FUNC_ARG_DICT['cvar']:
+                def cli_var():
                     all_cvars = {}
                     for arg in main_args:
                         prices = services.get_daily_price_history(ticker=arg, start_date=xtra_dict['start_date'],
                                                                     end_date=xtra_dict['end_date'])
                         latest_price = prices[helper.get_first_json_key(prices)]
                         profile = statistics.calculate_moment_risk_return(ticker=arg, sample_prices=prices)
-                        valueatrisk = blackscholes.percentile(S0=latest_price, vol=profile['annual_volatility'],
+                        valueatrisk = probability.percentile(S0=latest_price, vol=profile['annual_volatility'],
                                                                 ret=profile['annual_return'], expiry=xtra_dict['expiry'],
                                                                 percentile=xtra_dict['probability'])
-                        cvar = blackscholes.conditional_expected_value(S0=latest_price, vol=profile['annual_volatility'],
+                        cvar = probability.conditional_expected_value(S0=latest_price, vol=profile['annual_volatility'],
                                                                         ret=profile['annual_return'], expiry=xtra_dict['expiry'],
                                                                         conditional_value=valueatrisk)
                         all_cvars[arg]=cvar
@@ -212,7 +217,7 @@ def do_program():
                     if xtra_dict['save_file'] is not None:
                         files.save_file(file_to_save=all_cvars, file_name=xtra_dict['save_file'])
 
-                selected_function, required_length = cli_bs_var, 2
+                selected_function, required_length = cli_var, 2
 
             ### FUNCTION: Capital Asset Pricing Model Cost of Equity
             elif opt == formatter.FUNC_ARG_DICT['capm_equity_cost']:
@@ -287,7 +292,7 @@ def do_program():
             elif opt == formatter.FUNC_ARG_DICT['correlation_time_series']:
                 def cli_correlation_series():
                     ticker_1, ticker_2 = main_args[0], main_args[1]
-                    result = statistics.calculate_ito_correlation_series(ticker_1=ticker_1,ticker_2=ticker_2,
+                    result = statistics.calculate_moment_correlation_series(ticker_1=ticker_1,ticker_2=ticker_2,
                                                                             start_date=xtra_dict['start_date'],
                                                                             end_date=xtra_dict['end_date'])
                     for date in result:
@@ -553,16 +558,19 @@ def do_program():
                 def cli_risk_return():
                     profiles = {}
                     for arg in main_args:
-                        profiles[arg] = statistics.calculate_moment_risk_return(ticker=arg, start_date=xtra_dict['start_date'], 
-                                                                            end_date=xtra_dict['end_date'])
+                        profiles[arg] = statistics.calculate_risk_return(ticker=arg, method = estimation_method,
+                                                                start_date=xtra_dict['start_date'], end_date=xtra_dict['end_date'])
                         profiles[arg]['sharpe_ratio'] = markets.sharpe_ratio(ticker=arg, start_date=xtra_dict['start_date'],
                                                                             end_date=xtra_dict['end_date'], 
-                                                                            ticker_profile=profiles[arg])
+                                                                            ticker_profile=profiles[arg],
+                                                                            method=estimation_method)
                         profiles[arg]['asset_beta'] = markets.market_beta(ticker=arg, start_date=xtra_dict['start_date'],
                                                                             end_date=xtra_dict['end_date'],
-                                                                            ticker_profile=profiles[arg])
+                                                                            ticker_profile=profiles[arg],
+                                                                            method=MethodType)
                         profiles[arg]['equity_cost'] = markets.cost_of_equity(ticker=arg, start_date=xtra_dict['start_date'],
-                                                                            end_date=xtra_dict['end_date'])
+                                                                            end_date=xtra_dict['end_date'], 
+                                                                            method=estimation_method)
                     
                     if xtra_dict['suppress'] is None:
                         if xtra_dict['json'] is None:
