@@ -17,12 +17,14 @@ from os import path
 from datetime import timedelta
 from sys import path as sys_path
 from numpy import log, sqrt, exp
+from scipy.stats import norm
+
 
 if __name__=="__main__":
     APP_DIR = path.dirname(path.dirname(path.abspath(__file__)))
     sys_path.append(APP_DIR)
 
-from scrilla import static, services, files, settings, errors, cache
+from scrilla import static, services, files, settings, errors, cache, estimators
 import scrilla.util.outputter as outputter
 import scrilla.util.formatter as formatter
 import scrilla.util.helper as helper
@@ -35,187 +37,6 @@ ESTIMATION_MODES=[
 logger = outputter.Logger('statistics', settings.LOG_LEVEL)
 profile_cache = cache.ProfileCache()
 correlation_cache = cache.CorrelationCache()
-
-def sample_correlation(x, y):
-    """
-    
-    Raises 
-    ------
-    1. scrilla.analysis.geometric.statistics.SampleSizeError \n \n
-
-    Notes
-    """
-    if len(x) != len(y):
-        raise errors.SampleSizeError('Samples are not of comparable lengths')
-
-    if len(x) in [0, 1]:
-        raise errors.SampleSizeError('Sample correlation cannot be computed for a sample size less than or equal to 1.')
-
-    sumproduct, sum_x_squared, sum_x, sum_y, sum_y_squared= 0, 0, 0, 0, 0
-    n = len(x)
-    for i, item in enumerate(x):
-        sumproduct += item*y[i]
-        sum_x += item
-        sum_x_squared += item**2
-        sum_y += y[i]
-        sum_y_squared += y[i]**2
-    correl_num = ((n*sumproduct) - sum_x*sum_y)
-    correl_den = sqrt((n*sum_x_squared-sum_x**2)*(n*sum_y_squared-sum_y**2))
-
-    # LET'S DO SOME MATHEMATICS! (to get around division by zero!)
-    #   Unfortunately, this only works when A and B > 0 because log
-    #       of a negative number only exists in complex plane.
-    #   1. correl = A/B
-    #   2. log(correl) = log(A/B) = log(A) - log(B)
-    #   3. exp(log(correl)) = exp(log(A/B))
-    #   4. correl = exp(log(A/B))
-    if correl_num > 0 and correl_den > 0:
-        log_correl = log(correl_num) - log(correl_den)
-        correlation = exp(log_correl)
-    else:
-        if correl_den != 0:
-            correlation = correl_num / correl_den
-        else:
-            raise ValueError('Denominator for correlation formula to small for division')
-
-    return correlation
-
-def recursive_rolling_correlation(correl_previous, new_x_observation, lost_x_obs, 
-                            new_y_obs, lost_y_obs, n=settings.DEFAULT_ANALYSIS_PERIOD):
-    
-    pass
-
-def sample_mean(x):
-    """
-    
-    Raises 
-    ------
-    1. scrilla.analysis.geometric.statistics.SampleSizeError \n \n
-    """
-    xbar, n = 0, len(x)
-
-    if n == 0:
-        raise errors.SampleSizeError('Sample mean cannot be computed for a sample size of 0.')
-
-    for i in x:
-        xbar += i/n
-    return xbar
-
-def recursive_rolling_mean(xbar_previous, new_obs, lost_obs, n=settings.DEFAULT_ANALYSIS_PERIOD):
-    xbar_next = xbar_previous + (new_obs - lost_obs)/n
-    return xbar_next
-
-def sample_variance(x):
-    """
-    
-    Raises 
-    ------
-    1. scrilla.analysis.geometric.statistics.SampleSizeError \n \n
-    """
-
-    try:
-        mu, sigma, n = sample_mean(x=x), 0, len(x)
-    except errors.SampleSizeError as e:
-        raise errors.SampleSizeError(e)
-
-    if n in [0, 1]:
-        raise errors.SampleSizeError('Sample variance cannot be computed for a sample size less than or equal to 1.')
-
-    for i in x:
-        sigma += ((i-mu)**2)/(n-1)
-    return sigma
-
-def recursive_rolling_variance(var_previous, xbar_previous, new_obs, lost_obs, n=settings.DEFAULT_ANALYSIS_PERIOD):
-    xbar_new = recursive_rolling_mean(xbar_previous=xbar_previous, new_obs=new_obs,
-                                lost_obs=lost_obs, n=n)
-    var_new = var_previous + (n/(n-1))*((new_obs**2 - lost_obs**2 )/n + (xbar_previous**2-xbar_new**2))
-    return var_new
-
-def sample_covariance(x, y):
-    """
-    
-    Raises 
-    ------
-    1. scrilla.analysis.geometric.statistics.SampleSizeError \n \n
-    """
-
-    if len(x) != len(y):
-        raise errors.SampleSizeError('Samples are not of comparable length')
-
-    if len(x) in [0, 1]:
-        raise errors.SampleSizeError('Sample correlation cannot be computed for a sample size less than or equal to 1.')
-
-    # TODO: probably a faster way of calculating this.
-    n, covariance = len(x), 0
-
-    try:
-        x_mean, y_mean = sample_mean(x=x), sample_mean(x=y)
-    except errors.SampleSizeError as e:
-        raise errors.SampleSizeError(e)
-
-    for i, item in enumerate(x):
-        covariance += (item - x_mean)*(y[i] - y_mean) / (n -1) 
-
-    return covariance
-
-def recursive_rolling_covariance(covar_previous, new_x_obs, lost_x_obs, previous_x_bar, 
-                            new_y_obs, lost_y_obs, previous_y_bar, n=settings.DEFAULT_ANALYSIS_PERIOD):
-    new_sum_term = new_x_obs*new_y_obs - lost_x_obs*lost_y_obs
-    xy_cross_term = previous_x_bar*(new_y_obs-lost_y_obs)
-    yx_cross_term = previous_y_bar*(new_x_obs-lost_x_obs)
-    perturbation = (new_x_obs-lost_x_obs)*(new_y_obs-lost_y_obs) / n
-    numerator = new_sum_term - xy_cross_term - yx_cross_term - perturbation    
-    covar_new = covar_previous + numerator / (n-1)
-    return covar_new
-
-def regression_beta(x, y):
-    """
-    
-    Raises 
-    ------
-    1. scrilla.analysis.geometric.statistics.SampleSizeError \n \n
-    """
-
-    if len(x) != len(y):
-        raise errors.SampleSizeError(f'len(x) = {len(x)} != len(y) = {len(y)}')
-    if len(x) < 3:
-        raise errors.SampleSizeError(f'Sample size of {len(x)} is less than the necessary degrees of freedom (n > 2) for regression estimation.')
-    
-    try:
-        correl = sample_correlation(x=x, y=y)
-        vol_x = sqrt(sample_variance(x=x))
-        vol_y = sqrt(sample_variance(x=y))
-    except errors.SampleSizeError as e:
-        raise errors.SampleSizeError(e)
-
-    beta = correl * vol_y / vol_x
-    return beta
-
-def regression_alpha(x, y):
-    """
-    
-    Raises 
-    ------
-    1. scrilla.analysis.geometric.statistics.SampleSizeError
-    """
-
-    if len(x) != len(y):
-        raise errors.SampleSizeError(f'len(x) == {len(x)} != len(y) == {len(y)}')
-
-    if len(x) < 3:
-        raise errors.SampleSizeError(f'Sample size of {len(x)} is less than the necessary degrees of freedom (n > 2) for regression estimation.')
-    
-    try:
-        y_mean, x_mean = sample_mean(y), sample_mean(x)
-    except errors.SampleSizeError as e:
-        raise errors.SampleSizeError(e)
-
-    if not y_mean or not x_mean:
-        logger.info('Error calculating statistics for regression alpha')
-        return False
-    
-    alpha = y_mean - regression_beta(x=x, y=y)*x_mean
-    return alpha
     
 def calculate_moving_averages(tickers, start_date=None, end_date=None, sample_prices=None):
     """
@@ -514,14 +335,85 @@ def calculate_moving_averages(tickers, start_date=None, end_date=None, sample_pr
     ### END RESPONSE FORMATTING ###
     return moving_averages, dates_between 
 
+def calculate_likelihood_risk_return(ticker, start_date=None, end_date=None, sample_prices=None, asset_type=None):
+    """
+    Description
+    -----------
+    Estimates the mean rate of return and volatility for a sample of asset prices as if the asset price followed a Geometric Brownian Motion process, i.e. the mean rate of return and volatility are constant and not functions of time or the asset price. Moreover, the return and volatility are estimated using the method of maximum likelihood estimation.
+    
+    Parameters
+    ----------
+    1. ticker : str \n
+        Required. Ticker symbol whose risk-return profile is to be calculated. \n \n 
+    2. start_date : datetime.date \n 
+        Optional. Start date of the time period over which the risk-return profile is to be calculated. Defaults to `None`, in which case the calculation proceeds as if `start_date` were set to 100 trading days prior to `end_date`. If `get_asset_type(ticker)=scrilla.static.keys['ASSETS']['CRYPTO']`, this means 100 days regardless. If `get_asset_type(ticker)=scrilla.static.keys['ASSETS']['EQUITY']`, this excludes weekends and holidays and decrements the `end_date` by 100 trading days.\n \n
+    3. end_date : datetime.date \n 
+        Optional. End date of the time period over which the risk-return profile is to be calculated. Defaults to `None`, in which the calculation proceeds as if `end_date` were set to today. If the `get_asset_type(ticker)==static.keys['ASSETS']['CRYPTO']` this means today regardless. If `get_asset_type(ticker)=static.keys['ASSETS']['EQUITY']` this excludes holidays and weekends and sets the end date to the last valid trading date. \n \n
+    4. sample_prices : { 'date_1' : { 'open' : number, 'close' : number}, 'date_2': { 'open': number, 'close': number} ... } \n
+        Optional. A list of the asset prices for which correlation will be calculated. Overrides calls to service and forces calculation of correlation for sample of prices supplied. Function will disregard `start_date` and `end_date` and use the first and last key as the latest and earliest date, respectively. In other words, the `sample_prices` dictionary must be ordered from latest to earliest.   \n \n
+    5. asset_type : str
+         Optional. Specify asset type to prevent overusing redundant calculations. Allowable values: scrilla.static.keys['ASSETS']['EQUITY'], scrilla.static.keys['ASSETS']['CRYPTO'] \n \n
+
+    Output
+    ------
+    { 'annual_return' : float, 'annual_volatility': float } \n \n
+
+    
+    Raises 
+    ------
+    1. scrilla.errors.SampleSizeError \n 
+    2. scrilla.errors.PriceError \n
+    3. scrilla.errors.InputValidationError \n
+    4. scrilla.errors.APIResponseError
+
+    Notes
+    -----
+    NOTE #1: assumes price history is ordered from latest to earliest date. \n \n 
+    """
+    pass
+
+
 def calculate_percentile_risk_return(ticker, start_date=None, end_date=None, sample_prices=None, asset_type=None):
+    """
+    Description
+    -----------
+    Estimates the mean rate of return and volatility for a sample of asset prices as if the asset price followed a Geometric Brownian Motion process, i.e. the mean rate of return and volatility are constant and not functions of time or the asset price. Moreover, the return and volatility are estimated using the method of percentile matching, where the return and volatility are estimated by matching the 25th and 75th percentile calculated from the assumed GBM distribution to the sample of data.
+    
+    Parameters
+    ----------
+    1. ticker : str \n
+        Required. Ticker symbol whose risk-return profile is to be calculated. \n \n 
+    2. start_date : datetime.date \n 
+        Optional. Start date of the time period over which the risk-return profile is to be calculated. Defaults to `None`, in which case the calculation proceeds as if `start_date` were set to 100 trading days prior to `end_date`. If `get_asset_type(ticker)=scrilla.static.keys['ASSETS']['CRYPTO']`, this means 100 days regardless. If `get_asset_type(ticker)=scrilla.static.keys['ASSETS']['EQUITY']`, this excludes weekends and holidays and decrements the `end_date` by 100 trading days.\n \n
+    3. end_date : datetime.date \n 
+        Optional. End date of the time period over which the risk-return profile is to be calculated. Defaults to `None`, in which the calculation proceeds as if `end_date` were set to today. If the `get_asset_type(ticker)==static.keys['ASSETS']['CRYPTO']` this means today regardless. If `get_asset_type(ticker)=static.keys['ASSETS']['EQUITY']` this excludes holidays and weekends and sets the end date to the last valid trading date. \n \n
+    4. sample_prices : { 'date_1' : { 'open' : number, 'close' : number}, 'date_2': { 'open': number, 'close': number} ... } \n
+        Optional. A list of the asset prices for which correlation will be calculated. Overrides calls to service and forces calculation of correlation for sample of prices supplied. Function will disregard `start_date` and `end_date` and use the first and last key as the latest and earliest date, respectively. In other words, the `sample_prices` dictionary must be ordered from latest to earliest.   \n \n
+    5. asset_type : str
+         Optional. Specify asset type to prevent overusing redundant calculations. Allowable values: scrilla.static.keys['ASSETS']['EQUITY'], scrilla.static.keys['ASSETS']['CRYPTO'] \n \n
+
+    Output
+    ------
+    { 'annual_return' : float, 'annual_volatility': float } \n \n
+
+    
+    Raises 
+    ------
+    1. scrilla.errors.SampleSizeError \n 
+    2. scrilla.errors.PriceError \n
+    3. scrilla.errors.InputValidationError \n
+    4. scrilla.errors.APIResponseError
+
+    Notes
+    -----
+    NOTE #1: assumes price history is ordered from latest to earliest date. \n \n 
+    """
     pass
 
 def calculate_moment_risk_return(ticker, start_date=None, end_date=None, sample_prices=None, asset_type=None):
     """
     Description
     -----------
-
     Estimates the mean rate of return and volatility for a sample of asset prices as if the asset price followed a Geometric Brownian Motion process, i.e. the mean rate of return and volatility are constant and not functions of time or the asset price. Moreover, the return and volatility are estimated using the method of moment matching, where the return is estimated by equating it to the first moment of the sample and the volatility is estimated by equating it to the square root of the second moment of the sample.
     
     Parameters
@@ -529,13 +421,13 @@ def calculate_moment_risk_return(ticker, start_date=None, end_date=None, sample_
     1. ticker : str \n
         Required. Ticker symbol whose risk-return profile is to be calculated. \n \n 
     2. start_date : datetime.date \n 
-        Optional. Start date of the time period over which the risk-return profile is to be calculated. Defaults to `None`, in which case the calculation proceeds as if `start_date` were set to 100 trading days prior to `end_date`. If `get_asset_type(ticker)=static.keys['ASSETS']['CRYPTO']`, this means 100 days regardless. If `get_asset_type(ticker)=static.keys['ASSETS']['EQUITY']`, this excludes weekends and holidays and decrements the `end_date` by 100 trading days.\n \n
+        Optional. Start date of the time period over which the risk-return profile is to be calculated. Defaults to `None`, in which case the calculation proceeds as if `start_date` were set to 100 trading days prior to `end_date`. If `get_asset_type(ticker)=scrilla.static.keys['ASSETS']['CRYPTO']`, this means 100 days regardless. If `get_asset_type(ticker)=scrilla.static.keys['ASSETS']['EQUITY']`, this excludes weekends and holidays and decrements the `end_date` by 100 trading days.\n \n
     3. end_date : datetime.date \n 
         Optional. End date of the time period over which the risk-return profile is to be calculated. Defaults to `None`, in which the calculation proceeds as if `end_date` were set to today. If the `get_asset_type(ticker)==static.keys['ASSETS']['CRYPTO']` this means today regardless. If `get_asset_type(ticker)=static.keys['ASSETS']['EQUITY']` this excludes holidays and weekends and sets the end date to the last valid trading date. \n \n
     4. sample_prices : { 'date_1' : { 'open' : number, 'close' : number}, 'date_2': { 'open': number, 'close': number} ... } \n
         Optional. A list of the asset prices for which correlation will be calculated. Overrides calls to service and forces calculation of correlation for sample of prices supplied. Function will disregard `start_date` and `end_date` and use the first and last key as the latest and earliest date, respectively. In other words, the `sample_prices` dictionary must be ordered from latest to earliest.   \n \n
     5. asset_type : str
-         Optional. Specify asset type to prevent overusing redundant calculations. Allowable values: settings.ASSET_TYPE_EQUITY, settings.ASSET_TYPE_CRYPTO \n \n
+         Optional. Specify asset type to prevent overusing redundant calculations. Allowable values: scrilla.static.keys['ASSETS']['EQUITY'], scrilla.static.keys['ASSETS']['CRYPTO'] \n \n
 
     Output
     ------

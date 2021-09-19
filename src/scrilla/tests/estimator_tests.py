@@ -4,8 +4,7 @@ import numpy
 PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(PROJECT_DIR)
 
-from scrilla import settings, services, static
-from scrilla.analysis import statistics
+from scrilla import settings, services, static, estimators
 from scrilla.util import outputter, helper
 
 rolling_x_y_1 = [[1, 3, 5, 2, 6, 10],[4, 5, 3, 6, 2, 8]]
@@ -19,9 +18,9 @@ test_tickers = ["ALLY", "BX"]
 
 def regression_test():
     # REGRESSION CALCULATIONS
-    correl = statistics.sample_correlation(x=x_y_data[0], y=x_y_data[1])
-    beta = statistics.regression_beta(x=x_y_data[0],y=x_y_data[1])
-    alpha = statistics.regression_alpha(x=x_y_data[0],y=x_y_data[1])
+    correl = estimators.sample_correlation(x=x_y_data[0], y=x_y_data[1])
+    beta = estimators.regression_beta(x=x_y_data[0],y=x_y_data[1])
+    alpha = estimators.regression_alpha(x=x_y_data[0],y=x_y_data[1])
     
     # TEST RESULTS
     outputter.scalar_result(calculation='correct correlation', result=x_y_correl, currency=False)
@@ -38,59 +37,59 @@ def rolling_recursion_test():
     length = len(rolling_x_y_1[0])
     
     # ACTUAL MEANS
-    x_mean_1 = statistics.sample_mean(x=rolling_x_y_1[0])
-    x_mean_2 = statistics.sample_mean(x=rolling_x_y_2[0])
-    x_mean_3 = statistics.sample_mean(x=rolling_x_y_3[0])
-    x_mean_4 = statistics.sample_mean(x=rolling_x_y_4[0])
-    y_mean_1 = statistics.sample_mean(x=rolling_x_y_1[1])
-    y_mean_2 = statistics.sample_mean(x=rolling_x_y_2[1])
-    y_mean_3 = statistics.sample_mean(x=rolling_x_y_3[1])
-    y_mean_4 = statistics.sample_mean(x=rolling_x_y_4[1])
+    x_mean_1 = estimators.sample_mean(x=rolling_x_y_1[0])
+    x_mean_2 = estimators.sample_mean(x=rolling_x_y_2[0])
+    x_mean_3 = estimators.sample_mean(x=rolling_x_y_3[0])
+    x_mean_4 = estimators.sample_mean(x=rolling_x_y_4[0])
+    y_mean_1 = estimators.sample_mean(x=rolling_x_y_1[1])
+    y_mean_2 = estimators.sample_mean(x=rolling_x_y_2[1])
+    y_mean_3 = estimators.sample_mean(x=rolling_x_y_3[1])
+    y_mean_4 = estimators.sample_mean(x=rolling_x_y_4[1])
 
     # RECURSIVE MEANS
-    recursive_x_mean_2 = statistics.recursive_rolling_mean(xbar_previous=x_mean_1, new_obs=rolling_x_y_2[0][-1], 
+    recursive_x_mean_2 = estimators.recursive_rolling_mean(xbar_previous=x_mean_1, new_obs=rolling_x_y_2[0][-1], 
                                                     lost_obs=rolling_x_y_1[0][0], n=length)
-    recursive_x_mean_3 = statistics.recursive_rolling_mean(xbar_previous=x_mean_2, new_obs=rolling_x_y_3[0][-1], 
+    recursive_x_mean_3 = estimators.recursive_rolling_mean(xbar_previous=x_mean_2, new_obs=rolling_x_y_3[0][-1], 
                                                     lost_obs=rolling_x_y_2[0][0], n=length)
-    recursive_x_mean_4 = statistics.recursive_rolling_mean(xbar_previous=x_mean_3, new_obs=rolling_x_y_4[0][-1], 
+    recursive_x_mean_4 = estimators.recursive_rolling_mean(xbar_previous=x_mean_3, new_obs=rolling_x_y_4[0][-1], 
                                                     lost_obs=rolling_x_y_3[0][0], n=length)
-    recursive_y_mean_2 = statistics.recursive_rolling_mean(xbar_previous=y_mean_1, new_obs=rolling_x_y_2[1][-1], 
+    recursive_y_mean_2 = estimators.recursive_rolling_mean(xbar_previous=y_mean_1, new_obs=rolling_x_y_2[1][-1], 
                                                     lost_obs=rolling_x_y_1[1][0], n=length)
-    recursive_y_mean_3 = statistics.recursive_rolling_mean(xbar_previous=y_mean_2, new_obs=rolling_x_y_3[1][-1], 
+    recursive_y_mean_3 = estimators.recursive_rolling_mean(xbar_previous=y_mean_2, new_obs=rolling_x_y_3[1][-1], 
                                                     lost_obs=rolling_x_y_2[1][0], n=length)
-    recursive_y_mean_4 = statistics.recursive_rolling_mean(xbar_previous=y_mean_3, new_obs=rolling_x_y_4[1][-1], 
+    recursive_y_mean_4 = estimators.recursive_rolling_mean(xbar_previous=y_mean_3, new_obs=rolling_x_y_4[1][-1], 
                                                     lost_obs=rolling_x_y_3[1][0], n=length)
 
     # ACTUAL VARIANCES
-    var_1 = statistics.sample_variance(x=rolling_x_y_1[0])
-    var_2 = statistics.sample_variance(x=rolling_x_y_2[0])
-    var_3 = statistics.sample_variance(x=rolling_x_y_3[0])
-    var_4 = statistics.sample_variance(x=rolling_x_y_4[0])
+    var_1 = estimators.sample_variance(x=rolling_x_y_1[0])
+    var_2 = estimators.sample_variance(x=rolling_x_y_2[0])
+    var_3 = estimators.sample_variance(x=rolling_x_y_3[0])
+    var_4 = estimators.sample_variance(x=rolling_x_y_4[0])
 
     # RECURSIVE VARIANCES
-    recursive_var_2 = statistics.recursive_rolling_variance(var_previous=var_1, xbar_previous=x_mean_1, new_obs=rolling_x_y_2[0][-1], 
+    recursive_var_2 = estimators.recursive_rolling_variance(var_previous=var_1, xbar_previous=x_mean_1, new_obs=rolling_x_y_2[0][-1], 
                                                     lost_obs=rolling_x_y_1[0][0], n=length)
-    recursive_var_3 = statistics.recursive_rolling_variance(var_previous=var_2, xbar_previous=recursive_x_mean_2, new_obs=rolling_x_y_3[0][-1], 
+    recursive_var_3 = estimators.recursive_rolling_variance(var_previous=var_2, xbar_previous=recursive_x_mean_2, new_obs=rolling_x_y_3[0][-1], 
                                                     lost_obs=rolling_x_y_2[0][0], n=length)
-    recursive_var_4 = statistics.recursive_rolling_variance(var_previous=var_3, xbar_previous=recursive_x_mean_3, new_obs=rolling_x_y_4[0][-1], 
+    recursive_var_4 = estimators.recursive_rolling_variance(var_previous=var_3, xbar_previous=recursive_x_mean_3, new_obs=rolling_x_y_4[0][-1], 
                                                     lost_obs=rolling_x_y_3[0][0], n=length)
 
     # ACTUAL COVARIANCES
-    covar_1 = statistics.sample_covariance(x=rolling_x_y_1[0], y=rolling_x_y_1[1])
-    covar_2 = statistics.sample_covariance(x=rolling_x_y_2[0], y=rolling_x_y_2[1])
-    covar_3 = statistics.sample_covariance(x=rolling_x_y_3[0], y=rolling_x_y_3[1])
-    covar_4 = statistics.sample_covariance(x=rolling_x_y_4[0], y=rolling_x_y_4[1])
+    covar_1 = estimators.sample_covariance(x=rolling_x_y_1[0], y=rolling_x_y_1[1])
+    covar_2 = estimators.sample_covariance(x=rolling_x_y_2[0], y=rolling_x_y_2[1])
+    covar_3 = estimators.sample_covariance(x=rolling_x_y_3[0], y=rolling_x_y_3[1])
+    covar_4 = estimators.sample_covariance(x=rolling_x_y_4[0], y=rolling_x_y_4[1])
 
     # RECURSIVE COVARIANCES
-    recursive_covar_2 = statistics.recursive_rolling_covariance(covar_previous=covar_1, new_x_obs=rolling_x_y_2[0][-1], 
+    recursive_covar_2 = estimators.recursive_rolling_covariance(covar_previous=covar_1, new_x_obs=rolling_x_y_2[0][-1], 
                                                         lost_x_obs=rolling_x_y_1[0][0], previous_x_bar= x_mean_1,
                                                         new_y_obs=rolling_x_y_2[1][-1], lost_y_obs=rolling_x_y_1[1][0], 
                                                         previous_y_bar=y_mean_1, n=length)
-    recursive_covar_3 = statistics.recursive_rolling_covariance(covar_previous=covar_2, new_x_obs=rolling_x_y_3[0][-1], 
+    recursive_covar_3 = estimators.recursive_rolling_covariance(covar_previous=covar_2, new_x_obs=rolling_x_y_3[0][-1], 
                                                         lost_x_obs=rolling_x_y_2[0][0], previous_x_bar = x_mean_2,
                                                         new_y_obs=rolling_x_y_3[1][-1], lost_y_obs=rolling_x_y_2[1][0],
                                                         previous_y_bar = y_mean_2, n=length)
-    recursive_covar_4 = statistics.recursive_rolling_covariance(covar_previous=covar_3, new_x_obs=rolling_x_y_4[0][-1], 
+    recursive_covar_4 = estimators.recursive_rolling_covariance(covar_previous=covar_3, new_x_obs=rolling_x_y_4[0][-1], 
                                                         lost_x_obs=rolling_x_y_3[0][0], previous_x_bar=x_mean_3, 
                                                         new_y_obs=rolling_x_y_4[1][-1], lost_y_obs=rolling_x_y_3[1][0], 
                                                         previous_y_bar=y_mean_3, n=length)
@@ -163,17 +162,17 @@ def rolling_recursion_tests_with_financial_data():
             new_mod_return = new_return*numpy.sqrt(trading_period)
             lost_mod_return = lost_return*numpy.sqrt(trading_period)
 
-            old_profile = statistics.calculate_moment_risk_return(ticker=ticker, sample_prices=previous_prices)
+            old_profile = estimators.calculate_moment_risk_return(ticker=ticker, sample_prices=previous_prices)
             old_var = old_profile['annual_volatility']**2
             old_mod_return = old_profile['annual_return']*numpy.sqrt(trading_period)
 
-            new_actual_profile = statistics.calculate_moment_risk_return(ticker=ticker, sample_prices=new_prices)
+            new_actual_profile = estimators.calculate_moment_risk_return(ticker=ticker, sample_prices=new_prices)
 
             new_recursive_profile = {}
-            new_recursive_profile['annual_return'] = statistics.recursive_rolling_mean(xbar_previous=old_profile['annual_return'],
+            new_recursive_profile['annual_return'] = estimators.recursive_rolling_mean(xbar_previous=old_profile['annual_return'],
                                                                                 new_obs=new_return,
                                                                                 lost_obs=lost_return)
-            new_recursive_profile['annual_volatility'] = statistics.recursive_rolling_variance(var_previous=old_var,
+            new_recursive_profile['annual_volatility'] = estimators.recursive_rolling_variance(var_previous=old_var,
                                                                                         xbar_previous=old_mod_return,
                                                                                         new_obs=new_mod_return,
                                                                                         lost_obs=lost_mod_return)

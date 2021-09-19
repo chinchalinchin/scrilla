@@ -32,3 +32,5 @@
 37. Look into why U risk profile calculation breaks function.
 
 42. review monte carlo simulation. allow value at risk function to specify SDE. look into MLE for parameters.
+
+43. Determine how ANALYSIS_MODE and ESTIMATION_METHOD interact with the cache.

@@ -14,13 +14,10 @@
 # or <https://github.com/chinchalinchin/scrilla/blob/develop/main/LICENSE>.
 
 import datetime
-from scrilla import static
-import util.helper as helper
-import util.outputter as outputter
 
-import services
-import settings
-import analysis.geometric.statistics as statistics
+from scrilla import static, services, settings, estimators
+from scrilla.util import helper, outputter
+import scrilla.analysis.geometric.statistics as statistics
 
 logger = outputter.Logger('objects.cashflow', settings.LOG_LEVEL)
 
@@ -163,8 +160,8 @@ class Cashflow:
     def regress_growth_function(self):
         to_array = [ self.sample[date] for date in self.sample ]
 
-        self.beta = statistics.regression_beta(x=self.time_series, y=to_array)
-        self.alpha = statistics.regression_alpha(x=self.time_series, y=to_array)
+        self.beta = estimators.regression_beta(x=self.time_series, y=to_array)
+        self.alpha = estimators.regression_alpha(x=self.time_series, y=to_array)
         
         if not self.beta or not self.alpha:
             if len(self.sample) > 0:

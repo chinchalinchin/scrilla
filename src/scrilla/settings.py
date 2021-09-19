@@ -173,6 +173,10 @@ RISK_FREE_RATE=os.environ.setdefault("RISK_FREE", "TEN_YEAR").strip("\"")
 
 MARKET_PROXY=os.environ.setdefault('MARKET_PROXY', 'SPY')
 
+ANALYSIS_MODE=os.environ.setdefault('ANALYSIS_MODE', 'geometric')
+
+ESTIMATION_METHOD=os.environ.setdefault('ESTIMATION_METHOD', 'moments')
+
 ## SERVICE CONFIGURATION
 ### PRICE_MANAGER CONFIGRUATION
 PRICE_MANAGER = os.environ.setdefault('PRICE_MANAGER', 'alpha_vantage')

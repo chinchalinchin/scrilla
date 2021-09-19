@@ -355,6 +355,28 @@ The four functions of interest in this module are:
         This function will retrieve the current value of the risk free rate (annualized yield on a US Treasury) as a decimal. The US Treasury yield used as a proxy for the risk free rate can be configured through the <b>RISK_FREE</b> environment variable. See [optional configuration](#optional-configuration) for more details.
     <br>
 
+### scrilla.estimators
+
+1. `scrilla.analysis.geometric.statistics.sample_correlation`<br>
+
+2. `scrilla.analysis.geometric.statistics.recursive_rolling_correlation`<br>
+
+3. `scrilla.analysis.geometric.statistics.sample_mean`<br>
+
+4. `scrilla.anaylsis.statistics.recursive_rolling_mean`<br>
+
+5. `scrilla.anaylsis.statistics.sample_variance`<br>
+
+6. `scrilla.analysis.geometric.statistics.recursive_rolling_variance`<br>
+
+7. `scrilla.anaylsis.statistics.sample_covariance`<br>
+
+8. `scrilla.anaylsis.statistics.recursive_rolling_covariance`<br>
+
+9. `scrilla.analysis.geometric.statistics.regression_beta`<br>
+
+10. `scrilla.analysis.geometric.statistics.regression_alpha`<br>
+
 ### scrilla.analysis.markets
 
 1. `scrilla.analysis.markets.sharpe_ratio`<br>
@@ -379,26 +401,6 @@ The four functions of interest in this module are:
         The rate of return of a portfolio of assets is a linear function with respect to the asset weights. IAs a result, this function should always allocate 100% of any given portfolio to the asset with the highest expected rate of return, i.e. if you have two assets where one asset has a 10% rate of return and a second asset has a 20% rate of return, the maximum rate of return for a portfolio composed of both assets is produced when 100% of the portfolio is invested in the asset with a 20% rate of return.<br>
 
 ### scrilla.analysis.geometric.statistics
-
-1. `scrilla.analysis.geometric.statistics.sample_correlation`<br>
-
-2. `scrilla.analysis.geometric.statistics.recursive_rolling_correlation`<br>
-
-3. `scrilla.analysis.geometric.statistics.sample_mean`<br>
-
-4. `scrilla.anaylsis.statistics.recursive_rolling_mean`<br>
-
-5. `scrilla.anaylsis.statistics.sample_variance`<br>
-
-6. `scrilla.analysis.geometric.statistics.recursive_rolling_variance`<br>
-
-7. `scrilla.anaylsis.statistics.sample_covariance`<br>
-
-8. `scrilla.anaylsis.statistics.recursive_rolling_covariance`<br>
-
-9. `scrilla.analysis.geometric.statistics.regression_beta`<br>
-
-10. `scrilla.analysis.geometric.statistics.regression_alpha`<br>
 
 11. `scrilla.analysis.geometric.statistics.calculate_moving_averages`<br>
 
