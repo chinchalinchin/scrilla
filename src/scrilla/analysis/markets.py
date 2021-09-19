@@ -14,8 +14,8 @@
 # or <https://github.com/chinchalinchin/scrilla/blob/develop/main/LICENSE>.
 
 from scrilla import settings, services, files, cache, static, errors
-from scrilla.objects.cashflow import Cashflow
-import scrilla.analysis.geometric.statistics as statistics
+from scrilla.analysis.objects.cashflow import Cashflow
+import scrilla.analysis.models.geometric.statistics as statistics
 import scrilla.util.outputter as outputter
 
 MODEL_DDM="ddm"

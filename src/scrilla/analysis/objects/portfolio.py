@@ -20,10 +20,10 @@ from scrilla import services, settings, files
 import scrilla.util.outputter as outputter 
 
 # TODO: conditional import module based on analysis_mode, i.e. geometric versus mean reverting.
-import scrilla.analysis.geometric.statistics as statistics
-import scrilla.analysis.geometric.probability as probability
+import scrilla.analysis.models.geometric.statistics as statistics
+import scrilla.analysis.models.geometric.probability as probability
 
-logger = outputter.Logger("objects.portfolio", settings.LOG_LEVEL)
+logger = outputter.Logger("analysis.objects.portfolio", settings.LOG_LEVEL)
 
 # TODO: allow user to specify bounds for equities, i.e. min and max allocations.
 class Portfolio:

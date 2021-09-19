@@ -30,8 +30,8 @@ else:
 
 from util import helper, outputter, formatter
 from analysis import statistics, optimizer, markets, blackscholes
-from objects.portfolio import Portfolio
-from objects.cashflow import Cashflow
+from analysis.objects.portfolio import Portfolio
+from analysis.objects.cashflow import Cashflow
 
 if settings.APP_ENV != "container":
     import util.plotter as plotter

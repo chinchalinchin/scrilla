@@ -17,9 +17,9 @@ import datetime
 
 from scrilla import static, services, settings, estimators
 from scrilla.util import helper, outputter
-import scrilla.analysis.geometric.statistics as statistics
+import scrilla.analysis.models.geometric.statistics as statistics
 
-logger = outputter.Logger('objects.cashflow', settings.LOG_LEVEL)
+logger = outputter.Logger('analysis.objects.cashflow', settings.LOG_LEVEL)
 
 # Technically these are periods
 FREQ_DAY=1/365
@@ -160,8 +160,8 @@ class Cashflow:
     def regress_growth_function(self):
         to_array = [ self.sample[date] for date in self.sample ]
 
-        self.beta = estimators.regression_beta(x=self.time_series, y=to_array)
-        self.alpha = estimators.regression_alpha(x=self.time_series, y=to_array)
+        self.beta = estimators.simple_regression_beta(x=self.time_series, y=to_array)
+        self.alpha = estimators.simple_regression_alpha(x=self.time_series, y=to_array)
         
         if not self.beta or not self.alpha:
             if len(self.sample) > 0:

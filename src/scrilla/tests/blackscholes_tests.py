@@ -7,7 +7,7 @@ sys.path.append(PROJECT_DIR)
 
 import settings, services
 from analysis import blackscholes, optimizer
-from objects.portfolio import Portfolio
+from analysis.objects.portfolio import Portfolio
 from util import outputter, helper
 
 

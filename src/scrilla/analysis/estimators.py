@@ -18,7 +18,6 @@ from sys import path as sys_path
 from numpy import log, sqrt, exp
 from scipy.stats import norm
 
-
 if __name__=="__main__":
     APP_DIR = path.dirname(path.dirname(path.abspath(__file__)))
     sys_path.append(APP_DIR)
@@ -30,8 +29,7 @@ logger = outputter.Logger('estimators', settings.LOG_LEVEL)
 profile_cache = cache.ProfileCache()
 correlation_cache = cache.CorrelationCache()
 
-
-def normal_likelihood_function(x, data):
+def normal_likelihood_function(x : float, data : list):
     """
     Description
     -----------
@@ -48,12 +46,30 @@ def normal_likelihood_function(x, data):
         likelihood *= norm.pdf(x=point, loc=x[0], scale=x[1])
     return likelihood
 
-def sample_correlation(x, y):
+def sample_percentile(data : list, percentile: float):
+    """
+    Description
+    -----------
+    Returns the observation in a sample data corresponding to the given percentile. If the percentile falls between data points, the observation is extrapolated based on 
+    """
+    sorted_data = data.sort()
+
+    obs_number = (len(data)+1)*percentile
+    extrapolate = obs_number - int(obs_number)
+    if extrapolate == 0:
+        return sorted_data[obs_number]
+    else:
+        first_index = int(obs_number)
+        second_index = first_index + 1
+        weight = obs_number - first_index
+        return (1-weight)*sorted_data[first_index] + weight*sorted_data[second_index]
+
+def sample_correlation(x : list, y: list):
     """
     
     Raises 
     ------
-    1. scrilla.analysis.geometric.statistics.SampleSizeError \n \n
+    1. scrilla.analysis.models.geometric.statistics.SampleSizeError \n \n
 
     Notes
     """
@@ -97,12 +113,12 @@ def recursive_rolling_correlation(correl_previous, new_x_observation, lost_x_obs
     
     pass
 
-def sample_mean(x):
+def sample_mean(x: list):
     """
     
     Raises 
     ------
-    1. scrilla.analysis.geometric.statistics.SampleSizeError \n \n
+    1. scrilla.analysis.models.geometric.statistics.SampleSizeError \n \n
     """
     xbar, n = 0, len(x)
 
@@ -117,12 +133,12 @@ def recursive_rolling_mean(xbar_previous, new_obs, lost_obs, n=settings.DEFAULT_
     xbar_next = xbar_previous + (new_obs - lost_obs)/n
     return xbar_next
 
-def sample_variance(x):
+def sample_variance(x: list):
     """
     
     Raises 
     ------
-    1. scrilla.analysis.geometric.statistics.SampleSizeError \n \n
+    1. scrilla.analysis.models.geometric.statistics.SampleSizeError \n \n
     """
 
     try:
@@ -143,12 +159,12 @@ def recursive_rolling_variance(var_previous, xbar_previous, new_obs, lost_obs, n
     var_new = var_previous + (n/(n-1))*((new_obs**2 - lost_obs**2 )/n + (xbar_previous**2-xbar_new**2))
     return var_new
 
-def sample_covariance(x, y):
+def sample_covariance(x: list, y: list):
     """
     
     Raises 
     ------
-    1. scrilla.analysis.geometric.statistics.SampleSizeError \n \n
+    1. scrilla.analysis.models.geometric.statistics.SampleSizeError \n \n
     """
 
     if len(x) != len(y):
@@ -180,12 +196,12 @@ def recursive_rolling_covariance(covar_previous, new_x_obs, lost_x_obs, previous
     covar_new = covar_previous + numerator / (n-1)
     return covar_new
 
-def regression_beta(x, y):
+def simple_regression_beta(x: list, y: list):
     """
     
     Raises 
     ------
-    1. scrilla.analysis.geometric.statistics.SampleSizeError \n \n
+    1. scrilla.analysis.models.geometric.statistics.SampleSizeError \n \n
     """
 
     if len(x) != len(y):
@@ -203,12 +219,11 @@ def regression_beta(x, y):
     beta = correl * vol_y / vol_x
     return beta
 
-def regression_alpha(x, y):
+def simple_regression_alpha(x: list, y: list):
     """
-    
     Raises 
     ------
-    1. scrilla.analysis.geometric.statistics.SampleSizeError
+    1. scrilla.analysis.models.geometric.statistics.SampleSizeError
     """
 
     if len(x) != len(y):
@@ -226,6 +241,6 @@ def regression_alpha(x, y):
         logger.info('Error calculating statistics for regression alpha')
         return False
     
-    alpha = y_mean - regression_beta(x=x, y=y)*x_mean
+    alpha = y_mean - simple_regression_beta(x=x, y=y)*x_mean
     return alpha
     

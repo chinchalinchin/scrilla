@@ -16,21 +16,21 @@ x_y_correl, x_y_beta, x_y_alpha = 0.764852927, 1.39286, 17.28571
 test_dates = ["2021-03-29", "2020-10-20", "2019-12-10"]
 test_tickers = ["ALLY", "BX"]
 
-def regression_test():
+def simple_regression_test():
     # REGRESSION CALCULATIONS
     correl = estimators.sample_correlation(x=x_y_data[0], y=x_y_data[1])
-    beta = estimators.regression_beta(x=x_y_data[0],y=x_y_data[1])
-    alpha = estimators.regression_alpha(x=x_y_data[0],y=x_y_data[1])
+    beta = estimators.simple_regression_beta(x=x_y_data[0],y=x_y_data[1])
+    alpha = estimators.simple_regression_alpha(x=x_y_data[0],y=x_y_data[1])
     
     # TEST RESULTS
     outputter.scalar_result(calculation='correct correlation', result=x_y_correl, currency=False)
     outputter.scalar_result(calculation='sample_correlation(x, y)',  result=correl, currency=False)
     outputter.print_line()
     outputter.scalar_result(calculation='correct regression slope', result=x_y_beta, currency=False)
-    outputter.scalar_result(calculation='regression_beta(x,y)',  result=beta, currency=False)
+    outputter.scalar_result(calculation='simple_regression_beta(x,y)',  result=beta, currency=False)
     outputter.print_line()
     outputter.scalar_result(calculation='correct regression intercept',  result=x_y_alpha, currency=False)
-    outputter.scalar_result(calculation='regression_alpha(x,y)',  result=alpha, currency=False)
+    outputter.scalar_result(calculation='simple_regression_alpha(x,y)',  result=alpha, currency=False)
     outputter.print_line()
 
 def rolling_recursion_test():
@@ -193,7 +193,7 @@ if __name__ == "__main__":
     outputter.print_line()
     outputter.title_line('Test Results')
     outputter.print_line()
-    regression_test()
+    simple_regression_test()
 
     outputter.print_line()
     outputter.center("Rolling Sample Statistics Recursion Testing")
