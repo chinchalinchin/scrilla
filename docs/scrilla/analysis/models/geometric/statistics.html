@@ -1,0 +1,2732 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.10.0" />
+<title>scrilla.analysis.models.geometric.statistics API documentation</title>
+<meta name="description" content="" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>scrilla.analysis.models.geometric.statistics</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python"># This file is part of scrilla: https://github.com/chinchalinchin/scrilla.
+
+# scrilla is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3
+# as published by the Free Software Foundation.
+
+# scrilla is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with scrilla.  If not, see &lt;https://www.gnu.org/licenses/&gt;
+# or &lt;https://github.com/chinchalinchin/scrilla/blob/develop/main/LICENSE&gt;.
+
+from os import path
+from datetime import timedelta
+from sys import path as sys_path
+from numpy import log, sqrt
+from scipy.stats import norm
+from scipy.optimize import fsolve
+
+if __name__==&#34;__main__&#34;:
+    APP_DIR = path.dirname(path.dirname(path.abspath(__file__)))
+    sys_path.append(APP_DIR)
+
+from scrilla import static, services, files, settings, errors, cache
+from scrilla.analysis import estimators, optimizer
+from scrilla.util import outputter, formatter, helper
+
+logger = outputter.Logger(&#39;statistics&#39;, settings.LOG_LEVEL)
+profile_cache = cache.ProfileCache()
+correlation_cache = cache.CorrelationCache()
+    
+def get_sample_of_returns(prices, asset_type, trading_period):
+    today = False
+
+    sample_of_returns = []
+
+    for date in prices:
+        todays_price = prices[date][static.keys[&#39;PRICES&#39;][&#39;CLOSE&#39;]]
+
+        if today:
+            logger.verbose(f&#39;{date}: (todays_price, tomorrows_price) = ({todays_price}, {tomorrows_price})&#39;)
+            # crypto prices may have weekends and holidays removed during correlation algorithm 
+            # so samples can be compared to equities, need to account for these dates by increasing
+            # the time_delta by the number of missed days. 
+            if asset_type == static.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;] or \
+                (asset_type == static.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;] and not helper.consecutive_trading_days(tomorrows_date, date)):
+                time_delta = (helper.parse_date_string(tomorrows_date) - helper.parse_date_string(date)).days 
+            else:
+                time_delta = 1
+
+            todays_return = log(float(tomorrows_price)/float(todays_price))/(time_delta*trading_period)
+
+            sample_of_returns.append(todays_return)
+        else:
+            today = True
+
+        tomorrows_price = prices[date][static.keys[&#39;PRICES&#39;][&#39;CLOSE&#39;]]
+        tomorrows_date = date
+
+def calculate_moving_averages(tickers, start_date=None, end_date=None, sample_prices=None):
+    &#34;&#34;&#34;
+    Parameters
+    ----------
+    1. tickers : [ str ] \n
+        array of ticker symbols correspond to the moving averages to be calculated. \n \n 
+    2. start_date : datetime.date \n 
+        Optional. Defaults to `None`. start date of the time period over which the moving averages will be calculated. \n \n 
+    3. end_date : datetime.date\n 
+        Optional. Defaults to `None`. end date of the time period over which the moving averages will be calculated. \n \n 
+    4. sample_prices : { &#39;ticker&#39; (str) : { &#39;date&#39; (str) : &#39;price&#39; (str) } } \n
+        Optional. Defaults to `None`. A list of the asset prices for which moving_averages will be calculated. Overrides calls to service and calculates correlation for sample of prices supplied. Function will disregard start_date and end_date if sample_price is specified. Must be of the format: {&#39;ticker_1&#39;: { &#39;date_1&#39; : &#39;price_1&#39;, &#39;date_2&#39;: &#39;price_2&#39; .}, &#39;ticker_2&#39;: { &#39;date_1&#39; : &#39;price_1:, ... } } and ordered from latest date to earliest date.  \n \n
+    
+    Output
+    ------
+    (averages, dates)-tuple, where averages is a 3D array with the following format :
+    averages[ticker][period][date] and dates is a list of dates between the start_date
+    and end_date
+
+    Notes
+    -----
+    NOTE #1: assumes price history is ordered from latest to earliest date. \n \n 
+    NOTE #2: If no start_date and end_date passed in, static snapshot of moving averages,
+            i.e. the moving averages as of today (or last close), are calculated and 
+            returned. \n \n
+    NOTE #3: If asset types are mixed, then the sample from which the average is calculated
+           only consists of prices on business days. In other words, since crypo trades on
+           weekends, to compare the moving average of equities and crypto, the moving average
+           is only returned for business days. The moving average of crypto is still calculated
+           using weekend price data, i.e. the moving average on Monday contains information about
+           the moving average on Sunday, but the moving average on Sunday is discarded from the
+           returned data, due to the fact equities are not traded on weekends. \n \n 
+    NOTE #4: MOVING AVERAGE OVER DATE RANGE LOOP CALCULATION PSEUDO-CODE \n 
+              1. for start date to end date: \n
+                2. get today&#39;s price \n
+                3. calculate today&#39;s return \n
+                4. for all elements of MAs_n \n
+                    5. if today&#39;s date is less than a MA_n period away from the date of this MAs_n element \n
+                        6. add today&#39;s return / MA_n_PERIOD to this element of MAs_n \n 
+                        7. create today&#39;s MAs_n element \n
+    &#34;&#34;&#34;
+    moving_averages = []
+
+    ##########################################
+    ### Moving Average Snapshot On Single Date
+    if start_date is None and end_date is None:
+        for ticker in tickers:
+            logger.debug(f&#39;Calculating Moving Average for {ticker}&#39;)
+
+            if sample_prices is None:
+                prices = services.get_daily_price_history(ticker)
+            else:
+                prices = sample_prices[ticker]
+
+            if not prices:
+                raise errors.PriceError(f&#39;Prices could not be retrieved for {ticker}&#39;)
+
+            asset_type = files.get_asset_type(ticker)
+            trading_period = static.get_trading_period(asset_type)
+
+            today = False
+            count, tomorrows_price, MA_1, MA_2, MA_3 = 1, 0, 0, 0, 0
+    
+            for date in prices:
+                todays_price = prices[date][static.keys[&#39;PRICES&#39;][&#39;CLOSE&#39;]]
+                if today:
+                    todays_return = log(float(tomorrows_price) / float(todays_price))/trading_period
+                    logger.verbose(f&#39;todays_return == {tomorrows_price}/({todays_price}*{round(trading_period,2)}) = {todays_return}&#39;) 
+
+                    if count &lt; settings.MA_1_PERIOD:
+                        MA_1 += todays_return / settings.MA_1_PERIOD
+                        
+                    if count &lt; settings.MA_2_PERIOD:
+                        MA_2 += todays_return / settings.MA_2_PERIOD
+
+                    if count &lt; settings.MA_3_PERIOD:
+                        MA_3 += todays_return / settings.MA_3_PERIOD  
+                        count += 1
+
+                else:
+                    today = True
+
+                tomorrows_price = prices[date][static.keys[&#39;PRICES&#39;][&#39;CLOSE&#39;]]
+
+            logger.verbose(f&#39;(MA_1, MA_2, MA_3)_{ticker} = ({MA_1}, {MA_2}, {MA_3}&#39;)
+            moving_averages.append([MA_1, MA_2, MA_3])
+
+        return moving_averages, None
+
+    ################################################
+    #### Moving Average Scatter Plot Over Date Range
+
+    ### TODO: this needs work. needs the intersect_dict_keys method like correlation did.
+
+    previous_asset_type, portfolio_asset_type = None, None
+    mixed_flag = False
+    original_day_count = 0
+
+    ### START ARGUMENT VALIDATION ###
+    logger.debug(&#39;Checking provided tickers for mixed asset types.&#39;)
+    for ticker in tickers:
+        asset_type = files.get_asset_type(ticker)
+        portfolio_asset_type = asset_type
+        if (
+            previous_asset_type is not None
+            and previous_asset_type != asset_type
+        ):
+            logger.debug(&#39;Tickers include mixed asset types, flagging calculation.&#39;)
+            portfolio_asset_type = None
+            mixed_flag = True
+            break
+        previous_asset_type = asset_type
+
+    if not mixed_flag:
+        logger.debug(f&#39;Tickers provided all of {portfolio_asset_type} asset type.&#39;)
+
+    logger.debug(&#39;Calculating length of date range in trading days.&#39;)
+    if mixed_flag:
+        original_day_count = helper.business_days_between(start_date, end_date)
+    elif portfolio_asset_type == static.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]:
+        original_day_count = helper.business_days_between(start_date, end_date)
+    elif portfolio_asset_type == static.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]:
+        original_day_count = (end_date - start_date).days
+    else:
+        original_day_count = helper.business_days_between(start_date, end_date)
+
+    logger.debug(f&#39;{end_date} - {start_date} = {original_day_count} trading days&#39;)
+
+    for ticker in tickers:
+        logger.debug(f&#39;Calculating Moving Average for {ticker}.&#39;)
+
+        asset_type = files.get_asset_type(ticker)
+        trading_period = static.get_trading_period(asset_type)
+
+        logger.debug(&#39;Offsetting start date to account for longest Moving Average period.&#39;)
+        if asset_type == static.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]:
+            logger.debug(f&#39;{ticker}_asset_type = Crypto&#39;)
+
+            logger.debug(&#39;Configuring date variables to account for all dates.&#39;)
+            new_start_date = start_date - timedelta(days=settings.MA_3_PERIOD)
+            new_day_count = (end_date - new_start_date).days
+
+            # amend equity trading dates to take account of weekends
+        elif asset_type == static.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]:
+            logger.debug(f&#39;{ticker}_asset_type = Equity&#39;)
+
+            logger.debug(&#39;Configuring date variables to account for weekends and holidays.&#39;)
+            new_start_date = helper.decrement_date_by_business_days(start_date=start_date, 
+                                                                    business_days=settings.MA_3_PERIOD)
+            new_day_count = helper.business_days_between(new_start_date, end_date)
+
+        else:
+            logger.debug(f&#39;{ticker}_asset_type = Unknown; Defaulting to business dates&#39;)
+
+            logger.debug(&#39;Configuring date variables to account for weekends and holidays.&#39;)
+            new_start_date = helper.decrement_date_by_business_days(start_date=start_date, 
+                                                                    business_days=settings.MA_3_PERIOD)
+            new_day_count = helper.business_days_between(new_start_date, end_date)
+
+        logger.debug(f&#39;start_date -&gt; new_start_date == {start_date} -&gt; {new_start_date}&#39;)
+        logger.debug(f&#39;{end_date} - {new_start_date} == {new_day_count}&#39;)
+
+        if sample_prices is None:
+            logger.debug(f&#39;No {ticker} sample prices provided, calling service.&#39;)
+            prices = services.get_daily_price_history(ticker, new_start_date, end_date)
+        else:
+            logger.debug(f&#39;{ticker} sample prices provided, skipping service call.&#39;)
+            prices = sample_prices[ticker]
+
+        if not prices:
+            raise errors.PriceError(f&#39;Prices could not be retrieved for {ticker}&#39;)
+    ### END ARGUMENT VALIDATION ###
+
+    ### START MOVING AVERAGE CALCULATION ###
+        today = False
+        count= 1
+        tomorrows_price = 0
+        MAs_1, MAs_2, MAs_3 = [], [], []
+
+        # See NOTE #4
+        for date in prices:
+            logger.verbose(f&#39;date: {date}&#39;)
+            # todays_price = services.price_manager.parse_price_from_date(prices, date, asset_type)
+            todays_price = prices[date][static.keys[&#39;PRICES&#39;][&#39;CLOSE&#39;]]
+
+            if today:
+                todays_return = log(float(tomorrows_price) / float(todays_price))/trading_period
+                logger.verbose(f&#39;todays_return == ln({tomorrows_price}/{todays_price})/{round(trading_period,4)}) = {round(todays_return,4)}&#39;) 
+
+                for MA in MAs_1:
+                    end_flag = False
+                    if len(MAs_1) - MAs_1.index(MA) &lt; settings.MA_1_PERIOD:
+                        if len(MAs_1) - MAs_1.index(MA) == settings.MA_1_PERIOD - 1:
+                            end_flag = True
+                            if asset_type == static.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]:
+                                date_of_MA1 = helper.decrement_date_string_by_business_days(date, MAs_1.index(MA))
+                            elif asset_type == static.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]:
+                                date_of_MA1 = helper.string_to_date(date) - timedelta(days=MAs_1.index(MA))
+                            else: 
+                                date_of_MA1 = helper.string_to_date(date) - timedelta(days=MAs_1.index(MA)) 
+
+                        MA += todays_return / settings.MA_1_PERIOD
+
+                        if end_flag:
+                            logger.verbose(f&#39;{ticker}_MA_1({date_of_MA1}) = {MA}&#39;)
+
+                # See NOTE #3
+                if mixed_flag or portfolio_asset_type == static.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]:
+                    if not(helper.is_date_string_holiday(date) or helper.is_date_string_weekend(date)): 
+                        MAs_1.append( (todays_return / settings.MA_1_PERIOD) )
+                elif portfolio_asset_type == static.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]:
+                    MAs_1.append( (todays_return / settings.MA_1_PERIOD))
+
+                for MA in MAs_2:
+                    end_flag = False
+                    if len(MAs_2) - MAs_2.index(MA) &lt; settings.MA_2_PERIOD:
+                        if len(MAs_2) - MAs_2.index(MA) == settings.MA_2_PERIOD - 1:
+                            end_flag = True
+                            if asset_type == static.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]:
+                                date_of_MA2 = helper.decrement_date_string_by_business_days(date, MAs_2.index(MA))
+                            elif asset_type == static.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]:
+                                date_of_MA2 = helper.string_to_date(date) + timedelta(days=MAs_2.index(MA))
+                            else: 
+                                date_of_MA2 = helper.string_to_date(date) + timedelta(days=MAs_2.index(MA)) 
+                            
+                        MA += todays_return / settings.MA_2_PERIOD
+
+                        if end_flag:
+                            logger.verbose(f&#39;{ticker}_MA_2({date_of_MA2}) = {MA}&#39;)
+
+                # See NOTE #3
+                if mixed_flag or portfolio_asset_type == static.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]:
+                    if not(helper.is_date_string_holiday(date) or helper.is_date_string_weekend(date)):
+                        MAs_2.append((todays_return / settings.MA_2_PERIOD))
+                elif portfolio_asset_type == static.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]:
+                    MAs_2.append((todays_return / settings.MA_2_PERIOD))
+
+                for MA in MAs_3:
+                    end_flag = False
+                    if len(MAs_3) - MAs_3.index(MA)  &lt; settings.MA_3_PERIOD:
+                        if len(MAs_3) - MAs_3.index(MA) == settings.MA_3_PERIOD - 1:
+                            end_flag = True
+                            if asset_type == static.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]:
+                                date_of_MA3 = helper.decrement_date_string_by_business_days(date, MAs_3.index(MA))
+                            elif asset_type == static.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]:
+                                date_of_MA3 = helper.string_to_date(date) + timedelta(days=MAs_3.index(MA))
+                            else: 
+                                date_of_MA3 = helper.string_to_date(date) + timedelta(days=MAs_3.index(MA)) 
+
+                        MA += todays_return / settings.MA_3_PERIOD
+
+                        if end_flag:
+                            logger.verbose(f&#39;{ticker}_MA_3({date_of_MA3}) = {MA}&#39;)
+
+                # See NOTE #3
+                if mixed_flag or portfolio_asset_type == static.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]:
+                    if not(helper.is_date_string_holiday(date) or helper.is_date_string_weekend(date)):
+                        MAs_3.append((todays_return / settings.MA_3_PERIOD))
+                elif portfolio_asset_type == static.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]: 
+                    MAs_3.append((todays_return / settings))
+
+            else:
+                today = True
+                
+            # tomorrows_price = services.price_manager.parse_price_from_date(prices, date, asset_type)
+            tomorrows_price = prices[date][static.keys[&#39;PRICES&#39;][&#39;CLOSE&#39;]]
+
+        MAs_1 = MAs_1[:original_day_count]
+        MAs_2 = MAs_2[:original_day_count]
+        MAs_3 = MAs_3[:original_day_count]
+
+        moving_averages.append([MAs_1, MAs_2, MAs_3])
+
+    ### END MOVING AVERAGE CALCULATION ###
+
+    ### START RESPONSE FORMATTING ###
+    if not mixed_flag:
+        if portfolio_asset_type == static.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]:
+            dates_between = helper.business_dates_between(start_date, end_date)
+        elif portfolio_asset_type == static.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]:
+            dates_between = helper.dates_between(start_date, end_date)
+        else:
+            dates_between = helper.business_dates_between(start_date, end_date)
+    else:
+        dates_between = helper.business_dates_between(start_date, end_date)
+    
+    logger.debug(&#39;If everything is correct, then len(moving_averages[0][1]) == len(dates_between)&#39;)
+    if len(moving_averages[0][1]) == len(dates_between):
+        logger.debug(&#34;Your program rules.&#34;)
+        logger.debug(&#39;{} = {}&#39;.format(len(moving_averages[0][1]), len(dates_between)))
+    else: 
+        logger.debug(&#34;Your program sucks.&#34;)
+        logger.debug(&#39;{} != {}&#39;.format(len(moving_averages[0][1]), len(dates_between)))
+
+    ### END RESPONSE FORMATTING ###
+    return moving_averages, dates_between 
+
+def calculate_risk_return(ticker, start_date=None, end_date=None, sample_prices=None, asset_type=None, method=settings.ESTIMATION_METHOD):
+    if method == static.keys[&#39;ESTIMATION&#39;][&#39;MOMENT&#39;]:
+        return calculate_moment_risk_return(ticker, start_date, end_date, sample_prices, asset_type)
+    if method == static.keys[&#39;ESTIMATION&#39;][&#39;PERCENT&#39;]:
+        return calculate_percentile_risk_return(ticker, start_date, end_date, sample_prices, asset_type)
+    if method == static.keys[&#39;ESTIMATION&#39;][&#39;LIKE&#39;]:
+        return calculate_likelihood_risk_return(ticker, start_date, end_date, sample_prices, asset_type)
+    raise errors.ConfigurationError(&#39;Statistic estimation method not found&#39;)
+
+def calculate_likelihood_risk_return(ticker, start_date=None, end_date=None, sample_prices=None, asset_type=None):
+    &#34;&#34;&#34;
+    Description
+    -----------
+    Estimates the mean rate of return and volatility for a sample of asset prices as if the asset price followed a Geometric Brownian Motion process, i.e. the mean rate of return and volatility are constant and not functions of time or the asset price. Moreover, the return and volatility are estimated using the method of maximum likelihood estimation. The probability of each observation is calculated and then the product is taken to find the probability of the intersection; this probability is maximized with respect to the parameters of the normal distribution, the mean and the volatility.s
+    
+    Parameters
+    ----------
+    1. ticker : str \n
+        Required. Ticker symbol whose risk-return profile is to be calculated. \n \n 
+    2. start_date : datetime.date \n 
+        Optional. Start date of the time period over which the risk-return profile is to be calculated. Defaults to `None`, in which case the calculation proceeds as if `start_date` were set to 100 trading days prior to `end_date`. If `get_asset_type(ticker)=scrilla.static.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]`, this means 100 days regardless. If `get_asset_type(ticker)=scrilla.static.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]`, this excludes weekends and holidays and decrements the `end_date` by 100 trading days.\n \n
+    3. end_date : datetime.date \n 
+        Optional. End date of the time period over which the risk-return profile is to be calculated. Defaults to `None`, in which the calculation proceeds as if `end_date` were set to today. If the `get_asset_type(ticker)==static.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]` this means today regardless. If `get_asset_type(ticker)=static.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]` this excludes holidays and weekends and sets the end date to the last valid trading date. \n \n
+    4. sample_prices : { &#39;date_1&#39; : { &#39;open&#39; : number, &#39;close&#39; : number}, &#39;date_2&#39;: { &#39;open&#39;: number, &#39;close&#39;: number} ... } \n
+        Optional. A list of the asset prices for which correlation will be calculated. Overrides calls to service and forces calculation of correlation for sample of prices supplied. Function will disregard `start_date` and `end_date` and use the first and last key as the latest and earliest date, respectively. In other words, the `sample_prices` dictionary must be ordered from latest to earliest.   \n \n
+    5. asset_type : str
+         Optional. Specify asset type to prevent overusing redundant calculations. Allowable values: scrilla.static.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;], scrilla.static.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;] \n \n
+
+    Output
+    ------
+    { &#39;annual_return&#39; : float, &#39;annual_volatility&#39;: float } \n \n
+
+    
+    Raises 
+    ------
+    1. scrilla.errors.SampleSizeError \n 
+    2. scrilla.errors.PriceError \n
+    3. scrilla.errors.InputValidationError \n
+    4. scrilla.errors.APIResponseError
+
+    Notes
+    -----
+    NOTE #1: assumes price history is ordered from latest to earliest date. \n \n 
+    &#34;&#34;&#34;
+    if sample_prices is None:
+        try:
+           asset_type = errors.validate_asset_type(ticker, asset_type)
+           start_date, end_date = errors.validate_dates(start_date, end_date, asset_type)
+           trading_period = static.get_trading_period(asset_type)
+        except errors.InputValidationError as ive:
+           raise ive
+
+        # TODO: extra save_or_update argument for estimation method, i.e. moments, percentiles or likelihood
+        results = profile_cache.filter_profile_cache(ticker=ticker, start_date=start_date, end_date=end_date, 
+                                                        method=static.keys[&#39;ESTIMATION&#39;][&#39;LIKE&#39;])
+
+        if results is not None \
+                and results[static.keys[&#39;STATISTICS&#39;][&#39;RETURN&#39;]] is not None \
+                and results[static.keys[&#39;STATISTICS&#39;][&#39;VOLATILITY&#39;]] is not None:
+            return results
+
+        try:
+            logger.debug(&#39;No sample prices provided, calling service.&#39;)
+            prices = services.get_daily_price_history(ticker=ticker, start_date=start_date, end_date=end_date, asset_type=asset_type)
+        except errors.APIResponseError as api:
+            raise api
+    else:
+        logger.debug(f&#39;{ticker} sample prices provided, skipping service call.&#39;)
+        prices = sample_prices
+        try:
+           asset_type = errors.validate_asset_type(ticker, asset_type)
+           trading_period = static.get_trading_period(asset_type)
+        except errors.InputValidationError as ive:
+           raise ive
+
+    if not prices:
+        raise errors.PriceError(f&#39;No prices could be retrieved for {ticker}&#39;)
+
+    sample_of_returns = get_sample_of_returns(prices=prices, asset_type=asset_type, trading_period=trading_period)
+
+    likelihood_estimates = optimizer.maximize_univariate_normal_likelihood(data=sample_of_returns)
+
+    # NOTE: Var(dln(S)/delta_t) = (1/delta_t^2)*Var(dlnS) = sigma^2*delta_t / delta_t^2 = sigma^2 / delta_t
+    #       so need to multiply volatiliy by sqrt(delta_t) to get correct scale.
+    results = {
+        &#39;annual_return&#39;: likelihood_estimates[0],
+        &#39;annual_volatility&#39;: likelihood_estimates[1]*sqrt(trading_period)
+    }
+    
+    profile_cache.save_or_update_row(ticker=ticker, start_date=start_date, end_date=end_date, 
+                                        method=static.keys[&#39;ESTIMATION&#39;][&#39;LIKE&#39;],
+                                        annual_return=results[&#39;annual_return&#39;], 
+                                        annual_volatility=results[&#39;annual_volatility&#39;])
+    
+    return results
+
+def calculate_percentile_risk_return(ticker, start_date=None, end_date=None, sample_prices=None, asset_type=None):
+    &#34;&#34;&#34;
+    Description
+    -----------
+    Estimates the mean rate of return and volatility for a sample of asset prices as if the asset price followed a Geometric Brownian Motion process, i.e. the mean rate of return and volatility are constant and not functions of time or the asset price. Moreover, the return and volatility are estimated using the method of percentile matching, where the return and volatility are estimated by matching the 25th and 75th percentile calculated from the assumed GBM distribution to the sample of data.
+    
+    Parameters
+    ----------
+    1. ticker : str \n
+        Required. Ticker symbol whose risk-return profile is to be calculated. \n \n 
+    2. start_date : datetime.date \n 
+        Optional. Start date of the time period over which the risk-return profile is to be calculated. Defaults to `None`, in which case the calculation proceeds as if `start_date` were set to 100 trading days prior to `end_date`. If `get_asset_type(ticker)=scrilla.static.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]`, this means 100 days regardless. If `get_asset_type(ticker)=scrilla.static.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]`, this excludes weekends and holidays and decrements the `end_date` by 100 trading days.\n \n
+    3. end_date : datetime.date \n 
+        Optional. End date of the time period over which the risk-return profile is to be calculated. Defaults to `None`, in which the calculation proceeds as if `end_date` were set to today. If the `get_asset_type(ticker)==static.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]` this means today regardless. If `get_asset_type(ticker)=static.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]` this excludes holidays and weekends and sets the end date to the last valid trading date. \n \n
+    4. sample_prices : { &#39;date_1&#39; : { &#39;open&#39; : number, &#39;close&#39; : number}, &#39;date_2&#39;: { &#39;open&#39;: number, &#39;close&#39;: number} ... } \n
+        Optional. A list of the asset prices for which correlation will be calculated. Overrides calls to service and forces calculation of correlation for sample of prices supplied. Function will disregard `start_date` and `end_date` and use the first and last key as the latest and earliest date, respectively. In other words, the `sample_prices` dictionary must be ordered from latest to earliest.   \n \n
+    5. asset_type : str
+         Optional. Specify asset type to prevent overusing redundant calculations. Allowable values: scrilla.static.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;], scrilla.static.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;] \n \n
+
+    Output
+    ------
+    { &#39;annual_return&#39; : float, &#39;annual_volatility&#39;: float } \n \n
+
+    
+    Raises 
+    ------
+    1. scrilla.errors.SampleSizeError \n 
+    2. scrilla.errors.PriceError \n
+    3. scrilla.errors.InputValidationError \n
+    4. scrilla.errors.APIResponseError
+
+    Notes
+    -----
+    NOTE #1: assumes price history is ordered from latest to earliest date. \n \n 
+    &#34;&#34;&#34;
+    if sample_prices is None:
+        try:
+           asset_type = errors.validate_asset_type(ticker, asset_type)
+           start_date, end_date = errors.validate_dates(start_date, end_date, asset_type)
+           trading_period = static.get_trading_period(asset_type)
+        except errors.InputValidationError as ive:
+           raise ive
+
+        # TODO: extra save_or_update argument for estimation method, i.e. moments, percentiles or likelihood
+        results = profile_cache.filter_profile_cache(ticker=ticker, start_date=start_date, end_date=end_date, 
+                                                        method=static.keys[&#39;ESTIMATION&#39;][&#39;PERCENT&#39;])
+
+        if results is not None \
+                and results[static.keys[&#39;STATISTICS&#39;][&#39;RETURN&#39;]] is not None \
+                and results[static.keys[&#39;STATISTICS&#39;][&#39;VOLATILITY&#39;]] is not None:
+            return results
+
+        try:
+            logger.debug(&#39;No sample prices provided, calling service.&#39;)
+            prices = services.get_daily_price_history(ticker=ticker, start_date=start_date, end_date=end_date, asset_type=asset_type)
+        except errors.APIResponseError as api:
+            raise api
+    else:
+        logger.debug(f&#39;{ticker} sample prices provided, skipping service call.&#39;)
+        prices = sample_prices
+        try:
+           asset_type = errors.validate_asset_type(ticker, asset_type)
+           trading_period = static.get_trading_period(asset_type)
+        except errors.InputValidationError as ive:
+           raise ive
+
+    if not prices:
+        raise errors.PriceError(f&#39;No prices could be retrieved for {ticker}&#39;)
+
+    sample_of_returns = get_sample_of_returns(prices=prices, asset_type=asset_type, trading_period=trading_period)
+
+    first_quartile = estimators.sample_percentile(data=sample_of_returns, percentile=0.25)
+    median = estimators.sample_percentile(data=sample_of_returns, percentile=0.50)
+    third_quartile = estimators.sample_percentile(data=sample_of_returns, percentile=0.75)
+    guess = (median, (third_quartile-first_quartile)/2)
+
+    def objective(params):
+        return [norm.cdf(x=first_quartile, loc=params[0], scale=params[1]) - 0.25,
+                norm.cdf(x=third_quartile, loc=params[0], scale=params[1]) - 0.75 ]
+ 
+    mean, vol = fsolve(objective, guess)
+
+    # NOTE: Var(dln(S)/delta_t) = (1/delta_t^2)*Var(dlnS) = sigma^2*delta_t / delta_t^2 = sigma^2 / delta_t
+    #       so need to multiply volatiliy by sqrt(delta_t) to get correct scale.
+    vol = vol * sqrt(trading_period) 
+    
+    results = {
+        &#39;annual_return&#39;: mean,
+        &#39;annual_volatility&#39;: vol
+    }
+    
+    profile_cache.save_or_update_row(ticker=ticker, start_date=start_date, end_date=end_date, 
+                                        method=static.keys[&#39;ESTIMATION&#39;][&#39;PERCENT&#39;],
+                                        annual_return=results[&#39;annual_return&#39;], 
+                                        annual_volatility=results[&#39;annual_volatility&#39;])
+    return results
+
+def calculate_moment_risk_return(ticker, start_date=None, end_date=None, sample_prices=None, asset_type=None):
+    &#34;&#34;&#34;
+    Description
+    -----------
+    Estimates the mean rate of return and volatility for a sample of asset prices as if the asset price followed a Geometric Brownian Motion process, i.e. the mean rate of return and volatility are constant and not functions of time or the asset price. Moreover, the return and volatility are estimated using the method of moment matching, where the return is estimated by equating it to the first moment of the sample and the volatility is estimated by equating it to the square root of the second moment of the sample.
+    
+    Parameters
+    ----------
+    1. ticker : str \n
+        Required. Ticker symbol whose risk-return profile is to be calculated. \n \n 
+    2. start_date : datetime.date \n 
+        Optional. Start date of the time period over which the risk-return profile is to be calculated. Defaults to `None`, in which case the calculation proceeds as if `start_date` were set to 100 trading days prior to `end_date`. If `get_asset_type(ticker)=scrilla.static.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]`, this means 100 days regardless. If `get_asset_type(ticker)=scrilla.static.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]`, this excludes weekends and holidays and decrements the `end_date` by 100 trading days.\n \n
+    3. end_date : datetime.date \n 
+        Optional. End date of the time period over which the risk-return profile is to be calculated. Defaults to `None`, in which the calculation proceeds as if `end_date` were set to today. If the `get_asset_type(ticker)==static.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]` this means today regardless. If `get_asset_type(ticker)=static.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]` this excludes holidays and weekends and sets the end date to the last valid trading date. \n \n
+    4. sample_prices : { &#39;date_1&#39; : { &#39;open&#39; : number, &#39;close&#39; : number}, &#39;date_2&#39;: { &#39;open&#39;: number, &#39;close&#39;: number} ... } \n
+        Optional. A list of the asset prices for which correlation will be calculated. Overrides calls to service and forces calculation of correlation for sample of prices supplied. Function will disregard `start_date` and `end_date` and use the first and last key as the latest and earliest date, respectively. In other words, the `sample_prices` dictionary must be ordered from latest to earliest.   \n \n
+    5. asset_type : str
+         Optional. Specify asset type to prevent overusing redundant calculations. Allowable values: scrilla.static.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;], scrilla.static.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;] \n \n
+
+    Output
+    ------
+    { &#39;annual_return&#39; : float, &#39;annual_volatility&#39;: float } \n \n
+
+    
+    Raises 
+    ------
+    1. scrilla.errors.SampleSizeError \n 
+    2. scrilla.errors.PriceError \n
+    3. scrilla.errors.InputValidationError \n
+    4. scrilla.errors.APIResponseError
+
+    Notes
+    -----
+    NOTE #1: assumes price history is ordered from latest to earliest date. \n \n 
+    &#34;&#34;&#34;
+
+    if sample_prices is None:
+        try:
+           asset_type = errors.validate_asset_type(ticker, asset_type)
+           start_date, end_date = errors.validate_dates(start_date, end_date, asset_type)
+           trading_period = static.get_trading_period(asset_type)
+        except errors.InputValidationError as ive:
+           raise ive
+
+        # TODO: extra save_or_update argument for estimation method, i.e. moments, percentiles or likelihood
+        results = profile_cache.filter_profile_cache(ticker=ticker, start_date=start_date, end_date=end_date, 
+                                                        method=static.keys[&#39;ESTIMATION&#39;][&#39;MOMENT&#39;])
+
+        if results is not None \
+                and results[static.keys[&#39;STATISTICS&#39;][&#39;RETURN&#39;]] is not None \
+                and results[static.keys[&#39;STATISTICS&#39;][&#39;VOLATILITY&#39;]] is not None:
+            return results
+
+        try:
+            logger.debug(&#39;No sample prices provided, calling service.&#39;)
+            prices = services.get_daily_price_history(ticker=ticker, start_date=start_date, end_date=end_date, asset_type=asset_type)
+        except errors.APIResponseError as api:
+            raise api
+    else:
+        logger.debug(f&#39;{ticker} sample prices provided, skipping service call.&#39;)
+        prices = sample_prices
+        try:
+           asset_type = errors.validate_asset_type(ticker, asset_type)
+           trading_period = static.get_trading_period(asset_type)
+        except errors.InputValidationError as ive:
+           raise ive
+
+    if not prices:
+        raise errors.PriceError(f&#39;No prices could be retrieved for {ticker}&#39;)
+    
+    # Log of difference loses a sample
+    sample = len(prices) - 1
+    logger.debug(f&#39;Calculating mean annual return over last {sample} days for {ticker}&#39;)
+
+    ### MEAN CALCULATION
+    # NOTE: mean return is a telescoping series, i.e. sum of log(x1/x0) only depends on the first and
+    # last terms&#39; contributions (because log(x1/x0) + log(x2/x1)= log(x2) - log(x1) + log(x1) - log(x0)) = log(x2/x0))
+    # which raises the question how accurate of a measure the population return is of the mean return for an asset?
+    # will need to look into other ways of estimating return...
+    last_date, first_date = list(prices)[0], list(prices)[-1]
+    last_price = prices[last_date][static.keys[&#39;PRICES&#39;][&#39;CLOSE&#39;]]
+    first_price = prices[first_date][static.keys[&#39;PRICES&#39;][&#39;CLOSE&#39;]]
+    mean_return = log(float(last_price)/float(first_price))/(trading_period*sample)
+    
+    ### VOLATILITY CALCULATION
+    today, variance, tomorrows_price, tomorrows_date = False, 0, 0, None
+        # adjust the random variable being measured so expectation is easier to calculate. 
+    mean_mod_return = mean_return*sqrt(trading_period)
+    logger.debug(f&#39;Calculating mean annual volatility over last {sample} days for {ticker}&#39;)
+
+    for date in prices:
+        todays_price = prices[date][static.keys[&#39;PRICES&#39;][&#39;CLOSE&#39;]]
+
+        if today:
+            logger.verbose(f&#39;{date}: (todays_price, tomorrows_price) = ({todays_price}, {tomorrows_price})&#39;)
+
+            # crypto prices may have weekends and holidays removed during correlation algorithm 
+            # so samples can be compared to equities, need to account for these dates by increasing
+            # the time_delta by the number of missed days. 
+            if asset_type == static.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;] or \
+                (asset_type == static.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;] and not helper.consecutive_trading_days(tomorrows_date, date)):
+                time_delta = (helper.parse_date_string(tomorrows_date) - helper.parse_date_string(date)).days 
+            else:
+                time_delta = 1
+
+            current_mod_return = log(float(tomorrows_price)/float(todays_price))/sqrt(time_delta*trading_period) 
+            daily = (current_mod_return - mean_mod_return)**2/(sample - 1)
+            variance = variance + daily
+
+            logger.verbose(f&#39;{date}: (daily_variance, sample_variance) = ({round(daily, 4)}, {round(variance, 4)})&#39;)
+
+        else:
+            today = True
+
+        tomorrows_price = prices[date][static.keys[&#39;PRICES&#39;][&#39;CLOSE&#39;]]
+        tomorrows_date = date
+
+    # adjust for output
+    volatility = sqrt(variance)
+    # ito&#39;s lemma
+    mean_return = mean_return + 0.5*(volatility**2)
+    logger.debug(f&#39;(mean_return, sample_volatility) = ({round(mean_return, 2)}, {round(volatility, 2)})&#39;)
+
+    results = {
+        &#39;annual_return&#39;: mean_return,
+        &#39;annual_volatility&#39;: volatility
+    }
+    
+    profile_cache.save_or_update_row(ticker=ticker, start_date=start_date, end_date=end_date, 
+                                        method=static.keys[&#39;ESTIMATION&#39;][&#39;MOMENT&#39;],
+                                        annual_return=results[&#39;annual_return&#39;], 
+                                        annual_volatility=results[&#39;annual_volatility&#39;])
+    # TODO: extra save_or_update argument for estimation method, i.e. moments, percentiles or likelihood
+    
+    return results
+
+def correlation(ticker_1, ticker_2, asset_type_1=None, asset_type_2=None, start_date=None, end_date=None, sample_prices=None, method=settings.ESTIMATION_METHOD):
+    if method == static.keys[&#39;ESTIMATION&#39;][&#39;MOMENT&#39;]:
+        return calculate_moment_correlation(ticker_1, ticker_2, asset_type_1, asset_type_2, start_date, end_date, sample_prices)
+    raise errors.ConfigurationError(&#39;Statistic estimation method not found&#39;)
+
+def calculate_percentile_correlation(ticker_1, ticker_2, asset_type_1=None, asset_type_2=None, start_date=None, end_date=None, sample_prices=None):
+    pass
+
+def calculate_likelihood_correlation(ticker_1, ticker_2, asset_type_1=None, asset_type_2=None, start_date=None, end_date=None, sample_prices=None):
+    &#34;&#34;&#34;
+    Parameters
+    ----------
+    1. ticker_1 : str \n
+        Ticker symbol for first asset. \n \n
+    2. ticker_2 : str \n 
+        Ticker symbol for second asset \n \n
+    3. asset_type_1 : str \n
+        Optional. Specify asset type to prevent overusing redundant calculations. Allowable values: settings.ASSET_TYPE_EQUITY, settings.ASSET_TYPE_CRYPTO \n \n
+    4. asset_type_2 : str \n
+        Optional. Specify asset type to prevent overusing redundant calculations. Allowable values: settings.ASSET_TYPE_EQUITY, settings.ASSET_TYPE_CRYPTO \n \n 
+    5. start_date : datetime.date \n 
+        Start date of the time period over which correlation will be calculated. \n \n 
+    6. end_date : datetime.date \n 
+        End date of the time period over which correlation will be calculated. \n \n  
+    7. sample_prices : { &#39;ticker&#39; (str) : { &#39;date&#39; (str) : &#39;price&#39; (str) } } \n
+        A list of the asset prices for which correlation will be calculated. Overrides calls to service and calculates correlation for sample of prices supplied. Will disregard start_date and end_date. Must be of the format: {&#39;AAPL&#39;: { &#39;date_1&#39; : &#39;price_1&#39;, &#39;date_2&#39;: &#39;price_2&#39; ...}, &#39;BX&#39;: { &#39;date_1&#39; : &#39;price_1:, ... } } and ordered from latest date to earliest date.  \n \n
+    
+    Raises
+    ------
+    1. errors.InputValidationError
+    2. errors.SampleSizeError
+    3. errors.PriceError
+
+    Returns
+    ------
+    { &#39;correlation&#39; : float } \n
+
+    Notes
+    -----
+    &#34;&#34;&#34;
+    ### START ARGUMENT PARSING ###
+    try:
+        asset_type_1 = errors.validate_asset_type(ticker=ticker_1, asset_type=asset_type_1)
+        asset_type_2 = errors.validate_asset_type(ticker=ticker_2, asset_type=asset_type_2)
+        if asset_type_1 == static.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;] and asset_type_2 == static.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]:
+            # validate over all days
+            start_date, end_date = errors.validate_dates(start_date=start_date, end_date=end_date,
+                                                            asset_type=static.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;])
+        else:
+            #   validate over trading days. since (date - 100 days) &gt; (date - 100 trading days), always
+            #   take the largest sample so intersect_dict_keys will return a sample of the correct size
+            #   for mixed asset types.
+            start_date, end_date = errors.validate_dates(start_date=start_date, end_date=end_date,
+                                                                asset_type=static.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;])
+    except errors.InputValidationError as ive:
+        raise ive
+
+    if sample_prices is None:
+        # TODO: extra save_or_update argument for estimation method, i.e. moments, percentiles or likelihood
+        correlation = correlation_cache.filter_correlation_cache(ticker_1=ticker_1, ticker_2=ticker_2,
+                                                                    start_date=start_date, end_date=end_date,
+                                                                    method=static.keys[&#39;ESTIMATION&#39;][&#39;MOMENT&#39;])
+        if correlation is not None:
+            return correlation
+
+        sample_prices = {}
+        logger.debug(f&#39;No sample prices provided or cached ({ticker_1}, {ticker_2}) correlation found.&#39;)
+        logger.debug(&#39;Retrieving price histories for calculation.&#39;)
+        try: 
+            sample_prices[ticker_1] = services.get_daily_price_history(ticker=ticker_1, start_date=start_date, 
+                                                                        end_date=end_date, asset_type=asset_type_1)
+            sample_prices[ticker_2] = services.get_daily_price_history(ticker=ticker_2, start_date=start_date, 
+                                                                        end_date=end_date, asset_type=asset_type_2)
+        except errors.APIResponseError as api:
+            raise api
+        
+    if asset_type_1 != asset_type_2:
+        # remove weekends and holidays from crypto prices so samples can be compared
+            # NOTE: data is lost here.
+        sample_prices[ticker_1], sample_prices[ticker_2] = helper.intersect_dict_keys(sample_prices[ticker_1], sample_prices[ticker_2])
+
+    if 0 in [len(sample_prices[ticker_1]), len(sample_prices[ticker_2])]:
+        raise errors.PriceError(&#34;Prices cannot be retrieved for correlation calculation&#34;)
+
+    if asset_type_1 == asset_type_2 and asset_type_1 == static.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]:
+        trading_period = static.constants[&#39;ONE_TRADING_DAY&#39;][&#39;CRYPTO&#39;]
+    else:
+        trading_period = static.constants[&#39;ONE_TRADING_DAY&#39;][&#39;EQUITY&#39;]
+    
+    sample_of_returns_1 = get_sample_of_returns(prices=sample_prices[ticker_1], asset_type=asset_type_1, trading_period=trading_period)
+    sample_of_returns_2 = get_sample_of_returns(prices=sample_prices[ticker_2], asset_type=asset_type_2, trading_period=trading_period)
+
+    result = { &#39;correlation&#39; : 0}
+
+    correlation_cache.save_row(ticker_1=ticker_1, ticker_2=ticker_2, 
+                                start_date=start_date, end_date=end_date, 
+                                correlation = correlation, method=static.keys[&#39;ESTIMATION&#39;][&#39;METHOD&#39;])
+    return result
+
+def calculate_moment_correlation(ticker_1, ticker_2, asset_type_1=None, asset_type_2=None, start_date=None, end_date=None, sample_prices=None):
+    &#34;&#34;&#34;
+    Parameters
+    ----------
+    1. ticker_1 : str \n
+        Ticker symbol for first asset. \n \n
+    2. ticker_2 : str \n 
+        Ticker symbol for second asset \n \n
+    3. asset_type_1 : str \n
+        Optional. Specify asset type to prevent overusing redundant calculations. Allowable values: settings.ASSET_TYPE_EQUITY, settings.ASSET_TYPE_CRYPTO \n \n
+    4. asset_type_2 : str \n
+        Optional. Specify asset type to prevent overusing redundant calculations. Allowable values: settings.ASSET_TYPE_EQUITY, settings.ASSET_TYPE_CRYPTO \n \n 
+    5. start_date : datetime.date \n 
+        Start date of the time period over which correlation will be calculated. \n \n 
+    6. end_date : datetime.date \n 
+        End date of the time period over which correlation will be calculated. \n \n  
+    7. sample_prices : { &#39;ticker&#39; (str) : { &#39;date&#39; (str) : &#39;price&#39; (str) } } \n
+        A list of the asset prices for which correlation will be calculated. Overrides calls to service and calculates correlation for sample of prices supplied. Will disregard start_date and end_date. Must be of the format: {&#39;AAPL&#39;: { &#39;date_1&#39; : &#39;price_1&#39;, &#39;date_2&#39;: &#39;price_2&#39; ...}, &#39;BX&#39;: { &#39;date_1&#39; : &#39;price_1:, ... } } and ordered from latest date to earliest date.  \n \n
+    
+    Raises
+    ------
+    1. errors.InputValidationError
+    2. errors.SampleSizeError
+    3. errors.PriceError
+
+    Returns
+    ------
+    { &#39;correlation&#39; : float } \n
+
+    Notes
+    -----
+    &#34;&#34;&#34;
+    ### START ARGUMENT PARSING ###
+    try:
+        asset_type_1 = errors.validate_asset_type(ticker=ticker_1, asset_type=asset_type_1)
+        asset_type_2 = errors.validate_asset_type(ticker=ticker_2, asset_type=asset_type_2)
+        if asset_type_1 == static.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;] and asset_type_2 == static.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]:
+            # validate over all days
+            start_date, end_date = errors.validate_dates(start_date=start_date, end_date=end_date,
+                                                            asset_type=static.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;])
+        else:
+            #   validate over trading days. since (date - 100 days) &gt; (date - 100 trading days), always
+            #   take the largest sample so intersect_dict_keys will return a sample of the correct size
+            #   for mixed asset types.
+            start_date, end_date = errors.validate_dates(start_date=start_date, end_date=end_date,
+                                                                asset_type=static.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;])
+    except errors.InputValidationError as ive:
+        raise ive
+
+    if sample_prices is None:
+        # TODO: extra save_or_update argument for estimation method, i.e. moments, percentiles or likelihood
+        correlation = correlation_cache.filter_correlation_cache(ticker_1=ticker_1, ticker_2=ticker_2,
+                                                                    start_date=start_date, end_date=end_date,
+                                                                    method=static.keys[&#39;ESTIMATION&#39;][&#39;MOMENT&#39;])
+        if correlation is not None:
+            return correlation
+
+        sample_prices = {}
+        logger.debug(f&#39;No sample prices provided or cached ({ticker_1}, {ticker_2}) correlation found.&#39;)
+        logger.debug(&#39;Retrieving price histories for calculation.&#39;)
+        try: 
+            sample_prices[ticker_1] = services.get_daily_price_history(ticker=ticker_1, start_date=start_date, 
+                                                                        end_date=end_date, asset_type=asset_type_1)
+            sample_prices[ticker_2] = services.get_daily_price_history(ticker=ticker_2, start_date=start_date, 
+                                                                        end_date=end_date, asset_type=asset_type_2)
+        except errors.APIResponseError as api:
+            raise api
+        
+    if asset_type_1 != asset_type_2:
+        # remove weekends and holidays from crypto prices so samples can be compared
+            # NOTE: data is lost here.
+        sample_prices[ticker_1], sample_prices[ticker_2] = helper.intersect_dict_keys(sample_prices[ticker_1], sample_prices[ticker_2])
+
+    if 0 in [len(sample_prices[ticker_1]), len(sample_prices[ticker_2])]:
+        raise errors.PriceError(&#34;Prices cannot be retrieved for correlation calculation&#34;)
+
+    if asset_type_1 == asset_type_2 and asset_type_1 == static.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]:
+        trading_period = static.constants[&#39;ONE_TRADING_DAY&#39;][&#39;CRYPTO&#39;]
+    else:
+        trading_period = static.constants[&#39;ONE_TRADING_DAY&#39;][&#39;EQUITY&#39;]
+    ### END ARGUMENT PARSING ###
+
+    ### START SAMPLE STATISTICS CALCULATION DEPENDENCIES ###
+        ### i.e. statistics that need to be calculated before correlation can be calculated
+    logger.debug(f&#39;Preparing calculation dependencies for ({ticker_1},{ticker_2}) correlation&#39;)
+    try:
+        stats_1 = calculate_moment_risk_return(ticker=ticker_1, start_date=start_date, end_date=end_date, 
+                                        sample_prices=sample_prices[ticker_1], asset_type=asset_type_1)
+        stats_2 = calculate_moment_risk_return(ticker=ticker_2, start_date=start_date, end_date=end_date, 
+                                        sample_prices=sample_prices[ticker_2], asset_type=asset_type_2)
+    except errors.SampleSizeError as se:
+        raise errors.SampleSizeError(se)
+    except errors.PriceError as pe:
+        raise errors.PriceError(pe)
+        
+    # ito&#39;s lemma
+        # note: can&#39;t use trading_period to condense this conditional because the mod_mean_i&#39;s need 
+        #       to be scaled to the correlation calculation differently based on the asset type. 
+    if asset_type_1 == static.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]:
+        mod_mean_1 = (stats_1[&#39;annual_return&#39;] - 0.5*(stats_1[&#39;annual_volatility&#39;])**2)*sqrt(static.constants[&#39;ONE_TRADING_DAY&#39;][&#39;EQUITY&#39;])
+    elif asset_type_1 == static.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]:
+        mod_mean_1 = (stats_1[&#39;annual_return&#39;] - 0.5*(stats_1[&#39;annual_volatility&#39;])**2)*sqrt(static.constants[&#39;ONE_TRADING_DAY&#39;][&#39;CRYPTO&#39;])
+
+    if asset_type_2 == static.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]:
+        mod_mean_2 = (stats_2[&#39;annual_return&#39;] - 0.5*(stats_2[&#39;annual_volatility&#39;])**2)*sqrt(static.constants[&#39;ONE_TRADING_DAY&#39;][&#39;EQUITY&#39;])
+    elif asset_type_2 == static.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]:
+        mod_mean_2 = (stats_2[&#39;annual_return&#39;] - 0.5*(stats_2[&#39;annual_volatility&#39;])**2)*sqrt(static.constants[&#39;ONE_TRADING_DAY&#39;][&#39;CRYPTO&#39;])
+    
+    logger.debug(f&#39;Calculating ({ticker_1}, {ticker_2}) correlation.&#39;)
+    ### END SAMPLE STATISTICS CALCULATION DEPENDENCIES
+
+    # Initialize loop variables
+    i, covariance, time_delta = 0, 0, 1
+    today, tomorrows_date = False, None
+    sample = len(sample_prices[ticker_1])
+
+    #### START CORRELATION LOOP ####
+    for date in sample_prices[ticker_1]:
+        todays_price_1 = sample_prices[ticker_1][date][static.keys[&#39;PRICES&#39;][&#39;CLOSE&#39;]]
+        todays_price_2 = sample_prices[ticker_2][date][static.keys[&#39;PRICES&#39;][&#39;CLOSE&#39;]]
+        logger.verbose(f&#39;(todays_date, todays_price_{ticker_1}, todays_price_{ticker_2}) = ({date}, {todays_price_1}, {todays_price_2})&#39;)
+            
+        if today:
+            logger.verbose(f&#39;Iteration #{i}&#39;)
+            logger.verbose(f&#39;(todays_price, tomorrows_price)_{ticker_1} = ({todays_price_1}, {tomorrows_price_1})&#39;)
+            logger.verbose(f&#39;(todays_price, tomorrows_price)_{ticker_2} = ({todays_price_2}, {tomorrows_price_2})&#39;)
+
+            # NOTE: crypto prices may have weekends and holidays removed during correlation algorithm 
+            # so samples can be compared to equities, need to account for these dates by increasing
+            # the time_delta by the number of missed days, to offset the weekend and holiday return.
+            if asset_type_1 == static.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;] or \
+                (asset_type_1 == static.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;] and not helper.consecutive_trading_days(tomorrows_date, date)):
+                time_delta = (helper.parse_date_string(tomorrows_date) - helper.parse_date_string(date)).days 
+            else:
+                time_delta = 1
+
+            current_mod_return_1= log(float(tomorrows_price_1)/float(todays_price_1))/sqrt(time_delta*trading_period)
+
+            # see above note
+            if asset_type_2 == static.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;] or \
+                (asset_type_2 == static.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;] and not helper.consecutive_trading_days(tomorrows_date, date)):
+                time_delta = (helper.parse_date_string(tomorrows_date) - helper.parse_date_string(date)).days 
+            else:
+                time_delta = 1
+
+            current_mod_return_2= log(float(tomorrows_price_2)/float(todays_price_2))/sqrt(time_delta*trading_period)
+
+            current_sample_covariance = (current_mod_return_1 - mod_mean_1)*(current_mod_return_2 - mod_mean_2)/(sample - 1)
+            covariance = covariance + current_sample_covariance
+        
+            logger.verbose(f&#39;(return_1, return_2) = ({round(current_mod_return_1, 2)}, {round(current_mod_return_2, 2)})&#39;)
+            logger.verbose(f&#39;(current_sample_covariance, covariance) = ({round(current_sample_covariance, 2)}, {round(covariance, 2)})&#39;)
+                
+        else:
+            today = True
+        
+        i += 1
+        tomorrows_price_1, tomorrows_price_2, tomorrows_date = todays_price_1, todays_price_2, date
+    #### END CORRELATION LOOP ####
+
+    # Scale covariance into correlation
+    correlation = covariance/(stats_1[&#39;annual_volatility&#39;]*stats_2[&#39;annual_volatility&#39;])
+
+    logger.debug(f&#39;correlation = ({round(correlation, 2)})&#39;)
+
+    result = { &#39;correlation&#39; : correlation }
+
+    correlation_cache.save_row(ticker_1=ticker_1, ticker_2=ticker_2, 
+                                start_date=start_date, end_date=end_date, 
+                                correlation = correlation, method=static.keys[&#39;ESTIMATION&#39;][&#39;MOMENT&#39;])
+    return result
+
+def correlation_matrix(tickers, asset_types=None, start_date=None, end_date=None, sample_prices=None):
+    correlation_matrix = [[0 for x in range(len(tickers))] for y in range(len(tickers))]
+    if(len(tickers) &gt; 1):
+        for i, item in enumerate(tickers):
+            correlation_matrix[i][i] = 1
+            for j in range(i+1, len(tickers)):
+                if asset_types is None:
+                    cor_list = calculate_moment_correlation(ticker_1 = item, ticker_2=tickers[j],
+                                                                start_date = start_date, end_date = end_date,
+                                                                sample_prices = sample_prices)
+                else:
+                    cor_list = calculate_moment_correlation(ticker_1 = item, ticker_2=tickers[j],
+                                                            asset_type_1=asset_types[i], asset_type_2=asset_types[j],
+                                                            start_date = start_date, end_date = end_date,
+                                                            sample_prices = sample_prices)
+                if cor_list is None:
+                    #TODO: raise Exception
+                    return False
+                correlation = cor_list[&#39;correlation&#39;]
+                if correlation is None:
+                    #TODO: raise Exception
+                    return False
+
+                correlation_matrix[i][j] = correlation
+                correlation_matrix[j][i] = correlation_matrix[i][j]
+            correlation_matrix[len(tickers) - 1][len(tickers) - 1] = 1
+        return correlation_matrix
+    if (len(tickers)==1):
+        correlation_matrix[0][0]=1
+        return correlation_matrix
+    logger.debug(&#39;Cannot calculate correlation matrix for portfolio size &lt; 1.&#39;)
+    # TODO: raise exception
+    return False
+
+def get_correlation_matrix_string(tickers, indent=0, start_date=None, 
+                                        end_date=None, sample_prices=None,
+                                        correlation_matrix=None):
+    &#34;&#34;&#34;
+    Parameters
+    ----------
+    1. tickers : [str] \n
+        Array of tickers for which the correlation matrix will be calculated and formatted. \n \n
+    2. indent : int \n 
+        Amount of indent on each new line of the correlation matrix. \n \n
+    3. start_date : datetime.date \n 
+        Start date of the time period over which correlation will be calculated. \n \n 
+    4. end_date : datetime.date \n 
+        End date of the time period over which correlation will be calculated. \n \n  
+    
+    Output
+    ------
+    A correlation matrix string formatted with new lines and spaces.\n
+    &#34;&#34;&#34;
+    entire_formatted_result, formatted_title = &#34;&#34;, &#34;&#34;
+
+    line_length, first_symbol_length = 0, 0
+    new_line=&#34;&#34;
+    no_symbols = len(tickers)
+
+    for i in range(no_symbols):
+        this_symbol = tickers[i]
+        symbol_string = &#39; &#39;*indent + f&#39;{this_symbol} &#39;
+
+        if i != 0:
+            this_line = symbol_string + &#39; &#39;*(line_length - len(symbol_string) - 7*(no_symbols - i))
+            # NOTE: seven is number of chars in &#39; 100.0%&#39;
+        else: 
+            this_line = symbol_string
+            first_symbol_length = len(this_symbol)
+
+        new_line = this_line
+        
+        for j in range(i, no_symbols):
+            if j == i:
+                new_line += &#34; 100.0%&#34;
+            
+            else:
+                that_symbol = tickers[j]
+                if correlation_matrix is None:
+                    result = calculate_moment_correlation(this_symbol, that_symbol, start_date, end_date, sample_prices) 
+                else:
+                    result = correlation_matrix[i][j]
+                # TODO: raise exception instead of returning false!
+                if not result:
+                    logger.debug(f&#39;Cannot correlation for ({this_symbol}, {that_symbol})&#39;)
+                    return False
+                formatted_result = str(100*result[&#39;correlation&#39;])[:formatter.SIG_FIGS]
+                new_line += f&#39; {formatted_result}%&#39;
+
+        entire_formatted_result += new_line + &#39;\n&#39;
+        
+        if i == 0:
+            line_length = len(new_line)
+
+    formatted_title += &#39; &#39;*(indent + first_symbol_length+1)
+    for symbol in tickers:
+        sym_len = len(symbol)
+        formatted_title += f&#39; {symbol}&#39;+ &#39; &#39;*(7-sym_len)
+        # NOTE: seven is number of chars in &#39; 100.0%&#39;
+    formatted_title += &#39;\n&#39;
+
+    whole_thing = formatted_title + entire_formatted_result
+    return whole_thing
+
+def calculate_moment_correlation_series(ticker_1, ticker_2, start_date=None, end_date=None):
+    asset_type_1 = files.get_asset_type(ticker_1)
+    asset_type_2 = files.get_asset_type(ticker_2)
+    same_type = False
+    correlation_series={}
+
+    if asset_type_1 == asset_type_2:
+        same_type = True
+    
+    # TODO: what if start_date or end_date is None?
+    if same_type:
+        if asset_type_1 == static.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]:
+            date_range = [helper.get_previous_business_date(start_date)] + helper.business_dates_between(start_date,end_date)
+        elif asset_type_1 == static.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]:
+            date_range = [start_date] + helper.dates_between(start_date, end_date)
+    else: # default to business days
+        date_range = [helper.get_previous_business_date(start_date)] + helper.business_dates_between(start_date,end_date)
+
+    for date in date_range:
+        calc_date_end = date
+        
+        if same_type and asset_type_1 == static.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]:
+            calc_date_start = helper.decrement_date_by_business_days(start_date=date, 
+                                                                        business_days=settings.DEFAULT_ANALYSIS_PERIOD)
+        elif same_type and asset_type_1 == static.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]:
+            calc_date_start = helper.decrement_date_by_days(start_date=date, days=settings.DEFAULT_ANALYSIS_PERIOD)
+
+        todays_cor = calculate_moment_correlation(ticker_1, ticker_2, start_date=calc_date_start, end_date=calc_date_end)
+        correlation_series[date] = todays_cor[&#39;correlation&#39;]
+    
+    result = {}
+    result[f&#39;{ticker_1}_{ticker_2}_correlation_time_series&#39;] = correlation_series
+
+def calculate_return_covariance(ticker_1, ticker_2, start_date=None, end_date=None, sample_prices=None, 
+                                correlation=None, profile_1=None, profile_2=None):
+    try:
+        if correlation is None:
+            if sample_prices is None:
+                correlation = calculate_moment_correlation(ticker_1=ticker_1, ticker_2=ticker_2, start_date=start_date, 
+                                                    end_date=end_date)
+            else:
+                correlation = calculate_moment_correlation(ticker_1=ticker_1, ticker_2=ticker_2, sample_prices=sample_prices)
+
+        if profile_1 is None:
+            if sample_prices is None:
+                profile_1 = calculate_moment_risk_return(ticker=ticker_1, start_date=start_date, end_date=end_date)
+            else:
+                profile_1 = calculate_moment_risk_return(ticker=ticker_1, sample_prices=sample_prices[ticker_1])
+
+        if profile_2 is None:
+            if sample_prices is None:
+                profile_2 = calculate_moment_risk_return(ticker=ticker_2, start_date=start_date, end_date=end_date)
+            else:
+                profile_2 = calculate_moment_risk_return(ticker=ticker_2,sample_prices=sample_prices[ticker_2])
+    except errors.SampleSizeError as sse:
+        raise sse
+    except errors.PriceError as pe:
+        raise pe
+    except errors.InputValidationError as ive:
+        raise ive
+    except errors.APIResponseError as api:
+        raise api
+
+
+    covariance = profile_1[&#39;annual_volatility&#39;]*profile_2[&#39;annual_volatility&#39;]*correlation[&#39;correlation&#39;]
+    return covariance</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="scrilla.analysis.models.geometric.statistics.calculate_likelihood_correlation"><code class="name flex">
+<span>def <span class="ident">calculate_likelihood_correlation</span></span>(<span>ticker_1, ticker_2, asset_type_1=None, asset_type_2=None, start_date=None, end_date=None, sample_prices=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><h2 id="parameters">Parameters</h2>
+<ol>
+<li>
+<p>ticker_1 : str </p>
+<p>Ticker symbol for first asset. </p>
+</li>
+<li>
+<p>ticker_2 : str </p>
+<p>Ticker symbol for second asset </p>
+</li>
+<li>
+<p>asset_type_1 : str </p>
+<p>Optional. Specify asset type to prevent overusing redundant calculations. Allowable values: settings.ASSET_TYPE_EQUITY, settings.ASSET_TYPE_CRYPTO </p>
+</li>
+<li>
+<p>asset_type_2 : str </p>
+<p>Optional. Specify asset type to prevent overusing redundant calculations. Allowable values: settings.ASSET_TYPE_EQUITY, settings.ASSET_TYPE_CRYPTO </p>
+</li>
+<li>
+<p>start_date : datetime.date </p>
+<p>Start date of the time period over which correlation will be calculated. </p>
+</li>
+<li>
+<p>end_date : datetime.date </p>
+<p>End date of the time period over which correlation will be calculated. </p>
+</li>
+<li>
+<p>sample_prices : { 'ticker' (str) : { 'date' (str) : 'price' (str) } } </p>
+<p>A list of the asset prices for which correlation will be calculated. Overrides calls to service and calculates correlation for sample of prices supplied. Will disregard start_date and end_date. Must be of the format: {'AAPL': { 'date_1' : 'price_1', 'date_2': 'price_2' &hellip;}, 'BX': { 'date_1' : 'price_1:, &hellip; } } and ordered from latest date to earliest date.
+</p>
+</li>
+</ol>
+<h2 id="raises">Raises</h2>
+<dl>
+<dt><code>1. errors.InputValidationError</code></dt>
+<dd>&nbsp;</dd>
+<dt><code>2. errors.SampleSizeError</code></dt>
+<dd>&nbsp;</dd>
+<dt><code>3. errors.PriceError</code></dt>
+<dd>&nbsp;</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>{ 'correlation' : float } </p>
+<h2 id="notes">Notes</h2></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def calculate_likelihood_correlation(ticker_1, ticker_2, asset_type_1=None, asset_type_2=None, start_date=None, end_date=None, sample_prices=None):
+    &#34;&#34;&#34;
+    Parameters
+    ----------
+    1. ticker_1 : str \n
+        Ticker symbol for first asset. \n \n
+    2. ticker_2 : str \n 
+        Ticker symbol for second asset \n \n
+    3. asset_type_1 : str \n
+        Optional. Specify asset type to prevent overusing redundant calculations. Allowable values: settings.ASSET_TYPE_EQUITY, settings.ASSET_TYPE_CRYPTO \n \n
+    4. asset_type_2 : str \n
+        Optional. Specify asset type to prevent overusing redundant calculations. Allowable values: settings.ASSET_TYPE_EQUITY, settings.ASSET_TYPE_CRYPTO \n \n 
+    5. start_date : datetime.date \n 
+        Start date of the time period over which correlation will be calculated. \n \n 
+    6. end_date : datetime.date \n 
+        End date of the time period over which correlation will be calculated. \n \n  
+    7. sample_prices : { &#39;ticker&#39; (str) : { &#39;date&#39; (str) : &#39;price&#39; (str) } } \n
+        A list of the asset prices for which correlation will be calculated. Overrides calls to service and calculates correlation for sample of prices supplied. Will disregard start_date and end_date. Must be of the format: {&#39;AAPL&#39;: { &#39;date_1&#39; : &#39;price_1&#39;, &#39;date_2&#39;: &#39;price_2&#39; ...}, &#39;BX&#39;: { &#39;date_1&#39; : &#39;price_1:, ... } } and ordered from latest date to earliest date.  \n \n
+    
+    Raises
+    ------
+    1. errors.InputValidationError
+    2. errors.SampleSizeError
+    3. errors.PriceError
+
+    Returns
+    ------
+    { &#39;correlation&#39; : float } \n
+
+    Notes
+    -----
+    &#34;&#34;&#34;
+    ### START ARGUMENT PARSING ###
+    try:
+        asset_type_1 = errors.validate_asset_type(ticker=ticker_1, asset_type=asset_type_1)
+        asset_type_2 = errors.validate_asset_type(ticker=ticker_2, asset_type=asset_type_2)
+        if asset_type_1 == static.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;] and asset_type_2 == static.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]:
+            # validate over all days
+            start_date, end_date = errors.validate_dates(start_date=start_date, end_date=end_date,
+                                                            asset_type=static.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;])
+        else:
+            #   validate over trading days. since (date - 100 days) &gt; (date - 100 trading days), always
+            #   take the largest sample so intersect_dict_keys will return a sample of the correct size
+            #   for mixed asset types.
+            start_date, end_date = errors.validate_dates(start_date=start_date, end_date=end_date,
+                                                                asset_type=static.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;])
+    except errors.InputValidationError as ive:
+        raise ive
+
+    if sample_prices is None:
+        # TODO: extra save_or_update argument for estimation method, i.e. moments, percentiles or likelihood
+        correlation = correlation_cache.filter_correlation_cache(ticker_1=ticker_1, ticker_2=ticker_2,
+                                                                    start_date=start_date, end_date=end_date,
+                                                                    method=static.keys[&#39;ESTIMATION&#39;][&#39;MOMENT&#39;])
+        if correlation is not None:
+            return correlation
+
+        sample_prices = {}
+        logger.debug(f&#39;No sample prices provided or cached ({ticker_1}, {ticker_2}) correlation found.&#39;)
+        logger.debug(&#39;Retrieving price histories for calculation.&#39;)
+        try: 
+            sample_prices[ticker_1] = services.get_daily_price_history(ticker=ticker_1, start_date=start_date, 
+                                                                        end_date=end_date, asset_type=asset_type_1)
+            sample_prices[ticker_2] = services.get_daily_price_history(ticker=ticker_2, start_date=start_date, 
+                                                                        end_date=end_date, asset_type=asset_type_2)
+        except errors.APIResponseError as api:
+            raise api
+        
+    if asset_type_1 != asset_type_2:
+        # remove weekends and holidays from crypto prices so samples can be compared
+            # NOTE: data is lost here.
+        sample_prices[ticker_1], sample_prices[ticker_2] = helper.intersect_dict_keys(sample_prices[ticker_1], sample_prices[ticker_2])
+
+    if 0 in [len(sample_prices[ticker_1]), len(sample_prices[ticker_2])]:
+        raise errors.PriceError(&#34;Prices cannot be retrieved for correlation calculation&#34;)
+
+    if asset_type_1 == asset_type_2 and asset_type_1 == static.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]:
+        trading_period = static.constants[&#39;ONE_TRADING_DAY&#39;][&#39;CRYPTO&#39;]
+    else:
+        trading_period = static.constants[&#39;ONE_TRADING_DAY&#39;][&#39;EQUITY&#39;]
+    
+    sample_of_returns_1 = get_sample_of_returns(prices=sample_prices[ticker_1], asset_type=asset_type_1, trading_period=trading_period)
+    sample_of_returns_2 = get_sample_of_returns(prices=sample_prices[ticker_2], asset_type=asset_type_2, trading_period=trading_period)
+
+    result = { &#39;correlation&#39; : 0}
+
+    correlation_cache.save_row(ticker_1=ticker_1, ticker_2=ticker_2, 
+                                start_date=start_date, end_date=end_date, 
+                                correlation = correlation, method=static.keys[&#39;ESTIMATION&#39;][&#39;METHOD&#39;])
+    return result</code></pre>
+</details>
+</dd>
+<dt id="scrilla.analysis.models.geometric.statistics.calculate_likelihood_risk_return"><code class="name flex">
+<span>def <span class="ident">calculate_likelihood_risk_return</span></span>(<span>ticker, start_date=None, end_date=None, sample_prices=None, asset_type=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><h2 id="description">Description</h2>
+<p>Estimates the mean rate of return and volatility for a sample of asset prices as if the asset price followed a Geometric Brownian Motion process, i.e. the mean rate of return and volatility are constant and not functions of time or the asset price. Moreover, the return and volatility are estimated using the method of maximum likelihood estimation. The probability of each observation is calculated and then the product is taken to find the probability of the intersection; this probability is maximized with respect to the parameters of the normal distribution, the mean and the volatility.s</p>
+<h2 id="parameters">Parameters</h2>
+<ol>
+<li>
+<p>ticker : str </p>
+<p>Required. Ticker symbol whose risk-return profile is to be calculated. </p>
+</li>
+<li>
+<p>start_date : datetime.date </p>
+<p>Optional. Start date of the time period over which the risk-return profile is to be calculated. Defaults to <code>None</code>, in which case the calculation proceeds as if <code>start_date</code> were set to 100 trading days prior to <code>end_date</code>. If <code>get_asset_type(ticker)=scrilla.static.keys['ASSETS']['CRYPTO']</code>, this means 100 days regardless. If <code>get_asset_type(ticker)=scrilla.static.keys['ASSETS']['EQUITY']</code>, this excludes weekends and holidays and decrements the <code>end_date</code> by 100 trading days.</p>
+</li>
+<li>
+<p>end_date : datetime.date </p>
+<p>Optional. End date of the time period over which the risk-return profile is to be calculated. Defaults to <code>None</code>, in which the calculation proceeds as if <code>end_date</code> were set to today. If the <code>get_asset_type(ticker)==static.keys['ASSETS']['CRYPTO']</code> this means today regardless. If <code>get_asset_type(ticker)=static.keys['ASSETS']['EQUITY']</code> this excludes holidays and weekends and sets the end date to the last valid trading date. </p>
+</li>
+<li>
+<p>sample_prices : { 'date_1' : { 'open' : number, 'close' : number}, 'date_2': { 'open': number, 'close': number} &hellip; } </p>
+<p>Optional. A list of the asset prices for which correlation will be calculated. Overrides calls to service and forces calculation of correlation for sample of prices supplied. Function will disregard <code>start_date</code> and <code>end_date</code> and use the first and last key as the latest and earliest date, respectively. In other words, the <code>sample_prices</code> dictionary must be ordered from latest to earliest.
+</p>
+</li>
+<li>
+<p>asset_type : str
+Optional. Specify asset type to prevent overusing redundant calculations. Allowable values: scrilla.static.keys['ASSETS']['EQUITY'], scrilla.static.keys['ASSETS']['CRYPTO'] </p>
+</li>
+</ol>
+<h2 id="output">Output</h2>
+<p>{ 'annual_return' : float, 'annual_volatility': float } </p>
+<h2 id="raises">Raises</h2>
+<ol>
+<li>
+<p>scrilla.errors.SampleSizeError </p>
+</li>
+<li>
+<p>scrilla.errors.PriceError </p>
+</li>
+<li>
+<p>scrilla.errors.InputValidationError </p>
+</li>
+<li>
+<p>scrilla.errors.APIResponseError</p>
+</li>
+</ol>
+<h2 id="notes">Notes</h2>
+<p>NOTE #1: assumes price history is ordered from latest to earliest date.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def calculate_likelihood_risk_return(ticker, start_date=None, end_date=None, sample_prices=None, asset_type=None):
+    &#34;&#34;&#34;
+    Description
+    -----------
+    Estimates the mean rate of return and volatility for a sample of asset prices as if the asset price followed a Geometric Brownian Motion process, i.e. the mean rate of return and volatility are constant and not functions of time or the asset price. Moreover, the return and volatility are estimated using the method of maximum likelihood estimation. The probability of each observation is calculated and then the product is taken to find the probability of the intersection; this probability is maximized with respect to the parameters of the normal distribution, the mean and the volatility.s
+    
+    Parameters
+    ----------
+    1. ticker : str \n
+        Required. Ticker symbol whose risk-return profile is to be calculated. \n \n 
+    2. start_date : datetime.date \n 
+        Optional. Start date of the time period over which the risk-return profile is to be calculated. Defaults to `None`, in which case the calculation proceeds as if `start_date` were set to 100 trading days prior to `end_date`. If `get_asset_type(ticker)=scrilla.static.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]`, this means 100 days regardless. If `get_asset_type(ticker)=scrilla.static.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]`, this excludes weekends and holidays and decrements the `end_date` by 100 trading days.\n \n
+    3. end_date : datetime.date \n 
+        Optional. End date of the time period over which the risk-return profile is to be calculated. Defaults to `None`, in which the calculation proceeds as if `end_date` were set to today. If the `get_asset_type(ticker)==static.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]` this means today regardless. If `get_asset_type(ticker)=static.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]` this excludes holidays and weekends and sets the end date to the last valid trading date. \n \n
+    4. sample_prices : { &#39;date_1&#39; : { &#39;open&#39; : number, &#39;close&#39; : number}, &#39;date_2&#39;: { &#39;open&#39;: number, &#39;close&#39;: number} ... } \n
+        Optional. A list of the asset prices for which correlation will be calculated. Overrides calls to service and forces calculation of correlation for sample of prices supplied. Function will disregard `start_date` and `end_date` and use the first and last key as the latest and earliest date, respectively. In other words, the `sample_prices` dictionary must be ordered from latest to earliest.   \n \n
+    5. asset_type : str
+         Optional. Specify asset type to prevent overusing redundant calculations. Allowable values: scrilla.static.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;], scrilla.static.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;] \n \n
+
+    Output
+    ------
+    { &#39;annual_return&#39; : float, &#39;annual_volatility&#39;: float } \n \n
+
+    
+    Raises 
+    ------
+    1. scrilla.errors.SampleSizeError \n 
+    2. scrilla.errors.PriceError \n
+    3. scrilla.errors.InputValidationError \n
+    4. scrilla.errors.APIResponseError
+
+    Notes
+    -----
+    NOTE #1: assumes price history is ordered from latest to earliest date. \n \n 
+    &#34;&#34;&#34;
+    if sample_prices is None:
+        try:
+           asset_type = errors.validate_asset_type(ticker, asset_type)
+           start_date, end_date = errors.validate_dates(start_date, end_date, asset_type)
+           trading_period = static.get_trading_period(asset_type)
+        except errors.InputValidationError as ive:
+           raise ive
+
+        # TODO: extra save_or_update argument for estimation method, i.e. moments, percentiles or likelihood
+        results = profile_cache.filter_profile_cache(ticker=ticker, start_date=start_date, end_date=end_date, 
+                                                        method=static.keys[&#39;ESTIMATION&#39;][&#39;LIKE&#39;])
+
+        if results is not None \
+                and results[static.keys[&#39;STATISTICS&#39;][&#39;RETURN&#39;]] is not None \
+                and results[static.keys[&#39;STATISTICS&#39;][&#39;VOLATILITY&#39;]] is not None:
+            return results
+
+        try:
+            logger.debug(&#39;No sample prices provided, calling service.&#39;)
+            prices = services.get_daily_price_history(ticker=ticker, start_date=start_date, end_date=end_date, asset_type=asset_type)
+        except errors.APIResponseError as api:
+            raise api
+    else:
+        logger.debug(f&#39;{ticker} sample prices provided, skipping service call.&#39;)
+        prices = sample_prices
+        try:
+           asset_type = errors.validate_asset_type(ticker, asset_type)
+           trading_period = static.get_trading_period(asset_type)
+        except errors.InputValidationError as ive:
+           raise ive
+
+    if not prices:
+        raise errors.PriceError(f&#39;No prices could be retrieved for {ticker}&#39;)
+
+    sample_of_returns = get_sample_of_returns(prices=prices, asset_type=asset_type, trading_period=trading_period)
+
+    likelihood_estimates = optimizer.maximize_univariate_normal_likelihood(data=sample_of_returns)
+
+    # NOTE: Var(dln(S)/delta_t) = (1/delta_t^2)*Var(dlnS) = sigma^2*delta_t / delta_t^2 = sigma^2 / delta_t
+    #       so need to multiply volatiliy by sqrt(delta_t) to get correct scale.
+    results = {
+        &#39;annual_return&#39;: likelihood_estimates[0],
+        &#39;annual_volatility&#39;: likelihood_estimates[1]*sqrt(trading_period)
+    }
+    
+    profile_cache.save_or_update_row(ticker=ticker, start_date=start_date, end_date=end_date, 
+                                        method=static.keys[&#39;ESTIMATION&#39;][&#39;LIKE&#39;],
+                                        annual_return=results[&#39;annual_return&#39;], 
+                                        annual_volatility=results[&#39;annual_volatility&#39;])
+    
+    return results</code></pre>
+</details>
+</dd>
+<dt id="scrilla.analysis.models.geometric.statistics.calculate_moment_correlation"><code class="name flex">
+<span>def <span class="ident">calculate_moment_correlation</span></span>(<span>ticker_1, ticker_2, asset_type_1=None, asset_type_2=None, start_date=None, end_date=None, sample_prices=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><h2 id="parameters">Parameters</h2>
+<ol>
+<li>
+<p>ticker_1 : str </p>
+<p>Ticker symbol for first asset. </p>
+</li>
+<li>
+<p>ticker_2 : str </p>
+<p>Ticker symbol for second asset </p>
+</li>
+<li>
+<p>asset_type_1 : str </p>
+<p>Optional. Specify asset type to prevent overusing redundant calculations. Allowable values: settings.ASSET_TYPE_EQUITY, settings.ASSET_TYPE_CRYPTO </p>
+</li>
+<li>
+<p>asset_type_2 : str </p>
+<p>Optional. Specify asset type to prevent overusing redundant calculations. Allowable values: settings.ASSET_TYPE_EQUITY, settings.ASSET_TYPE_CRYPTO </p>
+</li>
+<li>
+<p>start_date : datetime.date </p>
+<p>Start date of the time period over which correlation will be calculated. </p>
+</li>
+<li>
+<p>end_date : datetime.date </p>
+<p>End date of the time period over which correlation will be calculated. </p>
+</li>
+<li>
+<p>sample_prices : { 'ticker' (str) : { 'date' (str) : 'price' (str) } } </p>
+<p>A list of the asset prices for which correlation will be calculated. Overrides calls to service and calculates correlation for sample of prices supplied. Will disregard start_date and end_date. Must be of the format: {'AAPL': { 'date_1' : 'price_1', 'date_2': 'price_2' &hellip;}, 'BX': { 'date_1' : 'price_1:, &hellip; } } and ordered from latest date to earliest date.
+</p>
+</li>
+</ol>
+<h2 id="raises">Raises</h2>
+<dl>
+<dt><code>1. errors.InputValidationError</code></dt>
+<dd>&nbsp;</dd>
+<dt><code>2. errors.SampleSizeError</code></dt>
+<dd>&nbsp;</dd>
+<dt><code>3. errors.PriceError</code></dt>
+<dd>&nbsp;</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>{ 'correlation' : float } </p>
+<h2 id="notes">Notes</h2></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def calculate_moment_correlation(ticker_1, ticker_2, asset_type_1=None, asset_type_2=None, start_date=None, end_date=None, sample_prices=None):
+    &#34;&#34;&#34;
+    Parameters
+    ----------
+    1. ticker_1 : str \n
+        Ticker symbol for first asset. \n \n
+    2. ticker_2 : str \n 
+        Ticker symbol for second asset \n \n
+    3. asset_type_1 : str \n
+        Optional. Specify asset type to prevent overusing redundant calculations. Allowable values: settings.ASSET_TYPE_EQUITY, settings.ASSET_TYPE_CRYPTO \n \n
+    4. asset_type_2 : str \n
+        Optional. Specify asset type to prevent overusing redundant calculations. Allowable values: settings.ASSET_TYPE_EQUITY, settings.ASSET_TYPE_CRYPTO \n \n 
+    5. start_date : datetime.date \n 
+        Start date of the time period over which correlation will be calculated. \n \n 
+    6. end_date : datetime.date \n 
+        End date of the time period over which correlation will be calculated. \n \n  
+    7. sample_prices : { &#39;ticker&#39; (str) : { &#39;date&#39; (str) : &#39;price&#39; (str) } } \n
+        A list of the asset prices for which correlation will be calculated. Overrides calls to service and calculates correlation for sample of prices supplied. Will disregard start_date and end_date. Must be of the format: {&#39;AAPL&#39;: { &#39;date_1&#39; : &#39;price_1&#39;, &#39;date_2&#39;: &#39;price_2&#39; ...}, &#39;BX&#39;: { &#39;date_1&#39; : &#39;price_1:, ... } } and ordered from latest date to earliest date.  \n \n
+    
+    Raises
+    ------
+    1. errors.InputValidationError
+    2. errors.SampleSizeError
+    3. errors.PriceError
+
+    Returns
+    ------
+    { &#39;correlation&#39; : float } \n
+
+    Notes
+    -----
+    &#34;&#34;&#34;
+    ### START ARGUMENT PARSING ###
+    try:
+        asset_type_1 = errors.validate_asset_type(ticker=ticker_1, asset_type=asset_type_1)
+        asset_type_2 = errors.validate_asset_type(ticker=ticker_2, asset_type=asset_type_2)
+        if asset_type_1 == static.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;] and asset_type_2 == static.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]:
+            # validate over all days
+            start_date, end_date = errors.validate_dates(start_date=start_date, end_date=end_date,
+                                                            asset_type=static.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;])
+        else:
+            #   validate over trading days. since (date - 100 days) &gt; (date - 100 trading days), always
+            #   take the largest sample so intersect_dict_keys will return a sample of the correct size
+            #   for mixed asset types.
+            start_date, end_date = errors.validate_dates(start_date=start_date, end_date=end_date,
+                                                                asset_type=static.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;])
+    except errors.InputValidationError as ive:
+        raise ive
+
+    if sample_prices is None:
+        # TODO: extra save_or_update argument for estimation method, i.e. moments, percentiles or likelihood
+        correlation = correlation_cache.filter_correlation_cache(ticker_1=ticker_1, ticker_2=ticker_2,
+                                                                    start_date=start_date, end_date=end_date,
+                                                                    method=static.keys[&#39;ESTIMATION&#39;][&#39;MOMENT&#39;])
+        if correlation is not None:
+            return correlation
+
+        sample_prices = {}
+        logger.debug(f&#39;No sample prices provided or cached ({ticker_1}, {ticker_2}) correlation found.&#39;)
+        logger.debug(&#39;Retrieving price histories for calculation.&#39;)
+        try: 
+            sample_prices[ticker_1] = services.get_daily_price_history(ticker=ticker_1, start_date=start_date, 
+                                                                        end_date=end_date, asset_type=asset_type_1)
+            sample_prices[ticker_2] = services.get_daily_price_history(ticker=ticker_2, start_date=start_date, 
+                                                                        end_date=end_date, asset_type=asset_type_2)
+        except errors.APIResponseError as api:
+            raise api
+        
+    if asset_type_1 != asset_type_2:
+        # remove weekends and holidays from crypto prices so samples can be compared
+            # NOTE: data is lost here.
+        sample_prices[ticker_1], sample_prices[ticker_2] = helper.intersect_dict_keys(sample_prices[ticker_1], sample_prices[ticker_2])
+
+    if 0 in [len(sample_prices[ticker_1]), len(sample_prices[ticker_2])]:
+        raise errors.PriceError(&#34;Prices cannot be retrieved for correlation calculation&#34;)
+
+    if asset_type_1 == asset_type_2 and asset_type_1 == static.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]:
+        trading_period = static.constants[&#39;ONE_TRADING_DAY&#39;][&#39;CRYPTO&#39;]
+    else:
+        trading_period = static.constants[&#39;ONE_TRADING_DAY&#39;][&#39;EQUITY&#39;]
+    ### END ARGUMENT PARSING ###
+
+    ### START SAMPLE STATISTICS CALCULATION DEPENDENCIES ###
+        ### i.e. statistics that need to be calculated before correlation can be calculated
+    logger.debug(f&#39;Preparing calculation dependencies for ({ticker_1},{ticker_2}) correlation&#39;)
+    try:
+        stats_1 = calculate_moment_risk_return(ticker=ticker_1, start_date=start_date, end_date=end_date, 
+                                        sample_prices=sample_prices[ticker_1], asset_type=asset_type_1)
+        stats_2 = calculate_moment_risk_return(ticker=ticker_2, start_date=start_date, end_date=end_date, 
+                                        sample_prices=sample_prices[ticker_2], asset_type=asset_type_2)
+    except errors.SampleSizeError as se:
+        raise errors.SampleSizeError(se)
+    except errors.PriceError as pe:
+        raise errors.PriceError(pe)
+        
+    # ito&#39;s lemma
+        # note: can&#39;t use trading_period to condense this conditional because the mod_mean_i&#39;s need 
+        #       to be scaled to the correlation calculation differently based on the asset type. 
+    if asset_type_1 == static.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]:
+        mod_mean_1 = (stats_1[&#39;annual_return&#39;] - 0.5*(stats_1[&#39;annual_volatility&#39;])**2)*sqrt(static.constants[&#39;ONE_TRADING_DAY&#39;][&#39;EQUITY&#39;])
+    elif asset_type_1 == static.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]:
+        mod_mean_1 = (stats_1[&#39;annual_return&#39;] - 0.5*(stats_1[&#39;annual_volatility&#39;])**2)*sqrt(static.constants[&#39;ONE_TRADING_DAY&#39;][&#39;CRYPTO&#39;])
+
+    if asset_type_2 == static.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]:
+        mod_mean_2 = (stats_2[&#39;annual_return&#39;] - 0.5*(stats_2[&#39;annual_volatility&#39;])**2)*sqrt(static.constants[&#39;ONE_TRADING_DAY&#39;][&#39;EQUITY&#39;])
+    elif asset_type_2 == static.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]:
+        mod_mean_2 = (stats_2[&#39;annual_return&#39;] - 0.5*(stats_2[&#39;annual_volatility&#39;])**2)*sqrt(static.constants[&#39;ONE_TRADING_DAY&#39;][&#39;CRYPTO&#39;])
+    
+    logger.debug(f&#39;Calculating ({ticker_1}, {ticker_2}) correlation.&#39;)
+    ### END SAMPLE STATISTICS CALCULATION DEPENDENCIES
+
+    # Initialize loop variables
+    i, covariance, time_delta = 0, 0, 1
+    today, tomorrows_date = False, None
+    sample = len(sample_prices[ticker_1])
+
+    #### START CORRELATION LOOP ####
+    for date in sample_prices[ticker_1]:
+        todays_price_1 = sample_prices[ticker_1][date][static.keys[&#39;PRICES&#39;][&#39;CLOSE&#39;]]
+        todays_price_2 = sample_prices[ticker_2][date][static.keys[&#39;PRICES&#39;][&#39;CLOSE&#39;]]
+        logger.verbose(f&#39;(todays_date, todays_price_{ticker_1}, todays_price_{ticker_2}) = ({date}, {todays_price_1}, {todays_price_2})&#39;)
+            
+        if today:
+            logger.verbose(f&#39;Iteration #{i}&#39;)
+            logger.verbose(f&#39;(todays_price, tomorrows_price)_{ticker_1} = ({todays_price_1}, {tomorrows_price_1})&#39;)
+            logger.verbose(f&#39;(todays_price, tomorrows_price)_{ticker_2} = ({todays_price_2}, {tomorrows_price_2})&#39;)
+
+            # NOTE: crypto prices may have weekends and holidays removed during correlation algorithm 
+            # so samples can be compared to equities, need to account for these dates by increasing
+            # the time_delta by the number of missed days, to offset the weekend and holiday return.
+            if asset_type_1 == static.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;] or \
+                (asset_type_1 == static.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;] and not helper.consecutive_trading_days(tomorrows_date, date)):
+                time_delta = (helper.parse_date_string(tomorrows_date) - helper.parse_date_string(date)).days 
+            else:
+                time_delta = 1
+
+            current_mod_return_1= log(float(tomorrows_price_1)/float(todays_price_1))/sqrt(time_delta*trading_period)
+
+            # see above note
+            if asset_type_2 == static.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;] or \
+                (asset_type_2 == static.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;] and not helper.consecutive_trading_days(tomorrows_date, date)):
+                time_delta = (helper.parse_date_string(tomorrows_date) - helper.parse_date_string(date)).days 
+            else:
+                time_delta = 1
+
+            current_mod_return_2= log(float(tomorrows_price_2)/float(todays_price_2))/sqrt(time_delta*trading_period)
+
+            current_sample_covariance = (current_mod_return_1 - mod_mean_1)*(current_mod_return_2 - mod_mean_2)/(sample - 1)
+            covariance = covariance + current_sample_covariance
+        
+            logger.verbose(f&#39;(return_1, return_2) = ({round(current_mod_return_1, 2)}, {round(current_mod_return_2, 2)})&#39;)
+            logger.verbose(f&#39;(current_sample_covariance, covariance) = ({round(current_sample_covariance, 2)}, {round(covariance, 2)})&#39;)
+                
+        else:
+            today = True
+        
+        i += 1
+        tomorrows_price_1, tomorrows_price_2, tomorrows_date = todays_price_1, todays_price_2, date
+    #### END CORRELATION LOOP ####
+
+    # Scale covariance into correlation
+    correlation = covariance/(stats_1[&#39;annual_volatility&#39;]*stats_2[&#39;annual_volatility&#39;])
+
+    logger.debug(f&#39;correlation = ({round(correlation, 2)})&#39;)
+
+    result = { &#39;correlation&#39; : correlation }
+
+    correlation_cache.save_row(ticker_1=ticker_1, ticker_2=ticker_2, 
+                                start_date=start_date, end_date=end_date, 
+                                correlation = correlation, method=static.keys[&#39;ESTIMATION&#39;][&#39;MOMENT&#39;])
+    return result</code></pre>
+</details>
+</dd>
+<dt id="scrilla.analysis.models.geometric.statistics.calculate_moment_correlation_series"><code class="name flex">
+<span>def <span class="ident">calculate_moment_correlation_series</span></span>(<span>ticker_1, ticker_2, start_date=None, end_date=None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def calculate_moment_correlation_series(ticker_1, ticker_2, start_date=None, end_date=None):
+    asset_type_1 = files.get_asset_type(ticker_1)
+    asset_type_2 = files.get_asset_type(ticker_2)
+    same_type = False
+    correlation_series={}
+
+    if asset_type_1 == asset_type_2:
+        same_type = True
+    
+    # TODO: what if start_date or end_date is None?
+    if same_type:
+        if asset_type_1 == static.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]:
+            date_range = [helper.get_previous_business_date(start_date)] + helper.business_dates_between(start_date,end_date)
+        elif asset_type_1 == static.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]:
+            date_range = [start_date] + helper.dates_between(start_date, end_date)
+    else: # default to business days
+        date_range = [helper.get_previous_business_date(start_date)] + helper.business_dates_between(start_date,end_date)
+
+    for date in date_range:
+        calc_date_end = date
+        
+        if same_type and asset_type_1 == static.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]:
+            calc_date_start = helper.decrement_date_by_business_days(start_date=date, 
+                                                                        business_days=settings.DEFAULT_ANALYSIS_PERIOD)
+        elif same_type and asset_type_1 == static.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]:
+            calc_date_start = helper.decrement_date_by_days(start_date=date, days=settings.DEFAULT_ANALYSIS_PERIOD)
+
+        todays_cor = calculate_moment_correlation(ticker_1, ticker_2, start_date=calc_date_start, end_date=calc_date_end)
+        correlation_series[date] = todays_cor[&#39;correlation&#39;]
+    
+    result = {}
+    result[f&#39;{ticker_1}_{ticker_2}_correlation_time_series&#39;] = correlation_series</code></pre>
+</details>
+</dd>
+<dt id="scrilla.analysis.models.geometric.statistics.calculate_moment_risk_return"><code class="name flex">
+<span>def <span class="ident">calculate_moment_risk_return</span></span>(<span>ticker, start_date=None, end_date=None, sample_prices=None, asset_type=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><h2 id="description">Description</h2>
+<p>Estimates the mean rate of return and volatility for a sample of asset prices as if the asset price followed a Geometric Brownian Motion process, i.e. the mean rate of return and volatility are constant and not functions of time or the asset price. Moreover, the return and volatility are estimated using the method of moment matching, where the return is estimated by equating it to the first moment of the sample and the volatility is estimated by equating it to the square root of the second moment of the sample.</p>
+<h2 id="parameters">Parameters</h2>
+<ol>
+<li>
+<p>ticker : str </p>
+<p>Required. Ticker symbol whose risk-return profile is to be calculated. </p>
+</li>
+<li>
+<p>start_date : datetime.date </p>
+<p>Optional. Start date of the time period over which the risk-return profile is to be calculated. Defaults to <code>None</code>, in which case the calculation proceeds as if <code>start_date</code> were set to 100 trading days prior to <code>end_date</code>. If <code>get_asset_type(ticker)=scrilla.static.keys['ASSETS']['CRYPTO']</code>, this means 100 days regardless. If <code>get_asset_type(ticker)=scrilla.static.keys['ASSETS']['EQUITY']</code>, this excludes weekends and holidays and decrements the <code>end_date</code> by 100 trading days.</p>
+</li>
+<li>
+<p>end_date : datetime.date </p>
+<p>Optional. End date of the time period over which the risk-return profile is to be calculated. Defaults to <code>None</code>, in which the calculation proceeds as if <code>end_date</code> were set to today. If the <code>get_asset_type(ticker)==static.keys['ASSETS']['CRYPTO']</code> this means today regardless. If <code>get_asset_type(ticker)=static.keys['ASSETS']['EQUITY']</code> this excludes holidays and weekends and sets the end date to the last valid trading date. </p>
+</li>
+<li>
+<p>sample_prices : { 'date_1' : { 'open' : number, 'close' : number}, 'date_2': { 'open': number, 'close': number} &hellip; } </p>
+<p>Optional. A list of the asset prices for which correlation will be calculated. Overrides calls to service and forces calculation of correlation for sample of prices supplied. Function will disregard <code>start_date</code> and <code>end_date</code> and use the first and last key as the latest and earliest date, respectively. In other words, the <code>sample_prices</code> dictionary must be ordered from latest to earliest.
+</p>
+</li>
+<li>
+<p>asset_type : str
+Optional. Specify asset type to prevent overusing redundant calculations. Allowable values: scrilla.static.keys['ASSETS']['EQUITY'], scrilla.static.keys['ASSETS']['CRYPTO'] </p>
+</li>
+</ol>
+<h2 id="output">Output</h2>
+<p>{ 'annual_return' : float, 'annual_volatility': float } </p>
+<h2 id="raises">Raises</h2>
+<ol>
+<li>
+<p>scrilla.errors.SampleSizeError </p>
+</li>
+<li>
+<p>scrilla.errors.PriceError </p>
+</li>
+<li>
+<p>scrilla.errors.InputValidationError </p>
+</li>
+<li>
+<p>scrilla.errors.APIResponseError</p>
+</li>
+</ol>
+<h2 id="notes">Notes</h2>
+<p>NOTE #1: assumes price history is ordered from latest to earliest date.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def calculate_moment_risk_return(ticker, start_date=None, end_date=None, sample_prices=None, asset_type=None):
+    &#34;&#34;&#34;
+    Description
+    -----------
+    Estimates the mean rate of return and volatility for a sample of asset prices as if the asset price followed a Geometric Brownian Motion process, i.e. the mean rate of return and volatility are constant and not functions of time or the asset price. Moreover, the return and volatility are estimated using the method of moment matching, where the return is estimated by equating it to the first moment of the sample and the volatility is estimated by equating it to the square root of the second moment of the sample.
+    
+    Parameters
+    ----------
+    1. ticker : str \n
+        Required. Ticker symbol whose risk-return profile is to be calculated. \n \n 
+    2. start_date : datetime.date \n 
+        Optional. Start date of the time period over which the risk-return profile is to be calculated. Defaults to `None`, in which case the calculation proceeds as if `start_date` were set to 100 trading days prior to `end_date`. If `get_asset_type(ticker)=scrilla.static.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]`, this means 100 days regardless. If `get_asset_type(ticker)=scrilla.static.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]`, this excludes weekends and holidays and decrements the `end_date` by 100 trading days.\n \n
+    3. end_date : datetime.date \n 
+        Optional. End date of the time period over which the risk-return profile is to be calculated. Defaults to `None`, in which the calculation proceeds as if `end_date` were set to today. If the `get_asset_type(ticker)==static.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]` this means today regardless. If `get_asset_type(ticker)=static.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]` this excludes holidays and weekends and sets the end date to the last valid trading date. \n \n
+    4. sample_prices : { &#39;date_1&#39; : { &#39;open&#39; : number, &#39;close&#39; : number}, &#39;date_2&#39;: { &#39;open&#39;: number, &#39;close&#39;: number} ... } \n
+        Optional. A list of the asset prices for which correlation will be calculated. Overrides calls to service and forces calculation of correlation for sample of prices supplied. Function will disregard `start_date` and `end_date` and use the first and last key as the latest and earliest date, respectively. In other words, the `sample_prices` dictionary must be ordered from latest to earliest.   \n \n
+    5. asset_type : str
+         Optional. Specify asset type to prevent overusing redundant calculations. Allowable values: scrilla.static.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;], scrilla.static.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;] \n \n
+
+    Output
+    ------
+    { &#39;annual_return&#39; : float, &#39;annual_volatility&#39;: float } \n \n
+
+    
+    Raises 
+    ------
+    1. scrilla.errors.SampleSizeError \n 
+    2. scrilla.errors.PriceError \n
+    3. scrilla.errors.InputValidationError \n
+    4. scrilla.errors.APIResponseError
+
+    Notes
+    -----
+    NOTE #1: assumes price history is ordered from latest to earliest date. \n \n 
+    &#34;&#34;&#34;
+
+    if sample_prices is None:
+        try:
+           asset_type = errors.validate_asset_type(ticker, asset_type)
+           start_date, end_date = errors.validate_dates(start_date, end_date, asset_type)
+           trading_period = static.get_trading_period(asset_type)
+        except errors.InputValidationError as ive:
+           raise ive
+
+        # TODO: extra save_or_update argument for estimation method, i.e. moments, percentiles or likelihood
+        results = profile_cache.filter_profile_cache(ticker=ticker, start_date=start_date, end_date=end_date, 
+                                                        method=static.keys[&#39;ESTIMATION&#39;][&#39;MOMENT&#39;])
+
+        if results is not None \
+                and results[static.keys[&#39;STATISTICS&#39;][&#39;RETURN&#39;]] is not None \
+                and results[static.keys[&#39;STATISTICS&#39;][&#39;VOLATILITY&#39;]] is not None:
+            return results
+
+        try:
+            logger.debug(&#39;No sample prices provided, calling service.&#39;)
+            prices = services.get_daily_price_history(ticker=ticker, start_date=start_date, end_date=end_date, asset_type=asset_type)
+        except errors.APIResponseError as api:
+            raise api
+    else:
+        logger.debug(f&#39;{ticker} sample prices provided, skipping service call.&#39;)
+        prices = sample_prices
+        try:
+           asset_type = errors.validate_asset_type(ticker, asset_type)
+           trading_period = static.get_trading_period(asset_type)
+        except errors.InputValidationError as ive:
+           raise ive
+
+    if not prices:
+        raise errors.PriceError(f&#39;No prices could be retrieved for {ticker}&#39;)
+    
+    # Log of difference loses a sample
+    sample = len(prices) - 1
+    logger.debug(f&#39;Calculating mean annual return over last {sample} days for {ticker}&#39;)
+
+    ### MEAN CALCULATION
+    # NOTE: mean return is a telescoping series, i.e. sum of log(x1/x0) only depends on the first and
+    # last terms&#39; contributions (because log(x1/x0) + log(x2/x1)= log(x2) - log(x1) + log(x1) - log(x0)) = log(x2/x0))
+    # which raises the question how accurate of a measure the population return is of the mean return for an asset?
+    # will need to look into other ways of estimating return...
+    last_date, first_date = list(prices)[0], list(prices)[-1]
+    last_price = prices[last_date][static.keys[&#39;PRICES&#39;][&#39;CLOSE&#39;]]
+    first_price = prices[first_date][static.keys[&#39;PRICES&#39;][&#39;CLOSE&#39;]]
+    mean_return = log(float(last_price)/float(first_price))/(trading_period*sample)
+    
+    ### VOLATILITY CALCULATION
+    today, variance, tomorrows_price, tomorrows_date = False, 0, 0, None
+        # adjust the random variable being measured so expectation is easier to calculate. 
+    mean_mod_return = mean_return*sqrt(trading_period)
+    logger.debug(f&#39;Calculating mean annual volatility over last {sample} days for {ticker}&#39;)
+
+    for date in prices:
+        todays_price = prices[date][static.keys[&#39;PRICES&#39;][&#39;CLOSE&#39;]]
+
+        if today:
+            logger.verbose(f&#39;{date}: (todays_price, tomorrows_price) = ({todays_price}, {tomorrows_price})&#39;)
+
+            # crypto prices may have weekends and holidays removed during correlation algorithm 
+            # so samples can be compared to equities, need to account for these dates by increasing
+            # the time_delta by the number of missed days. 
+            if asset_type == static.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;] or \
+                (asset_type == static.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;] and not helper.consecutive_trading_days(tomorrows_date, date)):
+                time_delta = (helper.parse_date_string(tomorrows_date) - helper.parse_date_string(date)).days 
+            else:
+                time_delta = 1
+
+            current_mod_return = log(float(tomorrows_price)/float(todays_price))/sqrt(time_delta*trading_period) 
+            daily = (current_mod_return - mean_mod_return)**2/(sample - 1)
+            variance = variance + daily
+
+            logger.verbose(f&#39;{date}: (daily_variance, sample_variance) = ({round(daily, 4)}, {round(variance, 4)})&#39;)
+
+        else:
+            today = True
+
+        tomorrows_price = prices[date][static.keys[&#39;PRICES&#39;][&#39;CLOSE&#39;]]
+        tomorrows_date = date
+
+    # adjust for output
+    volatility = sqrt(variance)
+    # ito&#39;s lemma
+    mean_return = mean_return + 0.5*(volatility**2)
+    logger.debug(f&#39;(mean_return, sample_volatility) = ({round(mean_return, 2)}, {round(volatility, 2)})&#39;)
+
+    results = {
+        &#39;annual_return&#39;: mean_return,
+        &#39;annual_volatility&#39;: volatility
+    }
+    
+    profile_cache.save_or_update_row(ticker=ticker, start_date=start_date, end_date=end_date, 
+                                        method=static.keys[&#39;ESTIMATION&#39;][&#39;MOMENT&#39;],
+                                        annual_return=results[&#39;annual_return&#39;], 
+                                        annual_volatility=results[&#39;annual_volatility&#39;])
+    # TODO: extra save_or_update argument for estimation method, i.e. moments, percentiles or likelihood
+    
+    return results</code></pre>
+</details>
+</dd>
+<dt id="scrilla.analysis.models.geometric.statistics.calculate_moving_averages"><code class="name flex">
+<span>def <span class="ident">calculate_moving_averages</span></span>(<span>tickers, start_date=None, end_date=None, sample_prices=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><h2 id="parameters">Parameters</h2>
+<ol>
+<li>
+<p>tickers : [ str ] </p>
+<p>array of ticker symbols correspond to the moving averages to be calculated. </p>
+</li>
+<li>
+<p>start_date : datetime.date </p>
+<p>Optional. Defaults to <code>None</code>. start date of the time period over which the moving averages will be calculated. </p>
+</li>
+<li>
+<p>end_date : datetime.date</p>
+<p>Optional. Defaults to <code>None</code>. end date of the time period over which the moving averages will be calculated. </p>
+</li>
+<li>
+<p>sample_prices : { 'ticker' (str) : { 'date' (str) : 'price' (str) } } </p>
+<p>Optional. Defaults to <code>None</code>. A list of the asset prices for which moving_averages will be calculated. Overrides calls to service and calculates correlation for sample of prices supplied. Function will disregard start_date and end_date if sample_price is specified. Must be of the format: {'ticker_1': { 'date_1' : 'price_1', 'date_2': 'price_2' .}, 'ticker_2': { 'date_1' : 'price_1:, &hellip; } } and ordered from latest date to earliest date.
+</p>
+</li>
+</ol>
+<h2 id="output">Output</h2>
+<p>(averages, dates)-tuple, where averages is a 3D array with the following format :
+averages[ticker][period][date] and dates is a list of dates between the start_date
+and end_date</p>
+<h2 id="notes">Notes</h2>
+<p>NOTE #1: assumes price history is ordered from latest to earliest date. </p>
+<p>NOTE #2: If no start_date and end_date passed in, static snapshot of moving averages,
+i.e. the moving averages as of today (or last close), are calculated and
+returned. </p>
+<p>NOTE #3: If asset types are mixed, then the sample from which the average is calculated
+only consists of prices on business days. In other words, since crypo trades on
+weekends, to compare the moving average of equities and crypto, the moving average
+is only returned for business days. The moving average of crypto is still calculated
+using weekend price data, i.e. the moving average on Monday contains information about
+the moving average on Sunday, but the moving average on Sunday is discarded from the
+returned data, due to the fact equities are not traded on weekends. </p>
+<p>NOTE #4: MOVING AVERAGE OVER DATE RANGE LOOP CALCULATION PSEUDO-CODE </p>
+<pre><code>      1. for start date to end date:
+
+        2. get today's price
+
+        3. calculate today's return
+
+        4. for all elements of MAs_n
+
+            5. if today's date is less than a MA_n period away from the date of this MAs_n element
+
+                6. add today's return / MA_n_PERIOD to this element of MAs_n
+
+                7. create today's MAs_n element
+</code></pre></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def calculate_moving_averages(tickers, start_date=None, end_date=None, sample_prices=None):
+    &#34;&#34;&#34;
+    Parameters
+    ----------
+    1. tickers : [ str ] \n
+        array of ticker symbols correspond to the moving averages to be calculated. \n \n 
+    2. start_date : datetime.date \n 
+        Optional. Defaults to `None`. start date of the time period over which the moving averages will be calculated. \n \n 
+    3. end_date : datetime.date\n 
+        Optional. Defaults to `None`. end date of the time period over which the moving averages will be calculated. \n \n 
+    4. sample_prices : { &#39;ticker&#39; (str) : { &#39;date&#39; (str) : &#39;price&#39; (str) } } \n
+        Optional. Defaults to `None`. A list of the asset prices for which moving_averages will be calculated. Overrides calls to service and calculates correlation for sample of prices supplied. Function will disregard start_date and end_date if sample_price is specified. Must be of the format: {&#39;ticker_1&#39;: { &#39;date_1&#39; : &#39;price_1&#39;, &#39;date_2&#39;: &#39;price_2&#39; .}, &#39;ticker_2&#39;: { &#39;date_1&#39; : &#39;price_1:, ... } } and ordered from latest date to earliest date.  \n \n
+    
+    Output
+    ------
+    (averages, dates)-tuple, where averages is a 3D array with the following format :
+    averages[ticker][period][date] and dates is a list of dates between the start_date
+    and end_date
+
+    Notes
+    -----
+    NOTE #1: assumes price history is ordered from latest to earliest date. \n \n 
+    NOTE #2: If no start_date and end_date passed in, static snapshot of moving averages,
+            i.e. the moving averages as of today (or last close), are calculated and 
+            returned. \n \n
+    NOTE #3: If asset types are mixed, then the sample from which the average is calculated
+           only consists of prices on business days. In other words, since crypo trades on
+           weekends, to compare the moving average of equities and crypto, the moving average
+           is only returned for business days. The moving average of crypto is still calculated
+           using weekend price data, i.e. the moving average on Monday contains information about
+           the moving average on Sunday, but the moving average on Sunday is discarded from the
+           returned data, due to the fact equities are not traded on weekends. \n \n 
+    NOTE #4: MOVING AVERAGE OVER DATE RANGE LOOP CALCULATION PSEUDO-CODE \n 
+              1. for start date to end date: \n
+                2. get today&#39;s price \n
+                3. calculate today&#39;s return \n
+                4. for all elements of MAs_n \n
+                    5. if today&#39;s date is less than a MA_n period away from the date of this MAs_n element \n
+                        6. add today&#39;s return / MA_n_PERIOD to this element of MAs_n \n 
+                        7. create today&#39;s MAs_n element \n
+    &#34;&#34;&#34;
+    moving_averages = []
+
+    ##########################################
+    ### Moving Average Snapshot On Single Date
+    if start_date is None and end_date is None:
+        for ticker in tickers:
+            logger.debug(f&#39;Calculating Moving Average for {ticker}&#39;)
+
+            if sample_prices is None:
+                prices = services.get_daily_price_history(ticker)
+            else:
+                prices = sample_prices[ticker]
+
+            if not prices:
+                raise errors.PriceError(f&#39;Prices could not be retrieved for {ticker}&#39;)
+
+            asset_type = files.get_asset_type(ticker)
+            trading_period = static.get_trading_period(asset_type)
+
+            today = False
+            count, tomorrows_price, MA_1, MA_2, MA_3 = 1, 0, 0, 0, 0
+    
+            for date in prices:
+                todays_price = prices[date][static.keys[&#39;PRICES&#39;][&#39;CLOSE&#39;]]
+                if today:
+                    todays_return = log(float(tomorrows_price) / float(todays_price))/trading_period
+                    logger.verbose(f&#39;todays_return == {tomorrows_price}/({todays_price}*{round(trading_period,2)}) = {todays_return}&#39;) 
+
+                    if count &lt; settings.MA_1_PERIOD:
+                        MA_1 += todays_return / settings.MA_1_PERIOD
+                        
+                    if count &lt; settings.MA_2_PERIOD:
+                        MA_2 += todays_return / settings.MA_2_PERIOD
+
+                    if count &lt; settings.MA_3_PERIOD:
+                        MA_3 += todays_return / settings.MA_3_PERIOD  
+                        count += 1
+
+                else:
+                    today = True
+
+                tomorrows_price = prices[date][static.keys[&#39;PRICES&#39;][&#39;CLOSE&#39;]]
+
+            logger.verbose(f&#39;(MA_1, MA_2, MA_3)_{ticker} = ({MA_1}, {MA_2}, {MA_3}&#39;)
+            moving_averages.append([MA_1, MA_2, MA_3])
+
+        return moving_averages, None
+
+    ################################################
+    #### Moving Average Scatter Plot Over Date Range
+
+    ### TODO: this needs work. needs the intersect_dict_keys method like correlation did.
+
+    previous_asset_type, portfolio_asset_type = None, None
+    mixed_flag = False
+    original_day_count = 0
+
+    ### START ARGUMENT VALIDATION ###
+    logger.debug(&#39;Checking provided tickers for mixed asset types.&#39;)
+    for ticker in tickers:
+        asset_type = files.get_asset_type(ticker)
+        portfolio_asset_type = asset_type
+        if (
+            previous_asset_type is not None
+            and previous_asset_type != asset_type
+        ):
+            logger.debug(&#39;Tickers include mixed asset types, flagging calculation.&#39;)
+            portfolio_asset_type = None
+            mixed_flag = True
+            break
+        previous_asset_type = asset_type
+
+    if not mixed_flag:
+        logger.debug(f&#39;Tickers provided all of {portfolio_asset_type} asset type.&#39;)
+
+    logger.debug(&#39;Calculating length of date range in trading days.&#39;)
+    if mixed_flag:
+        original_day_count = helper.business_days_between(start_date, end_date)
+    elif portfolio_asset_type == static.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]:
+        original_day_count = helper.business_days_between(start_date, end_date)
+    elif portfolio_asset_type == static.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]:
+        original_day_count = (end_date - start_date).days
+    else:
+        original_day_count = helper.business_days_between(start_date, end_date)
+
+    logger.debug(f&#39;{end_date} - {start_date} = {original_day_count} trading days&#39;)
+
+    for ticker in tickers:
+        logger.debug(f&#39;Calculating Moving Average for {ticker}.&#39;)
+
+        asset_type = files.get_asset_type(ticker)
+        trading_period = static.get_trading_period(asset_type)
+
+        logger.debug(&#39;Offsetting start date to account for longest Moving Average period.&#39;)
+        if asset_type == static.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]:
+            logger.debug(f&#39;{ticker}_asset_type = Crypto&#39;)
+
+            logger.debug(&#39;Configuring date variables to account for all dates.&#39;)
+            new_start_date = start_date - timedelta(days=settings.MA_3_PERIOD)
+            new_day_count = (end_date - new_start_date).days
+
+            # amend equity trading dates to take account of weekends
+        elif asset_type == static.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]:
+            logger.debug(f&#39;{ticker}_asset_type = Equity&#39;)
+
+            logger.debug(&#39;Configuring date variables to account for weekends and holidays.&#39;)
+            new_start_date = helper.decrement_date_by_business_days(start_date=start_date, 
+                                                                    business_days=settings.MA_3_PERIOD)
+            new_day_count = helper.business_days_between(new_start_date, end_date)
+
+        else:
+            logger.debug(f&#39;{ticker}_asset_type = Unknown; Defaulting to business dates&#39;)
+
+            logger.debug(&#39;Configuring date variables to account for weekends and holidays.&#39;)
+            new_start_date = helper.decrement_date_by_business_days(start_date=start_date, 
+                                                                    business_days=settings.MA_3_PERIOD)
+            new_day_count = helper.business_days_between(new_start_date, end_date)
+
+        logger.debug(f&#39;start_date -&gt; new_start_date == {start_date} -&gt; {new_start_date}&#39;)
+        logger.debug(f&#39;{end_date} - {new_start_date} == {new_day_count}&#39;)
+
+        if sample_prices is None:
+            logger.debug(f&#39;No {ticker} sample prices provided, calling service.&#39;)
+            prices = services.get_daily_price_history(ticker, new_start_date, end_date)
+        else:
+            logger.debug(f&#39;{ticker} sample prices provided, skipping service call.&#39;)
+            prices = sample_prices[ticker]
+
+        if not prices:
+            raise errors.PriceError(f&#39;Prices could not be retrieved for {ticker}&#39;)
+    ### END ARGUMENT VALIDATION ###
+
+    ### START MOVING AVERAGE CALCULATION ###
+        today = False
+        count= 1
+        tomorrows_price = 0
+        MAs_1, MAs_2, MAs_3 = [], [], []
+
+        # See NOTE #4
+        for date in prices:
+            logger.verbose(f&#39;date: {date}&#39;)
+            # todays_price = services.price_manager.parse_price_from_date(prices, date, asset_type)
+            todays_price = prices[date][static.keys[&#39;PRICES&#39;][&#39;CLOSE&#39;]]
+
+            if today:
+                todays_return = log(float(tomorrows_price) / float(todays_price))/trading_period
+                logger.verbose(f&#39;todays_return == ln({tomorrows_price}/{todays_price})/{round(trading_period,4)}) = {round(todays_return,4)}&#39;) 
+
+                for MA in MAs_1:
+                    end_flag = False
+                    if len(MAs_1) - MAs_1.index(MA) &lt; settings.MA_1_PERIOD:
+                        if len(MAs_1) - MAs_1.index(MA) == settings.MA_1_PERIOD - 1:
+                            end_flag = True
+                            if asset_type == static.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]:
+                                date_of_MA1 = helper.decrement_date_string_by_business_days(date, MAs_1.index(MA))
+                            elif asset_type == static.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]:
+                                date_of_MA1 = helper.string_to_date(date) - timedelta(days=MAs_1.index(MA))
+                            else: 
+                                date_of_MA1 = helper.string_to_date(date) - timedelta(days=MAs_1.index(MA)) 
+
+                        MA += todays_return / settings.MA_1_PERIOD
+
+                        if end_flag:
+                            logger.verbose(f&#39;{ticker}_MA_1({date_of_MA1}) = {MA}&#39;)
+
+                # See NOTE #3
+                if mixed_flag or portfolio_asset_type == static.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]:
+                    if not(helper.is_date_string_holiday(date) or helper.is_date_string_weekend(date)): 
+                        MAs_1.append( (todays_return / settings.MA_1_PERIOD) )
+                elif portfolio_asset_type == static.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]:
+                    MAs_1.append( (todays_return / settings.MA_1_PERIOD))
+
+                for MA in MAs_2:
+                    end_flag = False
+                    if len(MAs_2) - MAs_2.index(MA) &lt; settings.MA_2_PERIOD:
+                        if len(MAs_2) - MAs_2.index(MA) == settings.MA_2_PERIOD - 1:
+                            end_flag = True
+                            if asset_type == static.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]:
+                                date_of_MA2 = helper.decrement_date_string_by_business_days(date, MAs_2.index(MA))
+                            elif asset_type == static.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]:
+                                date_of_MA2 = helper.string_to_date(date) + timedelta(days=MAs_2.index(MA))
+                            else: 
+                                date_of_MA2 = helper.string_to_date(date) + timedelta(days=MAs_2.index(MA)) 
+                            
+                        MA += todays_return / settings.MA_2_PERIOD
+
+                        if end_flag:
+                            logger.verbose(f&#39;{ticker}_MA_2({date_of_MA2}) = {MA}&#39;)
+
+                # See NOTE #3
+                if mixed_flag or portfolio_asset_type == static.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]:
+                    if not(helper.is_date_string_holiday(date) or helper.is_date_string_weekend(date)):
+                        MAs_2.append((todays_return / settings.MA_2_PERIOD))
+                elif portfolio_asset_type == static.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]:
+                    MAs_2.append((todays_return / settings.MA_2_PERIOD))
+
+                for MA in MAs_3:
+                    end_flag = False
+                    if len(MAs_3) - MAs_3.index(MA)  &lt; settings.MA_3_PERIOD:
+                        if len(MAs_3) - MAs_3.index(MA) == settings.MA_3_PERIOD - 1:
+                            end_flag = True
+                            if asset_type == static.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]:
+                                date_of_MA3 = helper.decrement_date_string_by_business_days(date, MAs_3.index(MA))
+                            elif asset_type == static.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]:
+                                date_of_MA3 = helper.string_to_date(date) + timedelta(days=MAs_3.index(MA))
+                            else: 
+                                date_of_MA3 = helper.string_to_date(date) + timedelta(days=MAs_3.index(MA)) 
+
+                        MA += todays_return / settings.MA_3_PERIOD
+
+                        if end_flag:
+                            logger.verbose(f&#39;{ticker}_MA_3({date_of_MA3}) = {MA}&#39;)
+
+                # See NOTE #3
+                if mixed_flag or portfolio_asset_type == static.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]:
+                    if not(helper.is_date_string_holiday(date) or helper.is_date_string_weekend(date)):
+                        MAs_3.append((todays_return / settings.MA_3_PERIOD))
+                elif portfolio_asset_type == static.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]: 
+                    MAs_3.append((todays_return / settings))
+
+            else:
+                today = True
+                
+            # tomorrows_price = services.price_manager.parse_price_from_date(prices, date, asset_type)
+            tomorrows_price = prices[date][static.keys[&#39;PRICES&#39;][&#39;CLOSE&#39;]]
+
+        MAs_1 = MAs_1[:original_day_count]
+        MAs_2 = MAs_2[:original_day_count]
+        MAs_3 = MAs_3[:original_day_count]
+
+        moving_averages.append([MAs_1, MAs_2, MAs_3])
+
+    ### END MOVING AVERAGE CALCULATION ###
+
+    ### START RESPONSE FORMATTING ###
+    if not mixed_flag:
+        if portfolio_asset_type == static.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]:
+            dates_between = helper.business_dates_between(start_date, end_date)
+        elif portfolio_asset_type == static.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]:
+            dates_between = helper.dates_between(start_date, end_date)
+        else:
+            dates_between = helper.business_dates_between(start_date, end_date)
+    else:
+        dates_between = helper.business_dates_between(start_date, end_date)
+    
+    logger.debug(&#39;If everything is correct, then len(moving_averages[0][1]) == len(dates_between)&#39;)
+    if len(moving_averages[0][1]) == len(dates_between):
+        logger.debug(&#34;Your program rules.&#34;)
+        logger.debug(&#39;{} = {}&#39;.format(len(moving_averages[0][1]), len(dates_between)))
+    else: 
+        logger.debug(&#34;Your program sucks.&#34;)
+        logger.debug(&#39;{} != {}&#39;.format(len(moving_averages[0][1]), len(dates_between)))
+
+    ### END RESPONSE FORMATTING ###
+    return moving_averages, dates_between </code></pre>
+</details>
+</dd>
+<dt id="scrilla.analysis.models.geometric.statistics.calculate_percentile_correlation"><code class="name flex">
+<span>def <span class="ident">calculate_percentile_correlation</span></span>(<span>ticker_1, ticker_2, asset_type_1=None, asset_type_2=None, start_date=None, end_date=None, sample_prices=None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def calculate_percentile_correlation(ticker_1, ticker_2, asset_type_1=None, asset_type_2=None, start_date=None, end_date=None, sample_prices=None):
+    pass</code></pre>
+</details>
+</dd>
+<dt id="scrilla.analysis.models.geometric.statistics.calculate_percentile_risk_return"><code class="name flex">
+<span>def <span class="ident">calculate_percentile_risk_return</span></span>(<span>ticker, start_date=None, end_date=None, sample_prices=None, asset_type=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><h2 id="description">Description</h2>
+<p>Estimates the mean rate of return and volatility for a sample of asset prices as if the asset price followed a Geometric Brownian Motion process, i.e. the mean rate of return and volatility are constant and not functions of time or the asset price. Moreover, the return and volatility are estimated using the method of percentile matching, where the return and volatility are estimated by matching the 25th and 75th percentile calculated from the assumed GBM distribution to the sample of data.</p>
+<h2 id="parameters">Parameters</h2>
+<ol>
+<li>
+<p>ticker : str </p>
+<p>Required. Ticker symbol whose risk-return profile is to be calculated. </p>
+</li>
+<li>
+<p>start_date : datetime.date </p>
+<p>Optional. Start date of the time period over which the risk-return profile is to be calculated. Defaults to <code>None</code>, in which case the calculation proceeds as if <code>start_date</code> were set to 100 trading days prior to <code>end_date</code>. If <code>get_asset_type(ticker)=scrilla.static.keys['ASSETS']['CRYPTO']</code>, this means 100 days regardless. If <code>get_asset_type(ticker)=scrilla.static.keys['ASSETS']['EQUITY']</code>, this excludes weekends and holidays and decrements the <code>end_date</code> by 100 trading days.</p>
+</li>
+<li>
+<p>end_date : datetime.date </p>
+<p>Optional. End date of the time period over which the risk-return profile is to be calculated. Defaults to <code>None</code>, in which the calculation proceeds as if <code>end_date</code> were set to today. If the <code>get_asset_type(ticker)==static.keys['ASSETS']['CRYPTO']</code> this means today regardless. If <code>get_asset_type(ticker)=static.keys['ASSETS']['EQUITY']</code> this excludes holidays and weekends and sets the end date to the last valid trading date. </p>
+</li>
+<li>
+<p>sample_prices : { 'date_1' : { 'open' : number, 'close' : number}, 'date_2': { 'open': number, 'close': number} &hellip; } </p>
+<p>Optional. A list of the asset prices for which correlation will be calculated. Overrides calls to service and forces calculation of correlation for sample of prices supplied. Function will disregard <code>start_date</code> and <code>end_date</code> and use the first and last key as the latest and earliest date, respectively. In other words, the <code>sample_prices</code> dictionary must be ordered from latest to earliest.
+</p>
+</li>
+<li>
+<p>asset_type : str
+Optional. Specify asset type to prevent overusing redundant calculations. Allowable values: scrilla.static.keys['ASSETS']['EQUITY'], scrilla.static.keys['ASSETS']['CRYPTO'] </p>
+</li>
+</ol>
+<h2 id="output">Output</h2>
+<p>{ 'annual_return' : float, 'annual_volatility': float } </p>
+<h2 id="raises">Raises</h2>
+<ol>
+<li>
+<p>scrilla.errors.SampleSizeError </p>
+</li>
+<li>
+<p>scrilla.errors.PriceError </p>
+</li>
+<li>
+<p>scrilla.errors.InputValidationError </p>
+</li>
+<li>
+<p>scrilla.errors.APIResponseError</p>
+</li>
+</ol>
+<h2 id="notes">Notes</h2>
+<p>NOTE #1: assumes price history is ordered from latest to earliest date.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def calculate_percentile_risk_return(ticker, start_date=None, end_date=None, sample_prices=None, asset_type=None):
+    &#34;&#34;&#34;
+    Description
+    -----------
+    Estimates the mean rate of return and volatility for a sample of asset prices as if the asset price followed a Geometric Brownian Motion process, i.e. the mean rate of return and volatility are constant and not functions of time or the asset price. Moreover, the return and volatility are estimated using the method of percentile matching, where the return and volatility are estimated by matching the 25th and 75th percentile calculated from the assumed GBM distribution to the sample of data.
+    
+    Parameters
+    ----------
+    1. ticker : str \n
+        Required. Ticker symbol whose risk-return profile is to be calculated. \n \n 
+    2. start_date : datetime.date \n 
+        Optional. Start date of the time period over which the risk-return profile is to be calculated. Defaults to `None`, in which case the calculation proceeds as if `start_date` were set to 100 trading days prior to `end_date`. If `get_asset_type(ticker)=scrilla.static.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]`, this means 100 days regardless. If `get_asset_type(ticker)=scrilla.static.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]`, this excludes weekends and holidays and decrements the `end_date` by 100 trading days.\n \n
+    3. end_date : datetime.date \n 
+        Optional. End date of the time period over which the risk-return profile is to be calculated. Defaults to `None`, in which the calculation proceeds as if `end_date` were set to today. If the `get_asset_type(ticker)==static.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]` this means today regardless. If `get_asset_type(ticker)=static.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]` this excludes holidays and weekends and sets the end date to the last valid trading date. \n \n
+    4. sample_prices : { &#39;date_1&#39; : { &#39;open&#39; : number, &#39;close&#39; : number}, &#39;date_2&#39;: { &#39;open&#39;: number, &#39;close&#39;: number} ... } \n
+        Optional. A list of the asset prices for which correlation will be calculated. Overrides calls to service and forces calculation of correlation for sample of prices supplied. Function will disregard `start_date` and `end_date` and use the first and last key as the latest and earliest date, respectively. In other words, the `sample_prices` dictionary must be ordered from latest to earliest.   \n \n
+    5. asset_type : str
+         Optional. Specify asset type to prevent overusing redundant calculations. Allowable values: scrilla.static.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;], scrilla.static.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;] \n \n
+
+    Output
+    ------
+    { &#39;annual_return&#39; : float, &#39;annual_volatility&#39;: float } \n \n
+
+    
+    Raises 
+    ------
+    1. scrilla.errors.SampleSizeError \n 
+    2. scrilla.errors.PriceError \n
+    3. scrilla.errors.InputValidationError \n
+    4. scrilla.errors.APIResponseError
+
+    Notes
+    -----
+    NOTE #1: assumes price history is ordered from latest to earliest date. \n \n 
+    &#34;&#34;&#34;
+    if sample_prices is None:
+        try:
+           asset_type = errors.validate_asset_type(ticker, asset_type)
+           start_date, end_date = errors.validate_dates(start_date, end_date, asset_type)
+           trading_period = static.get_trading_period(asset_type)
+        except errors.InputValidationError as ive:
+           raise ive
+
+        # TODO: extra save_or_update argument for estimation method, i.e. moments, percentiles or likelihood
+        results = profile_cache.filter_profile_cache(ticker=ticker, start_date=start_date, end_date=end_date, 
+                                                        method=static.keys[&#39;ESTIMATION&#39;][&#39;PERCENT&#39;])
+
+        if results is not None \
+                and results[static.keys[&#39;STATISTICS&#39;][&#39;RETURN&#39;]] is not None \
+                and results[static.keys[&#39;STATISTICS&#39;][&#39;VOLATILITY&#39;]] is not None:
+            return results
+
+        try:
+            logger.debug(&#39;No sample prices provided, calling service.&#39;)
+            prices = services.get_daily_price_history(ticker=ticker, start_date=start_date, end_date=end_date, asset_type=asset_type)
+        except errors.APIResponseError as api:
+            raise api
+    else:
+        logger.debug(f&#39;{ticker} sample prices provided, skipping service call.&#39;)
+        prices = sample_prices
+        try:
+           asset_type = errors.validate_asset_type(ticker, asset_type)
+           trading_period = static.get_trading_period(asset_type)
+        except errors.InputValidationError as ive:
+           raise ive
+
+    if not prices:
+        raise errors.PriceError(f&#39;No prices could be retrieved for {ticker}&#39;)
+
+    sample_of_returns = get_sample_of_returns(prices=prices, asset_type=asset_type, trading_period=trading_period)
+
+    first_quartile = estimators.sample_percentile(data=sample_of_returns, percentile=0.25)
+    median = estimators.sample_percentile(data=sample_of_returns, percentile=0.50)
+    third_quartile = estimators.sample_percentile(data=sample_of_returns, percentile=0.75)
+    guess = (median, (third_quartile-first_quartile)/2)
+
+    def objective(params):
+        return [norm.cdf(x=first_quartile, loc=params[0], scale=params[1]) - 0.25,
+                norm.cdf(x=third_quartile, loc=params[0], scale=params[1]) - 0.75 ]
+ 
+    mean, vol = fsolve(objective, guess)
+
+    # NOTE: Var(dln(S)/delta_t) = (1/delta_t^2)*Var(dlnS) = sigma^2*delta_t / delta_t^2 = sigma^2 / delta_t
+    #       so need to multiply volatiliy by sqrt(delta_t) to get correct scale.
+    vol = vol * sqrt(trading_period) 
+    
+    results = {
+        &#39;annual_return&#39;: mean,
+        &#39;annual_volatility&#39;: vol
+    }
+    
+    profile_cache.save_or_update_row(ticker=ticker, start_date=start_date, end_date=end_date, 
+                                        method=static.keys[&#39;ESTIMATION&#39;][&#39;PERCENT&#39;],
+                                        annual_return=results[&#39;annual_return&#39;], 
+                                        annual_volatility=results[&#39;annual_volatility&#39;])
+    return results</code></pre>
+</details>
+</dd>
+<dt id="scrilla.analysis.models.geometric.statistics.calculate_return_covariance"><code class="name flex">
+<span>def <span class="ident">calculate_return_covariance</span></span>(<span>ticker_1, ticker_2, start_date=None, end_date=None, sample_prices=None, correlation=None, profile_1=None, profile_2=None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def calculate_return_covariance(ticker_1, ticker_2, start_date=None, end_date=None, sample_prices=None, 
+                                correlation=None, profile_1=None, profile_2=None):
+    try:
+        if correlation is None:
+            if sample_prices is None:
+                correlation = calculate_moment_correlation(ticker_1=ticker_1, ticker_2=ticker_2, start_date=start_date, 
+                                                    end_date=end_date)
+            else:
+                correlation = calculate_moment_correlation(ticker_1=ticker_1, ticker_2=ticker_2, sample_prices=sample_prices)
+
+        if profile_1 is None:
+            if sample_prices is None:
+                profile_1 = calculate_moment_risk_return(ticker=ticker_1, start_date=start_date, end_date=end_date)
+            else:
+                profile_1 = calculate_moment_risk_return(ticker=ticker_1, sample_prices=sample_prices[ticker_1])
+
+        if profile_2 is None:
+            if sample_prices is None:
+                profile_2 = calculate_moment_risk_return(ticker=ticker_2, start_date=start_date, end_date=end_date)
+            else:
+                profile_2 = calculate_moment_risk_return(ticker=ticker_2,sample_prices=sample_prices[ticker_2])
+    except errors.SampleSizeError as sse:
+        raise sse
+    except errors.PriceError as pe:
+        raise pe
+    except errors.InputValidationError as ive:
+        raise ive
+    except errors.APIResponseError as api:
+        raise api
+
+
+    covariance = profile_1[&#39;annual_volatility&#39;]*profile_2[&#39;annual_volatility&#39;]*correlation[&#39;correlation&#39;]
+    return covariance</code></pre>
+</details>
+</dd>
+<dt id="scrilla.analysis.models.geometric.statistics.calculate_risk_return"><code class="name flex">
+<span>def <span class="ident">calculate_risk_return</span></span>(<span>ticker, start_date=None, end_date=None, sample_prices=None, asset_type=None, method='moments')</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def calculate_risk_return(ticker, start_date=None, end_date=None, sample_prices=None, asset_type=None, method=settings.ESTIMATION_METHOD):
+    if method == static.keys[&#39;ESTIMATION&#39;][&#39;MOMENT&#39;]:
+        return calculate_moment_risk_return(ticker, start_date, end_date, sample_prices, asset_type)
+    if method == static.keys[&#39;ESTIMATION&#39;][&#39;PERCENT&#39;]:
+        return calculate_percentile_risk_return(ticker, start_date, end_date, sample_prices, asset_type)
+    if method == static.keys[&#39;ESTIMATION&#39;][&#39;LIKE&#39;]:
+        return calculate_likelihood_risk_return(ticker, start_date, end_date, sample_prices, asset_type)
+    raise errors.ConfigurationError(&#39;Statistic estimation method not found&#39;)</code></pre>
+</details>
+</dd>
+<dt id="scrilla.analysis.models.geometric.statistics.correlation"><code class="name flex">
+<span>def <span class="ident">correlation</span></span>(<span>ticker_1, ticker_2, asset_type_1=None, asset_type_2=None, start_date=None, end_date=None, sample_prices=None, method='moments')</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def correlation(ticker_1, ticker_2, asset_type_1=None, asset_type_2=None, start_date=None, end_date=None, sample_prices=None, method=settings.ESTIMATION_METHOD):
+    if method == static.keys[&#39;ESTIMATION&#39;][&#39;MOMENT&#39;]:
+        return calculate_moment_correlation(ticker_1, ticker_2, asset_type_1, asset_type_2, start_date, end_date, sample_prices)
+    raise errors.ConfigurationError(&#39;Statistic estimation method not found&#39;)</code></pre>
+</details>
+</dd>
+<dt id="scrilla.analysis.models.geometric.statistics.correlation_matrix"><code class="name flex">
+<span>def <span class="ident">correlation_matrix</span></span>(<span>tickers, asset_types=None, start_date=None, end_date=None, sample_prices=None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def correlation_matrix(tickers, asset_types=None, start_date=None, end_date=None, sample_prices=None):
+    correlation_matrix = [[0 for x in range(len(tickers))] for y in range(len(tickers))]
+    if(len(tickers) &gt; 1):
+        for i, item in enumerate(tickers):
+            correlation_matrix[i][i] = 1
+            for j in range(i+1, len(tickers)):
+                if asset_types is None:
+                    cor_list = calculate_moment_correlation(ticker_1 = item, ticker_2=tickers[j],
+                                                                start_date = start_date, end_date = end_date,
+                                                                sample_prices = sample_prices)
+                else:
+                    cor_list = calculate_moment_correlation(ticker_1 = item, ticker_2=tickers[j],
+                                                            asset_type_1=asset_types[i], asset_type_2=asset_types[j],
+                                                            start_date = start_date, end_date = end_date,
+                                                            sample_prices = sample_prices)
+                if cor_list is None:
+                    #TODO: raise Exception
+                    return False
+                correlation = cor_list[&#39;correlation&#39;]
+                if correlation is None:
+                    #TODO: raise Exception
+                    return False
+
+                correlation_matrix[i][j] = correlation
+                correlation_matrix[j][i] = correlation_matrix[i][j]
+            correlation_matrix[len(tickers) - 1][len(tickers) - 1] = 1
+        return correlation_matrix
+    if (len(tickers)==1):
+        correlation_matrix[0][0]=1
+        return correlation_matrix
+    logger.debug(&#39;Cannot calculate correlation matrix for portfolio size &lt; 1.&#39;)
+    # TODO: raise exception
+    return False</code></pre>
+</details>
+</dd>
+<dt id="scrilla.analysis.models.geometric.statistics.get_correlation_matrix_string"><code class="name flex">
+<span>def <span class="ident">get_correlation_matrix_string</span></span>(<span>tickers, indent=0, start_date=None, end_date=None, sample_prices=None, correlation_matrix=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><h2 id="parameters">Parameters</h2>
+<ol>
+<li>
+<p>tickers : [str] </p>
+<p>Array of tickers for which the correlation matrix will be calculated and formatted. </p>
+</li>
+<li>
+<p>indent : int </p>
+<p>Amount of indent on each new line of the correlation matrix. </p>
+</li>
+<li>
+<p>start_date : datetime.date </p>
+<p>Start date of the time period over which correlation will be calculated. </p>
+</li>
+<li>
+<p>end_date : datetime.date </p>
+<p>End date of the time period over which correlation will be calculated. </p>
+</li>
+</ol>
+<h2 id="output">Output</h2>
+<p>A correlation matrix string formatted with new lines and spaces.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_correlation_matrix_string(tickers, indent=0, start_date=None, 
+                                        end_date=None, sample_prices=None,
+                                        correlation_matrix=None):
+    &#34;&#34;&#34;
+    Parameters
+    ----------
+    1. tickers : [str] \n
+        Array of tickers for which the correlation matrix will be calculated and formatted. \n \n
+    2. indent : int \n 
+        Amount of indent on each new line of the correlation matrix. \n \n
+    3. start_date : datetime.date \n 
+        Start date of the time period over which correlation will be calculated. \n \n 
+    4. end_date : datetime.date \n 
+        End date of the time period over which correlation will be calculated. \n \n  
+    
+    Output
+    ------
+    A correlation matrix string formatted with new lines and spaces.\n
+    &#34;&#34;&#34;
+    entire_formatted_result, formatted_title = &#34;&#34;, &#34;&#34;
+
+    line_length, first_symbol_length = 0, 0
+    new_line=&#34;&#34;
+    no_symbols = len(tickers)
+
+    for i in range(no_symbols):
+        this_symbol = tickers[i]
+        symbol_string = &#39; &#39;*indent + f&#39;{this_symbol} &#39;
+
+        if i != 0:
+            this_line = symbol_string + &#39; &#39;*(line_length - len(symbol_string) - 7*(no_symbols - i))
+            # NOTE: seven is number of chars in &#39; 100.0%&#39;
+        else: 
+            this_line = symbol_string
+            first_symbol_length = len(this_symbol)
+
+        new_line = this_line
+        
+        for j in range(i, no_symbols):
+            if j == i:
+                new_line += &#34; 100.0%&#34;
+            
+            else:
+                that_symbol = tickers[j]
+                if correlation_matrix is None:
+                    result = calculate_moment_correlation(this_symbol, that_symbol, start_date, end_date, sample_prices) 
+                else:
+                    result = correlation_matrix[i][j]
+                # TODO: raise exception instead of returning false!
+                if not result:
+                    logger.debug(f&#39;Cannot correlation for ({this_symbol}, {that_symbol})&#39;)
+                    return False
+                formatted_result = str(100*result[&#39;correlation&#39;])[:formatter.SIG_FIGS]
+                new_line += f&#39; {formatted_result}%&#39;
+
+        entire_formatted_result += new_line + &#39;\n&#39;
+        
+        if i == 0:
+            line_length = len(new_line)
+
+    formatted_title += &#39; &#39;*(indent + first_symbol_length+1)
+    for symbol in tickers:
+        sym_len = len(symbol)
+        formatted_title += f&#39; {symbol}&#39;+ &#39; &#39;*(7-sym_len)
+        # NOTE: seven is number of chars in &#39; 100.0%&#39;
+    formatted_title += &#39;\n&#39;
+
+    whole_thing = formatted_title + entire_formatted_result
+    return whole_thing</code></pre>
+</details>
+</dd>
+<dt id="scrilla.analysis.models.geometric.statistics.get_sample_of_returns"><code class="name flex">
+<span>def <span class="ident">get_sample_of_returns</span></span>(<span>prices, asset_type, trading_period)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_sample_of_returns(prices, asset_type, trading_period):
+    today = False
+
+    sample_of_returns = []
+
+    for date in prices:
+        todays_price = prices[date][static.keys[&#39;PRICES&#39;][&#39;CLOSE&#39;]]
+
+        if today:
+            logger.verbose(f&#39;{date}: (todays_price, tomorrows_price) = ({todays_price}, {tomorrows_price})&#39;)
+            # crypto prices may have weekends and holidays removed during correlation algorithm 
+            # so samples can be compared to equities, need to account for these dates by increasing
+            # the time_delta by the number of missed days. 
+            if asset_type == static.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;] or \
+                (asset_type == static.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;] and not helper.consecutive_trading_days(tomorrows_date, date)):
+                time_delta = (helper.parse_date_string(tomorrows_date) - helper.parse_date_string(date)).days 
+            else:
+                time_delta = 1
+
+            todays_return = log(float(tomorrows_price)/float(todays_price))/(time_delta*trading_period)
+
+            sample_of_returns.append(todays_return)
+        else:
+            today = True
+
+        tomorrows_price = prices[date][static.keys[&#39;PRICES&#39;][&#39;CLOSE&#39;]]
+        tomorrows_date = date</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="scrilla.analysis.models.geometric" href="index.html">scrilla.analysis.models.geometric</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="scrilla.analysis.models.geometric.statistics.calculate_likelihood_correlation" href="#scrilla.analysis.models.geometric.statistics.calculate_likelihood_correlation">calculate_likelihood_correlation</a></code></li>
+<li><code><a title="scrilla.analysis.models.geometric.statistics.calculate_likelihood_risk_return" href="#scrilla.analysis.models.geometric.statistics.calculate_likelihood_risk_return">calculate_likelihood_risk_return</a></code></li>
+<li><code><a title="scrilla.analysis.models.geometric.statistics.calculate_moment_correlation" href="#scrilla.analysis.models.geometric.statistics.calculate_moment_correlation">calculate_moment_correlation</a></code></li>
+<li><code><a title="scrilla.analysis.models.geometric.statistics.calculate_moment_correlation_series" href="#scrilla.analysis.models.geometric.statistics.calculate_moment_correlation_series">calculate_moment_correlation_series</a></code></li>
+<li><code><a title="scrilla.analysis.models.geometric.statistics.calculate_moment_risk_return" href="#scrilla.analysis.models.geometric.statistics.calculate_moment_risk_return">calculate_moment_risk_return</a></code></li>
+<li><code><a title="scrilla.analysis.models.geometric.statistics.calculate_moving_averages" href="#scrilla.analysis.models.geometric.statistics.calculate_moving_averages">calculate_moving_averages</a></code></li>
+<li><code><a title="scrilla.analysis.models.geometric.statistics.calculate_percentile_correlation" href="#scrilla.analysis.models.geometric.statistics.calculate_percentile_correlation">calculate_percentile_correlation</a></code></li>
+<li><code><a title="scrilla.analysis.models.geometric.statistics.calculate_percentile_risk_return" href="#scrilla.analysis.models.geometric.statistics.calculate_percentile_risk_return">calculate_percentile_risk_return</a></code></li>
+<li><code><a title="scrilla.analysis.models.geometric.statistics.calculate_return_covariance" href="#scrilla.analysis.models.geometric.statistics.calculate_return_covariance">calculate_return_covariance</a></code></li>
+<li><code><a title="scrilla.analysis.models.geometric.statistics.calculate_risk_return" href="#scrilla.analysis.models.geometric.statistics.calculate_risk_return">calculate_risk_return</a></code></li>
+<li><code><a title="scrilla.analysis.models.geometric.statistics.correlation" href="#scrilla.analysis.models.geometric.statistics.correlation">correlation</a></code></li>
+<li><code><a title="scrilla.analysis.models.geometric.statistics.correlation_matrix" href="#scrilla.analysis.models.geometric.statistics.correlation_matrix">correlation_matrix</a></code></li>
+<li><code><a title="scrilla.analysis.models.geometric.statistics.get_correlation_matrix_string" href="#scrilla.analysis.models.geometric.statistics.get_correlation_matrix_string">get_correlation_matrix_string</a></code></li>
+<li><code><a title="scrilla.analysis.models.geometric.statistics.get_sample_of_returns" href="#scrilla.analysis.models.geometric.statistics.get_sample_of_returns">get_sample_of_returns</a></code></li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
+</footer>
+</body>
+</html>

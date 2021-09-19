@@ -115,7 +115,7 @@ class InterestCache(Cache):
             formatter = { 'maturity': maturity, 'date': date, 'value': value[index] }
             self.execute_transaction(transaction=InterestCache.insert_row_transaction, formatter=formatter)
     
-    def filter_stat_cache(self, maturity, start_date, end_date):
+    def filter_interest_cache(self, maturity, start_date, end_date):
         logger.debug(f'Querying SQLite cache \n\t{InterestCache.stat_query}\n\t\t with :maturity={maturity}, :start_date={start_date}, :end_date={end_date}')
         formatter = { 'maturity': maturity, 'start_date': start_date, 'end_date': end_date }
         results = self.execute_query(query=InterestCache.stat_query, formatter=formatter)

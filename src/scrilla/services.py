@@ -437,7 +437,8 @@ div_manager = DividendManager(settings.DIV_MANAGER)
 price_cache = cache.PriceCache()        
 interest_cache = cache.InterestCache()
 
-def get_daily_price_history(ticker, start_date=None, end_date=None, asset_type=None):
+def get_daily_price_history(ticker: str, start_date : datetime.date=None, 
+                            end_date: datetime.date =None, asset_type: str=None) -> list:
     """
     Description
     -----------
@@ -513,7 +514,7 @@ def get_daily_price_history(ticker, start_date=None, end_date=None, asset_type=N
 
     return parsed_prices
     
-def get_daily_price_latest(ticker, asset_type=None):
+def get_daily_price_latest(ticker: str, asset_type: str=None) -> float:
     """
     Description
     -----------
@@ -532,14 +533,12 @@ def get_daily_price_latest(ticker, asset_type=None):
         return prices[first_element][static.keys['PRICES']['OPEN']]
     return None
 
-def get_daily_fred_history(symbol, start_date=None, end_date=None):
+def get_daily_fred_history(symbol: str, start_date: datetime.date=None, end_date: datetime.date=None) -> list:
     """
     Description
     -----------
     Wrapper around external service request for financial statistics data constructed by the Federal Reserve Economic Data. Relies on an instance of `StatManager` configured by `settings.STAT_MANAGER` value, which in turn is configured by the `STAT_MANAGER` environment variable, to hydrate with data. \n \n
     
-    Before deferring to the `StatManager` and letting it call the external service, however, this function checks if response is in local cache. If the response is not in the cache, it will pass the request off to `StatManager` and then save the response in the cache so subsequent calls to the function can bypass the service request. Used to prevent excessive external HTTP requests and improve the performance of the application. Other parts of the program should interface with the external statistics data services through this function to utilize the cache functionality.  \n \n
-
     Parameters
     ----------
     1. symbol: str \n 
@@ -586,7 +585,7 @@ def get_daily_fred_history(symbol, start_date=None, end_date=None):
 
     return stats
 
-def get_daily_fred_latest(symbol):
+def get_daily_fred_latest(symbol: str) -> float:
     """
     Description
     -----------
@@ -603,11 +602,11 @@ def get_daily_fred_latest(symbol):
         return stats_history[first_element]
     return None
 
-def get_daily_interest_history(maturity, start_date=None, end_date=None):
+def get_daily_interest_history(maturity: str, start_date: datetime.date=None, end_date: datetime.date=None) -> list:
     """
     Description
     -----------
-    Wrapper around external service request for financial statistics data constructed by the Federal Reserve Economic Data. Relies on an instance of `StatManager` configured by `settings.STAT_MANAGER` value, which in turn is configured by the `STAT_MANAGER` environment variable, to hydrate with data. \n \n
+    Wrapper around external service request for US Treasury Yield Curve data. Relies on an instance of `StatManager` configured by `settings.STAT_MANAGER` value, which in turn is configured by the `STAT_MANAGER` environment variable, to hydrate with data. \n \n
     
     Before deferring to the `StatManager` and letting it call the external service, however, this function checks if response is in local cache. If the response is not in the cache, it will pass the request off to `StatManager` and then save the response in the cache so subsequent calls to the function can bypass the service request. Used to prevent excessive external HTTP requests and improve the performance of the application. Other parts of the program should interface with the external statistics data services through this function to utilize the cache functionality.  \n \n
 
@@ -646,7 +645,7 @@ def get_daily_interest_history(maturity, start_date=None, end_date=None):
         raise ive
 
     rates = None
-    rates = interest_cache.filter_stat_cache(maturity, start_date=start_date, end_date=end_date)
+    rates = interest_cache.filter_interest_cache(maturity, start_date=start_date, end_date=end_date)
 
         # TODO: this only works when stats are reported daily and that the latest date in the dataset is actually end_date.
     if rates is not None and helper.date_to_string(end_date) in rates.keys() \
@@ -668,7 +667,7 @@ def get_daily_interest_history(maturity, start_date=None, end_date=None):
 
     return rates
 
-def get_daily_interest_latest(maturity):
+def get_daily_interest_latest(maturity: str) -> float:
     """
     Description
     -----------
@@ -687,7 +686,7 @@ def get_daily_interest_latest(maturity):
         return interest_history[first_element]
     return None
 
-def get_dividend_history(ticker):
+def get_dividend_history(ticker: str) -> dict:
     """
     Description
     -----------
@@ -726,7 +725,7 @@ def get_dividend_history(ticker):
     
     return divs
 
-def get_risk_free_rate():
+def get_risk_free_rate() -> float:
     """
     Description
     -----------
