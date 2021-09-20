@@ -106,7 +106,7 @@ The asset price model assumed during the estimation of statistics. A value of`ge
 
 Note, it is highly recommended that if you change this value, you should clear the cache, as the cache stores frequent statistical calculations to speed up the program. The previous values of the statistics calculated under the prior model will be referenced and result in incorrect calculations.
 
-- ESTIMATION_METHOD
+- DEFAULT_ESTIMATION_METHOD
 
 Determines the method used to calculate risk-return profiles. If set to `moments`, the return and volatility will be estimated by setting them equal to the first and second sample moments. If set to `percents`, the return and volatilty will be estimated by setting the 25th percentile and 75th percentile of the assumed distribution (see above <b>ANALYSIS_MODE</b>) equal to the 25th and 75th percentile from the sample of data. If set to `likely`, the likelihood function calculated from the assumed distribution (see <b>ANALYSIS_MODE</b> again) will be maximized with respect to the return and volatility; the values which maximize will be used as the estimates. 
 
@@ -211,9 +211,23 @@ The command given above will optimize the portfolio consisting of <b>ALLY</b>, <
 
 ### Other Notable Features
 
-1. Discount Dividend Model
+1. Estimation Modes
 
-<b>scrilla</b> will pull an equity's dividend payment history, regress the payment amount against its date and infer a linear regression from this time series. It will use this model to project future dividend payments and then calculate the current cost of equity and use that to discount the sum of dividend payments back to the present,
+<b>scrilla</b> can estimate model parameters in a number of ways. The default estimation method is defined by the environment variable <b>ESTIMATION_METHOD</b>, but all statistical functions can have their estimation overridden with a flag. <b>scrilla</b> supports three estimation modes: `moments`, `percents` and `likely`. 
+
+`moments` will use the method of moment matching, where the moments of a sample of data are equated to the moments of the assumed distribution in order to determine the distribution parameters. `percents` will use the method of percentile matching, where the first and third quartile of the sample are equated to the distribution percentiles to determine the distribution parameters. `likely` will use [maximum likelihood estimation](https://en.wikipedia.org/wiki/Maximum_likelihood_estimation), where the probability of each observation given the assumed distribution is calculated and then the intersection of the probabilities is minimized with respect to the distribution parameters. (Note: the underlying distribution can be configured through the <b>ANALYSIS_MODE<b> environment variable; see [Environment](#environment) for more information)
+
+For example, the following command will return the risk profile of <b>ACI</b> usingg the method of moment-matching,
+
+`scrilla -profile -moments ACI`
+
+Where as the following command will return the risk profile of <b>ACI</b> using maximum likelihood estimation,
+
+`scrilla -profile -likely ACI`
+
+2. Discount Dividend Model
+
+<b>scrilla</b> will pull an equity's dividend payment history, regress the payment amount against its date and infer a linear regression model from this time series. It will use this model to project future dividend payments and then calculate the current cost of equity and use that to discount the sum of dividend payments back to the present,
 
 `scrilla -ddm ALLY`
 
@@ -221,14 +235,14 @@ Alternatively, you can visualize the dividend payments against the regression mo
 
 `scrilla -plot-div ALLY`
 
-2. Financial Statistics
+3. Financial Statistics
     - Beta: `scrilla -capm-beta [TICKERS]`
     - Correlation Matrix: `scrilla -cor [TICKERS]`
     - Cost Of Equity: `scrilla -capm-equity [TICKERS]`
     - Risk-Return Profile: `scrilla -rr [TICKERS]`
     - Sharpe Ratio: `scrilla -sharpe [TICKERS]`
 
-3. Stock Watchlist and Screening
+4. Stock Watchlist and Screening
 
 Stocks can be added to your watchlist with,
 
@@ -238,7 +252,7 @@ You can then screen stocks according to some criteria. For example, the followin
 
 `scrilla -screen -model DDM`
 
-4. Visualizations
+5. Visualizations
     - Discount Dividend Model: `scrilla -plot-div [TICKER]`
         - NOTE: THIS FUNCTION ONLY ACCEPTS ONE TICKER AT A TIME.
     - Efficient Fronter: `scrilla -plot-ef [TICKERS]`
@@ -248,7 +262,7 @@ You can then screen stocks according to some criteria. For example, the followin
 
 ## Programmatic 
 
-TODO: auto-generate this section with sphinx and docstrings
+TODO: auto-generate this section with pdoc3 and docstrings
 
 # Notes
 
