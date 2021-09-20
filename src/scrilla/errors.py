@@ -49,6 +49,9 @@ def validate_asset_type(ticker, asset_type=None):
     raise InputValidationError(f'{ticker} cannot be mapped to (crypto, equity) asset classes')
 
 def validate_dates(start_date, end_date, asset_type):
+    """
+    
+    """
     # if end date exists, make sure it is valid
     if end_date is not None:
         end_date = dater.truncate_future_from_date(end_date)

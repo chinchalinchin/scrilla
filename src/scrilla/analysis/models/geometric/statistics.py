@@ -14,7 +14,7 @@
 # or <https://github.com/chinchalinchin/scrilla/blob/develop/main/LICENSE>.
 
 from os import path
-from datetime import timedelta
+from datetime import timedelta, date
 from sys import path as sys_path
 from numpy import log, sqrt
 from scipy.stats import norm
@@ -441,50 +441,48 @@ def calculate_likelihood_risk_return(ticker, start_date=None, end_date=None, sam
     # ito's lemma
     mean =  likelihood_estimates[0] + 0.5 * (vol ** 2)
     results = {
-        'annual_return': mean,
-        'annual_volatility': vol
+        static.keys['STATISTICS']['RETURN']: mean,
+        static.keys['STATISTICS']['VOLATILITY']: vol
     }
     
     profile_cache.save_or_update_row(ticker=ticker, start_date=start_date, end_date=end_date, 
                                         method=static.keys['ESTIMATION']['LIKE'],
-                                        annual_return=results['annual_return'], 
-                                        annual_volatility=results['annual_volatility'])
+                                        annual_return=results[static.keys['STATISTICS']['RETURN']], 
+                                        annual_volatility=results[static.keys['STATISTICS']['VOLATILITY']])
     
     return results
 
-def calculate_percentile_risk_return(ticker, start_date=None, end_date=None, sample_prices=None, asset_type=None):
+def calculate_percentile_risk_return(ticker: str, start_date: date=None, end_date: date=None, sample_prices: dict=None, asset_type: str=None) -> dict:
     """
-    Description
-    -----------
     Estimates the mean rate of return and volatility for a sample of asset prices as if the asset price followed a Geometric Brownian Motion process, i.e. the mean rate of return and volatility are constant and not functions of time or the asset price. Moreover, the return and volatility are estimated using the method of percentile matching, where the return and volatility are estimated by matching the 25th and 75th percentile calculated from the assumed GBM distribution to the sample of data.
     
     Parameters
     ----------
-    1. ticker : str \n
-        Required. Ticker symbol whose risk-return profile is to be calculated. \n \n 
-    2. start_date : datetime.date \n 
-        Optional. Start date of the time period over which the risk-return profile is to be calculated. Defaults to `None`, in which case the calculation proceeds as if `start_date` were set to 100 trading days prior to `end_date`. If `get_asset_type(ticker)=scrilla.static.keys['ASSETS']['CRYPTO']`, this means 100 days regardless. If `get_asset_type(ticker)=scrilla.static.keys['ASSETS']['EQUITY']`, this excludes weekends and holidays and decrements the `end_date` by 100 trading days.\n \n
-    3. end_date : datetime.date \n 
-        Optional. End date of the time period over which the risk-return profile is to be calculated. Defaults to `None`, in which the calculation proceeds as if `end_date` were set to today. If the `get_asset_type(ticker)==static.keys['ASSETS']['CRYPTO']` this means today regardless. If `get_asset_type(ticker)=static.keys['ASSETS']['EQUITY']` this excludes holidays and weekends and sets the end date to the last valid trading date. \n \n
-    4. sample_prices : { 'date_1' : { 'open' : number, 'close' : number}, 'date_2': { 'open': number, 'close': number} ... } \n
-        Optional. A list of the asset prices for which correlation will be calculated. Overrides calls to service and forces calculation of correlation for sample of prices supplied. Function will disregard `start_date` and `end_date` and use the first and last key as the latest and earliest date, respectively. In other words, the `sample_prices` dictionary must be ordered from latest to earliest.   \n \n
-    5. asset_type : str
-         Optional. Specify asset type to prevent overusing redundant calculations. Allowable values: scrilla.static.keys['ASSETS']['EQUITY'], scrilla.static.keys['ASSETS']['CRYPTO'] \n \n
+    1. **ticker** : ``str``
+        Ticker symbol whose risk-return profile is to be calculated.
+    2. **start_date** : ``datetime.date`` 
+        *Optional*. Start date of the time period over which the risk-return profile is to be calculated. Defaults to `None`, in which case the calculation proceeds as if `start_date` were set to 100 trading days prior to `end_date`. If `get_asset_type(ticker)=scrilla.static.keys['ASSETS']['CRYPTO']`, this means 100 days regardless. If `get_asset_type(ticker)=scrilla.static.keys['ASSETS']['EQUITY']`, this excludes weekends and holidays and decrements the `end_date` by 100 trading days.
+    3. **end_date** : ``datetime.date``
+        *Optional*. End date of the time period over which the risk-return profile is to be calculated. Defaults to `None`, in which the calculation proceeds as if `end_date` were set to today. If the `get_asset_type(ticker)==static.keys['ASSETS']['CRYPTO']` this means today regardless. If `get_asset_type(ticker)=static.keys['ASSETS']['EQUITY']` this excludes holidays and weekends and sets the end date to the last valid trading date.
+    4.**sample_prices** : ``dict``
+        **Optional**. A list of the asset prices for which the correlation will be calculated. Overrides calls to service and forces calculation of correlation for sample of prices supplied. Function will disregard `start_date` and `end_date` and use the first and last key of the dictionary as the latest and earliest date, respectively. In other words, `sample_prices` must be ordered from latest to earliest. Must be formatted: `{ 'date_1' : { 'open' : float, 'close' : float}, 'date_2': { 'open': float, 'close': float } ... }`
+    5. **asset_type** : ``str``
+         Optional. Specify asset type to prevent overusing redundant calculations. Allowable values: scrilla.static.keys['ASSETS']['EQUITY'], scrilla.static.keys['ASSETS']['CRYPTO']
 
-    Output
-    ------
-    { 'annual_return' : float, 'annual_volatility': float } \n \n
+    Returns
+    -------
+    ``list`` : `{ 'annual_return' : float, 'annual_volatility': float }` Dictionary containing the annualized return and volatility.
 
     
     Raises 
     ------
-    1. scrilla.errors.SampleSizeError \n 
-    2. scrilla.errors.PriceError \n
-    3. scrilla.errors.InputValidationError \n
-    4. scrilla.errors.APIResponseError
+    1. **scrilla.errors.SampleSizeError**
+    2. **scrilla.errors.PriceError**
+    3. **scrilla.errors.InputValidationError**
+    4. **scrilla.errors.APIResponseError**
 
     .. notes ::
-    * assumes price history is ordered from latest to earliest date. \n \n 
+    * assumes price history is ordered from latest to earliest date.
     """
     if sample_prices is None:
         try:
@@ -494,7 +492,6 @@ def calculate_percentile_risk_return(ticker, start_date=None, end_date=None, sam
         except errors.InputValidationError as ive:
            raise ive
 
-        # TODO: extra save_or_update argument for estimation method, i.e. moments, percentiles or likelihood
         results = profile_cache.filter_profile_cache(ticker=ticker, start_date=start_date, end_date=end_date, 
                                                         method=static.keys['ESTIMATION']['PERCENT'])
 
@@ -539,14 +536,14 @@ def calculate_percentile_risk_return(ticker, start_date=None, end_date=None, sam
     # ito's lemma
     mean = mean + 0.5 * (vol ** 2)
     results = {
-        'annual_return': mean,
-        'annual_volatility': vol
+        static.keys['STATISTICS']['RETURN']: mean,
+        static.keys['STATISTICS']['VOLATILITY']: vol
     }
     
     profile_cache.save_or_update_row(ticker=ticker, start_date=start_date, end_date=end_date, 
                                         method=static.keys['ESTIMATION']['PERCENT'],
-                                        annual_return=results['annual_return'], 
-                                        annual_volatility=results['annual_volatility'])
+                                        annual_return=results[static.keys['STATISTICS']['RETURN']], 
+                                        annual_volatility=results[static.keys['STATISTICS']['VOLATILITY']])
     return results
 
 def calculate_moment_risk_return(ticker, start_date=None, end_date=None, sample_prices=None, asset_type=None):
@@ -568,17 +565,17 @@ def calculate_moment_risk_return(ticker, start_date=None, end_date=None, sample_
 
     Output
     ------
-    ``list`` : ``{ 'annual_return' : float, 'annual_volatility': float }`` \n\n
+    ``list`` : ``{ 'annual_return' : float, 'annual_volatility': float }``
 
     Raises 
     ------
-    1. scrilla.errors.SampleSizeError \n 
-    2. scrilla.errors.PriceError \n
-    3. scrilla.errors.InputValidationError \n
-    4. scrilla.errors.APIResponseError
+    1. **scrilla.errors.SampleSizeError**
+    2. **scrilla.errors.PriceError**
+    3. **scrilla.errors.InputValidationError**
+    4. **scrilla.errors.APIResponseError**
 
     .. notes ::
-    * assumes price history is ordered from latest to earliest date. \n \n 
+    * assumes price history is ordered from latest to earliest date.
     """
 
     if sample_prices is None:
@@ -668,56 +665,82 @@ def calculate_moment_risk_return(ticker, start_date=None, end_date=None, sample_
     logger.debug(f'(mean_return, sample_volatility) = ({round(mean_return, 2)}, {round(volatility, 2)})')
 
     results = {
-        'annual_return': mean_return,
-        'annual_volatility': volatility
+        static.keys['STATISTICS']['RETURN']: mean_return,
+        static.keys['STATISTICS']['VOLATILITY']: volatility
     }
     
     profile_cache.save_or_update_row(ticker=ticker, start_date=start_date, end_date=end_date, 
                                         method=static.keys['ESTIMATION']['MOMENT'],
-                                        annual_return=results['annual_return'], 
-                                        annual_volatility=results['annual_volatility'])
-    # TODO: extra save_or_update argument for estimation method, i.e. moments, percentiles or likelihood
-    
+                                        annual_return=results[static.keys['STATISTICS']['RETURN']], 
+                                        annual_volatility=results[static.keys['STATISTICS']['VOLATILITY']])    
     return results
 
 def calculate_correlation(ticker_1, ticker_2, asset_type_1=None, asset_type_2=None, start_date=None, end_date=None, sample_prices=None, method=settings.ESTIMATION_METHOD):
+    """
+    Parameters
+    ----------
+    1. **ticker_1** : ``str``
+        Ticker symbol for first asset.
+    2. **ticker_2** : ``str``
+        Ticker symbol for second asset
+    3. **asset_type_1** : ``str``
+        *Optional*. Specify asset type to prevent redundant calculations down the stack. Allowable values can be found in `scrilla.static.keys['ASSETS]' dictionary.
+    4. **asset_type_2** : ``str``
+        *Optional*. Specify asset type to prevent redundant calculations down the stack. Allowable values can be found in `scrilla.static.keys['ASSETS]' dictionary.
+    5. *start_date* : ``datetime.date``
+        *Optional*. Start date of the time period over which correlation will be calculated. If `None`, defaults to 100 trading days ago.
+    6. **end_date** : ``datetime.date`` 
+        *Optional*. End date of the time period over which correlation will be calculated. If `None`, defaults to last trading day.
+    7. **sample_prices** : ``dict``
+        *Optional*. A list of the asset prices for which correlation will be calculated. Overrides calls to service and calculates correlation for sample of prices supplied. Will disregard start_date and end_date. Must be of the format: `{'ticker_1': { 'date_1' : 'price_1', 'date_2': 'price_2' ...}, 'ticker_2': { 'date_1' : 'price_1:, ... } }` and ordered from latest date to earliest date. 
+    8. **method** : ``str``
+        *Optional*. Defaults to the value set by `scrilla.settings.ESTIMATION_METHOD`, which in turn is configured by the **DEFAULT_ESTIMATION_METHOD** environment variable. Determines the estimation method used during the calculation of sample statistics. Allowable values can be accessed through `scrilla.static.keys['ESTIMATION']`.
+    
+    Raises
+    ------
+    1. **KeyError**
+        If the `method` passed in doesn't map to one of the allowable values, this error will be thrown. 
+
+    Returns
+    ------
+    ``dict`` : `{ 'correlation' : float }`, correlation of `ticker_1` and `ticker_2`.
+    """
     if method == static.keys['ESTIMATION']['MOMENT']:
         return calculate_moment_correlation(ticker_1, ticker_2, asset_type_1, asset_type_2, start_date, end_date, sample_prices)
     elif method == static.keys['ESTIMATION']['LIKE']:
         return calculate_likelihood_correlation(ticker_1, ticker_2, asset_type_1, asset_type_2, start_date, end_date, sample_prices)
-    raise errors.ConfigurationError('Statistic estimation method not found')
+    raise KeyError('Estimation method not found')
 
 def calculate_percentile_correlation(ticker_1, ticker_2, asset_type_1=None, asset_type_2=None, start_date=None, end_date=None, sample_prices=None):
     """
     Returns the sample correlation calculated using the method of Percentile Matching, assuming underlying price process follows Geometric Brownian Motion, i.e. the price distribution is lognormal. 
 
-    Parameters
+   Parameters
     ----------
-    1. *ticker_1* : ``str`` \n
-        Ticker symbol for first asset. \n \n
-    2. *ticker_2* : ``str`` \n 
-        Ticker symbol for second asset \n \n
-    3. *asset_type_1* : ``str`` \n
-        **Optional**. Specify asset type to prevent overusing redundant calculations. Allowable values can be found in `scrilla.static.keys['ASSETS]' dictionary. \n \n
-    4. *asset_type_2* : ``str`` \n
-        **Optional**. Specify asset type to prevent overusing redundant calculations. Allowable values can be found in `scrilla.static.keys['ASSETS]' dictionary. \n \n 
-    5. *start_date* : ``datetime.date`` \n 
-        **Optional**. Start date of the time period over which correlation will be calculated. If `None`, defaults to 100 trading days ago. \n \n 
-    6. *end_date* : ``datetime.date`` \n 
-        **Optional**. End date of the time period over which correlation will be calculated. If `None`, defaults to last trading day. \n \n  
-    7. *sample_prices* : ``dict``
-        **Optional**. A list of the asset prices for which correlation will be calculated. Overrides calls to service and calculates correlation for sample of prices supplied. Will disregard start_date and end_date. Must be of the format: {'AAPL': { 'date_1' : 'price_1', 'date_2': 'price_2' ...}, 'BX': { 'date_1' : 'price_1:, ... } } and ordered from latest date to earliest date.  \n \n
+    1. **ticker_1** : ``str``
+        Ticker symbol for first asset.
+    2. **ticker_2** : ``str``
+        Ticker symbol for second asset
+    3. **asset_type_1** : ``str``
+        *Optional*. Specify asset type to prevent redundant calculations down the stack. Allowable values can be found in `scrilla.static.keys['ASSETS]' dictionary.
+    4. **asset_type_2** : ``str``
+        *Optional*. Specify asset type to prevent redundant calculations down the stack. Allowable values can be found in `scrilla.static.keys['ASSETS]' dictionary.
+    5. *start_date* : ``datetime.date``
+        *Optional*. Start date of the time period over which correlation will be calculated. If `None`, defaults to 100 trading days ago.
+    6. **end_date** : ``datetime.date`` 
+        *Optional*. End date of the time period over which correlation will be calculated. If `None`, defaults to last trading day.
+    7. **sample_prices** : ``dict``
+        *Optional*. A list of the asset prices for which correlation will be calculated. Overrides calls to service and calculates correlation for sample of prices supplied. Will disregard start_date and end_date. Must be of the format: `{'ticker_1': { 'date_1' : 'price_1', 'date_2': 'price_2' ...}, 'ticker_2': { 'date_1' : 'price_1:, ... } }` and ordered from latest date to earliest date. 
     
     Raises
     ------
-    1. *errors.InputValidationError*
-    2. *errors.SampleSizeError*
-    3. *errors.PriceError*
+    1. **errors.InputValidationError**
+    2. **errors.SampleSizeError**
+    3. **errors.PriceError**
 
     Returns
     ------
-    ``dict`` \n
-    ``{ 'correlation' : float }``\n\n
+    ``dict`` : `{ 'correlation' : float }`, correlation of `ticker_1` and `ticker_2`.
     """
     pass
 
@@ -727,31 +750,30 @@ def calculate_likelihood_correlation(ticker_1, ticker_2, asset_type_1=None, asse
 
     Parameters
     ----------
-    1. *ticker_1* : ``str`` \n
-        Ticker symbol for first asset. \n \n
-    2. *ticker_2* : ``str`` \n 
-        Ticker symbol for second asset \n \n
-    3. *asset_type_1* : ``str`` \n
-        **Optional**. Specify asset type to prevent overusing redundant calculations. Allowable values can be found in `scrilla.static.keys['ASSETS]' dictionary. \n \n
-    4. *asset_type_2* : ``str`` \n
-        **Optional**. Specify asset type to prevent overusing redundant calculations. Allowable values can be found in `scrilla.static.keys['ASSETS]' dictionary. \n \n 
-    5. *start_date* : ``datetime.date`` \n 
-        **Optional**. Start date of the time period over which correlation will be calculated. If `None`, defaults to 100 trading days ago. \n \n 
-    6. *end_date* : ``datetime.date`` \n 
-        **Optional**. End date of the time period over which correlation will be calculated. If `None`, defaults to last trading day. \n \n  
-    7. *sample_prices* : ``dict``
-        **Optional**. A list of the asset prices for which correlation will be calculated. Overrides calls to service and calculates correlation for sample of prices supplied. Will disregard start_date and end_date. Must be of the format: {'AAPL': { 'date_1' : 'price_1', 'date_2': 'price_2' ...}, 'BX': { 'date_1' : 'price_1:, ... } } and ordered from latest date to earliest date.  \n \n
+    1. **ticker_1** : ``str``
+        Ticker symbol for first asset.
+    2. **ticker_2** : ``str``
+        Ticker symbol for second asset
+    3. **asset_type_1** : ``str``
+        *Optional*. Specify asset type to prevent redundant calculations down the stack. Allowable values can be found in `scrilla.static.keys['ASSETS]' dictionary.
+    4. **asset_type_2** : ``str``
+        *Optional*. Specify asset type to prevent redundant calculations down the stack. Allowable values can be found in `scrilla.static.keys['ASSETS]' dictionary.
+    5. *start_date* : ``datetime.date``
+        *Optional*. Start date of the time period over which correlation will be calculated. If `None`, defaults to 100 trading days ago.
+    6. **end_date** : ``datetime.date`` 
+        *Optional*. End date of the time period over which correlation will be calculated. If `None`, defaults to last trading day.
+    7. **sample_prices** : ``dict``
+        *Optional*. A list of the asset prices for which correlation will be calculated. Overrides calls to service and calculates correlation for sample of prices supplied. Will disregard start_date and end_date. Must be of the format: `{'ticker_1': { 'date_1' : 'price_1', 'date_2': 'price_2' ...}, 'ticker_2': { 'date_1' : 'price_1:, ... } }` and ordered from latest date to earliest date. 
     
     Raises
     ------
-    1. *errors.InputValidationError*
-    2. *errors.SampleSizeError*
-    3. *errors.PriceError*
+    1. **errors.InputValidationError**
+    2. **errors.SampleSizeError**
+    3. **errors.PriceError**
 
     Returns
     ------
-    ``dict`` \n
-    ``{ 'correlation' : float }``\n\n
+    ``dict`` : `{ 'correlation' : float }`, correlation of `ticker_1` and `ticker_2`.
     """
     ### START ARGUMENT PARSING ###
     try:
@@ -827,31 +849,30 @@ def calculate_moment_correlation(ticker_1, ticker_2, asset_type_1=None, asset_ty
 
     Parameters
     ----------
-    1. *ticker_1* : ``str`` \n
-        Ticker symbol for first asset. \n \n
-    2. *ticker_2* : ``str`` \n 
-        Ticker symbol for second asset \n \n
-    3. *asset_type_1* : ``str`` \n
-        **Optional**. Specify asset type to prevent overusing redundant calculations. Allowable values can be found in `scrilla.static.keys['ASSETS]' dictionary. \n \n
-    4. *asset_type_2* : ``str`` \n
-        **Optional**. Specify asset type to prevent overusing redundant calculations. Allowable values can be found in `scrilla.static.keys['ASSETS]' dictionary. \n \n 
-    5. *start_date* : ``datetime.date`` \n 
-        **Optional**. Start date of the time period over which correlation will be calculated. If `None`, defaults to 100 trading days ago. \n \n 
-    6. *end_date* : ``datetime.date`` \n 
-        **Optional**. End date of the time period over which correlation will be calculated. If `None`, defaults to last trading day. \n \n  
-    7. *sample_prices* : ``dict``
-        **Optional**. A list of the asset prices for which correlation will be calculated. Overrides calls to service and calculates correlation for sample of prices supplied. Will disregard start_date and end_date. Must be of the format: {'AAPL': { 'date_1' : 'price_1', 'date_2': 'price_2' ...}, 'BX': { 'date_1' : 'price_1:, ... } } and ordered from latest date to earliest date.  \n \n
+    1. **ticker_1** : ``str``
+        Ticker symbol for first asset.
+    2. **ticker_2** : ``str``
+        Ticker symbol for second asset
+    3. **asset_type_1** : ``str``
+        *Optional*. Specify asset type to prevent redundant calculations down the stack. Allowable values can be found in `scrilla.static.keys['ASSETS]' dictionary.
+    4. **asset_type_2** : ``str``
+        *Optional*. Specify asset type to prevent redundant calculations down the stack. Allowable values can be found in `scrilla.static.keys['ASSETS]' dictionary.
+    5. *start_date* : ``datetime.date``
+        *Optional*. Start date of the time period over which correlation will be calculated. If `None`, defaults to 100 trading days ago.
+    6. **end_date** : ``datetime.date`` 
+        *Optional*. End date of the time period over which correlation will be calculated. If `None`, defaults to last trading day.
+    7. **sample_prices** : ``dict``
+        *Optional*. A list of the asset prices for which correlation will be calculated. Overrides calls to service and calculates correlation for sample of prices supplied. Will disregard start_date and end_date. Must be of the format: `{'ticker_1': { 'date_1' : 'price_1', 'date_2': 'price_2' ...}, 'ticker_2': { 'date_1' : 'price_1:, ... } }` and ordered from latest date to earliest date. 
     
     Raises
     ------
-    1. *errors.InputValidationError*
-    2. *errors.SampleSizeError*
-    3. *errors.PriceError*
+    1. **errors.InputValidationError**
+    2. **errors.SampleSizeError**
+    3. **errors.PriceError**
 
     Returns
     ------
-    ``dict`` \n
-    ``{ 'correlation' : float }``\n\n
+    ``dict`` : `{ 'correlation' : float }`, correlation of `ticker_1` and `ticker_2`.
     """
     ### START ARGUMENT PARSING ###
     try:
