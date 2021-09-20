@@ -691,9 +691,11 @@ def calculate_moment_risk_return(ticker, start_date=None, end_date=None, sample_
     
     return results
 
-def correlation(ticker_1, ticker_2, asset_type_1=None, asset_type_2=None, start_date=None, end_date=None, sample_prices=None, method=settings.ESTIMATION_METHOD):
+def calculate_correlation(ticker_1, ticker_2, asset_type_1=None, asset_type_2=None, start_date=None, end_date=None, sample_prices=None, method=settings.ESTIMATION_METHOD):
     if method == static.keys['ESTIMATION']['MOMENT']:
         return calculate_moment_correlation(ticker_1, ticker_2, asset_type_1, asset_type_2, start_date, end_date, sample_prices)
+    elif method == static.keys['ESTIMATION']['LIKE']:
+        return calculate_likelihood_correlation(ticker_1, ticker_2, asset_type_1, asset_type_2, start_date, end_date, sample_prices)
     raise errors.ConfigurationError('Statistic estimation method not found')
 
 def calculate_percentile_correlation(ticker_1, ticker_2, asset_type_1=None, asset_type_2=None, start_date=None, end_date=None, sample_prices=None):
@@ -782,8 +784,17 @@ def calculate_likelihood_correlation(ticker_1, ticker_2, asset_type_1=None, asse
     
     sample_of_returns_1 = get_sample_of_returns(prices=sample_prices[ticker_1], asset_type=asset_type_1, trading_period=trading_period)
     sample_of_returns_2 = get_sample_of_returns(prices=sample_prices[ticker_2], asset_type=asset_type_2, trading_period=trading_period)
+    
+    combined_sample = [ [sample_of_returns_1[i], sample_of_returns_2[i]] for i, el in enumerate(sample_of_returns_1)]
 
-    result = { 'correlation' : 0}
+    likelihood_estimates = optimizer.maximize_univariate_normal_likelihood(data=combined_sample)
+
+    vol_1 = likelihood_estimates[1][0][0]*sqrt(trading_period)
+    vol_2 = likelihood_estimates[1][1][1]*sqrt(trading_period)
+
+    correlation = likelihood_estimates[1][0][1] / (vol_1*vol_2)
+
+    result = { 'correlation' : correlation }
 
     correlation_cache.save_row(ticker_1=ticker_1, ticker_2=ticker_2, 
                                 start_date=start_date, end_date=end_date, 
@@ -962,21 +973,21 @@ def calculate_moment_correlation(ticker_1, ticker_2, asset_type_1=None, asset_ty
                                 correlation = correlation, method=static.keys['ESTIMATION']['MOMENT'])
     return result
 
-def correlation_matrix(tickers, asset_types=None, start_date=None, end_date=None, sample_prices=None):
+def correlation_matrix(tickers, asset_types=None, start_date=None, end_date=None, sample_prices=None, method=settings.ESTIMATION_METHOD):
     correlation_matrix = [[0 for x in range(len(tickers))] for y in range(len(tickers))]
     if(len(tickers) > 1):
         for i, item in enumerate(tickers):
             correlation_matrix[i][i] = 1
             for j in range(i+1, len(tickers)):
                 if asset_types is None:
-                    cor_list = calculate_moment_correlation(ticker_1 = item, ticker_2=tickers[j],
+                    cor_list = calculate_correlation(ticker_1 = item, ticker_2=tickers[j],
                                                                 start_date = start_date, end_date = end_date,
-                                                                sample_prices = sample_prices)
+                                                                sample_prices = sample_prices, method=method)
                 else:
-                    cor_list = calculate_moment_correlation(ticker_1 = item, ticker_2=tickers[j],
+                    cor_list = calculate_correlation(ticker_1 = item, ticker_2=tickers[j],
                                                             asset_type_1=asset_types[i], asset_type_2=asset_types[j],
                                                             start_date = start_date, end_date = end_date,
-                                                            sample_prices = sample_prices)
+                                                            sample_prices = sample_prices, method=method)
                 if cor_list is None:
                     #TODO: raise Exception
                     return False
@@ -992,79 +1003,8 @@ def correlation_matrix(tickers, asset_types=None, start_date=None, end_date=None
     if (len(tickers)==1):
         correlation_matrix[0][0]=1
         return correlation_matrix
-    logger.debug('Cannot calculate correlation matrix for portfolio size < 1.')
-    # TODO: raise exception
-    return False
+    raise errors.SampleSizeError('Cannot calculate correlation matrix for portfolio size <= 1.')
 
-def get_correlation_matrix_string(tickers, indent=0, start_date=None, 
-                                        end_date=None, sample_prices=None,
-                                        correlation_matrix=None):
-    """
-    Parameters
-    ----------
-    1. tickers : [str] \n
-        Array of tickers for which the correlation matrix will be calculated and formatted. \n \n
-    2. indent : int \n 
-        Amount of indent on each new line of the correlation matrix. \n \n
-    3. start_date : datetime.date \n 
-        Start date of the time period over which correlation will be calculated. \n \n 
-    4. end_date : datetime.date \n 
-        End date of the time period over which correlation will be calculated. \n \n  
-    
-    Output
-    ------
-    A correlation matrix string formatted with new lines and spaces.\n
-    """
-    entire_formatted_result, formatted_title = "", ""
-
-    line_length, first_symbol_length = 0, 0
-    new_line=""
-    no_symbols = len(tickers)
-
-    for i in range(no_symbols):
-        this_symbol = tickers[i]
-        symbol_string = ' '*indent + f'{this_symbol} '
-
-        if i != 0:
-            this_line = symbol_string + ' '*(line_length - len(symbol_string) - 7*(no_symbols - i))
-            # NOTE: seven is number of chars in ' 100.0%'
-        else: 
-            this_line = symbol_string
-            first_symbol_length = len(this_symbol)
-
-        new_line = this_line
-        
-        for j in range(i, no_symbols):
-            if j == i:
-                new_line += " 100.0%"
-            
-            else:
-                that_symbol = tickers[j]
-                if correlation_matrix is None:
-                    result = calculate_moment_correlation(this_symbol, that_symbol, start_date, end_date, sample_prices) 
-                else:
-                    result = correlation_matrix[i][j]
-                # TODO: raise exception instead of returning false!
-                if not result:
-                    logger.debug(f'Cannot correlation for ({this_symbol}, {that_symbol})')
-                    return False
-                formatted_result = str(100*result['correlation'])[:formatter.SIG_FIGS]
-                new_line += f' {formatted_result}%'
-
-        entire_formatted_result += new_line + '\n'
-        
-        if i == 0:
-            line_length = len(new_line)
-
-    formatted_title += ' '*(indent + first_symbol_length+1)
-    for symbol in tickers:
-        sym_len = len(symbol)
-        formatted_title += f' {symbol}'+ ' '*(7-sym_len)
-        # NOTE: seven is number of chars in ' 100.0%'
-    formatted_title += '\n'
-
-    whole_thing = formatted_title + entire_formatted_result
-    return whole_thing
 
 def calculate_moment_correlation_series(ticker_1, ticker_2, start_date=None, end_date=None):
     asset_type_1 = files.get_asset_type(ticker_1)

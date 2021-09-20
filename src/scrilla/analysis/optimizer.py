@@ -46,7 +46,8 @@ def maximize_multivariate_normal_likelihood(data):
     likelihood = lambda x: (-1)*estimators.multivariate_likelihood_function(params=x, data=data)
 
     x_data = [ datum[0] for datum in data ]
-    y_data = [ datum[1] for datum in data]
+    y_data = [ datum[1] for datum in data ]
+
     first_x_quartile = estimators.sample_percentile(data=x_data, percentile=0.25)
     first_y_quartile = estimators.sample_percentile(data=y_data, percentile=0.25)
     x_median = estimators.sample_percentile(data=x_data, percentile=0.5)
@@ -60,7 +61,7 @@ def maximize_multivariate_normal_likelihood(data):
     cov_guess = [[var_x_guess, cross_xy_guess], [cross_xy_guess, var_y_guess]]
     guess = [[x_median, y_median], cov_guess]
 
-    params = optimize.minimize(fun = likelihood, x0 = guess, options ={'disp': false},
+    params = optimize.minimize(fun = likelihood, x0 = guess, options ={'disp': False},
                                 method=static.constants['OPTIMIZATION_METHOD'])
     return params.x
     

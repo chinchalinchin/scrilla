@@ -282,10 +282,11 @@ def do_program():
             ### FUNCTION: Correlation Matrix
             elif opt == formatter.FUNC_ARG_DICT["correlation"]:
                 def cli_correlation():
-                    result = statistics.get_correlation_matrix_string(tickers=main_args, indent=formatter.INDENT, 
-                                                                        start_date=xtra_dict['start_date'], 
-                                                                        end_date=xtra_dict['end_date'])
-                    outputter.print_below_new_line(f'\n{result}')
+                    matrix = statistics.correlation_matrix(tickers=main_args, indent=formatter.INDENT, 
+                                                            start_date=xtra_dict['start_date'], 
+                                                            end_date=xtra_dict['end_date'],
+                                                            method=estimation_method)
+                    outputter.correlation_matrix(tickers=main_args, correlation_matrix=matrix)
                 selected_function, required_length = cli_correlation, 2
 
             ### FUNCTION: Correlation Time Series

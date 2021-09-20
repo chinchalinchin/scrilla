@@ -208,6 +208,67 @@ def efficient_frontier(portfolio, frontier, investment=None, save_file=None):
         scalar_result('Volatility', portfolio.volatility_function(allocation), currency=False)
         return_line()
 
+def correlation_matrix(tickers, correlation_matrix):
+    """
+    Parameters
+    ----------
+    1. tickers : [str] \n
+        Array of tickers for which the correlation matrix will be calculated and formatted. \n \n
+    2. indent : int \n 
+        Amount of indent on each new line of the correlation matrix. \n \n
+    3. start_date : datetime.date \n 
+        Start date of the time period over which correlation will be calculated. \n \n 
+    4. end_date : datetime.date \n 
+        End date of the time period over which correlation will be calculated. \n \n  
+    
+    Output
+    ------
+    A correlation matrix string formatted with new lines and spaces.\n
+    """
+    entire_formatted_result, formatted_title = "", ""
+
+    line_length, first_symbol_length = 0, 0
+    new_line=""
+    no_symbols = len(tickers)
+
+    for i in range(no_symbols):
+        this_symbol = tickers[i]
+        symbol_string = f'{this_symbol} '
+
+        if i != 0:
+            this_line = symbol_string + ' '*(line_length - len(symbol_string) - 7*(no_symbols - i))
+            # NOTE: seven is number of chars in ' 100.0%'
+        else: 
+            this_line = symbol_string
+            first_symbol_length = len(this_symbol)
+
+        new_line = this_line
+        
+        for j in range(i, no_symbols):
+            if j == i:
+                new_line += " 100.0%"
+            
+            else:
+                result = correlation_matrix[i][j]
+                formatted_result = str(100*result['correlation'])[:formatter.SIG_FIGS]
+                new_line += f' {formatted_result}%'
+
+        entire_formatted_result += new_line + '\n'
+        
+        if i == 0:
+            line_length = len(new_line)
+
+    formatted_title += ' '*(first_symbol_length+1)
+    for symbol in tickers:
+        sym_len = len(symbol)
+        formatted_title += f' {symbol}'+ ' '*(7-sym_len)
+        # NOTE: seven is number of chars in ' 100.0%'
+    formatted_title += '\n'
+
+    whole_thing = formatted_title + entire_formatted_result
+
+    print_below_new_line(f'\n{whole_thing}')
+
 class Logger():
 
     def __init__(self, location, log_level="info"):
