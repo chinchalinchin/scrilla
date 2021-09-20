@@ -186,7 +186,7 @@ def market_beta(ticker, start_date=None, end_date=None, market_profile=None, mar
 
     return beta
 
-def cost_of_equity(ticker, start_date=None, end_date=None, market_profile=None, market_correlation=None):
+def cost_of_equity(ticker, start_date=None, end_date=None, market_profile=None, market_correlation=None, method=settings.ESTIMATION_METHOD):
     """
     Description
     -----------
@@ -209,15 +209,16 @@ def cost_of_equity(ticker, start_date=None, end_date=None, market_profile=None, 
     except errors.InputValidationError as ive:
         raise ive
 
-    result = profile_cache.filter_profile_cache(ticker=ticker, start_date=start_date, end_date=end_date)
+    result = profile_cache.filter_profile_cache(ticker=ticker, start_date=start_date, end_date=end_date, method=method)
 
     if result is not None and result[static.keys['STATISTICS']['EQUITY']] is not None:
         return result[static.keys['STATISTICS']['EQUITY']]
 
     try:
         beta = market_beta(ticker=ticker, start_date=start_date, end_date=end_date,
-                            market_profile=market_profile, market_correlation=market_correlation)
-        premium = market_premium(start_date=start_date, end_date=end_date, market_profile=market_profile)
+                            market_profile=market_profile, market_correlation=market_correlation,
+                            method=method)
+        premium = market_premium(start_date=start_date, end_date=end_date, market_profile=market_profile, method=method)
     except errors.SampleSizeError as se:
         raise se
     except errors.PriceError as pe:
@@ -227,7 +228,7 @@ def cost_of_equity(ticker, start_date=None, end_date=None, market_profile=None, 
 
     equity_cost = (premium*beta + services.get_risk_free_rate())
 
-    profile_cache.save_or_update_row(ticker=ticker, start_date=start_date, end_date=end_date, equity_cost=equity_cost)
+    profile_cache.save_or_update_row(ticker=ticker, start_date=start_date, end_date=end_date, equity_cost=equity_cost, method=method)
     return equity_cost
 
 def screen_for_discount(model=None, discount_rate=None):

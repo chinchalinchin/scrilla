@@ -33,6 +33,6 @@
 
 42. review monte carlo simulation. allow value at risk function to specify SDE. look into MLE for parameters.
 
-43. Determine how ANALYSIS_MODE and ESTIMATION_METHOD interact with the cache.
-
 44. conditional imports based on ANALYSIS_MODE and ESTIMATION_METHOD
+
+45. docstrings should be formatted with markdown

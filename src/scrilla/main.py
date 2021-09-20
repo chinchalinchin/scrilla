@@ -567,7 +567,7 @@ def do_program():
                         profiles[arg]['asset_beta'] = markets.market_beta(ticker=arg, start_date=xtra_dict['start_date'],
                                                                             end_date=xtra_dict['end_date'],
                                                                             ticker_profile=profiles[arg],
-                                                                            method=MethodType)
+                                                                            method=estimation_method)
                         profiles[arg]['equity_cost'] = markets.cost_of_equity(ticker=arg, start_date=xtra_dict['start_date'],
                                                                             end_date=xtra_dict['end_date'], 
                                                                             method=estimation_method)

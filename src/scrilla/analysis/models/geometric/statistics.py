@@ -59,6 +59,8 @@ def get_sample_of_returns(prices, asset_type, trading_period):
 
         tomorrows_price = prices[date][static.keys['PRICES']['CLOSE']]
         tomorrows_date = date
+    
+    return sample_of_returns
 
 def calculate_moving_averages(tickers, start_date=None, end_date=None, sample_prices=None):
     """
@@ -438,12 +440,15 @@ def calculate_likelihood_risk_return(ticker, start_date=None, end_date=None, sam
     sample_of_returns = get_sample_of_returns(prices=prices, asset_type=asset_type, trading_period=trading_period)
 
     likelihood_estimates = optimizer.maximize_univariate_normal_likelihood(data=sample_of_returns)
-
-    # NOTE: Var(dln(S)/delta_t) = (1/delta_t^2)*Var(dlnS) = sigma^2*delta_t / delta_t^2 = sigma^2 / delta_t
+    # NOTE: E(dln(S)/delta_t) = (mu - 0.5 * sigma ** 2) * delta_t / delta_t = mu - 0.5 * sigma ** 2 
+    # NOTE: Var(dln(S)/delta_t) = (1/delta_t**2)*Var(dlnS) = sigma**2*delta_t / delta_t**2 = sigma**2 / delta_t
     #       so need to multiply volatiliy by sqrt(delta_t) to get correct scale.
+    vol = likelihood_estimates[1]*sqrt(trading_period)
+    # ito's lemma
+    mean =  likelihood_estimates[0] + 0.5 * (vol ** 2)
     results = {
-        'annual_return': likelihood_estimates[0],
-        'annual_volatility': likelihood_estimates[1]*sqrt(trading_period)
+        'annual_return': mean,
+        'annual_volatility': vol
     }
     
     profile_cache.save_or_update_row(ticker=ticker, start_date=start_date, end_date=end_date, 
@@ -538,7 +543,8 @@ def calculate_percentile_risk_return(ticker, start_date=None, end_date=None, sam
     # NOTE: Var(dln(S)/delta_t) = (1/delta_t^2)*Var(dlnS) = sigma^2*delta_t / delta_t^2 = sigma^2 / delta_t
     #       so need to multiply volatiliy by sqrt(delta_t) to get correct scale.
     vol = vol * sqrt(trading_period) 
-    
+    # ito's lemma
+    mean = mean + 0.5 * (vol ** 2)
     results = {
         'annual_return': mean,
         'annual_volatility': vol
@@ -594,7 +600,6 @@ def calculate_moment_risk_return(ticker, start_date=None, end_date=None, sample_
         except errors.InputValidationError as ive:
            raise ive
 
-        # TODO: extra save_or_update argument for estimation method, i.e. moments, percentiles or likelihood
         results = profile_cache.filter_profile_cache(ticker=ticker, start_date=start_date, end_date=end_date, 
                                                         method=static.keys['ESTIMATION']['MOMENT'])
 

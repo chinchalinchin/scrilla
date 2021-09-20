@@ -23,7 +23,6 @@ logger = outputter.Logger('optimizer', settings.LOG_LEVEL)
 
 def maximize_univariate_normal_likelihood(data):
     """
-    
     Returns
     -------
     list \n
@@ -41,6 +40,30 @@ def maximize_univariate_normal_likelihood(data):
                                     method=static.constants['OPTIMIZATION_METHOD'])
     return params.x
 
+def maximize_multivariate_normal_likelihood(data):
+    """
+    """
+    likelihood = lambda x: (-1)*estimators.multivariate_likelihood_function(params=x, data=data)
+
+    x_data = [ datum[0] for datum in data ]
+    y_data = [ datum[1] for datum in data]
+    first_x_quartile = estimators.sample_percentile(data=x_data, percentile=0.25)
+    first_y_quartile = estimators.sample_percentile(data=y_data, percentile=0.25)
+    x_median = estimators.sample_percentile(data=x_data, percentile=0.5)
+    y_median =estimators.sample_percentile(data=y_data, percentile=0.5)
+    third_x_quartile = estimators.sample_percentile(data=x_data, percentile=0.75)
+    third_y_quartile = estimators.sample_percentile(data=y_data, percentile=0.75)
+
+    var_x_guess = (third_x_quartile - first_x_quartile)/2
+    var_y_guess = (third_y_quartile - first_y_quartile)/2
+    cross_xy_guess = var_x_guess*var_y_guess
+    cov_guess = [[var_x_guess, cross_xy_guess], [cross_xy_guess, var_y_guess]]
+    guess = [[x_median, y_median], cov_guess]
+
+    params = optimize.minimize(fun = likelihood, x0 = guess, options ={'disp': false},
+                                method=static.constants['OPTIMIZATION_METHOD'])
+    return params.x
+    
 def optimize_portfolio_variance(portfolio, target_return=None):
     """
     Parameters
