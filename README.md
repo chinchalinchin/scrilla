@@ -262,7 +262,7 @@ You can then screen stocks according to some criteria. For example, the followin
 
 ## Programmatic 
 
-TODO: auto-generate this section with pdoc3 and docstrings
+See [docs](/docs) for more information.
 
 # Notes
 
