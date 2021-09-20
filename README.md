@@ -215,9 +215,9 @@ The command given above will optimize the portfolio consisting of <b>ALLY</b>, <
 
 <b>scrilla</b> can estimate model parameters in a number of ways. The default estimation method is defined by the environment variable <b>ESTIMATION_METHOD</b>, but all statistical functions can have their estimation overridden with a flag. <b>scrilla</b> supports three estimation modes: `moments`, `percents` and `likely`. 
 
-`moments` will use the method of moment matching, where the moments of a sample of data are equated to the moments of the assumed distribution in order to determine the distribution parameters. `percents` will use the method of percentile matching, where the first and third quartile of the sample are equated to the distribution percentiles to determine the distribution parameters. `likely` will use [maximum likelihood estimation](https://en.wikipedia.org/wiki/Maximum_likelihood_estimation), where the probability of each observation given the assumed distribution is calculated and then the intersection of the probabilities is minimized with respect to the distribution parameters. (Note: the underlying distribution can be configured through the <b>ANALYSIS_MODE</b> environment variable; see [Environment](#environment) for more information)
+`moments` will use the [method of moment matching](https://en.wikipedia.org/wiki/Method_of_moments_(statistics)), where the moments of a sample of data are equated to the moments of the assumed distribution in order to determine the distribution parameters. `percents` will use the method of percentile matching, where the first and third quartile of the sample are equated to the theoretical distribution percentiles to determine the distribution parameters. `likely` will use [maximum likelihood estimation](https://en.wikipedia.org/wiki/Maximum_likelihood_estimation), where the probability of each observation given the assumed distribution is calculated and then the intersection of the probabilities is minimized with respect to the distribution parameters. (Note: the underlying distribution can be configured through the <b>ANALYSIS_MODE</b> environment variable; see [Environment](#environment) for more information)
 
-For example, the following command will return the risk profile of <b>ACI</b> usingg the method of moment-matching,
+For example, the following command will return the risk profile of <b>ACI</b> using the method of moment matching,
 
 `scrilla -profile -moments ACI`
 
@@ -225,22 +225,34 @@ Where as the following command will return the risk profile of <b>ACI</b> using 
 
 `scrilla -profile -likely ACI`
 
+And the following command will return the risk profile of <b>ACI</b> using the method of percentile matching,
+
+`scrilla -profile -percents ACI`
+
+Note, the following command,
+
+`scrilla -profile ACI`
+
+will return the risk profile of <b>ACI</b> using the method set in the <b>ESTIMATION_METHOD</b> environment variable. If this variable is not set, it will default to a value of `moments`.
+
 2. Discount Dividend Model
 
-<b>scrilla</b> will pull an equity's dividend payment history, regress the payment amount against its date and infer a linear regression model from this time series. It will use this model to project future dividend payments and then calculate the current cost of equity and use that to discount the sum of dividend payments back to the present,
+<b>scrilla</b> will pull an equity's dividend payment history, regress the payment amount against its date and infer a [simple linear regression model](https://en.wikipedia.org/wiki/Simple_linear_regression) from this time series. It will use this model to project future dividend payments and then calculate the current cost of equity and use that to discount the sum of dividend payments back to the present. The following command will perform this action,
 
 `scrilla -ddm ALLY`
 
-Alternatively, you can visualize the dividend payments against the regression model,
+Alternatively, you can visualize the dividend payments against the regression model with a <b>matplotlib</b> graphic,
 
 `scrilla -plot-div ALLY`
 
 3. Financial Statistics
     - Beta: `scrilla -capm-beta [TICKERS]`
     - Correlation Matrix: `scrilla -cor [TICKERS]`
+    - Conditional Value At Risk `scrilla -cvar -prob PROB -expiry EXP [TICKERS]`
     - Cost Of Equity: `scrilla -capm-equity [TICKERS]`
-    - Risk-Return Profile: `scrilla -rr [TICKERS]`
+    - Risk-Return Profile: `scrilla -profile [TICKERS]`
     - Sharpe Ratio: `scrilla -sharpe [TICKERS]`
+    - Value At Risk: `scrilla -var -prob PROB -expiry EXP [TICKERS]`
 
 4. Stock Watchlist and Screening
 
