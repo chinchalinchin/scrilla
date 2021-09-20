@@ -2,6 +2,7 @@ import datetime, math, holidays
 
 import dateutil.easter as easter
 
+from scrilla import static
 import scrilla.util.formatter as formatter
 
 ################################################
@@ -122,15 +123,6 @@ def is_date_string_today(date) -> bool:
 
 def is_date_weekend(date) -> bool:
     return date.weekday() in [5, 6]
-
-
-def is_future_date(date):
-    return (date - get_today()).days > 0
-
-def truncate_future_from_date(date):
-    if is_future_date(date):
-        return get_today()
-    return date
 
 # YYYY-MM-DD
 def is_date_string_weekend(date_string) -> bool:
@@ -342,112 +334,65 @@ def get_end_date(xtra_args, xtra_values):
         return parse_date_string(unparsed_end)
     return None
 
-def get_save_file(xtra_args, xtra_values):
-    if formatter.FUNC_XTRA_VALUED_ARGS_DICT['save'] in xtra_args:
-        return xtra_values[xtra_args.index(formatter.FUNC_XTRA_VALUED_ARGS_DICT['save'])]
-    return None
 
-def get_target(xtra_args, xtra_values):
-    if formatter.FUNC_XTRA_VALUED_ARGS_DICT['target'] in xtra_args:
+def get_float_arg(xtra_args, xtra_values, which_arg):
+    if which_arg in xtra_args:
         try:
-            return float(xtra_values[xtra_args.index(formatter.FUNC_XTRA_VALUED_ARGS_DICT['target'])])
+            return float(xtra_values[xtra_args.index(which_arg)])
         except ValueError as ve:
             raise ve
     return None
 
-def get_expiry(xtra_args, xtra_values):
-    if formatter.FUNC_XTRA_VALUED_ARGS_DICT['expiry'] in xtra_args:
+def get_int_arg(xtra_args, xtra_values, which_arg):
+    if which_arg in xtra_args:
         try:
-            return float(xtra_values[xtra_args.index(formatter.FUNC_XTRA_VALUED_ARGS_DICT['expiry'])])
+            return int(xtra_values[xtra_args.index(which_arg)])
         except ValueError as ve:
             raise ve
     return None
 
-def get_probability(xtra_args, xtra_values):
-    if formatter.FUNC_XTRA_VALUED_ARGS_DICT['probability'] in xtra_args:
-        try:
-            return float(xtra_values[xtra_args.index(formatter.FUNC_XTRA_VALUED_ARGS_DICT['probability'])])
-        except ValueError as ve:
-            raise ve
+def get_date_arg(xtra_args, xtra_values, which_arg):
+    if which_arg in xtra_args:
+        unparsed_date = xtra_values[xtra_args.index(which_arg)]
+        return parse_date_string(unparsed_date)
     return None
 
-def get_discount(xtra_args, xtra_values):
-    if formatter.FUNC_XTRA_VALUED_ARGS_DICT['discount'] in xtra_args:
-        try:
-            return float(xtra_values[xtra_args.index(formatter.FUNC_XTRA_VALUED_ARGS_DICT['discount'])])
-        except ValueError as ve:
-            raise ve
+def get_str_arg(xtra_args, xtra_values, which_arg, lowerCase = False):
+    if which_arg in xtra_args:
+        if not lowerCase:
+            return str(xtra_values[xtra_args.index(which_arg)])
+        return str(xtra_values[xtra_args.index(which_arg)]).lower()
     return None
 
-def get_model(xtra_args, xtra_values):
-    if formatter.FUNC_XTRA_VALUED_ARGS_DICT['model'] in xtra_args:
-        return str(xtra_values[xtra_args.index(formatter.FUNC_XTRA_VALUED_ARGS_DICT['model'])]).lower()
+def get_flag_arg(xtra_args, which_arg):
+    if which_arg in xtra_args:
+        return which_arg
     return None
 
-def get_sharpe(xtra_args):
-    if formatter.FUNC_XTRA_SINGLE_ARGS_DICT['optimize_sharpe'] in xtra_args:
-        return formatter.FUNC_XTRA_SINGLE_ARGS_DICT['optimize_sharpe']
-    return None
+def format_xtra_args_dict(xtra_args, xtra_values, default_estimation_method):
+    current_estimation_method = default_estimation_method
+    if get_flag_arg(xtra_args, formatter.FUNC_XTRA_SINGLE_ARGS_DICT['moments']) is not None:
+        current_estimation_method = static.keys['ESTIMATION']['MOMENT']
+    elif get_flag_arg(xtra_args, formatter.FUNC_XTRA_SINGLE_ARGS_DICT['likelihood']) is not None:
+       current_estimation_method = static.keys['ESTIMATION']['LIKE']
+    elif get_flag_arg(xtra_args,formatter.FUNC_XTRA_SINGLE_ARGS_DICT['percentiles']) is not None:
+       current_estimation_method = static.keys['ESTIMATION']['PERCENT']
 
-def get_suppress_output(xtra_args):
-    if formatter.FUNC_XTRA_SINGLE_ARGS_DICT['suppress_output'] in xtra_args:
-        return formatter.FUNC_XTRA_SINGLE_ARGS_DICT['suppress_output']
-    return None
-
-def get_json(xtra_args):
-    if formatter.FUNC_XTRA_SINGLE_ARGS_DICT['json'] in xtra_args:
-        return formatter.FUNC_XTRA_SINGLE_ARGS_DICT['json']
-    return None
-
-def get_moments(xtra_args):
-    if formatter.FUNC_XTRA_SINGLE_ARGS_DICT['moments'] in xtra_args:
-        return formatter.FUNC_XTRA_SINGLE_ARGS_DICT['moments']
-    return None
-
-def get_percentiles(xtra_args):
-    if formatter.FUNC_XTRA_SINGLE_ARGS_DICT['percentiles'] in xtra_args:
-        return formatter.FUNC_XTRA_SINGLE_ARGS_DICT['percentiles']
-    return None
-
-def get_likelihood(xtra_args):
-    if formatter.FUNC_XTRA_SINGLE_ARGS_DICT['likelihood'] in xtra_args:
-        return formatter.FUNC_XTRA_SINGLE_ARGS_DICT['likelihood']
-    return None
-
-def get_investment(xtra_args, xtra_values):
-    if formatter.FUNC_XTRA_VALUED_ARGS_DICT['investment'] in xtra_args:
-        try:
-            return float(xtra_values[xtra_args.index(formatter.FUNC_XTRA_VALUED_ARGS_DICT['investment'])])
-        except ValueError as ve:
-            raise ve
-    return None
-
-def get_steps(xtra_args, xtra_values):
-    if formatter.FUNC_XTRA_VALUED_ARGS_DICT['steps'] in xtra_args:
-        try:
-            return int(xtra_values[xtra_args.index(formatter.FUNC_XTRA_VALUED_ARGS_DICT)])
-        except ValueError as ve:
-            raise ve
-    return None
-
-def format_xtra_args_dict(xtra_args, xtra_values):
     return {
-        'start_date': get_start_date(xtra_args, xtra_values),
-        'end_date': get_end_date(xtra_args, xtra_values),
-        'save_file': get_save_file(xtra_args, xtra_values),
-        'target': get_target(xtra_args, xtra_values),
-        'discount': get_discount(xtra_args, xtra_values),
-        'model': get_model(xtra_args, xtra_values),
-        'investment': get_investment(xtra_args, xtra_values),
-        'steps': get_steps(xtra_args, xtra_values),
-        'optimize_sharpe': get_sharpe(xtra_args),
-        'suppress': get_suppress_output(xtra_args),
-        'json': get_json(xtra_args),
-        'expiry': get_expiry(xtra_args, xtra_values),
-        'percentiles': get_percentiles(xtra_args),
-        'moments': get_moments(xtra_args),
-        'likelihood': get_likelihood(xtra_args), 
-        'probability': get_probability(xtra_args, xtra_values)
+        'start_date': get_date_arg(xtra_args, xtra_values, formatter.FUNC_XTRA_VALUED_ARGS_DICT['start_date']),
+        'end_date': get_date_arg(xtra_args, xtra_values, formatter.FUNC_XTRA_VALUED_ARGS_DICT['end_date']),
+        'save_file': get_str_arg(xtra_args, xtra_values, formatter.FUNC_XTRA_VALUED_ARGS_DICT['save']),
+        'target': get_float_arg(xtra_args, xtra_values, formatter.FUNC_XTRA_VALUED_ARGS_DICT['target']),
+        'discount': get_float_arg(xtra_args, xtra_values, formatter.FUNC_XTRA_VALUED_ARGS_DICT['discount']),
+        'investment': get_float_arg(xtra_args, xtra_values, formatter.FUNC_XTRA_VALUED_ARGS_DICT['investment']),
+        'expiry': get_float_arg(xtra_args, xtra_values, formatter.FUNC_XTRA_VALUED_ARGS_DICT['expiry']),
+        'probability': get_float_arg(xtra_args, xtra_values, formatter.FUNC_XTRA_VALUED_ARGS_DICT['probability']),
+        'model': get_str_arg(xtra_args, xtra_values,formatter.FUNC_XTRA_VALUED_ARGS_DICT['model'], True),
+        'steps': get_int_arg(xtra_args, xtra_values,formatter.FUNC_XTRA_VALUED_ARGS_DICT['steps']),
+        'optimize_sharpe': get_flag_arg(xtra_args, formatter.FUNC_XTRA_SINGLE_ARGS_DICT['optimize_sharpe']),
+        'suppress': get_flag_arg(xtra_args,formatter.FUNC_XTRA_SINGLE_ARGS_DICT['suppress_output']),
+        'json': get_flag_arg(xtra_args, formatter.FUNC_XTRA_SINGLE_ARGS_DICT['json']),
+        'estimation': current_estimation_method
     }
 
 def separate_and_parse_args(args):
@@ -468,11 +413,17 @@ def separate_and_parse_args(args):
     for arg in extra_values:
         if arg is not None:
             reduced_args.remove(arg)
-        
-    for arg in reduced_args:
-        arg = arg.upper()
 
-    return (extra_args, extra_values, reduced_args)
+    extra_reduced_args = reduced_args
+    offset = 0
+    for i, arg in enumerate(reduced_args):
+        if arg.startswith('-'):
+            extra_reduced_args.remove(arg)
+            offset += 1
+        else:
+            extra_reduced_args[i-offset] = extra_reduced_args[i-offset].upper()
+
+    return (extra_args, extra_values, extra_reduced_args)
     
 def get_first_json_key(this_json):
     return list(this_json.keys())[0]

@@ -15,11 +15,10 @@
 
 
 """
-Description
------------
-` files` is in charge of all application file handling. In addition, this module handles requests for large csv files retrieved from external services. The metadata files from 'AlphaVantage' and 'Quandl' are returned as zipped csv files. The functions within in this module perform all the tasks necessary for parsing this response into the application file system, whether on the localhost or a containerized filesytem.
+` files` is in charge of all application file handling. In addition, this module handles requests for large csv files retrieved from external services. The metadata files from 'AlphaVantage' and 'Quandl' are returned as zipped csv files. The functions within in this module perform all the tasks necessary for parsing this response for the application.
 """
 import os, io, json, csv, zipfile
+from typing import Any
 import requests
 
 from scrilla import settings, static, errors
@@ -30,14 +29,14 @@ logger = outputter.Logger("files", settings.LOG_LEVEL)
 
 static_tickers_blob, static_econ_blob, static_crypto_blob = None, None, None
 
-def load_file(file_name):
+def load_file(file_name: str) -> Any:
     with open(file_name, 'r') as infile:
         if settings.FILE_EXT == "json":
             file = json.load(infile)
         return file
         # TODO: implement other file loading extensions
 
-def save_file(file_to_save, file_name):
+def save_file(file_to_save: Any, file_name: str) -> bool:
     with open(file_name, 'w') as outfile:
         if settings.FILE_EXT == "json":
             try:
@@ -49,15 +48,15 @@ def save_file(file_to_save, file_name):
             
         # TODO: implement other file saving extensions.
 
-def set_credentials(value, which_key):
+def set_credentials(value: str, which_key: str) -> bool:
     file_name = os.path.join(settings.COMMON_DIR, f'{which_key}.{settings.FILE_EXT}')
     return save_file(file_to_save=value, file_name=file_name)
 
-def get_credentials(which_key):
+def get_credentials(which_key: str) -> str:
     file_name = os.path.join(settings.COMMON_DIR, f'{which_key}.{settings.FILE_EXT}')
     return load_file(file_name = file_name)
 
-def parse_csv_response_column(column, url, firstRowHeader=None, savefile=None, zipped=None):
+def parse_csv_response_column(column: int, url: str, firstRowHeader: str=None, savefile: str=None, zipped: str=None):
     """
     Parameters
     ----------
@@ -105,8 +104,6 @@ def parse_csv_response_column(column, url, firstRowHeader=None, savefile=None, z
 
 def init_static_data():
     """
-    Description
-    -----------
     Initializes the three static files defined in  settings: `STATIC_TICKERS_FILE`, `STATIC_CRYPTO_FILE` and `STATIC_ECON_FILE`. The data for these files is retrieved from the service managers. While this function blurs the lines between file management and service management, the function has been included in the `files.py` module rather than the `services.py` module due the unique response types of static metadata. All metadata is returned as a csv or zipped csvs. These responses require specialized functions. Moreover, these files should only be initialized the first time the application executes. Subsequent executions will refer to their cached versions residing in the local filesytems. 
 
     Raises
@@ -169,8 +166,6 @@ def init_static_data():
 
 def get_static_data(static_type):
     """
-    Description
-    ----------- 
     Retrieves static data cached in the local or containerized file system. \n \n 
 
     Parameters
@@ -241,8 +236,6 @@ def get_static_data(static_type):
 
 def get_overlapping_symbols(equities=None, cryptos=None):
     """
-    Description
-    -----------
     Returns an array of symbols which are contained in both the STATIC_TICKERS_FILE and STATIC_CRYPTO_FILE, i.e. ticker symbols which have both a tradeable equtiy and a tradeable crypto asset. 
     """
     if equities is None:
@@ -255,15 +248,13 @@ def get_overlapping_symbols(equities=None, cryptos=None):
             overlap.append(crypto)
     return overlap
 
-def get_asset_type(symbol):
+def get_asset_type(symbol : str) -> str:
     """"
-    Description
-    -----------
     Returns the asset type of the supplied ticker symbol. \n \n
 
     Output
     ------
-    A string representing the type of asset of the symbol. Types are statically accessible through the ` settings` variables: ASSET_EQUITY and ASSET_CRYPTO. \n \n 
+    ``str``. Represents the type of asset of the symbol. Types are statically accessible through the `scrilla.static.keys['ASSETS]` dictionary. \n \n 
     """
     symbols = list(get_static_data(static.keys['ASSETS']['CRYPTO']))
     overlap = get_overlapping_symbols(cryptos=symbols)
@@ -283,7 +274,7 @@ def get_asset_type(symbol):
     # default to equity for overlap until a better method is determined. 
     return static.keys['ASSETS']['EQUITY']
     
-def get_watchlist():
+def get_watchlist() -> list:
     """
     Description
     -----------
@@ -305,7 +296,7 @@ def get_watchlist():
 
     return watchlist
 
-def add_watchlist(new_tickers):
+def add_watchlist(new_tickers: list) -> None:
     """
     Description
     -----------
@@ -328,7 +319,7 @@ def add_watchlist(new_tickers):
             json.dump(current_tickers, outfile)
         # TODO: implement other file extensions
     
-def save_profiles(profiles, file_name):
+def save_profiles(profiles: dict, file_name: str):
     save_format = formatter.format_profiles(profiles)
     save_file(file_to_save=save_format, file_name=file_name)
 

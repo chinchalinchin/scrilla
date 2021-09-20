@@ -14,8 +14,6 @@
 # or <https://github.com/chinchalinchin/scrilla/blob/develop/main/LICENSE>.
 
 import sys, os, traceback, json
-from types import MethodType
-
 
 from scrilla import settings, services, files, static
 from scrilla.errors import APIResponseError, ConfigurationError, InputValidationError, SampleSizeError, PriceError
@@ -63,16 +61,6 @@ def validate_function_usage(selection, args, wrapper_function, required_length=1
                     InputValidationError, ConfigurationError) as e:
             print(str(e))
             traceback.print_exc()
-
-def format_estimation_method(xtra_dict):
-    estimation_method = settings.ESTIMATION_METHOD
-    if xtra_dict['moments'] is not None:
-        estimation_method = static.keys['ESTIMATION']['MOMENT']
-    elif xtra_dict['percentiles'] is not None:
-        estimation_method = static.keys['ESTIMATION']['PERCENT']
-    elif xtra_dict['likelihood'] is not None:
-        estimation_method = static.keys['ESTIMATION']['LIKE']
-    return estimation_method
 
 def print_format_to_screen(xtra_dict):
     return xtra_dict['json'] is None and xtra_dict['suppress'] is None
@@ -146,9 +134,8 @@ def do_program():
             
             args = sys.argv[2:]
             xtra_args, xtra_values, main_args = helper.separate_and_parse_args(args)
-            xtra_dict = helper.format_xtra_args_dict(xtra_args, xtra_values)
-            estimation_method = format_estimation_method(xtra_dict)
-            logger.log_arguments(main_args=main_args, xtra_args=xtra_args, xtra_values=xtra_values)
+            xtra_dict = helper.format_xtra_args_dict(xtra_args, xtra_values, settings.ESTIMATION_METHOD)
+            logger.log_arguments(main_args,xtra_args,xtra_values)
             exact, selected_function = False, None
 
             if print_format_to_screen(xtra_dict):
@@ -171,12 +158,17 @@ def do_program():
                 def cli_var():
                     all_vars = {}
                     for arg in main_args:
-                        prices = services.get_daily_price_history(ticker=arg, start_date=xtra_dict['start_date'],
+                        prices = services.get_daily_price_history(ticker=arg, 
+                                                                    start_date=xtra_dict['start_date'],
                                                                     end_date=xtra_dict['end_date'])
                         latest_price = prices[helper.get_first_json_key(prices)]
-                        profile = statistics.calculate_moment_risk_return(ticker=arg, sample_prices=prices)
-                        valueatrisk = probability.percentile(S0=latest_price, vol=profile['annual_volatility'],
-                                                                ret=profile['annual_return'], expiry=xtra_dict['expiry'],
+                        profile = statistics.calculate_risk_return(ticker=arg, 
+                                                                    sample_prices=prices, 
+                                                                    method=xtra_dict['estimation'])
+                        valueatrisk = probability.percentile(S0=latest_price, 
+                                                                vol=profile['annual_volatility'],
+                                                                ret=profile['annual_return'], 
+                                                                expiry=xtra_dict['expiry'],
                                                                 percentile=xtra_dict['probability'])
                         all_vars[arg]=valueatrisk
 
@@ -196,14 +188,20 @@ def do_program():
                 def cli_var():
                     all_cvars = {}
                     for arg in main_args:
-                        prices = services.get_daily_price_history(ticker=arg, start_date=xtra_dict['start_date'],
+                        prices = services.get_daily_price_history(ticker=arg, 
+                                                                    start_date=xtra_dict['start_date'],
                                                                     end_date=xtra_dict['end_date'])
                         latest_price = prices[helper.get_first_json_key(prices)]
-                        profile = statistics.calculate_moment_risk_return(ticker=arg, sample_prices=prices)
-                        valueatrisk = probability.percentile(S0=latest_price, vol=profile['annual_volatility'],
-                                                                ret=profile['annual_return'], expiry=xtra_dict['expiry'],
+                        profile = statistics.calculate_moment_risk_return(ticker=arg, 
+                                                                            sample_prices=prices, 
+                                                                            method=xtra_dict['estimation'])
+                        valueatrisk = probability.percentile(S0=latest_price, 
+                                                                vol=profile['annual_volatility'],
+                                                                ret=profile['annual_return'], 
+                                                                expiry=xtra_dict['expiry'],
                                                                 percentile=xtra_dict['probability'])
-                        cvar = probability.conditional_expected_value(S0=latest_price, vol=profile['annual_volatility'],
+                        cvar = probability.conditional_expected_value(S0=latest_price, 
+                                                                        vol=profile['annual_volatility'],
                                                                         ret=profile['annual_return'], expiry=xtra_dict['expiry'],
                                                                         conditional_value=valueatrisk)
                         all_cvars[arg]=cvar
@@ -225,7 +223,8 @@ def do_program():
                     all_costs = {}
                     for arg in main_args:
                         equity_cost = markets.cost_of_equity(ticker=arg, start_date=xtra_dict['start_date'], 
-                                                                end_date=xtra_dict['end_date'])
+                                                                end_date=xtra_dict['end_date'], 
+                                                                method=xtra_dict['estimation'])
                         all_costs[arg] = equity_cost
 
                         if print_format_to_screen(xtra_dict):
@@ -246,8 +245,10 @@ def do_program():
                 def cli_capm_beta():
                     all_betas = {}
                     for arg in main_args:
-                        beta = markets.market_beta(ticker=arg, start_date=xtra_dict['start_date'], 
-                                                    end_date=xtra_dict['end_date'])
+                        beta = markets.market_beta(ticker=arg, 
+                                                    start_date=xtra_dict['start_date'], 
+                                                    end_date=xtra_dict['end_date'], 
+                                                    method=xtra_dict['estimation'])
                         all_betas[arg] = beta
 
                         if print_format_to_screen(xtra_dict):
@@ -282,10 +283,10 @@ def do_program():
             ### FUNCTION: Correlation Matrix
             elif opt == formatter.FUNC_ARG_DICT["correlation"]:
                 def cli_correlation():
-                    matrix = statistics.correlation_matrix(tickers=main_args, indent=formatter.INDENT, 
+                    matrix = statistics.correlation_matrix(tickers=main_args,
                                                             start_date=xtra_dict['start_date'], 
                                                             end_date=xtra_dict['end_date'],
-                                                            method=estimation_method)
+                                                            method=xtra_dict['estimation'])
                     outputter.correlation_matrix(tickers=main_args, correlation_matrix=matrix)
                 selected_function, required_length = cli_correlation, 2
 
@@ -309,7 +310,7 @@ def do_program():
                     for arg in main_args:
                         dividends = services.get_dividend_history(arg)
                         if xtra_dict['discount'] is None:
-                            discount = markets.cost_of_equity(ticker=arg)
+                            discount = markets.cost_of_equity(ticker=arg, method=xtra_dict['estimation'])
                         else:
                             discount = xtra_dict['discount']
                         model_results[f'{arg}_discount_dividend'] = Cashflow(sample=dividends, 
@@ -344,19 +345,25 @@ def do_program():
             ### FUNCTION: Efficient Frontier
             elif opt == formatter.FUNC_ARG_DICT['efficient_frontier']:
                 def cli_efficient_frontier():
-                    portfolio = Portfolio(tickers=main_args, start_date=xtra_dict['start_date'], 
-                                            end_date=xtra_dict['end_date'])
+                    portfolio = Portfolio(tickers=main_args, 
+                                            start_date=xtra_dict['start_date'], 
+                                            end_date=xtra_dict['end_date'],
+                                            method=xtra_dict['estimation'])
                     frontier = optimizer.calculate_efficient_frontier(portfolio=portfolio)
 
                     if xtra_dict['suppress'] is None:
                         if xtra_dict['json'] is None:
-                            outputter.efficient_frontier(portfolio=portfolio, frontier=frontier,
-                                                    investment=xtra_dict['investment'])
+                            outputter.efficient_frontier(portfolio=portfolio, 
+                                                            frontier=frontier,
+                                                            investment=xtra_dict['investment'])
                         else:
-                            print(json.dumps(formatter.format_frontier(portfolio=portfolio, frontier=frontier, investment=xtra_dict['investment'])))
+                            print(json.dumps(formatter.format_frontier(portfolio=portfolio, 
+                                                                        frontier=frontier, 
+                                                                        investment=xtra_dict['investment'])))
 
                     if xtra_dict['save_file'] is not None:
-                        files.save_frontier(portfolio=portfolio, frontier=frontier,
+                        files.save_frontier(portfolio=portfolio, 
+                                            frontier=frontier,
                                             investment=xtra_dict['investment'], 
                                             file_name=xtra_dict['save_file'])
                 selected_function, required_length = cli_efficient_frontier, 2
@@ -364,25 +371,34 @@ def do_program():
             ### FUNCTION: Maximize Portfolio Return
             elif opt == formatter.FUNC_ARG_DICT['maximize_return']:
                 def cli_maximize_return():
-                    portfolio = Portfolio(tickers=main_args, start_date=xtra_dict['start_date'], 
-                                            end_date=xtra_dict['end_date'])
+                    portfolio = Portfolio(tickers=main_args, 
+                                            start_date=xtra_dict['start_date'], 
+                                            end_date=xtra_dict['end_date'],
+                                            method=xtra_dict['estimation'])
                     allocation = optimizer.maximize_portfolio_return(portfolio=portfolio)
 
                     if xtra_dict['suppress'] is None:
                         if xtra_dict['json'] is None:
-                            outputter.optimal_result(portfolio=portfolio, allocation=allocation, 
-                                                investment=xtra_dict['investment'])
+                            outputter.optimal_result(portfolio=portfolio, 
+                                                        allocation=allocation, 
+                                                        investment=xtra_dict['investment'])
                         else:
-                            print(json.dumps(formatter.format_allocation(allocation=allocation, portfolio=portfolio, investment=xtra_dict['investment'])))
+                            print(json.dumps(formatter.format_allocation(allocation=allocation, 
+                                                                            portfolio=portfolio, 
+                                                                            investment=xtra_dict['investment'])))
 
                     if xtra_dict['save_file'] is not None:
-                        files.save_allocation(allocation=allocation, portfolio=portfolio, 
-                                                file_name=xtra_dict['save_file'], investment=xtra_dict['investment'])
+                        files.save_allocation(allocation=allocation, 
+                                                portfolio=portfolio, 
+                                                file_name=xtra_dict['save_file'], 
+                                                investment=xtra_dict['investment'])
                 selected_function, required_length = cli_maximize_return, 2
 
             ### FUNCTION: Moving Averages of Logarithmic Returns
             elif opt == formatter.FUNC_ARG_DICT['moving_averages']:
                 def cli_moving_averages():
+                    # TODO: moving averages with estimation techniques
+                    # TODO: print results as json to screen and ability to save results
                     moving_averages = statistics.calculate_moving_averages(tickers=main_args, 
                                                                             start_date=xtra_dict['start_date'], 
                                                                             end_date=xtra_dict['end_date'])
@@ -396,7 +412,11 @@ def do_program():
             ### FUNCTION: Optimize Portfolio Variance/Volatility
             elif opt == formatter.FUNC_ARG_DICT['optimize_portfolio_variance']:
                 def cli_optimize_portfolio_variance():
-                    portfolio = Portfolio(tickers=main_args, start_date=xtra_dict['start_date'], end_date=xtra_dict['end_date'])
+                    portfolio = Portfolio(tickers=main_args, 
+                                            start_date=xtra_dict['start_date'], 
+                                            end_date=xtra_dict['end_date'],
+                                            method=xtra_dict['estimation'])
+
                     if xtra_dict['optimize_sharpe']:
                         allocation = optimizer.maximize_sharpe_ratio(portfolio=portfolio, target_return=xtra_dict['target'])
                     else:
@@ -415,7 +435,10 @@ def do_program():
             
             elif opt == formatter.FUNC_ARG_DICT['optimize_portfolio_conditional_var']:
                 def cli_optimize_conditional_value_at_risk():
-                    portfolio = Portfolio(tickers=main_args, start_date=xtra_dict['start_date'], end_date=xtra_dict['end_date'])
+                    portfolio = Portfolio(tickers=main_args, 
+                                            start_date=xtra_dict['start_date'], 
+                                            end_date=xtra_dict['end_date'],
+                                            method=xtra_dict['estimation'])
                     allocation = optimizer.optimize_conditional_value_at_risk(portfolio=portfolio,
                                                                                 prob=xtra_dict['probability'],
                                                                                 expiry=xtra_dict['expiry'],
@@ -430,35 +453,46 @@ def do_program():
                         files.save_allocation(allocation=allocation, portfolio=portfolio, file_name=xtra_dict['save_file'],
                                                 investment=xtra_dict['investment'])
                 selected_function, required_length = cli_optimize_conditional_value_at_risk, 2
+
             ### FUNCTION: Plot Dividend History With Linear Regression Model
             elif opt == formatter.FUNC_ARG_DICT['plot_dividends']:
                 def cli_plot_dividends():
                     dividends = services.get_dividend_history(ticker=main_args[0])
                     if xtra_dict['discount'] is None:
-                        xtra_dict['discount'] = markets.cost_of_equity(ticker=main_args[0])
-                    div_cashflow = Cashflow(sample=dividends, discount_rate=xtra_dict['discount'])
-                    plotter.plot_cashflow(ticker=main_args[0], cashflow=div_cashflow, show=True, 
+                        xtra_dict['discount'] = markets.cost_of_equity(ticker=main_args[0],
+                                                                        method=xtra_dict['estimation'])
+                    div_cashflow = Cashflow(sample=dividends, 
+                                            discount_rate=xtra_dict['discount'])
+                    plotter.plot_cashflow(ticker=main_args[0], 
+                                            cashflow=div_cashflow, show=True, 
                                             savefile=xtra_dict['save_file'])
                 selected_function, required_length, exact = cli_plot_dividends, 1, True
 
             ### FUNCTION: Plot Efficient Frontier
             elif opt == formatter.FUNC_ARG_DICT['plot_frontier']:
                 def cli_plot_frontier():
-                    portfolio = Portfolio(tickers=main_args, start_date=xtra_dict['start_date'], 
-                                            end_date=xtra_dict['end_date'])
+                    portfolio = Portfolio(tickers=main_args, 
+                                            start_date=xtra_dict['start_date'], 
+                                            end_date=xtra_dict['end_date'],
+                                            method=xtra_dict['estimation'])
                     frontier = optimizer.calculate_efficient_frontier(portfolio=portfolio)
-                    plotter.plot_frontier(portfolio=Portfolio(main_args), frontier=frontier, show=True, 
+                    plotter.plot_frontier(portfolio=Portfolio(main_args), 
+                                            frontier=frontier, 
+                                            show=True, 
                                             savefile=xtra_dict['save_file'])
                 selected_function, required_length = cli_plot_frontier, 2
 
             ### FUNCTION: Plot Moving Averages of Logarithmic Returns
             elif opt == formatter.FUNC_ARG_DICT['plot_moving_averages']:
                 def cli_plot_moving_averages():
+                    # TODO: estimation techniques with moving averages
                     moving_averages = statistics.calculate_moving_averages(tickers=main_args, 
                                                                             start_date=xtra_dict['start_date'], 
                                                                             end_date=xtra_dict['end_date'])
                     periods = [settings.MA_1_PERIOD, settings.MA_2_PERIOD, settings.MA_3_PERIOD]
-                    plotter.plot_moving_averages(symbols=main_args, averages_output=moving_averages, periods=periods, 
+                    plotter.plot_moving_averages(symbols=main_args, 
+                                                    averages_output=moving_averages, 
+                                                    periods=periods, 
                                                     show=True, savefile=xtra_dict['save_file'])
                 selected_function, required_length = cli_plot_moving_averages, 1
 
@@ -467,9 +501,13 @@ def do_program():
                 def cli_plot_risk_profile():
                     profiles = {}
                     for arg in main_args:
-                        profiles[arg]=statistics.calculate_moment_risk_return(ticker=arg, start_date=xtra_dict['start_date'], 
-                                                                            end_date=xtra_dict['end_date'])
-                    plotter.plot_profiles(symbols=main_args, profiles=profiles, show=True, 
+                        profiles[arg]=statistics.calculate_risk_return(ticker=arg, 
+                                                                        start_date=xtra_dict['start_date'], 
+                                                                        end_date=xtra_dict['end_date'],
+                                                                        method=xtra_args['estimation'])
+                    plotter.plot_profiles(symbols=main_args, 
+                                            show=True,
+                                            profiles=profiles, 
                                             savefile=xtra_dict['save_file'], 
                                             subtitle=helper.format_date_range(start_date=xtra_dict['start_date'], 
                                                                                 end_date=xtra_dict['end_date']))
@@ -482,7 +520,8 @@ def do_program():
                     start_date_string = helper.date_to_string(xtra_dict['start_date'])
                     yield_curve[start_date_string] = []
                     for maturity in static.keys['YIELD_CURVE']:
-                        rate = services.get_daily_interest_history(maturity=maturity, start_date=xtra_dict['start_date'],
+                        rate = services.get_daily_interest_history(maturity=maturity, 
+                                                                    start_date=xtra_dict['start_date'],
                                                                     end_date=xtra_dict['start_date'])
                         yield_curve[start_date_string].append(rate[start_date_string])
                 
@@ -495,7 +534,8 @@ def do_program():
                 def cli_price_history():
                     all_prices = {}
                     for arg in main_args:
-                        prices = services.get_daily_price_history(ticker=arg, start_date=xtra_dict['start_date'],
+                        prices = services.get_daily_price_history(ticker=arg, 
+                                                                    start_date=xtra_dict['start_date'],
                                                                     end_date=xtra_dict['end_date'])
                         all_prices[arg] = {}
                         for date in prices:
@@ -559,19 +599,24 @@ def do_program():
                 def cli_risk_return():
                     profiles = {}
                     for arg in main_args:
-                        profiles[arg] = statistics.calculate_risk_return(ticker=arg, method = estimation_method,
-                                                                start_date=xtra_dict['start_date'], end_date=xtra_dict['end_date'])
-                        profiles[arg]['sharpe_ratio'] = markets.sharpe_ratio(ticker=arg, start_date=xtra_dict['start_date'],
+                        profiles[arg] = statistics.calculate_risk_return(ticker=arg, 
+                                                                            method = xtra_dict['estimation'],
+                                                                            start_date=xtra_dict['start_date'], 
+                                                                            end_date=xtra_dict['end_date'])
+                        profiles[arg]['sharpe_ratio'] = markets.sharpe_ratio(ticker=arg, 
+                                                                            start_date=xtra_dict['start_date'],
                                                                             end_date=xtra_dict['end_date'], 
                                                                             ticker_profile=profiles[arg],
-                                                                            method=estimation_method)
-                        profiles[arg]['asset_beta'] = markets.market_beta(ticker=arg, start_date=xtra_dict['start_date'],
+                                                                            method=xtra_dict['estimation'])
+                        profiles[arg]['asset_beta'] = markets.market_beta(ticker=arg, 
+                                                                            start_date=xtra_dict['start_date'],
                                                                             end_date=xtra_dict['end_date'],
                                                                             ticker_profile=profiles[arg],
-                                                                            method=estimation_method)
-                        profiles[arg]['equity_cost'] = markets.cost_of_equity(ticker=arg, start_date=xtra_dict['start_date'],
+                                                                            method=xtra_dict['estimation'])
+                        profiles[arg]['equity_cost'] = markets.cost_of_equity(ticker=arg, 
+                                                                            start_date=xtra_dict['start_date'],
                                                                             end_date=xtra_dict['end_date'], 
-                                                                            method=estimation_method)
+                                                                            method=xtra_dict['estimation'])
                     
                     if xtra_dict['suppress'] is None:
                         if xtra_dict['json'] is None:
@@ -597,8 +642,10 @@ def do_program():
                 def cli_sharpe_ratio():
                     all_results = {}
                     for arg in main_args:
-                        result = markets.sharpe_ratio(ticker=arg, start_date=xtra_dict['start_date'],
-                                                        end_date=xtra_dict['end_date'])
+                        result = markets.sharpe_ratio(ticker=arg, 
+                                                        start_date=xtra_dict['start_date'],
+                                                        end_date=xtra_dict['end_date'],
+                                                        method=xtra_dict['estimation'])
                         all_results[arg]=result
                         
                         if print_format_to_screen(xtra_dict):
@@ -615,7 +662,6 @@ def do_program():
 
             ### FUNCTION: Get Latest Economic Statistic
             elif opt == formatter.FUNC_ARG_DICT["statistic"]:
-                # TODO: implement start and end date and print eac.
                 def cli_statistic():
                     all_stats = {}
                     for stat in main_args:
@@ -636,12 +682,14 @@ def do_program():
                 def cli_statistic_history():
                     all_stats = {}
                     for arg in main_args:
-                        stats = services.get_daily_fred_history(symbol=arg, start_date=xtra_dict['start_date'],
-                                                            end_date=xtra_dict['end_date'])
+                        stats = services.get_daily_fred_history(symbol=arg, 
+                                                                start_date=xtra_dict['start_date'],
+                                                                end_date=xtra_dict['end_date'])
                         all_stats[arg] = stats
                         if print_format_to_screen(xtra_dict):
                             for date in stats:
-                                outputter.scalar_result(calculation=f'{arg}({date})', result=stats[date], 
+                                outputter.scalar_result(calculation=f'{arg}({date})', 
+                                                            result=stats[date], 
                                                             currency=False) 
 
                     if print_json_to_screen(xtra_dict):
@@ -679,9 +727,11 @@ def do_program():
                 outputter.help_msg()
             
             if selected_function is not None:
-                validate_function_usage(selection=opt, args=main_args, 
-                                        wrapper_function=selected_function, 
-                                        required_length=required_length, exact=exact)
+                validate_function_usage(selection=opt, 
+                                            args=main_args, 
+                                            wrapper_function=selected_function, 
+                                            required_length=required_length, 
+                                            exact=exact)
     
             if print_format_to_screen(xtra_dict):
                 outputter.print_line()

@@ -15,7 +15,7 @@
 
 from scrilla import settings, files, static
 
-import util.helper as helper
+from scrilla.util import dater, helper
 
 class InputValidationError(Exception):
     pass
@@ -51,13 +51,13 @@ def validate_asset_type(ticker, asset_type=None):
 def validate_dates(start_date, end_date, asset_type):
     # if end date exists, make sure it is valid
     if end_date is not None:
-        end_date = helper.truncate_future_from_date(end_date)
+        end_date = dater.truncate_future_from_date(end_date)
         if asset_type == static.keys['ASSETS']['EQUITY']:
             end_date = helper.this_date_or_last_trading_date(end_date)
     # else create a sensible end date
     else:
         if asset_type == static.keys['ASSETS']['CRYPTO']:
-            end_date = helper.get_today()
+            end_date = dater.get_today()
         else:
             end_date = helper.get_last_trading_date()        
 
@@ -67,7 +67,7 @@ def validate_dates(start_date, end_date, asset_type):
 
     # if start date exists, make sure it is valide
     if start_date is not None:
-        if helper.is_future_date(start_date):
+        if dater.is_future_date(start_date):
             # only invalid user input is if start date doesn't exist yet
             raise InputValidationError(f'Start date of {helper.date_to_string(start_date)} is greater than today')
 

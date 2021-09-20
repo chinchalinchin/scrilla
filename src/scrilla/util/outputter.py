@@ -233,7 +233,7 @@ def correlation_matrix(tickers, correlation_matrix):
 
     for i in range(no_symbols):
         this_symbol = tickers[i]
-        symbol_string = f'{this_symbol} '
+        symbol_string = ' '*formatter.INDENT + f'{this_symbol} '
 
         if i != 0:
             this_line = symbol_string + ' '*(line_length - len(symbol_string) - 7*(no_symbols - i))
@@ -250,7 +250,7 @@ def correlation_matrix(tickers, correlation_matrix):
             
             else:
                 result = correlation_matrix[i][j]
-                formatted_result = str(100*result['correlation'])[:formatter.SIG_FIGS]
+                formatted_result = str(100*result)[:formatter.SIG_FIGS]
                 new_line += f' {formatted_result}%'
 
         entire_formatted_result += new_line + '\n'
@@ -258,7 +258,7 @@ def correlation_matrix(tickers, correlation_matrix):
         if i == 0:
             line_length = len(new_line)
 
-    formatted_title += ' '*(first_symbol_length+1)
+    formatted_title += ' '*(formatter.INDENT + first_symbol_length+1)
     for symbol in tickers:
         sym_len = len(symbol)
         formatted_title += f' {symbol}'+ ' '*(7-sym_len)

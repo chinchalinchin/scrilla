@@ -40,10 +40,10 @@ def maximize_univariate_normal_likelihood(data):
                                     method=static.constants['OPTIMIZATION_METHOD'])
     return params.x
 
-def maximize_multivariate_normal_likelihood(data):
+def maximize_bivariate_normal_likelihood(data):
     """
     """
-    likelihood = lambda x: (-1)*estimators.multivariate_likelihood_function(params=x, data=data)
+    likelihood = lambda x: (-1)*estimators.bivariate_normal_likelihood_function(params=x, data=data)
 
     x_data = [ datum[0] for datum in data ]
     y_data = [ datum[1] for datum in data ]

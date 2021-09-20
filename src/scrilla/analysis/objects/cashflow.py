@@ -16,7 +16,7 @@
 import datetime
 
 from scrilla import static, services, settings
-from scrilla.util import helper, outputter
+from scrilla.util import helper, dater
 import scrilla.analysis.estimators as estimators
 
 logger = outputter.Logger('analysis.objects.cashflow', settings.LOG_LEVEL)
@@ -69,7 +69,7 @@ class Cashflow:
     1. Implement prediction interval function to get error bars for graphs and general usage.
 
     """
-    def __init__(self, sample=None, period=None, growth_function=None, constant=None, discount_rate=None, ):
+    def __init__(self, sample=None, period=None, growth_function=None, constant=None, discount_rate=None):
         self.sample = sample
         self.period = period
         self.growth_function = growth_function
@@ -200,13 +200,13 @@ class Cashflow:
         
         time_to_first_payment = 0
         if self.period == FREQ_ANNUAL:
-            time_to_first_payment = helper.get_time_to_next_year()
+            time_to_first_payment = dater.get_time_to_next_year()
             
         elif self.period == FREQ_QUARTER:
-            time_to_first_payment = helper.get_time_to_next_quarter()
+            time_to_first_payment = dater.get_time_to_next_quarter()
 
         elif self.period == FREQ_MONTH:
-            time_to_first_payment = helper.get_time_to_next_month()
+            time_to_first_payment = dater.get_time_to_next_month()
 
         elif self.period == FREQ_DAY:
             time_to_first_payment = FREQ_DAY
@@ -214,7 +214,7 @@ class Cashflow:
         else:
             dates = self.sample.keys()
             latest_date = helper.parse_date_string(list(dates)[0])
-            time_to_first_payment = helper.get_time_to_next_period(starting_date=latest_date, period=self.period)
+            time_to_first_payment = dater.get_time_to_next_period(starting_date=latest_date, period=self.period)
 
         self.NPV, i, current_time = 0, 0, 0
         calculating = True

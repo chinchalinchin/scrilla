@@ -63,6 +63,10 @@ def get_sample_of_returns(prices, asset_type, trading_period):
     return sample_of_returns
 
 def calculate_moving_averages(tickers, start_date=None, end_date=None, sample_prices=None):
+    # TODO: i need to redo this. this is needlessly inefficient. mean telescopes when 
+    #       calculating with moments. don't need to sum everything. 
+    # TODO: calculate moving averages with different estimation techniques.
+    # TODO: simple moving averages vs exponential moving averages, etc. 
     """
     Parameters
     ----------
@@ -577,9 +581,9 @@ def calculate_moment_risk_return(ticker, start_date=None, end_date=None, sample_
 
     Output
     ------
-    { 'annual_return' : float, 'annual_volatility': float } \n \n
+    ``list``\n
+    ``{ 'annual_return' : float, 'annual_volatility': float }`` \n\n
 
-    
     Raises 
     ------
     1. scrilla.errors.SampleSizeError \n 
@@ -699,39 +703,70 @@ def calculate_correlation(ticker_1, ticker_2, asset_type_1=None, asset_type_2=No
     raise errors.ConfigurationError('Statistic estimation method not found')
 
 def calculate_percentile_correlation(ticker_1, ticker_2, asset_type_1=None, asset_type_2=None, start_date=None, end_date=None, sample_prices=None):
+    """
+    Returns the sample correlation calculated using the method of Percentile Matching, assuming underlying price process follows Geometric Brownian Motion, i.e. the price distribution is lognormal. 
+
+    Parameters
+    ----------
+    1. *ticker_1* : ``str`` \n
+        Ticker symbol for first asset. \n \n
+    2. *ticker_2* : ``str`` \n 
+        Ticker symbol for second asset \n \n
+    3. *asset_type_1* : ``str`` \n
+        **Optional**. Specify asset type to prevent overusing redundant calculations. Allowable values can be found in `scrilla.static.keys['ASSETS]' dictionary. \n \n
+    4. *asset_type_2* : ``str`` \n
+        **Optional**. Specify asset type to prevent overusing redundant calculations. Allowable values can be found in `scrilla.static.keys['ASSETS]' dictionary. \n \n 
+    5. *start_date* : ``datetime.date`` \n 
+        **Optional**. Start date of the time period over which correlation will be calculated. If `None`, defaults to 100 trading days ago. \n \n 
+    6. *end_date* : ``datetime.date`` \n 
+        **Optional**. End date of the time period over which correlation will be calculated. If `None`, defaults to last trading day. \n \n  
+    7. *sample_prices* : ``dict``
+        **Optional**. A list of the asset prices for which correlation will be calculated. Overrides calls to service and calculates correlation for sample of prices supplied. Will disregard start_date and end_date. Must be of the format: {'AAPL': { 'date_1' : 'price_1', 'date_2': 'price_2' ...}, 'BX': { 'date_1' : 'price_1:, ... } } and ordered from latest date to earliest date.  \n \n
+    
+    Raises
+    ------
+    1. *errors.InputValidationError*
+    2. *errors.SampleSizeError*
+    3. *errors.PriceError*
+
+    Returns
+    ------
+    ``dict`` \n
+    ``{ 'correlation' : float }``\n\n
+    """
     pass
 
 def calculate_likelihood_correlation(ticker_1, ticker_2, asset_type_1=None, asset_type_2=None, start_date=None, end_date=None, sample_prices=None):
     """
+    Calculates the sample correlation using the maximum likelihood estimators, assuming underlying price process follows Geometric Brownian Motion, i.e. the price distribution is lognormal. 
+
     Parameters
     ----------
-    1. ticker_1 : str \n
+    1. *ticker_1* : ``str`` \n
         Ticker symbol for first asset. \n \n
-    2. ticker_2 : str \n 
+    2. *ticker_2* : ``str`` \n 
         Ticker symbol for second asset \n \n
-    3. asset_type_1 : str \n
-        Optional. Specify asset type to prevent overusing redundant calculations. Allowable values: settings.ASSET_TYPE_EQUITY, settings.ASSET_TYPE_CRYPTO \n \n
-    4. asset_type_2 : str \n
-        Optional. Specify asset type to prevent overusing redundant calculations. Allowable values: settings.ASSET_TYPE_EQUITY, settings.ASSET_TYPE_CRYPTO \n \n 
-    5. start_date : datetime.date \n 
-        Start date of the time period over which correlation will be calculated. \n \n 
-    6. end_date : datetime.date \n 
-        End date of the time period over which correlation will be calculated. \n \n  
-    7. sample_prices : { 'ticker' (str) : { 'date' (str) : 'price' (str) } } \n
-        A list of the asset prices for which correlation will be calculated. Overrides calls to service and calculates correlation for sample of prices supplied. Will disregard start_date and end_date. Must be of the format: {'AAPL': { 'date_1' : 'price_1', 'date_2': 'price_2' ...}, 'BX': { 'date_1' : 'price_1:, ... } } and ordered from latest date to earliest date.  \n \n
+    3. *asset_type_1* : ``str`` \n
+        **Optional**. Specify asset type to prevent overusing redundant calculations. Allowable values can be found in `scrilla.static.keys['ASSETS]' dictionary. \n \n
+    4. *asset_type_2* : ``str`` \n
+        **Optional**. Specify asset type to prevent overusing redundant calculations. Allowable values can be found in `scrilla.static.keys['ASSETS]' dictionary. \n \n 
+    5. *start_date* : ``datetime.date`` \n 
+        **Optional**. Start date of the time period over which correlation will be calculated. If `None`, defaults to 100 trading days ago. \n \n 
+    6. *end_date* : ``datetime.date`` \n 
+        **Optional**. End date of the time period over which correlation will be calculated. If `None`, defaults to last trading day. \n \n  
+    7. *sample_prices* : ``dict``
+        **Optional**. A list of the asset prices for which correlation will be calculated. Overrides calls to service and calculates correlation for sample of prices supplied. Will disregard start_date and end_date. Must be of the format: {'AAPL': { 'date_1' : 'price_1', 'date_2': 'price_2' ...}, 'BX': { 'date_1' : 'price_1:, ... } } and ordered from latest date to earliest date.  \n \n
     
     Raises
     ------
-    1. errors.InputValidationError
-    2. errors.SampleSizeError
-    3. errors.PriceError
+    1. *errors.InputValidationError*
+    2. *errors.SampleSizeError*
+    3. *errors.PriceError*
 
     Returns
     ------
-    { 'correlation' : float } \n
-
-    Notes
-    -----
+    ``dict`` \n
+    ``{ 'correlation' : float }``\n\n
     """
     ### START ARGUMENT PARSING ###
     try:
@@ -754,7 +789,7 @@ def calculate_likelihood_correlation(ticker_1, ticker_2, asset_type_1=None, asse
         # TODO: extra save_or_update argument for estimation method, i.e. moments, percentiles or likelihood
         correlation = correlation_cache.filter_correlation_cache(ticker_1=ticker_1, ticker_2=ticker_2,
                                                                     start_date=start_date, end_date=end_date,
-                                                                    method=static.keys['ESTIMATION']['MOMENT'])
+                                                                    method=static.keys['ESTIMATION']['LIKE'])
         if correlation is not None:
             return correlation
 
@@ -787,51 +822,51 @@ def calculate_likelihood_correlation(ticker_1, ticker_2, asset_type_1=None, asse
     
     combined_sample = [ [sample_of_returns_1[i], sample_of_returns_2[i]] for i, el in enumerate(sample_of_returns_1)]
 
-    likelihood_estimates = optimizer.maximize_univariate_normal_likelihood(data=combined_sample)
+    likelihood_estimates = optimizer.maximize_multivariate_normal_likelihood(data=combined_sample)
 
-    vol_1 = likelihood_estimates[1][0][0]*sqrt(trading_period)
-    vol_2 = likelihood_estimates[1][1][1]*sqrt(trading_period)
+    vol_1 = likelihood_estimates[2]*sqrt(trading_period)
+    vol_2 = likelihood_estimates[3]*sqrt(trading_period)
 
-    correlation = likelihood_estimates[1][0][1] / (vol_1*vol_2)
+    correlation = likelihood_estimates[4] / (vol_1*vol_2)
 
     result = { 'correlation' : correlation }
 
     correlation_cache.save_row(ticker_1=ticker_1, ticker_2=ticker_2, 
                                 start_date=start_date, end_date=end_date, 
-                                correlation = correlation, method=static.keys['ESTIMATION']['METHOD'])
+                                correlation = correlation, method=static.keys['ESTIMATION']['LIKE'])
     return result
 
 def calculate_moment_correlation(ticker_1, ticker_2, asset_type_1=None, asset_type_2=None, start_date=None, end_date=None, sample_prices=None):
     """
+    Returns the sample correlation using the method of Moment Matching, assuming underlying price process follows Geometric Brownian Motion, i.e. the price distribution is lognormal. 
+
     Parameters
     ----------
-    1. ticker_1 : str \n
+    1. *ticker_1* : ``str`` \n
         Ticker symbol for first asset. \n \n
-    2. ticker_2 : str \n 
+    2. *ticker_2* : ``str`` \n 
         Ticker symbol for second asset \n \n
-    3. asset_type_1 : str \n
-        Optional. Specify asset type to prevent overusing redundant calculations. Allowable values: settings.ASSET_TYPE_EQUITY, settings.ASSET_TYPE_CRYPTO \n \n
-    4. asset_type_2 : str \n
-        Optional. Specify asset type to prevent overusing redundant calculations. Allowable values: settings.ASSET_TYPE_EQUITY, settings.ASSET_TYPE_CRYPTO \n \n 
-    5. start_date : datetime.date \n 
-        Start date of the time period over which correlation will be calculated. \n \n 
-    6. end_date : datetime.date \n 
-        End date of the time period over which correlation will be calculated. \n \n  
-    7. sample_prices : { 'ticker' (str) : { 'date' (str) : 'price' (str) } } \n
-        A list of the asset prices for which correlation will be calculated. Overrides calls to service and calculates correlation for sample of prices supplied. Will disregard start_date and end_date. Must be of the format: {'AAPL': { 'date_1' : 'price_1', 'date_2': 'price_2' ...}, 'BX': { 'date_1' : 'price_1:, ... } } and ordered from latest date to earliest date.  \n \n
+    3. *asset_type_1* : ``str`` \n
+        **Optional**. Specify asset type to prevent overusing redundant calculations. Allowable values can be found in `scrilla.static.keys['ASSETS]' dictionary. \n \n
+    4. *asset_type_2* : ``str`` \n
+        **Optional**. Specify asset type to prevent overusing redundant calculations. Allowable values can be found in `scrilla.static.keys['ASSETS]' dictionary. \n \n 
+    5. *start_date* : ``datetime.date`` \n 
+        **Optional**. Start date of the time period over which correlation will be calculated. If `None`, defaults to 100 trading days ago. \n \n 
+    6. *end_date* : ``datetime.date`` \n 
+        **Optional**. End date of the time period over which correlation will be calculated. If `None`, defaults to last trading day. \n \n  
+    7. *sample_prices* : ``dict``
+        **Optional**. A list of the asset prices for which correlation will be calculated. Overrides calls to service and calculates correlation for sample of prices supplied. Will disregard start_date and end_date. Must be of the format: {'AAPL': { 'date_1' : 'price_1', 'date_2': 'price_2' ...}, 'BX': { 'date_1' : 'price_1:, ... } } and ordered from latest date to earliest date.  \n \n
     
     Raises
     ------
-    1. errors.InputValidationError
-    2. errors.SampleSizeError
-    3. errors.PriceError
+    1. *errors.InputValidationError*
+    2. *errors.SampleSizeError*
+    3. *errors.PriceError*
 
     Returns
     ------
-    { 'correlation' : float } \n
-
-    Notes
-    -----
+    ``dict`` \n
+    ``{ 'correlation' : float }``\n\n
     """
     ### START ARGUMENT PARSING ###
     try:
@@ -851,7 +886,6 @@ def calculate_moment_correlation(ticker_1, ticker_2, asset_type_1=None, asset_ty
         raise ive
 
     if sample_prices is None:
-        # TODO: extra save_or_update argument for estimation method, i.e. moments, percentiles or likelihood
         correlation = correlation_cache.filter_correlation_cache(ticker_1=ticker_1, ticker_2=ticker_2,
                                                                     start_date=start_date, end_date=end_date,
                                                                     method=static.keys['ESTIMATION']['MOMENT'])
@@ -975,36 +1009,34 @@ def calculate_moment_correlation(ticker_1, ticker_2, asset_type_1=None, asset_ty
 
 def correlation_matrix(tickers, asset_types=None, start_date=None, end_date=None, sample_prices=None, method=settings.ESTIMATION_METHOD):
     correlation_matrix = [[0 for x in range(len(tickers))] for y in range(len(tickers))]
+
+    # let correlation function handle argument parsing
+    if asset_types is None:
+        asset_types = []
+        for ticker in tickers:
+            asset_types.append(None)
+
     if(len(tickers) > 1):
         for i, item in enumerate(tickers):
             correlation_matrix[i][i] = 1
             for j in range(i+1, len(tickers)):
-                if asset_types is None:
-                    cor_list = calculate_correlation(ticker_1 = item, ticker_2=tickers[j],
-                                                                start_date = start_date, end_date = end_date,
-                                                                sample_prices = sample_prices, method=method)
-                else:
-                    cor_list = calculate_correlation(ticker_1 = item, ticker_2=tickers[j],
-                                                            asset_type_1=asset_types[i], asset_type_2=asset_types[j],
-                                                            start_date = start_date, end_date = end_date,
-                                                            sample_prices = sample_prices, method=method)
-                if cor_list is None:
-                    #TODO: raise Exception
-                    return False
-                correlation = cor_list['correlation']
-                if correlation is None:
-                    #TODO: raise Exception
-                    return False
-
-                correlation_matrix[i][j] = correlation
+                cor = calculate_correlation(ticker_1 = item, 
+                                                ticker_2=tickers[j],
+                                                asset_type_1=asset_types[i], 
+                                                asset_type_2=asset_types[j],
+                                                start_date = start_date, 
+                                                end_date = end_date,
+                                                sample_prices = sample_prices, 
+                                                method=method)
+                correlation_matrix[i][j] = cor['correlation']
                 correlation_matrix[j][i] = correlation_matrix[i][j]
-            correlation_matrix[len(tickers) - 1][len(tickers) - 1] = 1
+
+        correlation_matrix[len(tickers) - 1][len(tickers) - 1] = 1
         return correlation_matrix
     if (len(tickers)==1):
         correlation_matrix[0][0]=1
         return correlation_matrix
     raise errors.SampleSizeError('Cannot calculate correlation matrix for portfolio size <= 1.')
-
 
 def calculate_moment_correlation_series(ticker_1, ticker_2, start_date=None, end_date=None):
     asset_type_1 = files.get_asset_type(ticker_1)

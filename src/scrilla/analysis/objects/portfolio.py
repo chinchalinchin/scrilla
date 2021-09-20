@@ -30,13 +30,11 @@ logger = outputter.Logger("analysis.objects.portfolio", settings.LOG_LEVEL)
 # TODO: i think the portfolio will need to know the estimation_method. 
 class Portfolio:
     """
-    Description
-    -----------
-        A class that represents a portfolio of assets defined by the supplied list of ticker symbols in the `tickers` array. \n \n
+    A class that represents a portfolio of assets defined by the supplied list of ticker symbols in the `tickers` array. \n \n
 
-        The portfolio can be initialized with historical prices using the 'start_date' and 'end_date' parameters or the `sample_prices` parameter. If `start_date` and `end_date` are provided, the class will pass the dates to the PriceManager to query an external service for the required prices. If `sample_prices` is provided, the `start_date` and `end_date` are ignored and the `sample_prices` are used in lieu of an external query. \n \n
+    The portfolio can be initialized with historical prices using the 'start_date' and 'end_date' parameters or the `sample_prices` parameter. If `start_date` and `end_date` are provided, the class will pass the dates to the PriceManager to query an external service for the required prices. If `sample_prices` is provided, the `start_date` and `end_date` are ignored and the `sample_prices` are used in lieu of an external query. \n \n
 
-        The `return_function` and `volatility_function` methods accept an allocation of percentage weights corresponding to each ticker in the `tickers` array and return the overall portfolio return and volatility. The return is the dot product of the weight and the individual asset returns. The `volatility_function` is the result of applying matrix multiplication to the transposed weight allocations, the correlation matrix and the untransposed weight allocations. These formulations are consistent with Modern Portfolio Theory.\n \n
+    The `return_function` and `volatility_function` methods accept an allocation of percentage weights corresponding to each ticker in the `tickers` array and return the overall portfolio return and volatility. The return is the dot product of the weight and the individual asset returns. The `volatility_function` is the result of applying matrix multiplication to the transposed weight allocations, the correlation matrix and the untransposed weight allocations. These formulations are consistent with Modern Portfolio Theory.\n \n
 
     Parameters
     ----------
@@ -50,8 +48,8 @@ class Portfolio:
     4. sample_prices: { 'date' : 'price', 'date': 'price' } \n
         Optional. A list representing a sample of historical data over a time range. The list must be ordered in descending order, i.e. from latest to earliest. \n \n 
     5. risk_profile : { ticker: { 'annual_return': float, 'annual_volatility': float }} \n
-        Optional: Rather than use sample statistics calculated from historical data, this argument can override the calculated values.
-    6. correlation_matrix : [ float ][ float ] \n
+        Optional: Rather than use sample statistics calculated from historical data, this argument can override the calculated values. \n \n
+    6. correlation_matrix : ``[ list ]``\n
         Optional: Rather than use correlations calculated from historical data, this argument can override the calculated vlaues.
     6. asset_return_functions: [ function(t) ] \n
         Optional. An array of function that describes the expected logarithmic rate of return of each asset in the portfolio with respect to time. The order between `asset_return_functions` and `tickers` be must be preserved, i.e. the index of tickers must correspond to the symbol described by the function with same index in `asset_return_functions`. \n \n 
@@ -60,19 +58,23 @@ class Portfolio:
 
     Notes
     -----
-    NOTE #1: While `start_date`, `end_date` and `sample_prices` are all by themselves optional, the Portfolio class must be initialized in one of two ways: \n
-        1. Constructor args : (`start_date`, `end_date`) -> Dates are passed to service for external query. \n
-        2. Constructor args : (`sample_prices`) -> Dates are ignored and sample is used instead of external query. \n 
-    
-    If all three are specified, `sample_prices` takes precedence and `start_date` and `end_date` are nulled. \n \n
-    NOTE #2: The `asset_return_functions` and `asset_volatility_functions` can be understood as the drift and noise functions for a Geometric Brownian Motion stochastic process. \n \n
+    NOTE: While `start_date`, `end_date`, `sample_prices` are all by themselves optional, the Portfolio class must be initialized in one of three ways: \n
+        1. *Portfolio*(`start_date`, `end_date`) -> `start_date` and `end_date` are passed to service for external query request. \n
+        2. *Portfolio*(`sample_prices`) -> `start_date` and `end_date` are ignored and `sample_prices` are used for statistical calculations. \n 
+        3. *Portfolio*(`risk_profile`) -> `start_date`, `end_date` and `sample_prices` are ignored and the statistics in `risk_profile` are used instead of manual calculations.
+
+    The priority hierarchy is as follows : `risk_profile` > `sample_prices` > (`start_date`, `end_date`).  If no arguments are provided to the constructor at all, the portfolio will default to the `scrilla.settings.DEFAULT_ANALYSIS_PERIOD` variable configured by the corresponding environment variable. If the environment variable is not set, this value will default to the last 100 trading days.\n \n
+
+    NOTE: The `asset_return_functions` and `asset_volatility_functions` can be understood as the drift and noise functions for a random stochastic process. \n \n
     """
     def __init__(self, tickers, start_date=None, end_date=None, sample_prices=None,
                     correlation_matrix=None, risk_profiles=None, risk_free_rate=None,
-                    asset_return_functions=None, asset_volatility_functions=None):
+                    asset_return_functions=None, asset_volatility_functions=None,
+                    method=settings.ESTIMATION_METHOD):
         self.shares = None
         self.actual_total = None
         self.risk_free_rate = None
+        self.estimation_method = method
 
         if sample_prices is None:
             self.start_date = start_date
@@ -87,11 +89,14 @@ class Portfolio:
         self.asset_volatility_functions = asset_volatility_functions
         self.asset_return_functions = asset_return_functions
         self.risk_profiles = risk_profiles
-        
-        self.calculate_stats()
 
         if risk_free_rate is not None:
             self.risk_free_rate = risk_free_rate
+        else:
+            self.risk_free_rate = services.get_risk_free_rate()        
+        
+        self.calculate_stats()
+
 
         # todo: calculate stats with lambda functions.
     # Returns False if calculations fail
@@ -99,6 +104,7 @@ class Portfolio:
         self.mean_return = []
         self.sample_vol = []
 
+        # priority hierarchy: asset_functions -> risk_profiles -> sample_prices -> statistics.py calls
         if self.asset_volatility_functions is not None and self.asset_return_functions is not None:
             # TODO: implement ito integration and calculate asset return and volatilities!
             # use return and volatility functions to integrate over time period [0, infinity] for each asset. don't forget to 
@@ -113,9 +119,14 @@ class Portfolio:
             if self.risk_profiles is None:
                 for ticker in self.tickers:
                     if self.sample_prices is not None:
-                        stats = statistics.calculate_moment_risk_return(ticker=ticker, sample_prices=self.sample_prices[ticker])
+                        stats = statistics.calculate_risk_return(ticker=ticker, 
+                                                                    sample_prices=self.sample_prices[ticker],
+                                                                    method=self.estimation_method)
                     else: 
-                        stats = statistics.calculate_moment_risk_return(ticker=ticker, start_date=self.start_date, end_date=self.end_date)
+                        stats = statistics.calculate_risk_return(ticker=ticker, 
+                                                                    start_date=self.start_date, 
+                                                                    end_date=self.end_date,
+                                                                    method=self.estimation_method)
 
                     self.mean_return.append(stats['annual_return'])
                     self.sample_vol.append(stats['annual_volatility'])
@@ -126,32 +137,67 @@ class Portfolio:
 
             if self.correlation_matrix is None:
                 self.correlation_matrix =  statistics.correlation_matrix(tickers=self.tickers,
-                                                                start_date=self.start_date, end_date=self.end_date,
-                                                                sample_prices=self.sample_prices)
-
+                                                                            start_date=self.start_date, 
+                                                                            end_date=self.end_date,
+                                                                            sample_prices=self.sample_prices,
+                                                                            method=self.estimation_method)
 
     def return_function(self, x):
+        """
+        Returns the portfolio return for a vector of allocations. It can be used as objective function input for `scipy.optimize`'s optimization methods. 
+
+        Parameters
+        ----------
+        1. x : ``list`` \n
+            Vector representing the allocation of each asset in the portfolio. Must be preserve the order of `portfolio.tickers`, i.e. each element's index should map to each element of the `portfolio.tickers`'s list.\n\n
+
+        Returns
+        -------
+        ``float``\n
+            The portfolio return on an annualized basis.
+        """
         return numpy.dot(x, self.mean_return)
 
     def volatility_function(self, x):
+        """
+        Returns the portfolio volatility for a vector of allocations. This function can be used as objective input function for `scipy.optimize`'s optimization or solver methods.\n\n
+
+        Parameters
+        ----------
+        1. x : ``list`` \n
+            Vector representing the allocation of each asset in the portfolio. Must be preserve the order of `portfolio.tickers`, i.e. each element's index should map to each element of the `portfolio.tickers`'s list.\n\n
+
+        Returns
+        -------
+        ``float``\n
+            The portfolio volatility on an annualized basis.
+        """
         return numpy.sqrt(numpy.multiply(x, self.sample_vol).dot(self.correlation_matrix).dot(numpy.transpose(numpy.multiply(x, self.sample_vol))))
 
     def sharpe_ratio_function(self, x):
-        if self.risk_free_rate is None:
-            self.risk_free_rate = services.get_risk_free_rate()
+        """
+        Returns the portfolio sharpe ratio for a vector of allocations. This function can be used as objective input function for `scipy.optimize`'s optimization or solver methods.\n\n
+
+        Parameters
+        ----------
+        1. x : ``list`` \n
+            Vector representing the allocation of each asset in the portfolio. Must be preserve the order of `portfolio.tickers`, i.e. each element's index should map to each element of the `portfolio.tickers`'s list.\n\n
+
+        Returns
+        -------
+        ``float``
+            The portfolio sharpe ratio on an annualized basis.
+        """
         return (numpy.dot(x, self.mean_return) - self.risk_free_rate) / (self.volatility_function(x))
 
     def percentile_function(self, x, time, prob):
         """
-        Description
-        -----------
-
-        Returns the given percentile of the portfolio's assumed distribution.  \n
+        Returns the given percentile of the portfolio's assumed distribution.\n\n
 
         Parameters
         ----------
-        1. x: float[] \n
-            an array of decimals representing percentage allocations of the portfolio. Must preserve order with self.tickers.\n \n
+        1. x: list \n
+            Vector representing the allocation of each asset in the portfolio. Must be preserve the order of `portfolio.tickers`, i.e. each element's index should map to each element of the `portfolio.tickers`'s list.\n\n
         2: time : float \n
             time horizon (in years) of the value at risk, i.e. the period of time into the future at which the value at risk is being calculated \n \n
         3. prob: float \b
@@ -165,9 +211,7 @@ class Portfolio:
 
     def conditional_value_at_risk_function(self, x, time, prob):
         """
-        Description
-        -----------
-        Calculates the Black Scholes' conditional value at risk for a portfolio of stocks over a specified time horizon. The value will be given in percentage terms relative to the initial value of the portfolio at the beginning of the time horizon, i.e. a return value of 5% would mean 5% of your portfolio's initial value is at risk with probability `prob`. A negative value would indicate there is no value at risk, i.e. value would actually accrue. 
+        Calculates the conditional value at risk for a portfolio of stocks over a specified time horizon. The value will be given in percentage terms relative to the initial value of the portfolio at the beginning of the time horizon, i.e. a return value of 5% would mean 5% of your portfolio's initial value is at risk with probability `prob`. A negative value would indicate there is no value at risk, i.e. value would actually accrue. This function can be used as objective input function for `scipy.optimize`'s optimization or solver methods.\n\n
 
         Parameters
         ----------
@@ -209,10 +253,7 @@ class Portfolio:
             if latest_prices is not None:
                 price = latest_prices[i]
             elif self.sample_prices is not None:
-                asset_type = files.get_asset_type(symbol=self.tickers[i])
-                price = services.price_manager.parse_price_from_date(prices=self.sample_prices[self.tickers[i]],
-                                                        date=list(self.sample_prices[self.tickers[i]].keys())[0],
-                                                        asset_type=asset_type)                                 
+                price = self.sample_prices[self.tickers[i]][0]                               
             else:
                 price = services.get_daily_price_latest(self.tickers[i])
 
@@ -228,10 +269,7 @@ class Portfolio:
             if latest_prices is not None:
                 price = latest_prices[i]
             elif self.sample_prices is not None:
-                asset_type = files.get_asset_type(symbol=self.tickers[i])
-                price = services.price_manager.parse_price_from_date(prices=self.sample_prices[self.tickers[i]],
-                                                        date=list(self.sample_prices[self.tickers[i]].keys())[0],
-                                                        asset_type=asset_type)                                   
+                price = self.sample_prices[self.tickers[i]][0]                                     
             else:
                 price = services.get_daily_price_latest(self.tickers[i])
             portion = Decimal(item) * Decimal(price)

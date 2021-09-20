@@ -29,16 +29,14 @@ logger = outputter.Logger('estimators', settings.LOG_LEVEL)
 profile_cache = cache.ProfileCache()
 correlation_cache = cache.CorrelationCache()
 
-def univariate_normal_likelihood_function(params : list, data : list):
+def univariate_normal_likelihood_function(params : list, data : list) -> float:
     """
-    Description
-    -----------
-    This function returns the likelihood of a vector of parameters being observed from a sample univariate data of normal data. It is used as input in scipy.optimize. 
+    This function returns the likelihood of a vector of parameters being observed from a sample univariate data of normal data. It can be used as objective function input for `scipy.optimize`'s optimization methods. 
 
     Parameters
     ----------
     1. x : list
-        Array representing a vector of parameters to be estimated, in this case the mean rate of return and volatility from a sample of data.
+        Array representing a vector of parameters , in this case the mean rate of return and volatility from a sample of data.
     2. data : list
         A list of data that has been drawn from a univariate normal population.
     """
@@ -47,22 +45,29 @@ def univariate_normal_likelihood_function(params : list, data : list):
         likelihood *= norm.pdf(x=point, loc=params[0], scale=params[1])
     return likelihood
 
-def multivariate_likelihood_function(params: list, data: list):
+def bivariate_normal_likelihood_function(params: list, data: list) -> float:
     """
-    Description
-    -----------
-    This function returns the likelihood of a vector of parameters being observed from a sample bivariate data of normal data. It is used as input in scipy.optimize. 
+    Returns the likelihood of a vector of parameters being observed from a sample bivariate data of normal data. It can be used as objective function input for `scipy.optimize`'s optimization methods. 
 
     Parameters
     ----------
     1. x : list \n
-        Array representing a vector of parameters to be estimated, in this case the mean rate of return and volatility from a sample of data. \n\n
+        Array representing a vector of parameters, in this case the mean rate of returns, volatilities and covariance for a bivariate normal distribution. *Important*: The vector must be order: \n
+            1. x_mean = params[0]
+            2. y_mean = params[1]
+            3. x_varianace = params[2]
+            4. y_variance = params[3]
+            5. xy_covariance = params[4]
+
+        The function receives input in this format since since scipy optimizes over a vector value.
     2. data : list \n
         A list of data that has been drawn from a bivariate normal population. Must be formatted like,\n\t\t\t[ [x1,y1], [x2,y2],...]\n
     """
+    mean = [params[0], params[1]]
+    cov = [ [params[2], params[4]], [params[4], params[3] ]]
     likelihood = 1
     for point in data:
-        likelihood *= multivariate_normal.pdf(x=point, mean=params[0], cov=params[1])
+        likelihood *= multivariate_normal.pdf(x=point, mean=mean, cov=cov)
     return likelihood
 
 def sample_percentile(data : list, percentile: float):
