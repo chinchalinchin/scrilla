@@ -287,7 +287,15 @@ def do_program():
                                                             start_date=xtra_dict['start_date'], 
                                                             end_date=xtra_dict['end_date'],
                                                             method=xtra_dict['estimation'])
-                    outputter.correlation_matrix(tickers=main_args, correlation_matrix=matrix)
+                    if print_format_to_screen(xtra_dict):
+                        outputter.correlation_matrix(tickers=main_args, correlation_matrix=matrix)
+    
+                    elif print_json_to_screen(xtra_dict):
+                        print(json.dumps(matrix))
+
+                    if xtra_dict['save_file'] is not None:
+                        files.save_file(file_to_save=matrix, file_name=xtra_dict['save_file'])
+                        
                 selected_function, required_length = cli_correlation, 2
 
             ### FUNCTION: Correlation Time Series

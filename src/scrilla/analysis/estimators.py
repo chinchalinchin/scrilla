@@ -15,7 +15,7 @@
 
 from os import path
 from sys import path as sys_path
-from numpy import log, sqrt, exp
+from numpy import log, sqrt, exp, array
 from scipy.stats import norm, multivariate_normal
 
 if __name__=="__main__":
@@ -40,9 +40,9 @@ def univariate_normal_likelihood_function(params : list, data : list) -> float:
     2. data : list
         A list of data that has been drawn from a univariate normal population.
     """
-    likelihood = 1
+    likelihood = 0
     for point in data:
-        likelihood *= norm.pdf(x=point, loc=params[0], scale=params[1])
+        likelihood += norm.logpdf(x=point, loc=params[0], scale=params[1])
     return likelihood
 
 def bivariate_normal_likelihood_function(params: list, data: list) -> float:
@@ -64,10 +64,11 @@ def bivariate_normal_likelihood_function(params: list, data: list) -> float:
         A list of data that has been drawn from a bivariate normal population. Must be formatted like,\n\t\t\t[ [x1,y1], [x2,y2],...]\n
     """
     mean = [params[0], params[1]]
-    cov = [ [params[2], params[4]], [params[4], params[3] ]]
-    likelihood = 1
+    cov = [ [params[2], params[4]], [params[4], params[3]] ]
+    likelihood = 0
     for point in data:
-        likelihood *= multivariate_normal.pdf(x=point, mean=mean, cov=cov)
+        print('estimators.cov', cov)
+        likelihood += multivariate_normal.logpdf(x=point, mean=mean, cov=cov)
     return likelihood
 
 def sample_percentile(data : list, percentile: float):

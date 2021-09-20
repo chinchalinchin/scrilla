@@ -33,6 +33,20 @@ profile_cache = cache.ProfileCache()
 correlation_cache = cache.CorrelationCache()
     
 def get_sample_of_returns(prices, asset_type, trading_period):
+    """
+    Generates a list of logarithmic returns on the sample `prices`. 
+
+    Parameters
+    ----------
+    1. **prices** : ``dict``
+        Dictionary of asset prices. Must be ordered from latest to earliest and formatted as follows: `{ 'date_1': {'open' : value, 'close' : value}, 'date_2': { 'open': value, 'close' : value }, ... }`
+    2. **asset_type** : ``str``
+        Asset type for the sample of prices. Allowables can be accessed through `scrilla.static.keys['ASSETS']`. 
+    3. **trading_period**: 
+
+    .. notes ::
+    * the `trading_period` for a single asset can be determined from its `asset_type`
+    """
     today = False
 
     sample_of_returns = []
@@ -405,7 +419,6 @@ def calculate_likelihood_risk_return(ticker, start_date=None, end_date=None, sam
         except errors.InputValidationError as ive:
            raise ive
 
-        # TODO: extra save_or_update argument for estimation method, i.e. moments, percentiles or likelihood
         results = profile_cache.filter_profile_cache(ticker=ticker, start_date=start_date, end_date=end_date, 
                                                         method=static.keys['ESTIMATION']['LIKE'])
 
@@ -559,7 +572,7 @@ def calculate_moment_risk_return(ticker, start_date=None, end_date=None, sample_
     3. **end_date** : ``datetime.date`` 
         *Optional*. End date of the time period over which the risk-return profile is to be calculated. Defaults to `None`, in which the calculation proceeds as if `end_date` were set to today. If the `get_asset_type(ticker)==static.keys['ASSETS']['CRYPTO']` this means today regardless. If `get_asset_type(ticker)=static.keys['ASSETS']['EQUITY']` this excludes holidays and weekends and sets the end date to the last valid trading date. \n \n
     4. **sample_prices** : ``list`
-        Optional. A list of the asset prices for which correlation will be calculated. Overrides calls to service and forces calculation of correlation for sample of prices supplied. Function will disregard `start_date` and `end_date` and use the first and last key as the latest and earliest date, respectively. In other words, the `sample_prices` dictionary must be ordered from latest to earliest. Must be of the format: `{ 'date_1' : { 'open' : number, 'close' : number}, 'date_2': { 'open': number, 'close': number} ... }`
+        Optional. A list of the asset prices for which correlation will be calculated. Overrides calls to service and forces calculation of correlation for sample of prices supplied. Function will disregard `start_date` and `end_date` and use the first and last key as the latest and earliest date, respectively. In other words, the `sample_prices` dictionary must be ordered from latest to earliest. If this argument is supplied, the function will bypass calls to the cache for stored calculations. Format: `{ 'date_1' : { 'open' : number, 'close' : number}, 'date_2': { 'open': number, 'close': number} ... }`
     5. **asset_type** : ``str``
          *Optional*. Specify asset type to prevent overusing redundant calculations. Allowable values can be found in `scrilla.static.keys['ASSETS']`
 
@@ -576,6 +589,7 @@ def calculate_moment_risk_return(ticker, start_date=None, end_date=None, sample_
 
     .. notes ::
     * assumes price history is ordered from latest to earliest date.
+    * function will bypass the cache if `sample_prices` is provided. In other words, the calculation can be forced by specifying `sample_prices`.
     """
 
     if sample_prices is None:
@@ -618,8 +632,7 @@ def calculate_moment_risk_return(ticker, start_date=None, end_date=None, sample_
     ### MEAN CALCULATION
     # NOTE: mean return is a telescoping series, i.e. sum of log(x1/x0) only depends on the first and
     # last terms' contributions (because log(x1/x0) + log(x2/x1)= log(x2) - log(x1) + log(x1) - log(x0)) = log(x2/x0))
-    # which raises the question how accurate of a measure the population return is of the mean return for an asset?
-    # will need to look into other ways of estimating return...
+    # which raises the question how accurate a measure the sample mean return is of the population mean return.
     last_date, first_date = list(prices)[0], list(prices)[-1]
     last_price = prices[last_date][static.keys['PRICES']['CLOSE']]
     first_price = prices[first_date][static.keys['PRICES']['CLOSE']]
@@ -829,7 +842,7 @@ def calculate_likelihood_correlation(ticker_1, ticker_2, asset_type_1=None, asse
     
     combined_sample = [ [sample_of_returns_1[i], sample_of_returns_2[i]] for i, el in enumerate(sample_of_returns_1)]
 
-    likelihood_estimates = optimizer.maximize_multivariate_normal_likelihood(data=combined_sample)
+    likelihood_estimates = optimizer.maximize_bivariate_normal_likelihood(data=combined_sample)
 
     vol_1 = likelihood_estimates[2]*sqrt(trading_period)
     vol_2 = likelihood_estimates[3]*sqrt(trading_period)
@@ -873,6 +886,9 @@ def calculate_moment_correlation(ticker_1, ticker_2, asset_type_1=None, asset_ty
     Returns
     ------
     ``dict`` : `{ 'correlation' : float }`, correlation of `ticker_1` and `ticker_2`.
+
+    .. notes :: 
+    * when the asset types are mixed, i.e. `asset_type_1` == 'equity' and `asset_type_2`== 'crypto', the sample prices will contain different information, since crypto trades on weekends and holidays. The solution is to throw away the weekend and holiday prices for crypto. This presents another problem, since the risk profile for a crypto-currency that is cached in the local fileystem will be calculated over the entire sample including the missing data, where as the risk profile required by the correlation needs to be calculated over the censored sample (i.e. the one with weekends removed) so that the means of the mixed asset types are scaled to the same time delta. In this case, the correlation algorithm needs to be able to override calls to the cache and force the risk profile algorithms to calculate based on the sample. Note: this issue only applies to correlation calculations using the method of moment matching, since the other methods determine the value of the correlation by solving constrained systems of equations instead of deriving it analytically. 
     """
     ### START ARGUMENT PARSING ###
     try:
@@ -909,9 +925,12 @@ def calculate_moment_correlation(ticker_1, ticker_2, asset_type_1=None, asset_ty
         except errors.APIResponseError as api:
             raise api
         
+    override_cache = False
     if asset_type_1 != asset_type_2:
         # remove weekends and holidays from crypto prices so samples can be compared
-            # NOTE: data is lost here.
+            # NOTE: data is lost here. see note in description.
+            #       for this reason, the crypto cache has to be disregarded.
+        override_cache = True
         sample_prices[ticker_1], sample_prices[ticker_2] = helper.intersect_dict_keys(sample_prices[ticker_1], sample_prices[ticker_2])
 
     if 0 in [len(sample_prices[ticker_1]), len(sample_prices[ticker_2])]:
@@ -927,10 +946,31 @@ def calculate_moment_correlation(ticker_1, ticker_2, asset_type_1=None, asset_ty
         ### i.e. statistics that need to be calculated before correlation can be calculated
     logger.debug(f'Preparing calculation dependencies for ({ticker_1},{ticker_2}) correlation')
     try:
-        stats_1 = calculate_moment_risk_return(ticker=ticker_1, start_date=start_date, end_date=end_date, 
-                                        sample_prices=sample_prices[ticker_1], asset_type=asset_type_1)
-        stats_2 = calculate_moment_risk_return(ticker=ticker_2, start_date=start_date, end_date=end_date, 
-                                        sample_prices=sample_prices[ticker_2], asset_type=asset_type_2)
+        # NOTE: override cache by providing sample prices if the sample lost data due to
+        #       inter asset correlation. See note in summary for more infromation.
+        if override_cache and asset_type_1 == static.keys['ASSETS']['CRYPTO']:
+            stats_1 = calculate_moment_risk_return(ticker=ticker_1, 
+                                                    start_date=start_date, 
+                                                    end_date=end_date, 
+                                                    sample_prices=sample_prices[ticker_1], 
+                                                    asset_type=asset_type_1)
+        else:
+            stats_1 = calculate_moment_risk_return(ticker=ticker_1, 
+                                                    start_date=start_date, 
+                                                    end_date=end_date, 
+                                                    asset_type=asset_type_1)
+        if override_cache and asset_type_2 == static.keys['ASSETS']['CRYPTO']:
+            stats_2 = calculate_moment_risk_return(ticker=ticker_2, 
+                                                    start_date=start_date, 
+                                                    end_date=end_date, 
+                                                    sample_prices=sample_prices[ticker_2], 
+                                                    asset_type=asset_type_2)
+        else: 
+            stats_2 = calculate_moment_risk_return(ticker=ticker_2, 
+                                                    start_date=start_date, 
+                                                    end_date=end_date, 
+                                                    asset_type=asset_type_2)
+
     except errors.SampleSizeError as se:
         raise errors.SampleSizeError(se)
     except errors.PriceError as pe:

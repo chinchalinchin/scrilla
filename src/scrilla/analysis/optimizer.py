@@ -14,7 +14,7 @@
 # along with scrilla.  If not, see <https://www.gnu.org/licenses/>
 # or <https://github.com/chinchalinchin/scrilla/blob/develop/main/LICENSE>.
 import scipy.optimize as optimize
-
+from numpy import sqrt
 from scrilla import static, settings
 from scrilla.analysis import estimators
 import scrilla.util.outputter as outputter
@@ -57,11 +57,35 @@ def maximize_bivariate_normal_likelihood(data):
 
     var_x_guess = (third_x_quartile - first_x_quartile)/2
     var_y_guess = (third_y_quartile - first_y_quartile)/2
-    cross_xy_guess = var_x_guess*var_y_guess
-    cov_guess = [[var_x_guess, cross_xy_guess], [cross_xy_guess, var_y_guess]]
-    guess = [[x_median, y_median], cov_guess]
+    cross_xy_guess = sqrt(var_x_guess)*sqrt(var_y_guess)/2
+
+    guess = [x_median, y_median, var_x_guess, var_y_guess, cross_xy_guess]
+
+    # NOTE: need to ensure covariance is positive semi-definte (PSD). for bivariate normal,
+    #       covariance is 2 x 2. The Slyvester Criterion can be used to check for PSD.
+    #       (https://en.wikipedia.org/wiki/Sylvester%27s_criterion). This is equivalent
+    #       for a 2 x 2 to ensuring the upper left entry > 0 and the determinant >0.
+    # NOTE: this is apparently equivalent to the Cauchy-Schwarz inequality as well:
+    #       (https://en.wikipedia.org/wiki/Cauchy%E2%80%93Schwarz_inequality#Probability_theory)
+
+    def cov_determinant(x):
+        print('deter', x[2]*x[3] - (x[4]**2))
+        return x[2]*x[3] - (x[4]**2)
+
+    determinant_constraint = {
+        'type': 'ineq',
+        'fun': cov_determinant
+    }
+    upper_entry_constraint={
+        'type': 'ineq',
+        'fun': lambda x: x[2]
+    }
+    constraints = [determinant_constraint, upper_entry_constraint]
+
+    print('optimizer.guess ', guess)
 
     params = optimize.minimize(fun = likelihood, x0 = guess, options ={'disp': False},
+                                constraints=constraints,
                                 method=static.constants['OPTIMIZATION_METHOD'])
     return params.x
     
