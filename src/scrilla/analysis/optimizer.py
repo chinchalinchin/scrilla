@@ -23,14 +23,21 @@ logger = outputter.Logger('optimizer', settings.LOG_LEVEL)
 
 def maximize_univariate_normal_likelihood(data):
     """
+    Maximizes the normal (log-)likelihood of the sample with respect to the mean and volatility in order to estimate the mean and volatility of the population distribution described by the sample.
+
+    Parameters
+    ----------
+    1. **data**: ``list``
+        Sample of data drawn from a univariate normal population. 
+
     Returns
     -------
-    list \n
-    A list containing the maximum likelihood estimates of the normal distribution's parameters. The first element of the list corresponds to the mean and the second element corresponds to the volatility.
+    ``list`` : A list containing the maximum likelihood estimates of the normal distribution's parameters. The first element of the list corresponds to the mean and the second element corresponds to the volatility.
     """
 
     likelihood = lambda x: (-1)*estimators.univariate_normal_likelihood_function(params=x, data=data)
 
+    # make an educated guess
     first_quartile = estimators.sample_percentile(data=data, percentile=0.25)
     median = estimators.sample_percentile(data=data, percentile=0.5)
     third_quartile = estimators.sample_percentile(data, percentile=0.75)
@@ -48,6 +55,7 @@ def maximize_bivariate_normal_likelihood(data):
     x_data = [ datum[0] for datum in data ]
     y_data = [ datum[1] for datum in data ]
 
+    # make an educated guess
     first_x_quartile = estimators.sample_percentile(data=x_data, percentile=0.25)
     first_y_quartile = estimators.sample_percentile(data=y_data, percentile=0.25)
     x_median = estimators.sample_percentile(data=x_data, percentile=0.5)

@@ -35,9 +35,9 @@ def univariate_normal_likelihood_function(params : list, data : list) -> float:
 
     Parameters
     ----------
-    1. x : list
+    1. **x** : ``list``
         Array representing a vector of parameters , in this case the mean rate of return and volatility from a sample of data.
-    2. data : list
+    2. **data** : ``list``
         A list of data that has been drawn from a univariate normal population.
     """
     likelihood = 0
@@ -51,17 +51,19 @@ def bivariate_normal_likelihood_function(params: list, data: list) -> float:
 
     Parameters
     ----------
-    1. x : list \n
-        Array representing a vector of parameters, in this case the mean rate of returns, volatilities and covariance for a bivariate normal distribution. *Important*: The vector must be order: \n
+    1. *x* : ``list``
+        Array representing a vector of parameters, in this case the mean rate of returns, volatilities and covariance for a bivariate normal distribution. *Important*: The vector must be order:
             1. x_mean = params[0]
             2. y_mean = params[1]
             3. x_varianace = params[2]
             4. y_variance = params[3]
             5. xy_covariance = params[4]
-
         The function receives input in this format since since scipy optimizes over a vector value.
-    2. data : list \n
-        A list of data that has been drawn from a bivariate normal population. Must be formatted like,\n\t\t\t[ [x1,y1], [x2,y2],...]\n
+    2. **data** : `list`
+        A list of data that has been drawn from a bivariate normal population. Must be formatted in the following manner: `[ [x1,y1], [x2,y2],...]`
+
+    .. notes ::
+    * the covariance matrix of a bivariate normal distribution must be positive semi-definite (PSD). PSD can be checked with the Slyvester Criterion (https://en.wikipedia.org/wiki/Sylvester%27s_criterion) or Cauchy-Schwarz Inequality (https://en.wikipedia.org/wiki/Cauchy%E2%80%93Schwarz_inequality#Probability_theory). May need to implement a conditional that verifies the inputted `params` verify this condition. Currently, this function is only used in the `scrilla.analysis.optimizer` class and these constraints are imposed on that level. It might be better to impose them here. Will need to think.
     """
     mean = [params[0], params[1]]
     cov = [ [params[2], params[4]], [params[4], params[3]] ]
