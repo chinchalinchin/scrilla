@@ -104,8 +104,6 @@ def sample_correlation(x : list, y: list):
     Raises 
     ------
     1. scrilla.analysis.models.geometric.statistics.SampleSizeError \n \n
-
-    Notes
     """
     if len(x) != len(y):
         raise errors.SampleSizeError('Samples are not of comparable lengths')

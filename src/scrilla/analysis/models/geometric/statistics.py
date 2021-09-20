@@ -70,43 +70,34 @@ def calculate_moving_averages(tickers, start_date=None, end_date=None, sample_pr
     """
     Parameters
     ----------
-    1. tickers : [ str ] \n
-        array of ticker symbols correspond to the moving averages to be calculated. \n \n 
-    2. start_date : datetime.date \n 
-        Optional. Defaults to `None`. start date of the time period over which the moving averages will be calculated. \n \n 
-    3. end_date : datetime.date\n 
-        Optional. Defaults to `None`. end date of the time period over which the moving averages will be calculated. \n \n 
-    4. sample_prices : { 'ticker' (str) : { 'date' (str) : 'price' (str) } } \n
-        Optional. Defaults to `None`. A list of the asset prices for which moving_averages will be calculated. Overrides calls to service and calculates correlation for sample of prices supplied. Function will disregard start_date and end_date if sample_price is specified. Must be of the format: {'ticker_1': { 'date_1' : 'price_1', 'date_2': 'price_2' .}, 'ticker_2': { 'date_1' : 'price_1:, ... } } and ordered from latest date to earliest date.  \n \n
+    1. **tickers** : ``list``.
+        array of ticker symbols correspond to the moving averages to be calculated. 
+    2. **start_date** : ``datetime.date``
+        *Optional*. Defaults to `None`. Start date of the time period over which the moving averages will be calculated.
+    3. **end_date**: ``datetime.date``
+        *Optional*. Defaults to `None`. End date of the time period over which the moving averages will be calculated. 
+    4. **sample_prices** : ``dict``
+        *Optional*. Defaults to `None`. A list of the asset prices for which moving_averages will be calculated. Overrides calls to service for sample prices. Function will disregard `start_date` and `end_date` if `sample_price` is specified. Must be of the format: `{'ticker_1': { 'date_1' : 'price_1', 'date_2': 'price_2'... }, 'ticker_2': { 'date_1' : 'price_1:, ... } }` and ordered from latest date to earliest date.
     
     Output
     ------
-    (averages, dates)-tuple, where averages is a 3D array with the following format :
-    averages[ticker][period][date] and dates is a list of dates between the start_date
-    and end_date
+    ``(averages : dict, dates : list)``
+    averages is a 3-node list with the following format `averages[ticker][period][date]` and dates is a list of dates between the `start_date` and `end_date`, inclusive.
 
-    Notes
-    -----
-    NOTE #1: assumes price history is ordered from latest to earliest date. \n \n 
-    NOTE #2: If no start_date and end_date passed in, static snapshot of moving averages,
-            i.e. the moving averages as of today (or last close), are calculated and 
-            returned. \n \n
-    NOTE #3: If asset types are mixed, then the sample from which the average is calculated
-           only consists of prices on business days. In other words, since crypo trades on
-           weekends, to compare the moving average of equities and crypto, the moving average
-           is only returned for business days. The moving average of crypto is still calculated
-           using weekend price data, i.e. the moving average on Monday contains information about
-           the moving average on Sunday, but the moving average on Sunday is discarded from the
-           returned data, due to the fact equities are not traded on weekends. \n \n 
-    NOTE #4: MOVING AVERAGE OVER DATE RANGE LOOP CALCULATION PSEUDO-CODE \n 
-              1. for start date to end date: \n
-                2. get today's price \n
-                3. calculate today's return \n
-                4. for all elements of MAs_n \n
-                    5. if today's date is less than a MA_n period away from the date of this MAs_n element \n
-                        6. add today's return / MA_n_PERIOD to this element of MAs_n \n 
-                        7. create today's MAs_n element \n
+    .. notes ::
+    * assumes `sample_prices` is ordered from latest to earliest date. 
+    * If no start_date and end_date passed in, static snapshot of moving averages, i.e. the moving averages as of today (or last close), are calculated and returned.
+    * If asset types are mixed, then the sample from which the average is calculated only consists of prices on business days. In other words, since crypto trades on weekends, to compare the moving average of equities and crypto, the moving average is only returned for business days. The moving average of crypto is still calculated using weekend price data, i.e. the moving average on Monday contains information about the moving average on Sunday, but the moving average on Sunday is discarded from the returned data, due to the fact equities are not traded on weekends. 
     """
+    ## MOVING AVERAGE OVER DATE RANGE LOOP CALCULATION PSEUDO-CODE
+    #       1. for start date to end date:
+    #            2. get today's price
+    #            3. calculate today's return
+    #            4. for all elements of MAs_n
+    #                5. if today's date is less than a MA_n period away from the date of this MAs_n element
+    #                    6. add today's return / MA_n_PERIOD to this element of MAs_n 
+    #                    7. create today's MAs_n element
+
     moving_averages = []
 
     ##########################################
@@ -403,9 +394,8 @@ def calculate_likelihood_risk_return(ticker, start_date=None, end_date=None, sam
     3. scrilla.errors.InputValidationError \n
     4. scrilla.errors.APIResponseError
 
-    Notes
-    -----
-    NOTE #1: assumes price history is ordered from latest to earliest date. \n \n 
+    .. notes ::
+    * assumes price history is ordered from latest to earliest date. \n \n 
     """
     if sample_prices is None:
         try:
@@ -493,9 +483,8 @@ def calculate_percentile_risk_return(ticker, start_date=None, end_date=None, sam
     3. scrilla.errors.InputValidationError \n
     4. scrilla.errors.APIResponseError
 
-    Notes
-    -----
-    NOTE #1: assumes price history is ordered from latest to earliest date. \n \n 
+    .. notes ::
+    * assumes price history is ordered from latest to earliest date. \n \n 
     """
     if sample_prices is None:
         try:
@@ -562,27 +551,24 @@ def calculate_percentile_risk_return(ticker, start_date=None, end_date=None, sam
 
 def calculate_moment_risk_return(ticker, start_date=None, end_date=None, sample_prices=None, asset_type=None):
     """
-    Description
-    -----------
     Estimates the mean rate of return and volatility for a sample of asset prices as if the asset price followed a Geometric Brownian Motion process, i.e. the mean rate of return and volatility are constant and not functions of time or the asset price. Moreover, the return and volatility are estimated using the method of moment matching, where the return is estimated by equating it to the first moment of the sample and the volatility is estimated by equating it to the square root of the second moment of the sample.
     
     Parameters
     ----------
-    1. ticker : str \n
-        Required. Ticker symbol whose risk-return profile is to be calculated. \n \n 
-    2. start_date : datetime.date \n 
-        Optional. Start date of the time period over which the risk-return profile is to be calculated. Defaults to `None`, in which case the calculation proceeds as if `start_date` were set to 100 trading days prior to `end_date`. If `get_asset_type(ticker)=scrilla.static.keys['ASSETS']['CRYPTO']`, this means 100 days regardless. If `get_asset_type(ticker)=scrilla.static.keys['ASSETS']['EQUITY']`, this excludes weekends and holidays and decrements the `end_date` by 100 trading days.\n \n
-    3. end_date : datetime.date \n 
-        Optional. End date of the time period over which the risk-return profile is to be calculated. Defaults to `None`, in which the calculation proceeds as if `end_date` were set to today. If the `get_asset_type(ticker)==static.keys['ASSETS']['CRYPTO']` this means today regardless. If `get_asset_type(ticker)=static.keys['ASSETS']['EQUITY']` this excludes holidays and weekends and sets the end date to the last valid trading date. \n \n
-    4. sample_prices : { 'date_1' : { 'open' : number, 'close' : number}, 'date_2': { 'open': number, 'close': number} ... } \n
-        Optional. A list of the asset prices for which correlation will be calculated. Overrides calls to service and forces calculation of correlation for sample of prices supplied. Function will disregard `start_date` and `end_date` and use the first and last key as the latest and earliest date, respectively. In other words, the `sample_prices` dictionary must be ordered from latest to earliest.   \n \n
-    5. asset_type : str
-         Optional. Specify asset type to prevent overusing redundant calculations. Allowable values: scrilla.static.keys['ASSETS']['EQUITY'], scrilla.static.keys['ASSETS']['CRYPTO'] \n \n
+    1. **ticker** : ``str``
+         Ticker symbol whose risk-return profile is to be calculated.
+    2. **start_date** : ``datetime.date``
+        *Optional*. Start date of the time period over which the risk-return profile is to be calculated. Defaults to `None`, in which case the calculation proceeds as if `start_date` were set to 100 trading days prior to `end_date`. If `get_asset_type(ticker)=scrilla.static.keys['ASSETS']['CRYPTO']`, this means 100 days regardless.  If `get_asset_type(ticker)=scrilla.static.keys['ASSETS']['EQUITY']`, this excludes weekends and holidays and decrements the `end_date` by 100 trading days.
+    3. **end_date** : ``datetime.date`` 
+        *Optional*. End date of the time period over which the risk-return profile is to be calculated. Defaults to `None`, in which the calculation proceeds as if `end_date` were set to today. If the `get_asset_type(ticker)==static.keys['ASSETS']['CRYPTO']` this means today regardless. If `get_asset_type(ticker)=static.keys['ASSETS']['EQUITY']` this excludes holidays and weekends and sets the end date to the last valid trading date. \n \n
+    4. **sample_prices** : ``list`
+        Optional. A list of the asset prices for which correlation will be calculated. Overrides calls to service and forces calculation of correlation for sample of prices supplied. Function will disregard `start_date` and `end_date` and use the first and last key as the latest and earliest date, respectively. In other words, the `sample_prices` dictionary must be ordered from latest to earliest. Must be of the format: `{ 'date_1' : { 'open' : number, 'close' : number}, 'date_2': { 'open': number, 'close': number} ... }`
+    5. **asset_type** : ``str``
+         *Optional*. Specify asset type to prevent overusing redundant calculations. Allowable values can be found in `scrilla.static.keys['ASSETS']`
 
     Output
     ------
-    ``list``\n
-    ``{ 'annual_return' : float, 'annual_volatility': float }`` \n\n
+    ``list`` : ``{ 'annual_return' : float, 'annual_volatility': float }`` \n\n
 
     Raises 
     ------
@@ -591,9 +577,8 @@ def calculate_moment_risk_return(ticker, start_date=None, end_date=None, sample_
     3. scrilla.errors.InputValidationError \n
     4. scrilla.errors.APIResponseError
 
-    Notes
-    -----
-    NOTE #1: assumes price history is ordered from latest to earliest date. \n \n 
+    .. notes ::
+    * assumes price history is ordered from latest to earliest date. \n \n 
     """
 
     if sample_prices is None:

@@ -15,8 +15,8 @@
 
 import datetime
 
-from scrilla import static, services, settings
-from scrilla.util import helper, dater
+from scrilla import static, services, settings, errors
+from scrilla.util import helper, dater, outputter
 import scrilla.analysis.estimators as estimators
 
 logger = outputter.Logger('analysis.objects.cashflow', settings.LOG_LEVEL)
@@ -30,43 +30,45 @@ FREQ_ANNUAL=1
 # Frequency = 1 / period
 class Cashflow:
     """
-    Description
-    -----------
-    A class that represents a set of future cashflows. The class is initialized with the 'sample' variable, a list of past cashflows and their dates, and a linear regression model is inferred from the sample. Alternatively, a `growth_function` can be provided that describes the cash flow as a function of time in years. If a `growth_function` is provided, the class skips the linear regression model. \n \n
+    A class that represents a set of future cashflows. The class is initialized with the 'sample' variable, a ``dict`` of past cashflows and their dates. From the `sample`, a linear regression model is inferred. Alternatively, a `growth_function` can be provided that describes the cash flow as a function of time in years. If a `growth_function` is provided, the class skips the linear regression model. See warning below for more information on constructing an instance of this cashflow. In general, it needs to know how to project future cashflows, whether that is through inference or a model assumption. 
 
-    If the sample of data is not large enough to infer a linear regression model, the estimation model will default to simplge Martingale process where E(X2|X1) = X1, i.e. the next expected value given the current value is the current value, or put in plain english, without more information the best guess for the future value of an asset is its current value. \n \n
+    If the sample of data is not large enough to infer a linear regression model, the estimation model will default to simple Martingale process described by the equation,
+    
+    >>> E(X2|X1) = X1
+     
+    Or, in plain English, the next expected value given the current value is the current value. To rephrase it yet again: without more information the best guess for the future value of an asset is its current value.
 
-    The growth model, whether estimated or provided, is used to project the future value of cashflows and then these projections are discounted back to the present by the risk free rate. A discount rate different from the risk free rate can be specified by providing the constructor a value for discount_rate. \n \n
+    The growth model, whether estimated or provided, is used to project the future value of cashflows and then these projections are discounted back to the present by the `discount_rate`. 
 
     Parameters
     ----------
-    1. sample: list { 'date_1' : 'value_1', 'date_2': 'value_2', ... } \n
-        A list comprised of the cashflow\'s historical values. The list must be ordered from latest to earliest, i.e. in descending order. \n \n
-    2. period: float \n
-        The period between the cash flow payments. Measured as the length of time between two distinct cash flows, assuming all such payments are evenly spaced across time. The value should be measured in years. If a period is not specified, then a period will be inferred from the sample of data by averaging the time periods between successive payments in the sample. Common period are statically accessible through `FREQ_DAY`, `FREQ_MONTH`, `FREQ_QUARTER` and `FREQ_ANNUAL`. (Yes, I know period = 1 / frequency; deal with it.) \n \n 
-    3. growth_function: function \n
-        A function that describes the cash flow as a function of time in years. If provided, the class will skip linear regression for estimating the cash flow model. If a `growth_function` is provided without a sample, a period must be specified. If a `growth_function` is provided with a sample and no period, the period will be inferred from the dates in the sample. If a `growth_function` is provided with a period, then the sample will be ignored altogether. \n \n
-    4. discount_rate: float \n
-        The rate of return used to discount future cash flows back to the present. If not provided, the `discount_rate` defaults to the risk free rate defined by the **RISK_FREE** environment variable. \n \n
-    5. constant: float \n
-        If the cashflow is constant with respect to time, specify the value of it with this argument. Will override `growth_function` and sample. If constant is specified, you MUST also specify a period or else you will encounter errors when trying to calculate the net present value of future cashflows. \n \n
+    1. **sample**: ``list``
+        *Optional*. A list comprised of the cashflow\'s historical values. The list must be ordered from latest to earliest, i.e. in descending order. Must be of the format: `{ 'date_1' : 'value_1', 'date_2': 'value_2', ... }`
+    2. **period**: ``float``
+        *Optional*. The period between the cash flow payments. Measured as the length of time between two distinct cash flows, assuming all such payments are evenly spaced across time. The value should be measured in years. If a period is not specified, then a period will be inferred from the sample of data by averaging the time periods between successive payments in the sample. Common period are statically accessible through `FREQ_DAY`, `FREQ_MONTH`, `FREQ_QUARTER` and `FREQ_ANNUAL`. (*Yes, I know period = 1 / frequency; deal with it.*) 
+    3. **growth_function**: ``function``
+        *Optional*. A function that describes the cash flow as a function of time in years. If provided, the class will skip linear regression for estimating the cash flow model. If a `growth_function` is provided without a sample, a period must be specified. If a `growth_function` is provided with a sample and no period, the period will be inferred from the dates in the sample. If a `growth_function` is provided with a period, then the sample will be ignored altogether.
+    4. **discount_rate**: ``float``
+        *Optional.* The rate of return used to discount future cash flows back to the present. If not provided, the `discount_rate` defaults to the risk free rate defined by the **RISK_FREE** environment variable.
+    5. **constant**: ``float``
+        If the cashflow is constant with respect to time, specify the value of it with this argument. Will override `growth_function` and sample. If constant is specified, you MUST also specify a period or else you will encounter errors when trying to calculate the net present value of future cashflows.
     
-    NOTES
-    -----
-    NOTE #1: A constant cashflow can be specified in three ways: 1. By passing in a constant amount through the constructor `constant` variable. 2. By passing in a constant function with respect to time through the constructor `growth_function` variable. 3. By passing in a dataset of length one through the constructor `sample` variable.  In any of the cases, you MUST pass in a period or the `net_present_value` method of this class will return False. \n \n
+    .. warning ::
+    * In general, the Cashflow object must always be initialized in one of the following ways:
+        1. **__init__** args: (`sample`) -> period inferred from sample, linear regression used for growth
+        2. **__init__** args: (`sample`, `period`) -> period from constructor, linear regression used for growth
+        3. **__init__** args: (`sample`, `period`, `growth_function`) -> period from constructor, `growth_function` used for growth, sample ignored
+        4. **__init__** args: (`sample`, `growth_function`) -> period inferred from sample, `growth_function` used for growth
+        5.**__init__** args: (`period`, `growth_function`) -> period from constructor, `growth_function` used for growth
+        6. **__init__** args: (`period`, `constant`) -> period from constructor, constant used for growth
+    
+    .. notes ::
+    * A constant cashflow can be specified in three ways: 1. By passing in a constant amount through the constructor `constant` variable. 2. By passing in a constant function with respect to time through the constructor `growth_function` variable. 3. By passing in a dataset of length one through the constructor `sample` variable.  In any of the cases, you MUST pass in a period or the `net_present_value` method of this class will return False.
+    * Both a growth_function and a sample of data can be passed in at once to this class. If doing so, the `growth_function` will take precedence and be used for calculations in the `net_present_value` method. The sample will be used to infer the length of a period between cashflows, unless a period is also specified. If a period is specified in addition to `sample_prices` and `growth_function`, the period will take precedence over the period inferred from the sample of data.
+    * The coefficients of the inferred linear regression are accessibly through `Cashflow().alpha` (intercept) and `Cashflow().beta` (slope) instance variables. The time series used to create the model is accessible through the `Cashflow().time_series` instance variable; Note: it is measured in years and the `start_date` is set equal to 0. In other words, the intercept of the model represents, approximately, the value of the cashflow on the `start_date`.
 
-    NOTE #2: Both a growth_function and a sample of data can be passed in at once to this class. If doing so, the `growth_function` will take precedence and be used for calculations in the `net_present_value` method. The sample will be used to infer the length of a period between cashflows, unless a period is also specified. If a period is specified in addition to sample and `growth_function`, the period will take precedence over the period inferred from the sample of data. \n \n
-
-    NOTE #3: In general, the Cashflow object must always be initialized in one of the following ways: \n
-        1. Constructor args: (`sample`) -> period inferred from sample, linear regression used for growth
-        2. Constructor args: (`sample`, `period`) -> period from constructor, linear regression used for growth
-        3. Constructor args: (`sample`, `period`, `growth_function`) -> period from constructor, `growth_function` used for growth, sample ignored
-        4. Constructor args: (`sample`, `growth_function`) -> period inferred from sample, `growth_function` used for growth
-        5. Constructor args: (`period`, `growth_function`) -> period from constructor, `growth_function` used for growth
-        6. Constructor args: (`period`, `constant`) -> period from constructor, constant used for growth
-    TODOs
-    -----
-    1. Implement prediction interval function to get error bars for graphs and general usage.
+    .. todos ::
+    * Implement prediction interval function to get error bars for graphs and general usage.
 
     """
     def __init__(self, sample=None, period=None, growth_function=None, constant=None, discount_rate=None):
@@ -134,6 +136,7 @@ class Cashflow:
             logger.debug(f'Inferred period = {self.period} yrs')
             logger.debug(f'Inferred frequency = {self.frequency}')
 
+    # TODO: trading days or actual days? 
     def generate_time_series_for_sample(self):
         self.time_series = []
 
@@ -151,6 +154,7 @@ class Cashflow:
                 time_in_years = delta / 365
                 self.time_series.append(time_in_years)
     
+    # TODO: trading days or actual days? 
     def calculate_time_to_today(self):
         first_date = helper.parse_date_string(list(self.sample.keys())[-1])
         today = datetime.date.today()
@@ -158,10 +162,10 @@ class Cashflow:
         
 
     def regress_growth_function(self):
-        to_array = [ self.sample[date] for date in self.sample ]
+        to_list = [ self.sample[date] for date in self.sample ]
 
-        self.beta = estimators.simple_regression_beta(x=self.time_series, y=to_array)
-        self.alpha = estimators.simple_regression_alpha(x=self.time_series, y=to_array)
+        self.beta = estimators.simple_regression_beta(x=self.time_series, y=to_list)
+        self.alpha = estimators.simple_regression_alpha(x=self.time_series, y=to_list)
         
         if not self.beta or not self.alpha:
             if len(self.sample) > 0:
@@ -169,7 +173,8 @@ class Cashflow:
                 logger.debug('Error calculating regression coefficients; Defaulting to Markovian process E(X2|X1) = X1.')
                 logger.debug(f'Estimation model : y = {self.alpha}')
             else: 
-                logger.debug('Not enough information to formulate estimation model.')
+                raise errors.SampleSizeError('Not enough information to formulate estimation model.')
+
         else:
             logger.debug(f'Linear regression model : y = {self.beta} * x + {self.alpha}')
 
@@ -177,6 +182,9 @@ class Cashflow:
         return [self.alpha + self.beta*time for time in self.time_series]
 
     def generate_model_comparison(self):
+        """
+        Returns a list of dictionaries with the predicted value of the linear regression model and the actual value on a given datas. Format: [ {'date': `str`, 'model_price': `float`, 'actual_price': `float` }, ... ]
+        """
         model_prices= self.generate_model_series()
 
         return[ { 'date': date, 
@@ -185,6 +193,19 @@ class Cashflow:
                 for index, date in enumerate(self.sample.keys()) ]
         
     def get_growth_function(self, x):
+        """
+        Traverses the hierarchy of instance variables to determine which method to use to describe the growth of future cashflows. Returns the value of determined function for the given value of `x`. Think of this function as a black box that hides the implementation of the `growth_function` from the user accessing the function. 
+
+        Parameters
+        ----------
+        1. **x**: ``float``
+            Time in years.
+        
+        Returns
+        -------
+        ``float`` : Value of the cash flow's growth function at time `x`.
+
+        """
         if self.growth_function is None:
             if self.constant is not None:
                 return self.constant
@@ -193,10 +214,20 @@ class Cashflow:
 
     # TODO: use trading days or actual days?
     def calculate_net_present_value(self):
-    
+        """
+        Returns the net present value of the cash flow by using the `get_growth_function` method to project future cash flows and then discounting those projections back to the present by the value of the `discount_rate`. Call this method after constructing/initializing a `Cashflow` object to retrieve its NPV.
+
+        Raises
+        ------
+        1. **scrilla.errors.InputValidationError**
+            If not enough information is present in the instance of the `Cashflow` object to project future cash flows, this error will be thrown.
+            
+        Returns
+        -------
+        ``float`` : NPV of cash flow.
+        """
         if self.period is None:
-            logger.debug('No period detected for cashflows. Not enough information to calculate net present value.')
-            return False
+            raise errors.InputValidationError("No period detected for cashflows. Not enough information to calculate net present value.")
         
         time_to_first_payment = 0
         if self.period == FREQ_ANNUAL:
@@ -224,8 +255,7 @@ class Cashflow:
             if self.period is not None:
                 current_time = time_to_first_payment + i * self.period
             else:
-                logger.debug('Not enough information to calculate net present value of cash flow.')
-                return False
+                raise errors.InputValidationError('Not enough information to calculate net present value of cash flow.')
             
             self.NPV += self.get_growth_function(current_time) / ((1 + self.discount_rate)**current_time)
 
