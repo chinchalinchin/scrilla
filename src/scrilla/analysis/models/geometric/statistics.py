@@ -1112,7 +1112,7 @@ def correlation_matrix(tickers, asset_types=None, start_date=None, end_date=None
         return correlation_matrix
     raise errors.SampleSizeError('Cannot calculate correlation matrix for portfolio size <= 1.')
 
-def calculate_moment_correlation_series(ticker_1: str, ticker_2: str, start_date: Union[date, None]=None, end_date: Union[date, None]=None)=> dict:
+def calculate_moment_correlation_series(ticker_1: str, ticker_2: str, start_date: Union[date, None]=None, end_date: Union[date, None]=None) -> dict:
     try:
         asset_type_1 = errors.validate_asset_type(ticker=ticker_1)
         asset_type_2 = errors.validate_asset_type(ticker=ticker_2)

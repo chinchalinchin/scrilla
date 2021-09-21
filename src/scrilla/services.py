@@ -14,6 +14,7 @@
 # or <https://github.com/chinchalinchin/scrilla/blob/develop/main/LICENSE>.
 
 import itertools, time, datetime, requests
+from typing import Union
 
 from scrilla import settings, errors, cache, static
 import scrilla.util.outputter as outputter
@@ -581,16 +582,14 @@ def get_daily_fred_history(symbol: str, start_date: datetime.date=None, end_date
 
     return stats
 
-def get_daily_fred_latest(symbol: str) -> float:
+def get_daily_fred_latest(symbol: str) -> Union[float,None]:
     """
-    Description
-    -----------
-    Returns the latest value for the inputted statistic symbol. \n \n
+    Returns the latest value for the inputted statistic symbol.
 
     Parameters
     ----------
-    1. statistic: str \n 
-        Required. Symbol representing the statistc whose value it to be retrieved. \n \n
+    1. **symbol**: str
+        Symbol representing the statistic whose value it to be retrieved.
     """
     stats_history = get_daily_fred_history(symbol=symbol)
     if stats_history is not None:
@@ -600,36 +599,34 @@ def get_daily_fred_latest(symbol: str) -> float:
 
 def get_daily_interest_history(maturity: str, start_date: datetime.date=None, end_date: datetime.date=None) -> list:
     """
-    Description
-    -----------
-    Wrapper around external service request for US Treasury Yield Curve data. Relies on an instance of `StatManager` configured by `settings.STAT_MANAGER` value, which in turn is configured by the `STAT_MANAGER` environment variable, to hydrate with data. \n \n
+    Wrapper around external service request for US Treasury Yield Curve data. Relies on an instance of `StatManager` configured by `settings.STAT_MANAGER` value, which in turn is configured by the `STAT_MANAGER` environment variable, to hydrate with data.
     
-    Before deferring to the `StatManager` and letting it call the external service, however, this function checks if response is in local cache. If the response is not in the cache, it will pass the request off to `StatManager` and then save the response in the cache so subsequent calls to the function can bypass the service request. Used to prevent excessive external HTTP requests and improve the performance of the application. Other parts of the program should interface with the external statistics data services through this function to utilize the cache functionality.  \n \n
+    Before deferring to the `StatManager` and letting it call the external service, however, this function checks if response is in local cache. If the response is not in the cache, it will pass the request off to `StatManager` and then save the response in the cache so subsequent calls to the function can bypass the service request. Used to prevent excessive external HTTP requests and improve the performance of the application. Other parts of the program should interface with the external statistics data services through this function to utilize the cache functionality. 
 
     Parameters
     ----------
-    1. Maturity: str \n 
-        Required. Maturity of the US Treasury for which the interest rate will be retrieved. List of allowable values can in `scrilla.stats.keys['SERVICES']['STATISTICS']['QUANDL']['MAP']['YIELD_CURVE']` \n \n
-     2. start_date : datetime.date \n 
-        Optional. Start date of price history. Defaults to None. If `start_date is None`, the calculation is made as if the `start_date` were set to 100 trading days ago. This excludes weekends and holidays. \n \n
-    3. end_date : datetime.date \n 
-        Optional End date of price history. Defaults to None. If `end_date is None`, the calculation is made as if the `end_date` were set to today. This excludes weekends and holidays so that `end_date` is set to the last previous business date. \n \n
+    1. **maturity** : ``str``
+        Maturity of the US Treasury for which the interest rate will be retrieved. List of allowable values can in `scrilla.stats.keys['SERVICES']['STATISTICS']['QUANDL']['MAP']['YIELD_CURVE']`
+    2. **start_date** : ``datetime.date``
+        *Optional*. Start date of price history. Defaults to None. If `start_date is None`, the calculation is made as if the `start_date` were set to 100 trading days ago. This excludes weekends and holidays.
+    3. **end_date** : ``datetime.date``` 
+        *Optional*. End date of price history. Defaults to None. If `end_date is None`, the calculation is made as if the `end_date` were set to today. This excludes weekends and holidays so that `end_date` is set to the last previous business date.
     
     Raises
     ------
-    1. scrilla.errors.InputValidationError \n
+    1. **scrilla.errors.InputValidationError**
         If the arguments inputted into the function fail to exist within the domain the function, this error will be thrown.
-    2. scrilla.errors.APIResponseError \n
+    2. **scrilla.errors.APIResponseError**
         If the external service rejects the request for price data, whether because of rate limits or some other factor, the function will raise this exception.
-    3. KeyError \n
+    3. **KeyError**
         If the inputted or validated dates do not exist in the price history, a KeyError will be thrown. This could be due to the equity not having enough price history, i.e. it started trading a month ago and doesn't have 100 days worth of prices yet, or some other anomalous event in an equity's history. 
-    4. scrilla.errors.ConfigurationError \n
-        If one of the settings is improperly configured or one of the environment variables was unable to be parsed from the environment, this error will be thrown. \n \n
+    4. **scrilla.errors.ConfigurationError**
+        If one of the settings is improperly configured or one of the environment variables was unable to be parsed from the environment, this error will be thrown.
 
     Returns
     ------
-    { 'date' (str) :  value (str),  'date' (str):  value (str), ... }
-        Dictionary with date strings formatted `YYYY-MM-DD` as keys and the interest on that date as the corresponding value. \n \n
+    ``dict`` : `{ 'date' :  value ,  'date':  value , ... }`
+        Dictionary with date strings formatted `YYYY-MM-DD` as keys and the interest on that date as the corresponding value.
 
     .. notes ::
         * Yield rates are not reported on weekends or holidays, so the `asset_type` for interest is functionally equivalent to equities, at least as far as date calculations are concerned. The dates inputted into this function are validated as if they were labelled as equity `asset_types` for this reason.
@@ -664,14 +661,12 @@ def get_daily_interest_history(maturity: str, start_date: datetime.date=None, en
 
 def get_daily_interest_latest(maturity: str) -> float:
     """
-    Description
-    -----------
-    Returns the latest interest rate for the inputted US Treasury maturity. \n \n
+    Returns the latest interest rate for the inputted US Treasury maturity.
 
     Parameters
     ----------
-    1. maturity: str \n 
-        Required. Maturity of the US Treasury security whose interest rate is to be retrieved. \n \n
+    1. **maturity**: ``str``
+        Maturity of the US Treasury security whose interest rate is to be retrieved. Allowable values accessible through `static.keys['YIELD_CURVE']
     """
     end_date = helper.get_last_trading_date()
     start_date = helper.decrement_date_by_business_days(end_date, 1)
@@ -683,47 +678,26 @@ def get_daily_interest_latest(maturity: str) -> float:
 
 def get_dividend_history(ticker: str) -> dict:
     """
-    Description
-    -----------
-    Wrapper around external service request for dividend payment data. Relies on an instance of `DivManager` configured by `settings.DIV_MANAGER` value, which in turn is configured by the `DIV_MANAGER` environment variable, to hydrate with data. \n \n
+    Wrapper around external service request for dividend payment data. Relies on an instance of `DivManager` configured by `settings.DIV_MANAGER` value, which in turn is configured by the `DIV_MANAGER` environment variable, to hydrate with data.
     
     Note, since dividend payments do not occur every day (if only), dividend amounts do not get cached, as there is no nice way to determine on a given day whether or not a payment should have been made, and thus to determine whether or not the cache is out of date. In other words, you can't look at today's date and the date of the last payment in the cache and determine based solely on the dates whether or not the cache is outdated. 
 
     Parameters
     ----------
-    1. ticker : str \n 
-        Required. Ticker symbol of the equity whose dividend history is to be retrieved. \n \n 
+    1. **ticker** : ``str`` 
+        Ticker symbol of the equity whose dividend history is to be retrieved.
     
-    Raises
-    ------
-    1. scrilla.errors.InputValidationError \n
-        If the arguments inputted into the function fail to exist within the domain the function, this error will be thrown.
-    2. scrilla.errors.APIResponseError \n
-        If the external service rejects the request for price data, whether because of rate limits or some other factor, the function will raise this exception.
-    3. KeyError \n
-        If the inputted or validated dates do not exist in the price history, a KeyError will be thrown. This could be due to the equity not having enough price history, i.e. it started trading a month ago and doesn't have 100 days worth of prices yet, or some other anomalous event in an equity's history. 
-    4. errors.ConfigurationError \n
-        If one of the settings is improperly configured or one of the environment variables was unable to be parsed from the environment, this error will be thrown. \n \n
-
     Returns
     ------
-    { 'date' (str) :  amount (str),  'date' (str):  amount (str), ... }
+    ``list`` : `{ 'date' (str) :  amount (str),  'date' (str):  amount (str), ... }`
         Dictionary with date strings formatted `YYYY-MM-DD` as keys and the dividend payment amount on that date as the corresponding value. \n \n
     """
-    try:
-        logger.debug(f'Retrieving {ticker} dividends from service')  
-        divs = div_manager.get_dividends(ticker=ticker)
-    except errors.APIResponseError as api:
-        raise api
-    except errors.InputValidationError as ive:
-        raise ive
-    
+    logger.debug(f'Retrieving {ticker} dividends from service')  
+    divs = div_manager.get_dividends(ticker=ticker)
     return divs
 
 def get_risk_free_rate() -> float:
     """
-    Description
-    -----------
-    Returns the risk free rate, defined as the annualized yield on a specific US Treasury duration, as a decimal. The US Treasury yield used as a proxy for the risk free rate is defined in the `settings.py` file and is configured through the RISK_FREE environment variable. \n \n 
+    Returns the risk free rate, defined as the annualized yield on a specific US Treasury duration, as a decimal. The US Treasury yield used as a proxy for the risk free rate is defined in the `settings.py` file and is configured through the RISK_FREE environment variable.
     """
     return get_daily_interest_latest(maturity=settings.RISK_FREE_RATE)/100

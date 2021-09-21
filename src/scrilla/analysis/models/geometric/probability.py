@@ -31,7 +31,7 @@ def d1(S0: float, ST: float, vol: float, ret: float, expiry: float, div:float = 
         Initial value of the asset.
     2. **ST** : ``float``
         Final value of the asset.
-    3. **vol**: ``float``\n
+    3. **vol**: ``float``
         Annualized volatility of the asset price process.
     4. **ret**: ``float``
         Annualized return of the asset price process.

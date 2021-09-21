@@ -13,8 +13,9 @@
 # along with scrilla.  If not, see <https://www.gnu.org/licenses/>
 # or <https://github.com/chinchalinchin/scrilla/blob/develop/main/LICENSE>.
 
+from typing import Tuple, Union
+from datetime import date
 from scrilla import settings, files, static
-
 from scrilla.util import dater, helper
 
 class InputValidationError(Exception):
@@ -35,7 +36,7 @@ class SampleSizeError(Exception):
 class PriceError(Exception):
     pass
 
-def validate_asset_type(ticker, asset_type=None):
+def validate_asset_type(ticker: str, asset_type: Union[str, None]=None) -> str:
     """
     
     """
@@ -48,7 +49,7 @@ def validate_asset_type(ticker, asset_type=None):
         return asset_type
     raise InputValidationError(f'{ticker} cannot be mapped to (crypto, equity) asset classes')
 
-def validate_dates(start_date, end_date, asset_type):
+def validate_dates(start_date: date, end_date: date, asset_type: str) -> Tuple[date, date]:
     """
     
     """
