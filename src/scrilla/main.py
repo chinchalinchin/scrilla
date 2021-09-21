@@ -14,6 +14,7 @@
 # or <https://github.com/chinchalinchin/scrilla/blob/develop/main/LICENSE>.
 
 import sys, os, traceback, json
+from typing import Callable
 
 from scrilla import settings, services, files, static
 from scrilla.errors import APIResponseError, ConfigurationError, InputValidationError, SampleSizeError, PriceError
@@ -22,8 +23,8 @@ from scrilla.analysis import optimizer, markets
 from scrilla.analysis.models.geometric import statistics, probability
 # TODO: conditional imports based on value of ANALYSIS_MODE
 
-from analysis.objects.portfolio import Portfolio
-from analysis.objects.cashflow import Cashflow
+from scrilla.analysis.objects.portfolio import Portfolio
+from scrilla.analysis.objects.cashflow import Cashflow
 
 if settings.APP_ENV != "container":
     import util.plotter as plotter
@@ -31,20 +32,26 @@ if settings.APP_ENV != "container":
 logger = outputter.Logger('main', settings.LOG_LEVEL)
 
 """
-main.py
--------
-CLI Entrypoint 
---------------
-Description
------------
-This script acts as the entrypoint for the CLI application and contains the majority of the control structures for the program. It parses the arguments supplied through the command line, delegates them to the appropriate application function and then passes the results to the `scrilla.outputter` module functions for formatting and printing to screen. \n \n 
+# CLI Entrypoint 
+This script acts as the entrypoint for the CLI application and contains the majority of the control structures for the program. It parses the arguments supplied through the command line, delegates them to the appropriate application function and then passes the results to the `scrilla.outputter` module functions for formatting and printing to screen.
 
-The arguments are parsed in such a way that arguments which are not supplied are set to None. All application functions are set up to accept None as a value for their optional arguments. This makes passing arguments to application functions easier as the `main.py` script doesn't have to worry about their values. In other words, `main.py` always passes all arguments to application functions, even if they aren't supplied through the command line; it just sets the ones which aren't supplied to None.  \n \n
+The arguments are parsed in such a way that arguments which are not supplied are set to None. All application functions are set up to accept None as a value for their optional arguments. This makes passing arguments to application functions easier as the `main.py` script doesn't have to worry about their values. In other words, `main.py` always passes all arguments to application functions, even if they aren't supplied through the command line; it just sets the ones which aren't supplied to None.
 """
 non_container_functions = [formatter.FUNC_ARG_DICT['plot_dividends'], formatter.FUNC_ARG_DICT['plot_moving_averages'],
                                formatter.FUNC_ARG_DICT['plot_risk_profile'], formatter.FUNC_ARG_DICT['plot_frontier']]
 
-def validate_function_usage(selection, args, wrapper_function, required_length=1, exact=False):
+def validate_function_usage(selection: str, args: list, wrapper_function: Callable[[], None], required_length: int=1, exact: bool=False) -> None:
+    """
+    Parameters
+    ----------
+    1. **selection** : ``str``
+    2. **args**: ``list``
+        List of ticker/statistic symbols whose length is be to validated.
+    3. **wrapper_function** : ``func()``
+    4. **required_length** : ``int``
+    5. **exact** : ``bool``
+        *Optional*. If the required length constraint is an equality, set to `True`. If the constraint is an inequality, set to `False`. Defaults to `False`. 
+    """
     if selection in non_container_functions and settings.APP_ENV == 'container':
         logger.comment('Graphics functionality disabled when application is containerized.')
 
@@ -62,13 +69,40 @@ def validate_function_usage(selection, args, wrapper_function, required_length=1
             print(str(e))
             traceback.print_exc()
 
-def print_format_to_screen(xtra_dict):
+def print_format_to_screen(xtra_dict: dict):
+    """
+    Checks if the inputted optional arguments allow printing pretty formatted text to screen.
+
+    Parameters
+    ----------
+    1. **xtra_dict** : ``dict``
+        Formatted dictionary containing optional arguments. Result of a call to `helper.format_xtra_args_dict`.
+    
+    Returns
+    -------
+    ``bool``
+    """
     return xtra_dict['json'] is None and xtra_dict['suppress'] is None
 
-def print_json_to_screen(xtra_dict):
+def print_json_to_screen(xtra_dict: dict):
+    """
+    Checks if inputted optional arguments allow printing json formatted text to screen.
+    
+    Parameters
+    ----------
+    1. **xtra_dict** : ``dict``
+        Formatted dictionary containing optional arguments. Result of a call to `helper.format_xtra_args_dict`.
+    
+    Returns
+    -------
+    ``bool``
+    """
     return xtra_dict['json'] is not None and xtra_dict['suppress'] is None
 
-def do_program():
+def do_program() -> None:
+    """
+    Parses command line arguments and passes the formatted arguments to appropriate function from the library.
+    """
     if len(sys.argv)>0:
         logger.debug('Parsing and invoking command line arguments')
         opt = sys.argv[1]
