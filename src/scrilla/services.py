@@ -40,7 +40,7 @@ class StatManager():
             `True` if this instace of `StatManager` is a Quandl interface. `False` otherwise. \n\n
 
         .. notes ::
-        1. This is for use within the class and probably won't need to be accessed outside of it. `StatManager` is intended to hide the data implementation from the rest of the library, i.e. it is ultimately agnostic about where the data comes where. It should never need to know `StatManger` is a Quandl interface. Just in case the library ever needs to populate its data from another source. \n \n
+            * This is for use within the class and probably won't need to be accessed outside of it. `StatManager` is intended to hide the data implementation from the rest of the library, i.e. it is ultimately agnostic about where the data comes where. It should never need to know `StatManger` is a Quandl interface. Just in case the library ever needs to populate its data from another source. \n \n
 
         """
         if self.type == static.keys['SERVICES']['STATISTICS']['QUANDL']['MANAGER']:
@@ -147,7 +147,7 @@ class StatManager():
             The formatted URL for the specific interest rate service defined by `self.type`. \n \n
 
         .. notes ::
-        1. The URL returned by this method will always contain a query for a historical range of US Treasury Yields, i.e. this method is specifically for queries involving the "Risk-Free" (right? right? *crickets*) Yield Curve. 
+            * The URL returned by this method will always contain a query for a historical range of US Treasury Yields, i.e. this method is specifically for queries involving the "Risk-Free" (right? right? *crickets*) Yield Curve. 
         """
         if self.is_quandl():
             url = f'{settings.Q_URL}/{self.service_map["PATHS"]["YIELD"]}?'
@@ -472,7 +472,7 @@ def get_daily_price_history(ticker: str, start_date : datetime.date=None,
         Dictionary with date strings formatted `YYYY-MM-DD` as keys and a nested dictionary containing the 'open' and 'close' price as values. Ordered from latest to earliest. \n \n
     
     .. notes ::
-    1. The default analysis period, if no `start_date` and `end_date` are specified, is determined by the *DEFAULT_ANALYSIS_PERIOD" variable in the `settings,py` file. The hardcoded value of this setting is 100. Should probably put this variable into the enviroment in the future and allow user to configure it. \n \n
+        * The default analysis period, if no `start_date` and `end_date` are specified, is determined by the *DEFAULT_ANALYSIS_PERIOD" variable in the `settings,py` file. The hardcoded value of this setting is 100. Should probably put this variable into the enviroment in the future and allow user to configure it. \n \n
     """
     try:
         asset_type = errors.validate_asset_type(ticker, asset_type)
@@ -562,7 +562,7 @@ def get_daily_fred_history(symbol: str, start_date: datetime.date=None, end_date
         Dictionary with date strings formatted `YYYY-MM-DD` as keys and the statistic on that date as the corresponding value. \n \n
 
     .. notes ::
-    1. Most financial statistics are not reported on weekends or holidays, so the `asset_type` for financial statistics is functionally equivalent to equities, at least as far as date calculations are concerned. The dates inputted into this function are validated as if they were labelled as equity `asset_types` for this reason.
+        * Most financial statistics are not reported on weekends or holidays, so the `asset_type` for financial statistics is functionally equivalent to equities, at least as far as date calculations are concerned. The dates inputted into this function are validated as if they were labelled as equity `asset_types` for this reason.
 
     Note: there are probably cases where this function will break because the statistical data isn't reported on a daily basis. In fact, there are tons of cases where this doesn't work...
 
@@ -632,7 +632,7 @@ def get_daily_interest_history(maturity: str, start_date: datetime.date=None, en
         Dictionary with date strings formatted `YYYY-MM-DD` as keys and the interest on that date as the corresponding value. \n \n
 
     .. notes ::
-    1. Yield rates are not reported on weekends or holidays, so the `asset_type` for interest is functionally equivalent to equities, at least as far as date calculations are concerned. The dates inputted into this function are validated as if they were labelled as equity `asset_types` for this reason.
+        * Yield rates are not reported on weekends or holidays, so the `asset_type` for interest is functionally equivalent to equities, at least as far as date calculations are concerned. The dates inputted into this function are validated as if they were labelled as equity `asset_types` for this reason.
     """
     try:
         start_date,end_date=errors.validate_dates(start_date=start_date, end_date=end_date, asset_type=static.keys['ASSETS']['EQUITY'])

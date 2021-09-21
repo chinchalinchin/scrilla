@@ -33,6 +33,11 @@ def maximize_univariate_normal_likelihood(data):
     Returns
     -------
     ``list`` : A list containing the maximum likelihood estimates of the normal distribution's parameters. The first element of the list corresponds to the mean and the second element corresponds to the volatility.
+
+    .. notes ::
+        * Some comments about the methodology. This module assumes an underlying asset price process that follows Geometric Brownian motion. This implies the return on the asset over intervals of :math:`\delta t` is normally distributed with mean :math:`\mu * \delta t` and volatility :math:`\sigma \cdot \sqrt{\delta t}`. If the sample is scaled by :math:`\delta t`, then the mean becomes :math:`\mu` and the volatility :math:`\frac{\sigma}{\sqrt t}`.  Moreover, increments are independent. Therefore, if the observations are made over equally spaced intervals, each observation is drawn from an independent, identially distributed normal random variable. The parameters :math:`\mu` and :math:`\frac {\sigma}{\delta t}` can then be estimated by maximizing the probability of observing a given sample with respect to the parameters. To obtain the estimate for :math:`\sigma`, multiply the result of this function by :math:`\delta t`.
+        * Theoretically, the output of this function should equal the same value obtained from the method of moment matching. However, there is a small discrepancy. It could be due to floating point arthimetic. However, see Section 2.2 of the following for what I think may be, if not the source, at least related to the issue: https://www.researchgate.net/publication/5071468_Maximum_Likelihood_Estimation_of_Generalized_Ito_Processes_With_Discretely-Sampled_Data
+        The author, however, is not considering the transformed Ito process, the log of the asset price process. It seems like his conclusion may be an artifact of Ito's Lemma? Not sure. Will need to think.
     """
 
     likelihood = lambda x: (-1)*estimators.univariate_normal_likelihood_function(params=x, data=data)
@@ -49,53 +54,31 @@ def maximize_univariate_normal_likelihood(data):
 
 def maximize_bivariate_normal_likelihood(data):
     """
+
+    .. warning ::
+
     """
-    likelihood = lambda x: (-1)*estimators.bivariate_normal_likelihood_function(params=x, data=data)
 
     x_data = [ datum[0] for datum in data ]
     y_data = [ datum[1] for datum in data ]
 
-    # make an educated guess
-    first_x_quartile = estimators.sample_percentile(data=x_data, percentile=0.25)
-    first_y_quartile = estimators.sample_percentile(data=y_data, percentile=0.25)
-    x_median = estimators.sample_percentile(data=x_data, percentile=0.5)
-    y_median =estimators.sample_percentile(data=y_data, percentile=0.5)
-    third_x_quartile = estimators.sample_percentile(data=x_data, percentile=0.75)
-    third_y_quartile = estimators.sample_percentile(data=y_data, percentile=0.75)
+    x_likelihood_estimates = maximize_univariate_normal_likelihood(x_data)
+    y_likelihood_estimates = maximize_univariate_normal_likelihood(y_data)    
 
-    var_x_guess = (third_x_quartile - first_x_quartile)/2
-    var_y_guess = (third_y_quartile - first_y_quartile)/2
-    cross_xy_guess = sqrt(var_x_guess)*sqrt(var_y_guess)/2
+    print('x est', x_likelihood_estimates)
+    print('y est', y_likelihood_estimates)
+    knowns = [x_likelihood_estimates[0], y_likelihood_estimates[0], x_likelihood_estimates[1], y_likelihood_estimates[1]]
+    
+    
+    likelihood = lambda x : (-1)*estimators.bivariate_normal_likelihood_function(params=x, data=data, knowns=knowns)
 
-    guess = [x_median, y_median, var_x_guess, var_y_guess, cross_xy_guess]
+    guess = [ sqrt(x_likelihood_estimates[1])*sqrt(y_likelihood_estimates[1])/2 ]
 
-    # NOTE: need to ensure covariance is positive semi-definte (PSD). for bivariate normal,
-    #       covariance is 2 x 2. The Slyvester Criterion can be used to check for PSD.
-    #       (https://en.wikipedia.org/wiki/Sylvester%27s_criterion). This is equivalent
-    #       for a 2 x 2 to ensuring the upper left entry > 0 and the determinant >0.
-    # NOTE: this is apparently equivalent to the Cauchy-Schwarz inequality as well:
-    #       (https://en.wikipedia.org/wiki/Cauchy%E2%80%93Schwarz_inequality#Probability_theory)
-
-    def cov_determinant(x):
-        print('deter', x[2]*x[3] - (x[4]**2))
-        return x[2]*x[3] - (x[4]**2)
-
-    determinant_constraint = {
-        'type': 'ineq',
-        'fun': cov_determinant
-    }
-    upper_entry_constraint={
-        'type': 'ineq',
-        'fun': lambda x: x[2]
-    }
-    constraints = [determinant_constraint, upper_entry_constraint]
-
-    print('optimizer.guess ', guess)
-
+    print('guess', guess)
     params = optimize.minimize(fun = likelihood, x0 = guess, options ={'disp': False},
-                                constraints=constraints,
                                 method=static.constants['OPTIMIZATION_METHOD'])
-    return params.x
+    result = [ x_likelihood_estimates[0], y_likelihood_estimates[0], x_likelihood_estimates[1], x_likelihood_estimates[1], params.x[0]]
+    return result
     
 def optimize_portfolio_variance(portfolio, target_return=None):
     """

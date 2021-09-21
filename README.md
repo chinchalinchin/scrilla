@@ -197,7 +197,7 @@ Note the optimal share allocation does not allow fractional shares. <b>scrilla</
 
 The portfolio optimization can also be done by minimizing its conditional value at risk. Because the underlying calculations are a bit different, this function is accessed through a different command and requires different arguments. 
 
-The two new arguments are `prob` and `expiry`. `prob`, in essence, represents the percentile of the portfolio's distribution on which the value at risk will be conditioned. In other words, if the portfolio value is represented by a random variable P, for a given value of P=*p*, the `prob` is the probability such that, 
+The two new arguments are `prob` and `expiry`. `prob`, in essence, represents the percentile of the portfolio's distribution on which the value at risk will be conditioned. In other words, if the portfolio value is represented by a random variable **P**, for a given value of **P**=*p*, the `prob` is the probability such that, 
 
 `Probability(P<p)=prob`
 
@@ -207,13 +207,19 @@ With these two new arguments, a portfolio's conditional value at risk can be opt
 
 `scrilla -opt-cvar -prob 0.05 -expiry 0.5 ALLY BX SONY`
 
-The command given above will optimize the portfolio consisting of <b>ALLY</b>, <b>BX</b> and <b>SONY</b> over the next half year (`expiry` = 0.5) subject to the value at risk in the 5th percentile. 
+The command given above will optimize the portfolio's value at risk consisting of <b>ALLY</b>, <b>BX</b> and <b>SONY</b> over the next half year (`expiry` = 0.5) conditioned the value at risk being in the 5th percentile. 
 
 ### Other Notable Features
 
-1. Estimation Modes
+1. Distribution Modes
 
-<b>scrilla</b> can estimate model parameters in a number of ways. The default estimation method is defined by the environment variable <b>ESTIMATION_METHOD</b>, but all statistical functions can have their estimation overridden with a flag. <b>scrilla</b> supports three estimation modes: `moments`, `percents` and `likely`. 
+<b>scrilla</b> will assume an asset price process and therefore a probability distribution for the population of asset returns. The model <b>scrilla</b> assumes is determined by the environment variable <b>ANALYSIS_MODE</b>. Currently, only one model is available: `geometric`, which corresponds to an assume price process that follows (Geometric Brownian Motion)[https://en.wikipedia.org/wiki/Geometric_Brownian_motion] and thus a probability distribution for the asset returns that is log-normal. 
+
+In the near future, a mean reversion model will implemented.
+
+2. Estimation Modes
+
+<b>scrilla</b> can estimate model parameters in a number of ways. The default estimation method is defined by the environment variable <b>DEFAULT_ESTIMATION_METHOD</b>, but all statistical functions can have their estimation overridden with a flag. <b>scrilla</b> supports three estimation modes: `moments`, `percents` and `likely`. 
 
 `moments` will use the [method of moment matching](https://en.wikipedia.org/wiki/Method_of_moments_(statistics)), where the moments of a sample of data are equated to the moments of the assumed distribution in order to determine the distribution parameters. `percents` will use the method of percentile matching, where the first and third quartile of the sample are equated to the theoretical distribution percentiles to determine the distribution parameters. `likely` will use [maximum likelihood estimation](https://en.wikipedia.org/wiki/Maximum_likelihood_estimation), where the probability of each observation given the assumed distribution is calculated and then the intersection of the probabilities is minimized with respect to the distribution parameters. (Note: the underlying distribution can be configured through the <b>ANALYSIS_MODE</b> environment variable; see [Environment](#environment) for more information)
 
@@ -233,7 +239,7 @@ Note, the following command,
 
 `scrilla -profile ACI`
 
-will return the risk profile of <b>ACI</b> using the method set in the <b>ESTIMATION_METHOD</b> environment variable. If this variable is not set, it will default to a value of `moments`.
+will return the risk profile of <b>ACI</b> using the method set in the <b>DEFAULT_ESTIMATION_METHOD</b> environment variable. If this variable is not set, it will default to a value of `moments`.
 
 2. Discount Dividend Model
 
@@ -289,6 +295,8 @@ This is not the greatest solution, as all the crypto symbols given above are ina
 The way the `service` module works, `PriceManager` can be forced to retrieve the crypto asset's prices instead of the equity asset's through the `services.PriceManager.get_prices` method by providing the method an argument of `asset_type='crypto'`; However, the `service` module function `services.get_daily_price_history`, which is the point of contact between the `PriceManager` and the rest of the application, wraps calls to the `PriceManager.get_prices` method in a cache persistence layer (meaning, `get_daily_price_history` checks if prices exist in the cache before passing the request off to an external service query). The cache doesn't distinguish asset types currently. The `PriceCache` stores prices based on the inputs (<i>ticker, date, open close, close price</i>). So, even if the `PriceManager` is forced to get crypto prices on the first call, subsequent calls to the same `get_daily_price_history` function will likely break the application, or at least lead to misleading results, since the cache will contain a set of prices that doesn't necessarily map one-to-one with its ticker symbol.
 
 If the above problem is to be solved, the cache needs modified to separate prices based on asset type.
+
+2. There is a slight discrepancy between the results of maximum likelihood estimation and moment matching when the underyling distribution of the price process is log-normal. The likelihood algorithm in this library relies on the generalized idea of likelihood estimation; it will compute the log-likelihood function for a given vector of parameters and then optimize that function by varying the vector until the input that produces the maximum output; the usual matter of course is to derive a formula using calculus that can then be analytically solved. Both operations should be equivalent. Moreover, theoretically, it can be shown the maximization operation should be equivalent to the results obtained by the moment matching operation, i.e the maximum likelihood estimator for the mean is the sample mean, etc. However, the results between maximum likelihood estimation and moment matching are off by a few decimal points.
 
 
 # Documentation

@@ -45,7 +45,7 @@ def get_sample_of_returns(prices, asset_type, trading_period):
     3. **trading_period**: 
 
     .. notes ::
-    * the `trading_period` for a single asset can be determined from its `asset_type`
+        * the `trading_period` for a single asset can be determined from its `asset_type`
     """
     today = False
 
@@ -99,9 +99,9 @@ def calculate_moving_averages(tickers, start_date=None, end_date=None, sample_pr
     averages is a 3-node list with the following format `averages[ticker][period][date]` and dates is a list of dates between the `start_date` and `end_date`, inclusive.
 
     .. notes ::
-    * assumes `sample_prices` is ordered from latest to earliest date. 
-    * If no start_date and end_date passed in, static snapshot of moving averages, i.e. the moving averages as of today (or last close), are calculated and returned.
-    * If asset types are mixed, then the sample from which the average is calculated only consists of prices on business days. In other words, since crypto trades on weekends, to compare the moving average of equities and crypto, the moving average is only returned for business days. The moving average of crypto is still calculated using weekend price data, i.e. the moving average on Monday contains information about the moving average on Sunday, but the moving average on Sunday is discarded from the returned data, due to the fact equities are not traded on weekends. 
+        * assumes `sample_prices` is ordered from latest to earliest date. 
+        * If no start_date and end_date passed in, static snapshot of moving averages, i.e. the moving averages as of today (or last close), are calculated and returned.
+        * If asset types are mixed, then the sample from which the average is calculated only consists of prices on business days. In other words, since crypto trades on weekends, to compare the moving average of equities and crypto, the moving average is only returned for business days. The moving average of crypto is still calculated using weekend price data, i.e. the moving average on Monday contains information about the moving average on Sunday, but the moving average on Sunday is discarded from the returned data, due to the fact equities are not traded on weekends. 
     """
     ## MOVING AVERAGE OVER DATE RANGE LOOP CALCULATION PSEUDO-CODE
     #       1. for start date to end date:
@@ -409,7 +409,7 @@ def calculate_likelihood_risk_return(ticker, start_date=None, end_date=None, sam
     4. scrilla.errors.APIResponseError
 
     .. notes ::
-    * assumes price history is ordered from latest to earliest date. \n \n 
+        * assumes price history is ordered from latest to earliest date. \n \n 
     """
     if sample_prices is None:
         try:
@@ -495,7 +495,7 @@ def calculate_percentile_risk_return(ticker: str, start_date: date=None, end_dat
     4. **scrilla.errors.APIResponseError**
 
     .. notes ::
-    * assumes price history is ordered from latest to earliest date.
+        * assumes price history is ordered from latest to earliest date.
     """
     if sample_prices is None:
         try:
@@ -588,8 +588,8 @@ def calculate_moment_risk_return(ticker, start_date=None, end_date=None, sample_
     4. **scrilla.errors.APIResponseError**
 
     .. notes ::
-    * assumes price history is ordered from latest to earliest date.
-    * function will bypass the cache if `sample_prices` is provided. In other words, the calculation can be forced by specifying `sample_prices`.
+        * assumes price history is ordered from latest to earliest date.
+        * function will bypass the cache if `sample_prices` is provided. In other words, the calculation can be forced by specifying `sample_prices`.
     """
 
     if sample_prices is None:
@@ -888,7 +888,7 @@ def calculate_moment_correlation(ticker_1, ticker_2, asset_type_1=None, asset_ty
     ``dict`` : `{ 'correlation' : float }`, correlation of `ticker_1` and `ticker_2`.
 
     .. notes :: 
-    * when the asset types are mixed, i.e. `asset_type_1` == 'equity' and `asset_type_2`== 'crypto', the sample prices will contain different information, since crypto trades on weekends and holidays. The solution is to throw away the weekend and holiday prices for crypto. This presents another problem, since the risk profile for a crypto-currency that is cached in the local fileystem will be calculated over the entire sample including the missing data, where as the risk profile required by the correlation needs to be calculated over the censored sample (i.e. the one with weekends removed) so that the means of the mixed asset types are scaled to the same time delta. In this case, the correlation algorithm needs to be able to override calls to the cache and force the risk profile algorithms to calculate based on the sample. Note: this issue only applies to correlation calculations using the method of moment matching, since the other methods determine the value of the correlation by solving constrained systems of equations instead of deriving it analytically. 
+        * when the asset types are mixed, i.e. `asset_type_1` == 'equity' and `asset_type_2`== 'crypto', the sample prices will contain different information, since crypto trades on weekends and holidays. The solution is to throw away the weekend and holiday prices for crypto. This presents another problem, since the risk profile for a crypto-currency that is cached in the local fileystem will be calculated over the entire sample including the missing data, where as the risk profile required by the correlation needs to be calculated over the censored sample (i.e. the one with weekends removed) so that the means of the mixed asset types are scaled to the same time delta. In this case, the correlation algorithm needs to be able to override calls to the cache and force the risk profile algorithms to calculate based on the sample. Note: this issue only applies to correlation calculations using the method of moment matching, since the other methods determine the value of the correlation by solving constrained systems of equations instead of deriving it analytically. 
     """
     ### START ARGUMENT PARSING ###
     try:

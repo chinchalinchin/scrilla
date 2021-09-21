@@ -160,7 +160,7 @@ def percentile(S0: float, vol: float, ret: float, expiry: float, percentile: flo
     ``float`` : percentile of lognormal distribution
 
     .. notes ::
-    1. Percentiles are preserved under log transformations, so the asset percentile is equal to the exponentiated return percentile. See Wiki article for more information: https://en.wikipedia.org/wiki/Log-normal_distribution#Mode,_median,_quantiles
+        * Percentiles are preserved under log transformations, so the asset percentile is equal to the exponentiated return percentile. See Wiki article for more information: https://en.wikipedia.org/wiki/Log-normal_distribution#Mode,_median,_quantiles
     """
     inv_norm = norm.ppf(percentile)
     exponent = (ret - div - 0.5*(vol**2))*expiry + vol*sqrt(expiry)*inv_norm

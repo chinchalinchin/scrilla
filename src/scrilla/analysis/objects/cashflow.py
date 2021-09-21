@@ -63,12 +63,12 @@ class Cashflow:
         6. **__init__** args: (`period`, `constant`) -> period from constructor, constant used for growth
     
     .. notes ::
-    * A constant cashflow can be specified in three ways: 1. By passing in a constant amount through the constructor `constant` variable. 2. By passing in a constant function with respect to time through the constructor `growth_function` variable. 3. By passing in a dataset of length one through the constructor `sample` variable.  In any of the cases, you MUST pass in a period or the `net_present_value` method of this class will return False.
-    * Both a growth_function and a sample of data can be passed in at once to this class. If doing so, the `growth_function` will take precedence and be used for calculations in the `net_present_value` method. The sample will be used to infer the length of a period between cashflows, unless a period is also specified. If a period is specified in addition to `sample_prices` and `growth_function`, the period will take precedence over the period inferred from the sample of data.
-    * The coefficients of the inferred linear regression are accessibly through `Cashflow().alpha` (intercept) and `Cashflow().beta` (slope) instance variables. The time series used to create the model is accessible through the `Cashflow().time_series` instance variable; Note: it is measured in years and the `start_date` is set equal to 0. In other words, the intercept of the model represents, approximately, the value of the cashflow on the `start_date`.
+        * A constant cashflow can be specified in three ways: 1. By passing in a constant amount through the constructor `constant` variable. 2. By passing in a constant function with respect to time through the constructor `growth_function` variable. 3. By passing in a dataset of length one through the constructor `sample` variable.  In any of the cases, you MUST pass in a period or the `net_present_value` method of this class will return False.
+        * Both a growth_function and a sample of data can be passed in at once to this class. If doing so, the `growth_function` will take precedence and be used for calculations in the `net_present_value` method. The sample will be used to infer the length of a period between cashflows, unless a period is also specified. If a period is specified in addition to `sample_prices` and `growth_function`, the period will take precedence over the period inferred from the sample of data.
+        * The coefficients of the inferred linear regression are accessibly through `Cashflow().alpha` (intercept) and `Cashflow().beta` (slope) instance variables. The time series used to create the model is accessible through the `Cashflow().time_series` instance variable; Note: it is measured in years and the `start_date` is set equal to 0. In other words, the intercept of the model represents, approximately, the value of the cashflow on the `start_date`.
 
     .. todos ::
-    * Implement prediction interval function to get error bars for graphs and general usage.
+        * Implement prediction interval function to get error bars for graphs and general usage.
 
     """
     def __init__(self, sample=None, period=None, growth_function=None, constant=None, discount_rate=None):
