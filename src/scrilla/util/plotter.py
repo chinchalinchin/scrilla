@@ -1,4 +1,5 @@
 import os, datetime
+from typing import Union
 import numpy, matplotlib
 from PIL import Image
 
@@ -16,6 +17,39 @@ if APP_ENV == 'local':
 elif APP_ENV == 'container':
     from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
     matplotlib.use("agg")
+
+def _show_or_save(canvas: FigureCanvas, show: bool, savefile: str) -> Union[FigureCanvas, None]:
+    if savefile is not None:
+        canvas.print_jpeg(filename_or_obj=savefile)
+
+    if show:
+        s, (width, height) = canvas.print_to_buffer()
+        im = Image.frombytes("RGBA", (width, height), s)
+        im.show()
+        return None
+    else:
+        canvas.draw()
+        return canvas
+
+def plot_qq_series(ticker: str, sample: list, show: bool=True, savefile: str=None) -> Union[FigureCanvas, None]:
+    title = f'{ticker} Return Q-Q Plot'
+    normal_series = []
+    sample_series = []
+    for point in sample:
+        normal_series.append(point[0])
+        sample_series.append(point[1])
+
+    canvas = FigureCanvas(Figure())
+    axes = canvas.figure.subplots()
+
+    axes.plot(normal_series, sample_series, linestyle="None", marker=".", markersize=10.0)
+    axes.plot(normal_series, normal_series)
+    axes.grid()
+    axes.set_xlabel('Normal Percentiles')
+    axes.set_ylabel('Sample Percentiles')
+    axes.set_title(title)
+
+    return _show_or_save(canvas=canvas, show=show, savefile=savefile)
 
 def plot_frontier(portfolio, frontier, show=True, savefile=None):
     title = " ("
@@ -39,16 +73,7 @@ def plot_frontier(portfolio, frontier, show=True, savefile=None):
     axes.set_ylabel('Return')
     axes.set_title(title)
 
-    if savefile is not None:
-        canvas.print_jpeg(filename_or_obj=savefile)
-
-    if show:
-        s, (width, height) = canvas.print_to_buffer()
-        im = Image.frombytes("RGBA", (width, height), s)
-        im.show()
-    else:
-        canvas.draw()
-        return canvas
+    return _show_or_save(canvas=canvas, show=show, savefile=savefile)
 
 def plot_yield_curve(yield_curve, show=True, savefile=None):
     title = f'US Treasury Yield Curve On {list(yield_curve.keys())[0]}'
@@ -67,16 +92,8 @@ def plot_yield_curve(yield_curve, show=True, savefile=None):
     axes.set_ylabel('Annual Yield')
     axes.set_title(title)
 
-    if savefile is not None:
-        canvas.print_jpeg(filename_or_obj=savefile)
+    return _show_or_save(canvas=canvas, show=show, savefile=savefile)
 
-    if show:
-        s, (width, height) = canvas.print_to_buffer()
-        im = Image.frombytes("RGBA", (width, height), s)
-        im.show()
-    else:
-        canvas.draw()
-        return canvas
 
 def plot_profiles(symbols, profiles, show=True, savefile=None, subtitle=None):
     canvas = FigureCanvas(Figure())
@@ -107,20 +124,9 @@ def plot_profiles(symbols, profiles, show=True, savefile=None, subtitle=None):
     for i in range(no_symbols):
         axes.annotate(symbols[i], (risk_profile[i], return_profile[i]))
 
-    if savefile is not None:
-        canvas.print_jpeg(filename_or_obj=savefile)
-
-    if show:
-        s, (width, height) = canvas.print_to_buffer()
-        im = Image.frombytes("RGBA", (width, height), s)
-        im.show()
-    else:
-        canvas.draw()
-        return canvas
-
+    return _show_or_save(canvas=canvas, show=show, savefile=savefile)
 
     # TODO: figure out date formatting for x-axis
-
 def plot_moving_averages(symbols, averages_output, periods, show=True, savefile=None):
     averages, dates = averages_output
     canvas = FigureCanvas(Figure())
@@ -182,16 +188,8 @@ def plot_moving_averages(symbols, averages_output, periods, show=True, savefile=
         
         axes.legend()
 
-    if savefile is not None:
-        canvas.print_jpeg(filename_or_obj=savefile)
+    return _show_or_save(canvas=canvas, show=show, savefile=savefile)
 
-    if show:
-        s, (width, height) = canvas.print_to_buffer()
-        im = Image.frombytes("RGBA", (width, height), s)
-        im.show()
-    else:
-        canvas.draw()
-        return canvas
 
 def plot_cashflow(ticker, cashflow, show=True, savefile=None):
     if not cashflow.beta or not cashflow.alpha or len(cashflow.sample) < 3:
@@ -223,13 +221,4 @@ def plot_cashflow(ticker, cashflow, show=True, savefile=None):
     axes.set_title(title_str, fontsize=12)
     figure.suptitle(sup_title_str, fontsize=18)
 
-    if savefile is not None:
-        canvas.print_jpeg(filename_or_obj=savefile)
-
-    if show:
-        s, (width, height) = canvas.print_to_buffer()
-        im = Image.frombytes("RGBA", (width, height), s)
-        im.show()
-    else:
-        canvas.draw()
-        return canvas
+    return _show_or_save(canvas=canvas, show=show, savefile=savefile)

@@ -15,6 +15,7 @@
 
 from os import path
 from sys import path as sys_path
+from typing import List
 from numpy import log, sqrt, exp, array
 from scipy.stats import norm, multivariate_normal
 
@@ -305,3 +306,14 @@ def simple_regression_alpha(x: list, y: list):
     alpha = y_mean - simple_regression_beta(x=x, y=y)*x_mean
     return alpha
     
+def qq_series_for_sample(sample: list) -> List[list]:
+    qq_series = []
+    n = len(sample)
+    for i, point in enumerate(sample):
+        percentile = (i + 0.5)/n
+        percentile_sample = sample_percentile(data=sample, percentile=percentile)
+        percentile_norm = norm.ppf(q=percentile)
+        qq_series += [ [ percentile_norm, percentile_sample ] ]
+    
+    return qq_series
+

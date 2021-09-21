@@ -19,7 +19,7 @@ from typing import Callable
 from scrilla import settings, services, files, static
 from scrilla.errors import APIResponseError, ConfigurationError, InputValidationError, SampleSizeError, PriceError
 from scrilla.util import helper, outputter, formatter
-from scrilla.analysis import optimizer, markets
+from scrilla.analysis import optimizer, markets, estimators
 from scrilla.analysis.models.geometric import statistics, probability
 # TODO: conditional imports based on value of ANALYSIS_MODE
 
@@ -36,6 +36,9 @@ logger = outputter.Logger('main', settings.LOG_LEVEL)
 This script acts as the entrypoint for the CLI application and contains the majority of the control structures for the program. It parses the arguments supplied through the command line, delegates them to the appropriate application function and then passes the results to the `scrilla.outputter` module functions for formatting and printing to screen.
 
 The arguments are parsed in such a way that arguments which are not supplied are set to None. All application functions are set up to accept None as a value for their optional arguments. This makes passing arguments to application functions easier as the `main.py` script doesn't have to worry about their values. In other words, `main.py` always passes all arguments to application functions, even if they aren't supplied through the command line; it just sets the ones which aren't supplied to None.
+
+.. notes ::
+    * The idea behind the structure of the modules in this library is as follows: each sub-module should only depend on the sub-modules above it in the hierarchy of modules. At the top level, the modules are: `cache`, `errors`, `files`, `graphics`, `services`, `settings` and `static`. All of this modules are relatively independent (except the `settings` module which configures aspects of all the other modules, but it is made up entirely of values parsed from the environment and shouldn't introduce any circular dependencies), and expose mutually exclusive functionality. As you drill down in the sub-modules, the functions therein contain dependencies on the modules above them; for instance, the `analysis.markets` has dependencies on `services`, but `services` does not have dependencies on `analysis.markets`. There are instances where this design principle has been violated, but by and large, this is the motivating idea behind this project's organization.
 """
 non_container_functions = [formatter.FUNC_ARG_DICT['plot_dividends'], formatter.FUNC_ARG_DICT['plot_moving_averages'],
                                formatter.FUNC_ARG_DICT['plot_risk_profile'], formatter.FUNC_ARG_DICT['plot_frontier']]
@@ -236,7 +239,8 @@ def do_program() -> None:
                                                                 percentile=xtra_dict['probability'])
                         cvar = probability.conditional_expected_value(S0=latest_price, 
                                                                         vol=profile['annual_volatility'],
-                                                                        ret=profile['annual_return'], expiry=xtra_dict['expiry'],
+                                                                        ret=profile['annual_return'], 
+                                                                        expiry=xtra_dict['expiry'],
                                                                         conditional_value=valueatrisk)
                         all_cvars[arg]=cvar
 
@@ -537,6 +541,23 @@ def do_program() -> None:
                                                     periods=periods, 
                                                     show=True, savefile=xtra_dict['save_file'])
                 selected_function, required_length = cli_plot_moving_averages, 1
+
+            ### FUNCTION: Plot Return QQ Series
+            elif opt == formatter.FUNC_ARG_DICT['plot_returns']:
+                def cli_plot_returns():
+                    asset_type = files.get_asset_type(symbol=main_args[0])
+                    prices = services.get_daily_price_history(ticker=main_args[0], 
+                                                                start_date=xtra_dict['start_date'],
+                                                                end_date=xtra_dict['end_date'],
+                                                                asset_type=asset_type)
+                    returns = statistics.get_sample_of_returns(prices, asset_type)
+                    qq_series = estimators.qq_series_for_sample(sample=returns)
+                    plotter.plot_qq_series(ticker=main_args[0], 
+                                            sample=qq_series, 
+                                            show=True, 
+                                            savefile=xtra_dict['save_file'])
+
+                selected_function, required_length, exact = cli_plot_returns, 1, True
 
             ### FUNCTION: Plot Risk-Return Profile
             elif opt == formatter.FUNC_ARG_DICT['plot_risk_profile']:

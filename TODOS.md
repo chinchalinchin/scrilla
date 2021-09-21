@@ -36,3 +36,5 @@
 44. conditional imports based on ANALYSIS_MODE and ESTIMATION_METHOD
 
 45. docstrings should be formatted with markdown
+
+46. redo statistic operations with vector and matrix operations for greater generalization.

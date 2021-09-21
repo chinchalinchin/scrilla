@@ -33,7 +33,7 @@ logger = outputter.Logger('statistics', settings.LOG_LEVEL)
 profile_cache = cache.ProfileCache()
 correlation_cache = cache.CorrelationCache()
     
-def get_sample_of_returns(prices: dict, asset_type: str, trading_period: float) -> list:
+def get_sample_of_returns(prices: dict, asset_type: str) -> list:
     """
     Generates a list of logarithmic returns on the sample `prices`. 
 
@@ -49,8 +49,8 @@ def get_sample_of_returns(prices: dict, asset_type: str, trading_period: float) 
         * the `trading_period` for a single asset can be determined from its `asset_type`...should i use a conditional and fork static.constants['ONE_TRADING_DAY'] instead of passing it in?
     """
     today = False
-
     sample_of_returns = []
+    trading_period = static.get_trading_period(asset_type=asset_type)
 
     for date in prices:
         todays_price = prices[date][static.keys['PRICES']['CLOSE']]
@@ -487,22 +487,17 @@ def calculate_percentile_risk_return(ticker: str, start_date: Union[date, None]=
 
     Raises 
     ------
-    1. **scrilla.errors.SampleSizeError**
-    2. **scrilla.errors.PriceError**
-    3. **scrilla.errors.InputValidationError**
-    4. **scrilla.errors.APIResponseError**
+    1. **scrilla.errors.PriceError**
 
     .. notes ::
         * assumes price history is ordered from latest to earliest date.
         * if the `sample_prices` dictionary is provided, the function will bypass the cache and the service call altogether. The function will assume `sample_prices` is the source of the truth.
     """
     if sample_prices is None:
-        try:
-           asset_type = errors.validate_asset_type(ticker, asset_type)
-           start_date, end_date = errors.validate_dates(start_date, end_date, asset_type)
-           trading_period = static.get_trading_period(asset_type)
-        except errors.InputValidationError as ive:
-           raise ive
+        asset_type = errors.validate_asset_type(ticker, asset_type)
+        start_date, end_date = errors.validate_dates(start_date, end_date, asset_type)
+        trading_period = static.get_trading_period(asset_type)
+       
 
         results = profile_cache.filter_profile_cache(ticker=ticker, start_date=start_date, end_date=end_date, 
                                                         method=static.keys['ESTIMATION']['PERCENT'])
@@ -512,19 +507,16 @@ def calculate_percentile_risk_return(ticker: str, start_date: Union[date, None]=
                 and results[static.keys['STATISTICS']['VOLATILITY']] is not None:
             return results
 
-        try:
-            logger.debug('No sample prices provided, calling service.')
-            prices = services.get_daily_price_history(ticker=ticker, start_date=start_date, end_date=end_date, asset_type=asset_type)
-        except errors.APIResponseError as api:
-            raise api
+        
+        logger.debug('No sample prices provided, calling service.')
+        prices = services.get_daily_price_history(ticker=ticker, start_date=start_date, end_date=end_date, asset_type=asset_type)
+        
     else:
         logger.debug(f'{ticker} sample prices provided, skipping service call.')
         prices = sample_prices
-        try:
-           asset_type = errors.validate_asset_type(ticker, asset_type)
-           trading_period = static.get_trading_period(asset_type)
-        except errors.InputValidationError as ive:
-           raise ive
+        asset_type = errors.validate_asset_type(ticker, asset_type)
+        trading_period = static.get_trading_period(asset_type)
+        
 
     if not prices:
         raise errors.PriceError(f'No prices could be retrieved for {ticker}')
@@ -756,8 +748,66 @@ def calculate_percentile_correlation(ticker_1, ticker_2, asset_type_1=None, asse
     ------
     ``dict`` : `{ 'correlation' : float }`, correlation of `ticker_1` and `ticker_2`.
     """
-    pass
+    ### START ARGUMENT PARSING ###
+    try:
+        asset_type_1 = errors.validate_asset_type(ticker=ticker_1, asset_type=asset_type_1)
+        asset_type_2 = errors.validate_asset_type(ticker=ticker_2, asset_type=asset_type_2)
+        if asset_type_1 == static.keys['ASSETS']['CRYPTO'] and asset_type_2 == static.keys['ASSETS']['CRYPTO']:
+            # validate over all days
+            start_date, end_date = errors.validate_dates(start_date=start_date, end_date=end_date,
+                                                            asset_type=static.keys['ASSETS']['CRYPTO'])
+        else:
+            #   validate over trading days. since (date - 100 days) > (date - 100 trading days), always
+            #   take the largest sample so intersect_dict_keys will return a sample of the correct size
+            #   for mixed asset types.
+            start_date, end_date = errors.validate_dates(start_date=start_date, end_date=end_date,
+                                                                asset_type=static.keys['ASSETS']['EQUITY'])
+    except errors.InputValidationError as ive:
+        raise ive
 
+    if sample_prices is None:
+        # TODO: extra save_or_update argument for estimation method, i.e. moments, percentiles or likelihood
+        correlation = correlation_cache.filter_correlation_cache(ticker_1=ticker_1, ticker_2=ticker_2,
+                                                                    start_date=start_date, end_date=end_date,
+                                                                    method=static.keys['ESTIMATION']['LIKE'])
+        if correlation is not None:
+            return correlation
+
+        sample_prices = {}
+        logger.debug(f'No sample prices provided or cached ({ticker_1}, {ticker_2}) correlation found.')
+        logger.debug('Retrieving price histories for calculation.')
+        try: 
+            sample_prices[ticker_1] = services.get_daily_price_history(ticker=ticker_1, start_date=start_date, 
+                                                                        end_date=end_date, asset_type=asset_type_1)
+            sample_prices[ticker_2] = services.get_daily_price_history(ticker=ticker_2, start_date=start_date, 
+                                                                        end_date=end_date, asset_type=asset_type_2)
+        except errors.APIResponseError as api:
+            raise api
+        
+    if asset_type_1 != asset_type_2:
+        # remove weekends and holidays from crypto prices so samples can be compared
+            # NOTE: data is lost here.
+        sample_prices[ticker_1], sample_prices[ticker_2] = helper.intersect_dict_keys(sample_prices[ticker_1], sample_prices[ticker_2])
+
+    if 0 in [len(sample_prices[ticker_1]), len(sample_prices[ticker_2])]:
+        raise errors.PriceError("Prices cannot be retrieved for correlation calculation")
+
+    if asset_type_1 == asset_type_2 and asset_type_1 == static.keys['ASSETS']['CRYPTO']:
+        trading_period = static.constants['ONE_TRADING_DAY']['CRYPTO']
+    else:
+        trading_period = static.constants['ONE_TRADING_DAY']['EQUITY']
+    
+    sample_of_returns_1 = get_sample_of_returns(prices=sample_prices[ticker_1], asset_type=asset_type_1, trading_period=trading_period)
+    sample_of_returns_2 = get_sample_of_returns(prices=sample_prices[ticker_2], asset_type=asset_type_2, trading_period=trading_period)
+    
+    # TODO: find bivariate percentiles. 
+    
+    result = { 'correlation' : 0 }
+
+    correlation_cache.save_row(ticker_1=ticker_1, ticker_2=ticker_2, 
+                                start_date=start_date, end_date=end_date, 
+                                correlation = correlation, method=static.keys['ESTIMATION']['LIKE'])
+    return result
 def calculate_likelihood_correlation(ticker_1, ticker_2, asset_type_1=None, asset_type_2=None, start_date=None, end_date=None, sample_prices=None) -> dict:
     """
     Calculates the sample correlation using the maximum likelihood estimators, assuming underlying price process follows Geometric Brownian Motion, i.e. the price distribution is lognormal. 

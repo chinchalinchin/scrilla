@@ -439,48 +439,31 @@ interest_cache = cache.InterestCache()
 def get_daily_price_history(ticker: str, start_date : datetime.date=None, 
                             end_date: datetime.date =None, asset_type: str=None) -> list:
     """
-    Description
-    -----------
     Wrapper around external service request for price data. Relies on an instance of `PriceManager` configured by `settings.PRICE_MANAGER` value, which in turn is configured by the `PRICE_MANAGER` environment variable, to hydrate with data. \n \n
     
-    Before deferring to the `PriceManager` and letting it call the external service, however, this function checks if response is in local cache. If the response is not in the cache, it will pass the request off to `PriceManager` and then save the response in the cache so subsequent calls to the function can bypass the service request. Used to prevent excessive external HTTP requests and improve the performance of the application. Other parts of the program should interface with the external price data services through this function to utilize the cache functionality.  \n \n
+    Before deferring to the `PriceManager` and letting it call the external service, however, this function checks if response is in local cache. If the response is not in the cache, it will pass the request off to `PriceManager` and then save the response in the cache so subsequent calls to the function can bypass the service request. Used to prevent excessive external HTTP requests and improve the performance of the application. Other parts of the program should interface with the external price data services through this function to utilize the cache functionality.
 
     Parameters
     ----------
-    1. ticker :  str  \n
-        Required. Ticker symbol corresponding to the price history to be retrieved. \n \n
-    2. start_date : datetime.date \n 
-        Optional. Start date of price history. Defaults to None. If `start_date is None`, the calculation is made as if the `start_date` were set to 100 trading days ago. If `get_asset_type(ticker)=="crypto"`, this includes weekends and holidays. If `get_asset_type(ticker)=="equity"`, this excludes weekends and holidays. \n \n
-    3. end_date : datetime.date \n 
-        Optional End date of price history. Defaults to None. If `end_date is None`, the calculation is made as if the `end_date` were set to today. If `get_asset_type(ticker)=="crypto"`, this means today regardless. If `get_asset_type(ticker)=="equity"`, this excludes weekends and holidays so that `end_date` is set to the previous business date. \n \n
-    4. asset_type : string \n
-        Optional. Asset type of the ticker whose history is to be retrieved. Used to prevent excessive calls to IO and list searching. `asset_type` is determined by comparing the ticker symbol `ticker` to a large static list of ticker symbols maintained in installation directory's /data/static/ subdirectory, which can slow the program down if the file is constantly accessed and lots of comparison are made against it. Once an `asset_type` is calculated, it is best to preserve it in the process environment somehow, so this function allows the value to be passed in. If no value is detected, it will make a call to the aforementioned directory and parse the file to determine to the `asset_type`. Asset types are statically accessible through the `scrilla.static.keys['ASSETS']` dictionary. \n \n
-
-    Raises
-    ------
-    1. scrilla.errors.InputValidationError \n
-        If the arguments inputted into the function fail to exist within the domain the function, this error will be thrown.
-    2. scrilla.errors.APIResponseError \n
-        If the external service rejects the request for price data, whether because of rate limits or some other factor, the function will raise this exception.
-    3. KeyError \n
-        If the inputted or validated dates do not exist in the price history, a KeyError will be thrown. This could be due to the equity not having enough price history, i.e. it started trading a month ago and doesn't have 100 days worth of prices yet, or some other anomalous event in an equity's history. 
-    4. errors.ConfigurationError \n
-        If one of the settings is improperly configured or one of the environment variables was unable to be parsed from the environment, this error will be thrown. \n \n
+    1. **ticker** :  ``str``
+        Ticker symbol corresponding to the price history to be retrieved.
+    2. **start_date** : ``datetime.date`` 
+        *Optional*. Start date of price history. Defaults to None. If `start_date is None`, the calculation is made as if the `start_date` were set to 100 trading days ago. If `scrilla.files.get_asset_type(ticker)==scrill.static.keys['ASSETS']['CRYPTO']`, this includes weekends and holidays. If `scrilla.files.get_asset_type(ticker)==scrilla.static.keys['ASSETS']['EQUITY']`, this excludes weekends and holidays.
+    3. **end_date** : ``datetime.date``
+        Optional End date of price history. Defaults to None. If `end_date is None`, the calculation is made as if the `end_date` were set to today. If `scrilla.files.get_asset_type(ticker)==scrill.static.keys['ASSETS']['CRYPTO']`, this means today regardless. If `scrilla.files.get_asset_type(ticker)==scrilla.static.keys['ASSETS']['EQUITY']`, this excludes weekends and holidays so that `end_date` is set to the previous business date. 
+    4. **asset_type** : ``string``
+        *Optional*. Asset type of the ticker whose history is to be retrieved. Used to prevent excessive calls to IO and list searching. `asset_type` is determined by comparing the ticker symbol `ticker` to a large static list of ticker symbols maintained in installation directory's /data/static/ subdirectory, which can slow the program down if the file is constantly accessed and lots of comparison are made against it. Once an `asset_type` is calculated, it is best to preserve it in the process environment somehow, so this function allows the value to be passed in. If no value is detected, it will make a call to the aforementioned directory and parse the file to determine to the `asset_type`. Asset types are statically accessible through the `scrilla.static.keys['ASSETS']` dictionary.
 
     Returns
     ------
-    { 'date' (str) : { 'open': value (str), 'close': value (str) }, 'date' (str): { 'open' : value (str), 'close' : value(str) }, ... }
-        Dictionary with date strings formatted `YYYY-MM-DD` as keys and a nested dictionary containing the 'open' and 'close' price as values. Ordered from latest to earliest. \n \n
+    ``dict``: `{ 'date' (str) : { 'open': value (str), 'close': value (str) }, 'date' (str): { 'open' : value (str), 'close' : value(str) }, ... }`, dictionary with date strings formatted `YYYY-MM-DD` as keys and a nested dictionary containing the 'open' and 'close' price as values. Ordered from latest to earliest.
     
     .. notes ::
-        * The default analysis period, if no `start_date` and `end_date` are specified, is determined by the *DEFAULT_ANALYSIS_PERIOD" variable in the `settings,py` file. The hardcoded value of this setting is 100. Should probably put this variable into the enviroment in the future and allow user to configure it. \n \n
+        * The default analysis period, if no `start_date` and `end_date` are specified, is determined by the *DEFAULT_ANALYSIS_PERIOD** variable in the `settings,py` file. The default value of this variable is 100.
     """
-    try:
-        asset_type = errors.validate_asset_type(ticker, asset_type)
-        start_date, end_date = errors.validate_dates(start_date, end_date, asset_type)
-    except errors.InputValidationError as ive:
-        raise ive
-
+    asset_type = errors.validate_asset_type(ticker, asset_type)
+    start_date, end_date = errors.validate_dates(start_date, end_date, asset_type)
+    
     prices = price_cache.filter_price_cache(ticker=ticker, start_date=start_date, end_date=end_date)
 
     if prices is not None and helper.date_to_string(end_date) in prices.keys() and (
@@ -491,15 +474,11 @@ def get_daily_price_history(ticker: str, start_date : datetime.date=None,
             and (helper.days_between(start_date, end_date) + 1) == len(prices))
     ):
         return prices
+
     if prices is not None:
         logger.debug(f'Cached {ticker} prices are out of date, passing request off to external service')
         
-    try:
-        prices = price_manager.get_prices(ticker=ticker,start_date=start_date, end_date=end_date, asset_type=asset_type)
-    except errors.APIResponseError as api:
-        raise api
-    except errors.InputValidationError as ive:
-        raise ive
+    prices = price_manager.get_prices(ticker=ticker,start_date=start_date, end_date=end_date, asset_type=asset_type)
 
     parsed_prices ={}
     for date in prices:

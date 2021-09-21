@@ -280,7 +280,7 @@ You can then screen stocks according to some criteria. For example, the followin
 
 ## Programmatic 
 
-See [docs](/docs/scrilla) for more information on each module.
+See [docs](/docs/scrilla) for more information on each module. 
 
 # Notes
 
