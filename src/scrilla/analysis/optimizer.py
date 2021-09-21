@@ -56,6 +56,7 @@ def maximize_bivariate_normal_likelihood(data):
     """
 
     .. warning ::
+        This does not work. Son of a gun.
 
     """
 

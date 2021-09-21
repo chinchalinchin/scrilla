@@ -89,15 +89,13 @@ def bivariate_normal_likelihood_function(params: list, data: list, knowns: list)
 
 def sample_percentile(data : list, percentile: float):
     """
-    Description
-    -----------
     Returns the observation in a sample data corresponding to the given percentile, i.e. the observation from a sorted sample where the percentage of the observations below that point is specified by the percentile. If the percentile falls between data points, the observation is smoothed based on the distance from the adjoining observations. 
 
     Parameters
     ----------
-    1. data : list
+    1. **data** : ``list``
         Array representing the set of data whose percentile is to be calculated.
-    2. percentile: float
+    2. **percentile**: ``float``
         The percentile corresponding to the desired observation.
     """
     data.sort()
@@ -117,10 +115,24 @@ def sample_percentile(data : list, percentile: float):
 
 def sample_correlation(x : list, y: list):
     """
-    
+    Returns the sample correlation calculated using the Pearson correlation coefficient estimator.
+
+    Parameters
+    ----------
+    1. **x**: ``list``
+        The *x* sample of paired data (*x*, *y*). Must preserve order with **y**.
+    2. **y**: ``list``
+        The *y* sample of paired data (*x*, *y*). Must preserve order with **x**.
+
     Raises 
     ------
-    1. scrilla.analysis.models.geometric.statistics.SampleSizeError \n \n
+    1. **scrilla.errors.SampleSizeError**
+        If the sample sizes do not meet the requirements for estimation, this error will be thrown.
+    2. **ValueError**
+        If the denominator of the correlation coefficient becomes too small for floating point arithmetic, this error is thrown.
+    
+    .. todos ::
+        * Possibly wrap the correlation coefficient numerator and denominator in `Decimal` class before calculation to bypass the **ValueError** that occurs in some samples where the denominator is too small for the arithmetic to detect.
     """
     if len(x) != len(y):
         raise errors.SampleSizeError('Samples are not of comparable lengths')
