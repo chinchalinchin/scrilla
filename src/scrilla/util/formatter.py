@@ -40,7 +40,7 @@ FUNC_ARG_DICT = {
     "capm_beta": "-capm-beta",
     "clear_cache": "-clear-cache",
     "clear_static": "-clear-static",
-    "clear_watchlist": "-clear-watch",
+    "clear_common": "-clear-watch",
     "close": "-close",
     "correlation":"-cor",
     "correlation_time_series": "-cors",
@@ -107,15 +107,15 @@ FUNC_DICT = {
 
    "var": "Calculates the value at risk, i.e. for a given p, the Sv such that Prob(St<Sv) = p. 'expiry' and 'prob' are required arguments for this function. Note: 'expiry' is measured in years and is different from the `start` and `end` dates. `start` and `end` are used to calibrate the model to a historical sample and `expiry` is used as the time horizon over which the value at risk is calculated into the future.__\n\t\t\tOPTIONS: \n\t\t\t\t-prob (format: decimal) REQUIRED \n\t\t\t\t-expiry (format: decimal) REQUIRED \n\t\t\t\t-start (format: \"YYYY-MM-DD\")\n\t\t\t\t-end  (format :\"YYYY-MM-DD\")\n\t\t\t\t-save (format: /path/to/file/filename.json)\n\t\t\t\t-quiet (suppress console output)\n\t\t\t\t-moments (estimation method flag)\n\t\t\t\t-percents (estimation method flag)\n\t\t\t\t-likely (estimation method flag)",
 
-    "capm_equity_cost": "Computes the cost of equity according to CAPM for the supplied list of tickers. If no start or end dates are specified, calculations default to the last 100 days of prices. The environment variable MARKET_PROXY defines which ticker serves as a proxy for the market as whole.__\n\t\t\tOPTIONS:\n\t\t\t\t-start (format: \"YYYY-MM-DD\")\n\t\t\t\t-end  (format :\"YYYY-MM-DD\")\n\t\t\t\t-save (format: /path/to/file/filename.json)\n\t\t\t\t-json (print results to screen as JSON)\n\t\t\t\t-quiet (suppress console output)\n\t\t\t\t-moments (estimation method flag)\n\t\t\t\t-percents (estimation method flag)\n\t\t\t\t-likely (estimation method flag)",
+    "capm_equity_cost": "Computes the cost of equity according to CAPM for the supplied list of tickers. If no start or end dates are specified, calculations default to the last 100 days of prices. The environment variable \x1b[1mMARKET_PROXY\x1b[1m defines which ticker serves as a proxy for the market as whole.__\n\t\t\tOPTIONS:\n\t\t\t\t-start (format: \"YYYY-MM-DD\")\n\t\t\t\t-end  (format :\"YYYY-MM-DD\")\n\t\t\t\t-save (format: /path/to/file/filename.json)\n\t\t\t\t-json (print results to screen as JSON)\n\t\t\t\t-quiet (suppress console output)\n\t\t\t\t-moments (estimation method flag)\n\t\t\t\t-percents (estimation method flag)\n\t\t\t\t-likely (estimation method flag)",
 
-    "capm_beta": "Computes the market beta according to CAPM for the supplied list of tickers. If no start or end dates are specified, calculations default to the last 100 days of prices. The environment variable MARKET_PROXY defines which ticker serves as a proxy for the market as whole.__\n\t\t\tOPTIONS:\n\t\t\t\t-start (format: \"YYYY-MM-DD\")\n\t\t\t\t-end  (format :\"YYYY-MM-DD\")\n\t\t\t\t-save (format: /path/to/file/filename.json)\n\t\t\t\t-json (print results to screen as JSON)\n\t\t\t\t-quiet (suppress console output)\n\t\t\t\t-moments (estimation method flag)\n\t\t\t\t-percents (estimation method flag)\n\t\t\t\t-likely (estimation method flag)",
+    "capm_beta": "Computes the market beta according to CAPM for the supplied list of tickers. If no start or end dates are specified, calculations default to the last 100 days of prices. The environment variable \x1b[1mMARKET_PROXY\x1b[0m defines which ticker serves as a proxy for the market as whole.__\n\t\t\tOPTIONS:\n\t\t\t\t-start (format: \"YYYY-MM-DD\")\n\t\t\t\t-end  (format :\"YYYY-MM-DD\")\n\t\t\t\t-save (format: /path/to/file/filename.json)\n\t\t\t\t-json (print results to screen as JSON)\n\t\t\t\t-quiet (suppress console output)\n\t\t\t\t-moments (estimation method flag)\n\t\t\t\t-percents (estimation method flag)\n\t\t\t\t-likely (estimation method flag)",
 
-    "clear_cache": "Clears the /data/cache/ directory of all data, outdated or not.",
+    "clear_cache": "Clears the _installation_directiory_/data/cache/ directory of all data.",
     
-    "clear_static": "Clears the /data/static directory of all data. Not recommended unless necessary. Static data takes a long time to reload.",
+    "clear_static": "Clears the _installation_directory_/data/static/ directory of all data. Not recommended unless necessary. Static data takes a long time to reload.",
 
-    "clear_watchlist": "Clears the /data/common/watchlist.json of all saved ticker symbols.",
+    "clear_common": "Clears the _installation_directory_/data/common/, which includes API keys stored through the command line and ticker saved to the user watchlist.",
     
     "close": "Return latest closing value for the supplied list of symbols (equity or crypto).",
     
@@ -127,7 +127,7 @@ FUNC_DICT = {
     
     "dividends": "Displays the price history over the specific date range. If no dates are provided, returns the entire dividend history.__\n\t\t\tOPTIONS:\n\t\t\t\t-start (format: \"YYYY-MM-DD\")\n\t\t\t\t-end  (format :\"YYYY-MM-DD\")\n\t\t\t\t-save (format: /path/to/file/filename.json)\n\t\t\t\t-json (print results to screen as JSON)\n\t\t\t\t-quiet (suppress console output)",
 
-    "efficient_frontier": "Generate a sample of the portfolio's efficient frontier for the supplied list of tickers. The efficient frontier algorithm will minimize a portfolio's volality for a given rate of return and then maximize its return, and then use these points to generate the rest of the frontier by taking increments along the line connecting the (risk,return) profile of the minimum volatility portfolio to the (risk, return) profile of the maximum return portfolio. The number of points calculated in the efficient frontier can be specifed as an integer with the -steps (TODO: this argument doesn't work yet). If no -steps is provided, the value of the environment variable FRONTIER_STEPS will be used (TODO part 2: environment variable does, though!).__\n\t\t\t OPTIONS:\n\t\t\t\t-steps (format: integer)\n\t\t\t\t-invest (format: decimal)\n\t\t\t\t-start (format: \"YYYY-MM-DD\")\n\t\t\t\t-end  (format :\"YYYY-MM-DD\")\n\t\t\t\t-save (format: /path/to/file/filename.json)\n\t\t\t\t-json (print results to screen as JSON)\n\t\t\t\t-quiet (suppress console output)\n\t\t\t\t-moments (estimation method flag)\n\t\t\t\t-percents (estimation method flag)\n\t\t\t\t-likely (estimation method flag)",
+    "efficient_frontier": "Generate a sample of the portfolio's efficient frontier for the supplied list of tickers. The efficient frontier algorithm will minimize a portfolio's volality for a given rate of return and then maximize its return, and then use these points to generate the rest of the frontier by taking increments along the line connecting the (risk,return) profile of the minimum volatility portfolio to the (risk, return) profile of the maximum return portfolio. The number of points calculated in the efficient frontier can be specifed as an integer with the -steps flag. If no -steps is provided, the value of the environment variable FRONTIER_STEPS will be used.__\n\t\t\t OPTIONS:\n\t\t\t\t-steps (format: integer)\n\t\t\t\t-invest (format: decimal)\n\t\t\t\t-start (format: \"YYYY-MM-DD\")\n\t\t\t\t-end  (format :\"YYYY-MM-DD\")\n\t\t\t\t-save (format: /path/to/file/filename.json)\n\t\t\t\t-json (print results to screen as JSON)\n\t\t\t\t-quiet (suppress console output)\n\t\t\t\t-moments (estimation method flag)\n\t\t\t\t-percents (estimation method flag)\n\t\t\t\t-likely (estimation method flag)",
     
     "examples": "Display examples of syntax.",
     
@@ -151,7 +151,7 @@ FUNC_DICT = {
 
     "plot_dividends": "Generates a scatter plot graphic of the dividend history for the supplied ticker with a superimposed simple linear regression line. Note: this function only accepts one ticker at a time.__\n\t\t\tOPTIONS:\n\t\t\t\t-save (format: /path/to/file/filename.jpeg)",
     
-    "plot_frontier": "Generates a scatter plot graphic of the portfolio\'s efficient frontier for the supplied list of tickers. Not available when running inside of a Docker container.The number of points calculated in the efficient frontier can be specifed as an integer with the -steps. If no -steps is provided, the value of the environment variable FRONTIER_STEPS will be used.__\n\t\t\tOPTIONS:\n\t\t\t\t-start (format: \"YYYY-MM-DD\")\n\t\t\t\t-end  (format :\"YYYY-MM-DD\")\n\t\t\t\t-save (format: /path/to/file/filename.jpeg)\n\t\t\t\t-steps (format: integer)\n\t\t\t\t-moments (estimation method flag)\n\t\t\t\t-percents (estimation method flag)\n\t\t\t\t-likely (estimation method flag)",
+    "plot_frontier": "Generates a scatter plot graphic of the portfolio\'s efficient frontier for the supplied list of tickers. The number of points calculated in the efficient frontier can be specifed as an integer with the -steps. If no -steps is provided, the value of the environment variable \x1b[1mFRONTIER_STEPS\x1b[0m will be used.__\n\t\t\tOPTIONS:\n\t\t\t\t-start (format: \"YYYY-MM-DD\")\n\t\t\t\t-end  (format :\"YYYY-MM-DD\")\n\t\t\t\t-save (format: /path/to/file/filename.jpeg)\n\t\t\t\t-steps (format: integer)\n\t\t\t\t-moments (estimation method flag)\n\t\t\t\t-percents (estimation method flag)\n\t\t\t\t-likely (estimation method flag)",
     
     "plot_moving_averages": "Generates a grouped bar chart of the moving averages for each equity in the supplied list of ticker symbols. Not available when running inside of a Docker container. If no start or end dates are specified, calculations default to the last 100 days of prices.__\n\t\t\tOPTIONS:\n\t\t\t\t-start (format: \"YYYY-MM-DD\")\n\t\t\t\t-end  (format :\"YYYY-MM-DD\")\n\t\t\t\t-save (format: /path/to/file/filename.jpeg)",
     
@@ -163,21 +163,21 @@ FUNC_DICT = {
     
     "price_history": "Prints the price histories for each inputted asset over the specified date range. If no date range is given, price histories will default to the last 100 days.__\n\t\t\tOPTIONS:\n\t\t\t\t-start (format: \"YYYY-MM-DD\")\n\t\t\t\t-end  (format :\"YYYY-MM-DD\")\n\t\t\t\t-save (format: /path/to/file/filename.json)\n\t\t\t\t-json (print results to screen as JSON)\n\t\t\t\t-quiet (suppress console output)",
 
-    "purge": "Removes all files contained with the \x1B[3m_installation_directory_\x1B[0m/data/static/, \x1B[3m_installation_directory_\x1B[0m/data/cache/ and \x1B[3m_installation_directory\x1B[0m/data/common/ directory, but retains the directories themselves.",
+    "purge": "Removes all files contained with the _installation_directory_/data/static/, _installation_directory_/data/cache/ and _installation_directory_/data/common/ directory, but retains the directories themselves.",
     
     "risk_free_rate": "Returns the current annualized US Treasury yield specified by the RISK_FREE environment variables. Allowable values for RISK_FREE environment variable: ONE_MONTH, TWO_MONTH, THREE_MONTH, SIX_MONTH, ONE_YEAR, TWO_YEAR, THREE_YEAR, FIVE_YEAR, SEVEN_YEAR, TEN_YEAR, TWENTY_YEAR, THIRTY_YEAR.",
     
     "risk_profile": "Calculate the risk-return profile for the supplied list of ticker symbols. If no start or end dates are specified, calculations default to the last 100 days of prices.__\n\t\t\tOPTIONS:\n\t\t\t\t-start (format: \"YYYY-MM-DD\")\n\t\t\t\t-end  (format :\"YYYY-MM-DD\")\n\t\t\t\t-save (format: /path/to/file/filename.json)\n\t\t\t\t-json (print results to screen as JSON)\n\t\t\t\t-quiet (suppress console output)\n\t\t\t\t-moments (estimation method flag)\n\t\t\t\t-percents (estimation method flag)\n\t\t\t\t-likely (estimation method flag)",
     
-    "screener": "Searchs equity spot prices that trade at a discount to the provided model. If no model is provided, the screener will default to the Discount Dividend Model. If no discount rate is provided, the screener will default to the cost of equity for a ticker calculated using the CAPM model and the ticker defined by environment variable MARKET_PROXY as a proxy for the market.__\n\t\t\tOPTIONS:\n\t\t\t\t-discount (format: decimal)\n\t\t\t\t-model (format: string, values: ddm)",
+    "screener": "Searchs equity spot prices that trade at a discount to the provided model. If no model is provided, the screener will default to the Discount Dividend Model. If no discount rate is provided, the screener will default to the cost of equity for a ticker calculated using the CAPM model.__\n\t\t\tOPTIONS:\n\t\t\t\t-discount (format: decimal)\n\t\t\t\t-model (format: string, values: ddm)",
     
     "sharpe_ratio": "Computes the sharpe ratio for each of the supplied tickers.__\n\t\t\tOPTIONS:\n\t\t\t\t-start (format: \"YYYY-MM-DD\")\n\t\t\t\t-end  (format :\"YYYY-MM-DD\")\n\t\t\t\t-save (format: /path/to/file/filename.json)\n\t\t\t\t-json (print results to screen as JSON)\n\t\t\t\t-quiet (suppress console output)\n\t\t\t\t-moments (estimation method flag)\n\t\t\t\t-percents (estimation method flag)\n\t\t\t\t-likely (estimation method flag)", 
 
-    "statistic": "Retrieves the latest value for the supplied list of economic statistics. The available list of economic statistic can be found at https://www.quandl.com/data/FRED-Federal-Reserve-Economic-Data/documentation?anchor=growth; it is also stored in the \x1B[3minstallation_directory_\x1B[0m/data/static/ directory of the application.__\n\t\t\tOPTIONS:\n\t\t\t\t-json (print results to screen as JSON)\n\t\t\t\t-save (format: /path/to/file/filename.json)\n\t\t\t\t-quiet (suppress console output)",
+    "statistic": "Retrieves the latest value for the supplied list of economic statistics. The available list of economic statistic can be found at https://www.quandl.com/data/FRED-Federal-Reserve-Economic-Data/documentation?anchor=growth; it is also stored in the minstallation_directory_/data/static/ directory of the application.__\n\t\t\tOPTIONS:\n\t\t\t\t-json (print results to screen as JSON)\n\t\t\t\t-save (format: /path/to/file/filename.json)\n\t\t\t\t-quiet (suppress console output)",
     
-    "statistic_history": "Prints the statistic history for the supplied list of economic statistics.The available list of economic statistic can be found at https://www.quandl.com/data/FRED-Federal-Reserve-Economic-Data/documentation?anchor=growth; it is also stored in the \x1B[3m_installation_directory_\x1B[0m/data/static/ directory of the application.__\n\t\t\tOPTIONS:\n\t\t\t\t-start (format: \"YYYY-MM-DD\")\n\t\t\t\t-end  (format :\"YYYY-MM-DD\")\n\t\t\t\t-save (format: /path/to/file/filename.json)\n\t\t\t\t-json (print results to screen as JSON)\n\t\t\t\t-quiet (suppress console output)",
+    "statistic_history": "Prints the statistic history for the supplied list of economic statistics.The available list of economic statistic can be found at https://www.quandl.com/data/FRED-Federal-Reserve-Economic-Data/documentation?anchor=growth; it is also stored in the _installation_directory_/data/static/ directory of the application.__\n\t\t\tOPTIONS:\n\t\t\t\t-start (format: \"YYYY-MM-DD\")\n\t\t\t\t-end  (format :\"YYYY-MM-DD\")\n\t\t\t\t-save (format: /path/to/file/filename.json)\n\t\t\t\t-json (print results to screen as JSON)\n\t\t\t\t-quiet (suppress console output)",
 
-    "store": "Save API key to local \x1B[3m_installation_directory_\x1B[0m/data/common/ directory.Keys must be input one at a time. Allowable <key>'s: \x1b[1mALPHA_VANTAGE_KEY\x1b[0m, \x1b[1mQUANDL_KEY\x1b[0m, \x1b[1mIEX_KEY\x1b[0m. Case sensitive.__\n\t\t\tEXAMPLE:\n\t\t\t\tscrilla -store <key>=<value>",
+    "store": "Save API key to local _installation_directory_/data/common/ directory. Keys must be input one at a time. Allowable keys: \x1b[1mALPHA_VANTAGE_KEY\x1b[0m, \x1b[1mQUANDL_KEY\x1b[0m, \x1b[1mIEX_KEY\x1b[0m. Case sensitive.__\n\t\t\tEXAMPLE:\n\t\t\t\tscrilla -store <key>=<value>",
 
     "watchlist": "Saves the supplist list of tickers to your watchlist. These equity symbol are used by the screening algorithms when searching for stocks that trade at a discount.", 
 
@@ -188,7 +188,7 @@ FUNC_DICT = {
 }
 
 EXAMPLES = { 
-    'scrilla -store ALPHA_VANTAGE_KEY=mykeygoeshere': 'Store your API credentials in the \x1B[3m_installation_directory_\x1B[0m/data/common subdirectory. Note: credentials are stored unencrypted. It is recommended you store your API credentials in environment variables. See documentation for more information: https://pypi.org/project/scrilla/',
+    'scrilla -store ALPHA_VANTAGE_KEY=mykeygoeshere': 'Store your API credentials in the _installation_directory_/data/common subdirectory. Note: credentials are stored unencrypted. It is recommended you store your API credentials in environment variables. See documentation for more information: https://pypi.org/project/scrilla/',
 
     'scrilla -ls-watch': 'Lists the stocks in your watchlist.',
 

@@ -36,6 +36,9 @@ class SampleSizeError(Exception):
 class PriceError(Exception):
     pass
 
+class UnboundedIntegral(Exception):
+    pass
+
 def validate_asset_type(ticker: str, asset_type: Union[str, None]=None) -> str:
     """
     

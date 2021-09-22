@@ -808,6 +808,7 @@ def calculate_percentile_correlation(ticker_1, ticker_2, asset_type_1=None, asse
                                 start_date=start_date, end_date=end_date, 
                                 correlation = correlation, method=static.keys['ESTIMATION']['LIKE'])
     return result
+
 def calculate_likelihood_correlation(ticker_1, ticker_2, asset_type_1=None, asset_type_2=None, start_date=None, end_date=None, sample_prices=None) -> dict:
     """
     Calculates the sample correlation using the maximum likelihood estimators, assuming underlying price process follows Geometric Brownian Motion, i.e. the price distribution is lognormal. 

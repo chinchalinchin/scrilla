@@ -126,8 +126,8 @@ def do_program() -> None:
             logger.comment(f'Clearing {settings.STATIC_DIR}')
             files.clear_directory(directory=settings.STATIC_DIR, retain=True)
 
-        ### FUNCTION: Clear Watchlist
-        elif opt == formatter.FUNC_ARG_DICT["clear_watchlist"]:
+        ### FUNCTION: Clear Common
+        elif opt == formatter.FUNC_ARG_DICT["clear_common"]:
             logger.comment(f'Clearing {settings.COMMON_DIR}')
             files.clear_directory(directory=settings.COMMON_DIR, retain=True)
 
@@ -395,7 +395,8 @@ def do_program() -> None:
                                             start_date=xtra_dict['start_date'], 
                                             end_date=xtra_dict['end_date'],
                                             method=xtra_dict['estimation'])
-                    frontier = optimizer.calculate_efficient_frontier(portfolio=portfolio)
+                    frontier = optimizer.calculate_efficient_frontier(portfolio=portfolio, 
+                                                                        steps=xtra_dict['steps'])
 
                     if xtra_dict['suppress'] is None:
                         if xtra_dict['json'] is None:
@@ -521,7 +522,8 @@ def do_program() -> None:
                                             start_date=xtra_dict['start_date'], 
                                             end_date=xtra_dict['end_date'],
                                             method=xtra_dict['estimation'])
-                    frontier = optimizer.calculate_efficient_frontier(portfolio=portfolio)
+                    frontier = optimizer.calculate_efficient_frontier(portfolio=portfolio,
+                                                                        steps=xtra_dict['steps'])
                     plotter.plot_frontier(portfolio=Portfolio(main_args), 
                                             frontier=frontier, 
                                             show=True, 

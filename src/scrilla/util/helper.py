@@ -322,19 +322,6 @@ def get_time_to_next_period(starting_date, period):
 ##### PARSING FUNCTIONS
 
 ### CLI PARSING
-def get_start_date(xtra_args, xtra_values):
-    if formatter.FUNC_XTRA_VALUED_ARGS_DICT['start_date'] in xtra_args:
-        unparsed_start = xtra_values[xtra_args.index(formatter.FUNC_XTRA_VALUED_ARGS_DICT['start_date'])]
-        return parse_date_string(unparsed_start)
-    return None
-
-def get_end_date(xtra_args, xtra_values):
-    if formatter.FUNC_XTRA_VALUED_ARGS_DICT['end_date'] in xtra_args:
-        unparsed_end = xtra_values[xtra_args.index(formatter.FUNC_XTRA_VALUED_ARGS_DICT['end_date'])]
-        return parse_date_string(unparsed_end)
-    return None
-
-
 def get_float_arg(xtra_args, xtra_values, which_arg):
     if which_arg in xtra_args:
         try:
