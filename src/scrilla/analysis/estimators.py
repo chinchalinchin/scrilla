@@ -16,7 +16,7 @@
 from os import path
 from sys import path as sys_path
 from typing import List
-from numpy import log, sqrt, exp, array
+from numpy import log, sqrt, exp, inf
 from scipy.stats import norm, multivariate_normal
 
 if __name__=="__main__":
@@ -46,7 +46,7 @@ def univariate_normal_likelihood_function(params : list, data : list) -> float:
         likelihood += norm.logpdf(x=point, loc=params[0], scale=params[1])
     return likelihood
 
-def bivariate_normal_likelihood_function(params: list, data: list, knowns: list) -> float:
+def bivariate_normal_likelihood_function(params: list, data: list) -> float:
     """
     Returns the likelihood of a vector of parameters being observed from a sample bivariate data of normal data. It can be used as objective function input for `scipy.optimize`'s optimization methods. 
 
@@ -69,22 +69,33 @@ def bivariate_normal_likelihood_function(params: list, data: list, knowns: list)
     .. notes ::
         * the covariance matrix of a bivariate normal distribution must be positive semi-definite (PSD). PSD can be checked with the Slyvester Criterion (https://en.wikipedia.org/wiki/Sylvester%27s_criterion) or Cauchy-Schwarz Inequality (https://en.wikipedia.org/wiki/Cauchy%E2%80%93Schwarz_inequality#Probability_theory). May need to implement a conditional that verifies the inputted `params` verify this condition. Currently, this function is only used in the `scrilla.analysis.optimizer` class and these constraints are imposed on that level. It might be better to impose them here. Will need to think.
     """
-    print('params', params)
-    # using knowns for now, until i can figured out how to solve the fully parameterized function
-    # mean = [ params[0], params[1]]
-    mean = [knowns[0], knowns[1]]
-    # cov = [ [ params[2], params[4] ], [ params[4], params[3] ] ]
-    cov = [ [ knowns[2], params[0] ], [ params[0], knowns[3] ] ]
+
+    mean = [ params[0], params[1]]
+    cov = [ [ params[2], params[4] ], [ params[4], params[3] ] ]
+
+    # ensure covariance matrix is positive definite and non-singular
+    determinant = params[2]*params[3] - params[4]**2
+    if determinant == 0 or determinant < 0:
+        return inf
+
     likelihood = 0
-
-    # slyvester criterion
-    if knowns[2]*knowns[3] - params[0]**2 < 0:
-        print('not positive definite')
-        return 0
-
-    print('estimators.cov', cov)
     for point in data:
         likelihood += multivariate_normal.logpdf(x=point, mean=mean, cov=cov)
+    return likelihood
+
+def bivariate_normal_likelihood_function_unknown_correlation(params: list, data: list, knowns: list):
+    """
+    hacky way to do this until i figure out how to optimize the previous function without it throwing the 
+    positive definite error every time. can't impose bounds that dependent on the parameters and the constraints
+    aren't evaluated until after the function is, so there's no way to impose Var(x)Var(y) - Cov**2(x,y) > 0
+    to ensure positive-definiteness
+    """
+    mean = [ knowns[0], knowns[1] ]
+    cov_matrix = [ [knowns[2], params[0]], [params[0], knowns[3]] ]
+    print('cov matrix', cov_matrix)
+    likelihood = 0
+    for point in data:
+        likelihood += multivariate_normal.logpdf(x=point, mean=mean, cov=cov_matrix)
     print('likelihood', likelihood)
     return likelihood
 

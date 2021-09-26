@@ -61,25 +61,31 @@ def maximize_bivariate_normal_likelihood(data):
     """
 
     x_data = [ datum[0] for datum in data ]
-    y_data = [ datum[1] for datum in data ]
-
-    x_likelihood_estimates = maximize_univariate_normal_likelihood(x_data)
-    y_likelihood_estimates = maximize_univariate_normal_likelihood(y_data)    
-
-    print('x est', x_likelihood_estimates)
-    print('y est', y_likelihood_estimates)
-    knowns = [x_likelihood_estimates[0], y_likelihood_estimates[0], x_likelihood_estimates[1], y_likelihood_estimates[1]]
+    y_data = [ datum[1] for datum in data ] 
     
-    
-    likelihood = lambda x : (-1)*estimators.bivariate_normal_likelihood_function(params=x, data=data, knowns=knowns)
+    # x_estimates = maximize_univariate_normal_likelihood(data=x_data)
+    # y_estimates = maximize_univariate_normal_likelihood(data=y_data)
+    x_25_percentile = estimators.sample_percentile(x_data, 0.25)
+    y_25_percentile = estimators.sample_percentile(y_data, 0.25)
+    x_median = estimators.sample_percentile(x_data, 0.5)
+    y_median = estimators.sample_percentile(y_data, 0.5)
+    x_75_percentile = estimators.sample_percentile(x_data, 0.75)
+    y_75_percentile = estimators.sample_percentile(y_data, 0.75)
+    # knowns = [ x_estimates[0], y_estimates[0], x_estimates[1], y_estimates[1] ]
 
-    guess = [ sqrt(x_likelihood_estimates[1])*sqrt(y_likelihood_estimates[1])/2 ]
+    likelihood = lambda x : (-1)*estimators.bivariate_normal_likelihood_function(params=x, 
+                                                                                data=data)
 
-    print('guess', guess)
-    params = optimize.minimize(fun = likelihood, x0 = guess, options ={'disp': False},
+    var_x_guess = (x_75_percentile - x_25_percentile)/2
+    var_y_guess = (y_75_percentile - y_25_percentile)/2
+    guess = [ x_median, y_median, var_x_guess, var_y_guess, 0]
+
+    params = optimize.minimize(fun = likelihood, 
+                                x0 = guess,
+                                options ={'disp': False},
                                 method=static.constants['OPTIMIZATION_METHOD'])
-    result = [ x_likelihood_estimates[0], y_likelihood_estimates[0], x_likelihood_estimates[1], x_likelihood_estimates[1], params.x[0]]
-    return result
+    print(params.x)
+    return params.x
     
 def optimize_portfolio_variance(portfolio, target_return=None):
     """

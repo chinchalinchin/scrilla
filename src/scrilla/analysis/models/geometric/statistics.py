@@ -35,7 +35,7 @@ correlation_cache = cache.CorrelationCache()
     
 def get_sample_of_returns(prices: dict, asset_type: str) -> list:
     """
-    Generates a list of logarithmic returns on the sample `prices`. 
+    Generates a list of logarithmic returns on the sample `prices`. Sample return is annualized.
 
     Parameters
     ----------
@@ -443,10 +443,12 @@ def calculate_likelihood_risk_return(ticker, start_date: Union[date, None]=None,
     if not prices:
         raise errors.PriceError(f'No prices could be retrieved for {ticker}')
 
-    sample_of_returns = get_sample_of_returns(prices=prices, asset_type=asset_type, trading_period=trading_period)
+    sample_of_returns = get_sample_of_returns(prices=prices, asset_type=asset_type)
 
     likelihood_estimates = optimizer.maximize_univariate_normal_likelihood(data=sample_of_returns)
+    # See NOTE in docstring
     # NOTE: E(dln(S)/delta_t) = (mu - 0.5 * sigma ** 2) * delta_t / delta_t = mu - 0.5 * sigma ** 2 
+        # TODO: add :math to docstring with this
     # NOTE: Var(dln(S)/delta_t) = (1/delta_t**2)*Var(dlnS) = sigma**2*delta_t / delta_t**2 = sigma**2 / delta_t
     #       so need to multiply volatiliy by sqrt(delta_t) to get correct scale.
     vol = likelihood_estimates[1]*sqrt(trading_period)
@@ -521,7 +523,7 @@ def calculate_percentile_risk_return(ticker: str, start_date: Union[date, None]=
     if not prices:
         raise errors.PriceError(f'No prices could be retrieved for {ticker}')
 
-    sample_of_returns = get_sample_of_returns(prices=prices, asset_type=asset_type, trading_period=trading_period)
+    sample_of_returns = get_sample_of_returns(prices=prices, asset_type=asset_type)
 
     first_quartile = estimators.sample_percentile(data=sample_of_returns, percentile=0.25)
     median = estimators.sample_percentile(data=sample_of_returns, percentile=0.50)
@@ -797,8 +799,8 @@ def calculate_percentile_correlation(ticker_1, ticker_2, asset_type_1=None, asse
     else:
         trading_period = static.constants['ONE_TRADING_DAY']['EQUITY']
     
-    sample_of_returns_1 = get_sample_of_returns(prices=sample_prices[ticker_1], asset_type=asset_type_1, trading_period=trading_period)
-    sample_of_returns_2 = get_sample_of_returns(prices=sample_prices[ticker_2], asset_type=asset_type_2, trading_period=trading_period)
+    sample_of_returns_1 = get_sample_of_returns(prices=sample_prices[ticker_1], asset_type=asset_type_1)
+    sample_of_returns_2 = get_sample_of_returns(prices=sample_prices[ticker_2], asset_type=asset_type_2)
     
     # TODO: find bivariate percentiles. 
     
@@ -832,33 +834,27 @@ def calculate_likelihood_correlation(ticker_1, ticker_2, asset_type_1=None, asse
     
     Raises
     ------
-    1. **errors.InputValidationError**
-    2. **errors.SampleSizeError**
-    3. **errors.PriceError**
+    1. **errors.PriceError**
 
     Returns
     ------
     ``dict`` : `{ 'correlation' : float }`, correlation of `ticker_1` and `ticker_2`.
     """
     ### START ARGUMENT PARSING ###
-    try:
-        asset_type_1 = errors.validate_asset_type(ticker=ticker_1, asset_type=asset_type_1)
-        asset_type_2 = errors.validate_asset_type(ticker=ticker_2, asset_type=asset_type_2)
-        if asset_type_1 == static.keys['ASSETS']['CRYPTO'] and asset_type_2 == static.keys['ASSETS']['CRYPTO']:
-            # validate over all days
-            start_date, end_date = errors.validate_dates(start_date=start_date, end_date=end_date,
-                                                            asset_type=static.keys['ASSETS']['CRYPTO'])
-        else:
-            #   validate over trading days. since (date - 100 days) > (date - 100 trading days), always
-            #   take the largest sample so intersect_dict_keys will return a sample of the correct size
-            #   for mixed asset types.
-            start_date, end_date = errors.validate_dates(start_date=start_date, end_date=end_date,
+    asset_type_1 = errors.validate_asset_type(ticker=ticker_1, asset_type=asset_type_1)
+    asset_type_2 = errors.validate_asset_type(ticker=ticker_2, asset_type=asset_type_2)
+    if asset_type_1 == static.keys['ASSETS']['CRYPTO'] and asset_type_2 == static.keys['ASSETS']['CRYPTO']:
+        # validate over all days
+        start_date, end_date = errors.validate_dates(start_date=start_date, end_date=end_date,
+                                                        asset_type=static.keys['ASSETS']['CRYPTO'])
+    else:
+        #   validate over trading days. since (date - 100 days) > (date - 100 trading days), always
+        #   take the largest sample so intersect_dict_keys will return a sample of the correct size
+        #   for mixed asset types.
+        start_date, end_date = errors.validate_dates(start_date=start_date, end_date=end_date,
                                                                 asset_type=static.keys['ASSETS']['EQUITY'])
-    except errors.InputValidationError as ive:
-        raise ive
 
     if sample_prices is None:
-        # TODO: extra save_or_update argument for estimation method, i.e. moments, percentiles or likelihood
         correlation = correlation_cache.filter_correlation_cache(ticker_1=ticker_1, ticker_2=ticker_2,
                                                                     start_date=start_date, end_date=end_date,
                                                                     method=static.keys['ESTIMATION']['LIKE'])
@@ -868,14 +864,14 @@ def calculate_likelihood_correlation(ticker_1, ticker_2, asset_type_1=None, asse
         sample_prices = {}
         logger.debug(f'No sample prices provided or cached ({ticker_1}, {ticker_2}) correlation found.')
         logger.debug('Retrieving price histories for calculation.')
-        try: 
-            sample_prices[ticker_1] = services.get_daily_price_history(ticker=ticker_1, start_date=start_date, 
-                                                                        end_date=end_date, asset_type=asset_type_1)
-            sample_prices[ticker_2] = services.get_daily_price_history(ticker=ticker_2, start_date=start_date, 
-                                                                        end_date=end_date, asset_type=asset_type_2)
-        except errors.APIResponseError as api:
-            raise api
-        
+        sample_prices[ticker_1] = services.get_daily_price_history(ticker=ticker_1, 
+                                                                    start_date=start_date, 
+                                                                    end_date=end_date, 
+                                                                    asset_type=asset_type_1)
+        sample_prices[ticker_2] = services.get_daily_price_history(ticker=ticker_2, 
+                                                                    start_date=start_date, 
+                                                                    end_date=end_date, 
+                                                                    asset_type=asset_type_2)
     if asset_type_1 != asset_type_2:
         # remove weekends and holidays from crypto prices so samples can be compared
             # NOTE: data is lost here.
@@ -883,21 +879,22 @@ def calculate_likelihood_correlation(ticker_1, ticker_2, asset_type_1=None, asse
 
     if 0 in [len(sample_prices[ticker_1]), len(sample_prices[ticker_2])]:
         raise errors.PriceError("Prices cannot be retrieved for correlation calculation")
-
-    if asset_type_1 == asset_type_2 and asset_type_1 == static.keys['ASSETS']['CRYPTO']:
-        trading_period = static.constants['ONE_TRADING_DAY']['CRYPTO']
-    else:
-        trading_period = static.constants['ONE_TRADING_DAY']['EQUITY']
     
-    sample_of_returns_1 = get_sample_of_returns(prices=sample_prices[ticker_1], asset_type=asset_type_1, trading_period=trading_period)
-    sample_of_returns_2 = get_sample_of_returns(prices=sample_prices[ticker_2], asset_type=asset_type_2, trading_period=trading_period)
+    sample_of_returns_1 = get_sample_of_returns(prices=sample_prices[ticker_1], 
+                                                    asset_type=asset_type_1)
+    sample_of_returns_2 = get_sample_of_returns(prices=sample_prices[ticker_2], 
+                                                    asset_type=asset_type_2)
     
     combined_sample = [ [sample_of_returns_1[i], sample_of_returns_2[i]] for i, el in enumerate(sample_of_returns_1)]
 
     likelihood_estimates = optimizer.maximize_bivariate_normal_likelihood(data=combined_sample)
 
-    vol_1 = likelihood_estimates[2]*sqrt(trading_period)
-    vol_2 = likelihood_estimates[3]*sqrt(trading_period)
+    # Var(d lnS / delta_t ) = Var(d lnS )/delta_t**2 = sigma**2 * delta_t / delta_t**2 
+    #   = sigma**2/delta_t 
+    # Cov(d lnS/delta_t, d lnQ/delta_t) = Cov(d lnS, dlnQ)/delta_t**2 
+    #   = rho * sigma_s * sigma_q / delta_t**2
+    vol_1 = sqrt(likelihood_estimates[2])
+    vol_2 = sqrt(likelihood_estimates[3])
 
     correlation = likelihood_estimates[4] / (vol_1*vol_2)
 
