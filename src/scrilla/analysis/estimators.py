@@ -86,7 +86,9 @@ def bivariate_normal_likelihood_function(params: list, data: list) -> float:
 
 def sample_percentile(data : list, percentile: float):
     """
-    Returns the observation in a sample data corresponding to the given percentile, i.e. the observation from a sorted sample where the percentage of the observations below that point is specified by the percentile. If the percentile falls between data points, the observation is smoothed based on the distance from the adjoining observations. 
+    Returns the observation in a sample data corresponding to the given percentile, i.e. the observation from a sorted sample where the percentage of the observations below that point is specified by the percentile. If the percentile falls between data points, the observation is smoothed based on the distance from the adjoining observations in the following manner,
+
+    .. todo:: add latex here
 
     Parameters
     ----------
@@ -112,7 +114,9 @@ def sample_percentile(data : list, percentile: float):
 
 def sample_correlation(x : list, y: list):
     """
-    Returns the sample correlation calculated using the Pearson correlation coefficient estimator.
+    Returns the sample correlation calculated using the Pearson correlation coefficient estimator,
+
+    .. todo:: Pearson coefficient formula here
 
     Parameters
     ----------
@@ -175,8 +179,8 @@ def sample_mean(x: list) -> float:
     """
     Returns the sample mean from a sample of data \\(\{x_1 , x_2, ... , x_n \}\\),
 
-    $$ \frac{\sum_{i=1}^{n} x_i}/{n} $$
-    
+    $$ \bar{x} = \frac{\sum_{i=1}^{n} x_i}/{n} $$
+
     Parameters
     ----------
     1. **x**: ``list``
@@ -184,7 +188,7 @@ def sample_mean(x: list) -> float:
 
     Raises 
     ------
-    1. **scrilla.analysis.models.geometric.statistics.SampleSizeError**
+    1. **scrilla.errors.SampleSizeError**
         If `len(x)==0`, this error will be thrown.
     """
     xbar, n = 0, len(x)
@@ -202,16 +206,21 @@ def recursive_rolling_mean(xbar_previous, new_obs, lost_obs, n=settings.DEFAULT_
 
 def sample_variance(x: list):
     """
-    
+    Returns the sample variance from a sample of data \\(\{x_1 , x_2, ... , x_n \}\\),
+
+    $$ s^2=\frac{\sum_{i=1}^{n} (x_i - \bar{x})^2}/{n-1} $$
+
+    Parameters
+    ----------
+    1. **x**: ``list``
+        List containing a sample of numerical data.
+
     Raises 
     ------
-    1. scrilla.analysis.models.geometric.statistics.SampleSizeError \n \n
+    1. **scrilla.errors.SampleSizeError**
     """
 
-    try:
-        mu, sigma, n = sample_mean(x=x), 0, len(x)
-    except errors.SampleSizeError as e:
-        raise errors.SampleSizeError(e)
+    mu, sigma, n = sample_mean(x=x), 0, len(x)
 
     if n in [0, 1]:
         raise errors.SampleSizeError('Sample variance cannot be computed for a sample size less than or equal to 1.')
@@ -228,10 +237,17 @@ def recursive_rolling_variance(var_previous, xbar_previous, new_obs, lost_obs, n
 
 def sample_covariance(x: list, y: list):
     """
-    
+    Parameters
+    ----------
+    1. **x**: ``list``
+        The *x* sample of paired data (*x*, *y*). Must preserve order with **y**.
+    2. **y**: ``list``
+        The *y* sample of paired data (*x*, *y*). Must preserve order with **x**.
+
     Raises 
     ------
-    1. scrilla.analysis.models.geometric.statistics.SampleSizeError \n \n
+    1. **scrilla.errors.SampleSizeError**
+        If `len(x) != len(y)` (samples of incomparable length) or `len(x) in [0,1]` (insufficient data/degrees of freedom), this error will be thrown.
     """
 
     if len(x) != len(y):
@@ -240,14 +256,10 @@ def sample_covariance(x: list, y: list):
     if len(x) in [0, 1]:
         raise errors.SampleSizeError('Sample correlation cannot be computed for a sample size less than or equal to 1.')
 
-    # TODO: probably a faster way of calculating this.
     n, covariance = len(x), 0
 
-    try:
-        x_mean, y_mean = sample_mean(x=x), sample_mean(x=y)
-    except errors.SampleSizeError as e:
-        raise errors.SampleSizeError(e)
-
+    x_mean, y_mean = sample_mean(x=x), sample_mean(x=y)
+    
     for i, item in enumerate(x):
         covariance += (item - x_mean)*(y[i] - y_mean) / (n -1) 
 
@@ -265,10 +277,17 @@ def recursive_rolling_covariance(covar_previous, new_x_obs, lost_x_obs, previous
 
 def simple_regression_beta(x: list, y: list):
     """
-    
+    Parameters
+    ----------
+    1. **x**: ``list``
+        The *x* sample of paired data (*x*, *y*). Must preserve order with **y**.
+    2. **y**: ``list``
+        The *y* sample of paired data (*x*, *y*). Must preserve order with **x**.
+
     Raises 
     ------
-    1. scrilla.analysis.models.geometric.statistics.SampleSizeError \n \n
+    1. **scrilla.errors.statistics.SampleSizeError**
+        If `len(x) != len(y)` (samples of incomparable length) or `len(x) < 3` (insufficient data/degrees of freedom), this error will be thrown.
     """
 
     if len(x) != len(y):
@@ -276,21 +295,27 @@ def simple_regression_beta(x: list, y: list):
     if len(x) < 3:
         raise errors.SampleSizeError(f'Sample size of {len(x)} is less than the necessary degrees of freedom (n > 2) for regression estimation.')
     
-    try:
-        correl = sample_correlation(x=x, y=y)
-        vol_x = sqrt(sample_variance(x=x))
-        vol_y = sqrt(sample_variance(x=y))
-    except errors.SampleSizeError as e:
-        raise errors.SampleSizeError(e)
+   
+    correl = sample_correlation(x=x, y=y)
+    vol_x = sqrt(sample_variance(x=x))
+    vol_y = sqrt(sample_variance(x=y))
 
     beta = correl * vol_y / vol_x
     return beta
 
 def simple_regression_alpha(x: list, y: list):
     """
+    Parameters
+    ----------
+    1. **x**: ``list``
+        The *x* sample of paired data (*x*, *y*). Must preserve order with **y**.
+    2. **y**: ``list``
+        The *y* sample of paired data (*x*, *y*). Must preserve order with **x**.
+
     Raises 
     ------
-    1. scrilla.analysis.models.geometric.statistics.SampleSizeError
+    1. **scrilla.errors.SampleSizeError**
+        If `len(x) != len(y)` (samples of incomparable length) or `len(x) < 3` (insufficient data/degrees of freedom), this error will be thrown.
     """
 
     if len(x) != len(y):
@@ -299,19 +324,20 @@ def simple_regression_alpha(x: list, y: list):
     if len(x) < 3:
         raise errors.SampleSizeError(f'Sample size of {len(x)} is less than the necessary degrees of freedom (n > 2) for regression estimation.')
     
-    try:
-        y_mean, x_mean = sample_mean(y), sample_mean(x)
-    except errors.SampleSizeError as e:
-        raise errors.SampleSizeError(e)
-
-    if not y_mean or not x_mean:
-        logger.info('Error calculating statistics for regression alpha')
-        return False
+    y_mean, x_mean = sample_mean(y), sample_mean(x)
     
     alpha = y_mean - simple_regression_beta(x=x, y=y)*x_mean
     return alpha
     
 def qq_series_for_sample(sample: list) -> List[list]:
+    """
+    Calculates the QQ series for a sample of data, i.e. the set defined by the ordered pair of sample percentiles and theoretical normal percentiles. A sample's normality can be assessed by how linear the result graph is.
+
+    Parameters
+    ----------
+    1. **sample**: ``list``
+        A sample of numerical data.
+    """
     qq_series = []
     n = len(sample)
     for i, point in enumerate(sample):
