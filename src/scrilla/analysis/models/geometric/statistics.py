@@ -52,17 +52,17 @@ def get_sample_of_returns(prices: dict, asset_type: str) -> list:
     sample_of_returns = []
     trading_period = static.get_trading_period(asset_type=asset_type)
 
-    for date in prices:
-        todays_price = prices[date][static.keys['PRICES']['CLOSE']]
+    for this_date in prices:
+        todays_price = prices[this_date][static.keys['PRICES']['CLOSE']]
 
         if today:
-            logger.verbose(f'{date}: (todays_price, tomorrows_price) = ({todays_price}, {tomorrows_price})')
+            logger.verbose(f'{this_date}: (todays_price, tomorrows_price) = ({todays_price}, {tomorrows_price})')
             # NOTE: crypto prices may have weekends and holidays removed during correlation algorithm 
             # so samples can be compared to equities, need to account for these dates by increasing
             # the time_delta by the number of missed days. 
             if asset_type == static.keys['ASSETS']['CRYPTO'] or \
-                (asset_type == static.keys['ASSETS']['EQUITY'] and not helper.consecutive_trading_days(tomorrows_date, date)):
-                time_delta = (helper.parse_date_string(tomorrows_date) - helper.parse_date_string(date)).days 
+                (asset_type == static.keys['ASSETS']['EQUITY'] and not helper.consecutive_trading_days(tomorrows_date, this_date)):
+                time_delta = (helper.parse_date_string(tomorrows_date) - helper.parse_date_string(this_date)).days 
             else:
                 time_delta = 1
 
@@ -73,7 +73,7 @@ def get_sample_of_returns(prices: dict, asset_type: str) -> list:
             today = True
 
         tomorrows_price = prices[date][static.keys['PRICES']['CLOSE']]
-        tomorrows_date = date
+        tomorrows_date = this_date
     
     return sample_of_returns
 
@@ -135,8 +135,8 @@ def calculate_moving_averages(tickers: list, start_date: Union[date, None]=None,
             today = False
             count, tomorrows_price, MA_1, MA_2, MA_3 = 1, 0, 0, 0, 0
     
-            for date in prices:
-                todays_price = prices[date][static.keys['PRICES']['CLOSE']]
+            for this_date in prices:
+                todays_price = prices[this_date][static.keys['PRICES']['CLOSE']]
                 if today:
                     todays_return = log(float(tomorrows_price) / float(todays_price))/trading_period
                     logger.verbose(f'todays_return == {tomorrows_price}/({todays_price}*{round(trading_period,2)}) = {todays_return}') 
@@ -154,7 +154,7 @@ def calculate_moving_averages(tickers: list, start_date: Union[date, None]=None,
                 else:
                     today = True
 
-                tomorrows_price = prices[date][static.keys['PRICES']['CLOSE']]
+                tomorrows_price = prices[this_date][static.keys['PRICES']['CLOSE']]
 
             logger.verbose(f'(MA_1, MA_2, MA_3)_{ticker} = ({MA_1}, {MA_2}, {MA_3}')
             moving_averages.append([MA_1, MA_2, MA_3])
@@ -252,10 +252,10 @@ def calculate_moving_averages(tickers: list, start_date: Union[date, None]=None,
         MAs_1, MAs_2, MAs_3 = [], [], []
 
         # See NOTE #4
-        for date in prices:
-            logger.verbose(f'date: {date}')
+        for this_date in prices:
+            logger.verbose(f'date: {this_date}')
             # todays_price = services.price_manager.parse_price_from_date(prices, date, asset_type)
-            todays_price = prices[date][static.keys['PRICES']['CLOSE']]
+            todays_price = prices[this_date][static.keys['PRICES']['CLOSE']]
 
             if today:
                 todays_return = log(float(tomorrows_price) / float(todays_price))/trading_period
@@ -267,11 +267,11 @@ def calculate_moving_averages(tickers: list, start_date: Union[date, None]=None,
                         if len(MAs_1) - MAs_1.index(MA) == settings.MA_1_PERIOD - 1:
                             end_flag = True
                             if asset_type == static.keys['ASSETS']['EQUITY']:
-                                date_of_MA1 = helper.decrement_date_string_by_business_days(date, MAs_1.index(MA))
+                                date_of_MA1 = helper.decrement_date_string_by_business_days(this_date, MAs_1.index(MA))
                             elif asset_type == static.keys['ASSETS']['CRYPTO']:
-                                date_of_MA1 = helper.string_to_date(date) - timedelta(days=MAs_1.index(MA))
+                                date_of_MA1 = helper.string_to_date(this_date) - timedelta(days=MAs_1.index(MA))
                             else: 
-                                date_of_MA1 = helper.string_to_date(date) - timedelta(days=MAs_1.index(MA)) 
+                                date_of_MA1 = helper.string_to_date(this_date) - timedelta(days=MAs_1.index(MA)) 
 
                         MA += todays_return / settings.MA_1_PERIOD
 
@@ -280,7 +280,7 @@ def calculate_moving_averages(tickers: list, start_date: Union[date, None]=None,
 
                 # See NOTE #3
                 if mixed_flag or portfolio_asset_type == static.keys['ASSETS']['EQUITY']:
-                    if not(helper.is_date_string_holiday(date) or helper.is_date_string_weekend(date)): 
+                    if not(helper.is_date_string_holiday(this_date) or helper.is_date_string_weekend(this_date)): 
                         MAs_1.append( (todays_return / settings.MA_1_PERIOD) )
                 elif portfolio_asset_type == static.keys['ASSETS']['CRYPTO']:
                     MAs_1.append( (todays_return / settings.MA_1_PERIOD))
@@ -291,11 +291,11 @@ def calculate_moving_averages(tickers: list, start_date: Union[date, None]=None,
                         if len(MAs_2) - MAs_2.index(MA) == settings.MA_2_PERIOD - 1:
                             end_flag = True
                             if asset_type == static.keys['ASSETS']['EQUITY']:
-                                date_of_MA2 = helper.decrement_date_string_by_business_days(date, MAs_2.index(MA))
+                                date_of_MA2 = helper.decrement_date_string_by_business_days(this_date, MAs_2.index(MA))
                             elif asset_type == static.keys['ASSETS']['CRYPTO']:
-                                date_of_MA2 = helper.string_to_date(date) + timedelta(days=MAs_2.index(MA))
+                                date_of_MA2 = helper.string_to_date(this_date) + timedelta(days=MAs_2.index(MA))
                             else: 
-                                date_of_MA2 = helper.string_to_date(date) + timedelta(days=MAs_2.index(MA)) 
+                                date_of_MA2 = helper.string_to_date(this_date) + timedelta(days=MAs_2.index(MA)) 
                             
                         MA += todays_return / settings.MA_2_PERIOD
 
@@ -304,7 +304,7 @@ def calculate_moving_averages(tickers: list, start_date: Union[date, None]=None,
 
                 # See NOTE #3
                 if mixed_flag or portfolio_asset_type == static.keys['ASSETS']['EQUITY']:
-                    if not(helper.is_date_string_holiday(date) or helper.is_date_string_weekend(date)):
+                    if not(helper.is_date_string_holiday(this_date) or helper.is_date_string_weekend(this_date)):
                         MAs_2.append((todays_return / settings.MA_2_PERIOD))
                 elif portfolio_asset_type == static.keys['ASSETS']['CRYPTO']:
                     MAs_2.append((todays_return / settings.MA_2_PERIOD))
@@ -315,11 +315,11 @@ def calculate_moving_averages(tickers: list, start_date: Union[date, None]=None,
                         if len(MAs_3) - MAs_3.index(MA) == settings.MA_3_PERIOD - 1:
                             end_flag = True
                             if asset_type == static.keys['ASSETS']['EQUITY']:
-                                date_of_MA3 = helper.decrement_date_string_by_business_days(date, MAs_3.index(MA))
+                                date_of_MA3 = helper.decrement_date_string_by_business_days(this_date, MAs_3.index(MA))
                             elif asset_type == static.keys['ASSETS']['CRYPTO']:
-                                date_of_MA3 = helper.string_to_date(date) + timedelta(days=MAs_3.index(MA))
+                                date_of_MA3 = helper.string_to_date(this_date) + timedelta(days=MAs_3.index(MA))
                             else: 
-                                date_of_MA3 = helper.string_to_date(date) + timedelta(days=MAs_3.index(MA)) 
+                                date_of_MA3 = helper.string_to_date(this_date) + timedelta(days=MAs_3.index(MA)) 
 
                         MA += todays_return / settings.MA_3_PERIOD
 
@@ -328,7 +328,7 @@ def calculate_moving_averages(tickers: list, start_date: Union[date, None]=None,
 
                 # See NOTE #3
                 if mixed_flag or portfolio_asset_type == static.keys['ASSETS']['EQUITY']:
-                    if not(helper.is_date_string_holiday(date) or helper.is_date_string_weekend(date)):
+                    if not(helper.is_date_string_holiday(this_date) or helper.is_date_string_weekend(this_date)):
                         MAs_3.append((todays_return / settings.MA_3_PERIOD))
                 elif portfolio_asset_type == static.keys['ASSETS']['CRYPTO']: 
                     MAs_3.append((todays_return / settings))
@@ -337,7 +337,7 @@ def calculate_moving_averages(tickers: list, start_date: Union[date, None]=None,
                 today = True
                 
             # tomorrows_price = services.price_manager.parse_price_from_date(prices, date, asset_type)
-            tomorrows_price = prices[date][static.keys['PRICES']['CLOSE']]
+            tomorrows_price = prices[this_date][static.keys['PRICES']['CLOSE']]
 
         MAs_1 = MAs_1[:original_day_count]
         MAs_2 = MAs_2[:original_day_count]
@@ -1047,10 +1047,10 @@ def calculate_moment_correlation(ticker_1, ticker_2, asset_type_1=None, asset_ty
     sample = len(sample_prices[ticker_1])
 
     #### START CORRELATION LOOP ####
-    for date in sample_prices[ticker_1]:
-        todays_price_1 = sample_prices[ticker_1][date][static.keys['PRICES']['CLOSE']]
-        todays_price_2 = sample_prices[ticker_2][date][static.keys['PRICES']['CLOSE']]
-        logger.verbose(f'(todays_date, todays_price_{ticker_1}, todays_price_{ticker_2}) = ({date}, {todays_price_1}, {todays_price_2})')
+    for this_date in sample_prices[ticker_1]:
+        todays_price_1 = sample_prices[ticker_1][this_date][static.keys['PRICES']['CLOSE']]
+        todays_price_2 = sample_prices[ticker_2][this_date][static.keys['PRICES']['CLOSE']]
+        logger.verbose(f'(todays_date, todays_price_{ticker_1}, todays_price_{ticker_2}) = ({this_date}, {todays_price_1}, {todays_price_2})')
             
         if today:
             logger.verbose(f'Iteration #{i}')
@@ -1061,8 +1061,8 @@ def calculate_moment_correlation(ticker_1, ticker_2, asset_type_1=None, asset_ty
             # so samples can be compared to equities, need to account for these dates by increasing
             # the time_delta by the number of missed days, to offset the weekend and holiday return.
             if asset_type_1 == static.keys['ASSETS']['CRYPTO'] or \
-                (asset_type_1 == static.keys['ASSETS']['EQUITY'] and not helper.consecutive_trading_days(tomorrows_date, date)):
-                time_delta = (helper.parse_date_string(tomorrows_date) - helper.parse_date_string(date)).days 
+                (asset_type_1 == static.keys['ASSETS']['EQUITY'] and not helper.consecutive_trading_days(tomorrows_date, this_date)):
+                time_delta = (helper.parse_date_string(tomorrows_date) - helper.parse_date_string(this_date)).days 
             else:
                 time_delta = 1
 
@@ -1070,8 +1070,8 @@ def calculate_moment_correlation(ticker_1, ticker_2, asset_type_1=None, asset_ty
 
             # see above note
             if asset_type_2 == static.keys['ASSETS']['CRYPTO'] or \
-                (asset_type_2 == static.keys['ASSETS']['EQUITY'] and not helper.consecutive_trading_days(tomorrows_date, date)):
-                time_delta = (helper.parse_date_string(tomorrows_date) - helper.parse_date_string(date)).days 
+                (asset_type_2 == static.keys['ASSETS']['EQUITY'] and not helper.consecutive_trading_days(tomorrows_date, this_date)):
+                time_delta = (helper.parse_date_string(tomorrows_date) - helper.parse_date_string(this_date)).days 
             else:
                 time_delta = 1
 
@@ -1087,7 +1087,7 @@ def calculate_moment_correlation(ticker_1, ticker_2, asset_type_1=None, asset_ty
             today = True
         
         i += 1
-        tomorrows_price_1, tomorrows_price_2, tomorrows_date = todays_price_1, todays_price_2, date
+        tomorrows_price_1, tomorrows_price_2, tomorrows_date = todays_price_1, todays_price_2, this_date
     #### END CORRELATION LOOP ####
 
     # Scale covariance into correlation
@@ -1130,7 +1130,7 @@ def correlation_matrix(tickers, asset_types=None, start_date=None, end_date=None
     ------
     ``[list]`` : `[[float]]`, correlation matrix of tickers. indices correspond to the cross of tickers x tickers. 
     """
-    correlation_matrix = [[0 for x in range(len(tickers))] for y in range(len(tickers))]
+    correl_matrix = [[0 for x in range(len(tickers))] for y in range(len(tickers))]
 
     # let correlation function handle argument parsing
     if asset_types is None:
@@ -1140,7 +1140,7 @@ def correlation_matrix(tickers, asset_types=None, start_date=None, end_date=None
 
     if(len(tickers) > 1):
         for i, item in enumerate(tickers):
-            correlation_matrix[i][i] = 1
+            correl_matrix[i][i] = 1
             for j in range(i+1, len(tickers)):
                 cor = calculate_correlation(ticker_1 = item, 
                                                 ticker_2=tickers[j],
@@ -1150,14 +1150,14 @@ def correlation_matrix(tickers, asset_types=None, start_date=None, end_date=None
                                                 end_date = end_date,
                                                 sample_prices = sample_prices, 
                                                 method=method)
-                correlation_matrix[i][j] = cor['correlation']
-                correlation_matrix[j][i] = correlation_matrix[i][j]
+                correl_matrix[i][j] = cor['correlation']
+                correl_matrix[j][i] = correl_matrix[i][j]
 
         correlation_matrix[len(tickers) - 1][len(tickers) - 1] = 1
-        return correlation_matrix
+        return correl_matrix
     if (len(tickers)==1):
         correlation_matrix[0][0]=1
-        return correlation_matrix
+        return correl_matrix
     raise errors.SampleSizeError('Cannot calculate correlation matrix for portfolio size <= 1.')
 
 def calculate_moment_correlation_series(ticker_1: str, ticker_2: str, start_date: Union[date, None]=None, end_date: Union[date, None]=None) -> dict:
@@ -1192,17 +1192,17 @@ def calculate_moment_correlation_series(ticker_1: str, ticker_2: str, start_date
     else: # default to business days
         date_range = [helper.get_previous_business_date(start_date)] + helper.business_dates_between(start_date,end_date)
 
-    for date in date_range:
+    for this_date in date_range:
         calc_date_end = date
         
         if same_type and asset_type_1 == static.keys['ASSETS']['EQUITY']:
-            calc_date_start = helper.decrement_date_by_business_days(start_date=date, 
+            calc_date_start = helper.decrement_date_by_business_days(start_date=this_date, 
                                                                         business_days=settings.DEFAULT_ANALYSIS_PERIOD)
         elif same_type and asset_type_1 == static.keys['ASSETS']['CRYPTO']:
-            calc_date_start = helper.decrement_date_by_days(start_date=date, days=settings.DEFAULT_ANALYSIS_PERIOD)
+            calc_date_start = helper.decrement_date_by_days(start_date=this_date, days=settings.DEFAULT_ANALYSIS_PERIOD)
 
         todays_cor = calculate_moment_correlation(ticker_1, ticker_2, start_date=calc_date_start, end_date=calc_date_end)
-        correlation_series[date] = todays_cor['correlation']
+        correlation_series[this_date] = todays_cor['correlation']
     
     result = {}
     result[f'{ticker_1}_{ticker_2}_correlation_time_series'] = correlation_series
