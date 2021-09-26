@@ -21,8 +21,7 @@
 23. Research annotations for cashflow object's growth function and portfolio's return/volatility functions. Perhaps a way of injecting them into the GUI easier. Not sure.
 
 26. Document how to use objects and functions in shell/scripts.
-
-
+\
 31. Allow relative file references when saving analysis. Right now needs to be absolute path inputted into -save argument. Also, save return profiles. 
 
 34. Mark important points of Efficient Frontier, i.e. minimum variance, maximum return, maximum sharpe ratio.
@@ -33,8 +32,6 @@
 
 42. review monte carlo simulation. allow value at risk function to specify SDE. look into MLE for parameters.
 
-44. conditional imports based on ANALYSIS_MODE and ESTIMATION_METHOD
-
-45. docstrings should be formatted with markdown
+44. conditional imports based on ANALYSIS_MODE
 
 46. redo statistic operations with vector and matrix operations for greater generalization.

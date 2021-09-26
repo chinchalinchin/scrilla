@@ -145,7 +145,7 @@ def do_program() -> None:
         elif opt == formatter.FUNC_ARG_DICT['store']:
             key = sys.argv[2].split("=")
             if key[0] in ["ALPHA_VANTAGE_KEY", "QUANDL_KEY", "IEX_KEY"]:
-               files.set_credentials(value=key[1], whichkey=key[0])
+               files.set_credentials(value=key[1], which_key=key[0])
             else:
                 outputter.comment(f'Key of {key[0]} not recognized. See -help for more information.')
 
@@ -211,7 +211,7 @@ def do_program() -> None:
                             outputter.scalar_result(f'{arg}_value_at_risk', valueatrisk)
 
                     if print_json_to_screen(xtra_dict):
-                        print(json.dump(all_vars))
+                        print(json.dumps(all_vars))
                     
                     if xtra_dict['save_file'] is not None:
                         files.save_file(file_to_save=all_vars, file_name=xtra_dict['save_file'])
