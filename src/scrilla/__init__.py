@@ -1,6 +1,6 @@
 """
-:Author: Grant Moore
-:Contact: chinchalinchin@gmail.com
+.. Author:: Grant Moore
+.. Contact:: chinchalinchin@gmail.com
 
 This is a financial application that calculates asset correlations, statistics and optimal portfolio allocations using data it retrieves from external services (currently: [AlphaVantage](https://www.alphavantage.co), [IEX](https://iexcloud.io/) and [Quandl](https://www.quandl.com/)). Statistics are calculated using the results of [Ito Calculus](https://en.wikipedia.org/wiki/It%C3%B4_calculus) and should be consistent with the results demanded by [Modern Portfolio Theory](https://en.wikipedia.org/wiki/Modern_portfolio_theory) and [Financial Engineering](https://en.wikipedia.org/wiki/Black%E2%80%93Scholes_equation). Financial statistics can be estimated in a variety of ways. *scrilla* can be configured to estimate statistics using the [method of moment matching](), [the method of percentile matching]() and [maximum likelihood estimation]().
 

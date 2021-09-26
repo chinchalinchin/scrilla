@@ -88,18 +88,20 @@ def get_credentials(which_key: str) -&gt; str:
 
 def parse_csv_response_column(column: int, url: str, firstRowHeader: str=None, savefile: str=None, zipped: str=None):
     &#34;&#34;&#34;
+    Dumps a column from a CSV located at `url` into a JSON file located at `savefile`. The csv file may be zipped, in which case the function needs to made aware of the filename within the zipfile through the parameter `zipped`.
+
     Parameters
     ----------
-    1. column : int \n
-        Required. Index of the column you wish to retrieve from the response. \n \n
-    2. url : str \n
-        Required. The url, already formatted with appropriate query and key, that will respond with the csv file, zipped or unzipped (see zipped argument for more info), you wish to parse. \n \n 
-    3. firstRowHeader : str \n 
-        Optional. name of the header for the column you wish to parse. if specified, the parsed response will ignore the row header. Do not include if you wish to have the row header in the return result. \n \n 
-    4. savefile : str \n 
-        Optional. the absolute path of the file you wish to save the parsed response column to. \n \n 
-    5. zipped : str \n 
-        if the response returns a zip file, this argument needs to be set equal to the file within the zipped archive you wish to parse. \n \n 
+    1. **column**: ``int``
+        Index of the column you wish to retrieve from the response.
+    2. **url**: ``str``
+        The url, already formatted with appropriate query and key, that will respond with the csv file, zipped or unzipped (see zipped argument for more info), you wish to parse.
+    3. **firstRowHeader**: ``str`` 
+        *Optional*. name of the header for the column you wish to parse. if specified, the parsed response will ignore the row header. Do not include if you wish to have the row header in the return result.
+    4. **savefile**: ``str``
+        Optional. the absolute path of the file you wish to save the parsed response column to.
+    5. **zipped** : ``str``
+        if the response returns a zip file, this argument needs to be set equal to the file within the zipped archive you wish to parse.
     &#34;&#34;&#34;
     col, big_mother = [], []
 
@@ -138,8 +140,8 @@ def init_static_data():
 
     Raises
     ------
-    1. errors.ConfigurationError \n
-        If `scrilla.settings.PRICE_MANAGER` and `scrilla.settings.STAT_MANAGER` are not configured through the environment variables `PRICE_MANAGER` and `STAT_MANAGER`, the function will throw this error.
+    1. **scrilla.errors.ConfigurationError**
+        If `scrilla.settings.PRICE_MANAGER` and `scrilla.settings.STAT_MANAGER` are not configured or are incorrectly configured through the environment variables `PRICE_MANAGER` and `STAT_MANAGER`, the function will throw this error.
     &#34;&#34;&#34;
     global static_tickers_blob
     global static_econ_blob
@@ -196,12 +198,12 @@ def init_static_data():
 
 def get_static_data(static_type):
     &#34;&#34;&#34;
-    Retrieves static data cached in the local or containerized file system. \n \n 
+    Retrieves static data saved in the local file system. 
 
     Parameters
     ----------
-    1. `static_type` : str \n
-    A string corresponding to the type of static data to be retrieved. The types can be statically accessed through the ` settings` variables: ASSET_CRYPTO, ASSET_EQUITY and STAT_ECON. \n \n
+    1. **static_type**: ``str``
+        A string corresponding to the type of static data to be retrieved. The types can be statically accessed through the `scrilla.static.[&#39;ASSETS&#39;]` dictionary.
     &#34;&#34;&#34;
     path, blob = None, None
     global static_crypto_blob 
@@ -266,7 +268,7 @@ def get_static_data(static_type):
 
 def get_overlapping_symbols(equities=None, cryptos=None):
     &#34;&#34;&#34;
-    Returns an array of symbols which are contained in both the STATIC_TICKERS_FILE and STATIC_CRYPTO_FILE, i.e. ticker symbols which have both a tradeable equtiy and a tradeable crypto asset. 
+    Returns an array of symbols which are contained in both the `scrilla.settings.STATIC_TICKERS_FILE` and `scrilla.settings.STATIC_CRYPTO_FILE`, i.e. ticker symbols which have both a tradeable equtiy and a tradeable crypto asset. 
     &#34;&#34;&#34;
     if equities is None:
         equities = list(get_static_data(static.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]))
@@ -280,11 +282,12 @@ def get_overlapping_symbols(equities=None, cryptos=None):
 
 def get_asset_type(symbol : str) -&gt; str:
     &#34;&#34;&#34;&#34;
-    Returns the asset type of the supplied ticker symbol. \n \n
+    Returns the asset type of the supplied ticker symbol.
 
     Output
     ------
-    ``str``. Represents the type of asset of the symbol. Types are statically accessible through the `scrilla.static.keys[&#39;ASSETS]` dictionary. \n \n 
+    ``str``. 
+        Represents the asset type of the symbol. Types are statically accessible through the `scrilla.static.keys[&#39;ASSETS]` dictionary.
     &#34;&#34;&#34;
     symbols = list(get_static_data(static.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]))
     overlap = get_overlapping_symbols(cryptos=symbols)
@@ -371,25 +374,17 @@ def save_correlation_matrix(tickers, correlation_matrix, file_name):
     
 ################################################
 ##### FILE MANAGEMENT FUNCTIONS
-
-# TODO: this deletes subdirectories.
-# retain: keeps .gitkeep in directory
 def clear_directory(directory, retain=True):
     &#34;&#34;&#34;
-    Description
-    -----------
-    Wipes a directory of files without deleting the directory itself. \n \n 
+    Wipes a directory of files without deleting the directory itself.
 
     Parameters
     ----------
-    1. directory: str \n
-    Path of the directory to be cleaned. \n \n 
+    1. **directory**: ``str``
+        Path of the directory to be cleared.
 
-    2. retain : bool \n
-    If set to True, the method will skip files named &#39;.gitkeep&#39; within the directory, i.e. version control configuration files. 
-
-    3. outdated_only: bool \b 
-    If set to True, the method will check for a time stamp on files with the format &#39;DD-MM-YYYY&#39; and retain files that contain this timestamp.
+    2. **retain** : ``bool``
+        If set to True, the method will skip files named &#39;.gitkeep&#39; within the directory, i.e. version control configuration files, and keep the directory structure in tact.
     &#34;&#34;&#34;
     filelist = list(os.listdir(directory))
 
@@ -448,20 +443,17 @@ def is_non_zero_file(fpath):
 <span>def <span class="ident">clear_directory</span></span>(<span>directory, retain=True)</span>
 </code></dt>
 <dd>
-<div class="desc"><h2 id="description">Description</h2>
-<p>Wipes a directory of files without deleting the directory itself. </p>
+<div class="desc"><p>Wipes a directory of files without deleting the directory itself.</p>
 <h2 id="parameters">Parameters</h2>
 <ol>
-<li>directory: str </li>
-</ol>
-<p>Path of the directory to be cleaned. </p>
-<ol>
-<li>retain : bool </li>
-</ol>
-<p>If set to True, the method will skip files named '.gitkeep' within the directory, i.e. version control configuration files. </p>
-<ol>
-<li>outdated_only: bool 
-If set to True, the method will check for a time stamp on files with the format 'DD-MM-YYYY' and retain files that contain this timestamp.</li>
+<li>
+<p><strong>directory</strong>: <code>str</code>
+Path of the directory to be cleared.</p>
+</li>
+<li>
+<p><strong>retain</strong> : <code>bool</code>
+If set to True, the method will skip files named '.gitkeep' within the directory, i.e. version control configuration files, and keep the directory structure in tact.</p>
+</li>
 </ol></div>
 <details class="source">
 <summary>
@@ -469,20 +461,15 @@ If set to True, the method will check for a time stamp on files with the format 
 </summary>
 <pre><code class="python">def clear_directory(directory, retain=True):
     &#34;&#34;&#34;
-    Description
-    -----------
-    Wipes a directory of files without deleting the directory itself. \n \n 
+    Wipes a directory of files without deleting the directory itself.
 
     Parameters
     ----------
-    1. directory: str \n
-    Path of the directory to be cleaned. \n \n 
+    1. **directory**: ``str``
+        Path of the directory to be cleared.
 
-    2. retain : bool \n
-    If set to True, the method will skip files named &#39;.gitkeep&#39; within the directory, i.e. version control configuration files. 
-
-    3. outdated_only: bool \b 
-    If set to True, the method will check for a time stamp on files with the format &#39;DD-MM-YYYY&#39; and retain files that contain this timestamp.
+    2. **retain** : ``bool``
+        If set to True, the method will skip files named &#39;.gitkeep&#39; within the directory, i.e. version control configuration files, and keep the directory structure in tact.
     &#34;&#34;&#34;
     filelist = list(os.listdir(directory))
 
@@ -498,20 +485,22 @@ If set to True, the method will check for a time stamp on files with the format 
 </code></dt>
 <dd>
 <div class="desc"><p>"
-Returns the asset type of the supplied ticker symbol. </p>
+Returns the asset type of the supplied ticker symbol.</p>
 <h2 id="output">Output</h2>
-<p><code>str</code>. Represents the type of asset of the symbol. Types are statically accessible through the <code>scrilla.static.keys['ASSETS]</code> dictionary.</p></div>
+<p><code>str</code>.
+Represents the asset type of the symbol. Types are statically accessible through the <code>scrilla.static.keys['ASSETS]</code> dictionary.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def get_asset_type(symbol : str) -&gt; str:
     &#34;&#34;&#34;&#34;
-    Returns the asset type of the supplied ticker symbol. \n \n
+    Returns the asset type of the supplied ticker symbol.
 
     Output
     ------
-    ``str``. Represents the type of asset of the symbol. Types are statically accessible through the `scrilla.static.keys[&#39;ASSETS]` dictionary. \n \n 
+    ``str``. 
+        Represents the asset type of the symbol. Types are statically accessible through the `scrilla.static.keys[&#39;ASSETS]` dictionary.
     &#34;&#34;&#34;
     symbols = list(get_static_data(static.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]))
     overlap = get_overlapping_symbols(cryptos=symbols)
@@ -550,14 +539,14 @@ Returns the asset type of the supplied ticker symbol. </p>
 <span>def <span class="ident">get_overlapping_symbols</span></span>(<span>equities=None, cryptos=None)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Returns an array of symbols which are contained in both the STATIC_TICKERS_FILE and STATIC_CRYPTO_FILE, i.e. ticker symbols which have both a tradeable equtiy and a tradeable crypto asset.</p></div>
+<div class="desc"><p>Returns an array of symbols which are contained in both the <code>scrilla.settings.STATIC_TICKERS_FILE</code> and <code>scrilla.settings.STATIC_CRYPTO_FILE</code>, i.e. ticker symbols which have both a tradeable equtiy and a tradeable crypto asset.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def get_overlapping_symbols(equities=None, cryptos=None):
     &#34;&#34;&#34;
-    Returns an array of symbols which are contained in both the STATIC_TICKERS_FILE and STATIC_CRYPTO_FILE, i.e. ticker symbols which have both a tradeable equtiy and a tradeable crypto asset. 
+    Returns an array of symbols which are contained in both the `scrilla.settings.STATIC_TICKERS_FILE` and `scrilla.settings.STATIC_CRYPTO_FILE`, i.e. ticker symbols which have both a tradeable equtiy and a tradeable crypto asset. 
     &#34;&#34;&#34;
     if equities is None:
         equities = list(get_static_data(static.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]))
@@ -574,24 +563,24 @@ Returns the asset type of the supplied ticker symbol. </p>
 <span>def <span class="ident">get_static_data</span></span>(<span>static_type)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Retrieves static data cached in the local or containerized file system. </p>
+<div class="desc"><p>Retrieves static data saved in the local file system. </p>
 <h2 id="parameters">Parameters</h2>
 <ol>
-<li><code>static_type</code> : str </li>
-</ol>
-<p>A string corresponding to the type of static data to be retrieved. The types can be statically accessed through the <code> settings</code> variables: ASSET_CRYPTO, ASSET_EQUITY and STAT_ECON.</p></div>
+<li><strong>static_type</strong>: <code>str</code>
+A string corresponding to the type of static data to be retrieved. The types can be statically accessed through the <code>scrilla.static.['ASSETS']</code> dictionary.</li>
+</ol></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def get_static_data(static_type):
     &#34;&#34;&#34;
-    Retrieves static data cached in the local or containerized file system. \n \n 
+    Retrieves static data saved in the local file system. 
 
     Parameters
     ----------
-    1. `static_type` : str \n
-    A string corresponding to the type of static data to be retrieved. The types can be statically accessed through the ` settings` variables: ASSET_CRYPTO, ASSET_EQUITY and STAT_ECON. \n \n
+    1. **static_type**: ``str``
+        A string corresponding to the type of static data to be retrieved. The types can be statically accessed through the `scrilla.static.[&#39;ASSETS&#39;]` dictionary.
     &#34;&#34;&#34;
     path, blob = None, None
     global static_crypto_blob 
@@ -684,10 +673,10 @@ Returns the asset type of the supplied ticker symbol. </p>
 <div class="desc"><p>Initializes the three static files defined in
 settings: <code>STATIC_TICKERS_FILE</code>, <code>STATIC_CRYPTO_FILE</code> and <code>STATIC_ECON_FILE</code>. The data for these files is retrieved from the service managers. While this function blurs the lines between file management and service management, the function has been included in the <code>files.py</code> module rather than the <code>services.py</code> module due the unique response types of static metadata. All metadata is returned as a csv or zipped csvs. These responses require specialized functions. Moreover, these files should only be initialized the first time the application executes. Subsequent executions will refer to their cached versions residing in the local filesytems. </p>
 <h2 id="raises">Raises</h2>
-<dl>
-<dt><code>1. errors.ConfigurationError </code></dt>
-<dd>If <code>scrilla.settings.PRICE_MANAGER</code> and <code>scrilla.settings.STAT_MANAGER</code> are not configured through the environment variables <code>PRICE_MANAGER</code> and <code>STAT_MANAGER</code>, the function will throw this error.</dd>
-</dl></div>
+<ol>
+<li><strong>scrilla.errors.ConfigurationError</strong>
+If <code>scrilla.settings.PRICE_MANAGER</code> and <code>scrilla.settings.STAT_MANAGER</code> are not configured or are incorrectly configured through the environment variables <code>PRICE_MANAGER</code> and <code>STAT_MANAGER</code>, the function will throw this error.</li>
+</ol></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -698,8 +687,8 @@ settings: <code>STATIC_TICKERS_FILE</code>, <code>STATIC_CRYPTO_FILE</code> and 
 
     Raises
     ------
-    1. errors.ConfigurationError \n
-        If `scrilla.settings.PRICE_MANAGER` and `scrilla.settings.STAT_MANAGER` are not configured through the environment variables `PRICE_MANAGER` and `STAT_MANAGER`, the function will throw this error.
+    1. **scrilla.errors.ConfigurationError**
+        If `scrilla.settings.PRICE_MANAGER` and `scrilla.settings.STAT_MANAGER` are not configured or are incorrectly configured through the environment variables `PRICE_MANAGER` and `STAT_MANAGER`, the function will throw this error.
     &#34;&#34;&#34;
     global static_tickers_blob
     global static_econ_blob
@@ -789,28 +778,19 @@ settings: <code>STATIC_TICKERS_FILE</code>, <code>STATIC_CRYPTO_FILE</code> and 
 <span>def <span class="ident">parse_csv_response_column</span></span>(<span>column: int, url: str, firstRowHeader: str = None, savefile: str = None, zipped: str = None)</span>
 </code></dt>
 <dd>
-<div class="desc"><h2 id="parameters">Parameters</h2>
+<div class="desc"><p>Dumps a column from a CSV located at <code>url</code> into a JSON file located at <code>savefile</code>. The csv file may be zipped, in which case the function needs to made aware of the filename within the zipfile through the parameter <code>zipped</code>.</p>
+<h2 id="parameters">Parameters</h2>
 <ol>
-<li>
-<p>column : int </p>
-<p>Required. Index of the column you wish to retrieve from the response. </p>
-</li>
-<li>
-<p>url : str </p>
-<p>Required. The url, already formatted with appropriate query and key, that will respond with the csv file, zipped or unzipped (see zipped argument for more info), you wish to parse. </p>
-</li>
-<li>
-<p>firstRowHeader : str </p>
-<p>Optional. name of the header for the column you wish to parse. if specified, the parsed response will ignore the row header. Do not include if you wish to have the row header in the return result. </p>
-</li>
-<li>
-<p>savefile : str </p>
-<p>Optional. the absolute path of the file you wish to save the parsed response column to. </p>
-</li>
-<li>
-<p>zipped : str </p>
-<p>if the response returns a zip file, this argument needs to be set equal to the file within the zipped archive you wish to parse.</p>
-</li>
+<li><strong>column</strong>: <code>int</code>
+Index of the column you wish to retrieve from the response.</li>
+<li><strong>url</strong>: <code>str</code>
+The url, already formatted with appropriate query and key, that will respond with the csv file, zipped or unzipped (see zipped argument for more info), you wish to parse.</li>
+<li><strong>firstRowHeader</strong>: <code>str</code>
+<em>Optional</em>. name of the header for the column you wish to parse. if specified, the parsed response will ignore the row header. Do not include if you wish to have the row header in the return result.</li>
+<li><strong>savefile</strong>: <code>str</code>
+Optional. the absolute path of the file you wish to save the parsed response column to.</li>
+<li><strong>zipped</strong> : <code>str</code>
+if the response returns a zip file, this argument needs to be set equal to the file within the zipped archive you wish to parse.</li>
 </ol></div>
 <details class="source">
 <summary>
@@ -818,18 +798,20 @@ settings: <code>STATIC_TICKERS_FILE</code>, <code>STATIC_CRYPTO_FILE</code> and 
 </summary>
 <pre><code class="python">def parse_csv_response_column(column: int, url: str, firstRowHeader: str=None, savefile: str=None, zipped: str=None):
     &#34;&#34;&#34;
+    Dumps a column from a CSV located at `url` into a JSON file located at `savefile`. The csv file may be zipped, in which case the function needs to made aware of the filename within the zipfile through the parameter `zipped`.
+
     Parameters
     ----------
-    1. column : int \n
-        Required. Index of the column you wish to retrieve from the response. \n \n
-    2. url : str \n
-        Required. The url, already formatted with appropriate query and key, that will respond with the csv file, zipped or unzipped (see zipped argument for more info), you wish to parse. \n \n 
-    3. firstRowHeader : str \n 
-        Optional. name of the header for the column you wish to parse. if specified, the parsed response will ignore the row header. Do not include if you wish to have the row header in the return result. \n \n 
-    4. savefile : str \n 
-        Optional. the absolute path of the file you wish to save the parsed response column to. \n \n 
-    5. zipped : str \n 
-        if the response returns a zip file, this argument needs to be set equal to the file within the zipped archive you wish to parse. \n \n 
+    1. **column**: ``int``
+        Index of the column you wish to retrieve from the response.
+    2. **url**: ``str``
+        The url, already formatted with appropriate query and key, that will respond with the csv file, zipped or unzipped (see zipped argument for more info), you wish to parse.
+    3. **firstRowHeader**: ``str`` 
+        *Optional*. name of the header for the column you wish to parse. if specified, the parsed response will ignore the row header. Do not include if you wish to have the row header in the return result.
+    4. **savefile**: ``str``
+        Optional. the absolute path of the file you wish to save the parsed response column to.
+    5. **zipped** : ``str``
+        if the response returns a zip file, this argument needs to be set equal to the file within the zipped archive you wish to parse.
     &#34;&#34;&#34;
     col, big_mother = [], []
 
