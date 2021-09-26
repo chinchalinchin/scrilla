@@ -52,7 +52,7 @@ def univariate_normal_likelihood_function(params : list, data : list) -> float:
     return likelihood
 
 def bivariate_normal_likelihood_function(params: list, data: list) -> float:
-    """
+    r"""
     Returns the likelihood of a vector of parameters being observed from a sample bivariate data of normal data. It can be used as objective function input for `scipy.optimize`'s optimization methods. 
 
     Parameters
@@ -176,7 +176,7 @@ def recursive_rolling_correlation(correl_previous, new_x_observation, lost_x_obs
     pass
 
 def sample_mean(x: list) -> float:
-    """
+    r"""
     Returns the sample mean from a sample of data \\(\{x_1 , x_2, ... , x_n \}\\),
 
     $$ \bar{x} = \frac{\sum_{i=1}^{n} x_i}/{n} $$
@@ -205,7 +205,7 @@ def recursive_rolling_mean(xbar_previous, new_obs, lost_obs, n=settings.DEFAULT_
     return xbar_next
 
 def sample_variance(x: list):
-    """
+    r"""
     Returns the sample variance from a sample of data \\(\{x_1 , x_2, ... , x_n \}\\),
 
     $$ s^2=\frac{\sum_{i=1}^{n} (x_i - \bar{x})^2}/{n-1} $$

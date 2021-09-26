@@ -27,7 +27,7 @@ import scrilla.util.outputter as outputter
 logger = outputter.Logger('optimizer', settings.LOG_LEVEL)
 
 def maximize_univariate_normal_likelihood(data):
-    """
+    r"""
     Maximizes the normal (log-)likelihood of the sample with respect to the mean and volatility in order to estimate the mean and volatility of the population distribution described by the sample.
 
     Parameters
