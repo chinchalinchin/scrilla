@@ -32,7 +32,7 @@ def generate_random_walk(periods: int):
 
 # Condition: E(integral of vol ^2 dt) < inf
 def verify_volatility_condition(volatility_function: Callable) -> bool:
-    """
+    r"""
     Ito calculus requires the class of volatility functions that scale a simple Weiner process (i.e., a process with independent, identically distributed increments with mean 0 and variance 1) satisfies the following
 
     $$ \int_{0}^{\infty} {\sigma (t)}^2 \,dt < \infty $$
@@ -49,7 +49,7 @@ def verify_volatility_condition(volatility_function: Callable) -> bool:
 
 # Remember forward increments!
 def ito_integral(mean_function: Callable, volatilty_function: Callable, upper_bound: float, iterations: int = 1000):
-    """
+    r"""
     Approximates the expectation of an Ito integral from 0 to `upper_bound` for a Weiner process described by a mean and volatility that are functions of time, i.e.
 
     $$ E\{d X(t)\} = E \{ \int_{0}^{\infty} {\mu (t)} \, dt + \int_{0}^{\infty} {\sigma(t)} \, dW(t) \} $$
