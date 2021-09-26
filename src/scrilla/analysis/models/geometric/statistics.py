@@ -27,7 +27,7 @@ if __name__=="__main__":
 
 from scrilla import static, services, files, settings, errors, cache
 from scrilla.analysis import estimators, optimizer
-from scrilla.util import outputter, formatter, helper
+from scrilla.util import outputter, helper, dater
 
 logger = outputter.Logger('statistics', settings.LOG_LEVEL)
 profile_cache = cache.ProfileCache()
@@ -61,8 +61,8 @@ def get_sample_of_returns(prices: dict, asset_type: str) -> list:
             # so samples can be compared to equities, need to account for these dates by increasing
             # the time_delta by the number of missed days. 
             if asset_type == static.keys['ASSETS']['CRYPTO'] or \
-                (asset_type == static.keys['ASSETS']['EQUITY'] and not helper.consecutive_trading_days(tomorrows_date, this_date)):
-                time_delta = (helper.parse_date_string(tomorrows_date) - helper.parse_date_string(this_date)).days 
+                (asset_type == static.keys['ASSETS']['EQUITY'] and not dater.consecutive_trading_days(tomorrows_date, this_date)):
+                time_delta = (dater.parse_date_string(tomorrows_date) - dater.parse_date_string(this_date)).days 
             else:
                 time_delta = 1
 
@@ -190,13 +190,13 @@ def calculate_moving_averages(tickers: list, start_date: Union[date, None]=None,
 
     logger.debug('Calculating length of date range in trading days.')
     if mixed_flag:
-        original_day_count = helper.business_days_between(start_date, end_date)
+        original_day_count = dater.business_days_between(start_date, end_date)
     elif portfolio_asset_type == static.keys['ASSETS']['EQUITY']:
-        original_day_count = helper.business_days_between(start_date, end_date)
+        original_day_count = dater.business_days_between(start_date, end_date)
     elif portfolio_asset_type == static.keys['ASSETS']['CRYPTO']:
         original_day_count = (end_date - start_date).days
     else:
-        original_day_count = helper.business_days_between(start_date, end_date)
+        original_day_count = dater.business_days_between(start_date, end_date)
 
     logger.debug(f'{end_date} - {start_date} = {original_day_count} trading days')
 
@@ -219,17 +219,17 @@ def calculate_moving_averages(tickers: list, start_date: Union[date, None]=None,
             logger.debug(f'{ticker}_asset_type = Equity')
 
             logger.debug('Configuring date variables to account for weekends and holidays.')
-            new_start_date = helper.decrement_date_by_business_days(start_date=start_date, 
+            new_start_date = dater.decrement_date_by_business_days(start_date=start_date, 
                                                                     business_days=settings.MA_3_PERIOD)
-            new_day_count = helper.business_days_between(new_start_date, end_date)
+            new_day_count = dater.business_days_between(new_start_date, end_date)
 
         else:
             logger.debug(f'{ticker}_asset_type = Unknown; Defaulting to business dates')
 
             logger.debug('Configuring date variables to account for weekends and holidays.')
-            new_start_date = helper.decrement_date_by_business_days(start_date=start_date, 
+            new_start_date = dater.decrement_date_by_business_days(start_date=start_date, 
                                                                     business_days=settings.MA_3_PERIOD)
-            new_day_count = helper.business_days_between(new_start_date, end_date)
+            new_day_count = dater.business_days_between(new_start_date, end_date)
 
         logger.debug(f'start_date -> new_start_date == {start_date} -> {new_start_date}')
         logger.debug(f'{end_date} - {new_start_date} == {new_day_count}')
@@ -267,11 +267,11 @@ def calculate_moving_averages(tickers: list, start_date: Union[date, None]=None,
                         if len(MAs_1) - MAs_1.index(MA) == settings.MA_1_PERIOD - 1:
                             end_flag = True
                             if asset_type == static.keys['ASSETS']['EQUITY']:
-                                date_of_MA1 = helper.decrement_date_string_by_business_days(this_date, MAs_1.index(MA))
+                                date_of_MA1 = dater.decrement_date_string_by_business_days(this_date, MAs_1.index(MA))
                             elif asset_type == static.keys['ASSETS']['CRYPTO']:
-                                date_of_MA1 = helper.string_to_date(this_date) - timedelta(days=MAs_1.index(MA))
+                                date_of_MA1 = dater.string_to_date(this_date) - timedelta(days=MAs_1.index(MA))
                             else: 
-                                date_of_MA1 = helper.string_to_date(this_date) - timedelta(days=MAs_1.index(MA)) 
+                                date_of_MA1 = dater.string_to_date(this_date) - timedelta(days=MAs_1.index(MA)) 
 
                         MA += todays_return / settings.MA_1_PERIOD
 
@@ -280,7 +280,7 @@ def calculate_moving_averages(tickers: list, start_date: Union[date, None]=None,
 
                 # See NOTE #3
                 if mixed_flag or portfolio_asset_type == static.keys['ASSETS']['EQUITY']:
-                    if not(helper.is_date_string_holiday(this_date) or helper.is_date_string_weekend(this_date)): 
+                    if not(dater.is_date_string_holiday(this_date) or dater.is_date_string_weekend(this_date)): 
                         MAs_1.append( (todays_return / settings.MA_1_PERIOD) )
                 elif portfolio_asset_type == static.keys['ASSETS']['CRYPTO']:
                     MAs_1.append( (todays_return / settings.MA_1_PERIOD))
@@ -291,11 +291,11 @@ def calculate_moving_averages(tickers: list, start_date: Union[date, None]=None,
                         if len(MAs_2) - MAs_2.index(MA) == settings.MA_2_PERIOD - 1:
                             end_flag = True
                             if asset_type == static.keys['ASSETS']['EQUITY']:
-                                date_of_MA2 = helper.decrement_date_string_by_business_days(this_date, MAs_2.index(MA))
+                                date_of_MA2 = dater.decrement_date_string_by_business_days(this_date, MAs_2.index(MA))
                             elif asset_type == static.keys['ASSETS']['CRYPTO']:
-                                date_of_MA2 = helper.string_to_date(this_date) + timedelta(days=MAs_2.index(MA))
+                                date_of_MA2 = dater.string_to_date(this_date) + timedelta(days=MAs_2.index(MA))
                             else: 
-                                date_of_MA2 = helper.string_to_date(this_date) + timedelta(days=MAs_2.index(MA)) 
+                                date_of_MA2 = dater.string_to_date(this_date) + timedelta(days=MAs_2.index(MA)) 
                             
                         MA += todays_return / settings.MA_2_PERIOD
 
@@ -304,7 +304,7 @@ def calculate_moving_averages(tickers: list, start_date: Union[date, None]=None,
 
                 # See NOTE #3
                 if mixed_flag or portfolio_asset_type == static.keys['ASSETS']['EQUITY']:
-                    if not(helper.is_date_string_holiday(this_date) or helper.is_date_string_weekend(this_date)):
+                    if not(dater.is_date_string_holiday(this_date) or dater.is_date_string_weekend(this_date)):
                         MAs_2.append((todays_return / settings.MA_2_PERIOD))
                 elif portfolio_asset_type == static.keys['ASSETS']['CRYPTO']:
                     MAs_2.append((todays_return / settings.MA_2_PERIOD))
@@ -315,11 +315,11 @@ def calculate_moving_averages(tickers: list, start_date: Union[date, None]=None,
                         if len(MAs_3) - MAs_3.index(MA) == settings.MA_3_PERIOD - 1:
                             end_flag = True
                             if asset_type == static.keys['ASSETS']['EQUITY']:
-                                date_of_MA3 = helper.decrement_date_string_by_business_days(this_date, MAs_3.index(MA))
+                                date_of_MA3 = dater.decrement_date_string_by_business_days(this_date, MAs_3.index(MA))
                             elif asset_type == static.keys['ASSETS']['CRYPTO']:
-                                date_of_MA3 = helper.string_to_date(this_date) + timedelta(days=MAs_3.index(MA))
+                                date_of_MA3 = dater.string_to_date(this_date) + timedelta(days=MAs_3.index(MA))
                             else: 
-                                date_of_MA3 = helper.string_to_date(this_date) + timedelta(days=MAs_3.index(MA)) 
+                                date_of_MA3 = dater.string_to_date(this_date) + timedelta(days=MAs_3.index(MA)) 
 
                         MA += todays_return / settings.MA_3_PERIOD
 
@@ -328,7 +328,7 @@ def calculate_moving_averages(tickers: list, start_date: Union[date, None]=None,
 
                 # See NOTE #3
                 if mixed_flag or portfolio_asset_type == static.keys['ASSETS']['EQUITY']:
-                    if not(helper.is_date_string_holiday(this_date) or helper.is_date_string_weekend(this_date)):
+                    if not(dater.is_date_string_holiday(this_date) or dater.is_date_string_weekend(this_date)):
                         MAs_3.append((todays_return / settings.MA_3_PERIOD))
                 elif portfolio_asset_type == static.keys['ASSETS']['CRYPTO']: 
                     MAs_3.append((todays_return / settings))
@@ -350,13 +350,13 @@ def calculate_moving_averages(tickers: list, start_date: Union[date, None]=None,
     ### START RESPONSE FORMATTING ###
     if not mixed_flag:
         if portfolio_asset_type == static.keys['ASSETS']['EQUITY']:
-            dates_between = helper.business_dates_between(start_date, end_date)
+            dates_between = dater.business_dates_between(start_date, end_date)
         elif portfolio_asset_type == static.keys['ASSETS']['CRYPTO']:
-            dates_between = helper.dates_between(start_date, end_date)
+            dates_between = dater.dates_between(start_date, end_date)
         else:
-            dates_between = helper.business_dates_between(start_date, end_date)
+            dates_between = dater.business_dates_between(start_date, end_date)
     else:
-        dates_between = helper.business_dates_between(start_date, end_date)
+        dates_between = dater.business_dates_between(start_date, end_date)
     
     logger.debug('If everything is correct, then len(moving_averages[0][1]) == len(dates_between)')
     if len(moving_averages[0][1]) == len(dates_between):
@@ -647,8 +647,8 @@ def calculate_moment_risk_return(ticker: str, start_date: Union[date, None]=None
             # so samples can be compared to equities, need to account for these dates by increasing
             # the time_delta by the number of missed days. 
             if asset_type == static.keys['ASSETS']['CRYPTO'] or \
-                (asset_type == static.keys['ASSETS']['EQUITY'] and not helper.consecutive_trading_days(tomorrows_date, date)):
-                time_delta = (helper.parse_date_string(tomorrows_date) - helper.parse_date_string(date)).days 
+                (asset_type == static.keys['ASSETS']['EQUITY'] and not dater.consecutive_trading_days(tomorrows_date, date)):
+                time_delta = (dater.parse_date_string(tomorrows_date) - dater.parse_date_string(date)).days 
             else:
                 time_delta = 1
 
@@ -1061,8 +1061,8 @@ def calculate_moment_correlation(ticker_1, ticker_2, asset_type_1=None, asset_ty
             # so samples can be compared to equities, need to account for these dates by increasing
             # the time_delta by the number of missed days, to offset the weekend and holiday return.
             if asset_type_1 == static.keys['ASSETS']['CRYPTO'] or \
-                (asset_type_1 == static.keys['ASSETS']['EQUITY'] and not helper.consecutive_trading_days(tomorrows_date, this_date)):
-                time_delta = (helper.parse_date_string(tomorrows_date) - helper.parse_date_string(this_date)).days 
+                (asset_type_1 == static.keys['ASSETS']['EQUITY'] and not dater.consecutive_trading_days(tomorrows_date, this_date)):
+                time_delta = (dater.parse_date_string(tomorrows_date) - dater.parse_date_string(this_date)).days 
             else:
                 time_delta = 1
 
@@ -1070,8 +1070,8 @@ def calculate_moment_correlation(ticker_1, ticker_2, asset_type_1=None, asset_ty
 
             # see above note
             if asset_type_2 == static.keys['ASSETS']['CRYPTO'] or \
-                (asset_type_2 == static.keys['ASSETS']['EQUITY'] and not helper.consecutive_trading_days(tomorrows_date, this_date)):
-                time_delta = (helper.parse_date_string(tomorrows_date) - helper.parse_date_string(this_date)).days 
+                (asset_type_2 == static.keys['ASSETS']['EQUITY'] and not dater.consecutive_trading_days(tomorrows_date, this_date)):
+                time_delta = (dater.parse_date_string(tomorrows_date) - dater.parse_date_string(this_date)).days 
             else:
                 time_delta = 1
 
@@ -1183,23 +1183,23 @@ def calculate_moment_correlation_series(ticker_1: str, ticker_2: str, start_date
     # TODO: what if start_date or end_date is None?
     if same_type:
         if asset_type_1 == static.keys['ASSETS']['EQUITY']:
-            date_range = [helper.get_previous_business_date(start_date)] + helper.business_dates_between(start_date,end_date)
+            date_range = [dater.get_previous_business_date(start_date)] + dater.business_dates_between(start_date,end_date)
         elif asset_type_1 == static.keys['ASSETS']['CRYPTO']:
-            date_range = [start_date] + helper.dates_between(start_date, end_date)
+            date_range = [start_date] + dater.dates_between(start_date, end_date)
     else: # default to business days
-        date_range = [helper.get_previous_business_date(start_date)] + helper.business_dates_between(start_date,end_date)
+        date_range = [dater.get_previous_business_date(start_date)] + dater.business_dates_between(start_date,end_date)
 
     for this_date in date_range:
         calc_date_end = this_date
         
         if same_type and asset_type_1 == static.keys['ASSETS']['EQUITY']:
-            calc_date_start = helper.decrement_date_by_business_days(start_date=this_date, 
+            calc_date_start = dater.decrement_date_by_business_days(start_date=this_date, 
                                                                         business_days=settings.DEFAULT_ANALYSIS_PERIOD)
         elif same_type and asset_type_1 == static.keys['ASSETS']['CRYPTO']:
-            calc_date_start = helper.decrement_date_by_days(start_date=this_date, days=settings.DEFAULT_ANALYSIS_PERIOD)
+            calc_date_start = dater.decrement_date_by_days(start_date=this_date, days=settings.DEFAULT_ANALYSIS_PERIOD)
 
         todays_cor = calculate_moment_correlation(ticker_1, ticker_2, start_date=calc_date_start, end_date=calc_date_end)
-        correlation_series[helper.date_to_string(this_date)] = todays_cor['correlation']
+        correlation_series[dater.date_to_string(this_date)] = todays_cor['correlation']
     
     result = {}
     result[f'{ticker_1}_{ticker_2}_correlation_time_series'] = correlation_series

@@ -1,6 +1,6 @@
 import os
 from scrilla import static
-from scrilla.util import helper
+from scrilla.util import dater
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(SCRIPT_DIR))))
@@ -285,7 +285,7 @@ def format_moving_averages(tickers, averages_output):
             subsubresponse_1, subsubresponse_2, subsubresponse_3 = {}, {}, {}
     
             for j, this_item in enumerate(dates):
-                date_str=helper.date_to_string(this_item)
+                date_str=dater.date_to_string(this_item)
                 subsubresponse_1[date_str] = these_moving_averages[i][0][j]
                 subsubresponse_2[date_str] = these_moving_averages[i][1][j]
                 subsubresponse_3[date_str] = these_moving_averages[i][2][j]

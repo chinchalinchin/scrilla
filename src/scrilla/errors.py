@@ -66,11 +66,11 @@ def validate_dates(start_date: date, end_date: date, asset_type: str) -> Tuple[d
         if asset_type == static.keys['ASSETS']['CRYPTO']:
             end_date = dater.get_today()
         else:
-            end_date = helper.get_last_trading_date()        
+            end_date = dater.get_last_trading_date()        
 
     # verify dates are in order if they exist after end_date is possibly changed
     if end_date is not None and start_date is not None:
-        start_date, end_date = helper.validate_order_of_dates(start_date, end_date)
+        start_date, end_date = dater.validate_order_of_dates(start_date, end_date)
 
     # if start date exists, make sure it is valide
     if start_date is not None:
@@ -79,13 +79,13 @@ def validate_dates(start_date: date, end_date: date, asset_type: str) -> Tuple[d
             raise InputValidationError(f'Start date of {helper.date_to_string(start_date)} is greater than today')
 
         if asset_type == static.keys['ASSETS']['EQUITY']:
-            start_date = helper.this_date_or_last_trading_date(start_date)
+            start_date = dater.this_date_or_last_trading_date(start_date)
 
     # else create a sensible start date
     else:
         if asset_type == static.keys['ASSETS']['CRYPTO']:
-            start_date = helper.decrement_date_by_days(end_date, settings.DEFAULT_ANALYSIS_PERIOD)
+            start_date = dater.decrement_date_by_days(end_date, settings.DEFAULT_ANALYSIS_PERIOD)
         else:
-            start_date = helper.decrement_date_by_business_days(end_date, settings.DEFAULT_ANALYSIS_PERIOD)
+            start_date = dater.decrement_date_by_business_days(end_date, settings.DEFAULT_ANALYSIS_PERIOD)
 
     return start_date, end_date

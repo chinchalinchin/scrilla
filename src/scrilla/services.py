@@ -19,8 +19,7 @@ This module interfaces with the external services the program uses to hydrate wi
 import itertools, time, datetime, requests
 
 from scrilla import settings, errors, cache, static
-import scrilla.util.outputter as outputter
-import scrilla.util.helper as helper
+from scrilla.util import outputter, helper, dater
 
 logger = outputter.Logger("services", settings.LOG_LEVEL)
 
@@ -469,12 +468,12 @@ def get_daily_price_history(ticker: str, start_date : datetime.date=None,
     
     prices = price_cache.filter_price_cache(ticker=ticker, start_date=start_date, end_date=end_date)
 
-    if prices is not None and helper.date_to_string(end_date) in prices.keys() and (
+    if prices is not None and dater.date_to_string(end_date) in prices.keys() and (
         (asset_type == static.keys['ASSETS']['EQUITY']
-            and (helper.business_days_between(start_date, end_date) + 1) == len(prices))
+            and (dater.business_days_between(start_date, end_date) + 1) == len(prices))
         or 
         (asset_type == static.keys['ASSETS']['CRYPTO']
-            and (helper.days_between(start_date, end_date) + 1) == len(prices))
+            and (dater.days_between(start_date, end_date) + 1) == len(prices))
     ):
         return prices
 
@@ -582,7 +581,7 @@ def get_daily_interest_history(maturity: str, start_date: datetime.date=None, en
     rates = interest_cache.filter_interest_cache(maturity, start_date=start_date, end_date=end_date)
 
         # TODO: this only works when stats are reported daily and that the latest date in the dataset is actually end_date.
-    if rates is not None and helper.date_to_string(end_date) in rates.keys() \
+    if rates is not None and dater.date_to_string(end_date) in rates.keys() \
         and (helper.business_days_between(start_date, end_date) + 1) == len(rates): 
         return rates
 
@@ -605,8 +604,8 @@ def get_daily_interest_latest(maturity: str) -> float:
     1. **maturity**: ``str``
         Maturity of the US Treasury security whose interest rate is to be retrieved. Allowable values accessible through `static.keys['YIELD_CURVE']
     """
-    end_date = helper.get_last_trading_date()
-    start_date = helper.decrement_date_by_business_days(end_date, 1)
+    end_date = dater.get_last_trading_date()
+    start_date = dater.decrement_date_by_business_days(end_date, 1)
     interest_history = get_daily_interest_history(maturity=maturity, start_date=start_date, end_date=end_date)
     first_element = helper.get_first_json_key(interest_history)
     return interest_history[first_element]

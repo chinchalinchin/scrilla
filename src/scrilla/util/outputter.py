@@ -179,7 +179,7 @@ def optimal_result(portfolio, allocation, investment=None):
     scalar_result(calculation='Return', result=portfolio.return_function(allocation), currency=False)
     scalar_result(calculation='Volatility', result=portfolio.volatility_function(allocation), currency=False)
 
-def efficient_frontier(portfolio, frontier, investment=None, save_file=None):
+def efficient_frontier(portfolio, frontier, investment=None):
     title_line('(Annual Return %, Annual Volatility %) Portfolio')
 
     # TODO: edit title to include dates
