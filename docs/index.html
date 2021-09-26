@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.10.0" />
 <title>scrilla API documentation</title>
-<meta name="description" content="This is a financial application that calculates asset correlations, statistics and optimal portfolio allocations using data it retrieves from external …" />
+<meta name="description" content="scrilla
+…" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
 <link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
@@ -23,6 +24,7 @@
 <h1 class="title">Package <code>scrilla</code></h1>
 </header>
 <section id="section-intro">
+<h2 id="scrilla">Scrilla</h2>
 <p>This is a financial application that calculates asset correlations, statistics and optimal portfolio allocations using data it retrieves from external services (currently: <a href="https://www.alphavantage.co">AlphaVantage</a>, <a href="https://iexcloud.io/">IEX</a> and <a href="https://www.quandl.com/">Quandl</a>). Statistics are calculated using <a href="https://en.wikipedia.org/wiki/It%C3%B4_calculus">Ito Calculus</a> and should be consistent with the results demanded by <a href="https://en.wikipedia.org/wiki/Modern_portfolio_theory">Modern Portfolio Theory</a> and <a href="https://en.wikipedia.org/wiki/Black%E2%80%93Scholes_equation">Financial Engineering</a>. The portfolios are optimized by minimizing the portfolio's variance/volatility, i.e. by finding the optimal spot on the portfolio's efficient frontier as defined by the <a href="https://en.wikipedia.org/wiki/Capital_asset_pricing_model">CAPM model</a>. Alternatively, portfolios can be optimized by maximizing the portfolio's <a href="https://en.wikipedia.org/wiki/Sharpe_ratio">Sharpe ratio</a> or by minimizing the portfolio's <a href="https://en.wikipedia.org/wiki/Expected_shortfall#Optimization_of_expected_shortfall">Conditional Value at Risk</a>.</p>
 <p>The program's functions are wrapped in <a href="https://doc.qt.io/qtforpython/index.html">PyQt5</a> widgets which provide a user interface (this feature is still in development and may explode). In addition, visualizations are created by <a href="https://matplotlib.org/3.3.3/contents.html">matplotlib</a> for easier presentation.</p>
 <p>The links below will take you to the registration pages for each API service Key,</p>
@@ -35,6 +37,9 @@
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">&#34;&#34;&#34;
+scrilla
+-------
+
 This is a financial application that calculates asset correlations, statistics and optimal portfolio allocations using data it retrieves from external services (currently: [AlphaVantage](https://www.alphavantage.co), [IEX](https://iexcloud.io/) and [Quandl](https://www.quandl.com/)). Statistics are calculated using [Ito Calculus](https://en.wikipedia.org/wiki/It%C3%B4_calculus) and should be consistent with the results demanded by [Modern Portfolio Theory](https://en.wikipedia.org/wiki/Modern_portfolio_theory) and [Financial Engineering](https://en.wikipedia.org/wiki/Black%E2%80%93Scholes_equation). The portfolios are optimized by minimizing the portfolio&#39;s variance/volatility, i.e. by finding the optimal spot on the portfolio&#39;s efficient frontier as defined by the [CAPM model](https://en.wikipedia.org/wiki/Capital_asset_pricing_model). Alternatively, portfolios can be optimized by maximizing the portfolio&#39;s [Sharpe ratio](https://en.wikipedia.org/wiki/Sharpe_ratio) or by minimizing the portfolio&#39;s [Conditional Value at Risk](https://en.wikipedia.org/wiki/Expected_shortfall#Optimization_of_expected_shortfall).
 
 The program&#39;s functions are wrapped in [PyQt5](https://doc.qt.io/qtforpython/index.html) widgets which provide a user interface (this feature is still in development and may explode). In addition, visualizations are created by [matplotlib](https://matplotlib.org/3.3.3/contents.html) for easier presentation.
@@ -112,7 +117,9 @@ Note this application optimizes across asset classes, i.e. the theoretical portf
 <nav id="sidebar">
 <h1>Index</h1>
 <div class="toc">
-<ul></ul>
+<ul>
+<li><a href="#scrilla">scrilla</a></li>
+</ul>
 </div>
 <ul id="index">
 <li><h3><a href="#header-submodules">Sub-modules</a></h3>

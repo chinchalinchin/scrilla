@@ -21,6 +21,11 @@ from scrilla.util import outputter
 
 logger = outputter.Logger("cache", settings.LOG_LEVEL)
 
+"""
+This module provides a data access layer for a SQLite database maintained on the local file system on the location set by the environment variable **SQLITE_FILE**. If this environment variable is not set, the file location defaults to the *installation_directory*/data/cache/scrilla.db. The database caches asset prices, statistical calculations and interest rates. This allows the program to avoid excessive API calls to external services for calculations that involve the same quantity. For instance, to calculate correlation, the mean and variance of the individual assets must be calculated over the price history of each before the correlation is calculated over their combined price history; this involves four references to a sample of prices, at different points in the program which do not necessarily share scope with the location of the other calculations, so they can not share the in-memory version of the prices. 
+
+In addition to preventing excessive API calls, the cache prevents redundant calculations. For example, calculating the market beta for a series of assets requires the variance of the market proxy for each calculation. Rather than recalculate this quantity each time, the program will defer to the values stored in the cache.
+"""
 class Cache():
     """
     Methods
@@ -133,7 +138,6 @@ class InterestCache(Cache):
 #       and the correlation's tickers are possible though. In other words, the query, for a given 
 #       (ticker_1, ticker_2)-permutation will only ever return one result.
 class CorrelationCache(Cache):
-        # TODO: extra save_or_update argument for estimation method, i.e. moments, percentiles or likelihood, need to update tables
     create_table_transaction="CREATE TABLE IF NOT EXISTS correlations (ticker_1 TEXT, ticker_2 TEXT, start_date TEXT, end_date TEXT, correlation REAL, method TEXT)"
     insert_row_transaction="INSERT INTO correlations (ticker_1, ticker_2, start_date, end_date, correlation, method) VALUES (:ticker_1, :ticker_2, :start_date, :end_date, :correlation, :method)"
     correlation_query="SELECT correlation FROM correlations WHERE ticker_1=:ticker_1 AND ticker_2=:ticker_2 AND start_date=date(:start_date) AND end_date=date(:end_date) AND method=:method"
@@ -173,8 +177,6 @@ class CorrelationCache(Cache):
         return None
 
 class ProfileCache(Cache):
-    # TODO: extra save_or_update argument for estimation method, i.e. moments, percentiles or likelihood, need to update tables
-
     create_table_transaction="CREATE TABLE IF NOT EXISTS profile (id INTEGER PRIMARY KEY, ticker TEXT, start_date TEXT, end_date TEXT, annual_return REAL, annual_volatility REAL, sharpe_ratio REAL, asset_beta REAL, equity_cost REAL, method TEXT)"
     
     query_filter="ticker=:ticker AND start_date=date(:start_date) AND end_date=date(:end_date) AND :method=method"
