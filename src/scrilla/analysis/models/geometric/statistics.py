@@ -1161,21 +1161,18 @@ def correlation_matrix(tickers, asset_types=None, start_date=None, end_date=None
     raise errors.SampleSizeError('Cannot calculate correlation matrix for portfolio size <= 1.')
 
 def calculate_moment_correlation_series(ticker_1: str, ticker_2: str, start_date: Union[date, None]=None, end_date: Union[date, None]=None) -> dict:
-    try:
-        asset_type_1 = errors.validate_asset_type(ticker=ticker_1)
-        asset_type_2 = errors.validate_asset_type(ticker=ticker_2)
-        if asset_type_1 == static.keys['ASSETS']['CRYPTO'] and asset_type_2 == static.keys['ASSETS']['CRYPTO']:
-            # validate over all days
-            start_date, end_date = errors.validate_dates(start_date=start_date, end_date=end_date,
-                                                            asset_type=static.keys['ASSETS']['CRYPTO'])
-        else:
-            #   validate over trading days. since (date - 100 days) > (date - 100 trading days), always
-            #   take the largest sample so intersect_dict_keys will return a sample of the correct size
-            #   for mixed asset types.
-            start_date, end_date = errors.validate_dates(start_date=start_date, end_date=end_date,
-                                                                asset_type=static.keys['ASSETS']['EQUITY'])
-    except errors.InputValidationError as ive:
-        raise ive
+    asset_type_1 = errors.validate_asset_type(ticker=ticker_1)
+    asset_type_2 = errors.validate_asset_type(ticker=ticker_2)
+    if asset_type_1 == static.keys['ASSETS']['CRYPTO'] and asset_type_2 == static.keys['ASSETS']['CRYPTO']:
+        # validate over all days
+        start_date, end_date = errors.validate_dates(start_date=start_date, end_date=end_date,
+                                                        asset_type=static.keys['ASSETS']['CRYPTO'])
+    else:
+        #   validate over trading days. since (date - 100 days) > (date - 100 trading days), always
+        #   take the largest sample so intersect_dict_keys will return a sample of the correct size
+        #   for mixed asset types.
+        start_date, end_date = errors.validate_dates(start_date=start_date, end_date=end_date,
+                                                            asset_type=static.keys['ASSETS']['EQUITY'])
 
     same_type = False
     correlation_series={}
@@ -1193,7 +1190,7 @@ def calculate_moment_correlation_series(ticker_1: str, ticker_2: str, start_date
         date_range = [helper.get_previous_business_date(start_date)] + helper.business_dates_between(start_date,end_date)
 
     for this_date in date_range:
-        calc_date_end = date
+        calc_date_end = this_date
         
         if same_type and asset_type_1 == static.keys['ASSETS']['EQUITY']:
             calc_date_start = helper.decrement_date_by_business_days(start_date=this_date, 
@@ -1202,12 +1199,13 @@ def calculate_moment_correlation_series(ticker_1: str, ticker_2: str, start_date
             calc_date_start = helper.decrement_date_by_days(start_date=this_date, days=settings.DEFAULT_ANALYSIS_PERIOD)
 
         todays_cor = calculate_moment_correlation(ticker_1, ticker_2, start_date=calc_date_start, end_date=calc_date_end)
-        correlation_series[this_date] = todays_cor['correlation']
+        correlation_series[helper.date_to_string(this_date)] = todays_cor['correlation']
     
     result = {}
     result[f'{ticker_1}_{ticker_2}_correlation_time_series'] = correlation_series
+    return correlation_series
 
-def calculate_return_covariance(ticker_1: str, ticker_2: str, start_date: Union[date, None]=None, end_date: Union[date, None]=None, sample_prices: Union[dict, None]=None, correlation: Union[dict, None]=None, profile_1: Union[dict, None]=None, profile_2: Union[dict, None]=None) -> float:
+def calculate_return_covariance(ticker_1: str, ticker_2: str, start_date: Union[date, None]=None, end_date: Union[date, None]=None, sample_prices: Union[dict, None]=None, correlation: Union[dict, None]=None, profile_1: Union[dict, None]=None, profile_2: Union[dict, None]=None, method=settings.ESTIMATION_METHOD) -> float:
     """
     Returns the return covariance between *ticker_1* and *ticker_2* from *start_date* to *end_date* using the estimation method *method*.
 
@@ -1222,10 +1220,13 @@ def calculate_return_covariance(ticker_1: str, ticker_2: str, start_date: Union[
     4. **end_date** : ``datetime.date`` 
         *Optional*. End date of the time period over which correlation will be calculated. If `None`, defaults to last trading day.
     5. **sample_prices** : ``dict``
-        *Optional*.  
+        *Optional*. A dictionary containing the asset prices. Must be formatted as : ` { 'ticker_1': { 'date_1': value, ...}, 'ticker_2': { 'date_2' : value, ...}}.
     6. **correlation** : ``dict``
+        *Optional*. Overrides correlation caluclation. A dictionary containing the correlation that should be used in lieu of estimating it from historical data. Formatted as : `{ 'correlation': value }
     7. **profile_1** : ``dict``
+        *Optional*. Overrides asset 1's risk profile calculation. A dictionary containing the risk profile of the first asset that should be used in lieu of estimating it from historical data.
     8. **profile_2** : ``dict``
+        *Optional*. Overrides asset 2's risk profile calculation. A dictionary containing the risk profile of the second asset that should be used in lieu of estimating it from historical data.
     9. **method** : ``str``
         *Optional*. Defaults to the value set by `scrilla.settings.ESTIMATION_METHOD`, which in turn is configured by the **DEFAULT_ESTIMATION_METHOD** environment variable. Determines the estimation method used during the calculation of sample statistics. Allowable values can be accessed through `scrilla.static.keys['ESTIMATION']`.
 
@@ -1235,22 +1236,27 @@ def calculate_return_covariance(ticker_1: str, ticker_2: str, start_date: Union[
     """
     if correlation is None:
         if sample_prices is None:
-            correlation = calculate_moment_correlation(ticker_1=ticker_1, ticker_2=ticker_2, start_date=start_date, 
-                                                end_date=end_date)
+            correlation = calculate_correlation(ticker_1=ticker_1, ticker_2=ticker_2, start_date=start_date, 
+                                                end_date=end_date, method=method)
         else:
-            correlation = calculate_moment_correlation(ticker_1=ticker_1, ticker_2=ticker_2, sample_prices=sample_prices)
+            correlation = calculate_correlation(ticker_1=ticker_1, ticker_2=ticker_2, 
+                                                sample_prices=sample_prices, method=method)
 
     if profile_1 is None:
         if sample_prices is None:
-            profile_1 = calculate_moment_risk_return(ticker=ticker_1, start_date=start_date, end_date=end_date)
+            profile_1 = calculate_risk_return(ticker=ticker_1, start_date=start_date, end_date=end_date,
+                                                method=method)
         else:
-            profile_1 = calculate_moment_risk_return(ticker=ticker_1, sample_prices=sample_prices[ticker_1])
+            profile_1 = calculate_risk_return(ticker=ticker_1, sample_prices=sample_prices[ticker_1],
+                                                    method=method)
 
     if profile_2 is None:
         if sample_prices is None:
-            profile_2 = calculate_moment_risk_return(ticker=ticker_2, start_date=start_date, end_date=end_date)
+            profile_2 = calculate_risk_return(ticker=ticker_2, start_date=start_date, end_date=end_date,
+                                                method=method)
         else:
-            profile_2 = calculate_moment_risk_return(ticker=ticker_2,sample_prices=sample_prices[ticker_2])
+            profile_2 = calculate_risk_return(ticker=ticker_2,sample_prices=sample_prices[ticker_2],
+                                                method=method)
 
     covariance = profile_1['annual_volatility']*profile_2['annual_volatility']*correlation['correlation']
     return covariance

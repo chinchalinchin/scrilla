@@ -6,6 +6,7 @@ from PIL import Image
 from matplotlib.figure import Figure
 
 from scrilla import static
+from scrilla.errors import InputValidationError
 import scrilla.util.formatter as formatter
 import scrilla.util.helper as helper
 
@@ -47,6 +48,34 @@ def plot_qq_series(ticker: str, sample: list, show: bool=True, savefile: str=Non
     axes.set_xlabel('Normal Percentiles')
     axes.set_ylabel('Sample Percentiles')
     axes.set_title(title)
+
+    return _show_or_save(canvas=canvas, show=show, savefile=savefile)
+
+def plot_correlation_series(tickers: list, series: dict, show: bool=True, savefile: str=None) -> Union[FigureCanvas, None]:
+    start, end = list(series.keys())[-1], list(series.keys())[0]
+    title = f'({tickers[0]}, {tickers[1]}) correlation time series'
+    subtitle = f'{start} to {end}'
+    canvas = FigureCanvas(Figure())
+    figure = canvas.figure
+    axes = figure.subplots()
+    date_format = matplotlib.dates.DateFormatter('%m-%d')
+
+    correl_history, ordinal_x, dates = [], [], []
+    for date in series:
+        ordinal_x.append(datetime.datetime.strptime(date, '%Y-%m-%d').toordinal())
+        dates.append(helper.parse_date_string(date))
+        correl_history.append(series[date])
+    
+    ordered_dates=dates[::-1]
+
+    axes.plot(ordinal_x, correl_history)
+    axes.grid()
+    axes.xaxis.set_major_formatter(date_format)
+    axes.set_xticklabels(ordered_dates)
+    axes.set_ylabel('Correlation')
+    axes.set_xlabel('Dates')
+    axes.set_title(subtitle, fontsize=12)
+    figure.suptitle(title, fontsize=18)
 
     return _show_or_save(canvas=canvas, show=show, savefile=savefile)
 
@@ -93,7 +122,6 @@ def plot_yield_curve(yield_curve, show=True, savefile=None):
 
     return _show_or_save(canvas=canvas, show=show, savefile=savefile)
 
-
 def plot_profiles(symbols, profiles, show=True, savefile=None, subtitle=None):
     canvas = FigureCanvas(Figure())
 
@@ -126,6 +154,7 @@ def plot_profiles(symbols, profiles, show=True, savefile=None, subtitle=None):
     return _show_or_save(canvas=canvas, show=show, savefile=savefile)
 
     # TODO: figure out date formatting for x-axis
+
 def plot_moving_averages(symbols, averages_output, periods, show=True, savefile=None):
     averages, dates = averages_output
     canvas = FigureCanvas(Figure())
@@ -189,10 +218,9 @@ def plot_moving_averages(symbols, averages_output, periods, show=True, savefile=
 
     return _show_or_save(canvas=canvas, show=show, savefile=savefile)
 
-
 def plot_cashflow(ticker, cashflow, show=True, savefile=None):
     if not cashflow.beta or not cashflow.alpha or len(cashflow.sample) < 3:
-        return False
+        raise InputValidationError("Cashflow model does not contain enough information to be plotted")
     
     canvas = FigureCanvas(Figure())
     figure = canvas.figure
