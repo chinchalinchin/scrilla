@@ -25,27 +25,30 @@ logger = outputter.Logger("services", settings.LOG_LEVEL)
 
 class StatManager():
     """
-    Description
-    -----------
-        StatManager is an interface between the application and the external services that hydrate it with financial statistics data. This class gets instantiated on the level of the `scrilla.services` module with the value defined in `scrilla.settings.STAT_MANAGER`. This value is in turn defined by the value of the `STAT_MANAGER` environment variable. This value determines how the url is constructed, which API credentials get appended to the external query and the keys used to parse the response JSON container the statistical data.
+    StatManager is an interface between the application and the external services that hydrate it with financial statistics data. This class gets instantiated on the level of the `scrilla.services` module with the value defined in `scrilla.settings.STAT_MANAGER`. This value is in turn defined by the value of the `STAT_MANAGER` environment variable. This value determines how the url is constructed, which API credentials get appended to the external query and the keys used to parse the response JSON container the statistical data.
+
+    Attributes
+    ----------
+    1. **genre**: ``str``
+        A string denoting which service will be used for data hydration. Genres can be accessed through the `static.keys['SERVICES']` dictionary.
     """
-    def __init__(self, type):
-        self.type = type
-        if self.is_quandl():
+    def __init__(self, genre):
+        self.genre = genre
+        if self._is_quandl():
             self.service_map = static.keys["SERVICES"]["STATISTICS"]["QUANDL"]["MAP"]
 
-    def is_quandl(self):
+    def _is_quandl(self):
         """
         Returns
         -------
-        bool \n
-            `True` if this instace of `StatManager` is a Quandl interface. `False` otherwise. \n\n
+        `bool`
+            `True` if this instace of `StatManager` is a Quandl interface. `False` otherwise.
 
         .. notes::
-            * This is for use within the class and probably won't need to be accessed outside of it. `StatManager` is intended to hide the data implementation from the rest of the library, i.e. it is ultimately agnostic about where the data comes where. It should never need to know `StatManger` is a Quandl interface. Just in case the library ever needs to populate its data from another source. \n \n
+            * This is for use within the class and probably won't need to be accessed outside of it. `StatManager` is intended to hide the data implementation from the rest of the library, i.e. it is ultimately agnostic about where the data comes where. It should never need to know `StatManger` is a Quandl interface. Just in case the library ever needs to populate its data from another source.
 
         """
-        if self.type == static.keys['SERVICES']['STATISTICS']['QUANDL']['MANAGER']:
+        if self._genre == static.keys['SERVICES']['STATISTICS']['QUANDL']['MANAGER']:
             return True
         return False
 
@@ -57,24 +60,24 @@ class StatManager():
 
         Parameters
         ----------
-        1. start_date : datetime.date \n 
-            Start date of historical sample to be retrieved. \n \n
-        2. end_date : datetime.date \n 
-            End date of historical sample to be retrieved. \n \n
+        1. **start_date** : ``datetime.date``
+            Start date of historical sample to be retrieved.
+        2. **end_date** : ``datetime.date``
+            End date of historical sample to be retrieved.
 
         Raises
         ------
-        1. scrilla.errors.ConfigurationError \n
-            If the `STAT_MANAGER` hasn't been set through an enviornment variable, this error will be thrown. \n \n
+        1. **scrilla.errors.ConfigurationError**
+            If the `STAT_MANAGER` hasn't been set through an enviornment variable, this error will be thrown.
 
         Returns
         -------
-        str \n
-            The formatted query for the specific service defined by `self.type`. \n \n
+        ``str``
+            The formatted query for the specific service defined by `self.genre`.
 
         """
         query = ""
-        if self.is_quandl():
+        if self._is_quandl():
 
             if end_date is not None:
                 end_string = helper.date_to_string(end_date)
@@ -96,28 +99,26 @@ class StatManager():
 
     def construct_stat_url(self, symbol, start_date, end_date):
         """
-        Description
-        -----------
-        Constructs the full URL path for the external statistics service. Note, this method will return the URL with an API key appended as a query parameter. Be careful with the returned value. \n\n
+        Constructs the full URL path for the external statistics service. Note, this method will return the URL with an API key appended as a query parameter. Be careful with the returned value.
 
         Parameters
         ----------
-        1. symbol: str \n
-            Symbol representing the statistical series to be retrieved. List of allowable symbols can be found here: https://data.nasdaq.com/data/FRED-federal-reserve-economic-data
-        2. start_date : datetime.date \n 
-            Start date of historical sample to be retrieved. \n \n
-        3. end_date : datetime.date \n 
-            End date of historical sample to be retrieved. \n \n
+        1. **symbol**: ``str``
+            Symbol representing the statistical series to be retrieved. List of allowable symbols can be found [here](https://data.nasdaq.com/data/FRED-federal-reserve-economic-data)
+        2. **start_date**: ``datetime.date`` 
+            Start date of historical sample to be retrieved.
+        3. **end_date**: ``datetime.date``
+            End date of historical sample to be retrieved.
  
         Raises
         ------
-        1. scrilla.errors.ConfigurationError \n
-            If the `STAT_MANAGER` hasn't been set through an enviornment variable, this error will be thrown. \n \n
+        1. **scrilla.errors.ConfigurationError**
+            If the `STAT_MANAGER` hasn't been set through an enviornment variable, this error will be thrown.
 
         Returns
         -------
-        str \n
-            The formatted URL for the specific statistics service defined by `self.type`. \n \n
+        ``str``
+            The formatted URL for the specific statistics service defined by `self.genre`.
         """
         if self.is_quandl():
             url = f'{settings.Q_URL}/{self.service_map["PATHS"]["FRED"]}/{symbol}?'
@@ -203,12 +204,11 @@ class StatManager():
 
 class DividendManager():
     
-    def __init__(self, type):
-        self.type = type
+    def __init__(self, genre):
+        self.genre = genre
 
-    @staticmethod
-    def construct_url(ticker):
-        if settings.DIV_MANAGER == "iex":
+    def construct_url(self, ticker):
+        if self.genre == static.keys['SERVICES']['DIVIDENDS']['IEX']['MANAGER']:
         
             query=f'{ticker}/{settings.PATH_IEX_DIV}/{settings.PARAM_IEX_RANGE_5YR}'
             url = f'{settings.IEX_URL}/{query}?{settings.PARAM_IEX_KEY}={settings.IEX_KEY}'
@@ -225,111 +225,54 @@ class DividendManager():
 
         formatted_response = {}
 
-        for item in response:
-            date = str(item[settings.IEX_RES_DATE_KEY])
-            div = item[settings.IEX_RES_DIV_KEY]
-            formatted_response[date] = div
-        
-        return formatted_response
+        if self.genre == static.keys['SERVICES']['DIVIDENDS']['IEX']['MANAGER']:
+            for item in response:
+                date = str(item[settings.IEX_RES_DATE_KEY])
+                div = item[settings.IEX_RES_DIV_KEY]
+                formatted_response[date] = div
+            return formatted_response
+        raise errors.ConfigurationError('No DIV_MANAGER found in the parsed environment settings')
+
 
 class PriceManager():
     """
-    Description
-    -----------
-        PriceManager is an interface between the application and the external services that hydrate it with price data. This class gets instantiated on the level of the scrilla.services module with the value defined in `scrilla.settings.PRICE_MANAGER`. This value is in turn defined by the value of the `PRICE_MANAGER` environment variable. This value determines how the url is constructed, which API credentials get appended to the external query and the keys used to parse the response JSON containing the price data. \n \n
+    PriceManager is an interface between the application and the external services that hydrate it with price data. This class gets instantiated on the level of the `scrilla.services` module with the value defined in `scrilla.settings.PRICE_MANAGER` variable. This value is in turn configured by the value of the **PRICE_MANAGER** environment variable. This value determines how the url is constructed, which API credentials get appended to the external query and the keys used to parse the response JSON containing the price data.
 
-    Methods 
-    -------
-    1. construct_url:
-        Parameters
-        ----------
-        1. ticker : str \n
-            Required. Ticker symbol of the asset whose prices are being retrieved. \n \n
-        2. asset_type : str \n
-            Required: Asset type of the asset whose prices are being retrieved. Options are statically
-            accessible in the `scrillla.static` module dictionary `scrilla.static.keys['ASSETS']`. \n \n
-
-        Returns
-        -------
-        str \n
-            The URL with the authenticated query appended, i.e. with the service's API key injected into the parameters. Be careful not to expose the return value of this function! \n \n
-
-        Raises
-        ------
-        1. errors.ConfigurationError \n
-            If one of the settings is improperly configured or one of the environment variables was unable to be parsed from the environment, this error will be thrown. \n \n
-
-    2. get_prices 
-        Parameters
-        ----------
-        1. ticker : str \n
-            Required. Ticker symbol of the asset whose prices are being retrieved. \n \n
-        2. asset_type : str \n
-            Required: Asset type of the asset whose prices are being retrieved. Options are statically
-            accessible in the `scrillla.static` module dictionary `scrilla.static.keys['ASSETS']`. \n \n
-        
-        Returns
-        -------
-
-        Raises
-        ------
-        1. errors.ConfigurationError \n
-            If one of the settings is improperly configured or one of the environment variables was unable to be parsed from the environment, this error will be thrown. \n \n
-        2. errors.APIResponseError \n
-            If the service from which data is being retrieved is down, the request has been rate limited or some otherwise anomalous event has taken place, this error will be thrown. \n \n
-
-    3. slice_prices
-        Parameters
-        ----------
-        1. start_date : datetime.date \n 
-        2. end_date : datetime.date \n
-        3. asset_type : str \n
-            Required: Asset type of the asset whose prices are being retrieved. Options are statically
-            accessible in the `scrillla.static` module dictionary `scrilla.static.keys['ASSETS']`. \n \n
-        4. response : dict \n
-            Required: the full response from the price manager, i.e. the entire price history returned by the external service in charge of retrieving pricce histories. \n \n
-       
-        Returns
-        -------
-
-        Raises
-        ------
-        1. KeyError \n
-            If the inputted or validated dates do not exist in the price history, a KeyError will be thrown. This could be due to the equity not having enough price history, i.e. it started trading a month ago and doesn't have 100 days worth of prices yet, or some other anomalous event in an equity's history. 
-        2. errors.ConfigurationError \n
-            If one of the settings is improperly configured or one of the environment variables was unable to be parsed from the environment, this error will be thrown. \n \n
-    
-    4. parse_price_from_date
-        Parameters
-        ----------
-        1. prices : { str : str } \n
-            2D list containing the AlphaVantage response with the first layer peeled off, i.e.
-            no metadata, just the date and prices. \n \n
-        2. date: str \n
-            String of the date to be parsed. Note: this is not a datetime.date object. String
-            must be formatted YYYY-MM-DD \n \n
-        3. asset_type : str \n
-            String that specifies what type of asset price is being parsed. Options are statically
-            accessible in the `scrillla.static` module dictionary `scrilla.static.keys['ASSETS']` \n \n
-        4. which_price : str \n
-            String that specifies which price is to be retrieved, the closing price or the opening prices. Options are statically accessible 
-    
-        Returns
-        ------
-            String containing the price on the specified date.
-        
-        Raises
-        ------
-        1. KeyError \n
-            If the inputted or validated dates do not exist in the price history, a KeyError will be thrown. This could be due to the equity not having enough price history, i.e. it started trading a month ago and doesn't have 100 days worth of prices yet, or some other anomalous event in an equity's history. 
-        2. errors.InputValidationError \n
-            If prices was unable to be grouped into a (crypto, equity)-asset class or the opening/closing price did not exist for whatever reason, this error will be thrown.
+    Attributes
+    ----------
+    1. **genre**: ``str``
+        A string denoting which service will be used for data hydration. Genres can be accessed through the `static.keys['SERVICES']` dictionary.
     """
-    def __init__(self, type):
-        self.type = type
+    def __init__(self, genre):
+        self.genre = genre
+        if self.genre == static.keys['SERVICES']['PRICES']['ALPHA_VANTAGE']['MANAGER']:
+            self.service_map = static.keys['SERVICES']['PRICES']['ALPHA_VANTAGE']['MAP']
+
 
     def construct_url(self, ticker, asset_type):
-        if self.type == static.keys['SERVICES']['PRICES']['ALPHA_VANTAGE']['MANAGER']:
+        """
+        Constructs the service url with the query and parameters appended. 
+
+        Parameters
+        ----------
+        1. **ticker**: ``str`
+            Ticker symbol of the asset whose prices are being retrieved.
+        2. **asset_type**: ``str``
+            Asset type of the asset whose prices are being retrieved. Options are statically
+            accessible in the `scrillla.static` module dictionary `scrilla.static.keys['ASSETS']`.
+
+        Returns
+        -------
+        `str`
+            The URL with the authenticated query appended, i.e. with the service's API key injected into the parameters. Be careful not to expose the return value of this function!
+
+        Raises
+        ------
+        1. **scrilla.errors.ConfigurationError**
+            If one of the settings is improperly configured or one of the environment variables was unable to be parsed from the environment, this error will be thrown.
+
+        """
+        if self.genre == static.keys['SERVICES']['PRICES']['ALPHA_VANTAGE']['MANAGER']:
             query = f'{settings.PARAM_AV_TICKER}={ticker}'
 
             if asset_type == static.keys['ASSETS']['EQUITY']:
@@ -350,10 +293,33 @@ class PriceManager():
 
 
     def get_prices(self, ticker, start_date, end_date, asset_type):
+        """
+        Retrieve prices from external service.
+
+        Parameters
+        ----------
+        1. **ticker** : ``str``
+            Ticker symbol of the asset whose prices are being retrieved.
+        2. **asset_type** : ``str``
+            Asset type of the asset whose prices are being retrieved. Options are statically
+            accessible in the `scrillla.static` module dictionary `scrilla.static.keys['ASSETS']`.
+        
+        Returns
+        -------
+        ``dict``: `{ 'date': value, 'date': value, ...}`
+            Dictionary of prices with date as key, ordered from latest to earliest.
+
+        Raises
+        ------
+        1. **scrilla.errors.ConfigurationError**
+            If one of the settings is improperly configured or one of the environment variables was unable to be parsed from the environment, this error will be thrown.
+        2. **scrilla.errors.APIResponseError**
+            If the service from which data is being retrieved is down, the request has been rate limited or some otherwise anomalous event has taken place, this error will be thrown.
+        """
         url = self.construct_url(ticker, asset_type)
         response = requests.get(url).json()
 
-        if self.type == static.keys['SERVICES']['PRICES']['ALPHA_VANTAGE']['MANAGER']:
+        if self.genre == static.keys['SERVICES']['PRICES']['ALPHA_VANTAGE']['MANAGER']:
             first_element = helper.get_first_json_key(response)
             # end function is daily rate limit is reached 
             if first_element == settings.AV_RES_DAY_LIMIT:
@@ -379,57 +345,104 @@ class PriceManager():
                 if first_element == settings.AV_RES_ERROR:
                     raise errors.APIResponseError(response[settings.AV_RES_ERROR])
 
-            return self.slice_prices(start_date=start_date, end_date=end_date, asset_type=asset_type, prices=response)
-        
+            prices = self._slice_prices(start_date=start_date, end_date=end_date, asset_type=asset_type, prices=response)
+            format_prices = {}
+            for date in prices:
+                close_price = self._parse_price_from_date(prices=prices, date=date, asset_type=asset_type, 
+                                                    which_price=static.keys['PRICES']['CLOSE'])
+                open_price = self._parse_price_from_date(prices=prices, date=date, asset_type=asset_type, 
+                                                    which_price=static.keys['PRICES']['OPEN'])
+                format_prices[date] = { static.keys['PRICES']['OPEN'] : open_price, static.keys['PRICES']['CLOSE'] : close_price }
+            return format_prices
         raise errors.ConfigurationError('No PRICE_MANAGER found in the parsed environment settings')
 
-    def slice_prices(self, start_date, end_date, asset_type, prices):
+    def _slice_prices(self, start_date, end_date, asset_type, prices):
+        """
+        Parses the raw response from the external price service into a format the program will understand.
+
+        Parameters
+        ----------
+        1. **start_date** : ``datetime.date``
+        2. **end_date** : ``datetime.date``
+        3. **asset_type** : ``str``
+            Required: Asset type of the asset whose prices are being retrieved. Options are statically
+            accessible in the `scrillla.static` module dictionary `scrilla.static.keys['ASSETS']`.
+        4. **response** : ``dict``
+            The full response from the price manager, i.e. the entire price history returned by the external service in charge of retrieving pricce histories, the result returned from `scrilla.services.PriceManager.get_prices`
+       
+        Returns
+        -------
+        ``dict``: `{ 'date': value, 'date': value, ...}`
+            Dictionary of prices with date as key, ordered from latest to earliest.
+
+
+        Raises
+        ------
+        1. **KeyError**
+            If the inputted or validated dates do not exist in the price history, a KeyError will be thrown. This could be due to the equity not having enough price history, i.e. it started trading a month ago and doesn't have 100 days worth of prices yet, or some other anomalous event in an equity's history. 
+        2. **scrilla.errors.ConfigurationError**
+            If one of the settings is improperly configured or one of the environment variables was unable to be parsed from the environment, this error will be thrown.
+        """
+
         # NOTE: only really needed for `alpha_vantage` responses so far, due to the fact AlphaVantage either returns everything or 100 days or prices.
-        if self.type == static.keys['SERVICES']['PRICES']['ALPHA_VANTAGE']['MANAGER']:
-            service_map = static.keys['SERVICES']['PRICES']['ALPHA_VANTAGE']['MAP']
+            # shouldn't need to verify genre anyway, since using service_map and service_map should abstract the response away.
+        if self.genre == static.keys['SERVICES']['PRICES']['ALPHA_VANTAGE']['MANAGER']:
 
             # NOTE: Remember AlphaVantage is ordered current to earliest. END_INDEX is 
             # actually the beginning of slice and START_INDEX is actually end of slice. 
-            try:
-                start_string, end_string = helper.date_to_string(start_date), helper.date_to_string(end_date)
-                if asset_type == static.keys['ASSETS']['EQUITY']:
-                    start_index = list(prices[settings.AV_RES_EQUITY_FIRST_LAYER].keys()).index(start_string)
-                    end_index = list(prices[settings.AV_RES_EQUITY_FIRST_LAYER].keys()).index(end_string)
-                    prices = dict(itertools.islice(prices[settings.AV_RES_EQUITY_FIRST_LAYER].items(), end_index, start_index+1))
-                    return prices
-                if asset_type == static.keys['ASSETS']['CRYPTO']:
-                    start_index = list(prices[settings.AV_RES_CRYPTO_FIRST_LAYER].keys()).index(start_string)
-                    end_index = list(prices[settings.AV_RES_CRYPTO_FIRST_LAYER].keys()).index(end_string)
-                    prices = dict(itertools.islice(prices[settings.AV_RES_CRYPTO_FIRST_LAYER].items(), end_index, start_index+1))
-                    return prices
+            start_string, end_string = helper.date_to_string(start_date), helper.date_to_string(end_date)
+            if asset_type == static.keys['ASSETS']['EQUITY']:
+                response_map = self.service_map['KEYS']['EQUITY']['FIRST_LAYER']
+            elif asset_type == static.keys['ASSETS']['CRYPTO']:
+                response_map = self.service_map['KEYS']['CRYPTO']['FIRST_LAYER']
+
+            start_index = list(prices[response_map].keys()).index(start_string)
+            end_index = list(prices[response_map].keys()).index(end_string)
+            prices = dict(itertools.islice(response_map.items(), end_index, start_index+1))
+            return prices
                 
-            except KeyError as ke:
-                raise ke
-        
         raise errors.ConfigurationError('No PRICE_MANAGER found in the parsed environment settings')
     
-    def parse_price_from_date(self, prices, date, asset_type, which_price):
-        try:
-            if self.type== 'alpha_vantage':
-                service_map = static.keys['SERVICES']['PRICES']['ALPHA_VANTAGE']['MAP']
+    def _parse_price_from_date(self, prices: dict, date: datetime.date, asset_type: str, which_price: str):
+        """
+        Parameters
+        ----------
+        1. **prices** : ``dict``
+            List containing the AlphaVantage response with the first layer peeled off, i.e.
+            no metadata, just the date and prices.
+        2. **date**: ``str``
+            String of the date to be parsed. Note: this is not a datetime.date object. String
+            must be formatted `YYYY-MM-DD`
+        3. **asset_type**: ``str``
+            String that specifies what type of asset price is being parsed. Options are statically
+            accessible in the `scrillla.static` module dictionary `scrilla.static.keys['ASSETS']`
+        4. **which_price**: ``str``
+            String that specifies which price is to be retrieved, the closing price or the opening prices. Options are statically accessible 
+    
+        Returns
+        ------
+            String containing the price on the specified date.
+        
+        Raises
+        ------
+        1. **KeyError**
+            If the inputted or validated dates do not exist in the price history, a KeyError will be thrown. This could be due to the equity not having enough price history, i.e. it started trading a month ago and doesn't have 100 days worth of prices yet, or some other anomalous event in an equity's history. 
+        2. **scrilla.errors.InputValidationError**
+            If prices was unable to be grouped into a (crypto, equity)-asset class or the opening/closing price did not exist for whatever reason, this error will be thrown.
+        """
+        if asset_type == static.keys['ASSETS']['EQUITY']:
+            if which_price == static.keys['PRICES']['CLOSE']:
+                return prices[date][self.service_map['KEYS']['EQUITY']['CLOSE']]
+            if which_price == static.keys['PRICES']['OPEN']:
+                return prices[date][self.service_map['KEYS']['EQUITY']['CLOSE']]
 
-                if asset_type == static.keys['ASSETS']['EQUITY']:
-                    if which_price == static.keys['PRICES']['CLOSE']:
-                        return prices[date][service_map['KEYS']['EQUITY']['CLOSE']]
-                    if which_price == static.keys['PRICES']['OPEN']:
-                        return prices[date][service_map['KEYS']['EQUITY']['CLOSE']]
-
-                elif asset_type == static.keys['ASSETS']['CRYPTO']:
-                    if which_price == static.keys['PRICES']['CLOSE']:
-                        return prices[date][service_map['KEYS']['CRYPTO']['CLOSE']]
-                    if which_price == static.keys['PRICES']['OPEN']:
-                        return prices[date][service_map['KEYS']['CRYPTO']['OPEN']]
-            
-            raise errors.InputValidationError(f'Verify {asset_type}, {which_price} are allowable values')
-
-        except KeyError as ke:
-            logger.debug('Price unable to be parsed from date.')
-            raise ke
+        elif asset_type == static.keys['ASSETS']['CRYPTO']:
+            if which_price == static.keys['PRICES']['CLOSE']:
+                return prices[date][self.service_map['KEYS']['CRYPTO']['CLOSE']]
+            if which_price == static.keys['PRICES']['OPEN']:
+                return prices[date][self.service_map['KEYS']['CRYPTO']['OPEN']]
+        
+        raise errors.InputValidationError(f'Verify {asset_type}, {which_price} are allowable values')
 
 price_manager = PriceManager(settings.PRICE_MANAGER)
 stat_manager = StatManager(settings.STAT_MANAGER)
@@ -457,7 +470,7 @@ def get_daily_price_history(ticker: str, start_date : datetime.date=None,
 
     Returns
     ------
-    ``dict``: `{ 'date' (str) : { 'open': value (str), 'close': value (str) }, 'date' (str): { 'open' : value (str), 'close' : value(str) }, ... }`
+    ``dict``: `{ 'date' : { 'open': value, 'close': value  }, 'date': { 'open' : value, 'close' : value }, ... }`
         Dictionary with date strings formatted `YYYY-MM-DD` as keys and a nested dictionary containing the 'open' and 'close' price as values. Ordered from latest to earliest.
     
     .. notes::
@@ -468,6 +481,7 @@ def get_daily_price_history(ticker: str, start_date : datetime.date=None,
     
     prices = price_cache.filter_price_cache(ticker=ticker, start_date=start_date, end_date=end_date)
 
+    # make sure the length of cache is equal to the length of the requested sample
     if prices is not None and dater.date_to_string(end_date) in prices.keys() and (
         (asset_type == static.keys['ASSETS']['EQUITY']
             and (dater.business_days_between(start_date, end_date) + 1) == len(prices))
@@ -482,16 +496,12 @@ def get_daily_price_history(ticker: str, start_date : datetime.date=None,
         
     prices = price_manager.get_prices(ticker=ticker,start_date=start_date, end_date=end_date, asset_type=asset_type)
 
-    parsed_prices ={}
     for date in prices:
-        close_price = price_manager.parse_price_from_date(prices=prices, date=date, asset_type=asset_type, 
-                                                    which_price=static.keys['PRICES']['CLOSE'])
-        open_price = price_manager.parse_price_from_date(prices=prices, date=date, asset_type=asset_type, 
-                                                    which_price=static.keys['PRICES']['OPEN'])
-        parsed_prices[date] = { static.keys['PRICES']['OPEN'] : open_price, static.keys['PRICES']['CLOSE'] : close_price }
+        close_price = prices[date][static.keys['PRICES']['OPEN']]
+        open_price = prices[date][static.keys['PRICES']['CLOSE']]
         price_cache.save_row(ticker=ticker, date=date, open_price=open_price, close_price=close_price)
 
-    return parsed_prices
+    return prices
     
 def get_daily_price_latest(ticker: str, asset_type: str=None) -> float:
     """
