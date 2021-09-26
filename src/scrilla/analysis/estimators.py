@@ -68,11 +68,8 @@ def bivariate_normal_likelihood_function(params: list, data: list) -> float:
         A list of data that has been drawn from a bivariate normal population. Must be formatted in the following manner: `[ [x1,y1], [x2,y2],...]`
 
     .. notes::
-        * the covariance matrix of a bivariate normal distribution must be positive semi-definite (PSD) and non-singular. PSD can be checked with the `Slyvester Criterion`_ or `Cauchy-Schwarz Inequality`_. Since sample variance will always be positive, this reduces to checking the determinant of the covariance matrix is greater than 0. This function will return `numpy.inf` if the covariance matrix is singular or non-positive semi-definite.
-        
-        .. _Slyvester Criterion: https://en.wikipedia.org/wiki/Sylvester%27s_criterion
-        
-        .. _Cauchy-Schwarz Inequality: https://en.wikipedia.org/wiki/Cauchy%E2%80%93Schwarz_inequality#Probability_theory
+        * the covariance matrix of a bivariate normal distribution must be positive semi-definite (PSD) and non-singular. PSD can be checked with the [Slyvester Criterion](https://en.wikipedia.org/wiki/Sylvester%27s_criterion) or [Cauchy-Schwarz Inequality](https://en.wikipedia.org/wiki/Cauchy%E2%80%93Schwarz_inequality#Probability_theory). Since sample variance will always be positive, this reduces to checking the determinant of the covariance matrix is greater than 0. This function will return `numpy.inf` if the covariance matrix is singular or non-positive semi-definite.
+            
     """
 
     mean = [ params[0], params[1]]

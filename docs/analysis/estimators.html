@@ -97,11 +97,8 @@ def bivariate_normal_likelihood_function(params: list, data: list) -&gt; float:
         A list of data that has been drawn from a bivariate normal population. Must be formatted in the following manner: `[ [x1,y1], [x2,y2],...]`
 
     .. notes::
-        * the covariance matrix of a bivariate normal distribution must be positive semi-definite (PSD) and non-singular. PSD can be checked with the `Slyvester Criterion`_ or `Cauchy-Schwarz Inequality`_. Since sample variance will always be positive, this reduces to checking the determinant of the covariance matrix is greater than 0. This function will return `numpy.inf` if the covariance matrix is singular or non-positive semi-definite.
-        
-        .. _Slyvester Criterion: https://en.wikipedia.org/wiki/Sylvester%27s_criterion
-        
-        .. _Cauchy-Schwarz Inequality: https://en.wikipedia.org/wiki/Cauchy%E2%80%93Schwarz_inequality#Probability_theory
+        * the covariance matrix of a bivariate normal distribution must be positive semi-definite (PSD) and non-singular. PSD can be checked with the [Slyvester Criterion](https://en.wikipedia.org/wiki/Sylvester%27s_criterion) or [Cauchy-Schwarz Inequality](https://en.wikipedia.org/wiki/Cauchy%E2%80%93Schwarz_inequality#Probability_theory). Since sample variance will always be positive, this reduces to checking the determinant of the covariance matrix is greater than 0. This function will return `numpy.inf` if the covariance matrix is singular or non-positive semi-definite.
+            
     &#34;&#34;&#34;
 
     mean = [ params[0], params[1]]
@@ -384,10 +381,8 @@ A list of data that has been drawn from a bivariate normal population. Must be f
 <div class="admonition notes">
 <p class="admonition-title">Notes</p>
 <ul>
-<li>the covariance matrix of a bivariate normal distribution must be positive semi-definite (PSD) and non-singular. PSD can be checked with the <code>Slyvester Criterion</code><em> or <code>Cauchy-Schwarz Inequality</code></em>. Since sample variance will always be positive, this reduces to checking the determinant of the covariance matrix is greater than 0. This function will return <code>numpy.inf</code> if the covariance matrix is singular or non-positive semi-definite.</li>
+<li>the covariance matrix of a bivariate normal distribution must be positive semi-definite (PSD) and non-singular. PSD can be checked with the <a href="https://en.wikipedia.org/wiki/Sylvester%27s_criterion">Slyvester Criterion</a> or <a href="https://en.wikipedia.org/wiki/Cauchy%E2%80%93Schwarz_inequality#Probability_theory">Cauchy-Schwarz Inequality</a>. Since sample variance will always be positive, this reduces to checking the determinant of the covariance matrix is greater than 0. This function will return <code>numpy.inf</code> if the covariance matrix is singular or non-positive semi-definite.</li>
 </ul>
-<p>.. _Slyvester Criterion: <a href="https://en.wikipedia.org/wiki/Sylvester%27s_criterion">https://en.wikipedia.org/wiki/Sylvester%27s_criterion</a></p>
-<p>.. _Cauchy-Schwarz Inequality: <a href="https://en.wikipedia.org/wiki/Cauchy%E2%80%93Schwarz_inequality#Probability_theory">https://en.wikipedia.org/wiki/Cauchy%E2%80%93Schwarz_inequality#Probability_theory</a></p>
 </div></div>
 <details class="source">
 <summary>
@@ -411,11 +406,8 @@ A list of data that has been drawn from a bivariate normal population. Must be f
         A list of data that has been drawn from a bivariate normal population. Must be formatted in the following manner: `[ [x1,y1], [x2,y2],...]`
 
     .. notes::
-        * the covariance matrix of a bivariate normal distribution must be positive semi-definite (PSD) and non-singular. PSD can be checked with the `Slyvester Criterion`_ or `Cauchy-Schwarz Inequality`_. Since sample variance will always be positive, this reduces to checking the determinant of the covariance matrix is greater than 0. This function will return `numpy.inf` if the covariance matrix is singular or non-positive semi-definite.
-        
-        .. _Slyvester Criterion: https://en.wikipedia.org/wiki/Sylvester%27s_criterion
-        
-        .. _Cauchy-Schwarz Inequality: https://en.wikipedia.org/wiki/Cauchy%E2%80%93Schwarz_inequality#Probability_theory
+        * the covariance matrix of a bivariate normal distribution must be positive semi-definite (PSD) and non-singular. PSD can be checked with the [Slyvester Criterion](https://en.wikipedia.org/wiki/Sylvester%27s_criterion) or [Cauchy-Schwarz Inequality](https://en.wikipedia.org/wiki/Cauchy%E2%80%93Schwarz_inequality#Probability_theory). Since sample variance will always be positive, this reduces to checking the determinant of the covariance matrix is greater than 0. This function will return `numpy.inf` if the covariance matrix is singular or non-positive semi-definite.
+            
     &#34;&#34;&#34;
 
     mean = [ params[0], params[1]]

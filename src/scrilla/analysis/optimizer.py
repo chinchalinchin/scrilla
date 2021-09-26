@@ -38,10 +38,8 @@ def maximize_univariate_normal_likelihood(data):
 
     .. notes::
         * Some comments about the methodology. This module assumes an underlying asset price process that follows Geometric Brownian motion. This implies the return on the asset over intervals of  \\(\delta t\\) is normally distributed with mean \\(\mu * \delta t\\) and volatility \\(\sigma \cdot \sqrt{\delta t}\\). If the sample is scaled by \\(\delta t\\), then the mean becomes \\(\mu\\) and the volatility \\(\frac{\sigma}{\sqrt t}\\).  Moreover, increments are independent. Therefore, if the observations are made over equally spaced intervals, each observation is drawn from an independent, identially distributed normal random variable. The parameters \\(\mu\\) and :\\(\frac {\sigma}{\delta t}\\) can then be estimated by maximizing the probability of observing a given sample with respect to the parameters. To obtain the estimate for \\(\sigma\\), multiply the result of this function by \\(\delta t\\).
-        * Theoretically, the output of this function should equal the same value obtained from the method of moment matching. However, there is a small discrepancy. It could be due to floating point arthimetic. However, see Section 2.2 of the following for what I think may be, if not the source, at least related to the `issue`_
+        * Theoretically, the output of this function should equal the same value obtained from the method of moment matching. However, there is a small discrepancy. It could be due to floating point arthimetic. However, see Section 2.2 of the following for what I think may be, if not the source, at least related to the [issue](https://www.researchgate.net/publication/5071468_Maximum_Likelihood_Estimation_of_Generalized_Ito_Processes_With_Discretely-Sampled_Data)
         The author, however, is not considering the transformed Ito process, the log of the asset price process. It seems like his conclusion may be an artifact of Ito's Lemma? Not sure. Will need to think.
-
-        .. _issue: https://www.researchgate.net/publication/5071468_Maximum_Likelihood_Estimation_of_Generalized_Ito_Processes_With_Discretely-Sampled_Data
     """
 
     likelihood = lambda x: (-1)*estimators.univariate_normal_likelihood_function(params=x, data=data)
