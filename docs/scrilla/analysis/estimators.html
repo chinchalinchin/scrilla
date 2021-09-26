@@ -59,6 +59,10 @@ logger = outputter.Logger(&#39;estimators&#39;, settings.LOG_LEVEL)
 profile_cache = cache.ProfileCache()
 correlation_cache = cache.CorrelationCache()
 
+&#34;&#34;&#34;
+A module of statistical point estimators and likelihood functions.
+&#34;&#34;&#34;
+
 def univariate_normal_likelihood_function(params : list, data : list) -&gt; float:
     &#34;&#34;&#34;
     This function returns the likelihood of a vector of parameters being observed from a sample univariate data of normal data. It can be used as objective function input for `scipy.optimize`&#39;s optimization methods. 
@@ -93,11 +97,11 @@ def bivariate_normal_likelihood_function(params: list, data: list) -&gt; float:
         A list of data that has been drawn from a bivariate normal population. Must be formatted in the following manner: `[ [x1,y1], [x2,y2],...]`
 
     .. notes::
-        * the covariance matrix of a bivariate normal distribution must be positive semi-definite (PSD) and non-singular. PSD can be checked with the `Slyvester Criterion`_ or Cauchy-Schwarz Inequality (2_). Since sample variance will always be positive, this reduces to checking the determinant of the covariance matrix is greater than 0. This function will return `numpy.inf` if the covariance matrix is singular or non-positive semi-definite.
+        * the covariance matrix of a bivariate normal distribution must be positive semi-definite (PSD) and non-singular. PSD can be checked with the `Slyvester Criterion`_ or `Cauchy-Schwarz Inequality`_. Since sample variance will always be positive, this reduces to checking the determinant of the covariance matrix is greater than 0. This function will return `numpy.inf` if the covariance matrix is singular or non-positive semi-definite.
         
         .. _Slyvester Criterion: https://en.wikipedia.org/wiki/Sylvester%27s_criterion
         
-    _2: https://en.wikipedia.org/wiki/Cauchy%E2%80%93Schwarz_inequality#Probability_theory
+        .. _Cauchy-Schwarz Inequality: https://en.wikipedia.org/wiki/Cauchy%E2%80%93Schwarz_inequality#Probability_theory
     &#34;&#34;&#34;
 
     mean = [ params[0], params[1]]
@@ -346,6 +350,13 @@ def qq_series_for_sample(sample: list) -&gt; List[list]:
 <section>
 </section>
 <section>
+<h2 class="section-title" id="header-variables">Global variables</h2>
+<dl>
+<dt id="scrilla.analysis.estimators.correlation_cache"><code class="name">var <span class="ident">correlation_cache</span></code></dt>
+<dd>
+<div class="desc"><p>A module of statistical point estimators and likelihood functions.</p></div>
+</dd>
+</dl>
 </section>
 <section>
 <h2 class="section-title" id="header-functions">Functions</h2>
@@ -373,14 +384,11 @@ A list of data that has been drawn from a bivariate normal population. Must be f
 <div class="admonition notes">
 <p class="admonition-title">Notes</p>
 <ul>
-<li>the covariance matrix of a bivariate normal distribution must be positive semi-definite (PSD) and non-singular. PSD can be checked with the <code>Slyvester Criterion</code><em> or Cauchy-Schwarz Inequality (2</em>). Since sample variance will always be positive, this reduces to checking the determinant of the covariance matrix is greater than 0. This function will return <code>numpy.inf</code> if the covariance matrix is singular or non-positive semi-definite.</li>
+<li>the covariance matrix of a bivariate normal distribution must be positive semi-definite (PSD) and non-singular. PSD can be checked with the <code>Slyvester Criterion</code><em> or <code>Cauchy-Schwarz Inequality</code></em>. Since sample variance will always be positive, this reduces to checking the determinant of the covariance matrix is greater than 0. This function will return <code>numpy.inf</code> if the covariance matrix is singular or non-positive semi-definite.</li>
 </ul>
 <p>.. _Slyvester Criterion: <a href="https://en.wikipedia.org/wiki/Sylvester%27s_criterion">https://en.wikipedia.org/wiki/Sylvester%27s_criterion</a></p>
-</div>
-<dl>
-<dt><strong><code>_2</code></strong> :&ensp;<code>&lt;https://en.wikipedia.org/wiki/Cauchy%E2%80%93Schwarz_inequality#Probability_theory&gt;</code></dt>
-<dd>&nbsp;</dd>
-</dl></div>
+<p>.. _Cauchy-Schwarz Inequality: <a href="https://en.wikipedia.org/wiki/Cauchy%E2%80%93Schwarz_inequality#Probability_theory">https://en.wikipedia.org/wiki/Cauchy%E2%80%93Schwarz_inequality#Probability_theory</a></p>
+</div></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -403,11 +411,11 @@ A list of data that has been drawn from a bivariate normal population. Must be f
         A list of data that has been drawn from a bivariate normal population. Must be formatted in the following manner: `[ [x1,y1], [x2,y2],...]`
 
     .. notes::
-        * the covariance matrix of a bivariate normal distribution must be positive semi-definite (PSD) and non-singular. PSD can be checked with the `Slyvester Criterion`_ or Cauchy-Schwarz Inequality (2_). Since sample variance will always be positive, this reduces to checking the determinant of the covariance matrix is greater than 0. This function will return `numpy.inf` if the covariance matrix is singular or non-positive semi-definite.
+        * the covariance matrix of a bivariate normal distribution must be positive semi-definite (PSD) and non-singular. PSD can be checked with the `Slyvester Criterion`_ or `Cauchy-Schwarz Inequality`_. Since sample variance will always be positive, this reduces to checking the determinant of the covariance matrix is greater than 0. This function will return `numpy.inf` if the covariance matrix is singular or non-positive semi-definite.
         
         .. _Slyvester Criterion: https://en.wikipedia.org/wiki/Sylvester%27s_criterion
         
-    _2: https://en.wikipedia.org/wiki/Cauchy%E2%80%93Schwarz_inequality#Probability_theory
+        .. _Cauchy-Schwarz Inequality: https://en.wikipedia.org/wiki/Cauchy%E2%80%93Schwarz_inequality#Probability_theory
     &#34;&#34;&#34;
 
     mean = [ params[0], params[1]]
@@ -858,6 +866,11 @@ A list of data that has been drawn from a univariate normal population.</li>
 <li><h3>Super-module</h3>
 <ul>
 <li><code><a title="scrilla.analysis" href="index.html">scrilla.analysis</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-variables">Global variables</a></h3>
+<ul class="">
+<li><code><a title="scrilla.analysis.estimators.correlation_cache" href="#scrilla.analysis.estimators.correlation_cache">correlation_cache</a></code></li>
 </ul>
 </li>
 <li><h3><a href="#header-functions">Functions</a></h3>
