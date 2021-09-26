@@ -104,13 +104,12 @@ def sample_percentile(data : list, percentile: float):
 
     if extrapolate == 0:
         return data[int(obs_number)-1]
-    elif obs_number > len(data):
+    if obs_number > len(data):
         return data[-1]
-    else:
-        first_index = int(obs_number) - 1
-        second_index = first_index + 1
-        weight = obs_number - int(obs_number)
-        return (1-weight)*data[first_index] + weight*data[second_index]
+    first_index = int(obs_number) - 1
+    second_index = first_index + 1
+    weight = obs_number - int(obs_number)
+    return (1-weight)*data[first_index] + weight*data[second_index]
 
 def sample_correlation(x : list, y: list):
     """

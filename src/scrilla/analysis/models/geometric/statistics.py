@@ -715,7 +715,7 @@ def calculate_correlation(ticker_1, ticker_2, asset_type_1=None, asset_type_2=No
     """
     if method == static.keys['ESTIMATION']['MOMENT']:
         return calculate_moment_correlation(ticker_1, ticker_2, asset_type_1, asset_type_2, start_date, end_date, sample_prices)
-    elif method == static.keys['ESTIMATION']['LIKE']:
+    if method == static.keys['ESTIMATION']['LIKE']:
         return calculate_likelihood_correlation(ticker_1, ticker_2, asset_type_1, asset_type_2, start_date, end_date, sample_prices)
     raise KeyError('Estimation method not found')
 

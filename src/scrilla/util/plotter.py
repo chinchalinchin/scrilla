@@ -27,9 +27,8 @@ def _show_or_save(canvas: FigureCanvas, show: bool, savefile: str) -> Union[Figu
         im = Image.frombytes("RGBA", (width, height), s)
         im.show()
         return None
-    else:
-        canvas.draw()
-        return canvas
+    canvas.draw()
+    return canvas
 
 def plot_qq_series(ticker: str, sample: list, show: bool=True, savefile: str=None) -> Union[FigureCanvas, None]:
     title = f'{ticker} Return Q-Q Plot'
