@@ -5,4 +5,10 @@ APP_DIR=$PROJECT_DIR/src/scrilla/
 
 rm -r $DOCS_DIR/*
 
-pdoc --html -c latex_math=True -o $DOCS_DIR $APP_DIR
+mkdir $PROJECT_DIR/tmp
+
+pdoc --html -c latex_math=True -o $PROJECT_DIR/tmp $APP_DIR
+
+cp -r $PROJECT_DIR/tmp/scrilla/* $DOCS_DIR/
+
+rm -r $PROJECT_DIR/tmp
