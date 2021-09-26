@@ -58,18 +58,20 @@ def get_credentials(which_key: str) -> str:
 
 def parse_csv_response_column(column: int, url: str, firstRowHeader: str=None, savefile: str=None, zipped: str=None):
     """
+    Dumps a column from a CSV located at `url` into a JSON file located at `savefile`. The csv file may be zipped, in which case the function needs to made aware of the filename within the zipfile through the parameter `zipped`.
+
     Parameters
     ----------
-    1. column : int \n
-        Required. Index of the column you wish to retrieve from the response. \n \n
-    2. url : str \n
-        Required. The url, already formatted with appropriate query and key, that will respond with the csv file, zipped or unzipped (see zipped argument for more info), you wish to parse. \n \n 
-    3. firstRowHeader : str \n 
-        Optional. name of the header for the column you wish to parse. if specified, the parsed response will ignore the row header. Do not include if you wish to have the row header in the return result. \n \n 
-    4. savefile : str \n 
-        Optional. the absolute path of the file you wish to save the parsed response column to. \n \n 
-    5. zipped : str \n 
-        if the response returns a zip file, this argument needs to be set equal to the file within the zipped archive you wish to parse. \n \n 
+    1. **column**: ``int``
+        Index of the column you wish to retrieve from the response.
+    2. **url**: ``str``
+        The url, already formatted with appropriate query and key, that will respond with the csv file, zipped or unzipped (see zipped argument for more info), you wish to parse.
+    3. **firstRowHeader**: ``str`` 
+        *Optional*. name of the header for the column you wish to parse. if specified, the parsed response will ignore the row header. Do not include if you wish to have the row header in the return result.
+    4. **savefile**: ``str``
+        Optional. the absolute path of the file you wish to save the parsed response column to.
+    5. **zipped** : ``str``
+        if the response returns a zip file, this argument needs to be set equal to the file within the zipped archive you wish to parse.
     """
     col, big_mother = [], []
 
@@ -108,8 +110,8 @@ def init_static_data():
 
     Raises
     ------
-    1. errors.ConfigurationError \n
-        If `scrilla.settings.PRICE_MANAGER` and `scrilla.settings.STAT_MANAGER` are not configured through the environment variables `PRICE_MANAGER` and `STAT_MANAGER`, the function will throw this error.
+    1. **scrilla.errors.ConfigurationError**
+        If `scrilla.settings.PRICE_MANAGER` and `scrilla.settings.STAT_MANAGER` are not configured or are incorrectly configured through the environment variables `PRICE_MANAGER` and `STAT_MANAGER`, the function will throw this error.
     """
     global static_tickers_blob
     global static_econ_blob
@@ -166,12 +168,12 @@ def init_static_data():
 
 def get_static_data(static_type):
     """
-    Retrieves static data cached in the local or containerized file system. \n \n 
+    Retrieves static data saved in the local file system. 
 
     Parameters
     ----------
-    1. `static_type` : str \n
-    A string corresponding to the type of static data to be retrieved. The types can be statically accessed through the ` settings` variables: ASSET_CRYPTO, ASSET_EQUITY and STAT_ECON. \n \n
+    1. **static_type**: ``str``
+        A string corresponding to the type of static data to be retrieved. The types can be statically accessed through the `scrilla.static.['ASSETS']` dictionary.
     """
     path, blob = None, None
     global static_crypto_blob 
@@ -236,7 +238,7 @@ def get_static_data(static_type):
 
 def get_overlapping_symbols(equities=None, cryptos=None):
     """
-    Returns an array of symbols which are contained in both the STATIC_TICKERS_FILE and STATIC_CRYPTO_FILE, i.e. ticker symbols which have both a tradeable equtiy and a tradeable crypto asset. 
+    Returns an array of symbols which are contained in both the `scrilla.settings.STATIC_TICKERS_FILE` and `scrilla.settings.STATIC_CRYPTO_FILE`, i.e. ticker symbols which have both a tradeable equtiy and a tradeable crypto asset. 
     """
     if equities is None:
         equities = list(get_static_data(static.keys['ASSETS']['EQUITY']))
@@ -250,11 +252,12 @@ def get_overlapping_symbols(equities=None, cryptos=None):
 
 def get_asset_type(symbol : str) -> str:
     """"
-    Returns the asset type of the supplied ticker symbol. \n \n
+    Returns the asset type of the supplied ticker symbol.
 
     Output
     ------
-    ``str``. Represents the type of asset of the symbol. Types are statically accessible through the `scrilla.static.keys['ASSETS]` dictionary. \n \n 
+    ``str``. 
+        Represents the asset type of the symbol. Types are statically accessible through the `scrilla.static.keys['ASSETS]` dictionary.
     """
     symbols = list(get_static_data(static.keys['ASSETS']['CRYPTO']))
     overlap = get_overlapping_symbols(cryptos=symbols)
@@ -341,25 +344,17 @@ def save_correlation_matrix(tickers, correlation_matrix, file_name):
     
 ################################################
 ##### FILE MANAGEMENT FUNCTIONS
-
-# TODO: this deletes subdirectories.
-# retain: keeps .gitkeep in directory
 def clear_directory(directory, retain=True):
     """
-    Description
-    -----------
-    Wipes a directory of files without deleting the directory itself. \n \n 
+    Wipes a directory of files without deleting the directory itself.
 
     Parameters
     ----------
-    1. directory: str \n
-    Path of the directory to be cleaned. \n \n 
+    1. **directory**: ``str``
+        Path of the directory to be cleared.
 
-    2. retain : bool \n
-    If set to True, the method will skip files named '.gitkeep' within the directory, i.e. version control configuration files. 
-
-    3. outdated_only: bool \b 
-    If set to True, the method will check for a time stamp on files with the format 'DD-MM-YYYY' and retain files that contain this timestamp.
+    2. **retain** : ``bool``
+        If set to True, the method will skip files named '.gitkeep' within the directory, i.e. version control configuration files, and keep the directory structure in tact.
     """
     filelist = list(os.listdir(directory))
 
