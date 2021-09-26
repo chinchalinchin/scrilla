@@ -61,8 +61,7 @@ def maximize_bivariate_normal_likelihood(data):
     """
 
     .. warning ::
-        This does not work. Son of a gun.
-
+        This can take an extremely long time to solve...
     """
 
     x_data = [ datum[0] for datum in data ]
