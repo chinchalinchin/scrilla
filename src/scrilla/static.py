@@ -102,6 +102,11 @@ keys= {
                         'LISTING': 'LISTING_STATUS',
                         'CRYPTO_DAILY': 'DIGITAL_CURRENCY_DAILY',
                         'FULL': 'full'
+                    },
+                    'ERRORS':{
+                        'RATE_THROTTLE': 'Note',
+                        'RATE_LIMIT': 'Information',
+                        'INVALID': 'Error Message'
                     }
                 }
             }

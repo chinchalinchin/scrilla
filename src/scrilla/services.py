@@ -16,7 +16,10 @@
 """
 This module interfaces with the external services the program uses to hydrate with financial data. In the case of price and interest history, the functions in this module defer to the cache before making expensive HTTP requests. Statistical data retrieved from FRED and dividment payment histories are not persisted in the cache since most of the data is reported on an irregular basis and it is impossible to tell based on the date alone whether or not the cache is out of date.
 """
-import itertools, time, datetime, requests
+import itertools, time, requests
+from typing import Union
+
+from datetime import date
 
 from scrilla import settings, errors, cache, static
 from scrilla.util import outputter, helper, dater
@@ -31,11 +34,25 @@ class StatManager():
     ----------
     1. **genre**: ``str``
         A string denoting which service will be used for data hydration. Genres can be accessed through the `static.keys['SERVICES']` dictionary.
+    2. **self.service_map**: ``dict``
+        A dictionary containing keys unique to the service defined by `genre`, such as endpoints, query parameters, etc. 
+
+    Raises
+    ------
+    1. **scrilla.errors.ConfigurationError**
+        If the **STAT_MANAGER** environment variable has been set to a value the program doesn't understand or hasn't set at all, this error will be thrown when this class is instantiated.
+
+    .. notes ::
+        * This class handles retrieval of financial statistics from the [Quandl's FRED dataset](https://data.nasdaq.com/data/FRED-federal-reserve-economic-data) and [Quandl's USTREASURY dataset](https://data.nasdaq.com/data/USTREASURY-us-treasury). In other words, it handles statistics and interest rate service calls. Interest rates are technically prices, not statistics, but...well, I don't have a good explanation why this isn't `scrilla.services.PriceManager`; I suppose I grouped these classes more by service type than data type. Might do to refactor...
     """
     def __init__(self, genre):
         self.genre = genre
+        self.service_map = None
         if self._is_quandl():
             self.service_map = static.keys["SERVICES"]["STATISTICS"]["QUANDL"]["MAP"]
+        if self.service_map is None:
+            raise errors.ConfigurationError('No STAT_MANAGER found in the parsed environment settings')
+
 
     def _is_quandl(self):
         """
@@ -52,10 +69,8 @@ class StatManager():
             return True
         return False
 
-    def construct_query(self, start_date : datetime.date, end_date: datetime.date) -> str:
+    def _construct_query(self, start_date: date, end_date: date) -> str:
         """
-        Description
-        -----------
         Constructs and formats the query parameters for the external statistics service. Note, this method appends the API key to the query. Be careful with the returned value.
 
         Parameters
@@ -64,11 +79,6 @@ class StatManager():
             Start date of historical sample to be retrieved.
         2. **end_date** : ``datetime.date``
             End date of historical sample to be retrieved.
-
-        Raises
-        ------
-        1. **scrilla.errors.ConfigurationError**
-            If the `STAT_MANAGER` hasn't been set through an enviornment variable, this error will be thrown.
 
         Returns
         -------
@@ -79,6 +89,7 @@ class StatManager():
         query = ""
         if self._is_quandl():
 
+            # TODO: too many &'s. doesn't seem to affect the call, though.
             if end_date is not None:
                 end_string = helper.date_to_string(end_date)
                 query += f'&{self.service_map["PARAMS"]["END"]}={end_string}' 
@@ -93,11 +104,8 @@ class StatManager():
                 return f'{query}&{self.service_map["PARAMS"]["KEY"]}={settings.Q_KEY}'
 
             return f'{self.service_map["PARAMS"]["KEY"]}={settings.Q_KEY}'
-        raise errors.ConfigurationError('No STAT_MANAGER found in the parsed environment settings')
 
-
-
-    def construct_stat_url(self, symbol, start_date, end_date):
+    def _construct_stat_url(self, symbol: str, start_date: date, end_date: date):
         """
         Constructs the full URL path for the external statistics service. Note, this method will return the URL with an API key appended as a query parameter. Be careful with the returned value.
 
@@ -109,58 +117,44 @@ class StatManager():
             Start date of historical sample to be retrieved.
         3. **end_date**: ``datetime.date``
             End date of historical sample to be retrieved.
- 
-        Raises
-        ------
-        1. **scrilla.errors.ConfigurationError**
-            If the `STAT_MANAGER` hasn't been set through an enviornment variable, this error will be thrown.
+
 
         Returns
         -------
         ``str``
             The formatted URL for the specific statistics service defined by `self.genre`.
         """
-        if self.is_quandl():
+        if self._is_quandl():
             url = f'{settings.Q_URL}/{self.service_map["PATHS"]["FRED"]}/{symbol}?'
             url += self.construct_query(start_date, end_date)
-            return url
-        raise errors.ConfigurationError('No STAT_MANAGER found in the parsed environment settings')
+        return url
 
-    def construct_interest_url(self,start_date, end_date):
+    def _construct_interest_url(self,start_date, end_date):
         """
-        Description
-        -----------
-        Constructs the full URL path for the external interest rate service. Note, this method will return the URL with an API key appended as a query parameter. Be careful with the returned value. \n\n
+        Constructs the full URL path for the external interest rate service. Note, this method will return the URL with an API key appended as a query parameter. Be careful with the returned value.
 
         Parameters
         ----------
-        2. start_date : datetime.date \n 
-            Start date of historical sample to be retrieved. \n \n
-        3. end_date : datetime.date \n 
-            End date of historical sample to be retrieved. \n \n
- 
-        Raises
-        ------
-        1. scrilla.errors.ConfigurationError \n
-            If the `STAT_MANAGER` hasn't been set through an enviornment variable, this error will be thrown. \n \n
+        1. **start_date**: ``datetime.date``
+            Start date of historical sample to be retrieved.
+        2. **end_date**: ``datetime.date`` 
+            End date of historical sample to be retrieved.
 
         Returns
         -------
-        str \n
-            The formatted URL for the specific interest rate service defined by `self.type`. \n \n
+        ``str``
+            The formatted URL for the specific interest rate service defined by `self.genre`.
 
         .. notes::
             * The URL returned by this method will always contain a query for a historical range of US Treasury Yields, i.e. this method is specifically for queries involving the "Risk-Free" (right? right? *crickets*) Yield Curve. 
         """
-        if self.is_quandl():
-            url = f'{settings.Q_URL}/{self.service_map["PATHS"]["YIELD"]}?'
-            url += self.construct_query(start_date=start_date, end_date=end_date)
-            return url
-        raise errors.ConfigurationError('No STAT_MANAGER found in the parsed environment settings')
+        url = f'{settings.Q_URL}/{self.service_map["PATHS"]["YIELD"]}?'
+        url += self.construct_query(start_date=start_date, end_date=end_date)
+        return url
 
 
     def get_stats(self, symbol, start_date, end_date):
-        url = self.construct_stat_url(symbol, start_date, end_date)
+        url = self._construct_stat_url(symbol, start_date, end_date)
         response = requests.get(url).json()
 
         if self.is_quandl():
@@ -171,10 +165,8 @@ class StatManager():
                 formatted_stat[stat[0]] = stat[1]
             return formatted_stat
 
-        raise errors.ConfigurationError('No STAT_MANAGER found in the parsed environment settings')
-
     def get_interest_rates(self, start_date, end_date):
-        url = self.construct_interest_url(start_date=start_date, end_date=end_date)
+        url = self._construct_interest_url(start_date=start_date, end_date=end_date)
         response = requests.get(url).json()
 
         if self.is_quandl():
@@ -185,12 +177,10 @@ class StatManager():
                 formatted_interest[rate[0]] = rate[1:]
             return formatted_interest
 
-        raise errors.ConfigurationError('No STAT_MANAGER found in the parsed environment settings')
-
     def format_for_maturity(self, maturity, results):
         try:
             maturity_key = static.keys['YIELD_CURVE'].index(maturity)
-        except:
+        except KeyError:
             raise errors.InputValidationError(f'{maturity} is not a valid maturity for US Treasury Bonds')
 
         if self.is_quandl():
@@ -200,16 +190,22 @@ class StatManager():
                 formatted_interest[result] = results[result][maturity_key]
             return formatted_interest
         
-        raise errors.ConfigurationError('No STAT_MANAGER found in the parsed environment settings')
-
 class DividendManager():
-    
+    """
+    Attributes
+    ----------
+    1. **genre**: ``str``
+        A string denoting which service will be used for data hydration. Genres can be accessed through the `static.keys['SERVICES']` dictionary.
+    2. **self.service_map**: ``dict``
+        A dictionary containing keys unique to the service defined by `genre`, such as endpoints, query parameters, etc. 
+    """
     def __init__(self, genre):
         self.genre = genre
-
-    def construct_url(self, ticker):
         if self.genre == static.keys['SERVICES']['DIVIDENDS']['IEX']['MANAGER']:
-        
+            self.service_map = static.keys['SERVICES']['DIVIDENDS']['IEX']['MAP']
+
+    def _construct_url(self, ticker):
+        if self.genre == static.keys['SERVICES']['DIVIDENDS']['IEX']['MANAGER']:
             query=f'{ticker}/{settings.PATH_IEX_DIV}/{settings.PARAM_IEX_RANGE_5YR}'
             url = f'{settings.IEX_URL}/{query}?{settings.PARAM_IEX_KEY}={settings.IEX_KEY}'
     
@@ -220,9 +216,8 @@ class DividendManager():
         raise errors.ConfigurationError('No DIV_MANAGER found in the parsed environment settings')
 
     def get_dividends(self, ticker):
-        url = self.construct_url(ticker)
+        url = self._construct_url(ticker)
         response = requests.get(url).json()
-
         formatted_response = {}
 
         if self.genre == static.keys['SERVICES']['DIVIDENDS']['IEX']['MANAGER']:
@@ -233,23 +228,33 @@ class DividendManager():
             return formatted_response
         raise errors.ConfigurationError('No DIV_MANAGER found in the parsed environment settings')
 
-
 class PriceManager():
     """
     PriceManager is an interface between the application and the external services that hydrate it with price data. This class gets instantiated on the level of the `scrilla.services` module with the value defined in `scrilla.settings.PRICE_MANAGER` variable. This value is in turn configured by the value of the **PRICE_MANAGER** environment variable. This value determines how the url is constructed, which API credentials get appended to the external query and the keys used to parse the response JSON containing the price data.
+
+    Raises
+    ------
+    1. **scrilla.errors.ConfigurationError**
+        If the **PRICE_MANAGER** environment variable hasn't been set or set to a value the program doesn't understand, this error will be thrown when this class is instantiated.
 
     Attributes
     ----------
     1. **genre**: ``str``
         A string denoting which service will be used for data hydration. Genres can be accessed through the `static.keys['SERVICES']` dictionary.
+    2. **self.service_map**: ``dict``
+        A dictionary containing keys unique to the service defined by `genre`, such as endpoints, query parameters, etc. 
+
     """
     def __init__(self, genre):
         self.genre = genre
         if self.genre == static.keys['SERVICES']['PRICES']['ALPHA_VANTAGE']['MANAGER']:
             self.service_map = static.keys['SERVICES']['PRICES']['ALPHA_VANTAGE']['MAP']
+        if self.service_map is None:
+            raise errors.ConfigurationError('No PRICE_MANAGER found in the parsed environment settings')
 
 
-    def construct_url(self, ticker, asset_type):
+
+    def _construct_url(self, ticker, asset_type):
         """
         Constructs the service url with the query and parameters appended. 
 
@@ -265,13 +270,11 @@ class PriceManager():
         -------
         `str`
             The URL with the authenticated query appended, i.e. with the service's API key injected into the parameters. Be careful not to expose the return value of this function!
-
-        Raises
-        ------
-        1. **scrilla.errors.ConfigurationError**
-            If one of the settings is improperly configured or one of the environment variables was unable to be parsed from the environment, this error will be thrown.
-
         """
+        # can't defer to the service_map here since endpoints are in the environment.
+            # NOTE: should endpoints be in the environment? 
+            # regardless, the API keys should be, so this method needs to check `genre`
+            # instead of pulling info from service_map without conditionally checking.
         if self.genre == static.keys['SERVICES']['PRICES']['ALPHA_VANTAGE']['MANAGER']:
             query = f'{settings.PARAM_AV_TICKER}={ticker}'
 
@@ -287,10 +290,7 @@ class PriceManager():
             auth_query = query + f'&{settings.PARAM_AV_KEY}={settings.AV_KEY}'
             url=f'{settings.AV_URL}?{auth_query}'  
             logger.debug(f'AlphaVantage query (w/o key) = {query}') 
-            return url
-
-        raise errors.ConfigurationError('No PRICE_MANAGER found in the parsed environment settings')
-
+        return url
 
     def get_prices(self, ticker, start_date, end_date, asset_type):
         """
@@ -316,45 +316,43 @@ class PriceManager():
         2. **scrilla.errors.APIResponseError**
             If the service from which data is being retrieved is down, the request has been rate limited or some otherwise anomalous event has taken place, this error will be thrown.
         """
-        url = self.construct_url(ticker, asset_type)
+        url = self._construct_url(ticker, asset_type)
         response = requests.get(url).json()
 
-        if self.genre == static.keys['SERVICES']['PRICES']['ALPHA_VANTAGE']['MANAGER']:
+        first_element = helper.get_first_json_key(response)
+        # end function is daily rate limit is reached 
+        if first_element == self.service_map['ERRORS']['RATE_LIMIT']:
+            raise errors.APIResponseError(response[self.service_map['ERRORS']['RATE_LIMIT']])
+            # check for bad response
+        if first_element == self.service_map['ERRORS']['INVALID']:
+            raise errors.APIResponseError(response[self.service_map['ERRORS']['INVALID']])
+
+        # check and wait for API rate limit refresh
+        first_pass, first_element = True, helper.get_first_json_key(response)
+
+        while first_element == self.service_map['ERRORS']['RATE_THROTTLE']:
+            if first_pass:
+                logger.comment(f'{self.genre} API rate limit per minute exceeded. Waiting...')
+                first_pass = False
+            else:
+                logger.comment('Waiting...')
+            
+            time.sleep(static.constants['BACKOFF_PERIOD'])
+            response = requests.get(url).json()
             first_element = helper.get_first_json_key(response)
-            # end function is daily rate limit is reached 
-            if first_element == settings.AV_RES_DAY_LIMIT:
-                raise errors.APIResponseError(response[settings.AV_RES_DAY_LIMIT])
-                # check for bad response
-            if first_element == settings.AV_RES_ERROR:
-                raise errors.APIResponseError(response[settings.AV_RES_ERROR])
 
-            # check and wait for API rate limit refresh
-            first_pass, first_element = True, helper.get_first_json_key(response)
+            if first_element == self.service_map['ERRORS']['INVALID']:
+                raise errors.APIResponseError(response[self.service_map['ERRORS']['INVALID']])
 
-            while first_element == settings.AV_RES_LIMIT:
-                if first_pass:
-                    logger.comment('AlphaVantage API rate limit per minute exceeded. Waiting...')
-                    first_pass = False
-                else:
-                    logger.comment('Waiting...')
-                
-                time.sleep(static.constants['BACKOFF_PERIOD'])
-                response = requests.get(url).json()
-                first_element = helper.get_first_json_key(response)
-
-                if first_element == settings.AV_RES_ERROR:
-                    raise errors.APIResponseError(response[settings.AV_RES_ERROR])
-
-            prices = self._slice_prices(start_date=start_date, end_date=end_date, asset_type=asset_type, prices=response)
-            format_prices = {}
-            for date in prices:
-                close_price = self._parse_price_from_date(prices=prices, date=date, asset_type=asset_type, 
-                                                    which_price=static.keys['PRICES']['CLOSE'])
-                open_price = self._parse_price_from_date(prices=prices, date=date, asset_type=asset_type, 
-                                                    which_price=static.keys['PRICES']['OPEN'])
-                format_prices[date] = { static.keys['PRICES']['OPEN'] : open_price, static.keys['PRICES']['CLOSE'] : close_price }
-            return format_prices
-        raise errors.ConfigurationError('No PRICE_MANAGER found in the parsed environment settings')
+        prices = self._slice_prices(start_date=start_date, end_date=end_date, asset_type=asset_type, prices=response)
+        format_prices = {}
+        for date in prices:
+            close_price = self._parse_price_from_date(prices=prices, date=date, asset_type=asset_type, 
+                                                which_price=static.keys['PRICES']['CLOSE'])
+            open_price = self._parse_price_from_date(prices=prices, date=date, asset_type=asset_type, 
+                                                which_price=static.keys['PRICES']['OPEN'])
+            format_prices[date] = { static.keys['PRICES']['OPEN'] : open_price, static.keys['PRICES']['CLOSE'] : close_price }
+        return format_prices
 
     def _slice_prices(self, start_date, end_date, asset_type, prices):
         """
@@ -450,8 +448,8 @@ div_manager = DividendManager(settings.DIV_MANAGER)
 price_cache = cache.PriceCache()        
 interest_cache = cache.InterestCache()
 
-def get_daily_price_history(ticker: str, start_date : datetime.date=None, 
-                            end_date: datetime.date =None, asset_type: str=None) -> list:
+def get_daily_price_history(ticker: str, start_date: Union[None, date] = None, 
+                            end_date: Union[None,date] = None, asset_type: Union[None, str]=None) -> list:
     """
     Wrapper around external service request for price data. Relies on an instance of `PriceManager` configured by `settings.PRICE_MANAGER` value, which in turn is configured by the `PRICE_MANAGER` environment variable, to hydrate with data. 
     
@@ -503,9 +501,9 @@ def get_daily_price_history(ticker: str, start_date : datetime.date=None,
 
     return prices
     
-def get_daily_price_latest(ticker: str, asset_type: str=None) -> float:
+def get_daily_price_latest(ticker: str, asset_type: Union[None, str]=None) -> float:
     """
-    Returns the latest closing price.
+    Returns the latest closing price for a given ticker symbol.
 
     Parameters
     ----------
@@ -518,8 +516,7 @@ def get_daily_price_latest(ticker: str, asset_type: str=None) -> float:
     first_element = helper.get_first_json_key(prices)
     return prices[first_element][static.keys['PRICES']['OPEN']]
     
-
-def get_daily_fred_history(symbol: str, start_date: datetime.date=None, end_date: datetime.date=None) -> list:
+def get_daily_fred_history(symbol: str, start_date: Union[date, None]=None, end_date: Union[date, None]=None) -> list:
     """
     Wrapper around external service request for financial statistics data constructed by the Federal Reserve Economic Data. Relies on an instance of `StatManager` configured by `settings.STAT_MANAGER` value, which in turn is configured by the `STAT_MANAGER` environment variable, to hydrate with data.
     
@@ -528,7 +525,7 @@ def get_daily_fred_history(symbol: str, start_date: datetime.date=None, end_date
     1. **symbol**: ``str`` 
         Symbol representing the statistic whose history is to be retrieved. List of allowable values can be found [here](https://www.quandl.com/data/FRED-Federal-Reserve-Economic-Data/documentation)
      2. **start_date**: ``datetime.date`` 
-        *Optional*. Start date of price history. Defaults to None. If `start_date is None`, the calculation is made as if the `start_date` were set to 100 trading days ago. This excludes weekends and holidays. \n \n
+        *Optional*. Start date of price history. Defaults to None. If `start_date is None`, the calculation is made as if the `start_date` were set to 100 trading days ago. This excludes weekends and holidays.
     3. **end_date**: ``datetime.date``
         *Optional*. End date of price history. Defaults to None. If `end_date is None`, the calculation is made as if the `end_date` were set to today. This excludes weekends and holidays so that `end_date` is set to the last previous business date.
 
@@ -561,7 +558,7 @@ def get_daily_fred_latest(symbol: str) -> float:
     first_element = helper.get_first_json_key(stats_history)
     return stats_history[first_element]
 
-def get_daily_interest_history(maturity: str, start_date: datetime.date=None, end_date: datetime.date=None) -> list:
+def get_daily_interest_history(maturity: str, start_date: Union[date, None]=None, end_date: Union[date, None]=None) -> list:
     """
     Wrapper around external service request for US Treasury Yield Curve data. Relies on an instance of `StatManager` configured by `settings.STAT_MANAGER` value, which in turn is configured by the `STAT_MANAGER` environment variable, to hydrate with data.
     
