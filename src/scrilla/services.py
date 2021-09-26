@@ -14,7 +14,6 @@
 # or <https://github.com/chinchalinchin/scrilla/blob/develop/main/LICENSE>.
 
 import itertools, time, datetime, requests
-from typing import Union
 
 from scrilla import settings, errors, cache, static
 import scrilla.util.outputter as outputter
@@ -439,7 +438,7 @@ interest_cache = cache.InterestCache()
 def get_daily_price_history(ticker: str, start_date : datetime.date=None, 
                             end_date: datetime.date =None, asset_type: str=None) -> list:
     """
-    Wrapper around external service request for price data. Relies on an instance of `PriceManager` configured by `settings.PRICE_MANAGER` value, which in turn is configured by the `PRICE_MANAGER` environment variable, to hydrate with data. \n \n
+    Wrapper around external service request for price data. Relies on an instance of `PriceManager` configured by `settings.PRICE_MANAGER` value, which in turn is configured by the `PRICE_MANAGER` environment variable, to hydrate with data. 
     
     Before deferring to the `PriceManager` and letting it call the external service, however, this function checks if response is in local cache. If the response is not in the cache, it will pass the request off to `PriceManager` and then save the response in the cache so subsequent calls to the function can bypass the service request. Used to prevent excessive external HTTP requests and improve the performance of the application. Other parts of the program should interface with the external price data services through this function to utilize the cache functionality.
 
@@ -456,7 +455,8 @@ def get_daily_price_history(ticker: str, start_date : datetime.date=None,
 
     Returns
     ------
-    ``dict``: `{ 'date' (str) : { 'open': value (str), 'close': value (str) }, 'date' (str): { 'open' : value (str), 'close' : value(str) }, ... }`, dictionary with date strings formatted `YYYY-MM-DD` as keys and a nested dictionary containing the 'open' and 'close' price as values. Ordered from latest to earliest.
+    ``dict``: `{ 'date' (str) : { 'open': value (str), 'close': value (str) }, 'date' (str): { 'open' : value (str), 'close' : value(str) }, ... }`
+        Dictionary with date strings formatted `YYYY-MM-DD` as keys and a nested dictionary containing the 'open' and 'close' price as values. Ordered from latest to earliest.
     
     .. notes::
         * The default analysis period, if no `start_date` and `end_date` are specified, is determined by the *DEFAULT_ANALYSIS_PERIOD** variable in the `settings,py` file. The default value of this variable is 100.
@@ -493,75 +493,50 @@ def get_daily_price_history(ticker: str, start_date : datetime.date=None,
     
 def get_daily_price_latest(ticker: str, asset_type: str=None) -> float:
     """
-    Description
-    -----------
-    Returns the latest closing price. \n \n
+    Returns the latest closing price.
 
     Parameters
     ----------
-    1. ticker: str \n 
-        Required: ticker symbol whose latest closing price is to be retrieved. \n \n
-    2. asset_type : string \n
-        Optional. Asset type of the ticker whose history is to be retrieved. Will be calculated from the `ticker` symbol if not provided. \n \n
+    1. **ticker**: ``str``
+        ticker symbol whose latest closing price is to be retrieved. \n \n
+    2. **asset_type**: str``
+        *Optional*. Asset type of the ticker whose history is to be retrieved. Will be calculated from the `ticker` symbol if not provided.
     """
     prices = get_daily_price_history(ticker=ticker,asset_type=asset_type)
-    if prices is not None:
-        first_element = helper.get_first_json_key(prices)
-        return prices[first_element][static.keys['PRICES']['OPEN']]
-    return None
+    first_element = helper.get_first_json_key(prices)
+    return prices[first_element][static.keys['PRICES']['OPEN']]
+    
 
 def get_daily_fred_history(symbol: str, start_date: datetime.date=None, end_date: datetime.date=None) -> list:
     """
-    Description
-    -----------
-    Wrapper around external service request for financial statistics data constructed by the Federal Reserve Economic Data. Relies on an instance of `StatManager` configured by `settings.STAT_MANAGER` value, which in turn is configured by the `STAT_MANAGER` environment variable, to hydrate with data. \n \n
+    Wrapper around external service request for financial statistics data constructed by the Federal Reserve Economic Data. Relies on an instance of `StatManager` configured by `settings.STAT_MANAGER` value, which in turn is configured by the `STAT_MANAGER` environment variable, to hydrate with data.
     
     Parameters
     ----------
-    1. symbol: str \n 
-        Required. Symbol representing the statistic whose history is to be retrieved. List of allowable values can be found here: https://www.quandl.com/data/FRED-Federal-Reserve-Economic-Data/documentation \n \n
-     2. start_date : datetime.date \n 
-        Optional. Start date of price history. Defaults to None. If `start_date is None`, the calculation is made as if the `start_date` were set to 100 trading days ago. This excludes weekends and holidays. \n \n
-    3. end_date : datetime.date \n 
-        Optional End date of price history. Defaults to None. If `end_date is None`, the calculation is made as if the `end_date` were set to today. This excludes weekends and holidays so that `end_date` is set to the last previous business date. \n \n
-    
-    Raises
-    ------
-    1. scrilla.errors.InputValidationError \n
-        If the arguments inputted into the function fail to exist within the domain the function, this error will be thrown.
-    2. scrilla.errors.APIResponseError \n
-        If the external service rejects the request for price data, whether because of rate limits or some other factor, the function will raise this exception.
-    3. KeyError \n
-        If the inputted or validated dates do not exist in the price history, a KeyError will be thrown. This could be due to the equity not having enough price history, i.e. it started trading a month ago and doesn't have 100 days worth of prices yet, or some other anomalous event in an equity's history. 
-    4. scrilla.errors.ConfigurationError \n
-        If one of the settings is improperly configured or one of the environment variables was unable to be parsed from the environment, this error will be thrown. \n \n
+    1. **symbol**: ``str`` 
+        Symbol representing the statistic whose history is to be retrieved. List of allowable values can be found [here](https://www.quandl.com/data/FRED-Federal-Reserve-Economic-Data/documentation)
+     2. **start_date**: ``datetime.date`` 
+        *Optional*. Start date of price history. Defaults to None. If `start_date is None`, the calculation is made as if the `start_date` were set to 100 trading days ago. This excludes weekends and holidays. \n \n
+    3. **end_date**: ``datetime.date``
+        *Optional*. End date of price history. Defaults to None. If `end_date is None`, the calculation is made as if the `end_date` were set to today. This excludes weekends and holidays so that `end_date` is set to the last previous business date.
 
     Returns
     ------
-    { 'date' (str) :  value (str),  'date' (str):  value (str), ... }
-        Dictionary with date strings formatted `YYYY-MM-DD` as keys and the statistic on that date as the corresponding value. \n \n
+    ``list``: `{ 'date' (str) :  value (str),  'date' (str):  value (str), ... }`
+        Dictionary with date strings formatted `YYYY-MM-DD` as keys and the statistic on that date as the corresponding value.
 
     .. notes::
         * Most financial statistics are not reported on weekends or holidays, so the `asset_type` for financial statistics is functionally equivalent to equities, at least as far as date calculations are concerned. The dates inputted into this function are validated as if they were labelled as equity `asset_types` for this reason.
 
-    Note: there are probably cases where this function will break because the statistical data isn't reported on a daily basis. In fact, there are tons of cases where this doesn't work...
-
     """
-    try:
-        start_date,end_date=errors.validate_dates(start_date=start_date, end_date=end_date, asset_type=static.keys['ASSETS']['EQUITY'])
-    except errors.InputValidationError as ive:
-        raise ive
+   
+    start_date,end_date=errors.validate_dates(start_date=start_date, end_date=end_date, asset_type=static.keys['ASSETS']['EQUITY'])
 
-    try:
-        stats = stat_manager.get_stats(symbol=symbol, start_date=start_date, end_date=end_date)
-    except errors.APIResponseError as api:
-        raise api
-    except errors.InputValidationError as ive:
-        raise ive
+    stats = stat_manager.get_stats(symbol=symbol, start_date=start_date, end_date=end_date)
 
     return stats
 
-def get_daily_fred_latest(symbol: str) -> Union[float,None]:
+def get_daily_fred_latest(symbol: str) -> float:
     """
     Returns the latest value for the inputted statistic symbol.
 
@@ -571,10 +546,8 @@ def get_daily_fred_latest(symbol: str) -> Union[float,None]:
         Symbol representing the statistic whose value it to be retrieved.
     """
     stats_history = get_daily_fred_history(symbol=symbol)
-    if stats_history is not None:
-        first_element = helper.get_first_json_key(stats_history)
-        return stats_history[first_element]
-    return None
+    first_element = helper.get_first_json_key(stats_history)
+    return stats_history[first_element]
 
 def get_daily_interest_history(maturity: str, start_date: datetime.date=None, end_date: datetime.date=None) -> list:
     """
@@ -588,19 +561,8 @@ def get_daily_interest_history(maturity: str, start_date: datetime.date=None, en
         Maturity of the US Treasury for which the interest rate will be retrieved. List of allowable values can in `scrilla.stats.keys['SERVICES']['STATISTICS']['QUANDL']['MAP']['YIELD_CURVE']`
     2. **start_date** : ``datetime.date``
         *Optional*. Start date of price history. Defaults to None. If `start_date is None`, the calculation is made as if the `start_date` were set to 100 trading days ago. This excludes weekends and holidays.
-    3. **end_date** : ``datetime.date``` 
+    3. **end_date** : ``datetime.date``
         *Optional*. End date of price history. Defaults to None. If `end_date is None`, the calculation is made as if the `end_date` were set to today. This excludes weekends and holidays so that `end_date` is set to the last previous business date.
-    
-    Raises
-    ------
-    1. **scrilla.errors.InputValidationError**
-        If the arguments inputted into the function fail to exist within the domain the function, this error will be thrown.
-    2. **scrilla.errors.APIResponseError**
-        If the external service rejects the request for price data, whether because of rate limits or some other factor, the function will raise this exception.
-    3. **KeyError**
-        If the inputted or validated dates do not exist in the price history, a KeyError will be thrown. This could be due to the equity not having enough price history, i.e. it started trading a month ago and doesn't have 100 days worth of prices yet, or some other anomalous event in an equity's history. 
-    4. **scrilla.errors.ConfigurationError**
-        If one of the settings is improperly configured or one of the environment variables was unable to be parsed from the environment, this error will be thrown.
 
     Returns
     ------
@@ -610,10 +572,8 @@ def get_daily_interest_history(maturity: str, start_date: datetime.date=None, en
     .. notes::
         * Yield rates are not reported on weekends or holidays, so the `asset_type` for interest is functionally equivalent to equities, at least as far as date calculations are concerned. The dates inputted into this function are validated as if they were labelled as equity `asset_types` for this reason.
     """
-    try:
-        start_date,end_date=errors.validate_dates(start_date=start_date, end_date=end_date, asset_type=static.keys['ASSETS']['EQUITY'])
-    except errors.InputValidationError as ive:
-        raise ive
+    start_date,end_date=errors.validate_dates(start_date=start_date, end_date=end_date, asset_type=static.keys['ASSETS']['EQUITY'])
+    
 
     rates = None
     rates = interest_cache.filter_interest_cache(maturity, start_date=start_date, end_date=end_date)
@@ -622,14 +582,9 @@ def get_daily_interest_history(maturity: str, start_date: datetime.date=None, en
     if rates is not None and helper.date_to_string(end_date) in rates.keys() \
         and (helper.business_days_between(start_date, end_date) + 1) == len(rates): 
         return rates
-    if rates is not None:
-        logger.debug(f'Cached {maturity} data is out of date, passing request to external service')
-    try:
-        rates = stat_manager.get_interest_rates(start_date=start_date, end_date=end_date)
-    except errors.APIResponseError as api:
-        raise api
-    except errors.InputValidationError as ive:
-        raise ive
+
+    logger.debug(f'Cached {maturity} data is out of date, passing request to external service')
+    rates = stat_manager.get_interest_rates(start_date=start_date, end_date=end_date)
 
     for date in rates:
         interest_cache.save_row(date=date, value=rates[date])
@@ -650,10 +605,8 @@ def get_daily_interest_latest(maturity: str) -> float:
     end_date = helper.get_last_trading_date()
     start_date = helper.decrement_date_by_business_days(end_date, 1)
     interest_history = get_daily_interest_history(maturity=maturity, start_date=start_date, end_date=end_date)
-    if interest_history is not None:
-        first_element = helper.get_first_json_key(interest_history)
-        return interest_history[first_element]
-    return None
+    first_element = helper.get_first_json_key(interest_history)
+    return interest_history[first_element]
 
 def get_dividend_history(ticker: str) -> dict:
     """
@@ -669,7 +622,7 @@ def get_dividend_history(ticker: str) -> dict:
     Returns
     ------
     ``list`` : `{ 'date' (str) :  amount (str),  'date' (str):  amount (str), ... }`
-        Dictionary with date strings formatted `YYYY-MM-DD` as keys and the dividend payment amount on that date as the corresponding value. \n \n
+        Dictionary with date strings formatted `YYYY-MM-DD` as keys and the dividend payment amount on that date as the corresponding value.
     """
     logger.debug(f'Retrieving {ticker} dividends from service')  
     divs = div_manager.get_dividends(ticker=ticker)
