@@ -23,7 +23,6 @@ import requests
 
 from scrilla import settings, static, errors
 from scrilla.util import outputter, helper, formatter 
-import scrilla.util.helper as helper
 
 logger = outputter.Logger("files", settings.LOG_LEVEL)
 
