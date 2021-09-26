@@ -32,10 +32,9 @@ def verify_volatility_condition(volatility_function: Callable) -> bool:
     """
     Ito calculus requires the class of volatility functions that scale a simple Weiner process (i.e., a process with independent, identically distributed increments with mean 0 and variance 1) satisfies the following
 
-        .. math ::
-            `\int_{0}^{\infty} {\sigma (t)}^2 \,dt < \infty`
+    $$ \int_{0}^{\infty} {\sigma (t)}^2 \,dt < \infty $$
 
-    In order words, since the mean of an Weiner process increment is 0 (and thus :math:`Var(X) = E(X^2)`), this inequality imposes a condition on the process described by scaling the Weiner process by the volatility function: it must have a probability distribution that actually exists. This function returns a `bool` that signals whether or not the given function satisifies this condition.
+    In order words, since the mean of an Weiner process increment is 0 (and thus \\(Var(X) = E(X^2)\\), this inequality imposes a condition on the process described by scaling the Weiner process by the volatility function: it must have a probability distribution that actually exists. This function returns a `bool` that signals whether or not the given function satisifies this condition.
 
     Parameters
     ----------
@@ -50,8 +49,7 @@ def ito_integral(mean_function: Callable, volatilty_function: Callable, upper_bo
     """
     Approximates the expectation of an Ito integral from 0 to `upper_bound` for a Weiner process described by a mean and volatility that are functions of time, i.e.
 
-        .. math ::
-            `\int{0}^{\infty} {\mu (t)} \, dt + \int{0}^{\infty} {\sigma(t)} \, dW(t)`
+    $$ E\{d X(t)\} = E \{ \int_{0}^{\infty} {\mu (t)} \, dt + \int_{0}^{\infty} {\sigma(t)} \, dW(t) \} $$
 
     Parameters
     ----------

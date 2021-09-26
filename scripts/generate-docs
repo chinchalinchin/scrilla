@@ -3,4 +3,6 @@ PROJECT_DIR=$SCRIPT_DIR/..
 DOCS_DIR=$PROJECT_DIR/docs/
 APP_DIR=$PROJECT_DIR/src/scrilla/
 
-pdoc --html -o $DOCS_DIR $APP_DIR
+rm -r $DOCS_DIR/*
+
+pdoc --html -c latex_math=True -o $DOCS_DIR $APP_DIR

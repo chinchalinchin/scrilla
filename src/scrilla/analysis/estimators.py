@@ -30,6 +30,10 @@ logger = outputter.Logger('estimators', settings.LOG_LEVEL)
 profile_cache = cache.ProfileCache()
 correlation_cache = cache.CorrelationCache()
 
+"""
+A module of statistical point estimators and likelihood functions.
+"""
+
 def univariate_normal_likelihood_function(params : list, data : list) -> float:
     """
     This function returns the likelihood of a vector of parameters being observed from a sample univariate data of normal data. It can be used as objective function input for `scipy.optimize`'s optimization methods. 
@@ -50,30 +54,31 @@ def bivariate_normal_likelihood_function(params: list, data: list) -> float:
     """
     Returns the likelihood of a vector of parameters being observed from a sample bivariate data of normal data. It can be used as objective function input for `scipy.optimize`'s optimization methods. 
 
-    .. warning ::
-        this is a work in progress. do not trust the results of this function. at all.
-
     Parameters
     ----------
-    1. *x* : ``list``
+    1. **params** : ``list``
         Array representing a vector of parameters, in this case the mean rate of returns, volatilities and covariance for a bivariate normal distribution. *Important*: The vector must be order:
-            1. :math:`\mu_x` = params[0]
-            2. :math:`\mu_y` = params[1]
-            3. :math:`\sigma_x` = params[2]
-            4. :math:`\sigma_y` = params[3]
-            5. :math:`\rho_xy \cdot \sigma_x \cdot \sigma_y` = params[4]
+            1. \\(\mu_x\\) = params[0]
+            2. \\(\mu_y\\) = params[1]
+            3. \\(\sigma_x\\) = params[2]
+            4. \\(\sigma_y\\) = params[3]
+            5. \\(\rho_xy \cdot \sigma_x \cdot \sigma_y\\) = params[4]
         The function receives input in this format since since scipy optimizes over a vector value.
     2. **data** : `list`
         A list of data that has been drawn from a bivariate normal population. Must be formatted in the following manner: `[ [x1,y1], [x2,y2],...]`
 
-    .. notes ::
-        * the covariance matrix of a bivariate normal distribution must be positive semi-definite (PSD). PSD can be checked with the Slyvester Criterion (https://en.wikipedia.org/wiki/Sylvester%27s_criterion) or Cauchy-Schwarz Inequality (https://en.wikipedia.org/wiki/Cauchy%E2%80%93Schwarz_inequality#Probability_theory). May need to implement a conditional that verifies the inputted `params` verify this condition. Currently, this function is only used in the `scrilla.analysis.optimizer` class and these constraints are imposed on that level. It might be better to impose them here. Will need to think.
+    .. notes::
+        * the covariance matrix of a bivariate normal distribution must be positive semi-definite (PSD) and non-singular. PSD can be checked with the `Slyvester Criterion`_ or `Cauchy-Schwarz Inequality`_. Since sample variance will always be positive, this reduces to checking the determinant of the covariance matrix is greater than 0. This function will return `numpy.inf` if the covariance matrix is singular or non-positive semi-definite.
+        
+        .. _Slyvester Criterion: https://en.wikipedia.org/wiki/Sylvester%27s_criterion
+        
+        .. _Cauchy-Schwarz Inequality: https://en.wikipedia.org/wiki/Cauchy%E2%80%93Schwarz_inequality#Probability_theory
     """
 
     mean = [ params[0], params[1]]
     cov = [ [ params[2], params[4] ], [ params[4], params[3] ] ]
 
-    # ensure covariance matrix is positive definite and non-singular
+    # see NOTE
     determinant = params[2]*params[3] - params[4]**2
     if determinant == 0 or determinant < 0:
         return inf
@@ -81,22 +86,6 @@ def bivariate_normal_likelihood_function(params: list, data: list) -> float:
     likelihood = 0
     for point in data:
         likelihood += multivariate_normal.logpdf(x=point, mean=mean, cov=cov)
-    return likelihood
-
-def bivariate_normal_likelihood_function_unknown_correlation(params: list, data: list, knowns: list):
-    """
-    hacky way to do this until i figure out how to optimize the previous function without it throwing the 
-    positive definite error every time. can't impose bounds that dependent on the parameters and the constraints
-    aren't evaluated until after the function is, so there's no way to impose Var(x)Var(y) - Cov**2(x,y) > 0
-    to ensure positive-definiteness
-    """
-    mean = [ knowns[0], knowns[1] ]
-    cov_matrix = [ [knowns[2], params[0]], [params[0], knowns[3]] ]
-    print('cov matrix', cov_matrix)
-    likelihood = 0
-    for point in data:
-        likelihood += multivariate_normal.logpdf(x=point, mean=mean, cov=cov_matrix)
-    print('likelihood', likelihood)
     return likelihood
 
 def sample_percentile(data : list, percentile: float):

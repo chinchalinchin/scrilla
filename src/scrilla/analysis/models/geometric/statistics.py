@@ -45,7 +45,7 @@ def get_sample_of_returns(prices: dict, asset_type: str) -> list:
         Asset type for the sample of prices. Allowable values can be accessed through `scrilla.static.keys['ASSETS']`.
     3. **trading_period**: 
 
-    .. notes ::
+    .. notes::
         * the `trading_period` for a single asset can be determined from its `asset_type`...should i use a conditional and fork static.constants['ONE_TRADING_DAY'] instead of passing it in?
     """
     today = False
@@ -99,7 +99,7 @@ def calculate_moving_averages(tickers: list, start_date: Union[date, None]=None,
     ``(averages : dict, dates : list)``
     averages is a 3-node list with the following format `averages[ticker][period][date]` and dates is a list of dates between the `start_date` and `end_date`, inclusive.
 
-    .. notes ::
+    .. notes::
         * assumes `sample_prices` is ordered from latest to earliest date. 
         * If no start_date and end_date passed in, static snapshot of moving averages, i.e. the moving averages as of today (or last close), are calculated and returned.
         * If asset types are mixed, then the sample from which the average is calculated only consists of prices on business days. In other words, since crypto trades on weekends, to compare the moving average of equities and crypto, the moving average is only returned for business days. The moving average of crypto is still calculated using weekend price data, i.e. the moving average on Monday contains information about the moving average on Sunday, but the moving average on Sunday is discarded from the returned data, due to the fact equities are not traded on weekends. 
@@ -406,7 +406,7 @@ def calculate_likelihood_risk_return(ticker, start_date: Union[date, None]=None,
     ------
     ``list`` : `{ 'annual_return' : float, 'annual_volatility': float }`, dictionary containing the annualized return and volatility.
     
-    .. notes ::
+    .. notes::
         * assumes price history is ordered from latest to earliest date.
         * if the `sample_prices` dictionary is provided, the function will bypass the cache and the service call altogether. The function will assume `sample_prices` is the source of the truth.
     """
@@ -491,7 +491,7 @@ def calculate_percentile_risk_return(ticker: str, start_date: Union[date, None]=
     ------
     1. **scrilla.errors.PriceError**
 
-    .. notes ::
+    .. notes::
         * assumes price history is ordered from latest to earliest date.
         * if the `sample_prices` dictionary is provided, the function will bypass the cache and the service call altogether. The function will assume `sample_prices` is the source of the truth.
     """
@@ -580,7 +580,7 @@ def calculate_moment_risk_return(ticker: str, start_date: Union[date, None]=None
     ------
     ``list`` : ``{ 'annual_return' : float, 'annual_volatility': float }``, dictionary containing the annualized return and volatility.
     
-    .. notes ::
+    .. notes::
         * assumes price history is ordered from latest to earliest date.
         * function will bypass the cache if `sample_prices` is provided. In other words, the calculation can be forced by specifying `sample_prices`.
     """
@@ -936,7 +936,7 @@ def calculate_moment_correlation(ticker_1, ticker_2, asset_type_1=None, asset_ty
     ------
     ``dict`` : `{ 'correlation' : float }`, correlation of `ticker_1` and `ticker_2`.
 
-    .. notes :: 
+    .. notes:: 
         * when the asset types are mixed, i.e. `asset_type_1` == 'equity' and `asset_type_2`== 'crypto', the sample prices will contain different information, since crypto trades on weekends and holidays. The solution is to throw away the weekend and holiday prices for crypto. This presents another problem, since the risk profile for a crypto-currency that is cached in the local fileystem will be calculated over the entire sample including the missing data, whereas the risk profile required by the correlation needs to be calculated over the censored sample (i.e. the one with weekends and holidays removed) so that the means of the mixed asset types are scaled to the same time delta. In this case, the correlation algorithm needs to be able to override calls to the cache and force the risk profile algorithms to calculate based on the sample. Note: this issue only applies to correlation calculations using the method of moment matching, since the other methods determine the value of the correlation by solving constrained systems of equations instead of deriving it analytically with a formula. 
     """
     ### START ARGUMENT PARSING ###

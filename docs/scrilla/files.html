@@ -1,0 +1,1017 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.10.0" />
+<title>scrilla.files API documentation</title>
+<meta name="description" content="` files` is in charge of all application file handling. In addition, this module handles requests for large csv files retrieved from external …" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS_CHTML" integrity="sha256-kZafAc6mZvK3W3v1pHOcUix30OHQN6pU/NO2oFkqZVw=" crossorigin></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>scrilla.files</code></h1>
+</header>
+<section id="section-intro">
+<p><code> files</code> is in charge of all application file handling. In addition, this module handles requests for large csv files retrieved from external services. The metadata files from 'AlphaVantage' and 'Quandl' are returned as zipped csv files. The functions within in this module perform all the tasks necessary for parsing this response for the application.</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python"># This file is part of scrilla: https://github.com/chinchalinchin/scrilla.
+
+# scrilla is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3
+# as published by the Free Software Foundation.
+
+# scrilla is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with scrilla.  If not, see &lt;https://www.gnu.org/licenses/&gt;
+# or &lt;https://github.com/chinchalinchin/scrilla/blob/develop/main/LICENSE&gt;.
+
+
+&#34;&#34;&#34;
+` files` is in charge of all application file handling. In addition, this module handles requests for large csv files retrieved from external services. The metadata files from &#39;AlphaVantage&#39; and &#39;Quandl&#39; are returned as zipped csv files. The functions within in this module perform all the tasks necessary for parsing this response for the application.
+&#34;&#34;&#34;
+import os, io, json, csv, zipfile
+from typing import Any
+import requests
+
+from scrilla import settings, static, errors
+from scrilla.util import outputter, helper, formatter 
+import scrilla.util.helper as helper
+
+logger = outputter.Logger(&#34;files&#34;, settings.LOG_LEVEL)
+
+static_tickers_blob, static_econ_blob, static_crypto_blob = None, None, None
+
+def load_file(file_name: str) -&gt; Any:
+    with open(file_name, &#39;r&#39;) as infile:
+        if settings.FILE_EXT == &#34;json&#34;:
+            file = json.load(infile)
+        return file
+        # TODO: implement other file loading extensions
+
+def save_file(file_to_save: Any, file_name: str) -&gt; bool:
+    with open(file_name, &#39;w&#39;) as outfile:
+        if settings.FILE_EXT == &#34;json&#34;:
+            try:
+                json.dump(file_to_save, outfile)
+                return True
+            except Exception as e:
+                logger.debug(f&#39;A {e.__class__} exception occured.&#39;)
+                return False
+            
+        # TODO: implement other file saving extensions.
+
+def set_credentials(value: str, which_key: str) -&gt; bool:
+    file_name = os.path.join(settings.COMMON_DIR, f&#39;{which_key}.{settings.FILE_EXT}&#39;)
+    return save_file(file_to_save=value, file_name=file_name)
+
+def get_credentials(which_key: str) -&gt; str:
+    file_name = os.path.join(settings.COMMON_DIR, f&#39;{which_key}.{settings.FILE_EXT}&#39;)
+    return load_file(file_name = file_name)
+
+def parse_csv_response_column(column: int, url: str, firstRowHeader: str=None, savefile: str=None, zipped: str=None):
+    &#34;&#34;&#34;
+    Parameters
+    ----------
+    1. column : int \n
+        Required. Index of the column you wish to retrieve from the response. \n \n
+    2. url : str \n
+        Required. The url, already formatted with appropriate query and key, that will respond with the csv file, zipped or unzipped (see zipped argument for more info), you wish to parse. \n \n 
+    3. firstRowHeader : str \n 
+        Optional. name of the header for the column you wish to parse. if specified, the parsed response will ignore the row header. Do not include if you wish to have the row header in the return result. \n \n 
+    4. savefile : str \n 
+        Optional. the absolute path of the file you wish to save the parsed response column to. \n \n 
+    5. zipped : str \n 
+        if the response returns a zip file, this argument needs to be set equal to the file within the zipped archive you wish to parse. \n \n 
+    &#34;&#34;&#34;
+    col, big_mother = [], []
+
+    with requests.Session() as s:
+        download = s.get(url)
+        
+        if zipped is not None:
+            zipdata = io.BytesIO(download.content)
+            unzipped = zipfile.ZipFile(zipdata)
+            with unzipped.open(zipped, &#39;r&#39;) as f:
+                for line in f:
+                    big_mother.append(helper.replace_troublesome_chars(line.decode(&#34;utf-8&#34;)))
+                cr = csv.reader(big_mother, delimiter=&#39;,&#39;)
+        
+        else:
+            decoded_content = download.content.decode(&#39;utf-8&#39;)
+            cr = csv.reader(decoded_content.splitlines(), delimiter=&#39;,&#39;)
+
+        s.close()
+    
+    for row in cr:
+        if row[column] != firstRowHeader:
+            col.append(row[column])
+
+    if savefile is not None: 
+        # TODO: Possibly infer file type extension from filename   
+        with open(savefile, &#39;w&#39;) as outfile:
+            if settings.FILE_EXT == &#34;json&#34;:
+                json.dump(col, outfile)
+
+    return col
+
+def init_static_data():
+    &#34;&#34;&#34;
+    Initializes the three static files defined in  settings: `STATIC_TICKERS_FILE`, `STATIC_CRYPTO_FILE` and `STATIC_ECON_FILE`. The data for these files is retrieved from the service managers. While this function blurs the lines between file management and service management, the function has been included in the `files.py` module rather than the `services.py` module due the unique response types of static metadata. All metadata is returned as a csv or zipped csvs. These responses require specialized functions. Moreover, these files should only be initialized the first time the application executes. Subsequent executions will refer to their cached versions residing in the local filesytems. 
+
+    Raises
+    ------
+    1. errors.ConfigurationError \n
+        If `scrilla.settings.PRICE_MANAGER` and `scrilla.settings.STAT_MANAGER` are not configured through the environment variables `PRICE_MANAGER` and `STAT_MANAGER`, the function will throw this error.
+    &#34;&#34;&#34;
+    global static_tickers_blob
+    global static_econ_blob
+    global static_crypto_blob
+
+    if ((not os.path.isfile(settings.STATIC_ECON_FILE)) or \
+            (not os.path.isfile(settings.STATIC_TICKERS_FILE)) or \
+                (not os.path.isfile(settings.STATIC_CRYPTO_FILE))):
+
+        logger.info(&#39;Initializing static data. Please wait. This may take a moment...&#39;)
+
+        # grab ticker symbols and store in STATIC_DIR
+        if not os.path.isfile(settings.STATIC_TICKERS_FILE):
+            if settings.PRICE_MANAGER == &#34;alpha_vantage&#34;: 
+                service_map = static.keys[&#34;SERVICES&#34;][&#34;PRICES&#34;][&#34;ALPHA_VANTAGE&#34;][&#34;MAP&#34;]
+                logger.debug(f&#39;Missing {settings.STATIC_TICKERS_FILE}, querying \&#39;{settings.PRICE_MANAGER}\&#39;&#39;)
+
+                # TODO: services calls should be in services.py! need to put this and the helper method 
+                #       into services.py in the future. 
+                query=f&#39;{settings.PARAM_AV_FUNC}={settings.ARG_AV_FUNC_EQUITY_LISTINGS}&#39;
+                url = f&#39;{settings.AV_URL}?{query}&amp;{settings.PARAM_AV_KEY}={settings.AV_KEY}&#39;
+                static_tickers_blob = parse_csv_response_column(column=0, url=url, savefile=settings.STATIC_TICKERS_FILE,
+                                                                    firstRowHeader=service_map[&#39;KEYS&#39;][&#39;EQUITY&#39;][&#39;HEADER&#39;])
+
+            raise errors.ConfigurationError(&#34;No PRICE_MANAGER set in .env file!&#34;)
+
+        # grab crypto symbols and store in STATIC_DIR
+        if not os.path.isfile(settings.STATIC_CRYPTO_FILE):
+            if settings.PRICE_MANAGER == &#34;alpha_vantage&#34;: 
+                service_map = static.keys[&#34;SERVICES&#34;][&#34;PRICES&#34;][&#34;ALPHA_VANTAGE&#34;][&#34;MAP&#34;]
+                logger.debug(f&#39;Missing {settings.STATIC_CRYPTO_FILE}, querying \&#39;{settings.PRICE_MANAGER}\&#39;.&#39;)
+                url = settings.AV_CRYPTO_LIST
+                static_crypto_blob = parse_csv_response_column(column=0, url=url, savefile=settings.STATIC_CRYPTO_FILE,
+                                                                firstRowHeader=service_map[&#39;KEYS&#39;][&#39;CRYPTO&#39;][&#39;HEADER&#39;])
+            raise errors.ConfigurationError(&#34;No PRICE_MANAGER set in .env file!&#34;)
+            
+        # grab econominc indicator symbols and store in STATIC_DIR
+        if not os.path.isfile(settings.STATIC_ECON_FILE):
+            if settings.STAT_MANAGER == &#34;quandl&#34;:
+                service_map = static.keys[&#34;SERVICES&#34;][&#34;STATISTICS&#34;][&#34;QUANDL&#34;][&#34;MAP&#34;]
+
+                logger.debug(f&#39;Missing {settings.STATIC_ECON_FILE}, querying \&#39;{settings.STAT_MANAGER}\&#39;.&#39;)
+
+                query = f&#39;{service_map[&#34;PATHS&#34;][&#34;FRED&#34;]}/{service_map[&#34;PARAMS&#34;][&#34;METADATA&#34;]}&#39;
+                url = f&#39;{settings.Q_META_URL}/{query}?{service_map[&#34;PARAMS&#34;][&#34;KEY&#34;]}={settings.Q_KEY}&#39;
+                static_econ_blob = parse_csv_response_column(column=0, url=url, savefile=settings.STATIC_ECON_FILE,
+                                                            firstRowHeader=service_map[&#34;KEYS&#34;][&#34;HEADER&#34;],
+                                                             zipped=service_map[&#34;KEYS&#34;][&#34;ZIPFILE&#34;])
+
+            raise errors.ConfigurationError(&#34;No STAT_MANAGER set in .env file!&#34;)
+
+    else:
+        logger.debug(&#39;Static data already initialized!&#39;)
+
+def get_static_data(static_type):
+    &#34;&#34;&#34;
+    Retrieves static data cached in the local or containerized file system. \n \n 
+
+    Parameters
+    ----------
+    1. `static_type` : str \n
+    A string corresponding to the type of static data to be retrieved. The types can be statically accessed through the ` settings` variables: ASSET_CRYPTO, ASSET_EQUITY and STAT_ECON. \n \n
+    &#34;&#34;&#34;
+    path, blob = None, None
+    global static_crypto_blob 
+    global static_econ_blob 
+    global static_tickers_blob
+
+    if static_type == static.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]:
+        if static_crypto_blob is not None:
+            blob = static_crypto_blob
+        else:
+            path = settings.STATIC_CRYPTO_FILE
+    
+    elif static_type == static.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]:
+        if static_tickers_blob:
+            blob = static_tickers_blob
+        else:
+            path = settings.STATIC_TICKERS_FILE
+    
+    elif static_type == static.keys[&#39;ASSETS&#39;][&#39;STAT&#39;]:
+        if static_econ_blob:
+            blob = static_econ_blob
+        else:
+            path = settings.STATIC_ECON_FILE
+    
+    else:
+        return None
+
+    if blob is not None:
+        logger.debug(f&#39;Found in-memory {static_type} symbols.&#39;)
+        return blob
+
+    if path is not None:
+        if not os.path.isfile(path):
+            init_static_data()
+
+        logger.debug(f&#39;Loading in cached {static_type} symbols.&#39;)
+        with open(path, &#39;r&#39;) as infile:
+            if settings.FILE_EXT == &#34;json&#34;:
+                symbols = json.load(infile)
+            # TODO: implement other file loading exts 
+               
+        if static_type == static.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]:
+            static_crypto_blob = symbols
+        elif static_type == static.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]:
+            static_tickers_blob = symbols
+        elif static_type == static.keys[&#39;ASSETS&#39;][&#39;STAT&#39;]:
+            static_econ_blob = symbols
+        return symbols
+        
+    return None
+    
+# NOTE: output from get_overlapping_symbols:
+# OVERLAP = [&#39;ABT&#39;, &#39;AC&#39;, &#39;ADT&#39;, &#39;ADX&#39;, &#39;AE&#39;, &#39;AGI&#39;, &#39;AI&#39;, &#39;AIR&#39;, &#39;AMP&#39;, &#39;AVT&#39;, &#39;BCC&#39;, &#39;BCD&#39;, &#39;BCH&#39;, &#39;BCX&#39;, &#39;BDL&#39;, &#39;BFT&#39;, &#39;BIS&#39;, &#39;BLK&#39;, &#39;BQ&#39;, &#39;BRX&#39;, 
+# &#39;BTA&#39;, &#39;BTG&#39;, &#39;CAT&#39;, &#39;CMP&#39;, &#39;CMT&#39;, &#39;CNX&#39;, &#39;CTR&#39;, &#39;CURE&#39;, &#39;DAR&#39;, &#39;DASH&#39;, &#39;DBC&#39;, &#39;DCT&#39;, &#39;DDF&#39;, &#39;DFS&#39;, &#39;DTB&#39;, &#39;DYN&#39;, &#39;EBTC&#39;, &#39;ECC&#39;, &#39;EFL&#39;, &#39;ELA&#39;, &#39;ELF&#39;,
+# &#39;EMB&#39;, &#39;ENG&#39;, &#39;ENJ&#39;, &#39;EOS&#39;, &#39;EOT&#39;, &#39;EQT&#39;, &#39;ERC&#39;, &#39;ETH&#39;, &#39;ETN&#39;, &#39;EVX&#39;, &#39;EXP&#39;, &#39;FCT&#39;, &#39;FLO&#39;, &#39;FLT&#39;, &#39;FTC&#39;, &#39;FUN&#39;, &#39;GAM&#39;, &#39;GBX&#39;, &#39;GEO&#39;, &#39;GLD&#39;, &#39;GNT&#39;, 
+# &#39;GRC&#39;, &#39;GTO&#39;, &#39;INF&#39;, &#39;INS&#39;, &#39;INT&#39;, &#39;IXC&#39;, &#39;KIN&#39;, &#39;LBC&#39;, &#39;LEND&#39;, &#39;LTC&#39;, &#39;MAX&#39;, &#39;MCO&#39;, &#39;MEC&#39;, &#39;MED&#39;, &#39;MGC&#39;, &#39;MINT&#39;, &#39;MLN&#39;, &#39;MNE&#39;, &#39;MOD&#39;, &#39;MSP&#39;, &#39;MTH&#39;, 
+# &#39;MTN&#39;, &#39;MUE&#39;, &#39;NAV&#39;, &#39;NEO&#39;, &#39;NEOS&#39;, &#39;NET&#39;, &#39;NMR&#39;, &#39;NOBL&#39;, &#39;NXC&#39;, &#39;OCN&#39;, &#39;OPT&#39;, &#39;PBT&#39;, &#39;PING&#39;, &#39;PPC&#39;, &#39;PPT&#39;, &#39;PRG&#39;, &#39;PRO&#39;, &#39;PST&#39;, &#39;PTC&#39;, &#39;QLC&#39;, &#39;QTUM&#39;,
+# &#39;R&#39;, &#39;RDN&#39;, &#39;REC&#39;, &#39;RVT&#39;, &#39;SALT&#39;, &#39;SAN&#39;, &#39;SC&#39;, &#39;SKY&#39;, &#39;SLS&#39;, &#39;SPR&#39;, &#39;SNX&#39;, &#39;STK&#39;, &#39;STX&#39;, &#39;SUB&#39;, &#39;SWT&#39;, &#39;THC&#39;, &#39;TKR&#39;, &#39;TRC&#39;, &#39;TRST&#39;, &#39;TRUE&#39;, &#39;TRX&#39;, 
+# &#39;TX&#39;, &#39;UNB&#39;, &#39;VERI&#39;, &#39;VIVO&#39;, &#39;VOX&#39;, &#39;VPN&#39;, &#39;VRM&#39;, &#39;VRS&#39;, &#39;VSL&#39;, &#39;VTC&#39;, &#39;VTR&#39;, &#39;WDC&#39;, &#39;WGO&#39;, &#39;WTT&#39;, &#39;XEL&#39;, &#39;NEM&#39;, &#39;ZEN&#39;]
+
+# TODO: need some way to distinguish between overlap.
+
+def get_overlapping_symbols(equities=None, cryptos=None):
+    &#34;&#34;&#34;
+    Returns an array of symbols which are contained in both the STATIC_TICKERS_FILE and STATIC_CRYPTO_FILE, i.e. ticker symbols which have both a tradeable equtiy and a tradeable crypto asset. 
+    &#34;&#34;&#34;
+    if equities is None:
+        equities = list(get_static_data(static.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]))
+    if cryptos is None:
+        cryptos = list(get_static_data(static.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]))
+    overlap = []
+    for crypto in cryptos:
+        if crypto in equities:
+            overlap.append(crypto)
+    return overlap
+
+def get_asset_type(symbol : str) -&gt; str:
+    &#34;&#34;&#34;&#34;
+    Returns the asset type of the supplied ticker symbol. \n \n
+
+    Output
+    ------
+    ``str``. Represents the type of asset of the symbol. Types are statically accessible through the `scrilla.static.keys[&#39;ASSETS]` dictionary. \n \n 
+    &#34;&#34;&#34;
+    symbols = list(get_static_data(static.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]))
+    overlap = get_overlapping_symbols(cryptos=symbols)
+
+    if symbol not in overlap:
+        if symbol in symbols:
+            return static.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]
+            
+                # if other asset types are introduced, then uncomment these lines
+                # and add new asset type to conditional. Keep in mind the static
+                # equity data is HUGE.
+        # symbols = list(get_static_data(static.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]))
+        # if symbol in symbols:
+            # return static.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]
+        #return None
+        return static.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]
+    # default to equity for overlap until a better method is determined. 
+    return static.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]
+    
+def get_watchlist() -&gt; list:
+    &#34;&#34;&#34;
+    Description
+    -----------
+    Retrieves the list of watchlisted equity ticker symbols saved in /data/common/watchlist.json.
+    &#34;&#34;&#34;
+    logger.debug(&#39;Loading in Watchlist symbols.&#39;)
+
+    if os.path.isfile(settings.COMMON_WATCHLIST_FILE):
+        logger.debug(&#39;Watchlist found.&#39;)
+        with open(settings.COMMON_WATCHLIST_FILE, &#39;r&#39;) as infile:
+            if settings.FILE_EXT ==&#34;json&#34;:
+                watchlist = json.load(infile)
+                logger.debug(&#39;Watchlist loaded in JSON format.&#39;)
+
+            # TODO: implement other file loading exts
+    else: 
+        logger.info(&#39;Watchlist not found.&#39;)
+        watchlist = []
+
+    return watchlist
+
+def add_watchlist(new_tickers: list) -&gt; None:
+    &#34;&#34;&#34;
+    Description
+    -----------
+    Retrieves the list of watchlisted equity ticker symbols saved in /data/common/watchlist.json and then appends to it the list of tickers supplied as arguments. After appending, the list is sorted in alphabetical order. The tickers to add must exist in the /data/static/tickers.json file in order to be added to the watchlist, i.e. the tickers must have price histories that can be retrieved (the static file tickers.json contains a list of all equities with retrievable price histories.) \n \n 
+    &#34;&#34;&#34;
+    logger.debug(&#39;Saving tickers to Watchlist&#39;)
+
+    current_tickers = get_watchlist()
+    all_tickers = get_static_data(static.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;])
+
+    for ticker in new_tickers:
+        if ticker not in current_tickers and ticker in all_tickers:
+            logger.debug(f&#39;New ticker being added to Watchlist: {ticker}&#39;)
+            current_tickers.append(ticker)
+
+    current_tickers = sorted(current_tickers)
+
+    with open(settings.COMMON_WATCHLIST_FILE, &#39;w+&#39;) as outfile:
+        if settings.FILE_EXT == &#34;json&#34;:
+            json.dump(current_tickers, outfile)
+        # TODO: implement other file extensions
+    
+def save_profiles(profiles: dict, file_name: str):
+    save_format = formatter.format_profiles(profiles)
+    save_file(file_to_save=save_format, file_name=file_name)
+
+def save_allocation(allocation, portfolio, file_name, investment=None):
+    save_format = formatter.format_allocation(allocation=allocation, portfolio=portfolio, investment=investment)
+    save_file(file_to_save=save_format, file_name=file_name)
+
+def save_frontier(portfolio, frontier, file_name, investment=None):
+    save_format = formatter.format_frontier(portfolio=portfolio, frontier=frontier,investment=investment)
+    save_file(file_to_save=save_format, file_name=file_name)
+
+def save_moving_averages(tickers, averages_output, file_name):
+    save_format = formatter.format_moving_averages(tickers=tickers,averages_output=averages_output)
+    save_file(file_to_save=save_format, file_name=file_name)
+
+def save_correlation_matrix(tickers, correlation_matrix, file_name):
+    save_format = formatter.format_correlation_matrix(tickers=tickers, correlation_matrix=correlation_matrix)
+    save_file(file_to_save=save_format, file_name=file_name)
+    
+################################################
+##### FILE MANAGEMENT FUNCTIONS
+
+# TODO: this deletes subdirectories.
+# retain: keeps .gitkeep in directory
+def clear_directory(directory, retain=True):
+    &#34;&#34;&#34;
+    Description
+    -----------
+    Wipes a directory of files without deleting the directory itself. \n \n 
+
+    Parameters
+    ----------
+    1. directory: str \n
+    Path of the directory to be cleaned. \n \n 
+
+    2. retain : bool \n
+    If set to True, the method will skip files named &#39;.gitkeep&#39; within the directory, i.e. version control configuration files. 
+
+    3. outdated_only: bool \b 
+    If set to True, the method will check for a time stamp on files with the format &#39;DD-MM-YYYY&#39; and retain files that contain this timestamp.
+    &#34;&#34;&#34;
+    filelist = list(os.listdir(directory))
+
+    for f in filelist:
+        filename = os.path.basename(f)
+        if retain and filename == static.constants[&#39;KEEP_FILE&#39;]:
+            continue
+        os.remove(os.path.join(directory, f))
+
+def is_non_zero_file(fpath):  
+    return os.path.isfile(fpath) and os.path.getsize(fpath) &gt; 0</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="scrilla.files.add_watchlist"><code class="name flex">
+<span>def <span class="ident">add_watchlist</span></span>(<span>new_tickers: list) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"><h2 id="description">Description</h2>
+<p>Retrieves the list of watchlisted equity ticker symbols saved in /data/common/watchlist.json and then appends to it the list of tickers supplied as arguments. After appending, the list is sorted in alphabetical order. The tickers to add must exist in the /data/static/tickers.json file in order to be added to the watchlist, i.e. the tickers must have price histories that can be retrieved (the static file tickers.json contains a list of all equities with retrievable price histories.)</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def add_watchlist(new_tickers: list) -&gt; None:
+    &#34;&#34;&#34;
+    Description
+    -----------
+    Retrieves the list of watchlisted equity ticker symbols saved in /data/common/watchlist.json and then appends to it the list of tickers supplied as arguments. After appending, the list is sorted in alphabetical order. The tickers to add must exist in the /data/static/tickers.json file in order to be added to the watchlist, i.e. the tickers must have price histories that can be retrieved (the static file tickers.json contains a list of all equities with retrievable price histories.) \n \n 
+    &#34;&#34;&#34;
+    logger.debug(&#39;Saving tickers to Watchlist&#39;)
+
+    current_tickers = get_watchlist()
+    all_tickers = get_static_data(static.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;])
+
+    for ticker in new_tickers:
+        if ticker not in current_tickers and ticker in all_tickers:
+            logger.debug(f&#39;New ticker being added to Watchlist: {ticker}&#39;)
+            current_tickers.append(ticker)
+
+    current_tickers = sorted(current_tickers)
+
+    with open(settings.COMMON_WATCHLIST_FILE, &#39;w+&#39;) as outfile:
+        if settings.FILE_EXT == &#34;json&#34;:
+            json.dump(current_tickers, outfile)
+        # TODO: implement other file extensions</code></pre>
+</details>
+</dd>
+<dt id="scrilla.files.clear_directory"><code class="name flex">
+<span>def <span class="ident">clear_directory</span></span>(<span>directory, retain=True)</span>
+</code></dt>
+<dd>
+<div class="desc"><h2 id="description">Description</h2>
+<p>Wipes a directory of files without deleting the directory itself. </p>
+<h2 id="parameters">Parameters</h2>
+<ol>
+<li>directory: str </li>
+</ol>
+<p>Path of the directory to be cleaned. </p>
+<ol>
+<li>retain : bool </li>
+</ol>
+<p>If set to True, the method will skip files named '.gitkeep' within the directory, i.e. version control configuration files. </p>
+<ol>
+<li>outdated_only: bool 
+If set to True, the method will check for a time stamp on files with the format 'DD-MM-YYYY' and retain files that contain this timestamp.</li>
+</ol></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def clear_directory(directory, retain=True):
+    &#34;&#34;&#34;
+    Description
+    -----------
+    Wipes a directory of files without deleting the directory itself. \n \n 
+
+    Parameters
+    ----------
+    1. directory: str \n
+    Path of the directory to be cleaned. \n \n 
+
+    2. retain : bool \n
+    If set to True, the method will skip files named &#39;.gitkeep&#39; within the directory, i.e. version control configuration files. 
+
+    3. outdated_only: bool \b 
+    If set to True, the method will check for a time stamp on files with the format &#39;DD-MM-YYYY&#39; and retain files that contain this timestamp.
+    &#34;&#34;&#34;
+    filelist = list(os.listdir(directory))
+
+    for f in filelist:
+        filename = os.path.basename(f)
+        if retain and filename == static.constants[&#39;KEEP_FILE&#39;]:
+            continue
+        os.remove(os.path.join(directory, f))</code></pre>
+</details>
+</dd>
+<dt id="scrilla.files.get_asset_type"><code class="name flex">
+<span>def <span class="ident">get_asset_type</span></span>(<span>symbol: str) ‑> str</span>
+</code></dt>
+<dd>
+<div class="desc"><p>"
+Returns the asset type of the supplied ticker symbol. </p>
+<h2 id="output">Output</h2>
+<p><code>str</code>. Represents the type of asset of the symbol. Types are statically accessible through the <code>scrilla.static.keys['ASSETS]</code> dictionary.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_asset_type(symbol : str) -&gt; str:
+    &#34;&#34;&#34;&#34;
+    Returns the asset type of the supplied ticker symbol. \n \n
+
+    Output
+    ------
+    ``str``. Represents the type of asset of the symbol. Types are statically accessible through the `scrilla.static.keys[&#39;ASSETS]` dictionary. \n \n 
+    &#34;&#34;&#34;
+    symbols = list(get_static_data(static.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]))
+    overlap = get_overlapping_symbols(cryptos=symbols)
+
+    if symbol not in overlap:
+        if symbol in symbols:
+            return static.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]
+            
+                # if other asset types are introduced, then uncomment these lines
+                # and add new asset type to conditional. Keep in mind the static
+                # equity data is HUGE.
+        # symbols = list(get_static_data(static.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]))
+        # if symbol in symbols:
+            # return static.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]
+        #return None
+        return static.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]
+    # default to equity for overlap until a better method is determined. 
+    return static.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]</code></pre>
+</details>
+</dd>
+<dt id="scrilla.files.get_credentials"><code class="name flex">
+<span>def <span class="ident">get_credentials</span></span>(<span>which_key: str) ‑> str</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_credentials(which_key: str) -&gt; str:
+    file_name = os.path.join(settings.COMMON_DIR, f&#39;{which_key}.{settings.FILE_EXT}&#39;)
+    return load_file(file_name = file_name)</code></pre>
+</details>
+</dd>
+<dt id="scrilla.files.get_overlapping_symbols"><code class="name flex">
+<span>def <span class="ident">get_overlapping_symbols</span></span>(<span>equities=None, cryptos=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Returns an array of symbols which are contained in both the STATIC_TICKERS_FILE and STATIC_CRYPTO_FILE, i.e. ticker symbols which have both a tradeable equtiy and a tradeable crypto asset.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_overlapping_symbols(equities=None, cryptos=None):
+    &#34;&#34;&#34;
+    Returns an array of symbols which are contained in both the STATIC_TICKERS_FILE and STATIC_CRYPTO_FILE, i.e. ticker symbols which have both a tradeable equtiy and a tradeable crypto asset. 
+    &#34;&#34;&#34;
+    if equities is None:
+        equities = list(get_static_data(static.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]))
+    if cryptos is None:
+        cryptos = list(get_static_data(static.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]))
+    overlap = []
+    for crypto in cryptos:
+        if crypto in equities:
+            overlap.append(crypto)
+    return overlap</code></pre>
+</details>
+</dd>
+<dt id="scrilla.files.get_static_data"><code class="name flex">
+<span>def <span class="ident">get_static_data</span></span>(<span>static_type)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Retrieves static data cached in the local or containerized file system. </p>
+<h2 id="parameters">Parameters</h2>
+<ol>
+<li><code>static_type</code> : str </li>
+</ol>
+<p>A string corresponding to the type of static data to be retrieved. The types can be statically accessed through the <code> settings</code> variables: ASSET_CRYPTO, ASSET_EQUITY and STAT_ECON.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_static_data(static_type):
+    &#34;&#34;&#34;
+    Retrieves static data cached in the local or containerized file system. \n \n 
+
+    Parameters
+    ----------
+    1. `static_type` : str \n
+    A string corresponding to the type of static data to be retrieved. The types can be statically accessed through the ` settings` variables: ASSET_CRYPTO, ASSET_EQUITY and STAT_ECON. \n \n
+    &#34;&#34;&#34;
+    path, blob = None, None
+    global static_crypto_blob 
+    global static_econ_blob 
+    global static_tickers_blob
+
+    if static_type == static.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]:
+        if static_crypto_blob is not None:
+            blob = static_crypto_blob
+        else:
+            path = settings.STATIC_CRYPTO_FILE
+    
+    elif static_type == static.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]:
+        if static_tickers_blob:
+            blob = static_tickers_blob
+        else:
+            path = settings.STATIC_TICKERS_FILE
+    
+    elif static_type == static.keys[&#39;ASSETS&#39;][&#39;STAT&#39;]:
+        if static_econ_blob:
+            blob = static_econ_blob
+        else:
+            path = settings.STATIC_ECON_FILE
+    
+    else:
+        return None
+
+    if blob is not None:
+        logger.debug(f&#39;Found in-memory {static_type} symbols.&#39;)
+        return blob
+
+    if path is not None:
+        if not os.path.isfile(path):
+            init_static_data()
+
+        logger.debug(f&#39;Loading in cached {static_type} symbols.&#39;)
+        with open(path, &#39;r&#39;) as infile:
+            if settings.FILE_EXT == &#34;json&#34;:
+                symbols = json.load(infile)
+            # TODO: implement other file loading exts 
+               
+        if static_type == static.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]:
+            static_crypto_blob = symbols
+        elif static_type == static.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]:
+            static_tickers_blob = symbols
+        elif static_type == static.keys[&#39;ASSETS&#39;][&#39;STAT&#39;]:
+            static_econ_blob = symbols
+        return symbols
+        
+    return None</code></pre>
+</details>
+</dd>
+<dt id="scrilla.files.get_watchlist"><code class="name flex">
+<span>def <span class="ident">get_watchlist</span></span>(<span>) ‑> list</span>
+</code></dt>
+<dd>
+<div class="desc"><h2 id="description">Description</h2>
+<p>Retrieves the list of watchlisted equity ticker symbols saved in /data/common/watchlist.json.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_watchlist() -&gt; list:
+    &#34;&#34;&#34;
+    Description
+    -----------
+    Retrieves the list of watchlisted equity ticker symbols saved in /data/common/watchlist.json.
+    &#34;&#34;&#34;
+    logger.debug(&#39;Loading in Watchlist symbols.&#39;)
+
+    if os.path.isfile(settings.COMMON_WATCHLIST_FILE):
+        logger.debug(&#39;Watchlist found.&#39;)
+        with open(settings.COMMON_WATCHLIST_FILE, &#39;r&#39;) as infile:
+            if settings.FILE_EXT ==&#34;json&#34;:
+                watchlist = json.load(infile)
+                logger.debug(&#39;Watchlist loaded in JSON format.&#39;)
+
+            # TODO: implement other file loading exts
+    else: 
+        logger.info(&#39;Watchlist not found.&#39;)
+        watchlist = []
+
+    return watchlist</code></pre>
+</details>
+</dd>
+<dt id="scrilla.files.init_static_data"><code class="name flex">
+<span>def <span class="ident">init_static_data</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Initializes the three static files defined in
+settings: <code>STATIC_TICKERS_FILE</code>, <code>STATIC_CRYPTO_FILE</code> and <code>STATIC_ECON_FILE</code>. The data for these files is retrieved from the service managers. While this function blurs the lines between file management and service management, the function has been included in the <code>files.py</code> module rather than the <code>services.py</code> module due the unique response types of static metadata. All metadata is returned as a csv or zipped csvs. These responses require specialized functions. Moreover, these files should only be initialized the first time the application executes. Subsequent executions will refer to their cached versions residing in the local filesytems. </p>
+<h2 id="raises">Raises</h2>
+<dl>
+<dt><code>1. errors.ConfigurationError </code></dt>
+<dd>If <code>scrilla.settings.PRICE_MANAGER</code> and <code>scrilla.settings.STAT_MANAGER</code> are not configured through the environment variables <code>PRICE_MANAGER</code> and <code>STAT_MANAGER</code>, the function will throw this error.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def init_static_data():
+    &#34;&#34;&#34;
+    Initializes the three static files defined in  settings: `STATIC_TICKERS_FILE`, `STATIC_CRYPTO_FILE` and `STATIC_ECON_FILE`. The data for these files is retrieved from the service managers. While this function blurs the lines between file management and service management, the function has been included in the `files.py` module rather than the `services.py` module due the unique response types of static metadata. All metadata is returned as a csv or zipped csvs. These responses require specialized functions. Moreover, these files should only be initialized the first time the application executes. Subsequent executions will refer to their cached versions residing in the local filesytems. 
+
+    Raises
+    ------
+    1. errors.ConfigurationError \n
+        If `scrilla.settings.PRICE_MANAGER` and `scrilla.settings.STAT_MANAGER` are not configured through the environment variables `PRICE_MANAGER` and `STAT_MANAGER`, the function will throw this error.
+    &#34;&#34;&#34;
+    global static_tickers_blob
+    global static_econ_blob
+    global static_crypto_blob
+
+    if ((not os.path.isfile(settings.STATIC_ECON_FILE)) or \
+            (not os.path.isfile(settings.STATIC_TICKERS_FILE)) or \
+                (not os.path.isfile(settings.STATIC_CRYPTO_FILE))):
+
+        logger.info(&#39;Initializing static data. Please wait. This may take a moment...&#39;)
+
+        # grab ticker symbols and store in STATIC_DIR
+        if not os.path.isfile(settings.STATIC_TICKERS_FILE):
+            if settings.PRICE_MANAGER == &#34;alpha_vantage&#34;: 
+                service_map = static.keys[&#34;SERVICES&#34;][&#34;PRICES&#34;][&#34;ALPHA_VANTAGE&#34;][&#34;MAP&#34;]
+                logger.debug(f&#39;Missing {settings.STATIC_TICKERS_FILE}, querying \&#39;{settings.PRICE_MANAGER}\&#39;&#39;)
+
+                # TODO: services calls should be in services.py! need to put this and the helper method 
+                #       into services.py in the future. 
+                query=f&#39;{settings.PARAM_AV_FUNC}={settings.ARG_AV_FUNC_EQUITY_LISTINGS}&#39;
+                url = f&#39;{settings.AV_URL}?{query}&amp;{settings.PARAM_AV_KEY}={settings.AV_KEY}&#39;
+                static_tickers_blob = parse_csv_response_column(column=0, url=url, savefile=settings.STATIC_TICKERS_FILE,
+                                                                    firstRowHeader=service_map[&#39;KEYS&#39;][&#39;EQUITY&#39;][&#39;HEADER&#39;])
+
+            raise errors.ConfigurationError(&#34;No PRICE_MANAGER set in .env file!&#34;)
+
+        # grab crypto symbols and store in STATIC_DIR
+        if not os.path.isfile(settings.STATIC_CRYPTO_FILE):
+            if settings.PRICE_MANAGER == &#34;alpha_vantage&#34;: 
+                service_map = static.keys[&#34;SERVICES&#34;][&#34;PRICES&#34;][&#34;ALPHA_VANTAGE&#34;][&#34;MAP&#34;]
+                logger.debug(f&#39;Missing {settings.STATIC_CRYPTO_FILE}, querying \&#39;{settings.PRICE_MANAGER}\&#39;.&#39;)
+                url = settings.AV_CRYPTO_LIST
+                static_crypto_blob = parse_csv_response_column(column=0, url=url, savefile=settings.STATIC_CRYPTO_FILE,
+                                                                firstRowHeader=service_map[&#39;KEYS&#39;][&#39;CRYPTO&#39;][&#39;HEADER&#39;])
+            raise errors.ConfigurationError(&#34;No PRICE_MANAGER set in .env file!&#34;)
+            
+        # grab econominc indicator symbols and store in STATIC_DIR
+        if not os.path.isfile(settings.STATIC_ECON_FILE):
+            if settings.STAT_MANAGER == &#34;quandl&#34;:
+                service_map = static.keys[&#34;SERVICES&#34;][&#34;STATISTICS&#34;][&#34;QUANDL&#34;][&#34;MAP&#34;]
+
+                logger.debug(f&#39;Missing {settings.STATIC_ECON_FILE}, querying \&#39;{settings.STAT_MANAGER}\&#39;.&#39;)
+
+                query = f&#39;{service_map[&#34;PATHS&#34;][&#34;FRED&#34;]}/{service_map[&#34;PARAMS&#34;][&#34;METADATA&#34;]}&#39;
+                url = f&#39;{settings.Q_META_URL}/{query}?{service_map[&#34;PARAMS&#34;][&#34;KEY&#34;]}={settings.Q_KEY}&#39;
+                static_econ_blob = parse_csv_response_column(column=0, url=url, savefile=settings.STATIC_ECON_FILE,
+                                                            firstRowHeader=service_map[&#34;KEYS&#34;][&#34;HEADER&#34;],
+                                                             zipped=service_map[&#34;KEYS&#34;][&#34;ZIPFILE&#34;])
+
+            raise errors.ConfigurationError(&#34;No STAT_MANAGER set in .env file!&#34;)
+
+    else:
+        logger.debug(&#39;Static data already initialized!&#39;)</code></pre>
+</details>
+</dd>
+<dt id="scrilla.files.is_non_zero_file"><code class="name flex">
+<span>def <span class="ident">is_non_zero_file</span></span>(<span>fpath)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def is_non_zero_file(fpath):  
+    return os.path.isfile(fpath) and os.path.getsize(fpath) &gt; 0</code></pre>
+</details>
+</dd>
+<dt id="scrilla.files.load_file"><code class="name flex">
+<span>def <span class="ident">load_file</span></span>(<span>file_name: str) ‑> Any</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def load_file(file_name: str) -&gt; Any:
+    with open(file_name, &#39;r&#39;) as infile:
+        if settings.FILE_EXT == &#34;json&#34;:
+            file = json.load(infile)
+        return file
+        # TODO: implement other file loading extensions</code></pre>
+</details>
+</dd>
+<dt id="scrilla.files.parse_csv_response_column"><code class="name flex">
+<span>def <span class="ident">parse_csv_response_column</span></span>(<span>column: int, url: str, firstRowHeader: str = None, savefile: str = None, zipped: str = None)</span>
+</code></dt>
+<dd>
+<div class="desc"><h2 id="parameters">Parameters</h2>
+<ol>
+<li>
+<p>column : int </p>
+<p>Required. Index of the column you wish to retrieve from the response. </p>
+</li>
+<li>
+<p>url : str </p>
+<p>Required. The url, already formatted with appropriate query and key, that will respond with the csv file, zipped or unzipped (see zipped argument for more info), you wish to parse. </p>
+</li>
+<li>
+<p>firstRowHeader : str </p>
+<p>Optional. name of the header for the column you wish to parse. if specified, the parsed response will ignore the row header. Do not include if you wish to have the row header in the return result. </p>
+</li>
+<li>
+<p>savefile : str </p>
+<p>Optional. the absolute path of the file you wish to save the parsed response column to. </p>
+</li>
+<li>
+<p>zipped : str </p>
+<p>if the response returns a zip file, this argument needs to be set equal to the file within the zipped archive you wish to parse.</p>
+</li>
+</ol></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def parse_csv_response_column(column: int, url: str, firstRowHeader: str=None, savefile: str=None, zipped: str=None):
+    &#34;&#34;&#34;
+    Parameters
+    ----------
+    1. column : int \n
+        Required. Index of the column you wish to retrieve from the response. \n \n
+    2. url : str \n
+        Required. The url, already formatted with appropriate query and key, that will respond with the csv file, zipped or unzipped (see zipped argument for more info), you wish to parse. \n \n 
+    3. firstRowHeader : str \n 
+        Optional. name of the header for the column you wish to parse. if specified, the parsed response will ignore the row header. Do not include if you wish to have the row header in the return result. \n \n 
+    4. savefile : str \n 
+        Optional. the absolute path of the file you wish to save the parsed response column to. \n \n 
+    5. zipped : str \n 
+        if the response returns a zip file, this argument needs to be set equal to the file within the zipped archive you wish to parse. \n \n 
+    &#34;&#34;&#34;
+    col, big_mother = [], []
+
+    with requests.Session() as s:
+        download = s.get(url)
+        
+        if zipped is not None:
+            zipdata = io.BytesIO(download.content)
+            unzipped = zipfile.ZipFile(zipdata)
+            with unzipped.open(zipped, &#39;r&#39;) as f:
+                for line in f:
+                    big_mother.append(helper.replace_troublesome_chars(line.decode(&#34;utf-8&#34;)))
+                cr = csv.reader(big_mother, delimiter=&#39;,&#39;)
+        
+        else:
+            decoded_content = download.content.decode(&#39;utf-8&#39;)
+            cr = csv.reader(decoded_content.splitlines(), delimiter=&#39;,&#39;)
+
+        s.close()
+    
+    for row in cr:
+        if row[column] != firstRowHeader:
+            col.append(row[column])
+
+    if savefile is not None: 
+        # TODO: Possibly infer file type extension from filename   
+        with open(savefile, &#39;w&#39;) as outfile:
+            if settings.FILE_EXT == &#34;json&#34;:
+                json.dump(col, outfile)
+
+    return col</code></pre>
+</details>
+</dd>
+<dt id="scrilla.files.save_allocation"><code class="name flex">
+<span>def <span class="ident">save_allocation</span></span>(<span>allocation, portfolio, file_name, investment=None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def save_allocation(allocation, portfolio, file_name, investment=None):
+    save_format = formatter.format_allocation(allocation=allocation, portfolio=portfolio, investment=investment)
+    save_file(file_to_save=save_format, file_name=file_name)</code></pre>
+</details>
+</dd>
+<dt id="scrilla.files.save_correlation_matrix"><code class="name flex">
+<span>def <span class="ident">save_correlation_matrix</span></span>(<span>tickers, correlation_matrix, file_name)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def save_correlation_matrix(tickers, correlation_matrix, file_name):
+    save_format = formatter.format_correlation_matrix(tickers=tickers, correlation_matrix=correlation_matrix)
+    save_file(file_to_save=save_format, file_name=file_name)</code></pre>
+</details>
+</dd>
+<dt id="scrilla.files.save_file"><code class="name flex">
+<span>def <span class="ident">save_file</span></span>(<span>file_to_save: Any, file_name: str) ‑> bool</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def save_file(file_to_save: Any, file_name: str) -&gt; bool:
+    with open(file_name, &#39;w&#39;) as outfile:
+        if settings.FILE_EXT == &#34;json&#34;:
+            try:
+                json.dump(file_to_save, outfile)
+                return True
+            except Exception as e:
+                logger.debug(f&#39;A {e.__class__} exception occured.&#39;)
+                return False
+            
+        # TODO: implement other file saving extensions.</code></pre>
+</details>
+</dd>
+<dt id="scrilla.files.save_frontier"><code class="name flex">
+<span>def <span class="ident">save_frontier</span></span>(<span>portfolio, frontier, file_name, investment=None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def save_frontier(portfolio, frontier, file_name, investment=None):
+    save_format = formatter.format_frontier(portfolio=portfolio, frontier=frontier,investment=investment)
+    save_file(file_to_save=save_format, file_name=file_name)</code></pre>
+</details>
+</dd>
+<dt id="scrilla.files.save_moving_averages"><code class="name flex">
+<span>def <span class="ident">save_moving_averages</span></span>(<span>tickers, averages_output, file_name)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def save_moving_averages(tickers, averages_output, file_name):
+    save_format = formatter.format_moving_averages(tickers=tickers,averages_output=averages_output)
+    save_file(file_to_save=save_format, file_name=file_name)</code></pre>
+</details>
+</dd>
+<dt id="scrilla.files.save_profiles"><code class="name flex">
+<span>def <span class="ident">save_profiles</span></span>(<span>profiles: dict, file_name: str)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def save_profiles(profiles: dict, file_name: str):
+    save_format = formatter.format_profiles(profiles)
+    save_file(file_to_save=save_format, file_name=file_name)</code></pre>
+</details>
+</dd>
+<dt id="scrilla.files.set_credentials"><code class="name flex">
+<span>def <span class="ident">set_credentials</span></span>(<span>value: str, which_key: str) ‑> bool</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_credentials(value: str, which_key: str) -&gt; bool:
+    file_name = os.path.join(settings.COMMON_DIR, f&#39;{which_key}.{settings.FILE_EXT}&#39;)
+    return save_file(file_to_save=value, file_name=file_name)</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="scrilla" href="index.html">scrilla</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="scrilla.files.add_watchlist" href="#scrilla.files.add_watchlist">add_watchlist</a></code></li>
+<li><code><a title="scrilla.files.clear_directory" href="#scrilla.files.clear_directory">clear_directory</a></code></li>
+<li><code><a title="scrilla.files.get_asset_type" href="#scrilla.files.get_asset_type">get_asset_type</a></code></li>
+<li><code><a title="scrilla.files.get_credentials" href="#scrilla.files.get_credentials">get_credentials</a></code></li>
+<li><code><a title="scrilla.files.get_overlapping_symbols" href="#scrilla.files.get_overlapping_symbols">get_overlapping_symbols</a></code></li>
+<li><code><a title="scrilla.files.get_static_data" href="#scrilla.files.get_static_data">get_static_data</a></code></li>
+<li><code><a title="scrilla.files.get_watchlist" href="#scrilla.files.get_watchlist">get_watchlist</a></code></li>
+<li><code><a title="scrilla.files.init_static_data" href="#scrilla.files.init_static_data">init_static_data</a></code></li>
+<li><code><a title="scrilla.files.is_non_zero_file" href="#scrilla.files.is_non_zero_file">is_non_zero_file</a></code></li>
+<li><code><a title="scrilla.files.load_file" href="#scrilla.files.load_file">load_file</a></code></li>
+<li><code><a title="scrilla.files.parse_csv_response_column" href="#scrilla.files.parse_csv_response_column">parse_csv_response_column</a></code></li>
+<li><code><a title="scrilla.files.save_allocation" href="#scrilla.files.save_allocation">save_allocation</a></code></li>
+<li><code><a title="scrilla.files.save_correlation_matrix" href="#scrilla.files.save_correlation_matrix">save_correlation_matrix</a></code></li>
+<li><code><a title="scrilla.files.save_file" href="#scrilla.files.save_file">save_file</a></code></li>
+<li><code><a title="scrilla.files.save_frontier" href="#scrilla.files.save_frontier">save_frontier</a></code></li>
+<li><code><a title="scrilla.files.save_moving_averages" href="#scrilla.files.save_moving_averages">save_moving_averages</a></code></li>
+<li><code><a title="scrilla.files.save_profiles" href="#scrilla.files.save_profiles">save_profiles</a></code></li>
+<li><code><a title="scrilla.files.set_credentials" href="#scrilla.files.set_credentials">set_credentials</a></code></li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
+</footer>
+</body>
+</html>
