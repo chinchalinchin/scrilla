@@ -1,6 +1,6 @@
 # scrilla: A Financial Optimization Application
 
-[docs](https://chinchalinchin.github.io/scrilla/)
+[documentation](https://chinchalinchin.github.io/scrilla/)
 
 ## Table of Contents
 - [Setup](#setup)
