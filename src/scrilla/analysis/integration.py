@@ -13,6 +13,9 @@
 # along with scrilla.  If not, see <https://www.gnu.org/licenses/>
 # or <https://github.com/chinchalinchin/scrilla/blob/develop/main/LICENSE>.
 
+"""
+A module of functions for integrating stochastic differential equations through numerial techniques like Monte Carlo simulation.
+"""
 from typing import Callable
 from scipy.stats import norm
 from scipy.integrate import quad

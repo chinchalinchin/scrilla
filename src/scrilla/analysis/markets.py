@@ -12,7 +12,9 @@
 # You should have received a copy of the GNU General Public License
 # along with scrilla.  If not, see <https://www.gnu.org/licenses/>
 # or <https://github.com/chinchalinchin/scrilla/blob/develop/main/LICENSE>.
-
+"""
+A module of functions that calculate financial statistics
+"""
 from scrilla import settings, services, files, cache, static, errors
 from scrilla.analysis.objects.cashflow import Cashflow
 import scrilla.analysis.models.geometric.statistics as statistics

@@ -13,6 +13,11 @@
 # You should have received a copy of the GNU General Public License
 # along with scrilla.  If not, see <https://www.gnu.org/licenses/>
 # or <https://github.com/chinchalinchin/scrilla/blob/develop/main/LICENSE>.
+
+"""
+A module of functions that wrap around `scipy.optimize` in order to optimize statistical and financial functions of interest.
+"""
+
 import scipy.optimize as optimize
 from scrilla import static, settings
 from scrilla.analysis import estimators
@@ -20,9 +25,6 @@ import scrilla.util.outputter as outputter
 
 logger = outputter.Logger('optimizer', settings.LOG_LEVEL)
 
-"""
-A module of functions that wrap around `scipy.optimize` in order to optimize statistical and financial functions of interest.
-"""
 def maximize_univariate_normal_likelihood(data):
     """
     Maximizes the normal (log-)likelihood of the sample with respect to the mean and volatility in order to estimate the mean and volatility of the population distribution described by the sample.

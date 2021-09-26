@@ -13,6 +13,10 @@
 # along with scrilla.  If not, see <https://www.gnu.org/licenses/>
 # or <https://github.com/chinchalinchin/scrilla/blob/develop/main/LICENSE>.
 
+"""
+A module of statistical point estimators and likelihood functions.
+"""
+
 from os import path
 from sys import path as sys_path
 from typing import List
@@ -29,10 +33,6 @@ import scrilla.util.outputter as outputter
 logger = outputter.Logger('estimators', settings.LOG_LEVEL)
 profile_cache = cache.ProfileCache()
 correlation_cache = cache.CorrelationCache()
-
-"""
-A module of statistical point estimators and likelihood functions.
-"""
 
 def univariate_normal_likelihood_function(params : list, data : list) -> float:
     """
