@@ -14,3 +14,4 @@
 /src/scrilla.egg-info/*
 /dist/*
 .vscode
+/scrilla/static/*

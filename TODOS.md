@@ -4,15 +4,6 @@
 
 2. Hook up 'Optimize' widget to optimize subject to constraint.
 
-3. Create functions for calculation and plotting of yield curve. Relevant FRED symbols: 
-    - DFF = Effective Federal Funds Rate<br>
-    - DTB3 = 3 Month Treasury<br>
-    - DGS5 = 5 Year Treasury Constant Maturity<br>
-    - DGS10 = 10 Year Treasury Constant Maturity<br>
-    - DGS30 = 30 Year Treausry Constant Maturity<br>
-    - T5YIE = 5 Year Breakeven Inflation Rate<br>
-    - T10YIE = 10 Year Breakeven Inflation Rate<br>
-
 5. Copy IV algorithm and option greek algorithms from old python cli program. 
 
 6. TEST MOVING AVERAGE ALGORITHM FOR MIX OF ASSET TYPES. I think there may be some mismatch of types in date comparisons.
@@ -31,7 +22,6 @@
 
 26. Document how to use objects and functions in shell/scripts.
 
-27. Raise Exceptions instead of returning False when functions fail. See #4: https://deepsource.io/blog/8-new-python-antipatterns/
 
 31. Allow relative file references when saving analysis. Right now needs to be absolute path inputted into -save argument. Also, save return profiles. 
 
@@ -39,11 +29,12 @@
 
 35. Correlation time series.
 
-36. In order for correlation time series to work, the ito_correlation method needs fixed. See TODOS within script.
-
 37. Look into why U risk profile calculation breaks function.
-
-41. analysis module can import function module. function module scripts can import each other, as they should be static. analysis module is built out of function module. 
 
 42. review monte carlo simulation. allow value at risk function to specify SDE. look into MLE for parameters.
 
+44. conditional imports based on ANALYSIS_MODE and ESTIMATION_METHOD
+
+45. docstrings should be formatted with markdown
+
+46. redo statistic operations with vector and matrix operations for greater generalization.

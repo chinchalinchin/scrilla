@@ -1,0 +1,757 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.10.0" />
+<title>scrilla.analysis.optimizer API documentation</title>
+<meta name="description" content="" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS_CHTML" integrity="sha256-kZafAc6mZvK3W3v1pHOcUix30OHQN6pU/NO2oFkqZVw=" crossorigin></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>scrilla.analysis.optimizer</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python"># This file is part of scrilla: https://github.com/chinchalinchin/scrilla.
+
+# scrilla is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3
+# as published by the Free Software Foundation.
+
+# scrilla is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with scrilla.  If not, see &lt;https://www.gnu.org/licenses/&gt;
+# or &lt;https://github.com/chinchalinchin/scrilla/blob/develop/main/LICENSE&gt;.
+import scipy.optimize as optimize
+from scrilla import static, settings
+from scrilla.analysis import estimators
+import scrilla.util.outputter as outputter
+
+logger = outputter.Logger(&#39;optimizer&#39;, settings.LOG_LEVEL)
+
+&#34;&#34;&#34;
+A module of functions that wrap around `scipy.optimize` in order to optimize statistical and financial functions of interest.
+&#34;&#34;&#34;
+def maximize_univariate_normal_likelihood(data):
+    &#34;&#34;&#34;
+    Maximizes the normal (log-)likelihood of the sample with respect to the mean and volatility in order to estimate the mean and volatility of the population distribution described by the sample.
+
+    Parameters
+    ----------
+    1. **data**: ``list``
+        Sample of data drawn from a univariate normal population. 
+
+    Returns
+    -------
+    ``list`` : A list containing the maximum likelihood estimates of the normal distribution&#39;s parameters. The first element of the list corresponds to the mean and the second element corresponds to the volatility.
+
+    .. notes::
+        * Some comments about the methodology. This module assumes an underlying asset price process that follows Geometric Brownian motion. This implies the return on the asset over intervals of  \\(\delta t\\) is normally distributed with mean \\(\mu * \delta t\\) and volatility \\(\sigma \cdot \sqrt{\delta t}\\). If the sample is scaled by \\(\delta t\\), then the mean becomes \\(\mu\\) and the volatility \\(\frac{\sigma}{\sqrt t}\\).  Moreover, increments are independent. Therefore, if the observations are made over equally spaced intervals, each observation is drawn from an independent, identially distributed normal random variable. The parameters \\(\mu\\) and :\\(\frac {\sigma}{\delta t}\\) can then be estimated by maximizing the probability of observing a given sample with respect to the parameters. To obtain the estimate for \\(\sigma\\), multiply the result of this function by \\(\delta t\\).
+        * Theoretically, the output of this function should equal the same value obtained from the method of moment matching. However, there is a small discrepancy. It could be due to floating point arthimetic. However, see Section 2.2 of the following for what I think may be, if not the source, at least related to the `issue`_
+        The author, however, is not considering the transformed Ito process, the log of the asset price process. It seems like his conclusion may be an artifact of Ito&#39;s Lemma? Not sure. Will need to think.
+
+        .. _issue: https://www.researchgate.net/publication/5071468_Maximum_Likelihood_Estimation_of_Generalized_Ito_Processes_With_Discretely-Sampled_Data
+    &#34;&#34;&#34;
+
+    likelihood = lambda x: (-1)*estimators.univariate_normal_likelihood_function(params=x, data=data)
+
+    # make an educated guess
+    first_quartile = estimators.sample_percentile(data=data, percentile=0.25)
+    median = estimators.sample_percentile(data=data, percentile=0.5)
+    third_quartile = estimators.sample_percentile(data, percentile=0.75)
+    guess = [median, (third_quartile-first_quartile)/2]
+
+    params = optimize.minimize(fun = likelihood, x0 = guess, options={&#39;disp&#39;: False},
+                                    method=static.constants[&#39;OPTIMIZATION_METHOD&#39;])
+    return params.x
+
+def maximize_bivariate_normal_likelihood(data):
+    &#34;&#34;&#34;
+
+    .. warning ::
+        This does not work. Son of a gun.
+
+    &#34;&#34;&#34;
+
+    x_data = [ datum[0] for datum in data ]
+    y_data = [ datum[1] for datum in data ] 
+    
+    # x_estimates = maximize_univariate_normal_likelihood(data=x_data)
+    # y_estimates = maximize_univariate_normal_likelihood(data=y_data)
+    x_25_percentile = estimators.sample_percentile(x_data, 0.25)
+    y_25_percentile = estimators.sample_percentile(y_data, 0.25)
+    x_median = estimators.sample_percentile(x_data, 0.5)
+    y_median = estimators.sample_percentile(y_data, 0.5)
+    x_75_percentile = estimators.sample_percentile(x_data, 0.75)
+    y_75_percentile = estimators.sample_percentile(y_data, 0.75)
+    # knowns = [ x_estimates[0], y_estimates[0], x_estimates[1], y_estimates[1] ]
+
+    likelihood = lambda x : (-1)*estimators.bivariate_normal_likelihood_function(params=x, 
+                                                                                data=data)
+
+    var_x_guess = (x_75_percentile - x_25_percentile)/2
+    var_y_guess = (y_75_percentile - y_25_percentile)/2
+    guess = [ x_median, y_median, var_x_guess, var_y_guess, 0]
+
+    params = optimize.minimize(fun = likelihood, 
+                                x0 = guess,
+                                options ={&#39;disp&#39;: False},
+                                method=static.constants[&#39;OPTIMIZATION_METHOD&#39;])
+    print(params.x)
+    return params.x
+    
+def optimize_portfolio_variance(portfolio, target_return=None):
+    &#34;&#34;&#34;
+    Parameters
+    ----------
+    1. portfolio : Portfolio \n
+        An instance of the Portfolio class defined in  analysis.objects.portfolio. Must be initialized with an array of ticker symbols. Optionally, it can be initialized with a start_date and end_date datetime. If start_date and end_date are specified, the portfolio will be optimized over the stated time period.\n \n
+    2. target_return : float \n
+        The target return, as a decimal, subject to which the portfolio&#39;s volatility will be minimized.
+
+    Output
+    ------
+    An array of floats that represents the proportion of the portfolio that should be allocated to the corresponding ticker symbols given as a parameter within the portfolio object. In other words, if portfolio.tickers = [&#39;AAPL&#39;, &#39;MSFT&#39;] and the output is [0.25, 0.75], this result means a portfolio with 25% allocation in AAPL and a 75% allocation in MSFT will result in an optimally constructed portfolio with respect to its volatility.  
+    &#34;&#34;&#34;
+    tickers = portfolio.tickers
+    portfolio.set_target_return(target_return)
+
+    init_guess = portfolio.get_init_guess()
+    equity_bounds = portfolio.get_default_bounds()
+    equity_constraint = {
+            &#39;type&#39;: &#39;eq&#39;,
+            &#39;fun&#39;: portfolio.get_constraint
+        }
+
+    if target_return is not None:
+        logger.debug(f&#39;Optimizing {tickers} Portfolio Volatility Subject To Return = {target_return}&#39;)
+
+        return_constraint = {
+            &#39;type&#39;: &#39;eq&#39;,
+            &#39;fun&#39;: portfolio.get_target_return_constraint
+        }
+        portfolio_constraints = [equity_constraint, return_constraint]
+    else:
+        logger.debug(f&#39;Minimizing {tickers} Portfolio Volatility&#39;)
+        portfolio_constraints = equity_constraint
+
+    allocation = optimize.minimize(fun = portfolio.volatility_function, x0 = init_guess, 
+                                    method=static.constants[&#39;OPTIMIZATION_METHOD&#39;], bounds=equity_bounds, 
+                                    constraints=portfolio_constraints, options={&#39;disp&#39;: False})
+
+    return allocation.x
+
+def optimize_conditional_value_at_risk(portfolio, prob, expiry, target_return=None):
+    &#34;&#34;&#34;
+    Parameters
+    ----------
+    1, portfolio : Portfolio \n
+        An instance of the Portfolio class defined in  analysis.objects.portfolio. Must be initialized with an array of ticker symbols. Optionally, it can be initialized with a start_date and end_date datetime. If start_date and end_date are specified, the portfolio will be optimized over the stated time period.\n \n
+    2. prob: float \n
+        Confidence level for value at risk. \n \n
+    3. expiry: float \n
+        Time horizon for the value at risk expectation, i.e. the time in the future at which point the portfolio will be considered &#39;closed&#39;. 
+    &#34;&#34;&#34;
+    tickers = portfolio.tickers
+    init_guess = portfolio.get_init_guess()
+    equity_bounds = portfolio.get_default_bounds()
+
+    equity_constraint = {
+            &#39;type&#39;: &#39;eq&#39;,
+            &#39;fun&#39;: portfolio.get_constraint
+    }
+
+    if target_return is not None:
+        logger.debug(f&#39;Optimizing {tickers} Portfolio Conditional Value at Risk Subject To Return = {target_return}&#39;)
+
+        return_constraint = {
+            &#39;type&#39;: &#39;eq&#39;,
+            &#39;fun&#39;: portfolio.get_target_return_constraint
+        }
+        portfolio_constraints = [equity_constraint, return_constraint]
+    else:
+        logger.debug(f&#39;Minimizing {tickers} Portfolio Conditional Value at Risk&#39;)
+        portfolio_constraints = equity_constraint
+
+    allocation = optimize.minimize(fun = lambda x: portfolio.conditional_value_at_risk_function(x, expiry, prob), 
+                                    x0 = init_guess, 
+                                    method=static.constants[&#39;OPTIMIZATION_METHOD&#39;], bounds=equity_bounds, 
+                                    constraints=portfolio_constraints, options={&#39;disp&#39;: False})
+
+    return allocation.x
+
+def maximize_sharpe_ratio(portfolio, target_return=None):
+    &#34;&#34;&#34;
+    Parameters
+    ----------
+    1. portfolio : Portfolio \n
+        An instance of the Portfolio class defined in  analysis.objects.portfolio. Must be initialized with an array of ticker symbols. Optionally, it can be initialized with a start_date and end_date datetime. If start_date and end_date are specified, the portfolio will be optimized over the stated time period.\n \n
+    2. target_return : float \n
+        The target return, as a decimal, subject to which the portfolio&#39;s volatility will be minimized.
+
+    Output
+    ------
+    An array of floats that represents the proportion of the portfolio that should be allocated to the corresponding ticker symbols given as a parameter within the portfolio object. In other words, if portfolio.tickers = [&#39;AAPL&#39;, &#39;MSFT&#39;] and the output is [0.25, 0.75], this result means a portfolio with 25% allocation in AAPL and a 75% allocation in MSFT will result in an optimally constructed portfolio with respect to its sharpe ratio.  
+    &#34;&#34;&#34;
+    tickers = portfolio.tickers
+    portfolio.set_target_return(target_return)
+
+    init_guess = portfolio.get_init_guess()
+    equity_bounds = portfolio.get_default_bounds()
+    equity_constraint = {
+            &#39;type&#39;: &#39;eq&#39;,
+            &#39;fun&#39;: portfolio.get_constraint
+        }
+
+    if target_return is not None:
+        logger.debug(f&#39;Optimizing {tickers} Portfolio Sharpe Ratio Subject To Return = {target_return}&#39;)
+
+        return_constraint = {
+            &#39;type&#39;: &#39;eq&#39;,
+            &#39;fun&#39;: portfolio.get_target_return_constraint
+        }
+        portfolio_constraints = [equity_constraint, return_constraint]
+    else:
+        logger.debug(f&#39;Maximizing {tickers} Portfolio Sharpe Ratio&#39;)
+        portfolio_constraints = equity_constraint
+
+    allocation = optimize.minimize(fun = lambda x: (-1)*portfolio.sharpe_ratio_function(x), 
+                                    x0 = init_guess, 
+                                    method=static.constants[&#39;OPTIMIZATION_METHOD&#39;], bounds=equity_bounds, 
+                                    constraints=portfolio_constraints, options={&#39;disp&#39;: False})
+
+    return allocation.x
+
+def maximize_portfolio_return(portfolio):
+    &#34;&#34;&#34;
+    Parameters
+    ----------
+    * portfolio : Portfolio \n
+        An instance of the Portfolio class defined in  analysis.objects.portfolio. Must be initialized with an array of ticker symbols. Optionally, it can be initialized with a start_date and end_date datetime. If start_date and end_date are specified, the portfolio will be optimized over the stated time period.\n \n
+
+    Output
+    ------
+    An array of floats that represents the proportion of the portfolio that should be allocated to the corresponding ticker symbols given as a parameter within the portfolio object to achieve the maximum return. Note, this function is often uninteresting because if the rate of return for equity A is 50% and the rate of return of equity B is 25%, the portfolio with a maximized return will always allocated 100% of its value to equity A. However, this function is useful for determining whether or not the optimization algorithm is actually working, so it has been left in the program for debugging purposes. 
+    &#34;&#34;&#34;
+    tickers = portfolio.tickers
+    init_guess = portfolio.get_init_guess()
+    equity_bounds = portfolio.get_default_bounds()
+    equity_constraint = {
+        &#39;type&#39;: &#39;eq&#39;,
+        &#39;fun&#39;: portfolio.get_constraint
+    }
+    
+    logger.debug(f&#39;Maximizing {tickers} Portfolio Return&#39;)
+    allocation = optimize.minimize(fun = lambda x: (-1)*portfolio.return_function(x),
+                                    x0 = init_guess, method=static.constants[&#39;OPTIMIZATION_METHOD&#39;],
+                                    bounds=equity_bounds, constraints=equity_constraint, 
+                                    options={&#39;disp&#39;: False})
+
+    return allocation.x
+
+def calculate_efficient_frontier(portfolio, steps=None):
+    &#34;&#34;&#34;
+    Parameters
+    ----------
+    1. portfolio : Portfolio \n
+        An instance of the Portfolio class defined in  analysis.objects.portfolio. Must be initialized with an array of ticker symbols. Optionally, it can be initialized with a start_date and end_date datetime. If start_date and end_date are specified, the portfolio will be optimized over the stated time period.\n \n
+
+    2. steps : int \n
+        The number of points calculated in the efficient frontier. If none is provided, it defaults to the environment variable FRONTIER_STEPS.
+    Output
+    ------
+    An array of float arrays. Each float array corresponds to a point on a portfolio&#39;s efficient frontier, i.e. each array represents the percentage of a portfolio that should be allocated to the equity to the corresponding ticker symbol (supplied as an attribute portfolio parameter, portfolio.tickers) in order to produce a given rate of return with minimal volatility.
+    &#34;&#34;&#34;
+    if steps is None:
+        steps = settings.FRONTIER_STEPS
+
+    minimum_allocation = optimize_portfolio_variance(portfolio=portfolio)
+    maximum_allocation = maximize_portfolio_return(portfolio=portfolio)
+
+    minimum_return = portfolio.return_function(minimum_allocation)
+    maximum_return = portfolio.return_function(maximum_allocation)
+    return_width = (maximum_return - minimum_return)/steps
+
+    frontier=[]
+    for i in range(steps+1):
+        target_return = minimum_return + return_width*i
+        allocation = optimize_portfolio_variance(portfolio=portfolio, target_return=target_return)
+        frontier.append(allocation)
+        
+    return frontier</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-variables">Global variables</h2>
+<dl>
+<dt id="scrilla.analysis.optimizer.logger"><code class="name">var <span class="ident">logger</span></code></dt>
+<dd>
+<div class="desc"><p>A module of functions that wrap around <code>scipy.optimize</code> in order to optimize statistical and financial functions of interest.</p></div>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="scrilla.analysis.optimizer.calculate_efficient_frontier"><code class="name flex">
+<span>def <span class="ident">calculate_efficient_frontier</span></span>(<span>portfolio, steps=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><h2 id="parameters">Parameters</h2>
+<ol>
+<li>
+<p>portfolio : Portfolio </p>
+<p>An instance of the Portfolio class defined in
+analysis.objects.portfolio. Must be initialized with an array of ticker symbols. Optionally, it can be initialized with a start_date and end_date datetime. If start_date and end_date are specified, the portfolio will be optimized over the stated time period.</p>
+</li>
+<li>
+<p>steps : int </p>
+<p>The number of points calculated in the efficient frontier. If none is provided, it defaults to the environment variable FRONTIER_STEPS.
+Output</p>
+<hr>
+<p>An array of float arrays. Each float array corresponds to a point on a portfolio's efficient frontier, i.e. each array represents the percentage of a portfolio that should be allocated to the equity to the corresponding ticker symbol (supplied as an attribute portfolio parameter, portfolio.tickers) in order to produce a given rate of return with minimal volatility.</p>
+</li>
+</ol></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def calculate_efficient_frontier(portfolio, steps=None):
+    &#34;&#34;&#34;
+    Parameters
+    ----------
+    1. portfolio : Portfolio \n
+        An instance of the Portfolio class defined in  analysis.objects.portfolio. Must be initialized with an array of ticker symbols. Optionally, it can be initialized with a start_date and end_date datetime. If start_date and end_date are specified, the portfolio will be optimized over the stated time period.\n \n
+
+    2. steps : int \n
+        The number of points calculated in the efficient frontier. If none is provided, it defaults to the environment variable FRONTIER_STEPS.
+    Output
+    ------
+    An array of float arrays. Each float array corresponds to a point on a portfolio&#39;s efficient frontier, i.e. each array represents the percentage of a portfolio that should be allocated to the equity to the corresponding ticker symbol (supplied as an attribute portfolio parameter, portfolio.tickers) in order to produce a given rate of return with minimal volatility.
+    &#34;&#34;&#34;
+    if steps is None:
+        steps = settings.FRONTIER_STEPS
+
+    minimum_allocation = optimize_portfolio_variance(portfolio=portfolio)
+    maximum_allocation = maximize_portfolio_return(portfolio=portfolio)
+
+    minimum_return = portfolio.return_function(minimum_allocation)
+    maximum_return = portfolio.return_function(maximum_allocation)
+    return_width = (maximum_return - minimum_return)/steps
+
+    frontier=[]
+    for i in range(steps+1):
+        target_return = minimum_return + return_width*i
+        allocation = optimize_portfolio_variance(portfolio=portfolio, target_return=target_return)
+        frontier.append(allocation)
+        
+    return frontier</code></pre>
+</details>
+</dd>
+<dt id="scrilla.analysis.optimizer.maximize_bivariate_normal_likelihood"><code class="name flex">
+<span>def <span class="ident">maximize_bivariate_normal_likelihood</span></span>(<span>data)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>.. warning ::
+This does not work. Son of a gun.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def maximize_bivariate_normal_likelihood(data):
+    &#34;&#34;&#34;
+
+    .. warning ::
+        This does not work. Son of a gun.
+
+    &#34;&#34;&#34;
+
+    x_data = [ datum[0] for datum in data ]
+    y_data = [ datum[1] for datum in data ] 
+    
+    # x_estimates = maximize_univariate_normal_likelihood(data=x_data)
+    # y_estimates = maximize_univariate_normal_likelihood(data=y_data)
+    x_25_percentile = estimators.sample_percentile(x_data, 0.25)
+    y_25_percentile = estimators.sample_percentile(y_data, 0.25)
+    x_median = estimators.sample_percentile(x_data, 0.5)
+    y_median = estimators.sample_percentile(y_data, 0.5)
+    x_75_percentile = estimators.sample_percentile(x_data, 0.75)
+    y_75_percentile = estimators.sample_percentile(y_data, 0.75)
+    # knowns = [ x_estimates[0], y_estimates[0], x_estimates[1], y_estimates[1] ]
+
+    likelihood = lambda x : (-1)*estimators.bivariate_normal_likelihood_function(params=x, 
+                                                                                data=data)
+
+    var_x_guess = (x_75_percentile - x_25_percentile)/2
+    var_y_guess = (y_75_percentile - y_25_percentile)/2
+    guess = [ x_median, y_median, var_x_guess, var_y_guess, 0]
+
+    params = optimize.minimize(fun = likelihood, 
+                                x0 = guess,
+                                options ={&#39;disp&#39;: False},
+                                method=static.constants[&#39;OPTIMIZATION_METHOD&#39;])
+    print(params.x)
+    return params.x</code></pre>
+</details>
+</dd>
+<dt id="scrilla.analysis.optimizer.maximize_portfolio_return"><code class="name flex">
+<span>def <span class="ident">maximize_portfolio_return</span></span>(<span>portfolio)</span>
+</code></dt>
+<dd>
+<div class="desc"><h2 id="parameters">Parameters</h2>
+<ul>
+<li>
+<p>portfolio : Portfolio </p>
+<p>An instance of the Portfolio class defined in
+analysis.objects.portfolio. Must be initialized with an array of ticker symbols. Optionally, it can be initialized with a start_date and end_date datetime. If start_date and end_date are specified, the portfolio will be optimized over the stated time period.</p>
+</li>
+</ul>
+<h2 id="output">Output</h2>
+<p>An array of floats that represents the proportion of the portfolio that should be allocated to the corresponding ticker symbols given as a parameter within the portfolio object to achieve the maximum return. Note, this function is often uninteresting because if the rate of return for equity A is 50% and the rate of return of equity B is 25%, the portfolio with a maximized return will always allocated 100% of its value to equity A. However, this function is useful for determining whether or not the optimization algorithm is actually working, so it has been left in the program for debugging purposes.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def maximize_portfolio_return(portfolio):
+    &#34;&#34;&#34;
+    Parameters
+    ----------
+    * portfolio : Portfolio \n
+        An instance of the Portfolio class defined in  analysis.objects.portfolio. Must be initialized with an array of ticker symbols. Optionally, it can be initialized with a start_date and end_date datetime. If start_date and end_date are specified, the portfolio will be optimized over the stated time period.\n \n
+
+    Output
+    ------
+    An array of floats that represents the proportion of the portfolio that should be allocated to the corresponding ticker symbols given as a parameter within the portfolio object to achieve the maximum return. Note, this function is often uninteresting because if the rate of return for equity A is 50% and the rate of return of equity B is 25%, the portfolio with a maximized return will always allocated 100% of its value to equity A. However, this function is useful for determining whether or not the optimization algorithm is actually working, so it has been left in the program for debugging purposes. 
+    &#34;&#34;&#34;
+    tickers = portfolio.tickers
+    init_guess = portfolio.get_init_guess()
+    equity_bounds = portfolio.get_default_bounds()
+    equity_constraint = {
+        &#39;type&#39;: &#39;eq&#39;,
+        &#39;fun&#39;: portfolio.get_constraint
+    }
+    
+    logger.debug(f&#39;Maximizing {tickers} Portfolio Return&#39;)
+    allocation = optimize.minimize(fun = lambda x: (-1)*portfolio.return_function(x),
+                                    x0 = init_guess, method=static.constants[&#39;OPTIMIZATION_METHOD&#39;],
+                                    bounds=equity_bounds, constraints=equity_constraint, 
+                                    options={&#39;disp&#39;: False})
+
+    return allocation.x</code></pre>
+</details>
+</dd>
+<dt id="scrilla.analysis.optimizer.maximize_sharpe_ratio"><code class="name flex">
+<span>def <span class="ident">maximize_sharpe_ratio</span></span>(<span>portfolio, target_return=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><h2 id="parameters">Parameters</h2>
+<ol>
+<li>
+<p>portfolio : Portfolio </p>
+<p>An instance of the Portfolio class defined in
+analysis.objects.portfolio. Must be initialized with an array of ticker symbols. Optionally, it can be initialized with a start_date and end_date datetime. If start_date and end_date are specified, the portfolio will be optimized over the stated time period.</p>
+</li>
+<li>
+<p>target_return : float </p>
+<p>The target return, as a decimal, subject to which the portfolio's volatility will be minimized.</p>
+</li>
+</ol>
+<h2 id="output">Output</h2>
+<p>An array of floats that represents the proportion of the portfolio that should be allocated to the corresponding ticker symbols given as a parameter within the portfolio object. In other words, if portfolio.tickers = ['AAPL', 'MSFT'] and the output is [0.25, 0.75], this result means a portfolio with 25% allocation in AAPL and a 75% allocation in MSFT will result in an optimally constructed portfolio with respect to its sharpe ratio.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def maximize_sharpe_ratio(portfolio, target_return=None):
+    &#34;&#34;&#34;
+    Parameters
+    ----------
+    1. portfolio : Portfolio \n
+        An instance of the Portfolio class defined in  analysis.objects.portfolio. Must be initialized with an array of ticker symbols. Optionally, it can be initialized with a start_date and end_date datetime. If start_date and end_date are specified, the portfolio will be optimized over the stated time period.\n \n
+    2. target_return : float \n
+        The target return, as a decimal, subject to which the portfolio&#39;s volatility will be minimized.
+
+    Output
+    ------
+    An array of floats that represents the proportion of the portfolio that should be allocated to the corresponding ticker symbols given as a parameter within the portfolio object. In other words, if portfolio.tickers = [&#39;AAPL&#39;, &#39;MSFT&#39;] and the output is [0.25, 0.75], this result means a portfolio with 25% allocation in AAPL and a 75% allocation in MSFT will result in an optimally constructed portfolio with respect to its sharpe ratio.  
+    &#34;&#34;&#34;
+    tickers = portfolio.tickers
+    portfolio.set_target_return(target_return)
+
+    init_guess = portfolio.get_init_guess()
+    equity_bounds = portfolio.get_default_bounds()
+    equity_constraint = {
+            &#39;type&#39;: &#39;eq&#39;,
+            &#39;fun&#39;: portfolio.get_constraint
+        }
+
+    if target_return is not None:
+        logger.debug(f&#39;Optimizing {tickers} Portfolio Sharpe Ratio Subject To Return = {target_return}&#39;)
+
+        return_constraint = {
+            &#39;type&#39;: &#39;eq&#39;,
+            &#39;fun&#39;: portfolio.get_target_return_constraint
+        }
+        portfolio_constraints = [equity_constraint, return_constraint]
+    else:
+        logger.debug(f&#39;Maximizing {tickers} Portfolio Sharpe Ratio&#39;)
+        portfolio_constraints = equity_constraint
+
+    allocation = optimize.minimize(fun = lambda x: (-1)*portfolio.sharpe_ratio_function(x), 
+                                    x0 = init_guess, 
+                                    method=static.constants[&#39;OPTIMIZATION_METHOD&#39;], bounds=equity_bounds, 
+                                    constraints=portfolio_constraints, options={&#39;disp&#39;: False})
+
+    return allocation.x</code></pre>
+</details>
+</dd>
+<dt id="scrilla.analysis.optimizer.maximize_univariate_normal_likelihood"><code class="name flex">
+<span>def <span class="ident">maximize_univariate_normal_likelihood</span></span>(<span>data)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Maximizes the normal (log-)likelihood of the sample with respect to the mean and volatility in order to estimate the mean and volatility of the population distribution described by the sample.</p>
+<h2 id="parameters">Parameters</h2>
+<ol>
+<li><strong>data</strong>: <code>list</code>
+Sample of data drawn from a univariate normal population. </li>
+</ol>
+<h2 id="returns">Returns</h2>
+<p><code>list</code> : A list containing the maximum likelihood estimates of the normal distribution's parameters. The first element of the list corresponds to the mean and the second element corresponds to the volatility.</p>
+<div class="admonition notes">
+<p class="admonition-title">Notes</p>
+<ul>
+<li>Some comments about the methodology. This module assumes an underlying asset price process that follows Geometric Brownian motion. This implies the return on the asset over intervals of
+<span><span class="MathJax_Preview">\delta t</span><script type="math/tex">\delta t</script></span> is normally distributed with mean <span><span class="MathJax_Preview">\mu * \delta t</span><script type="math/tex">\mu * \delta t</script></span> and volatility <span><span class="MathJax_Preview">\sigma \cdot \sqrt{\delta t}</span><script type="math/tex">\sigma \cdot \sqrt{\delta t}</script></span>. If the sample is scaled by <span><span class="MathJax_Preview">\delta t</span><script type="math/tex">\delta t</script></span>, then the mean becomes <span><span class="MathJax_Preview">\mu</span><script type="math/tex">\mu</script></span> and the volatility <span><span class="MathJax_Preview">rac{\sigma}{\sqrt t}</span><script type="math/tex">rac{\sigma}{\sqrt t}</script></span>.
+Moreover, increments are independent. Therefore, if the observations are made over equally spaced intervals, each observation is drawn from an independent, identially distributed normal random variable. The parameters <span><span class="MathJax_Preview">\mu</span><script type="math/tex">\mu</script></span> and :(rac {\sigma}{\delta t}) can then be estimated by maximizing the probability of observing a given sample with respect to the parameters. To obtain the estimate for <span><span class="MathJax_Preview">\sigma</span><script type="math/tex">\sigma</script></span>, multiply the result of this function by <span><span class="MathJax_Preview">\delta t</span><script type="math/tex">\delta t</script></span>.</li>
+<li>Theoretically, the output of this function should equal the same value obtained from the method of moment matching. However, there is a small discrepancy. It could be due to floating point arthimetic. However, see Section 2.2 of the following for what I think may be, if not the source, at least related to the <code>issue</code>_
+The author, however, is not considering the transformed Ito process, the log of the asset price process. It seems like his conclusion may be an artifact of Ito's Lemma? Not sure. Will need to think.</li>
+</ul>
+<p>.. _issue: <a href="https://www.researchgate.net/publication/5071468_Maximum_Likelihood_Estimation_of_Generalized_Ito_Processes_With_Discretely-Sampled_Data">https://www.researchgate.net/publication/5071468_Maximum_Likelihood_Estimation_of_Generalized_Ito_Processes_With_Discretely-Sampled_Data</a></p>
+</div></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def maximize_univariate_normal_likelihood(data):
+    &#34;&#34;&#34;
+    Maximizes the normal (log-)likelihood of the sample with respect to the mean and volatility in order to estimate the mean and volatility of the population distribution described by the sample.
+
+    Parameters
+    ----------
+    1. **data**: ``list``
+        Sample of data drawn from a univariate normal population. 
+
+    Returns
+    -------
+    ``list`` : A list containing the maximum likelihood estimates of the normal distribution&#39;s parameters. The first element of the list corresponds to the mean and the second element corresponds to the volatility.
+
+    .. notes::
+        * Some comments about the methodology. This module assumes an underlying asset price process that follows Geometric Brownian motion. This implies the return on the asset over intervals of  \\(\delta t\\) is normally distributed with mean \\(\mu * \delta t\\) and volatility \\(\sigma \cdot \sqrt{\delta t}\\). If the sample is scaled by \\(\delta t\\), then the mean becomes \\(\mu\\) and the volatility \\(\frac{\sigma}{\sqrt t}\\).  Moreover, increments are independent. Therefore, if the observations are made over equally spaced intervals, each observation is drawn from an independent, identially distributed normal random variable. The parameters \\(\mu\\) and :\\(\frac {\sigma}{\delta t}\\) can then be estimated by maximizing the probability of observing a given sample with respect to the parameters. To obtain the estimate for \\(\sigma\\), multiply the result of this function by \\(\delta t\\).
+        * Theoretically, the output of this function should equal the same value obtained from the method of moment matching. However, there is a small discrepancy. It could be due to floating point arthimetic. However, see Section 2.2 of the following for what I think may be, if not the source, at least related to the `issue`_
+        The author, however, is not considering the transformed Ito process, the log of the asset price process. It seems like his conclusion may be an artifact of Ito&#39;s Lemma? Not sure. Will need to think.
+
+        .. _issue: https://www.researchgate.net/publication/5071468_Maximum_Likelihood_Estimation_of_Generalized_Ito_Processes_With_Discretely-Sampled_Data
+    &#34;&#34;&#34;
+
+    likelihood = lambda x: (-1)*estimators.univariate_normal_likelihood_function(params=x, data=data)
+
+    # make an educated guess
+    first_quartile = estimators.sample_percentile(data=data, percentile=0.25)
+    median = estimators.sample_percentile(data=data, percentile=0.5)
+    third_quartile = estimators.sample_percentile(data, percentile=0.75)
+    guess = [median, (third_quartile-first_quartile)/2]
+
+    params = optimize.minimize(fun = likelihood, x0 = guess, options={&#39;disp&#39;: False},
+                                    method=static.constants[&#39;OPTIMIZATION_METHOD&#39;])
+    return params.x</code></pre>
+</details>
+</dd>
+<dt id="scrilla.analysis.optimizer.optimize_conditional_value_at_risk"><code class="name flex">
+<span>def <span class="ident">optimize_conditional_value_at_risk</span></span>(<span>portfolio, prob, expiry, target_return=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>1</code></strong>, <strong><code>portfolio</code></strong> :&ensp;<code>Portfolio </code></dt>
+<dd>An instance of the Portfolio class defined in
+analysis.objects.portfolio. Must be initialized with an array of ticker symbols. Optionally, it can be initialized with a start_date and end_date datetime. If start_date and end_date are specified, the portfolio will be optimized over the stated time period.</dd>
+</dl>
+<ol>
+<li>
+<p>prob: float </p>
+<p>Confidence level for value at risk. </p>
+</li>
+<li>
+<p>expiry: float </p>
+<p>Time horizon for the value at risk expectation, i.e. the time in the future at which point the portfolio will be considered 'closed'.</p>
+</li>
+</ol></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def optimize_conditional_value_at_risk(portfolio, prob, expiry, target_return=None):
+    &#34;&#34;&#34;
+    Parameters
+    ----------
+    1, portfolio : Portfolio \n
+        An instance of the Portfolio class defined in  analysis.objects.portfolio. Must be initialized with an array of ticker symbols. Optionally, it can be initialized with a start_date and end_date datetime. If start_date and end_date are specified, the portfolio will be optimized over the stated time period.\n \n
+    2. prob: float \n
+        Confidence level for value at risk. \n \n
+    3. expiry: float \n
+        Time horizon for the value at risk expectation, i.e. the time in the future at which point the portfolio will be considered &#39;closed&#39;. 
+    &#34;&#34;&#34;
+    tickers = portfolio.tickers
+    init_guess = portfolio.get_init_guess()
+    equity_bounds = portfolio.get_default_bounds()
+
+    equity_constraint = {
+            &#39;type&#39;: &#39;eq&#39;,
+            &#39;fun&#39;: portfolio.get_constraint
+    }
+
+    if target_return is not None:
+        logger.debug(f&#39;Optimizing {tickers} Portfolio Conditional Value at Risk Subject To Return = {target_return}&#39;)
+
+        return_constraint = {
+            &#39;type&#39;: &#39;eq&#39;,
+            &#39;fun&#39;: portfolio.get_target_return_constraint
+        }
+        portfolio_constraints = [equity_constraint, return_constraint]
+    else:
+        logger.debug(f&#39;Minimizing {tickers} Portfolio Conditional Value at Risk&#39;)
+        portfolio_constraints = equity_constraint
+
+    allocation = optimize.minimize(fun = lambda x: portfolio.conditional_value_at_risk_function(x, expiry, prob), 
+                                    x0 = init_guess, 
+                                    method=static.constants[&#39;OPTIMIZATION_METHOD&#39;], bounds=equity_bounds, 
+                                    constraints=portfolio_constraints, options={&#39;disp&#39;: False})
+
+    return allocation.x</code></pre>
+</details>
+</dd>
+<dt id="scrilla.analysis.optimizer.optimize_portfolio_variance"><code class="name flex">
+<span>def <span class="ident">optimize_portfolio_variance</span></span>(<span>portfolio, target_return=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><h2 id="parameters">Parameters</h2>
+<ol>
+<li>
+<p>portfolio : Portfolio </p>
+<p>An instance of the Portfolio class defined in
+analysis.objects.portfolio. Must be initialized with an array of ticker symbols. Optionally, it can be initialized with a start_date and end_date datetime. If start_date and end_date are specified, the portfolio will be optimized over the stated time period.</p>
+</li>
+<li>
+<p>target_return : float </p>
+<p>The target return, as a decimal, subject to which the portfolio's volatility will be minimized.</p>
+</li>
+</ol>
+<h2 id="output">Output</h2>
+<p>An array of floats that represents the proportion of the portfolio that should be allocated to the corresponding ticker symbols given as a parameter within the portfolio object. In other words, if portfolio.tickers = ['AAPL', 'MSFT'] and the output is [0.25, 0.75], this result means a portfolio with 25% allocation in AAPL and a 75% allocation in MSFT will result in an optimally constructed portfolio with respect to its volatility.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def optimize_portfolio_variance(portfolio, target_return=None):
+    &#34;&#34;&#34;
+    Parameters
+    ----------
+    1. portfolio : Portfolio \n
+        An instance of the Portfolio class defined in  analysis.objects.portfolio. Must be initialized with an array of ticker symbols. Optionally, it can be initialized with a start_date and end_date datetime. If start_date and end_date are specified, the portfolio will be optimized over the stated time period.\n \n
+    2. target_return : float \n
+        The target return, as a decimal, subject to which the portfolio&#39;s volatility will be minimized.
+
+    Output
+    ------
+    An array of floats that represents the proportion of the portfolio that should be allocated to the corresponding ticker symbols given as a parameter within the portfolio object. In other words, if portfolio.tickers = [&#39;AAPL&#39;, &#39;MSFT&#39;] and the output is [0.25, 0.75], this result means a portfolio with 25% allocation in AAPL and a 75% allocation in MSFT will result in an optimally constructed portfolio with respect to its volatility.  
+    &#34;&#34;&#34;
+    tickers = portfolio.tickers
+    portfolio.set_target_return(target_return)
+
+    init_guess = portfolio.get_init_guess()
+    equity_bounds = portfolio.get_default_bounds()
+    equity_constraint = {
+            &#39;type&#39;: &#39;eq&#39;,
+            &#39;fun&#39;: portfolio.get_constraint
+        }
+
+    if target_return is not None:
+        logger.debug(f&#39;Optimizing {tickers} Portfolio Volatility Subject To Return = {target_return}&#39;)
+
+        return_constraint = {
+            &#39;type&#39;: &#39;eq&#39;,
+            &#39;fun&#39;: portfolio.get_target_return_constraint
+        }
+        portfolio_constraints = [equity_constraint, return_constraint]
+    else:
+        logger.debug(f&#39;Minimizing {tickers} Portfolio Volatility&#39;)
+        portfolio_constraints = equity_constraint
+
+    allocation = optimize.minimize(fun = portfolio.volatility_function, x0 = init_guess, 
+                                    method=static.constants[&#39;OPTIMIZATION_METHOD&#39;], bounds=equity_bounds, 
+                                    constraints=portfolio_constraints, options={&#39;disp&#39;: False})
+
+    return allocation.x</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="scrilla.analysis" href="index.html">scrilla.analysis</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-variables">Global variables</a></h3>
+<ul class="">
+<li><code><a title="scrilla.analysis.optimizer.logger" href="#scrilla.analysis.optimizer.logger">logger</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="scrilla.analysis.optimizer.calculate_efficient_frontier" href="#scrilla.analysis.optimizer.calculate_efficient_frontier">calculate_efficient_frontier</a></code></li>
+<li><code><a title="scrilla.analysis.optimizer.maximize_bivariate_normal_likelihood" href="#scrilla.analysis.optimizer.maximize_bivariate_normal_likelihood">maximize_bivariate_normal_likelihood</a></code></li>
+<li><code><a title="scrilla.analysis.optimizer.maximize_portfolio_return" href="#scrilla.analysis.optimizer.maximize_portfolio_return">maximize_portfolio_return</a></code></li>
+<li><code><a title="scrilla.analysis.optimizer.maximize_sharpe_ratio" href="#scrilla.analysis.optimizer.maximize_sharpe_ratio">maximize_sharpe_ratio</a></code></li>
+<li><code><a title="scrilla.analysis.optimizer.maximize_univariate_normal_likelihood" href="#scrilla.analysis.optimizer.maximize_univariate_normal_likelihood">maximize_univariate_normal_likelihood</a></code></li>
+<li><code><a title="scrilla.analysis.optimizer.optimize_conditional_value_at_risk" href="#scrilla.analysis.optimizer.optimize_conditional_value_at_risk">optimize_conditional_value_at_risk</a></code></li>
+<li><code><a title="scrilla.analysis.optimizer.optimize_portfolio_variance" href="#scrilla.analysis.optimizer.optimize_portfolio_variance">optimize_portfolio_variance</a></code></li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
+</footer>
+</body>
+</html>

@@ -1,33 +1,42 @@
+# This file is part of scrilla: https://github.com/chinchalinchin/scrilla.
+
+# scrilla is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3
+# as published by the Free Software Foundation.
+
+# scrilla is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with scrilla.  If not, see <https://www.gnu.org/licenses/>
+# or <https://github.com/chinchalinchin/scrilla/blob/develop/main/LICENSE>.
+
+
 """
-Description
------------
-` files` is in charge of all application file handling. In addition, this module handles requests for large csv files retrieved from external services. The metadata files from 'AlphaVantage' and 'Quandl' are returned as zipped csv files. The functions within in this module perform all the tasks necessary for parsing this response into the application file system, whether on the localhost or a containerized filesytem.
+` files` is in charge of all application file handling. In addition, this module handles requests for large csv files retrieved from external services. The metadata files from 'AlphaVantage' and 'Quandl' are returned as zipped csv files. The functions within in this module perform all the tasks necessary for parsing this response for the application.
 """
 import os, io, json, csv, zipfile
+from typing import Any
 import requests
 
-
-#  Note: need to import from package when running from wheel.
-# if running locally through main.py file, these imports should be replaced
-#       from . import settings
-# annoying, but it is what it is.
 from scrilla import settings, static, errors
-
-import util.outputter as outputter
-import util.helper as helper
+from scrilla.util import outputter, helper, formatter 
+import scrilla.util.helper as helper
 
 logger = outputter.Logger("files", settings.LOG_LEVEL)
 
 static_tickers_blob, static_econ_blob, static_crypto_blob = None, None, None
 
-def load_file(file_name):
+def load_file(file_name: str) -> Any:
     with open(file_name, 'r') as infile:
         if settings.FILE_EXT == "json":
             file = json.load(infile)
         return file
         # TODO: implement other file loading extensions
 
-def save_file(file_to_save, file_name):
+def save_file(file_to_save: Any, file_name: str) -> bool:
     with open(file_name, 'w') as outfile:
         if settings.FILE_EXT == "json":
             try:
@@ -39,15 +48,15 @@ def save_file(file_to_save, file_name):
             
         # TODO: implement other file saving extensions.
 
-def set_credentials(value, which_key):
+def set_credentials(value: str, which_key: str) -> bool:
     file_name = os.path.join(settings.COMMON_DIR, f'{which_key}.{settings.FILE_EXT}')
     return save_file(file_to_save=value, file_name=file_name)
 
-def get_credentials(which_key):
+def get_credentials(which_key: str) -> str:
     file_name = os.path.join(settings.COMMON_DIR, f'{which_key}.{settings.FILE_EXT}')
     return load_file(file_name = file_name)
 
-def parse_csv_response_column(column, url, firstRowHeader=None, savefile=None, zipped=None):
+def parse_csv_response_column(column: int, url: str, firstRowHeader: str=None, savefile: str=None, zipped: str=None):
     """
     Parameters
     ----------
@@ -95,8 +104,6 @@ def parse_csv_response_column(column, url, firstRowHeader=None, savefile=None, z
 
 def init_static_data():
     """
-    Description
-    -----------
     Initializes the three static files defined in  settings: `STATIC_TICKERS_FILE`, `STATIC_CRYPTO_FILE` and `STATIC_ECON_FILE`. The data for these files is retrieved from the service managers. While this function blurs the lines between file management and service management, the function has been included in the `files.py` module rather than the `services.py` module due the unique response types of static metadata. All metadata is returned as a csv or zipped csvs. These responses require specialized functions. Moreover, these files should only be initialized the first time the application executes. Subsequent executions will refer to their cached versions residing in the local filesytems. 
 
     Raises
@@ -117,42 +124,40 @@ def init_static_data():
         # grab ticker symbols and store in STATIC_DIR
         if not os.path.isfile(settings.STATIC_TICKERS_FILE):
             if settings.PRICE_MANAGER == "alpha_vantage": 
-
+                service_map = static.keys["SERVICES"]["PRICES"]["ALPHA_VANTAGE"]["MAP"]
                 logger.debug(f'Missing {settings.STATIC_TICKERS_FILE}, querying \'{settings.PRICE_MANAGER}\'')
 
                 # TODO: services calls should be in services.py! need to put this and the helper method 
                 #       into services.py in the future. 
                 query=f'{settings.PARAM_AV_FUNC}={settings.ARG_AV_FUNC_EQUITY_LISTINGS}'
                 url = f'{settings.AV_URL}?{query}&{settings.PARAM_AV_KEY}={settings.AV_KEY}'
-
-                logger.debug(f'Preparsing to parse \'{settings.PRICE_MANAGER}\' Response to query: {query}')
-                static_tickers_blob = parse_csv_response_column(column=0, url=url, firstRowHeader=settings.AV_RES_EQUITY_KEY, 
-                                                        savefile=settings.STATIC_TICKERS_FILE)
+                static_tickers_blob = parse_csv_response_column(column=0, url=url, savefile=settings.STATIC_TICKERS_FILE,
+                                                                    firstRowHeader=service_map['KEYS']['EQUITY']['HEADER'])
 
             raise errors.ConfigurationError("No PRICE_MANAGER set in .env file!")
 
         # grab crypto symbols and store in STATIC_DIR
         if not os.path.isfile(settings.STATIC_CRYPTO_FILE):
             if settings.PRICE_MANAGER == "alpha_vantage": 
+                service_map = static.keys["SERVICES"]["PRICES"]["ALPHA_VANTAGE"]["MAP"]
                 logger.debug(f'Missing {settings.STATIC_CRYPTO_FILE}, querying \'{settings.PRICE_MANAGER}\'.')
                 url = settings.AV_CRYPTO_LIST
-
-                logger.debug(f'Preparsing to parse \'{settings.PRICE_MANAGER}\' Response to query: {query}')
-                static_crypto_blob = parse_csv_response_column(column=0, url=url, firstRowHeader=settings.AV_RES_CRYPTO_KEY, 
-                                                    savefile=settings.STATIC_CRYPTO_FILE)
+                static_crypto_blob = parse_csv_response_column(column=0, url=url, savefile=settings.STATIC_CRYPTO_FILE,
+                                                                firstRowHeader=service_map['KEYS']['CRYPTO']['HEADER'])
             raise errors.ConfigurationError("No PRICE_MANAGER set in .env file!")
             
         # grab econominc indicator symbols and store in STATIC_DIR
         if not os.path.isfile(settings.STATIC_ECON_FILE):
             if settings.STAT_MANAGER == "quandl":
+                service_map = static.keys["SERVICES"]["STATISTICS"]["QUANDL"]["MAP"]
+
                 logger.debug(f'Missing {settings.STATIC_ECON_FILE}, querying \'{settings.STAT_MANAGER}\'.')
 
-                query = f'{settings.PATH_Q_FRED}/{settings.PARAM_Q_METADATA}'
-                url = f'{settings.Q_META_URL}/{query}?{settings.PARAM_Q_KEY}={settings.Q_KEY}'
-
-                logger.debug(f'Preparsing to parse \'{settings.PRICE_MANAGER}\' Response to query: {query}')
-                static_econ_blob = parse_csv_response_column(column=0, url=url, firstRowHeader=settings.Q_RES_STAT_KEY,
-                                                    savefile=settings.STATIC_ECON_FILE, zipped=settings.Q_RES_STAT_ZIP_KEY)
+                query = f'{service_map["PATHS"]["FRED"]}/{service_map["PARAMS"]["METADATA"]}'
+                url = f'{settings.Q_META_URL}/{query}?{service_map["PARAMS"]["KEY"]}={settings.Q_KEY}'
+                static_econ_blob = parse_csv_response_column(column=0, url=url, savefile=settings.STATIC_ECON_FILE,
+                                                            firstRowHeader=service_map["KEYS"]["HEADER"],
+                                                             zipped=service_map["KEYS"]["ZIPFILE"])
 
             raise errors.ConfigurationError("No STAT_MANAGER set in .env file!")
 
@@ -161,8 +166,6 @@ def init_static_data():
 
 def get_static_data(static_type):
     """
-    Description
-    ----------- 
     Retrieves static data cached in the local or containerized file system. \n \n 
 
     Parameters
@@ -233,8 +236,6 @@ def get_static_data(static_type):
 
 def get_overlapping_symbols(equities=None, cryptos=None):
     """
-    Description
-    -----------
     Returns an array of symbols which are contained in both the STATIC_TICKERS_FILE and STATIC_CRYPTO_FILE, i.e. ticker symbols which have both a tradeable equtiy and a tradeable crypto asset. 
     """
     if equities is None:
@@ -247,15 +248,13 @@ def get_overlapping_symbols(equities=None, cryptos=None):
             overlap.append(crypto)
     return overlap
 
-def get_asset_type(symbol):
+def get_asset_type(symbol : str) -> str:
     """"
-    Description
-    -----------
     Returns the asset type of the supplied ticker symbol. \n \n
 
     Output
     ------
-    A string representing the type of asset of the symbol. Types are statically accessible through the ` settings` variables: ASSET_EQUITY and ASSET_CRYPTO. \n \n 
+    ``str``. Represents the type of asset of the symbol. Types are statically accessible through the `scrilla.static.keys['ASSETS]` dictionary. \n \n 
     """
     symbols = list(get_static_data(static.keys['ASSETS']['CRYPTO']))
     overlap = get_overlapping_symbols(cryptos=symbols)
@@ -275,7 +274,7 @@ def get_asset_type(symbol):
     # default to equity for overlap until a better method is determined. 
     return static.keys['ASSETS']['EQUITY']
     
-def get_watchlist():
+def get_watchlist() -> list:
     """
     Description
     -----------
@@ -297,7 +296,7 @@ def get_watchlist():
 
     return watchlist
 
-def add_watchlist(new_tickers):
+def add_watchlist(new_tickers: list) -> None:
     """
     Description
     -----------
@@ -319,111 +318,27 @@ def add_watchlist(new_tickers):
         if settings.FILE_EXT == "json":
             json.dump(current_tickers, outfile)
         # TODO: implement other file extensions
-
-def format_profiles(profiles):
-    profiles_format = []
-    for key, value in profiles.items():
-        holding = value
-        holding['ticker'] = key
-        profiles_format.append(holding)
-    return profiles_format
-
-def format_allocation(allocation, portfolio, investment=None):
-    allocation_format = []
-
-    if investment is not None:
-        shares = portfolio.calculate_approximate_shares(x=allocation, total=investment)
-        total = portfolio.calculate_actual_total(x=allocation, total=investment)
-
-    annual_volatility = portfolio.volatility_function(x=allocation) 
-    annual_return = portfolio.return_function(x=allocation)
-
-    for j, item in enumerate(portfolio.tickers):
-        holding = {}
-        holding['ticker'] = item
-        holding['allocation'] = round(allocation[j], static.constants['ACCURACY'])
-        if investment is not None:
-            holding['shares'] = float(shares[j])
-        holding['annual_return'] = round(portfolio.mean_return[j], static.constants['ACCURACY']) 
-        holding['annual_volatility'] = round(portfolio.sample_vol[j], static.constants['ACCURACY'])
-        allocation_format.append(holding)
-
-    json_format = {}
-    json_format['holdings'] = allocation_format
-
-    if investment is not None:
-        json_format['total'] = float(total)
-        
-    json_format['portfolio_return'] = annual_return
-    json_format['portfolio_volatility'] = annual_volatility
     
-    return json_format
-
-def format_frontier(portfolio, frontier, investment=None):
-    json_format = []
-    for i, item in enumerate(frontier):
-        json_format.append(format_allocation(allocation=item, portfolio=portfolio, 
-                                                            investment=investment))
-    return json_format
-
-def format_moving_averages(tickers, averages_output):
-    these_moving_averages, dates = averages_output
-
-    response = {}
-    for i, item in enumerate(tickers):
-        ticker_str=f'{item}'
-        MA_1_str, MA_2_str, MA_3_str = f'{ticker_str}_MA_1', f'{ticker_str}_MA_2', f'{ticker_str}_MA_3'    
-
-        subresponse = {}
-        if dates is None:
-            subresponse[MA_1_str] = these_moving_averages[i][0]
-            subresponse[MA_2_str] = these_moving_averages[i][1]
-            subresponse[MA_3_str] = these_moving_averages[i][2]
-
-        else:
-            subsubresponse_1, subsubresponse_2, subsubresponse_3 = {}, {}, {}
-    
-            for j, this_item in enumerate(dates):
-                date_str=helper.date_to_string(this_item)
-                subsubresponse_1[date_str] = these_moving_averages[i][0][j]
-                subsubresponse_2[date_str] = these_moving_averages[i][1][j]
-                subsubresponse_3[date_str] = these_moving_averages[i][2][j]
-
-            subresponse[MA_1_str] = subsubresponse_1
-            subresponse[MA_2_str] = subsubresponse_2
-            subresponse[MA_3_str] = subsubresponse_3
-
-        response[ticker_str] = subresponse
-    
-    return response
-
-def format_correlation_matrix(tickers, correlation_matrix):
-    response = {}
-    for i, item in enumerate(tickers):
-        # correlation_matrix[i][i]
-        for j in range(i+1, len(tickers)):
-            response[f'{item}_{tickers[j]}_correlation'] = correlation_matrix[j][i]
-    return response
-    
-def save_profiles(profiles, file_name):
-    save_format = format_profiles(profiles)
+def save_profiles(profiles: dict, file_name: str):
+    save_format = formatter.format_profiles(profiles)
     save_file(file_to_save=save_format, file_name=file_name)
 
 def save_allocation(allocation, portfolio, file_name, investment=None):
-    save_format = format_allocation(allocation=allocation, portfolio=portfolio, investment=investment)
+    save_format = formatter.format_allocation(allocation=allocation, portfolio=portfolio, investment=investment)
     save_file(file_to_save=save_format, file_name=file_name)
 
 def save_frontier(portfolio, frontier, file_name, investment=None):
-    save_format = format_frontier(portfolio=portfolio, frontier=frontier,investment=investment)
+    save_format = formatter.format_frontier(portfolio=portfolio, frontier=frontier,investment=investment)
     save_file(file_to_save=save_format, file_name=file_name)
 
 def save_moving_averages(tickers, averages_output, file_name):
-    save_format = format_moving_averages(tickers=tickers,averages_output=averages_output)
+    save_format = formatter.format_moving_averages(tickers=tickers,averages_output=averages_output)
     save_file(file_to_save=save_format, file_name=file_name)
 
 def save_correlation_matrix(tickers, correlation_matrix, file_name):
-    save_format = format_correlation_matrix(tickers=tickers, correlation_matrix=correlation_matrix)
+    save_format = formatter.format_correlation_matrix(tickers=tickers, correlation_matrix=correlation_matrix)
     save_file(file_to_save=save_format, file_name=file_name)
+    
 ################################################
 ##### FILE MANAGEMENT FUNCTIONS
 

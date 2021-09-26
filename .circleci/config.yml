@@ -19,15 +19,21 @@ commands:
       - run:
           name: artifact upload
           command: twine upload -u $PYPI_USERNAME -p $PYPI_PASSWORD dist/*
-  push:
-    description: push new version number to GitHub
+  commit:
+    description: commit new version to git
     steps:
-        - run: 
-            name: push version
-            command: |
-              echo "TODO"
+      - run:
+          name: commit version
+          command: |
+              git config user.email "chinchalinchin@gmail.com"
+              git config user.name "CircleCi Bot"
+              git stash
+              git checkout develop/main
+              git stash pop
+              git add . 
+              git commit -m "Pipeline Build Version $(cat ./src/scrilla/version.txt)"
+              git push --set-upstream origin develop/main
 
-  
 jobs:
   pypi_micro_update:
     docker:
@@ -41,7 +47,7 @@ jobs:
             python ./scripts/circleci/iterate_version.py micro
       - build
       - upload
-      - push
+      - commit
 
   pypi_minor_update:
     docker: 
@@ -55,7 +61,7 @@ jobs:
             python ./scripts/circleci/iterate_version.py minor
       - build
       - upload
-      - push
+      - commit
 
   pypi_major_update:
     docker: 
@@ -69,7 +75,7 @@ jobs:
             python ./scripts/circleci/iterate_version.py major
       - build
       - upload
-      - push
+      - commit
 
 workflows:
   version: 2

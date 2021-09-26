@@ -1,14 +1,11 @@
 import sys, os
-import numpy
 
 PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(PROJECT_DIR)
 
 
-import settings, services
-from analysis import blackscholes, optimizer
-from objects.portfolio import Portfolio
-from util import outputter, helper
+from analysis import optimizer
+from analysis.objects.portfolio import Portfolio
 
 
 if __name__=="__main__":

@@ -24,6 +24,8 @@ The links below will take you to the registration pages for each API service Key
 
 Note this application optimizes across asset classes, i.e. the theoretical portfolio being constructed can be composed of equities, cryptocurrencies or both. In a future release, I would like to include fixed income assets, volatility assets (<i>VIX</i> futures, options, etc.) and other derivatives, but for now, only those two asset types are supported. I am looking for a good API that provides historical data on the other types of financial instruments before I bring them into the optimization algorithm, so if you know of one, contact me. 
 
+See [module documentation](https://chinchalinchin.github.io/scrilla/) for more information.
+
 # Setup
 
 ## Installation
@@ -31,6 +33,18 @@ Note this application optimizes across asset classes, i.e. the theoretical portf
 Install the package with the <b>Python</b> package manager,
 
 `pip install scrilla` 
+
+This will install a command line interface on your path under the name `scrilla`. Confirm your installation with with the `-version` flag,
+
+`scrilla -version`
+
+To keep the installation as minimal as possible, the base package does not include the GUI libraries. You can install the optional GUI dependency with,
+
+`pip install scrilla[gui]`
+
+Note, the GUI has a different CLI entrypoint, namely,
+
+`scrilla-gui`
 
 If you prefer, you can build from source. `git clone` the [repository](https://github.com/chinchalinchin/scrilla) and then from the root directory build the library,
 
@@ -44,12 +58,16 @@ If you prefer, you can build from source. `git clone` the [repository](https://g
 
 You will need Python3.8 or greater. This application depends on the following <b>Python</b> libraries: 
 
+### Required
+- [dateutil](https://dateutil.readthedocs.io/en/stable/index.html)>=2.8.2<br>
+- [holidays](https://pypi.org/project/holidays/)>=0.10.4<br>
+- [matplotlib](https://pypi.org/project/matplotlib/)>=3.3.3<br>
+- [numpy](https://pypi.org/project/numpy/)>=1.19.3<br>
 - [python-dotenv](https://pypi.org/project/python-dotenv/)>=0.17.0<br>
 - [requests](https://pypi.org/project/requests/)>=2.25.0<br>
-- [numpy](https://pypi.org/project/numpy/)>=1.19.3<br>
 - [scipy](https://pypi.org/project/scipy/)>=1.5.4<br>
-- [matplotlib](https://pypi.org/project/matplotlib/)>=3.3.3<br>
-- [holidays](https://pypi.org/project/holidays/)>=0.10.4<br>
+
+### Optional
 - [PyQt5](https://pypi.org/project/PyQt5/)>=5.14<br>
 
 This libraries will be installed during the `pip install` command. If you wish to use the GUI, you will also need to ensure your operating system has a [Qt5](https://doc.qt.io/) library,
@@ -84,9 +102,19 @@ If no API keys are found in these variables, the application will not function p
 
 <b>scrilla</b> can be configured with the following optional environment variables. Each variable in this list has a suitable default set and so does not need changed unless the user prefers a different setting.
 
+- ANALYSIS_MODE
+
+The asset price model assumed during the estimation of statistics. A value of`geometric` corresponds geometric brownian motion model where the return is proportional to the asset price. The constant of proportionality is a random variable with a constant mean and volatility. A value of `reversion` refers to a mean reverting model where the return is proportional to the difference between the asset price and a stationary mean. The unit of proportionality is a random variable with constant mean and volatility.
+
+Note, it is highly recommended that if you change this value, you should clear the cache, as the cache stores frequent statistical calculations to speed up the program. The previous values of the statistics calculated under the prior model will be referenced and result in incorrect calculations.
+
+- DEFAULT_ESTIMATION_METHOD
+
+Determines the method used to calculate risk-return profiles. If set to `moments`, the return and volatility will be estimated by setting them equal to the first and second sample moments. If set to `percents`, the return and volatilty will be estimated by setting the 25th percentile and 75th percentile of the assumed distribution (see above <b>ANALYSIS_MODE</b>) equal to the 25th and 75th percentile from the sample of data. If set to `likely`, the likelihood function calculated from the assumed distribution (see <b>ANALYSIS_MODE</b> again) will be maximized with respect to the return and volatility; the values which maximize will be used as the estimates. 
+
 - RISK_FREE
 
-Determines which annualized US-Treasury yield is used as stand-in for the risk free rate. This variable will default to a value of `10-Year`, but can be modified to any of the following: `3-Month`, `5-Year`, `10-Year`, or `30-Year`.
+Determines which annualized US-Treasury yield is used as stand-in for the risk free rate. This variable will default to a value of `ONE_YEAR`, but can be modified to any of the following: `ONE_MONTH`, `THREE_MONTH`, `SIX_MONTH`, `ONE_YEAR`, `THREE_YEAR`, `FIVE_YEAR`, `TEN_YEAR`, `THIRTY_YEAR`.
 
 - MARKET_PROXY
 
@@ -95,7 +123,6 @@ Determines which ticker symbol is used as a proxy for the overall market return.
 - FRONTIER_STEPS
 
 Determines the number of data points in a portfolio's efficient frontier. This variable will default to a value of `5`, but can be set equal to any integer.
-
 
 - MA_1, MA_2, MA_3
 
@@ -172,7 +199,7 @@ Note the optimal share allocation does not allow fractional shares. <b>scrilla</
 
 The portfolio optimization can also be done by minimizing its conditional value at risk. Because the underlying calculations are a bit different, this function is accessed through a different command and requires different arguments. 
 
-The two new arguments are `prob` and `expiry`. `prob`, in essence, represents the percentile of the portfolio's distribution on which the value at risk will be conditioned. In other words, if the portfolio value is represented by a random variable P, for a given value of P=*p*, the `prob` is the probability such that, 
+The two new arguments are `prob` and `expiry`. `prob`, in essence, represents the percentile of the portfolio's distribution on which the value at risk will be conditioned. In other words, if the portfolio value is represented by a random variable **P**, for a given value of **P**=*p*, the `prob` is the probability such that, 
 
 `Probability(P<p)=prob`
 
@@ -182,28 +209,60 @@ With these two new arguments, a portfolio's conditional value at risk can be opt
 
 `scrilla -opt-cvar -prob 0.05 -expiry 0.5 ALLY BX SONY`
 
-The command given above will optimize the portfolio consisting of <b>ALLY</b>, <b>BX</b> and <b>SONY</b> over the next half year (`expiry` = 0.5) subject to the value at risk in the 5th percentile. 
+The command given above will optimize the portfolio's value at risk consisting of <b>ALLY</b>, <b>BX</b> and <b>SONY</b> over the next half year (`expiry` = 0.5) conditioned the value at risk being in the 5th percentile. 
 
 ### Other Notable Features
 
-1. Discount Dividend Model
+1. Distribution Modes
 
-<b>scrilla</b> will pull an equity's dividend payment history, regress the payment amount against its date and infer a linear regression from this time series. It will use this model to project future dividend payments and then calculate the current cost of equity and use that to discount the sum of dividend payments back to the present,
+<b>scrilla</b> will assume an asset price process and therefore a probability distribution for the population of asset returns. The model <b>scrilla</b> assumes is determined by the environment variable <b>ANALYSIS_MODE</b>. Currently, only one model is available: `geometric`, which corresponds to an assume price process that follows (Geometric Brownian Motion)[https://en.wikipedia.org/wiki/Geometric_Brownian_motion] and thus a probability distribution for the asset returns that is log-normal. 
+
+In the near future, a mean reversion model will implemented.
+
+2. Estimation Modes
+
+<b>scrilla</b> can estimate model parameters in a number of ways. The default estimation method is defined by the environment variable <b>DEFAULT_ESTIMATION_METHOD</b>, but all statistical functions can have their estimation overridden with a flag. <b>scrilla</b> supports three estimation modes: `moments`, `percents` and `likely`. 
+
+`moments` will use the [method of moment matching](https://en.wikipedia.org/wiki/Method_of_moments_(statistics)), where the moments of a sample of data are equated to the moments of the assumed distribution in order to determine the distribution parameters. `percents` will use the method of percentile matching, where the first and third quartile of the sample are equated to the theoretical distribution percentiles to determine the distribution parameters. `likely` will use [maximum likelihood estimation](https://en.wikipedia.org/wiki/Maximum_likelihood_estimation), where the probability of each observation given the assumed distribution is calculated and then the intersection of the probabilities is minimized with respect to the distribution parameters. (Note: the underlying distribution can be configured through the <b>ANALYSIS_MODE</b> environment variable; see [Environment](#environment) for more information)
+
+For example, the following command will return the risk profile of <b>ACI</b> using the method of moment matching,
+
+`scrilla -profile -moments ACI`
+
+Where as the following command will return the risk profile of <b>ACI</b> using maximum likelihood estimation,
+
+`scrilla -profile -likely ACI`
+
+And the following command will return the risk profile of <b>ACI</b> using the method of percentile matching,
+
+`scrilla -profile -percents ACI`
+
+Note, the following command,
+
+`scrilla -profile ACI`
+
+will return the risk profile of <b>ACI</b> using the method set in the <b>DEFAULT_ESTIMATION_METHOD</b> environment variable. If this variable is not set, it will default to a value of `moments`.
+
+2. Discount Dividend Model
+
+<b>scrilla</b> will pull an equity's dividend payment history, regress the payment amount against its date and infer a [simple linear regression model](https://en.wikipedia.org/wiki/Simple_linear_regression) from this time series. It will use this model to project future dividend payments and then calculate the current cost of equity and use that to discount the sum of dividend payments back to the present. The following command will perform this action,
 
 `scrilla -ddm ALLY`
 
-Alternatively, you can visualize the dividend payments against the regression model,
+Alternatively, you can visualize the dividend payments against the regression model with a <b>matplotlib</b> graphic,
 
 `scrilla -plot-div ALLY`
 
-2. Financial Statistics
+3. Financial Statistics
     - Beta: `scrilla -capm-beta [TICKERS]`
     - Correlation Matrix: `scrilla -cor [TICKERS]`
+    - Conditional Value At Risk `scrilla -cvar -prob PROB -expiry EXP [TICKERS]`
     - Cost Of Equity: `scrilla -capm-equity [TICKERS]`
-    - Risk-Return Profile: `scrilla -rr [TICKERS]`
+    - Risk-Return Profile: `scrilla -profile [TICKERS]`
     - Sharpe Ratio: `scrilla -sharpe [TICKERS]`
+    - Value At Risk: `scrilla -var -prob PROB -expiry EXP [TICKERS]`
 
-3. Stock Watchlist and Screening
+4. Stock Watchlist and Screening
 
 Stocks can be added to your watchlist with,
 
@@ -213,7 +272,7 @@ You can then screen stocks according to some criteria. For example, the followin
 
 `scrilla -screen -model DDM`
 
-4. Visualizations
+5. Visualizations
     - Discount Dividend Model: `scrilla -plot-div [TICKER]`
         - NOTE: THIS FUNCTION ONLY ACCEPTS ONE TICKER AT A TIME.
     - Efficient Fronter: `scrilla -plot-ef [TICKERS]`
@@ -221,123 +280,29 @@ You can then screen stocks according to some criteria. For example, the followin
     - Risk Return Profile: `scrilla -plot-rr [TICKERS]`
     - Yield Curve: `scrilla -plot-yield` (not implemented yet)
 
-## Programmatic 
+# Notes
 
-This package is made up of several top-level modules and various submodules, grouped according to the following name space:
+1. The following symbols have both equity and crypto assets trading on exchanges:
 
-- scrilla<br>
-    - main<br>
-    - files<br>
-    - services<br>
-    - settings<br>
-    - analysis<br>
-        - calculator<br>
-        - markets<br>
-        - optimizer<br>
-        - statistics<br>
-    - objects
-        - cashflow<br>
-        - portfolio<br>
-    - util<br>
-        - formatter<br>
-        - helper<br>
-        - outputter<br>
-        - plotter<br>
+['ABT', 'AC', 'ADT', 'ADX', 'AE', 'AGI', 'AI', 'AIR', 'AMP', 'AVT', 'BCC', 'BCD', 'BCH', 'BCX', 'BDL', 'BFT', 'BIS', 'BLK', 'BQ', 'BRX', 'BTA', 'BTG', 'CAT', 'CMP', 'CMT', 'CNX', 'CTR', 'CURE', 'DAR', 'DASH', 'DBC', 'DCT', 'DDF', 'DFS', 'DTB', 'DYN', 'EBTC', 'ECC', 'EFL', 'ELA', 'ELF','EMB', 'ENG', 'ENJ', 'EOS', 'EOT', 'EQT', 'ERC', 'ETH', 'ETN', 'EVX', 'EXP', 'FCT', 'FLO', 'FLT', 'FTC', 'FUN', 'GAM', 'GBX', 'GEO', 'GLD', 'GNT', 'GRC', 'GTO', 'INF', 'INS', 'INT', 'IXC', 'KIN', 'LBC', 'LEND', 'LTC', 'MAX', 'MCO', 'MEC', 'MED', 'MGC', 'MINT', 'MLN', 'MNE', 'MOD', 'MSP', 'MTH', 'MTN', 'MUE', 'NAV', 'NEO', 'NEOS', 'NET', 'NMR', 'NOBL', 'NXC', 'OCN', 'OPT', 'PBT', 'PING', 'PPC', 'PPT', 'PRG', 'PRO', 'PST', 'PTC', 'QLC', 'QTUM','R', 'RDN', 'REC', 'RVT', 'SALT', 'SAN', 'SC', 'SKY', 'SLS', 'SPR', 'SNX', 'STK', 'STX', 'SUB', 'SWT', 'THC', 'TKR', 'TRC', 'TRST', 'TRUE', 'TRX', 'TX', 'UNB', 'VERI', 'VIVO', 'VOX', 'VPN', 'VRM', 'VRS', 'VSL', 'VTC', 'VTR', 'WDC', 'WGO', 'WTT', 'XEL', 'NEM', 'ZEN']
 
-In general, you should not need to interact with any of the top level modules. <b>main</b> is the entrypoint for the CLI application, <b>files</b> is used to format and parse files and manage the local cache, <b>settings</b> parses environment variables to configure the application; these modules function entirely under the hood. On occasion, however, you may need to access <b>services</b>, as this is where raw data from the external services is requested and parsed. 
+Since there is no way good way to distinguish whether or not the asset is an equity or a cryptocurrency based on the value of the ticker alone, the module functions `scrilla.files.get_asset_type` and `scrilla.errors.validate_asset_type` will always default to the equity ticker for the above symbols. 
 
-### scrilla.services
+This is not the greatest solution, as all the crypto symbols given above are inaccessible to analysis. In particular, `ETH` represents a popular crypto that cannot be analyzed, which represents a major failing of the current application.
 
-The four functions of interest in this module are:
+The way the `service` module works, `PriceManager` can be forced to retrieve the crypto asset's prices instead of the equity asset's through the `services.PriceManager.get_prices` method by providing the method an argument of `asset_type='crypto'`; However, the `service` module function `services.get_daily_price_history`, which is the point of contact between the `PriceManager` and the rest of the application, wraps calls to the `PriceManager.get_prices` method in a cache persistence layer (meaning, `get_daily_price_history` checks if prices exist in the cache before passing the request off to an external service query). The cache doesn't distinguish asset types currently. The `PriceCache` stores prices based on the inputs (<i>ticker, date, open close, close price</i>). So, even if the `PriceManager` is forced to get crypto prices on the first call, subsequent calls to the same `get_daily_price_history` function will likely break the application, or at least lead to misleading results, since the cache will contain a set of prices that doesn't necessarily map one-to-one with its ticker symbol.
 
-1. `scrilla.services.get_daily_price_history(ticker, start_date=None, end_date=None)`<br>
-    <b>Description:</b><br>
-        This function will retrieve the price history for the equity specified by the `ticker` argument. `ticker` must be the symbol associated with the equity on the stock exchange, e.g. MSFT = Microsft, TSLA = Tesla, etc. If no `start_date` or `end_date` are provided, the function returns the last 100 trading days worth of information.
-    <br><br>
-    <b>Arguments:</b><br>
-    - `ticker : str` : Required. Ticker symbol of the equity.<br>
-    - `start_date: datetime.date` : Optional. Start date of analysis range. Defaults to `None`<br> 
-    - `end_date: datetime.date` : Optional. End date of analysis range. Defaults to `None`<br>
+If the above problem is to be solved, the cache needs modified to separate prices based on asset type.
 
-    <b>Returns:</b><br>
-    a dictionary of prices with the `YYYY-MM-DD` formatted date as key. The dictionary is sorted latest price to earliest price.<br>
-    
-2. `scrilla.services.get_daily_stat_history(symbol, start_date=None, end_date=None)`<br>
-    <b>Description:</b><br>
-        This function will retrieve the price history for the financial statistic specifed by the `statistic` argument. 
-    <br><br>
-    <b>Arguments:</b><br>
-    - `symbol : str`: Required. Statistic symbol for quantity of interest. A list of allowable values can be found [here](https://www.quandl.com/data/FRED-Federal-Reserve-Economic-Data/documentation)<br>
-    - `start_date: datetime.date` : Optional. Start date of analysis range. Defaults to `None`<br> 
-    - `end_date: datetime.date` : Optional. End date of analysis range. Defaults to `None`<br>
+2. There is a slight discrepancy between the results of maximum likelihood estimation and moment matching when the underyling distribution of the price process is log-normal. The likelihood algorithm in this library relies on the generalized idea of likelihood estimation; it will compute the log-likelihood function for a given vector of parameters and then optimize that function by varying the vector until the input that produces the maximum output; the usual matter of course is to derive a formula using calculus that can then be analytically solved. Both operations should be equivalent. Moreover, theoretically, it can be shown the maximization operation should be equivalent to the results obtained by the moment matching operation, i.e the maximum likelihood estimator for the mean is the sample mean, etc. However, the results between maximum likelihood estimation and moment matching are off by a few decimal points. It may be due to some vagary of floating point arithmetic, but something else may be going on. See comments in `scrilla.analysis.models.geometric.statistics'
 
-3. `scrilla.services.get_dividend_history(ticker)`<br>
-    <b>Description:</b><br>
-        This function will retrieve the dividend payment history (i.e. the date on which the payment was <i>made</i>, not the date the payment was declared) for the equity specified by the `ticker` arugment. `ticker` must be the symobl assoccaited with the equity on the stock exchange. 
-    <br><br>
-    <b>Arguments:</b><br>
-    - `ticker : str` : Required. Ticker symbol of the equity.<br>
 
-4. `scrilla.services.get_risk_free_rate()`<br>
-    <b>Description: </b><br>
-        This function will retrieve the current value of the risk free rate (annualized yield on a US Treasury). The risk free rate can be configured through the <b>RISK_FREE</b> environment variable. See [optional configuration](#optional-configuration) for more details.
-    <br>
-
-### scrilla.analysis.markets
-
-1. `scrilla.analysis.markets.sharpe_ratio`<br>
-
-2. `scrilla.analysis.markets.market_premium`<br>
-
-3. `scrilla.analysis.markets.market_beta`<br>
-
-4. `scrilla.analysis.markets.cost_of_equity`<br>
-
-### scrilla.analysis.optimizer
-
-1. `scrilla.analysis.optimizer.optimize_portfolio_variance`<br>
-
-2. `scrilla.analysis.optimizer.maximize_sharpe_ratio`<br>
-
-3. `scrilla.analysis.optimizer.maximize_portfolio_return`<br>
-    <b>Description:</b><br>
-        description goes here
-    <br><br>
-    <b>Note:</b><br>
-        The rate of return of a portfolio of assets is a linear function with respect to the asset weights. IAs a result, this function should always allocate 100% of any given portfolio to the asset with the highest expected rate of return, i.e. if you have two assets where one asset has a 10% rate of return and a second asset has a 20% rate of return, the maximum rate of return for a portfolio composed of both assets is produced when 100% of the portfolio is invested in the asset with a 20% rate of return.<br>
-
-### scrilla.analysis.statistics
-
-1. `scrilla.analysis.statistics.sample_correlation`<br>
-
-2. `scrilla.analysis.statistics.recursive_rolling_correlation`<br>
-
-3. `scrilla.analysis.statistics.sample_mean`<br>
-
-4. `scrilla.anaylsis.statistics.recursive_rolling_mean`<br>
-
-5. `scrilla.anaylsis.statistics.sample_variance`<br>
-
-6. `scrilla.analysis.statistics.recursive_rolling_variance`<br>
-
-7. `scrilla.anaylsis.statistics.sample_covariance`<br>
-
-8. `scrilla.anaylsis.statistics.recursive_rolling_covariance`<br>
-
-9. `scrilla.analysis.statistics.regression_beta`<br>
-
-10. `scrilla.analysis.statistics.regression_alpha`<br>
-
-11. `scrilla.analysis.statistics.calculate_moving_averages`<br>
-
-12. `scrilla.analysis.statistics.calculate_risk_return`<br>
-
-13. `scrilla.analysis.statistics.calculate_return_covariance`<br>
-
-14. `scrilla.analysis.statistics.calculate_ito_correlation`<br>
-
-15. `scrilla.anaylsis.statistics.ito_correlation_matrix`<br>
-
-### scrilla.objects.cashflow.Cashflow
-
-### scrilla.objects.portfolio.Portfolio
+# Documentation
+- [dateutil](https://dateutil.readthedocs.io/en/stable/index.html)
+- [holidays](https://github.com/dr-prodigy/python-holidays)
+- [matplotlib](https://matplotlib.org/)
+- [numpy](https://numpy.org/doc/)
+- [pyqt](https://doc.qt.io/qtforpython/)
+- [requests](https://docs.python-requests.org/en/latest/)
+- [scipy](https://www.scipy.org/docs.html)
+- [sqlite3](https://docs.python.org/3/library/sqlite3.html)

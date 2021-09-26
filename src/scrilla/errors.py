@@ -1,66 +1,85 @@
-from scrilla import settings, files, static
+# This file is part of scrilla: https://github.com/chinchalinchin/scrilla.
 
-import util.helper as helper
+# scrilla is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3
+# as published by the Free Software Foundation.
+
+# scrilla is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with scrilla.  If not, see <https://www.gnu.org/licenses/>
+# or <https://github.com/chinchalinchin/scrilla/blob/develop/main/LICENSE>.
+
+from typing import Tuple, Union
+from datetime import date
+from scrilla import settings, files, static
+from scrilla.util import dater, helper
 
 class InputValidationError(Exception):
-    def __init__(self, message):
-        super().__init__(message)
+    pass
 
 class APIResponseError(Exception):
-    def __init__(self, message):
-        super().__init__(message)
+    pass
 
 class APIKeyError(Exception):
-    def __init__(self, message):
-        super().__init__(message)
+    pass
 
 class ConfigurationError(Exception):
-    def __init__(self, message):
-        super().__init__(message)
+    pass
 
 class SampleSizeError(Exception):
-    def __init__(self, message):
-        super().__init__(message)
+    pass
 
 class PriceError(Exception):
-    def __init__(self, message):
-        super().__init__(message)
+    pass
 
-def validate_asset_type(ticker, asset_type=None):
+class UnboundedIntegral(Exception):
+    pass
+
+def validate_asset_type(ticker: str, asset_type: Union[str, None]=None) -> str:
+    """
+    
+    """
     if asset_type is None:
         asset_type = files.get_asset_type(ticker) 
         if asset_type is None:
             raise InputValidationError(f'{ticker} cannot be mapped to (crypto, equity) asset classes')
         return asset_type
-    if asset_type == static.keys['ASSETS']['CRYPTO'] or asset_type == static.keys['ASSETS']['EQUITY']:
+    if asset_type in [static.keys['ASSETS']['CRYPTO'], static.keys['ASSETS']['EQUITY'], static.keys['ASSETS']['BOND']]:
         return asset_type
     raise InputValidationError(f'{ticker} cannot be mapped to (crypto, equity) asset classes')
 
-def validate_dates(start_date, end_date, asset_type):
-    # verify dates are in order if they exist
-    if end_date is not None and start_date is not None:
-        start_date, end_date = helper.validate_order_of_dates(start_date, end_date)
-
+def validate_dates(start_date: date, end_date: date, asset_type: str) -> Tuple[date, date]:
+    """
+    
+    """
     # if end date exists, make sure it is valid
     if end_date is not None:
-        end_date = helper.truncate_future_from_date(end_date)
-        if asset_type == static.keys['ASSETS']['EQUITY'] and not helper.is_trading_date(end_date):
-            end_date = helper.get_previous_business_date(end_date)
+        end_date = dater.truncate_future_from_date(end_date)
+        if asset_type == static.keys['ASSETS']['EQUITY']:
+            end_date = helper.this_date_or_last_trading_date(end_date)
     # else create a sensible end date
     else:
         if asset_type == static.keys['ASSETS']['CRYPTO']:
-            end_date = helper.get_today()
+            end_date = dater.get_today()
         else:
             end_date = helper.get_last_trading_date()        
 
+    # verify dates are in order if they exist after end_date is possibly changed
+    if end_date is not None and start_date is not None:
+        start_date, end_date = helper.validate_order_of_dates(start_date, end_date)
+
     # if start date exists, make sure it is valide
     if start_date is not None:
-        if helper.is_future_date(start_date):
+        if dater.is_future_date(start_date):
             # only invalid user input is if start date doesn't exist yet
             raise InputValidationError(f'Start date of {helper.date_to_string(start_date)} is greater than today')
 
-        if asset_type == static.keys['ASSETS']['EQUITY'] and not helper.is_trading_date(start_date):
-            start_date = helper.get_previous_business_date(start_date)
+        if asset_type == static.keys['ASSETS']['EQUITY']:
+            start_date = helper.this_date_or_last_trading_date(start_date)
 
     # else create a sensible start date
     else:

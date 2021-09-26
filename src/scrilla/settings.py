@@ -1,5 +1,19 @@
+# This file is part of scrilla: https://github.com/chinchalinchin/scrilla.
+
+# scrilla is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3
+# as published by the Free Software Foundation.
+
+# scrilla is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with scrilla.  If not, see <https://www.gnu.org/licenses/>
+# or <https://github.com/chinchalinchin/scrilla/blob/develop/main/LICENSE>.
+
 import os, sys, dotenv, json
-from scrilla import static
 
 APP_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_DIR = os.path.dirname(APP_DIR)
@@ -7,11 +21,11 @@ ROOT_DIR = os.path.dirname(PROJECT_DIR)
 
 sys.path.append(APP_DIR)
 
-import util.outputter as outputter
+
+import scrilla.util.outputter as outputter
 
 class APIKeyError(Exception):
-    def __init__(self, message):
-        super().__init__(message)
+    pass
 
 ## APPLICATION CONFIGURATION
 """
@@ -24,7 +38,6 @@ performed by the application. \n \n
 Attributes
 ----------
 1. APP_NAME: Name of the application. \n \n
-2. VERSION: Version of the application. \n \n
 3. APP_DIR: Folder containing this file. \n \n
 4. APP_ENV: Application environment. \n \n
 5. LOG_LEVEL: Debug output level. \n \n
@@ -69,48 +82,34 @@ Attributes
 54. Q_URL: Base URL for Quandl query. \n \n
 55. Q_KEY: Credentials for Quandl query. \n \n
 56. Q_META_URL: URL for economic statistics data. \n \n
-57. Q_FIRST_LAYER: First key for Quandl response. \n \n
-58. Q_SECOND_LAYER: Second key for Quandl response. \n \n
-59. Q_RES_STAT_KEY: Column key for Quandl response. \n \n
-60. Q_RES_STAT_ZIP_KEY: Column key for Quandl response. \n \n
-61. PATH_Q_FRED: Path parameter for Quandl query. \n \n
-62. PARAM_Q_KEY: Quandl API key query parameter. \n \n
-63. PARAM_Q_METADATA: Quandl metadata query parameter. \n \n
-64. PARAM_Q_START: Quandl start date query parameter. \n \n
-65. PARAM_Q_END: Quandl end date query parameter. \n \n
 66. ARG_Q_YIELD_CURVE: Quandl constant for interest rate histories. \n \n
 """
 
 APP_NAME="scrilla"
-
 APP_ENV = os.environ.setdefault('APP_ENV', 'local')
 
 # NOTE: Load in local.env file if not running application container. Container should 
 # already have the container.env file preloaded in its environment.
-if APP_ENV != 'container':
+env_file = os.path.join(os.path.join(ROOT_DIR,'env'), '.env')
+if APP_ENV != 'container' and os.path.isfile(env_file):
     dotenv.load_dotenv(os.path.join(os.path.join(ROOT_DIR,'env'), '.env'))
 
 LOG_LEVEL = str(os.environ.setdefault("LOG_LEVEL", "info")).lower()
-
 logger = outputter.Logger('settings', LOG_LEVEL)
 
-# TODO: CACHE only supports JSON currently. Future file extensions: csv and txt.
+# TODO: save formatting only supports JSON currently. Future file extensions: csv and txt.
 FILE_EXT = os.environ.setdefault("FILE_EXT", "json")
 
 CACHE_DIR = os.path.join(APP_DIR, 'data', 'cache')
-CACHE_SQLITE_FILE = os.path.join(CACHE_DIR, 'scrilla.db')
+CACHE_SQLITE_FILE = os.environ.setdefault('SQLITE_FILE', os.path.join(CACHE_DIR, 'scrilla.db'))
 
 STATIC_DIR = os.path.join(APP_DIR, 'data', 'static')
-
 STATIC_TICKERS_FILE = os.path.join(STATIC_DIR, f'tickers.{FILE_EXT}')
 STATIC_ECON_FILE = os.path.join(STATIC_DIR, f'economics.{FILE_EXT}')
 STATIC_CRYPTO_FILE = os.path.join(STATIC_DIR, f'crypto.{FILE_EXT}')
 
 COMMON_DIR=os.path.join(APP_DIR, 'data', 'common')
 COMMON_WATCHLIST_FILE=os.path.join(COMMON_DIR, f'watchlist.{FILE_EXT}')
-
-# See .sample.env for more information.
-LOCAL_CACHE = os.environ.setdefault('LOCAL_CACHE_ENABLED', 'true').strip().lower() == 'true'
 
 ## GUI CONFIGURATION
 try:
@@ -165,15 +164,18 @@ except (ValueError, TypeError) as ParseError:
 
 try:
     DEFAULT_ANALYSIS_PERIOD=int(os.environ.setdefault('DEFAULT_ANALYSIS_PERIOD', '100'))
-except:
+except (ValueError, TypeError) as ParseError:
     logger.debug('Failed to parse DEFAULT_ANALYSIS_PERIOD from environment. Setting to default of 100.')
     DEFAULT_ANALYSIS_PERIOD=100
     os.environ['DEFAULT_ANALYSIS_PERIOD']=100
 
-# SEE: ARG_Q_YIELD_CURVE for allowabled values
-RISK_FREE_RATE=os.environ.setdefault("RISK_FREE", "10-Year").strip("\"")
+RISK_FREE_RATE=os.environ.setdefault("RISK_FREE", "TEN_YEAR").strip("\"")
 
 MARKET_PROXY=os.environ.setdefault('MARKET_PROXY', 'SPY')
+
+ANALYSIS_MODE=os.environ.setdefault('ANALYSIS_MODE', 'geometric')
+
+ESTIMATION_METHOD=os.environ.setdefault('DEFAULT_ESTIMATION_METHOD', 'moments')
 
 ## SERVICE CONFIGURATION
 ### PRICE_MANAGER CONFIGRUATION
@@ -182,7 +184,8 @@ PRICE_MANAGER = os.environ.setdefault('PRICE_MANAGER', 'alpha_vantage')
 #### ALPHAVANTAGE CONFIGURATION
 if PRICE_MANAGER == 'alpha_vantage':
     AV_URL = os.environ.setdefault('ALPHA_VANTAGE_URL', 'https://www.alphavantage.co/query').strip("\"").strip("'")
-    
+    AV_CRYPTO_LIST=os.environ.setdefault('ALPHA_VANTAGE_CRYPTO_META_URL', 'https://www.alphavantage.co/digital_currency_list/')
+
     AV_KEY = os.environ.setdefault('ALPHA_VANTAGE_KEY', '')
     if not AV_KEY:
         keystore = os.path.join(COMMON_DIR, f'ALPHA_VANTAGE_KEY.{FILE_EXT}')
@@ -194,20 +197,13 @@ if PRICE_MANAGER == 'alpha_vantage':
 
     if not AV_KEY:
         raise APIKeyError('Alpha Vantage API Key not found. Either set ALPHA_VANTAGE_KEY environment variable or use "-store" CLI function to save key.')
-             
-    # Metadata Endpoints
-    AV_CRYPTO_LIST=os.environ.setdefault('ALPHA_VANTAGE_CRYPTO_META_URL', 'https://www.alphavantage.co/digital_currency_list/')
-    
+                 
     # Response Keys
-        # SHOULD BE PART OF PRICE_MANAGER class properties!
+        # should be part of static.py
     AV_RES_EQUITY_FIRST_LAYER='Time Series (Daily)'
     AV_RES_EQUITY_CLOSE_PRICE="4. close"
     AV_RES_EQUITY_OPEN_PRICE="1. open"
-    AV_RES_EQUITY_KEY="symbol"
     AV_RES_CRYPTO_FIRST_LAYER='Time Series (Digital Currency Daily)'
-    AV_RES_CRYPTO_KEY="currency code"
-    AV_RES_CRYPTO_CLOSE_PRICE=f'4a. close ({static.constants["DENOMINATION"]})'
-    AV_RES_CRYPTO_OPEN_PRICE=f'1a. open ({static.constants["DENOMINATION"]})'
     AV_RES_ERROR='Error Message'
     AV_RES_LIMIT='Note'
     AV_RES_DAY_LIMIT='Information'
@@ -231,7 +227,7 @@ STAT_MANAGER = os.environ.setdefault('STAT_MANAGER', 'quandl')
 #### QUANDL CONFIGURAITON
 if STAT_MANAGER == "quandl":
     Q_URL = os.environ.setdefault('QUANDL_URL', 'https://www.quandl.com/api/v3/datasets').strip("\"").strip("'")
-    
+    Q_META_URL = os.environ.setdefault('QUANDL_META_URL' ,'https://www.quandl.com/api/v3/databases')
     Q_KEY = os.environ.setdefault('QUANDL_KEY', '')
 
     if not Q_KEY:
@@ -244,34 +240,6 @@ if STAT_MANAGER == "quandl":
 
     if not Q_KEY:
         raise APIKeyError('Quandl API Key not found. Either set QUANDL_KEY environment variable or use "-store" CLI function to save key.')
-
-    # Metadata Endpoints
-    Q_META_URL = os.environ.setdefault('QUANDL_META_URL' ,'https://www.quandl.com/api/v3/databases')
-
-    # Response Keys
-    Q_FIRST_LAYER="dataset"
-    Q_SECOND_LAYER="data"
-    Q_RES_STAT_KEY="code"
-    Q_RES_STAT_ZIP_KEY="FRED_metadata.csv"
-
-    # Path Paramaters
-    PATH_Q_FRED ="FRED"
-
-    # Special Endpoints
-    ARG_Q_YIELD_CURVE = {
-        'Overnight': 'DFF',
-        '3-Month': 'DTB3',
-        '5-Year': 'DGS5',
-        '10-Year': 'DGS10',
-        '30-Year': 'DGS30'
-    }
-    RISK_FREE_RATE=ARG_Q_YIELD_CURVE[RISK_FREE_RATE]
-        
-    # Query Parameters
-    PARAM_Q_KEY="api_key"
-    PARAM_Q_METADATA="metadata.json"
-    PARAM_Q_START="start_date"
-    PARAM_Q_END="end_date"
 
 ### DIVIDEND_MANAGER CONFIGURATION
 DIV_MANAGER=os.environ.setdefault("DIV_MANAGER", 'iex')

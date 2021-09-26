@@ -1,7 +1,6 @@
 import datetime, sys
 
-import  util.helper as helper
-import  util.formatter as formatter
+import scrilla.util.formatter as formatter
 
 LOG_LEVEL_NONE = "none"
 LOG_LEVEL_INFO = "info"
@@ -49,6 +48,12 @@ def scalar_result(calculation, result, currency=True):
         else:
             print(' '*formatter.INDENT, '>>', calculation, ' = ', result)
 
+def percent_result(calculation, result):
+    try:
+        print(' '*formatter.INDENT, '>>', calculation, ' = ', round(float(result), 4), '%')
+    except ValueError as ve:
+        raise ve
+
 def equivalent_result(right_hand, left_hand, value):
     print(' '*formatter.INDENT, '>>', f'{right_hand} = {left_hand} = {value}')
 
@@ -82,10 +87,11 @@ def option(opt, explanation):
 
 def help_msg():
     title_line(formatter.APP_NAME)
-    explanation=break_lines(formatter.HELP_MSG)
-    for l in explanation:
-        center(l)
-    return_line()
+    for paragraph in formatter.HELP_MSG:
+        explanation=break_lines(paragraph)
+        for l in explanation:
+            center(l)
+        return_line()
 
     title_line('SYNTAX')
     center(formatter.SYNTAX)
@@ -201,6 +207,67 @@ def efficient_frontier(portfolio, frontier, investment=None, save_file=None):
         scalar_result('Return', portfolio.return_function(allocation), currency=False)
         scalar_result('Volatility', portfolio.volatility_function(allocation), currency=False)
         return_line()
+
+def correlation_matrix(tickers, correlation_matrix):
+    """
+    Parameters
+    ----------
+    1. tickers : [str] \n
+        Array of tickers for which the correlation matrix will be calculated and formatted. \n \n
+    2. indent : int \n 
+        Amount of indent on each new line of the correlation matrix. \n \n
+    3. start_date : datetime.date \n 
+        Start date of the time period over which correlation will be calculated. \n \n 
+    4. end_date : datetime.date \n 
+        End date of the time period over which correlation will be calculated. \n \n  
+    
+    Output
+    ------
+    A correlation matrix string formatted with new lines and spaces.\n
+    """
+    entire_formatted_result, formatted_title = "", ""
+
+    line_length, first_symbol_length = 0, 0
+    new_line=""
+    no_symbols = len(tickers)
+
+    for i in range(no_symbols):
+        this_symbol = tickers[i]
+        symbol_string = ' '*formatter.INDENT + f'{this_symbol} '
+
+        if i != 0:
+            this_line = symbol_string + ' '*(line_length - len(symbol_string) - 7*(no_symbols - i))
+            # NOTE: seven is number of chars in ' 100.0%'
+        else: 
+            this_line = symbol_string
+            first_symbol_length = len(this_symbol)
+
+        new_line = this_line
+        
+        for j in range(i, no_symbols):
+            if j == i:
+                new_line += " 100.0%"
+            
+            else:
+                result = correlation_matrix[i][j]
+                formatted_result = str(100*result)[:formatter.SIG_FIGS]
+                new_line += f' {formatted_result}%'
+
+        entire_formatted_result += new_line + '\n'
+        
+        if i == 0:
+            line_length = len(new_line)
+
+    formatted_title += ' '*(formatter.INDENT + first_symbol_length+1)
+    for symbol in tickers:
+        sym_len = len(symbol)
+        formatted_title += f' {symbol}'+ ' '*(7-sym_len)
+        # NOTE: seven is number of chars in ' 100.0%'
+    formatted_title += '\n'
+
+    whole_thing = formatted_title + entire_formatted_result
+
+    print_below_new_line(f'\n{whole_thing}')
 
 class Logger():
 

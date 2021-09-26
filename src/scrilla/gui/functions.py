@@ -1,18 +1,30 @@
+# This file is part of scrilla: https://github.com/chinchalinchin/scrilla.
+
+# scrilla is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3
+# as published by the Free Software Foundation.
+
+# scrilla is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with scrilla.  If not, see <https://www.gnu.org/licenses/>
+# or <https://github.com/chinchalinchin/scrilla/blob/develop/main/LICENSE>.
+
 import time
 
 from PyQt5 import Qt, QtCore, QtWidgets
 
-import  analysis.statistics as statistics
-import  settings
-import  analysis.optimizer as optimizer
-import  objects.portfolio as portfolio
+import scrilla.analysis.models.geometric.statistics as statistics
+from scrilla import settings
+import scrilla.analysis.optimizer as optimizer
+import scrilla.analysis.objects.portfolio as portfolio
 
-import  util.outputter as outputter
-import  util.formatter as formatter
-import  util.helper as helper
-import  util.plotter as plotter
+from scrilla.util import outputter, formatter, helper, plotter
 
-from  gui.widgets import CompositeWidget, GraphWidget, \
+from scrilla.gui.widgets import CompositeWidget, GraphWidget, \
                             TableWidget, PortfolioWidget
 
 logger = outputter.Logger('gui.functions', settings.LOG_LEVEL)
@@ -37,7 +49,7 @@ class RiskReturnWidget(CompositeWidget):
 
         for symbol in user_symbols:
             logger.debug(f'Calculating {symbol} Risk-Return Profile')
-            stats = statistics.calculate_risk_return(symbol)
+            stats = statistics.calculate_moment_risk_return(symbol)
             if stats:
                 formatted_ret = str(100*stats['annual_return'])[:formatter.SIG_FIGS]+"%"
                 formatted_vol = str(100*stats['annual_volatility'])[:formatter.SIG_FIGS]+"%"
@@ -68,7 +80,7 @@ class RiskReturnWidget(CompositeWidget):
         user_symbols = helper.strip_string_array(self.symbol_input.text().upper().split(","))
         profiles = []
         for symbol in user_symbols:
-            profiles.append(statistics.calculate_risk_return(symbol))
+            profiles.append(statistics.calculate_moment_risk_return(symbol))
 
         figure = plotter.plot_profiles(symbols=user_symbols, profiles=profiles, show=False)
         self.figure = figure
@@ -108,7 +120,7 @@ class CorrelationWidget(TableWidget):
                         
                     else:    
                         logger.debug(f'Calculating correlation for ({value}, {user_symbols[j]})')
-                        correlation = statistics.calculate_ito_correlation(value, user_symbols[j])
+                        correlation = statistics.calculate_moment_correlation(value, user_symbols[j])
                         formatted_correlation = str(100*correlation["correlation"])[:formatter.SIG_FIGS]+"%"
                         item_1 = QtWidgets.QTableWidgetItem(formatted_correlation)
                         item_1.setTextAlignment(QtCore.Qt.AlignHCenter)
@@ -155,8 +167,8 @@ class OptimizerWidget(PortfolioWidget):
             this_portfolio = portfolio.Portfolio(tickers=user_symbols)
             allocation = optimizer.optimize_portfolio_variance(portfolio=this_portfolio)
             
-            logger.debug(helper.format_allocation_profile(allocation, this_portfolio))
-            self.result.setText(helper.format_allocation_profile(allocation, this_portfolio))
+            logger.debug(formatter.format_allocation_profile_title(allocation, this_portfolio))
+            self.result.setText(formatter.format_allocation_profile_title(allocation, this_portfolio))
 
             self.result_table.setRowCount(no_symbols)
             self.result_table.setVerticalHeader(QtWidgets.QHeaderView(QtCore.Qt.Vertical))
