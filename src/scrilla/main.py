@@ -13,6 +13,13 @@
 # along with scrilla.  If not, see <https://www.gnu.org/licenses/>
 # or <https://github.com/chinchalinchin/scrilla/blob/develop/main/LICENSE>.
 
+"""
+# CLI Entrypoint 
+This script acts as the entrypoint for the CLI application and contains the majority of the control structures for the program. It parses the arguments supplied through the command line, delegates them to the appropriate application function and then passes the results to the `scrilla.outputter` module functions for formatting and printing to screen.
+
+The arguments are parsed in such a way that arguments which are not supplied are set to None. All application functions are set up to accept None as a value for their optional arguments. This makes passing arguments to application functions easier as the `main.py` script doesn't have to worry about their values. In other words, `main.py` always passes all arguments to application functions, even if they aren't supplied through the command line; it just sets the ones which aren't supplied to None.
+"""
+
 import sys, os, traceback, json
 from typing import Callable
 
@@ -31,15 +38,6 @@ if settings.APP_ENV != "container":
 
 logger = outputter.Logger('main', settings.LOG_LEVEL)
 
-"""
-# CLI Entrypoint 
-This script acts as the entrypoint for the CLI application and contains the majority of the control structures for the program. It parses the arguments supplied through the command line, delegates them to the appropriate application function and then passes the results to the `scrilla.outputter` module functions for formatting and printing to screen.
-
-The arguments are parsed in such a way that arguments which are not supplied are set to None. All application functions are set up to accept None as a value for their optional arguments. This makes passing arguments to application functions easier as the `main.py` script doesn't have to worry about their values. In other words, `main.py` always passes all arguments to application functions, even if they aren't supplied through the command line; it just sets the ones which aren't supplied to None.
-
-.. notes::
-    * The idea behind the structure of the modules in this library is as follows: each sub-module should only depend on the sub-modules above it in the hierarchy of modules. At the top level, the modules are: `cache`, `errors`, `files`, `graphics`, `services`, `settings` and `static`. All of this modules are relatively independent (except the `settings` module which configures aspects of all the other modules, but it is made up entirely of values parsed from the environment and shouldn't introduce any circular dependencies), and expose mutually exclusive functionality. As you drill down in the sub-modules, the functions therein contain dependencies on the modules above them; for instance, the `analysis.markets` has dependencies on `services`, but `services` does not have dependencies on `analysis.markets`. There are instances where this design principle has been violated, but by and large, this is the motivating idea behind this project's organization.
-"""
 non_container_functions = [formatter.FUNC_ARG_DICT['plot_dividends'], formatter.FUNC_ARG_DICT['plot_moving_averages'],
                                formatter.FUNC_ARG_DICT['plot_risk_profile'], formatter.FUNC_ARG_DICT['plot_frontier']]
 

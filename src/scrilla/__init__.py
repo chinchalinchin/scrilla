@@ -12,4 +12,8 @@ The links below will take you to the registration pages for each API service Key
 [IEX API Key Registration](https://iexcloud.io/)<br>
 
 Note this application optimizes across asset classes, i.e. the theoretical portfolio being constructed can be composed of equities, cryptocurrencies or both. In a future release, I would like to include fixed income assets, volatility assets (<i>VIX</i> futures, options, etc.) and other derivatives, but for now, only those two asset types are supported. I am looking for a good API that provides historical data on the other types of financial instruments before I bring them into the optimization algorithm, so if you know of one, contact me. 
+
+.. notes::
+    * The idea behind the structure of the modules in this library is as follows: each sub-module should only depend on the sub-modules above it in the hierarchy of modules. At the top level, the modules are: `cache`, `errors`, `files`, `graphics`, `services`, `settings` and `static`. All of this modules are relatively independent (except the `settings` module which configures aspects of all the other modules, but it is made up entirely of values parsed from the environment and shouldn't introduce any circular dependencies), and expose mutually exclusive functionality. As you drill down in the sub-modules, the functions therein contain dependencies on the modules above them; for instance, the `analysis.markets` has dependencies on `services`, but `services` does not have dependencies on `analysis.markets`. There are instances where this design principle has been violated out of necessity, but by and large, this is the motivating idea behind this project's organization.
+
 """

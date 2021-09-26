@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.10.0" />
 <title>scrilla.main API documentation</title>
-<meta name="description" content="" />
+<meta name="description" content="CLI Entrypoint
+This script acts as the entrypoint for the CLI application and contains the majority of the control structures for the program. It …" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
 <link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
@@ -23,6 +24,9 @@
 <h1 class="title">Module <code>scrilla.main</code></h1>
 </header>
 <section id="section-intro">
+<h1 id="cli-entrypoint">CLI Entrypoint</h1>
+<p>This script acts as the entrypoint for the CLI application and contains the majority of the control structures for the program. It parses the arguments supplied through the command line, delegates them to the appropriate application function and then passes the results to the <code>scrilla.outputter</code> module functions for formatting and printing to screen.</p>
+<p>The arguments are parsed in such a way that arguments which are not supplied are set to None. All application functions are set up to accept None as a value for their optional arguments. This makes passing arguments to application functions easier as the <code>main.py</code> script doesn't have to worry about their values. In other words, <code>main.py</code> always passes all arguments to application functions, even if they aren't supplied through the command line; it just sets the ones which aren't supplied to None.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -42,6 +46,13 @@
 # along with scrilla.  If not, see &lt;https://www.gnu.org/licenses/&gt;
 # or &lt;https://github.com/chinchalinchin/scrilla/blob/develop/main/LICENSE&gt;.
 
+&#34;&#34;&#34;
+# CLI Entrypoint 
+This script acts as the entrypoint for the CLI application and contains the majority of the control structures for the program. It parses the arguments supplied through the command line, delegates them to the appropriate application function and then passes the results to the `scrilla.outputter` module functions for formatting and printing to screen.
+
+The arguments are parsed in such a way that arguments which are not supplied are set to None. All application functions are set up to accept None as a value for their optional arguments. This makes passing arguments to application functions easier as the `main.py` script doesn&#39;t have to worry about their values. In other words, `main.py` always passes all arguments to application functions, even if they aren&#39;t supplied through the command line; it just sets the ones which aren&#39;t supplied to None.
+&#34;&#34;&#34;
+
 import sys, os, traceback, json
 from typing import Callable
 
@@ -60,15 +71,6 @@ if settings.APP_ENV != &#34;container&#34;:
 
 logger = outputter.Logger(&#39;main&#39;, settings.LOG_LEVEL)
 
-&#34;&#34;&#34;
-# CLI Entrypoint 
-This script acts as the entrypoint for the CLI application and contains the majority of the control structures for the program. It parses the arguments supplied through the command line, delegates them to the appropriate application function and then passes the results to the `scrilla.outputter` module functions for formatting and printing to screen.
-
-The arguments are parsed in such a way that arguments which are not supplied are set to None. All application functions are set up to accept None as a value for their optional arguments. This makes passing arguments to application functions easier as the `main.py` script doesn&#39;t have to worry about their values. In other words, `main.py` always passes all arguments to application functions, even if they aren&#39;t supplied through the command line; it just sets the ones which aren&#39;t supplied to None.
-
-.. notes::
-    * The idea behind the structure of the modules in this library is as follows: each sub-module should only depend on the sub-modules above it in the hierarchy of modules. At the top level, the modules are: `cache`, `errors`, `files`, `graphics`, `services`, `settings` and `static`. All of this modules are relatively independent (except the `settings` module which configures aspects of all the other modules, but it is made up entirely of values parsed from the environment and shouldn&#39;t introduce any circular dependencies), and expose mutually exclusive functionality. As you drill down in the sub-modules, the functions therein contain dependencies on the modules above them; for instance, the `analysis.markets` has dependencies on `services`, but `services` does not have dependencies on `analysis.markets`. There are instances where this design principle has been violated, but by and large, this is the motivating idea behind this project&#39;s organization.
-&#34;&#34;&#34;
 non_container_functions = [formatter.FUNC_ARG_DICT[&#39;plot_dividends&#39;], formatter.FUNC_ARG_DICT[&#39;plot_moving_averages&#39;],
                                formatter.FUNC_ARG_DICT[&#39;plot_risk_profile&#39;], formatter.FUNC_ARG_DICT[&#39;plot_frontier&#39;]]
 
@@ -840,21 +842,6 @@ if __name__ == &#34;__main__&#34;:
 <section>
 </section>
 <section>
-<h2 class="section-title" id="header-variables">Global variables</h2>
-<dl>
-<dt id="scrilla.main.logger"><code class="name">var <span class="ident">logger</span></code></dt>
-<dd>
-<div class="desc"><h1 id="cli-entrypoint">CLI Entrypoint</h1>
-<p>This script acts as the entrypoint for the CLI application and contains the majority of the control structures for the program. It parses the arguments supplied through the command line, delegates them to the appropriate application function and then passes the results to the <code>scrilla.outputter</code> module functions for formatting and printing to screen.</p>
-<p>The arguments are parsed in such a way that arguments which are not supplied are set to None. All application functions are set up to accept None as a value for their optional arguments. This makes passing arguments to application functions easier as the <code>main.py</code> script doesn't have to worry about their values. In other words, <code>main.py</code> always passes all arguments to application functions, even if they aren't supplied through the command line; it just sets the ones which aren't supplied to None.</p>
-<div class="admonition notes">
-<p class="admonition-title">Notes</p>
-<ul>
-<li>The idea behind the structure of the modules in this library is as follows: each sub-module should only depend on the sub-modules above it in the hierarchy of modules. At the top level, the modules are: <code>cache</code>, <code>errors</code>, <code>files</code>, <code>graphics</code>, <code>services</code>, <code>settings</code> and <code>static</code>. All of this modules are relatively independent (except the <code>settings</code> module which configures aspects of all the other modules, but it is made up entirely of values parsed from the environment and shouldn't introduce any circular dependencies), and expose mutually exclusive functionality. As you drill down in the sub-modules, the functions therein contain dependencies on the modules above them; for instance, the <code>analysis.markets</code> has dependencies on <code>services</code>, but <code>services</code> does not have dependencies on <code>analysis.markets</code>. There are instances where this design principle has been violated, but by and large, this is the motivating idea behind this project's organization.</li>
-</ul>
-</div></div>
-</dd>
-</dl>
 </section>
 <section>
 <h2 class="section-title" id="header-functions">Functions</h2>
@@ -1691,17 +1678,14 @@ List of ticker/statistic symbols whose length is be to validated.</li>
 <nav id="sidebar">
 <h1>Index</h1>
 <div class="toc">
-<ul></ul>
+<ul>
+<li><a href="#cli-entrypoint">CLI Entrypoint</a></li>
+</ul>
 </div>
 <ul id="index">
 <li><h3>Super-module</h3>
 <ul>
 <li><code><a title="scrilla" href="index.html">scrilla</a></code></li>
-</ul>
-</li>
-<li><h3><a href="#header-variables">Global variables</a></h3>
-<ul class="">
-<li><code><a title="scrilla.main.logger" href="#scrilla.main.logger">logger</a></code></li>
 </ul>
 </li>
 <li><h3><a href="#header-functions">Functions</a></h3>
