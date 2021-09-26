@@ -227,9 +227,9 @@ def do_program() -> None:
                                                                     start_date=xtra_dict['start_date'],
                                                                     end_date=xtra_dict['end_date'])
                         latest_price = prices[helper.get_first_json_key(prices)]
-                        profile = statistics.calculate_moment_risk_return(ticker=arg, 
-                                                                            sample_prices=prices, 
-                                                                            method=xtra_dict['estimation'])
+                        profile = statistics.calculate_risk_return(ticker=arg, 
+                                                                    sample_prices=prices, 
+                                                                    method=xtra_dict['estimation'])
                         valueatrisk = probability.percentile(S0=latest_price, 
                                                                 vol=profile['annual_volatility'],
                                                                 ret=profile['annual_return'], 
