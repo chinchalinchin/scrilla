@@ -20,11 +20,11 @@ This script acts as the entrypoint for the CLI application and contains the majo
 The arguments are parsed in such a way that arguments which are not supplied are set to None. All application functions are set up to accept None as a value for their optional arguments. This makes passing arguments to application functions easier as the `main.py` script doesn't have to worry about their values. In other words, `main.py` always passes all arguments to application functions, even if they aren't supplied through the command line; it just sets the ones which aren't supplied to None.
 """
 
-import sys, os, traceback, json
+import sys, os, json
 from typing import Callable
 
 from scrilla import settings, services, files, static
-from scrilla.errors import APIResponseError, ConfigurationError, InputValidationError, SampleSizeError, PriceError
+from scrilla.errors import InputValidationError
 from scrilla.util import helper, outputter, formatter
 from scrilla.analysis import optimizer, markets, estimators
 from scrilla.analysis.models.geometric import statistics, probability
@@ -56,13 +56,12 @@ def validate_function_usage(selection: str, args: list, wrapper_function: Callab
     if selection in non_container_functions and settings.APP_ENV == 'container':
         raise InputValidationError('Graphics functionality disabled when application is containerized.')
 
+    if(not exact and (len(args)>(required_length-1))):
+        wrapper_function()
+    elif(exact and (len(args)==required_length)):
+        wrapper_function()
     else:
-        if(not exact and (len(args)>(required_length-1))):
-            wrapper_function()
-        elif(exact and (len(args)==required_length)):
-            wrapper_function()
-        else:
-            raise InputValidationError(f'Invalid number of arguments for \'{selection}\' function.')
+        raise InputValidationError(f'Invalid number of arguments for \'{selection}\' function.')
         
 
 def print_format_to_screen(xtra_dict: dict):
