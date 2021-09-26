@@ -53,14 +53,15 @@ This script acts as the entrypoint for the CLI application and contains the majo
 The arguments are parsed in such a way that arguments which are not supplied are set to None. All application functions are set up to accept None as a value for their optional arguments. This makes passing arguments to application functions easier as the `main.py` script doesn&#39;t have to worry about their values. In other words, `main.py` always passes all arguments to application functions, even if they aren&#39;t supplied through the command line; it just sets the ones which aren&#39;t supplied to None.
 &#34;&#34;&#34;
 
-import sys, os, traceback, json
+import sys, os, json
 from typing import Callable
 
 from scrilla import settings, services, files, static
-from scrilla.errors import APIResponseError, ConfigurationError, InputValidationError, SampleSizeError, PriceError
+from scrilla.errors import InputValidationError
 from scrilla.util import helper, outputter, formatter
 from scrilla.analysis import optimizer, markets, estimators
 from scrilla.analysis.models.geometric import statistics, probability
+
 # TODO: conditional imports based on value of ANALYSIS_MODE
 
 from scrilla.analysis.objects.portfolio import Portfolio
@@ -87,21 +88,15 @@ def validate_function_usage(selection: str, args: list, wrapper_function: Callab
         *Optional*. If the required length constraint is an equality, set to `True`. If the constraint is an inequality, set to `False`. Defaults to `False`. 
     &#34;&#34;&#34;
     if selection in non_container_functions and settings.APP_ENV == &#39;container&#39;:
-        logger.comment(&#39;Graphics functionality disabled when application is containerized.&#39;)
+        raise InputValidationError(&#39;Graphics functionality disabled when application is containerized.&#39;)
 
+    if(not exact and (len(args)&gt;(required_length-1))):
+        wrapper_function()
+    elif(exact and (len(args)==required_length)):
+        wrapper_function()
     else:
-        try:
-            if(not exact and (len(args)&gt;(required_length-1))):
-                wrapper_function()
-            elif(exact and (len(args)==required_length)):
-                wrapper_function()
-            else:
-                logger.comment(f&#39;Invalid number of arguments for \&#39;{selection}\&#39; function.&#39;)
-
-        except (PriceError, SampleSizeError, APIResponseError, \
-                    InputValidationError, ConfigurationError) as e:
-            print(str(e))
-            traceback.print_exc()
+        raise InputValidationError(f&#39;Invalid number of arguments for \&#39;{selection}\&#39; function.&#39;)
+        
 
 def print_format_to_screen(xtra_dict: dict):
     &#34;&#34;&#34;
@@ -178,7 +173,7 @@ def do_program() -&gt; None:
         elif opt == formatter.FUNC_ARG_DICT[&#39;store&#39;]:
             key = sys.argv[2].split(&#34;=&#34;)
             if key[0] in [&#34;ALPHA_VANTAGE_KEY&#34;, &#34;QUANDL_KEY&#34;, &#34;IEX_KEY&#34;]:
-               files.set_credentials(value=key[1], whichkey=key[0])
+               files.set_credentials(value=key[1], which_key=key[0])
             else:
                 outputter.comment(f&#39;Key of {key[0]} not recognized. See -help for more information.&#39;)
 
@@ -244,7 +239,7 @@ def do_program() -&gt; None:
                             outputter.scalar_result(f&#39;{arg}_value_at_risk&#39;, valueatrisk)
 
                     if print_json_to_screen(xtra_dict):
-                        print(json.dump(all_vars))
+                        print(json.dumps(all_vars))
                     
                     if xtra_dict[&#39;save_file&#39;] is not None:
                         files.save_file(file_to_save=all_vars, file_name=xtra_dict[&#39;save_file&#39;])
@@ -260,9 +255,9 @@ def do_program() -&gt; None:
                                                                     start_date=xtra_dict[&#39;start_date&#39;],
                                                                     end_date=xtra_dict[&#39;end_date&#39;])
                         latest_price = prices[helper.get_first_json_key(prices)]
-                        profile = statistics.calculate_moment_risk_return(ticker=arg, 
-                                                                            sample_prices=prices, 
-                                                                            method=xtra_dict[&#39;estimation&#39;])
+                        profile = statistics.calculate_risk_return(ticker=arg, 
+                                                                    sample_prices=prices, 
+                                                                    method=xtra_dict[&#39;estimation&#39;])
                         valueatrisk = probability.percentile(S0=latest_price, 
                                                                 vol=profile[&#39;annual_volatility&#39;],
                                                                 ret=profile[&#39;annual_return&#39;], 
@@ -370,13 +365,20 @@ def do_program() -&gt; None:
             ### FUNCTION: Correlation Time Series
             elif opt == formatter.FUNC_ARG_DICT[&#39;correlation_time_series&#39;]:
                 def cli_correlation_series():
+                    logger.comment(&#39;This calculation takes a while, strap in...&#39;)
                     ticker_1, ticker_2 = main_args[0], main_args[1]
                     result = statistics.calculate_moment_correlation_series(ticker_1=ticker_1,ticker_2=ticker_2,
                                                                             start_date=xtra_dict[&#39;start_date&#39;],
                                                                             end_date=xtra_dict[&#39;end_date&#39;])
-                    for date in result:
-                        outputter.scalar_result(calculation=f&#39;{date}_{ticker_1}_{ticker_2}_correlation&#39;, 
+                    if print_format_to_screen(xtra_dict):
+                        for date in result:
+                            outputter.scalar_result(calculation=f&#39;{date}_{ticker_1}_{ticker_2}_correlation&#39;, 
                                                 result=float(result[date]), currency=False)
+                    elif print_json_to_screen(xtra_dict):
+                        print(json.dumps(result))
+
+                    if xtra_dict[&#39;save_file&#39;] is not None:
+                        files.save_file(file_to_save=result, file_name=xtra_dict[&#39;save_file&#39;])
                     
                 selected_function, required_length, exact = cli_correlation_series, 2, True
 
@@ -511,6 +513,7 @@ def do_program() -&gt; None:
                                                 investment=xtra_dict[&#39;investment&#39;])
                 selected_function, required_length = cli_optimize_portfolio_variance, 2
             
+            ### FUNCTION: Optimize Portfolio Conditional Value At Risk 
             elif opt == formatter.FUNC_ARG_DICT[&#39;optimize_portfolio_conditional_var&#39;]:
                 def cli_optimize_conditional_value_at_risk():
                     portfolio = Portfolio(tickers=main_args, 
@@ -531,6 +534,18 @@ def do_program() -&gt; None:
                         files.save_allocation(allocation=allocation, portfolio=portfolio, file_name=xtra_dict[&#39;save_file&#39;],
                                                 investment=xtra_dict[&#39;investment&#39;])
                 selected_function, required_length = cli_optimize_conditional_value_at_risk, 2
+
+            ### FUNCTION: Plot Correlation Time Series
+            elif opt == formatter.FUNC_ARG_DICT[&#39;plot_correlation&#39;]:
+                def cli_plot_correlation():
+                    logger.comment(&#39;This calculation takes a while, strap in...&#39;)
+                    correlation_history = statistics.calculate_moment_correlation_series(ticker_1=main_args[0], 
+                                                                                        ticker_2=main_args[1], 
+                                                                                        start_date=xtra_dict[&#39;start_date&#39;],
+                                                                                        end_date=xtra_dict[&#39;end_date&#39;])
+                    plotter.plot_correlation_series(tickers=main_args, series=correlation_history, savefile=xtra_dict[&#39;save_file&#39;])
+
+                selected_function, required_length, exact = cli_plot_correlation, 2, True
 
             ### FUNCTION: Plot Dividend History With Linear Regression Model
             elif opt == formatter.FUNC_ARG_DICT[&#39;plot_dividends&#39;]:
@@ -768,6 +783,7 @@ def do_program() -&gt; None:
     
                     if print_json_to_screen(xtra_dict):
                         print(json.dumps(all_stats))
+
                     if xtra_dict[&#39;save_file&#39;] is not None:
                         files.save_file(file_to_save=all_stats, file_name=xtra_dict[&#39;save_file&#39;])
 
@@ -824,7 +840,7 @@ def do_program() -&gt; None:
             
             if selected_function is not None:
                 validate_function_usage(selection=opt, 
-                                            args=main_args, 
+                                            args=main_args,
                                             wrapper_function=selected_function, 
                                             required_length=required_length, 
                                             exact=exact)
@@ -900,7 +916,7 @@ if __name__ == &#34;__main__&#34;:
         elif opt == formatter.FUNC_ARG_DICT[&#39;store&#39;]:
             key = sys.argv[2].split(&#34;=&#34;)
             if key[0] in [&#34;ALPHA_VANTAGE_KEY&#34;, &#34;QUANDL_KEY&#34;, &#34;IEX_KEY&#34;]:
-               files.set_credentials(value=key[1], whichkey=key[0])
+               files.set_credentials(value=key[1], which_key=key[0])
             else:
                 outputter.comment(f&#39;Key of {key[0]} not recognized. See -help for more information.&#39;)
 
@@ -966,7 +982,7 @@ if __name__ == &#34;__main__&#34;:
                             outputter.scalar_result(f&#39;{arg}_value_at_risk&#39;, valueatrisk)
 
                     if print_json_to_screen(xtra_dict):
-                        print(json.dump(all_vars))
+                        print(json.dumps(all_vars))
                     
                     if xtra_dict[&#39;save_file&#39;] is not None:
                         files.save_file(file_to_save=all_vars, file_name=xtra_dict[&#39;save_file&#39;])
@@ -982,9 +998,9 @@ if __name__ == &#34;__main__&#34;:
                                                                     start_date=xtra_dict[&#39;start_date&#39;],
                                                                     end_date=xtra_dict[&#39;end_date&#39;])
                         latest_price = prices[helper.get_first_json_key(prices)]
-                        profile = statistics.calculate_moment_risk_return(ticker=arg, 
-                                                                            sample_prices=prices, 
-                                                                            method=xtra_dict[&#39;estimation&#39;])
+                        profile = statistics.calculate_risk_return(ticker=arg, 
+                                                                    sample_prices=prices, 
+                                                                    method=xtra_dict[&#39;estimation&#39;])
                         valueatrisk = probability.percentile(S0=latest_price, 
                                                                 vol=profile[&#39;annual_volatility&#39;],
                                                                 ret=profile[&#39;annual_return&#39;], 
@@ -1092,13 +1108,20 @@ if __name__ == &#34;__main__&#34;:
             ### FUNCTION: Correlation Time Series
             elif opt == formatter.FUNC_ARG_DICT[&#39;correlation_time_series&#39;]:
                 def cli_correlation_series():
+                    logger.comment(&#39;This calculation takes a while, strap in...&#39;)
                     ticker_1, ticker_2 = main_args[0], main_args[1]
                     result = statistics.calculate_moment_correlation_series(ticker_1=ticker_1,ticker_2=ticker_2,
                                                                             start_date=xtra_dict[&#39;start_date&#39;],
                                                                             end_date=xtra_dict[&#39;end_date&#39;])
-                    for date in result:
-                        outputter.scalar_result(calculation=f&#39;{date}_{ticker_1}_{ticker_2}_correlation&#39;, 
+                    if print_format_to_screen(xtra_dict):
+                        for date in result:
+                            outputter.scalar_result(calculation=f&#39;{date}_{ticker_1}_{ticker_2}_correlation&#39;, 
                                                 result=float(result[date]), currency=False)
+                    elif print_json_to_screen(xtra_dict):
+                        print(json.dumps(result))
+
+                    if xtra_dict[&#39;save_file&#39;] is not None:
+                        files.save_file(file_to_save=result, file_name=xtra_dict[&#39;save_file&#39;])
                     
                 selected_function, required_length, exact = cli_correlation_series, 2, True
 
@@ -1233,6 +1256,7 @@ if __name__ == &#34;__main__&#34;:
                                                 investment=xtra_dict[&#39;investment&#39;])
                 selected_function, required_length = cli_optimize_portfolio_variance, 2
             
+            ### FUNCTION: Optimize Portfolio Conditional Value At Risk 
             elif opt == formatter.FUNC_ARG_DICT[&#39;optimize_portfolio_conditional_var&#39;]:
                 def cli_optimize_conditional_value_at_risk():
                     portfolio = Portfolio(tickers=main_args, 
@@ -1253,6 +1277,18 @@ if __name__ == &#34;__main__&#34;:
                         files.save_allocation(allocation=allocation, portfolio=portfolio, file_name=xtra_dict[&#39;save_file&#39;],
                                                 investment=xtra_dict[&#39;investment&#39;])
                 selected_function, required_length = cli_optimize_conditional_value_at_risk, 2
+
+            ### FUNCTION: Plot Correlation Time Series
+            elif opt == formatter.FUNC_ARG_DICT[&#39;plot_correlation&#39;]:
+                def cli_plot_correlation():
+                    logger.comment(&#39;This calculation takes a while, strap in...&#39;)
+                    correlation_history = statistics.calculate_moment_correlation_series(ticker_1=main_args[0], 
+                                                                                        ticker_2=main_args[1], 
+                                                                                        start_date=xtra_dict[&#39;start_date&#39;],
+                                                                                        end_date=xtra_dict[&#39;end_date&#39;])
+                    plotter.plot_correlation_series(tickers=main_args, series=correlation_history, savefile=xtra_dict[&#39;save_file&#39;])
+
+                selected_function, required_length, exact = cli_plot_correlation, 2, True
 
             ### FUNCTION: Plot Dividend History With Linear Regression Model
             elif opt == formatter.FUNC_ARG_DICT[&#39;plot_dividends&#39;]:
@@ -1490,6 +1526,7 @@ if __name__ == &#34;__main__&#34;:
     
                     if print_json_to_screen(xtra_dict):
                         print(json.dumps(all_stats))
+
                     if xtra_dict[&#39;save_file&#39;] is not None:
                         files.save_file(file_to_save=all_stats, file_name=xtra_dict[&#39;save_file&#39;])
 
@@ -1546,7 +1583,7 @@ if __name__ == &#34;__main__&#34;:
             
             if selected_function is not None:
                 validate_function_usage(selection=opt, 
-                                            args=main_args, 
+                                            args=main_args,
                                             wrapper_function=selected_function, 
                                             required_length=required_length, 
                                             exact=exact)
@@ -1653,21 +1690,14 @@ List of ticker/statistic symbols whose length is be to validated.</li>
         *Optional*. If the required length constraint is an equality, set to `True`. If the constraint is an inequality, set to `False`. Defaults to `False`. 
     &#34;&#34;&#34;
     if selection in non_container_functions and settings.APP_ENV == &#39;container&#39;:
-        logger.comment(&#39;Graphics functionality disabled when application is containerized.&#39;)
+        raise InputValidationError(&#39;Graphics functionality disabled when application is containerized.&#39;)
 
+    if(not exact and (len(args)&gt;(required_length-1))):
+        wrapper_function()
+    elif(exact and (len(args)==required_length)):
+        wrapper_function()
     else:
-        try:
-            if(not exact and (len(args)&gt;(required_length-1))):
-                wrapper_function()
-            elif(exact and (len(args)==required_length)):
-                wrapper_function()
-            else:
-                logger.comment(f&#39;Invalid number of arguments for \&#39;{selection}\&#39; function.&#39;)
-
-        except (PriceError, SampleSizeError, APIResponseError, \
-                    InputValidationError, ConfigurationError) as e:
-            print(str(e))
-            traceback.print_exc()</code></pre>
+        raise InputValidationError(f&#39;Invalid number of arguments for \&#39;{selection}\&#39; function.&#39;)</code></pre>
 </details>
 </dd>
 </dl>

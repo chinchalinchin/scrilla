@@ -150,7 +150,10 @@ keys= {
         },
         'DIVIDENDS': {
             'IEX': {
-                'MANAGER': 'iex'
+                'MANAGER': 'iex',
+                'MAP': {
+                    '': ''
+                }
             }
         }
     }

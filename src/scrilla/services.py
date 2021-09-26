@@ -65,7 +65,7 @@ class StatManager():
             * This is for use within the class and probably won't need to be accessed outside of it. `StatManager` is intended to hide the data implementation from the rest of the library, i.e. it is ultimately agnostic about where the data comes where. It should never need to know `StatManger` is a Quandl interface. Just in case the library ever needs to populate its data from another source.
 
         """
-        if self._genre == static.keys['SERVICES']['STATISTICS']['QUANDL']['MANAGER']:
+        if self.genre == static.keys['SERVICES']['STATISTICS']['QUANDL']['MANAGER']:
             return True
         return False
 
@@ -354,7 +354,7 @@ class PriceManager():
             format_prices[date] = { static.keys['PRICES']['OPEN'] : open_price, static.keys['PRICES']['CLOSE'] : close_price }
         return format_prices
 
-    def _slice_prices(self, start_date, end_date, asset_type, prices):
+    def _slice_prices(self, start_date: date, end_date: date, asset_type: str, prices: dict) -> dict:
         """
         Parses the raw response from the external price service into a format the program will understand.
 
@@ -401,7 +401,7 @@ class PriceManager():
                 
         raise errors.ConfigurationError('No PRICE_MANAGER found in the parsed environment settings')
     
-    def _parse_price_from_date(self, prices: dict, date: datetime.date, asset_type: str, which_price: str):
+    def _parse_price_from_date(self, prices: dict, date: date, asset_type: str, which_price: str) -> str:
         """
         Parameters
         ----------
@@ -419,6 +419,7 @@ class PriceManager():
     
         Returns
         ------
+        ``str``
             String containing the price on the specified date.
         
         Raises

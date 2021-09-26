@@ -82,7 +82,7 @@ def univariate_normal_likelihood_function(params : list, data : list) -&gt; floa
     return likelihood
 
 def bivariate_normal_likelihood_function(params: list, data: list) -&gt; float:
-    &#34;&#34;&#34;
+    r&#34;&#34;&#34;
     Returns the likelihood of a vector of parameters being observed from a sample bivariate data of normal data. It can be used as objective function input for `scipy.optimize`&#39;s optimization methods. 
 
     Parameters
@@ -134,13 +134,12 @@ def sample_percentile(data : list, percentile: float):
 
     if extrapolate == 0:
         return data[int(obs_number)-1]
-    elif obs_number &gt; len(data):
+    if obs_number &gt; len(data):
         return data[-1]
-    else:
-        first_index = int(obs_number) - 1
-        second_index = first_index + 1
-        weight = obs_number - int(obs_number)
-        return (1-weight)*data[first_index] + weight*data[second_index]
+    first_index = int(obs_number) - 1
+    second_index = first_index + 1
+    weight = obs_number - int(obs_number)
+    return (1-weight)*data[first_index] + weight*data[second_index]
 
 def sample_correlation(x : list, y: list):
     &#34;&#34;&#34;
@@ -206,7 +205,7 @@ def recursive_rolling_correlation(correl_previous, new_x_observation, lost_x_obs
     pass
 
 def sample_mean(x: list) -&gt; float:
-    &#34;&#34;&#34;
+    r&#34;&#34;&#34;
     Returns the sample mean from a sample of data \\(\{x_1 , x_2, ... , x_n \}\\),
 
     $$ \bar{x} = \frac{\sum_{i=1}^{n} x_i}/{n} $$
@@ -235,7 +234,7 @@ def recursive_rolling_mean(xbar_previous, new_obs, lost_obs, n=settings.DEFAULT_
     return xbar_next
 
 def sample_variance(x: list):
-    &#34;&#34;&#34;
+    r&#34;&#34;&#34;
     Returns the sample variance from a sample of data \\(\{x_1 , x_2, ... , x_n \}\\),
 
     $$ s^2=\frac{\sum_{i=1}^{n} (x_i - \bar{x})^2}/{n-1} $$
@@ -395,13 +394,11 @@ def qq_series_for_sample(sample: list) -&gt; List[list]:
 <ol>
 <li><strong>params</strong> : <code>list</code>
 Array representing a vector of parameters, in this case the mean rate of returns, volatilities and covariance for a bivariate normal distribution. <em>Important</em>: The vector must be order:
-1. <span><span class="MathJax_Preview">\mu_x</span><script type="math/tex">\mu_x</script></span> = params[0]
-2. <span><span class="MathJax_Preview">\mu_y</span><script type="math/tex">\mu_y</script></span> = params[1]
-3. <span><span class="MathJax_Preview">\sigma_x</span><script type="math/tex">\sigma_x</script></span> = params[2]
-4. <span><span class="MathJax_Preview">\sigma_y</span><script type="math/tex">\sigma_y</script></span> = params[3]
-5. <span><span class="MathJax_Preview">
-ho_xy \cdot \sigma_x \cdot \sigma_y</span><script type="math/tex">
-ho_xy \cdot \sigma_x \cdot \sigma_y</script></span> = params[4]
+1. \(\mu_x\) = params[0]
+2. \(\mu_y\) = params[1]
+3. \(\sigma_x\) = params[2]
+4. \(\sigma_y\) = params[3]
+5. \(\rho_xy \cdot \sigma_x \cdot \sigma_y\) = params[4]
 The function receives input in this format since since scipy optimizes over a vector value.</li>
 <li><strong>data</strong> : <code>list</code>
 A list of data that has been drawn from a bivariate normal population. Must be formatted in the following manner: <code>[ [x1,y1], [x2,y2],&hellip;]</code></li>
@@ -417,7 +414,7 @@ A list of data that has been drawn from a bivariate normal population. Must be f
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def bivariate_normal_likelihood_function(params: list, data: list) -&gt; float:
-    &#34;&#34;&#34;
+    r&#34;&#34;&#34;
     Returns the likelihood of a vector of parameters being observed from a sample bivariate data of normal data. It can be used as objective function input for `scipy.optimize`&#39;s optimization methods. 
 
     Parameters
@@ -692,10 +689,8 @@ If <code>len(x) != len(y)</code> (samples of incomparable length) or <code>len(x
 <span>def <span class="ident">sample_mean</span></span>(<span>x: list) ‑> float</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Returns the sample mean from a sample of data <span><span class="MathJax_Preview">\{x_1 , x_2, ... , x_n \}</span><script type="math/tex">\{x_1 , x_2, ... , x_n \}</script></span>,</p>
-<p><span><span class="MathJax_Preview"> ar{x} =
-rac{\sum_{i=1}^{n} x_i}/{n} </span><script type="math/tex; mode=display"> ar{x} =
-rac{\sum_{i=1}^{n} x_i}/{n} </script></span></p>
+<div class="desc"><p>Returns the sample mean from a sample of data \({x_1 , x_2, &hellip; , x_n }\),</p>
+<p><span><span class="MathJax_Preview"> \bar{x} = \frac{\sum_{i=1}^{n} x_i}/{n} </span><script type="math/tex; mode=display"> \bar{x} = \frac{\sum_{i=1}^{n} x_i}/{n} </script></span></p>
 <h2 id="parameters">Parameters</h2>
 <ol>
 <li><strong>x</strong>: <code>list</code>
@@ -711,7 +706,7 @@ If <code>len(x)==0</code>, this error will be thrown.</li>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def sample_mean(x: list) -&gt; float:
-    &#34;&#34;&#34;
+    r&#34;&#34;&#34;
     Returns the sample mean from a sample of data \\(\{x_1 , x_2, ... , x_n \}\\),
 
     $$ \bar{x} = \frac{\sum_{i=1}^{n} x_i}/{n} $$
@@ -776,21 +771,20 @@ The percentile corresponding to the desired observation.</li>
 
     if extrapolate == 0:
         return data[int(obs_number)-1]
-    elif obs_number &gt; len(data):
+    if obs_number &gt; len(data):
         return data[-1]
-    else:
-        first_index = int(obs_number) - 1
-        second_index = first_index + 1
-        weight = obs_number - int(obs_number)
-        return (1-weight)*data[first_index] + weight*data[second_index]</code></pre>
+    first_index = int(obs_number) - 1
+    second_index = first_index + 1
+    weight = obs_number - int(obs_number)
+    return (1-weight)*data[first_index] + weight*data[second_index]</code></pre>
 </details>
 </dd>
 <dt id="scrilla.analysis.estimators.sample_variance"><code class="name flex">
 <span>def <span class="ident">sample_variance</span></span>(<span>x: list)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Returns the sample variance from a sample of data <span><span class="MathJax_Preview">\{x_1 , x_2, ... , x_n \}</span><script type="math/tex">\{x_1 , x_2, ... , x_n \}</script></span>,</p>
-<p><span><span class="MathJax_Preview"> s^2=rac{\sum_{i=1}^{n} (x_i - ar{x})^2}/{n-1} </span><script type="math/tex; mode=display"> s^2=rac{\sum_{i=1}^{n} (x_i - ar{x})^2}/{n-1} </script></span></p>
+<div class="desc"><p>Returns the sample variance from a sample of data \({x_1 , x_2, &hellip; , x_n }\),</p>
+<p><span><span class="MathJax_Preview"> s^2=\frac{\sum_{i=1}^{n} (x_i - \bar{x})^2}/{n-1} </span><script type="math/tex; mode=display"> s^2=\frac{\sum_{i=1}^{n} (x_i - \bar{x})^2}/{n-1} </script></span></p>
 <h2 id="parameters">Parameters</h2>
 <ol>
 <li><strong>x</strong>: <code>list</code>
@@ -805,7 +799,7 @@ List containing a sample of numerical data.</li>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def sample_variance(x: list):
-    &#34;&#34;&#34;
+    r&#34;&#34;&#34;
     Returns the sample variance from a sample of data \\(\{x_1 , x_2, ... , x_n \}\\),
 
     $$ s^2=\frac{\sum_{i=1}^{n} (x_i - \bar{x})^2}/{n-1} $$

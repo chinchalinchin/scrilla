@@ -62,7 +62,7 @@ def generate_random_walk(periods: int):
 
 # Condition: E(integral of vol ^2 dt) &lt; inf
 def verify_volatility_condition(volatility_function: Callable) -&gt; bool:
-    &#34;&#34;&#34;
+    r&#34;&#34;&#34;
     Ito calculus requires the class of volatility functions that scale a simple Weiner process (i.e., a process with independent, identically distributed increments with mean 0 and variance 1) satisfies the following
 
     $$ \int_{0}^{\infty} {\sigma (t)}^2 \,dt &lt; \infty $$
@@ -79,7 +79,7 @@ def verify_volatility_condition(volatility_function: Callable) -&gt; bool:
 
 # Remember forward increments!
 def ito_integral(mean_function: Callable, volatilty_function: Callable, upper_bound: float, iterations: int = 1000):
-    &#34;&#34;&#34;
+    r&#34;&#34;&#34;
     Approximates the expectation of an Ito integral from 0 to `upper_bound` for a Weiner process described by a mean and volatility that are functions of time, i.e.
 
     $$ E\{d X(t)\} = E \{ \int_{0}^{\infty} {\mu (t)} \, dt + \int_{0}^{\infty} {\sigma(t)} \, dW(t) \} $$
@@ -161,7 +161,7 @@ The number of iterations in the Reimann-Stieltjes sum.</li>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def ito_integral(mean_function: Callable, volatilty_function: Callable, upper_bound: float, iterations: int = 1000):
-    &#34;&#34;&#34;
+    r&#34;&#34;&#34;
     Approximates the expectation of an Ito integral from 0 to `upper_bound` for a Weiner process described by a mean and volatility that are functions of time, i.e.
 
     $$ E\{d X(t)\} = E \{ \int_{0}^{\infty} {\mu (t)} \, dt + \int_{0}^{\infty} {\sigma(t)} \, dW(t) \} $$
@@ -207,7 +207,7 @@ The number of iterations in the Reimann-Stieltjes sum.</li>
 <dd>
 <div class="desc"><p>Ito calculus requires the class of volatility functions that scale a simple Weiner process (i.e., a process with independent, identically distributed increments with mean 0 and variance 1) satisfies the following</p>
 <p><span><span class="MathJax_Preview"> \int_{0}^{\infty} {\sigma (t)}^2 \,dt &lt; \infty </span><script type="math/tex; mode=display"> \int_{0}^{\infty} {\sigma (t)}^2 \,dt < \infty </script></span></p>
-<p>In order words, since the mean of an Weiner process increment is 0 (and thus <span><span class="MathJax_Preview">Var(X) = E(X^2)</span><script type="math/tex">Var(X) = E(X^2)</script></span>, this inequality imposes a condition on the process described by scaling the Weiner process by the volatility function: it must have a probability distribution that actually exists. This function returns a <code>bool</code> that signals whether or not the given function satisifies this condition.</p>
+<p>In order words, since the mean of an Weiner process increment is 0 (and thus \(Var(X) = E(X^2)\), this inequality imposes a condition on the process described by scaling the Weiner process by the volatility function: it must have a probability distribution that actually exists. This function returns a <code>bool</code> that signals whether or not the given function satisifies this condition.</p>
 <h2 id="parameters">Parameters</h2>
 <ol>
 <li><strong>volatility_function</strong> : <code>Callable</code>
@@ -218,7 +218,7 @@ A function that describes the volatility of a process as a function of time meas
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def verify_volatility_condition(volatility_function: Callable) -&gt; bool:
-    &#34;&#34;&#34;
+    r&#34;&#34;&#34;
     Ito calculus requires the class of volatility functions that scale a simple Weiner process (i.e., a process with independent, identically distributed increments with mean 0 and variance 1) satisfies the following
 
     $$ \int_{0}^{\infty} {\sigma (t)}^2 \,dt &lt; \infty $$

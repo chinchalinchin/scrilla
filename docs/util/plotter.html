@@ -35,6 +35,7 @@ from PIL import Image
 from matplotlib.figure import Figure
 
 from scrilla import static
+from scrilla.errors import InputValidationError
 import scrilla.util.formatter as formatter
 import scrilla.util.helper as helper
 
@@ -56,9 +57,8 @@ def _show_or_save(canvas: FigureCanvas, show: bool, savefile: str) -&gt; Union[F
         im = Image.frombytes(&#34;RGBA&#34;, (width, height), s)
         im.show()
         return None
-    else:
-        canvas.draw()
-        return canvas
+    canvas.draw()
+    return canvas
 
 def plot_qq_series(ticker: str, sample: list, show: bool=True, savefile: str=None) -&gt; Union[FigureCanvas, None]:
     title = f&#39;{ticker} Return Q-Q Plot&#39;
@@ -77,6 +77,34 @@ def plot_qq_series(ticker: str, sample: list, show: bool=True, savefile: str=Non
     axes.set_xlabel(&#39;Normal Percentiles&#39;)
     axes.set_ylabel(&#39;Sample Percentiles&#39;)
     axes.set_title(title)
+
+    return _show_or_save(canvas=canvas, show=show, savefile=savefile)
+
+def plot_correlation_series(tickers: list, series: dict, show: bool=True, savefile: str=None) -&gt; Union[FigureCanvas, None]:
+    start, end = list(series.keys())[-1], list(series.keys())[0]
+    title = f&#39;({tickers[0]}, {tickers[1]}) correlation time series&#39;
+    subtitle = f&#39;{start} to {end}&#39;
+    canvas = FigureCanvas(Figure())
+    figure = canvas.figure
+    axes = figure.subplots()
+    date_format = matplotlib.dates.DateFormatter(&#39;%m-%d&#39;)
+
+    correl_history, ordinal_x, dates = [], [], []
+    for date in series:
+        ordinal_x.append(datetime.datetime.strptime(date, &#39;%Y-%m-%d&#39;).toordinal())
+        dates.append(helper.parse_date_string(date))
+        correl_history.append(series[date])
+    
+    ordered_dates=dates[::-1]
+
+    axes.plot(ordinal_x, correl_history)
+    axes.grid()
+    axes.xaxis.set_major_formatter(date_format)
+    axes.set_xticklabels(ordered_dates)
+    axes.set_ylabel(&#39;Correlation&#39;)
+    axes.set_xlabel(&#39;Dates&#39;)
+    axes.set_title(subtitle, fontsize=12)
+    figure.suptitle(title, fontsize=18)
 
     return _show_or_save(canvas=canvas, show=show, savefile=savefile)
 
@@ -123,7 +151,6 @@ def plot_yield_curve(yield_curve, show=True, savefile=None):
 
     return _show_or_save(canvas=canvas, show=show, savefile=savefile)
 
-
 def plot_profiles(symbols, profiles, show=True, savefile=None, subtitle=None):
     canvas = FigureCanvas(Figure())
 
@@ -156,6 +183,7 @@ def plot_profiles(symbols, profiles, show=True, savefile=None, subtitle=None):
     return _show_or_save(canvas=canvas, show=show, savefile=savefile)
 
     # TODO: figure out date formatting for x-axis
+
 def plot_moving_averages(symbols, averages_output, periods, show=True, savefile=None):
     averages, dates = averages_output
     canvas = FigureCanvas(Figure())
@@ -219,10 +247,9 @@ def plot_moving_averages(symbols, averages_output, periods, show=True, savefile=
 
     return _show_or_save(canvas=canvas, show=show, savefile=savefile)
 
-
 def plot_cashflow(ticker, cashflow, show=True, savefile=None):
     if not cashflow.beta or not cashflow.alpha or len(cashflow.sample) &lt; 3:
-        return False
+        raise InputValidationError(&#34;Cashflow model does not contain enough information to be plotted&#34;)
     
     canvas = FigureCanvas(Figure())
     figure = canvas.figure
@@ -271,7 +298,7 @@ def plot_cashflow(ticker, cashflow, show=True, savefile=None):
 </summary>
 <pre><code class="python">def plot_cashflow(ticker, cashflow, show=True, savefile=None):
     if not cashflow.beta or not cashflow.alpha or len(cashflow.sample) &lt; 3:
-        return False
+        raise InputValidationError(&#34;Cashflow model does not contain enough information to be plotted&#34;)
     
     canvas = FigureCanvas(Figure())
     figure = canvas.figure
@@ -298,6 +325,44 @@ def plot_cashflow(ticker, cashflow, show=True, savefile=None):
     axes.set_xlabel(&#39;Dates&#39;)
     axes.set_title(title_str, fontsize=12)
     figure.suptitle(sup_title_str, fontsize=18)
+
+    return _show_or_save(canvas=canvas, show=show, savefile=savefile)</code></pre>
+</details>
+</dd>
+<dt id="scrilla.util.plotter.plot_correlation_series"><code class="name flex">
+<span>def <span class="ident">plot_correlation_series</span></span>(<span>tickers: list, series: dict, show: bool = True, savefile: str = None) ‑> Optional[matplotlib.backends.backend_qt5agg.FigureCanvasQTAgg]</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def plot_correlation_series(tickers: list, series: dict, show: bool=True, savefile: str=None) -&gt; Union[FigureCanvas, None]:
+    start, end = list(series.keys())[-1], list(series.keys())[0]
+    title = f&#39;({tickers[0]}, {tickers[1]}) correlation time series&#39;
+    subtitle = f&#39;{start} to {end}&#39;
+    canvas = FigureCanvas(Figure())
+    figure = canvas.figure
+    axes = figure.subplots()
+    date_format = matplotlib.dates.DateFormatter(&#39;%m-%d&#39;)
+
+    correl_history, ordinal_x, dates = [], [], []
+    for date in series:
+        ordinal_x.append(datetime.datetime.strptime(date, &#39;%Y-%m-%d&#39;).toordinal())
+        dates.append(helper.parse_date_string(date))
+        correl_history.append(series[date])
+    
+    ordered_dates=dates[::-1]
+
+    axes.plot(ordinal_x, correl_history)
+    axes.grid()
+    axes.xaxis.set_major_formatter(date_format)
+    axes.set_xticklabels(ordered_dates)
+    axes.set_ylabel(&#39;Correlation&#39;)
+    axes.set_xlabel(&#39;Dates&#39;)
+    axes.set_title(subtitle, fontsize=12)
+    figure.suptitle(title, fontsize=18)
 
     return _show_or_save(canvas=canvas, show=show, savefile=savefile)</code></pre>
 </details>
@@ -530,6 +595,7 @@ def plot_cashflow(ticker, cashflow, show=True, savefile=None):
 <li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="">
 <li><code><a title="scrilla.util.plotter.plot_cashflow" href="#scrilla.util.plotter.plot_cashflow">plot_cashflow</a></code></li>
+<li><code><a title="scrilla.util.plotter.plot_correlation_series" href="#scrilla.util.plotter.plot_correlation_series">plot_correlation_series</a></code></li>
 <li><code><a title="scrilla.util.plotter.plot_frontier" href="#scrilla.util.plotter.plot_frontier">plot_frontier</a></code></li>
 <li><code><a title="scrilla.util.plotter.plot_moving_averages" href="#scrilla.util.plotter.plot_moving_averages">plot_moving_averages</a></code></li>
 <li><code><a title="scrilla.util.plotter.plot_profiles" href="#scrilla.util.plotter.plot_profiles">plot_profiles</a></code></li>
