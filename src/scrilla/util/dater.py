@@ -21,7 +21,7 @@ def parse_date_string(date_string) -> datetime.date:
     if validate_date_string(parsed):
         date = datetime.date(year=int(parsed[0]), month=int(parsed[1]), day=int(parsed[2]))
         return date
-    return False
+    return None
 
 def get_today():
     return datetime.date.today()
@@ -82,28 +82,7 @@ def this_date_or_last_trading_date(date : datetime.date):
     if is_date_holiday(date) or is_date_weekend(date):
         date = get_previous_business_date(date)
     return date
-
-def validate_date_string(parsed_date_string):
-    length_check = (len(parsed_date_string) == 3 )
-    year_check = (int(parsed_date_string[0]) > 1950)
-    month_check = (int(parsed_date_string[1])>0 and int(parsed_date_string[1])<13)
-    day_check = (int(parsed_date_string[2])>0 and int(parsed_date_string[2])<32)
-    return (length_check and year_check and month_check and day_check)
-
-def validate_order_of_dates(start_date, end_date):
-    delta = (end_date - start_date).days
-    if delta < 0:
-        return end_date, start_date
-    return start_date, end_date
-
-# YYYY-MM-DD
-def parse_date_string(date_string) -> datetime.date:
-    parsed = str(date_string).split('-')
-    if validate_date_string(parsed):
-        date = datetime.date(year=int(parsed[0]), month=int(parsed[1]), day=int(parsed[2]))
-        return date
-    return False
-
+    
 def verify_date_types(dates):
     verified_dates = []
     for date in dates:
@@ -304,16 +283,4 @@ def get_time_to_year(date):
     today = datetime.date.today()
     next_year = datetime.date(year=(today.year+1), month=1, day=1)
     return ((next_year - today).days / 365)
-
-def get_time_to_next_period(starting_date, period):
-    if period is None:
-        return 0
-    
-    today = datetime.date.today()
-    floored_days=math.floor(365*period)
-
-    while ((starting_date - today).days<0):
-        starting_date += datetime.timedelta(days=floored_days)
-    
-    return ((today - starting_date).days / 365)
 

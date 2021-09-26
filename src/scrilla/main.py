@@ -28,6 +28,7 @@ from scrilla.errors import InputValidationError
 from scrilla.util import helper, outputter, formatter
 from scrilla.analysis import optimizer, markets, estimators
 from scrilla.analysis.models.geometric import statistics, probability
+
 # TODO: conditional imports based on value of ANALYSIS_MODE
 
 from scrilla.analysis.objects.portfolio import Portfolio
