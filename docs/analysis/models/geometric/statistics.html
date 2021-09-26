@@ -666,18 +666,18 @@ def calculate_moment_risk_return(ticker: str, start_date: Union[date, None]=None
     mean_mod_return = mean_return*sqrt(trading_period)
     logger.debug(f&#39;Calculating mean annual volatility over last {sample} days for {ticker}&#39;)
 
-    for date in prices:
-        todays_price = prices[date][static.keys[&#39;PRICES&#39;][&#39;CLOSE&#39;]]
+    for this_date in prices:
+        todays_price = prices[this_date][static.keys[&#39;PRICES&#39;][&#39;CLOSE&#39;]]
 
         if today:
-            logger.verbose(f&#39;{date}: (todays_price, tomorrows_price) = ({todays_price}, {tomorrows_price})&#39;)
+            logger.verbose(f&#39;{this_date}: (todays_price, tomorrows_price) = ({todays_price}, {tomorrows_price})&#39;)
 
             # crypto prices may have weekends and holidays removed during correlation algorithm 
             # so samples can be compared to equities, need to account for these dates by increasing
             # the time_delta by the number of missed days. 
             if asset_type == static.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;] or \
-                (asset_type == static.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;] and not dater.consecutive_trading_days(tomorrows_date, date)):
-                time_delta = (dater.parse_date_string(tomorrows_date) - dater.parse_date_string(date)).days 
+                (asset_type == static.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;] and not dater.consecutive_trading_days(tomorrows_date, this_date)):
+                time_delta = (dater.parse_date_string(tomorrows_date) - dater.parse_date_string(this_date)).days 
             else:
                 time_delta = 1
 
@@ -685,13 +685,13 @@ def calculate_moment_risk_return(ticker: str, start_date: Union[date, None]=None
             daily = (current_mod_return - mean_mod_return)**2/(sample - 1)
             variance = variance + daily
 
-            logger.verbose(f&#39;{date}: (daily_variance, sample_variance) = ({round(daily, 4)}, {round(variance, 4)})&#39;)
+            logger.verbose(f&#39;{this_date}: (daily_variance, sample_variance) = ({round(daily, 4)}, {round(variance, 4)})&#39;)
 
         else:
             today = True
 
-        tomorrows_price = prices[date][static.keys[&#39;PRICES&#39;][&#39;CLOSE&#39;]]
-        tomorrows_date = date
+        tomorrows_price = prices[this_date][static.keys[&#39;PRICES&#39;][&#39;CLOSE&#39;]]
+        tomorrows_date = this_date
 
     # adjust for output
     volatility = sqrt(variance)
@@ -2047,18 +2047,18 @@ Optional. A list of the asset prices for which correlation will be calculated. O
     mean_mod_return = mean_return*sqrt(trading_period)
     logger.debug(f&#39;Calculating mean annual volatility over last {sample} days for {ticker}&#39;)
 
-    for date in prices:
-        todays_price = prices[date][static.keys[&#39;PRICES&#39;][&#39;CLOSE&#39;]]
+    for this_date in prices:
+        todays_price = prices[this_date][static.keys[&#39;PRICES&#39;][&#39;CLOSE&#39;]]
 
         if today:
-            logger.verbose(f&#39;{date}: (todays_price, tomorrows_price) = ({todays_price}, {tomorrows_price})&#39;)
+            logger.verbose(f&#39;{this_date}: (todays_price, tomorrows_price) = ({todays_price}, {tomorrows_price})&#39;)
 
             # crypto prices may have weekends and holidays removed during correlation algorithm 
             # so samples can be compared to equities, need to account for these dates by increasing
             # the time_delta by the number of missed days. 
             if asset_type == static.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;] or \
-                (asset_type == static.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;] and not dater.consecutive_trading_days(tomorrows_date, date)):
-                time_delta = (dater.parse_date_string(tomorrows_date) - dater.parse_date_string(date)).days 
+                (asset_type == static.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;] and not dater.consecutive_trading_days(tomorrows_date, this_date)):
+                time_delta = (dater.parse_date_string(tomorrows_date) - dater.parse_date_string(this_date)).days 
             else:
                 time_delta = 1
 
@@ -2066,13 +2066,13 @@ Optional. A list of the asset prices for which correlation will be calculated. O
             daily = (current_mod_return - mean_mod_return)**2/(sample - 1)
             variance = variance + daily
 
-            logger.verbose(f&#39;{date}: (daily_variance, sample_variance) = ({round(daily, 4)}, {round(variance, 4)})&#39;)
+            logger.verbose(f&#39;{this_date}: (daily_variance, sample_variance) = ({round(daily, 4)}, {round(variance, 4)})&#39;)
 
         else:
             today = True
 
-        tomorrows_price = prices[date][static.keys[&#39;PRICES&#39;][&#39;CLOSE&#39;]]
-        tomorrows_date = date
+        tomorrows_price = prices[this_date][static.keys[&#39;PRICES&#39;][&#39;CLOSE&#39;]]
+        tomorrows_date = this_date
 
     # adjust for output
     volatility = sqrt(variance)

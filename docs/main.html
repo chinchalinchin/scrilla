@@ -615,7 +615,7 @@ def do_program() -&gt; None:
                         profiles[arg]=statistics.calculate_risk_return(ticker=arg, 
                                                                         start_date=xtra_dict[&#39;start_date&#39;], 
                                                                         end_date=xtra_dict[&#39;end_date&#39;],
-                                                                        method=xtra_args[&#39;estimation&#39;])
+                                                                        method=xtra_dict[&#39;estimation&#39;])
                     plotter.plot_profiles(symbols=main_args, 
                                             show=True,
                                             profiles=profiles, 
@@ -1358,7 +1358,7 @@ if __name__ == &#34;__main__&#34;:
                         profiles[arg]=statistics.calculate_risk_return(ticker=arg, 
                                                                         start_date=xtra_dict[&#39;start_date&#39;], 
                                                                         end_date=xtra_dict[&#39;end_date&#39;],
-                                                                        method=xtra_args[&#39;estimation&#39;])
+                                                                        method=xtra_dict[&#39;estimation&#39;])
                     plotter.plot_profiles(symbols=main_args, 
                                             show=True,
                                             profiles=profiles, 
