@@ -1,5 +1,6 @@
 # scrilla: A Financial Optimization Application
 
+[![DeepSource](https://deepsource.io/gh/chinchalinchin/scrilla.svg/?label=resolved+issues&show_trend=true&token=tD25pyXAL4uIvrccqjlwzXIU)](https://deepsource.io/gh/chinchalinchin/scrilla/?ref=repository-badge)
 [documentation](https://chinchalinchin.github.io/scrilla/)
 
 ## Table of Contents
