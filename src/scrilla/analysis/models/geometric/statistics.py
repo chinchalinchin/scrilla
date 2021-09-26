@@ -637,18 +637,18 @@ def calculate_moment_risk_return(ticker: str, start_date: Union[date, None]=None
     mean_mod_return = mean_return*sqrt(trading_period)
     logger.debug(f'Calculating mean annual volatility over last {sample} days for {ticker}')
 
-    for date in prices:
-        todays_price = prices[date][static.keys['PRICES']['CLOSE']]
+    for this_date in prices:
+        todays_price = prices[this_date][static.keys['PRICES']['CLOSE']]
 
         if today:
-            logger.verbose(f'{date}: (todays_price, tomorrows_price) = ({todays_price}, {tomorrows_price})')
+            logger.verbose(f'{this_date}: (todays_price, tomorrows_price) = ({todays_price}, {tomorrows_price})')
 
             # crypto prices may have weekends and holidays removed during correlation algorithm 
             # so samples can be compared to equities, need to account for these dates by increasing
             # the time_delta by the number of missed days. 
             if asset_type == static.keys['ASSETS']['CRYPTO'] or \
-                (asset_type == static.keys['ASSETS']['EQUITY'] and not dater.consecutive_trading_days(tomorrows_date, date)):
-                time_delta = (dater.parse_date_string(tomorrows_date) - dater.parse_date_string(date)).days 
+                (asset_type == static.keys['ASSETS']['EQUITY'] and not dater.consecutive_trading_days(tomorrows_date, this_date)):
+                time_delta = (dater.parse_date_string(tomorrows_date) - dater.parse_date_string(this_date)).days 
             else:
                 time_delta = 1
 
@@ -656,13 +656,13 @@ def calculate_moment_risk_return(ticker: str, start_date: Union[date, None]=None
             daily = (current_mod_return - mean_mod_return)**2/(sample - 1)
             variance = variance + daily
 
-            logger.verbose(f'{date}: (daily_variance, sample_variance) = ({round(daily, 4)}, {round(variance, 4)})')
+            logger.verbose(f'{this_date}: (daily_variance, sample_variance) = ({round(daily, 4)}, {round(variance, 4)})')
 
         else:
             today = True
 
-        tomorrows_price = prices[date][static.keys['PRICES']['CLOSE']]
-        tomorrows_date = date
+        tomorrows_price = prices[this_date][static.keys['PRICES']['CLOSE']]
+        tomorrows_date = this_date
 
     # adjust for output
     volatility = sqrt(variance)
