@@ -24,6 +24,8 @@ The links below will take you to the registration pages for each API service Key
 
 Note this application optimizes across asset classes, i.e. the theoretical portfolio being constructed can be composed of equities, cryptocurrencies or both. In a future release, I would like to include fixed income assets, volatility assets (<i>VIX</i> futures, options, etc.) and other derivatives, but for now, only those two asset types are supported. I am looking for a good API that provides historical data on the other types of financial instruments before I bring them into the optimization algorithm, so if you know of one, contact me. 
 
+See [module documentation](https://chinchalinchin.github.io/scrilla/) for more information.
+
 # Setup
 
 ## Installation
@@ -277,10 +279,6 @@ You can then screen stocks according to some criteria. For example, the followin
     - Moving Averages: `scrilla -plot-mov [TICKERS]`
     - Risk Return Profile: `scrilla -plot-rr [TICKERS]`
     - Yield Curve: `scrilla -plot-yield` (not implemented yet)
-
-## Programmatic 
-
-See [docs](/docs/scrilla) for more information on each module. 
 
 # Notes
 
