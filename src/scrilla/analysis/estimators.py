@@ -171,12 +171,21 @@ def recursive_rolling_correlation(correl_previous, new_x_observation, lost_x_obs
     
     pass
 
-def sample_mean(x: list):
+def sample_mean(x: list) -> float:
     """
+    Returns the sample mean from a sample of data \\(\{x_1 , x_2, ... , x_n \}\\),
+
+    $$ \frac{\sum_{i=1}^{n} x_i}/{n} $$
     
+    Parameters
+    ----------
+    1. **x**: ``list``
+        List containing a sample of numerical data.
+
     Raises 
     ------
-    1. scrilla.analysis.models.geometric.statistics.SampleSizeError \n \n
+    1. **scrilla.analysis.models.geometric.statistics.SampleSizeError**
+        If `len(x)==0`, this error will be thrown.
     """
     xbar, n = 0, len(x)
 
