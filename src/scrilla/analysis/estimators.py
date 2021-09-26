@@ -20,7 +20,8 @@ A module of statistical point estimators and likelihood functions.
 from os import path
 from sys import path as sys_path
 from typing import List
-from numpy import log, sqrt, exp, inf
+from math import isnan
+from numpy import log, sqrt, exp, inf, isinf
 from scipy.stats import norm, multivariate_normal
 
 if __name__=="__main__":
@@ -71,13 +72,11 @@ def bivariate_normal_likelihood_function(params: list, data: list) -> float:
         * the covariance matrix of a bivariate normal distribution must be positive semi-definite (PSD) and non-singular. PSD can be checked with the [Slyvester Criterion](https://en.wikipedia.org/wiki/Sylvester%27s_criterion) or [Cauchy-Schwarz Inequality](https://en.wikipedia.org/wiki/Cauchy%E2%80%93Schwarz_inequality#Probability_theory). Since sample variance will always be positive, this reduces to checking the determinant of the covariance matrix is greater than 0. This function will return `numpy.inf` if the covariance matrix is singular or non-positive semi-definite.
             
     """
-
     mean = [ params[0], params[1]]
     cov = [ [ params[2], params[4] ], [ params[4], params[3] ] ]
 
-    # see NOTE
     determinant = params[2]*params[3] - params[4]**2
-    if determinant == 0 or determinant < 0:
+    if determinant == 0 or determinant < 0 or determinant < 0.00000001:
         return inf
 
     likelihood = 0

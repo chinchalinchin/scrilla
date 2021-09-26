@@ -19,6 +19,7 @@ A module of functions that wrap around `scipy.optimize` in order to optimize sta
 """
 
 import scipy.optimize as optimize
+from numpy import sqrt
 from scrilla import static, settings
 from scrilla.analysis import estimators
 import scrilla.util.outputter as outputter
@@ -66,16 +67,17 @@ def maximize_bivariate_normal_likelihood(data):
 
     x_data = [ datum[0] for datum in data ]
     y_data = [ datum[1] for datum in data ] 
-    
-    # x_estimates = maximize_univariate_normal_likelihood(data=x_data)
-    # y_estimates = maximize_univariate_normal_likelihood(data=y_data)
+
     x_25_percentile = estimators.sample_percentile(x_data, 0.25)
     y_25_percentile = estimators.sample_percentile(y_data, 0.25)
     x_median = estimators.sample_percentile(x_data, 0.5)
     y_median = estimators.sample_percentile(y_data, 0.5)
     x_75_percentile = estimators.sample_percentile(x_data, 0.75)
     y_75_percentile = estimators.sample_percentile(y_data, 0.75)
-    # knowns = [ x_estimates[0], y_estimates[0], x_estimates[1], y_estimates[1] ]
+    x_1_percentile = estimators.sample_percentile(x_data, 0.01)
+    y_1_percentile = estimators.sample_percentile(y_data, 0.01)
+    x_99_percentile = estimators.sample_percentile(x_data, 0.99)
+    y_99_percentile = estimators.sample_percentile(y_data, 0.99)
 
     likelihood = lambda x : (-1)*estimators.bivariate_normal_likelihood_function(params=x, 
                                                                                 data=data)
@@ -83,12 +85,21 @@ def maximize_bivariate_normal_likelihood(data):
     var_x_guess = (x_75_percentile - x_25_percentile)/2
     var_y_guess = (y_75_percentile - y_25_percentile)/2
     guess = [ x_median, y_median, var_x_guess, var_y_guess, 0]
+    var_x_bounds = x_99_percentile - x_1_percentile
+    var_y_bounds = y_99_percentile - y_1_percentile
+    cov_bounds = sqrt(var_x_bounds*var_y_bounds)
 
     params = optimize.minimize(fun = likelihood, 
                                 x0 = guess,
+                                bounds = [
+                                    (None, None),
+                                    (None, None),
+                                    (0, var_x_bounds),
+                                    (0, var_y_bounds),
+                                    (-cov_bounds, cov_bounds)
+                                ],
                                 options ={'disp': False},
-                                method=static.constants['OPTIMIZATION_METHOD'])
-    print(params.x)
+                                method='Nelder-Mead')
     return params.x
     
 def optimize_portfolio_variance(portfolio, target_return=None):
