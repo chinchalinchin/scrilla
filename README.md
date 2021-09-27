@@ -92,7 +92,7 @@ where `key` is one of the values: `ALPHA_VANTAGE_KEY`, `QUANDL_KEY` or `IEX_KEY`
 
 # Environment
 
-A sample environment file is located [here](https://github.com/chinchalinchin/scrilla/blob/development/env/.sample.env), along with comments describing the purpose of each variable. The application sets sensible defaults for most of the environment variable configurations, but there are several required environment variables you will need to set yourself. 
+A sample environment file is located [here](https://github.com/chinchalinchin/scrilla/blob/develop/main/env/.sample.env), along with comments describing the purpose of each variable. The application sets sensible defaults for most of the environment variable configurations, but there are several required environment variables you will need to set yourself. 
 
 ## Required Configuration
 
