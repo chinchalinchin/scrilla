@@ -596,8 +596,8 @@ def get_daily_interest_history(maturity: str, start_date: Union[date, None]=None
     logger.debug(f'Cached {maturity} data is out of date, passing request to external service')
     rates = stat_manager.get_interest_rates(start_date=start_date, end_date=end_date)
 
-    for date in rates:
-        interest_cache.save_row(date=date, value=rates[date])
+    for this_date in rates:
+        interest_cache.save_row(date=this_date, value=rates[this_date])
 
     rates = stat_manager.format_for_maturity(maturity=maturity, results=rates)
 
