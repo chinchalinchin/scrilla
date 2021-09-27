@@ -63,7 +63,7 @@ def plot_correlation_series(tickers: list, series: dict, show: bool=True, savefi
     locator = mdates.AutoDateLocator()
     formatter = mdates.AutoDateFormatter(locator)
 
-    correl_history, dates= [], [], []
+    correl_history, dates= [], []
     for date in series:
         dates.append(dater.parse_date_string(date))
         correl_history.append(series[date])
