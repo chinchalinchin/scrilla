@@ -285,7 +285,7 @@ You can then screen stocks according to some criteria. For example, the followin
     - Moving Averages: `scrilla -plot-mov [TICKERS]`
     - Risk Return Profile: `scrilla -plot-rr [TICKERS]`
     - Yield Curve: `scrilla -plot-yield`
-    - QQ Plot of Returns: `scrilla -plot-rets [TICKER]
+    - QQ Plot of Returns: `scrilla -plot-rets [TICKER]`
         - NOTE: THIS FUNCTION ONLY ACCEPTS ONE TICKER AT A TIME
     - Correlation Time Series `scrilla plot-cors [TICKERS]`
         - NOTE: THIS FUNCTION ACCEPTS EXACTLY TWO TICKERS
