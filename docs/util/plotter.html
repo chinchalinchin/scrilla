@@ -33,11 +33,11 @@ import numpy, matplotlib
 from PIL import Image
 
 from matplotlib.figure import Figure
+from matplotlib import dates as mdates
 
-from scrilla import static
+from scrilla import static, settings
 from scrilla.errors import InputValidationError
-import scrilla.util.formatter as formatter
-import scrilla.util.helper as helper
+from scrilla.util import dater, formatter
 
 APP_ENV=os.environ.setdefault(&#39;APP_ENV&#39;, &#39;local&#39;)
 
@@ -83,28 +83,29 @@ def plot_qq_series(ticker: str, sample: list, show: bool=True, savefile: str=Non
 def plot_correlation_series(tickers: list, series: dict, show: bool=True, savefile: str=None) -&gt; Union[FigureCanvas, None]:
     start, end = list(series.keys())[-1], list(series.keys())[0]
     title = f&#39;({tickers[0]}, {tickers[1]}) correlation time series&#39;
-    subtitle = f&#39;{start} to {end}&#39;
+    subtitle = f&#39;{start} to {end}, rolling {settings.DEFAULT_ANALYSIS_PERIOD}-day estimate&#39;
+
     canvas = FigureCanvas(Figure())
     figure = canvas.figure
     axes = figure.subplots()
-    date_format = matplotlib.dates.DateFormatter(&#39;%m-%d&#39;)
 
-    correl_history, ordinal_x, dates = [], [], []
+    locator = mdates.AutoDateLocator()
+    formatter = mdates.AutoDateFormatter(locator)
+
+    correl_history, dates= [], [], []
     for date in series:
-        ordinal_x.append(datetime.datetime.strptime(date, &#39;%Y-%m-%d&#39;).toordinal())
-        dates.append(helper.parse_date_string(date))
+        dates.append(dater.parse_date_string(date))
         correl_history.append(series[date])
-    
-    ordered_dates=dates[::-1]
 
-    axes.plot(ordinal_x, correl_history)
+    axes.plot(dates, correl_history)
     axes.grid()
-    axes.xaxis.set_major_formatter(date_format)
-    axes.set_xticklabels(ordered_dates)
+    axes.xaxis.set_major_locator(locator)
+    axes.xaxis.set_major_formatter(formatter)
     axes.set_ylabel(&#39;Correlation&#39;)
     axes.set_xlabel(&#39;Dates&#39;)
     axes.set_title(subtitle, fontsize=12)
     figure.suptitle(title, fontsize=18)
+    figure.autofmt_xdate()
 
     return _show_or_save(canvas=canvas, show=show, savefile=savefile)
 
@@ -213,7 +214,7 @@ def plot_moving_averages(symbols, averages_output, periods, show=True, savefile=
     else:
         
         # TODO: generate different locators based on length of period
-        x = [datetime.datetime.strptime(helper.date_to_string(date), &#39;%Y-%m-%d&#39;).toordinal() for date in dates]
+        x = [datetime.datetime.strptime(dater.date_to_string(date), &#39;%Y-%m-%d&#39;).toordinal() for date in dates]
         date_locator = matplotlib.dates.WeekdayLocator(byweekday=(matplotlib.dates.WE))
         date_format = matplotlib.dates.DateFormatter(&#39;%m-%d&#39;)
         
@@ -254,28 +255,32 @@ def plot_cashflow(ticker, cashflow, show=True, savefile=None):
     canvas = FigureCanvas(Figure())
     figure = canvas.figure
     axes = figure.subplots()
-    date_format = matplotlib.dates.DateFormatter(&#39;%m-%d&#39;)
+
+    date_format = mdates.DateFormatter(&#39;%m-%d&#39;)
+
     sup_title_str = f&#39;{ticker} Dividend Linear Regression Model&#39;
     title_str = f&#39;NPV(dividends | discount = {round(cashflow.discount_rate,4)}) = $ {round(cashflow.calculate_net_present_value(), 2)}&#39;
 
-    dividend_history, ordinal_x, dates = [], [], []
+    dividend_history, ordinal_x, dates= [], [], []
     for date in cashflow.sample:
+        dates.append(date)
         ordinal_x.append(datetime.datetime.strptime(date, &#39;%Y-%m-%d&#39;).toordinal())
-        dates.append(helper.parse_date_string(date))
         dividend_history.append(cashflow.sample[date])
 
-    ordered_dates=dates[::-1]
+    dates.reverse()
+    
     model_map = list(map(lambda x: cashflow.alpha + cashflow.beta*x, cashflow.time_series))
     
     axes.scatter(ordinal_x, dividend_history, marker=&#34;.&#34;)
     axes.plot(ordinal_x, model_map)
     axes.grid()
-    axes.xaxis.set_major_formatter(date_format)
-    axes.set_xticklabels(ordered_dates)
-    axes.set_ylabel(&#39;Dividend Payment&#39;)
-    axes.set_xlabel(&#39;Dates&#39;)
+    # axes.xaxis.set_major_formatter(date_format)
+    axes.set_xticklabels(dates)
+    axes.set_ylabel(&#39;Dividend Amount&#39;)
+    axes.set_xlabel(&#39;Payment Date&#39;)
     axes.set_title(title_str, fontsize=12)
     figure.suptitle(sup_title_str, fontsize=18)
+    figure.autofmt_xdate()
 
     return _show_or_save(canvas=canvas, show=show, savefile=savefile)</code></pre>
 </details>
@@ -303,28 +308,32 @@ def plot_cashflow(ticker, cashflow, show=True, savefile=None):
     canvas = FigureCanvas(Figure())
     figure = canvas.figure
     axes = figure.subplots()
-    date_format = matplotlib.dates.DateFormatter(&#39;%m-%d&#39;)
+
+    date_format = mdates.DateFormatter(&#39;%m-%d&#39;)
+
     sup_title_str = f&#39;{ticker} Dividend Linear Regression Model&#39;
     title_str = f&#39;NPV(dividends | discount = {round(cashflow.discount_rate,4)}) = $ {round(cashflow.calculate_net_present_value(), 2)}&#39;
 
-    dividend_history, ordinal_x, dates = [], [], []
+    dividend_history, ordinal_x, dates= [], [], []
     for date in cashflow.sample:
+        dates.append(date)
         ordinal_x.append(datetime.datetime.strptime(date, &#39;%Y-%m-%d&#39;).toordinal())
-        dates.append(helper.parse_date_string(date))
         dividend_history.append(cashflow.sample[date])
 
-    ordered_dates=dates[::-1]
+    dates.reverse()
+    
     model_map = list(map(lambda x: cashflow.alpha + cashflow.beta*x, cashflow.time_series))
     
     axes.scatter(ordinal_x, dividend_history, marker=&#34;.&#34;)
     axes.plot(ordinal_x, model_map)
     axes.grid()
-    axes.xaxis.set_major_formatter(date_format)
-    axes.set_xticklabels(ordered_dates)
-    axes.set_ylabel(&#39;Dividend Payment&#39;)
-    axes.set_xlabel(&#39;Dates&#39;)
+    # axes.xaxis.set_major_formatter(date_format)
+    axes.set_xticklabels(dates)
+    axes.set_ylabel(&#39;Dividend Amount&#39;)
+    axes.set_xlabel(&#39;Payment Date&#39;)
     axes.set_title(title_str, fontsize=12)
     figure.suptitle(sup_title_str, fontsize=18)
+    figure.autofmt_xdate()
 
     return _show_or_save(canvas=canvas, show=show, savefile=savefile)</code></pre>
 </details>
@@ -341,28 +350,29 @@ def plot_cashflow(ticker, cashflow, show=True, savefile=None):
 <pre><code class="python">def plot_correlation_series(tickers: list, series: dict, show: bool=True, savefile: str=None) -&gt; Union[FigureCanvas, None]:
     start, end = list(series.keys())[-1], list(series.keys())[0]
     title = f&#39;({tickers[0]}, {tickers[1]}) correlation time series&#39;
-    subtitle = f&#39;{start} to {end}&#39;
+    subtitle = f&#39;{start} to {end}, rolling {settings.DEFAULT_ANALYSIS_PERIOD}-day estimate&#39;
+
     canvas = FigureCanvas(Figure())
     figure = canvas.figure
     axes = figure.subplots()
-    date_format = matplotlib.dates.DateFormatter(&#39;%m-%d&#39;)
 
-    correl_history, ordinal_x, dates = [], [], []
+    locator = mdates.AutoDateLocator()
+    formatter = mdates.AutoDateFormatter(locator)
+
+    correl_history, dates= [], [], []
     for date in series:
-        ordinal_x.append(datetime.datetime.strptime(date, &#39;%Y-%m-%d&#39;).toordinal())
-        dates.append(helper.parse_date_string(date))
+        dates.append(dater.parse_date_string(date))
         correl_history.append(series[date])
-    
-    ordered_dates=dates[::-1]
 
-    axes.plot(ordinal_x, correl_history)
+    axes.plot(dates, correl_history)
     axes.grid()
-    axes.xaxis.set_major_formatter(date_format)
-    axes.set_xticklabels(ordered_dates)
+    axes.xaxis.set_major_locator(locator)
+    axes.xaxis.set_major_formatter(formatter)
     axes.set_ylabel(&#39;Correlation&#39;)
     axes.set_xlabel(&#39;Dates&#39;)
     axes.set_title(subtitle, fontsize=12)
     figure.suptitle(title, fontsize=18)
+    figure.autofmt_xdate()
 
     return _show_or_save(canvas=canvas, show=show, savefile=savefile)</code></pre>
 </details>
@@ -439,7 +449,7 @@ def plot_cashflow(ticker, cashflow, show=True, savefile=None):
     else:
         
         # TODO: generate different locators based on length of period
-        x = [datetime.datetime.strptime(helper.date_to_string(date), &#39;%Y-%m-%d&#39;).toordinal() for date in dates]
+        x = [datetime.datetime.strptime(dater.date_to_string(date), &#39;%Y-%m-%d&#39;).toordinal() for date in dates]
         date_locator = matplotlib.dates.WeekdayLocator(byweekday=(matplotlib.dates.WE))
         date_format = matplotlib.dates.DateFormatter(&#39;%m-%d&#39;)
         

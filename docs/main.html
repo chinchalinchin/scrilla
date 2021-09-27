@@ -58,7 +58,7 @@ from typing import Callable
 
 from scrilla import settings, services, files, static
 from scrilla.errors import InputValidationError
-from scrilla.util import helper, outputter, formatter
+from scrilla.util import dater, outputter, formatter, helper
 from scrilla.analysis import optimizer, markets, estimators
 from scrilla.analysis.models.geometric import statistics, probability
 
@@ -620,15 +620,15 @@ def do_program() -&gt; None:
                                             show=True,
                                             profiles=profiles, 
                                             savefile=xtra_dict[&#39;save_file&#39;], 
-                                            subtitle=helper.format_date_range(start_date=xtra_dict[&#39;start_date&#39;], 
+                                            subtitle=dater.format_date_range(start_date=xtra_dict[&#39;start_date&#39;], 
                                                                                 end_date=xtra_dict[&#39;end_date&#39;]))
                 selected_function, required_length = cli_plot_risk_profile, 1
 
             elif opt == formatter.FUNC_ARG_DICT[&#39;plot_yield_curve&#39;]:
                 def cli_plot_yield_curve():
                     yield_curve = {}
-                    xtra_dict[&#39;start_date&#39;] = helper.get_next_business_date(xtra_dict[&#39;start_date&#39;])
-                    start_date_string = helper.date_to_string(xtra_dict[&#39;start_date&#39;])
+                    xtra_dict[&#39;start_date&#39;] = dater.get_next_business_date(xtra_dict[&#39;start_date&#39;])
+                    start_date_string = dater.date_to_string(xtra_dict[&#39;start_date&#39;])
                     yield_curve[start_date_string] = []
                     for maturity in static.keys[&#39;YIELD_CURVE&#39;]:
                         rate = services.get_daily_interest_history(maturity=maturity, 
@@ -1363,15 +1363,15 @@ if __name__ == &#34;__main__&#34;:
                                             show=True,
                                             profiles=profiles, 
                                             savefile=xtra_dict[&#39;save_file&#39;], 
-                                            subtitle=helper.format_date_range(start_date=xtra_dict[&#39;start_date&#39;], 
+                                            subtitle=dater.format_date_range(start_date=xtra_dict[&#39;start_date&#39;], 
                                                                                 end_date=xtra_dict[&#39;end_date&#39;]))
                 selected_function, required_length = cli_plot_risk_profile, 1
 
             elif opt == formatter.FUNC_ARG_DICT[&#39;plot_yield_curve&#39;]:
                 def cli_plot_yield_curve():
                     yield_curve = {}
-                    xtra_dict[&#39;start_date&#39;] = helper.get_next_business_date(xtra_dict[&#39;start_date&#39;])
-                    start_date_string = helper.date_to_string(xtra_dict[&#39;start_date&#39;])
+                    xtra_dict[&#39;start_date&#39;] = dater.get_next_business_date(xtra_dict[&#39;start_date&#39;])
+                    start_date_string = dater.date_to_string(xtra_dict[&#39;start_date&#39;])
                     yield_curve[start_date_string] = []
                     for maturity in static.keys[&#39;YIELD_CURVE&#39;]:
                         rate = services.get_daily_interest_history(maturity=maturity, 

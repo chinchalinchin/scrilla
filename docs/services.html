@@ -121,11 +121,11 @@ class StatManager():
 
             # TODO: too many &amp;&#39;s. doesn&#39;t seem to affect the call, though.
             if end_date is not None:
-                end_string = helper.date_to_string(end_date)
+                end_string = dater.date_to_string(end_date)
                 query += f&#39;&amp;{self.service_map[&#34;PARAMS&#34;][&#34;END&#34;]}={end_string}&#39; 
 
             if start_date is not None:
-                start_string = helper.date_to_string(start_date)
+                start_string = dater.date_to_string(start_date)
                 query += f&#39;&amp;{self.service_map[&#34;PARAMS&#34;][&#34;START&#34;]}={start_string}&#39;
         
             logger.debug(f&#39;Quandl query (w/o key) = {query}&#39;)
@@ -156,7 +156,7 @@ class StatManager():
         &#34;&#34;&#34;
         if self._is_quandl():
             url = f&#39;{settings.Q_URL}/{self.service_map[&#34;PATHS&#34;][&#34;FRED&#34;]}/{symbol}?&#39;
-            url += self.construct_query(start_date, end_date)
+            url += self._construct_query(start_date, end_date)
         return url
 
     def _construct_interest_url(self,start_date, end_date):
@@ -179,7 +179,7 @@ class StatManager():
             * The URL returned by this method will always contain a query for a historical range of US Treasury Yields, i.e. this method is specifically for queries involving the &#34;Risk-Free&#34; (right? right? *crickets*) Yield Curve. 
         &#34;&#34;&#34;
         url = f&#39;{settings.Q_URL}/{self.service_map[&#34;PATHS&#34;][&#34;YIELD&#34;]}?&#39;
-        url += self.construct_query(start_date=start_date, end_date=end_date)
+        url += self._construct_query(start_date=start_date, end_date=end_date)
         return url
 
 
@@ -187,7 +187,7 @@ class StatManager():
         url = self._construct_stat_url(symbol, start_date, end_date)
         response = requests.get(url).json()
 
-        if self.is_quandl():
+        if self._is_quandl():
             raw_stat = response[self.service_map[&#34;KEYS&#34;][&#34;FIRST_LAYER&#34;]][self.service_map[&#34;KEYS&#34;][&#34;SECOND_LAYER&#34;]]
             formatted_stat = {}
         
@@ -199,7 +199,7 @@ class StatManager():
         url = self._construct_interest_url(start_date=start_date, end_date=end_date)
         response = requests.get(url).json()
 
-        if self.is_quandl():
+        if self._is_quandl():
             raw_interest = response[self.service_map[&#34;KEYS&#34;][&#34;FIRST_LAYER&#34;]][self.service_map[&#34;KEYS&#34;][&#34;SECOND_LAYER&#34;]]
 
             formatted_interest = {}
@@ -213,7 +213,7 @@ class StatManager():
         except KeyError:
             raise errors.InputValidationError(f&#39;{maturity} is not a valid maturity for US Treasury Bonds&#39;)
 
-        if self.is_quandl():
+        if self._is_quandl():
             
             formatted_interest = {}
             for result in results:
@@ -418,7 +418,7 @@ class PriceManager():
 
             # NOTE: Remember AlphaVantage is ordered current to earliest. END_INDEX is 
             # actually the beginning of slice and START_INDEX is actually end of slice. 
-            start_string, end_string = helper.date_to_string(start_date), helper.date_to_string(end_date)
+            start_string, end_string = dater.date_to_string(start_date), dater.date_to_string(end_date)
             if asset_type == static.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]:
                 response_map = self.service_map[&#39;KEYS&#39;][&#39;EQUITY&#39;][&#39;FIRST_LAYER&#39;]
             elif asset_type == static.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]:
@@ -426,7 +426,7 @@ class PriceManager():
 
             start_index = list(prices[response_map].keys()).index(start_string)
             end_index = list(prices[response_map].keys()).index(end_string)
-            prices = dict(itertools.islice(response_map.items(), end_index, start_index+1))
+            prices = dict(itertools.islice(prices[response_map].items(), end_index, start_index+1))
             return prices
                 
         raise errors.ConfigurationError(&#39;No PRICE_MANAGER found in the parsed environment settings&#39;)
@@ -620,7 +620,7 @@ def get_daily_interest_history(maturity: str, start_date: Union[date, None]=None
 
         # TODO: this only works when stats are reported daily and that the latest date in the dataset is actually end_date.
     if rates is not None and dater.date_to_string(end_date) in rates.keys() \
-        and (helper.business_days_between(start_date, end_date) + 1) == len(rates): 
+        and (dater.business_days_between(start_date, end_date) + 1) == len(rates): 
         return rates
 
     logger.debug(f&#39;Cached {maturity} data is out of date, passing request to external service&#39;)
@@ -832,7 +832,7 @@ Dictionary with date strings formatted <code>YYYY-MM-DD</code> as keys and the i
 
         # TODO: this only works when stats are reported daily and that the latest date in the dataset is actually end_date.
     if rates is not None and dater.date_to_string(end_date) in rates.keys() \
-        and (helper.business_days_between(start_date, end_date) + 1) == len(rates): 
+        and (dater.business_days_between(start_date, end_date) + 1) == len(rates): 
         return rates
 
     logger.debug(f&#39;Cached {maturity} data is out of date, passing request to external service&#39;)
@@ -1324,7 +1324,7 @@ A dictionary containing keys unique to the service defined by <code>genre</code>
 
             # NOTE: Remember AlphaVantage is ordered current to earliest. END_INDEX is 
             # actually the beginning of slice and START_INDEX is actually end of slice. 
-            start_string, end_string = helper.date_to_string(start_date), helper.date_to_string(end_date)
+            start_string, end_string = dater.date_to_string(start_date), dater.date_to_string(end_date)
             if asset_type == static.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]:
                 response_map = self.service_map[&#39;KEYS&#39;][&#39;EQUITY&#39;][&#39;FIRST_LAYER&#39;]
             elif asset_type == static.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]:
@@ -1332,7 +1332,7 @@ A dictionary containing keys unique to the service defined by <code>genre</code>
 
             start_index = list(prices[response_map].keys()).index(start_string)
             end_index = list(prices[response_map].keys()).index(end_string)
-            prices = dict(itertools.islice(response_map.items(), end_index, start_index+1))
+            prices = dict(itertools.islice(prices[response_map].items(), end_index, start_index+1))
             return prices
                 
         raise errors.ConfigurationError(&#39;No PRICE_MANAGER found in the parsed environment settings&#39;)
@@ -1562,11 +1562,11 @@ If the <strong>STAT_MANAGER</strong> environment variable has been set to a valu
 
             # TODO: too many &amp;&#39;s. doesn&#39;t seem to affect the call, though.
             if end_date is not None:
-                end_string = helper.date_to_string(end_date)
+                end_string = dater.date_to_string(end_date)
                 query += f&#39;&amp;{self.service_map[&#34;PARAMS&#34;][&#34;END&#34;]}={end_string}&#39; 
 
             if start_date is not None:
-                start_string = helper.date_to_string(start_date)
+                start_string = dater.date_to_string(start_date)
                 query += f&#39;&amp;{self.service_map[&#34;PARAMS&#34;][&#34;START&#34;]}={start_string}&#39;
         
             logger.debug(f&#39;Quandl query (w/o key) = {query}&#39;)
@@ -1597,7 +1597,7 @@ If the <strong>STAT_MANAGER</strong> environment variable has been set to a valu
         &#34;&#34;&#34;
         if self._is_quandl():
             url = f&#39;{settings.Q_URL}/{self.service_map[&#34;PATHS&#34;][&#34;FRED&#34;]}/{symbol}?&#39;
-            url += self.construct_query(start_date, end_date)
+            url += self._construct_query(start_date, end_date)
         return url
 
     def _construct_interest_url(self,start_date, end_date):
@@ -1620,7 +1620,7 @@ If the <strong>STAT_MANAGER</strong> environment variable has been set to a valu
             * The URL returned by this method will always contain a query for a historical range of US Treasury Yields, i.e. this method is specifically for queries involving the &#34;Risk-Free&#34; (right? right? *crickets*) Yield Curve. 
         &#34;&#34;&#34;
         url = f&#39;{settings.Q_URL}/{self.service_map[&#34;PATHS&#34;][&#34;YIELD&#34;]}?&#39;
-        url += self.construct_query(start_date=start_date, end_date=end_date)
+        url += self._construct_query(start_date=start_date, end_date=end_date)
         return url
 
 
@@ -1628,7 +1628,7 @@ If the <strong>STAT_MANAGER</strong> environment variable has been set to a valu
         url = self._construct_stat_url(symbol, start_date, end_date)
         response = requests.get(url).json()
 
-        if self.is_quandl():
+        if self._is_quandl():
             raw_stat = response[self.service_map[&#34;KEYS&#34;][&#34;FIRST_LAYER&#34;]][self.service_map[&#34;KEYS&#34;][&#34;SECOND_LAYER&#34;]]
             formatted_stat = {}
         
@@ -1640,7 +1640,7 @@ If the <strong>STAT_MANAGER</strong> environment variable has been set to a valu
         url = self._construct_interest_url(start_date=start_date, end_date=end_date)
         response = requests.get(url).json()
 
-        if self.is_quandl():
+        if self._is_quandl():
             raw_interest = response[self.service_map[&#34;KEYS&#34;][&#34;FIRST_LAYER&#34;]][self.service_map[&#34;KEYS&#34;][&#34;SECOND_LAYER&#34;]]
 
             formatted_interest = {}
@@ -1654,7 +1654,7 @@ If the <strong>STAT_MANAGER</strong> environment variable has been set to a valu
         except KeyError:
             raise errors.InputValidationError(f&#39;{maturity} is not a valid maturity for US Treasury Bonds&#39;)
 
-        if self.is_quandl():
+        if self._is_quandl():
             
             formatted_interest = {}
             for result in results:
@@ -1678,7 +1678,7 @@ If the <strong>STAT_MANAGER</strong> environment variable has been set to a valu
     except KeyError:
         raise errors.InputValidationError(f&#39;{maturity} is not a valid maturity for US Treasury Bonds&#39;)
 
-    if self.is_quandl():
+    if self._is_quandl():
         
         formatted_interest = {}
         for result in results:
@@ -1699,7 +1699,7 @@ If the <strong>STAT_MANAGER</strong> environment variable has been set to a valu
     url = self._construct_interest_url(start_date=start_date, end_date=end_date)
     response = requests.get(url).json()
 
-    if self.is_quandl():
+    if self._is_quandl():
         raw_interest = response[self.service_map[&#34;KEYS&#34;][&#34;FIRST_LAYER&#34;]][self.service_map[&#34;KEYS&#34;][&#34;SECOND_LAYER&#34;]]
 
         formatted_interest = {}
@@ -1721,7 +1721,7 @@ If the <strong>STAT_MANAGER</strong> environment variable has been set to a valu
     url = self._construct_stat_url(symbol, start_date, end_date)
     response = requests.get(url).json()
 
-    if self.is_quandl():
+    if self._is_quandl():
         raw_stat = response[self.service_map[&#34;KEYS&#34;][&#34;FIRST_LAYER&#34;]][self.service_map[&#34;KEYS&#34;][&#34;SECOND_LAYER&#34;]]
         formatted_stat = {}
     

@@ -89,7 +89,7 @@ def validate_dates(start_date: date, end_date: date, asset_type: str) -&gt; Tupl
     if end_date is not None:
         end_date = dater.truncate_future_from_date(end_date)
         if asset_type == static.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]:
-            end_date = helper.this_date_or_last_trading_date(end_date)
+            end_date = dater.this_date_or_last_trading_date(end_date)
     # else create a sensible end date
     else:
         if asset_type == static.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]:
@@ -105,7 +105,7 @@ def validate_dates(start_date: date, end_date: date, asset_type: str) -&gt; Tupl
     if start_date is not None:
         if dater.is_future_date(start_date):
             # only invalid user input is if start date doesn&#39;t exist yet
-            raise InputValidationError(f&#39;Start date of {helper.date_to_string(start_date)} is greater than today&#39;)
+            raise InputValidationError(f&#39;Start date of {dater.date_to_string(start_date)} is greater than today&#39;)
 
         if asset_type == static.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]:
             start_date = dater.this_date_or_last_trading_date(start_date)
@@ -167,7 +167,7 @@ def validate_dates(start_date: date, end_date: date, asset_type: str) -&gt; Tupl
     if end_date is not None:
         end_date = dater.truncate_future_from_date(end_date)
         if asset_type == static.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]:
-            end_date = helper.this_date_or_last_trading_date(end_date)
+            end_date = dater.this_date_or_last_trading_date(end_date)
     # else create a sensible end date
     else:
         if asset_type == static.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]:
@@ -183,7 +183,7 @@ def validate_dates(start_date: date, end_date: date, asset_type: str) -&gt; Tupl
     if start_date is not None:
         if dater.is_future_date(start_date):
             # only invalid user input is if start date doesn&#39;t exist yet
-            raise InputValidationError(f&#39;Start date of {helper.date_to_string(start_date)} is greater than today&#39;)
+            raise InputValidationError(f&#39;Start date of {dater.date_to_string(start_date)} is greater than today&#39;)
 
         if asset_type == static.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]:
             start_date = dater.this_date_or_last_trading_date(start_date)

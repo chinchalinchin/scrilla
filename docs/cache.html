@@ -194,7 +194,7 @@ class CorrelationCache(Cache):
         formatter_2 = { &#39;ticker_1&#39;: ticker_2, &#39;ticker_2&#39;: ticker_1, &#39;method&#39;: method,
                         &#39;start_date&#39;: start_date, &#39;end_date&#39;: end_date}
         
-        logger.debug(f&#39;Querying SQLite cache \n\t{CorrelationCache.correlation_query}\n\t\t with :ticker_1={ticker_1}, :ticker_2={ticker_2}&#39;)
+        logger.debug(f&#39;Querying SQLite cache \n\t{CorrelationCache.correlation_query}\n\t\t with :ticker_1={ticker_1}, :ticker_2={ticker_2},:start_date={start_date}, :end_date={end_date}&#39;)
         results = self.execute_query(query=CorrelationCache.correlation_query, formatter=formatter_1)
         if len(results)&gt;0:
             logger.debug(f&#39;Found ({ticker_1},{ticker_2}) correlation in the cache&#39;)
@@ -491,7 +491,7 @@ Dictionary of parameters used to format statement. Statements are formatted with
         formatter_2 = { &#39;ticker_1&#39;: ticker_2, &#39;ticker_2&#39;: ticker_1, &#39;method&#39;: method,
                         &#39;start_date&#39;: start_date, &#39;end_date&#39;: end_date}
         
-        logger.debug(f&#39;Querying SQLite cache \n\t{CorrelationCache.correlation_query}\n\t\t with :ticker_1={ticker_1}, :ticker_2={ticker_2}&#39;)
+        logger.debug(f&#39;Querying SQLite cache \n\t{CorrelationCache.correlation_query}\n\t\t with :ticker_1={ticker_1}, :ticker_2={ticker_2},:start_date={start_date}, :end_date={end_date}&#39;)
         results = self.execute_query(query=CorrelationCache.correlation_query, formatter=formatter_1)
         if len(results)&gt;0:
             logger.debug(f&#39;Found ({ticker_1},{ticker_2}) correlation in the cache&#39;)
@@ -556,7 +556,7 @@ def to_dict(query_results):
     formatter_2 = { &#39;ticker_1&#39;: ticker_2, &#39;ticker_2&#39;: ticker_1, &#39;method&#39;: method,
                     &#39;start_date&#39;: start_date, &#39;end_date&#39;: end_date}
     
-    logger.debug(f&#39;Querying SQLite cache \n\t{CorrelationCache.correlation_query}\n\t\t with :ticker_1={ticker_1}, :ticker_2={ticker_2}&#39;)
+    logger.debug(f&#39;Querying SQLite cache \n\t{CorrelationCache.correlation_query}\n\t\t with :ticker_1={ticker_1}, :ticker_2={ticker_2},:start_date={start_date}, :end_date={end_date}&#39;)
     results = self.execute_query(query=CorrelationCache.correlation_query, formatter=formatter_1)
     if len(results)&gt;0:
         logger.debug(f&#39;Found ({ticker_1},{ticker_2}) correlation in the cache&#39;)
