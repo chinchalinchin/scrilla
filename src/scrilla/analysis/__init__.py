@@ -1,4 +1,4 @@
-"""
+r"""
 This module is a toolset for financial and statistical analysis. The top level functions provide general functionality, like universal statistical estimators, financial ratios and calculation techniques. Every calculation that occurs in this module assumes two things:
     1. An estimation method.
         This determines how the sample statistics are calculated from sample data. `scrilla` can be configured to use the [method of moment matching](https://en.wikipedia.org/wiki/Method_of_moments_(statistics)) estimation technique, the [method of percentile matching](https://openacttexts.github.io/Loss-Data-Analytics/C-ModelSelection.html)(section 4.1.3.2), or [maximum likelihood estimation](https://en.wikipedia.org/wiki/Maximum_likelihood_estimation).
