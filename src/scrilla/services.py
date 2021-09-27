@@ -346,12 +346,12 @@ class PriceManager():
 
         prices = self._slice_prices(start_date=start_date, end_date=end_date, asset_type=asset_type, prices=response)
         format_prices = {}
-        for date in prices:
-            close_price = self._parse_price_from_date(prices=prices, date=date, asset_type=asset_type, 
+        for this_date in prices:
+            close_price = self._parse_price_from_date(prices=prices, date=this_date, asset_type=asset_type, 
                                                 which_price=static.keys['PRICES']['CLOSE'])
-            open_price = self._parse_price_from_date(prices=prices, date=date, asset_type=asset_type, 
+            open_price = self._parse_price_from_date(prices=prices, date=this_date, asset_type=asset_type, 
                                                 which_price=static.keys['PRICES']['OPEN'])
-            format_prices[date] = { static.keys['PRICES']['OPEN'] : open_price, static.keys['PRICES']['CLOSE'] : close_price }
+            format_prices[this_date] = { static.keys['PRICES']['OPEN'] : open_price, static.keys['PRICES']['CLOSE'] : close_price }
         return format_prices
 
     def _slice_prices(self, start_date: date, end_date: date, asset_type: str, prices: dict) -> dict:
@@ -495,10 +495,10 @@ def get_daily_price_history(ticker: str, start_date: Union[None, date] = None,
         
     prices = price_manager.get_prices(ticker=ticker,start_date=start_date, end_date=end_date, asset_type=asset_type)
 
-    for date in prices:
-        close_price = prices[date][static.keys['PRICES']['OPEN']]
-        open_price = prices[date][static.keys['PRICES']['CLOSE']]
-        price_cache.save_row(ticker=ticker, date=date, open_price=open_price, close_price=close_price)
+    for this_date in prices:
+        close_price = prices[this_date][static.keys['PRICES']['OPEN']]
+        open_price = prices[this_date][static.keys['PRICES']['CLOSE']]
+        price_cache.save_row(ticker=ticker, date=this_date, open_price=open_price, close_price=close_price)
 
     return prices
     
