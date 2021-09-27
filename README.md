@@ -221,7 +221,7 @@ The command given above will optimize the portfolio's value at risk consisting o
 
 1. Distribution Modes
 
-<b>scrilla</b> will assume an asset price process and therefore a probability distribution for the population of asset returns. The model <b>scrilla</b> assumes is determined by the environment variable <b>ANALYSIS_MODE</b>. Currently, only one model is available: `geometric`, which corresponds to an assume price process that follows (Geometric Brownian Motion)[https://en.wikipedia.org/wiki/Geometric_Brownian_motion] and thus a probability distribution for the asset returns that is log-normal. 
+<b>scrilla</b> will assume an asset price process and therefore a probability distribution for the population of asset returns. The model <b>scrilla</b> assumes is determined by the environment variable <b>ANALYSIS_MODE</b>. Currently, only one model is available: `geometric`, which corresponds to an assume price process that follows [geometric brownian motion](https://en.wikipedia.org/wiki/Geometric_Brownian_motion) and thus a probability distribution for the asset returns that is log-normal. 
 
 In the near future, a mean reversion model will implemented.
 
