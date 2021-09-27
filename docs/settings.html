@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.10.0" />
 <title>scrilla.settings API documentation</title>
-<meta name="description" content="" />
+<meta name="description" content="Not to be confused with server.scrilla_api.core.settings, which configures the server side of the
+application. The settings in this file only affect …" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
 <link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
@@ -23,6 +24,52 @@
 <h1 class="title">Module <code>scrilla.settings</code></h1>
 </header>
 <section id="section-intro">
+<p>Not to be confused with server.scrilla_api.core.settings, which configures the server side of the
+application. The settings in this file only affect the optimization and statistical calculations
+performed by the application. </p>
+<h2 id="attributes">Attributes</h2>
+<ol>
+<li><code>scrilla.settings.APP_NAME</code>: Name of the application.</li>
+<li><code>scrilla.settings.APP_DIR</code>: Folder containing this file.</li>
+<li><code>scrilla.settings.PROJECT_DIR</code>: Folder containering the project source.</li>
+<li><code>scrilla.settings.ROOT_DIR</code>: Root folder of the repository.</li>
+<li><code>scrilla.settings.APP_ENV</code>: Application environment.</li>
+<li><code>scrilla.settings.LOG_LEVEL</code>: Debug output level.</li>
+<li><code>scrilla.settings.CACHE_DIR</code>: Folder where cached price histories reside.</li>
+<li><code>scrilla.settings.CACHE_SQLITE_FILE</code>: Location of the SQLite persistence store.</li>
+<li><code>scrilla.settings.FILE_EXT</code>: File extension used in CACHE_DIR.</li>
+<li><code>scrilla.settings.STATIC_DIR</code>: Folder where static data reside.</li>
+<li><code>scrilla.settings.FILE_EXT</code>: File extension used to store files across the program.</li>
+<li><code>scrilla.settings.STATIC_TICKERS_FILE</code>: File containing a list of all equity ticker symbols with price histories that can be retrieved from external services.</li>
+<li><code>scrilla.settings.STATIC_ECON_FILE</code>: File containg a list of all economic statistics with sample histories that can be retrieved from external services.</li>
+<li><code>scrilla.settings.STATIC_CRYPTO_FILE</code>: File containing a list of all crypto ticker symbols with price histories that can be retrieved from external services.</li>
+<li>GUI_WIDTH: Width of root widget in GUI.</li>
+<li>GUI_HEIGHT: Height of root widget in GUI.</li>
+<li>FRONTIER_STEPS: Number of points in efficient frontier output.</li>
+<li>MA_1_PERIOD: Number of days in first moving average period.</li>
+<li>MA_2_PERIOD: Number of days in second moving average period.</li>
+<li>MA_3_PERIOD: Number of days in first moving average period.</li>
+<li>RISK_FREE_RATE: Interest rate used for cashflow valuations.</li>
+<li>MARKET_PROXY: Ticker symbol used to calculate market rate of return</li>
+<li><code>scrilla.settings.PRICE_MANAGER</code>: Service in charge of price histories.</li>
+<li>STAT_MANAGER: Service in charge of statistic histories.</li>
+<li>DIVIDEND_MANAGER: Service in charge of dividend payment histories.</li>
+<li>AV_URL: Base URL for AlphaVantage query.</li>
+<li>AV_KEY: Credentials for AlphaVantage query.</li>
+<li>AV_CRYPTO_LIST: URL for crypto metadata AlphaVantage query.</li>
+<li>PARAM_AV_TICKER: AlphaVantage ticker symbol query parameter.</li>
+<li>PARAM_AV_FUNC: AlphaVantage function query parameter.</li>
+<li>PARAM_AV_DENOM: AlphaVantage denomination query parameter.</li>
+<li>PARAM_AV_KEY: AlphaVantage API Key query parameter.</li>
+<li>PARAM_AV_SIZE: AlphaVantage sample size query parameter.</li>
+<li>ARG_AV_FUNC_EQUITY_DAILY: : AlphaVantage query constant for daily equity prices.</li>
+<li>ARG_AV_FUNC_EQUITY_LISTINGS: AlphaVantage query constant for equity metadata.</li>
+<li>ARG_AV_FUNC_CRYPTO_DAILY: AlphaVantage query constant for daily crypto prices.</li>
+<li>ARG_AV_SIZE_FULL: AlphaVantage query constant for full price history.</li>
+<li>Q_URL: Base URL for Quandl query.</li>
+<li>Q_KEY: Credentials for Quandl query.</li>
+<li>Q_META_URL: URL for economic statistics data.</li>
+</ol>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -41,7 +88,54 @@
 # You should have received a copy of the GNU General Public License
 # along with scrilla.  If not, see &lt;https://www.gnu.org/licenses/&gt;
 # or &lt;https://github.com/chinchalinchin/scrilla/blob/develop/main/LICENSE&gt;.
+&#34;&#34;&#34;
+Not to be confused with server.scrilla_api.core.settings, which configures the server side of the 
+application. The settings in this file only affect the optimization and statistical calculations 
+performed by the application. 
 
+Attributes
+----------
+1. `scrilla.settings.APP_NAME`: Name of the application.
+2. `scrilla.settings.APP_DIR`: Folder containing this file.
+3. `scrilla.settings.PROJECT_DIR`: Folder containering the project source.
+4. `scrilla.settings.ROOT_DIR`: Root folder of the repository.
+5. `scrilla.settings.APP_ENV`: Application environment.
+6. `scrilla.settings.LOG_LEVEL`: Debug output level.
+7. `scrilla.settings.CACHE_DIR`: Folder where cached price histories reside.
+8. `scrilla.settings.CACHE_SQLITE_FILE`: Location of the SQLite persistence store.
+8. `scrilla.settings.FILE_EXT`: File extension used in CACHE_DIR.
+10. `scrilla.settings.STATIC_DIR`: Folder where static data reside.
+11. `scrilla.settings.FILE_EXT`: File extension used to store files across the program.
+12. `scrilla.settings.STATIC_TICKERS_FILE`: File containing a list of all equity ticker symbols with price histories that can be retrieved from external services.
+13. `scrilla.settings.STATIC_ECON_FILE`: File containg a list of all economic statistics with sample histories that can be retrieved from external services.
+14. `scrilla.settings.STATIC_CRYPTO_FILE`: File containing a list of all crypto ticker symbols with price histories that can be retrieved from external services.
+18. GUI_WIDTH: Width of root widget in GUI.
+19. GUI_HEIGHT: Height of root widget in GUI.
+22. FRONTIER_STEPS: Number of points in efficient frontier output.
+23. MA_1_PERIOD: Number of days in first moving average period.
+24. MA_2_PERIOD: Number of days in second moving average period.
+25. MA_3_PERIOD: Number of days in first moving average period.
+29. RISK_FREE_RATE: Interest rate used for cashflow valuations.
+30. MARKET_PROXY: Ticker symbol used to calculate market rate of return
+32. `scrilla.settings.PRICE_MANAGER`: Service in charge of price histories.
+33. STAT_MANAGER: Service in charge of statistic histories.
+34. DIVIDEND_MANAGER: Service in charge of dividend payment histories.
+34. AV_URL: Base URL for AlphaVantage query.
+35. AV_KEY: Credentials for AlphaVantage query.
+36. AV_CRYPTO_LIST: URL for crypto metadata AlphaVantage query.
+45. PARAM_AV_TICKER: AlphaVantage ticker symbol query parameter.
+46. PARAM_AV_FUNC: AlphaVantage function query parameter.
+47. PARAM_AV_DENOM: AlphaVantage denomination query parameter.
+48. PARAM_AV_KEY: AlphaVantage API Key query parameter.
+49. PARAM_AV_SIZE: AlphaVantage sample size query parameter.
+50. ARG_AV_FUNC_EQUITY_DAILY: : AlphaVantage query constant for daily equity prices.
+51. ARG_AV_FUNC_EQUITY_LISTINGS: AlphaVantage query constant for equity metadata.
+52. ARG_AV_FUNC_CRYPTO_DAILY: AlphaVantage query constant for daily crypto prices.
+53. ARG_AV_SIZE_FULL: AlphaVantage query constant for full price history.
+54. Q_URL: Base URL for Quandl query.
+55. Q_KEY: Credentials for Quandl query.
+56. Q_META_URL: URL for economic statistics data.
+&#34;&#34;&#34;
 import os, sys, dotenv, json
 
 APP_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -50,69 +144,12 @@ ROOT_DIR = os.path.dirname(PROJECT_DIR)
 
 sys.path.append(APP_DIR)
 
-
 import scrilla.util.outputter as outputter
 
+# put here to avoid any other module imports in this file, i.e. don&#39;t import
+# this from `scrilla.errors`
 class APIKeyError(Exception):
     pass
-
-## APPLICATION CONFIGURATION
-&#34;&#34;&#34;
-Application Configuration
--------------------------
-Not to be confused with server.scrilla_api.core.settings, which configures the server side of the 
-application. The settings in this file only affect the optimization and statistical calculations 
-performed by the application. \n \n
-
-Attributes
-----------
-1. APP_NAME: Name of the application. \n \n
-3. APP_DIR: Folder containing this file. \n \n
-4. APP_ENV: Application environment. \n \n
-5. LOG_LEVEL: Debug output level. \n \n
-7. CACHE_DIR: Folder where cached price histories reside. \n \n
-9. FILE_EXT: File extension used in CACHE_DIR. \n \n
-10. STATIC_DIR: Folder where static data reside. \n \n
-11. FILE_EXT: File extension used in STATIC_DIR. \n \n
-12. STATIC_TICKERS_FILE: File containing a list of all equity ticker symbols with price histories that can be retrieved from external services. \n \n
-13. STATIC_ECON_FILE: File containg a list of all economic statistics with sample histories that can be retrieved from external services. \n \n
-14. STATIC_CRYPTO_FILE: File containing a list of all crypto ticker symbols with price histories that can be retrieved from external services. \n \n
-18. GUI_WIDTH: Width of root widget in GUI. \n \n
-19. GUI_HEIGHT: Height of root widget in GUI. \n \n
-22. FRONTIER_STEPS: Number of points in efficient frontier output. \n \n
-23. MA_1_PERIOD: Number of days in first moving average period. \n \n
-24. MA_2_PERIOD: Number of days in second moving average period. \n \n
-25. MA_3_PERIOD: Number of days in first moving average period. \n \n
-29. RISK_FREE_RATE: Interest rate used for cashflow valuations. \n \n
-30. MARKET_PROXY: Ticker symbol used to calculate market rate of return
-32. PRICE_MANAGER: Service in charge of price histories. \n \n
-33. STAT_MANAGER: Service in charge of statistic histories. \n \n
-34. DIVIDEND_MANAGER: Service in charge of dividend payment histories. \n \n
-34. AV_URL: Base URL for AlphaVantage query. \n \n
-35. AV_KEY: Credentials for AlphaVantage query. \n \n
-36. AV_CRYPTO_LIST: URL for crypto metadata AlphaVantage query. \n \n
-37. AV_RES_EQUITY_FIRST_LAYER: First key in AlphaVantage equity response. \n \n
-38. AV_RES_EQUITY_CLOSE_PRICE: Column key in AlphaVantage response. \n \n
-39. AV_RES_EQUITY_KEY: Column key in AlphaVantage response.  \n \n
-40. AV_RES_CRYPTO_FIRST_LAYER: First key in AlphaVantage crypto response. \n \n
-41. AV_RES_CRYPTO_KEY: Column key in AlphaVantage response. \n \n
-42. AV_RES_CRYPTO_CLOSE_PRICE: Column key in AlphaVantage response. \n \n
-43. AV_RES_ERROR: Key for error messages in AlphaVantage response. \n \n
-44. AV_RES_LIMIT: Key for rate limit in AlphaVantage response. \n \n
-45. PARAM_AV_TICKER: AlphaVantage ticker symbol query parameter. \n \n
-46. PARAM_AV_FUNC: AlphaVantage function query parameter. \n \n
-47. PARAM_AV_DENOM: AlphaVantage denomination query parameter. \n \n
-48. PARAM_AV_KEY: AlphaVantage API Key query parameter. \n \n
-49. PARAM_AV_SIZE: AlphaVantage sample size query parameter. \n \n
-50. ARG_AV_FUNC_EQUITY_DAILY: : AlphaVantage query constant for daily equity prices. \n \n
-51. ARG_AV_FUNC_EQUITY_LISTINGS: AlphaVantage query constant for equity metadata. \n \n
-52. ARG_AV_FUNC_CRYPTO_DAILY: AlphaVantage query constant for daily crypto prices. \n \n
-53. ARG_AV_SIZE_FULL: AlphaVantage query constant for full price history. \n \n
-54. Q_URL: Base URL for Quandl query. \n \n
-55. Q_KEY: Credentials for Quandl query. \n \n
-56. Q_META_URL: URL for economic statistics data. \n \n
-66. ARG_Q_YIELD_CURVE: Quandl constant for interest rate histories. \n \n
-&#34;&#34;&#34;
 
 APP_NAME=&#34;scrilla&#34;
 APP_ENV = os.environ.setdefault(&#39;APP_ENV&#39;, &#39;local&#39;)
@@ -333,7 +370,9 @@ if DIV_MANAGER == &#34;iex&#34;:
 <nav id="sidebar">
 <h1>Index</h1>
 <div class="toc">
-<ul></ul>
+<ul>
+<li><a href="#attributes">Attributes</a></li>
+</ul>
 </div>
 <ul id="index">
 <li><h3>Super-module</h3>
