@@ -58,27 +58,7 @@ logger = outputter.Logger(&#34;cache&#34;, settings.LOG_LEVEL)
 
 class Cache():
     &#34;&#34;&#34;
-    Methods
-    -------
-
-    1. execute_transaction
-
-        Parameters
-        ----------
-        1. transactions: str\n
-            Statement to be executed and committed. \n \n
-        2. formatter: dict
-            Dictionary of parameters used to format statement. Statements are formatted with DB-API&#39;s name substitution. See sqlite3 documentation for more information:https://docs.python.org/3/library/sqlite3.html.  \n \n
-    
-    2. query_database
-
-        Parameters
-        ----------
-        1. query : str\n
-            Query to be exectued.
-        2. formatter: dict
-            Dictionary of parameters used to format statement. Statements are formatted with DB-API&#39;s name substitution. See sqlite3 documentation for more information:https://docs.python.org/3/library/sqlite3.html.  \n \n
-
+    Super class for other types of caches. Takes as a parameter in its constructor a **SQLite** `CREATE TABLE` query and executes it against the SQLite database located at `scrilla.settings.CACHE_SQLITE_FILE`, which in turn is configured by the **SQLITE_FILE** environment variable. 
     &#34;&#34;&#34;
 
     def __init__(self, table_transaction):
@@ -86,6 +66,16 @@ class Cache():
 
     @staticmethod
     def execute_transaction(transaction, formatter=None):
+        &#34;&#34;&#34;
+        Executes and commits a SQLite transaction.
+
+        Parameters
+        ----------
+        1. **transaction**: ``str``
+            Statement to be executed and committed.
+        2. formatter: ``dict``
+            Dictionary of parameters used to format statement. Statements are formatted with DB-API&#39;s name substitution. See [sqlite3 documentation](https://docs.python.org/3/library/sqlite3.html) for more information.
+        &#34;&#34;&#34;
         con = sqlite3.connect(settings.CACHE_SQLITE_FILE)
         executor =  con.cursor()
         if formatter is not None:
@@ -97,6 +87,21 @@ class Cache():
 
     @staticmethod
     def execute_query(query, formatter=None):
+        &#34;&#34;&#34;
+        Executes a read-write SQLite query. 
+
+        Parameters
+        ----------
+        1. **query**: ``str``
+            Query to be exectued.
+        2. **formatter**: ``dict``
+            Dictionary of parameters used to format statement. Statements are formatted with DB-API&#39;s name substitution. See [sqlite3 documentation](https://docs.python.org/3/library/sqlite3.html) for more information. 
+
+        Returns
+        -------
+        ``list``
+            A list containing the results of the query.
+        &#34;&#34;&#34;
         con = sqlite3.connect(settings.CACHE_SQLITE_FILE)
         con.row_factory = sqlite3.Row
         executor = con.cursor()
@@ -105,6 +110,18 @@ class Cache():
         return executor.execute(query).fetchall()
 
 class PriceCache(Cache):
+    &#34;&#34;&#34;
+    Inherits *SQLite* functionality from `scrilla.cache.Cache`. Extends basic functionality to cache correlation calculations in a table with columns `(ticker, date, open, close)`, with a unique constraint on the tuplie `(ticker, date)`, i.e. records in the *PriceCache* are uniquely determined by the the combination of the ticker symbol and the date.
+    
+    Attributes
+    ----------
+    1. **create_table_transaction**: ``str``
+        *SQLite* transaction passed to the super class used to create price cache table if it does not already exist.
+    2. **insert_row_transaction**: ``str``
+        *SQLite* transaction used to insert row into price cache table.
+    3. **price_query**: ``str```
+        *SQLite* query to retrieve prices from cache.
+    &#34;&#34;&#34;
     create_table_transaction=&#34;CREATE TABLE IF NOT EXISTS prices (ticker text, date text, open real, close real, UNIQUE(ticker, date))&#34;
     insert_row_transaction=&#34;INSERT OR IGNORE INTO prices (ticker, date, open, close) VALUES (:ticker, :date, :open, :close)&#34;
     price_query=&#34;SELECT date, open, close from prices WHERE ticker = :ticker AND date &lt;= date(:end_date) AND date &gt;= date(:start_date) ORDER BY date(date) DESC&#34;
@@ -114,6 +131,14 @@ class PriceCache(Cache):
 
     @staticmethod
     def to_dict(query_results):
+        &#34;&#34;&#34;
+        Returns the SQLite query results formatted for the application.
+
+        Parameters
+        ----------
+        1. **query_results**: ``list``
+            Raw SQLite query results.
+        &#34;&#34;&#34;
         return { result[0]: { static.keys[&#39;PRICES&#39;][&#39;OPEN&#39;]: result[1], static.keys[&#39;PRICES&#39;][&#39;CLOSE&#39;]: result[2] } for result in query_results }
 
     def save_row(self, ticker, date, open_price, close_price):
@@ -133,15 +158,35 @@ class PriceCache(Cache):
         return None
 
 class InterestCache(Cache):
+    &#34;&#34;&#34;
+    Inherits *SQLite* functionality from `scrilla.cache.Cache`. Extends basic functionality to cache interest rate data in a table with columns `(maturity, date, value)`.
+    
+    Attributes
+    ----------
+    1. **create_table_transaction**: ``str``
+        *SQLite* transaction passed to the super class used to create correlation cache table if it does not already exist.
+    2. **insert_row_transaction**: ``str``
+        *SQLite* transaction used to insert row into correlation cache table.
+    3. **int_query**: ``str```
+        *SQLite* query to retrieve an interest from cache.
+    &#34;&#34;&#34;
     create_table_transaction=&#34;CREATE TABLE IF NOT EXISTS interest(maturity text, date text, value real, UNIQUE(maturity, date))&#34;
     insert_row_transaction=&#34;INSERT OR IGNORE INTO interest (maturity, date, value) VALUES (:maturity, :date, :value)&#34;
-    stat_query=&#34;SELECT date, value FROM interest WHERE maturity=:maturity AND date &lt;=date(:end_date) AND date&gt;=date(:start_date) ORDER BY date(date) DESC&#34;
+    int_query=&#34;SELECT date, value FROM interest WHERE maturity=:maturity AND date &lt;=date(:end_date) AND date&gt;=date(:start_date) ORDER BY date(date) DESC&#34;
 
     def __init__(self):
         super().__init__(InterestCache.create_table_transaction)
 
     @staticmethod
     def to_dict(query_results):
+        &#34;&#34;&#34;
+        Returns the SQLite query results formatted for the application.
+
+        Parameters
+        ----------
+        1. **query_results**: ``list``
+            Raw SQLite query results.
+        &#34;&#34;&#34;
         return { result[0]: result[1] for result in query_results }
 
     def save_row(self, date, value):
@@ -151,9 +196,9 @@ class InterestCache(Cache):
             self.execute_transaction(transaction=InterestCache.insert_row_transaction, formatter=formatter)
     
     def filter_interest_cache(self, maturity, start_date, end_date):
-        logger.debug(f&#39;Querying SQLite cache \n\t{InterestCache.stat_query}\n\t\t with :maturity={maturity}, :start_date={start_date}, :end_date={end_date}&#39;)
+        logger.debug(f&#39;Querying SQLite cache \n\t{InterestCache.int_query}\n\t\t with :maturity={maturity}, :start_date={start_date}, :end_date={end_date}&#39;)
         formatter = { &#39;maturity&#39;: maturity, &#39;start_date&#39;: start_date, &#39;end_date&#39;: end_date }
-        results = self.execute_query(query=InterestCache.stat_query, formatter=formatter)
+        results = self.execute_query(query=InterestCache.int_query, formatter=formatter)
 
         if len(results)&gt;0:
             logger.debug(f&#39;Found {maturity} yield on in the cache&#39;)
@@ -161,13 +206,22 @@ class InterestCache(Cache):
         logger.debug(f&#39;No results found for {maturity} yield in cache&#39;)
         return None
 
-# NOTE: do not need to order `correlation_query` and `profile_query` because profiles and correlations are uniquely 
-#       determined by the (`start_date`, `end_date`, &#39;ticker_1&#39;, &#39;ticker_2&#39;)-tuple. More or less. There is a bit of 
-#       fuzziness, since the permutation of the previous tuple, (&#39;start_date&#39;, &#39;end_date&#39;, &#39;ticker_2&#39;, &#39;ticker_1&#39;), 
-#       will also be associated with the same correlation value. No other mappings between a date&#39;s correlation value
-#       and the correlation&#39;s tickers are possible though. In other words, the query, for a given 
-#       (ticker_1, ticker_2)-permutation will only ever return one result.
 class CorrelationCache(Cache):
+    &#34;&#34;&#34;
+    Inherits *SQLite* functionality from `scrilla.cache.Cache`. Extends basic functionality to cache correlation calculations in a table with columns `(ticker_1, ticker_2, correlation, start_date, end_date, estimation_method)`.
+
+    Attributes
+    ----------
+    1. **create_table_transaction**: ``str``
+        *SQLite* transaction passed to the super class used to create correlation cache table if it does not already exist.
+    2. **insert_row_transaction**: ``str``
+        *SQLite* transaction used to insert row into correlation cache table.
+    3. **correlation_query**: ``str```
+        *SQLite* query to retrieve correlation from cache.
+    
+    .. notes::
+        * do not need to order `correlation_query` and `profile_query` because profiles and correlations are uniquely determined by the (`start_date`, `end_date`, &#39;ticker_1&#39;, &#39;ticker_2&#39;)-tuple. More or less. There is a bit of fuzziness, since the permutation of the previous tuple, (&#39;start_date&#39;, &#39;end_date&#39;, &#39;ticker_2&#39;, &#39;ticker_1&#39;), will also be associated with the same correlation value. No other mappings between a date&#39;s correlation value and the correlation&#39;s tickers are possible though. In other words, the query, for a given (ticker_1, ticker_2)-permutation will only ever return one result.
+    &#34;&#34;&#34;
     create_table_transaction=&#34;CREATE TABLE IF NOT EXISTS correlations (ticker_1 TEXT, ticker_2 TEXT, start_date TEXT, end_date TEXT, correlation REAL, method TEXT)&#34;
     insert_row_transaction=&#34;INSERT INTO correlations (ticker_1, ticker_2, start_date, end_date, correlation, method) VALUES (:ticker_1, :ticker_2, :start_date, :end_date, :correlation, :method)&#34;
     correlation_query=&#34;SELECT correlation FROM correlations WHERE ticker_1=:ticker_1 AND ticker_2=:ticker_2 AND start_date=date(:start_date) AND end_date=date(:end_date) AND method=:method&#34;
@@ -177,6 +231,14 @@ class CorrelationCache(Cache):
     
     @staticmethod
     def to_dict(query_results):
+        &#34;&#34;&#34;
+        Returns the SQLite query results formatted for the application.
+
+        Parameters
+        ----------
+        1. **query_results**: ``list``
+            Raw SQLite query results.
+        &#34;&#34;&#34;
         return { static.keys[&#39;STATISTICS&#39;][&#39;CORRELATION&#39;]: query_results[0][0] }
 
     def save_row(self, ticker_1, ticker_2, start_date, end_date, correlation, method = settings.ESTIMATION_METHOD):
@@ -207,6 +269,14 @@ class CorrelationCache(Cache):
         return None
 
 class ProfileCache(Cache):
+    &#34;&#34;&#34;
+    Inherits *SQLite* functionality from `scrilla.cache.Cache`. Extends basic functionality to cache risk profile calculations in a table with columns `(ticker, start_date, end_date, annual_return, annual_volatility, sharpe_ration, asset_beta, equity_cost, estimation_method)`.
+    
+    Attributes
+    ----------
+    1. **create_table_transaction**: ``str``
+        *SQLite* transaction passed to the super class used to create correlation cache table if it does not already exist.
+    &#34;&#34;&#34;
     create_table_transaction=&#34;CREATE TABLE IF NOT EXISTS profile (id INTEGER PRIMARY KEY, ticker TEXT, start_date TEXT, end_date TEXT, annual_return REAL, annual_volatility REAL, sharpe_ratio REAL, asset_beta REAL, equity_cost REAL, method TEXT)&#34;
     
     query_filter=&#34;ticker=:ticker AND start_date=date(:start_date) AND end_date=date(:end_date) AND :method=method&#34;
@@ -237,6 +307,14 @@ class ProfileCache(Cache):
 
     @staticmethod
     def to_dict(query_result):
+        &#34;&#34;&#34;
+        Returns the SQLite query results formatted for the application.
+        
+        Parameters
+        ----------
+        1. **query_results**: ``list``
+            Raw SQLite query results.
+        &#34;&#34;&#34;
         return {  static.keys[&#39;STATISTICS&#39;][&#39;RETURN&#39;] : query_result[0][0] if query_result[0][0] != &#39;empty&#39; else None, 
                   static.keys[&#39;STATISTICS&#39;][&#39;VOLATILITY&#39;] : query_result[0][1] if query_result[0][1] != &#39;empty&#39; else None,
                   static.keys[&#39;STATISTICS&#39;][&#39;SHARPE&#39;] : query_result[0][2] if query_result[0][2] != &#39;empty&#39; else None,
@@ -293,63 +371,14 @@ class ProfileCache(Cache):
 <span>(</span><span>table_transaction)</span>
 </code></dt>
 <dd>
-<div class="desc"><h2 id="methods">Methods</h2>
-<ol>
-<li>
-<p>execute_transaction</p>
-<h2 id="parameters">Parameters</h2>
-<ol>
-<li>
-<p>transactions: str</p>
-<p>Statement to be executed and committed. </p>
-</li>
-<li>
-<p>formatter: dict
-Dictionary of parameters used to format statement. Statements are formatted with DB-API's name substitution. See sqlite3 documentation for more information:<a href="https://docs.python.org/3/library/sqlite3.html.">https://docs.python.org/3/library/sqlite3.html.</a>
-</p>
-</li>
-</ol>
-</li>
-<li>
-<p>query_database</p>
-<h2 id="parameters_1">Parameters</h2>
-<ol>
-<li>
-<p>query : str</p>
-<p>Query to be exectued.
-2. formatter: dict
-Dictionary of parameters used to format statement. Statements are formatted with DB-API's name substitution. See sqlite3 documentation for more information:<a href="https://docs.python.org/3/library/sqlite3.html.">https://docs.python.org/3/library/sqlite3.html.</a></p>
-</li>
-</ol>
-</li>
-</ol></div>
+<div class="desc"><p>Super class for other types of caches. Takes as a parameter in its constructor a <strong>SQLite</strong> <code>CREATE TABLE</code> query and executes it against the SQLite database located at <code>scrilla.settings.CACHE_SQLITE_FILE</code>, which in turn is configured by the <strong>SQLITE_FILE</strong> environment variable.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class Cache():
     &#34;&#34;&#34;
-    Methods
-    -------
-
-    1. execute_transaction
-
-        Parameters
-        ----------
-        1. transactions: str\n
-            Statement to be executed and committed. \n \n
-        2. formatter: dict
-            Dictionary of parameters used to format statement. Statements are formatted with DB-API&#39;s name substitution. See sqlite3 documentation for more information:https://docs.python.org/3/library/sqlite3.html.  \n \n
-    
-    2. query_database
-
-        Parameters
-        ----------
-        1. query : str\n
-            Query to be exectued.
-        2. formatter: dict
-            Dictionary of parameters used to format statement. Statements are formatted with DB-API&#39;s name substitution. See sqlite3 documentation for more information:https://docs.python.org/3/library/sqlite3.html.  \n \n
-
+    Super class for other types of caches. Takes as a parameter in its constructor a **SQLite** `CREATE TABLE` query and executes it against the SQLite database located at `scrilla.settings.CACHE_SQLITE_FILE`, which in turn is configured by the **SQLITE_FILE** environment variable. 
     &#34;&#34;&#34;
 
     def __init__(self, table_transaction):
@@ -357,6 +386,16 @@ Dictionary of parameters used to format statement. Statements are formatted with
 
     @staticmethod
     def execute_transaction(transaction, formatter=None):
+        &#34;&#34;&#34;
+        Executes and commits a SQLite transaction.
+
+        Parameters
+        ----------
+        1. **transaction**: ``str``
+            Statement to be executed and committed.
+        2. formatter: ``dict``
+            Dictionary of parameters used to format statement. Statements are formatted with DB-API&#39;s name substitution. See [sqlite3 documentation](https://docs.python.org/3/library/sqlite3.html) for more information.
+        &#34;&#34;&#34;
         con = sqlite3.connect(settings.CACHE_SQLITE_FILE)
         executor =  con.cursor()
         if formatter is not None:
@@ -368,6 +407,21 @@ Dictionary of parameters used to format statement. Statements are formatted with
 
     @staticmethod
     def execute_query(query, formatter=None):
+        &#34;&#34;&#34;
+        Executes a read-write SQLite query. 
+
+        Parameters
+        ----------
+        1. **query**: ``str``
+            Query to be exectued.
+        2. **formatter**: ``dict``
+            Dictionary of parameters used to format statement. Statements are formatted with DB-API&#39;s name substitution. See [sqlite3 documentation](https://docs.python.org/3/library/sqlite3.html) for more information. 
+
+        Returns
+        -------
+        ``list``
+            A list containing the results of the query.
+        &#34;&#34;&#34;
         con = sqlite3.connect(settings.CACHE_SQLITE_FILE)
         con.row_factory = sqlite3.Row
         executor = con.cursor()
@@ -388,13 +442,38 @@ Dictionary of parameters used to format statement. Statements are formatted with
 <span>def <span class="ident">execute_query</span></span>(<span>query, formatter=None)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Executes a read-write SQLite query. </p>
+<h2 id="parameters">Parameters</h2>
+<ol>
+<li><strong>query</strong>: <code>str</code>
+Query to be exectued.</li>
+<li><strong>formatter</strong>: <code>dict</code>
+Dictionary of parameters used to format statement. Statements are formatted with DB-API's name substitution. See <a href="https://docs.python.org/3/library/sqlite3.html">sqlite3 documentation</a> for more information. </li>
+</ol>
+<h2 id="returns">Returns</h2>
+<p><code>list</code>
+A list containing the results of the query.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@staticmethod
 def execute_query(query, formatter=None):
+    &#34;&#34;&#34;
+    Executes a read-write SQLite query. 
+
+    Parameters
+    ----------
+    1. **query**: ``str``
+        Query to be exectued.
+    2. **formatter**: ``dict``
+        Dictionary of parameters used to format statement. Statements are formatted with DB-API&#39;s name substitution. See [sqlite3 documentation](https://docs.python.org/3/library/sqlite3.html) for more information. 
+
+    Returns
+    -------
+    ``list``
+        A list containing the results of the query.
+    &#34;&#34;&#34;
     con = sqlite3.connect(settings.CACHE_SQLITE_FILE)
     con.row_factory = sqlite3.Row
     executor = con.cursor()
@@ -407,13 +486,30 @@ def execute_query(query, formatter=None):
 <span>def <span class="ident">execute_transaction</span></span>(<span>transaction, formatter=None)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Executes and commits a SQLite transaction.</p>
+<h2 id="parameters">Parameters</h2>
+<ol>
+<li><strong>transaction</strong>: <code>str</code>
+Statement to be executed and committed.</li>
+<li>formatter: <code>dict</code>
+Dictionary of parameters used to format statement. Statements are formatted with DB-API's name substitution. See <a href="https://docs.python.org/3/library/sqlite3.html">sqlite3 documentation</a> for more information.</li>
+</ol></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@staticmethod
 def execute_transaction(transaction, formatter=None):
+    &#34;&#34;&#34;
+    Executes and commits a SQLite transaction.
+
+    Parameters
+    ----------
+    1. **transaction**: ``str``
+        Statement to be executed and committed.
+    2. formatter: ``dict``
+        Dictionary of parameters used to format statement. Statements are formatted with DB-API&#39;s name substitution. See [sqlite3 documentation](https://docs.python.org/3/library/sqlite3.html) for more information.
+    &#34;&#34;&#34;
     con = sqlite3.connect(settings.CACHE_SQLITE_FILE)
     executor =  con.cursor()
     if formatter is not None:
@@ -430,41 +526,42 @@ def execute_transaction(transaction, formatter=None):
 <span>class <span class="ident">CorrelationCache</span></span>
 </code></dt>
 <dd>
-<div class="desc"><h2 id="methods">Methods</h2>
+<div class="desc"><p>Inherits <em>SQLite</em> functionality from <code><a title="scrilla.cache.Cache" href="#scrilla.cache.Cache">Cache</a></code>. Extends basic functionality to cache correlation calculations in a table with columns <code>(ticker_1, ticker_2, correlation, start_date, end_date, estimation_method)</code>.</p>
+<h2 id="attributes">Attributes</h2>
 <ol>
-<li>
-<p>execute_transaction</p>
-<h2 id="parameters">Parameters</h2>
-<ol>
-<li>
-<p>transactions: str</p>
-<p>Statement to be executed and committed. </p>
-</li>
-<li>
-<p>formatter: dict
-Dictionary of parameters used to format statement. Statements are formatted with DB-API's name substitution. See sqlite3 documentation for more information:<a href="https://docs.python.org/3/library/sqlite3.html.">https://docs.python.org/3/library/sqlite3.html.</a>
-</p>
-</li>
+<li><strong>create_table_transaction</strong>: <code>str</code>
+<em>SQLite</em> transaction passed to the super class used to create correlation cache table if it does not already exist.</li>
+<li><strong>insert_row_transaction</strong>: <code>str</code>
+<em>SQLite</em> transaction used to insert row into correlation cache table.</li>
+<li><strong>correlation_query</strong>: ``str```
+<em>SQLite</em> query to retrieve correlation from cache.</li>
 </ol>
-</li>
-<li>
-<p>query_database</p>
-<h2 id="parameters_1">Parameters</h2>
-<ol>
-<li>
-<p>query : str</p>
-<p>Query to be exectued.
-2. formatter: dict
-Dictionary of parameters used to format statement. Statements are formatted with DB-API's name substitution. See sqlite3 documentation for more information:<a href="https://docs.python.org/3/library/sqlite3.html.">https://docs.python.org/3/library/sqlite3.html.</a></p>
-</li>
-</ol>
-</li>
-</ol></div>
+<div class="admonition notes">
+<p class="admonition-title">Notes</p>
+<ul>
+<li>do not need to order <code>correlation_query</code> and <code>profile_query</code> because profiles and correlations are uniquely determined by the (<code>start_date</code>, <code>end_date</code>, 'ticker_1', 'ticker_2')-tuple. More or less. There is a bit of fuzziness, since the permutation of the previous tuple, ('start_date', 'end_date', 'ticker_2', 'ticker_1'), will also be associated with the same correlation value. No other mappings between a date's correlation value and the correlation's tickers are possible though. In other words, the query, for a given (ticker_1, ticker_2)-permutation will only ever return one result.</li>
+</ul>
+</div></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class CorrelationCache(Cache):
+    &#34;&#34;&#34;
+    Inherits *SQLite* functionality from `scrilla.cache.Cache`. Extends basic functionality to cache correlation calculations in a table with columns `(ticker_1, ticker_2, correlation, start_date, end_date, estimation_method)`.
+
+    Attributes
+    ----------
+    1. **create_table_transaction**: ``str``
+        *SQLite* transaction passed to the super class used to create correlation cache table if it does not already exist.
+    2. **insert_row_transaction**: ``str``
+        *SQLite* transaction used to insert row into correlation cache table.
+    3. **correlation_query**: ``str```
+        *SQLite* query to retrieve correlation from cache.
+    
+    .. notes::
+        * do not need to order `correlation_query` and `profile_query` because profiles and correlations are uniquely determined by the (`start_date`, `end_date`, &#39;ticker_1&#39;, &#39;ticker_2&#39;)-tuple. More or less. There is a bit of fuzziness, since the permutation of the previous tuple, (&#39;start_date&#39;, &#39;end_date&#39;, &#39;ticker_2&#39;, &#39;ticker_1&#39;), will also be associated with the same correlation value. No other mappings between a date&#39;s correlation value and the correlation&#39;s tickers are possible though. In other words, the query, for a given (ticker_1, ticker_2)-permutation will only ever return one result.
+    &#34;&#34;&#34;
     create_table_transaction=&#34;CREATE TABLE IF NOT EXISTS correlations (ticker_1 TEXT, ticker_2 TEXT, start_date TEXT, end_date TEXT, correlation REAL, method TEXT)&#34;
     insert_row_transaction=&#34;INSERT INTO correlations (ticker_1, ticker_2, start_date, end_date, correlation, method) VALUES (:ticker_1, :ticker_2, :start_date, :end_date, :correlation, :method)&#34;
     correlation_query=&#34;SELECT correlation FROM correlations WHERE ticker_1=:ticker_1 AND ticker_2=:ticker_2 AND start_date=date(:start_date) AND end_date=date(:end_date) AND method=:method&#34;
@@ -474,6 +571,14 @@ Dictionary of parameters used to format statement. Statements are formatted with
     
     @staticmethod
     def to_dict(query_results):
+        &#34;&#34;&#34;
+        Returns the SQLite query results formatted for the application.
+
+        Parameters
+        ----------
+        1. **query_results**: ``list``
+            Raw SQLite query results.
+        &#34;&#34;&#34;
         return { static.keys[&#39;STATISTICS&#39;][&#39;CORRELATION&#39;]: query_results[0][0] }
 
     def save_row(self, ticker_1, ticker_2, start_date, end_date, correlation, method = settings.ESTIMATION_METHOD):
@@ -528,13 +633,26 @@ Dictionary of parameters used to format statement. Statements are formatted with
 <span>def <span class="ident">to_dict</span></span>(<span>query_results)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Returns the SQLite query results formatted for the application.</p>
+<h2 id="parameters">Parameters</h2>
+<ol>
+<li><strong>query_results</strong>: <code>list</code>
+Raw SQLite query results.</li>
+</ol></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@staticmethod
 def to_dict(query_results):
+    &#34;&#34;&#34;
+    Returns the SQLite query results formatted for the application.
+
+    Parameters
+    ----------
+    1. **query_results**: ``list``
+        Raw SQLite query results.
+    &#34;&#34;&#34;
     return { static.keys[&#39;STATISTICS&#39;][&#39;CORRELATION&#39;]: query_results[0][0] }</code></pre>
 </details>
 </dd>
@@ -589,55 +707,64 @@ def to_dict(query_results):
 </details>
 </dd>
 </dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="scrilla.cache.Cache" href="#scrilla.cache.Cache">Cache</a></b></code>:
+<ul class="hlist">
+<li><code><a title="scrilla.cache.Cache.execute_query" href="#scrilla.cache.Cache.execute_query">execute_query</a></code></li>
+<li><code><a title="scrilla.cache.Cache.execute_transaction" href="#scrilla.cache.Cache.execute_transaction">execute_transaction</a></code></li>
+</ul>
+</li>
+</ul>
 </dd>
 <dt id="scrilla.cache.InterestCache"><code class="flex name class">
 <span>class <span class="ident">InterestCache</span></span>
 </code></dt>
 <dd>
-<div class="desc"><h2 id="methods">Methods</h2>
+<div class="desc"><p>Inherits <em>SQLite</em> functionality from <code><a title="scrilla.cache.Cache" href="#scrilla.cache.Cache">Cache</a></code>. Extends basic functionality to cache interest rate data in a table with columns <code>(maturity, date, value)</code>.</p>
+<h2 id="attributes">Attributes</h2>
 <ol>
-<li>
-<p>execute_transaction</p>
-<h2 id="parameters">Parameters</h2>
-<ol>
-<li>
-<p>transactions: str</p>
-<p>Statement to be executed and committed. </p>
-</li>
-<li>
-<p>formatter: dict
-Dictionary of parameters used to format statement. Statements are formatted with DB-API's name substitution. See sqlite3 documentation for more information:<a href="https://docs.python.org/3/library/sqlite3.html.">https://docs.python.org/3/library/sqlite3.html.</a>
-</p>
-</li>
-</ol>
-</li>
-<li>
-<p>query_database</p>
-<h2 id="parameters_1">Parameters</h2>
-<ol>
-<li>
-<p>query : str</p>
-<p>Query to be exectued.
-2. formatter: dict
-Dictionary of parameters used to format statement. Statements are formatted with DB-API's name substitution. See sqlite3 documentation for more information:<a href="https://docs.python.org/3/library/sqlite3.html.">https://docs.python.org/3/library/sqlite3.html.</a></p>
-</li>
-</ol>
-</li>
+<li><strong>create_table_transaction</strong>: <code>str</code>
+<em>SQLite</em> transaction passed to the super class used to create correlation cache table if it does not already exist.</li>
+<li><strong>insert_row_transaction</strong>: <code>str</code>
+<em>SQLite</em> transaction used to insert row into correlation cache table.</li>
+<li><strong>int_query</strong>: ``str```
+<em>SQLite</em> query to retrieve an interest from cache.</li>
 </ol></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class InterestCache(Cache):
+    &#34;&#34;&#34;
+    Inherits *SQLite* functionality from `scrilla.cache.Cache`. Extends basic functionality to cache interest rate data in a table with columns `(maturity, date, value)`.
+    
+    Attributes
+    ----------
+    1. **create_table_transaction**: ``str``
+        *SQLite* transaction passed to the super class used to create correlation cache table if it does not already exist.
+    2. **insert_row_transaction**: ``str``
+        *SQLite* transaction used to insert row into correlation cache table.
+    3. **int_query**: ``str```
+        *SQLite* query to retrieve an interest from cache.
+    &#34;&#34;&#34;
     create_table_transaction=&#34;CREATE TABLE IF NOT EXISTS interest(maturity text, date text, value real, UNIQUE(maturity, date))&#34;
     insert_row_transaction=&#34;INSERT OR IGNORE INTO interest (maturity, date, value) VALUES (:maturity, :date, :value)&#34;
-    stat_query=&#34;SELECT date, value FROM interest WHERE maturity=:maturity AND date &lt;=date(:end_date) AND date&gt;=date(:start_date) ORDER BY date(date) DESC&#34;
+    int_query=&#34;SELECT date, value FROM interest WHERE maturity=:maturity AND date &lt;=date(:end_date) AND date&gt;=date(:start_date) ORDER BY date(date) DESC&#34;
 
     def __init__(self):
         super().__init__(InterestCache.create_table_transaction)
 
     @staticmethod
     def to_dict(query_results):
+        &#34;&#34;&#34;
+        Returns the SQLite query results formatted for the application.
+
+        Parameters
+        ----------
+        1. **query_results**: ``list``
+            Raw SQLite query results.
+        &#34;&#34;&#34;
         return { result[0]: result[1] for result in query_results }
 
     def save_row(self, date, value):
@@ -647,9 +774,9 @@ Dictionary of parameters used to format statement. Statements are formatted with
             self.execute_transaction(transaction=InterestCache.insert_row_transaction, formatter=formatter)
     
     def filter_interest_cache(self, maturity, start_date, end_date):
-        logger.debug(f&#39;Querying SQLite cache \n\t{InterestCache.stat_query}\n\t\t with :maturity={maturity}, :start_date={start_date}, :end_date={end_date}&#39;)
+        logger.debug(f&#39;Querying SQLite cache \n\t{InterestCache.int_query}\n\t\t with :maturity={maturity}, :start_date={start_date}, :end_date={end_date}&#39;)
         formatter = { &#39;maturity&#39;: maturity, &#39;start_date&#39;: start_date, &#39;end_date&#39;: end_date }
-        results = self.execute_query(query=InterestCache.stat_query, formatter=formatter)
+        results = self.execute_query(query=InterestCache.int_query, formatter=formatter)
 
         if len(results)&gt;0:
             logger.debug(f&#39;Found {maturity} yield on in the cache&#39;)
@@ -671,7 +798,7 @@ Dictionary of parameters used to format statement. Statements are formatted with
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="scrilla.cache.InterestCache.stat_query"><code class="name">var <span class="ident">stat_query</span></code></dt>
+<dt id="scrilla.cache.InterestCache.int_query"><code class="name">var <span class="ident">int_query</span></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
@@ -682,13 +809,26 @@ Dictionary of parameters used to format statement. Statements are formatted with
 <span>def <span class="ident">to_dict</span></span>(<span>query_results)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Returns the SQLite query results formatted for the application.</p>
+<h2 id="parameters">Parameters</h2>
+<ol>
+<li><strong>query_results</strong>: <code>list</code>
+Raw SQLite query results.</li>
+</ol></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@staticmethod
 def to_dict(query_results):
+    &#34;&#34;&#34;
+    Returns the SQLite query results formatted for the application.
+
+    Parameters
+    ----------
+    1. **query_results**: ``list``
+        Raw SQLite query results.
+    &#34;&#34;&#34;
     return { result[0]: result[1] for result in query_results }</code></pre>
 </details>
 </dd>
@@ -705,9 +845,9 @@ def to_dict(query_results):
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def filter_interest_cache(self, maturity, start_date, end_date):
-    logger.debug(f&#39;Querying SQLite cache \n\t{InterestCache.stat_query}\n\t\t with :maturity={maturity}, :start_date={start_date}, :end_date={end_date}&#39;)
+    logger.debug(f&#39;Querying SQLite cache \n\t{InterestCache.int_query}\n\t\t with :maturity={maturity}, :start_date={start_date}, :end_date={end_date}&#39;)
     formatter = { &#39;maturity&#39;: maturity, &#39;start_date&#39;: start_date, &#39;end_date&#39;: end_date }
-    results = self.execute_query(query=InterestCache.stat_query, formatter=formatter)
+    results = self.execute_query(query=InterestCache.int_query, formatter=formatter)
 
     if len(results)&gt;0:
         logger.debug(f&#39;Found {maturity} yield on in the cache&#39;)
@@ -733,46 +873,47 @@ def to_dict(query_results):
 </details>
 </dd>
 </dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="scrilla.cache.Cache" href="#scrilla.cache.Cache">Cache</a></b></code>:
+<ul class="hlist">
+<li><code><a title="scrilla.cache.Cache.execute_query" href="#scrilla.cache.Cache.execute_query">execute_query</a></code></li>
+<li><code><a title="scrilla.cache.Cache.execute_transaction" href="#scrilla.cache.Cache.execute_transaction">execute_transaction</a></code></li>
+</ul>
+</li>
+</ul>
 </dd>
 <dt id="scrilla.cache.PriceCache"><code class="flex name class">
 <span>class <span class="ident">PriceCache</span></span>
 </code></dt>
 <dd>
-<div class="desc"><h2 id="methods">Methods</h2>
+<div class="desc"><p>Inherits <em>SQLite</em> functionality from <code><a title="scrilla.cache.Cache" href="#scrilla.cache.Cache">Cache</a></code>. Extends basic functionality to cache correlation calculations in a table with columns <code>(ticker, date, open, close)</code>, with a unique constraint on the tuplie <code>(ticker, date)</code>, i.e. records in the <em>PriceCache</em> are uniquely determined by the the combination of the ticker symbol and the date.</p>
+<h2 id="attributes">Attributes</h2>
 <ol>
-<li>
-<p>execute_transaction</p>
-<h2 id="parameters">Parameters</h2>
-<ol>
-<li>
-<p>transactions: str</p>
-<p>Statement to be executed and committed. </p>
-</li>
-<li>
-<p>formatter: dict
-Dictionary of parameters used to format statement. Statements are formatted with DB-API's name substitution. See sqlite3 documentation for more information:<a href="https://docs.python.org/3/library/sqlite3.html.">https://docs.python.org/3/library/sqlite3.html.</a>
-</p>
-</li>
-</ol>
-</li>
-<li>
-<p>query_database</p>
-<h2 id="parameters_1">Parameters</h2>
-<ol>
-<li>
-<p>query : str</p>
-<p>Query to be exectued.
-2. formatter: dict
-Dictionary of parameters used to format statement. Statements are formatted with DB-API's name substitution. See sqlite3 documentation for more information:<a href="https://docs.python.org/3/library/sqlite3.html.">https://docs.python.org/3/library/sqlite3.html.</a></p>
-</li>
-</ol>
-</li>
+<li><strong>create_table_transaction</strong>: <code>str</code>
+<em>SQLite</em> transaction passed to the super class used to create price cache table if it does not already exist.</li>
+<li><strong>insert_row_transaction</strong>: <code>str</code>
+<em>SQLite</em> transaction used to insert row into price cache table.</li>
+<li><strong>price_query</strong>: ``str```
+<em>SQLite</em> query to retrieve prices from cache.</li>
 </ol></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class PriceCache(Cache):
+    &#34;&#34;&#34;
+    Inherits *SQLite* functionality from `scrilla.cache.Cache`. Extends basic functionality to cache correlation calculations in a table with columns `(ticker, date, open, close)`, with a unique constraint on the tuplie `(ticker, date)`, i.e. records in the *PriceCache* are uniquely determined by the the combination of the ticker symbol and the date.
+    
+    Attributes
+    ----------
+    1. **create_table_transaction**: ``str``
+        *SQLite* transaction passed to the super class used to create price cache table if it does not already exist.
+    2. **insert_row_transaction**: ``str``
+        *SQLite* transaction used to insert row into price cache table.
+    3. **price_query**: ``str```
+        *SQLite* query to retrieve prices from cache.
+    &#34;&#34;&#34;
     create_table_transaction=&#34;CREATE TABLE IF NOT EXISTS prices (ticker text, date text, open real, close real, UNIQUE(ticker, date))&#34;
     insert_row_transaction=&#34;INSERT OR IGNORE INTO prices (ticker, date, open, close) VALUES (:ticker, :date, :open, :close)&#34;
     price_query=&#34;SELECT date, open, close from prices WHERE ticker = :ticker AND date &lt;= date(:end_date) AND date &gt;= date(:start_date) ORDER BY date(date) DESC&#34;
@@ -782,6 +923,14 @@ Dictionary of parameters used to format statement. Statements are formatted with
 
     @staticmethod
     def to_dict(query_results):
+        &#34;&#34;&#34;
+        Returns the SQLite query results formatted for the application.
+
+        Parameters
+        ----------
+        1. **query_results**: ``list``
+            Raw SQLite query results.
+        &#34;&#34;&#34;
         return { result[0]: { static.keys[&#39;PRICES&#39;][&#39;OPEN&#39;]: result[1], static.keys[&#39;PRICES&#39;][&#39;CLOSE&#39;]: result[2] } for result in query_results }
 
     def save_row(self, ticker, date, open_price, close_price):
@@ -825,13 +974,26 @@ Dictionary of parameters used to format statement. Statements are formatted with
 <span>def <span class="ident">to_dict</span></span>(<span>query_results)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Returns the SQLite query results formatted for the application.</p>
+<h2 id="parameters">Parameters</h2>
+<ol>
+<li><strong>query_results</strong>: <code>list</code>
+Raw SQLite query results.</li>
+</ol></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@staticmethod
 def to_dict(query_results):
+    &#34;&#34;&#34;
+    Returns the SQLite query results formatted for the application.
+
+    Parameters
+    ----------
+    1. **query_results**: ``list``
+        Raw SQLite query results.
+    &#34;&#34;&#34;
     return { result[0]: { static.keys[&#39;PRICES&#39;][&#39;OPEN&#39;]: result[1], static.keys[&#39;PRICES&#39;][&#39;CLOSE&#39;]: result[2] } for result in query_results }</code></pre>
 </details>
 </dd>
@@ -875,46 +1037,39 @@ def to_dict(query_results):
 </details>
 </dd>
 </dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="scrilla.cache.Cache" href="#scrilla.cache.Cache">Cache</a></b></code>:
+<ul class="hlist">
+<li><code><a title="scrilla.cache.Cache.execute_query" href="#scrilla.cache.Cache.execute_query">execute_query</a></code></li>
+<li><code><a title="scrilla.cache.Cache.execute_transaction" href="#scrilla.cache.Cache.execute_transaction">execute_transaction</a></code></li>
+</ul>
+</li>
+</ul>
 </dd>
 <dt id="scrilla.cache.ProfileCache"><code class="flex name class">
 <span>class <span class="ident">ProfileCache</span></span>
 </code></dt>
 <dd>
-<div class="desc"><h2 id="methods">Methods</h2>
+<div class="desc"><p>Inherits <em>SQLite</em> functionality from <code><a title="scrilla.cache.Cache" href="#scrilla.cache.Cache">Cache</a></code>. Extends basic functionality to cache risk profile calculations in a table with columns <code>(ticker, start_date, end_date, annual_return, annual_volatility, sharpe_ration, asset_beta, equity_cost, estimation_method)</code>.</p>
+<h2 id="attributes">Attributes</h2>
 <ol>
-<li>
-<p>execute_transaction</p>
-<h2 id="parameters">Parameters</h2>
-<ol>
-<li>
-<p>transactions: str</p>
-<p>Statement to be executed and committed. </p>
-</li>
-<li>
-<p>formatter: dict
-Dictionary of parameters used to format statement. Statements are formatted with DB-API's name substitution. See sqlite3 documentation for more information:<a href="https://docs.python.org/3/library/sqlite3.html.">https://docs.python.org/3/library/sqlite3.html.</a>
-</p>
-</li>
-</ol>
-</li>
-<li>
-<p>query_database</p>
-<h2 id="parameters_1">Parameters</h2>
-<ol>
-<li>
-<p>query : str</p>
-<p>Query to be exectued.
-2. formatter: dict
-Dictionary of parameters used to format statement. Statements are formatted with DB-API's name substitution. See sqlite3 documentation for more information:<a href="https://docs.python.org/3/library/sqlite3.html.">https://docs.python.org/3/library/sqlite3.html.</a></p>
-</li>
-</ol>
-</li>
+<li><strong>create_table_transaction</strong>: <code>str</code>
+<em>SQLite</em> transaction passed to the super class used to create correlation cache table if it does not already exist.</li>
 </ol></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class ProfileCache(Cache):
+    &#34;&#34;&#34;
+    Inherits *SQLite* functionality from `scrilla.cache.Cache`. Extends basic functionality to cache risk profile calculations in a table with columns `(ticker, start_date, end_date, annual_return, annual_volatility, sharpe_ration, asset_beta, equity_cost, estimation_method)`.
+    
+    Attributes
+    ----------
+    1. **create_table_transaction**: ``str``
+        *SQLite* transaction passed to the super class used to create correlation cache table if it does not already exist.
+    &#34;&#34;&#34;
     create_table_transaction=&#34;CREATE TABLE IF NOT EXISTS profile (id INTEGER PRIMARY KEY, ticker TEXT, start_date TEXT, end_date TEXT, annual_return REAL, annual_volatility REAL, sharpe_ratio REAL, asset_beta REAL, equity_cost REAL, method TEXT)&#34;
     
     query_filter=&#34;ticker=:ticker AND start_date=date(:start_date) AND end_date=date(:end_date) AND :method=method&#34;
@@ -945,6 +1100,14 @@ Dictionary of parameters used to format statement. Statements are formatted with
 
     @staticmethod
     def to_dict(query_result):
+        &#34;&#34;&#34;
+        Returns the SQLite query results formatted for the application.
+        
+        Parameters
+        ----------
+        1. **query_results**: ``list``
+            Raw SQLite query results.
+        &#34;&#34;&#34;
         return {  static.keys[&#39;STATISTICS&#39;][&#39;RETURN&#39;] : query_result[0][0] if query_result[0][0] != &#39;empty&#39; else None, 
                   static.keys[&#39;STATISTICS&#39;][&#39;VOLATILITY&#39;] : query_result[0][1] if query_result[0][1] != &#39;empty&#39; else None,
                   static.keys[&#39;STATISTICS&#39;][&#39;SHARPE&#39;] : query_result[0][2] if query_result[0][2] != &#39;empty&#39; else None,
@@ -1059,13 +1222,26 @@ Dictionary of parameters used to format statement. Statements are formatted with
 <span>def <span class="ident">to_dict</span></span>(<span>query_result)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Returns the SQLite query results formatted for the application.</p>
+<h2 id="parameters">Parameters</h2>
+<ol>
+<li><strong>query_results</strong>: <code>list</code>
+Raw SQLite query results.</li>
+</ol></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@staticmethod
 def to_dict(query_result):
+    &#34;&#34;&#34;
+    Returns the SQLite query results formatted for the application.
+    
+    Parameters
+    ----------
+    1. **query_results**: ``list``
+        Raw SQLite query results.
+    &#34;&#34;&#34;
     return {  static.keys[&#39;STATISTICS&#39;][&#39;RETURN&#39;] : query_result[0][0] if query_result[0][0] != &#39;empty&#39; else None, 
               static.keys[&#39;STATISTICS&#39;][&#39;VOLATILITY&#39;] : query_result[0][1] if query_result[0][1] != &#39;empty&#39; else None,
               static.keys[&#39;STATISTICS&#39;][&#39;SHARPE&#39;] : query_result[0][2] if query_result[0][2] != &#39;empty&#39; else None,
@@ -1132,6 +1308,15 @@ def to_dict(query_result):
 </details>
 </dd>
 </dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="scrilla.cache.Cache" href="#scrilla.cache.Cache">Cache</a></b></code>:
+<ul class="hlist">
+<li><code><a title="scrilla.cache.Cache.execute_query" href="#scrilla.cache.Cache.execute_query">execute_query</a></code></li>
+<li><code><a title="scrilla.cache.Cache.execute_transaction" href="#scrilla.cache.Cache.execute_transaction">execute_transaction</a></code></li>
+</ul>
+</li>
+</ul>
 </dd>
 </dl>
 </section>
@@ -1173,8 +1358,8 @@ def to_dict(query_result):
 <li><code><a title="scrilla.cache.InterestCache.create_table_transaction" href="#scrilla.cache.InterestCache.create_table_transaction">create_table_transaction</a></code></li>
 <li><code><a title="scrilla.cache.InterestCache.filter_interest_cache" href="#scrilla.cache.InterestCache.filter_interest_cache">filter_interest_cache</a></code></li>
 <li><code><a title="scrilla.cache.InterestCache.insert_row_transaction" href="#scrilla.cache.InterestCache.insert_row_transaction">insert_row_transaction</a></code></li>
+<li><code><a title="scrilla.cache.InterestCache.int_query" href="#scrilla.cache.InterestCache.int_query">int_query</a></code></li>
 <li><code><a title="scrilla.cache.InterestCache.save_row" href="#scrilla.cache.InterestCache.save_row">save_row</a></code></li>
-<li><code><a title="scrilla.cache.InterestCache.stat_query" href="#scrilla.cache.InterestCache.stat_query">stat_query</a></code></li>
 <li><code><a title="scrilla.cache.InterestCache.to_dict" href="#scrilla.cache.InterestCache.to_dict">to_dict</a></code></li>
 </ul>
 </li>
