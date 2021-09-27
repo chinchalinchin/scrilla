@@ -122,11 +122,11 @@ class Cashflow:
         else:
             for date in dates:
                 if first_pass:
-                    tomorrows_date = helper.parse_date_string(date)
+                    tomorrows_date = dater.parse_date_string(date)
                     first_pass = False
 
                 else:
-                    todays_date = helper.parse_date_string(date)
+                    todays_date = dater.parse_date_string(date)
                     delta = (tomorrows_date - todays_date).days / 365
                     mean_delta += delta / no_of_dates 
                     tomorrows_date = todays_date
@@ -146,17 +146,17 @@ class Cashflow:
             logger.debug('Cannot generate a time series for a sample size of 0.')
             self.time_series = None
         else:
-            first_date = helper.parse_date_string(list(dates)[-1])
+            first_date = dater.parse_date_string(list(dates)[-1])
 
             for date in dates:
-                this_date = helper.parse_date_string(date)
+                this_date = dater.parse_date_string(date)
                 delta = (this_date - first_date).days
                 time_in_years = delta / 365
                 self.time_series.append(time_in_years)
     
     # TODO: trading days or actual days? 
     def calculate_time_to_today(self):
-        first_date = helper.parse_date_string(list(self.sample.keys())[-1])
+        first_date = dater.parse_date_string(list(self.sample.keys())[-1])
         today = datetime.date.today()
         return ((today - first_date).days/365)
         
@@ -244,7 +244,7 @@ class Cashflow:
         
         else:
             dates = self.sample.keys()
-            latest_date = helper.parse_date_string(list(dates)[0])
+            latest_date = dater.parse_date_string(list(dates)[0])
             time_to_first_payment = dater.get_time_to_next_period(starting_date=latest_date, period=self.period)
 
         self.NPV, i, current_time = 0, 0, 0

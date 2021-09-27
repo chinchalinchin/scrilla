@@ -91,11 +91,11 @@ class StatManager():
 
             # TODO: too many &'s. doesn't seem to affect the call, though.
             if end_date is not None:
-                end_string = helper.date_to_string(end_date)
+                end_string = dater.date_to_string(end_date)
                 query += f'&{self.service_map["PARAMS"]["END"]}={end_string}' 
 
             if start_date is not None:
-                start_string = helper.date_to_string(start_date)
+                start_string = dater.date_to_string(start_date)
                 query += f'&{self.service_map["PARAMS"]["START"]}={start_string}'
         
             logger.debug(f'Quandl query (w/o key) = {query}')
@@ -126,7 +126,7 @@ class StatManager():
         """
         if self._is_quandl():
             url = f'{settings.Q_URL}/{self.service_map["PATHS"]["FRED"]}/{symbol}?'
-            url += self.construct_query(start_date, end_date)
+            url += self._construct_query(start_date, end_date)
         return url
 
     def _construct_interest_url(self,start_date, end_date):
@@ -149,7 +149,7 @@ class StatManager():
             * The URL returned by this method will always contain a query for a historical range of US Treasury Yields, i.e. this method is specifically for queries involving the "Risk-Free" (right? right? *crickets*) Yield Curve. 
         """
         url = f'{settings.Q_URL}/{self.service_map["PATHS"]["YIELD"]}?'
-        url += self.construct_query(start_date=start_date, end_date=end_date)
+        url += self._construct_query(start_date=start_date, end_date=end_date)
         return url
 
 
@@ -157,7 +157,7 @@ class StatManager():
         url = self._construct_stat_url(symbol, start_date, end_date)
         response = requests.get(url).json()
 
-        if self.is_quandl():
+        if self._is_quandl():
             raw_stat = response[self.service_map["KEYS"]["FIRST_LAYER"]][self.service_map["KEYS"]["SECOND_LAYER"]]
             formatted_stat = {}
         
@@ -169,7 +169,7 @@ class StatManager():
         url = self._construct_interest_url(start_date=start_date, end_date=end_date)
         response = requests.get(url).json()
 
-        if self.is_quandl():
+        if self._is_quandl():
             raw_interest = response[self.service_map["KEYS"]["FIRST_LAYER"]][self.service_map["KEYS"]["SECOND_LAYER"]]
 
             formatted_interest = {}
@@ -183,7 +183,7 @@ class StatManager():
         except KeyError:
             raise errors.InputValidationError(f'{maturity} is not a valid maturity for US Treasury Bonds')
 
-        if self.is_quandl():
+        if self._is_quandl():
             
             formatted_interest = {}
             for result in results:
@@ -388,7 +388,7 @@ class PriceManager():
 
             # NOTE: Remember AlphaVantage is ordered current to earliest. END_INDEX is 
             # actually the beginning of slice and START_INDEX is actually end of slice. 
-            start_string, end_string = helper.date_to_string(start_date), helper.date_to_string(end_date)
+            start_string, end_string = dater.date_to_string(start_date), dater.date_to_string(end_date)
             if asset_type == static.keys['ASSETS']['EQUITY']:
                 response_map = self.service_map['KEYS']['EQUITY']['FIRST_LAYER']
             elif asset_type == static.keys['ASSETS']['CRYPTO']:
@@ -396,7 +396,7 @@ class PriceManager():
 
             start_index = list(prices[response_map].keys()).index(start_string)
             end_index = list(prices[response_map].keys()).index(end_string)
-            prices = dict(itertools.islice(response_map.items(), end_index, start_index+1))
+            prices = dict(itertools.islice(prices[response_map].items(), end_index, start_index+1))
             return prices
                 
         raise errors.ConfigurationError('No PRICE_MANAGER found in the parsed environment settings')
@@ -590,7 +590,7 @@ def get_daily_interest_history(maturity: str, start_date: Union[date, None]=None
 
         # TODO: this only works when stats are reported daily and that the latest date in the dataset is actually end_date.
     if rates is not None and dater.date_to_string(end_date) in rates.keys() \
-        and (helper.business_days_between(start_date, end_date) + 1) == len(rates): 
+        and (dater.business_days_between(start_date, end_date) + 1) == len(rates): 
         return rates
 
     logger.debug(f'Cached {maturity} data is out of date, passing request to external service')

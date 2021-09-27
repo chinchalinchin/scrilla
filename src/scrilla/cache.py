@@ -163,7 +163,7 @@ class CorrelationCache(Cache):
         formatter_2 = { 'ticker_1': ticker_2, 'ticker_2': ticker_1, 'method': method,
                         'start_date': start_date, 'end_date': end_date}
         
-        logger.debug(f'Querying SQLite cache \n\t{CorrelationCache.correlation_query}\n\t\t with :ticker_1={ticker_1}, :ticker_2={ticker_2}')
+        logger.debug(f'Querying SQLite cache \n\t{CorrelationCache.correlation_query}\n\t\t with :ticker_1={ticker_1}, :ticker_2={ticker_2},:start_date={start_date}, :end_date={end_date}')
         results = self.execute_query(query=CorrelationCache.correlation_query, formatter=formatter_1)
         if len(results)>0:
             logger.debug(f'Found ({ticker_1},{ticker_2}) correlation in the cache')

@@ -940,21 +940,18 @@ def calculate_moment_correlation(ticker_1, ticker_2, asset_type_1=None, asset_ty
         * when the asset types are mixed, i.e. `asset_type_1` == 'equity' and `asset_type_2`== 'crypto', the sample prices will contain different information, since crypto trades on weekends and holidays. The solution is to throw away the weekend and holiday prices for crypto. This presents another problem, since the risk profile for a crypto-currency that is cached in the local fileystem will be calculated over the entire sample including the missing data, whereas the risk profile required by the correlation needs to be calculated over the censored sample (i.e. the one with weekends and holidays removed) so that the means of the mixed asset types are scaled to the same time delta. In this case, the correlation algorithm needs to be able to override calls to the cache and force the risk profile algorithms to calculate based on the sample. Note: this issue only applies to correlation calculations using the method of moment matching, since the other methods determine the value of the correlation by solving constrained systems of equations instead of deriving it analytically with a formula. 
     """
     ### START ARGUMENT PARSING ###
-    try:
-        asset_type_1 = errors.validate_asset_type(ticker=ticker_1, asset_type=asset_type_1)
-        asset_type_2 = errors.validate_asset_type(ticker=ticker_2, asset_type=asset_type_2)
-        if asset_type_1 == static.keys['ASSETS']['CRYPTO'] and asset_type_2 == static.keys['ASSETS']['CRYPTO']:
-            # validate over all days
-            start_date, end_date = errors.validate_dates(start_date=start_date, end_date=end_date,
-                                                            asset_type=static.keys['ASSETS']['CRYPTO'])
-        else:
-            #   validate over trading days. since (date - 100 days) > (date - 100 trading days), always
-            #   take the largest sample so intersect_dict_keys will return a sample of the correct size
-            #   for mixed asset types.
-            start_date, end_date = errors.validate_dates(start_date=start_date, end_date=end_date,
+    asset_type_1 = errors.validate_asset_type(ticker=ticker_1, asset_type=asset_type_1)
+    asset_type_2 = errors.validate_asset_type(ticker=ticker_2, asset_type=asset_type_2)
+    if asset_type_1 == static.keys['ASSETS']['CRYPTO'] and asset_type_2 == static.keys['ASSETS']['CRYPTO']:
+        # validate over all days
+        start_date, end_date = errors.validate_dates(start_date=start_date, end_date=end_date,
+                                                        asset_type=static.keys['ASSETS']['CRYPTO'])
+    else:
+        #   validate over trading days. since (date - 100 days) > (date - 100 trading days), always
+        #   take the largest sample so intersect_dict_keys will return a sample of the correct size
+        #   for mixed asset types.
+        start_date, end_date = errors.validate_dates(start_date=start_date, end_date=end_date,
                                                                 asset_type=static.keys['ASSETS']['EQUITY'])
-    except errors.InputValidationError as ive:
-        raise ive
 
     if sample_prices is None:
         correlation = correlation_cache.filter_correlation_cache(ticker_1=ticker_1, ticker_2=ticker_2,
@@ -966,13 +963,10 @@ def calculate_moment_correlation(ticker_1, ticker_2, asset_type_1=None, asset_ty
         sample_prices = {}
         logger.debug(f'No sample prices provided or cached ({ticker_1}, {ticker_2}) correlation found.')
         logger.debug('Retrieving price histories for calculation.')
-        try: 
-            sample_prices[ticker_1] = services.get_daily_price_history(ticker=ticker_1, start_date=start_date, 
-                                                                        end_date=end_date, asset_type=asset_type_1)
-            sample_prices[ticker_2] = services.get_daily_price_history(ticker=ticker_2, start_date=start_date, 
+        sample_prices[ticker_1] = services.get_daily_price_history(ticker=ticker_1, start_date=start_date, 
+                                                                    end_date=end_date, asset_type=asset_type_1)
+        sample_prices[ticker_2] = services.get_daily_price_history(ticker=ticker_2, start_date=start_date, 
                                                                         end_date=end_date, asset_type=asset_type_2)
-        except errors.APIResponseError as api:
-            raise api
         
     override_cache = False
     if asset_type_1 != asset_type_2:
@@ -994,36 +988,30 @@ def calculate_moment_correlation(ticker_1, ticker_2, asset_type_1=None, asset_ty
     ### START SAMPLE STATISTICS CALCULATION DEPENDENCIES ###
         ### i.e. statistics that need to be calculated before correlation can be calculated
     logger.debug(f'Preparing calculation dependencies for ({ticker_1},{ticker_2}) correlation')
-    try:
-        # NOTE: override cache by providing sample prices if the sample lost data due to
-        #       inter asset correlation. See note in summary for more infromation.
-        if override_cache and asset_type_1 == static.keys['ASSETS']['CRYPTO']:
-            stats_1 = calculate_moment_risk_return(ticker=ticker_1, 
-                                                    start_date=start_date, 
-                                                    end_date=end_date, 
-                                                    sample_prices=sample_prices[ticker_1], 
-                                                    asset_type=asset_type_1)
-        else:
-            stats_1 = calculate_moment_risk_return(ticker=ticker_1, 
-                                                    start_date=start_date, 
-                                                    end_date=end_date, 
-                                                    asset_type=asset_type_1)
-        if override_cache and asset_type_2 == static.keys['ASSETS']['CRYPTO']:
-            stats_2 = calculate_moment_risk_return(ticker=ticker_2, 
-                                                    start_date=start_date, 
-                                                    end_date=end_date, 
-                                                    sample_prices=sample_prices[ticker_2], 
-                                                    asset_type=asset_type_2)
-        else: 
-            stats_2 = calculate_moment_risk_return(ticker=ticker_2, 
-                                                    start_date=start_date, 
-                                                    end_date=end_date, 
-                                                    asset_type=asset_type_2)
-
-    except errors.SampleSizeError as se:
-        raise errors.SampleSizeError(se)
-    except errors.PriceError as pe:
-        raise errors.PriceError(pe)
+    # NOTE: override cache by providing sample prices if the sample lost data due to
+    #       inter asset correlation. See note in summary for more infromation.
+    if override_cache and asset_type_1 == static.keys['ASSETS']['CRYPTO']:
+        stats_1 = calculate_moment_risk_return(ticker=ticker_1, 
+                                                start_date=start_date, 
+                                                end_date=end_date, 
+                                                sample_prices=sample_prices[ticker_1], 
+                                                asset_type=asset_type_1)
+    else:
+        stats_1 = calculate_moment_risk_return(ticker=ticker_1, 
+                                                start_date=start_date, 
+                                                end_date=end_date, 
+                                                asset_type=asset_type_1)
+    if override_cache and asset_type_2 == static.keys['ASSETS']['CRYPTO']:
+        stats_2 = calculate_moment_risk_return(ticker=ticker_2, 
+                                                start_date=start_date, 
+                                                end_date=end_date, 
+                                                sample_prices=sample_prices[ticker_2], 
+                                                asset_type=asset_type_2)
+    else: 
+        stats_2 = calculate_moment_risk_return(ticker=ticker_2, 
+                                                start_date=start_date, 
+                                                end_date=end_date, 
+                                                asset_type=asset_type_2)
         
     # ito's lemma
         # note: can't use trading_period to condense this conditional because the mod_mean_i's need 
@@ -1153,10 +1141,10 @@ def correlation_matrix(tickers, asset_types=None, start_date=None, end_date=None
                 correl_matrix[i][j] = cor['correlation']
                 correl_matrix[j][i] = correl_matrix[i][j]
 
-        correlation_matrix[len(tickers) - 1][len(tickers) - 1] = 1
+        correl_matrix[len(tickers) - 1][len(tickers) - 1] = 1
         return correl_matrix
     if (len(tickers)==1):
-        correlation_matrix[0][0]=1
+        correl_matrix[0][0]=1
         return correl_matrix
     raise errors.SampleSizeError('Cannot calculate correlation matrix for portfolio size <= 1.')
 
@@ -1181,24 +1169,16 @@ def calculate_moment_correlation_series(ticker_1: str, ticker_2: str, start_date
         same_type = True
     
     # TODO: what if start_date or end_date is None?
-    if same_type:
-        if asset_type_1 == static.keys['ASSETS']['EQUITY']:
-            date_range = [dater.get_previous_business_date(start_date)] + dater.business_dates_between(start_date,end_date)
-        elif asset_type_1 == static.keys['ASSETS']['CRYPTO']:
-            date_range = [start_date] + dater.dates_between(start_date, end_date)
+    if same_type and asset_type_1 == static.keys['ASSETS']['CRYPTO']:
+        date_range = [start_date] + dater.dates_between(start_date, end_date)
     else: # default to business days
         date_range = [dater.get_previous_business_date(start_date)] + dater.business_dates_between(start_date,end_date)
 
     for this_date in date_range:
         calc_date_end = this_date
-        
-        if same_type and asset_type_1 == static.keys['ASSETS']['EQUITY']:
-            calc_date_start = dater.decrement_date_by_business_days(start_date=this_date, 
-                                                                        business_days=settings.DEFAULT_ANALYSIS_PERIOD)
-        elif same_type and asset_type_1 == static.keys['ASSETS']['CRYPTO']:
-            calc_date_start = dater.decrement_date_by_days(start_date=this_date, days=settings.DEFAULT_ANALYSIS_PERIOD)
-
-        todays_cor = calculate_moment_correlation(ticker_1, ticker_2, start_date=calc_date_start, end_date=calc_date_end)
+        todays_cor = calculate_moment_correlation(ticker_1=ticker_1, 
+                                                    ticker_2=ticker_2, 
+                                                    end_date=calc_date_end)
         correlation_series[dater.date_to_string(this_date)] = todays_cor['correlation']
     
     result = {}

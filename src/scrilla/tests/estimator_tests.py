@@ -5,7 +5,7 @@ PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(PROJECT_DIR)
 
 from scrilla import settings, services, static
-from scrilla.util import outputter, helper
+from scrilla.util import outputter, helper, dater
 import scrilla.analysis.estimators as estimators
 import scrilla.analysis.models.geometric.statistics as statistics
 
@@ -176,8 +176,8 @@ def rolling_recursion_tests_with_financial_data():
                                                                             business_days=1)
             
             prices = services.get_daily_price_history(ticker=ticker, 
-                                                        start_date=helper.parse_date_string(previous_start_date), 
-                                                        end_date=helper.parse_date_string(date), 
+                                                        start_date=dater.parse_date_string(previous_start_date), 
+                                                        end_date=dater.parse_date_string(date), 
                                                         asset_type=static.keys['ASSETS']['EQUITY'])
             previous_prices = dict(prices)
             new_prices = dict(prices)
