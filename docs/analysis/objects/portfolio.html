@@ -87,11 +87,11 @@ class Portfolio:
     * While `start_date`, `end_date`, `sample_prices` are all by themselves optional, the Portfolio class must be initialized in one of three ways: 
         1. *Portfolio*(`start_date`, `end_date`) -&gt; `start_date` and `end_date` are passed to service for external query request.
         2. *Portfolio*(`sample_prices`) -&gt; `start_date` and `end_date` are ignored and `sample_prices` are used for statistical calculations.
-        3. *Portfolio*(`risk_profile`) -&gt; `start_date`, `end_date` and `sample_prices` are ignored and the statistics in `risk_profile` are used instead of manual calculations.
+        3. *Portfolio*(`risk_profile`) -&gt; `start_date`, `end_date` and `sample_prices` are ignored and the statistics in `risk_profile` are used istead of manual calculations.
     *The priority hierarchy is as follows : `risk_profile` &gt; `sample_prices` &gt; (`start_date`, `end_date`).  If no arguments are provided to the constructor at all, the portfolio will default to the `scrilla.settings.DEFAULT_ANALYSIS_PERIOD` variable configured by the corresponding environment variable. If the environment variable is not set, this value will default to the last 100 trading days.\n \n
     * The `asset_return_functions` and `asset_volatility_functions` can be understood as the drift and noise functions for a random stochastic process,
 
-    $$ \frac{ dX(t)}^{X(t)} = \mu \cdot dt + \sigma \cdot dB(t) $$
+    $$ \frac{dX(t)}^{X(t)} = \mu \cdot dt + \sigma \cdot dB(t) $$
 
     where B(t) ~ \\(\Nu(0, \delta \cdot t)\\).
     &#34;&#34;&#34;
@@ -345,11 +345,11 @@ Optional: Rather than use correlations calculated from historical data, this arg
 * While <code>start_date</code>, <code>end_date</code>, <code>sample_prices</code> are all by themselves optional, the Portfolio class must be initialized in one of three ways:
 1. <em>Portfolio</em>(<code>start_date</code>, <code>end_date</code>) -&gt; <code>start_date</code> and <code>end_date</code> are passed to service for external query request.
 2. <em>Portfolio</em>(<code>sample_prices</code>) -&gt; <code>start_date</code> and <code>end_date</code> are ignored and <code>sample_prices</code> are used for statistical calculations.
-3. <em>Portfolio</em>(<code>risk_profile</code>) -&gt; <code>start_date</code>, <code>end_date</code> and <code>sample_prices</code> are ignored and the statistics in <code>risk_profile</code> are used instead of manual calculations.
+3. <em>Portfolio</em>(<code>risk_profile</code>) -&gt; <code>start_date</code>, <code>end_date</code> and <code>sample_prices</code> are ignored and the statistics in <code>risk_profile</code> are used istead of manual calculations.
 *The priority hierarchy is as follows : <code>risk_profile</code> &gt; <code>sample_prices</code> &gt; (<code>start_date</code>, <code>end_date</code>).
 If no arguments are provided to the constructor at all, the portfolio will default to the <code>scrilla.settings.DEFAULT_ANALYSIS_PERIOD</code> variable configured by the corresponding environment variable. If the environment variable is not set, this value will default to the last 100 trading days.\n \n
 * The <code>asset_return_functions</code> and <code>asset_volatility_functions</code> can be understood as the drift and noise functions for a random stochastic process,</p>
-<p><span><span class="MathJax_Preview"> \frac{ dX(t)}^{X(t)} = \mu \cdot dt + \sigma \cdot dB(t) </span><script type="math/tex; mode=display"> \frac{ dX(t)}^{X(t)} = \mu \cdot dt + \sigma \cdot dB(t) </script></span></p>
+<p><span><span class="MathJax_Preview"> \frac{dX(t)}^{X(t)} = \mu \cdot dt + \sigma \cdot dB(t) </span><script type="math/tex; mode=display"> \frac{dX(t)}^{X(t)} = \mu \cdot dt + \sigma \cdot dB(t) </script></span></p>
 <p>where B(t) ~ \(\Nu(0, \delta \cdot t)\).</p></div>
 <details class="source">
 <summary>
@@ -386,11 +386,11 @@ If no arguments are provided to the constructor at all, the portfolio will defau
     * While `start_date`, `end_date`, `sample_prices` are all by themselves optional, the Portfolio class must be initialized in one of three ways: 
         1. *Portfolio*(`start_date`, `end_date`) -&gt; `start_date` and `end_date` are passed to service for external query request.
         2. *Portfolio*(`sample_prices`) -&gt; `start_date` and `end_date` are ignored and `sample_prices` are used for statistical calculations.
-        3. *Portfolio*(`risk_profile`) -&gt; `start_date`, `end_date` and `sample_prices` are ignored and the statistics in `risk_profile` are used instead of manual calculations.
+        3. *Portfolio*(`risk_profile`) -&gt; `start_date`, `end_date` and `sample_prices` are ignored and the statistics in `risk_profile` are used istead of manual calculations.
     *The priority hierarchy is as follows : `risk_profile` &gt; `sample_prices` &gt; (`start_date`, `end_date`).  If no arguments are provided to the constructor at all, the portfolio will default to the `scrilla.settings.DEFAULT_ANALYSIS_PERIOD` variable configured by the corresponding environment variable. If the environment variable is not set, this value will default to the last 100 trading days.\n \n
     * The `asset_return_functions` and `asset_volatility_functions` can be understood as the drift and noise functions for a random stochastic process,
 
-    $$ \frac{ dX(t)}^{X(t)} = \mu \cdot dt + \sigma \cdot dB(t) $$
+    $$ \frac{dX(t)}^{X(t)} = \mu \cdot dt + \sigma \cdot dB(t) $$
 
     where B(t) ~ \\(\Nu(0, \delta \cdot t)\\).
     &#34;&#34;&#34;
