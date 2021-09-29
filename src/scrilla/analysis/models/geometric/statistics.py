@@ -72,7 +72,7 @@ def get_sample_of_returns(prices: dict, asset_type: str) -> list:
         else:
             today = True
 
-        tomorrows_price = prices[date][static.keys['PRICES']['CLOSE']]
+        tomorrows_price = prices[this_date][static.keys['PRICES']['CLOSE']]
         tomorrows_date = this_date
     
     return sample_of_returns
