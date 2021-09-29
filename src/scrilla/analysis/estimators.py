@@ -58,7 +58,7 @@ def bivariate_normal_likelihood_function(params: list, data: list) -> float:
     Parameters
     ----------
     1. **params** : ``list``
-        Array representing a vector of parameters, in this case the mean rate of returns, volatilities and covariance for a bivariate normal distribution. *Important*: The vector must be order: 1. params[0] = \\(\mu_x\\), params[1]=\\(\mu_y\\), params[2] = \\(\sigma_x\\), params[3] = \\(\sigma_y\\), params[4] = \\(\rho_xy \cdot \sigma_x \cdot \sigma_y\\). The matrix is parameterized in this manner in order to interface more easily with `scipy.optimize.minimize`.
+        Array representing a vector of parameters, in this case the mean rate of returns, voledatilities and covariance for a bivariate normal distribution. *Important*: The vector must be order: 1. params[0] = \\(\mu_x\\), params[1]=\\(\mu_y\\), params[2] = \\(\sigma_x\\), params[3] = \\(\sigma_y\\), params[4] = \\(\rho_{xy} \cdot \sigma_x \cdot \sigma_y\\). The matrix is parameterized in this manner in order to interface more easily with `scipy.optimize.minimize`.
     2. **data** : ``list``
         A list of data that has been drawn from a bivariate normal population. Must be formatted in the following manner: `[ [x1,y1], [x2,y2],...]`
 
