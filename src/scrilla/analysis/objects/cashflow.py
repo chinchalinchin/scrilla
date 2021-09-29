@@ -53,7 +53,7 @@ class Cashflow:
     5. **constant**: ``float``
         If the cashflow is constant with respect to time, specify the value of it with this argument. Will override `growth_function` and sample. If constant is specified, you MUST also specify a period or else you will encounter errors when trying to calculate the net present value of future cashflows.
     
-    .. warning ::
+    .. warning::
     * In general, the Cashflow object must always be initialized in one of the following ways:
         1. **__init__** args: (`sample`) -> period inferred from sample, linear regression used for growth
         2. **__init__** args: (`sample`, `period`) -> period from constructor, linear regression used for growth
@@ -67,7 +67,7 @@ class Cashflow:
         * Both a growth_function and a sample of data can be passed in at once to this class. If doing so, the `growth_function` will take precedence and be used for calculations in the `net_present_value` method. The sample will be used to infer the length of a period between cashflows, unless a period is also specified. If a period is specified in addition to `sample_prices` and `growth_function`, the period will take precedence over the period inferred from the sample of data.
         * The coefficients of the inferred linear regression are accessibly through `Cashflow().alpha` (intercept) and `Cashflow().beta` (slope) instance variables. The time series used to create the model is accessible through the `Cashflow().time_series` instance variable; Note: it is measured in years and the `start_date` is set equal to 0. In other words, the intercept of the model represents, approximately, the value of the cashflow on the `start_date`.
 
-    .. todos ::
+    .. todos::
         * Implement prediction interval function to get error bars for graphs and general usage.
 
     """
