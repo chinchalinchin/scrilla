@@ -101,7 +101,7 @@ def get_sample_of_returns(prices: dict, asset_type: str) -&gt; list:
         else:
             today = True
 
-        tomorrows_price = prices[date][static.keys[&#39;PRICES&#39;][&#39;CLOSE&#39;]]
+        tomorrows_price = prices[this_date][static.keys[&#39;PRICES&#39;][&#39;CLOSE&#39;]]
         tomorrows_date = this_date
     
     return sample_of_returns
@@ -2888,7 +2888,7 @@ Asset type for the sample of prices. Allowable values can be accessed through <c
         else:
             today = True
 
-        tomorrows_price = prices[date][static.keys[&#39;PRICES&#39;][&#39;CLOSE&#39;]]
+        tomorrows_price = prices[this_date][static.keys[&#39;PRICES&#39;][&#39;CLOSE&#39;]]
         tomorrows_date = this_date
     
     return sample_of_returns</code></pre>

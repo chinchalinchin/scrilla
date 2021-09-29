@@ -376,12 +376,12 @@ class PriceManager():
 
         prices = self._slice_prices(start_date=start_date, end_date=end_date, asset_type=asset_type, prices=response)
         format_prices = {}
-        for date in prices:
-            close_price = self._parse_price_from_date(prices=prices, date=date, asset_type=asset_type, 
+        for this_date in prices:
+            close_price = self._parse_price_from_date(prices=prices, date=this_date, asset_type=asset_type, 
                                                 which_price=static.keys[&#39;PRICES&#39;][&#39;CLOSE&#39;])
-            open_price = self._parse_price_from_date(prices=prices, date=date, asset_type=asset_type, 
+            open_price = self._parse_price_from_date(prices=prices, date=this_date, asset_type=asset_type, 
                                                 which_price=static.keys[&#39;PRICES&#39;][&#39;OPEN&#39;])
-            format_prices[date] = { static.keys[&#39;PRICES&#39;][&#39;OPEN&#39;] : open_price, static.keys[&#39;PRICES&#39;][&#39;CLOSE&#39;] : close_price }
+            format_prices[this_date] = { static.keys[&#39;PRICES&#39;][&#39;OPEN&#39;] : open_price, static.keys[&#39;PRICES&#39;][&#39;CLOSE&#39;] : close_price }
         return format_prices
 
     def _slice_prices(self, start_date: date, end_date: date, asset_type: str, prices: dict) -&gt; dict:
@@ -525,10 +525,10 @@ def get_daily_price_history(ticker: str, start_date: Union[None, date] = None,
         
     prices = price_manager.get_prices(ticker=ticker,start_date=start_date, end_date=end_date, asset_type=asset_type)
 
-    for date in prices:
-        close_price = prices[date][static.keys[&#39;PRICES&#39;][&#39;OPEN&#39;]]
-        open_price = prices[date][static.keys[&#39;PRICES&#39;][&#39;CLOSE&#39;]]
-        price_cache.save_row(ticker=ticker, date=date, open_price=open_price, close_price=close_price)
+    for this_date in prices:
+        close_price = prices[this_date][static.keys[&#39;PRICES&#39;][&#39;OPEN&#39;]]
+        open_price = prices[this_date][static.keys[&#39;PRICES&#39;][&#39;CLOSE&#39;]]
+        price_cache.save_row(ticker=ticker, date=this_date, open_price=open_price, close_price=close_price)
 
     return prices
     
@@ -626,8 +626,8 @@ def get_daily_interest_history(maturity: str, start_date: Union[date, None]=None
     logger.debug(f&#39;Cached {maturity} data is out of date, passing request to external service&#39;)
     rates = stat_manager.get_interest_rates(start_date=start_date, end_date=end_date)
 
-    for date in rates:
-        interest_cache.save_row(date=date, value=rates[date])
+    for this_date in rates:
+        interest_cache.save_row(date=this_date, value=rates[this_date])
 
     rates = stat_manager.format_for_maturity(maturity=maturity, results=rates)
 
@@ -838,8 +838,8 @@ Dictionary with date strings formatted <code>YYYY-MM-DD</code> as keys and the i
     logger.debug(f&#39;Cached {maturity} data is out of date, passing request to external service&#39;)
     rates = stat_manager.get_interest_rates(start_date=start_date, end_date=end_date)
 
-    for date in rates:
-        interest_cache.save_row(date=date, value=rates[date])
+    for this_date in rates:
+        interest_cache.save_row(date=this_date, value=rates[this_date])
 
     rates = stat_manager.format_for_maturity(maturity=maturity, results=rates)
 
@@ -954,10 +954,10 @@ Dictionary with date strings formatted <code>YYYY-MM-DD</code> as keys and a nes
         
     prices = price_manager.get_prices(ticker=ticker,start_date=start_date, end_date=end_date, asset_type=asset_type)
 
-    for date in prices:
-        close_price = prices[date][static.keys[&#39;PRICES&#39;][&#39;OPEN&#39;]]
-        open_price = prices[date][static.keys[&#39;PRICES&#39;][&#39;CLOSE&#39;]]
-        price_cache.save_row(ticker=ticker, date=date, open_price=open_price, close_price=close_price)
+    for this_date in prices:
+        close_price = prices[this_date][static.keys[&#39;PRICES&#39;][&#39;OPEN&#39;]]
+        open_price = prices[this_date][static.keys[&#39;PRICES&#39;][&#39;CLOSE&#39;]]
+        price_cache.save_row(ticker=ticker, date=this_date, open_price=open_price, close_price=close_price)
 
     return prices</code></pre>
 </details>
@@ -1282,12 +1282,12 @@ A dictionary containing keys unique to the service defined by <code>genre</code>
 
         prices = self._slice_prices(start_date=start_date, end_date=end_date, asset_type=asset_type, prices=response)
         format_prices = {}
-        for date in prices:
-            close_price = self._parse_price_from_date(prices=prices, date=date, asset_type=asset_type, 
+        for this_date in prices:
+            close_price = self._parse_price_from_date(prices=prices, date=this_date, asset_type=asset_type, 
                                                 which_price=static.keys[&#39;PRICES&#39;][&#39;CLOSE&#39;])
-            open_price = self._parse_price_from_date(prices=prices, date=date, asset_type=asset_type, 
+            open_price = self._parse_price_from_date(prices=prices, date=this_date, asset_type=asset_type, 
                                                 which_price=static.keys[&#39;PRICES&#39;][&#39;OPEN&#39;])
-            format_prices[date] = { static.keys[&#39;PRICES&#39;][&#39;OPEN&#39;] : open_price, static.keys[&#39;PRICES&#39;][&#39;CLOSE&#39;] : close_price }
+            format_prices[this_date] = { static.keys[&#39;PRICES&#39;][&#39;OPEN&#39;] : open_price, static.keys[&#39;PRICES&#39;][&#39;CLOSE&#39;] : close_price }
         return format_prices
 
     def _slice_prices(self, start_date: date, end_date: date, asset_type: str, prices: dict) -&gt; dict:
@@ -1462,12 +1462,12 @@ If the service from which data is being retrieved is down, the request has been 
 
     prices = self._slice_prices(start_date=start_date, end_date=end_date, asset_type=asset_type, prices=response)
     format_prices = {}
-    for date in prices:
-        close_price = self._parse_price_from_date(prices=prices, date=date, asset_type=asset_type, 
+    for this_date in prices:
+        close_price = self._parse_price_from_date(prices=prices, date=this_date, asset_type=asset_type, 
                                             which_price=static.keys[&#39;PRICES&#39;][&#39;CLOSE&#39;])
-        open_price = self._parse_price_from_date(prices=prices, date=date, asset_type=asset_type, 
+        open_price = self._parse_price_from_date(prices=prices, date=this_date, asset_type=asset_type, 
                                             which_price=static.keys[&#39;PRICES&#39;][&#39;OPEN&#39;])
-        format_prices[date] = { static.keys[&#39;PRICES&#39;][&#39;OPEN&#39;] : open_price, static.keys[&#39;PRICES&#39;][&#39;CLOSE&#39;] : close_price }
+        format_prices[this_date] = { static.keys[&#39;PRICES&#39;][&#39;OPEN&#39;] : open_price, static.keys[&#39;PRICES&#39;][&#39;CLOSE&#39;] : close_price }
     return format_prices</code></pre>
 </details>
 </dd>

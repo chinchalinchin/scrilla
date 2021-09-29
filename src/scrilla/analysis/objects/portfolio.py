@@ -16,7 +16,7 @@
 import numpy, math
 from decimal import Decimal
 
-from scrilla import services, settings, files, errors
+from scrilla import services, settings
 import scrilla.util.outputter as outputter 
 
 # TODO: conditional import module based on analysis_mode, i.e. geometric versus mean reverting.
@@ -27,45 +27,44 @@ logger = outputter.Logger("analysis.objects.portfolio", settings.LOG_LEVEL)
 
 # TODO: allow user to specify bounds for equities, i.e. min and max allocations.
 
-# TODO: i think the portfolio will need to know the estimation_method. 
 class Portfolio:
-    """
-    A class that represents a portfolio of assets defined by the supplied list of ticker symbols in the `tickers` array. \n \n
+    r"""
+    A class that represents a portfolio of assets defined by the supplied list of ticker symbols in the `tickers` array.
 
-    The portfolio can be initialized with historical prices using the 'start_date' and 'end_date' parameters or the `sample_prices` parameter. If `start_date` and `end_date` are provided, the class will pass the dates to the PriceManager to query an external service for the required prices. If `sample_prices` is provided, the `start_date` and `end_date` are ignored and the `sample_prices` are used in lieu of an external query. \n \n
+    The portfolio can be initialized with historical prices using the `start_date` and `end_date` parameters or the `sample_prices` parameter. If `start_date` and `end_date` are provided, the class will pass the dates to the PriceManager to query an external service for the required prices. If `sample_prices` is provided, the `start_date` and `end_date` are ignored and the `sample_prices` are used in lieu of an external query.
 
-    The `return_function` and `volatility_function` methods accept an allocation of percentage weights corresponding to each ticker in the `tickers` array and return the overall portfolio return and volatility. The return is the dot product of the weight and the individual asset returns. The `volatility_function` is the result of applying matrix multiplication to the transposed weight allocations, the correlation matrix and the untransposed weight allocations. These formulations are consistent with Modern Portfolio Theory.\n \n
+    The `return_function` and `volatility_function` methods accept an allocation of percentage weights corresponding to each ticker in the `tickers` array and return the overall portfolio return and volatility. The return is the dot product of the weight and the individual asset returns. The `volatility_function` is the result of applying matrix multiplication to the transposed weight allocations, the correlation matrix and the untransposed weight allocations. These formulations are consistent with Modern Portfolio Theory.
 
     Parameters
     ----------
-    1. tickers : [ str ] \n
-        Required. An array of ticker symbols that define the assets in a portfolio. \n \n
-    2. start_date: datetime.date \n
-        Optional. The start date for the range of historical prices over which the portfolio will be optimized. 
-    \n \n
-    3. end_date: datetime.date \n
-        Optional. The end date for the range of historical prices over which the portfolio will be optimized. \n \n
-    4. sample_prices: { 'date' : 'price', 'date': 'price' } \n
-        Optional. A list representing a sample of historical data over a time range. The list must be ordered in descending order, i.e. from latest to earliest. \n \n 
-    5. risk_profile : { ticker: { 'annual_return': float, 'annual_volatility': float }} \n
-        Optional: Rather than use sample statistics calculated from historical data, this argument can override the calculated values. \n \n
-    6. correlation_matrix : ``[ list ]``\n
+    1. **tickers**: ``list``
+        An array of ticker symbols that decribe the assets in a portfolio.
+    2. **start_date**: ``datetime.date``
+        *Optional*. The start date for the range of historical prices over which the portfolio will be optimized. 
+    3. **end_date**: ``datetime.date``
+        *Optional*. The end date for the range of historical prices over which the portfolio will be optimized.
+    4. **sample_prices**: ``dict``
+        *Optional*. A list representing a sample of historical data over a time range. The list must be ordered in descending order, i.e. from latest to earliest. Must be formatted as: `{ 'ticker_1': { 'date' : { 'open': value, 'close': value},... }}
+    5. **risk_profile** : ``dict``
+        Optional: Rather than use sample statistics calculated from historical data, this argument can override the calculated values. Must be formatted as: `{ ticker: { 'annual_return': float, 'annual_volatility': float }}`
+    6. **correlation_matrix**: ``[ list ]``
         Optional: Rather than use correlations calculated from historical data, this argument can override the calculated vlaues.
-    6. asset_return_functions: [ function(t) ] \n
-        Optional. An array of function that describes the expected logarithmic rate of return of each asset in the portfolio with respect to time. The order between `asset_return_functions` and `tickers` be must be preserved, i.e. the index of tickers must correspond to the symbol described by the function with same index in `asset_return_functions`. \n \n 
-    7. asset_volatility_funtions: [ function(t) ] \n
-        Optional. An array of functions that describe the mean volatility of each asset in the portfolio with respect to time. The order between `asset_volatility_functions` and `tickers` be must be preserved, i.e. the index of tickers must correspond to the symbol described by the function with the same index in `asset_volatility_functions`. \n \n 
+    7. **asset_return_functions**: ``[ function(t) ]``
+        *Optional*. An array of function that describes the expected logarithmic rate of return of each asset in the portfolio with respect to time. The order between `asset_return_functions` and `tickers` be must be preserved, i.e. the index of tickers must correspond to the symbol described by the function with same index in `asset_return_functions`.
+    8. **asset_volatility_funtions**: ``[ function(t) ]``
+        *Optional*. An array of functions that describe the mean volatility of each asset in the portfolio with respect to time. The order between `asset_volatility_functions` and `tickers` be must be preserved, i.e. the index of tickers must correspond to the symbol described by the function with the same index in `asset_volatility_functions`.
 
-    Notes
-    -----
-    NOTE: While `start_date`, `end_date`, `sample_prices` are all by themselves optional, the Portfolio class must be initialized in one of three ways: \n
-        1. *Portfolio*(`start_date`, `end_date`) -> `start_date` and `end_date` are passed to service for external query request. \n
-        2. *Portfolio*(`sample_prices`) -> `start_date` and `end_date` are ignored and `sample_prices` are used for statistical calculations. \n 
+    .. notes ::
+    * While `start_date`, `end_date`, `sample_prices` are all by themselves optional, the Portfolio class must be initialized in one of three ways: 
+        1. *Portfolio*(`start_date`, `end_date`) -> `start_date` and `end_date` are passed to service for external query request.
+        2. *Portfolio*(`sample_prices`) -> `start_date` and `end_date` are ignored and `sample_prices` are used for statistical calculations.
         3. *Portfolio*(`risk_profile`) -> `start_date`, `end_date` and `sample_prices` are ignored and the statistics in `risk_profile` are used instead of manual calculations.
+    *The priority hierarchy is as follows : `risk_profile` > `sample_prices` > (`start_date`, `end_date`).  If no arguments are provided to the constructor at all, the portfolio will default to the `scrilla.settings.DEFAULT_ANALYSIS_PERIOD` variable configured by the corresponding environment variable. If the environment variable is not set, this value will default to the last 100 trading days.\n \n
+    * The `asset_return_functions` and `asset_volatility_functions` can be understood as the drift and noise functions for a random stochastic process,
 
-    The priority hierarchy is as follows : `risk_profile` > `sample_prices` > (`start_date`, `end_date`).  If no arguments are provided to the constructor at all, the portfolio will default to the `scrilla.settings.DEFAULT_ANALYSIS_PERIOD` variable configured by the corresponding environment variable. If the environment variable is not set, this value will default to the last 100 trading days.\n \n
+    $$ \frac{ dX(t)}^{X(t)} = \mu \cdot dt + \sigma \cdot dB(t) $$
 
-    NOTE: The `asset_return_functions` and `asset_volatility_functions` can be understood as the drift and noise functions for a random stochastic process. \n \n
+    where B(t) ~ \\(\Nu(0, \delta \cdot t)\\).
     """
     def __init__(self, tickers, start_date=None, end_date=None, sample_prices=None,
                     correlation_matrix=None, risk_profiles=None, risk_free_rate=None,
@@ -148,12 +147,12 @@ class Portfolio:
 
         Parameters
         ----------
-        1. x : ``list`` \n
-            Vector representing the allocation of each asset in the portfolio. Must be preserve the order of `portfolio.tickers`, i.e. each element's index should map to each element of the `portfolio.tickers`'s list.\n\n
+        1. **x**: ``list``
+            Vector representing the allocation of each asset in the portfolio. Must be preserve the order of `portfolio.tickers`, i.e. each element's index should map to each element of the `portfolio.tickers`'s list.
 
         Returns
         -------
-        ``float``\n
+        ``float``
             The portfolio return on an annualized basis.
         """
         return numpy.dot(x, self.mean_return)
@@ -164,12 +163,12 @@ class Portfolio:
 
         Parameters
         ----------
-        1. x : ``list`` \n
-            Vector representing the allocation of each asset in the portfolio. Must be preserve the order of `portfolio.tickers`, i.e. each element's index should map to each element of the `portfolio.tickers`'s list.\n\n
+        1. **x**: ``list``
+            Vector representing the allocation of each asset in the portfolio. Must be preserve the order of `portfolio.tickers`, i.e. each element's index should map to each element of the `portfolio.tickers`'s list.
 
         Returns
         -------
-        ``float``\n
+        ``float``
             The portfolio volatility on an annualized basis.
         """
         return numpy.sqrt(numpy.multiply(x, self.sample_vol).dot(self.correlation_matrix).dot(numpy.transpose(numpy.multiply(x, self.sample_vol))))
@@ -180,8 +179,8 @@ class Portfolio:
 
         Parameters
         ----------
-        1. x : ``list`` \n
-            Vector representing the allocation of each asset in the portfolio. Must be preserve the order of `portfolio.tickers`, i.e. each element's index should map to each element of the `portfolio.tickers`'s list.\n\n
+        1. **x**: ``list``
+            Vector representing the allocation of each asset in the portfolio. Must be preserve the order of `portfolio.tickers`, i.e. each element's index should map to each element of the `portfolio.tickers`'s list.
 
         Returns
         -------
@@ -196,11 +195,11 @@ class Portfolio:
 
         Parameters
         ----------
-        1. x: list \n
-            Vector representing the allocation of each asset in the portfolio. Must be preserve the order of `portfolio.tickers`, i.e. each element's index should map to each element of the `portfolio.tickers`'s list.\n\n
-        2: time : float \n
-            time horizon (in years) of the value at risk, i.e. the period of time into the future at which the value at risk is being calculated \n \n
-        3. prob: float \b
+        1. **x**: list
+            Vector representing the allocation of each asset in the portfolio. Must be preserve the order of `portfolio.tickers`, i.e. each element's index should map to each element of the `portfolio.tickers`'s list.
+        2: **time**: ``float``
+            time horizon (in years) of the value at risk, i.e. the period of time into the future at which the value at risk is being calculated 
+        3. **prob**: ``float``
             percentile desired
         """
         portfolio_return = self.return_function(x) * time
@@ -211,16 +210,16 @@ class Portfolio:
 
     def conditional_value_at_risk_function(self, x, time, prob):
         """
-        Calculates the conditional value at risk for a portfolio of stocks over a specified time horizon. The value will be given in percentage terms relative to the initial value of the portfolio at the beginning of the time horizon, i.e. a return value of 5% would mean 5% of your portfolio's initial value is at risk with probability `prob`. A negative value would indicate there is no value at risk, i.e. value would actually accrue. This function can be used as objective input function for `scipy.optimize`'s optimization or solver methods.\n\n
+        Calculates the conditional value at risk for a portfolio of stocks over a specified time horizon. The value will be given in percentage terms relative to the initial value of the portfolio at the beginning of the time horizon, i.e. a return value of 5% would mean 5% of your portfolio's initial value is at risk with probability `prob`. A negative value would indicate there is no value at risk, i.e. value would actually accrue. This function can be used as objective input function for `scipy.optimize`'s optimization or solver methods.
 
         Parameters
         ----------
-        1. x : float[] \n
-            an array of decimals representing percentage allocations of the portfolio. Must preserve order with self.tickers.\n \n
-        2. time : float \n
-            time horizon (in years) of the value at risk, i.e. the period of time into the future at which the value at risk is being calculated \n \n
-        3. prob : float \n
-            desired probability of loss. \n
+        1. **x**: ``list``
+            an array of decimals representing percentage allocations of the portfolio. Must preserve order with `self.tickers`.
+        2.**time**: ``float``
+            time horizon (in years) of the value at risk, i.e. the period of time into the future at which the value at risk is being calculated.
+        3. **prob**: ``float``
+            desired probability of loss.
         """
         portfolio_return = self.return_function(x) * time
         portfolio_volatility = self.volatility_function(x) * numpy.sqrt(time)

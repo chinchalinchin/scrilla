@@ -347,6 +347,9 @@ def do_program() -&gt; None:
             ### FUNCTION: Correlation Matrix
             elif opt == formatter.FUNC_ARG_DICT[&#34;correlation&#34;]:
                 def cli_correlation():
+                    if xtra_dict[&#39;estimation&#39;] == static.keys[&#39;ESTIMATION&#39;][&#39;LIKE&#39;]:
+                        logger.comment(&#39;This calculation takes a while, strap in...&#39;)
+
                     matrix = statistics.correlation_matrix(tickers=main_args,
                                                             start_date=xtra_dict[&#39;start_date&#39;], 
                                                             end_date=xtra_dict[&#39;end_date&#39;],
@@ -1090,6 +1093,9 @@ if __name__ == &#34;__main__&#34;:
             ### FUNCTION: Correlation Matrix
             elif opt == formatter.FUNC_ARG_DICT[&#34;correlation&#34;]:
                 def cli_correlation():
+                    if xtra_dict[&#39;estimation&#39;] == static.keys[&#39;ESTIMATION&#39;][&#39;LIKE&#39;]:
+                        logger.comment(&#39;This calculation takes a while, strap in...&#39;)
+
                     matrix = statistics.correlation_matrix(tickers=main_args,
                                                             start_date=xtra_dict[&#39;start_date&#39;], 
                                                             end_date=xtra_dict[&#39;end_date&#39;],
