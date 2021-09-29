@@ -59,7 +59,7 @@ class Cashflow:
         2. **__init__** args: (`sample`, `period`) -> period from constructor, linear regression used for growth
         3. **__init__** args: (`sample`, `period`, `growth_function`) -> period from constructor, `growth_function` used for growth, sample ignored
         4. **__init__** args: (`sample`, `growth_function`) -> period inferred from sample, `growth_function` used for growth
-        5.**__init__** args: (`period`, `growth_function`) -> period from constructor, `growth_function` used for growth
+        5. **__init__** args: (`period`, `growth_function`) -> period from constructor, `growth_function` used for growth
         6. **__init__** args: (`period`, `constant`) -> period from constructor, constant used for growth
     
     .. notes::
