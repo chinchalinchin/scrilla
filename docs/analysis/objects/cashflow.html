@@ -88,7 +88,7 @@ class Cashflow:
         2. **__init__** args: (`sample`, `period`) -&gt; period from constructor, linear regression used for growth
         3. **__init__** args: (`sample`, `period`, `growth_function`) -&gt; period from constructor, `growth_function` used for growth, sample ignored
         4. **__init__** args: (`sample`, `growth_function`) -&gt; period inferred from sample, `growth_function` used for growth
-        5.**__init__** args: (`period`, `growth_function`) -&gt; period from constructor, `growth_function` used for growth
+        5. **__init__** args: (`period`, `growth_function`) -&gt; period from constructor, `growth_function` used for growth
         6. **__init__** args: (`period`, `constant`) -&gt; period from constructor, constant used for growth
     
     .. notes::
@@ -336,8 +336,8 @@ If the cashflow is constant with respect to time, specify the value of it with t
 <li><strong><strong>init</strong></strong> args: (<code>sample</code>) -&gt; period inferred from sample, linear regression used for growth</li>
 <li><strong><strong>init</strong></strong> args: (<code>sample</code>, <code>period</code>) -&gt; period from constructor, linear regression used for growth</li>
 <li><strong><strong>init</strong></strong> args: (<code>sample</code>, <code>period</code>, <code>growth_function</code>) -&gt; period from constructor, <code>growth_function</code> used for growth, sample ignored</li>
-<li><strong><strong>init</strong></strong> args: (<code>sample</code>, <code>growth_function</code>) -&gt; period inferred from sample, <code>growth_function</code> used for growth
-5.<strong><strong>init</strong></strong> args: (<code>period</code>, <code>growth_function</code>) -&gt; period from constructor, <code>growth_function</code> used for growth</li>
+<li><strong><strong>init</strong></strong> args: (<code>sample</code>, <code>growth_function</code>) -&gt; period inferred from sample, <code>growth_function</code> used for growth</li>
+<li><strong><strong>init</strong></strong> args: (<code>period</code>, <code>growth_function</code>) -&gt; period from constructor, <code>growth_function</code> used for growth</li>
 <li><strong><strong>init</strong></strong> args: (<code>period</code>, <code>constant</code>) -&gt; period from constructor, constant used for growth</li>
 </ol>
 </li>
@@ -392,7 +392,7 @@ In any of the cases, you MUST pass in a period or the <code>net_present_value</c
         2. **__init__** args: (`sample`, `period`) -&gt; period from constructor, linear regression used for growth
         3. **__init__** args: (`sample`, `period`, `growth_function`) -&gt; period from constructor, `growth_function` used for growth, sample ignored
         4. **__init__** args: (`sample`, `growth_function`) -&gt; period inferred from sample, `growth_function` used for growth
-        5.**__init__** args: (`period`, `growth_function`) -&gt; period from constructor, `growth_function` used for growth
+        5. **__init__** args: (`period`, `growth_function`) -&gt; period from constructor, `growth_function` used for growth
         6. **__init__** args: (`period`, `constant`) -&gt; period from constructor, constant used for growth
     
     .. notes::
