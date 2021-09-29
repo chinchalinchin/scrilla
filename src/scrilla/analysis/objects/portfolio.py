@@ -62,7 +62,7 @@ class Portfolio:
     *The priority hierarchy is as follows : `risk_profile` > `sample_prices` > (`start_date`, `end_date`).  If no arguments are provided to the constructor at all, the portfolio will default to the `scrilla.settings.DEFAULT_ANALYSIS_PERIOD` variable configured by the corresponding environment variable. If the environment variable is not set, this value will default to the last 100 trading days.\n \n
     * The `asset_return_functions` and `asset_volatility_functions` can be understood as the drift and noise functions for a random stochastic process,
 
-    $$ \frac{dX(t)}^{X(t)} = \mu \cdot dt + \sigma \cdot dB(t) $$
+    $$ \frac{dX(t)}{X(t)} = \mu \cdot dt + \sigma \cdot dB(t) $$
 
     where B(t) ~ \\(\Nu(0, \delta \cdot t)\\).
     """
