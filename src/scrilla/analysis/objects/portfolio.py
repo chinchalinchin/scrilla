@@ -64,7 +64,7 @@ class Portfolio:
 
     $$ \frac{dX(t)}{X(t)} = \mu(t) \cdot dt + \sigma(t) \cdot dB(t) $$
 
-    where B(t) ~ \\(N(0, \delta \cdot t)\\).
+    where B(t) ~ \\(N(0, \Delta \cdot t)\\).
     """
     def __init__(self, tickers, start_date=None, end_date=None, sample_prices=None,
                     correlation_matrix=None, risk_profiles=None, risk_free_rate=None,
