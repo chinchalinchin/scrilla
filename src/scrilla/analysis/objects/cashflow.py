@@ -29,12 +29,12 @@ FREQ_ANNUAL=1
 
 # Frequency = 1 / period
 class Cashflow:
-    """
-    A class that represents a set of future cashflows. The class is initialized with the 'sample' variable, a ``dict`` of past cashflows and their dates. From the `sample`, a linear regression model is inferred. Alternatively, a `growth_function` can be provided that describes the cash flow as a function of time in years. If a `growth_function` is provided, the class skips the linear regression model. See warning below for more information on constructing an instance of this cashflow. In general, it needs to know how to project future cashflows, whether that is through inference or a model assumption. 
+    r"""
+    A class that represents a set of future cashflows. The class is initialized with the `sample` variable, a `dict` of past cashflows and their dates. From the `sample`, a linear regression model is inferred. Alternatively, a `growth_function` can be provided that describes the cash flow as a function of time measured in years. If a `growth_function` is provided, the class skips the linear regression model. See warning below for more information on constructing an instance of this cashflow. In general, it needs to know how to project future cashflows, whether that is through inference or a model assumption. 
 
     If the sample of data is not large enough to infer a linear regression model, the estimation model will default to simple Martingale process described by the equation,
     
-    >>> E(X2|X1) = X1
+    $$ E(X_2 \mid X_1) = X_1 $$
      
     Or, in plain English, the next expected value given the current value is the current value. To rephrase it yet again: without more information the best guess for the future value of an asset is its current value.
 

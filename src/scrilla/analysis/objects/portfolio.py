@@ -54,12 +54,16 @@ class Portfolio:
     8. **asset_volatility_funtions**: ``[ function(t) ]``
         *Optional*. An array of functions that describe the mean volatility of each asset in the portfolio with respect to time. The order between `asset_volatility_functions` and `tickers` be must be preserved, i.e. the index of tickers must correspond to the symbol described by the function with the same index in `asset_volatility_functions`.
 
-    .. notes ::
-    * While `start_date`, `end_date`, `sample_prices` are all by themselves optional, the Portfolio class must be initialized in one of three ways: 
+    Attributes
+    ----------
+    All parameters are exposed as properties on the class. With the exception of `asset_return_functions` and `asset_volatility_functions`, if optional parameters are not provided in the class constructor, they will be calculated based on available information. See *notes* for more details on how this class is constructed.
+
+    .. notes::
+    * While `start_date`, `end_date`, `sample_prices` are all by themselves optional, the `scrilla.analysis.objects.Portfolio` class must be initialized in one of three ways: 
         1. *Portfolio*(`start_date`, `end_date`) -> `start_date` and `end_date` are passed to service for external query request.
         2. *Portfolio*(`sample_prices`) -> `start_date` and `end_date` are ignored and `sample_prices` are used for statistical calculations.
         3. *Portfolio*(`risk_profile`) -> `start_date`, `end_date` and `sample_prices` are ignored and the statistics in `risk_profile` are used istead of manual calculations.
-    *The priority hierarchy is as follows : `risk_profile` > `sample_prices` > (`start_date`, `end_date`).  If no arguments are provided to the constructor at all, the portfolio will default to the `scrilla.settings.DEFAULT_ANALYSIS_PERIOD` variable configured by the corresponding environment variable. If the environment variable is not set, this value will default to the last 100 trading days.\n \n
+    *The priority hierarchy is as follows : `risk_profile` > `sample_prices` > (`start_date`, `end_date`).  If no arguments are provided to the constructor at all, the portfolio will default to the `scrilla.settings.DEFAULT_ANALYSIS_PERIOD` variable configured by the corresponding environment variable. If the environment variable is not set, this value will default to the last 100 trading days.
     * The `asset_return_functions` and `asset_volatility_functions` can be understood as the drift and noise functions for a random stochastic process,
 
     $$ \frac{dX(t)}{X(t)} = \mu(t) \cdot dt + \sigma(t) \cdot dB(t) $$
