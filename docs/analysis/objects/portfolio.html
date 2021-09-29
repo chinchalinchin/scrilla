@@ -91,9 +91,9 @@ class Portfolio:
     *The priority hierarchy is as follows : `risk_profile` &gt; `sample_prices` &gt; (`start_date`, `end_date`).  If no arguments are provided to the constructor at all, the portfolio will default to the `scrilla.settings.DEFAULT_ANALYSIS_PERIOD` variable configured by the corresponding environment variable. If the environment variable is not set, this value will default to the last 100 trading days.\n \n
     * The `asset_return_functions` and `asset_volatility_functions` can be understood as the drift and noise functions for a random stochastic process,
 
-    $$ \frac{dX(t)}{X(t)} = \mu \cdot dt + \sigma \cdot dB(t) $$
+    $$ \frac{dX(t)}{X(t)} = \mu(t) \cdot dt + \sigma(t) \cdot dB(t) $$
 
-    where B(t) ~ \\(\Nu(0, \delta \cdot t)\\).
+    where B(t) ~ \\(N(0, \delta \cdot t)\\).
     &#34;&#34;&#34;
     def __init__(self, tickers, start_date=None, end_date=None, sample_prices=None,
                     correlation_matrix=None, risk_profiles=None, risk_free_rate=None,
@@ -349,8 +349,8 @@ Optional: Rather than use correlations calculated from historical data, this arg
 *The priority hierarchy is as follows : <code>risk_profile</code> &gt; <code>sample_prices</code> &gt; (<code>start_date</code>, <code>end_date</code>).
 If no arguments are provided to the constructor at all, the portfolio will default to the <code>scrilla.settings.DEFAULT_ANALYSIS_PERIOD</code> variable configured by the corresponding environment variable. If the environment variable is not set, this value will default to the last 100 trading days.\n \n
 * The <code>asset_return_functions</code> and <code>asset_volatility_functions</code> can be understood as the drift and noise functions for a random stochastic process,</p>
-<p><span><span class="MathJax_Preview"> \frac{dX(t)}{X(t)} = \mu \cdot dt + \sigma \cdot dB(t) </span><script type="math/tex; mode=display"> \frac{dX(t)}{X(t)} = \mu \cdot dt + \sigma \cdot dB(t) </script></span></p>
-<p>where B(t) ~ \(\Nu(0, \delta \cdot t)\).</p></div>
+<p><span><span class="MathJax_Preview"> \frac{dX(t)}{X(t)} = \mu(t) \cdot dt + \sigma(t) \cdot dB(t) </span><script type="math/tex; mode=display"> \frac{dX(t)}{X(t)} = \mu(t) \cdot dt + \sigma(t) \cdot dB(t) </script></span></p>
+<p>where B(t) ~ \(N(0, \delta \cdot t)\).</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -390,9 +390,9 @@ If no arguments are provided to the constructor at all, the portfolio will defau
     *The priority hierarchy is as follows : `risk_profile` &gt; `sample_prices` &gt; (`start_date`, `end_date`).  If no arguments are provided to the constructor at all, the portfolio will default to the `scrilla.settings.DEFAULT_ANALYSIS_PERIOD` variable configured by the corresponding environment variable. If the environment variable is not set, this value will default to the last 100 trading days.\n \n
     * The `asset_return_functions` and `asset_volatility_functions` can be understood as the drift and noise functions for a random stochastic process,
 
-    $$ \frac{dX(t)}{X(t)} = \mu \cdot dt + \sigma \cdot dB(t) $$
+    $$ \frac{dX(t)}{X(t)} = \mu(t) \cdot dt + \sigma(t) \cdot dB(t) $$
 
-    where B(t) ~ \\(\Nu(0, \delta \cdot t)\\).
+    where B(t) ~ \\(N(0, \delta \cdot t)\\).
     &#34;&#34;&#34;
     def __init__(self, tickers, start_date=None, end_date=None, sample_prices=None,
                     correlation_matrix=None, risk_profiles=None, risk_free_rate=None,
