@@ -191,7 +191,7 @@ def do_program() -> None:
                         prices = services.get_daily_price_history(ticker=arg, 
                                                                     start_date=xtra_dict['start_date'],
                                                                     end_date=xtra_dict['end_date'])
-                        latest_price = prices[helper.get_first_json_key(prices)]
+                        latest_price = prices[helper.get_first_json_key(prices)][static.keys['PRICES']['CLOSE']]
                         profile = statistics.calculate_risk_return(ticker=arg, 
                                                                     sample_prices=prices, 
                                                                     method=xtra_dict['estimation'])
@@ -238,7 +238,7 @@ def do_program() -> None:
                         all_cvars[arg]=cvar
 
                         if print_format_to_screen(xtra_dict):
-                            outputter.scalar_result(f'{arg}_value_at_risk', valueatrisk)
+                            outputter.scalar_result(f'{arg}_conditional_value_at_risk', valueatrisk)
 
                     if print_json_to_screen(xtra_dict):
                         print(json.dumps(all_cvars))
