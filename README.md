@@ -44,7 +44,7 @@ This will install a command line interface on your path under the name `scrilla`
 
 `scrilla -version`
 
-To keep the installation as minimal as possible, the base package does not include the GUI libraries. You can install the optional GUI dependency with,
+If you are on Windows, you may need to add your Python scripts bin to the $PATH. To keep the installation as minimal as possible, the base package does not include the GUI libraries. You can install the optional GUI dependency with,
 
 `pip install scrilla[gui]`
 
@@ -52,9 +52,12 @@ Note, the GUI has a different CLI entrypoint, namely,
 
 `scrilla-gui`
 
-If you prefer, you can build from source. `git clone` the [repository](https://github.com/chinchalinchin/scrilla) and then from the root directory build the library,
+If you prefer, you can build from source. `git clone` the [repository](https://github.com/chinchalinchin/scrilla) and then from the root directory install the project dependencies and build the library,
 
-`python3 -m build` 
+```
+pip3 install -r requirements
+python3 -m build
+```
 
 `cd` into the generated <i>/dist/</i>  to manually install the packaged code,
 

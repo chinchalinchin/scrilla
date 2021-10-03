@@ -215,13 +215,13 @@ def do_program() -> None:
                 
             ### FUNCTION: Black-Scholes Conditional Value At Risk
             elif opt == formatter.FUNC_ARG_DICT['cvar']:
-                def cli_var():
+                def cli_cvar():
                     all_cvars = {}
                     for arg in main_args:
                         prices = services.get_daily_price_history(ticker=arg, 
                                                                     start_date=xtra_dict['start_date'],
                                                                     end_date=xtra_dict['end_date'])
-                        latest_price = prices[helper.get_first_json_key(prices)]
+                        latest_price = prices[helper.get_first_json_key(prices)][static.keys['PRICES']['CLOSE']]
                         profile = statistics.calculate_risk_return(ticker=arg, 
                                                                     sample_prices=prices, 
                                                                     method=xtra_dict['estimation'])
@@ -246,7 +246,7 @@ def do_program() -> None:
                     if xtra_dict['save_file'] is not None:
                         files.save_file(file_to_save=all_cvars, file_name=xtra_dict['save_file'])
 
-                selected_function, required_length = cli_var, 2
+                selected_function, required_length = cli_cvar, 2
 
             ### FUNCTION: Capital Asset Pricing Model Cost of Equity
             elif opt == formatter.FUNC_ARG_DICT['capm_equity_cost']:
