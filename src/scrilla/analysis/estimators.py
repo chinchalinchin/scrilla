@@ -20,8 +20,7 @@ A module of statistical point estimators and likelihood functions.
 from os import path
 from sys import path as sys_path
 from typing import List
-from math import isnan
-from numpy import log, sqrt, exp, inf, isinf
+from numpy import log, sqrt, exp, inf
 from scipy.stats import norm, multivariate_normal
 
 if __name__=="__main__":

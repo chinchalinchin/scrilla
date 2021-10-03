@@ -16,7 +16,7 @@
 from typing import Tuple, Union
 from datetime import date
 from scrilla import settings, files, static
-from scrilla.util import dater, helper
+from scrilla.util import dater
 
 class InputValidationError(Exception):
     pass

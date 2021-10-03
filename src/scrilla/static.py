@@ -36,9 +36,13 @@ keys= {
         'PERCENT': 'percents',
         'LIKE': 'likely'
     },
-    'MODELS':{
+    'SDE':{
         'GBM': 'geometric',
         'MEAN': 'reversion'
+    },
+    'MODELS':{
+        'DDM':'discount_dividend',
+        'DCF':'discount_cashflow'
     },
     'YIELD_CURVE': ["ONE_MONTH", "TWO_MONTH", "THREE_MONTH", "SIX_MONTH", "ONE_YEAR", "TWO_YEAR", "THREE_YEAR", "FIVE_YEAR", "SEVEN_YEAR", "TEN_YEAR", "TWENTY_YEAR", "THIRTY_YEAR"],
     'STATISTICS': {
