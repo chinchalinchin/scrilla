@@ -19,9 +19,6 @@ from scrilla import settings, files
 from scrilla.static import keys
 from scrilla.util import dater
 
-class APIKeyError(Exception):
-    pass
-
 class InputValidationError(Exception):
     pass
 
