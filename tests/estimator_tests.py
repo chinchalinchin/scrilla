@@ -1,9 +1,6 @@
 import sys, os
 import numpy
 
-PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.append(PROJECT_DIR)
-
 from scrilla import settings, services, static
 from scrilla.util import outputter, helper, dater
 import scrilla.analysis.estimators as estimators

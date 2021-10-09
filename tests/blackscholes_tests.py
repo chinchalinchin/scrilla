@@ -1,11 +1,7 @@
 import sys, os
 
-PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.append(PROJECT_DIR)
-
-
-from analysis import optimizer
-from analysis.objects.portfolio import Portfolio
+from scrilla.analysis import optimizer
+from scrilla.analysis.objects.portfolio import Portfolio
 
 
 if __name__=="__main__":
