@@ -40,19 +40,27 @@ The links below will take you to the registration pages for each API service Key
 
 Install the package with the <b>Python</b> package manager,
 
-`pip install scrilla` 
+```
+pip install scrilla
+``` 
 
 This will install a command line interface on your path under the name `scrilla`. Confirm your installation with with the `-version` flag,
 
-`scrilla -version`
+```
+scrilla --version
+```
 
 If you are on Windows, you may need to add your Python scripts bin to the $PATH. To keep the installation as minimal as possible, the base package does not include the GUI libraries. You can install the optional GUI dependency with,
 
-`pip install scrilla[gui]`
+```
+pip install scrilla[gui]
+```
 
 Note, the GUI has a different CLI entrypoint, namely,
 
-`scrilla-gui`
+```
+scrilla-gui
+```
 
 If you prefer, you can build from source. `git clone` the [repository](https://github.com/chinchalinchin/scrilla) and then from the root directory install the project dependencies and build the library,
 
@@ -63,7 +71,9 @@ python3 -m build
 
 `cd` into the generated <i>/dist/</i>  to manually install the packaged code,
 
-`pip install scrilla-<major>.<minor>.<micro>-py3-none-any.whl`
+```
+pip install scrilla-<major>.<minor>.<micro>-py3-none-any.whl
+```
 
 ## Dependencies
 
@@ -83,7 +93,9 @@ You will need Python3.8 or greater. This application depends on the following <b
 
 This libraries will be installed during the `pip install` command. If you wish to use the GUI, you will also need to ensure your operating system has a [Qt5](https://doc.qt.io/) library,
 
-`sudo apt-get install qt5-default`
+```
+sudo apt-get install qt5-default
+```
 
 The GUI will not function without a <b>Qt</b> library.
 
@@ -91,7 +103,9 @@ The GUI will not function without a <b>Qt</b> library.
 
 In order to use this application, you will need to register for API keys. The program will need to be made aware of these keys somehow. The best option is storing these credentials in environment variables. See [Required Configuration](#required-configuration) for more information. You can also invoke the CLI function `store` to store the credentials in the local installation <i>/data/common/</i> directory. To do so,
 
-`scrilla store --key <key> --value <value>`
+```
+scrilla store --key <key> --value <value>
+```
 
 where `<key>` is one of the values: **ALPHA_VANTAGE_KEY**, **QUANDL_KEY** or **IEX_KEY**. `<value>` is the corresponding key itself given to you after registration. `<value>` is case-sensitive!
 
@@ -153,7 +167,9 @@ Determines the amount of output. Defaults to `info`. Allowable values: `none`, `
 
 Most functions have been wired into command line arguments. For a full list of <b>scrilla</b>'s functionality,
 
-`scrilla help`
+```
+scrilla help
+```
 
 The main usage of <b>scrilla</b> is detailed below.
 
@@ -175,17 +191,23 @@ scrilla [COMMAND] [TICKERS] [OPTIONS]
 
 A portfolio of consisting of the equities <i>ALLY</i>, <i>BX</i> and <i>SONY</i> can be optimized with the following command,
 
-`scrilla optimize-portfolio ALLY BX SONY`
+```
+scrilla optimize-portfolio ALLY BX SONY
+```
 
 By default, <b>scrilla</b> will optimize over the last 100 trading days. If you wish to optimize over a different time period, you may use the `-start` and `-end` argument flags to provide starting and ending dates in the `YYYY-MM-DD` format. 
 
 Also by default, the optimization function will minimize the portfolio variance. You can also specify the portfolio should be maximized with respect to the Sharpe ratio,
 
-`scrilla optimize-portfolio ALLY BX SONY -sh`
+```
+scrilla optimize-portfolio ALLY BX SONY -sh
+```
 
 There are several other arguments you may use to configure your optimization program. The full list of arguments is shown below,
 
-`scrilla optimize-portfolio [TICKERS]--sh --start <YYYY-MM-DD> --end <YYYY-MM-DD> --save <absolute path to json file> --target <double> --invest <double>`
+```
+scrilla optimize-portfolio [TICKERS]--sh --start <YYYY-MM-DD> --end <YYYY-MM-DD> --save <absolute path to json file> --target <double> --invest <double>
+```
 
 `-target` will optimize the portfolio with the additional constraint that its rate of return must equal `target`. Note the target return must be between the minimum rate of return and maximum rate of return in a basket of equities. For example, if ALLY had a rate of return of 10%, BX 15%, SONY 20%, the frontier of possible rates of returns resides in the range [10%, 20%]. It is impossible to combine the equities in such a way to get a rate of return less than 10% or one greater than 20%. Note, this assumes shorting is not possible. A future release will relax this assumption and allow portfolio weights to be negative.
 
@@ -193,7 +215,9 @@ There are several other arguments you may use to configure your optimization pro
 
 For example, the following command,
 
-`scrilla optimize-portfolio ALLY BX SONY --sh --save <path-to-json-file> --target 0.25 --invest 10000 --start 2020-01-03 --end 2021-05-15`
+```
+scrilla optimize-portfolio ALLY BX SONY --sh --save <path-to-json-file> --target 0.25 --invest 10000 --start 2020-01-03 --end 2021-05-15
+``
 
 Will optimize a portfolio consisting of <i>ALLY</i>, <i>BX</i> and <i>SONY</i> using historical data between the dates of January 1st, 2020 and May 15th, 2021. The portfolio will be constrained to return a rate of 25%. A total $10,000 will be invested into this portfolio (to the nearest whole share). The output of this command will look like this,
 
@@ -219,15 +243,15 @@ Note the optimal share allocation does not allow fractional shares. <b>scrilla</
 
 The portfolio optimization can also be done by minimizing its conditional value at risk. Because the underlying calculations are a bit different, this function is accessed through a different command and requires different arguments. 
 
-The two new arguments are `prob` and `expiry`. `prob`, in essence, represents the percentile of the portfolio's distribution on which the value at risk will be conditioned. In other words, if the portfolio value is represented by a random variable **P**, for a given value of **P**=*p*, the `prob` is the probability such that, 
-
-`Probability(P<p)=prob`
+The two new arguments are `prob` and `expiry`. `prob`, in essence, represents the percentile of the portfolio's distribution on which the value at risk will be conditioned. In other words, if the portfolio value is represented by a random variable **P**, for a given value of **P**=*p*, the `prob` is the probability such that `Probability(P<p)=prob`.
 
 `expiry` represents the time horizon over which the value at risk will be calculated, i.e. the point in time in which the hypothetical loss occurs. 
 
 With these two new arguments, a portfolio's conditional value at risk can be optimized using the following,
 
-`scrilla optimize-cvar ALLY BX SONY --prob 0.05 --expiry 0.5`
+```
+scrilla optimize-cvar ALLY BX SONY --prob 0.05 --expiry 0.5
+```
 
 The command given above will optimize the portfolio's value at risk consisting of <b>ALLY</b>, <b>BX</b> and <b>SONY</b> over the next half year (`expiry` = 0.5) conditioned the value at risk being in the 5th percentile. 
 
@@ -247,19 +271,27 @@ In the near future, a mean reversion model will implemented.
 
 For example, the following command will return the risk profile of <b>ACI</b> using the method of moment matching,
 
-`scrilla risk-profile ACI -moments`
+```
+scrilla risk-profile ACI -moments
+```
 
 Where as the following command will return the risk profile of <b>ACI</b> using maximum likelihood estimation,
 
-`scrilla risk-profile ACI -likely`
+```
+scrilla risk-profile ACI -likely
+```
 
 And the following command will return the risk profile of <b>ACI</b> using the method of percentile matching,
 
-`scrilla risk-profile ACI -percents`
+```
+scrilla risk-profile ACI -percents
+```
 
 Note, the following command,
 
-`scrilla risk-profile ACI`
+```
+scrilla risk-profile ACI
+```
 
 will return the risk profile of <b>ACI</b> using the method set in the <b>DEFAULT_ESTIMATION_METHOD</b> environment variable. If this variable is not set, it will default to a value of `moments`.
 
@@ -267,11 +299,15 @@ will return the risk profile of <b>ACI</b> using the method set in the <b>DEFAUL
 
 <b>scrilla</b> will pull an equity's dividend payment history, regress the payment amount against its date and infer a [simple linear regression model](https://en.wikipedia.org/wiki/Simple_linear_regression) from this time series. It will use this model to project future dividend payments and then calculate the current cost of equity and use that to discount the sum of dividend payments back to the present. The following command will perform this action,
 
-`scrilla ddm ALLY`
+```
+scrilla ddm ALLY
+```
 
 Alternatively, you can visualize the dividend payments against the regression model with a <b>matplotlib</b> graphic,
 
-`scrilla plot-divs ALLY`
+```
+scrilla plot-divs ALLY
+```
 
 3. Financial Statistics
     - Beta: `scrilla capm-beta [TICKERS] [OPTIONS]`
@@ -286,11 +322,15 @@ Alternatively, you can visualize the dividend payments against the regression mo
 
 Stocks can be added to your watchlist with,
 
-`scrilla watch [TICKERS]`
+```
+scrilla watch [TICKERS]
+```
 
 You can then screen stocks according to some criteria. For example, the following command will search your watchlist for stock prices that are less than their Discount Dividend Model (very rare this happens...),
 
-`scrilla screen --criteria DDM`
+```
+scrilla screen --criteria DDM
+```
 
 5. Visualizations
     - Discount Dividend Model: `scrilla plot-divs [TICKER]`
