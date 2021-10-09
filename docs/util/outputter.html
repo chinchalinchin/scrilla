@@ -43,7 +43,7 @@ def title_line(title):
     buff = int((formatter.LINE_LENGTH - len(title))/2)
     print(formatter.SEPARATER*buff, title, formatter.SEPARATER*buff) 
     
-def print_line():
+def print_separator_line():
     print(formatter.SEPARATER*formatter.LINE_LENGTH)
 
 def return_line():
@@ -183,7 +183,7 @@ def screen_results(info, model):
         spot_price(ticker=ticker, this_spot_price=info[ticker][&#39;spot_price&#39;])
         model_price(ticker=ticker, this_model_price=info[ticker][&#39;model_price&#39;], model=model)
         scalar_result(f&#39;{ticker} discount&#39;, info[ticker][&#39;discount&#39;])
-        print_line()
+        print_separator_line()
 
 # TODO: can probably combine optimal_result and efficient_frontier into a single function
 #         by wrapping the optimal_results in an array so when it iterates through frontier
@@ -192,13 +192,13 @@ def screen_results(info, model):
 def optimal_result(portfolio, allocation, investment=None):
     title_line(&#39;Optimal Percentage Allocation&#39;)
     portfolio_percent_result(allocation, portfolio.tickers)
-    print_line()
+    print_separator_line()
 
     if investment is not None:
         shares = portfolio.calculate_approximate_shares(allocation, investment)
         total = portfolio.calculate_actual_total(allocation, investment)
         
-        print_line()
+        print_separator_line()
         title_line(&#39;Optimal Share Allocation&#39;)
         portfolio_shares_result(shares, portfolio.tickers)
         title_line(&#39;Optimal Portfolio Value&#39;)
@@ -214,11 +214,11 @@ def efficient_frontier(portfolio, frontier, investment=None):
     # TODO: edit title to include dates
 
     for allocation in frontier:
-        print_line()
+        print_separator_line()
         return_string=str(round(round(portfolio.return_function(allocation),4)*100,2))
         vol_string=str(round(round(portfolio.volatility_function(allocation),4)*100,2))
         title_line(f&#39;({return_string} %, {vol_string}%) Portfolio&#39;)
-        print_line()
+        print_separator_line()
 
         title_line(&#39;Optimal Percentage Allocation&#39;)
         portfolio_percent_result(allocation, portfolio.tickers)
@@ -336,21 +336,21 @@ class Logger():
                 self.debug(f&#39;Extra Argument: {item}&#39;)
 
     def log_django_settings(self, settings):
-            print_line()
+            print_separator_line()
             title_line(&#39;SETTINGS.PY Configuration&#39;)
 
-            print_line()
+            print_separator_line()
             self.comment(&#34;# Environment Configuration&#34;)
             self.comment(f&#39;&gt; Server Location : {settings.BASE_DIR}&#39;)
             self.comment(f&#39;&gt; App Location : {settings.APP_DIR}&#39;)
             self.comment(f&#39;&gt; Environment: {settings.APP_ENV}&#39;)
 
-            print_line()
+            print_separator_line()
             self.comment(&#34;# Application Configuration&#34;)
             self.comment(f&#39;&gt; Debug : {settings.DEBUG}&#39;)
             self.comment(f&#39;&gt; Log Level: {settings.LOG_LEVEL}&#39;)
 
-            print_line()
+            print_separator_line()
             self.comment(&#34;# Headers Configuration&#34;)
             self.comment(f&#39;&gt; ALLOWED_HOSTS: {settings.ALLOWED_HOSTS}&#39;)
             if hasattr(settings, &#39;CORS_ALLOW_ALL_ORIGINS&#39;):
@@ -358,12 +358,12 @@ class Logger():
             if hasattr(settings, &#39;CORS_ALLOWED_ORIGINS&#39;):
                 self.comment(f&#39;&gt; CORS_ALLOWED_ORIGINS {settings.CORS_ALLOWED_ORIGINS}&#39;)
             
-            print_line()
+            print_separator_line()
             self.comment(&#34;# Database Configuration&#34;)
             self.comment(f&#39;&gt; Database Engine: {settings.DATABASES[&#34;default&#34;][&#34;ENGINE&#34;]}&#39;)
             self.comment(f&#39;&gt; Database Host: {settings.DATABASES[&#34;default&#34;][&#34;HOST&#34;]}&#39;)
             self.comment(f&#39;&gt; Database Port: {settings.DATABASES[&#34;default&#34;][&#34;PORT&#34;]}&#39;)
-            print_line()</code></pre>
+            print_separator_line()</code></pre>
 </details>
 </section>
 <section>
@@ -508,11 +508,11 @@ class Logger():
     # TODO: edit title to include dates
 
     for allocation in frontier:
-        print_line()
+        print_separator_line()
         return_string=str(round(round(portfolio.return_function(allocation),4)*100,2))
         vol_string=str(round(round(portfolio.volatility_function(allocation),4)*100,2))
         title_line(f&#39;({return_string} %, {vol_string}%) Portfolio&#39;)
-        print_line()
+        print_separator_line()
 
         title_line(&#39;Optimal Percentage Allocation&#39;)
         portfolio_percent_result(allocation, portfolio.tickers)
@@ -670,13 +670,13 @@ class Logger():
 <pre><code class="python">def optimal_result(portfolio, allocation, investment=None):
     title_line(&#39;Optimal Percentage Allocation&#39;)
     portfolio_percent_result(allocation, portfolio.tickers)
-    print_line()
+    print_separator_line()
 
     if investment is not None:
         shares = portfolio.calculate_approximate_shares(allocation, investment)
         total = portfolio.calculate_actual_total(allocation, investment)
         
-        print_line()
+        print_separator_line()
         title_line(&#39;Optimal Share Allocation&#39;)
         portfolio_shares_result(shares, portfolio.tickers)
         title_line(&#39;Optimal Portfolio Value&#39;)
@@ -762,8 +762,8 @@ class Logger():
     print(f&#39;\n{msg}&#39;)</code></pre>
 </details>
 </dd>
-<dt id="scrilla.util.outputter.print_line"><code class="name flex">
-<span>def <span class="ident">print_line</span></span>(<span>)</span>
+<dt id="scrilla.util.outputter.print_separator_line"><code class="name flex">
+<span>def <span class="ident">print_separator_line</span></span>(<span>)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -771,7 +771,7 @@ class Logger():
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def print_line():
+<pre><code class="python">def print_separator_line():
     print(formatter.SEPARATER*formatter.LINE_LENGTH)</code></pre>
 </details>
 </dd>
@@ -855,7 +855,7 @@ class Logger():
         spot_price(ticker=ticker, this_spot_price=info[ticker][&#39;spot_price&#39;])
         model_price(ticker=ticker, this_model_price=info[ticker][&#39;model_price&#39;], model=model)
         scalar_result(f&#39;{ticker} discount&#39;, info[ticker][&#39;discount&#39;])
-        print_line()</code></pre>
+        print_separator_line()</code></pre>
 </details>
 </dd>
 <dt id="scrilla.util.outputter.spot_price"><code class="name flex">
@@ -952,21 +952,21 @@ class Logger():
                 self.debug(f&#39;Extra Argument: {item}&#39;)
 
     def log_django_settings(self, settings):
-            print_line()
+            print_separator_line()
             title_line(&#39;SETTINGS.PY Configuration&#39;)
 
-            print_line()
+            print_separator_line()
             self.comment(&#34;# Environment Configuration&#34;)
             self.comment(f&#39;&gt; Server Location : {settings.BASE_DIR}&#39;)
             self.comment(f&#39;&gt; App Location : {settings.APP_DIR}&#39;)
             self.comment(f&#39;&gt; Environment: {settings.APP_ENV}&#39;)
 
-            print_line()
+            print_separator_line()
             self.comment(&#34;# Application Configuration&#34;)
             self.comment(f&#39;&gt; Debug : {settings.DEBUG}&#39;)
             self.comment(f&#39;&gt; Log Level: {settings.LOG_LEVEL}&#39;)
 
-            print_line()
+            print_separator_line()
             self.comment(&#34;# Headers Configuration&#34;)
             self.comment(f&#39;&gt; ALLOWED_HOSTS: {settings.ALLOWED_HOSTS}&#39;)
             if hasattr(settings, &#39;CORS_ALLOW_ALL_ORIGINS&#39;):
@@ -974,12 +974,12 @@ class Logger():
             if hasattr(settings, &#39;CORS_ALLOWED_ORIGINS&#39;):
                 self.comment(f&#39;&gt; CORS_ALLOWED_ORIGINS {settings.CORS_ALLOWED_ORIGINS}&#39;)
             
-            print_line()
+            print_separator_line()
             self.comment(&#34;# Database Configuration&#34;)
             self.comment(f&#39;&gt; Database Engine: {settings.DATABASES[&#34;default&#34;][&#34;ENGINE&#34;]}&#39;)
             self.comment(f&#39;&gt; Database Host: {settings.DATABASES[&#34;default&#34;][&#34;HOST&#34;]}&#39;)
             self.comment(f&#39;&gt; Database Port: {settings.DATABASES[&#34;default&#34;][&#34;PORT&#34;]}&#39;)
-            print_line()</code></pre>
+            print_separator_line()</code></pre>
 </details>
 <h3>Methods</h3>
 <dl>
@@ -1054,21 +1054,21 @@ class Logger():
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def log_django_settings(self, settings):
-        print_line()
+        print_separator_line()
         title_line(&#39;SETTINGS.PY Configuration&#39;)
 
-        print_line()
+        print_separator_line()
         self.comment(&#34;# Environment Configuration&#34;)
         self.comment(f&#39;&gt; Server Location : {settings.BASE_DIR}&#39;)
         self.comment(f&#39;&gt; App Location : {settings.APP_DIR}&#39;)
         self.comment(f&#39;&gt; Environment: {settings.APP_ENV}&#39;)
 
-        print_line()
+        print_separator_line()
         self.comment(&#34;# Application Configuration&#34;)
         self.comment(f&#39;&gt; Debug : {settings.DEBUG}&#39;)
         self.comment(f&#39;&gt; Log Level: {settings.LOG_LEVEL}&#39;)
 
-        print_line()
+        print_separator_line()
         self.comment(&#34;# Headers Configuration&#34;)
         self.comment(f&#39;&gt; ALLOWED_HOSTS: {settings.ALLOWED_HOSTS}&#39;)
         if hasattr(settings, &#39;CORS_ALLOW_ALL_ORIGINS&#39;):
@@ -1076,12 +1076,12 @@ class Logger():
         if hasattr(settings, &#39;CORS_ALLOWED_ORIGINS&#39;):
             self.comment(f&#39;&gt; CORS_ALLOWED_ORIGINS {settings.CORS_ALLOWED_ORIGINS}&#39;)
         
-        print_line()
+        print_separator_line()
         self.comment(&#34;# Database Configuration&#34;)
         self.comment(f&#39;&gt; Database Engine: {settings.DATABASES[&#34;default&#34;][&#34;ENGINE&#34;]}&#39;)
         self.comment(f&#39;&gt; Database Host: {settings.DATABASES[&#34;default&#34;][&#34;HOST&#34;]}&#39;)
         self.comment(f&#39;&gt; Database Port: {settings.DATABASES[&#34;default&#34;][&#34;PORT&#34;]}&#39;)
-        print_line()</code></pre>
+        print_separator_line()</code></pre>
 </details>
 </dd>
 <dt id="scrilla.util.outputter.Logger.sys_error"><code class="name flex">
@@ -1147,7 +1147,7 @@ class Logger():
 <li><code><a title="scrilla.util.outputter.portfolio_percent_result" href="#scrilla.util.outputter.portfolio_percent_result">portfolio_percent_result</a></code></li>
 <li><code><a title="scrilla.util.outputter.portfolio_shares_result" href="#scrilla.util.outputter.portfolio_shares_result">portfolio_shares_result</a></code></li>
 <li><code><a title="scrilla.util.outputter.print_below_new_line" href="#scrilla.util.outputter.print_below_new_line">print_below_new_line</a></code></li>
-<li><code><a title="scrilla.util.outputter.print_line" href="#scrilla.util.outputter.print_line">print_line</a></code></li>
+<li><code><a title="scrilla.util.outputter.print_separator_line" href="#scrilla.util.outputter.print_separator_line">print_separator_line</a></code></li>
 <li><code><a title="scrilla.util.outputter.print_list" href="#scrilla.util.outputter.print_list">print_list</a></code></li>
 <li><code><a title="scrilla.util.outputter.return_line" href="#scrilla.util.outputter.return_line">return_line</a></code></li>
 <li><code><a title="scrilla.util.outputter.risk_profile" href="#scrilla.util.outputter.risk_profile">risk_profile</a></code></li>

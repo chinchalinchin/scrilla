@@ -203,7 +203,7 @@ def do_program() -&gt; None:
 
             if print_format_to_screen(xtra_dict):
                 outputter.title_line(&#39;Results&#39;)
-                outputter.print_line()
+                outputter.print_separator_line()
 
             ### FUNCTION: Asset Grouping
             if opt == static.definitions.FUNC_DICT[&#39;asset_type&#39;]:
@@ -849,7 +849,7 @@ def do_program() -&gt; None:
                                             exact=exact)
     
             if print_format_to_screen(xtra_dict):
-                outputter.print_line()
+                outputter.print_separator_line()
     else:
         logger.comment(&#39;No arguments Supplied. Please review function summary below and re-execute with appropriate arguments.&#39;)
         outputter.help_msg()
@@ -949,7 +949,7 @@ if __name__ == &#34;__main__&#34;:
 
             if print_format_to_screen(xtra_dict):
                 outputter.title_line(&#39;Results&#39;)
-                outputter.print_line()
+                outputter.print_separator_line()
 
             ### FUNCTION: Asset Grouping
             if opt == static.definitions.FUNC_DICT[&#39;asset_type&#39;]:
@@ -1595,7 +1595,7 @@ if __name__ == &#34;__main__&#34;:
                                             exact=exact)
     
             if print_format_to_screen(xtra_dict):
-                outputter.print_line()
+                outputter.print_separator_line()
     else:
         logger.comment(&#39;No arguments Supplied. Please review function summary below and re-execute with appropriate arguments.&#39;)
         outputter.help_msg()</code></pre>

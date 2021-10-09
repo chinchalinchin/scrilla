@@ -1,112 +1,73 @@
-import datetime, sys
+import datetime
 
-import scrilla.util.formatter as formatter
-from scrilla.static import constants
+from scrilla.static import constants, formats, definitions
 
-LOG_LEVEL_NONE = "none"
-LOG_LEVEL_INFO = "info"
-LOG_LEVEL_DEBUG = "debug"
-LOG_LEVEL_VERBOSE = "verbose"
-
-def print_below_new_line(msg):
-    print(f'\n{msg}')
-
-def title_line(title):
-    buff = int((formatter.LINE_LENGTH - len(title))/2)
-    print(formatter.SEPARATER*buff, title, formatter.SEPARATER*buff) 
+### GENERAL OUTPUT FUNCTIONS
+def title_line(title, line_length=formats.LINE_LENGTH, separater=formats.SEPARATER):
+    buff = int((line_length - len(title))/2)
+    print(separater*buff, title, separater*buff) 
     
-def print_line():
-    print(formatter.SEPARATER*formatter.LINE_LENGTH)
+def print_separator_line(line_length=formats.LINE_LENGTH, separater=formats.SEPARATER):
+    print(separater*line_length)
 
-def return_line():
-    print('\n')
-
-def break_lines(msg):
-    if len(msg)>formatter.LINE_LENGTH:
-        return [msg[i:i+formatter.LINE_LENGTH] for i in range(0,len(msg), formatter.LINE_LENGTH)]
+def break_lines(msg, line_length=formats.LINE_LENGTH):
+    if len(msg)>line_length:
+        return [msg[i:i+line_length] for i in range(0,len(msg), line_length)]
     return [msg]
 
-def center(this_line):
-    buff = int((formatter.LINE_LENGTH - len(this_line))/2)
+def center(this_line, line_length=formats.LINE_LENGTH):
+    buff = int((line_length - len(this_line))/2)
     print(' '*buff, this_line, ' '*buff)
 
-def print_list(list_to_print):
+def print_list(list_to_print, indent=formats.INDENT):
     for i, item in enumerate(list_to_print):
-        print(formatter.TAB, f'{i}. {item}')
+        print(' '*indent, f'{i}. {item}')
 
-def string_result(operation, result):
-    print(' '*formatter.INDENT, '>>', operation, ' = ', result)
+def string_result(operation, result, indent=formats.INDENT):
+    print(' '*indent, operation, ' = ', result)
         
-def scalar_result(calculation, result, currency=True):
-    try:
-        if currency:
-            print(' '*formatter.INDENT, '>>', calculation, ' = $', round(float(result), 2))
-        else:
-            print(' '*formatter.INDENT, '>>', calculation, ' = ', round(float(result), 4))
-    except ValueError:
-        if currency:
-            print(' '*formatter.INDENT, '>>', calculation, ' = $', result)
-        else:
-            print(' '*formatter.INDENT, '>>', calculation, ' = ', result)
+def scalar_result(calculation, result, currency=True, indent=formats.INDENT):
+    if currency:
+        print(' '*indent, calculation, ' = $', round(float(result), 2))
+    else:
+        print(' '*indent, calculation, ' = ', round(float(result), 4))
 
-def percent_result(calculation, result):
-    try:
-        print(' '*formatter.INDENT, '>>', calculation, ' = ', round(float(result), 4), '%')
-    except ValueError as ve:
-        raise ve
+def percent_result(calculation, result, indent=formats.INDENT):
+    print(' '*indent, calculation, ' = ', round(float(result), 4), '%')
 
-def equivalent_result(right_hand, left_hand, value):
-    print(' '*formatter.INDENT, '>>', f'{right_hand} = {left_hand} = {value}')
+def equivalent_result(right_hand, left_hand, value, indent=formats.INDENT):
+    print(' '*indent, f'{right_hand} = {left_hand} = {value}')
 
-def portfolio_percent_result(result, tickers):
-    for i, item in enumerate(tickers):
-        print(' '*formatter.INDENT, f'{item} =', round(100*result[i], 2), '%')
+def function_option():
+    pass
 
-def portfolio_shares_result(result, tickers):
-    for i, item in enumerate(tickers):
-        print(' '*formatter.INDENT, f'{item} =', result[i])
+def function_summary():
+    pass
 
-def example(ex_no, ex, explanation):
-    print(' '*formatter.INDENT, f'#{ex_no}:', ex)
-    for l in break_lines(explanation):
-        print(' '*2*formatter.INDENT, '-', l)
-
-def examples():
-    index = 1
-    for ex in formatter.EXAMPLES:
-        example(index, ex, formatter.EXAMPLES[ex])
-        return_line()
-        index += 1
-    
-def option(opt, explanation):
-    print(' '*formatter.INDENT, opt, " :")
-    exp_array = explanation.split('__')
-    for l in break_lines(exp_array[0]):
-        print(' '*formatter.INDENT*2, l)
-    if len(exp_array) > 1:
-        print(exp_array[1])
-
-"""
 def help_msg():
-    title_line(formatter.APP_NAME)
-    for paragraph in formatter.HELP_MSG:
-        explanation=break_lines(paragraph)
-        for l in explanation:
-            center(l)
-        return_line()
+    func_dict = definitions.FUNC_DICT
+    arg_dict = definitions.ARG_DICT
 
-    title_line('SYNTAX')
-    center(formatter.SYNTAX)
-    return_line()
+    for func_name in func_dict:
+        proper_func_name = func_dict[func_name]['name']
+        description = func_dict[func_name]['description']
+        for arg_name in func_dict[func_name]['values']:
+            proper_arg_name = arg_dict[arg_name]['name']
+            arg_values = arg_dict[arg_name]['values']
+            arg_description = arg_dict[arg_name]['description']
 
-    title_line('FUNCTIONS')
-    options = formatter.HELP_DICT.keys()
-    for opt in options:
-        option(formatter.HELP_DICT[opt], formatter.HELP_DICT[opt])
-        return_line()
-        
- # APPLICATION SPECIFIC FORMATTING FUNCTIONS
-"""
+        pass
+
+    pass
+
+### ANALYSIS SPECIFIC OUTPUT FUNCTIONS
+def portfolio_percent_result(result, tickers,indent=formats.INDENT):
+    for i, item in enumerate(tickers):
+        print(' '*indent, f'{item} =', round(100*result[i], 2), '%')
+
+def portfolio_shares_result(result, tickers, indent=formats.INDENT):
+    for i, item in enumerate(tickers):
+        print(' '*indent, f'{item} =', result[i])
 
 def spot_price(ticker, this_spot_price):
     formatted_price = round(float(this_spot_price), 2)
@@ -157,7 +118,7 @@ def screen_results(info, model):
         spot_price(ticker=ticker, this_spot_price=info[ticker]['spot_price'])
         model_price(ticker=ticker, this_model_price=info[ticker]['model_price'], model=model)
         scalar_result(f'{ticker} discount', info[ticker]['discount'])
-        print_line()
+        print_separator_line()
 
 # TODO: can probably combine optimal_result and efficient_frontier into a single function
 #         by wrapping the optimal_results in an array so when it iterates through frontier
@@ -166,13 +127,13 @@ def screen_results(info, model):
 def optimal_result(portfolio, allocation, investment=None):
     title_line('Optimal Percentage Allocation')
     portfolio_percent_result(allocation, portfolio.tickers)
-    print_line()
+    print_separator_line()
 
     if investment is not None:
         shares = portfolio.calculate_approximate_shares(allocation, investment)
         total = portfolio.calculate_actual_total(allocation, investment)
         
-        print_line()
+        print_separator_line()
         title_line('Optimal Share Allocation')
         portfolio_shares_result(shares, portfolio.tickers)
         title_line('Optimal Portfolio Value')
@@ -188,11 +149,11 @@ def efficient_frontier(portfolio, frontier, investment=None):
     # TODO: edit title to include dates
 
     for allocation in frontier:
-        print_line()
+        print_separator_line()
         return_string=str(round(round(portfolio.return_function(allocation),4)*100,2))
         vol_string=str(round(round(portfolio.volatility_function(allocation),4)*100,2))
         title_line(f'({return_string} %, {vol_string}%) Portfolio')
-        print_line()
+        print_separator_line()
 
         title_line('Optimal Percentage Allocation')
         portfolio_percent_result(allocation, portfolio.tickers)
@@ -209,7 +170,7 @@ def efficient_frontier(portfolio, frontier, investment=None):
         title_line('Risk-Return Profile')
         scalar_result('Return', portfolio.return_function(allocation), currency=False)
         scalar_result('Volatility', portfolio.volatility_function(allocation), currency=False)
-        return_line()
+        print('\n')
 
 def correlation_matrix(tickers, correlation_matrix):
     """
@@ -236,7 +197,7 @@ def correlation_matrix(tickers, correlation_matrix):
 
     for i in range(no_symbols):
         this_symbol = tickers[i]
-        symbol_string = ' '*formatter.INDENT + f'{this_symbol} '
+        symbol_string = ' '*formats.INDENT + f'{this_symbol} '
 
         if i != 0:
             this_line = symbol_string + ' '*(line_length - len(symbol_string) - 7*(no_symbols - i))
@@ -261,7 +222,7 @@ def correlation_matrix(tickers, correlation_matrix):
         if i == 0:
             line_length = len(new_line)
 
-    formatted_title += ' '*(formatter.INDENT + first_symbol_length+1)
+    formatted_title += ' '*(formats.INDENT + first_symbol_length+1)
     for symbol in tickers:
         sym_len = len(symbol)
         formatted_title += f' {symbol}'+ ' '*(7-sym_len)
@@ -270,7 +231,7 @@ def correlation_matrix(tickers, correlation_matrix):
 
     whole_thing = formatted_title + entire_formatted_result
 
-    print_below_new_line(f'\n{whole_thing}')
+    print(f'\n{whole_thing}')
 
 class Logger():
 
@@ -285,56 +246,16 @@ class Logger():
         print(dt_string, ' :' , self.location, ' : ',msg)
 
     def info(self, msg):
-        if self.log_level in [LOG_LEVEL_INFO, LOG_LEVEL_DEBUG, LOG_LEVEL_VERBOSE]:
+        if self.log_level in [constants['LOG_LEVEL']['INFO'], 
+                                constants['LOG_LEVEL']['DEBUG'], 
+                                constants['LOG_LEVEL']['VERBOSE']]:
             self.comment(msg)
 
     def debug(self, msg):
-        if self.log_level in [LOG_LEVEL_DEBUG, LOG_LEVEL_VERBOSE]:
+        if self.log_level in [constants['LOG_LEVEL']['DEBUG'], 
+                                constants['LOG_LEVEL']['VERBOSE']]:
             self.comment(msg)
 
     def verbose(self, msg):
-        if self.log_level == LOG_LEVEL_VERBOSE:
+        if self.log_level == constants['LOG_LEVEL']['VERBOSE']:
             self.comment(msg)
-            
-    def sys_error(self):
-        e, f, g = sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2]
-        msg = f'{e} \n {f} \n {g} \n'
-        self.debug(msg)
-
-    def log_arguments(self, main_args, xtra_args, xtra_values):
-        self.debug(f'Main Arguments: {main_args}')
-        for i, item in enumerate(xtra_args):
-            if i < len(xtra_values):
-                self.debug(f'Extra Argument: {item} = {xtra_values[i]}')
-            else:
-                self.debug(f'Extra Argument: {item}')
-
-    def log_django_settings(self, settings):
-            print_line()
-            title_line('SETTINGS.PY Configuration')
-
-            print_line()
-            self.comment("# Environment Configuration")
-            self.comment(f'> Server Location : {settings.BASE_DIR}')
-            self.comment(f'> App Location : {settings.APP_DIR}')
-            self.comment(f'> Environment: {settings.APP_ENV}')
-
-            print_line()
-            self.comment("# Application Configuration")
-            self.comment(f'> Debug : {settings.DEBUG}')
-            self.comment(f'> Log Level: {settings.LOG_LEVEL}')
-
-            print_line()
-            self.comment("# Headers Configuration")
-            self.comment(f'> ALLOWED_HOSTS: {settings.ALLOWED_HOSTS}')
-            if hasattr(settings, 'CORS_ALLOW_ALL_ORIGINS'):
-                self.comment(f'> CORS_ALLOW_ALL_ORIGINS: {settings.CORS_ALLOW_ALL_ORIGINS}')
-            if hasattr(settings, 'CORS_ALLOWED_ORIGINS'):
-                self.comment(f'> CORS_ALLOWED_ORIGINS {settings.CORS_ALLOWED_ORIGINS}')
-            
-            print_line()
-            self.comment("# Database Configuration")
-            self.comment(f'> Database Engine: {settings.DATABASES["default"]["ENGINE"]}')
-            self.comment(f'> Database Host: {settings.DATABASES["default"]["HOST"]}')
-            self.comment(f'> Database Port: {settings.DATABASES["default"]["PORT"]}')
-            print_line()

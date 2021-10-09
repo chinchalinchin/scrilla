@@ -270,97 +270,145 @@ ARG_DICT = {
     'start_date': {
         'name': 'Sample Start Date',
         'values': ['-start-date', '--start-date', '-start','--start' ],
+        'description': 'Start date of historical sample',
+        'default': '100 Trading Days Ago',
+        'format_str': 'YYYY-MM-DD',
         'format': lambda s: datetime.datetime.strptime(s, '%Y-%m-%d'),
         'required': False
     },
     'end_date': {
         'name': 'Sample End Date',
         'values': ['-end-date', '--end-date', '-end', '--end'],
+        'description': 'End date of historical sample',
+        'default': 'Last Trading Day',
+        'format_str': 'YYYY-MM-DD',
         'format': lambda s: datetime.datetime.strptime(s, '%Y-%m-%d'),
         'required': False
     },
     'target': {
         'name': 'Target Return',
         'values': ['-target-return', '--target-return', '-target','--target'],
+        'description': 'Constraint for target rate of return',
+        'default': None,
+        'format_str': 'decimal',
         'format': float,
         'required': False
     },
     'discount': {
         'name': 'Discount Rate',
         'values': ['-discount-rate', '--discount-rate', '-discount','--discount'],
+        'description': 'Rate of return used to discount future cash flows to present',
+        'default': 'Cost of equity',
+        'format_str': 'decimal',
         'format': float,
         'required': False
     },
     'investment': {
         'name': 'Total Investment',
         'values': ['-investment', '--investment', '-invest', '--invest'],
+        'description': 'Total amount of money invested',
+        'default': None,
+        'format_str': 'currency in USD',
         'format': float,
         'required': False
     },
     'expiry': {
-        'name': 'Time to Expiration',
+        'name': 'Expiration',
         'values': ['-expiry', '--expiry', '-exp','--exp'],
+        'description': 'Time until event expiration',
+        'default': None,
+        'format_str': 'time in years',
         'format': float,
         'required': True
     },
     'probability': {
         'name': 'Probability of Loss',
         'values': ['-probability', '--probability', '-prob', '--prob'],
+        'description': '',
+        'default': None,
+        'format_str': '',
         'format': float,
         'required': True
     },
     'steps': {
         'name': 'Efficient Frontier Data Points',
         'values': ['-frontier-steps', '--frontier-steps', '-steps','--steps'],
+        'description': 'Number of data points included in efficient frontier calculations',
+        'default': 'FRONTIER_STEPS environment variable',
+        'format_str': 'integer',
         'format': int,
         'required': False
     },
-    'model': {
-        'name': 'Watchlist Screener Model',
+    'criteria': {
+        'name': 'Watchlist Screener Critia',
         'values': ['-pricing-model', '--pricing-model', '-model','--model'],
+        'description': 'Criteria used to sort saved watchlist',
+        'default': None,
+        'format_str': 'DDM | sharpe | volatility | return',
         'format': str,
-        'required': False
+        'required': False,
+        'allowable': ['DDM', 'sharpe', 'volatility', 'return'],
     },
     'save_file': {
         'name': 'Save File Location',
         'values': ['-save-file', '--save-file', '-save', '--save'],
+        'description': 'Location where file will be saved',
+        'default': None,
+        'format_str': 'path/to/file.jpeg | path/to/file.json',
         'format': str,
         'required': False
     },
     'optimize_sharpe': {
         'name': 'Optimize Portfolio Sharpe',
         'values': ['-sharpe', '--sharpe', '-sh', '--sh'],
+        'description': 'Flag to optimize portfolio Sharpe Ratio',
+        'default': None,
+        'format_str': None,
         'format': bool,
         'required': False
     },
     'json': {
-        'name': 'Display Results as JSON',
+        'name': 'JSON Display',
         'values': ['-json', '--json', '-js', '--js'],
+        'description': 'Print output to screen as JSON',
+        'default': None,
+        'format_str': None,
         'format': bool,
         'required': False
     },
     'suppress_output': {
-        'name': 'Suppress Console Output',
+        'name': 'No Display',
         'values': ['-quiet', '--quiet', "-q", "--q"],
+        'description': 'Suppress all console output',
+        'default': None,
+        'format_str': None,
         'format': bool,
         'required': False
     },
     'key': {
-        'name': 'Key From Key-Value Pair',
+        'name': 'Key-Value Key',
         'value': ['-key', '--key', '-k', '--k'],
-        'format': 'str',
+        'description': 'API Key that will be saved to __installation_dir__/data/common/',
+        'default': None,
+        'format': 'ALPHA_VANTAGE_KEY | QUANDL_KEY | IEX_KEY',
         'required': True,
         'allowable': ["ALPHA_VANTAGE_KEY", "QUANDL_KEY", "IEX_KEY"]
     },
     'value': {
-        'name': 'Value From Key-Value Pair',
+        'name': 'Key-Value Value',
         'value':['-value', '--value', '-v', '--v'],
+        'description': 'API Key-Value that will be saved to __installation_dir__/data/common/',
+        'default': None,
+        'format_str': '<value>',
         'format': 'str',
         'required': True
     },
     keys['ESTIMATION']['MOMENT']: {
         'name': 'Method of Moment Matching',
         'values': ['-moments', '--moments', '-mom', '--mom'],
+        'description': 'Statistics are calculated using method of moment matching',
+        'default': None,
+        'format_str': None,
         'format': 'group',
         'group': 'estimation_method',
         'required': False
@@ -368,6 +416,9 @@ ARG_DICT = {
     keys['ESTIMATION']['PERCENT']: {
         'name': 'Method of Percentile Matching',
         'values': ['-percentiles', '--percentiles', '-per', '--per'],
+        'description': 'Statistics are calculated using method of percentile matching',
+        'default': None,
+        'format_str': None,
         'format': 'group',
         'group': 'estimation_method',
         'required': False
@@ -375,6 +426,9 @@ ARG_DICT = {
     keys['ESTIMATION']['LIKE']: {
         'name': 'Maximum Likelihood Estimation',
         'values': ['-likelihood','--likelihood','-like', '--like'],
+        'description': 'Statistics are calculated using maximum likelihood estimation',
+        'default': None,
+        'format_str': None,
         'format': 'group',
         'group': 'estimation_method',
         'required': False
