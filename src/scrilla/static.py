@@ -33,8 +33,8 @@ keys= {
     },
     'ESTIMATION': {
         'MOMENT': 'moments',
-        'PERCENT': 'percents',
-        'LIKE': 'likely'
+        'PERCENT': 'percentiles',
+        'LIKE': 'likelihood'
     },
     'SDE':{
         'GBM': 'geometric',

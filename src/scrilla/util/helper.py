@@ -40,56 +40,35 @@ def intersect_dict_keys(dict1: dict, dict2: dict) -> Tuple[dict, dict]:
 ### CLI PARSING
 def format_args(args) -> argparse.Namespace:
     parser = argparse.ArgumentParser()
-    for arg in formatter.DATE_ARG_DICT:
-        parser.add_argument(formatter.DATE_ARG_DICT[arg][0], 
-                            formatter.DATE_ARG_DICT[arg][1], 
-                            formatter.DATE_ARG_DICT[arg][2], 
-                            formatter.DATE_ARG_DICT[arg][3],
-                            default=None, 
-                            type=lambda s: datetime.datetime.strptime(s, '%Y-%m-%d'),
-                            dest=arg)
-    for arg in formatter.FLOAT_ARG_DICT:
-        parser.add_argument(formatter.FLOAT_ARG_DICT[arg][0],
-                            formatter.FLOAT_ARG_DICT[arg][1],
-                            formatter.FLOAT_ARG_DICT[arg][2],
-                            formatter.FLOAT_ARG_DICT[arg][3],
-                            default=None,
-                            type=float,
-                            dest=arg)
-    for arg in formatter.INT_ARG_DICT:
-        parser.add_argument(formatter.INT_ARG_DICT[arg][0],
-                            formatter.INT_ARG_DICT[arg][1],
-                            formatter.INT_ARG_DICT[arg][2],
-                            formatter.INT_ARG_DICT[arg][3],
-                            default=None,
-                            type=int,
-                            dest=arg)
-    for arg in formatter.STRING_ARG_DICT:
-        parser.add_argument(formatter.STRING_ARG_DICT[arg][0],
-                            formatter.STRING_ARG_DICT[arg][1],
-                            formatter.STRING_ARG_DICT[arg][2],
-                            formatter.STRING_ARG_DICT[arg][3],
-                            default=None,
-                            type=str,
-                            dest=arg)
-    for arg in formatter.BOOLEAN_ARG_DICT:
-        parser.add_argument(formatter.BOOLEAN_ARG_DICT[arg][0],
-                            formatter.BOOLEAN_ARG_DICT[arg][1],
-                            formatter.BOOLEAN_ARG_DICT[arg][2],
-                            formatter.BOOLEAN_ARG_DICT[arg][3],
-                            action='store_true',
-                            dest=arg)
+    main_group = parser.add_mutually_exclusive_group()
 
-    group = parser.add_mutually_exclusive_group()
-    keys = static.keys['ESTIMATION']
-    for method in keys:
-        group.add_argument(formatter.ESTIMATION_ARG_DICT[keys[method]][0],
-                            formatter.ESTIMATION_ARG_DICT[keys[method]][1],
-                            formatter.ESTIMATION_ARG_DICT[keys[method]][2],
-                            formatter.ESTIMATION_ARG_DICT[keys[method]][3],
-                            action='store_const',
-                            dest='estimation_method',
-                            const=keys[method])
+    for func in formatter.FUNC_DICT:
+        main_group.add_argument(formatter.FUNC_DICT[func]['values'][0],
+                                formatter.FUNC_DICT[func]['values'][1],
+                                action='store_const',
+                                dest='function_arg',
+                                const=func)
+
+    groups = [parser.add_mutually_exclusive_group() for arg_group in formatter.ARG_DICT['META']['groups'] ]
+
+    for arg in formatter.ARG_DICT:
+        if formatter.ARG_DICT[arg]['format'] != 'group':
+            parser.add_argument(formatter.ARG_DICT[arg]['values'][0], 
+                                formatter.ARG_DICT[arg]['values'][1], 
+                                formatter.ARG_DICT[arg]['values'][2], 
+                                formatter.ARG_DICT[arg]['values'][3],
+                                default=None, 
+                                type=formatter.ARG_DICT[arg]['format'],
+                                dest=arg)
+        else:
+            group_index = formatter.ARG_DICT['META']['groups'].index(formatter.ARG_DICT[arg]['group'])
+            groups[group_index].add_argument(formatter.ARG_DICT[arg]['values'][0],
+                                            formatter.ARG_DICT[arg]['values'][1],
+                                            formatter.ARG_DICT[arg]['values'][2],
+                                            formatter.ARG_DICT[arg]['values'][3],
+                                            action='store_const',
+                                            dest=formatter.ARG_DICT[arg]['group'],
+                                            const=arg)
 
     parser.add_argument('tickers', nargs='*', type=str)
     return vars(parser.parse_args(args))
