@@ -219,7 +219,7 @@ For example, the following command,
 
 ```
 scrilla optimize-portfolio ALLY BX SONY --sh --save <path-to-json-file> --target 0.25 --invest 10000 --start 2020-01-03 --end 2021-05-15
-``
+```
 
 Will optimize a portfolio consisting of <i>ALLY</i>, <i>BX</i> and <i>SONY</i> using historical data between the dates of January 1st, 2020 and May 15th, 2021. The portfolio will be constrained to return a rate of 25%. A total $10,000 will be invested into this portfolio (to the nearest whole share). The output of this command will look like this,
 
