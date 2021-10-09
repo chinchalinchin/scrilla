@@ -7,7 +7,7 @@ HELP_MSG = [
     "See documentation for more information on configuration and usage: https://chinchalinchin.github.io/scrilla/."
 ]
 
-SYNTAX = "scrilla <command> <options> <tickers/symbols>"
+SYNTAX = "scrilla <command> <tickers/symbols> <options>"
 
 FUNC_DICT = {
     "asset_type": {
@@ -20,14 +20,14 @@ FUNC_DICT = {
     "cvar": {
         'name': 'Conditional Value At Risk',
         'values': ["cvar", "cv"],
-        'args': ['start_date', 'end_date', 'probability', 'expiry', 'save_file', 'suppress_output', 'json', keys.keys['ESTIMATION']['MOMENT'], keys.keys['ESTIMATION']['PERCENT'], keys.keys['ESTIMATION']['LIKE']],
+        'args': ['probability', 'expiry', 'start_date', 'end_date', 'save_file', 'suppress_output', 'json', keys.keys['ESTIMATION']['MOMENT'], keys.keys['ESTIMATION']['PERCENT'], keys.keys['ESTIMATION']['LIKE']],
         'description': "Calculates the conditional value at risk, i.e. E(St | St < Sv) where Sv -> Prob(St<Sv) = `prob` , for the list of inputted ticker symbols. 'expiry' and 'prob' are required arguments for this function. Note: 'expiry' is measured in years and is different from the `start` and `end` dates. `start` and `end` are used to calibrate the model to a historical sample and `expiry` is used as the time horizon over which the value at risk is calculated into the future.",
         'tickers': True,
     },
     "var": {
         'name': 'Value At Risk',
         'values': ["var", "v"],
-        'args': ['start_date', 'end_date', 'probability', 'expiry', 'save_file', 'suppress_output', 'json', keys.keys['ESTIMATION']['MOMENT'], keys.keys['ESTIMATION']['PERCENT'], keys.keys['ESTIMATION']['LIKE']],
+        'args': ['probability', 'expiry', 'start_date', 'end_date', 'save_file', 'suppress_output', 'json', keys.keys['ESTIMATION']['MOMENT'], keys.keys['ESTIMATION']['PERCENT'], keys.keys['ESTIMATION']['LIKE']],
         'description': "Calculates the value at risk, i.e. for a given p, the Sv such that Prob(St<Sv) = p. 'expiry' and 'prob' are required arguments for this function. Note: 'expiry' is measured in years and is different from the `start` and `end` dates. `start` and `end` are used to calibrate the model to a historical sample and `expiry` is used as the time horizon over which the value at risk is calculated into the future.",
         'tickers': True
     },
@@ -152,16 +152,16 @@ FUNC_DICT = {
     },
     "optimize_portfolio": {
         'name': 'Optimize Portfolio Variance',
-        'values': ["optimize-variance", "opt"],
+        'values': ["optimize-portfolio", "opt"],
         'args': ['start_date', 'end_date', 'optimize_sharpe', 'investment', 'target','save_file', 'suppress_output', 'json', keys.keys['ESTIMATION']['MOMENT'], keys.keys['ESTIMATION']['PERCENT'], keys.keys['ESTIMATION']['LIKE']],
-        'description': "Optimize the volatility of the portfolio\'s variance subject to the supplied return target.  Returns an array representing the allocations to be made for each asset in a portfolio. The target return must be specified with the '-target' flag. If no target return is specified, the portfolio's volatility is minimized. If no start or end dates are specified with the '-start' and '-end' flags, calculations default to the last 100 days of prices. You can specify an investment with the '-invest' flag, otherwise the result will be output in percentage terms. If the -sh flag is specified, the function will maximize the portfolio's sharpe ratio instead of minimizing it's volatility.",
+        'description': "Optimize a portfolio's risk return profile.  Returns an array representing the allocations to be made for each asset in a portfolio.",
         'tickers': True
     },
     "optimize_portfolio_conditional_var": {
         'name': 'Optimize Portfolio Conditional Value At Risk',
         'values':["optimize-cvar", "opt-cvar"],
         'args': ['start_date', 'end_date', 'investment', 'target', 'save_file', 'suppress_output', 'json', 'expiry', 'probability', keys.keys['ESTIMATION']['MOMENT'], keys.keys['ESTIMATION']['PERCENT'], keys.keys['ESTIMATION']['LIKE']],
-        'description': "Optimizes the conditional value at risk, i.e. E(St | St < Sv) where Sv -> Prob(St<S0) = `prob` , for the portfolio defined by the list of inputted ticker symbols. 'expiry' and 'prob' are required arguments for this function. Note: 'expiry' is measured in years and is different from the `start` and `end` dates. `start` and `end` are used to calibrate the model to a historical sample and `expiry` is used as the time horizon over which the value at risk is calculated into the future.",
+        'description': "Optimizes the conditional value at risk, i.e. E(St | St < Sv) where Sv -> Prob(St<S0) = `prob` , for the portfolio defined by the list of inputted ticker symbols. Note: expiry is measured in years and is different from the start and end dates. Start and end dates are used to calibrate the model to a historical sample while expiry is used as the time horizon over which the value at risk is calculated into the future.",
         'tickers': True
     },
     "plot_correlation": {
@@ -280,7 +280,7 @@ FUNC_DICT = {
         'name': 'Display Version',
         'values': ["version", "v"],
         'args': None,
-        'description': "Display version.",
+        'description': "Display installed version of this library.",
         'tickers': False
     },
     "watchlist": {
@@ -359,11 +359,11 @@ ARG_DICT = {
         'required': True
     },
     'probability': {
-        'name': 'Probability of Loss',
+        'name': 'Loss Probability',
         'values': ['-probability', '--probability', '-prob', '--prob'],
-        'description': '',
+        'description': 'Probability a loss will occur',
         'default': None,
-        'format_str': '',
+        'format_str': 'decimal',
         'format': float,
         'required': True
     },
@@ -395,6 +395,25 @@ ARG_DICT = {
         'format': str,
         'required': False
     },
+    'key': {
+        'name': 'Key-Value Key',
+        'values': ['-key', '--key', '-k', '--k'],
+        'description': 'API Key that will be saved to __installation_dir__/data/common/',
+        'default': None,
+        'format': str,
+        'format_str': 'ALPHA_VANTAGE_KEY | QUANDL_KEY | IEX_KEY',
+        'required': True,
+        'allowable': ["ALPHA_VANTAGE_KEY", "QUANDL_KEY", "IEX_KEY"]
+    },
+    'value': {
+        'name': 'Key-Value Value',
+        'values':['-value', '--value', '-v', '--v'],
+        'description': 'API Key-Value that will be saved to __installation_dir__/data/common/',
+        'default': None,
+        'format_str': '<value>',
+        'format': str,
+        'required': True
+    },
     'optimize_sharpe': {
         'name': 'Optimize Portfolio Sharpe',
         'values': ['-sharpe', '--sharpe', '-sh', '--sh'],
@@ -421,25 +440,6 @@ ARG_DICT = {
         'format_str': None,
         'format': bool,
         'required': False
-    },
-    'key': {
-        'name': 'Key-Value Key',
-        'values': ['-key', '--key', '-k', '--k'],
-        'description': 'API Key that will be saved to __installation_dir__/data/common/',
-        'default': None,
-        'format': str,
-        'format_str': 'ALPHA_VANTAGE_KEY | QUANDL_KEY | IEX_KEY',
-        'required': True,
-        'allowable': ["ALPHA_VANTAGE_KEY", "QUANDL_KEY", "IEX_KEY"]
-    },
-    'value': {
-        'name': 'Key-Value Value',
-        'values':['-value', '--value', '-v', '--v'],
-        'description': 'API Key-Value that will be saved to __installation_dir__/data/common/',
-        'default': None,
-        'format_str': '<value>',
-        'format': str,
-        'required': True
     },
     keys.keys['ESTIMATION']['MOMENT']: {
         'name': 'Method of Moment Matching',

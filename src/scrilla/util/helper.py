@@ -35,7 +35,7 @@ def intersect_dict_keys(dict1: dict, dict2: dict) -> Tuple[dict, dict]:
 ##### PARSING FUNCTIONS
 
 ### CLI PARSING
-def format_args(args) -> argparse.Namespace:
+def format_args(args, default_estimation_method) -> argparse.Namespace:
     parser = argparse.ArgumentParser()
 
     choices = []
@@ -48,7 +48,7 @@ def format_args(args) -> argparse.Namespace:
     groups = [parser.add_mutually_exclusive_group() for arg_group in definitions.ARG_META['groups'] ]
 
     for arg in definitions.ARG_DICT:
-        if definitions.ARG_DICT[arg]['format'] != 'group':
+        if definitions.ARG_DICT[arg]['format'] != 'group' and definitions.ARG_DICT[arg]['format'] != bool:
             parser.add_argument(definitions.ARG_DICT[arg]['values'][0], 
                                 definitions.ARG_DICT[arg]['values'][1], 
                                 definitions.ARG_DICT[arg]['values'][2], 
@@ -56,7 +56,7 @@ def format_args(args) -> argparse.Namespace:
                                 default=None, 
                                 type=definitions.ARG_DICT[arg]['format'],
                                 dest=arg)
-        else:
+        elif definitions.ARG_DICT[arg]['format'] == 'group':
             group_index = definitions.ARG_META['groups'].index(definitions.ARG_DICT[arg]['group'])
             groups[group_index].add_argument(definitions.ARG_DICT[arg]['values'][0],
                                             definitions.ARG_DICT[arg]['values'][1],
@@ -65,7 +65,17 @@ def format_args(args) -> argparse.Namespace:
                                             action='store_const',
                                             dest=definitions.ARG_DICT[arg]['group'],
                                             const=arg)
+        # NOTE: 'format' == group AND 'format' == bool => Empty Set, so only other alternative is
+        # 'format' == bool
+        else:
+            parser.add_argument(definitions.ARG_DICT[arg]['values'][0], 
+                                definitions.ARG_DICT[arg]['values'][1], 
+                                definitions.ARG_DICT[arg]['values'][2], 
+                                definitions.ARG_DICT[arg]['values'][3],
+                                action='store_true',
+                                dest=arg)
 
+    parser.set_defaults(estimation_method=default_estimation_method)
     parser.add_argument('tickers', nargs='*', type=str)
     return vars(parser.parse_args(args))
 

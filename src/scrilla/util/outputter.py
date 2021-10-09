@@ -109,20 +109,20 @@ def help_msg(indent=formats.formats['INDENT']):
         for line in break_lines(paragraph):
             center(line)
         space(1)
-    space(1)
 
     title_line('SYNTAX')
     center(definitions.SYNTAX)
-    space(2)
+    space(1)
 
     for func_name in func_dict:
         title_line(func_dict[func_name]['name'])
         for line in break_lines(func_dict[func_name]['description']):
-            print(line)
+            center(line)
         separator_line()
 
         commands = func_dict[func_name]['values']
         print(' ', f'COMMAND: {commands[0]}, {commands[1]}')
+
 
         if func_dict[func_name]['args'] is not None:
             for arg_name in func_dict[func_name]['args']:
@@ -134,15 +134,13 @@ def help_msg(indent=formats.formats['INDENT']):
                     print(' '*2*indent, 'REQUIRED')
 
                 print(' '*2*indent, f'NAME: {arg_dict[arg_name]["name"]}')
-                print(' '*2*indent, f'DESCRIPTION: {arg_dict[arg_name]["description"]}')
 
                 if arg_dict[arg_name]['default'] is not None:
                     print(' '*2*indent, f'DEFAULT: {arg_dict[arg_name]["default"]}')
                     
                 if arg_dict[arg_name]['format_str'] is not None:
-                    print(' '*2*indent, f'FORMAT: {arg_dict[arg_name]["format_str"]}')
-        
-        space(1)
+                    print(' '*2*indent, f'FORMAT: {arg_dict[arg_name]["format_str"]}')    
+        separator_line()    
 
 ### ANALYSIS SPECIFIC OUTPUT FUNCTIONS
 def portfolio_percent_result(result, tickers,indent=formats.formats['INDENT']):
@@ -211,13 +209,11 @@ def screen_results(info, model):
 def optimal_result(portfolio, allocation, investment=None):
     title_line('Optimal Percentage Allocation')
     portfolio_percent_result(allocation, portfolio.tickers)
-    separator_line()
 
     if investment is not None:
         shares = portfolio.calculate_approximate_shares(allocation, investment)
         total = portfolio.calculate_actual_total(allocation, investment)
         
-        separator_line()
         title_line('Optimal Share Allocation')
         portfolio_shares_result(shares, portfolio.tickers)
         title_line('Optimal Portfolio Value')

@@ -91,7 +91,7 @@ The GUI will not function without a <b>Qt</b> library.
 
 In order to use this application, you will need to register for API keys. The program will need to be made aware of these keys somehow. The best option is storing these credentials in environment variables. See [Required Configuration](#required-configuration) for more information. You can also invoke the CLI function `store` to store the credentials in the local installation <i>/data/common/</i> directory. To do so,
 
-`scrilla -store <key>=<value>`
+`scrilla store --key <key> --value <value>`
 
 where `key` is one of the values: `ALPHA_VANTAGE_KEY`, `QUANDL_KEY` or `IEX_KEY`. `value` is the corresponding key itself given to you after registration. The `key` is case-sensitive and there should be no spaces in the expression `key=value`
 
@@ -153,7 +153,7 @@ Determines the amount of output. Defaults to `info`. Allowable values: `none`, `
 
 Most functions have been wired into command line arguments. For a full list of <b>scrilla</b>'s functionality,
 
-`scrilla -help`
+`scrilla help`
 
 The main usage of <b>scrilla</b> is detailed below.
 
@@ -163,13 +163,13 @@ The main usage of <b>scrilla</b> is detailed below.
 
 A portfolio of consisting of the equities <i>ALLY</i>, <i>BX</i> and <i>SONY</i> can be optimized with the following command,
 
-`scrilla -opt ALLY BX SONY`
+`scrilla optimize-portfolio ALLY BX SONY`
 
 By default, <b>scrilla</b> will optimize over the last 100 trading days. If you wish to optimize over a different time period, you may use the `-start` and `-end` argument flags to provide starting and ending dates in the `YYYY-MM-DD` format. 
 
 Also by default, the optimization function will minimize the portfolio variance. You can also specify the portfolio should be maximized with respect to the Sharpe ratio,
 
-`scrilla -opt -sh ALLY BX SONY`
+`scrilla optimize-portfolio -sh ALLY BX SONY`
 
 There are several other arguments you may use to configure your optimization program. The full list of arguments is shown below,
 
