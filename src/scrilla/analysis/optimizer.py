@@ -62,7 +62,7 @@ def maximize_univariate_normal_likelihood(data: List[float])-> List[float]:
     return params.x
 
 def maximize_bivariate_normal_likelihood(data: List[Tuple[float,float]]) -> List[float]:
-    """
+    r"""
 
     .. warning ::
         This can take an extremely long time to solve...
