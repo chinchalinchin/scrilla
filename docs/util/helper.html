@@ -64,7 +64,7 @@ def intersect_dict_keys(dict1: dict, dict2: dict) -&gt; Tuple[dict, dict]:
 ##### PARSING FUNCTIONS
 
 ### CLI PARSING
-def format_args(args) -&gt; argparse.Namespace:
+def format_args(args, default_estimation_method) -&gt; argparse.Namespace:
     parser = argparse.ArgumentParser()
 
     choices = []
@@ -77,7 +77,7 @@ def format_args(args) -&gt; argparse.Namespace:
     groups = [parser.add_mutually_exclusive_group() for arg_group in definitions.ARG_META[&#39;groups&#39;] ]
 
     for arg in definitions.ARG_DICT:
-        if definitions.ARG_DICT[arg][&#39;format&#39;] != &#39;group&#39;:
+        if definitions.ARG_DICT[arg][&#39;format&#39;] != &#39;group&#39; and definitions.ARG_DICT[arg][&#39;format&#39;] != bool:
             parser.add_argument(definitions.ARG_DICT[arg][&#39;values&#39;][0], 
                                 definitions.ARG_DICT[arg][&#39;values&#39;][1], 
                                 definitions.ARG_DICT[arg][&#39;values&#39;][2], 
@@ -85,7 +85,7 @@ def format_args(args) -&gt; argparse.Namespace:
                                 default=None, 
                                 type=definitions.ARG_DICT[arg][&#39;format&#39;],
                                 dest=arg)
-        else:
+        elif definitions.ARG_DICT[arg][&#39;format&#39;] == &#39;group&#39;:
             group_index = definitions.ARG_META[&#39;groups&#39;].index(definitions.ARG_DICT[arg][&#39;group&#39;])
             groups[group_index].add_argument(definitions.ARG_DICT[arg][&#39;values&#39;][0],
                                             definitions.ARG_DICT[arg][&#39;values&#39;][1],
@@ -94,7 +94,17 @@ def format_args(args) -&gt; argparse.Namespace:
                                             action=&#39;store_const&#39;,
                                             dest=definitions.ARG_DICT[arg][&#39;group&#39;],
                                             const=arg)
+        # NOTE: &#39;format&#39; == group AND &#39;format&#39; == bool =&gt; Empty Set, so only other alternative is
+        # &#39;format&#39; == bool
+        else:
+            parser.add_argument(definitions.ARG_DICT[arg][&#39;values&#39;][0], 
+                                definitions.ARG_DICT[arg][&#39;values&#39;][1], 
+                                definitions.ARG_DICT[arg][&#39;values&#39;][2], 
+                                definitions.ARG_DICT[arg][&#39;values&#39;][3],
+                                action=&#39;store_true&#39;,
+                                dest=arg)
 
+    parser.set_defaults(estimation_method=default_estimation_method)
     parser.add_argument(&#39;tickers&#39;, nargs=&#39;*&#39;, type=str)
     return vars(parser.parse_args(args))
 
@@ -113,7 +123,7 @@ def replace_troublesome_chars(msg: str) -&gt; str:
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
 <dt id="scrilla.util.helper.format_args"><code class="name flex">
-<span>def <span class="ident">format_args</span></span>(<span>args) ‑> argparse.Namespace</span>
+<span>def <span class="ident">format_args</span></span>(<span>args, default_estimation_method) ‑> argparse.Namespace</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -121,7 +131,7 @@ def replace_troublesome_chars(msg: str) -&gt; str:
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def format_args(args) -&gt; argparse.Namespace:
+<pre><code class="python">def format_args(args, default_estimation_method) -&gt; argparse.Namespace:
     parser = argparse.ArgumentParser()
 
     choices = []
@@ -134,7 +144,7 @@ def replace_troublesome_chars(msg: str) -&gt; str:
     groups = [parser.add_mutually_exclusive_group() for arg_group in definitions.ARG_META[&#39;groups&#39;] ]
 
     for arg in definitions.ARG_DICT:
-        if definitions.ARG_DICT[arg][&#39;format&#39;] != &#39;group&#39;:
+        if definitions.ARG_DICT[arg][&#39;format&#39;] != &#39;group&#39; and definitions.ARG_DICT[arg][&#39;format&#39;] != bool:
             parser.add_argument(definitions.ARG_DICT[arg][&#39;values&#39;][0], 
                                 definitions.ARG_DICT[arg][&#39;values&#39;][1], 
                                 definitions.ARG_DICT[arg][&#39;values&#39;][2], 
@@ -142,7 +152,7 @@ def replace_troublesome_chars(msg: str) -&gt; str:
                                 default=None, 
                                 type=definitions.ARG_DICT[arg][&#39;format&#39;],
                                 dest=arg)
-        else:
+        elif definitions.ARG_DICT[arg][&#39;format&#39;] == &#39;group&#39;:
             group_index = definitions.ARG_META[&#39;groups&#39;].index(definitions.ARG_DICT[arg][&#39;group&#39;])
             groups[group_index].add_argument(definitions.ARG_DICT[arg][&#39;values&#39;][0],
                                             definitions.ARG_DICT[arg][&#39;values&#39;][1],
@@ -151,7 +161,17 @@ def replace_troublesome_chars(msg: str) -&gt; str:
                                             action=&#39;store_const&#39;,
                                             dest=definitions.ARG_DICT[arg][&#39;group&#39;],
                                             const=arg)
+        # NOTE: &#39;format&#39; == group AND &#39;format&#39; == bool =&gt; Empty Set, so only other alternative is
+        # &#39;format&#39; == bool
+        else:
+            parser.add_argument(definitions.ARG_DICT[arg][&#39;values&#39;][0], 
+                                definitions.ARG_DICT[arg][&#39;values&#39;][1], 
+                                definitions.ARG_DICT[arg][&#39;values&#39;][2], 
+                                definitions.ARG_DICT[arg][&#39;values&#39;][3],
+                                action=&#39;store_true&#39;,
+                                dest=arg)
 
+    parser.set_defaults(estimation_method=default_estimation_method)
     parser.add_argument(&#39;tickers&#39;, nargs=&#39;*&#39;, type=str)
     return vars(parser.parse_args(args))</code></pre>
 </details>

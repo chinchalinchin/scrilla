@@ -138,20 +138,20 @@ def help_msg(indent=formats.formats[&#39;INDENT&#39;]):
         for line in break_lines(paragraph):
             center(line)
         space(1)
-    space(1)
 
     title_line(&#39;SYNTAX&#39;)
     center(definitions.SYNTAX)
-    space(2)
+    space(1)
 
     for func_name in func_dict:
         title_line(func_dict[func_name][&#39;name&#39;])
         for line in break_lines(func_dict[func_name][&#39;description&#39;]):
-            print(line)
+            center(line)
         separator_line()
 
         commands = func_dict[func_name][&#39;values&#39;]
         print(&#39; &#39;, f&#39;COMMAND: {commands[0]}, {commands[1]}&#39;)
+
 
         if func_dict[func_name][&#39;args&#39;] is not None:
             for arg_name in func_dict[func_name][&#39;args&#39;]:
@@ -163,15 +163,13 @@ def help_msg(indent=formats.formats[&#39;INDENT&#39;]):
                     print(&#39; &#39;*2*indent, &#39;REQUIRED&#39;)
 
                 print(&#39; &#39;*2*indent, f&#39;NAME: {arg_dict[arg_name][&#34;name&#34;]}&#39;)
-                print(&#39; &#39;*2*indent, f&#39;DESCRIPTION: {arg_dict[arg_name][&#34;description&#34;]}&#39;)
 
                 if arg_dict[arg_name][&#39;default&#39;] is not None:
                     print(&#39; &#39;*2*indent, f&#39;DEFAULT: {arg_dict[arg_name][&#34;default&#34;]}&#39;)
                     
                 if arg_dict[arg_name][&#39;format_str&#39;] is not None:
-                    print(&#39; &#39;*2*indent, f&#39;FORMAT: {arg_dict[arg_name][&#34;format_str&#34;]}&#39;)
-        
-        space(1)
+                    print(&#39; &#39;*2*indent, f&#39;FORMAT: {arg_dict[arg_name][&#34;format_str&#34;]}&#39;)    
+        separator_line()    
 
 ### ANALYSIS SPECIFIC OUTPUT FUNCTIONS
 def portfolio_percent_result(result, tickers,indent=formats.formats[&#39;INDENT&#39;]):
@@ -240,13 +238,11 @@ def screen_results(info, model):
 def optimal_result(portfolio, allocation, investment=None):
     title_line(&#39;Optimal Percentage Allocation&#39;)
     portfolio_percent_result(allocation, portfolio.tickers)
-    separator_line()
 
     if investment is not None:
         shares = portfolio.calculate_approximate_shares(allocation, investment)
         total = portfolio.calculate_actual_total(allocation, investment)
         
-        separator_line()
         title_line(&#39;Optimal Share Allocation&#39;)
         portfolio_shares_result(shares, portfolio.tickers)
         title_line(&#39;Optimal Portfolio Value&#39;)
@@ -645,20 +641,20 @@ End date of the time period over which correlation was calculated. </li>
         for line in break_lines(paragraph):
             center(line)
         space(1)
-    space(1)
 
     title_line(&#39;SYNTAX&#39;)
     center(definitions.SYNTAX)
-    space(2)
+    space(1)
 
     for func_name in func_dict:
         title_line(func_dict[func_name][&#39;name&#39;])
         for line in break_lines(func_dict[func_name][&#39;description&#39;]):
-            print(line)
+            center(line)
         separator_line()
 
         commands = func_dict[func_name][&#39;values&#39;]
         print(&#39; &#39;, f&#39;COMMAND: {commands[0]}, {commands[1]}&#39;)
+
 
         if func_dict[func_name][&#39;args&#39;] is not None:
             for arg_name in func_dict[func_name][&#39;args&#39;]:
@@ -670,15 +666,13 @@ End date of the time period over which correlation was calculated. </li>
                     print(&#39; &#39;*2*indent, &#39;REQUIRED&#39;)
 
                 print(&#39; &#39;*2*indent, f&#39;NAME: {arg_dict[arg_name][&#34;name&#34;]}&#39;)
-                print(&#39; &#39;*2*indent, f&#39;DESCRIPTION: {arg_dict[arg_name][&#34;description&#34;]}&#39;)
 
                 if arg_dict[arg_name][&#39;default&#39;] is not None:
                     print(&#39; &#39;*2*indent, f&#39;DEFAULT: {arg_dict[arg_name][&#34;default&#34;]}&#39;)
                     
                 if arg_dict[arg_name][&#39;format_str&#39;] is not None:
-                    print(&#39; &#39;*2*indent, f&#39;FORMAT: {arg_dict[arg_name][&#34;format_str&#34;]}&#39;)
-        
-        space(1)</code></pre>
+                    print(&#39; &#39;*2*indent, f&#39;FORMAT: {arg_dict[arg_name][&#34;format_str&#34;]}&#39;)    
+        separator_line()    </code></pre>
 </details>
 </dd>
 <dt id="scrilla.util.outputter.model_price"><code class="name flex">
@@ -746,13 +740,11 @@ End date of the time period over which correlation was calculated. </li>
 <pre><code class="python">def optimal_result(portfolio, allocation, investment=None):
     title_line(&#39;Optimal Percentage Allocation&#39;)
     portfolio_percent_result(allocation, portfolio.tickers)
-    separator_line()
 
     if investment is not None:
         shares = portfolio.calculate_approximate_shares(allocation, investment)
         total = portfolio.calculate_actual_total(allocation, investment)
         
-        separator_line()
         title_line(&#39;Optimal Share Allocation&#39;)
         portfolio_shares_result(shares, portfolio.tickers)
         title_line(&#39;Optimal Portfolio Value&#39;)

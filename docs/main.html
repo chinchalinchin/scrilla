@@ -113,7 +113,7 @@ def print_format_to_screen(args: dict) -&gt; bool:
     -------
     ``bool``
     &#34;&#34;&#34;
-    return args[&#39;json&#39;] is None and args[&#39;suppress_output&#39;] is None
+    return not args[&#39;json&#39;] and not args[&#39;suppress_output&#39;]
 
 def print_json_to_screen(args: dict) -&gt; bool:
     &#34;&#34;&#34;
@@ -128,14 +128,14 @@ def print_json_to_screen(args: dict) -&gt; bool:
     -------
     ``bool``
     &#34;&#34;&#34;
-    return args[&#39;json&#39;] is not None and args[&#39;suppress_output&#39;] is None
+    return args[&#39;json&#39;] and not args[&#39;suppress_output&#39;]
 
 def do_program() -&gt; None:
     &#34;&#34;&#34;
     Parses command line arguments and passes the formatted arguments to appropriate function from the library.
     &#34;&#34;&#34;
     files.init_static_data()
-    args = helper.format_args(sys.argv[1:])
+    args = helper.format_args(sys.argv[1:], settings.ESTIMATION_METHOD)
     exact, selected_function = False, None
 
     ########## START CLI FUNCTION DEFINITIONS
@@ -145,6 +145,7 @@ def do_program() -&gt; None:
     if args[&#39;function_arg&#39;] in definitions.FUNC_DICT[&#34;help&#34;][&#39;values&#39;]:
         def cli_help():
             outputter.help_msg()
+            return
         selected_function, required_length = cli_help, 0
 
     ### FUNCTION: Clear Cache
@@ -152,6 +153,7 @@ def do_program() -&gt; None:
         def cli_clear_cache():
             logger.comment(f&#39;Clearing {settings.CACHE_DIR}&#39;)
             files.clear_directory(directory=settings.CACHE_DIR, retain=True)
+            return
         selected_function, required_length = cli_clear_cache, 0
 
     ### FUNCTION: Clear Static
@@ -159,6 +161,7 @@ def do_program() -&gt; None:
         def cli_clear_static():
             logger.comment(f&#39;Clearing {settings.STATIC_DIR}&#39;)
             files.clear_directory(directory=settings.STATIC_DIR, retain=True)
+            return
         selected_function, required_length = cli_clear_static, 0
 
     ### FUNCTION: Clear Common
@@ -166,6 +169,7 @@ def do_program() -&gt; None:
         def cli_clear_common():
             logger.comment(f&#39;Clearing {settings.COMMON_DIR}&#39;)
             files.clear_directory(directory=settings.COMMON_DIR, retain=True)
+            return
         selected_function, required_length = cli_clear_common, 0
 
     ### FUNCTION: Print Stock Watchlist
@@ -174,6 +178,7 @@ def do_program() -&gt; None:
             tickers = files.get_watchlist()
             outputter.title_line(&#34;Stock Watchlist&#34;)
             outputter.print_list(tickers)
+            return
         selected_function, required_length = cli_watchlist, 0
 
     ### FUNCTION: Purge Data Directories
@@ -183,6 +188,7 @@ def do_program() -&gt; None:
             files.clear_directory(directory=settings.STATIC_DIR, retain=True)
             files.clear_directory(directory=settings.CACHE_DIR, retain=True)
             files.clear_directory(directory=settings.COMMON_DIR, retain=True)
+            return
         selected_function, required_length = cli_purge, 0
 
     ### FUNCTION: Display Version
@@ -191,6 +197,7 @@ def do_program() -&gt; None:
             version_file = os.path.join(settings.APP_DIR, &#39;version.txt&#39;)
             with open(version_file, &#39;r&#39;) as f:
                 print(f.read())
+            return
         selected_function, required_length = cli_version, 0
 
     ### FUNCTION: Yield Curve
@@ -209,6 +216,7 @@ def do_program() -&gt; None:
             
             if args[&#39;save_file&#39;] is not None:
                 files.save_file(file_to_save=yield_curve, file_name=args[&#39;save_file&#39;])
+            return
         selected_function, required_length = cli_yield_curve, 0
 
     ####### ARGUMENT FUNCTIONS
@@ -219,6 +227,7 @@ def do_program() -&gt; None:
             for arg in args[&#39;tickers&#39;]:
                 asset_type = files.get_asset_type(arg)
                 outputter.string_result(f&#39;asset_type({arg})&#39;, asset_type)
+            return
         selected_function, required_length = cli_asset_type, 1
 
     ### FUNCTION: Black-Scholes Value At Risk
@@ -248,6 +257,8 @@ def do_program() -&gt; None:
             
             if args[&#39;save_file&#39;] is not None:
                 files.save_file(file_to_save=all_vars, file_name=args[&#39;save_file&#39;])
+            
+            return
 
         selected_function, required_length = cli_var, 2
         
@@ -283,6 +294,8 @@ def do_program() -&gt; None:
             
             if args[&#39;save_file&#39;] is not None:
                 files.save_file(file_to_save=all_cvars, file_name=args[&#39;save_file&#39;])
+            
+            return
 
         selected_function, required_length = cli_cvar, 2
 
@@ -305,6 +318,7 @@ def do_program() -&gt; None:
             if args[&#39;save_file&#39;] is not None:
                 files.save_file(file_to_save=all_costs, file_name=args[&#39;save_file&#39;])
 
+            return
 
         selected_function, required_length = cli_capm_equity_cost, 1
 
@@ -329,6 +343,7 @@ def do_program() -&gt; None:
             if args[&#39;save_file&#39;] is not None:
                 files.save_file(file_to_save=all_betas, file_name=args[&#39;save_file&#39;])
 
+            return
         selected_function, required_length = cli_capm_beta, 1
 
     ### FUNCTION: Last Close Price
@@ -347,6 +362,8 @@ def do_program() -&gt; None:
 
             if args[&#39;save_file&#39;] is not None:
                 files.save_file(file_to_save=all_prices, file_name=args[&#39;save_file&#39;])
+            
+            return
         selected_function, required_length = cli_close, 1
             
     ### FUNCTION: Correlation Matrix
@@ -367,6 +384,8 @@ def do_program() -&gt; None:
 
             if args[&#39;save_file&#39;] is not None:
                 files.save_file(file_to_save=matrix, file_name=args[&#39;save_file&#39;])
+            
+            return
                 
         selected_function, required_length = cli_correlation, 2
 
@@ -388,6 +407,7 @@ def do_program() -&gt; None:
             if args[&#39;save_file&#39;] is not None:
                 files.save_file(file_to_save=result, file_name=args[&#39;save_file&#39;])
             
+            return
         selected_function, required_length, exact = cli_correlation_series, 2, True
 
     ### FUNCTION: Discount Dividend Model
@@ -412,6 +432,7 @@ def do_program() -&gt; None:
             if args[&#39;save_file&#39;] is not None:
                 files.save_file(file_to_save=model_results, file_name=args[&#39;save_file&#39;])
 
+            return
         selected_function, required_length = cli_discount_dividend, 1
 
     elif args[&#39;function_arg&#39;] in definitions.FUNC_DICT[&#39;dividends&#39;][&#39;values&#39;]:
@@ -427,6 +448,7 @@ def do_program() -&gt; None:
             if print_json_to_screen(args):
                 print(json.dumps(all_dividends))
         
+            return
         selected_function, required_length = cli_dividends, 1
 
     ### FUNCTION: Efficient Frontier
@@ -439,13 +461,12 @@ def do_program() -&gt; None:
             frontier = optimizer.calculate_efficient_frontier(portfolio=portfolio, 
                                                                 steps=args[&#39;steps&#39;])
 
-            if args[&#39;suppress_output&#39;] is None:
-                if args[&#39;json&#39;] is None:
-                    outputter.efficient_frontier(portfolio=portfolio, 
+            if print_format_to_screen(args):
+                outputter.efficient_frontier(portfolio=portfolio, 
                                                     frontier=frontier,
                                                     investment=args[&#39;investment&#39;])
-                else:
-                    print(json.dumps(functions.format_frontier(portfolio=portfolio, 
+            if print_json_to_screen(args):
+                print(json.dumps(functions.format_frontier(portfolio=portfolio, 
                                                                 frontier=frontier, 
                                                                 investment=args[&#39;investment&#39;])))
 
@@ -454,6 +475,8 @@ def do_program() -&gt; None:
                                     frontier=frontier,
                                     investment=args[&#39;investment&#39;], 
                                     file_name=args[&#39;save_file&#39;])
+            
+            return
         selected_function, required_length = cli_efficient_frontier, 2
 
     ### FUNCTION: Maximize Portfolio Return
@@ -465,13 +488,12 @@ def do_program() -&gt; None:
                                     method=args[&#39;estimation_method&#39;])
             allocation = optimizer.maximize_portfolio_return(portfolio=portfolio)
 
-            if args[&#39;suppress_output&#39;] is None:
-                if args[&#39;json&#39;] is None:
-                    outputter.optimal_result(portfolio=portfolio, 
+            if print_format_to_screen(args):
+                outputter.optimal_result(portfolio=portfolio, 
                                                 allocation=allocation, 
                                                 investment=args[&#39;investment&#39;])
-                else:
-                    print(json.dumps(functions.format_allocation(allocation=allocation, 
+            if print_json_to_screen(args):
+                print(json.dumps(functions.format_allocation(allocation=allocation, 
                                                                     portfolio=portfolio, 
                                                                     investment=args[&#39;investment&#39;])))
 
@@ -480,6 +502,8 @@ def do_program() -&gt; None:
                                         portfolio=portfolio, 
                                         file_name=args[&#39;save_file&#39;], 
                                         investment=args[&#39;investment&#39;])
+            
+            return
         selected_function, required_length = cli_maximize_return, 2
 
     ### FUNCTION: Moving Averages of Logarithmic Returns
@@ -495,6 +519,8 @@ def do_program() -&gt; None:
             outputter.moving_average_result(tickers=args[&#39;tickers&#39;], averages_output=moving_averages, 
                                             periods=periods, start_date=args[&#39;start_date&#39;], 
                                             end_date=args[&#39;end_date&#39;])
+            
+            return
         selected_function, required_length = cli_moving_averages, 1
 
     ### FUNCTION: Optimize Portfolio Variance/Volatility
@@ -510,15 +536,17 @@ def do_program() -&gt; None:
             else:
                 allocation = optimizer.optimize_portfolio_variance(portfolio=portfolio, target_return=args[&#39;target&#39;])   
             
-            if args[&#39;suppress_output&#39;] is None:
-                if args[&#39;json&#39;] is None:
-                    outputter.optimal_result(portfolio=portfolio, allocation=allocation, investment=args[&#39;investment&#39;])
-                else:
-                    print(json.dumps(functions.format_allocation(allocation=allocation,portfolio=portfolio, investment=args[&#39;investment&#39;])))
+            if print_format_to_screen(args):
+                outputter.optimal_result(portfolio=portfolio, allocation=allocation, investment=args[&#39;investment&#39;])
+
+            if print_json_to_screen(args):
+                print(json.dumps(functions.format_allocation(allocation=allocation,portfolio=portfolio, investment=args[&#39;investment&#39;])))
             
             if args[&#39;save_file&#39;] is not None:
                 files.save_allocation(allocation=allocation, portfolio=portfolio, file_name=args[&#39;save_file&#39;],
                                         investment=args[&#39;investment&#39;])
+            
+            return
         selected_function, required_length = cli_optimize_portfolio_variance, 2
     
     ### FUNCTION: Optimize Portfolio Conditional Value At Risk 
@@ -541,6 +569,8 @@ def do_program() -&gt; None:
             if args[&#39;save_file&#39;] is not None:
                 files.save_allocation(allocation=allocation, portfolio=portfolio, file_name=args[&#39;save_file&#39;],
                                         investment=args[&#39;investment&#39;])
+            
+            return
         selected_function, required_length = cli_optimize_conditional_value_at_risk, 2
 
     ### FUNCTION: Plot Correlation Time Series
@@ -551,6 +581,7 @@ def do_program() -&gt; None:
                                                                                 ticker_2=args[&#39;tickers&#39;][1], 
                                                                                 start_date=args[&#39;start_date&#39;],
                                                                                 end_date=args[&#39;end_date&#39;])
+            return
             plotter.plot_correlation_series(tickers=args[&#39;tickers&#39;], series=correlation_history, savefile=args[&#39;save_file&#39;])
 
         selected_function, required_length, exact = cli_plot_correlation, 2, True
@@ -567,6 +598,7 @@ def do_program() -&gt; None:
             plotter.plot_cashflow(ticker=args[&#39;tickers&#39;][0], 
                                     cashflow=div_cashflow, show=True, 
                                     savefile=args[&#39;save_file&#39;])
+            return
         selected_function, required_length, exact = cli_plot_dividends, 1, True
 
     ### FUNCTION: Plot Efficient Frontier
@@ -582,6 +614,7 @@ def do_program() -&gt; None:
                                     frontier=frontier, 
                                     show=True, 
                                     savefile=args[&#39;save_file&#39;])
+            return
         selected_function, required_length = cli_plot_frontier, 2
 
     ### FUNCTION: Plot Moving Averages of Logarithmic Returns
@@ -596,6 +629,7 @@ def do_program() -&gt; None:
                                             averages_output=moving_averages, 
                                             periods=periods, 
                                             show=True, savefile=args[&#39;save_file&#39;])
+            return
         selected_function, required_length = cli_plot_moving_averages, 1
 
     ### FUNCTION: Plot Return QQ Series
@@ -612,7 +646,7 @@ def do_program() -&gt; None:
                                     sample=qq_series, 
                                     show=True, 
                                     savefile=args[&#39;save_file&#39;])
-
+            return
         selected_function, required_length, exact = cli_plot_returns, 1, True
 
     ### FUNCTION: Plot Risk-Return Profile
@@ -630,6 +664,7 @@ def do_program() -&gt; None:
                                     savefile=args[&#39;save_file&#39;], 
                                     subtitle=dater.format_date_range(start_date=args[&#39;start_date&#39;], 
                                                                         end_date=args[&#39;end_date&#39;]))
+            return
         selected_function, required_length = cli_plot_risk_profile, 1
 
     elif args[&#39;function_arg&#39;] in definitions.FUNC_DICT[&#39;plot_yield_curve&#39;][&#39;values&#39;]:
@@ -646,7 +681,7 @@ def do_program() -&gt; None:
         
             plotter.plot_yield_curve(yield_curve=yield_curve, show=True,
                                         savefile=args[&#39;save_file&#39;])
-        
+            return
         selected_function, required_length, exact = cli_plot_yield_curve, 0, True
     ### FUNCTION: Price History
     elif args[&#39;function_arg&#39;] in definitions.FUNC_DICT[&#39;price_history&#39;][&#39;values&#39;]:
@@ -670,6 +705,7 @@ def do_program() -&gt; None:
             if args[&#39;save_file&#39;] is not None:
                 files.save_file(file_to_save=all_prices, file_name=args[&#39;save_file&#39;])
 
+            return
         selected_function, required_length = cli_price_history, 1
 
     ### FUNCTION: Interest Rate History
@@ -692,7 +728,8 @@ def do_program() -&gt; None:
 
             if args[&#39;save_file&#39;] is not None:
                 files.save_file(file_to_save=all_rates, file_name=args[&#39;save_file&#39;])
-        
+            
+            return
         selected_function, required_length = cli_interest_history, 1
     
     ### FUNCTION: Risk Free Rate
@@ -700,17 +737,18 @@ def do_program() -&gt; None:
         def cli_risk_free_rate():
             rate = {}
             rate[settings.RISK_FREE_RATE] = services.get_risk_free_rate()
-            if args[&#39;suppress_output&#39;] is None:
-                if args[&#39;json&#39;] is None:
+
+            if print_format_to_screen(args):
                     outputter.title_line(&#34;Risk Free Rate&#34;)
                     outputter.scalar_result(calculation=formats.formats.RISK_FREE_TITLE.format(settings.RISK_FREE_RATE), 
                                                 result=rate[settings.RISK_FREE_RATE], currency=False)
-                else:
-                    print(json.dumps(rate))
+            if print_json_to_screen:
+                print(json.dumps(rate))
 
             if args[&#39;save_file&#39;] is not None:
                 files.save_file(file_to_save=rate, file_name=args[&#39;save_file&#39;])
 
+            return
         selected_function, required_length, exact = cli_risk_free_rate, 0, True
 
     ### FUNCTION: Risk-Return Profile
@@ -737,16 +775,16 @@ def do_program() -&gt; None:
                                                                     end_date=args[&#39;end_date&#39;], 
                                                                     method=args[&#39;estimation_method&#39;])
             
-            if args[&#39;suppress_output&#39;] is None:
-                if args[&#39;json&#39;] is None:
-                    outputter.risk_profile(profiles=profiles)
-                else:
-                    print(json.dumps(profiles))
+            if print_format_to_screen(args):
+                outputter.risk_profile(profiles=profiles)
+
+            if print_json_to_screen(args):
+                print(json.dumps(profiles))
 
             if args[&#39;save_file&#39;] is not None:
                 files.save_profiles(profiles=profiles, file_name=args[&#39;save_file&#39;])
 
-
+            return
         selected_function, required_length = cli_risk_return, 1
 
     ### FUNCTION: Model Discount Screener 
@@ -756,6 +794,7 @@ def do_program() -&gt; None:
                 model = markets.MODEL_DDM
             results = markets.screen_for_discount(model=model, discount_rate=args[&#39;discount&#39;])
             outputter.screen_results(info=results, model=model)
+            return
         selected_function, required_length = cli_screener, 0
 
     ### FUNCTION: Sharpe Ratio
@@ -778,13 +817,14 @@ def do_program() -&gt; None:
 
             if args[&#39;save_file&#39;] is not None:
                 files.save_file(file_to_save=all_results, file_name=args[&#39;save_file&#39;])
-
+            return
         selected_function, required_length = cli_sharpe_ratio, 1
 
    ### FUNCTION: Store Key
     elif args[&#39;function_arg&#39;] in definitions.FUNC_DICT[&#39;store&#39;][&#39;values&#39;]:
         def cli_store():
             files.set_credentials(value=args[&#39;value&#39;], which_key=args[&#39;key&#39;])
+            return
         selected_function, required_length = cli_store, 0
 
     ### FUNCTION: Get Latest Economic Statistic
@@ -803,6 +843,7 @@ def do_program() -&gt; None:
             if args[&#39;save_file&#39;] is not None:
                 files.save_file(file_to_save=all_stats, file_name=args[&#39;save_file&#39;])
 
+            return
         selected_function, required_length = cli_statistic, 1
     
     ### FUNCTION: Statistic History
@@ -824,7 +865,8 @@ def do_program() -&gt; None:
                 print(json.dumps(all_stats))
             if args[&#39;save_file&#39;] is not None:
                 files.save_file(file_to_save=all_stats, file_name=args[&#39;save_file&#39;])
-                
+
+            return   
         selected_function, required_length = cli_statistic_history, 1
 
     ### FUNCTION: Set Watchlist
@@ -832,11 +874,13 @@ def do_program() -&gt; None:
         def cli_watchlist():
             files.add_watchlist(new_tickers=args[&#39;tickers&#39;])
             logger.comment(&#34;Watchlist saved. Use -ls option to print watchlist.&#34;)
+            return
         selected_function, required_length = cli_watchlist, 1
 
     else:
         def cli_help():
             outputter.help_msg()
+            return
         selected_function, required_length = cli_help, 0
         
     ########## END CLI FUNCTION DEFINITIONS
@@ -873,7 +917,7 @@ if __name__ == &#34;__main__&#34;:
     Parses command line arguments and passes the formatted arguments to appropriate function from the library.
     &#34;&#34;&#34;
     files.init_static_data()
-    args = helper.format_args(sys.argv[1:])
+    args = helper.format_args(sys.argv[1:], settings.ESTIMATION_METHOD)
     exact, selected_function = False, None
 
     ########## START CLI FUNCTION DEFINITIONS
@@ -883,6 +927,7 @@ if __name__ == &#34;__main__&#34;:
     if args[&#39;function_arg&#39;] in definitions.FUNC_DICT[&#34;help&#34;][&#39;values&#39;]:
         def cli_help():
             outputter.help_msg()
+            return
         selected_function, required_length = cli_help, 0
 
     ### FUNCTION: Clear Cache
@@ -890,6 +935,7 @@ if __name__ == &#34;__main__&#34;:
         def cli_clear_cache():
             logger.comment(f&#39;Clearing {settings.CACHE_DIR}&#39;)
             files.clear_directory(directory=settings.CACHE_DIR, retain=True)
+            return
         selected_function, required_length = cli_clear_cache, 0
 
     ### FUNCTION: Clear Static
@@ -897,6 +943,7 @@ if __name__ == &#34;__main__&#34;:
         def cli_clear_static():
             logger.comment(f&#39;Clearing {settings.STATIC_DIR}&#39;)
             files.clear_directory(directory=settings.STATIC_DIR, retain=True)
+            return
         selected_function, required_length = cli_clear_static, 0
 
     ### FUNCTION: Clear Common
@@ -904,6 +951,7 @@ if __name__ == &#34;__main__&#34;:
         def cli_clear_common():
             logger.comment(f&#39;Clearing {settings.COMMON_DIR}&#39;)
             files.clear_directory(directory=settings.COMMON_DIR, retain=True)
+            return
         selected_function, required_length = cli_clear_common, 0
 
     ### FUNCTION: Print Stock Watchlist
@@ -912,6 +960,7 @@ if __name__ == &#34;__main__&#34;:
             tickers = files.get_watchlist()
             outputter.title_line(&#34;Stock Watchlist&#34;)
             outputter.print_list(tickers)
+            return
         selected_function, required_length = cli_watchlist, 0
 
     ### FUNCTION: Purge Data Directories
@@ -921,6 +970,7 @@ if __name__ == &#34;__main__&#34;:
             files.clear_directory(directory=settings.STATIC_DIR, retain=True)
             files.clear_directory(directory=settings.CACHE_DIR, retain=True)
             files.clear_directory(directory=settings.COMMON_DIR, retain=True)
+            return
         selected_function, required_length = cli_purge, 0
 
     ### FUNCTION: Display Version
@@ -929,6 +979,7 @@ if __name__ == &#34;__main__&#34;:
             version_file = os.path.join(settings.APP_DIR, &#39;version.txt&#39;)
             with open(version_file, &#39;r&#39;) as f:
                 print(f.read())
+            return
         selected_function, required_length = cli_version, 0
 
     ### FUNCTION: Yield Curve
@@ -947,6 +998,7 @@ if __name__ == &#34;__main__&#34;:
             
             if args[&#39;save_file&#39;] is not None:
                 files.save_file(file_to_save=yield_curve, file_name=args[&#39;save_file&#39;])
+            return
         selected_function, required_length = cli_yield_curve, 0
 
     ####### ARGUMENT FUNCTIONS
@@ -957,6 +1009,7 @@ if __name__ == &#34;__main__&#34;:
             for arg in args[&#39;tickers&#39;]:
                 asset_type = files.get_asset_type(arg)
                 outputter.string_result(f&#39;asset_type({arg})&#39;, asset_type)
+            return
         selected_function, required_length = cli_asset_type, 1
 
     ### FUNCTION: Black-Scholes Value At Risk
@@ -986,6 +1039,8 @@ if __name__ == &#34;__main__&#34;:
             
             if args[&#39;save_file&#39;] is not None:
                 files.save_file(file_to_save=all_vars, file_name=args[&#39;save_file&#39;])
+            
+            return
 
         selected_function, required_length = cli_var, 2
         
@@ -1021,6 +1076,8 @@ if __name__ == &#34;__main__&#34;:
             
             if args[&#39;save_file&#39;] is not None:
                 files.save_file(file_to_save=all_cvars, file_name=args[&#39;save_file&#39;])
+            
+            return
 
         selected_function, required_length = cli_cvar, 2
 
@@ -1043,6 +1100,7 @@ if __name__ == &#34;__main__&#34;:
             if args[&#39;save_file&#39;] is not None:
                 files.save_file(file_to_save=all_costs, file_name=args[&#39;save_file&#39;])
 
+            return
 
         selected_function, required_length = cli_capm_equity_cost, 1
 
@@ -1067,6 +1125,7 @@ if __name__ == &#34;__main__&#34;:
             if args[&#39;save_file&#39;] is not None:
                 files.save_file(file_to_save=all_betas, file_name=args[&#39;save_file&#39;])
 
+            return
         selected_function, required_length = cli_capm_beta, 1
 
     ### FUNCTION: Last Close Price
@@ -1085,6 +1144,8 @@ if __name__ == &#34;__main__&#34;:
 
             if args[&#39;save_file&#39;] is not None:
                 files.save_file(file_to_save=all_prices, file_name=args[&#39;save_file&#39;])
+            
+            return
         selected_function, required_length = cli_close, 1
             
     ### FUNCTION: Correlation Matrix
@@ -1105,6 +1166,8 @@ if __name__ == &#34;__main__&#34;:
 
             if args[&#39;save_file&#39;] is not None:
                 files.save_file(file_to_save=matrix, file_name=args[&#39;save_file&#39;])
+            
+            return
                 
         selected_function, required_length = cli_correlation, 2
 
@@ -1126,6 +1189,7 @@ if __name__ == &#34;__main__&#34;:
             if args[&#39;save_file&#39;] is not None:
                 files.save_file(file_to_save=result, file_name=args[&#39;save_file&#39;])
             
+            return
         selected_function, required_length, exact = cli_correlation_series, 2, True
 
     ### FUNCTION: Discount Dividend Model
@@ -1150,6 +1214,7 @@ if __name__ == &#34;__main__&#34;:
             if args[&#39;save_file&#39;] is not None:
                 files.save_file(file_to_save=model_results, file_name=args[&#39;save_file&#39;])
 
+            return
         selected_function, required_length = cli_discount_dividend, 1
 
     elif args[&#39;function_arg&#39;] in definitions.FUNC_DICT[&#39;dividends&#39;][&#39;values&#39;]:
@@ -1165,6 +1230,7 @@ if __name__ == &#34;__main__&#34;:
             if print_json_to_screen(args):
                 print(json.dumps(all_dividends))
         
+            return
         selected_function, required_length = cli_dividends, 1
 
     ### FUNCTION: Efficient Frontier
@@ -1177,13 +1243,12 @@ if __name__ == &#34;__main__&#34;:
             frontier = optimizer.calculate_efficient_frontier(portfolio=portfolio, 
                                                                 steps=args[&#39;steps&#39;])
 
-            if args[&#39;suppress_output&#39;] is None:
-                if args[&#39;json&#39;] is None:
-                    outputter.efficient_frontier(portfolio=portfolio, 
+            if print_format_to_screen(args):
+                outputter.efficient_frontier(portfolio=portfolio, 
                                                     frontier=frontier,
                                                     investment=args[&#39;investment&#39;])
-                else:
-                    print(json.dumps(functions.format_frontier(portfolio=portfolio, 
+            if print_json_to_screen(args):
+                print(json.dumps(functions.format_frontier(portfolio=portfolio, 
                                                                 frontier=frontier, 
                                                                 investment=args[&#39;investment&#39;])))
 
@@ -1192,6 +1257,8 @@ if __name__ == &#34;__main__&#34;:
                                     frontier=frontier,
                                     investment=args[&#39;investment&#39;], 
                                     file_name=args[&#39;save_file&#39;])
+            
+            return
         selected_function, required_length = cli_efficient_frontier, 2
 
     ### FUNCTION: Maximize Portfolio Return
@@ -1203,13 +1270,12 @@ if __name__ == &#34;__main__&#34;:
                                     method=args[&#39;estimation_method&#39;])
             allocation = optimizer.maximize_portfolio_return(portfolio=portfolio)
 
-            if args[&#39;suppress_output&#39;] is None:
-                if args[&#39;json&#39;] is None:
-                    outputter.optimal_result(portfolio=portfolio, 
+            if print_format_to_screen(args):
+                outputter.optimal_result(portfolio=portfolio, 
                                                 allocation=allocation, 
                                                 investment=args[&#39;investment&#39;])
-                else:
-                    print(json.dumps(functions.format_allocation(allocation=allocation, 
+            if print_json_to_screen(args):
+                print(json.dumps(functions.format_allocation(allocation=allocation, 
                                                                     portfolio=portfolio, 
                                                                     investment=args[&#39;investment&#39;])))
 
@@ -1218,6 +1284,8 @@ if __name__ == &#34;__main__&#34;:
                                         portfolio=portfolio, 
                                         file_name=args[&#39;save_file&#39;], 
                                         investment=args[&#39;investment&#39;])
+            
+            return
         selected_function, required_length = cli_maximize_return, 2
 
     ### FUNCTION: Moving Averages of Logarithmic Returns
@@ -1233,6 +1301,8 @@ if __name__ == &#34;__main__&#34;:
             outputter.moving_average_result(tickers=args[&#39;tickers&#39;], averages_output=moving_averages, 
                                             periods=periods, start_date=args[&#39;start_date&#39;], 
                                             end_date=args[&#39;end_date&#39;])
+            
+            return
         selected_function, required_length = cli_moving_averages, 1
 
     ### FUNCTION: Optimize Portfolio Variance/Volatility
@@ -1248,15 +1318,17 @@ if __name__ == &#34;__main__&#34;:
             else:
                 allocation = optimizer.optimize_portfolio_variance(portfolio=portfolio, target_return=args[&#39;target&#39;])   
             
-            if args[&#39;suppress_output&#39;] is None:
-                if args[&#39;json&#39;] is None:
-                    outputter.optimal_result(portfolio=portfolio, allocation=allocation, investment=args[&#39;investment&#39;])
-                else:
-                    print(json.dumps(functions.format_allocation(allocation=allocation,portfolio=portfolio, investment=args[&#39;investment&#39;])))
+            if print_format_to_screen(args):
+                outputter.optimal_result(portfolio=portfolio, allocation=allocation, investment=args[&#39;investment&#39;])
+
+            if print_json_to_screen(args):
+                print(json.dumps(functions.format_allocation(allocation=allocation,portfolio=portfolio, investment=args[&#39;investment&#39;])))
             
             if args[&#39;save_file&#39;] is not None:
                 files.save_allocation(allocation=allocation, portfolio=portfolio, file_name=args[&#39;save_file&#39;],
                                         investment=args[&#39;investment&#39;])
+            
+            return
         selected_function, required_length = cli_optimize_portfolio_variance, 2
     
     ### FUNCTION: Optimize Portfolio Conditional Value At Risk 
@@ -1279,6 +1351,8 @@ if __name__ == &#34;__main__&#34;:
             if args[&#39;save_file&#39;] is not None:
                 files.save_allocation(allocation=allocation, portfolio=portfolio, file_name=args[&#39;save_file&#39;],
                                         investment=args[&#39;investment&#39;])
+            
+            return
         selected_function, required_length = cli_optimize_conditional_value_at_risk, 2
 
     ### FUNCTION: Plot Correlation Time Series
@@ -1289,6 +1363,7 @@ if __name__ == &#34;__main__&#34;:
                                                                                 ticker_2=args[&#39;tickers&#39;][1], 
                                                                                 start_date=args[&#39;start_date&#39;],
                                                                                 end_date=args[&#39;end_date&#39;])
+            return
             plotter.plot_correlation_series(tickers=args[&#39;tickers&#39;], series=correlation_history, savefile=args[&#39;save_file&#39;])
 
         selected_function, required_length, exact = cli_plot_correlation, 2, True
@@ -1305,6 +1380,7 @@ if __name__ == &#34;__main__&#34;:
             plotter.plot_cashflow(ticker=args[&#39;tickers&#39;][0], 
                                     cashflow=div_cashflow, show=True, 
                                     savefile=args[&#39;save_file&#39;])
+            return
         selected_function, required_length, exact = cli_plot_dividends, 1, True
 
     ### FUNCTION: Plot Efficient Frontier
@@ -1320,6 +1396,7 @@ if __name__ == &#34;__main__&#34;:
                                     frontier=frontier, 
                                     show=True, 
                                     savefile=args[&#39;save_file&#39;])
+            return
         selected_function, required_length = cli_plot_frontier, 2
 
     ### FUNCTION: Plot Moving Averages of Logarithmic Returns
@@ -1334,6 +1411,7 @@ if __name__ == &#34;__main__&#34;:
                                             averages_output=moving_averages, 
                                             periods=periods, 
                                             show=True, savefile=args[&#39;save_file&#39;])
+            return
         selected_function, required_length = cli_plot_moving_averages, 1
 
     ### FUNCTION: Plot Return QQ Series
@@ -1350,7 +1428,7 @@ if __name__ == &#34;__main__&#34;:
                                     sample=qq_series, 
                                     show=True, 
                                     savefile=args[&#39;save_file&#39;])
-
+            return
         selected_function, required_length, exact = cli_plot_returns, 1, True
 
     ### FUNCTION: Plot Risk-Return Profile
@@ -1368,6 +1446,7 @@ if __name__ == &#34;__main__&#34;:
                                     savefile=args[&#39;save_file&#39;], 
                                     subtitle=dater.format_date_range(start_date=args[&#39;start_date&#39;], 
                                                                         end_date=args[&#39;end_date&#39;]))
+            return
         selected_function, required_length = cli_plot_risk_profile, 1
 
     elif args[&#39;function_arg&#39;] in definitions.FUNC_DICT[&#39;plot_yield_curve&#39;][&#39;values&#39;]:
@@ -1384,7 +1463,7 @@ if __name__ == &#34;__main__&#34;:
         
             plotter.plot_yield_curve(yield_curve=yield_curve, show=True,
                                         savefile=args[&#39;save_file&#39;])
-        
+            return
         selected_function, required_length, exact = cli_plot_yield_curve, 0, True
     ### FUNCTION: Price History
     elif args[&#39;function_arg&#39;] in definitions.FUNC_DICT[&#39;price_history&#39;][&#39;values&#39;]:
@@ -1408,6 +1487,7 @@ if __name__ == &#34;__main__&#34;:
             if args[&#39;save_file&#39;] is not None:
                 files.save_file(file_to_save=all_prices, file_name=args[&#39;save_file&#39;])
 
+            return
         selected_function, required_length = cli_price_history, 1
 
     ### FUNCTION: Interest Rate History
@@ -1430,7 +1510,8 @@ if __name__ == &#34;__main__&#34;:
 
             if args[&#39;save_file&#39;] is not None:
                 files.save_file(file_to_save=all_rates, file_name=args[&#39;save_file&#39;])
-        
+            
+            return
         selected_function, required_length = cli_interest_history, 1
     
     ### FUNCTION: Risk Free Rate
@@ -1438,17 +1519,18 @@ if __name__ == &#34;__main__&#34;:
         def cli_risk_free_rate():
             rate = {}
             rate[settings.RISK_FREE_RATE] = services.get_risk_free_rate()
-            if args[&#39;suppress_output&#39;] is None:
-                if args[&#39;json&#39;] is None:
+
+            if print_format_to_screen(args):
                     outputter.title_line(&#34;Risk Free Rate&#34;)
                     outputter.scalar_result(calculation=formats.formats.RISK_FREE_TITLE.format(settings.RISK_FREE_RATE), 
                                                 result=rate[settings.RISK_FREE_RATE], currency=False)
-                else:
-                    print(json.dumps(rate))
+            if print_json_to_screen:
+                print(json.dumps(rate))
 
             if args[&#39;save_file&#39;] is not None:
                 files.save_file(file_to_save=rate, file_name=args[&#39;save_file&#39;])
 
+            return
         selected_function, required_length, exact = cli_risk_free_rate, 0, True
 
     ### FUNCTION: Risk-Return Profile
@@ -1475,16 +1557,16 @@ if __name__ == &#34;__main__&#34;:
                                                                     end_date=args[&#39;end_date&#39;], 
                                                                     method=args[&#39;estimation_method&#39;])
             
-            if args[&#39;suppress_output&#39;] is None:
-                if args[&#39;json&#39;] is None:
-                    outputter.risk_profile(profiles=profiles)
-                else:
-                    print(json.dumps(profiles))
+            if print_format_to_screen(args):
+                outputter.risk_profile(profiles=profiles)
+
+            if print_json_to_screen(args):
+                print(json.dumps(profiles))
 
             if args[&#39;save_file&#39;] is not None:
                 files.save_profiles(profiles=profiles, file_name=args[&#39;save_file&#39;])
 
-
+            return
         selected_function, required_length = cli_risk_return, 1
 
     ### FUNCTION: Model Discount Screener 
@@ -1494,6 +1576,7 @@ if __name__ == &#34;__main__&#34;:
                 model = markets.MODEL_DDM
             results = markets.screen_for_discount(model=model, discount_rate=args[&#39;discount&#39;])
             outputter.screen_results(info=results, model=model)
+            return
         selected_function, required_length = cli_screener, 0
 
     ### FUNCTION: Sharpe Ratio
@@ -1516,13 +1599,14 @@ if __name__ == &#34;__main__&#34;:
 
             if args[&#39;save_file&#39;] is not None:
                 files.save_file(file_to_save=all_results, file_name=args[&#39;save_file&#39;])
-
+            return
         selected_function, required_length = cli_sharpe_ratio, 1
 
    ### FUNCTION: Store Key
     elif args[&#39;function_arg&#39;] in definitions.FUNC_DICT[&#39;store&#39;][&#39;values&#39;]:
         def cli_store():
             files.set_credentials(value=args[&#39;value&#39;], which_key=args[&#39;key&#39;])
+            return
         selected_function, required_length = cli_store, 0
 
     ### FUNCTION: Get Latest Economic Statistic
@@ -1541,6 +1625,7 @@ if __name__ == &#34;__main__&#34;:
             if args[&#39;save_file&#39;] is not None:
                 files.save_file(file_to_save=all_stats, file_name=args[&#39;save_file&#39;])
 
+            return
         selected_function, required_length = cli_statistic, 1
     
     ### FUNCTION: Statistic History
@@ -1562,7 +1647,8 @@ if __name__ == &#34;__main__&#34;:
                 print(json.dumps(all_stats))
             if args[&#39;save_file&#39;] is not None:
                 files.save_file(file_to_save=all_stats, file_name=args[&#39;save_file&#39;])
-                
+
+            return   
         selected_function, required_length = cli_statistic_history, 1
 
     ### FUNCTION: Set Watchlist
@@ -1570,11 +1656,13 @@ if __name__ == &#34;__main__&#34;:
         def cli_watchlist():
             files.add_watchlist(new_tickers=args[&#39;tickers&#39;])
             logger.comment(&#34;Watchlist saved. Use -ls option to print watchlist.&#34;)
+            return
         selected_function, required_length = cli_watchlist, 1
 
     else:
         def cli_help():
             outputter.help_msg()
+            return
         selected_function, required_length = cli_help, 0
         
     ########## END CLI FUNCTION DEFINITIONS
@@ -1616,7 +1704,7 @@ Formatted dictionary containing optional arguments. Result of a call to <code>he
     -------
     ``bool``
     &#34;&#34;&#34;
-    return args[&#39;json&#39;] is None and args[&#39;suppress_output&#39;] is None</code></pre>
+    return not args[&#39;json&#39;] and not args[&#39;suppress_output&#39;]</code></pre>
 </details>
 </dd>
 <dt id="scrilla.main.print_json_to_screen"><code class="name flex">
@@ -1648,7 +1736,7 @@ Formatted dictionary containing optional arguments. Result of a call to <code>he
     -------
     ``bool``
     &#34;&#34;&#34;
-    return args[&#39;json&#39;] is not None and args[&#39;suppress_output&#39;] is None</code></pre>
+    return args[&#39;json&#39;] and not args[&#39;suppress_output&#39;]</code></pre>
 </details>
 </dd>
 <dt id="scrilla.main.validate_function_usage"><code class="name flex">
