@@ -32,75 +32,87 @@ SYNTAX = "command -FUNCTION -OPTIONS [tickers/symbols]"
 
 TAB = "      "
 
-FUNC_ARG_DICT = {
-    "asset_type": "-asset",
-    "cvar": "-cvar",
-    "var": "-var",
-    "capm_equity_cost": "-capm-equity",
-    "capm_beta": "-capm-beta",
-    "clear_cache": "-clear-cache",
-    "clear_static": "-clear-static",
-    "clear_common": "-clear-watch",
-    "close": "-close",
-    "correlation":"-cor",
-    "correlation_time_series": "-cors",
-    "discount_dividend": "-ddm",
-    "dividends": "-div",
-    "efficient_frontier": "-ef",
-    "examples": "-ex",
-    "gui": "-gui",
-    "help": "-help",
-    "interest_history": "-int",
-    "list_watchlist": "-ls-watch",
-    "maximize_return": "-max",
-    "moving_averages": "-mov",
-    "optimize_portfolio_variance": "-opt",
-    "optimize_portfolio_conditional_var": "-opt-cvar",
-    "plot_correlation": "-plot-cors",
-    "plot_dividends": "-plot-div",
-    "plot_frontier": "-plot-ef",
-    "plot_moving_averages": "-plot-mov",
-    "plot_returns": "-plot-rets",
-    "plot_risk_profile": "-plot-profile",
-    "plot_yield_curve":"-plot-yield",
-    "price_history": "-prices",
-    "purge": "-purge",
-    "risk_free_rate": "-rf",
-    "risk_profile" : "-profile",
-    "screener": "-screen",
-    "sharpe_ratio": "-sharpe",
-    "statistic": "-stat",
-    "statistic_history": "-stats",
-    "store": "-store",
-    "version": "-version",
-    "watchlist": "-watch",
-    "yield_curve": "-yield"
-}
+# Every flag has four types: single-dash-long (SDL), 
+#                            double-dash-long (DDL), 
+#                            single-dash-short (SDS), 
+#                            double-dash-short (DDS)
 
-FUNC_XTRA_VALUED_ARGS_DICT = {
-    'target': '-target',
-    'save': '-save',
-    'start_date': '-start',
-    'end_date': '-end',
-    'discount': '-discount',
-    'model': '-model',
-    'investment': '-invest',
-    'steps': '-steps',
-    'expiry': '-expiry',
-    'probability': '-prob',
-    'allocate': '-allocate'
-}
-
-FUNC_XTRA_SINGLE_ARGS_DICT = {
-    'optimize_sharpe': "-sh",
-    'json': '-json',
-    'suppress_output': '-quiet',
-    'moments': '-moments',
-    'percentiles': '-percents',
-    'likelihood': '-likely'
-}
-
+# FORMAT: [name SDL DDL SDS DDS]
 FUNC_DICT = {
+    "asset_type": ["-asset", "--asset", "-a", "--a"],
+    "cvar": ["-cvar", "--cvar", "-cv", "--cv"],
+    "var": ["-var", "--var", "-v", "--v"],
+    "capm_equity_cost": ["-capm-equity", "--capm-equity", "-capm-e", "--capm-e"],
+    "capm_beta": ["-capm-beta", "--capm-beta", "-capm-b", "--capm-b"],
+    "clear_cache": ["-clear-cache","--clear-cache","-clr-ca","--clr-ca"],
+    "clear_static": ["-clear-static", "--clear-static", "-clr-st", "--clr-st"],
+    "clear_common": ["-clear-watch", "--clear-watch", "-clr-wa", "--clr-wa"],
+    "close": ["-close","--close", "-cl", "--cl"],
+    "correlation":["-correlation","--correlation", "-cor", "--cor"],
+    "correlation_time_series": ["-correlations", "--correlations", "-cors","--cors"],
+    "discount_dividend": ["-discount-dividend","--discount-dividend", "-ddm", "--ddm"],
+    "dividends": ["-dividends","--dividends","-div","--div"],
+    "efficient_frontier": ["-efficient-frontier","--efficient-frontier", "-ef", "--ef"],
+    "examples": ["-examples", "--examples", "-ex", "--ex"],
+    "gui": ["-gui","--gui","-g","--g"],
+    "help": ["-help","--help","-h","--h"],
+    "interest_history": ["-interest", "--interest", "-int", "--int"],
+    "list_watchlist": ["-ls-watch", "--ls-watch", "-ls-w", "--ls-w"],
+    "maximize_return": ["-max-return", "--max-return", "-max","--max"],
+    "moving_averages": ["-mov-avgs", "--mov-avgs", "-mas", "--mas"],
+    "optimize_portfolio_variance": ["-optimize-variance", "--optimize-variance", "-opt", "--opt"],
+    "optimize_portfolio_conditional_var": ["-optimize-cvar", "--optimize-cvar", "-opt-cvar", "--opt-cvar"],
+    "plot_correlation": ["-plot-correlations","--plot-correlations", "-plot-cors", "--plot-cors"],
+    "plot_dividends": ["-plot-dividends","--plot-dividends", "-plot-divs","--plot-divs"],
+    "plot_frontier": ["-plot-efficient-frontier","--plot-efficient-frontier", "-plot-ef", "--plot-ef"],
+    "plot_moving_averages": ["-plot-mov-avgs","--plot-mov-avgs", "-plot-mas", "--plot-mas"],
+    "plot_returns": ["-plot-returns", "--plot-returns", "-plot-rets", "--plot-rets"],
+    "plot_risk_profile": ["-plot-profile", "--plot-profile", "-plot-rr", "--plot-rr"],
+    "plot_yield_curve":["-plot-yield-curve","--plot-yield-curve", "-plot-yield", "--plot-yield"],
+    "price_history": ["-prices", "--prices", "-pr", "--pr"],
+    "purge": ["-purge", "--purge", "-p", "--p"],
+    "risk_free_rate": ["-risk-free", "--risk-free", "-rf", "--rf"],
+    "risk_profile" : ["-profile", "--profile", "-rr", "--rr"],
+    "screener": ["-screen","--screen", "-scr","--scr"],
+    "sharpe_ratio": ["-sharpe-ratio", "--sharpe-ratio", "-sr", "--sr"],
+    "statistic": ["-stat","--stat", "-s", "--s"],
+    "statistic_history": ["-stats","--stats", "-ss", "--s"],
+    "store": ["-store","--store", "-st", "--st"],
+    "version": ["-version","--version", "-v", "--v"],
+    "watchlist": ["-watch", "--watch", "-w", "--w"],
+    "yield_curve": ["-yield", "--yield", "-y", "--y"]
+}
+
+DATE_ARG_DICT={
+    'start_date': ['-start','--start', '-start-date', '--start-date'],
+    'end_date': ['-end', '--end', '-end-date', '--end-date']
+}
+FLOAT_ARG_DICT = {
+    'target': ['-target','--target', '-target-return', '--target-return'],
+    'discount': ['-discount','--discount', '-discount-rate', '--discount-rate'],
+    'investment': ['-invest', '--invest', '-investment', '--investment'],
+    'expiry': ['-exp','--exp', '-expiry', '--expiry'],
+    'probability': ['-prob', '--prob', '-probability', '--probability']
+}
+INT_ARG_DICT={
+    'steps': ['-steps','--steps','-frontier-steps', '--frontier-steps']
+}
+STRING_ARG_DICT={
+    'model': ['-model','--model', '-pricing-model', '--pricing-model'],
+    'save': ['-save', '--save', '-save-file', '--save-file']
+}
+BOOLEAN_ARG_DICT = {
+    'optimize_sharpe': ['-sh', '--sh', '-sharpe', '--sharpe'],
+    'json': ['-json', '--json', '-js', '--js'],
+    'suppress_output': ['-quiet', '--quiet', "-q", "--q"],
+}
+ESTIMATION_ARG_DICT = {
+    'moments': ['-moments', '--moments', '-mom', '--mom'],
+    'percentiles': ['-percentiles', '--percentiles', '-percent', '--percent'],
+    'likelihood': ['-likelihood','--likelihood','-likely', '--likely']
+}
+
+HELP_DICT = {
     "asset_type": "Outputs the asset type for the supplied symbol.",
     
     "cvar": "Calculates the conditional value at risk, i.e. E(St | St < Sv) where Sv -> Prob(St<Sv) = `prob` , for the list of inputted ticker symbols. 'expiry' and 'prob' are required arguments for this function. Note: 'expiry' is measured in years and is different from the `start` and `end` dates. `start` and `end` are used to calibrate the model to a historical sample and `expiry` is used as the time horizon over which the value at risk is calculated into the future.__\n\t\t\tOPTIONS: \n\t\t\t\t-prob (format: decimal) REQUIRED\n\t\t\t\t-expiry (format: decimal) REQUIRED\n\t\t\t\t-start (format: \"YYYY-MM-DD\")\n\t\t\t\t-end  (format :\"YYYY-MM-DD\")\n\t\t\t\t-json (print results to screen as JSON)\n\t\t\t\t-save (format: /path/to/file/filename.json)\n\t\t\t\t-quiet (suppress console output\n\t\t\t\t-moments (estimation method flag)\n\t\t\t\t-percents (estimation method flag)\n\t\t\t\t-likely (estimation method flag)",

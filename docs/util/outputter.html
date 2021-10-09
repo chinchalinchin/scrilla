@@ -127,9 +127,9 @@ def help_msg():
     return_line()
 
     title_line(&#39;FUNCTIONS&#39;)
-    options = formatter.FUNC_ARG_DICT.keys()
+    options = formatter.FUNC_DICT.keys()
     for opt in options:
-        option(formatter.FUNC_ARG_DICT[opt], formatter.FUNC_DICT[opt])
+        option(formatter.FUNC_DICT[opt], formatter.FUNC_DICT[opt])
         return_line()
         
  # APPLICATION SPECIFIC FORMATTING FUNCTIONS
@@ -599,9 +599,9 @@ class Logger():
     return_line()
 
     title_line(&#39;FUNCTIONS&#39;)
-    options = formatter.FUNC_ARG_DICT.keys()
+    options = formatter.FUNC_DICT.keys()
     for opt in options:
-        option(formatter.FUNC_ARG_DICT[opt], formatter.FUNC_DICT[opt])
+        option(formatter.FUNC_DICT[opt], formatter.FUNC_DICT[opt])
         return_line()</code></pre>
 </details>
 </dd>

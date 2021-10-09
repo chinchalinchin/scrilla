@@ -98,9 +98,9 @@ def help_msg():
     return_line()
 
     title_line('FUNCTIONS')
-    options = formatter.FUNC_ARG_DICT.keys()
+    options = formatter.HELP_DICT.keys()
     for opt in options:
-        option(formatter.FUNC_ARG_DICT[opt], formatter.FUNC_DICT[opt])
+        option(formatter.HELP_DICT[opt], formatter.HELP_DICT[opt])
         return_line()
         
  # APPLICATION SPECIFIC FORMATTING FUNCTIONS
