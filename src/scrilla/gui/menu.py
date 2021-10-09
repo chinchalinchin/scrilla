@@ -20,8 +20,8 @@ from PyQt5 import QtCore, QtWidgets, QtGui
 from scrilla import settings
 
 from scrilla.gui.functions import RiskReturnWidget, CorrelationWidget, \
-                            MovingAverageWidget, EfficientFrontierWidget, \
-                                OptimizerWidget
+                                    MovingAverageWidget, EfficientFrontierWidget, \
+                                    OptimizerWidget
 
 def get_title_font():
     font = QtGui.QFont('Impact', 12)
@@ -90,7 +90,6 @@ class MenuWidget(QtWidgets.QWidget):
 
     @QtCore.Slot()
     def show_widget(self, widget):
-        # TODO: possibly clear cache?
         for button in self.widget_buttons:
             button.hide()
 

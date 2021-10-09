@@ -548,9 +548,8 @@ def do_program() -> None:
                                                                                 ticker_2=args['tickers'][1], 
                                                                                 start_date=args['start_date'],
                                                                                 end_date=args['end_date'])
-            return
             plotter.plot_correlation_series(tickers=args['tickers'], series=correlation_history, savefile=args['save_file'])
-
+            return
         selected_function, required_length, exact = cli_plot_correlation, 2, True
 
     ### FUNCTION: Plot Dividend History With Linear Regression Model
