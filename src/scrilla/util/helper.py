@@ -48,7 +48,7 @@ def format_args(args, default_estimation_method) -> argparse.Namespace:
     groups = [parser.add_mutually_exclusive_group() for arg_group in definitions.ARG_META['groups'] ]
 
     for arg in definitions.ARG_DICT:
-        if definitions.ARG_DICT[arg]['format'] != 'group' and definitions.ARG_DICT[arg]['format'] != bool:
+        if definitions.ARG_DICT[arg]['format'] not in ('group', bool):
             parser.add_argument(definitions.ARG_DICT[arg]['values'][0], 
                                 definitions.ARG_DICT[arg]['values'][1], 
                                 definitions.ARG_DICT[arg]['values'][2], 
