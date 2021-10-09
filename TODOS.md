@@ -35,3 +35,5 @@
 44. conditional imports based on ANALYSIS_MODE
 
 46. redo statistic operations with vector and matrix operations for greater generalization.
+
+47. don't import in main.py until you have to.

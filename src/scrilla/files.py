@@ -21,7 +21,9 @@ import os, io, json, csv, zipfile
 from typing import Any
 import requests
 
-from scrilla import settings, static, errors
+from scrilla import settings, errors
+from scrilla.static import functions
+from scrilla.static import keys, constants
 from scrilla.util import outputter, helper
 
 logger = outputter.Logger("files", settings.LOG_LEVEL)
@@ -125,13 +127,13 @@ def init_static_data():
         # grab ticker symbols and store in STATIC_DIR
         if not os.path.isfile(settings.STATIC_TICKERS_FILE):
             if settings.PRICE_MANAGER == "alpha_vantage": 
-                service_map = static.keys["SERVICES"]["PRICES"]["ALPHA_VANTAGE"]["MAP"]
+                service_map = keys.keys["SERVICES"]["PRICES"]["ALPHA_VANTAGE"]["MAP"]
                 logger.debug(f'Missing {settings.STATIC_TICKERS_FILE}, querying \'{settings.PRICE_MANAGER}\'')
 
                 # TODO: services calls should be in services.py! need to put this and the helper method 
                 #       into services.py in the future. 
-                query=f'{settings.PARAM_AV_FUNC}={settings.ARG_AV_FUNC_EQUITY_LISTINGS}'
-                url = f'{settings.AV_URL}?{query}&{settings.PARAM_AV_KEY}={settings.AV_KEY}'
+                query=f'{service_map["PARAMS"]["FUNCTION"]}={service_map["ARGUMENTS"]["EQUITY_LISTING"]}'
+                url = f'{settings.AV_URL}?{query}&{service_map["PARAMS"]["KEY"]}={settings.AV_KEY}'
                 static_tickers_blob = parse_csv_response_column(column=0, url=url, savefile=settings.STATIC_TICKERS_FILE,
                                                                     firstRowHeader=service_map['KEYS']['EQUITY']['HEADER'])
 
@@ -140,7 +142,7 @@ def init_static_data():
         # grab crypto symbols and store in STATIC_DIR
         if not os.path.isfile(settings.STATIC_CRYPTO_FILE):
             if settings.PRICE_MANAGER == "alpha_vantage": 
-                service_map = static.keys["SERVICES"]["PRICES"]["ALPHA_VANTAGE"]["MAP"]
+                service_map = keys.keys["SERVICES"]["PRICES"]["ALPHA_VANTAGE"]["MAP"]
                 logger.debug(f'Missing {settings.STATIC_CRYPTO_FILE}, querying \'{settings.PRICE_MANAGER}\'.')
                 url = settings.AV_CRYPTO_LIST
                 static_crypto_blob = parse_csv_response_column(column=0, url=url, savefile=settings.STATIC_CRYPTO_FILE,
@@ -150,7 +152,7 @@ def init_static_data():
         # grab econominc indicator symbols and store in STATIC_DIR
         if not os.path.isfile(settings.STATIC_ECON_FILE):
             if settings.STAT_MANAGER == "quandl":
-                service_map = static.keys["SERVICES"]["STATISTICS"]["QUANDL"]["MAP"]
+                service_map = keys.keys["SERVICES"]["STATISTICS"]["QUANDL"]["MAP"]
 
                 logger.debug(f'Missing {settings.STATIC_ECON_FILE}, querying \'{settings.STAT_MANAGER}\'.')
 
@@ -179,19 +181,19 @@ def get_static_data(static_type):
     global static_econ_blob 
     global static_tickers_blob
 
-    if static_type == static.keys['ASSETS']['CRYPTO']:
+    if static_type == keys.keys['ASSETS']['CRYPTO']:
         if static_crypto_blob is not None:
             blob = static_crypto_blob
         else:
             path = settings.STATIC_CRYPTO_FILE
     
-    elif static_type == static.keys['ASSETS']['EQUITY']:
+    elif static_type == keys.keys['ASSETS']['EQUITY']:
         if static_tickers_blob:
             blob = static_tickers_blob
         else:
             path = settings.STATIC_TICKERS_FILE
     
-    elif static_type == static.keys['ASSETS']['STAT']:
+    elif static_type == keys.keys['ASSETS']['STAT']:
         if static_econ_blob:
             blob = static_econ_blob
         else:
@@ -214,11 +216,11 @@ def get_static_data(static_type):
                 symbols = json.load(infile)
             # TODO: implement other file loading exts 
                
-        if static_type == static.keys['ASSETS']['CRYPTO']:
+        if static_type == keys.keys['ASSETS']['CRYPTO']:
             static_crypto_blob = symbols
-        elif static_type == static.keys['ASSETS']['EQUITY']:
+        elif static_type == keys.keys['ASSETS']['EQUITY']:
             static_tickers_blob = symbols
-        elif static_type == static.keys['ASSETS']['STAT']:
+        elif static_type == keys.keys['ASSETS']['STAT']:
             static_econ_blob = symbols
         return symbols
         
@@ -240,9 +242,9 @@ def get_overlapping_symbols(equities=None, cryptos=None):
     Returns an array of symbols which are contained in both the `scrilla.settings.STATIC_TICKERS_FILE` and `scrilla.settings.STATIC_CRYPTO_FILE`, i.e. ticker symbols which have both a tradeable equtiy and a tradeable crypto asset. 
     """
     if equities is None:
-        equities = list(get_static_data(static.keys['ASSETS']['EQUITY']))
+        equities = list(get_static_data(keys.keys['ASSETS']['EQUITY']))
     if cryptos is None:
-        cryptos = list(get_static_data(static.keys['ASSETS']['CRYPTO']))
+        cryptos = list(get_static_data(keys.keys['ASSETS']['CRYPTO']))
     overlap = []
     for crypto in cryptos:
         if crypto in equities:
@@ -256,25 +258,25 @@ def get_asset_type(symbol : str) -> str:
     Output
     ------
     ``str``. 
-        Represents the asset type of the symbol. Types are statically accessible through the `scrilla.static.keys['ASSETS]` dictionary.
+        Represents the asset type of the symbol. Types are statically accessible through the `scrilla.keys['ASSETS]` dictionary.
     """
-    symbols = list(get_static_data(static.keys['ASSETS']['CRYPTO']))
+    symbols = list(get_static_data(keys.keys['ASSETS']['CRYPTO']))
     overlap = get_overlapping_symbols(cryptos=symbols)
 
     if symbol not in overlap:
         if symbol in symbols:
-            return static.keys['ASSETS']['CRYPTO']
+            return keys.keys['ASSETS']['CRYPTO']
             
                 # if other asset types are introduced, then uncomment these lines
                 # and add new asset type to conditional. Keep in mind the static
                 # equity data is HUGE.
-        # symbols = list(get_static_data(static.keys['ASSETS']['EQUITY']))
+        # symbols = list(get_static_data(keys['ASSETS']['EQUITY']))
         # if symbol in symbols:
-            # return static.keys['ASSETS']['EQUITY']
+            # return keys['ASSETS']['EQUITY']
         #return None
-        return static.keys['ASSETS']['EQUITY']
+        return keys.keys['ASSETS']['EQUITY']
     # default to equity for overlap until a better method is determined. 
-    return static.keys['ASSETS']['EQUITY']
+    return keys.keys['ASSETS']['EQUITY']
     
 def get_watchlist() -> list:
     """
@@ -307,7 +309,7 @@ def add_watchlist(new_tickers: list) -> None:
     logger.debug('Saving tickers to Watchlist')
 
     current_tickers = get_watchlist()
-    all_tickers = get_static_data(static.keys['ASSETS']['EQUITY'])
+    all_tickers = get_static_data(keys.keys['ASSETS']['EQUITY'])
 
     for ticker in new_tickers:
         if ticker not in current_tickers and ticker in all_tickers:
@@ -322,23 +324,23 @@ def add_watchlist(new_tickers: list) -> None:
         # TODO: implement other file extensions
     
 def save_profiles(profiles: dict, file_name: str):
-    save_format = static.functions.format_profiles(profiles)
+    save_format = functions.format_profiles(profiles)
     save_file(file_to_save=save_format, file_name=file_name)
 
 def save_allocation(allocation, portfolio, file_name, investment=None):
-    save_format = static.functions.format_allocation(allocation=allocation, portfolio=portfolio, investment=investment)
+    save_format = functions.format_allocation(allocation=allocation, portfolio=portfolio, investment=investment)
     save_file(file_to_save=save_format, file_name=file_name)
 
 def save_frontier(portfolio, frontier, file_name, investment=None):
-    save_format = static.functions.format_frontier(portfolio=portfolio, frontier=frontier,investment=investment)
+    save_format = functions.format_frontier(portfolio=portfolio, frontier=frontier,investment=investment)
     save_file(file_to_save=save_format, file_name=file_name)
 
 def save_moving_averages(tickers, averages_output, file_name):
-    save_format = static.functions.format_moving_averages(tickers=tickers,averages_output=averages_output)
+    save_format = functions.format_moving_averages(tickers=tickers,averages_output=averages_output)
     save_file(file_to_save=save_format, file_name=file_name)
 
 def save_correlation_matrix(tickers, correlation_matrix, file_name):
-    save_format = static.functions.format_correlation_matrix(tickers=tickers, correlation_matrix=correlation_matrix)
+    save_format = functions.format_correlation_matrix(tickers=tickers, correlation_matrix=correlation_matrix)
     save_file(file_to_save=save_format, file_name=file_name)
     
 ################################################
@@ -359,7 +361,7 @@ def clear_directory(directory, retain=True):
 
     for f in filelist:
         filename = os.path.basename(f)
-        if retain and filename == static.constants['KEEP_FILE']:
+        if retain and filename == constants.constants['KEEP_FILE']:
             continue
         os.remove(os.path.join(directory, f))
 

@@ -47,7 +47,8 @@ A module of functions that calculate financial statistics
 &#34;&#34;&#34;
 from typing import Union
 from datetime import date
-from scrilla import settings, services, files, cache, static, errors
+from scrilla import settings, services, files, cache, errors
+from scrilla.static import keys
 from scrilla.analysis.objects.cashflow import Cashflow
 import scrilla.analysis.models.geometric.statistics as statistics
 import scrilla.util.outputter as outputter
@@ -72,19 +73,19 @@ def sharpe_ratio(ticker : str, start_date: Union[date, None]=None, end_date: Uni
     5. **ticker_profile**: ``dict`` 
         Risk-return profile for the supplied ticker. Formatted as follows: `{ &#39;annual_return&#39;: float, &#39;annual_volatility&#39;: float } `
     6. **method** : ``str``
-        Estimation method used to calculate financial statistics. Defaults to the value set by `scrilla.settings.ESTIMATION_METHOD`. Allowable value are accessible through `scrilla.static.keys[&#39;ESTIMATION&#39;]`.
+        Estimation method used to calculate financial statistics. Defaults to the value set by `scrilla.settings.ESTIMATION_METHOD`. Allowable value are accessible through `scrilla.keys.keys[&#39;ESTIMATION&#39;]`.
 
     .. notes:: 
         * if `ticker_profile` is provided, this function will skip both an external data service call and the calculation of the ticker&#39;s risk profile. The calculation will proceed as if the supplied profile were the true profile. If `ticker_profile` is not provided, all statistics will be estimated from historical data.
     &#34;&#34;&#34;
     start_date, end_date = errors.validate_dates(start_date=start_date, end_date=end_date, 
-                                                        asset_type=static.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;])
+                                                        asset_type=keys.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;])
 
     if ticker_profile is None:  
         result = profile_cache.filter_profile_cache(ticker=ticker, start_date=start_date, end_date=end_date, method=method)
 
-        if result is not None and result[static.keys[&#39;STATISTICS&#39;][&#39;SHARPE&#39;]] is not None:
-            return result[static.keys[&#39;STATISTICS&#39;][&#39;SHARPE&#39;]]
+        if result is not None and result[keys.keys[&#39;STATISTICS&#39;][&#39;SHARPE&#39;]] is not None:
+            return result[keys.keys[&#39;STATISTICS&#39;][&#39;SHARPE&#39;]]
 
         ticker_profile = statistics.calculate_risk_return(ticker=ticker, start_date=start_date, end_date=end_date, method=method)
 
@@ -111,11 +112,11 @@ def market_premium(start_date: Union[date, None]=None, end_date: Union[date, Non
         End_date of the time period for which the market premium will be computed.
     3. **market_profile**: ``dict``
     4. **method** : ``str``
-        Estimation method used to calculate financial statistics. Defaults to the value set by `scrilla.settings.ESTIMATION_METHOD`. Allowable value are accessible through `scrilla.static.keys[&#39;ESTIMATION&#39;]`.
+        Estimation method used to calculate financial statistics. Defaults to the value set by `scrilla.settings.ESTIMATION_METHOD`. Allowable value are accessible through `scrilla.keys.keys[&#39;ESTIMATION&#39;]`.
 
     &#34;&#34;&#34;
     start_date, end_date = errors.validate_dates(start_date=start_date, end_date=end_date, 
-                                                        asset_type=static.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;])
+                                                        asset_type=keys.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;])
 
     if market_profile is None:
         market_profile = statistics.calculate_risk_return(ticker=settings.MARKET_PROXY, start_date=start_date, end_date=end_date, method=method)
@@ -137,15 +138,15 @@ def market_beta(ticker : str, start_date: Union[date, None]=None, end_date: Unio
     3. **end_date**: ``datetime.date`` 
         End_date of the time period for which the asset beta will be computed.
     4. **method** : ``str``
-        Estimation method used to calculate financial statistics. Defaults to the value set by `scrilla.settings.ESTIMATION_METHOD`. Allowable value are accessible through `scrilla.static.keys[&#39;ESTIMATION&#39;]`.
+        Estimation method used to calculate financial statistics. Defaults to the value set by `scrilla.settings.ESTIMATION_METHOD`. Allowable value are accessible through `scrilla.keys.keys[&#39;ESTIMATION&#39;]`.
     &#34;&#34;&#34;
     start_date, end_date = errors.validate_dates(start_date=start_date, end_date=end_date, 
-                                                        asset_type=static.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;])
+                                                        asset_type=keys.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;])
 
     result = profile_cache.filter_profile_cache(ticker=ticker, start_date=start_date, end_date=end_date, method=method)
 
-    if result is not None and result[static.keys[&#39;STATISTICS&#39;][&#39;BETA&#39;]] is not None:
-        return result[static.keys[&#39;STATISTICS&#39;][&#39;BETA&#39;]]
+    if result is not None and result[keys.keys[&#39;STATISTICS&#39;][&#39;BETA&#39;]] is not None:
+        return result[keys.keys[&#39;STATISTICS&#39;][&#39;BETA&#39;]]
 
     if market_profile is None:
         if sample_prices is None:
@@ -187,15 +188,15 @@ def cost_of_equity(ticker, start_date=None, end_date=None, market_profile=None, 
     3. **end_date**: ``datetime.date``
         *Optional.* End_date of the time period for which the cost of equity ratio will be computed.
     4. **method** : ``str``
-        *Optional*. Estimation method used to calculate financial statistics. Defaults to the value set by `scrilla.settings.ESTIMATION_METHOD`. Allowable value are accessible through `scrilla.static.keys[&#39;ESTIMATION&#39;]`.
+        *Optional*. Estimation method used to calculate financial statistics. Defaults to the value set by `scrilla.settings.ESTIMATION_METHOD`. Allowable value are accessible through `scrilla.keys.keys[&#39;ESTIMATION&#39;]`.
     &#34;&#34;&#34;
     start_date, end_date = errors.validate_dates(start_date=start_date, end_date=end_date, 
-                                                        asset_type=static.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;])
+                                                        asset_type=keys.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;])
 
     result = profile_cache.filter_profile_cache(ticker=ticker, start_date=start_date, end_date=end_date, method=method)
 
-    if result is not None and result[static.keys[&#39;STATISTICS&#39;][&#39;EQUITY&#39;]] is not None:
-        return result[static.keys[&#39;STATISTICS&#39;][&#39;EQUITY&#39;]]
+    if result is not None and result[keys.keys[&#39;STATISTICS&#39;][&#39;EQUITY&#39;]] is not None:
+        return result[keys.keys[&#39;STATISTICS&#39;][&#39;EQUITY&#39;]]
 
     beta = market_beta(ticker=ticker, start_date=start_date, end_date=end_date,
                         market_profile=market_profile, market_correlation=market_correlation,
@@ -208,12 +209,12 @@ def cost_of_equity(ticker, start_date=None, end_date=None, market_profile=None, 
     profile_cache.save_or_update_row(ticker=ticker, start_date=start_date, end_date=end_date, equity_cost=equity_cost, method=method)
     return equity_cost
 
-def screen_for_discount(model=static.keys[&#39;MODELS&#39;][&#39;DDM&#39;], discount_rate=None):
+def screen_for_discount(model=keys.keys[&#39;MODELS&#39;][&#39;DDM&#39;], discount_rate=None):
     &#34;&#34;&#34;
     Parameters
     ----------
     1. model : str
-        *Optional*. Model used to evaluated the equities saved in the watchlist. If no model is specified, the function will default to the discount dividend model. Model constants are statically accessible through the `scrilla.static.keys[&#39;MODELS&#39;]`
+        *Optional*. Model used to evaluated the equities saved in the watchlist. If no model is specified, the function will default to the discount dividend model. Model constants are statically accessible through the `scrilla.keys.keys[&#39;MODELS&#39;]`
 
     Returns
     -------
@@ -233,7 +234,7 @@ def screen_for_discount(model=static.keys[&#39;MODELS&#39;][&#39;DDM&#39;], disc
         else:
             discount_rate = user_discount_rate
 
-        if model == static.keys[&#39;MODELS&#39;][&#39;DDM&#39;]:
+        if model == keys.keys[&#39;MODELS&#39;][&#39;DDM&#39;]:
             logger.debug(&#39;Using Discount Dividend Model to screen watchlisted equities for discounts.&#39;)
             dividends = services.get_dividend_history(equity)
             model_price = Cashflow(sample=dividends, discount_rate=discount_rate).calculate_net_present_value()
@@ -271,7 +272,7 @@ A string of the ticker symbol whose cost of equity ratio will be computed.</li>
 <li><strong>end_date</strong>: <code>datetime.date</code>
 <em>Optional.</em> End_date of the time period for which the cost of equity ratio will be computed.</li>
 <li><strong>method</strong> : <code>str</code>
-<em>Optional</em>. Estimation method used to calculate financial statistics. Defaults to the value set by <code>scrilla.settings.ESTIMATION_METHOD</code>. Allowable value are accessible through <code>scrilla.static.keys['ESTIMATION']</code>.</li>
+<em>Optional</em>. Estimation method used to calculate financial statistics. Defaults to the value set by <code><a title="scrilla.settings.ESTIMATION_METHOD" href="../settings.html#scrilla.settings.ESTIMATION_METHOD">ESTIMATION_METHOD</a></code>. Allowable value are accessible through <code>scrilla.keys.keys['ESTIMATION']</code>.</li>
 </ol></div>
 <details class="source">
 <summary>
@@ -290,15 +291,15 @@ A string of the ticker symbol whose cost of equity ratio will be computed.</li>
     3. **end_date**: ``datetime.date``
         *Optional.* End_date of the time period for which the cost of equity ratio will be computed.
     4. **method** : ``str``
-        *Optional*. Estimation method used to calculate financial statistics. Defaults to the value set by `scrilla.settings.ESTIMATION_METHOD`. Allowable value are accessible through `scrilla.static.keys[&#39;ESTIMATION&#39;]`.
+        *Optional*. Estimation method used to calculate financial statistics. Defaults to the value set by `scrilla.settings.ESTIMATION_METHOD`. Allowable value are accessible through `scrilla.keys.keys[&#39;ESTIMATION&#39;]`.
     &#34;&#34;&#34;
     start_date, end_date = errors.validate_dates(start_date=start_date, end_date=end_date, 
-                                                        asset_type=static.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;])
+                                                        asset_type=keys.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;])
 
     result = profile_cache.filter_profile_cache(ticker=ticker, start_date=start_date, end_date=end_date, method=method)
 
-    if result is not None and result[static.keys[&#39;STATISTICS&#39;][&#39;EQUITY&#39;]] is not None:
-        return result[static.keys[&#39;STATISTICS&#39;][&#39;EQUITY&#39;]]
+    if result is not None and result[keys.keys[&#39;STATISTICS&#39;][&#39;EQUITY&#39;]] is not None:
+        return result[keys.keys[&#39;STATISTICS&#39;][&#39;EQUITY&#39;]]
 
     beta = market_beta(ticker=ticker, start_date=start_date, end_date=end_date,
                         market_profile=market_profile, market_correlation=market_correlation,
@@ -326,7 +327,7 @@ Start date of the time period for which the asset beta will be computed.</li>
 <li><strong>end_date</strong>: <code>datetime.date</code>
 End_date of the time period for which the asset beta will be computed.</li>
 <li><strong>method</strong> : <code>str</code>
-Estimation method used to calculate financial statistics. Defaults to the value set by <code>scrilla.settings.ESTIMATION_METHOD</code>. Allowable value are accessible through <code>scrilla.static.keys['ESTIMATION']</code>.</li>
+Estimation method used to calculate financial statistics. Defaults to the value set by <code><a title="scrilla.settings.ESTIMATION_METHOD" href="../settings.html#scrilla.settings.ESTIMATION_METHOD">ESTIMATION_METHOD</a></code>. Allowable value are accessible through <code>scrilla.keys.keys['ESTIMATION']</code>.</li>
 </ol></div>
 <details class="source">
 <summary>
@@ -345,15 +346,15 @@ Estimation method used to calculate financial statistics. Defaults to the value 
     3. **end_date**: ``datetime.date`` 
         End_date of the time period for which the asset beta will be computed.
     4. **method** : ``str``
-        Estimation method used to calculate financial statistics. Defaults to the value set by `scrilla.settings.ESTIMATION_METHOD`. Allowable value are accessible through `scrilla.static.keys[&#39;ESTIMATION&#39;]`.
+        Estimation method used to calculate financial statistics. Defaults to the value set by `scrilla.settings.ESTIMATION_METHOD`. Allowable value are accessible through `scrilla.keys.keys[&#39;ESTIMATION&#39;]`.
     &#34;&#34;&#34;
     start_date, end_date = errors.validate_dates(start_date=start_date, end_date=end_date, 
-                                                        asset_type=static.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;])
+                                                        asset_type=keys.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;])
 
     result = profile_cache.filter_profile_cache(ticker=ticker, start_date=start_date, end_date=end_date, method=method)
 
-    if result is not None and result[static.keys[&#39;STATISTICS&#39;][&#39;BETA&#39;]] is not None:
-        return result[static.keys[&#39;STATISTICS&#39;][&#39;BETA&#39;]]
+    if result is not None and result[keys.keys[&#39;STATISTICS&#39;][&#39;BETA&#39;]] is not None:
+        return result[keys.keys[&#39;STATISTICS&#39;][&#39;BETA&#39;]]
 
     if market_profile is None:
         if sample_prices is None:
@@ -396,7 +397,7 @@ Start date of the time period for which the market premium will be computed.</li
 End_date of the time period for which the market premium will be computed.</li>
 <li><strong>market_profile</strong>: <code>dict</code></li>
 <li><strong>method</strong> : <code>str</code>
-Estimation method used to calculate financial statistics. Defaults to the value set by <code>scrilla.settings.ESTIMATION_METHOD</code>. Allowable value are accessible through <code>scrilla.static.keys['ESTIMATION']</code>.</li>
+Estimation method used to calculate financial statistics. Defaults to the value set by <code><a title="scrilla.settings.ESTIMATION_METHOD" href="../settings.html#scrilla.settings.ESTIMATION_METHOD">ESTIMATION_METHOD</a></code>. Allowable value are accessible through <code>scrilla.keys.keys['ESTIMATION']</code>.</li>
 </ol></div>
 <details class="source">
 <summary>
@@ -414,11 +415,11 @@ Estimation method used to calculate financial statistics. Defaults to the value 
         End_date of the time period for which the market premium will be computed.
     3. **market_profile**: ``dict``
     4. **method** : ``str``
-        Estimation method used to calculate financial statistics. Defaults to the value set by `scrilla.settings.ESTIMATION_METHOD`. Allowable value are accessible through `scrilla.static.keys[&#39;ESTIMATION&#39;]`.
+        Estimation method used to calculate financial statistics. Defaults to the value set by `scrilla.settings.ESTIMATION_METHOD`. Allowable value are accessible through `scrilla.keys.keys[&#39;ESTIMATION&#39;]`.
 
     &#34;&#34;&#34;
     start_date, end_date = errors.validate_dates(start_date=start_date, end_date=end_date, 
-                                                        asset_type=static.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;])
+                                                        asset_type=keys.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;])
 
     if market_profile is None:
         market_profile = statistics.calculate_risk_return(ticker=settings.MARKET_PROXY, start_date=start_date, end_date=end_date, method=method)
@@ -434,7 +435,7 @@ Estimation method used to calculate financial statistics. Defaults to the value 
 <div class="desc"><h2 id="parameters">Parameters</h2>
 <ol>
 <li>model : str
-<em>Optional</em>. Model used to evaluated the equities saved in the watchlist. If no model is specified, the function will default to the discount dividend model. Model constants are statically accessible through the <code>scrilla.static.keys['MODELS']</code></li>
+<em>Optional</em>. Model used to evaluated the equities saved in the watchlist. If no model is specified, the function will default to the discount dividend model. Model constants are statically accessible through the <code>scrilla.keys.keys['MODELS']</code></li>
 </ol>
 <h2 id="returns">Returns</h2>
 <p><code>dict</code>
@@ -443,12 +444,12 @@ A list of tickers that trade at a discount relative to the model price, formatte
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def screen_for_discount(model=static.keys[&#39;MODELS&#39;][&#39;DDM&#39;], discount_rate=None):
+<pre><code class="python">def screen_for_discount(model=keys.keys[&#39;MODELS&#39;][&#39;DDM&#39;], discount_rate=None):
     &#34;&#34;&#34;
     Parameters
     ----------
     1. model : str
-        *Optional*. Model used to evaluated the equities saved in the watchlist. If no model is specified, the function will default to the discount dividend model. Model constants are statically accessible through the `scrilla.static.keys[&#39;MODELS&#39;]`
+        *Optional*. Model used to evaluated the equities saved in the watchlist. If no model is specified, the function will default to the discount dividend model. Model constants are statically accessible through the `scrilla.keys.keys[&#39;MODELS&#39;]`
 
     Returns
     -------
@@ -468,7 +469,7 @@ A list of tickers that trade at a discount relative to the model price, formatte
         else:
             discount_rate = user_discount_rate
 
-        if model == static.keys[&#39;MODELS&#39;][&#39;DDM&#39;]:
+        if model == keys.keys[&#39;MODELS&#39;][&#39;DDM&#39;]:
             logger.debug(&#39;Using Discount Dividend Model to screen watchlisted equities for discounts.&#39;)
             dividends = services.get_dividend_history(equity)
             model_price = Cashflow(sample=dividends, discount_rate=discount_rate).calculate_net_present_value()
@@ -503,7 +504,7 @@ Risk free rate used to evaluate excess return. Defaults to settings.RISK_FREE_RA
 <li><strong>ticker_profile</strong>: <code>dict</code>
 Risk-return profile for the supplied ticker. Formatted as follows: <code>{ 'annual_return': float, 'annual_volatility': float }</code></li>
 <li><strong>method</strong> : <code>str</code>
-Estimation method used to calculate financial statistics. Defaults to the value set by <code>scrilla.settings.ESTIMATION_METHOD</code>. Allowable value are accessible through <code>scrilla.static.keys['ESTIMATION']</code>.</li>
+Estimation method used to calculate financial statistics. Defaults to the value set by <code><a title="scrilla.settings.ESTIMATION_METHOD" href="../settings.html#scrilla.settings.ESTIMATION_METHOD">ESTIMATION_METHOD</a></code>. Allowable value are accessible through <code>scrilla.keys.keys['ESTIMATION']</code>.</li>
 </ol>
 <div class="admonition notes">
 <p class="admonition-title">Notes</p>
@@ -532,19 +533,19 @@ Estimation method used to calculate financial statistics. Defaults to the value 
     5. **ticker_profile**: ``dict`` 
         Risk-return profile for the supplied ticker. Formatted as follows: `{ &#39;annual_return&#39;: float, &#39;annual_volatility&#39;: float } `
     6. **method** : ``str``
-        Estimation method used to calculate financial statistics. Defaults to the value set by `scrilla.settings.ESTIMATION_METHOD`. Allowable value are accessible through `scrilla.static.keys[&#39;ESTIMATION&#39;]`.
+        Estimation method used to calculate financial statistics. Defaults to the value set by `scrilla.settings.ESTIMATION_METHOD`. Allowable value are accessible through `scrilla.keys.keys[&#39;ESTIMATION&#39;]`.
 
     .. notes:: 
         * if `ticker_profile` is provided, this function will skip both an external data service call and the calculation of the ticker&#39;s risk profile. The calculation will proceed as if the supplied profile were the true profile. If `ticker_profile` is not provided, all statistics will be estimated from historical data.
     &#34;&#34;&#34;
     start_date, end_date = errors.validate_dates(start_date=start_date, end_date=end_date, 
-                                                        asset_type=static.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;])
+                                                        asset_type=keys.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;])
 
     if ticker_profile is None:  
         result = profile_cache.filter_profile_cache(ticker=ticker, start_date=start_date, end_date=end_date, method=method)
 
-        if result is not None and result[static.keys[&#39;STATISTICS&#39;][&#39;SHARPE&#39;]] is not None:
-            return result[static.keys[&#39;STATISTICS&#39;][&#39;SHARPE&#39;]]
+        if result is not None and result[keys.keys[&#39;STATISTICS&#39;][&#39;SHARPE&#39;]] is not None:
+            return result[keys.keys[&#39;STATISTICS&#39;][&#39;SHARPE&#39;]]
 
         ticker_profile = statistics.calculate_risk_return(ticker=ticker, start_date=start_date, end_date=end_date, method=method)
 

@@ -35,9 +35,10 @@ from PIL import Image
 from matplotlib.figure import Figure
 from matplotlib import dates as mdates
 
-from scrilla import static, settings
+from scrilla import settings
+from scrilla.static import formats, keys
 from scrilla.errors import InputValidationError
-from scrilla.util import dater, formatter
+from scrilla.util import dater
 
 APP_ENV=os.environ.setdefault(&#39;APP_ENV&#39;, &#39;local&#39;)
 
@@ -140,9 +141,9 @@ def plot_yield_curve(yield_curve, show=True, savefile=None):
     axes = canvas.figure.subplots()
 
     maturities, rates = [], yield_curve[list(yield_curve.keys())[0]]
-    yield_map = static.keys[&#39;SERVICES&#39;][&#39;STATISTICS&#39;][&#39;QUANDL&#39;][&#39;MAP&#39;][&#39;YIELD_CURVE&#39;]
+    yield_map = keys.keys[&#39;SERVICES&#39;][&#39;STATISTICS&#39;][&#39;QUANDL&#39;][&#39;MAP&#39;][&#39;YIELD_CURVE&#39;]
     for i, rate in enumerate(rates):
-        maturities.append(yield_map[static.keys[&#39;YIELD_CURVE&#39;][i]])
+        maturities.append(yield_map[keys.keys[&#39;YIELD_CURVE&#39;][i]])
 
     axes.plot(maturities, rates, linestyle=&#34;dashed&#34;, marker= &#34;.&#34;, markersize=10.0)
     axes.grid()
@@ -198,7 +199,7 @@ def plot_moving_averages(symbols, averages_output, periods, show=True, savefile=
             ma2s.append(averages[i][1])
             ma3s.append(averages[i][2])
     
-        width = formatter.BAR_WIDTH
+        width = formats.formats[&#39;BAR_WIDTH&#39;]
         x = numpy.arange(len(symbols))
 
         axes.bar(x + width, ma1s, width, label=ma1_label)
@@ -433,7 +434,7 @@ def plot_cashflow(ticker, cashflow, show=True, savefile=None):
             ma2s.append(averages[i][1])
             ma3s.append(averages[i][2])
     
-        width = formatter.BAR_WIDTH
+        width = formats.formats[&#39;BAR_WIDTH&#39;]
         x = numpy.arange(len(symbols))
 
         axes.bar(x + width, ma1s, width, label=ma1_label)
@@ -573,9 +574,9 @@ def plot_cashflow(ticker, cashflow, show=True, savefile=None):
     axes = canvas.figure.subplots()
 
     maturities, rates = [], yield_curve[list(yield_curve.keys())[0]]
-    yield_map = static.keys[&#39;SERVICES&#39;][&#39;STATISTICS&#39;][&#39;QUANDL&#39;][&#39;MAP&#39;][&#39;YIELD_CURVE&#39;]
+    yield_map = keys.keys[&#39;SERVICES&#39;][&#39;STATISTICS&#39;][&#39;QUANDL&#39;][&#39;MAP&#39;][&#39;YIELD_CURVE&#39;]
     for i, rate in enumerate(rates):
-        maturities.append(yield_map[static.keys[&#39;YIELD_CURVE&#39;][i]])
+        maturities.append(yield_map[keys.keys[&#39;YIELD_CURVE&#39;][i]])
 
     axes.plot(maturities, rates, linestyle=&#34;dashed&#34;, marker= &#34;.&#34;, markersize=10.0)
     axes.grid()

@@ -79,7 +79,7 @@ def get_sample_of_returns(prices: dict, asset_type: str) -&gt; list:
     &#34;&#34;&#34;
     today = False
     sample_of_returns = []
-    trading_period = static.get_trading_period(asset_type=asset_type)
+    trading_period = static.functions.get_trading_period(asset_type=asset_type)
 
     for this_date in prices:
         todays_price = prices[this_date][static.keys[&#39;PRICES&#39;][&#39;CLOSE&#39;]]
@@ -159,7 +159,7 @@ def calculate_moving_averages(tickers: list, start_date: Union[date, None]=None,
                 raise errors.PriceError(f&#39;Prices could not be retrieved for {ticker}&#39;)
 
             asset_type = files.get_asset_type(ticker)
-            trading_period = static.get_trading_period(asset_type)
+            trading_period = static.functions.get_trading_period(asset_type)
 
             today = False
             count, tomorrows_price, MA_1, MA_2, MA_3 = 1, 0, 0, 0, 0
@@ -233,7 +233,7 @@ def calculate_moving_averages(tickers: list, start_date: Union[date, None]=None,
         logger.debug(f&#39;Calculating Moving Average for {ticker}.&#39;)
 
         asset_type = files.get_asset_type(ticker)
-        trading_period = static.get_trading_period(asset_type)
+        trading_period = static.functions.get_trading_period(asset_type)
 
         logger.debug(&#39;Offsetting start date to account for longest Moving Average period.&#39;)
         if asset_type == static.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]:
@@ -443,7 +443,7 @@ def calculate_likelihood_risk_return(ticker, start_date: Union[date, None]=None,
         try:
            asset_type = errors.validate_asset_type(ticker, asset_type)
            start_date, end_date = errors.validate_dates(start_date, end_date, asset_type)
-           trading_period = static.get_trading_period(asset_type)
+           trading_period = static.functions.get_trading_period(asset_type)
         except errors.InputValidationError as ive:
            raise ive
 
@@ -465,7 +465,7 @@ def calculate_likelihood_risk_return(ticker, start_date: Union[date, None]=None,
         prices = sample_prices
         try:
            asset_type = errors.validate_asset_type(ticker, asset_type)
-           trading_period = static.get_trading_period(asset_type)
+           trading_period = static.functions.get_trading_period(asset_type)
         except errors.InputValidationError as ive:
            raise ive
 
@@ -527,7 +527,7 @@ def calculate_percentile_risk_return(ticker: str, start_date: Union[date, None]=
     if sample_prices is None:
         asset_type = errors.validate_asset_type(ticker, asset_type)
         start_date, end_date = errors.validate_dates(start_date, end_date, asset_type)
-        trading_period = static.get_trading_period(asset_type)
+        trading_period = static.functions.get_trading_period(asset_type)
        
 
         results = profile_cache.filter_profile_cache(ticker=ticker, start_date=start_date, end_date=end_date, 
@@ -546,7 +546,7 @@ def calculate_percentile_risk_return(ticker: str, start_date: Union[date, None]=
         logger.debug(f&#39;{ticker} sample prices provided, skipping service call.&#39;)
         prices = sample_prices
         asset_type = errors.validate_asset_type(ticker, asset_type)
-        trading_period = static.get_trading_period(asset_type)
+        trading_period = static.functions.get_trading_period(asset_type)
         
 
     if not prices:
@@ -618,7 +618,7 @@ def calculate_moment_risk_return(ticker: str, start_date: Union[date, None]=None
         try:
            asset_type = errors.validate_asset_type(ticker, asset_type)
            start_date, end_date = errors.validate_dates(start_date, end_date, asset_type)
-           trading_period = static.get_trading_period(asset_type)
+           trading_period = static.functions.get_trading_period(asset_type)
         except errors.InputValidationError as ive:
            raise ive
 
@@ -640,7 +640,7 @@ def calculate_moment_risk_return(ticker: str, start_date: Union[date, None]=None
         prices = sample_prices
         try:
            asset_type = errors.validate_asset_type(ticker, asset_type)
-           trading_period = static.get_trading_period(asset_type)
+           trading_period = static.functions.get_trading_period(asset_type)
         except errors.InputValidationError as ive:
            raise ive
 
@@ -1300,7 +1300,7 @@ Ticker symbol for second asset</li>
 <li><strong>sample_prices</strong> : <code>dict</code>
 <em>Optional</em>. A list of the asset prices for which correlation will be calculated. Overrides calls to service and calculates correlation for sample of prices supplied. Will disregard start_date and end_date. Must be of the format: <code>{'ticker_1': { 'date_1' : 'price_1', 'date_2': 'price_2' ...}, 'ticker_2': { 'date_1' : 'price_1:, ... } }</code> and ordered from latest date to earliest date. </li>
 <li><strong>method</strong> : <code>str</code>
-<em>Optional</em>. Defaults to the value set by <code>scrilla.settings.ESTIMATION_METHOD</code>, which in turn is configured by the <strong>DEFAULT_ESTIMATION_METHOD</strong> environment variable. Determines the estimation method used during the calculation of sample statistics. Allowable values can be accessed through <code>scrilla.static.keys['ESTIMATION']</code>.</li>
+<em>Optional</em>. Defaults to the value set by <code><a title="scrilla.settings.ESTIMATION_METHOD" href="../../../settings.html#scrilla.settings.ESTIMATION_METHOD">ESTIMATION_METHOD</a></code>, which in turn is configured by the <strong>DEFAULT_ESTIMATION_METHOD</strong> environment variable. Determines the estimation method used during the calculation of sample statistics. Allowable values can be accessed through <code>scrilla.static.keys['ESTIMATION']</code>.</li>
 </ol>
 <h2 id="raises">Raises</h2>
 <ol>
@@ -1553,7 +1553,7 @@ Optional. Start date of the time period over which the risk-return profile is to
         try:
            asset_type = errors.validate_asset_type(ticker, asset_type)
            start_date, end_date = errors.validate_dates(start_date, end_date, asset_type)
-           trading_period = static.get_trading_period(asset_type)
+           trading_period = static.functions.get_trading_period(asset_type)
         except errors.InputValidationError as ive:
            raise ive
 
@@ -1575,7 +1575,7 @@ Optional. Start date of the time period over which the risk-return profile is to
         prices = sample_prices
         try:
            asset_type = errors.validate_asset_type(ticker, asset_type)
-           trading_period = static.get_trading_period(asset_type)
+           trading_period = static.functions.get_trading_period(asset_type)
         except errors.InputValidationError as ive:
            raise ive
 
@@ -1959,7 +1959,7 @@ Optional. A list of the asset prices for which correlation will be calculated. O
         try:
            asset_type = errors.validate_asset_type(ticker, asset_type)
            start_date, end_date = errors.validate_dates(start_date, end_date, asset_type)
-           trading_period = static.get_trading_period(asset_type)
+           trading_period = static.functions.get_trading_period(asset_type)
         except errors.InputValidationError as ive:
            raise ive
 
@@ -1981,7 +1981,7 @@ Optional. A list of the asset prices for which correlation will be calculated. O
         prices = sample_prices
         try:
            asset_type = errors.validate_asset_type(ticker, asset_type)
-           trading_period = static.get_trading_period(asset_type)
+           trading_period = static.functions.get_trading_period(asset_type)
         except errors.InputValidationError as ive:
            raise ive
 
@@ -2135,7 +2135,7 @@ averages is a 3-node list with the following format <code>averages[ticker][perio
                 raise errors.PriceError(f&#39;Prices could not be retrieved for {ticker}&#39;)
 
             asset_type = files.get_asset_type(ticker)
-            trading_period = static.get_trading_period(asset_type)
+            trading_period = static.functions.get_trading_period(asset_type)
 
             today = False
             count, tomorrows_price, MA_1, MA_2, MA_3 = 1, 0, 0, 0, 0
@@ -2209,7 +2209,7 @@ averages is a 3-node list with the following format <code>averages[ticker][perio
         logger.debug(f&#39;Calculating Moving Average for {ticker}.&#39;)
 
         asset_type = files.get_asset_type(ticker)
-        trading_period = static.get_trading_period(asset_type)
+        trading_period = static.functions.get_trading_period(asset_type)
 
         logger.debug(&#39;Offsetting start date to account for longest Moving Average period.&#39;)
         if asset_type == static.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]:
@@ -2572,7 +2572,7 @@ Optional. Specify asset type to prevent overusing redundant calculations. Allowa
     if sample_prices is None:
         asset_type = errors.validate_asset_type(ticker, asset_type)
         start_date, end_date = errors.validate_dates(start_date, end_date, asset_type)
-        trading_period = static.get_trading_period(asset_type)
+        trading_period = static.functions.get_trading_period(asset_type)
        
 
         results = profile_cache.filter_profile_cache(ticker=ticker, start_date=start_date, end_date=end_date, 
@@ -2591,7 +2591,7 @@ Optional. Specify asset type to prevent overusing redundant calculations. Allowa
         logger.debug(f&#39;{ticker} sample prices provided, skipping service call.&#39;)
         prices = sample_prices
         asset_type = errors.validate_asset_type(ticker, asset_type)
-        trading_period = static.get_trading_period(asset_type)
+        trading_period = static.functions.get_trading_period(asset_type)
         
 
     if not prices:
@@ -2651,7 +2651,7 @@ Ticker symbol for second asset</li>
 <li><strong>profile_2</strong> : <code>dict</code>
 <em>Optional</em>. Overrides asset 2's risk profile calculation. A dictionary containing the risk profile of the second asset that should be used in lieu of estimating it from historical data.</li>
 <li><strong>method</strong> : <code>str</code>
-<em>Optional</em>. Defaults to the value set by <code>scrilla.settings.ESTIMATION_METHOD</code>, which in turn is configured by the <strong>DEFAULT_ESTIMATION_METHOD</strong> environment variable. Determines the estimation method used during the calculation of sample statistics. Allowable values can be accessed through <code>scrilla.static.keys['ESTIMATION']</code>.</li>
+<em>Optional</em>. Defaults to the value set by <code><a title="scrilla.settings.ESTIMATION_METHOD" href="../../../settings.html#scrilla.settings.ESTIMATION_METHOD">ESTIMATION_METHOD</a></code>, which in turn is configured by the <strong>DEFAULT_ESTIMATION_METHOD</strong> environment variable. Determines the estimation method used during the calculation of sample statistics. Allowable values can be accessed through <code>scrilla.static.keys['ESTIMATION']</code>.</li>
 </ol>
 <h2 id="returns">Returns</h2>
 <p><code>float</code> :
@@ -2754,7 +2754,7 @@ List of ticker symbols whose correlation matrix is to be calculated. Format: <co
 <li><strong>sample_prices</strong> : <code>dict</code>
 <em>Optional</em>. A list of the asset prices for which correlation will be calculated. Overrides calls to service and calculates correlation for sample of prices supplied. Will disregard start_date and end_date. Must be of the format: <code>{'ticker_1': { 'date_1' : 'price_1', 'date_2': 'price_2' ...}, 'ticker_2': { 'date_1' : 'price_1:, ... } }</code> and ordered from latest date to earliest date. </li>
 <li><strong>method</strong> : <code>str</code>
-<em>Optional</em>. Defaults to the value set by <code>scrilla.settings.ESTIMATION_METHOD</code>, which in turn is configured by the <strong>DEFAULT_ESTIMATION_METHOD</strong> environment variable. Determines the estimation method used during the calculation of sample statistics. Allowable values can be accessed through <code>scrilla.static.keys['ESTIMATION']</code>.</li>
+<em>Optional</em>. Defaults to the value set by <code><a title="scrilla.settings.ESTIMATION_METHOD" href="../../../settings.html#scrilla.settings.ESTIMATION_METHOD">ESTIMATION_METHOD</a></code>, which in turn is configured by the <strong>DEFAULT_ESTIMATION_METHOD</strong> environment variable. Determines the estimation method used during the calculation of sample statistics. Allowable values can be accessed through <code>scrilla.static.keys['ESTIMATION']</code>.</li>
 </ol>
 <h2 id="raises">Raises</h2>
 <ol>
@@ -2866,7 +2866,7 @@ Asset type for the sample of prices. Allowable values can be accessed through <c
     &#34;&#34;&#34;
     today = False
     sample_of_returns = []
-    trading_period = static.get_trading_period(asset_type=asset_type)
+    trading_period = static.functions.get_trading_period(asset_type=asset_type)
 
     for this_date in prices:
         todays_price = prices[this_date][static.keys[&#39;PRICES&#39;][&#39;CLOSE&#39;]]

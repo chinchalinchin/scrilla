@@ -1,4 +1,4 @@
-from scrilla.static import constants
+from scrilla.static.constants import constants
 
 keys= {
     'PRICES': {
@@ -77,7 +77,7 @@ keys= {
                     },
                     'ARGUMENTS': {
                         'EQUITY_DAILY': 'TIME_SERIES_DAILY',
-                        'LISTING': 'LISTING_STATUS',
+                        'EQUITY_LISTING': 'LISTING_STATUS',
                         'CRYPTO_DAILY': 'DIGITAL_CURRENCY_DAILY',
                         'FULL': 'full'
                     },
@@ -130,7 +130,17 @@ keys= {
             'IEX': {
                 'MANAGER': 'iex',
                 'MAP': {
-                    '': ''
+                    'PATHS':{
+                        'DIV': 'dividends'
+                    },
+                    'KEYS': {
+                        'DATE': 'paymentDate',
+                        'AMOUNT': 'amount'
+                    },
+                    'PARAMS':{
+                        'FULL':'5y',
+                        'KEY': 'token'
+                    }
                 }
             }
         }

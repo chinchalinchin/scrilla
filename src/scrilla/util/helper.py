@@ -2,7 +2,7 @@ import argparse
 from math import trunc
 from typing import List, Tuple
 
-from scrilla import static
+from scrilla.static import definitions
 
 def truncate(number: float, digits: int) -> float:
     stepper = 10.0 ** digits
@@ -37,34 +37,33 @@ def intersect_dict_keys(dict1: dict, dict2: dict) -> Tuple[dict, dict]:
 ### CLI PARSING
 def format_args(args) -> argparse.Namespace:
     parser = argparse.ArgumentParser()
-    main_group = parser.add_mutually_exclusive_group()
 
-    for func in static.definitions.FUNC_DICT:
-        main_group.add_argument(static.definitions.FUNC_DICT[func]['values'][0],
-                                static.definitions.FUNC_DICT[func]['values'][1],
-                                action='store_const',
-                                dest='function_arg',
-                                const=func)
+    choices = []
+    for func in definitions.FUNC_DICT:
+        choices.append(definitions.FUNC_DICT[func]['values'][0])
+        choices.append(definitions.FUNC_DICT[func]['values'][1])
 
-    groups = [parser.add_mutually_exclusive_group() for arg_group in static.definitions.ARG_DICT['META']['groups'] ]
+    parser.add_argument('function_arg', choices=choices)
 
-    for arg in static.definitions.ARG_DICT:
-        if static.definitions.ARG_DICT[arg]['format'] != 'group':
-            parser.add_argument(static.definitions.ARG_DICT[arg]['values'][0], 
-                                static.definitions.ARG_DICT[arg]['values'][1], 
-                                static.definitions.ARG_DICT[arg]['values'][2], 
-                                static.definitions.ARG_DICT[arg]['values'][3],
+    groups = [parser.add_mutually_exclusive_group() for arg_group in definitions.ARG_META['groups'] ]
+
+    for arg in definitions.ARG_DICT:
+        if definitions.ARG_DICT[arg]['format'] != 'group':
+            parser.add_argument(definitions.ARG_DICT[arg]['values'][0], 
+                                definitions.ARG_DICT[arg]['values'][1], 
+                                definitions.ARG_DICT[arg]['values'][2], 
+                                definitions.ARG_DICT[arg]['values'][3],
                                 default=None, 
-                                type=static.definitions..ARG_DICT[arg]['format'],
+                                type=definitions.ARG_DICT[arg]['format'],
                                 dest=arg)
         else:
-            group_index = static.definitions.ARG_DICT['META']['groups'].index(static.definitions.ARG_DICT[arg]['group'])
-            groups[group_index].add_argument(static.definitions.ARG_DICT[arg]['values'][0],
-                                            static.definitions.ARG_DICT[arg]['values'][1],
-                                            static.definitions.ARG_DICT[arg]['values'][2],
-                                            static.definitions.ARG_DICT[arg]['values'][3],
+            group_index = definitions.ARG_META['groups'].index(definitions.ARG_DICT[arg]['group'])
+            groups[group_index].add_argument(definitions.ARG_DICT[arg]['values'][0],
+                                            definitions.ARG_DICT[arg]['values'][1],
+                                            definitions.ARG_DICT[arg]['values'][2],
+                                            definitions.ARG_DICT[arg]['values'][3],
                                             action='store_const',
-                                            dest=static.definitions.ARG_DICT[arg]['group'],
+                                            dest=definitions.ARG_DICT[arg]['group'],
                                             const=arg)
 
     parser.add_argument('tickers', nargs='*', type=str)

@@ -1,71 +1,155 @@
 import datetime
+from typing import List
 
 from scrilla.static import constants, formats, definitions
 
-### GENERAL OUTPUT FUNCTIONS
-def title_line(title, line_length=formats.LINE_LENGTH, separater=formats.SEPARATER):
-    buff = int((line_length - len(title))/2)
-    print(separater*buff, title, separater*buff) 
-    
-def print_separator_line(line_length=formats.LINE_LENGTH, separater=formats.SEPARATER):
-    print(separater*line_length)
 
-def break_lines(msg, line_length=formats.LINE_LENGTH):
+### GENERAL OUTPUT FUNCTIONS
+def space(n: int):
+    print('\n'*n)
+
+def title_line(title: str, line_length: int=formats.formats['LINE_LENGTH'], separator: str=formats.formats['separator'],
+display: bool=True):
+    buff = int((line_length - len(title))/2)
+    result = separator*buff + title + separator*buff
+    if display:
+        print(result)
+    return result 
+    
+def separator_line(line_length=formats.formats['LINE_LENGTH'], separator=formats.formats['separator'], display=True) -> str:
+    if display:
+        print(separator*line_length)
+    return separator*line_length
+
+def break_lines(msg: str, line_length: int=formats.formats['LINE_LENGTH']) -> List[str]:
+    """
+    Generates a list of strings where each string is less than or equal to a specified line length. All elements in the array will be equal length except the last element; in other words, the inputted string will be read into an array, line by line, until there is nothing left to be read.
+
+    Parameters
+    ----------
+    1. ``msg``: ``str``
+        String to be broken into an array with each string no longer than `line_length`.
+    2. **line_length**: ``int``
+        *Optional*. Defaults to the value set by `static.formats.formats['LINE_LENGTH]`. The maximum length of a line. 
+    
+    Returns
+    -------
+    `list[str]`
+        A list of `line`'s with `len(line)<line_length or len(line)==line_length`.
+    """
+    
     if len(msg)>line_length:
         return [msg[i:i+line_length] for i in range(0,len(msg), line_length)]
     return [msg]
 
-def center(this_line, line_length=formats.LINE_LENGTH):
-    buff = int((line_length - len(this_line))/2)
-    print(' '*buff, this_line, ' '*buff)
+def center(this_line: str, line_length: int=formats.formats['LINE_LENGTH'], display: bool=True) -> str:
+    """
+    Centers an inputted line relative to the line length. 
 
-def print_list(list_to_print, indent=formats.INDENT):
+    Parameters
+    ----------
+    1. **this_line**: ``str``
+        the string to centered.
+    2. **line_length**: ``int``
+        *Optional*. Defaults to the value set by `static.formats.formats['LINE_LENGTH]`. The length of the line that is being centered over. 
+    3. **display**: ``bool``
+        *Optional*. Defaults to `True`. If set to `True`, function will print result to screen. If set to `False`, the function will return the value as a string.
+    
+    Returns
+    -------
+    `str`
+        The line with the difference between `line_length` and `this_line` distributed evenly on either side of the content as white space. 
+
+    Raises
+    ------
+    1. **ValueError**
+        If the inputted line is larged than the line length, this error will be thrown.
+    """
+    
+    if len(this_line)>line_length:
+        raise ValueError('Line to be centered is larger than length being centered over.')
+
+    buff = int((line_length - len(this_line))/2)
+    output = ' '*buff +  this_line + ' '*buff
+    if display:
+        print(output)
+        return
+    return output
+
+def print_list(list_to_print, indent=formats.formats['INDENT']):
     for i, item in enumerate(list_to_print):
         print(' '*indent, f'{i}. {item}')
 
-def string_result(operation, result, indent=formats.INDENT):
-    print(' '*indent, operation, ' = ', result)
-        
-def scalar_result(calculation, result, currency=True, indent=formats.INDENT):
+def string_result(operation, result, indent=formats.formats['INDENT'], display=True):
+    output = ' '*indent, operation, ' = ', result
+    if display:
+        print(output)
+        return
+    return output
+
+def scalar_result(calculation, result, currency=True, indent=formats.formats['INDENT']):
     if currency:
         print(' '*indent, calculation, ' = $', round(float(result), 2))
     else:
         print(' '*indent, calculation, ' = ', round(float(result), 4))
 
-def percent_result(calculation, result, indent=formats.INDENT):
+def percent_result(calculation, result, indent=formats.formats['INDENT']):
     print(' '*indent, calculation, ' = ', round(float(result), 4), '%')
 
-def equivalent_result(right_hand, left_hand, value, indent=formats.INDENT):
+def equivalent_result(right_hand, left_hand, value, indent=formats.formats['INDENT']):
     print(' '*indent, f'{right_hand} = {left_hand} = {value}')
 
-def function_option():
-    pass
+def help_msg(indent=formats.formats['INDENT']):
+    func_dict, arg_dict = definitions.FUNC_DICT, definitions.ARG_DICT
 
-def function_summary():
-    pass
+    title_line('scrilla')
+    space(1)
 
-def help_msg():
-    func_dict = definitions.FUNC_DICT
-    arg_dict = definitions.ARG_DICT
+    for paragraph in definitions.HELP_MSG:
+        for line in break_lines(paragraph):
+            center(line)
+        space(1)
+    space(1)
+
+    title_line('SYNTAX')
+    center(definitions.SYNTAX)
+    space(2)
 
     for func_name in func_dict:
-        proper_func_name = func_dict[func_name]['name']
-        description = func_dict[func_name]['description']
-        for arg_name in func_dict[func_name]['values']:
-            proper_arg_name = arg_dict[arg_name]['name']
-            arg_values = arg_dict[arg_name]['values']
-            arg_description = arg_dict[arg_name]['description']
+        title_line(func_dict[func_name]['name'])
+        for line in break_lines(func_dict[func_name]['description']):
+            print(line)
+        separator_line()
 
-        pass
+        commands = func_dict[func_name]['values']
+        print(' ', f'COMMAND: {commands[0]}, {commands[1]}')
 
-    pass
+        if func_dict[func_name]['args'] is not None:
+            for arg_name in func_dict[func_name]['args']:
+                aliases = arg_dict[arg_name]['values']
+
+                print(' '*indent, f'OPTION: {aliases[0]}, {aliases[1]}, {aliases[2]}, {aliases[3]}')
+
+                if arg_dict[arg_name]['required']:
+                    print(' '*2*indent, 'REQUIRED')
+
+                print(' '*2*indent, f'NAME: {arg_dict[arg_name]["name"]}')
+                print(' '*2*indent, f'DESCRIPTION: {arg_dict[arg_name]["description"]}')
+
+                if arg_dict[arg_name]['default'] is not None:
+                    print(' '*2*indent, f'DEFAULT: {arg_dict[arg_name]["default"]}')
+                    
+                if arg_dict[arg_name]['format_str'] is not None:
+                    print(' '*2*indent, f'FORMAT: {arg_dict[arg_name]["format_str"]}')
+        
+        space(1)
 
 ### ANALYSIS SPECIFIC OUTPUT FUNCTIONS
-def portfolio_percent_result(result, tickers,indent=formats.INDENT):
+def portfolio_percent_result(result, tickers,indent=formats.formats['INDENT']):
     for i, item in enumerate(tickers):
         print(' '*indent, f'{item} =', round(100*result[i], 2), '%')
 
-def portfolio_shares_result(result, tickers, indent=formats.INDENT):
+def portfolio_shares_result(result, tickers, indent=formats.formats['INDENT']):
     for i, item in enumerate(tickers):
         print(' '*indent, f'{item} =', result[i])
 
@@ -118,7 +202,7 @@ def screen_results(info, model):
         spot_price(ticker=ticker, this_spot_price=info[ticker]['spot_price'])
         model_price(ticker=ticker, this_model_price=info[ticker]['model_price'], model=model)
         scalar_result(f'{ticker} discount', info[ticker]['discount'])
-        print_separator_line()
+        separator_line()
 
 # TODO: can probably combine optimal_result and efficient_frontier into a single function
 #         by wrapping the optimal_results in an array so when it iterates through frontier
@@ -127,13 +211,13 @@ def screen_results(info, model):
 def optimal_result(portfolio, allocation, investment=None):
     title_line('Optimal Percentage Allocation')
     portfolio_percent_result(allocation, portfolio.tickers)
-    print_separator_line()
+    separator_line()
 
     if investment is not None:
         shares = portfolio.calculate_approximate_shares(allocation, investment)
         total = portfolio.calculate_actual_total(allocation, investment)
         
-        print_separator_line()
+        separator_line()
         title_line('Optimal Share Allocation')
         portfolio_shares_result(shares, portfolio.tickers)
         title_line('Optimal Portfolio Value')
@@ -149,11 +233,11 @@ def efficient_frontier(portfolio, frontier, investment=None):
     # TODO: edit title to include dates
 
     for allocation in frontier:
-        print_separator_line()
+        separator_line()
         return_string=str(round(round(portfolio.return_function(allocation),4)*100,2))
         vol_string=str(round(round(portfolio.volatility_function(allocation),4)*100,2))
         title_line(f'({return_string} %, {vol_string}%) Portfolio')
-        print_separator_line()
+        separator_line()
 
         title_line('Optimal Percentage Allocation')
         portfolio_percent_result(allocation, portfolio.tickers)
@@ -172,7 +256,7 @@ def efficient_frontier(portfolio, frontier, investment=None):
         scalar_result('Volatility', portfolio.volatility_function(allocation), currency=False)
         print('\n')
 
-def correlation_matrix(tickers, correlation_matrix):
+def correlation_matrix(tickers: List[str], correlation_matrix: List[List[float]], display: bool = True):
     """
     Parameters
     ----------
@@ -185,7 +269,7 @@ def correlation_matrix(tickers, correlation_matrix):
     4. **end_date**: ``datetime.date`` 
         End date of the time period over which correlation was calculated. 
     
-    Output
+    Returns
     ------
     A correlation matrix string formatted with new lines and spaces.
     """
@@ -197,7 +281,7 @@ def correlation_matrix(tickers, correlation_matrix):
 
     for i in range(no_symbols):
         this_symbol = tickers[i]
-        symbol_string = ' '*formats.INDENT + f'{this_symbol} '
+        symbol_string = ' '*formats.formats['INDENT'] + f'{this_symbol} '
 
         if i != 0:
             this_line = symbol_string + ' '*(line_length - len(symbol_string) - 7*(no_symbols - i))
@@ -214,7 +298,7 @@ def correlation_matrix(tickers, correlation_matrix):
             
             else:
                 result = correlation_matrix[i][j]
-                formatted_result = str(100*result)[:constants['SIG_FIGS']]
+                formatted_result = str(100*result)[:constants.constants['SIG_FIGS']]
                 new_line += f' {formatted_result}%'
 
         entire_formatted_result += new_line + '\n'
@@ -222,7 +306,7 @@ def correlation_matrix(tickers, correlation_matrix):
         if i == 0:
             line_length = len(new_line)
 
-    formatted_title += ' '*(formats.INDENT + first_symbol_length+1)
+    formatted_title += ' '*(formats.formats['INDENT'] + first_symbol_length+1)
     for symbol in tickers:
         sym_len = len(symbol)
         formatted_title += f' {symbol}'+ ' '*(7-sym_len)
@@ -231,7 +315,11 @@ def correlation_matrix(tickers, correlation_matrix):
 
     whole_thing = formatted_title + entire_formatted_result
 
-    print(f'\n{whole_thing}')
+    if display:
+        print(f'\n{whole_thing}')
+        return
+
+    return whole_thing
 
 class Logger():
 
@@ -246,16 +334,16 @@ class Logger():
         print(dt_string, ' :' , self.location, ' : ',msg)
 
     def info(self, msg):
-        if self.log_level in [constants['LOG_LEVEL']['INFO'], 
-                                constants['LOG_LEVEL']['DEBUG'], 
-                                constants['LOG_LEVEL']['VERBOSE']]:
+        if self.log_level in [constants.constants['LOG_LEVEL']['INFO'], 
+                                constants.constants['LOG_LEVEL']['DEBUG'], 
+                                constants.constants['LOG_LEVEL']['VERBOSE']]:
             self.comment(msg)
 
     def debug(self, msg):
-        if self.log_level in [constants['LOG_LEVEL']['DEBUG'], 
-                                constants['LOG_LEVEL']['VERBOSE']]:
+        if self.log_level in [constants.constants['LOG_LEVEL']['DEBUG'], 
+                                constants.constants['LOG_LEVEL']['VERBOSE']]:
             self.comment(msg)
 
     def verbose(self, msg):
-        if self.log_level == constants['LOG_LEVEL']['VERBOSE']:
+        if self.log_level == constants.constants['LOG_LEVEL']['VERBOSE']:
             self.comment(msg)

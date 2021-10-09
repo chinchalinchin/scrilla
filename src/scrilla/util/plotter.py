@@ -6,9 +6,10 @@ from PIL import Image
 from matplotlib.figure import Figure
 from matplotlib import dates as mdates
 
-from scrilla import static, settings
+from scrilla import settings
+from scrilla.static import formats, keys
 from scrilla.errors import InputValidationError
-from scrilla.util import dater, formatter
+from scrilla.util import dater
 
 APP_ENV=os.environ.setdefault('APP_ENV', 'local')
 
@@ -111,9 +112,9 @@ def plot_yield_curve(yield_curve, show=True, savefile=None):
     axes = canvas.figure.subplots()
 
     maturities, rates = [], yield_curve[list(yield_curve.keys())[0]]
-    yield_map = static.keys['SERVICES']['STATISTICS']['QUANDL']['MAP']['YIELD_CURVE']
+    yield_map = keys.keys['SERVICES']['STATISTICS']['QUANDL']['MAP']['YIELD_CURVE']
     for i, rate in enumerate(rates):
-        maturities.append(yield_map[static.keys['YIELD_CURVE'][i]])
+        maturities.append(yield_map[keys.keys['YIELD_CURVE'][i]])
 
     axes.plot(maturities, rates, linestyle="dashed", marker= ".", markersize=10.0)
     axes.grid()
@@ -169,7 +170,7 @@ def plot_moving_averages(symbols, averages_output, periods, show=True, savefile=
             ma2s.append(averages[i][1])
             ma3s.append(averages[i][2])
     
-        width = formatter.BAR_WIDTH
+        width = formats.formats['BAR_WIDTH']
         x = numpy.arange(len(symbols))
 
         axes.bar(x + width, ma1s, width, label=ma1_label)

@@ -15,8 +15,12 @@
 
 from typing import Tuple, Union
 from datetime import date
-from scrilla import settings, files, static
+from scrilla import settings, files
+from scrilla.static import keys
 from scrilla.util import dater
+
+class APIKeyError(Exception):
+    pass
 
 class InputValidationError(Exception):
     pass
@@ -48,7 +52,7 @@ def validate_asset_type(ticker: str, asset_type: Union[str, None]=None) -> str:
         if asset_type is None:
             raise InputValidationError(f'{ticker} cannot be mapped to (crypto, equity) asset classes')
         return asset_type
-    if asset_type in [static.keys['ASSETS']['CRYPTO'], static.keys['ASSETS']['EQUITY'], static.keys['ASSETS']['BOND']]:
+    if asset_type in [keys.keys['ASSETS']['CRYPTO'], keys.keys['ASSETS']['EQUITY'], keys.keys['ASSETS']['BOND']]:
         return asset_type
     raise InputValidationError(f'{ticker} cannot be mapped to (crypto, equity) asset classes')
 
@@ -59,11 +63,11 @@ def validate_dates(start_date: date, end_date: date, asset_type: str) -> Tuple[d
     # if end date exists, make sure it is valid
     if end_date is not None:
         end_date = dater.truncate_future_from_date(end_date)
-        if asset_type == static.keys['ASSETS']['EQUITY']:
+        if asset_type == keys.keys['ASSETS']['EQUITY']:
             end_date = dater.this_date_or_last_trading_date(end_date)
     # else create a sensible end date
     else:
-        if asset_type == static.keys['ASSETS']['CRYPTO']:
+        if asset_type == keys.keys['ASSETS']['CRYPTO']:
             end_date = dater.get_today()
         else:
             end_date = dater.get_last_trading_date()        
@@ -78,12 +82,12 @@ def validate_dates(start_date: date, end_date: date, asset_type: str) -> Tuple[d
             # only invalid user input is if start date doesn't exist yet
             raise InputValidationError(f'Start date of {dater.date_to_string(start_date)} is greater than today')
 
-        if asset_type == static.keys['ASSETS']['EQUITY']:
+        if asset_type == keys.keys['ASSETS']['EQUITY']:
             start_date = dater.this_date_or_last_trading_date(start_date)
 
     # else create a sensible start date
     else:
-        if asset_type == static.keys['ASSETS']['CRYPTO']:
+        if asset_type == keys.keys['ASSETS']['CRYPTO']:
             start_date = dater.decrement_date_by_days(end_date, settings.DEFAULT_ANALYSIS_PERIOD)
         else:
             start_date = dater.decrement_date_by_business_days(end_date, settings.DEFAULT_ANALYSIS_PERIOD)

@@ -20,7 +20,8 @@ In addition to preventing excessive API calls, the cache prevents redundant calc
 """
 import sqlite3
 
-from scrilla import settings, static
+from scrilla import settings
+from scrilla.static import keys
 from scrilla.util import outputter
 
 logger = outputter.Logger("cache", settings.LOG_LEVEL)
@@ -108,7 +109,8 @@ class PriceCache(Cache):
         1. **query_results**: ``list``
             Raw SQLite query results.
         """
-        return { result[0]: { static.keys['PRICES']['OPEN']: result[1], static.keys['PRICES']['CLOSE']: result[2] } for result in query_results }
+        return { result[0]: { keys.keys['PRICES']['OPEN']: result[1], 
+                                keys.keys['PRICES']['CLOSE']: result[2] } for result in query_results }
 
     def save_row(self, ticker, date, open_price, close_price):
         logger.verbose(F'Attempting to insert {ticker} prices on {date} to cache')
@@ -159,7 +161,7 @@ class InterestCache(Cache):
         return { result[0]: result[1] for result in query_results }
 
     def save_row(self, date, value):
-        for index, maturity in enumerate(static.keys['YIELD_CURVE']):
+        for index, maturity in enumerate(keys.keys['YIELD_CURVE']):
             logger.verbose(f'Saving {maturity} yield on {date} to cache')
             formatter = { 'maturity': maturity, 'date': date, 'value': value[index] }
             self.execute_transaction(transaction=InterestCache.insert_row_transaction, formatter=formatter)
@@ -208,7 +210,7 @@ class CorrelationCache(Cache):
         1. **query_results**: ``list``
             Raw SQLite query results.
         """
-        return { static.keys['STATISTICS']['CORRELATION']: query_results[0][0] }
+        return { keys.keys['STATISTICS']['CORRELATION']: query_results[0][0] }
 
     def save_row(self, ticker_1, ticker_2, start_date, end_date, correlation, method = settings.ESTIMATION_METHOD):
         logger.verbose(f'Saving ({ticker_1}, {ticker_2}) correlation from {start_date} to {end_date} to the cacche')
@@ -284,11 +286,11 @@ class ProfileCache(Cache):
         1. **query_results**: ``list``
             Raw SQLite query results.
         """
-        return {  static.keys['STATISTICS']['RETURN'] : query_result[0][0] if query_result[0][0] != 'empty' else None, 
-                  static.keys['STATISTICS']['VOLATILITY'] : query_result[0][1] if query_result[0][1] != 'empty' else None,
-                  static.keys['STATISTICS']['SHARPE'] : query_result[0][2] if query_result[0][2] != 'empty' else None,
-                  static.keys['STATISTICS']['BETA'] : query_result[0][3] if query_result[0][3] != 'empty' else None,
-                  static.keys['STATISTICS']['EQUITY'] : query_result[0][4] if query_result[0][4] != 'empty' else None }
+        return {  keys.keys['STATISTICS']['RETURN'] : query_result[0][0] if query_result[0][0] != 'empty' else None, 
+                  keys.keys['STATISTICS']['VOLATILITY'] : query_result[0][1] if query_result[0][1] != 'empty' else None,
+                  keys.keys['STATISTICS']['SHARPE'] : query_result[0][2] if query_result[0][2] != 'empty' else None,
+                  keys.keys['STATISTICS']['BETA'] : query_result[0][3] if query_result[0][3] != 'empty' else None,
+                  keys.keys['STATISTICS']['EQUITY'] : query_result[0][4] if query_result[0][4] != 'empty' else None }
 
     def save_or_update_row(self, ticker, start_date, end_date, annual_return=None, annual_volatility=None, sharpe_ratio=None, asset_beta=None, equity_cost=None, method=settings.ESTIMATION_METHOD):
         formatter = { 'ticker': ticker, 'start_date': start_date, 'end_date': end_date, 'method': method}

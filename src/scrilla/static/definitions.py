@@ -4,10 +4,10 @@ from scrilla.static import keys
 HELP_MSG = [
     "A financial application for optimizing portfolio allocations, calculating financial statistics and generating graphical plots. This library requires API keys from Alpha Vantage (https://www.alphavantage.co), Quandl (https://www.quandl.com/) and IEX (https://iexcloud.io/) to hydrate with data. These keys should be stored in environment variables named ALPHA_VANTAGE_KEY, QUANDL_KEY and IEX_KEY.",
 
-    "See documentation for more information on configuration and usage: https://github.com/chinchalinchin/scrilla."
+    "See documentation for more information on configuration and usage: https://chinchalinchin.github.io/scrilla/."
 ]
 
-SYNTAX = "scrilla <command> <options> <tickers>"
+SYNTAX = "scrilla <command> <options> <tickers/symbols>"
 
 FUNC_DICT = {
     "asset_type": {
@@ -15,258 +15,295 @@ FUNC_DICT = {
         'values': ["asset", "a"],
         'args': None,
         'description': "Outputs the asset type for the supplied symbol.",
+        'tickers': True
     },
     "cvar": {
         'name': 'Conditional Value At Risk',
         'values': ["cvar", "cv"],
-        'args': ['start_date', 'end_date', 'probability', 'expiry', 'save_file', 'suppress_output', 'json', keys['ESTIMATION']['MOMENT'], keys['ESTIMATION']['PERCENT'], keys['ESTIMATION']['LIKE']],
+        'args': ['start_date', 'end_date', 'probability', 'expiry', 'save_file', 'suppress_output', 'json', keys.keys['ESTIMATION']['MOMENT'], keys.keys['ESTIMATION']['PERCENT'], keys.keys['ESTIMATION']['LIKE']],
         'description': "Calculates the conditional value at risk, i.e. E(St | St < Sv) where Sv -> Prob(St<Sv) = `prob` , for the list of inputted ticker symbols. 'expiry' and 'prob' are required arguments for this function. Note: 'expiry' is measured in years and is different from the `start` and `end` dates. `start` and `end` are used to calibrate the model to a historical sample and `expiry` is used as the time horizon over which the value at risk is calculated into the future.",
+        'tickers': True,
     },
     "var": {
         'name': 'Value At Risk',
         'values': ["var", "v"],
-        'args': ['start_date', 'end_date', 'probability', 'expiry', 'save_file', 'suppress_output', 'json', keys['ESTIMATION']['MOMENT'], keys['ESTIMATION']['PERCENT'], keys['ESTIMATION']['LIKE']],
+        'args': ['start_date', 'end_date', 'probability', 'expiry', 'save_file', 'suppress_output', 'json', keys.keys['ESTIMATION']['MOMENT'], keys.keys['ESTIMATION']['PERCENT'], keys.keys['ESTIMATION']['LIKE']],
         'description': "Calculates the value at risk, i.e. for a given p, the Sv such that Prob(St<Sv) = p. 'expiry' and 'prob' are required arguments for this function. Note: 'expiry' is measured in years and is different from the `start` and `end` dates. `start` and `end` are used to calibrate the model to a historical sample and `expiry` is used as the time horizon over which the value at risk is calculated into the future.",
-        'example': 'scrilla var --prob 0.05 --expiry 0.5'
+        'tickers': True
     },
     "capm_equity_cost": {
         'name': 'Capital Asset Pricing Model Cost of Equity',
         'values': ["capm-equity","capm-e"],
-        'args': ['start_date', 'end_date','save_file', 'suppress_output', 'json', keys['ESTIMATION']['MOMENT'], keys['ESTIMATION']['PERCENT'], keys['ESTIMATION']['LIKE']],
-        'description': "Computes the cost of equity according to CAPM for the supplied list of tickers. If no start or end dates are specified, calculations default to the last 100 days of prices. The environment variable MARKET_PROXY defines which ticker serves as a proxy for the market as whole."
+        'args': ['start_date', 'end_date','save_file', 'suppress_output', 'json', keys.keys['ESTIMATION']['MOMENT'], keys.keys['ESTIMATION']['PERCENT'], keys.keys['ESTIMATION']['LIKE']],
+        'description': "Computes the cost of equity according to CAPM for the supplied list of tickers. If no start or end dates are specified, calculations default to the last 100 days of prices. The environment variable MARKET_PROXY defines which ticker serves as a proxy for the market as whole.",
+        'tickers': True
     },
     "capm_beta": {
         'name': 'Capital Asset Pricing Model Beta',
         'values': ["capm-beta", "capm-b"],
-        'args': ['start_date', 'end_date','save_file', 'suppress_output', 'json', keys['ESTIMATION']['MOMENT'], keys['ESTIMATION']['PERCENT'], keys['ESTIMATION']['LIKE']],
-        'description': "Computes the market beta according to CAPM for the supplied list of tickers. If no start or end dates are specified, calculations default to the last 100 days of prices. The environment variable MARKET_PROXY defines which ticker serves as a proxy for the market as whole."
+        'args': ['start_date', 'end_date','save_file', 'suppress_output', 'json', keys.keys['ESTIMATION']['MOMENT'], keys.keys['ESTIMATION']['PERCENT'], keys.keys['ESTIMATION']['LIKE']],
+        'description': "Computes the market beta according to CAPM for the supplied list of tickers. If no start or end dates are specified, calculations default to the last 100 days of prices. The environment variable MARKET_PROXY defines which ticker serves as a proxy for the market as whole.",
+        'tickers': True
     },
     "clear_cache": {
         'name': 'Clear Cache',
         'values': ["clear-cache", "cc"],
         'args': None,
-        'description': "Clears the _installation_directiory_/data/cache/ directory of all data."
+        'description': "Clears the _installation_directiory_/data/cache/ directory of all data.",
+        'tickers': False
     },
     "clear_static": {
         'name': 'Clear Static',
         'values': ["clear-static", "cs"],
         'args': None,
-        'description': "Clears the _installation_directory_/data/static/ directory of all data. Not recommended unless necessary; Static data takes a long time to reload."
+        'description': "Clears the _installation_directory_/data/static/ directory of all data. Not recommended unless necessary; Static data takes a long time to reload.",
+        'tickers': False
     },
     "clear_common": {
         'name': 'Clear Common',
         'values': ["clear-common", "cc"],
         'args': None,
-        'description': "Clears the _installation_directory_/data/common/, which includes API keys stored through the command line and ticker saved to the user watchlist."
+        'description': "Clears the _installation_directory_/data/common/, which includes API keys stored through the command line and ticker saved to the user watchlist.",
+        'tickers': False
     },
     "close": {
         'name': 'Last Closing Price',
         'values': ["close", "cl"],
         'args': None,
-        'description': "Return latest closing value for the supplied list of symbols (equity or crypto)."
+        'description': "Return latest closing value for the supplied list of symbols (equity or crypto).",
+        'tickers': True
     },
     "correlation": {
         'name': 'Correlation Matrix',
         'values': ["correlation", "cor"],
-        'args': ['start_date', 'end_date','save_file', 'suppress_output', 'json', keys['ESTIMATION']['MOMENT'], keys['ESTIMATION']['PERCENT'], keys['ESTIMATION']['LIKE']],
-        'description': "Calculate pair-wise correlation for the supplied list of ticker symbols. If no start or end dates are specified, calculations default to the last 100 days of prices."
+        'args': ['start_date', 'end_date','save_file', 'suppress_output', 'json', keys.keys['ESTIMATION']['MOMENT'], keys.keys['ESTIMATION']['PERCENT'], keys.keys['ESTIMATION']['LIKE']],
+        'description': "Calculate pair-wise correlation for the supplied list of ticker symbols. If no start or end dates are specified, calculations default to the last 100 days of prices.",
+        'tickers': True
     }, 
     "correlation_time_series": {
         'name': 'Correlation Time Series',
         'values': ["correlations", "cors"],
-        'args': ['start_date', 'end_date','save_file', 'suppress_output', 'json', keys['ESTIMATION']['MOMENT'], keys['ESTIMATION']['PERCENT'], keys['ESTIMATION']['LIKE']],
-        'description': "Calculate correlation time series for a pair of tickers over a specified date range. If no start or end dates are specified, the default analysis period of 100 days is applied."
+        'args': ['start_date', 'end_date','save_file', 'suppress_output', 'json', keys.keys['ESTIMATION']['MOMENT'], keys.keys['ESTIMATION']['PERCENT'], keys.keys['ESTIMATION']['LIKE']],
+        'description': "Calculate correlation time series for a pair of tickers over a specified date range. If no start or end dates are specified, the default analysis period of 100 days is applied.",
+        'tickers': True
     },
     "discount_dividend": {
         'name': 'Discount Dividend Model',
         'values': ["discount-dividend-model", "ddm"],
         'args': ['discount', 'save_file', 'suppress_output', 'json'],
-        'description': "Extrapolates future dividend cashflows from historical dividend payments with linear regression and then uses that model to calculate the net present value of all future dividends. If no discount rate is specified, the calculations default to the asset's cost of equity as determined the by the CAPM model."
+        'description': "Extrapolates future dividend cashflows from historical dividend payments with linear regression and then uses that model to calculate the net present value of all future dividends. If no discount rate is specified, the calculations default to the asset's cost of equity as determined the by the CAPM model.",
+        'tickers': True
     },
     "dividends": {
         'name': 'Dividend History',
         'values': ["dividends", "divs"],
         'args': ['start_date', 'end_date', 'save_file', 'suppress_output', 'json'],
-        'description': "Displays the price history over the specific date range. If no dates are provided, returns the entire dividend history."
+        'description': "Displays the price history over the specific date range. If no dates are provided, returns the entire dividend history.",
+        'tickers': True
     },
     "efficient_frontier": {
         'name': 'Portfolio Efficient Frontier',
         'values': ["efficient-frontier","ef"],
-        'args': ['start_date', 'end_date', 'investment', 'target', 'steps', 'save_file', 'suppress_output', 'json', keys['ESTIMATION']['MOMENT'], keys['ESTIMATION']['PERCENT'], keys['ESTIMATION']['LIKE']],
-        'description': "Generate a sample of the portfolio's efficient frontier for the supplied list of tickers. The efficient frontier algorithm will minimize a portfolio's volality for a given rate of return and then maximize its return, and then use these points to generate the rest of the frontier by taking increments along the line connecting the (risk,return) profile of the minimum volatility portfolio to the (risk, return) profile of the maximum return portfolio. The number of points calculated in the efficient frontier can be specifed as an integer with the -steps flag. If no -steps is provided, the value of the environment variable FRONTIER_STEPS will be used."
+        'args': ['start_date', 'end_date', 'investment', 'target', 'steps', 'save_file', 'suppress_output', 'json', keys.keys['ESTIMATION']['MOMENT'], keys.keys['ESTIMATION']['PERCENT'], keys.keys['ESTIMATION']['LIKE']],
+        'description': "Generate a sample of the portfolio's efficient frontier for the supplied list of tickers. The efficient frontier algorithm will minimize a portfolio's volality for a given rate of return and then maximize its return, and then use these points to generate the rest of the frontier by taking increments along the line connecting the (risk,return) profile of the minimum volatility portfolio to the (risk, return) profile of the maximum return portfolio. The number of points calculated in the efficient frontier can be specifed as an integer with the -steps flag. If no -steps is provided, the value of the environment variable FRONTIER_STEPS will be used.",
+        'tickers': True
     },
     "examples": {
         'name': 'Example Usage',
         'values': ["examples", "ex"],
         'args': None,
-        'description': "Display examples of syntax."
-    },
-    "gui": {
-        'name': 'Graphical User Interface',
-        'values': ["gui","g"],
-        'args': None,
-        'description': "Brings up a Qt GUI for the application (TODO: work in progress!)"
+        'description': "Display examples of syntax.",
+        'tickers': False
     },
     "help": {
         'name': 'Help Message',
         'values': ["help", "h"],
         'args': None,
-        'description': "Print this help message."
+        'description': "Print this help message.",
+        'tickers': False
     },
     "interest_history": {
         'name': 'Interest Rate History',
         'values': ["interest", "int"],
         'args': ['start_date', 'end_date', 'save_file', 'suppress_output', 'json'],
-        'description': "Prints the interest histories for each inputted maturity over the specified date range. If no date range is given, price histories will default to the last 100 days. See `scrilla -yield` for list of maturities."
+        'description': "Prints the interest histories for each inputted maturity over the specified date range. If no date range is given, price histories will default to the last 100 days. See `scrilla -yield` for list of maturities.",
+        'tickers': True
     },
     "list_watchlist": {
         'name': 'Display Watchlist',
         'values': ["watchlist", "w-ls"],
         'args': None,
-        'description': "Lists the equity symbols currently saved to your watchlist."
+        'description': "Lists the equity symbols currently saved to your watchlist.",
+        'tickers': False
     },
     "maximize_return": {
         'name': 'Maximize Portfolio Return',
         'values': ["max-return", "max"],
-        'args': ['start_date', 'end_date', 'investment', 'target','save_file', 'suppress_output', 'json', keys['ESTIMATION']['MOMENT'], keys['ESTIMATION']['PERCENT'], keys['ESTIMATION']['LIKE']],
-        'description': "Maximize the return of the portfolio defined by the supplied list of ticker symbols. Returns an array representing the allocations to be made for each asset in a portfolio. If no start or end dates are specified, calculations default to the last 100 days of prices. You can specify an investment with the '-invest' flag, otherwise the result will be output in percentage terms. Note: This function will always allocate 100% to the asset with the highest return. It's a good way to check and see if there are bugs in the algorithm after changes."
+        'args': ['start_date', 'end_date', 'investment', 'target','save_file', 'suppress_output', 'json', keys.keys['ESTIMATION']['MOMENT'], keys.keys['ESTIMATION']['PERCENT'], keys.keys['ESTIMATION']['LIKE']],
+        'description': "Maximize the return of the portfolio defined by the supplied list of ticker symbols. Returns an array representing the allocations to be made for each asset in a portfolio. If no start or end dates are specified, calculations default to the last 100 days of prices. You can specify an investment with the '-invest' flag, otherwise the result will be output in percentage terms. Note: This function will always allocate 100% to the asset with the highest return. It's a good way to check and see if there are bugs in the algorithm after changes.",
+        'tickers': True
     },
     "moving_averages": {
         'name': 'Moving Averages Series',
         'values': ["mov-averages", "mas"],
         'args': ['start_date', 'end_date'],
-        'description': "Calculate the current moving averages. If no start or end dates are specified, calculations default to the last 100 days of prices."
+        'description': "Calculate the current moving averages. If no start or end dates are specified, calculations default to the last 100 days of prices.",
+        'tickers': True
     },
     "optimize_portfolio": {
         'name': 'Optimize Portfolio Variance',
         'values': ["optimize-variance", "opt"],
-        'args': ['start_date', 'end_date', 'optimize_sharpe', 'investment', 'target','save_file', 'quiet', 'suppress_output', 'json', keys['ESTIMATION']['MOMENT'], keys['ESTIMATION']['PERCENT'], keys['ESTIMATION']['LIKE']],
-        'description': "Optimize the volatility of the portfolio\'s variance subject to the supplied return target.  Returns an array representing the allocations to be made for each asset in a portfolio. The target return must be specified with the '-target' flag. If no target return is specified, the portfolio's volatility is minimized. If no start or end dates are specified with the '-start' and '-end' flags, calculations default to the last 100 days of prices. You can specify an investment with the '-invest' flag, otherwise the result will be output in percentage terms. If the -sh flag is specified, the function will maximize the portfolio's sharpe ratio instead of minimizing it's volatility."
+        'args': ['start_date', 'end_date', 'optimize_sharpe', 'investment', 'target','save_file', 'suppress_output', 'json', keys.keys['ESTIMATION']['MOMENT'], keys.keys['ESTIMATION']['PERCENT'], keys.keys['ESTIMATION']['LIKE']],
+        'description': "Optimize the volatility of the portfolio\'s variance subject to the supplied return target.  Returns an array representing the allocations to be made for each asset in a portfolio. The target return must be specified with the '-target' flag. If no target return is specified, the portfolio's volatility is minimized. If no start or end dates are specified with the '-start' and '-end' flags, calculations default to the last 100 days of prices. You can specify an investment with the '-invest' flag, otherwise the result will be output in percentage terms. If the -sh flag is specified, the function will maximize the portfolio's sharpe ratio instead of minimizing it's volatility.",
+        'tickers': True
     },
     "optimize_portfolio_conditional_var": {
         'name': 'Optimize Portfolio Conditional Value At Risk',
         'values':["optimize-cvar", "opt-cvar"],
-        'args': ['start_date', 'end_date', 'investment', 'target', 'save_file', 'suppress_output', 'json', 'expiry', 'probability', keys['ESTIMATION']['MOMENT'], keys['ESTIMATION']['PERCENT'], keys['ESTIMATION']['LIKE']],
-        'description': "Optimizes the conditional value at risk, i.e. E(St | St < Sv) where Sv -> Prob(St<S0) = `prob` , for the portfolio defined by the list of inputted ticker symbols. 'expiry' and 'prob' are required arguments for this function. Note: 'expiry' is measured in years and is different from the `start` and `end` dates. `start` and `end` are used to calibrate the model to a historical sample and `expiry` is used as the time horizon over which the value at risk is calculated into the future."
+        'args': ['start_date', 'end_date', 'investment', 'target', 'save_file', 'suppress_output', 'json', 'expiry', 'probability', keys.keys['ESTIMATION']['MOMENT'], keys.keys['ESTIMATION']['PERCENT'], keys.keys['ESTIMATION']['LIKE']],
+        'description': "Optimizes the conditional value at risk, i.e. E(St | St < Sv) where Sv -> Prob(St<S0) = `prob` , for the portfolio defined by the list of inputted ticker symbols. 'expiry' and 'prob' are required arguments for this function. Note: 'expiry' is measured in years and is different from the `start` and `end` dates. `start` and `end` are used to calibrate the model to a historical sample and `expiry` is used as the time horizon over which the value at risk is calculated into the future.",
+        'tickers': True
     },
     "plot_correlation": {
         'name': 'Plot Correlation Time Series',
         'values': ["plot-correlations", "plot-cors"],
-        'args': ['start_date', 'end_date', 'save_file', keys['ESTIMATION']['MOMENT'], keys['ESTIMATION']['PERCENT'], keys['ESTIMATION']['LIKE']],
-        'description': "Generates a time series for the correlation of two ticker symbols over the specified date range."
+        'args': ['start_date', 'end_date', 'save_file', keys.keys['ESTIMATION']['MOMENT'], keys.keys['ESTIMATION']['PERCENT'], keys.keys['ESTIMATION']['LIKE']],
+        'description': "Generates a time series for the correlation of two ticker symbols over the specified date range.",
+        'tickers': True
     },
     "plot_dividends": {
         'name': 'Plot Discount Dividend Model',
         'values': ["plot-dividends", "plot-divs"],
         'args': ['save_file'],
-        'description': "Generates a scatter plot graphic of the dividend history for the supplied ticker with a superimposed simple linear regression line. Note: this function only accepts one ticker at a time."
+        'description': "Generates a scatter plot graphic of the dividend history for the supplied ticker with a superimposed simple linear regression line. Note: this function only accepts one ticker at a time.",
+        'tickers': True
     },
     "plot_frontier": {
         'name': 'Plot Efficient Frontier',
         'values': ["plot-efficient-frontier", "plot-ef"],
-        'args': ['start_date', 'end_date', 'save_file', 'steps', keys['ESTIMATION']['MOMENT'], keys['ESTIMATION']['PERCENT'], keys['ESTIMATION']['LIKE']],
-        'description': "Generates a scatter plot graphic of the portfolio\'s efficient frontier for the supplied list of tickers. The number of points calculated in the efficient frontier can be specifed as an integer with the -steps. If no -steps is provided, the value of the environment variable FRONTIER_STEPS will be used. If this value is not set, the function will default to a value of 5."
+        'args': ['start_date', 'end_date', 'save_file', 'steps', keys.keys['ESTIMATION']['MOMENT'], keys.keys['ESTIMATION']['PERCENT'], keys.keys['ESTIMATION']['LIKE']],
+        'description': "Generates a scatter plot graphic of the portfolio\'s efficient frontier for the supplied list of tickers. The number of points calculated in the efficient frontier can be specifed as an integer with the -steps. If no -steps is provided, the value of the environment variable FRONTIER_STEPS will be used. If this value is not set, the function will default to a value of 5.",
+        'tickers': True
     },
     "plot_moving_averages": {
         'name': 'Plot Moving Averages Series',
         'values': ["plot-moving-averages", "plot-mas"],
         'args': ['start_date', 'end_date', 'save_file'],
-        'description': "Generates a grouped bar chart of the moving averages for each equity in the supplied list of ticker symbols. If no start or end dates are specified, calculations default to the last 100 days of prices."
+        'description': "Generates a grouped bar chart of the moving averages for each equity in the supplied list of ticker symbols. If no start or end dates are specified, calculations default to the last 100 days of prices.",
+        'tickers': True
     },
     "plot_returns": {
         'name': 'Plot Return Series',
         'values': ["plot-returns", "plot-rets"],
-        'args': ['start_date', 'end_date', 'save_file', keys['ESTIMATION']['MOMENT'], keys['ESTIMATION']['PERCENT'], keys['ESTIMATION']['LIKE']],
-        'description': "Generates a Q-Q Plot to graphically test the normality of returns for the inputted ticker symbol over the specified date range. If no start or date are specified, calculations default to the last 100 days of prices."
+        'args': ['start_date', 'end_date', 'save_file'],
+        'description': "Generates a Q-Q Plot to graphically test the normality of returns for the inputted ticker symbol over the specified date range. If no start or date are specified, calculations default to the last 100 days of prices.",
+        'tickers': True
     },
     "plot_risk_profile": {
         'name': 'Plot Risk Profile',
         'values': ["plot-risk-profile", "plot-rp"],
-        'description': "Generates a scatter plot of the risk-return profile for symbol in the supplied list of ticker symbols. If no start or end dates are specified, calculations default to the last 100 days of prices."
+        'args': ['start_date', 'end_date', 'save_file', keys.keys['ESTIMATION']['MOMENT'], keys.keys['ESTIMATION']['PERCENT'], keys.keys['ESTIMATION']['LIKE']],
+        'description': "Generates a scatter plot of the risk-return profile for symbol in the supplied list of ticker symbols. If no start or end dates are specified, calculations default to the last 100 days of prices.",
+        'tickers': True
     },
     "plot_yield_curve": {
         'name': 'Plot Yield Curve',
         'values': ["plot-yield-curve","plot-yc"],
         'args': ['start_date', 'save_file'],
-        'description': "Generates a plot of the latest United States Treasury Yield Curve. A yield curveo n a different date can be generated by specifying the date with an argument."
+        'description': "Generates a plot of the latest United States Treasury Yield Curve. A yield curveo n a different date can be generated by specifying the date with an argument.",
+        'tickers': False
     },
     "price_history": {
         'name': 'Price History',
         'values': ["prices", "pr"],
         'args': ['start_date', 'end_date', 'save_file', 'suppress_output', 'json'],
-        'description': "Prints the price histories for each inputted asset over the specified date range. If no date range is given, price histories will default to the last 100 days."
+        'description': "Prints the price histories for each inputted asset over the specified date range. If no date range is given, price histories will default to the last 100 days.",
+        'tickers': True
     },
     "purge": {
         'name': 'Purge All Data',
         'values': ["purge", "pu"],
-        'description': "Removes all files contained with the _installation_directory_/data/static/, _installation_directory_/data/cache/ and _installation_directory_/data/common/ directory, but retains the directories themselves."
+        'args': None,
+        'description': "Removes all files contained with the _installation_directory_/data/static/, _installation_directory_/data/cache/ and _installation_directory_/data/common/ directory, but retains the directories themselves.",
+        'tickers': False
     },
     "risk_free_rate": {
         'name': 'Risk Free Rate',
         'values': ["risk-free", "rf"],
-        'description': "Returns the current annualized US Treasury yield specified by the RISK_FREE environment variables. Allowable values for RISK_FREE environment variable: ONE_MONTH, TWO_MONTH, THREE_MONTH, SIX_MONTH, ONE_YEAR, TWO_YEAR, THREE_YEAR, FIVE_YEAR, SEVEN_YEAR, TEN_YEAR, TWENTY_YEAR, THIRTY_YEAR."
+        'args': None,
+        'description': "Returns the current annualized US Treasury yield specified by the RISK_FREE environment variables. Allowable values for RISK_FREE environment variable: ONE_MONTH, TWO_MONTH, THREE_MONTH, SIX_MONTH, ONE_YEAR, TWO_YEAR, THREE_YEAR, FIVE_YEAR, SEVEN_YEAR, TEN_YEAR, TWENTY_YEAR, THIRTY_YEAR.",
+        'tickers': False
     },
     "risk_profile" : {
         'name': 'Risk Profile',
         'values': ["risk-profile", "rp"],
-        'args': ['start_date', 'end_date', 'save_file', 'suppress_output', 'json', keys['ESTIMATION']['MOMENT'], keys['ESTIMATION']['PERCENT'], keys['ESTIMATION']['LIKE']],
-        'description': "Calculate the risk-return profile for the supplied list of ticker symbols. If no start or end dates are specified, calculations default to the last 100 days of prices."
+        'args': ['start_date', 'end_date', 'save_file', 'suppress_output', 'json', keys.keys['ESTIMATION']['MOMENT'], keys.keys['ESTIMATION']['PERCENT'], keys.keys['ESTIMATION']['LIKE']],
+        'description': "Calculate the risk-return profile for the supplied list of ticker symbols. If no start or end dates are specified, calculations default to the last 100 days of prices.",
+        'tickers': True,
     },
     "screener": {
         'name': 'Watchlist Screener',
         'values': ["screen", "scr"],
-        'args': ['discount', 'model'],
-        'description': "Searchs equity spot prices that trade at a discount to the provided model. If no model is provided, the screener will default to the Discount Dividend Model. If no discount rate is provided, the screener will default to the cost of equity for a ticker calculated using the CAPM model."
+        'args': ['discount', 'criteria'],
+        'description': "Searchs equity spot prices that trade at a discount to the provided model. If no model is provided, the screener will default to the Discount Dividend Model. If no discount rate is provided, the screener will default to the cost of equity for a ticker calculated using the CAPM model.",
+        'tickers': False
     },
     "sharpe_ratio": {
         'name': 'Sharpe Ratio',
         'values': ["sharpe-ratio", "sr"],
-        'args': ['start_date', 'end_date', 'save_file', 'quiet','json', keys['ESTIMATION']['MOMENT'], keys['ESTIMATION']['PERCENT'], keys['ESTIMATION']['LIKE']],
-        'description': "Computes the sharpe ratio for each tickers in the supplied list"
+        'args': ['start_date', 'end_date', 'save_file', 'json', keys.keys['ESTIMATION']['MOMENT'], keys.keys['ESTIMATION']['PERCENT'], keys.keys['ESTIMATION']['LIKE']],
+        'description': "Computes the sharpe ratio for each tickers in the supplied list",
+        'tickers': True
     },
     "statistic": {
         'name': 'Last Reported Value of Financial Statistic',
         'values': ["stat","s"],
-        'args': ['quiet', 'suppress_output', 'json'],
-        'description': "Retrieves the latest value for the supplied list of economic statistics. The available list of economic statistic can be found at https://www.quandl.com/data/FRED-Federal-Reserve-Economic-Data/documentation?anchor=growth; it is also stored in the minstallation_directory_/data/static/ directory of the application."
+        'args': ['save_file', 'suppress_output', 'json'],
+        'description': "Retrieves the latest value for the supplied list of economic statistics. The available list of economic statistic can be found at https://www.quandl.com/data/FRED-Federal-Reserve-Economic-Data/documentation?anchor=growth; it is also stored in the minstallation_directory_/data/static/ directory of the application.",
+        'tickers': True
     },
     "statistic_history": {
         'name': 'Financial Statistic History',
         'values': ["stats", "ss"], 
-        'args': ['start_date', 'end_date', 'save_file', 'quiet', 'json'],
-        'description': "Prints the statistic history for the supplied list of economic statistics.The available list of economic statistic can be found at https://www.quandl.com/data/FRED-Federal-Reserve-Economic-Data/documentation?anchor=growth; it is also stored in the _installation_directory_/data/static/ directory of the application."
+        'args': ['start_date', 'end_date', 'save_file', 'suppress_output', 'json'],
+        'description': "Prints the statistic history for the supplied list of economic statistics.The available list of economic statistic can be found at https://www.quandl.com/data/FRED-Federal-Reserve-Economic-Data/documentation?anchor=growth; it is also stored in the _installation_directory_/data/static/ directory of the application.",
+        'tickers': True
     },
     "store": {
         'name': 'API Key Store',
         'values': ["store", "st"],
         'args': ['key', 'value'],
-        'description': "Save API key to local _installation_directory_/data/common/ directory."
+        'description': "Save API key to local _installation_directory_/data/common/ directory.",
+        'tickers': False
     },
     "version": {
         'name': 'Display Version',
         'values': ["version", "v"],
         'args': None,
-        'description': "Display version."
+        'description': "Display version.",
+        'tickers': False
     },
     "watchlist": {
         'name': 'Stock Watchlist',
         'values': ["watch", "w"],
         'args': None,
-        'description': "Saves the supplist list of tickers to your watchlist. These equity symbol are used by the screening algorithms when searching for stocks that trade at a discount."
+        'description': "Saves the supplist list of tickers to your watchlist. These equity symbol are used by the screening algorithms when searching for stocks that trade at a discount.",
+        'tickers': False
     },
     "yield_curve": {
         'name': 'Latest Yield Curve',
         'values': ["yield-curve", "yc"],
         'args': None,
-        'description': "Displays the current United States Treasury Yield Curve."
+        'description': "Displays the current United States Treasury Yield Curve.",
+        'tickers': False
     }
 }
 
+ARG_META = {
+    'groups': ['estimation_method']
+}
 # Every argument has four ways of being inputted: short-dash-long, long-dash-long, short-dash-short, long-dash-short
 ARG_DICT = {
-    'META': {
-        'arg_groups': ['estimation_method']
-    },
     'start_date': {
         'name': 'Sample Start Date',
         'values': ['-start-date', '--start-date', '-start','--start' ],
@@ -341,7 +378,7 @@ ARG_DICT = {
     },
     'criteria': {
         'name': 'Watchlist Screener Critia',
-        'values': ['-pricing-model', '--pricing-model', '-model','--model'],
+        'values': ['-criteria', '--criteria', '-crit','--crit'],
         'description': 'Criteria used to sort saved watchlist',
         'default': None,
         'format_str': 'DDM | sharpe | volatility | return',
@@ -374,7 +411,7 @@ ARG_DICT = {
         'default': None,
         'format_str': None,
         'format': bool,
-        'required': False
+        'required': False,
     },
     'suppress_output': {
         'name': 'No Display',
@@ -387,23 +424,24 @@ ARG_DICT = {
     },
     'key': {
         'name': 'Key-Value Key',
-        'value': ['-key', '--key', '-k', '--k'],
+        'values': ['-key', '--key', '-k', '--k'],
         'description': 'API Key that will be saved to __installation_dir__/data/common/',
         'default': None,
-        'format': 'ALPHA_VANTAGE_KEY | QUANDL_KEY | IEX_KEY',
+        'format': str,
+        'format_str': 'ALPHA_VANTAGE_KEY | QUANDL_KEY | IEX_KEY',
         'required': True,
         'allowable': ["ALPHA_VANTAGE_KEY", "QUANDL_KEY", "IEX_KEY"]
     },
     'value': {
         'name': 'Key-Value Value',
-        'value':['-value', '--value', '-v', '--v'],
+        'values':['-value', '--value', '-v', '--v'],
         'description': 'API Key-Value that will be saved to __installation_dir__/data/common/',
         'default': None,
         'format_str': '<value>',
-        'format': 'str',
+        'format': str,
         'required': True
     },
-    keys['ESTIMATION']['MOMENT']: {
+    keys.keys['ESTIMATION']['MOMENT']: {
         'name': 'Method of Moment Matching',
         'values': ['-moments', '--moments', '-mom', '--mom'],
         'description': 'Statistics are calculated using method of moment matching',
@@ -413,7 +451,7 @@ ARG_DICT = {
         'group': 'estimation_method',
         'required': False
     },
-    keys['ESTIMATION']['PERCENT']: {
+    keys.keys['ESTIMATION']['PERCENT']: {
         'name': 'Method of Percentile Matching',
         'values': ['-percentiles', '--percentiles', '-per', '--per'],
         'description': 'Statistics are calculated using method of percentile matching',
@@ -423,7 +461,7 @@ ARG_DICT = {
         'group': 'estimation_method',
         'required': False
     },
-    keys['ESTIMATION']['LIKE']: {
+    keys.keys['ESTIMATION']['LIKE']: {
         'name': 'Maximum Likelihood Estimation',
         'values': ['-likelihood','--likelihood','-like', '--like'],
         'description': 'Statistics are calculated using maximum likelihood estimation',

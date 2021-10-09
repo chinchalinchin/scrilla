@@ -18,7 +18,7 @@ import time
 from PyQt5 import Qt, QtCore, QtWidgets
 
 from scrilla import settings
-from scrilla.static import constants
+from scrilla.static.constants import constants
 import scrilla.analysis.models.geometric.statistics as statistics
 import scrilla.analysis.optimizer as optimizer
 import scrilla.analysis.objects.portfolio as portfolio

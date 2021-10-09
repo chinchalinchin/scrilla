@@ -23,7 +23,8 @@ The arguments are parsed in such a way that arguments which are not supplied are
 import sys, os, json
 from typing import Callable
 
-from scrilla import settings, services, files, static
+from scrilla import settings, services, files
+from scrilla.static import functions, definitions, formats, keys
 from scrilla.errors import InputValidationError
 from scrilla.util import dater, outputter, helper
 from scrilla.analysis import optimizer, markets, estimators
@@ -35,12 +36,12 @@ from scrilla.analysis.objects.portfolio import Portfolio
 from scrilla.analysis.objects.cashflow import Cashflow
 
 if settings.APP_ENV != "container":
-    import util.plotter as plotter
+    import scrilla.util.plotter as plotter
 
 logger = outputter.Logger('main', settings.LOG_LEVEL)
 
-non_container_functions = [static.definitions.FUNC_DICT['plot_dividends'], static.definitions.FUNC_DICT['plot_moving_averages'],
-                               static.definitions.FUNC_DICT['plot_risk_profile'], static.definitions.FUNC_DICT['plot_frontier']]
+non_container_functions = [definitions.FUNC_DICT['plot_dividends'], definitions.FUNC_DICT['plot_moving_averages'],
+                               definitions.FUNC_DICT['plot_risk_profile'], definitions.FUNC_DICT['plot_frontier']]
 
 def validate_function_usage(selection: str, args: list, wrapper_function: Callable[[], None], required_length: int=1, exact: bool=False) -> None:
     """
@@ -58,9 +59,9 @@ def validate_function_usage(selection: str, args: list, wrapper_function: Callab
     if selection in non_container_functions and settings.APP_ENV == 'container':
         raise InputValidationError('Graphics functionality disabled when application is containerized.')
 
-    if(not exact and (len(args['tickers'])>(required_length-1))):
+    if(not exact and (len(args)>(required_length-1))):
         wrapper_function()
-    elif(exact and (len(args['tickers'])==required_length)):
+    elif(exact and (len(args)==required_length)):
         wrapper_function()
     else:
         raise InputValidationError(f'Invalid number of arguments for \'{selection}\' function.')
@@ -101,41 +102,41 @@ def do_program() -> None:
     Parses command line arguments and passes the formatted arguments to appropriate function from the library.
     """
     files.init_static_data()
-    args = helper.format_args(sys.argv)
+    args = helper.format_args(sys.argv[1:])
     exact, selected_function = False, None
 
     ########## START CLI FUNCTION DEFINITIONS
 
     ####### NO ARGUMENT FUNCTIONS
     ### FUNCTION: Help Message
-    if args['function_arg'] in static.definitions.FUNC_DICT["help"]['values']:
+    if args['function_arg'] in definitions.FUNC_DICT["help"]['values']:
         def cli_help():
             outputter.help_msg()
         selected_function, required_length = cli_help, 0
 
     ### FUNCTION: Clear Cache
-    elif args['function_arg'] in static.definitions.FUNC_DICT["clear_cache"]['values']:
+    elif args['function_arg'] in definitions.FUNC_DICT["clear_cache"]['values']:
         def cli_clear_cache():
             logger.comment(f'Clearing {settings.CACHE_DIR}')
             files.clear_directory(directory=settings.CACHE_DIR, retain=True)
         selected_function, required_length = cli_clear_cache, 0
 
     ### FUNCTION: Clear Static
-    elif args['function_arg'] in static.definitions.FUNC_DICT["clear_static"]['values']:
+    elif args['function_arg'] in definitions.FUNC_DICT["clear_static"]['values']:
         def cli_clear_static():
             logger.comment(f'Clearing {settings.STATIC_DIR}')
             files.clear_directory(directory=settings.STATIC_DIR, retain=True)
         selected_function, required_length = cli_clear_static, 0
 
     ### FUNCTION: Clear Common
-    elif args['function_arg'] in static.definitions.FUNC_DICT["clear_common"]['values']:
+    elif args['function_arg'] in definitions.FUNC_DICT["clear_common"]['values']:
         def cli_clear_common():
             logger.comment(f'Clearing {settings.COMMON_DIR}')
             files.clear_directory(directory=settings.COMMON_DIR, retain=True)
         selected_function, required_length = cli_clear_common, 0
 
     ### FUNCTION: Print Stock Watchlist
-    elif args['function_arg'] in static.definitions.FUNC_DICT['list_watchlist']['values']:
+    elif args['function_arg'] in definitions.FUNC_DICT['list_watchlist']['values']:
         def cli_watchlist():
             tickers = files.get_watchlist()
             outputter.title_line("Stock Watchlist")
@@ -143,7 +144,7 @@ def do_program() -> None:
         selected_function, required_length = cli_watchlist, 0
 
     ### FUNCTION: Purge Data Directories
-    elif args['function_arg'] in static.definitions.FUNC_DICT["purge"]['values']:
+    elif args['function_arg'] in definitions.FUNC_DICT["purge"]['values']:
         def cli_purge():
             logger.comment(f'Clearing {settings.STATIC_DIR}, {settings.CACHE_DIR} and {settings.CACHE_DIR}')
             files.clear_directory(directory=settings.STATIC_DIR, retain=True)
@@ -152,7 +153,7 @@ def do_program() -> None:
         selected_function, required_length = cli_purge, 0
 
     ### FUNCTION: Display Version
-    elif args['function_arg'] in static.definitions.FUNC_DICT["version"]['values']:
+    elif args['function_arg'] in definitions.FUNC_DICT["version"]['values']:
         def cli_version():
             version_file = os.path.join(settings.APP_DIR, 'version.txt')
             with open(version_file, 'r') as f:
@@ -160,10 +161,10 @@ def do_program() -> None:
         selected_function, required_length = cli_version, 0
 
     ### FUNCTION: Yield Curve
-    elif args['function_arg'] in static.definitions.FUNC_DICT['yield_curve']['values']:
+    elif args['function_arg'] in definitions.FUNC_DICT['yield_curve']['values']:
         def cli_yield_curve():
             yield_curve = {}
-            for maturity in static.keys['YIELD_CURVE']:
+            for maturity in keys.keys['YIELD_CURVE']:
                 curve_rate = services.get_daily_interest_latest(maturity=maturity)
                 yield_curve[maturity] = curve_rate/100
 
@@ -180,7 +181,7 @@ def do_program() -> None:
     ####### ARGUMENT FUNCTIONS
     ### FUNCTION: Asset Grouping
 
-    elif args['function_arg'] in static.definitions.FUNC_DICT['asset_type']['values']:
+    elif args['function_arg'] in definitions.FUNC_DICT['asset_type']['values']:
         def cli_asset_type():
             for arg in args['tickers']:
                 asset_type = files.get_asset_type(arg)
@@ -188,14 +189,14 @@ def do_program() -> None:
         selected_function, required_length = cli_asset_type, 1
 
     ### FUNCTION: Black-Scholes Value At Risk
-    elif args['function_arg'] in static.definitions.FUNC_DICT['var']['values']:
+    elif args['function_arg'] in definitions.FUNC_DICT['var']['values']:
         def cli_var():
             all_vars = {}
             for arg in args['tickers']['values']:
                 prices = services.get_daily_price_history(ticker=arg, 
                                                             start_date=args['start_date'],
                                                             end_date=args['end_date'])
-                latest_price = prices[helper.get_first_json_key(prices)][static.keys['PRICES']['CLOSE']]
+                latest_price = prices[helper.get_first_json_key(prices)][keys.keys['PRICES']['CLOSE']]
                 profile = statistics.calculate_risk_return(ticker=arg, 
                                                             sample_prices=prices, 
                                                             method=args['estimation_method'])
@@ -218,14 +219,14 @@ def do_program() -> None:
         selected_function, required_length = cli_var, 2
         
     ### FUNCTION: Black-Scholes Conditional Value At Risk
-    elif args['function_arg'] in static.definitions.FUNC_DICT['cvar']['values']:
+    elif args['function_arg'] in definitions.FUNC_DICT['cvar']['values']:
         def cli_cvar():
             all_cvars = {}
             for arg in args['tickers']:
                 prices = services.get_daily_price_history(ticker=arg, 
                                                             start_date=args['start_date'],
                                                             end_date=args['end_date'])
-                latest_price = prices[helper.get_first_json_key(prices)][static.keys['PRICES']['CLOSE']]
+                latest_price = prices[helper.get_first_json_key(prices)][keys.keys['PRICES']['CLOSE']]
                 profile = statistics.calculate_risk_return(ticker=arg, 
                                                             sample_prices=prices, 
                                                             method=args['estimation_method'])
@@ -253,7 +254,7 @@ def do_program() -> None:
         selected_function, required_length = cli_cvar, 2
 
     ### FUNCTION: Capital Asset Pricing Model Cost of Equity
-    elif args['function_arg'] in static.definitions.FUNC_DICT['capm_equity_cost']['values']:
+    elif args['function_arg'] in definitions.FUNC_DICT['capm_equity_cost']['values']:
         def cli_capm_equity_cost():
             all_costs = {}
             for arg in args['tickers']:
@@ -276,7 +277,7 @@ def do_program() -> None:
 
 
     ### FUNCTION: Capital Asset Pricing Model Beta
-    elif args['function_arg'] in static.definitions.FUNC_DICT['capm_beta']['values']:
+    elif args['function_arg'] in definitions.FUNC_DICT['capm_beta']['values']:
         def cli_capm_beta():
             all_betas = {}
             for arg in args['tickers']:
@@ -298,7 +299,7 @@ def do_program() -> None:
         selected_function, required_length = cli_capm_beta, 1
 
     ### FUNCTION: Last Close Price
-    elif args['function_arg'] in static.definitions.FUNC_DICT["close"]['values']:
+    elif args['function_arg'] in definitions.FUNC_DICT["close"]['values']:
         def cli_close():
             all_prices = {}
             for arg in args['tickers']:
@@ -316,9 +317,9 @@ def do_program() -> None:
         selected_function, required_length = cli_close, 1
             
     ### FUNCTION: Correlation Matrix
-    elif args['function_arg'] in static.definitions.FUNC_DICT["correlation"]['values']:
+    elif args['function_arg'] in definitions.FUNC_DICT["correlation"]['values']:
         def cli_correlation():
-            if args['estimation_method'] == static.keys['ESTIMATION']['LIKE']:
+            if args['estimation_method'] == keys.keys['ESTIMATION']['LIKE']:
                 logger.comment('This calculation takes a while, strap in...')
 
             matrix = statistics.correlation_matrix(tickers=args['tickers'],
@@ -337,7 +338,7 @@ def do_program() -> None:
         selected_function, required_length = cli_correlation, 2
 
     ### FUNCTION: Correlation Time Series
-    elif args['function_arg'] in static.definitions.FUNC_DICT['correlation_time_series']['values']:
+    elif args['function_arg'] in definitions.FUNC_DICT['correlation_time_series']['values']:
         def cli_correlation_series():
             logger.comment('This calculation takes a while, strap in...')
             ticker_1, ticker_2 = args['tickers'][0], args['tickers'][1]
@@ -357,7 +358,7 @@ def do_program() -> None:
         selected_function, required_length, exact = cli_correlation_series, 2, True
 
     ### FUNCTION: Discount Dividend Model
-    elif args['function_arg'] in static.definitions.FUNC_DICT["discount_dividend"]['values']:
+    elif args['function_arg'] in definitions.FUNC_DICT["discount_dividend"]['values']:
         def cli_discount_dividend():
             model_results = {}
             for arg in args['tickers']:
@@ -380,7 +381,7 @@ def do_program() -> None:
 
         selected_function, required_length = cli_discount_dividend, 1
 
-    elif args['function_arg'] in static.definitions.FUNC_DICT['dividends']['values']:
+    elif args['function_arg'] in definitions.FUNC_DICT['dividends']['values']:
         def cli_dividends():
             all_dividends = {}
             for arg in args['tickers']:
@@ -396,7 +397,7 @@ def do_program() -> None:
         selected_function, required_length = cli_dividends, 1
 
     ### FUNCTION: Efficient Frontier
-    elif args['function_arg'] in static.definitions.FUNC_DICT['efficient_frontier']['values']:
+    elif args['function_arg'] in definitions.FUNC_DICT['efficient_frontier']['values']:
         def cli_efficient_frontier():
             portfolio = Portfolio(tickers=args['tickers'], 
                                     start_date=args['start_date'], 
@@ -411,7 +412,7 @@ def do_program() -> None:
                                                     frontier=frontier,
                                                     investment=args['investment'])
                 else:
-                    print(json.dumps(static.functions.format_frontier(portfolio=portfolio, 
+                    print(json.dumps(functions.format_frontier(portfolio=portfolio, 
                                                                 frontier=frontier, 
                                                                 investment=args['investment'])))
 
@@ -423,7 +424,7 @@ def do_program() -> None:
         selected_function, required_length = cli_efficient_frontier, 2
 
     ### FUNCTION: Maximize Portfolio Return
-    elif args['function_arg'] in static.definitions.FUNC_DICT['maximize_return']['values']:
+    elif args['function_arg'] in definitions.FUNC_DICT['maximize_return']['values']:
         def cli_maximize_return():
             portfolio = Portfolio(tickers=args['tickers'], 
                                     start_date=args['start_date'], 
@@ -437,7 +438,7 @@ def do_program() -> None:
                                                 allocation=allocation, 
                                                 investment=args['investment'])
                 else:
-                    print(json.dumps(static.functions.format_allocation(allocation=allocation, 
+                    print(json.dumps(functions.format_allocation(allocation=allocation, 
                                                                     portfolio=portfolio, 
                                                                     investment=args['investment'])))
 
@@ -449,7 +450,7 @@ def do_program() -> None:
         selected_function, required_length = cli_maximize_return, 2
 
     ### FUNCTION: Moving Averages of Logarithmic Returns
-    elif args['function_arg'] in static.definitions.FUNC_DICT['moving_averages']['values']:
+    elif args['function_arg'] in definitions.FUNC_DICT['moving_averages']['values']:
         def cli_moving_averages():
             # TODO: moving averages with estimation techniques
             # TODO: print results as json to screen and ability to save results
@@ -464,7 +465,7 @@ def do_program() -> None:
         selected_function, required_length = cli_moving_averages, 1
 
     ### FUNCTION: Optimize Portfolio Variance/Volatility
-    elif args['function_arg'] in static.definitions.FUNC_DICT['optimize_portfolio']['values']:
+    elif args['function_arg'] in definitions.FUNC_DICT['optimize_portfolio']['values']:
         def cli_optimize_portfolio_variance():
             portfolio = Portfolio(tickers=args['tickers'], 
                                     start_date=args['start_date'], 
@@ -480,7 +481,7 @@ def do_program() -> None:
                 if args['json'] is None:
                     outputter.optimal_result(portfolio=portfolio, allocation=allocation, investment=args['investment'])
                 else:
-                    print(json.dumps(static.functions.format_allocation(allocation=allocation,portfolio=portfolio, investment=args['investment'])))
+                    print(json.dumps(functions.format_allocation(allocation=allocation,portfolio=portfolio, investment=args['investment'])))
             
             if args['save_file'] is not None:
                 files.save_allocation(allocation=allocation, portfolio=portfolio, file_name=args['save_file'],
@@ -488,7 +489,7 @@ def do_program() -> None:
         selected_function, required_length = cli_optimize_portfolio_variance, 2
     
     ### FUNCTION: Optimize Portfolio Conditional Value At Risk 
-    elif args['function_arg'] in static.definitions.FUNC_DICT['optimize_portfolio_conditional_var']['values']:
+    elif args['function_arg'] in definitions.FUNC_DICT['optimize_portfolio_conditional_var']['values']:
         def cli_optimize_conditional_value_at_risk():
             portfolio = Portfolio(tickers=args['tickers'], 
                                     start_date=args['start_date'], 
@@ -502,7 +503,7 @@ def do_program() -> None:
                 outputter.optimal_result(portfolio=portfolio, allocation=allocation, investment=args['investment'])
 
             if print_json_to_screen(args):
-                print(json.dumps(static.functions.format_allocation(allocation=allocation, portfolio=portfolio, investment=args['investment'])))
+                print(json.dumps(functions.format_allocation(allocation=allocation, portfolio=portfolio, investment=args['investment'])))
             
             if args['save_file'] is not None:
                 files.save_allocation(allocation=allocation, portfolio=portfolio, file_name=args['save_file'],
@@ -510,7 +511,7 @@ def do_program() -> None:
         selected_function, required_length = cli_optimize_conditional_value_at_risk, 2
 
     ### FUNCTION: Plot Correlation Time Series
-    elif args['function_arg'] in static.definitions.FUNC_DICT['plot_correlation']['values']:
+    elif args['function_arg'] in definitions.FUNC_DICT['plot_correlation']['values']:
         def cli_plot_correlation():
             logger.comment('This calculation takes a while, strap in...')
             correlation_history = statistics.calculate_moment_correlation_series(ticker_1=args['tickers'][0], 
@@ -522,7 +523,7 @@ def do_program() -> None:
         selected_function, required_length, exact = cli_plot_correlation, 2, True
 
     ### FUNCTION: Plot Dividend History With Linear Regression Model
-    elif args['function_arg'] in static.definitions.FUNC_DICT['plot_dividends']['values']:
+    elif args['function_arg'] in definitions.FUNC_DICT['plot_dividends']['values']:
         def cli_plot_dividends():
             dividends = services.get_dividend_history(ticker=args['tickers'][0])
             if args['discount'] is None:
@@ -536,7 +537,7 @@ def do_program() -> None:
         selected_function, required_length, exact = cli_plot_dividends, 1, True
 
     ### FUNCTION: Plot Efficient Frontier
-    elif args['function_arg'] in static.definitions.FUNC_DICT['plot_frontier']['values']:
+    elif args['function_arg'] in definitions.FUNC_DICT['plot_frontier']['values']:
         def cli_plot_frontier():
             portfolio = Portfolio(tickers=args['tickers'], 
                                     start_date=args['start_date'], 
@@ -551,7 +552,7 @@ def do_program() -> None:
         selected_function, required_length = cli_plot_frontier, 2
 
     ### FUNCTION: Plot Moving Averages of Logarithmic Returns
-    elif args['function_arg'] in static.definitions.FUNC_DICT['plot_moving_averages']['values']:
+    elif args['function_arg'] in definitions.FUNC_DICT['plot_moving_averages']['values']:
         def cli_plot_moving_averages():
             # TODO: estimation techniques with moving averages
             moving_averages = statistics.calculate_moving_averages(tickers=args['tickers'], 
@@ -565,7 +566,7 @@ def do_program() -> None:
         selected_function, required_length = cli_plot_moving_averages, 1
 
     ### FUNCTION: Plot Return QQ Series
-    elif args['function_arg'] in static.definitions.FUNC_DICT['plot_returns']['values']:
+    elif args['function_arg'] in definitions.FUNC_DICT['plot_returns']['values']:
         def cli_plot_returns():
             asset_type = files.get_asset_type(symbol=args['tickers'][0])
             prices = services.get_daily_price_history(ticker=args['tickers'][0], 
@@ -582,7 +583,7 @@ def do_program() -> None:
         selected_function, required_length, exact = cli_plot_returns, 1, True
 
     ### FUNCTION: Plot Risk-Return Profile
-    elif args['function_arg'] in static.definitions.FUNC_DICT['plot_risk_profile']['values']:
+    elif args['function_arg'] in definitions.FUNC_DICT['plot_risk_profile']['values']:
         def cli_plot_risk_profile():
             profiles = {}
             for arg in args['tickers']:
@@ -598,13 +599,13 @@ def do_program() -> None:
                                                                         end_date=args['end_date']))
         selected_function, required_length = cli_plot_risk_profile, 1
 
-    elif args['function_arg'] in static.definitions.FUNC_DICT['plot_yield_curve']['values']:
+    elif args['function_arg'] in definitions.FUNC_DICT['plot_yield_curve']['values']:
         def cli_plot_yield_curve():
             yield_curve = {}
             args['start_date'] = dater.get_next_business_date(args['start_date'])
             start_date_string = dater.date_to_string(args['start_date'])
             yield_curve[start_date_string] = []
-            for maturity in static.keys['YIELD_CURVE']:
+            for maturity in keys.keys['YIELD_CURVE']:
                 rate = services.get_daily_interest_history(maturity=maturity, 
                                                             start_date=args['start_date'],
                                                             end_date=args['start_date'])
@@ -615,7 +616,7 @@ def do_program() -> None:
         
         selected_function, required_length, exact = cli_plot_yield_curve, 0, True
     ### FUNCTION: Price History
-    elif args['function_arg'] in static.definitions.FUNC_DICT['price_history']['values']:
+    elif args['function_arg'] in definitions.FUNC_DICT['price_history']['values']:
         def cli_price_history():
             all_prices = {}
             for arg in args['tickers']:
@@ -624,7 +625,7 @@ def do_program() -> None:
                                                             end_date=args['end_date'])
                 all_prices[arg] = {}
                 for date in prices:
-                    price = prices[date][static.keys['PRICES']['CLOSE']]
+                    price = prices[date][keys.keys['PRICES']['CLOSE']]
                     all_prices[arg][date] = price
 
                     if print_format_to_screen(args):
@@ -639,7 +640,7 @@ def do_program() -> None:
         selected_function, required_length = cli_price_history, 1
 
     ### FUNCTION: Interest Rate History
-    elif args['function_arg'] in static.definitions.FUNC_DICT['interest_history']['values']:
+    elif args['function_arg'] in definitions.FUNC_DICT['interest_history']['values']:
         def cli_interest_history():
             all_rates = {}
             for arg in args['tickers']:
@@ -662,14 +663,14 @@ def do_program() -> None:
         selected_function, required_length = cli_interest_history, 1
     
     ### FUNCTION: Risk Free Rate
-    elif args['function_arg'] in static.definitions.FUNC_DICT['risk_free_rate']['values']:
+    elif args['function_arg'] in definitions.FUNC_DICT['risk_free_rate']['values']:
         def cli_risk_free_rate():
             rate = {}
             rate[settings.RISK_FREE_RATE] = services.get_risk_free_rate()
             if args['suppress_output'] is None:
                 if args['json'] is None:
                     outputter.title_line("Risk Free Rate")
-                    outputter.scalar_result(calculation=formatter.RISK_FREE_TITLE.format(settings.RISK_FREE_RATE), 
+                    outputter.scalar_result(calculation=formats.formats.RISK_FREE_TITLE.format(settings.RISK_FREE_RATE), 
                                                 result=rate[settings.RISK_FREE_RATE], currency=False)
                 else:
                     print(json.dumps(rate))
@@ -680,7 +681,7 @@ def do_program() -> None:
         selected_function, required_length, exact = cli_risk_free_rate, 0, True
 
     ### FUNCTION: Risk-Return Profile
-    elif args['function_arg'] in static.definitions.FUNC_DICT["risk_profile"]['values']:
+    elif args['function_arg'] in definitions.FUNC_DICT["risk_profile"]['values']:
         def cli_risk_return():
             profiles = {}
             for arg in args['tickers']:
@@ -716,7 +717,7 @@ def do_program() -> None:
         selected_function, required_length = cli_risk_return, 1
 
     ### FUNCTION: Model Discount Screener 
-    elif args['function_arg'] in static.definitions.FUNC_DICT["screener"]['values']:
+    elif args['function_arg'] in definitions.FUNC_DICT["screener"]['values']:
         def cli_screener():
             if args['model'] is None:
                 model = markets.MODEL_DDM
@@ -725,7 +726,7 @@ def do_program() -> None:
         selected_function, required_length = cli_screener, 0
 
     ### FUNCTION: Sharpe Ratio
-    elif args['function_arg'] in static.definitions.FUNC_DICT["sharpe_ratio"]['values']:
+    elif args['function_arg'] in definitions.FUNC_DICT["sharpe_ratio"]['values']:
         def cli_sharpe_ratio():
             all_results = {}
             for arg in args['tickers']:
@@ -748,13 +749,13 @@ def do_program() -> None:
         selected_function, required_length = cli_sharpe_ratio, 1
 
    ### FUNCTION: Store Key
-    elif args['function_arg'] in static.definitions.FUNC_DICT['store']['values']:
+    elif args['function_arg'] in definitions.FUNC_DICT['store']['values']:
         def cli_store():
             files.set_credentials(value=args['value'], which_key=args['key'])
         selected_function, required_length = cli_store, 0
 
     ### FUNCTION: Get Latest Economic Statistic
-    elif args['function_arg'] in static.definitions.FUNC_DICT["statistic"]['values']:
+    elif args['function_arg'] in definitions.FUNC_DICT["statistic"]['values']:
         def cli_statistic():
             all_stats = {}
             for stat in args['tickers']:
@@ -772,7 +773,7 @@ def do_program() -> None:
         selected_function, required_length = cli_statistic, 1
     
     ### FUNCTION: Statistic History
-    elif args['function_arg'] in static.definitions.FUNC_DICT['statistic_history']['values']:
+    elif args['function_arg'] in definitions.FUNC_DICT['statistic_history']['values']:
         def cli_statistic_history():
             all_stats = {}
             for arg in args['tickers']:
@@ -794,12 +795,17 @@ def do_program() -> None:
         selected_function, required_length = cli_statistic_history, 1
 
     ### FUNCTION: Set Watchlist
-    elif args['function_arg'] in static.definitions.FUNC_DICT["watchlist"]['values']:
+    elif args['function_arg'] in definitions.FUNC_DICT["watchlist"]['values']:
         def cli_watchlist():
             files.add_watchlist(new_tickers=args['tickers'])
             logger.comment("Watchlist saved. Use -ls option to print watchlist.")
         selected_function, required_length = cli_watchlist, 1
 
+    else:
+        def cli_help():
+            outputter.help_msg()
+        selected_function, required_length = cli_help, 0
+        
     ########## END CLI FUNCTION DEFINITIONS
       
     if selected_function is not None:

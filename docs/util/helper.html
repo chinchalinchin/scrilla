@@ -27,35 +27,27 @@
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">from math import trunc
+<pre><code class="python">import argparse
+from math import trunc
+from typing import List, Tuple
 
-from scrilla import static
-from scrilla.util import dater, formatter
+from scrilla.static import definitions
 
-################################################
-##### FORMATTING FUNCTIONS
-def truncate(number, digits) -&gt; float:
+def truncate(number: float, digits: int) -&gt; float:
     stepper = 10.0 ** digits
     return trunc(stepper * number) / stepper
 
-def get_number_input(msg_prompt) -&gt; str:
-    while True:
-        user_input = input(msg_prompt)
-        if user_input.isnumeric():
-            return user_input
-        print(&#39;Input Not Understood. Please Enter A Numerical Value.&#39;)
-    
-def strip_string_array(array) -&gt; list:
+def strip_string_array(array: List[str]) -&gt; List[str]:
     new_array = []
     for string in array:
         new_array.append(string.strip())
     return new_array
 
-def round_array(array, decimals):
+def round_array(array: List[float], decimals: int) -&gt; List[float]:
     cutoff = (1/10**decimals)
     return [0 if element &lt; cutoff else truncate(element, decimals) for element in array]
 
-def intersect_dict_keys(dict1, dict2):
+def intersect_dict_keys(dict1: dict, dict2: dict) -&gt; Tuple[dict, dict]:
     intersection = [x for x in dict1.keys() if x in dict2.keys()]
 
     new_dict1, new_dict2 = {}, {}
@@ -72,100 +64,44 @@ def intersect_dict_keys(dict1, dict2):
 ##### PARSING FUNCTIONS
 
 ### CLI PARSING
-def get_float_arg(xtra_args, xtra_values, which_arg):
-    if which_arg in xtra_args:
-        try:
-            return float(xtra_values[xtra_args.index(which_arg)])
-        except ValueError as ve:
-            raise ve
-    return None
+def format_args(args) -&gt; argparse.Namespace:
+    parser = argparse.ArgumentParser()
 
-def get_int_arg(xtra_args, xtra_values, which_arg):
-    if which_arg in xtra_args:
-        try:
-            return int(xtra_values[xtra_args.index(which_arg)])
-        except ValueError as ve:
-            raise ve
-    return None
+    choices = []
+    for func in definitions.FUNC_DICT:
+        choices.append(definitions.FUNC_DICT[func][&#39;values&#39;][0])
+        choices.append(definitions.FUNC_DICT[func][&#39;values&#39;][1])
 
-def get_date_arg(xtra_args, xtra_values, which_arg):
-    if which_arg in xtra_args:
-        unparsed_date = xtra_values[xtra_args.index(which_arg)]
-        return dater.parse_date_string(unparsed_date)
-    return None
+    parser.add_argument(&#39;function_arg&#39;, choices=choices)
 
-def get_str_arg(xtra_args, xtra_values, which_arg, lowerCase = False):
-    if which_arg in xtra_args:
-        if not lowerCase:
-            return str(xtra_values[xtra_args.index(which_arg)])
-        return str(xtra_values[xtra_args.index(which_arg)]).lower()
-    return None
+    groups = [parser.add_mutually_exclusive_group() for arg_group in definitions.ARG_META[&#39;groups&#39;] ]
 
-def get_flag_arg(xtra_args, which_arg):
-    if which_arg in xtra_args:
-        return which_arg
-    return None
-
-def format_xtra_args_dict(xtra_args, xtra_values, default_estimation_method):
-    current_estimation_method = default_estimation_method
-    if get_flag_arg(xtra_args, formatter.FUNC_XTRA_SINGLE_ARGS_DICT[&#39;moments&#39;]) is not None:
-        current_estimation_method = static.keys[&#39;ESTIMATION&#39;][&#39;MOMENT&#39;]
-    elif get_flag_arg(xtra_args, formatter.FUNC_XTRA_SINGLE_ARGS_DICT[&#39;likelihood&#39;]) is not None:
-       current_estimation_method = static.keys[&#39;ESTIMATION&#39;][&#39;LIKE&#39;]
-    elif get_flag_arg(xtra_args,formatter.FUNC_XTRA_SINGLE_ARGS_DICT[&#39;percentiles&#39;]) is not None:
-       current_estimation_method = static.keys[&#39;ESTIMATION&#39;][&#39;PERCENT&#39;]
-
-    return {
-        &#39;start_date&#39;: get_date_arg(xtra_args, xtra_values, formatter.FUNC_XTRA_VALUED_ARGS_DICT[&#39;start_date&#39;]),
-        &#39;end_date&#39;: get_date_arg(xtra_args, xtra_values, formatter.FUNC_XTRA_VALUED_ARGS_DICT[&#39;end_date&#39;]),
-        &#39;save_file&#39;: get_str_arg(xtra_args, xtra_values, formatter.FUNC_XTRA_VALUED_ARGS_DICT[&#39;save&#39;]),
-        &#39;target&#39;: get_float_arg(xtra_args, xtra_values, formatter.FUNC_XTRA_VALUED_ARGS_DICT[&#39;target&#39;]),
-        &#39;discount&#39;: get_float_arg(xtra_args, xtra_values, formatter.FUNC_XTRA_VALUED_ARGS_DICT[&#39;discount&#39;]),
-        &#39;investment&#39;: get_float_arg(xtra_args, xtra_values, formatter.FUNC_XTRA_VALUED_ARGS_DICT[&#39;investment&#39;]),
-        &#39;expiry&#39;: get_float_arg(xtra_args, xtra_values, formatter.FUNC_XTRA_VALUED_ARGS_DICT[&#39;expiry&#39;]),
-        &#39;probability&#39;: get_float_arg(xtra_args, xtra_values, formatter.FUNC_XTRA_VALUED_ARGS_DICT[&#39;probability&#39;]),
-        &#39;model&#39;: get_str_arg(xtra_args, xtra_values,formatter.FUNC_XTRA_VALUED_ARGS_DICT[&#39;model&#39;], True),
-        &#39;steps&#39;: get_int_arg(xtra_args, xtra_values,formatter.FUNC_XTRA_VALUED_ARGS_DICT[&#39;steps&#39;]),
-        &#39;optimize_sharpe&#39;: get_flag_arg(xtra_args, formatter.FUNC_XTRA_SINGLE_ARGS_DICT[&#39;optimize_sharpe&#39;]),
-        &#39;suppress&#39;: get_flag_arg(xtra_args,formatter.FUNC_XTRA_SINGLE_ARGS_DICT[&#39;suppress_output&#39;]),
-        &#39;json&#39;: get_flag_arg(xtra_args, formatter.FUNC_XTRA_SINGLE_ARGS_DICT[&#39;json&#39;]),
-        &#39;estimation&#39;: current_estimation_method
-    }
-
-def separate_and_parse_args(args):
-    extra_args, extra_values= [], []
-    reduced_args = args
-    
-    for arg in args:
-        if arg in formatter.FUNC_XTRA_VALUED_ARGS_DICT.values() or arg in formatter.FUNC_XTRA_SINGLE_ARGS_DICT.values():
-            extra_args.append(arg)
-            if arg not in formatter.FUNC_XTRA_SINGLE_ARGS_DICT.values():
-                extra_values.append(args[args.index(arg)+1])
-            else:
-                extra_values.append(None)
-
-    for arg in extra_args:
-        reduced_args.remove(arg)
-
-    for arg in extra_values:
-        if arg is not None:
-            reduced_args.remove(arg)
-
-    extra_reduced_args = reduced_args
-    offset = 0
-    for i, arg in enumerate(reduced_args):
-        if arg.startswith(&#39;-&#39;):
-            extra_reduced_args.remove(arg)
-            offset += 1
+    for arg in definitions.ARG_DICT:
+        if definitions.ARG_DICT[arg][&#39;format&#39;] != &#39;group&#39;:
+            parser.add_argument(definitions.ARG_DICT[arg][&#39;values&#39;][0], 
+                                definitions.ARG_DICT[arg][&#39;values&#39;][1], 
+                                definitions.ARG_DICT[arg][&#39;values&#39;][2], 
+                                definitions.ARG_DICT[arg][&#39;values&#39;][3],
+                                default=None, 
+                                type=definitions.ARG_DICT[arg][&#39;format&#39;],
+                                dest=arg)
         else:
-            extra_reduced_args[i-offset] = extra_reduced_args[i-offset].upper()
+            group_index = definitions.ARG_META[&#39;groups&#39;].index(definitions.ARG_DICT[arg][&#39;group&#39;])
+            groups[group_index].add_argument(definitions.ARG_DICT[arg][&#39;values&#39;][0],
+                                            definitions.ARG_DICT[arg][&#39;values&#39;][1],
+                                            definitions.ARG_DICT[arg][&#39;values&#39;][2],
+                                            definitions.ARG_DICT[arg][&#39;values&#39;][3],
+                                            action=&#39;store_const&#39;,
+                                            dest=definitions.ARG_DICT[arg][&#39;group&#39;],
+                                            const=arg)
 
-    return (extra_args, extra_values, extra_reduced_args)
-    
-def get_first_json_key(this_json):
+    parser.add_argument(&#39;tickers&#39;, nargs=&#39;*&#39;, type=str)
+    return vars(parser.parse_args(args))
+
+def get_first_json_key(this_json: dict) -&gt; str:
     return list(this_json.keys())[0]
 
-def replace_troublesome_chars(msg):
+def replace_troublesome_chars(msg: str) -&gt; str:
     return msg.replace(&#39;\u2265&#39;,&#39;&#39;).replace(&#39;\u0142&#39;, &#39;&#39;)</code></pre>
 </details>
 </section>
@@ -176,8 +112,8 @@ def replace_troublesome_chars(msg):
 <section>
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
-<dt id="scrilla.util.helper.format_xtra_args_dict"><code class="name flex">
-<span>def <span class="ident">format_xtra_args_dict</span></span>(<span>xtra_args, xtra_values, default_estimation_method)</span>
+<dt id="scrilla.util.helper.format_args"><code class="name flex">
+<span>def <span class="ident">format_args</span></span>(<span>args) ‑> argparse.Namespace</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -185,51 +121,43 @@ def replace_troublesome_chars(msg):
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def format_xtra_args_dict(xtra_args, xtra_values, default_estimation_method):
-    current_estimation_method = default_estimation_method
-    if get_flag_arg(xtra_args, formatter.FUNC_XTRA_SINGLE_ARGS_DICT[&#39;moments&#39;]) is not None:
-        current_estimation_method = static.keys[&#39;ESTIMATION&#39;][&#39;MOMENT&#39;]
-    elif get_flag_arg(xtra_args, formatter.FUNC_XTRA_SINGLE_ARGS_DICT[&#39;likelihood&#39;]) is not None:
-       current_estimation_method = static.keys[&#39;ESTIMATION&#39;][&#39;LIKE&#39;]
-    elif get_flag_arg(xtra_args,formatter.FUNC_XTRA_SINGLE_ARGS_DICT[&#39;percentiles&#39;]) is not None:
-       current_estimation_method = static.keys[&#39;ESTIMATION&#39;][&#39;PERCENT&#39;]
+<pre><code class="python">def format_args(args) -&gt; argparse.Namespace:
+    parser = argparse.ArgumentParser()
 
-    return {
-        &#39;start_date&#39;: get_date_arg(xtra_args, xtra_values, formatter.FUNC_XTRA_VALUED_ARGS_DICT[&#39;start_date&#39;]),
-        &#39;end_date&#39;: get_date_arg(xtra_args, xtra_values, formatter.FUNC_XTRA_VALUED_ARGS_DICT[&#39;end_date&#39;]),
-        &#39;save_file&#39;: get_str_arg(xtra_args, xtra_values, formatter.FUNC_XTRA_VALUED_ARGS_DICT[&#39;save&#39;]),
-        &#39;target&#39;: get_float_arg(xtra_args, xtra_values, formatter.FUNC_XTRA_VALUED_ARGS_DICT[&#39;target&#39;]),
-        &#39;discount&#39;: get_float_arg(xtra_args, xtra_values, formatter.FUNC_XTRA_VALUED_ARGS_DICT[&#39;discount&#39;]),
-        &#39;investment&#39;: get_float_arg(xtra_args, xtra_values, formatter.FUNC_XTRA_VALUED_ARGS_DICT[&#39;investment&#39;]),
-        &#39;expiry&#39;: get_float_arg(xtra_args, xtra_values, formatter.FUNC_XTRA_VALUED_ARGS_DICT[&#39;expiry&#39;]),
-        &#39;probability&#39;: get_float_arg(xtra_args, xtra_values, formatter.FUNC_XTRA_VALUED_ARGS_DICT[&#39;probability&#39;]),
-        &#39;model&#39;: get_str_arg(xtra_args, xtra_values,formatter.FUNC_XTRA_VALUED_ARGS_DICT[&#39;model&#39;], True),
-        &#39;steps&#39;: get_int_arg(xtra_args, xtra_values,formatter.FUNC_XTRA_VALUED_ARGS_DICT[&#39;steps&#39;]),
-        &#39;optimize_sharpe&#39;: get_flag_arg(xtra_args, formatter.FUNC_XTRA_SINGLE_ARGS_DICT[&#39;optimize_sharpe&#39;]),
-        &#39;suppress&#39;: get_flag_arg(xtra_args,formatter.FUNC_XTRA_SINGLE_ARGS_DICT[&#39;suppress_output&#39;]),
-        &#39;json&#39;: get_flag_arg(xtra_args, formatter.FUNC_XTRA_SINGLE_ARGS_DICT[&#39;json&#39;]),
-        &#39;estimation&#39;: current_estimation_method
-    }</code></pre>
-</details>
-</dd>
-<dt id="scrilla.util.helper.get_date_arg"><code class="name flex">
-<span>def <span class="ident">get_date_arg</span></span>(<span>xtra_args, xtra_values, which_arg)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def get_date_arg(xtra_args, xtra_values, which_arg):
-    if which_arg in xtra_args:
-        unparsed_date = xtra_values[xtra_args.index(which_arg)]
-        return dater.parse_date_string(unparsed_date)
-    return None</code></pre>
+    choices = []
+    for func in definitions.FUNC_DICT:
+        choices.append(definitions.FUNC_DICT[func][&#39;values&#39;][0])
+        choices.append(definitions.FUNC_DICT[func][&#39;values&#39;][1])
+
+    parser.add_argument(&#39;function_arg&#39;, choices=choices)
+
+    groups = [parser.add_mutually_exclusive_group() for arg_group in definitions.ARG_META[&#39;groups&#39;] ]
+
+    for arg in definitions.ARG_DICT:
+        if definitions.ARG_DICT[arg][&#39;format&#39;] != &#39;group&#39;:
+            parser.add_argument(definitions.ARG_DICT[arg][&#39;values&#39;][0], 
+                                definitions.ARG_DICT[arg][&#39;values&#39;][1], 
+                                definitions.ARG_DICT[arg][&#39;values&#39;][2], 
+                                definitions.ARG_DICT[arg][&#39;values&#39;][3],
+                                default=None, 
+                                type=definitions.ARG_DICT[arg][&#39;format&#39;],
+                                dest=arg)
+        else:
+            group_index = definitions.ARG_META[&#39;groups&#39;].index(definitions.ARG_DICT[arg][&#39;group&#39;])
+            groups[group_index].add_argument(definitions.ARG_DICT[arg][&#39;values&#39;][0],
+                                            definitions.ARG_DICT[arg][&#39;values&#39;][1],
+                                            definitions.ARG_DICT[arg][&#39;values&#39;][2],
+                                            definitions.ARG_DICT[arg][&#39;values&#39;][3],
+                                            action=&#39;store_const&#39;,
+                                            dest=definitions.ARG_DICT[arg][&#39;group&#39;],
+                                            const=arg)
+
+    parser.add_argument(&#39;tickers&#39;, nargs=&#39;*&#39;, type=str)
+    return vars(parser.parse_args(args))</code></pre>
 </details>
 </dd>
 <dt id="scrilla.util.helper.get_first_json_key"><code class="name flex">
-<span>def <span class="ident">get_first_json_key</span></span>(<span>this_json)</span>
+<span>def <span class="ident">get_first_json_key</span></span>(<span>this_json: dict) ‑> str</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -237,97 +165,12 @@ def replace_troublesome_chars(msg):
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def get_first_json_key(this_json):
+<pre><code class="python">def get_first_json_key(this_json: dict) -&gt; str:
     return list(this_json.keys())[0]</code></pre>
 </details>
 </dd>
-<dt id="scrilla.util.helper.get_flag_arg"><code class="name flex">
-<span>def <span class="ident">get_flag_arg</span></span>(<span>xtra_args, which_arg)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def get_flag_arg(xtra_args, which_arg):
-    if which_arg in xtra_args:
-        return which_arg
-    return None</code></pre>
-</details>
-</dd>
-<dt id="scrilla.util.helper.get_float_arg"><code class="name flex">
-<span>def <span class="ident">get_float_arg</span></span>(<span>xtra_args, xtra_values, which_arg)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def get_float_arg(xtra_args, xtra_values, which_arg):
-    if which_arg in xtra_args:
-        try:
-            return float(xtra_values[xtra_args.index(which_arg)])
-        except ValueError as ve:
-            raise ve
-    return None</code></pre>
-</details>
-</dd>
-<dt id="scrilla.util.helper.get_int_arg"><code class="name flex">
-<span>def <span class="ident">get_int_arg</span></span>(<span>xtra_args, xtra_values, which_arg)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def get_int_arg(xtra_args, xtra_values, which_arg):
-    if which_arg in xtra_args:
-        try:
-            return int(xtra_values[xtra_args.index(which_arg)])
-        except ValueError as ve:
-            raise ve
-    return None</code></pre>
-</details>
-</dd>
-<dt id="scrilla.util.helper.get_number_input"><code class="name flex">
-<span>def <span class="ident">get_number_input</span></span>(<span>msg_prompt) ‑> str</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def get_number_input(msg_prompt) -&gt; str:
-    while True:
-        user_input = input(msg_prompt)
-        if user_input.isnumeric():
-            return user_input
-        print(&#39;Input Not Understood. Please Enter A Numerical Value.&#39;)</code></pre>
-</details>
-</dd>
-<dt id="scrilla.util.helper.get_str_arg"><code class="name flex">
-<span>def <span class="ident">get_str_arg</span></span>(<span>xtra_args, xtra_values, which_arg, lowerCase=False)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def get_str_arg(xtra_args, xtra_values, which_arg, lowerCase = False):
-    if which_arg in xtra_args:
-        if not lowerCase:
-            return str(xtra_values[xtra_args.index(which_arg)])
-        return str(xtra_values[xtra_args.index(which_arg)]).lower()
-    return None</code></pre>
-</details>
-</dd>
 <dt id="scrilla.util.helper.intersect_dict_keys"><code class="name flex">
-<span>def <span class="ident">intersect_dict_keys</span></span>(<span>dict1, dict2)</span>
+<span>def <span class="ident">intersect_dict_keys</span></span>(<span>dict1: dict, dict2: dict) ‑> Tuple[dict, dict]</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -335,7 +178,7 @@ def replace_troublesome_chars(msg):
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def intersect_dict_keys(dict1, dict2):
+<pre><code class="python">def intersect_dict_keys(dict1: dict, dict2: dict) -&gt; Tuple[dict, dict]:
     intersection = [x for x in dict1.keys() if x in dict2.keys()]
 
     new_dict1, new_dict2 = {}, {}
@@ -350,7 +193,7 @@ def replace_troublesome_chars(msg):
 </details>
 </dd>
 <dt id="scrilla.util.helper.replace_troublesome_chars"><code class="name flex">
-<span>def <span class="ident">replace_troublesome_chars</span></span>(<span>msg)</span>
+<span>def <span class="ident">replace_troublesome_chars</span></span>(<span>msg: str) ‑> str</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -358,12 +201,12 @@ def replace_troublesome_chars(msg):
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def replace_troublesome_chars(msg):
+<pre><code class="python">def replace_troublesome_chars(msg: str) -&gt; str:
     return msg.replace(&#39;\u2265&#39;,&#39;&#39;).replace(&#39;\u0142&#39;, &#39;&#39;)</code></pre>
 </details>
 </dd>
 <dt id="scrilla.util.helper.round_array"><code class="name flex">
-<span>def <span class="ident">round_array</span></span>(<span>array, decimals)</span>
+<span>def <span class="ident">round_array</span></span>(<span>array: List[float], decimals: int) ‑> List[float]</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -371,53 +214,13 @@ def replace_troublesome_chars(msg):
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def round_array(array, decimals):
+<pre><code class="python">def round_array(array: List[float], decimals: int) -&gt; List[float]:
     cutoff = (1/10**decimals)
     return [0 if element &lt; cutoff else truncate(element, decimals) for element in array]</code></pre>
 </details>
 </dd>
-<dt id="scrilla.util.helper.separate_and_parse_args"><code class="name flex">
-<span>def <span class="ident">separate_and_parse_args</span></span>(<span>args)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def separate_and_parse_args(args):
-    extra_args, extra_values= [], []
-    reduced_args = args
-    
-    for arg in args:
-        if arg in formatter.FUNC_XTRA_VALUED_ARGS_DICT.values() or arg in formatter.FUNC_XTRA_SINGLE_ARGS_DICT.values():
-            extra_args.append(arg)
-            if arg not in formatter.FUNC_XTRA_SINGLE_ARGS_DICT.values():
-                extra_values.append(args[args.index(arg)+1])
-            else:
-                extra_values.append(None)
-
-    for arg in extra_args:
-        reduced_args.remove(arg)
-
-    for arg in extra_values:
-        if arg is not None:
-            reduced_args.remove(arg)
-
-    extra_reduced_args = reduced_args
-    offset = 0
-    for i, arg in enumerate(reduced_args):
-        if arg.startswith(&#39;-&#39;):
-            extra_reduced_args.remove(arg)
-            offset += 1
-        else:
-            extra_reduced_args[i-offset] = extra_reduced_args[i-offset].upper()
-
-    return (extra_args, extra_values, extra_reduced_args)</code></pre>
-</details>
-</dd>
 <dt id="scrilla.util.helper.strip_string_array"><code class="name flex">
-<span>def <span class="ident">strip_string_array</span></span>(<span>array) ‑> list</span>
+<span>def <span class="ident">strip_string_array</span></span>(<span>array: List[str]) ‑> List[str]</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -425,7 +228,7 @@ def replace_troublesome_chars(msg):
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def strip_string_array(array) -&gt; list:
+<pre><code class="python">def strip_string_array(array: List[str]) -&gt; List[str]:
     new_array = []
     for string in array:
         new_array.append(string.strip())
@@ -433,7 +236,7 @@ def replace_troublesome_chars(msg):
 </details>
 </dd>
 <dt id="scrilla.util.helper.truncate"><code class="name flex">
-<span>def <span class="ident">truncate</span></span>(<span>number, digits) ‑> float</span>
+<span>def <span class="ident">truncate</span></span>(<span>number: float, digits: int) ‑> float</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -441,7 +244,7 @@ def replace_troublesome_chars(msg):
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def truncate(number, digits) -&gt; float:
+<pre><code class="python">def truncate(number: float, digits: int) -&gt; float:
     stepper = 10.0 ** digits
     return trunc(stepper * number) / stepper</code></pre>
 </details>
@@ -464,18 +267,11 @@ def replace_troublesome_chars(msg):
 </li>
 <li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="">
-<li><code><a title="scrilla.util.helper.format_xtra_args_dict" href="#scrilla.util.helper.format_xtra_args_dict">format_xtra_args_dict</a></code></li>
-<li><code><a title="scrilla.util.helper.get_date_arg" href="#scrilla.util.helper.get_date_arg">get_date_arg</a></code></li>
+<li><code><a title="scrilla.util.helper.format_args" href="#scrilla.util.helper.format_args">format_args</a></code></li>
 <li><code><a title="scrilla.util.helper.get_first_json_key" href="#scrilla.util.helper.get_first_json_key">get_first_json_key</a></code></li>
-<li><code><a title="scrilla.util.helper.get_flag_arg" href="#scrilla.util.helper.get_flag_arg">get_flag_arg</a></code></li>
-<li><code><a title="scrilla.util.helper.get_float_arg" href="#scrilla.util.helper.get_float_arg">get_float_arg</a></code></li>
-<li><code><a title="scrilla.util.helper.get_int_arg" href="#scrilla.util.helper.get_int_arg">get_int_arg</a></code></li>
-<li><code><a title="scrilla.util.helper.get_number_input" href="#scrilla.util.helper.get_number_input">get_number_input</a></code></li>
-<li><code><a title="scrilla.util.helper.get_str_arg" href="#scrilla.util.helper.get_str_arg">get_str_arg</a></code></li>
 <li><code><a title="scrilla.util.helper.intersect_dict_keys" href="#scrilla.util.helper.intersect_dict_keys">intersect_dict_keys</a></code></li>
 <li><code><a title="scrilla.util.helper.replace_troublesome_chars" href="#scrilla.util.helper.replace_troublesome_chars">replace_troublesome_chars</a></code></li>
 <li><code><a title="scrilla.util.helper.round_array" href="#scrilla.util.helper.round_array">round_array</a></code></li>
-<li><code><a title="scrilla.util.helper.separate_and_parse_args" href="#scrilla.util.helper.separate_and_parse_args">separate_and_parse_args</a></code></li>
 <li><code><a title="scrilla.util.helper.strip_string_array" href="#scrilla.util.helper.strip_string_array">strip_string_array</a></code></li>
 <li><code><a title="scrilla.util.helper.truncate" href="#scrilla.util.helper.truncate">truncate</a></code></li>
 </ul>

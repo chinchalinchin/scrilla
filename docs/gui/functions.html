@@ -46,13 +46,15 @@ import time
 
 from PyQt5 import Qt, QtCore, QtWidgets
 
-import scrilla.analysis.models.geometric.statistics as statistics
 from scrilla import settings
+from scrilla.static.constants import constants
+import scrilla.analysis.models.geometric.statistics as statistics
 import scrilla.analysis.optimizer as optimizer
 import scrilla.analysis.objects.portfolio as portfolio
 
-from scrilla.util import outputter, formatter, helper, plotter
+from scrilla.util import outputter, helper, plotter
 
+from scrilla.gui import formats
 from scrilla.gui.widgets import CompositeWidget, GraphWidget, \
                             TableWidget, PortfolioWidget
 
@@ -80,8 +82,8 @@ class RiskReturnWidget(CompositeWidget):
             logger.debug(f&#39;Calculating {symbol} Risk-Return Profile&#39;)
             stats = statistics.calculate_moment_risk_return(symbol)
             if stats:
-                formatted_ret = str(100*stats[&#39;annual_return&#39;])[:formatter.SIG_FIGS]+&#34;%&#34;
-                formatted_vol = str(100*stats[&#39;annual_volatility&#39;])[:formatter.SIG_FIGS]+&#34;%&#34;
+                formatted_ret = str(100*stats[&#39;annual_return&#39;])[:constants[&#39;SIG_FIGS&#39;]]+&#34;%&#34;
+                formatted_vol = str(100*stats[&#39;annual_volatility&#39;])[:constants[&#39;SIG_FIGS&#39;]]+&#34;%&#34;
                 
                 logger.debug(f&#39;(return, vol)_{symbol} = ({formatted_ret}, {formatted_vol})&#39;)
 
@@ -150,7 +152,7 @@ class CorrelationWidget(TableWidget):
                     else:    
                         logger.debug(f&#39;Calculating correlation for ({value}, {user_symbols[j]})&#39;)
                         correlation = statistics.calculate_moment_correlation(value, user_symbols[j])
-                        formatted_correlation = str(100*correlation[&#34;correlation&#34;])[:formatter.SIG_FIGS]+&#34;%&#34;
+                        formatted_correlation = str(100*correlation[&#34;correlation&#34;])[:constants[&#39;SIG_FIGS&#39;]]+&#34;%&#34;
                         item_1 = QtWidgets.QTableWidgetItem(formatted_correlation)
                         item_1.setTextAlignment(QtCore.Qt.AlignHCenter)
                         item_2 = QtWidgets.QTableWidgetItem(formatted_correlation)
@@ -196,8 +198,8 @@ class OptimizerWidget(PortfolioWidget):
             this_portfolio = portfolio.Portfolio(tickers=user_symbols)
             allocation = optimizer.optimize_portfolio_variance(portfolio=this_portfolio)
             
-            logger.debug(static.functions.format_allocation_profile_title(allocation, this_portfolio))
-            self.result.setText(static.functions.format_allocation_profile_title(allocation, this_portfolio))
+            logger.debug(formats.format_allocation_profile_title(allocation, this_portfolio))
+            self.result.setText(formats.format_allocation_profile_title(allocation, this_portfolio))
 
             self.result_table.setRowCount(no_symbols)
             self.result_table.setVerticalHeader(QtWidgets.QHeaderView(QtCore.Qt.Vertical))
@@ -218,7 +220,7 @@ class OptimizerWidget(PortfolioWidget):
 
             for i in range(no_symbols):
                 this_allocation = allocation[i]
-                formatted_allocation = str(100*this_allocation)[:formatter.SIG_FIGS]+&#34;%&#34;
+                formatted_allocation = str(100*this_allocation)[:constants[&#39;SIG_FIGS&#39;]]+&#34;%&#34;
                 item = QtWidgets.QTableWidgetItem(formatted_allocation)
                 item.setTextAlignment(QtCore.Qt.AlignHCenter)
                 self.result_table.setItem(i, 0, item)
@@ -329,7 +331,7 @@ class MovingAverageWidget(GraphWidget):
                     else:    
                         logger.debug(f&#39;Calculating correlation for ({value}, {user_symbols[j]})&#39;)
                         correlation = statistics.calculate_moment_correlation(value, user_symbols[j])
-                        formatted_correlation = str(100*correlation[&#34;correlation&#34;])[:formatter.SIG_FIGS]+&#34;%&#34;
+                        formatted_correlation = str(100*correlation[&#34;correlation&#34;])[:constants[&#39;SIG_FIGS&#39;]]+&#34;%&#34;
                         item_1 = QtWidgets.QTableWidgetItem(formatted_correlation)
                         item_1.setTextAlignment(QtCore.Qt.AlignHCenter)
                         item_2 = QtWidgets.QTableWidgetItem(formatted_correlation)
@@ -400,7 +402,7 @@ def calculate_table(self):
                 else:    
                     logger.debug(f&#39;Calculating correlation for ({value}, {user_symbols[j]})&#39;)
                     correlation = statistics.calculate_moment_correlation(value, user_symbols[j])
-                    formatted_correlation = str(100*correlation[&#34;correlation&#34;])[:formatter.SIG_FIGS]+&#34;%&#34;
+                    formatted_correlation = str(100*correlation[&#34;correlation&#34;])[:constants[&#39;SIG_FIGS&#39;]]+&#34;%&#34;
                     item_1 = QtWidgets.QTableWidgetItem(formatted_correlation)
                     item_1.setTextAlignment(QtCore.Qt.AlignHCenter)
                     item_2 = QtWidgets.QTableWidgetItem(formatted_correlation)
@@ -588,8 +590,8 @@ def display(self):
             this_portfolio = portfolio.Portfolio(tickers=user_symbols)
             allocation = optimizer.optimize_portfolio_variance(portfolio=this_portfolio)
             
-            logger.debug(static.functions.format_allocation_profile_title(allocation, this_portfolio))
-            self.result.setText(static.functions.format_allocation_profile_title(allocation, this_portfolio))
+            logger.debug(formats.format_allocation_profile_title(allocation, this_portfolio))
+            self.result.setText(formats.format_allocation_profile_title(allocation, this_portfolio))
 
             self.result_table.setRowCount(no_symbols)
             self.result_table.setVerticalHeader(QtWidgets.QHeaderView(QtCore.Qt.Vertical))
@@ -610,7 +612,7 @@ def display(self):
 
             for i in range(no_symbols):
                 this_allocation = allocation[i]
-                formatted_allocation = str(100*this_allocation)[:formatter.SIG_FIGS]+&#34;%&#34;
+                formatted_allocation = str(100*this_allocation)[:constants[&#39;SIG_FIGS&#39;]]+&#34;%&#34;
                 item = QtWidgets.QTableWidgetItem(formatted_allocation)
                 item.setTextAlignment(QtCore.Qt.AlignHCenter)
                 self.result_table.setItem(i, 0, item)
@@ -670,8 +672,8 @@ def minimize(self):
         this_portfolio = portfolio.Portfolio(tickers=user_symbols)
         allocation = optimizer.optimize_portfolio_variance(portfolio=this_portfolio)
         
-        logger.debug(static.functions.format_allocation_profile_title(allocation, this_portfolio))
-        self.result.setText(static.functions.format_allocation_profile_title(allocation, this_portfolio))
+        logger.debug(formats.format_allocation_profile_title(allocation, this_portfolio))
+        self.result.setText(formats.format_allocation_profile_title(allocation, this_portfolio))
 
         self.result_table.setRowCount(no_symbols)
         self.result_table.setVerticalHeader(QtWidgets.QHeaderView(QtCore.Qt.Vertical))
@@ -692,7 +694,7 @@ def minimize(self):
 
         for i in range(no_symbols):
             this_allocation = allocation[i]
-            formatted_allocation = str(100*this_allocation)[:formatter.SIG_FIGS]+&#34;%&#34;
+            formatted_allocation = str(100*this_allocation)[:constants[&#39;SIG_FIGS&#39;]]+&#34;%&#34;
             item = QtWidgets.QTableWidgetItem(formatted_allocation)
             item.setTextAlignment(QtCore.Qt.AlignHCenter)
             self.result_table.setItem(i, 0, item)
@@ -757,8 +759,8 @@ def optimize(self):
             logger.debug(f&#39;Calculating {symbol} Risk-Return Profile&#39;)
             stats = statistics.calculate_moment_risk_return(symbol)
             if stats:
-                formatted_ret = str(100*stats[&#39;annual_return&#39;])[:formatter.SIG_FIGS]+&#34;%&#34;
-                formatted_vol = str(100*stats[&#39;annual_volatility&#39;])[:formatter.SIG_FIGS]+&#34;%&#34;
+                formatted_ret = str(100*stats[&#39;annual_return&#39;])[:constants[&#39;SIG_FIGS&#39;]]+&#34;%&#34;
+                formatted_vol = str(100*stats[&#39;annual_volatility&#39;])[:constants[&#39;SIG_FIGS&#39;]]+&#34;%&#34;
                 
                 logger.debug(f&#39;(return, vol)_{symbol} = ({formatted_ret}, {formatted_vol})&#39;)
 
@@ -831,8 +833,8 @@ def calculate(self):
         logger.debug(f&#39;Calculating {symbol} Risk-Return Profile&#39;)
         stats = statistics.calculate_moment_risk_return(symbol)
         if stats:
-            formatted_ret = str(100*stats[&#39;annual_return&#39;])[:formatter.SIG_FIGS]+&#34;%&#34;
-            formatted_vol = str(100*stats[&#39;annual_volatility&#39;])[:formatter.SIG_FIGS]+&#34;%&#34;
+            formatted_ret = str(100*stats[&#39;annual_return&#39;])[:constants[&#39;SIG_FIGS&#39;]]+&#34;%&#34;
+            formatted_vol = str(100*stats[&#39;annual_volatility&#39;])[:constants[&#39;SIG_FIGS&#39;]]+&#34;%&#34;
             
             logger.debug(f&#39;(return, vol)_{symbol} = ({formatted_ret}, {formatted_vol})&#39;)
 

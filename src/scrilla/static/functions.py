@@ -1,4 +1,5 @@
-from scrilla.static import keys, constants
+from scrilla.static.constants import constants
+from scrilla.static import keys
 from scrilla.util import dater
 
 def get_trading_period(asset_type: str) -> float:
@@ -11,7 +12,7 @@ def get_trading_period(asset_type: str) -> float:
     
     A string that represents a type of tradeable asset. Types are statically accessible through the ` settings` variables: ASSET_EQUITY and ASSET_CRYPTO.
     """
-    if asset_type == keys['ASSETS']['CRYPTO']:
+    if asset_type == keys.keys['ASSETS']['CRYPTO']:
         return constants['ONE_TRADING_DAY']['CRYPTO']
     return constants['ONE_TRADING_DAY']['EQUITY']
 

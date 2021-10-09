@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.10.0" />
-<title>scrilla.static API documentation</title>
+<title>scrilla.static.keys API documentation</title>
 <meta name="description" content="" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
@@ -20,41 +20,15 @@
 <main>
 <article id="content">
 <header>
-<h1 class="title">Module <code>scrilla.static</code></h1>
+<h1 class="title">Module <code>scrilla.static.keys</code></h1>
 </header>
 <section id="section-intro">
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python"># This file is part of scrilla: https://github.com/chinchalinchin/scrilla.
+<pre><code class="python">from scrilla.static.constants import constants
 
-# scrilla is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License version 3
-# as published by the Free Software Foundation.
-
-# scrilla is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-
-# You should have received a copy of the GNU General Public License
-# along with scrilla.  If not, see &lt;https://www.gnu.org/licenses/&gt;
-# or &lt;https://github.com/chinchalinchin/scrilla/blob/develop/main/LICENSE&gt;.
-
-constants = {
-    &#39;ONE_TRADING_DAY&#39;: {
-        &#39;EQUITY&#39;: (1/252),
-        &#39;CRYPTO&#39;: (1/365)
-    },
-    &#39;ACCURACY&#39;: 5,
-    &#39;BACKOFF_PERIOD&#39;: 30,
-    &#39;KEEP_FILE&#39;: &#39;.gitkeep&#39;,
-    &#39;PRICE_YEAR_CUTOFF&#39;: 1950,
-    &#39;DENOMINATION&#39;: &#39;USD&#39;,
-    &#39;NPV_DELTA_TOLERANCE&#39;: 0.0000001,
-    &#39;OPTIMIZATION_METHOD&#39;: &#34;SLSQP&#34;
-}
 keys= {
     &#39;PRICES&#39;: {
         &#39;OPEN&#39;: &#39;open&#39;,
@@ -62,8 +36,8 @@ keys= {
     },
     &#39;ESTIMATION&#39;: {
         &#39;MOMENT&#39;: &#39;moments&#39;,
-        &#39;PERCENT&#39;: &#39;percents&#39;,
-        &#39;LIKE&#39;: &#39;likely&#39;
+        &#39;PERCENT&#39;: &#39;percentiles&#39;,
+        &#39;LIKE&#39;: &#39;likelihood&#39;
     },
     &#39;SDE&#39;:{
         &#39;GBM&#39;: &#39;geometric&#39;,
@@ -132,7 +106,7 @@ keys= {
                     },
                     &#39;ARGUMENTS&#39;: {
                         &#39;EQUITY_DAILY&#39;: &#39;TIME_SERIES_DAILY&#39;,
-                        &#39;LISTING&#39;: &#39;LISTING_STATUS&#39;,
+                        &#39;EQUITY_LISTING&#39;: &#39;LISTING_STATUS&#39;,
                         &#39;CRYPTO_DAILY&#39;: &#39;DIGITAL_CURRENCY_DAILY&#39;,
                         &#39;FULL&#39;: &#39;full&#39;
                     },
@@ -185,28 +159,22 @@ keys= {
             &#39;IEX&#39;: {
                 &#39;MANAGER&#39;: &#39;iex&#39;,
                 &#39;MAP&#39;: {
-                    &#39;&#39;: &#39;&#39;
+                    &#39;PATHS&#39;:{
+                        &#39;DIV&#39;: &#39;dividends&#39;
+                    },
+                    &#39;KEYS&#39;: {
+                        &#39;DATE&#39;: &#39;paymentDate&#39;,
+                        &#39;AMOUNT&#39;: &#39;amount&#39;
+                    },
+                    &#39;PARAMS&#39;:{
+                        &#39;FULL&#39;:&#39;5y&#39;,
+                        &#39;KEY&#39;: &#39;token&#39;
+                    }
                 }
             }
         }
     }
-}
-
-def get_trading_period(asset_type):
-    &#34;&#34;&#34;
-    Description
-    -----------
-    Returns the value of one trading day measured in years of the asset_type passed in as an argument.
-
-    Parameters
-    ----------
-    1. asset_type : str\n
-    
-    A string that represents a type of tradeable asset. Types are statically accessible through the ` settings` variables: ASSET_EQUITY and ASSET_CRYPTO.
-    &#34;&#34;&#34;
-    if asset_type == keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]:
-        return constants[&#39;ONE_TRADING_DAY&#39;][&#39;CRYPTO&#39;]
-    return constants[&#39;ONE_TRADING_DAY&#39;][&#39;EQUITY&#39;]</code></pre>
+}</code></pre>
 </details>
 </section>
 <section>
@@ -214,41 +182,6 @@ def get_trading_period(asset_type):
 <section>
 </section>
 <section>
-<h2 class="section-title" id="header-functions">Functions</h2>
-<dl>
-<dt id="scrilla.static.get_trading_period"><code class="name flex">
-<span>def <span class="ident">get_trading_period</span></span>(<span>asset_type)</span>
-</code></dt>
-<dd>
-<div class="desc"><h2 id="description">Description</h2>
-<p>Returns the value of one trading day measured in years of the asset_type passed in as an argument.</p>
-<h2 id="parameters">Parameters</h2>
-<ol>
-<li>asset_type : str</li>
-</ol>
-<p>A string that represents a type of tradeable asset. Types are statically accessible through the <code> settings</code> variables: ASSET_EQUITY and ASSET_CRYPTO.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def get_trading_period(asset_type):
-    &#34;&#34;&#34;
-    Description
-    -----------
-    Returns the value of one trading day measured in years of the asset_type passed in as an argument.
-
-    Parameters
-    ----------
-    1. asset_type : str\n
-    
-    A string that represents a type of tradeable asset. Types are statically accessible through the ` settings` variables: ASSET_EQUITY and ASSET_CRYPTO.
-    &#34;&#34;&#34;
-    if asset_type == keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]:
-        return constants[&#39;ONE_TRADING_DAY&#39;][&#39;CRYPTO&#39;]
-    return constants[&#39;ONE_TRADING_DAY&#39;][&#39;EQUITY&#39;]</code></pre>
-</details>
-</dd>
-</dl>
 </section>
 <section>
 </section>
@@ -261,12 +194,7 @@ def get_trading_period(asset_type):
 <ul id="index">
 <li><h3>Super-module</h3>
 <ul>
-<li><code><a title="scrilla" href="index.html">scrilla</a></code></li>
-</ul>
-</li>
-<li><h3><a href="#header-functions">Functions</a></h3>
-<ul class="">
-<li><code><a title="scrilla.static.get_trading_period" href="#scrilla.static.get_trading_period">get_trading_period</a></code></li>
+<li><code><a title="scrilla.static" href="index.html">scrilla.static</a></code></li>
 </ul>
 </li>
 </ul>

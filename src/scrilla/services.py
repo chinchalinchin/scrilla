@@ -21,7 +21,8 @@ from typing import Union
 
 from datetime import date
 
-from scrilla import settings, errors, cache, static
+from scrilla import settings, errors, cache
+from scrilla.static import keys, constants
 from scrilla.util import outputter, helper, dater
 
 logger = outputter.Logger("services", settings.LOG_LEVEL)
@@ -33,7 +34,7 @@ class StatManager():
     Attributes
     ----------
     1. **genre**: ``str``
-        A string denoting which service will be used for data hydration. Genres can be accessed through the `static.keys['SERVICES']` dictionary.
+        A string denoting which service will be used for data hydration. Genres can be accessed through the `keys.keys['SERVICES']` dictionary.
     2. **self.service_map**: ``dict``
         A dictionary containing keys unique to the service defined by `genre`, such as endpoints, query parameters, etc. 
 
@@ -49,7 +50,9 @@ class StatManager():
         self.genre = genre
         self.service_map = None
         if self._is_quandl():
-            self.service_map = static.keys["SERVICES"]["STATISTICS"]["QUANDL"]["MAP"]
+            self.service_map = keys.keys["SERVICES"]["STATISTICS"]["QUANDL"]["MAP"]
+            self.key = settings.Q_KEY
+            self.url = settings.Q_URL
         if self.service_map is None:
             raise errors.ConfigurationError('No STAT_MANAGER found in the parsed environment settings')
 
@@ -65,7 +68,7 @@ class StatManager():
             * This is for use within the class and probably won't need to be accessed outside of it. `StatManager` is intended to hide the data implementation from the rest of the library, i.e. it is ultimately agnostic about where the data comes where. It should never need to know `StatManger` is a Quandl interface. Just in case the library ever needs to populate its data from another source.
 
         """
-        if self.genre == static.keys['SERVICES']['STATISTICS']['QUANDL']['MANAGER']:
+        if self.genre == keys.keys['SERVICES']['STATISTICS']['QUANDL']['MANAGER']:
             return True
         return False
 
@@ -87,23 +90,20 @@ class StatManager():
 
         """
         query = ""
-        if self._is_quandl():
+        if end_date is not None:
+            end_string = dater.date_to_string(end_date)
+            query += f'&{self.service_map["PARAMS"]["END"]}={end_string}' 
 
-            # TODO: too many &'s. doesn't seem to affect the call, though.
-            if end_date is not None:
-                end_string = dater.date_to_string(end_date)
-                query += f'&{self.service_map["PARAMS"]["END"]}={end_string}' 
+        if start_date is not None:
+            start_string = dater.date_to_string(start_date)
+            query += f'&{self.service_map["PARAMS"]["START"]}={start_string}'
+    
+        if query:
+            logger.debug(f'StatManager Query (w/o key) = {query}')
+            return f'{query}&{self.service_map["PARAMS"]["KEY"]}={self.key}'
 
-            if start_date is not None:
-                start_string = dater.date_to_string(start_date)
-                query += f'&{self.service_map["PARAMS"]["START"]}={start_string}'
-        
-            logger.debug(f'Quandl query (w/o key) = {query}')
+        return f'{self.service_map["PARAMS"]["KEY"]}={self.key}'
 
-            if query:
-                return f'{query}&{self.service_map["PARAMS"]["KEY"]}={settings.Q_KEY}'
-
-            return f'{self.service_map["PARAMS"]["KEY"]}={settings.Q_KEY}'
 
     def _construct_stat_url(self, symbol: str, start_date: date, end_date: date):
         """
@@ -124,9 +124,8 @@ class StatManager():
         ``str``
             The formatted URL for the specific statistics service defined by `self.genre`.
         """
-        if self._is_quandl():
-            url = f'{settings.Q_URL}/{self.service_map["PATHS"]["FRED"]}/{symbol}?'
-            url += self._construct_query(start_date, end_date)
+        url = f'{self.url}/{self.service_map["PATHS"]["FRED"]}/{symbol}?'
+        url += self._construct_query(start_date=start_date, end_date=end_date)
         return url
 
     def _construct_interest_url(self,start_date, end_date):
@@ -148,7 +147,7 @@ class StatManager():
         .. notes::
             * The URL returned by this method will always contain a query for a historical range of US Treasury Yields, i.e. this method is specifically for queries involving the "Risk-Free" (right? right? *crickets*) Yield Curve. 
         """
-        url = f'{settings.Q_URL}/{self.service_map["PATHS"]["YIELD"]}?'
+        url = f'{self.url}/{self.service_map["PATHS"]["YIELD"]}?'
         url += self._construct_query(start_date=start_date, end_date=end_date)
         return url
 
@@ -157,76 +156,71 @@ class StatManager():
         url = self._construct_stat_url(symbol, start_date, end_date)
         response = requests.get(url).json()
 
-        if self._is_quandl():
-            raw_stat = response[self.service_map["KEYS"]["FIRST_LAYER"]][self.service_map["KEYS"]["SECOND_LAYER"]]
-            formatted_stat = {}
-        
-            for stat in raw_stat:
-                formatted_stat[stat[0]] = stat[1]
-            return formatted_stat
+        raw_stat = response[self.service_map["KEYS"]["FIRST_LAYER"]][self.service_map["KEYS"]["SECOND_LAYER"]]
+        formatted_stat = {}
+    
+        for stat in raw_stat:
+            formatted_stat[stat[0]] = stat[1]
+        return formatted_stat
 
     def get_interest_rates(self, start_date, end_date):
         url = self._construct_interest_url(start_date=start_date, end_date=end_date)
         response = requests.get(url).json()
 
-        if self._is_quandl():
-            raw_interest = response[self.service_map["KEYS"]["FIRST_LAYER"]][self.service_map["KEYS"]["SECOND_LAYER"]]
+        raw_interest = response[self.service_map["KEYS"]["FIRST_LAYER"]][self.service_map["KEYS"]["SECOND_LAYER"]]
 
-            formatted_interest = {}
-            for rate in raw_interest:
-                formatted_interest[rate[0]] = rate[1:]
-            return formatted_interest
+        formatted_interest = {}
+        for rate in raw_interest:
+            formatted_interest[rate[0]] = rate[1:]
+        return formatted_interest
 
     def format_for_maturity(self, maturity, results):
         try:
-            maturity_key = static.keys['YIELD_CURVE'].index(maturity)
+            maturity_key = keys.keys['YIELD_CURVE'].index(maturity)
         except KeyError:
             raise errors.InputValidationError(f'{maturity} is not a valid maturity for US Treasury Bonds')
 
-        if self._is_quandl():
-            
-            formatted_interest = {}
-            for result in results:
-                formatted_interest[result] = results[result][maturity_key]
-            return formatted_interest
+        formatted_interest = {}
+        for result in results:
+            formatted_interest[result] = results[result][maturity_key]
+        return formatted_interest
         
 class DividendManager():
     """
     Attributes
     ----------
     1. **genre**: ``str``
-        A string denoting which service will be used for data hydration. Genres can be accessed through the `static.keys['SERVICES']` dictionary.
+        A string denoting which service will be used for data hydration. Genres can be accessed through the `keys.keys['SERVICES']` dictionary.
     2. **self.service_map**: ``dict``
         A dictionary containing keys unique to the service defined by `genre`, such as endpoints, query parameters, etc. 
     """
     def __init__(self, genre):
         self.genre = genre
-        if self.genre == static.keys['SERVICES']['DIVIDENDS']['IEX']['MANAGER']:
-            self.service_map = static.keys['SERVICES']['DIVIDENDS']['IEX']['MAP']
+        if self.genre == keys.keys['SERVICES']['DIVIDENDS']['IEX']['MANAGER']:
+            self.service_map = keys.keys['SERVICES']['DIVIDENDS']['IEX']['MAP']
+            self.key = settings.IEX_KEY
+            self.url = settings.IEX_URL
+
+        if self.service_map is None:
+            raise errors.ConfigurationError('No DIV_MANAGER found in the parsed environment settings') 
 
     def _construct_url(self, ticker):
-        if self.genre == static.keys['SERVICES']['DIVIDENDS']['IEX']['MANAGER']:
-            query=f'{ticker}/{settings.PATH_IEX_DIV}/{settings.PARAM_IEX_RANGE_5YR}'
-            url = f'{settings.IEX_URL}/{query}?{settings.PARAM_IEX_KEY}={settings.IEX_KEY}'
-    
-            logger.debug(f'IEX Cloud Path Query (w/o key) = {query}')
-
-            return url
+        query=f'{ticker}/{self.service_map["PATHS"]["DIV"]}/{self.service_map["PARAMS"]["FULL"]}'
+        url = f'{self.url}/{query}?{self.service_map["PARAMS"]["KEY"]}={self.key}'
+        logger.debug(f'DivManager Query (w/o key) = {query}')
+        return url
             
-        raise errors.ConfigurationError('No DIV_MANAGER found in the parsed environment settings')
-
     def get_dividends(self, ticker):
         url = self._construct_url(ticker)
         response = requests.get(url).json()
         formatted_response = {}
 
-        if self.genre == static.keys['SERVICES']['DIVIDENDS']['IEX']['MANAGER']:
-            for item in response:
-                date = str(item[settings.IEX_RES_DATE_KEY])
-                div = item[settings.IEX_RES_DIV_KEY]
-                formatted_response[date] = div
-            return formatted_response
-        raise errors.ConfigurationError('No DIV_MANAGER found in the parsed environment settings')
+        for item in response:
+            date = str(item[self.service_map['KEYS']['DATE']])
+            div = item[self.service_map['KEYS']['AMOUNT']]
+            formatted_response[date] = div
+        
+        return formatted_response
 
 class PriceManager():
     """
@@ -240,15 +234,17 @@ class PriceManager():
     Attributes
     ----------
     1. **genre**: ``str``
-        A string denoting which service will be used for data hydration. Genres can be accessed through the `static.keys['SERVICES']` dictionary.
+        A string denoting which service will be used for data hydration. Genres can be accessed through the `keys.keys['SERVICES']` dictionary.
     2. **self.service_map**: ``dict``
         A dictionary containing keys unique to the service defined by `genre`, such as endpoints, query parameters, etc. 
 
     """
     def __init__(self, genre):
         self.genre = genre
-        if self.genre == static.keys['SERVICES']['PRICES']['ALPHA_VANTAGE']['MANAGER']:
-            self.service_map = static.keys['SERVICES']['PRICES']['ALPHA_VANTAGE']['MAP']
+        if self.genre == keys.keys['SERVICES']['PRICES']['ALPHA_VANTAGE']['MANAGER']:
+            self.service_map = keys.keys['SERVICES']['PRICES']['ALPHA_VANTAGE']['MAP']
+            self.url = settings.AV_URL
+            self.key = settings.AV_KEY
         if self.service_map is None:
             raise errors.ConfigurationError('No PRICE_MANAGER found in the parsed environment settings')
 
@@ -264,32 +260,30 @@ class PriceManager():
             Ticker symbol of the asset whose prices are being retrieved.
         2. **asset_type**: ``str``
             Asset type of the asset whose prices are being retrieved. Options are statically
-            accessible in the `scrillla.static` module dictionary `scrilla.static.keys['ASSETS']`.
+            accessible in the `scrillla.static` module dictionary `scrilla.keys.keys['ASSETS']`.
 
         Returns
         -------
         `str`
             The URL with the authenticated query appended, i.e. with the service's API key injected into the parameters. Be careful not to expose the return value of this function!
+
+        .. notes::
+            * this function will probably need substantially refactored if another price service is ever incorporated, unless the price service selected can be abstracted into the same template set by `scrilla.statics.keys['SERVICES']['PRICES']['ALPHA_VANTAGE']['MAP']`.
         """
-        # can't defer to the service_map here since endpoints are in the environment.
-            # NOTE: should endpoints be in the environment? 
-            # regardless, the API keys should be, so this method needs to check `genre`
-            # instead of pulling info from service_map without conditionally checking.
-        if self.genre == static.keys['SERVICES']['PRICES']['ALPHA_VANTAGE']['MANAGER']:
-            query = f'{settings.PARAM_AV_TICKER}={ticker}'
 
-            if asset_type == static.keys['ASSETS']['EQUITY']:
-                query += f'&{settings.PARAM_AV_FUNC}={settings.ARG_AV_FUNC_EQUITY_DAILY}'
-            elif asset_type == static.keys['ASSETS']['CRYPTO']:
-                query += f'&{settings.PARAM_AV_FUNC}={settings.ARG_AV_FUNC_CRYPTO_DAILY}&{settings.PARAM_AV_DENOM}={static.constants["DENOMINATION"]}'
+        query = f'{self.service_map["PARAMS"]["TICKER"]}={ticker}'
 
-                    # NOTE: only need to modify EQUITY query, CRYPTO always returns full history
-            if (asset_type == static.keys['ASSETS']['EQUITY']):
-                query += f'&{settings.PARAM_AV_SIZE}={settings.ARG_AV_SIZE_FULL}'
+        if asset_type == keys.keys['ASSETS']['EQUITY']:
+            query += f'&{self.service_map["PARAMS"]["FUNCTION"]}={self.service_map["ARGUMENTS"]["EQUITY_DAILY"]}'
+            query += f'&{self.service_map["PARAMS"]["SIZE"]}={self.service_map["ARGUMENTS"]["FULL"]}'
 
-            auth_query = query + f'&{settings.PARAM_AV_KEY}={settings.AV_KEY}'
-            url=f'{settings.AV_URL}?{auth_query}'  
-            logger.debug(f'AlphaVantage query (w/o key) = {query}') 
+        elif asset_type == keys.keys['ASSETS']['CRYPTO']:
+            query += f'&{self.service_map["PARAMS"]["FUNCTION"]}={self.service_map["ARGUMENTS"]["EQUITY_DAILY"]}'
+            query += f'&{self.service_map["PARAMS"]["FUNCTION"]}={constants.constants["DENOMINATION"]}'
+
+        auth_query = query + f'&{self.service_map["PARAMS"]["KEY"]}={self.key}'
+        url=f'{self.url}?{auth_query}'  
+        logger.debug(f'PriceManager query (w/o key) = {query}') 
         return url
 
     def get_prices(self, ticker, start_date, end_date, asset_type):
@@ -302,7 +296,7 @@ class PriceManager():
             Ticker symbol of the asset whose prices are being retrieved.
         2. **asset_type** : ``str``
             Asset type of the asset whose prices are being retrieved. Options are statically
-            accessible in the `scrillla.static` module dictionary `scrilla.static.keys['ASSETS']`.
+            accessible in the `scrillla.static` module dictionary `scrilla.keys.keys['ASSETS']`.
         
         Returns
         -------
@@ -337,7 +331,7 @@ class PriceManager():
             else:
                 logger.comment('Waiting...')
             
-            time.sleep(static.constants['BACKOFF_PERIOD'])
+            time.sleep(constants.constants['BACKOFF_PERIOD'])
             response = requests.get(url).json()
             first_element = helper.get_first_json_key(response)
 
@@ -348,10 +342,10 @@ class PriceManager():
         format_prices = {}
         for this_date in prices:
             close_price = self._parse_price_from_date(prices=prices, date=this_date, asset_type=asset_type, 
-                                                which_price=static.keys['PRICES']['CLOSE'])
+                                                which_price=keys.keys['PRICES']['CLOSE'])
             open_price = self._parse_price_from_date(prices=prices, date=this_date, asset_type=asset_type, 
-                                                which_price=static.keys['PRICES']['OPEN'])
-            format_prices[this_date] = { static.keys['PRICES']['OPEN'] : open_price, static.keys['PRICES']['CLOSE'] : close_price }
+                                                which_price=keys.keys['PRICES']['OPEN'])
+            format_prices[this_date] = { keys.keys['PRICES']['OPEN'] : open_price, keys.keys['PRICES']['CLOSE'] : close_price }
         return format_prices
 
     def _slice_prices(self, start_date: date, end_date: date, asset_type: str, prices: dict) -> dict:
@@ -364,7 +358,7 @@ class PriceManager():
         2. **end_date** : ``datetime.date``
         3. **asset_type** : ``str``
             Required: Asset type of the asset whose prices are being retrieved. Options are statically
-            accessible in the `scrillla.static` module dictionary `scrilla.static.keys['ASSETS']`.
+            accessible in the `scrillla.static` module dictionary `scrilla.keys.keys['ASSETS']`.
         4. **response** : ``dict``
             The full response from the price manager, i.e. the entire price history returned by the external service in charge of retrieving pricce histories, the result returned from `scrilla.services.PriceManager.get_prices`
        
@@ -384,14 +378,14 @@ class PriceManager():
 
         # NOTE: only really needed for `alpha_vantage` responses so far, due to the fact AlphaVantage either returns everything or 100 days or prices.
             # shouldn't need to verify genre anyway, since using service_map and service_map should abstract the response away.
-        if self.genre == static.keys['SERVICES']['PRICES']['ALPHA_VANTAGE']['MANAGER']:
+        if self.genre == keys.keys['SERVICES']['PRICES']['ALPHA_VANTAGE']['MANAGER']:
 
             # NOTE: Remember AlphaVantage is ordered current to earliest. END_INDEX is 
             # actually the beginning of slice and START_INDEX is actually end of slice. 
             start_string, end_string = dater.date_to_string(start_date), dater.date_to_string(end_date)
-            if asset_type == static.keys['ASSETS']['EQUITY']:
+            if asset_type == keys.keys['ASSETS']['EQUITY']:
                 response_map = self.service_map['KEYS']['EQUITY']['FIRST_LAYER']
-            elif asset_type == static.keys['ASSETS']['CRYPTO']:
+            elif asset_type == keys.keys['ASSETS']['CRYPTO']:
                 response_map = self.service_map['KEYS']['CRYPTO']['FIRST_LAYER']
 
             start_index = list(prices[response_map].keys()).index(start_string)
@@ -413,7 +407,7 @@ class PriceManager():
             must be formatted `YYYY-MM-DD`
         3. **asset_type**: ``str``
             String that specifies what type of asset price is being parsed. Options are statically
-            accessible in the `scrillla.static` module dictionary `scrilla.static.keys['ASSETS']`
+            accessible in the `scrillla.static` module dictionary `scrilla.keys.keys['ASSETS']`
         4. **which_price**: ``str``
             String that specifies which price is to be retrieved, the closing price or the opening prices. Options are statically accessible 
     
@@ -429,16 +423,16 @@ class PriceManager():
         2. **scrilla.errors.InputValidationError**
             If prices was unable to be grouped into a (crypto, equity)-asset class or the opening/closing price did not exist for whatever reason, this error will be thrown.
         """
-        if asset_type == static.keys['ASSETS']['EQUITY']:
-            if which_price == static.keys['PRICES']['CLOSE']:
+        if asset_type == keys.keys['ASSETS']['EQUITY']:
+            if which_price == keys.keys['PRICES']['CLOSE']:
                 return prices[date][self.service_map['KEYS']['EQUITY']['CLOSE']]
-            if which_price == static.keys['PRICES']['OPEN']:
+            if which_price == keys.keys['PRICES']['OPEN']:
                 return prices[date][self.service_map['KEYS']['EQUITY']['CLOSE']]
 
-        elif asset_type == static.keys['ASSETS']['CRYPTO']:
-            if which_price == static.keys['PRICES']['CLOSE']:
+        elif asset_type == keys.keys['ASSETS']['CRYPTO']:
+            if which_price == keys.keys['PRICES']['CLOSE']:
                 return prices[date][self.service_map['KEYS']['CRYPTO']['CLOSE']]
-            if which_price == static.keys['PRICES']['OPEN']:
+            if which_price == keys.keys['PRICES']['OPEN']:
                 return prices[date][self.service_map['KEYS']['CRYPTO']['OPEN']]
         
         raise errors.InputValidationError(f'Verify {asset_type}, {which_price} are allowable values')
@@ -461,11 +455,11 @@ def get_daily_price_history(ticker: str, start_date: Union[None, date] = None,
     1. **ticker** :  ``str``
         Ticker symbol corresponding to the price history to be retrieved.
     2. **start_date** : ``datetime.date`` 
-        *Optional*. Start date of price history. Defaults to None. If `start_date is None`, the calculation is made as if the `start_date` were set to 100 trading days ago. If `scrilla.files.get_asset_type(ticker)==scrill.static.keys['ASSETS']['CRYPTO']`, this includes weekends and holidays. If `scrilla.files.get_asset_type(ticker)==scrilla.static.keys['ASSETS']['EQUITY']`, this excludes weekends and holidays.
+        *Optional*. Start date of price history. Defaults to None. If `start_date is None`, the calculation is made as if the `start_date` were set to 100 trading days ago. If `scrilla.files.get_asset_type(ticker)==scrill.keys.keys['ASSETS']['CRYPTO']`, this includes weekends and holidays. If `scrilla.files.get_asset_type(ticker)==scrilla.keys.keys['ASSETS']['EQUITY']`, this excludes weekends and holidays.
     3. **end_date** : ``datetime.date``
-        Optional End date of price history. Defaults to None. If `end_date is None`, the calculation is made as if the `end_date` were set to today. If `scrilla.files.get_asset_type(ticker)==scrill.static.keys['ASSETS']['CRYPTO']`, this means today regardless. If `scrilla.files.get_asset_type(ticker)==scrilla.static.keys['ASSETS']['EQUITY']`, this excludes weekends and holidays so that `end_date` is set to the previous business date. 
+        Optional End date of price history. Defaults to None. If `end_date is None`, the calculation is made as if the `end_date` were set to today. If `scrilla.files.get_asset_type(ticker)==scrill.keys.keys['ASSETS']['CRYPTO']`, this means today regardless. If `scrilla.files.get_asset_type(ticker)==scrilla.keys.keys['ASSETS']['EQUITY']`, this excludes weekends and holidays so that `end_date` is set to the previous business date. 
     4. **asset_type** : ``string``
-        *Optional*. Asset type of the ticker whose history is to be retrieved. Used to prevent excessive calls to IO and list searching. `asset_type` is determined by comparing the ticker symbol `ticker` to a large static list of ticker symbols maintained in installation directory's /data/static/ subdirectory, which can slow the program down if the file is constantly accessed and lots of comparison are made against it. Once an `asset_type` is calculated, it is best to preserve it in the process environment somehow, so this function allows the value to be passed in. If no value is detected, it will make a call to the aforementioned directory and parse the file to determine to the `asset_type`. Asset types are statically accessible through the `scrilla.static.keys['ASSETS']` dictionary.
+        *Optional*. Asset type of the ticker whose history is to be retrieved. Used to prevent excessive calls to IO and list searching. `asset_type` is determined by comparing the ticker symbol `ticker` to a large static list of ticker symbols maintained in installation directory's /data/static/ subdirectory, which can slow the program down if the file is constantly accessed and lots of comparison are made against it. Once an `asset_type` is calculated, it is best to preserve it in the process environment somehow, so this function allows the value to be passed in. If no value is detected, it will make a call to the aforementioned directory and parse the file to determine to the `asset_type`. Asset types are statically accessible through the `scrilla.keys.keys['ASSETS']` dictionary.
 
     Returns
     ------
@@ -482,10 +476,10 @@ def get_daily_price_history(ticker: str, start_date: Union[None, date] = None,
 
     # make sure the length of cache is equal to the length of the requested sample
     if prices is not None and dater.date_to_string(end_date) in prices.keys() and (
-        (asset_type == static.keys['ASSETS']['EQUITY']
+        (asset_type == keys.keys['ASSETS']['EQUITY']
             and (dater.business_days_between(start_date, end_date) + 1) == len(prices))
         or 
-        (asset_type == static.keys['ASSETS']['CRYPTO']
+        (asset_type == keys.keys['ASSETS']['CRYPTO']
             and (dater.days_between(start_date, end_date) + 1) == len(prices))
     ):
         return prices
@@ -496,8 +490,8 @@ def get_daily_price_history(ticker: str, start_date: Union[None, date] = None,
     prices = price_manager.get_prices(ticker=ticker,start_date=start_date, end_date=end_date, asset_type=asset_type)
 
     for this_date in prices:
-        close_price = prices[this_date][static.keys['PRICES']['OPEN']]
-        open_price = prices[this_date][static.keys['PRICES']['CLOSE']]
+        close_price = prices[this_date][keys.keys['PRICES']['OPEN']]
+        open_price = prices[this_date][keys.keys['PRICES']['CLOSE']]
         price_cache.save_row(ticker=ticker, date=this_date, open_price=open_price, close_price=close_price)
 
     return prices
@@ -515,7 +509,7 @@ def get_daily_price_latest(ticker: str, asset_type: Union[None, str]=None) -> fl
     """
     prices = get_daily_price_history(ticker=ticker,asset_type=asset_type)
     first_element = helper.get_first_json_key(prices)
-    return prices[first_element][static.keys['PRICES']['OPEN']]
+    return prices[first_element][keys.keys['PRICES']['OPEN']]
     
 def get_daily_fred_history(symbol: str, start_date: Union[date, None]=None, end_date: Union[date, None]=None) -> list:
     """
@@ -540,7 +534,7 @@ def get_daily_fred_history(symbol: str, start_date: Union[date, None]=None, end_
 
     """
    
-    start_date,end_date=errors.validate_dates(start_date=start_date, end_date=end_date, asset_type=static.keys['ASSETS']['EQUITY'])
+    start_date,end_date=errors.validate_dates(start_date=start_date, end_date=end_date, asset_type=keys.keys['ASSETS']['EQUITY'])
 
     stats = stat_manager.get_stats(symbol=symbol, start_date=start_date, end_date=end_date)
 
@@ -582,7 +576,7 @@ def get_daily_interest_history(maturity: str, start_date: Union[date, None]=None
     .. notes::
         * Yield rates are not reported on weekends or holidays, so the `asset_type` for interest is functionally equivalent to equities, at least as far as date calculations are concerned. The dates inputted into this function are validated as if they were labelled as equity `asset_types` for this reason.
     """
-    start_date,end_date=errors.validate_dates(start_date=start_date, end_date=end_date, asset_type=static.keys['ASSETS']['EQUITY'])
+    start_date,end_date=errors.validate_dates(start_date=start_date, end_date=end_date, asset_type=keys.keys['ASSETS']['EQUITY'])
     
 
     rates = None
@@ -610,7 +604,7 @@ def get_daily_interest_latest(maturity: str) -> float:
     Parameters
     ----------
     1. **maturity**: ``str``
-        Maturity of the US Treasury security whose interest rate is to be retrieved. Allowable values accessible through `static.keys['YIELD_CURVE']
+        Maturity of the US Treasury security whose interest rate is to be retrieved. Allowable values accessible through `keys.keys['YIELD_CURVE']
     """
     end_date = dater.get_last_trading_date()
     start_date = dater.decrement_date_by_business_days(end_date, 1)

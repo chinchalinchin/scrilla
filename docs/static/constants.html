@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.10.0" />
-<title>scrilla.tests API documentation</title>
+<title>scrilla.static.constants API documentation</title>
 <meta name="description" content="" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
@@ -20,22 +20,36 @@
 <main>
 <article id="content">
 <header>
-<h1 class="title">Namespace <code>scrilla.tests</code></h1>
+<h1 class="title">Module <code>scrilla.static.constants</code></h1>
 </header>
 <section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">constants = {
+    &#39;ONE_TRADING_DAY&#39;: {
+        &#39;EQUITY&#39;: (1/252),
+        &#39;CRYPTO&#39;: (1/365)
+    },
+    &#39;ACCURACY&#39;: 5,
+    &#39;BACKOFF_PERIOD&#39;: 30,
+    &#39;KEEP_FILE&#39;: &#39;.gitkeep&#39;,
+    &#39;PRICE_YEAR_CUTOFF&#39;: 1950,
+    &#39;DENOMINATION&#39;: &#39;USD&#39;,
+    &#39;NPV_DELTA_TOLERANCE&#39;: 0.0000001,
+    &#39;OPTIMIZATION_METHOD&#39;: &#34;SLSQP&#34;,
+    &#39;SIG_FIGS&#39;: 5,
+    &#39;LOG_LEVEL&#39;:{
+        &#39;NONE&#39;: &#39;none&#39;,
+        &#39;INFO&#39;: &#39;info&#39;,
+        &#39;DEBUG&#39;: &#39;debug&#39;,
+        &#39;VERBOSE&#39;: &#39;verbose&#39;
+    }
+}</code></pre>
+</details>
 </section>
 <section>
-<h2 class="section-title" id="header-submodules">Sub-modules</h2>
-<dl>
-<dt><code class="name"><a title="scrilla.tests.blackscholes_tests" href="blackscholes_tests.html">scrilla.tests.blackscholes_tests</a></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt><code class="name"><a title="scrilla.tests.estimator_tests" href="estimator_tests.html">scrilla.tests.estimator_tests</a></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-</dl>
 </section>
 <section>
 </section>
@@ -52,13 +66,7 @@
 <ul id="index">
 <li><h3>Super-module</h3>
 <ul>
-<li><code><a title="scrilla" href="../index.html">scrilla</a></code></li>
-</ul>
-</li>
-<li><h3><a href="#header-submodules">Sub-modules</a></h3>
-<ul>
-<li><code><a title="scrilla.tests.blackscholes_tests" href="blackscholes_tests.html">scrilla.tests.blackscholes_tests</a></code></li>
-<li><code><a title="scrilla.tests.estimator_tests" href="estimator_tests.html">scrilla.tests.estimator_tests</a></code></li>
+<li><code><a title="scrilla.static" href="index.html">scrilla.static</a></code></li>
 </ul>
 </li>
 </ul>
