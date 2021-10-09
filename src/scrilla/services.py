@@ -174,7 +174,8 @@ class StatManager():
             formatted_interest[rate[0]] = rate[1:]
         return formatted_interest
 
-    def format_for_maturity(self, maturity, results):
+    @staticmethod
+    def format_for_maturity(maturity, results):
         try:
             maturity_key = keys.keys['YIELD_CURVE'].index(maturity)
         except KeyError:
