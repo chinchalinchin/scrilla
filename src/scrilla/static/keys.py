@@ -1,31 +1,5 @@
-# This file is part of scrilla: https://github.com/chinchalinchin/scrilla.
+from scrilla.static import constants
 
-# scrilla is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License version 3
-# as published by the Free Software Foundation.
-
-# scrilla is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-
-# You should have received a copy of the GNU General Public License
-# along with scrilla.  If not, see <https://www.gnu.org/licenses/>
-# or <https://github.com/chinchalinchin/scrilla/blob/develop/main/LICENSE>.
-
-constants = {
-    'ONE_TRADING_DAY': {
-        'EQUITY': (1/252),
-        'CRYPTO': (1/365)
-    },
-    'ACCURACY': 5,
-    'BACKOFF_PERIOD': 30,
-    'KEEP_FILE': '.gitkeep',
-    'PRICE_YEAR_CUTOFF': 1950,
-    'DENOMINATION': 'USD',
-    'NPV_DELTA_TOLERANCE': 0.0000001,
-    'OPTIMIZATION_METHOD': "SLSQP"
-}
 keys= {
     'PRICES': {
         'OPEN': 'open',
@@ -162,19 +136,3 @@ keys= {
         }
     }
 }
-
-def get_trading_period(asset_type):
-    """
-    Description
-    -----------
-    Returns the value of one trading day measured in years of the asset_type passed in as an argument.
-
-    Parameters
-    ----------
-    1. asset_type : str\n
-    
-    A string that represents a type of tradeable asset. Types are statically accessible through the ` settings` variables: ASSET_EQUITY and ASSET_CRYPTO.
-    """
-    if asset_type == keys['ASSETS']['CRYPTO']:
-        return constants['ONE_TRADING_DAY']['CRYPTO']
-    return constants['ONE_TRADING_DAY']['EQUITY']

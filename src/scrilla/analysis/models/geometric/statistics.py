@@ -50,7 +50,7 @@ def get_sample_of_returns(prices: dict, asset_type: str) -> list:
     """
     today = False
     sample_of_returns = []
-    trading_period = static.get_trading_period(asset_type=asset_type)
+    trading_period = static.functions.get_trading_period(asset_type=asset_type)
 
     for this_date in prices:
         todays_price = prices[this_date][static.keys['PRICES']['CLOSE']]
@@ -130,7 +130,7 @@ def calculate_moving_averages(tickers: list, start_date: Union[date, None]=None,
                 raise errors.PriceError(f'Prices could not be retrieved for {ticker}')
 
             asset_type = files.get_asset_type(ticker)
-            trading_period = static.get_trading_period(asset_type)
+            trading_period = static.functions.get_trading_period(asset_type)
 
             today = False
             count, tomorrows_price, MA_1, MA_2, MA_3 = 1, 0, 0, 0, 0
@@ -204,7 +204,7 @@ def calculate_moving_averages(tickers: list, start_date: Union[date, None]=None,
         logger.debug(f'Calculating Moving Average for {ticker}.')
 
         asset_type = files.get_asset_type(ticker)
-        trading_period = static.get_trading_period(asset_type)
+        trading_period = static.functions.get_trading_period(asset_type)
 
         logger.debug('Offsetting start date to account for longest Moving Average period.')
         if asset_type == static.keys['ASSETS']['CRYPTO']:
@@ -414,7 +414,7 @@ def calculate_likelihood_risk_return(ticker, start_date: Union[date, None]=None,
         try:
            asset_type = errors.validate_asset_type(ticker, asset_type)
            start_date, end_date = errors.validate_dates(start_date, end_date, asset_type)
-           trading_period = static.get_trading_period(asset_type)
+           trading_period = static.functions.get_trading_period(asset_type)
         except errors.InputValidationError as ive:
            raise ive
 
@@ -436,7 +436,7 @@ def calculate_likelihood_risk_return(ticker, start_date: Union[date, None]=None,
         prices = sample_prices
         try:
            asset_type = errors.validate_asset_type(ticker, asset_type)
-           trading_period = static.get_trading_period(asset_type)
+           trading_period = static.functions.get_trading_period(asset_type)
         except errors.InputValidationError as ive:
            raise ive
 
@@ -498,7 +498,7 @@ def calculate_percentile_risk_return(ticker: str, start_date: Union[date, None]=
     if sample_prices is None:
         asset_type = errors.validate_asset_type(ticker, asset_type)
         start_date, end_date = errors.validate_dates(start_date, end_date, asset_type)
-        trading_period = static.get_trading_period(asset_type)
+        trading_period = static.functions.get_trading_period(asset_type)
        
 
         results = profile_cache.filter_profile_cache(ticker=ticker, start_date=start_date, end_date=end_date, 
@@ -517,7 +517,7 @@ def calculate_percentile_risk_return(ticker: str, start_date: Union[date, None]=
         logger.debug(f'{ticker} sample prices provided, skipping service call.')
         prices = sample_prices
         asset_type = errors.validate_asset_type(ticker, asset_type)
-        trading_period = static.get_trading_period(asset_type)
+        trading_period = static.functions.get_trading_period(asset_type)
         
 
     if not prices:
@@ -589,7 +589,7 @@ def calculate_moment_risk_return(ticker: str, start_date: Union[date, None]=None
         try:
            asset_type = errors.validate_asset_type(ticker, asset_type)
            start_date, end_date = errors.validate_dates(start_date, end_date, asset_type)
-           trading_period = static.get_trading_period(asset_type)
+           trading_period = static.functions.get_trading_period(asset_type)
         except errors.InputValidationError as ive:
            raise ive
 
@@ -611,7 +611,7 @@ def calculate_moment_risk_return(ticker: str, start_date: Union[date, None]=None
         prices = sample_prices
         try:
            asset_type = errors.validate_asset_type(ticker, asset_type)
-           trading_period = static.get_trading_period(asset_type)
+           trading_period = static.functions.get_trading_period(asset_type)
         except errors.InputValidationError as ive:
            raise ive
 

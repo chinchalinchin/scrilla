@@ -17,13 +17,15 @@ import time
 
 from PyQt5 import Qt, QtCore, QtWidgets
 
-import scrilla.analysis.models.geometric.statistics as statistics
 from scrilla import settings
+from scrilla.static import constants
+import scrilla.analysis.models.geometric.statistics as statistics
 import scrilla.analysis.optimizer as optimizer
 import scrilla.analysis.objects.portfolio as portfolio
 
-from scrilla.util import outputter, formatter, helper, plotter
+from scrilla.util import outputter, helper, plotter
 
+from scrilla.gui import formats
 from scrilla.gui.widgets import CompositeWidget, GraphWidget, \
                             TableWidget, PortfolioWidget
 
@@ -51,8 +53,8 @@ class RiskReturnWidget(CompositeWidget):
             logger.debug(f'Calculating {symbol} Risk-Return Profile')
             stats = statistics.calculate_moment_risk_return(symbol)
             if stats:
-                formatted_ret = str(100*stats['annual_return'])[:formatter.SIG_FIGS]+"%"
-                formatted_vol = str(100*stats['annual_volatility'])[:formatter.SIG_FIGS]+"%"
+                formatted_ret = str(100*stats['annual_return'])[:constants['SIG_FIGS']]+"%"
+                formatted_vol = str(100*stats['annual_volatility'])[:constants['SIG_FIGS']]+"%"
                 
                 logger.debug(f'(return, vol)_{symbol} = ({formatted_ret}, {formatted_vol})')
 
@@ -121,7 +123,7 @@ class CorrelationWidget(TableWidget):
                     else:    
                         logger.debug(f'Calculating correlation for ({value}, {user_symbols[j]})')
                         correlation = statistics.calculate_moment_correlation(value, user_symbols[j])
-                        formatted_correlation = str(100*correlation["correlation"])[:formatter.SIG_FIGS]+"%"
+                        formatted_correlation = str(100*correlation["correlation"])[:constants['SIG_FIGS']]+"%"
                         item_1 = QtWidgets.QTableWidgetItem(formatted_correlation)
                         item_1.setTextAlignment(QtCore.Qt.AlignHCenter)
                         item_2 = QtWidgets.QTableWidgetItem(formatted_correlation)
@@ -167,8 +169,8 @@ class OptimizerWidget(PortfolioWidget):
             this_portfolio = portfolio.Portfolio(tickers=user_symbols)
             allocation = optimizer.optimize_portfolio_variance(portfolio=this_portfolio)
             
-            logger.debug(formatter.format_allocation_profile_title(allocation, this_portfolio))
-            self.result.setText(formatter.format_allocation_profile_title(allocation, this_portfolio))
+            logger.debug(formats.format_allocation_profile_title(allocation, this_portfolio))
+            self.result.setText(formats.format_allocation_profile_title(allocation, this_portfolio))
 
             self.result_table.setRowCount(no_symbols)
             self.result_table.setVerticalHeader(QtWidgets.QHeaderView(QtCore.Qt.Vertical))
@@ -189,7 +191,7 @@ class OptimizerWidget(PortfolioWidget):
 
             for i in range(no_symbols):
                 this_allocation = allocation[i]
-                formatted_allocation = str(100*this_allocation)[:formatter.SIG_FIGS]+"%"
+                formatted_allocation = str(100*this_allocation)[:constants['SIG_FIGS']]+"%"
                 item = QtWidgets.QTableWidgetItem(formatted_allocation)
                 item.setTextAlignment(QtCore.Qt.AlignHCenter)
                 self.result_table.setItem(i, 0, item)

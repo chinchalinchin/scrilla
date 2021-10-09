@@ -161,7 +161,7 @@ def rolling_recursion_test():
     outputter.print_line()
 
 def rolling_recursion_tests_with_financial_data():
-    trading_period = static.get_trading_period(asset_type=static.keys['ASSETS']['EQUITY'])
+    trading_period = static.functions.get_trading_period(asset_type=static.keys['ASSETS']['EQUITY'])
 
     for ticker in test_tickers:
         for date in test_dates:

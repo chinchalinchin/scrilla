@@ -1,6 +1,7 @@
 import datetime, sys
 
 import scrilla.util.formatter as formatter
+from scrilla.static import constants
 
 LOG_LEVEL_NONE = "none"
 LOG_LEVEL_INFO = "info"
@@ -85,6 +86,7 @@ def option(opt, explanation):
     if len(exp_array) > 1:
         print(exp_array[1])
 
+"""
 def help_msg():
     title_line(formatter.APP_NAME)
     for paragraph in formatter.HELP_MSG:
@@ -104,6 +106,7 @@ def help_msg():
         return_line()
         
  # APPLICATION SPECIFIC FORMATTING FUNCTIONS
+"""
 
 def spot_price(ticker, this_spot_price):
     formatted_price = round(float(this_spot_price), 2)
@@ -212,18 +215,18 @@ def correlation_matrix(tickers, correlation_matrix):
     """
     Parameters
     ----------
-    1. tickers : [str] \n
-        Array of tickers for which the correlation matrix will be calculated and formatted. \n \n
-    2. indent : int \n 
-        Amount of indent on each new line of the correlation matrix. \n \n
-    3. start_date : datetime.date \n 
-        Start date of the time period over which correlation will be calculated. \n \n 
-    4. end_date : datetime.date \n 
-        End date of the time period over which correlation will be calculated. \n \n  
+    1. **tickers**: ``list``
+        Array of tickers for which the correlation matrix was calculated and formatted.
+    2. **indent**: ``int``
+        Amount of indent on each new line of the correlation matrix.
+    3. **start_date**: ``datetime.date`` 
+        Start date of the time period over which correlation was calculated. 
+    4. **end_date**: ``datetime.date`` 
+        End date of the time period over which correlation was calculated. 
     
     Output
     ------
-    A correlation matrix string formatted with new lines and spaces.\n
+    A correlation matrix string formatted with new lines and spaces.
     """
     entire_formatted_result, formatted_title = "", ""
 
@@ -250,7 +253,7 @@ def correlation_matrix(tickers, correlation_matrix):
             
             else:
                 result = correlation_matrix[i][j]
-                formatted_result = str(100*result)[:formatter.SIG_FIGS]
+                formatted_result = str(100*result)[:constants['SIG_FIGS']]
                 new_line += f' {formatted_result}%'
 
         entire_formatted_result += new_line + '\n'

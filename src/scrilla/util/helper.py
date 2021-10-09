@@ -1,23 +1,20 @@
-import argparse, datetime
+import argparse
 from math import trunc
-from typing import Any, List, Tuple
+from typing import List, Tuple
 
 from scrilla import static
-from scrilla.util import dater, formatter
 
-################################################
-##### FORMATTING FUNCTIONS
-def truncate(number, digits) -> float:
+def truncate(number: float, digits: int) -> float:
     stepper = 10.0 ** digits
     return trunc(stepper * number) / stepper
 
-def strip_string_array(array) -> List[str]:
+def strip_string_array(array: List[str]) -> List[str]:
     new_array = []
     for string in array:
         new_array.append(string.strip())
     return new_array
 
-def round_array(array, decimals) -> List[float]:
+def round_array(array: List[float], decimals: int) -> List[float]:
     cutoff = (1/10**decimals)
     return [0 if element < cutoff else truncate(element, decimals) for element in array]
 
@@ -42,32 +39,32 @@ def format_args(args) -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     main_group = parser.add_mutually_exclusive_group()
 
-    for func in formatter.FUNC_DICT:
-        main_group.add_argument(formatter.FUNC_DICT[func]['values'][0],
-                                formatter.FUNC_DICT[func]['values'][1],
+    for func in static.definitions.FUNC_DICT:
+        main_group.add_argument(static.definitions.FUNC_DICT[func]['values'][0],
+                                static.definitions.FUNC_DICT[func]['values'][1],
                                 action='store_const',
                                 dest='function_arg',
                                 const=func)
 
-    groups = [parser.add_mutually_exclusive_group() for arg_group in formatter.ARG_DICT['META']['groups'] ]
+    groups = [parser.add_mutually_exclusive_group() for arg_group in static.definitions.ARG_DICT['META']['groups'] ]
 
-    for arg in formatter.ARG_DICT:
-        if formatter.ARG_DICT[arg]['format'] != 'group':
-            parser.add_argument(formatter.ARG_DICT[arg]['values'][0], 
-                                formatter.ARG_DICT[arg]['values'][1], 
-                                formatter.ARG_DICT[arg]['values'][2], 
-                                formatter.ARG_DICT[arg]['values'][3],
+    for arg in static.definitions.ARG_DICT:
+        if static.definitions.ARG_DICT[arg]['format'] != 'group':
+            parser.add_argument(static.definitions.ARG_DICT[arg]['values'][0], 
+                                static.definitions.ARG_DICT[arg]['values'][1], 
+                                static.definitions.ARG_DICT[arg]['values'][2], 
+                                static.definitions.ARG_DICT[arg]['values'][3],
                                 default=None, 
-                                type=formatter.ARG_DICT[arg]['format'],
+                                type=static.definitions..ARG_DICT[arg]['format'],
                                 dest=arg)
         else:
-            group_index = formatter.ARG_DICT['META']['groups'].index(formatter.ARG_DICT[arg]['group'])
-            groups[group_index].add_argument(formatter.ARG_DICT[arg]['values'][0],
-                                            formatter.ARG_DICT[arg]['values'][1],
-                                            formatter.ARG_DICT[arg]['values'][2],
-                                            formatter.ARG_DICT[arg]['values'][3],
+            group_index = static.definitions.ARG_DICT['META']['groups'].index(static.definitions.ARG_DICT[arg]['group'])
+            groups[group_index].add_argument(static.definitions.ARG_DICT[arg]['values'][0],
+                                            static.definitions.ARG_DICT[arg]['values'][1],
+                                            static.definitions.ARG_DICT[arg]['values'][2],
+                                            static.definitions.ARG_DICT[arg]['values'][3],
                                             action='store_const',
-                                            dest=formatter.ARG_DICT[arg]['group'],
+                                            dest=static.definitions.ARG_DICT[arg]['group'],
                                             const=arg)
 
     parser.add_argument('tickers', nargs='*', type=str)
