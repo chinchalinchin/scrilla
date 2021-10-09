@@ -112,7 +112,6 @@ def do_program() -> None:
     if args['function_arg'] in definitions.FUNC_DICT["help"]['values']:
         def cli_help():
             outputter.help_msg()
-            return
         selected_function, required_length = cli_help, 0
 
     ### FUNCTION: Clear Cache
@@ -120,7 +119,6 @@ def do_program() -> None:
         def cli_clear_cache():
             logger.comment(f'Clearing {settings.CACHE_DIR}')
             files.clear_directory(directory=settings.CACHE_DIR, retain=True)
-            return
         selected_function, required_length = cli_clear_cache, 0
 
     ### FUNCTION: Clear Static
@@ -128,7 +126,6 @@ def do_program() -> None:
         def cli_clear_static():
             logger.comment(f'Clearing {settings.STATIC_DIR}')
             files.clear_directory(directory=settings.STATIC_DIR, retain=True)
-            return
         selected_function, required_length = cli_clear_static, 0
 
     ### FUNCTION: Clear Common
@@ -136,7 +133,6 @@ def do_program() -> None:
         def cli_clear_common():
             logger.comment(f'Clearing {settings.COMMON_DIR}')
             files.clear_directory(directory=settings.COMMON_DIR, retain=True)
-            return
         selected_function, required_length = cli_clear_common, 0
 
     ### FUNCTION: Print Stock Watchlist
@@ -145,7 +141,6 @@ def do_program() -> None:
             tickers = files.get_watchlist()
             outputter.title_line("Stock Watchlist")
             outputter.print_list(tickers)
-            return
         selected_function, required_length = cli_watchlist, 0
 
     ### FUNCTION: Purge Data Directories
@@ -155,7 +150,6 @@ def do_program() -> None:
             files.clear_directory(directory=settings.STATIC_DIR, retain=True)
             files.clear_directory(directory=settings.CACHE_DIR, retain=True)
             files.clear_directory(directory=settings.COMMON_DIR, retain=True)
-            return
         selected_function, required_length = cli_purge, 0
 
     ### FUNCTION: Display Version
@@ -164,7 +158,6 @@ def do_program() -> None:
             version_file = os.path.join(settings.APP_DIR, 'version.txt')
             with open(version_file, 'r') as f:
                 print(f.read())
-            return
         selected_function, required_length = cli_version, 0
 
     ### FUNCTION: Yield Curve
@@ -183,7 +176,6 @@ def do_program() -> None:
             
             if args['save_file'] is not None:
                 files.save_file(file_to_save=yield_curve, file_name=args['save_file'])
-            return
         selected_function, required_length = cli_yield_curve, 0
 
     ####### ARGUMENT FUNCTIONS
@@ -194,7 +186,6 @@ def do_program() -> None:
             for arg in args['tickers']:
                 asset_type = files.get_asset_type(arg)
                 outputter.string_result(f'asset_type({arg})', asset_type)
-            return
         selected_function, required_length = cli_asset_type, 1
 
     ### FUNCTION: Black-Scholes Value At Risk
@@ -224,8 +215,6 @@ def do_program() -> None:
             
             if args['save_file'] is not None:
                 files.save_file(file_to_save=all_vars, file_name=args['save_file'])
-            
-            return
 
         selected_function, required_length = cli_var, 2
         
@@ -261,8 +250,6 @@ def do_program() -> None:
             
             if args['save_file'] is not None:
                 files.save_file(file_to_save=all_cvars, file_name=args['save_file'])
-            
-            return
 
         selected_function, required_length = cli_cvar, 2
 
@@ -284,8 +271,6 @@ def do_program() -> None:
 
             if args['save_file'] is not None:
                 files.save_file(file_to_save=all_costs, file_name=args['save_file'])
-
-            return
 
         selected_function, required_length = cli_capm_equity_cost, 1
 
@@ -309,8 +294,6 @@ def do_program() -> None:
 
             if args['save_file'] is not None:
                 files.save_file(file_to_save=all_betas, file_name=args['save_file'])
-
-            return
         selected_function, required_length = cli_capm_beta, 1
 
     ### FUNCTION: Last Close Price
@@ -329,8 +312,6 @@ def do_program() -> None:
 
             if args['save_file'] is not None:
                 files.save_file(file_to_save=all_prices, file_name=args['save_file'])
-            
-            return
         selected_function, required_length = cli_close, 1
             
     ### FUNCTION: Correlation Matrix
@@ -351,8 +332,6 @@ def do_program() -> None:
 
             if args['save_file'] is not None:
                 files.save_file(file_to_save=matrix, file_name=args['save_file'])
-            
-            return
                 
         selected_function, required_length = cli_correlation, 2
 
@@ -373,8 +352,6 @@ def do_program() -> None:
 
             if args['save_file'] is not None:
                 files.save_file(file_to_save=result, file_name=args['save_file'])
-            
-            return
         selected_function, required_length, exact = cli_correlation_series, 2, True
 
     ### FUNCTION: Discount Dividend Model
@@ -398,8 +375,6 @@ def do_program() -> None:
 
             if args['save_file'] is not None:
                 files.save_file(file_to_save=model_results, file_name=args['save_file'])
-
-            return
         selected_function, required_length = cli_discount_dividend, 1
 
     elif args['function_arg'] in definitions.FUNC_DICT['dividends']['values']:
@@ -414,8 +389,6 @@ def do_program() -> None:
         
             if print_json_to_screen(args):
                 print(json.dumps(all_dividends))
-        
-            return
         selected_function, required_length = cli_dividends, 1
 
     ### FUNCTION: Efficient Frontier
@@ -442,8 +415,6 @@ def do_program() -> None:
                                     frontier=frontier,
                                     investment=args['investment'], 
                                     file_name=args['save_file'])
-            
-            return
         selected_function, required_length = cli_efficient_frontier, 2
 
     ### FUNCTION: Maximize Portfolio Return
@@ -469,8 +440,6 @@ def do_program() -> None:
                                         portfolio=portfolio, 
                                         file_name=args['save_file'], 
                                         investment=args['investment'])
-            
-            return
         selected_function, required_length = cli_maximize_return, 2
 
     ### FUNCTION: Moving Averages of Logarithmic Returns
@@ -486,8 +455,6 @@ def do_program() -> None:
             outputter.moving_average_result(tickers=args['tickers'], averages_output=moving_averages, 
                                             periods=periods, start_date=args['start_date'], 
                                             end_date=args['end_date'])
-            
-            return
         selected_function, required_length = cli_moving_averages, 1
 
     ### FUNCTION: Optimize Portfolio Variance/Volatility
@@ -512,8 +479,6 @@ def do_program() -> None:
             if args['save_file'] is not None:
                 files.save_allocation(allocation=allocation, portfolio=portfolio, file_name=args['save_file'],
                                         investment=args['investment'])
-            
-            return
         selected_function, required_length = cli_optimize_portfolio_variance, 2
     
     ### FUNCTION: Optimize Portfolio Conditional Value At Risk 
@@ -536,8 +501,6 @@ def do_program() -> None:
             if args['save_file'] is not None:
                 files.save_allocation(allocation=allocation, portfolio=portfolio, file_name=args['save_file'],
                                         investment=args['investment'])
-            
-            return
         selected_function, required_length = cli_optimize_conditional_value_at_risk, 2
 
     ### FUNCTION: Plot Correlation Time Series
@@ -549,7 +512,6 @@ def do_program() -> None:
                                                                                 start_date=args['start_date'],
                                                                                 end_date=args['end_date'])
             plotter.plot_correlation_series(tickers=args['tickers'], series=correlation_history, savefile=args['save_file'])
-            return
         selected_function, required_length, exact = cli_plot_correlation, 2, True
 
     ### FUNCTION: Plot Dividend History With Linear Regression Model
@@ -564,7 +526,6 @@ def do_program() -> None:
             plotter.plot_cashflow(ticker=args['tickers'][0], 
                                     cashflow=div_cashflow, show=True, 
                                     savefile=args['save_file'])
-            return
         selected_function, required_length, exact = cli_plot_dividends, 1, True
 
     ### FUNCTION: Plot Efficient Frontier
@@ -580,7 +541,6 @@ def do_program() -> None:
                                     frontier=frontier, 
                                     show=True, 
                                     savefile=args['save_file'])
-            return
         selected_function, required_length = cli_plot_frontier, 2
 
     ### FUNCTION: Plot Moving Averages of Logarithmic Returns
@@ -595,7 +555,6 @@ def do_program() -> None:
                                             averages_output=moving_averages, 
                                             periods=periods, 
                                             show=True, savefile=args['save_file'])
-            return
         selected_function, required_length = cli_plot_moving_averages, 1
 
     ### FUNCTION: Plot Return QQ Series
@@ -612,7 +571,6 @@ def do_program() -> None:
                                     sample=qq_series, 
                                     show=True, 
                                     savefile=args['save_file'])
-            return
         selected_function, required_length, exact = cli_plot_returns, 1, True
 
     ### FUNCTION: Plot Risk-Return Profile
@@ -630,7 +588,6 @@ def do_program() -> None:
                                     savefile=args['save_file'], 
                                     subtitle=dater.format_date_range(start_date=args['start_date'], 
                                                                         end_date=args['end_date']))
-            return
         selected_function, required_length = cli_plot_risk_profile, 1
 
     elif args['function_arg'] in definitions.FUNC_DICT['plot_yield_curve']['values']:
@@ -647,7 +604,6 @@ def do_program() -> None:
         
             plotter.plot_yield_curve(yield_curve=yield_curve, show=True,
                                         savefile=args['save_file'])
-            return
         selected_function, required_length, exact = cli_plot_yield_curve, 0, True
     ### FUNCTION: Price History
     elif args['function_arg'] in definitions.FUNC_DICT['price_history']['values']:
@@ -670,8 +626,6 @@ def do_program() -> None:
 
             if args['save_file'] is not None:
                 files.save_file(file_to_save=all_prices, file_name=args['save_file'])
-
-            return
         selected_function, required_length = cli_price_history, 1
 
     ### FUNCTION: Interest Rate History
@@ -694,8 +648,6 @@ def do_program() -> None:
 
             if args['save_file'] is not None:
                 files.save_file(file_to_save=all_rates, file_name=args['save_file'])
-            
-            return
         selected_function, required_length = cli_interest_history, 1
     
     ### FUNCTION: Risk Free Rate
@@ -713,8 +665,6 @@ def do_program() -> None:
 
             if args['save_file'] is not None:
                 files.save_file(file_to_save=rate, file_name=args['save_file'])
-
-            return
         selected_function, required_length, exact = cli_risk_free_rate, 0, True
 
     ### FUNCTION: Risk-Return Profile
@@ -749,8 +699,6 @@ def do_program() -> None:
 
             if args['save_file'] is not None:
                 files.save_profiles(profiles=profiles, file_name=args['save_file'])
-
-            return
         selected_function, required_length = cli_risk_return, 1
 
     ### FUNCTION: Model Discount Screener 
@@ -760,7 +708,6 @@ def do_program() -> None:
                 model = markets.MODEL_DDM
             results = markets.screen_for_discount(model=model, discount_rate=args['discount'])
             outputter.screen_results(info=results, model=model)
-            return
         selected_function, required_length = cli_screener, 0
 
     ### FUNCTION: Sharpe Ratio
@@ -783,14 +730,12 @@ def do_program() -> None:
 
             if args['save_file'] is not None:
                 files.save_file(file_to_save=all_results, file_name=args['save_file'])
-            return
         selected_function, required_length = cli_sharpe_ratio, 1
 
    ### FUNCTION: Store Key
     elif args['function_arg'] in definitions.FUNC_DICT['store']['values']:
         def cli_store():
             files.set_credentials(value=args['value'], which_key=args['key'])
-            return
         selected_function, required_length = cli_store, 0
 
     ### FUNCTION: Get Latest Economic Statistic
@@ -808,8 +753,6 @@ def do_program() -> None:
 
             if args['save_file'] is not None:
                 files.save_file(file_to_save=all_stats, file_name=args['save_file'])
-
-            return
         selected_function, required_length = cli_statistic, 1
     
     ### FUNCTION: Statistic History
@@ -831,8 +774,6 @@ def do_program() -> None:
                 print(json.dumps(all_stats))
             if args['save_file'] is not None:
                 files.save_file(file_to_save=all_stats, file_name=args['save_file'])
-
-            return   
         selected_function, required_length = cli_statistic_history, 1
 
     ### FUNCTION: Set Watchlist
@@ -840,13 +781,11 @@ def do_program() -> None:
         def cli_watchlist():
             files.add_watchlist(new_tickers=args['tickers'])
             logger.comment("Watchlist saved. Use -ls option to print watchlist.")
-            return
         selected_function, required_length = cli_watchlist, 1
 
     else:
         def cli_help():
             outputter.help_msg()
-            return
         selected_function, required_length = cli_help, 0
         
     ########## END CLI FUNCTION DEFINITIONS
