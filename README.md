@@ -117,9 +117,10 @@ A sample environment file is located [here](https://github.com/chinchalinchin/sc
 
 As mentioned, you will need to register for API keys at <b>AlphaVantage</b>, <b>IEX</b> and <b>Quandl</b>. One way of passing API keys to the program is by storing these in your session's environment. <b>scrilla</b> will search for environment variables named <b>ALPHA_VANTAGE_KEY</b>, <b>QUANDL_KEY</b> and <b>IEX_KEY</b>. You can add the following lines to your <i>.bashrc</i> profile or corresponding configuration file for whatever shell you are using,
 
-`export ALPHA_VANTAGE_KEY=<key goes here>`<br>
-`export QUANDL_KEY=<key goes here>`<br>
-`export IEX_KEY=<key goes here>`<br>
+```export ALPHA_VANTAGE_KEY=<key goes here>
+export QUANDL_KEY=<key goes here>
+export IEX_KEY=<key goes here>
+```
 
 If no API keys are found in these variables, the application will not function properly; be sure to load these variables into your shell session before using <b>scrilla</b>. 
 
