@@ -15,7 +15,7 @@
 
 import sys
 
-from PyQt5 import QtCore, QtWidgets, QtGui
+from PySide6 import QtCore, QtWidgets, QtGui
 
 from scrilla import settings
 
@@ -24,7 +24,7 @@ from scrilla.gui.functions import RiskReturnWidget, CorrelationWidget, \
                                     OptimizerWidget
 
 def get_title_font():
-    font = QtGui.QFont('Impact', 12)
+    font = QtGui.QFont('Times', 12, QtGui.QFont.Bold)
     font.bold()
     return font
 

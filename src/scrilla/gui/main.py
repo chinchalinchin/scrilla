@@ -15,7 +15,7 @@
 
 import sys
 
-from PyQt5 import QtWidgets
+from PySide6 import QtWidgets
 import scrilla.gui.menu as menu
 from scrilla import settings
 

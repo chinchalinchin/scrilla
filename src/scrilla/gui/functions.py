@@ -15,7 +15,7 @@
 
 import time
 
-from PyQt5 import Qt, QtCore, QtWidgets
+from PySide6 import Qt, QtCore, QtWidgets
 
 from scrilla import settings
 from scrilla.static.constants import constants
