@@ -13,7 +13,7 @@
 # along with scrilla.  If not, see <https://www.gnu.org/licenses/>
 # or <https://github.com/chinchalinchin/scrilla/blob/develop/main/LICENSE>.
 
-import sys
+import sys, argparse
 
 from PySide6 import QtWidgets, QtGui
 from scrilla import settings
@@ -21,29 +21,39 @@ from scrilla.util import outputter
 from scrilla.gui import formats
 import scrilla.gui.menu as menu
 
+
 logger = outputter.Logger('main', settings.LOG_LEVEL)
 
+
+def parse_dimensions():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--full-screen','-full-screen','--full','-full', action='store_true', dest='full_screen')
+    parser.add_argument('--width', '-width', '--w', '-w', type=int, dest='width', default=settings.GUI_WIDTH)
+    parser.add_argument('--height', '-height', '--h', '-h', type=int, dest='height', default=settings.GUI_HEIGHT)
+    return vars(parser.parse_args(sys.argv))
+
 def do_gui():
-    # TODO: override width and height with CLI arguments
+    dimensions = parse_dimensions()
+
+    print(dimensions)
 
     app = QtWidgets.QApplication([])
 
-    logger.debug(f'Initializing GUI with dimensions ({settings.GUI_WIDTH}, {settings.GUI_HEIGHT})')
-
     widget = menu.MenuWidget()
-    widget.resize(settings.GUI_WIDTH, settings.GUI_HEIGHT)
-
-    center = QtGui.QScreen.availableGeometry(QtWidgets.QApplication.primaryScreen()).center()
-    geo = widget.frameGeometry()
-    geo.moveCenter(center)
-    widget.move(geo.topLeft())
 
     with open(settings.GUI_STYLESHEET_FILE, "r") as f:
         _style = formats.format_stylesheet(f.read())
         app.setStyleSheet(_style)
 
-    # widget.showFullScreen()
-    widget.show()
+    if not dimensions['full_screen']:    
+        widget.resize(dimensions['width'], dimensions['height'])
+        center = QtGui.QScreen.availableGeometry(QtWidgets.QApplication.primaryScreen()).center()
+        geo = widget.frameGeometry()
+        geo.moveCenter(center)
+        widget.move(geo.topLeft())
+        widget.show()
+    else:
+        widget.showFullScreen()
     
     sys.exit(app.exec_())
 
