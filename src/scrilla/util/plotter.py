@@ -2,6 +2,7 @@ import os, datetime
 from typing import Union
 import numpy, matplotlib
 from PIL import Image
+from PIL.Image import Image as img
 
 from matplotlib.figure import Figure
 from matplotlib import dates as mdates
@@ -20,15 +21,15 @@ elif APP_ENV == 'container':
     from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
     matplotlib.use("agg")
 
-def _show_or_save(canvas: FigureCanvas, show: bool, savefile: str) -> Union[FigureCanvas, None]:
+def _show_or_save(canvas: FigureCanvas, show: bool = True, savefile: str = None) -> Union[FigureCanvas, None]:
     if savefile is not None:
         canvas.print_jpeg(filename_or_obj=savefile)
 
+    s, (width, height) = canvas.print_to_buffer()
+    im = Image.frombytes("RGBA", (width, height), s)
+
     if show:
-        s, (width, height) = canvas.print_to_buffer()
-        im = Image.frombytes("RGBA", (width, height), s)
         im.show()
-        return None
     canvas.draw()
     return canvas
 

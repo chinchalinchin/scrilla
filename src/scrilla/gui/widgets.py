@@ -18,13 +18,11 @@ from PySide6 import QtGui, QtCore, QtWidgets
 def get_title_font():
     font = QtGui.QFont('Arial', 12)
     font.setBold(True)
-    font.setUnderline(True)
     return font
 
 def get_subtitle_font():
     font = QtGui.QFont('Arial', 10)
     font.setItalic(True)
-    font.setUnderline(True)
     return font
 
 def get_msg_font():
@@ -42,37 +40,37 @@ def get_label_font():
     font.setBold(True)
     return font
 
-# Widget to retrieve User Input
-class InputWidget(QtWidgets.QWidget):
-    def __init__(self, widget_title):
-        super().__init__()
-
-        text, okPressed = QtWidgets.QInputDialog.getText(self, "Get text","Your name:")
-
 # Base Widget to get asset symbol input
 class SymbolWidget(QtWidgets.QWidget):
     def __init__(self, widget_title, button_msg):
         super().__init__()
-        self.title = QtWidgets.QLabel(widget_title, alignment=QtCore.Qt.AlignTop)
-        self.title.setFont(get_title_font())
+        self.widget_title = widget_title
+        self.button_msg = button_msg
 
+        self.init_widgets()
+        self.style_widgets()
+    
+    def init_widgets(self):
+        self.title = QtWidgets.QLabel(self.widget_title, alignment=QtCore.Qt.AlignTop)
         self.message = QtWidgets.QLabel("Please separate symbols with a comma", alignment=QtCore.Qt.AlignBottom)
+        self.error_message = QtWidgets.QLabel("Error message goes here", alignment=QtCore.Qt.AlignHCenter)
+        self.calculate_button = QtWidgets.QPushButton(self.button_msg)
+        self.clear_button = QtWidgets.QPushButton("Clear")
+        self.symbol_input = QtWidgets.QLineEdit()
+    
+    def style_widgets(self):
+        self.title.setFont(get_title_font())
         self.message.setFont(get_msg_font())    
-
-        self.error_message = QtWidgets.QLabel("Something Went Wrong; Check Input and Try Again", alignment=QtCore.Qt.AlignHCenter)
         self.error_message.setFont(get_subtitle_font())
+
         self.error_message.hide()
 
-        self.calculate_button = QtWidgets.QPushButton(button_msg)
+            # emits 'clicked' when return is pressed
         self.calculate_button.setAutoDefault(True)
-            # emits 'clicked' when return is pressed
-
-        self.clear_button = QtWidgets.QPushButton("Clear")
         self.clear_button.setAutoDefault(True)
-            # emits 'clicked' when return is pressed
-        
-        self.symbol_input = QtWidgets.QLineEdit()
+
         self.symbol_input.setMaxLength(100)
+
 
 class TableWidget(SymbolWidget):
     def __init__(self, widget_title, button_msg, table_function):
@@ -139,7 +137,6 @@ class GraphWidget(SymbolWidget):
         if self.displayed:
             self.displayed = False
             self.layout.removeWidget(self.figure)
-            self.figure.deleteLater()
             self.figure = None
 
 # NOTE: both calculate_function and display_function get binded to the Widget's calculate_button.
@@ -190,7 +187,6 @@ class CompositeWidget(SymbolWidget):
         if self.displayed:
             self.displayed = False
             self.right_layout.removeWidget(self.figure)
-            self.figure.deleteLater()
             self.figure = None
 
 # Specialized Widget For Portfolio Calculations

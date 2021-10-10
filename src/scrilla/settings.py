@@ -89,6 +89,7 @@ CACHE_DIR = os.path.join(APP_DIR, 'data', 'cache')
 """Directory containing cached prices, statistics and calculations"""
 CACHE_SQLITE_FILE = os.environ.setdefault('SQLITE_FILE', os.path.join(CACHE_DIR, 'scrilla.db'))
 """Location of the SQLite database flat file; Configured by environment variable **SQLITE_FILE***"""
+CACHE_TEMP_FILE = os.path.join(CACHE_DIR, 'tmp')
 
 STATIC_DIR = os.path.join(APP_DIR, 'data', 'static')
 """Directory containg static data, such as ticker symbols, statistic symbols, etc."""

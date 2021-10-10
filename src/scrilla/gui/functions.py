@@ -15,7 +15,9 @@
 
 import time
 
-from PySide6 import Qt, QtCore, QtWidgets
+from PySide6 import Qt, QtCore, QtGui, QtWidgets
+from PIL.ImageQt import ImageQt
+
 
 from scrilla import settings
 from scrilla.static.constants import constants
@@ -45,14 +47,14 @@ class RiskReturnWidget(CompositeWidget):
         self.table.setColumnCount(2)
         self.table.setHorizontalHeader(QtWidgets.QHeaderView(QtCore.Qt.Horizontal))
         self.table.setHorizontalHeaderLabels(['Risk','Return'])
-        self.table.horizontalHeader().setStretchLastSection(True)
+        self.table.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Stretch)
         self.table.setVerticalHeader(QtWidgets.QHeaderView(QtCore.Qt.Vertical))
         self.table.setVerticalHeaderLabels(user_symbols)
 
         for symbol in user_symbols:
             logger.debug(f'Calculating {symbol} Risk-Return Profile')
-            stats = statistics.calculate_moment_risk_return(symbol)
-            if stats:
+            try:
+                stats = statistics.calculate_risk_return(symbol)
                 formatted_ret = str(100*stats['annual_return'])[:constants['SIG_FIGS']]+"%"
                 formatted_vol = str(100*stats['annual_volatility'])[:constants['SIG_FIGS']]+"%"
                 
@@ -65,9 +67,9 @@ class RiskReturnWidget(CompositeWidget):
                 
                 self.table.setItem(user_symbols.index(symbol), 0, vol_item)
                 self.table.setItem(user_symbols.index(symbol), 1, ret_item)
-            else: 
+            except: 
                 self.error_message.show()
-                return False
+                return
 
         self.table.resizeColumnsToContents()
         self.table.show()
@@ -76,16 +78,19 @@ class RiskReturnWidget(CompositeWidget):
     def display(self):
         if self.displayed:
             self.layout.removeWidget(self.figure)
-            self.figure.deleteLater()
             self.figure = None
-            time.sleep(1)
-        user_symbols = helper.strip_string_array(self.symbol_input.text().upper().split(","))
-        profiles = []
-        for symbol in user_symbols:
-            profiles.append(statistics.calculate_moment_risk_return(symbol))
 
-        figure = plotter.plot_profiles(symbols=user_symbols, profiles=profiles, show=False)
-        self.figure = figure
+        user_symbols = helper.strip_string_array(self.symbol_input.text().upper().split(","))
+        profiles = {}
+
+        for symbol in user_symbols:
+            profiles[symbol] = statistics.calculate_moment_risk_return(symbol)
+
+        plotter.plot_profiles(symbols=user_symbols, profiles=profiles, show=False,
+                                        savefile=settings.CACHE_TEMP_FILE)
+
+        self.figure = QtWidgets.QLabel("Risk Profile Graph", alignment=QtCore.Qt.AlignHCenter)
+        self.figure.setPixmap(QtGui.QPixmap(settings.CACHE_TEMP_FILE))
         self.right_layout.insertWidget(1, self.figure, 1)
         self.displayed = True
 
@@ -220,12 +225,20 @@ class EfficientFrontierWidget(GraphWidget):
 
     @QtCore.Slot()
     def display(self):
+        if self.displayed:
+            self.layout.removeWidget(self.figure)
+            self.figure = None
+
         user_symbols = helper.strip_string_array(self.symbol_input.text().upper().split(","))
         this_portfolio = portfolio.Portfolio(tickers=user_symbols)
+
         # TODO: DATES!
-        frontier = optimizer.calculate_efficient_frontier(portfolio=portfolio)
-        figure = plotter.plot_frontier(portfolio=this_portfolio, frontier=frontier, show=False)
-        self.figure = figure
+
+        frontier = optimizer.calculate_efficient_frontier(portfolio=this_portfolio)
+        plotter.plot_frontier(portfolio=this_portfolio, frontier=frontier, show=False, savefile=settings.CACHE_TEMP_FILE)
+
+        self.figure = QtWidgets.QLabel("Efficient Frontier", alignment=QtCore.Qt.AlignHCenter)
+        self.figure.setPixmap(QtGui.QPixmap(settings.CACHE_TEMP_FILE))
         self.layout.insertWidget(1, self.figure, 1)
         self.displayed = True 
 
@@ -238,15 +251,15 @@ class MovingAverageWidget(GraphWidget):
     def display(self):
         if self.displayed:
             self.layout.removeWidget(self.figure)
-            self.figure.deleteLater()
             self.figure = None
-            time.sleep(1)
+
         user_symbols = helper.strip_string_array(self.symbol_input.text().upper().split(","))
         moving_averages = statistics.calculate_moving_averages(user_symbols)
         periods = [settings.MA_1_PERIOD, settings.MA_2_PERIOD, settings.MA_3_PERIOD]
         figure = plotter.plot_moving_averages(symbols=user_symbols, averages_output=moving_averages, 
-                                                periods=periods, show=False)
-        self.figure = figure
+                                                periods=periods, show=False, savefile=settings.CACHE_TEMP_FILE)
+        self.figure = QtWidgets.QLabel("Moving Averages", alignment=QtCore.Qt.AlignHCenter)
+        self.figure.setPixmap(QtGui.QPixmap(settings.CACHE_TEMP_FILE))
         self.layout.insertWidget(1, self.figure, 1)
         self.displayed = True
 

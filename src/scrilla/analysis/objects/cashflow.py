@@ -15,8 +15,9 @@
 
 import datetime
 
-from scrilla import static, services, settings, errors
-from scrilla.util import helper, dater, outputter
+from scrilla import services, settings, errors
+from scrilla.static import constants
+from scrilla.util import dater, outputter
 import scrilla.analysis.estimators as estimators
 
 logger = outputter.Logger('analysis.objects.cashflow', settings.LOG_LEVEL)
@@ -259,7 +260,7 @@ class Cashflow:
             
             self.NPV += self.get_growth_function(current_time) / ((1 + self.discount_rate)**current_time)
 
-            if self.NPV - previous_value < static.constants['NPV_DELTA_TOLERANCE']:
+            if self.NPV - previous_value < constants.constants['NPV_DELTA_TOLERANCE']:
                 calculating = False
             i += 1
 
