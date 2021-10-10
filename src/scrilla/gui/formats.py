@@ -21,31 +21,29 @@ def get_dark_mode_theme():
     with open(settings.GUI_THEME_FILE, 'r') as f:
         MATERIAL = json.load(f)
 
-    return {
-        '$TITLE_BG': MATERIAL['grey']['500'],
-        '$ROOT_BG': MATERIAL['grey']['800'],
-        '$CHILD_BG': MATERIAL['grey']['700'],
-        '$GRANDCHILD_BG': MATERIAL['grey']['600'],
-        '$GREATGRANDCHILD_BG': MATERIAL['grey']['500'],
-        '$BUTTON_BG': MATERIAL['grey']['500'],
-        '$ACTIVE_BUTTON_BG': MATERIAL['grey']['100'],
-        '$PRESSED_BUTTON_BG': MATERIAL['grey']['700']
-    }
+    dark_theme = {}
+    for color in MATERIAL['grey']:
+        dark_theme[f'$primary-{color}']= MATERIAL['grey'][color]
+    for color in MATERIAL['green']:
+        dark_theme[f'$accent-{color}'] = MATERIAL['green'][color]
+    for color in MATERIAL['red']:
+        dark_theme[f'$warn-{color}'] = MATERIAL['red'][color]
+
+    return dark_theme
 
 def get_light_mode_theme():
     with open(settings.GUI_THEME_FILE, 'r') as f:
         MATERIAL = json.load(f)
         
-    return {
-        '$TITLE_BG': MATERIAL['grey']['200'],
-        '$ROOT_BG': MATERIAL['grey']['500'],
-        '$CHILD_BG': MATERIAL['grey']['400'],
-        '$GRANDCHILD_BG': MATERIAL['grey']['300'],
-        '$GREATGRANDCHILD_BG': MATERIAL['grey']['200'],
-        '$BUTTON_BG': MATERIAL['grey']['200'],
-        '$ACTIVE_BUTTON_BG': MATERIAL['grey']['600'],
-        '$PRESSED_BUTTON_BG': MATERIAL['grey']['700']
-    }
+    light_theme = {}
+    for color in MATERIAL['grey']:
+        light_theme[f'$primary-{color}']= MATERIAL['grey'][color]
+    for color in MATERIAL['green']:
+        light_theme[f'$accent-{color}'] = MATERIAL['green'][color]
+    for color in MATERIAL['red']:
+        light_theme[f'$warn-{color}'] = MATERIAL['red'][color]
+
+    return light_theme
 
 def format_allocation_profile_title(allocation, portfolio) -> str:
     port_return, port_volatility = portfolio.return_function(allocation), portfolio.volatility_function(allocation)

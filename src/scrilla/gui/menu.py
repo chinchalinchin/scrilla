@@ -47,6 +47,9 @@ class MenuWidget(QtWidgets.QWidget):
         self.title = QtWidgets.QLabel("scrilla")
         self.title.setObjectName('title')
 
+        self.menu_title = QtWidgets.QLabel('Functions')
+        self.menu_title.setObjectName('menu-title')
+        
         self.widget_buttons = [ QtWidgets.QPushButton("Correlation Matrix"),
                                 QtWidgets.QPushButton("Efficient Frontier"),
                                 QtWidgets.QPushButton("Moving Averages"),
@@ -59,11 +62,11 @@ class MenuWidget(QtWidgets.QWidget):
         for button in self.widget_buttons:
             button.setObjectName('button')
 
-        self.function_widgets = [ CorrelationWidget(), 
-                                  EfficientFrontierWidget(),
-                                  MovingAverageWidget(),
-                                  OptimizerWidget(),
-                                  RiskReturnWidget(),
+        self.function_widgets = [ CorrelationWidget('great-grand-child'), 
+                                  EfficientFrontierWidget('great-grand-child'),
+                                  MovingAverageWidget('great-grand-child'),
+                                  OptimizerWidget('great-grand-child'),
+                                  RiskReturnWidget('great-grand-child'),
                             ]
 
         self.menu_pane = QtWidgets.QWidget()
@@ -98,6 +101,7 @@ class MenuWidget(QtWidgets.QWidget):
         self.layout().addWidget(self.title)
         self.layout().addWidget(self.container_pane)
 
+        self.menu_pane.layout().addWidget(self.menu_title)
         for button in self.widget_buttons:
             self.menu_pane.layout().addWidget(button)
         self.menu_pane.layout().addStretch()
@@ -121,8 +125,6 @@ class MenuWidget(QtWidgets.QWidget):
     def _show_widget(self, widget_index):
         for widget in self.function_widgets:
             widget.hide()
-        print('about to show')
-        print(self.function_widgets[widget_index])
         self.function_widgets[widget_index].show()
 
     @QtCore.Slot()

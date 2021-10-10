@@ -13,7 +13,7 @@
 # along with scrilla.  If not, see <https://www.gnu.org/licenses/>
 # or <https://github.com/chinchalinchin/scrilla/blob/develop/main/LICENSE>.
 
-from PySide6 import Qt, QtCore, QtWidgets
+from PySide6 import QtGui, QtCore, QtWidgets
 
 
 from scrilla import settings
@@ -30,20 +30,23 @@ from scrilla.gui.widgets import CompositeWidget, GraphWidget, \
 logger = outputter.Logger('gui.functions', settings.LOG_LEVEL)
 
 class RiskReturnWidget(CompositeWidget):
-    def __init__(self):
+    def __init__(self, objectName):
         super().__init__(widget_title="Risk-Return Profile Over Last 100 Days", button_msg="Calculate Profile", 
                             calculate_function=self.calculate, clear_function=self.clear)
-        
+        self.setObjectName(objectName)
         self._init_profile_widgets()
-        # self._arrange_profile_widgets()
-        # print('constructor complete')
+        self._arrange_profile_widgets()
+        self._stage_profile_widgets()
 
     def _init_profile_widgets(self):
         self.figure = QtWidgets.QLabel("Risk Profile Graph")
 
     def _arrange_profile_widgets(self):
         self.figure.setAlignment(QtCore.Qt.AlignHCenter)
-        self.right_layer.layout().insertWidget(1, self.figure, 1)
+        self.right_layer.layout().insertWidget(0, self.figure, 1)
+
+    def _stage_profile_widgets(self):
+        self.figure.hide()
 
     @QtCore.Slot()
     def calculate(self):
@@ -55,7 +58,7 @@ class RiskReturnWidget(CompositeWidget):
         self.table.setRowCount(len(symbols))
         self.table.setColumnCount(2)
         self.table.setHorizontalHeader(QtWidgets.QHeaderView(QtCore.Qt.Horizontal))
-        self.table.setHorizontalHeaderLabels(['Risk','Return'])
+        self.table.setHorizontalHeaderLabels(['Return','Risk'])
         self.table.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Stretch)
         self.table.setVerticalHeader(QtWidgets.QHeaderView(QtCore.Qt.Vertical))
         self.table.setVerticalHeaderLabels(symbols)
@@ -72,16 +75,21 @@ class RiskReturnWidget(CompositeWidget):
             vol_item = QtWidgets.QTableWidgetItem(formatted_vol)
             vol_item.setTextAlignment(QtCore.Qt.AlignHCenter)
             
-            self.table.setItem(symbols.index(symbol), 0, vol_item)
-            self.table.setItem(symbols.index(symbol), 1, ret_item)
+            self.table.setItem(symbols.index(symbol), 0, ret_item)
+            self.table.setItem(symbols.index(symbol), 1, vol_item)
 
         plotter.plot_profiles(symbols=symbols, profiles=profiles, show=False,
-                                        savefile=settings.CACHE_TEMP_FILE)
+                                        savefile=f'{settings.TEMP_DIR}/profile.jpeg')
 
-        self.figure.setPixmap(utilities.generate_pixmap_from_cache())
+        self.figure.setPixmap(utilities.generate_pixmap_from_temp(self.width(), self.height(),'profile'))
         self.figure.show()
         self.table.resizeColumnsToContents()
         self.table.show()
+
+    def resizeEvent(self, event: QtGui.QResizeEvent) -> None:
+        if self.figure.isVisible():
+            self.figure.setPixmap(utilities.generate_pixmap_from_temp(self.width(), self.height(),'profile'))
+        return super().resizeEvent(event)
 
     @QtCore.Slot()
     def clear(self):
@@ -90,9 +98,11 @@ class RiskReturnWidget(CompositeWidget):
         self.symbol_input.clear()
 
 class CorrelationWidget(TableWidget):
-    def __init__(self):
+    def __init__(self, objectName):
         super().__init__(widget_title = "Correlation Over Last 100 Days", button_msg="Calculate Correlation",
                             table_function = self.calculate_table, clear_function=self.clear)
+        self.setObjectName(objectName)
+
 
     @QtCore.Slot()
     def calculate_table(self):
@@ -105,11 +115,8 @@ class CorrelationWidget(TableWidget):
             self.table.setRowCount(len(symbols))
             self.table.setColumnCount(len(symbols))
 
-            self.table.setHorizontalHeader(QtWidgets.QHeaderView(QtCore.Qt.Horizontal))
             self.table.setHorizontalHeaderLabels(symbols)
             #self.table.horizontalHeader().setStretchLastSection(True)
-
-            self.table.setVerticalHeader(QtWidgets.QHeaderView(QtCore.Qt.Vertical))
             self.table.setVerticalHeaderLabels(symbols)
 
             for i, value in enumerate(symbols):
@@ -151,10 +158,11 @@ class CorrelationWidget(TableWidget):
         self.table.hide()
 
 class OptimizerWidget(PortfolioWidget):
-    def __init__(self):
+    def __init__(self, objectName):
         super().__init__(widget_title="Portfolio Allocation Optimization",
                             optimize_function=self.optimize, 
                             clear_function=self.clear)
+        self.setObjectName(objectName)
 
     @QtCore.Slot()
     def optimize(self):
@@ -216,12 +224,13 @@ class OptimizerWidget(PortfolioWidget):
         self.result.hide()
 
 class EfficientFrontierWidget(GraphWidget):
-    def __init__(self):
+    def __init__(self, objectName):
         super().__init__(widget_title = "Efficient Portfolio Frontier Plot", button_msg="Calculate Efficient Frontier",
                             display_function=self.display, clear_function=self.clear)
+        self.setObjectName(objectName)
         self._init_frontier_widgets()
         self._arrange_frontier_widgets()
-        self.displayed = False
+        self._stage_frontier_widgets()
 
     def _init_frontier_widgets(self):
         self.figure = QtWidgets.QLabel("Efficient Frontier Graph")
@@ -229,6 +238,14 @@ class EfficientFrontierWidget(GraphWidget):
     def _arrange_frontier_widgets(self):
         self.figure.setAlignment(QtCore.Qt.AlignHCenter)
         self.layout().insertWidget(1, self.figure, 1)
+
+    def _stage_frontier_widgets(self):
+        self.figure.hide()
+
+    def resizeEvent(self, event: QtGui.QResizeEvent) -> None:
+        if self.figure.isVisible():
+            self.figure.setPixmap(utilities.generate_pixmap_from_temp(self.width(), self.height(), 'frontier'))
+        return super().resizeEvent(event)
 
         # TODO: DATES! & PORTFOLIO TABS
     @QtCore.Slot()
@@ -243,9 +260,9 @@ class EfficientFrontierWidget(GraphWidget):
         plotter.plot_frontier(portfolio=this_portfolio, 
                                 frontier=frontier, 
                                 show=False, 
-                                savefile=settings.CACHE_TEMP_FILE)
+                                savefile=f'{settings.TEMP_DIR}/frontier')
 
-        self.figure.setPixmap(utilities.generate_pixmap_from_cache())
+        self.figure.setPixmap(utilities.generate_pixmap_from_temp(self.width(), self.height(), 'frontier'))
         self.figure.show()
     
     @QtCore.Slot()
@@ -255,18 +272,29 @@ class EfficientFrontierWidget(GraphWidget):
             self.figure.hide()
 
 class MovingAverageWidget(GraphWidget):
-    def __init__(self):
+    def __init__(self, objectName):
         super().__init__(widget_title = "Rolling Moving Average Plot", button_msg="Calculate MAs",
                             display_function=self.display, clear_function=self.clear)
+        self.setObjectName(objectName)
         self._init_average_widgets()
+        self._arrange_average_widgets()
+        self._stage_average_widgets()
 
     def _init_average_widgets(self):
         self.figure = QtWidgets.QLabel("Moving Averages")
 
     def _arrange_average_widgets(self):
         self.figure.setAlignment(QtCore.Qt.AlignHCenter)
-        self.layout.insertWidget(1, self.figure, 1)
+        self.layout().insertWidget(1, self.figure, 1)
+    
+    def _stage_average_widgets(self):
+        self.figure.hide()
         
+    def resizeEvent(self, event: QtGui.QResizeEvent) -> None:
+        if self.figure.isVisible():
+            self.figure.setPixmap(utilities.generate_pixmap_from_temp(self.width(), self.height(), 'averages'))
+        return super().resizeEvent(event)
+
     @QtCore.Slot()
     def display(self):
         if self.figure.isVisible():
@@ -280,9 +308,9 @@ class MovingAverageWidget(GraphWidget):
                                         averages_output=moving_averages, 
                                         periods=periods, 
                                         show=False, 
-                                        savefile=settings.CACHE_TEMP_FILE)
+                                        savefile=f'{settings.TEMP_DIR}/averages')
         
-        self.figure.setPixmap(utilities.generate_pixmap_from_cache())
+        self.figure.setPixmap(utilities.generate_pixmap_from_temp(self.width(), self.height(), 'averages'))
         self.figure.show()
     
     @QtCore.Slot()

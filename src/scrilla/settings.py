@@ -46,7 +46,8 @@ CACHE_DIR = os.path.join(APP_DIR, 'data', 'cache')
 """Directory containing cached prices, statistics and calculations"""
 CACHE_SQLITE_FILE = os.environ.setdefault('SQLITE_FILE', os.path.join(CACHE_DIR, 'scrilla.db'))
 """Location of the SQLite database flat file; Configured by environment variable **SQLITE_FILE***"""
-CACHE_TEMP_FILE = os.path.join(CACHE_DIR, 'tmp')
+
+TEMP_DIR = os.path.join(APP_DIR, 'data', 'tmp')
 
 STATIC_DIR = os.path.join(APP_DIR, 'data', 'static')
 """Directory containg static data, such as ticker symbols, statistic symbols, etc."""
@@ -72,7 +73,7 @@ GUI_DARK_MODE = os.environ.setdefault('DARK_MODE', 'true').lower() == 'true'
 
 ## GUI CONFIGURATION
 try:
-    GUI_WIDTH = int(os.environ.setdefault('GUI_WIDTH', '600'))
+    GUI_WIDTH = int(os.environ.setdefault('GUI_WIDTH', '800'))
     """Width of main Graphical User Interface window; Configured by environment variable of same name, **GUI_WIDTH**"""
 except (ValueError, TypeError) as ParseError: 
     logger.debug('Failed to parse GUI_WIDTH from environment. Setting to default value of 800.')
@@ -84,8 +85,8 @@ try:
     """Height of main Graphical User Interface window; Configured by environment variable of same name, **GUI_HEIGHT**."""
 except (ValueError, TypeError) as ParseError:
     logger.debug('Failed to parse GUI_HEIGHT from enviroment. Setting to default value of 800.')
-    GUI_HEIGHT = 800
-    os.environ['GUI_HEIGHT'] = '800'
+    GUI_HEIGHT = 600
+    os.environ['GUI_HEIGHT'] = '600'
 
 ## FINANCIAL ALGORITHM CONFIGURATION
 try:

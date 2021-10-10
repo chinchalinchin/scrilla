@@ -1,65 +1,71 @@
 #title {
     font-family: Times;
-    font-size: 12;
+    font-size: 20px;
     font-weight: 800;
     border-style: inset;
     border-radius: 2px;
-    background-color: $TITLE_BG;
+    background-color: $primary-500;
+}
+#menu-title {
+    font-color: $primary-400;
 }
 #subtitle {
     font-family: Times;
-    font-size: 10;
+    font-size: 10px;
     font-weight: 600;
 }
 #text {
     font-family: Times;
-    font-size: 8;
+    font-size: 8px;
     font-weight: 500;
 }
 #error {
     font-family: Helvetica;
-    font-size: 8;
+    font-size: 8px;
     font-weight: 600;
 }
 
 #root {
     border-style: inset;
     border-radius: 2px;
-    background-color: $ROOT_BG;
+    background-color: $primary-800;
 }
 
 #child {
     border-style: inset;
     border-radius: 2px;
-    background-color: $CHILD_BG;
+    background-color: $primary-700;
 }
 
 #grand-child {
     border-style: inset;
     border-radius: 2px;
-    background-color: $GRANDCHILD_BG;
+    background-color: $primary-600;
 }
 
 #great-grand-child {
     border-style: inset;
     border-radius: 2px;
-    background-color: $GREATGRANDCHILD_BG;
+    background-color: $primary-500;
 
+}
+QLineEdit#line-edit {
+    
 }
 QPushButton#button {
     padding: 2px;
     border-style: outset;
     border-radius: 2px;
-    background-color: $BUTTON_BG;
+    background-color: $primary-400;
 }
 QPushButton#button:hover {
     border-style: outset;
     border-radius: 2px;
     cursor: pointer;
-    background-color: $ACTIVE_BUTTON_BG;
+    background-color: $primary-100;
 }
 QPushButton#button:pressed {
     border-style:inset;
     border-radius:2px;
-    background-color: $PRESSED_BUTTON_BG;
+    background-color: $primary-700;
 }

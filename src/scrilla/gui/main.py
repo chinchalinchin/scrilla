@@ -28,9 +28,9 @@ logger = outputter.Logger('main', settings.LOG_LEVEL)
 def parse_dimensions():
     parser = argparse.ArgumentParser()
     parser.add_argument('--full-screen','-full-screen','--full','-full', action='store_true', dest='full_screen')
-    parser.add_argument('--width', '-width', '--w', '-w', type=int, dest='width', default=settings.GUI_WIDTH)
-    parser.add_argument('--height', '-height', '--h', '-h', type=int, dest='height', default=settings.GUI_HEIGHT)
-    return vars(parser.parse_args(sys.argv))
+    parser.add_argument('--width', '-width', '--w', type=int, dest='width', default=settings.GUI_WIDTH)
+    parser.add_argument('--height', '-height', '--h', type=int, dest='height', default=settings.GUI_HEIGHT)
+    return vars(parser.parse_args())
 
 def do_gui():
     dimensions = parse_dimensions()
@@ -45,6 +45,8 @@ def do_gui():
         _style = formats.format_stylesheet(f.read())
         app.setStyleSheet(_style)
 
+    print(_style)
+    
     if not dimensions['full_screen']:    
         widget.resize(dimensions['width'], dimensions['height'])
         center = QtGui.QScreen.availableGeometry(QtWidgets.QApplication.primaryScreen()).center()

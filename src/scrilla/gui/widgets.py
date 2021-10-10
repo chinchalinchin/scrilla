@@ -16,6 +16,28 @@
 from typing import Callable
 from PySide6 import QtGui, QtCore, QtWidgets
 
+# TODO: have widgets create their own layouts and arrange their hcild widgets in them, i.e. not in their root layout.
+#       then compose the layouts in the functions module.
+
+# in fact, if you think about it, none of these widgets need to inherit QWidget. they could implement Layouts and add their
+# child widgets directly to their layouts. then in the functions module, the layouts could be composed...
+
+# that's probably the way to do this...
+
+# this is definitely not a clean way of doing. all the classes are mixed together. need to enforce separation or streamline
+# the inheritance.
+
+# question: where should the calculate buttons come from?
+# question: what widgets are absolutely necessary for each widget in here?
+# isolate by functionality. no widget dependency.
+
+# REFACTOR.
+
+# I think the calculate button and clear button coming from the symbolwidget is fine, but table/composite/graph/portfolio 
+# should not hook up the functions to these buttons.
+
+# no inheritance between widgets. 
+
 """
 A series of classes that all inherit from ``PySide6.QtWidgets.QWidget` and build up in sequence the necessary functionality to grab and validate user input, calculate and display results, etc. These widgets are not directly displayed on the GUI; rather, they are used as building blocks by the `scrilla.gui.functions` module, to create widgets specifically for application functions.
 
@@ -54,6 +76,7 @@ class SymbolWidget(QtWidgets.QWidget):
     5. **symbol_input**: ``PySide6.QtWidget.QLineEdit``
         Empty text area for super classes to inherit
     """
+    # TODO: calculate and clear should be part of THIS constructor, doesn't make sense to have other widgets hook them up.
     def __init__(self, widget_title: str, button_msg: str):
         super().__init__()
         self.widget_title = widget_title
@@ -66,11 +89,22 @@ class SymbolWidget(QtWidgets.QWidget):
     def _init_symbol_widgets(self):
         """Creates child widgets"""
         self.title = QtWidgets.QLabel(self.widget_title)
+        self.title.setObjectName('subtitle')
+
         self.message = QtWidgets.QLabel("Please separate symbols with a comma")
+        self.message.setObjectName('text')
+
         self.error_message = QtWidgets.QLabel("Error message goes here")
+        self.error_message.setObjectName('error')
+
         self.calculate_button = QtWidgets.QPushButton(self.button_msg)
+        self.calculate_button.setObjectName('button')
+        
         self.clear_button = QtWidgets.QPushButton("Clear")
+        self.clear_button.setObjectName('button')
+
         self.symbol_input = QtWidgets.QLineEdit()
+        self.symbol_input.setObjectName('line-edit')
     
     def _arrange_symbol_widgets(self):
         """Provides rendering hints to child widgets"""
@@ -84,6 +118,9 @@ class SymbolWidget(QtWidgets.QWidget):
         self.error_message.hide()
         self.calculate_button.setAutoDefault(True) # emits 'clicked' when return is pressed
         self.clear_button.setAutoDefault(True)
+        # self.clear_button.clicked.connect(self.clear_function)
+        # self.calculate_button.clicked.connect(self.table_function)
+        # self.symbol_input.returnPressed.connect(self.table_function)
 
 class TableWidget(SymbolWidget):
     """
@@ -126,20 +163,25 @@ class TableWidget(SymbolWidget):
     def _init_table_widgets(self):
         """Creates child widgets and their layouts"""
         self.table = QtWidgets.QTableWidget()
-        self.layout = QtWidgets.QVBoxLayout()
-        self.setLayout(self.layout)
+        self.table.setObjectName('table')
+
+        self.setLayout(QtWidgets.QVBoxLayout())
     
     def _arrange_table_widgets(self):
-        self.layout.addWidget(self.title)
-        self.layout.addStretch()
-        self.layout.addWidget(self.table, 1)
-        self.layout.addWidget(self.error_message)
-        self.layout.addWidget(self.message)
-        self.layout.addWidget(self.symbol_input)
-        self.layout.addWidget(self.calculate_button)
-        self.layout.addWidget(self.clear_button)
+        self.table.setHorizontalHeader(QtWidgets.QHeaderView(QtCore.Qt.Horizontal))
+        self.table.setVerticalHeader(QtWidgets.QHeaderView(QtCore.Qt.Vertical))
+
+        self.layout().addWidget(self.title)
+        self.layout().addStretch()
+        self.layout().addWidget(self.table, 1)
+        self.layout().addWidget(self.error_message)
+        self.layout().addWidget(self.message)
+        self.layout().addWidget(self.symbol_input)
+        self.layout().addWidget(self.calculate_button)
+        self.layout().addWidget(self.clear_button)
 
     def _stage_table_widgets(self):
+        # TODO: remove button function hook
         self.clear_button.clicked.connect(self.clear_function)
         self.calculate_button.clicked.connect(self.table_function)
         self.symbol_input.returnPressed.connect(self.table_function)
@@ -185,12 +227,11 @@ class GraphWidget(SymbolWidget):
         self.layout().addWidget(self.clear_button)
     
     def _stage_graph_widgets(self):
+        # TODO: remove button function hook
         self.clear_button.clicked.connect(self.clear_function)
         self.calculate_button.clicked.connect(self.display_function)
         self.symbol_input.returnPressed.connect(self.display_function)
 
-# NOTE: both calculate_function and display_function get binded to the Widget's calculate_button.
-    # i.e. the display_function's figure should represent the result from the calculate_function
 class CompositeWidget(SymbolWidget):
     """
     Constructor
@@ -244,7 +285,7 @@ class CompositeWidget(SymbolWidget):
         self.first_layer.layout().addWidget(self.right_layer)
 
         self.left_layer.layout().addWidget(self.table, 1)
-
+        
         self.layout().addWidget(self.title)
         self.layout().addWidget(self.first_layer)
         self.layout().addStretch()
@@ -256,6 +297,7 @@ class CompositeWidget(SymbolWidget):
 
     def _stage_composite_widgets(self):
         self.table.hide()
+        # TODO: remove button function hook
         self.clear_button.clicked.connect(self.clear_function)
         self.calculate_button.clicked.connect(self.calculate_function)
         self.symbol_input.returnPressed.connect(self.calculate_function)
@@ -277,10 +319,6 @@ class PortfolioWidget(SymbolWidget):
     11. **first_layer**
     12. **left_layer**
     13. **right_layer**
-    14. **root_layout**
-    15. **first_layout**
-    16. **left_layout**
-    17. **right_layout**
 
     .. notes::
         * Widget Hierarchy
@@ -310,55 +348,55 @@ class PortfolioWidget(SymbolWidget):
         self.result_table = QtWidgets.QTableWidget()
 
         self.target_return = QtWidgets.QLineEdit()
+        self.target_return.setObjectName('line-edit')
+
         self.portfolio_value = QtWidgets.QLineEdit()
+        self.portfolio_value.setObjectName('line-edit')
 
         self.first_layer = QtWidgets.QWidget()
         self.left_layer = QtWidgets.QWidget()
         self.right_layer = QtWidgets.QWidget()
 
-        self.root_layout = QtWidgets.QVBoxLayout()
-        self.first_layout = QtWidgets.QHBoxLayout()
-        self.left_layout = QtWidgets.QVBoxLayout()
-        self.right_layout= QtWidgets.QVBoxLayout()
-
-        self.first_layer.setLayout(self.first_layout)
-        self.left_layer.setLayout(self.left_layout)
-        self.right_layer.setLayout(self.right_layout)
-        self.setLayout(self.root_layout)
+        self.first_layer.setLayout(QtWidgets.QHBoxLayout())
+        self.left_layer.setLayout(QtWidgets.QVBoxLayout())
+        self.right_layer.setLayout(QtWidgets.QVBoxLayout())
+        self.setLayout(QtWidgets.QVBoxLayout())
 
     def _arrange_portfolio_widgets(self):
         """Arranges child widgets and provides rendering hints"""
         self.result.setAlignment(QtCore.Qt.AlignRight)
         self.result_table.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustToContents)
 
-        self.root_layout.addWidget(self.title)
-        self.root_layout.addWidget(self.result)
-        self.root_layout.addWidget(self.error_message)
-        self.root_layout.addWidget(self.result_table, 1)
-        self.root_layout.addStretch()
-        self.root_layout.addWidget(self.first_layer)
-        self.root_layout.addWidget(self.clear_button)
-        self.root_layout.addStretch()
+        self.layout().addWidget(self.title)
+        self.layout().addWidget(self.result)
+        self.layout().addWidget(self.error_message)
+        self.layout().addWidget(self.result_table, 1)
+        self.layout().addStretch()
+        self.layout().addWidget(self.first_layer)
+        self.layout().addWidget(self.clear_button)
+        self.layout().addStretch()
 
-        self.first_layout.addWidget(self.left_layer)
-        self.first_layout.addWidget(self.right_layer)
+        self.first_layer.layout().addWidget(self.left_layer)
+        self.first_layer.layout().addWidget(self.right_layer)
 
-        self.left_layout.addWidget(self.left_title)
-        self.left_layout.addWidget(self.portfolio_label)
-        self.left_layout.addWidget(self.portfolio_value)
-        self.left_layout.addWidget(self.message)
-        self.left_layout.addWidget(self.symbol_input)
+        self.left_layer.layout().addWidget(self.left_title)
+        self.left_layer.layout().addWidget(self.portfolio_label)
+        self.left_layer.layout().addWidget(self.portfolio_value)
+        self.left_layer.layout().addWidget(self.message)
+        self.left_layer.layout().addWidget(self.symbol_input)
 
-        self.right_layout.addWidget(self.right_title)
-        self.right_layout.addWidget(self.target_label)
-        self.right_layout.addWidget(self.target_return)
-        self.right_layout.addWidget(self.calculate_button)
+        self.right_layer.layout().addWidget(self.right_title)
+        self.right_layer.layout().addWidget(self.target_label)
+        self.right_layer.layout().addWidget(self.target_return)
+        self.right_layer.layout().addWidget(self.calculate_button)
 
     def _stage_portfolio_widgets(self):
         """Prepares child widgets for display and hooks widget functions into user input widgets"""
         self.result.hide()
         self.result_table.hide()
 
+        # TODO: remove button function hook...target return is specific to this widget though...
+        #       will need to think. 
         self.calculate_button.clicked.connect(self.optimize_function)
         self.clear_button.clicked.connect(self.clear_function)
         self.symbol_input.returnPressed.connect(self.optimize_function)
