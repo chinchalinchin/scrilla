@@ -91,7 +91,7 @@ def maximize_univariate_normal_likelihood(data: List[float])-&gt; List[float]:
     return params.x
 
 def maximize_bivariate_normal_likelihood(data: List[Tuple[float,float]]) -&gt; List[float]:
-    &#34;&#34;&#34;
+    r&#34;&#34;&#34;
 
     .. warning ::
         This can take an extremely long time to solve...
@@ -404,15 +404,13 @@ A nested list of floats. Each float list corresponds to a point on a portfolio's
 This can take an extremely long time to solve&hellip;</p>
 <h2 id="returns">Returns</h2>
 <p><code>list</code>
-A list containing the maximum likelihood estimates of the bivariates normal distribution's parameters. The first element of the list corresponds to <span><span class="MathJax_Preview">\mu_x)</span><script type="math/tex">\mu_x)</script></span>, the second element the <span><span class="MathJax_Preview">\mu_y)</span><script type="math/tex">\mu_y)</script></span>, the third element <span><span class="MathJax_Preview">\sigma_x)</span><script type="math/tex">\sigma_x)</script></span>, the fourth element <span><span class="MathJax_Preview">\sigma_y)</span><script type="math/tex">\sigma_y)</script></span> and the fifth element <span><span class="MathJax_Preview">
-ho_{xy} \cdot \sigma_y \cdot \sigma_x)</span><script type="math/tex">
-ho_{xy} \cdot \sigma_y \cdot \sigma_x)</script></span>.</p></div>
+A list containing the maximum likelihood estimates of the bivariates normal distribution's parameters. The first element of the list corresponds to \(\mu_x)\), the second element the \(\mu_y)\), the third element \(\sigma_x)\), the fourth element \(\sigma_y)\) and the fifth element \(\rho_{xy} \cdot \sigma_y \cdot \sigma_x)\).</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def maximize_bivariate_normal_likelihood(data: List[Tuple[float,float]]) -&gt; List[float]:
-    &#34;&#34;&#34;
+    r&#34;&#34;&#34;
 
     .. warning ::
         This can take an extremely long time to solve...

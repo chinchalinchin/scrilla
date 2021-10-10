@@ -204,7 +204,8 @@ class StatManager():
             formatted_interest[rate[0]] = rate[1:]
         return formatted_interest
 
-    def format_for_maturity(self, maturity, results):
+    @staticmethod
+    def format_for_maturity(maturity, results):
         try:
             maturity_key = keys.keys[&#39;YIELD_CURVE&#39;].index(maturity)
         except KeyError:
@@ -1636,7 +1637,8 @@ If the <strong>STAT_MANAGER</strong> environment variable has been set to a valu
             formatted_interest[rate[0]] = rate[1:]
         return formatted_interest
 
-    def format_for_maturity(self, maturity, results):
+    @staticmethod
+    def format_for_maturity(maturity, results):
         try:
             maturity_key = keys.keys[&#39;YIELD_CURVE&#39;].index(maturity)
         except KeyError:
@@ -1647,10 +1649,10 @@ If the <strong>STAT_MANAGER</strong> environment variable has been set to a valu
             formatted_interest[result] = results[result][maturity_key]
         return formatted_interest</code></pre>
 </details>
-<h3>Methods</h3>
+<h3>Static methods</h3>
 <dl>
 <dt id="scrilla.services.StatManager.format_for_maturity"><code class="name flex">
-<span>def <span class="ident">format_for_maturity</span></span>(<span>self, maturity, results)</span>
+<span>def <span class="ident">format_for_maturity</span></span>(<span>maturity, results)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -1658,7 +1660,8 @@ If the <strong>STAT_MANAGER</strong> environment variable has been set to a valu
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def format_for_maturity(self, maturity, results):
+<pre><code class="python">@staticmethod
+def format_for_maturity(maturity, results):
     try:
         maturity_key = keys.keys[&#39;YIELD_CURVE&#39;].index(maturity)
     except KeyError:
@@ -1670,6 +1673,9 @@ If the <strong>STAT_MANAGER</strong> environment variable has been set to a valu
     return formatted_interest</code></pre>
 </details>
 </dd>
+</dl>
+<h3>Methods</h3>
+<dl>
 <dt id="scrilla.services.StatManager.get_interest_rates"><code class="name flex">
 <span>def <span class="ident">get_interest_rates</span></span>(<span>self, start_date, end_date)</span>
 </code></dt>

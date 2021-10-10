@@ -44,8 +44,9 @@
 
 import datetime
 
-from scrilla import static, services, settings, errors
-from scrilla.util import helper, dater, outputter
+from scrilla import services, settings, errors
+from scrilla.static import constants
+from scrilla.util import dater, outputter
 import scrilla.analysis.estimators as estimators
 
 logger = outputter.Logger(&#39;analysis.objects.cashflow&#39;, settings.LOG_LEVEL)
@@ -288,7 +289,7 @@ class Cashflow:
             
             self.NPV += self.get_growth_function(current_time) / ((1 + self.discount_rate)**current_time)
 
-            if self.NPV - previous_value &lt; static.constants[&#39;NPV_DELTA_TOLERANCE&#39;]:
+            if self.NPV - previous_value &lt; constants.constants[&#39;NPV_DELTA_TOLERANCE&#39;]:
                 calculating = False
             i += 1
 
@@ -592,7 +593,7 @@ In any of the cases, you MUST pass in a period or the <code>net_present_value</c
             
             self.NPV += self.get_growth_function(current_time) / ((1 + self.discount_rate)**current_time)
 
-            if self.NPV - previous_value &lt; static.constants[&#39;NPV_DELTA_TOLERANCE&#39;]:
+            if self.NPV - previous_value &lt; constants.constants[&#39;NPV_DELTA_TOLERANCE&#39;]:
                 calculating = False
             i += 1
 
@@ -662,7 +663,7 @@ If not enough information is present in the instance of the <code><a title="scri
         
         self.NPV += self.get_growth_function(current_time) / ((1 + self.discount_rate)**current_time)
 
-        if self.NPV - previous_value &lt; static.constants[&#39;NPV_DELTA_TOLERANCE&#39;]:
+        if self.NPV - previous_value &lt; constants.constants[&#39;NPV_DELTA_TOLERANCE&#39;]:
             calculating = False
         i += 1
 

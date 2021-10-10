@@ -77,7 +77,7 @@ def format_args(args, default_estimation_method) -&gt; argparse.Namespace:
     groups = [parser.add_mutually_exclusive_group() for arg_group in definitions.ARG_META[&#39;groups&#39;] ]
 
     for arg in definitions.ARG_DICT:
-        if definitions.ARG_DICT[arg][&#39;format&#39;] != &#39;group&#39; and definitions.ARG_DICT[arg][&#39;format&#39;] != bool:
+        if definitions.ARG_DICT[arg][&#39;format&#39;] not in (&#39;group&#39;, bool):
             parser.add_argument(definitions.ARG_DICT[arg][&#39;values&#39;][0], 
                                 definitions.ARG_DICT[arg][&#39;values&#39;][1], 
                                 definitions.ARG_DICT[arg][&#39;values&#39;][2], 
@@ -144,7 +144,7 @@ def replace_troublesome_chars(msg: str) -&gt; str:
     groups = [parser.add_mutually_exclusive_group() for arg_group in definitions.ARG_META[&#39;groups&#39;] ]
 
     for arg in definitions.ARG_DICT:
-        if definitions.ARG_DICT[arg][&#39;format&#39;] != &#39;group&#39; and definitions.ARG_DICT[arg][&#39;format&#39;] != bool:
+        if definitions.ARG_DICT[arg][&#39;format&#39;] not in (&#39;group&#39;, bool):
             parser.add_argument(definitions.ARG_DICT[arg][&#39;values&#39;][0], 
                                 definitions.ARG_DICT[arg][&#39;values&#39;][1], 
                                 definitions.ARG_DICT[arg][&#39;values&#39;][2], 

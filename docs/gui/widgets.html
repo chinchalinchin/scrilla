@@ -42,77 +42,78 @@
 # along with scrilla.  If not, see &lt;https://www.gnu.org/licenses/&gt;
 # or &lt;https://github.com/chinchalinchin/scrilla/blob/develop/main/LICENSE&gt;.
 
-from PyQt5 import QtGui, QtCore, QtWidgets
+from PySide6 import QtGui, QtCore, QtWidgets
 
-def get_title_font():
+def get_title_font() -&gt; QtGui.QFont:
+    &#34;&#34;&#34;font styled for widget titles&#34;&#34;&#34;
     font = QtGui.QFont(&#39;Arial&#39;, 12)
     font.setBold(True)
-    font.setUnderline(True)
     return font
 
-def get_subtitle_font():
+def get_subtitle_font() -&gt; QtGui.QFont:
+    &#34;&#34;&#34;font styled for widget subtitles&#34;&#34;&#34;
     font = QtGui.QFont(&#39;Arial&#39;, 10)
     font.setItalic(True)
-    font.setUnderline(True)
     return font
 
-def get_msg_font():
+def get_msg_font() -&gt; QtGui.QFont:
+    &#34;&#34;&#34;font styled for widget general text&#34;&#34;&#34;
     font = QtGui.QFont(&#39;Arial&#39;, 8)
     font.setItalic(True)
     return font
 
-def get_result_font():
+def get_result_font() -&gt; QtGui.QFont:
+    &#34;&#34;&#34;font styled for widget results&#34;&#34;&#34;
     font = QtGui.QFont(&#39;Arial&#39;, 8)
     font.setBold(True)
     return font
 
-def get_label_font():
+def get_label_font() -&gt; QtGui.QFont:
+    &#34;&#34;&#34;font styled for widget labels&#34;&#34;&#34;
     font = QtGui.QFont(&#39;Arial&#39;, 8)
     font.setBold(True)
     return font
-
-# Widget to retrieve User Input
-class InputWidget(QtWidgets.QWidget):
-    def __init__(self, widget_title):
-        super().__init__()
-
-        text, okPressed = QtWidgets.QInputDialog.getText(self, &#34;Get text&#34;,&#34;Your name:&#34;)
 
 # Base Widget to get asset symbol input
 class SymbolWidget(QtWidgets.QWidget):
     def __init__(self, widget_title, button_msg):
         super().__init__()
-        self.title = QtWidgets.QLabel(widget_title, alignment=QtCore.Qt.AlignTop)
-        self.title.setFont(get_title_font())
+        self.widget_title = widget_title
+        self.button_msg = button_msg
 
+        self._init_widgets()
+        self._style_widgets()
+        self._stage_widgets()
+    
+    def _init_widgets(self):
+        self.title = QtWidgets.QLabel(self.widget_title, alignment=QtCore.Qt.AlignTop)
         self.message = QtWidgets.QLabel(&#34;Please separate symbols with a comma&#34;, alignment=QtCore.Qt.AlignBottom)
-        self.message.setFont(get_msg_font())    
-
-        self.error_message = QtWidgets.QLabel(&#34;Something Went Wrong; Check Input and Try Again&#34;, alignment=QtCore.Qt.AlignHCenter)
-        self.error_message.setFont(get_subtitle_font())
-        self.error_message.hide()
-
-        self.calculate_button = QtWidgets.QPushButton(button_msg)
-        self.calculate_button.setAutoDefault(True)
-            # emits &#39;clicked&#39; when return is pressed
-
+        self.error_message = QtWidgets.QLabel(&#34;Error message goes here&#34;, alignment=QtCore.Qt.AlignHCenter)
+        self.calculate_button = QtWidgets.QPushButton(self.button_msg)
         self.clear_button = QtWidgets.QPushButton(&#34;Clear&#34;)
-        self.clear_button.setAutoDefault(True)
-            # emits &#39;clicked&#39; when return is pressed
-        
         self.symbol_input = QtWidgets.QLineEdit()
+    
+    def _style_widgets(self):
+        self.title.setFont(get_title_font())
+        self.message.setFont(get_msg_font())    
+        self.error_message.setFont(get_subtitle_font())
         self.symbol_input.setMaxLength(100)
+
+    def _stage_widgets(self):
+        self.error_message.hide()
+        self.calculate_button.setAutoDefault(True) # emits &#39;clicked&#39; when return is pressed
+        self.clear_button.setAutoDefault(True)
 
 class TableWidget(SymbolWidget):
     def __init__(self, widget_title, button_msg, table_function):
         super().__init__(widget_title=widget_title, button_msg=button_msg)
+        self.table_function = table_function
 
+    def _init_widgets(self):
         self.table = QtWidgets.QTableWidget()
-        self.table.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustToContents)
-        self.table.hide()
-
         self.layout = QtWidgets.QVBoxLayout()
-
+    
+    def _arrange_widgets(self):
         self.layout.addWidget(self.title)
         self.layout.addStretch()
         self.layout.addWidget(self.table, 1)
@@ -121,18 +122,19 @@ class TableWidget(SymbolWidget):
         self.layout.addWidget(self.symbol_input)
         self.layout.addWidget(self.calculate_button)
         self.layout.addWidget(self.clear_button)
-
         self.setLayout(self.layout)
 
-        self.clear_button.clicked.connect(self.clear)
-        self.calculate_button.clicked.connect(table_function)
-        self.symbol_input.returnPressed.connect(table_function)
-    
+    def _stage_widgets(self):
         self.displayed = False
         self.figure = None
+        self.clear_button.clicked.connect(self._clear)
+        self.calculate_button.clicked.connect(self.table_function)
+        self.symbol_input.returnPressed.connect(self.table_function)
+        self.table.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustToContents)
+        self.table.hide()
 
     @QtCore.Slot()
-    def clear(self):
+    def _clear(self):
         self.symbol_input.clear()
         self.error_message.hide()
         self.table.clear()
@@ -168,7 +170,6 @@ class GraphWidget(SymbolWidget):
         if self.displayed:
             self.displayed = False
             self.layout.removeWidget(self.figure)
-            self.figure.deleteLater()
             self.figure = None
 
 # NOTE: both calculate_function and display_function get binded to the Widget&#39;s calculate_button.
@@ -180,38 +181,54 @@ class CompositeWidget(SymbolWidget):
         self.table.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustToContents)
         self.table.hide()
 
-        self.first_layer = QtWidgets.QVBoxLayout()
-        self.second_layer = QtWidgets.QHBoxLayout()
-        self.left_layout = QtWidgets.QVBoxLayout()
-        self.right_layout = QtWidgets.QVBoxLayout()
-
-        self.first_layer.addWidget(self.title)
-        self.first_layer.addStretch()
-        self.first_layer.addWidget(self.error_message)
-
-        self.left_layout.addWidget(self.table, 1)
-        self.second_layer.addLayout(self.left_layout)
-        self.second_layer.addLayout(self.right_layout)
-
-        self.first_layer.addLayout(self.second_layer)
-        self.first_layer.addWidget(self.message)
-        self.first_layer.addWidget(self.symbol_input)
-        self.first_layer.addWidget(self.calculate_button)
-        self.first_layer.addWidget(self.clear_button)
-
-        self.setLayout(self.first_layer)
+        self._init_widgets()
+        self._arrange_widgets()
 
         self.displayed = False
         self.figure = None
 
-        self.clear_button.clicked.connect(self.clear)
+        self.clear_button.clicked.connect(self._clear)
         self.calculate_button.clicked.connect(calculate_function)
         self.calculate_button.clicked.connect(display_function)
         self.symbol_input.returnPressed.connect(calculate_function)
         self.symbol_input.returnPressed.connect(display_function)
 
+    def _init_widgets(self):
+        self.first_layer = QtWidgets.QWidget()
+        self.first_layout = QtWidgets.QVBoxLayout()
+
+        self.second_layer = QtWidgets.QWidget()
+        self.second_layout = QtWidgets.QHBoxLayout()
+
+        self.left_layer = QtWidgets.QWidget()
+        self.left_layout = QtWidgets.QVBoxLayout()
+
+        self.right_layer = QtWidgets.QWidget()
+        self.right_layout = QtWidgets.QVBoxLayout()
+
+    def _arrange_widgets(self):
+        self.right_layer.setLayout(self.right_layout)
+        self.left_layer.setLayout(self.left_layout)
+        self.second_layer.setLayout(self.second_layout)
+        self.first_layer.setLayout(self.first_layout)
+        self.setLayout(self.first_layout)
+
+        self.second_layout.addWidget(self.left_layer)
+        self.second_layout.addWidget(self.right_layer)
+
+        self.left_layout.addWidget(self.table, 1)
+
+        self.first_layout.addWidget(self.title)
+        self.first_layout.addWidget(self.second_layer)
+        self.first_layout.addStretch()
+        self.first_layout.addWidget(self.error_message)
+        self.first_layout.addWidget(self.message)
+        self.first_layout.addWidget(self.symbol_input)
+        self.first_layout.addWidget(self.calculate_button)
+        self.first_layout.addWidget(self.clear_button)
+
     @QtCore.Slot()
-    def clear(self):
+    def _clear(self):
         self.symbol_input.clear()
         self.error_message.hide()
         self.table.clear()
@@ -219,7 +236,6 @@ class CompositeWidget(SymbolWidget):
         if self.displayed:
             self.displayed = False
             self.right_layout.removeWidget(self.figure)
-            self.figure.deleteLater()
             self.figure = None
 
 # Specialized Widget For Portfolio Calculations
@@ -346,79 +362,82 @@ class PortfolioWidget(QtWidgets.QWidget):
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
 <dt id="scrilla.gui.widgets.get_label_font"><code class="name flex">
-<span>def <span class="ident">get_label_font</span></span>(<span>)</span>
+<span>def <span class="ident">get_label_font</span></span>(<span>) ‑> PySide6.QtGui.QFont</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>font styled for widget labels</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def get_label_font():
+<pre><code class="python">def get_label_font() -&gt; QtGui.QFont:
+    &#34;&#34;&#34;font styled for widget labels&#34;&#34;&#34;
     font = QtGui.QFont(&#39;Arial&#39;, 8)
     font.setBold(True)
     return font</code></pre>
 </details>
 </dd>
 <dt id="scrilla.gui.widgets.get_msg_font"><code class="name flex">
-<span>def <span class="ident">get_msg_font</span></span>(<span>)</span>
+<span>def <span class="ident">get_msg_font</span></span>(<span>) ‑> PySide6.QtGui.QFont</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>font styled for widget general text</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def get_msg_font():
+<pre><code class="python">def get_msg_font() -&gt; QtGui.QFont:
+    &#34;&#34;&#34;font styled for widget general text&#34;&#34;&#34;
     font = QtGui.QFont(&#39;Arial&#39;, 8)
     font.setItalic(True)
     return font</code></pre>
 </details>
 </dd>
 <dt id="scrilla.gui.widgets.get_result_font"><code class="name flex">
-<span>def <span class="ident">get_result_font</span></span>(<span>)</span>
+<span>def <span class="ident">get_result_font</span></span>(<span>) ‑> PySide6.QtGui.QFont</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>font styled for widget results</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def get_result_font():
+<pre><code class="python">def get_result_font() -&gt; QtGui.QFont:
+    &#34;&#34;&#34;font styled for widget results&#34;&#34;&#34;
     font = QtGui.QFont(&#39;Arial&#39;, 8)
     font.setBold(True)
     return font</code></pre>
 </details>
 </dd>
 <dt id="scrilla.gui.widgets.get_subtitle_font"><code class="name flex">
-<span>def <span class="ident">get_subtitle_font</span></span>(<span>)</span>
+<span>def <span class="ident">get_subtitle_font</span></span>(<span>) ‑> PySide6.QtGui.QFont</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>font styled for widget subtitles</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def get_subtitle_font():
+<pre><code class="python">def get_subtitle_font() -&gt; QtGui.QFont:
+    &#34;&#34;&#34;font styled for widget subtitles&#34;&#34;&#34;
     font = QtGui.QFont(&#39;Arial&#39;, 10)
     font.setItalic(True)
-    font.setUnderline(True)
     return font</code></pre>
 </details>
 </dd>
 <dt id="scrilla.gui.widgets.get_title_font"><code class="name flex">
-<span>def <span class="ident">get_title_font</span></span>(<span>)</span>
+<span>def <span class="ident">get_title_font</span></span>(<span>) ‑> PySide6.QtGui.QFont</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>font styled for widget titles</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def get_title_font():
+<pre><code class="python">def get_title_font() -&gt; QtGui.QFont:
+    &#34;&#34;&#34;font styled for widget titles&#34;&#34;&#34;
     font = QtGui.QFont(&#39;Arial&#39;, 12)
     font.setBold(True)
-    font.setUnderline(True)
     return font</code></pre>
 </details>
 </dd>
@@ -432,7 +451,10 @@ class PortfolioWidget(QtWidgets.QWidget):
 <span>(</span><span>widget_title, button_msg, calculate_function, display_function)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>QWidget(parent: QWidget = None, flags: Union[Qt.WindowFlags, Qt.WindowType] = Qt.WindowFlags())</p></div>
+<div class="desc"><p>QWidget(self, parent: Union[PySide6.QtWidgets.QWidget, NoneType] = None, f: PySide6.QtCore.Qt.WindowFlags = Default(Qt.WindowFlags)) -&gt; None</p>
+<p><strong>init</strong>(self, parent: Union[PySide6.QtWidgets.QWidget, NoneType] = None, f: PySide6.QtCore.Qt.WindowFlags = Default(Qt.WindowFlags)) -&gt; None</p>
+<p>Initialize self.
+See help(type(self)) for accurate signature.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -444,38 +466,54 @@ class PortfolioWidget(QtWidgets.QWidget):
         self.table.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustToContents)
         self.table.hide()
 
-        self.first_layer = QtWidgets.QVBoxLayout()
-        self.second_layer = QtWidgets.QHBoxLayout()
-        self.left_layout = QtWidgets.QVBoxLayout()
-        self.right_layout = QtWidgets.QVBoxLayout()
-
-        self.first_layer.addWidget(self.title)
-        self.first_layer.addStretch()
-        self.first_layer.addWidget(self.error_message)
-
-        self.left_layout.addWidget(self.table, 1)
-        self.second_layer.addLayout(self.left_layout)
-        self.second_layer.addLayout(self.right_layout)
-
-        self.first_layer.addLayout(self.second_layer)
-        self.first_layer.addWidget(self.message)
-        self.first_layer.addWidget(self.symbol_input)
-        self.first_layer.addWidget(self.calculate_button)
-        self.first_layer.addWidget(self.clear_button)
-
-        self.setLayout(self.first_layer)
+        self._init_widgets()
+        self._arrange_widgets()
 
         self.displayed = False
         self.figure = None
 
-        self.clear_button.clicked.connect(self.clear)
+        self.clear_button.clicked.connect(self._clear)
         self.calculate_button.clicked.connect(calculate_function)
         self.calculate_button.clicked.connect(display_function)
         self.symbol_input.returnPressed.connect(calculate_function)
         self.symbol_input.returnPressed.connect(display_function)
 
+    def _init_widgets(self):
+        self.first_layer = QtWidgets.QWidget()
+        self.first_layout = QtWidgets.QVBoxLayout()
+
+        self.second_layer = QtWidgets.QWidget()
+        self.second_layout = QtWidgets.QHBoxLayout()
+
+        self.left_layer = QtWidgets.QWidget()
+        self.left_layout = QtWidgets.QVBoxLayout()
+
+        self.right_layer = QtWidgets.QWidget()
+        self.right_layout = QtWidgets.QVBoxLayout()
+
+    def _arrange_widgets(self):
+        self.right_layer.setLayout(self.right_layout)
+        self.left_layer.setLayout(self.left_layout)
+        self.second_layer.setLayout(self.second_layout)
+        self.first_layer.setLayout(self.first_layout)
+        self.setLayout(self.first_layout)
+
+        self.second_layout.addWidget(self.left_layer)
+        self.second_layout.addWidget(self.right_layer)
+
+        self.left_layout.addWidget(self.table, 1)
+
+        self.first_layout.addWidget(self.title)
+        self.first_layout.addWidget(self.second_layer)
+        self.first_layout.addStretch()
+        self.first_layout.addWidget(self.error_message)
+        self.first_layout.addWidget(self.message)
+        self.first_layout.addWidget(self.symbol_input)
+        self.first_layout.addWidget(self.calculate_button)
+        self.first_layout.addWidget(self.clear_button)
+
     @QtCore.Slot()
-    def clear(self):
+    def _clear(self):
         self.symbol_input.clear()
         self.error_message.hide()
         self.table.clear()
@@ -483,45 +521,25 @@ class PortfolioWidget(QtWidgets.QWidget):
         if self.displayed:
             self.displayed = False
             self.right_layout.removeWidget(self.figure)
-            self.figure.deleteLater()
             self.figure = None</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
 <li><a title="scrilla.gui.widgets.SymbolWidget" href="#scrilla.gui.widgets.SymbolWidget">SymbolWidget</a></li>
-<li>PyQt5.QtWidgets.QWidget</li>
-<li>PyQt5.QtCore.QObject</li>
-<li>sip.wrapper</li>
-<li>PyQt5.QtGui.QPaintDevice</li>
-<li>sip.simplewrapper</li>
+<li>PySide6.QtWidgets.QWidget</li>
+<li>PySide6.QtCore.QObject</li>
+<li>PySide6.QtGui.QPaintDevice</li>
+<li>Shiboken.Object</li>
 </ul>
 <h3>Subclasses</h3>
 <ul class="hlist">
 <li><a title="scrilla.gui.functions.RiskReturnWidget" href="functions.html#scrilla.gui.functions.RiskReturnWidget">RiskReturnWidget</a></li>
 </ul>
-<h3>Methods</h3>
+<h3>Class variables</h3>
 <dl>
-<dt id="scrilla.gui.widgets.CompositeWidget.clear"><code class="name flex">
-<span>def <span class="ident">clear</span></span>(<span>self)</span>
-</code></dt>
+<dt id="scrilla.gui.widgets.CompositeWidget.staticMetaObject"><code class="name">var <span class="ident">staticMetaObject</span></code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@QtCore.Slot()
-def clear(self):
-    self.symbol_input.clear()
-    self.error_message.hide()
-    self.table.clear()
-    self.table.hide()
-    if self.displayed:
-        self.displayed = False
-        self.right_layout.removeWidget(self.figure)
-        self.figure.deleteLater()
-        self.figure = None</code></pre>
-</details>
 </dd>
 </dl>
 </dd>
@@ -530,7 +548,10 @@ def clear(self):
 <span>(</span><span>widget_title, button_msg, display_function)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>QWidget(parent: QWidget = None, flags: Union[Qt.WindowFlags, Qt.WindowType] = Qt.WindowFlags())</p></div>
+<div class="desc"><p>QWidget(self, parent: Union[PySide6.QtWidgets.QWidget, NoneType] = None, f: PySide6.QtCore.Qt.WindowFlags = Default(Qt.WindowFlags)) -&gt; None</p>
+<p><strong>init</strong>(self, parent: Union[PySide6.QtWidgets.QWidget, NoneType] = None, f: PySide6.QtCore.Qt.WindowFlags = Default(Qt.WindowFlags)) -&gt; None</p>
+<p>Initialize self.
+See help(type(self)) for accurate signature.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -563,7 +584,6 @@ def clear(self):
         if self.displayed:
             self.displayed = False
             self.layout.removeWidget(self.figure)
-            self.figure.deleteLater()
             self.figure = None
 
 # NOTE: both calculate_function and display_function get binded to the Widget&#39;s calculate_button.
@@ -572,17 +592,23 @@ def clear(self):
 <h3>Ancestors</h3>
 <ul class="hlist">
 <li><a title="scrilla.gui.widgets.SymbolWidget" href="#scrilla.gui.widgets.SymbolWidget">SymbolWidget</a></li>
-<li>PyQt5.QtWidgets.QWidget</li>
-<li>PyQt5.QtCore.QObject</li>
-<li>sip.wrapper</li>
-<li>PyQt5.QtGui.QPaintDevice</li>
-<li>sip.simplewrapper</li>
+<li>PySide6.QtWidgets.QWidget</li>
+<li>PySide6.QtCore.QObject</li>
+<li>PySide6.QtGui.QPaintDevice</li>
+<li>Shiboken.Object</li>
 </ul>
 <h3>Subclasses</h3>
 <ul class="hlist">
 <li><a title="scrilla.gui.functions.EfficientFrontierWidget" href="functions.html#scrilla.gui.functions.EfficientFrontierWidget">EfficientFrontierWidget</a></li>
 <li><a title="scrilla.gui.functions.MovingAverageWidget" href="functions.html#scrilla.gui.functions.MovingAverageWidget">MovingAverageWidget</a></li>
 </ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="scrilla.gui.widgets.GraphWidget.staticMetaObject"><code class="name">var <span class="ident">staticMetaObject</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
 <h3>Methods</h3>
 <dl>
 <dt id="scrilla.gui.widgets.GraphWidget.clear"><code class="name flex">
@@ -600,43 +626,20 @@ def clear(self):
     if self.displayed:
         self.displayed = False
         self.layout.removeWidget(self.figure)
-        self.figure.deleteLater()
         self.figure = None</code></pre>
 </details>
 </dd>
 </dl>
-</dd>
-<dt id="scrilla.gui.widgets.InputWidget"><code class="flex name class">
-<span>class <span class="ident">InputWidget</span></span>
-<span>(</span><span>widget_title)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>QWidget(parent: QWidget = None, flags: Union[Qt.WindowFlags, Qt.WindowType] = Qt.WindowFlags())</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class InputWidget(QtWidgets.QWidget):
-    def __init__(self, widget_title):
-        super().__init__()
-
-        text, okPressed = QtWidgets.QInputDialog.getText(self, &#34;Get text&#34;,&#34;Your name:&#34;)</code></pre>
-</details>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li>PyQt5.QtWidgets.QWidget</li>
-<li>PyQt5.QtCore.QObject</li>
-<li>sip.wrapper</li>
-<li>PyQt5.QtGui.QPaintDevice</li>
-<li>sip.simplewrapper</li>
-</ul>
 </dd>
 <dt id="scrilla.gui.widgets.PortfolioWidget"><code class="flex name class">
 <span>class <span class="ident">PortfolioWidget</span></span>
 <span>(</span><span>widget_title, min_function, opt_function)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>QWidget(parent: QWidget = None, flags: Union[Qt.WindowFlags, Qt.WindowType] = Qt.WindowFlags())</p></div>
+<div class="desc"><p>QWidget(self, parent: Union[PySide6.QtWidgets.QWidget, NoneType] = None, f: PySide6.QtCore.Qt.WindowFlags = Default(Qt.WindowFlags)) -&gt; None</p>
+<p><strong>init</strong>(self, parent: Union[PySide6.QtWidgets.QWidget, NoneType] = None, f: PySide6.QtCore.Qt.WindowFlags = Default(Qt.WindowFlags)) -&gt; None</p>
+<p>Initialize self.
+See help(type(self)) for accurate signature.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -751,16 +754,22 @@ def clear(self):
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
-<li>PyQt5.QtWidgets.QWidget</li>
-<li>PyQt5.QtCore.QObject</li>
-<li>sip.wrapper</li>
-<li>PyQt5.QtGui.QPaintDevice</li>
-<li>sip.simplewrapper</li>
+<li>PySide6.QtWidgets.QWidget</li>
+<li>PySide6.QtCore.QObject</li>
+<li>PySide6.QtGui.QPaintDevice</li>
+<li>Shiboken.Object</li>
 </ul>
 <h3>Subclasses</h3>
 <ul class="hlist">
 <li><a title="scrilla.gui.functions.OptimizerWidget" href="functions.html#scrilla.gui.functions.OptimizerWidget">OptimizerWidget</a></li>
 </ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="scrilla.gui.widgets.PortfolioWidget.staticMetaObject"><code class="name">var <span class="ident">staticMetaObject</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
 <h3>Methods</h3>
 <dl>
 <dt id="scrilla.gui.widgets.PortfolioWidget.clear"><code class="name flex">
@@ -809,7 +818,10 @@ def clear(self):
 <span>(</span><span>widget_title, button_msg)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>QWidget(parent: QWidget = None, flags: Union[Qt.WindowFlags, Qt.WindowType] = Qt.WindowFlags())</p></div>
+<div class="desc"><p>QWidget(self, parent: Union[PySide6.QtWidgets.QWidget, NoneType] = None, f: PySide6.QtCore.Qt.WindowFlags = Default(Qt.WindowFlags)) -&gt; None</p>
+<p><strong>init</strong>(self, parent: Union[PySide6.QtWidgets.QWidget, NoneType] = None, f: PySide6.QtCore.Qt.WindowFlags = Default(Qt.WindowFlags)) -&gt; None</p>
+<p>Initialize self.
+See help(type(self)) for accurate signature.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -817,34 +829,38 @@ def clear(self):
 <pre><code class="python">class SymbolWidget(QtWidgets.QWidget):
     def __init__(self, widget_title, button_msg):
         super().__init__()
-        self.title = QtWidgets.QLabel(widget_title, alignment=QtCore.Qt.AlignTop)
-        self.title.setFont(get_title_font())
+        self.widget_title = widget_title
+        self.button_msg = button_msg
 
+        self._init_widgets()
+        self._style_widgets()
+        self._stage_widgets()
+    
+    def _init_widgets(self):
+        self.title = QtWidgets.QLabel(self.widget_title, alignment=QtCore.Qt.AlignTop)
         self.message = QtWidgets.QLabel(&#34;Please separate symbols with a comma&#34;, alignment=QtCore.Qt.AlignBottom)
-        self.message.setFont(get_msg_font())    
-
-        self.error_message = QtWidgets.QLabel(&#34;Something Went Wrong; Check Input and Try Again&#34;, alignment=QtCore.Qt.AlignHCenter)
-        self.error_message.setFont(get_subtitle_font())
-        self.error_message.hide()
-
-        self.calculate_button = QtWidgets.QPushButton(button_msg)
-        self.calculate_button.setAutoDefault(True)
-            # emits &#39;clicked&#39; when return is pressed
-
+        self.error_message = QtWidgets.QLabel(&#34;Error message goes here&#34;, alignment=QtCore.Qt.AlignHCenter)
+        self.calculate_button = QtWidgets.QPushButton(self.button_msg)
         self.clear_button = QtWidgets.QPushButton(&#34;Clear&#34;)
-        self.clear_button.setAutoDefault(True)
-            # emits &#39;clicked&#39; when return is pressed
-        
         self.symbol_input = QtWidgets.QLineEdit()
-        self.symbol_input.setMaxLength(100)</code></pre>
+    
+    def _style_widgets(self):
+        self.title.setFont(get_title_font())
+        self.message.setFont(get_msg_font())    
+        self.error_message.setFont(get_subtitle_font())
+        self.symbol_input.setMaxLength(100)
+
+    def _stage_widgets(self):
+        self.error_message.hide()
+        self.calculate_button.setAutoDefault(True) # emits &#39;clicked&#39; when return is pressed
+        self.clear_button.setAutoDefault(True)</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
-<li>PyQt5.QtWidgets.QWidget</li>
-<li>PyQt5.QtCore.QObject</li>
-<li>sip.wrapper</li>
-<li>PyQt5.QtGui.QPaintDevice</li>
-<li>sip.simplewrapper</li>
+<li>PySide6.QtWidgets.QWidget</li>
+<li>PySide6.QtCore.QObject</li>
+<li>PySide6.QtGui.QPaintDevice</li>
+<li>Shiboken.Object</li>
 </ul>
 <h3>Subclasses</h3>
 <ul class="hlist">
@@ -852,13 +868,23 @@ def clear(self):
 <li><a title="scrilla.gui.widgets.GraphWidget" href="#scrilla.gui.widgets.GraphWidget">GraphWidget</a></li>
 <li><a title="scrilla.gui.widgets.TableWidget" href="#scrilla.gui.widgets.TableWidget">TableWidget</a></li>
 </ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="scrilla.gui.widgets.SymbolWidget.staticMetaObject"><code class="name">var <span class="ident">staticMetaObject</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
 </dd>
 <dt id="scrilla.gui.widgets.TableWidget"><code class="flex name class">
 <span>class <span class="ident">TableWidget</span></span>
 <span>(</span><span>widget_title, button_msg, table_function)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>QWidget(parent: QWidget = None, flags: Union[Qt.WindowFlags, Qt.WindowType] = Qt.WindowFlags())</p></div>
+<div class="desc"><p>QWidget(self, parent: Union[PySide6.QtWidgets.QWidget, NoneType] = None, f: PySide6.QtCore.Qt.WindowFlags = Default(Qt.WindowFlags)) -&gt; None</p>
+<p><strong>init</strong>(self, parent: Union[PySide6.QtWidgets.QWidget, NoneType] = None, f: PySide6.QtCore.Qt.WindowFlags = Default(Qt.WindowFlags)) -&gt; None</p>
+<p>Initialize self.
+See help(type(self)) for accurate signature.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -866,13 +892,13 @@ def clear(self):
 <pre><code class="python">class TableWidget(SymbolWidget):
     def __init__(self, widget_title, button_msg, table_function):
         super().__init__(widget_title=widget_title, button_msg=button_msg)
+        self.table_function = table_function
 
+    def _init_widgets(self):
         self.table = QtWidgets.QTableWidget()
-        self.table.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustToContents)
-        self.table.hide()
-
         self.layout = QtWidgets.QVBoxLayout()
-
+    
+    def _arrange_widgets(self):
         self.layout.addWidget(self.title)
         self.layout.addStretch()
         self.layout.addWidget(self.table, 1)
@@ -881,18 +907,19 @@ def clear(self):
         self.layout.addWidget(self.symbol_input)
         self.layout.addWidget(self.calculate_button)
         self.layout.addWidget(self.clear_button)
-
         self.setLayout(self.layout)
 
-        self.clear_button.clicked.connect(self.clear)
-        self.calculate_button.clicked.connect(table_function)
-        self.symbol_input.returnPressed.connect(table_function)
-    
+    def _stage_widgets(self):
         self.displayed = False
         self.figure = None
+        self.clear_button.clicked.connect(self._clear)
+        self.calculate_button.clicked.connect(self.table_function)
+        self.symbol_input.returnPressed.connect(self.table_function)
+        self.table.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustToContents)
+        self.table.hide()
 
     @QtCore.Slot()
-    def clear(self):
+    def _clear(self):
         self.symbol_input.clear()
         self.error_message.hide()
         self.table.clear()
@@ -901,34 +928,20 @@ def clear(self):
 <h3>Ancestors</h3>
 <ul class="hlist">
 <li><a title="scrilla.gui.widgets.SymbolWidget" href="#scrilla.gui.widgets.SymbolWidget">SymbolWidget</a></li>
-<li>PyQt5.QtWidgets.QWidget</li>
-<li>PyQt5.QtCore.QObject</li>
-<li>sip.wrapper</li>
-<li>PyQt5.QtGui.QPaintDevice</li>
-<li>sip.simplewrapper</li>
+<li>PySide6.QtWidgets.QWidget</li>
+<li>PySide6.QtCore.QObject</li>
+<li>PySide6.QtGui.QPaintDevice</li>
+<li>Shiboken.Object</li>
 </ul>
 <h3>Subclasses</h3>
 <ul class="hlist">
 <li><a title="scrilla.gui.functions.CorrelationWidget" href="functions.html#scrilla.gui.functions.CorrelationWidget">CorrelationWidget</a></li>
 </ul>
-<h3>Methods</h3>
+<h3>Class variables</h3>
 <dl>
-<dt id="scrilla.gui.widgets.TableWidget.clear"><code class="name flex">
-<span>def <span class="ident">clear</span></span>(<span>self)</span>
-</code></dt>
+<dt id="scrilla.gui.widgets.TableWidget.staticMetaObject"><code class="name">var <span class="ident">staticMetaObject</span></code></dt>
 <dd>
 <div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@QtCore.Slot()
-def clear(self):
-    self.symbol_input.clear()
-    self.error_message.hide()
-    self.table.clear()
-    self.table.hide()</code></pre>
-</details>
 </dd>
 </dl>
 </dd>
@@ -960,32 +973,34 @@ def clear(self):
 <li>
 <h4><code><a title="scrilla.gui.widgets.CompositeWidget" href="#scrilla.gui.widgets.CompositeWidget">CompositeWidget</a></code></h4>
 <ul class="">
-<li><code><a title="scrilla.gui.widgets.CompositeWidget.clear" href="#scrilla.gui.widgets.CompositeWidget.clear">clear</a></code></li>
+<li><code><a title="scrilla.gui.widgets.CompositeWidget.staticMetaObject" href="#scrilla.gui.widgets.CompositeWidget.staticMetaObject">staticMetaObject</a></code></li>
 </ul>
 </li>
 <li>
 <h4><code><a title="scrilla.gui.widgets.GraphWidget" href="#scrilla.gui.widgets.GraphWidget">GraphWidget</a></code></h4>
 <ul class="">
 <li><code><a title="scrilla.gui.widgets.GraphWidget.clear" href="#scrilla.gui.widgets.GraphWidget.clear">clear</a></code></li>
+<li><code><a title="scrilla.gui.widgets.GraphWidget.staticMetaObject" href="#scrilla.gui.widgets.GraphWidget.staticMetaObject">staticMetaObject</a></code></li>
 </ul>
-</li>
-<li>
-<h4><code><a title="scrilla.gui.widgets.InputWidget" href="#scrilla.gui.widgets.InputWidget">InputWidget</a></code></h4>
 </li>
 <li>
 <h4><code><a title="scrilla.gui.widgets.PortfolioWidget" href="#scrilla.gui.widgets.PortfolioWidget">PortfolioWidget</a></code></h4>
 <ul class="">
 <li><code><a title="scrilla.gui.widgets.PortfolioWidget.clear" href="#scrilla.gui.widgets.PortfolioWidget.clear">clear</a></code></li>
 <li><code><a title="scrilla.gui.widgets.PortfolioWidget.reset_table" href="#scrilla.gui.widgets.PortfolioWidget.reset_table">reset_table</a></code></li>
+<li><code><a title="scrilla.gui.widgets.PortfolioWidget.staticMetaObject" href="#scrilla.gui.widgets.PortfolioWidget.staticMetaObject">staticMetaObject</a></code></li>
 </ul>
 </li>
 <li>
 <h4><code><a title="scrilla.gui.widgets.SymbolWidget" href="#scrilla.gui.widgets.SymbolWidget">SymbolWidget</a></code></h4>
+<ul class="">
+<li><code><a title="scrilla.gui.widgets.SymbolWidget.staticMetaObject" href="#scrilla.gui.widgets.SymbolWidget.staticMetaObject">staticMetaObject</a></code></li>
+</ul>
 </li>
 <li>
 <h4><code><a title="scrilla.gui.widgets.TableWidget" href="#scrilla.gui.widgets.TableWidget">TableWidget</a></code></h4>
 <ul class="">
-<li><code><a title="scrilla.gui.widgets.TableWidget.clear" href="#scrilla.gui.widgets.TableWidget.clear">clear</a></code></li>
+<li><code><a title="scrilla.gui.widgets.TableWidget.staticMetaObject" href="#scrilla.gui.widgets.TableWidget.staticMetaObject">staticMetaObject</a></code></li>
 </ul>
 </li>
 </ul>

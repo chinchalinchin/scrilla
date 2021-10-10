@@ -44,7 +44,9 @@
 
 import time
 
-from PyQt5 import Qt, QtCore, QtWidgets
+from PySide6 import Qt, QtCore, QtGui, QtWidgets
+from PIL.ImageQt import ImageQt
+
 
 from scrilla import settings
 from scrilla.static.constants import constants
@@ -74,19 +76,17 @@ class RiskReturnWidget(CompositeWidget):
         self.table.setColumnCount(2)
         self.table.setHorizontalHeader(QtWidgets.QHeaderView(QtCore.Qt.Horizontal))
         self.table.setHorizontalHeaderLabels([&#39;Risk&#39;,&#39;Return&#39;])
-        self.table.horizontalHeader().setStretchLastSection(True)
+        self.table.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Stretch)
         self.table.setVerticalHeader(QtWidgets.QHeaderView(QtCore.Qt.Vertical))
         self.table.setVerticalHeaderLabels(user_symbols)
 
         for symbol in user_symbols:
             logger.debug(f&#39;Calculating {symbol} Risk-Return Profile&#39;)
-            stats = statistics.calculate_moment_risk_return(symbol)
-            if stats:
+            try:
+                stats = statistics.calculate_risk_return(symbol)
                 formatted_ret = str(100*stats[&#39;annual_return&#39;])[:constants[&#39;SIG_FIGS&#39;]]+&#34;%&#34;
                 formatted_vol = str(100*stats[&#39;annual_volatility&#39;])[:constants[&#39;SIG_FIGS&#39;]]+&#34;%&#34;
-                
-                logger.debug(f&#39;(return, vol)_{symbol} = ({formatted_ret}, {formatted_vol})&#39;)
-
+    
                 ret_item = QtWidgets.QTableWidgetItem(formatted_ret)
                 ret_item.setTextAlignment(QtCore.Qt.AlignHCenter)
                 vol_item = QtWidgets.QTableWidgetItem(formatted_vol)
@@ -94,9 +94,9 @@ class RiskReturnWidget(CompositeWidget):
                 
                 self.table.setItem(user_symbols.index(symbol), 0, vol_item)
                 self.table.setItem(user_symbols.index(symbol), 1, ret_item)
-            else: 
+            except: 
                 self.error_message.show()
-                return False
+                return
 
         self.table.resizeColumnsToContents()
         self.table.show()
@@ -105,16 +105,20 @@ class RiskReturnWidget(CompositeWidget):
     def display(self):
         if self.displayed:
             self.layout.removeWidget(self.figure)
-            self.figure.deleteLater()
             self.figure = None
-            time.sleep(1)
-        user_symbols = helper.strip_string_array(self.symbol_input.text().upper().split(&#34;,&#34;))
-        profiles = []
-        for symbol in user_symbols:
-            profiles.append(statistics.calculate_moment_risk_return(symbol))
 
-        figure = plotter.plot_profiles(symbols=user_symbols, profiles=profiles, show=False)
-        self.figure = figure
+        user_symbols = helper.strip_string_array(self.symbol_input.text().upper().split(&#34;,&#34;))
+        profiles = {}
+
+        for symbol in user_symbols:
+            profiles[symbol] = statistics.calculate_risk_return(symbol)
+
+        plotter.plot_profiles(symbols=user_symbols, profiles=profiles, show=True,
+                                        savefile=settings.CACHE_TEMP_FILE)
+
+        self.figure = QtWidgets.QLabel(&#34;Risk Profile Graph&#34;, alignment=QtCore.Qt.AlignHCenter)
+        print(self.figure)
+        self.figure.setPixmap(QtGui.QPixmap(settings.CACHE_TEMP_FILE))
         self.right_layout.insertWidget(1, self.figure, 1)
         self.displayed = True
 
@@ -249,12 +253,20 @@ class EfficientFrontierWidget(GraphWidget):
 
     @QtCore.Slot()
     def display(self):
+        if self.displayed:
+            self.layout.removeWidget(self.figure)
+            self.figure = None
+
         user_symbols = helper.strip_string_array(self.symbol_input.text().upper().split(&#34;,&#34;))
         this_portfolio = portfolio.Portfolio(tickers=user_symbols)
+
         # TODO: DATES!
-        frontier = optimizer.calculate_efficient_frontier(portfolio=portfolio)
-        figure = plotter.plot_frontier(portfolio=this_portfolio, frontier=frontier, show=False)
-        self.figure = figure
+
+        frontier = optimizer.calculate_efficient_frontier(portfolio=this_portfolio)
+        plotter.plot_frontier(portfolio=this_portfolio, frontier=frontier, show=False, savefile=settings.CACHE_TEMP_FILE)
+
+        self.figure = QtWidgets.QLabel(&#34;Efficient Frontier&#34;, alignment=QtCore.Qt.AlignHCenter)
+        self.figure.setPixmap(QtGui.QPixmap(settings.CACHE_TEMP_FILE))
         self.layout.insertWidget(1, self.figure, 1)
         self.displayed = True 
 
@@ -267,15 +279,15 @@ class MovingAverageWidget(GraphWidget):
     def display(self):
         if self.displayed:
             self.layout.removeWidget(self.figure)
-            self.figure.deleteLater()
             self.figure = None
-            time.sleep(1)
+
         user_symbols = helper.strip_string_array(self.symbol_input.text().upper().split(&#34;,&#34;))
         moving_averages = statistics.calculate_moving_averages(user_symbols)
         periods = [settings.MA_1_PERIOD, settings.MA_2_PERIOD, settings.MA_3_PERIOD]
         figure = plotter.plot_moving_averages(symbols=user_symbols, averages_output=moving_averages, 
-                                                periods=periods, show=False)
-        self.figure = figure
+                                                periods=periods, show=False, savefile=settings.CACHE_TEMP_FILE)
+        self.figure = QtWidgets.QLabel(&#34;Moving Averages&#34;, alignment=QtCore.Qt.AlignHCenter)
+        self.figure.setPixmap(QtGui.QPixmap(settings.CACHE_TEMP_FILE))
         self.layout.insertWidget(1, self.figure, 1)
         self.displayed = True</code></pre>
 </details>
@@ -293,7 +305,10 @@ class MovingAverageWidget(GraphWidget):
 <span>class <span class="ident">CorrelationWidget</span></span>
 </code></dt>
 <dd>
-<div class="desc"><p>QWidget(parent: QWidget = None, flags: Union[Qt.WindowFlags, Qt.WindowType] = Qt.WindowFlags())</p></div>
+<div class="desc"><p>QWidget(self, parent: Union[PySide6.QtWidgets.QWidget, NoneType] = None, f: PySide6.QtCore.Qt.WindowFlags = Default(Qt.WindowFlags)) -&gt; None</p>
+<p><strong>init</strong>(self, parent: Union[PySide6.QtWidgets.QWidget, NoneType] = None, f: PySide6.QtCore.Qt.WindowFlags = Default(Qt.WindowFlags)) -&gt; None</p>
+<p>Initialize self.
+See help(type(self)) for accurate signature.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -357,12 +372,18 @@ class MovingAverageWidget(GraphWidget):
 <ul class="hlist">
 <li><a title="scrilla.gui.widgets.TableWidget" href="widgets.html#scrilla.gui.widgets.TableWidget">TableWidget</a></li>
 <li><a title="scrilla.gui.widgets.SymbolWidget" href="widgets.html#scrilla.gui.widgets.SymbolWidget">SymbolWidget</a></li>
-<li>PyQt5.QtWidgets.QWidget</li>
-<li>PyQt5.QtCore.QObject</li>
-<li>sip.wrapper</li>
-<li>PyQt5.QtGui.QPaintDevice</li>
-<li>sip.simplewrapper</li>
+<li>PySide6.QtWidgets.QWidget</li>
+<li>PySide6.QtCore.QObject</li>
+<li>PySide6.QtGui.QPaintDevice</li>
+<li>Shiboken.Object</li>
 </ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="scrilla.gui.functions.CorrelationWidget.staticMetaObject"><code class="name">var <span class="ident">staticMetaObject</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
 <h3>Methods</h3>
 <dl>
 <dt id="scrilla.gui.functions.CorrelationWidget.calculate_table"><code class="name flex">
@@ -431,7 +452,10 @@ def calculate_table(self):
 <span>class <span class="ident">EfficientFrontierWidget</span></span>
 </code></dt>
 <dd>
-<div class="desc"><p>QWidget(parent: QWidget = None, flags: Union[Qt.WindowFlags, Qt.WindowType] = Qt.WindowFlags())</p></div>
+<div class="desc"><p>QWidget(self, parent: Union[PySide6.QtWidgets.QWidget, NoneType] = None, f: PySide6.QtCore.Qt.WindowFlags = Default(Qt.WindowFlags)) -&gt; None</p>
+<p><strong>init</strong>(self, parent: Union[PySide6.QtWidgets.QWidget, NoneType] = None, f: PySide6.QtCore.Qt.WindowFlags = Default(Qt.WindowFlags)) -&gt; None</p>
+<p>Initialize self.
+See help(type(self)) for accurate signature.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -443,12 +467,20 @@ def calculate_table(self):
 
     @QtCore.Slot()
     def display(self):
+        if self.displayed:
+            self.layout.removeWidget(self.figure)
+            self.figure = None
+
         user_symbols = helper.strip_string_array(self.symbol_input.text().upper().split(&#34;,&#34;))
         this_portfolio = portfolio.Portfolio(tickers=user_symbols)
+
         # TODO: DATES!
-        frontier = optimizer.calculate_efficient_frontier(portfolio=portfolio)
-        figure = plotter.plot_frontier(portfolio=this_portfolio, frontier=frontier, show=False)
-        self.figure = figure
+
+        frontier = optimizer.calculate_efficient_frontier(portfolio=this_portfolio)
+        plotter.plot_frontier(portfolio=this_portfolio, frontier=frontier, show=False, savefile=settings.CACHE_TEMP_FILE)
+
+        self.figure = QtWidgets.QLabel(&#34;Efficient Frontier&#34;, alignment=QtCore.Qt.AlignHCenter)
+        self.figure.setPixmap(QtGui.QPixmap(settings.CACHE_TEMP_FILE))
         self.layout.insertWidget(1, self.figure, 1)
         self.displayed = True </code></pre>
 </details>
@@ -456,12 +488,18 @@ def calculate_table(self):
 <ul class="hlist">
 <li><a title="scrilla.gui.widgets.GraphWidget" href="widgets.html#scrilla.gui.widgets.GraphWidget">GraphWidget</a></li>
 <li><a title="scrilla.gui.widgets.SymbolWidget" href="widgets.html#scrilla.gui.widgets.SymbolWidget">SymbolWidget</a></li>
-<li>PyQt5.QtWidgets.QWidget</li>
-<li>PyQt5.QtCore.QObject</li>
-<li>sip.wrapper</li>
-<li>PyQt5.QtGui.QPaintDevice</li>
-<li>sip.simplewrapper</li>
+<li>PySide6.QtWidgets.QWidget</li>
+<li>PySide6.QtCore.QObject</li>
+<li>PySide6.QtGui.QPaintDevice</li>
+<li>Shiboken.Object</li>
 </ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="scrilla.gui.functions.EfficientFrontierWidget.staticMetaObject"><code class="name">var <span class="ident">staticMetaObject</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
 <h3>Methods</h3>
 <dl>
 <dt id="scrilla.gui.functions.EfficientFrontierWidget.display"><code class="name flex">
@@ -475,12 +513,20 @@ def calculate_table(self):
 </summary>
 <pre><code class="python">@QtCore.Slot()
 def display(self):
+    if self.displayed:
+        self.layout.removeWidget(self.figure)
+        self.figure = None
+
     user_symbols = helper.strip_string_array(self.symbol_input.text().upper().split(&#34;,&#34;))
     this_portfolio = portfolio.Portfolio(tickers=user_symbols)
+
     # TODO: DATES!
-    frontier = optimizer.calculate_efficient_frontier(portfolio=portfolio)
-    figure = plotter.plot_frontier(portfolio=this_portfolio, frontier=frontier, show=False)
-    self.figure = figure
+
+    frontier = optimizer.calculate_efficient_frontier(portfolio=this_portfolio)
+    plotter.plot_frontier(portfolio=this_portfolio, frontier=frontier, show=False, savefile=settings.CACHE_TEMP_FILE)
+
+    self.figure = QtWidgets.QLabel(&#34;Efficient Frontier&#34;, alignment=QtCore.Qt.AlignHCenter)
+    self.figure.setPixmap(QtGui.QPixmap(settings.CACHE_TEMP_FILE))
     self.layout.insertWidget(1, self.figure, 1)
     self.displayed = True </code></pre>
 </details>
@@ -491,7 +537,10 @@ def display(self):
 <span>class <span class="ident">MovingAverageWidget</span></span>
 </code></dt>
 <dd>
-<div class="desc"><p>QWidget(parent: QWidget = None, flags: Union[Qt.WindowFlags, Qt.WindowType] = Qt.WindowFlags())</p></div>
+<div class="desc"><p>QWidget(self, parent: Union[PySide6.QtWidgets.QWidget, NoneType] = None, f: PySide6.QtCore.Qt.WindowFlags = Default(Qt.WindowFlags)) -&gt; None</p>
+<p><strong>init</strong>(self, parent: Union[PySide6.QtWidgets.QWidget, NoneType] = None, f: PySide6.QtCore.Qt.WindowFlags = Default(Qt.WindowFlags)) -&gt; None</p>
+<p>Initialize self.
+See help(type(self)) for accurate signature.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -505,15 +554,15 @@ def display(self):
     def display(self):
         if self.displayed:
             self.layout.removeWidget(self.figure)
-            self.figure.deleteLater()
             self.figure = None
-            time.sleep(1)
+
         user_symbols = helper.strip_string_array(self.symbol_input.text().upper().split(&#34;,&#34;))
         moving_averages = statistics.calculate_moving_averages(user_symbols)
         periods = [settings.MA_1_PERIOD, settings.MA_2_PERIOD, settings.MA_3_PERIOD]
         figure = plotter.plot_moving_averages(symbols=user_symbols, averages_output=moving_averages, 
-                                                periods=periods, show=False)
-        self.figure = figure
+                                                periods=periods, show=False, savefile=settings.CACHE_TEMP_FILE)
+        self.figure = QtWidgets.QLabel(&#34;Moving Averages&#34;, alignment=QtCore.Qt.AlignHCenter)
+        self.figure.setPixmap(QtGui.QPixmap(settings.CACHE_TEMP_FILE))
         self.layout.insertWidget(1, self.figure, 1)
         self.displayed = True</code></pre>
 </details>
@@ -521,12 +570,18 @@ def display(self):
 <ul class="hlist">
 <li><a title="scrilla.gui.widgets.GraphWidget" href="widgets.html#scrilla.gui.widgets.GraphWidget">GraphWidget</a></li>
 <li><a title="scrilla.gui.widgets.SymbolWidget" href="widgets.html#scrilla.gui.widgets.SymbolWidget">SymbolWidget</a></li>
-<li>PyQt5.QtWidgets.QWidget</li>
-<li>PyQt5.QtCore.QObject</li>
-<li>sip.wrapper</li>
-<li>PyQt5.QtGui.QPaintDevice</li>
-<li>sip.simplewrapper</li>
+<li>PySide6.QtWidgets.QWidget</li>
+<li>PySide6.QtCore.QObject</li>
+<li>PySide6.QtGui.QPaintDevice</li>
+<li>Shiboken.Object</li>
 </ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="scrilla.gui.functions.MovingAverageWidget.staticMetaObject"><code class="name">var <span class="ident">staticMetaObject</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
 <h3>Methods</h3>
 <dl>
 <dt id="scrilla.gui.functions.MovingAverageWidget.display"><code class="name flex">
@@ -542,15 +597,15 @@ def display(self):
 def display(self):
     if self.displayed:
         self.layout.removeWidget(self.figure)
-        self.figure.deleteLater()
         self.figure = None
-        time.sleep(1)
+
     user_symbols = helper.strip_string_array(self.symbol_input.text().upper().split(&#34;,&#34;))
     moving_averages = statistics.calculate_moving_averages(user_symbols)
     periods = [settings.MA_1_PERIOD, settings.MA_2_PERIOD, settings.MA_3_PERIOD]
     figure = plotter.plot_moving_averages(symbols=user_symbols, averages_output=moving_averages, 
-                                            periods=periods, show=False)
-    self.figure = figure
+                                            periods=periods, show=False, savefile=settings.CACHE_TEMP_FILE)
+    self.figure = QtWidgets.QLabel(&#34;Moving Averages&#34;, alignment=QtCore.Qt.AlignHCenter)
+    self.figure.setPixmap(QtGui.QPixmap(settings.CACHE_TEMP_FILE))
     self.layout.insertWidget(1, self.figure, 1)
     self.displayed = True</code></pre>
 </details>
@@ -561,7 +616,10 @@ def display(self):
 <span>class <span class="ident">OptimizerWidget</span></span>
 </code></dt>
 <dd>
-<div class="desc"><p>QWidget(parent: QWidget = None, flags: Union[Qt.WindowFlags, Qt.WindowType] = Qt.WindowFlags())</p></div>
+<div class="desc"><p>QWidget(self, parent: Union[PySide6.QtWidgets.QWidget, NoneType] = None, f: PySide6.QtCore.Qt.WindowFlags = Default(Qt.WindowFlags)) -&gt; None</p>
+<p><strong>init</strong>(self, parent: Union[PySide6.QtWidgets.QWidget, NoneType] = None, f: PySide6.QtCore.Qt.WindowFlags = Default(Qt.WindowFlags)) -&gt; None</p>
+<p>Initialize self.
+See help(type(self)) for accurate signature.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -637,12 +695,18 @@ def display(self):
 <h3>Ancestors</h3>
 <ul class="hlist">
 <li><a title="scrilla.gui.widgets.PortfolioWidget" href="widgets.html#scrilla.gui.widgets.PortfolioWidget">PortfolioWidget</a></li>
-<li>PyQt5.QtWidgets.QWidget</li>
-<li>PyQt5.QtCore.QObject</li>
-<li>sip.wrapper</li>
-<li>PyQt5.QtGui.QPaintDevice</li>
-<li>sip.simplewrapper</li>
+<li>PySide6.QtWidgets.QWidget</li>
+<li>PySide6.QtCore.QObject</li>
+<li>PySide6.QtGui.QPaintDevice</li>
+<li>Shiboken.Object</li>
 </ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="scrilla.gui.functions.OptimizerWidget.staticMetaObject"><code class="name">var <span class="ident">staticMetaObject</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
 <h3>Methods</h3>
 <dl>
 <dt id="scrilla.gui.functions.OptimizerWidget.minimize"><code class="name flex">
@@ -732,7 +796,10 @@ def optimize(self):
 <span>class <span class="ident">RiskReturnWidget</span></span>
 </code></dt>
 <dd>
-<div class="desc"><p>QWidget(parent: QWidget = None, flags: Union[Qt.WindowFlags, Qt.WindowType] = Qt.WindowFlags())</p></div>
+<div class="desc"><p>QWidget(self, parent: Union[PySide6.QtWidgets.QWidget, NoneType] = None, f: PySide6.QtCore.Qt.WindowFlags = Default(Qt.WindowFlags)) -&gt; None</p>
+<p><strong>init</strong>(self, parent: Union[PySide6.QtWidgets.QWidget, NoneType] = None, f: PySide6.QtCore.Qt.WindowFlags = Default(Qt.WindowFlags)) -&gt; None</p>
+<p>Initialize self.
+See help(type(self)) for accurate signature.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -751,19 +818,17 @@ def optimize(self):
         self.table.setColumnCount(2)
         self.table.setHorizontalHeader(QtWidgets.QHeaderView(QtCore.Qt.Horizontal))
         self.table.setHorizontalHeaderLabels([&#39;Risk&#39;,&#39;Return&#39;])
-        self.table.horizontalHeader().setStretchLastSection(True)
+        self.table.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Stretch)
         self.table.setVerticalHeader(QtWidgets.QHeaderView(QtCore.Qt.Vertical))
         self.table.setVerticalHeaderLabels(user_symbols)
 
         for symbol in user_symbols:
             logger.debug(f&#39;Calculating {symbol} Risk-Return Profile&#39;)
-            stats = statistics.calculate_moment_risk_return(symbol)
-            if stats:
+            try:
+                stats = statistics.calculate_risk_return(symbol)
                 formatted_ret = str(100*stats[&#39;annual_return&#39;])[:constants[&#39;SIG_FIGS&#39;]]+&#34;%&#34;
                 formatted_vol = str(100*stats[&#39;annual_volatility&#39;])[:constants[&#39;SIG_FIGS&#39;]]+&#34;%&#34;
-                
-                logger.debug(f&#39;(return, vol)_{symbol} = ({formatted_ret}, {formatted_vol})&#39;)
-
+    
                 ret_item = QtWidgets.QTableWidgetItem(formatted_ret)
                 ret_item.setTextAlignment(QtCore.Qt.AlignHCenter)
                 vol_item = QtWidgets.QTableWidgetItem(formatted_vol)
@@ -771,9 +836,9 @@ def optimize(self):
                 
                 self.table.setItem(user_symbols.index(symbol), 0, vol_item)
                 self.table.setItem(user_symbols.index(symbol), 1, ret_item)
-            else: 
+            except: 
                 self.error_message.show()
-                return False
+                return
 
         self.table.resizeColumnsToContents()
         self.table.show()
@@ -782,16 +847,20 @@ def optimize(self):
     def display(self):
         if self.displayed:
             self.layout.removeWidget(self.figure)
-            self.figure.deleteLater()
             self.figure = None
-            time.sleep(1)
-        user_symbols = helper.strip_string_array(self.symbol_input.text().upper().split(&#34;,&#34;))
-        profiles = []
-        for symbol in user_symbols:
-            profiles.append(statistics.calculate_moment_risk_return(symbol))
 
-        figure = plotter.plot_profiles(symbols=user_symbols, profiles=profiles, show=False)
-        self.figure = figure
+        user_symbols = helper.strip_string_array(self.symbol_input.text().upper().split(&#34;,&#34;))
+        profiles = {}
+
+        for symbol in user_symbols:
+            profiles[symbol] = statistics.calculate_risk_return(symbol)
+
+        plotter.plot_profiles(symbols=user_symbols, profiles=profiles, show=True,
+                                        savefile=settings.CACHE_TEMP_FILE)
+
+        self.figure = QtWidgets.QLabel(&#34;Risk Profile Graph&#34;, alignment=QtCore.Qt.AlignHCenter)
+        print(self.figure)
+        self.figure.setPixmap(QtGui.QPixmap(settings.CACHE_TEMP_FILE))
         self.right_layout.insertWidget(1, self.figure, 1)
         self.displayed = True</code></pre>
 </details>
@@ -799,12 +868,18 @@ def optimize(self):
 <ul class="hlist">
 <li><a title="scrilla.gui.widgets.CompositeWidget" href="widgets.html#scrilla.gui.widgets.CompositeWidget">CompositeWidget</a></li>
 <li><a title="scrilla.gui.widgets.SymbolWidget" href="widgets.html#scrilla.gui.widgets.SymbolWidget">SymbolWidget</a></li>
-<li>PyQt5.QtWidgets.QWidget</li>
-<li>PyQt5.QtCore.QObject</li>
-<li>sip.wrapper</li>
-<li>PyQt5.QtGui.QPaintDevice</li>
-<li>sip.simplewrapper</li>
+<li>PySide6.QtWidgets.QWidget</li>
+<li>PySide6.QtCore.QObject</li>
+<li>PySide6.QtGui.QPaintDevice</li>
+<li>Shiboken.Object</li>
 </ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="scrilla.gui.functions.RiskReturnWidget.staticMetaObject"><code class="name">var <span class="ident">staticMetaObject</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
 <h3>Methods</h3>
 <dl>
 <dt id="scrilla.gui.functions.RiskReturnWidget.calculate"><code class="name flex">
@@ -825,18 +900,16 @@ def calculate(self):
     self.table.setColumnCount(2)
     self.table.setHorizontalHeader(QtWidgets.QHeaderView(QtCore.Qt.Horizontal))
     self.table.setHorizontalHeaderLabels([&#39;Risk&#39;,&#39;Return&#39;])
-    self.table.horizontalHeader().setStretchLastSection(True)
+    self.table.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Stretch)
     self.table.setVerticalHeader(QtWidgets.QHeaderView(QtCore.Qt.Vertical))
     self.table.setVerticalHeaderLabels(user_symbols)
 
     for symbol in user_symbols:
         logger.debug(f&#39;Calculating {symbol} Risk-Return Profile&#39;)
-        stats = statistics.calculate_moment_risk_return(symbol)
-        if stats:
+        try:
+            stats = statistics.calculate_risk_return(symbol)
             formatted_ret = str(100*stats[&#39;annual_return&#39;])[:constants[&#39;SIG_FIGS&#39;]]+&#34;%&#34;
             formatted_vol = str(100*stats[&#39;annual_volatility&#39;])[:constants[&#39;SIG_FIGS&#39;]]+&#34;%&#34;
-            
-            logger.debug(f&#39;(return, vol)_{symbol} = ({formatted_ret}, {formatted_vol})&#39;)
 
             ret_item = QtWidgets.QTableWidgetItem(formatted_ret)
             ret_item.setTextAlignment(QtCore.Qt.AlignHCenter)
@@ -845,9 +918,9 @@ def calculate(self):
             
             self.table.setItem(user_symbols.index(symbol), 0, vol_item)
             self.table.setItem(user_symbols.index(symbol), 1, ret_item)
-        else: 
+        except: 
             self.error_message.show()
-            return False
+            return
 
     self.table.resizeColumnsToContents()
     self.table.show()</code></pre>
@@ -866,16 +939,20 @@ def calculate(self):
 def display(self):
     if self.displayed:
         self.layout.removeWidget(self.figure)
-        self.figure.deleteLater()
         self.figure = None
-        time.sleep(1)
-    user_symbols = helper.strip_string_array(self.symbol_input.text().upper().split(&#34;,&#34;))
-    profiles = []
-    for symbol in user_symbols:
-        profiles.append(statistics.calculate_moment_risk_return(symbol))
 
-    figure = plotter.plot_profiles(symbols=user_symbols, profiles=profiles, show=False)
-    self.figure = figure
+    user_symbols = helper.strip_string_array(self.symbol_input.text().upper().split(&#34;,&#34;))
+    profiles = {}
+
+    for symbol in user_symbols:
+        profiles[symbol] = statistics.calculate_risk_return(symbol)
+
+    plotter.plot_profiles(symbols=user_symbols, profiles=profiles, show=True,
+                                    savefile=settings.CACHE_TEMP_FILE)
+
+    self.figure = QtWidgets.QLabel(&#34;Risk Profile Graph&#34;, alignment=QtCore.Qt.AlignHCenter)
+    print(self.figure)
+    self.figure.setPixmap(QtGui.QPixmap(settings.CACHE_TEMP_FILE))
     self.right_layout.insertWidget(1, self.figure, 1)
     self.displayed = True</code></pre>
 </details>
@@ -902,18 +979,21 @@ def display(self):
 <h4><code><a title="scrilla.gui.functions.CorrelationWidget" href="#scrilla.gui.functions.CorrelationWidget">CorrelationWidget</a></code></h4>
 <ul class="">
 <li><code><a title="scrilla.gui.functions.CorrelationWidget.calculate_table" href="#scrilla.gui.functions.CorrelationWidget.calculate_table">calculate_table</a></code></li>
+<li><code><a title="scrilla.gui.functions.CorrelationWidget.staticMetaObject" href="#scrilla.gui.functions.CorrelationWidget.staticMetaObject">staticMetaObject</a></code></li>
 </ul>
 </li>
 <li>
 <h4><code><a title="scrilla.gui.functions.EfficientFrontierWidget" href="#scrilla.gui.functions.EfficientFrontierWidget">EfficientFrontierWidget</a></code></h4>
 <ul class="">
 <li><code><a title="scrilla.gui.functions.EfficientFrontierWidget.display" href="#scrilla.gui.functions.EfficientFrontierWidget.display">display</a></code></li>
+<li><code><a title="scrilla.gui.functions.EfficientFrontierWidget.staticMetaObject" href="#scrilla.gui.functions.EfficientFrontierWidget.staticMetaObject">staticMetaObject</a></code></li>
 </ul>
 </li>
 <li>
 <h4><code><a title="scrilla.gui.functions.MovingAverageWidget" href="#scrilla.gui.functions.MovingAverageWidget">MovingAverageWidget</a></code></h4>
 <ul class="">
 <li><code><a title="scrilla.gui.functions.MovingAverageWidget.display" href="#scrilla.gui.functions.MovingAverageWidget.display">display</a></code></li>
+<li><code><a title="scrilla.gui.functions.MovingAverageWidget.staticMetaObject" href="#scrilla.gui.functions.MovingAverageWidget.staticMetaObject">staticMetaObject</a></code></li>
 </ul>
 </li>
 <li>
@@ -921,6 +1001,7 @@ def display(self):
 <ul class="">
 <li><code><a title="scrilla.gui.functions.OptimizerWidget.minimize" href="#scrilla.gui.functions.OptimizerWidget.minimize">minimize</a></code></li>
 <li><code><a title="scrilla.gui.functions.OptimizerWidget.optimize" href="#scrilla.gui.functions.OptimizerWidget.optimize">optimize</a></code></li>
+<li><code><a title="scrilla.gui.functions.OptimizerWidget.staticMetaObject" href="#scrilla.gui.functions.OptimizerWidget.staticMetaObject">staticMetaObject</a></code></li>
 </ul>
 </li>
 <li>
@@ -928,6 +1009,7 @@ def display(self):
 <ul class="">
 <li><code><a title="scrilla.gui.functions.RiskReturnWidget.calculate" href="#scrilla.gui.functions.RiskReturnWidget.calculate">calculate</a></code></li>
 <li><code><a title="scrilla.gui.functions.RiskReturnWidget.display" href="#scrilla.gui.functions.RiskReturnWidget.display">display</a></code></li>
+<li><code><a title="scrilla.gui.functions.RiskReturnWidget.staticMetaObject" href="#scrilla.gui.functions.RiskReturnWidget.staticMetaObject">staticMetaObject</a></code></li>
 </ul>
 </li>
 </ul>

@@ -31,6 +31,7 @@
 from typing import Union
 import numpy, matplotlib
 from PIL import Image
+from PIL.Image import Image as img
 
 from matplotlib.figure import Figure
 from matplotlib import dates as mdates
@@ -49,15 +50,15 @@ elif APP_ENV == &#39;container&#39;:
     from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
     matplotlib.use(&#34;agg&#34;)
 
-def _show_or_save(canvas: FigureCanvas, show: bool, savefile: str) -&gt; Union[FigureCanvas, None]:
+def _show_or_save(canvas: FigureCanvas, show: bool = True, savefile: str = None) -&gt; Union[FigureCanvas, None]:
     if savefile is not None:
         canvas.print_jpeg(filename_or_obj=savefile)
 
+    s, (width, height) = canvas.print_to_buffer()
+    im = Image.frombytes(&#34;RGBA&#34;, (width, height), s)
+
     if show:
-        s, (width, height) = canvas.print_to_buffer()
-        im = Image.frombytes(&#34;RGBA&#34;, (width, height), s)
         im.show()
-        return None
     canvas.draw()
     return canvas
 
