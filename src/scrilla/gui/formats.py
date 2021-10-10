@@ -1,9 +1,8 @@
 from typing import Tuple
 
-from scrilla import settings
-from scrilla.static import constants
 from PySide6.QtGui import QFont
 
+from scrilla.static import constants
 
 STYLES ={
     'TITLE':{
@@ -62,16 +61,13 @@ def format_allocation_profile_title(allocation, portfolio) -> str:
     whole_thing = formatted_result_title +" = "+formatted_result
     return whole_thing
 
+def format_allocation(allocation: float)->str:
+    return str(100*allocation)[:constants.constants['SIG_FIGS']]+"%"
+
 def format_risk_return(stats: dict) -> Tuple[str]:
     formatted_ret = str(100*stats['annual_return'])[:constants.constants['SIG_FIGS']]+"%"
     formatted_vol = str(100*stats['annual_volatility'])[:constants.constants['SIG_FIGS']]+"%"
     return formatted_ret, formatted_vol
 
 def format_correlation(correlation: dict):
-    return str(100*correlation["correlation"])[:constants['SIG_FIGS']]+"%"
-
-def calculate_image_width():
-    return 4*settings.GUI_WIDTH/5
-
-def calculate_image_height():
-    return 4*settings.GUI_HEIGHT/5
+    return str(100*correlation["correlation"])[:constants.constants['SIG_FIGS']]+"%"

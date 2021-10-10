@@ -135,8 +135,6 @@ APP_NAME=&#34;scrilla&#34;
 APP_ENV = os.environ.setdefault(&#39;APP_ENV&#39;, &#39;local&#39;)
 &#34;&#34;&#34;Application execution environment; Configured by environment variable of the same name, **APP_ENV**.&#34;&#34;&#34;
 
-# NOTE: Load in local.env file if not running application container. Container should 
-# already have the container.env file preloaded in its environment.
 env_file = os.path.join(os.path.join(ROOT_DIR,&#39;env&#39;), &#39;.env&#39;)
 if APP_ENV != &#39;container&#39; and os.path.isfile(env_file):
     dotenv.load_dotenv(os.path.join(os.path.join(ROOT_DIR,&#39;env&#39;), &#39;.env&#39;))
@@ -172,7 +170,7 @@ COMMON_WATCHLIST_FILE=os.path.join(COMMON_DIR, f&#39;watchlist.{FILE_EXT}&#39;)
 
 ## GUI CONFIGURATION
 try:
-    GUI_WIDTH = int(os.environ.setdefault(&#39;GUI_WIDTH&#39;, &#39;800&#39;))
+    GUI_WIDTH = int(os.environ.setdefault(&#39;GUI_WIDTH&#39;, &#39;600&#39;))
     &#34;&#34;&#34;Width of main Graphical User Interface window; Configured by environment variable of same name, **GUI_WIDTH**&#34;&#34;&#34;
 except (ValueError, TypeError) as ParseError: 
     logger.debug(&#39;Failed to parse GUI_WIDTH from environment. Setting to default value of 800.&#39;)
@@ -180,7 +178,7 @@ except (ValueError, TypeError) as ParseError:
     os.environ[&#39;GUI_WIDTH&#39;] = &#39;800&#39;
 
 try:
-    GUI_HEIGHT = int(os.environ.setdefault(&#39;GUI_HEIGHT&#39;, &#39;800&#39;))
+    GUI_HEIGHT = int(os.environ.setdefault(&#39;GUI_HEIGHT&#39;, &#39;600&#39;))
     &#34;&#34;&#34;Height of main Graphical User Interface window; Configured by environment variable of same name, **GUI_HEIGHT**.&#34;&#34;&#34;
 except (ValueError, TypeError) as ParseError:
     logger.debug(&#39;Failed to parse GUI_HEIGHT from enviroment. Setting to default value of 800.&#39;)

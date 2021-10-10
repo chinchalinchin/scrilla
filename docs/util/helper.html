@@ -43,6 +43,11 @@ def strip_string_array(array: List[str]) -&gt; List[str]:
         new_array.append(string.strip())
     return new_array
 
+def split_and_strip(string: str, upper: bool = True, delimiter=&#34;,&#34;)-&gt; List[str]:
+    if upper:
+        return strip_string_array(string.upper().split(delimiter))
+    return strip_string_array(string.lower().split(delimiter))
+
 def round_array(array: List[float], decimals: int) -&gt; List[float]:
     cutoff = (1/10**decimals)
     return [0 if element &lt; cutoff else truncate(element, decimals) for element in array]
@@ -239,6 +244,21 @@ def replace_troublesome_chars(msg: str) -&gt; str:
     return [0 if element &lt; cutoff else truncate(element, decimals) for element in array]</code></pre>
 </details>
 </dd>
+<dt id="scrilla.util.helper.split_and_strip"><code class="name flex">
+<span>def <span class="ident">split_and_strip</span></span>(<span>string: str, upper: bool = True, delimiter=',') ‑> List[str]</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def split_and_strip(string: str, upper: bool = True, delimiter=&#34;,&#34;)-&gt; List[str]:
+    if upper:
+        return strip_string_array(string.upper().split(delimiter))
+    return strip_string_array(string.lower().split(delimiter))</code></pre>
+</details>
+</dd>
 <dt id="scrilla.util.helper.strip_string_array"><code class="name flex">
 <span>def <span class="ident">strip_string_array</span></span>(<span>array: List[str]) ‑> List[str]</span>
 </code></dt>
@@ -292,6 +312,7 @@ def replace_troublesome_chars(msg: str) -&gt; str:
 <li><code><a title="scrilla.util.helper.intersect_dict_keys" href="#scrilla.util.helper.intersect_dict_keys">intersect_dict_keys</a></code></li>
 <li><code><a title="scrilla.util.helper.replace_troublesome_chars" href="#scrilla.util.helper.replace_troublesome_chars">replace_troublesome_chars</a></code></li>
 <li><code><a title="scrilla.util.helper.round_array" href="#scrilla.util.helper.round_array">round_array</a></code></li>
+<li><code><a title="scrilla.util.helper.split_and_strip" href="#scrilla.util.helper.split_and_strip">split_and_strip</a></code></li>
 <li><code><a title="scrilla.util.helper.strip_string_array" href="#scrilla.util.helper.strip_string_array">strip_string_array</a></code></li>
 <li><code><a title="scrilla.util.helper.truncate" href="#scrilla.util.helper.truncate">truncate</a></code></li>
 </ul>

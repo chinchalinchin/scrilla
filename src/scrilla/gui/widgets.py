@@ -123,9 +123,10 @@ class TableWidget(SymbolWidget):
     3. _stage_widgets()
         Prepares the children widget for display
     """
-    def __init__(self, widget_title: str, button_msg: str, table_function: Callable):
+    def __init__(self, widget_title: str, button_msg: str, table_function: Callable, clear_function: Callable):
         super().__init__(widget_title=widget_title, button_msg=button_msg)
         self.table_function = table_function
+        self.clear_function = clear_function
 
         self._init_table_widgets()
         self._arrange_table_widgets()
@@ -149,17 +150,10 @@ class TableWidget(SymbolWidget):
         self.layout.addWidget(self.clear_button)
 
     def _stage_table_widgets(self):
-        self.clear_button.clicked.connect(self._clear)
+        self.clear_button.clicked.connect(self.clear_function)
         self.calculate_button.clicked.connect(self.table_function)
         self.symbol_input.returnPressed.connect(self.table_function)
         self.table.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustToContents)
-        self.table.hide()
-
-    @QtCore.Slot()
-    def _clear(self):
-        self.symbol_input.clear()
-        self.error_message.hide()
-        self.table.clear()
         self.table.hide()
 
 # NOTE: display_function MUST set displayed = True and set
@@ -343,10 +337,11 @@ class PortfolioWidget(SymbolWidget):
                     i. left_layout -> Vertically aligned
                     ii. right_layout -> Vertically aligned
     """
-    def __init__(self, widget_title, optimize_function):
+    def __init__(self, widget_title, optimize_function, clear_function):
         super().__init__(widget_title=widget_title, button_msg="Optimize Portfolio")
         self.widget_title = widget_title
         self.optimize_function = optimize_function
+        self.clear_function = clear_function
 
         self._init_portfolio_widgets()
         self._style_portfolio_widgets()
@@ -423,27 +418,10 @@ class PortfolioWidget(SymbolWidget):
         self.result_table.hide()
 
         self.calculate_button.clicked.connect(self.optimize_function)
-        self.clear_button.clicked.connect(self.clear)
+        self.clear_button.clicked.connect(self.clear_function)
         self.symbol_input.returnPressed.connect(self.optimize_function)
         self.target_return.returnPressed.connect(self.optimize_function)
 
         self.target_return.setValidator(QtGui.QDoubleValidator(-10.0000, 10.0000, 4))
         self.portfolio_value.setValidator(QtGui.QDoubleValidator(0, 1000000, 2))
 
-    @QtCore.Slot()
-    def clear(self):
-        self.symbol_input.clear()
-        self.target_return.clear()
-        self.portfolio_value.clear()
-        self.result_table.clear()
-        self.result_table.hide()
-        self.result.clear()
-        self.result.hide()
-
-    def reset_table(self):
-        self.result_table.clear()
-        self.root_layout.removeWidget(self.result_table)
-        self.result_table = QtWidgets.QTableWidget()
-        self.result_table.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustToContents)
-        self.root_layout.insertWidget(3, self.result_table, 1)
-        self.result_table.hide()

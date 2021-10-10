@@ -35,20 +35,25 @@ class RiskReturnWidget(CompositeWidget):
         super().__init__(widget_title="Risk-Return Profile Over Last 100 Days", button_msg="Calculate Profile", 
                             calculate_function=self.calculate, display_function=self.display)
 
+    def _init_profile_widgets(self):
+        self.figure = QtWidgets.QLabel("Risk Profile Graph", alignment=QtCore.Qt.AlignHCenter)
+
+    def _arrange_profile_widgets(self):
+        self.right_layout.insertWidget(1, self.figure, 1)
+
     @QtCore.Slot()
     def calculate(self):
-        user_symbols = helper.strip_string_array(self.symbol_input.text().upper().split(","))
-        no_symbols = len(user_symbols)
+        symbols = helper.split_and_strip(self.symbol_input.text())
 
-        self.table.setRowCount(no_symbols)
+        self.table.setRowCount(len(symbols))
         self.table.setColumnCount(2)
         self.table.setHorizontalHeader(QtWidgets.QHeaderView(QtCore.Qt.Horizontal))
         self.table.setHorizontalHeaderLabels(['Risk','Return'])
         self.table.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Stretch)
         self.table.setVerticalHeader(QtWidgets.QHeaderView(QtCore.Qt.Vertical))
-        self.table.setVerticalHeaderLabels(user_symbols)
+        self.table.setVerticalHeaderLabels(symbols)
 
-        for symbol in user_symbols:
+        for symbol in symbols:
             try:
                 stats = statistics.calculate_risk_return(symbol)
                 formatted_ret, formatted_vol = formats.format_risk_return(stats)
@@ -58,8 +63,8 @@ class RiskReturnWidget(CompositeWidget):
                 vol_item = QtWidgets.QTableWidgetItem(formatted_vol)
                 vol_item.setTextAlignment(QtCore.Qt.AlignHCenter)
                 
-                self.table.setItem(user_symbols.index(symbol), 0, vol_item)
-                self.table.setItem(user_symbols.index(symbol), 1, ret_item)
+                self.table.setItem(symbols.index(symbol), 0, vol_item)
+                self.table.setItem(symbols.index(symbol), 1, ret_item)
             except: 
                 self.error_message.show()
                 return
@@ -69,9 +74,8 @@ class RiskReturnWidget(CompositeWidget):
     
     @QtCore.Slot()
     def display(self):
-        if self.displayed:
-            self.layout.removeWidget(self.figure)
-            self.figure = None
+        if self.figure.isVisible():
+            self.figure.hide()
 
         user_symbols = helper.strip_string_array(self.symbol_input.text().upper().split(","))
         profiles = {}
@@ -82,48 +86,48 @@ class RiskReturnWidget(CompositeWidget):
         plotter.plot_profiles(symbols=user_symbols, profiles=profiles, show=True,
                                         savefile=settings.CACHE_TEMP_FILE)
 
-        self.figure = QtWidgets.QLabel("Risk Profile Graph", alignment=QtCore.Qt.AlignHCenter)
-        print(self.figure)
-        self.figure.setPixmap(QtGui.QPixmap(settings.CACHE_TEMP_FILE))
-        self.right_layout.insertWidget(1, self.figure, 1)
-        self.displayed = True
-
+        self.figure.setPixmap(utilities.generate_pixmap_from_cache())
+        self.figure.show()
 
 class CorrelationWidget(TableWidget):
     def __init__(self):
         super().__init__(widget_title = "Correlation Over Last 100 Days", button_msg="Calculate Correlation",
-                            table_function = self.calculate_table)
+                            table_function = self.calculate_table, clear_function=self.clear)
 
     @QtCore.Slot()
     def calculate_table(self):
         if self.table.isVisible():
             self.table.clear()
 
-        user_symbols = helper.strip_string_array(self.symbol_input.text().upper().split(","))
-        no_symbols = len(user_symbols)
+        symbols = helper.split_and_strip(self.symbol_input.text())
 
-        if no_symbols > 1:
-            self.table.setRowCount(no_symbols)
-            self.table.setColumnCount(no_symbols)
+        if len(symbols) > 1:
+            self.table.setRowCount(len(symbols))
+            self.table.setColumnCount(len(symbols))
+
             self.table.setHorizontalHeader(QtWidgets.QHeaderView(QtCore.Qt.Horizontal))
-            self.table.setHorizontalHeaderLabels(user_symbols)
+            self.table.setHorizontalHeaderLabels(symbols)
             #self.table.horizontalHeader().setStretchLastSection(True)
-            self.table.setVerticalHeader(QtWidgets.QHeaderView(QtCore.Qt.Vertical))
-            self.table.setVerticalHeaderLabels(user_symbols)
 
-            for i, value in enumerate(user_symbols):
-                for j in range(i, len(user_symbols)):
+            self.table.setVerticalHeader(QtWidgets.QHeaderView(QtCore.Qt.Vertical))
+            self.table.setVerticalHeaderLabels(symbols)
+
+            for i, value in enumerate(symbols):
+                for j in range(i, len(symbols)):
                     if i == j:
                         item = QtWidgets.QTableWidgetItem("100.0%")
                         item.setTextAlignment(QtCore.Qt.AlignHCenter)
                         self.table.setItem(i, j, item)
                         
                     else:    
-                        correlation = statistics.calculate_moment_correlation(value, user_symbols[j])
+                        correlation = statistics.calculate_correlation(value, symbols[j])
+
                         item_1 = QtWidgets.QTableWidgetItem(formats.format_correlation(correlation))
                         item_1.setTextAlignment(QtCore.Qt.AlignHCenter)
+
                         item_2 = QtWidgets.QTableWidgetItem(formats.format_correlation(correlation))
                         item_2.setTextAlignment(QtCore.Qt.AlignHCenter)
+
                         self.table.setItem(j, i, item_1)
                         self.table.setItem(i, j, item_2)
         else:
@@ -140,7 +144,7 @@ class CorrelationWidget(TableWidget):
         self.table.show()
 
     @QtCore.Slot()
-    def _clear(self):
+    def clear(self):
         self.symbol_input.clear()
         self.error_message.hide()
         self.table.clear()
@@ -149,33 +153,30 @@ class CorrelationWidget(TableWidget):
 class OptimizerWidget(PortfolioWidget):
     def __init__(self):
         super().__init__(widget_title="Portfolio Allocation Optimization",
-                            optimize_function=self.optimize)
-
+                            optimize_function=self.optimize, 
+                            clear_function=self.clear)
 
     @QtCore.Slot()
     def optimize(self):
         if self.result_table.isVisible():
-            self.reset_table()
+            self.clear()
 
-        if self.result.isVisible():
-            self.result.clear()
+        symbols = helper.split_and_strip(self.symbol_input.text())
 
-        user_symbols = helper.strip_string_array(self.symbol_input.text().upper().split(","))
-        no_symbols = len(user_symbols)
+        # TODO: better error checking
+        if len(symbols) > 1:
+            self.result_table.setRowCount(len(symbols))
+            self.result_table.setVerticalHeader(QtWidgets.QHeaderView(QtCore.Qt.Vertical))
+            self.result_table.setVerticalHeaderLabels(symbols)
+            self.result_table.setHorizontalHeader(QtWidgets.QHeaderView(QtCore.Qt.Horizontal))
+            self.result_table.horizontalHeader().setStretchLastSection(True)
 
-        if no_symbols > 1:
             investment = self.portfolio_value.text()
 
-            logger.debug(f'Optimizing Portfolio : {user_symbols}.')
-            this_portfolio = portfolio.Portfolio(tickers=user_symbols)
+            this_portfolio = portfolio.Portfolio(tickers=symbols)
             allocation = optimizer.optimize_portfolio_variance(portfolio=this_portfolio)
             
-            logger.debug(formats.format_allocation_profile_title(allocation, this_portfolio))
             self.result.setText(formats.format_allocation_profile_title(allocation, this_portfolio))
-
-            self.result_table.setRowCount(no_symbols)
-            self.result_table.setVerticalHeader(QtWidgets.QHeaderView(QtCore.Qt.Vertical))
-            self.result_table.setVerticalHeaderLabels(user_symbols)
             
             if not investment:
                 self.result_table.setColumnCount(1)
@@ -184,16 +185,11 @@ class OptimizerWidget(PortfolioWidget):
                 self.result_table.setColumnCount(2)
                 labels = ['Allocation', 'Shares']
                 shares = this_portfolio.calculate_approximate_shares(allocation, float(investment))
-
-            self.result_table.setHorizontalHeader(QtWidgets.QHeaderView(QtCore.Qt.Horizontal))
             self.result_table.setHorizontalHeaderLabels(labels)
-            self.result_table.horizontalHeader().setStretchLastSection(True)
 
 
-            for i in range(no_symbols):
-                this_allocation = allocation[i]
-                formatted_allocation = str(100*this_allocation)[:constants['SIG_FIGS']]+"%"
-                item = QtWidgets.QTableWidgetItem(formatted_allocation)
+            for i in range(len(symbols)):
+                item = QtWidgets.QTableWidgetItem(formats.format_allocation(allocation[i]))
                 item.setTextAlignment(QtCore.Qt.AlignHCenter)
                 self.result_table.setItem(i, 0, item)
                 if investment:
@@ -209,6 +205,15 @@ class OptimizerWidget(PortfolioWidget):
             self.result.setText("Error Occurred. Check Input and Try Again.")
             self.result.show()
 
+    @QtCore.Slot()
+    def clear(self):
+        self.symbol_input.clear()
+        self.target_return.clear()
+        self.portfolio_value.clear()
+        self.result_table.clear()
+        self.result_table.hide()
+        self.result.clear()
+        self.result.hide()
 
 class EfficientFrontierWidget(GraphWidget):
     def __init__(self):
@@ -241,6 +246,7 @@ class EfficientFrontierWidget(GraphWidget):
                                 savefile=settings.CACHE_TEMP_FILE)
 
         self.figure.setPixmap(utilities.generate_pixmap_from_cache())
+        self.figure.show()
     
     @QtCore.Slot()
     def clear(self):
@@ -251,7 +257,7 @@ class EfficientFrontierWidget(GraphWidget):
 class MovingAverageWidget(GraphWidget):
     def __init__(self):
         super().__init__(widget_title = "Rolling Moving Average Plot", button_msg="Calculate MAs",
-                            display_function=self.display)
+                            display_function=self.display, clear_function=self.clear)
         self._init_average_widgets()
 
     def _init_average_widgets(self):
@@ -271,14 +277,15 @@ class MovingAverageWidget(GraphWidget):
         moving_averages = statistics.calculate_moving_averages(symbols)
         periods = [settings.MA_1_PERIOD, settings.MA_2_PERIOD, settings.MA_3_PERIOD]
         plotter.plot_moving_averages(symbols=symbols, 
-                                            averages_output=moving_averages, 
-                                            periods=periods, 
-                                            show=False, 
-                                            savefile=settings.CACHE_TEMP_FILE)
+                                        averages_output=moving_averages, 
+                                        periods=periods, 
+                                        show=False, 
+                                        savefile=settings.CACHE_TEMP_FILE)
         
         self.figure.setPixmap(utilities.generate_pixmap_from_cache())
+        self.figure.show()
     
     @QtCore.Slot()
-    def clear():
-
-
+    def clear(self):
+        self.symbol_input.clear()
+        self.figure.hide()

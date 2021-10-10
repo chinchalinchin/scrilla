@@ -27,7 +27,57 @@
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python"># GUI FORMATTING
+<pre><code class="python">from typing import Tuple
+
+from PySide6.QtGui import QFont
+
+from scrilla.static import constants
+
+STYLES ={
+    &#39;TITLE&#39;:{
+        &#39;font-family&#39;: &#39;Times&#39;,
+        &#39;font-size&#39;: 12,
+        &#39;font-weight&#39;: QFont.Bold,
+        &#39;font-italics&#39;: False
+    },
+    &#39;SUBTITLE&#39;:{
+        &#39;font-family&#39;: &#39;Times&#39;,
+        &#39;font-size&#39;: 10,
+        &#39;font-weight&#39;: QFont.DemiBold,
+        &#39;font-italics&#39;: False
+    },
+    &#39;TEXT&#39;:{
+        &#39;font-family&#39;: &#39;Times&#39;,
+        &#39;font-size&#39;: 8,
+        &#39;font-weight&#39;: QFont.Normal,
+        &#39;font-italics&#39;: False
+    },
+    &#39;ERROR&#39;: {
+        &#39;font-family&#39;: &#39;Helvetica&#39;,
+        &#39;font-size&#39;: 8,
+        &#39;font-weight&#39;: QFont.Medium,
+        &#39;font-italics&#39;: False
+    }
+}
+
+def get_font_style(style_dict: dict) -&gt; QFont:
+    &#34;&#34;&#34;
+    Accepts a configuration dictionary and generates a font style for the application.
+
+    Parameters
+    ----------
+    1. **stlye_dict**: ``dict``
+        A dictionary containing configuration for a ``PySide6.QtGui.QFont`` instance. Applications styles are statically accessible through elements of the `scrilla.gui.formats.STYLES` dictionary.
+    
+    Returns 
+    -------
+    ``PySide6.QtGui.QFont``
+    &#34;&#34;&#34;
+    font = QFont(style_dict[&#39;font-family&#39;], style_dict[&#39;font-size&#39;])
+    font.setWeight(style_dict[&#39;font-weight&#39;])
+    font.setItalic(style_dict[&#39;font-italics&#39;])
+    return font
+
 def format_allocation_profile_title(allocation, portfolio) -&gt; str:
     port_return, port_volatility = portfolio.return_function(allocation), portfolio.volatility_function(allocation)
     formatted_result = &#34;(&#34;+str(100*port_return)[:5]+&#34;%, &#34; + str(100*port_volatility)[:5]+&#34;%)&#34;
@@ -38,7 +88,18 @@ def format_allocation_profile_title(allocation, portfolio) -&gt; str:
         else:
             formatted_result_title += symbol + &#34;) Portfolio Return-Risk Profile&#34;
     whole_thing = formatted_result_title +&#34; = &#34;+formatted_result
-    return whole_thing</code></pre>
+    return whole_thing
+
+def format_allocation(allocation: float)-&gt;str:
+    return str(100*allocation)[:constants.constants[&#39;SIG_FIGS&#39;]]+&#34;%&#34;
+
+def format_risk_return(stats: dict) -&gt; Tuple[str]:
+    formatted_ret = str(100*stats[&#39;annual_return&#39;])[:constants.constants[&#39;SIG_FIGS&#39;]]+&#34;%&#34;
+    formatted_vol = str(100*stats[&#39;annual_volatility&#39;])[:constants.constants[&#39;SIG_FIGS&#39;]]+&#34;%&#34;
+    return formatted_ret, formatted_vol
+
+def format_correlation(correlation: dict):
+    return str(100*correlation[&#34;correlation&#34;])[:constants.constants[&#39;SIG_FIGS&#39;]]+&#34;%&#34;</code></pre>
 </details>
 </section>
 <section>
@@ -48,6 +109,19 @@ def format_allocation_profile_title(allocation, portfolio) -&gt; str:
 <section>
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
+<dt id="scrilla.gui.formats.format_allocation"><code class="name flex">
+<span>def <span class="ident">format_allocation</span></span>(<span>allocation: float) ‑> str</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def format_allocation(allocation: float)-&gt;str:
+    return str(100*allocation)[:constants.constants[&#39;SIG_FIGS&#39;]]+&#34;%&#34;</code></pre>
+</details>
+</dd>
 <dt id="scrilla.gui.formats.format_allocation_profile_title"><code class="name flex">
 <span>def <span class="ident">format_allocation_profile_title</span></span>(<span>allocation, portfolio) ‑> str</span>
 </code></dt>
@@ -70,6 +144,69 @@ def format_allocation_profile_title(allocation, portfolio) -&gt; str:
     return whole_thing</code></pre>
 </details>
 </dd>
+<dt id="scrilla.gui.formats.format_correlation"><code class="name flex">
+<span>def <span class="ident">format_correlation</span></span>(<span>correlation: dict)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def format_correlation(correlation: dict):
+    return str(100*correlation[&#34;correlation&#34;])[:constants.constants[&#39;SIG_FIGS&#39;]]+&#34;%&#34;</code></pre>
+</details>
+</dd>
+<dt id="scrilla.gui.formats.format_risk_return"><code class="name flex">
+<span>def <span class="ident">format_risk_return</span></span>(<span>stats: dict) ‑> Tuple[str]</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def format_risk_return(stats: dict) -&gt; Tuple[str]:
+    formatted_ret = str(100*stats[&#39;annual_return&#39;])[:constants.constants[&#39;SIG_FIGS&#39;]]+&#34;%&#34;
+    formatted_vol = str(100*stats[&#39;annual_volatility&#39;])[:constants.constants[&#39;SIG_FIGS&#39;]]+&#34;%&#34;
+    return formatted_ret, formatted_vol</code></pre>
+</details>
+</dd>
+<dt id="scrilla.gui.formats.get_font_style"><code class="name flex">
+<span>def <span class="ident">get_font_style</span></span>(<span>style_dict: dict) ‑> PySide6.QtGui.QFont</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Accepts a configuration dictionary and generates a font style for the application.</p>
+<h2 id="parameters">Parameters</h2>
+<ol>
+<li><strong>stlye_dict</strong>: <code>dict</code>
+A dictionary containing configuration for a <code>PySide6.QtGui.QFont</code> instance. Applications styles are statically accessible through elements of the <code>scrilla.gui.formats.STYLES</code> dictionary.</li>
+</ol>
+<h2 id="returns">Returns</h2>
+<p><code>PySide6.QtGui.QFont</code></p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_font_style(style_dict: dict) -&gt; QFont:
+    &#34;&#34;&#34;
+    Accepts a configuration dictionary and generates a font style for the application.
+
+    Parameters
+    ----------
+    1. **stlye_dict**: ``dict``
+        A dictionary containing configuration for a ``PySide6.QtGui.QFont`` instance. Applications styles are statically accessible through elements of the `scrilla.gui.formats.STYLES` dictionary.
+    
+    Returns 
+    -------
+    ``PySide6.QtGui.QFont``
+    &#34;&#34;&#34;
+    font = QFont(style_dict[&#39;font-family&#39;], style_dict[&#39;font-size&#39;])
+    font.setWeight(style_dict[&#39;font-weight&#39;])
+    font.setItalic(style_dict[&#39;font-italics&#39;])
+    return font</code></pre>
+</details>
+</dd>
 </dl>
 </section>
 <section>
@@ -88,7 +225,11 @@ def format_allocation_profile_title(allocation, portfolio) -&gt; str:
 </li>
 <li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="">
+<li><code><a title="scrilla.gui.formats.format_allocation" href="#scrilla.gui.formats.format_allocation">format_allocation</a></code></li>
 <li><code><a title="scrilla.gui.formats.format_allocation_profile_title" href="#scrilla.gui.formats.format_allocation_profile_title">format_allocation_profile_title</a></code></li>
+<li><code><a title="scrilla.gui.formats.format_correlation" href="#scrilla.gui.formats.format_correlation">format_correlation</a></code></li>
+<li><code><a title="scrilla.gui.formats.format_risk_return" href="#scrilla.gui.formats.format_risk_return">format_risk_return</a></code></li>
+<li><code><a title="scrilla.gui.formats.get_font_style" href="#scrilla.gui.formats.get_font_style">get_font_style</a></code></li>
 </ul>
 </li>
 </ul>
