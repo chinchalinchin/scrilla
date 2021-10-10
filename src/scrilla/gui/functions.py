@@ -13,11 +13,10 @@
 # along with scrilla.  If not, see <https://www.gnu.org/licenses/>
 # or <https://github.com/chinchalinchin/scrilla/blob/develop/main/LICENSE>.
 
-from PySide6 import Qt, QtCore, QtGui, QtWidgets
+from PySide6 import Qt, QtCore, QtWidgets
 
 
 from scrilla import settings
-from scrilla.static.constants import constants
 import scrilla.analysis.models.geometric.statistics as statistics
 import scrilla.analysis.optimizer as optimizer
 import scrilla.analysis.objects.portfolio as portfolio
