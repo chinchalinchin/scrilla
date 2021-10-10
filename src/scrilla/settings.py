@@ -14,42 +14,8 @@
 # or <https://github.com/chinchalinchin/scrilla/blob/develop/main/LICENSE>.
 """
 Application-wide configuration settings. 
-
-Attributes
-----------
-1. `scrilla.settings.APP_NAME`: Name of the application.
-2. `scrilla.settings.APP_DIR`: Folder containing this file.
-3. `scrilla.settings.PROJECT_DIR`: Folder containering the project source.
-4. `scrilla.settings.ROOT_DIR`: Root folder of the repository.
-5. `scrilla.settings.APP_ENV`: Application environment.
-6. `scrilla.settings.LOG_LEVEL`: Debug output level.
-7. `scrilla.settings.CACHE_DIR`: Folder where cached price histories reside.
-8. `scrilla.settings.CACHE_SQLITE_FILE`: Location of the SQLite persistence store.
-9. `scrilla.settings.FILE_EXT`: File extension used in CACHE_DIR.
-10. `scrilla.settings.STATIC_DIR`: Folder where static data reside.
-11. `scrilla.settings.FILE_EXT`: File extension used to store files across the program.
-12. `scrilla.settings.STATIC_TICKERS_FILE`: File containing a list of all equity ticker symbols with price histories that can be retrieved from external services.
-13. `scrilla.settings.STATIC_ECON_FILE`: File containg a list of all economic statistics with sample histories that can be retrieved from external services.
-14. `scrilla.settings.STATIC_CRYPTO_FILE`: File containing a list of all crypto ticker symbols with price histories that can be retrieved from external services.
-15. GUI_WIDTH: Width of root widget in GUI.
-16. GUI_HEIGHT: Height of root widget in GUI.
-17. FRONTIER_STEPS: Number of points in efficient frontier output.
-18. MA_1_PERIOD: Number of days in first moving average period.
-19. MA_2_PERIOD: Number of days in second moving average period.
-20. MA_3_PERIOD: Number of days in first moving average period.
-21. RISK_FREE_RATE: Interest rate used for cashflow valuations.
-22. MARKET_PROXY: Ticker symbol used to calculate market rate of return
-23. `scrilla.settings.PRICE_MANAGER`: Service in charge of price histories.
-24. STAT_MANAGER: Service in charge of statistic histories.
-25. DIVIDEND_MANAGER: Service in charge of dividend payment histories.
-26. AV_URL: Base URL for AlphaVantage query.
-27. AV_KEY: Credentials for AlphaVantage query.
-28. AV_CRYPTO_LIST: URL for crypto metadata AlphaVantage query.
-54. Q_URL: Base URL for Quandl query.
-55. Q_KEY: Credentials for Quandl query.
-56. Q_META_URL: URL for economic statistics data.
 """
-import os, dotenv, json
+import os, json
 
 import scrilla.util.outputter as outputter
 
@@ -62,18 +28,11 @@ APP_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_DIR = os.path.dirname(APP_DIR)
 """Folder containing the project source"""
 
-ROOT_DIR = os.path.dirname(PROJECT_DIR)
-"""Folder containing the entire project"""
-
 APP_NAME="scrilla"
 """Name of the application"""
 
 APP_ENV = os.environ.setdefault('APP_ENV', 'local')
 """Application execution environment; Configured by environment variable of the same name, **APP_ENV**."""
-
-env_file = os.path.join(os.path.join(ROOT_DIR,'env'), '.env')
-if APP_ENV != 'container' and os.path.isfile(env_file):
-    dotenv.load_dotenv(os.path.join(os.path.join(ROOT_DIR,'env'), '.env'))
 
 LOG_LEVEL = str(os.environ.setdefault("LOG_LEVEL", "info")).lower()
 """Application log level output; Configured by environment of the same name, **LOG_LEVEL**."""
@@ -103,6 +62,13 @@ COMMON_DIR=os.path.join(APP_DIR, 'data', 'common')
 """Directory used to store common files, such as API keys, watchlist, etc."""
 COMMON_WATCHLIST_FILE=os.path.join(COMMON_DIR, f'watchlist.{FILE_EXT}')
 """Location of file used to store watchlisted ticker symbols"""
+
+GUI_STYLESHEET_FILE=os.path.join(APP_DIR, 'gui', 'styles', 'app.qss')
+"""Location of the stylesheet applied to the GUI"""
+
+GUI_THEME_FILE=os.path.join(APP_DIR, 'gui', 'styles', 'themes.json')
+
+GUI_DARK_MODE = os.environ.setdefault('DARK_MODE', 'true').lower() == 'true'
 
 ## GUI CONFIGURATION
 try:

@@ -1,4 +1,6 @@
 include src/scrilla/data/cache/.gitkeep 
 include src/scrilla/data/common/.gitkeep 
 include src/scrilla/data/static/.gitkeep
+include src/scrilla/gui/styles/app.qss
+include src/scrilla/gui/styles/themes.json
 include src/scrilla/version.txt

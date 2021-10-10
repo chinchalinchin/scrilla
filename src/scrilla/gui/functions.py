@@ -33,16 +33,24 @@ logger = outputter.Logger('gui.functions', settings.LOG_LEVEL)
 class RiskReturnWidget(CompositeWidget):
     def __init__(self):
         super().__init__(widget_title="Risk-Return Profile Over Last 100 Days", button_msg="Calculate Profile", 
-                            calculate_function=self.calculate, display_function=self.display)
+                            calculate_function=self.calculate, clear_function=self.clear)
+        
+        self._init_profile_widgets()
+        # self._arrange_profile_widgets()
+        # print('constructor complete')
 
     def _init_profile_widgets(self):
-        self.figure = QtWidgets.QLabel("Risk Profile Graph", alignment=QtCore.Qt.AlignHCenter)
+        self.figure = QtWidgets.QLabel("Risk Profile Graph")
 
     def _arrange_profile_widgets(self):
-        self.right_layout.insertWidget(1, self.figure, 1)
+        self.figure.setAlignment(QtCore.Qt.AlignHCenter)
+        self.right_layer.layout().insertWidget(1, self.figure, 1)
 
     @QtCore.Slot()
     def calculate(self):
+        if self.figure.isVisible():
+            self.figure.hide()
+
         symbols = helper.split_and_strip(self.symbol_input.text())
 
         self.table.setRowCount(len(symbols))
@@ -52,42 +60,35 @@ class RiskReturnWidget(CompositeWidget):
         self.table.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Stretch)
         self.table.setVerticalHeader(QtWidgets.QHeaderView(QtCore.Qt.Vertical))
         self.table.setVerticalHeaderLabels(symbols)
+        # self.table.verticalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Stretch)
 
-        for symbol in symbols:
-            try:
-                stats = statistics.calculate_risk_return(symbol)
-                formatted_ret, formatted_vol = formats.format_risk_return(stats)
-    
-                ret_item = QtWidgets.QTableWidgetItem(formatted_ret)
-                ret_item.setTextAlignment(QtCore.Qt.AlignHCenter)
-                vol_item = QtWidgets.QTableWidgetItem(formatted_vol)
-                vol_item.setTextAlignment(QtCore.Qt.AlignHCenter)
-                
-                self.table.setItem(symbols.index(symbol), 0, vol_item)
-                self.table.setItem(symbols.index(symbol), 1, ret_item)
-            except: 
-                self.error_message.show()
-                return
-
-        self.table.resizeColumnsToContents()
-        self.table.show()
-    
-    @QtCore.Slot()
-    def display(self):
-        if self.figure.isVisible():
-            self.figure.hide()
-
-        user_symbols = helper.strip_string_array(self.symbol_input.text().upper().split(","))
         profiles = {}
+        for symbol in symbols:
+            stats = statistics.calculate_risk_return(symbol)
+            profiles[symbol] = stats
+            formatted_ret, formatted_vol = formats.format_risk_return(stats)
 
-        for symbol in user_symbols:
-            profiles[symbol] = statistics.calculate_risk_return(symbol)
+            ret_item = QtWidgets.QTableWidgetItem(formatted_ret)
+            ret_item.setTextAlignment(QtCore.Qt.AlignHCenter)
+            vol_item = QtWidgets.QTableWidgetItem(formatted_vol)
+            vol_item.setTextAlignment(QtCore.Qt.AlignHCenter)
+            
+            self.table.setItem(symbols.index(symbol), 0, vol_item)
+            self.table.setItem(symbols.index(symbol), 1, ret_item)
 
-        plotter.plot_profiles(symbols=user_symbols, profiles=profiles, show=True,
+        plotter.plot_profiles(symbols=symbols, profiles=profiles, show=False,
                                         savefile=settings.CACHE_TEMP_FILE)
 
         self.figure.setPixmap(utilities.generate_pixmap_from_cache())
         self.figure.show()
+        self.table.resizeColumnsToContents()
+        self.table.show()
+
+    @QtCore.Slot()
+    def clear(self):
+        self.figure.hide()
+        self.table.clear()
+        self.symbol_input.clear()
 
 class CorrelationWidget(TableWidget):
     def __init__(self):
@@ -224,11 +225,11 @@ class EfficientFrontierWidget(GraphWidget):
         self.displayed = False
 
     def _init_frontier_widgets(self):
-        self.figure = QtWidgets.QLabel("Efficient Frontier")
+        self.figure = QtWidgets.QLabel("Efficient Frontier Graph")
 
     def _arrange_frontier_widgets(self):
         self.figure.setAlignment(QtCore.Qt.AlignHCenter)
-        self.layout.insertWidget(1, self.figure, 1)
+        self.layout().insertWidget(1, self.figure, 1)
 
         # TODO: DATES! & PORTFOLIO TABS
     @QtCore.Slot()

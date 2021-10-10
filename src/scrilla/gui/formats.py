@@ -1,53 +1,51 @@
+import json
+
 from typing import Tuple
 
-from PySide6.QtGui import QFont
-
+from scrilla import settings
 from scrilla.static import constants
 
-STYLES ={
-    'TITLE':{
-        'font-family': 'Times',
-        'font-size': 12,
-        'font-weight': QFont.Bold,
-        'font-italics': False
-    },
-    'SUBTITLE':{
-        'font-family': 'Times',
-        'font-size': 10,
-        'font-weight': QFont.DemiBold,
-        'font-italics': False
-    },
-    'TEXT':{
-        'font-family': 'Times',
-        'font-size': 8,
-        'font-weight': QFont.Normal,
-        'font-italics': False
-    },
-    'ERROR': {
-        'font-family': 'Helvetica',
-        'font-size': 8,
-        'font-weight': QFont.Medium,
-        'font-italics': False
+
+def format_stylesheet(sheet):
+    if settings.GUI_DARK_MODE:
+        mode = get_dark_mode_theme()
+    else:
+        mode = get_light_mode_theme()
+
+    for element in mode:
+        sheet = sheet.replace(element, mode[element])
+
+    return sheet
+
+def get_dark_mode_theme():
+    with open(settings.GUI_THEME_FILE, 'r') as f:
+        MATERIAL = json.load(f)
+
+    return {
+        '$TITLE_BG': MATERIAL['grey']['500'],
+        '$ROOT_BG': MATERIAL['grey']['800'],
+        '$CHILD_BG': MATERIAL['grey']['700'],
+        '$GRANDCHILD_BG': MATERIAL['grey']['600'],
+        '$GREATGRANDCHILD_BG': MATERIAL['grey']['500'],
+        '$BUTTON_BG': MATERIAL['grey']['500'],
+        '$ACTIVE_BUTTON_BG': MATERIAL['grey']['100'],
+        '$PRESSED_BUTTON_BG': MATERIAL['grey']['700']
     }
-}
 
-def get_font_style(style_dict: dict) -> QFont:
-    """
-    Accepts a configuration dictionary and generates a font style for the application.
-
-    Parameters
-    ----------
-    1. **stlye_dict**: ``dict``
-        A dictionary containing configuration for a ``PySide6.QtGui.QFont`` instance. Applications styles are statically accessible through elements of the `scrilla.gui.formats.STYLES` dictionary.
-    
-    Returns 
-    -------
-    ``PySide6.QtGui.QFont``
-    """
-    font = QFont(style_dict['font-family'], style_dict['font-size'])
-    font.setWeight(style_dict['font-weight'])
-    font.setItalic(style_dict['font-italics'])
-    return font
+def get_light_mode_theme():
+    with open(settings.GUI_THEME_FILE, 'r') as f:
+        MATERIAL = json.load(f)
+        
+    return {
+        '$TITLE_BG': MATERIAL['grey']['200'],
+        '$ROOT_BG': MATERIAL['grey']['500'],
+        '$CHILD_BG': MATERIAL['grey']['400'],
+        '$GRANDCHILD_BG': MATERIAL['grey']['300'],
+        '$GREATGRANDCHILD_BG': MATERIAL['grey']['200'],
+        '$BUTTON_BG': MATERIAL['grey']['200'],
+        '$ACTIVE_BUTTON_BG': MATERIAL['grey']['600'],
+        '$PRESSED_BUTTON_BG': MATERIAL['grey']['700']
+    }
 
 def format_allocation_profile_title(allocation, portfolio) -> str:
     port_return, port_volatility = portfolio.return_function(allocation), portfolio.volatility_function(allocation)

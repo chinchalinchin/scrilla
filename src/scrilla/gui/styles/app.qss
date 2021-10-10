@@ -1,0 +1,65 @@
+#title {
+    font-family: Times;
+    font-size: 12;
+    font-weight: 800;
+    border-style: inset;
+    border-radius: 2px;
+    background-color: $TITLE_BG;
+}
+#subtitle {
+    font-family: Times;
+    font-size: 10;
+    font-weight: 600;
+}
+#text {
+    font-family: Times;
+    font-size: 8;
+    font-weight: 500;
+}
+#error {
+    font-family: Helvetica;
+    font-size: 8;
+    font-weight: 600;
+}
+
+#root {
+    border-style: inset;
+    border-radius: 2px;
+    background-color: $ROOT_BG;
+}
+
+#child {
+    border-style: inset;
+    border-radius: 2px;
+    background-color: $CHILD_BG;
+}
+
+#grand-child {
+    border-style: inset;
+    border-radius: 2px;
+    background-color: $GRANDCHILD_BG;
+}
+
+#great-grand-child {
+    border-style: inset;
+    border-radius: 2px;
+    background-color: $GREATGRANDCHILD_BG;
+
+}
+QPushButton#button {
+    padding: 2px;
+    border-style: outset;
+    border-radius: 2px;
+    background-color: $BUTTON_BG;
+}
+QPushButton#button:hover {
+    border-style: outset;
+    border-radius: 2px;
+    cursor: pointer;
+    background-color: $ACTIVE_BUTTON_BG;
+}
+QPushButton#button:pressed {
+    border-style:inset;
+    border-radius:2px;
+    background-color: $PRESSED_BUTTON_BG;
+}
