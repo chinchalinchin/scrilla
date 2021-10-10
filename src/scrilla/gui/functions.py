@@ -24,7 +24,7 @@ import scrilla.analysis.objects.portfolio as portfolio
 
 from scrilla.util import outputter, helper, plotter
 
-from scrilla.gui import formats
+from scrilla.gui import formats, utilities
 from scrilla.gui.widgets import CompositeWidget, GraphWidget, \
                             TableWidget, PortfolioWidget
 
@@ -219,9 +219,10 @@ class EfficientFrontierWidget(GraphWidget):
         self.displayed = False
 
     def _init_frontier_widgets(self):
-        self.figure = QtWidgets.QLabel("Efficient Frontier", alignment=QtCore.Qt.AlignHCenter)
+        self.figure = QtWidgets.QLabel("Efficient Frontier")
 
     def _arrange_frontier_widgets(self):
+        self.figure.setAlignment(QtCore.Qt.AlignHCenter)
         self.layout.insertWidget(1, self.figure, 1)
 
         # TODO: DATES! & PORTFOLIO TABS
@@ -234,14 +235,12 @@ class EfficientFrontierWidget(GraphWidget):
 
         this_portfolio = portfolio.Portfolio(tickers=symbols)
         frontier = optimizer.calculate_efficient_frontier(portfolio=this_portfolio)
-        plotter.plot_frontier(portfolio=this_portfolio, frontier=frontier, show=False, savefile=settings.CACHE_TEMP_FILE)
+        plotter.plot_frontier(portfolio=this_portfolio, 
+                                frontier=frontier, 
+                                show=False, 
+                                savefile=settings.CACHE_TEMP_FILE)
 
-        pixmap = QtGui.QPixmap(settings.CACHE_TEMP_FILE)
-        pixmap = pixmap.scaled(formats.calculate_image_width(), 
-                        formats.calculate_image_height(),
-                        aspectMode=QtCore.Qt.KeepAspectRatio)
-
-        self.figure.setPixmap(pixmap)
+        self.figure.setPixmap(utilities.generate_pixmap_from_cache())
     
     @QtCore.Slot()
     def clear(self):
@@ -253,20 +252,33 @@ class MovingAverageWidget(GraphWidget):
     def __init__(self):
         super().__init__(widget_title = "Rolling Moving Average Plot", button_msg="Calculate MAs",
                             display_function=self.display)
+        self._init_average_widgets()
+
+    def _init_average_widgets(self):
+        self.figure = QtWidgets.QLabel("Moving Averages")
+
+    def _arrange_average_widgets(self):
+        self.figure.setAlignment(QtCore.Qt.AlignHCenter)
+        self.layout.insertWidget(1, self.figure, 1)
         
     @QtCore.Slot()
     def display(self):
-        if self.displayed:
-            self.layout.removeWidget(self.figure)
-            self.figure = None
+        if self.figure.isVisible():
+            self.figure.hide()
 
-        user_symbols = helper.strip_string_array(self.symbol_input.text().upper().split(","))
-        moving_averages = statistics.calculate_moving_averages(user_symbols)
+        symbols = helper.split_and_strip(self.symbol_input.text())
+
+        moving_averages = statistics.calculate_moving_averages(symbols)
         periods = [settings.MA_1_PERIOD, settings.MA_2_PERIOD, settings.MA_3_PERIOD]
-        figure = plotter.plot_moving_averages(symbols=user_symbols, averages_output=moving_averages, 
-                                                periods=periods, show=False, savefile=settings.CACHE_TEMP_FILE)
-        self.figure = QtWidgets.QLabel("Moving Averages", alignment=QtCore.Qt.AlignHCenter)
-        self.figure.setPixmap(QtGui.QPixmap(settings.CACHE_TEMP_FILE))
-        self.layout.insertWidget(1, self.figure, 1)
-        self.displayed = True
+        plotter.plot_moving_averages(symbols=symbols, 
+                                            averages_output=moving_averages, 
+                                            periods=periods, 
+                                            show=False, 
+                                            savefile=settings.CACHE_TEMP_FILE)
+        
+        self.figure.setPixmap(utilities.generate_pixmap_from_cache())
+    
+    @QtCore.Slot()
+    def clear():
+
 
