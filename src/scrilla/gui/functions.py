@@ -144,7 +144,7 @@ class CorrelationWidget(TableWidget):
             self.table.setHorizontalHeaderLabels(["Error, Will Robinson"])
             self.table.horizontalHeader().setStretchLastSection(True)
             error_item = QtWidgets.QTableWidgetItem("Error Occurred. Check Input and Try Again.")
-            error_item.setTextAlignment(Qt.AlignHCenter)
+            error_item.setTextAlignment(QtCore.Qt.AlignHCenter)
             self.table.setItem(0, 0, error_item)
 
         self.table.resizeColumnsToContents()
