@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.10.0" />
 <title>scrilla.settings API documentation</title>
-<meta name="description" content="Application-wide configuration settings …" />
+<meta name="description" content="Application-wide configuration settings." />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
 <link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
@@ -23,41 +23,7 @@
 <h1 class="title">Module <code>scrilla.settings</code></h1>
 </header>
 <section id="section-intro">
-<p>Application-wide configuration settings. </p>
-<h2 id="attributes">Attributes</h2>
-<ol>
-<li><code><a title="scrilla.settings.APP_NAME" href="#scrilla.settings.APP_NAME">APP_NAME</a></code>: Name of the application.</li>
-<li><code><a title="scrilla.settings.APP_DIR" href="#scrilla.settings.APP_DIR">APP_DIR</a></code>: Folder containing this file.</li>
-<li><code><a title="scrilla.settings.PROJECT_DIR" href="#scrilla.settings.PROJECT_DIR">PROJECT_DIR</a></code>: Folder containering the project source.</li>
-<li><code><a title="scrilla.settings.ROOT_DIR" href="#scrilla.settings.ROOT_DIR">ROOT_DIR</a></code>: Root folder of the repository.</li>
-<li><code><a title="scrilla.settings.APP_ENV" href="#scrilla.settings.APP_ENV">APP_ENV</a></code>: Application environment.</li>
-<li><code><a title="scrilla.settings.LOG_LEVEL" href="#scrilla.settings.LOG_LEVEL">LOG_LEVEL</a></code>: Debug output level.</li>
-<li><code><a title="scrilla.settings.CACHE_DIR" href="#scrilla.settings.CACHE_DIR">CACHE_DIR</a></code>: Folder where cached price histories reside.</li>
-<li><code><a title="scrilla.settings.CACHE_SQLITE_FILE" href="#scrilla.settings.CACHE_SQLITE_FILE">CACHE_SQLITE_FILE</a></code>: Location of the SQLite persistence store.</li>
-<li><code><a title="scrilla.settings.FILE_EXT" href="#scrilla.settings.FILE_EXT">FILE_EXT</a></code>: File extension used in CACHE_DIR.</li>
-<li><code><a title="scrilla.settings.STATIC_DIR" href="#scrilla.settings.STATIC_DIR">STATIC_DIR</a></code>: Folder where static data reside.</li>
-<li><code><a title="scrilla.settings.FILE_EXT" href="#scrilla.settings.FILE_EXT">FILE_EXT</a></code>: File extension used to store files across the program.</li>
-<li><code><a title="scrilla.settings.STATIC_TICKERS_FILE" href="#scrilla.settings.STATIC_TICKERS_FILE">STATIC_TICKERS_FILE</a></code>: File containing a list of all equity ticker symbols with price histories that can be retrieved from external services.</li>
-<li><code><a title="scrilla.settings.STATIC_ECON_FILE" href="#scrilla.settings.STATIC_ECON_FILE">STATIC_ECON_FILE</a></code>: File containg a list of all economic statistics with sample histories that can be retrieved from external services.</li>
-<li><code><a title="scrilla.settings.STATIC_CRYPTO_FILE" href="#scrilla.settings.STATIC_CRYPTO_FILE">STATIC_CRYPTO_FILE</a></code>: File containing a list of all crypto ticker symbols with price histories that can be retrieved from external services.</li>
-<li>GUI_WIDTH: Width of root widget in GUI.</li>
-<li>GUI_HEIGHT: Height of root widget in GUI.</li>
-<li>FRONTIER_STEPS: Number of points in efficient frontier output.</li>
-<li>MA_1_PERIOD: Number of days in first moving average period.</li>
-<li>MA_2_PERIOD: Number of days in second moving average period.</li>
-<li>MA_3_PERIOD: Number of days in first moving average period.</li>
-<li>RISK_FREE_RATE: Interest rate used for cashflow valuations.</li>
-<li>MARKET_PROXY: Ticker symbol used to calculate market rate of return</li>
-<li><code><a title="scrilla.settings.PRICE_MANAGER" href="#scrilla.settings.PRICE_MANAGER">PRICE_MANAGER</a></code>: Service in charge of price histories.</li>
-<li>STAT_MANAGER: Service in charge of statistic histories.</li>
-<li>DIVIDEND_MANAGER: Service in charge of dividend payment histories.</li>
-<li>AV_URL: Base URL for AlphaVantage query.</li>
-<li>AV_KEY: Credentials for AlphaVantage query.</li>
-<li>AV_CRYPTO_LIST: URL for crypto metadata AlphaVantage query.</li>
-<li>Q_URL: Base URL for Quandl query.</li>
-<li>Q_KEY: Credentials for Quandl query.</li>
-<li>Q_META_URL: URL for economic statistics data.</li>
-</ol>
+<p>Application-wide configuration settings.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -78,42 +44,8 @@
 # or &lt;https://github.com/chinchalinchin/scrilla/blob/develop/main/LICENSE&gt;.
 &#34;&#34;&#34;
 Application-wide configuration settings. 
-
-Attributes
-----------
-1. `scrilla.settings.APP_NAME`: Name of the application.
-2. `scrilla.settings.APP_DIR`: Folder containing this file.
-3. `scrilla.settings.PROJECT_DIR`: Folder containering the project source.
-4. `scrilla.settings.ROOT_DIR`: Root folder of the repository.
-5. `scrilla.settings.APP_ENV`: Application environment.
-6. `scrilla.settings.LOG_LEVEL`: Debug output level.
-7. `scrilla.settings.CACHE_DIR`: Folder where cached price histories reside.
-8. `scrilla.settings.CACHE_SQLITE_FILE`: Location of the SQLite persistence store.
-9. `scrilla.settings.FILE_EXT`: File extension used in CACHE_DIR.
-10. `scrilla.settings.STATIC_DIR`: Folder where static data reside.
-11. `scrilla.settings.FILE_EXT`: File extension used to store files across the program.
-12. `scrilla.settings.STATIC_TICKERS_FILE`: File containing a list of all equity ticker symbols with price histories that can be retrieved from external services.
-13. `scrilla.settings.STATIC_ECON_FILE`: File containg a list of all economic statistics with sample histories that can be retrieved from external services.
-14. `scrilla.settings.STATIC_CRYPTO_FILE`: File containing a list of all crypto ticker symbols with price histories that can be retrieved from external services.
-15. GUI_WIDTH: Width of root widget in GUI.
-16. GUI_HEIGHT: Height of root widget in GUI.
-17. FRONTIER_STEPS: Number of points in efficient frontier output.
-18. MA_1_PERIOD: Number of days in first moving average period.
-19. MA_2_PERIOD: Number of days in second moving average period.
-20. MA_3_PERIOD: Number of days in first moving average period.
-21. RISK_FREE_RATE: Interest rate used for cashflow valuations.
-22. MARKET_PROXY: Ticker symbol used to calculate market rate of return
-23. `scrilla.settings.PRICE_MANAGER`: Service in charge of price histories.
-24. STAT_MANAGER: Service in charge of statistic histories.
-25. DIVIDEND_MANAGER: Service in charge of dividend payment histories.
-26. AV_URL: Base URL for AlphaVantage query.
-27. AV_KEY: Credentials for AlphaVantage query.
-28. AV_CRYPTO_LIST: URL for crypto metadata AlphaVantage query.
-54. Q_URL: Base URL for Quandl query.
-55. Q_KEY: Credentials for Quandl query.
-56. Q_META_URL: URL for economic statistics data.
 &#34;&#34;&#34;
-import os, dotenv, json
+import os, json
 
 import scrilla.util.outputter as outputter
 
@@ -126,18 +58,11 @@ APP_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_DIR = os.path.dirname(APP_DIR)
 &#34;&#34;&#34;Folder containing the project source&#34;&#34;&#34;
 
-ROOT_DIR = os.path.dirname(PROJECT_DIR)
-&#34;&#34;&#34;Folder containing the entire project&#34;&#34;&#34;
-
 APP_NAME=&#34;scrilla&#34;
 &#34;&#34;&#34;Name of the application&#34;&#34;&#34;
 
 APP_ENV = os.environ.setdefault(&#39;APP_ENV&#39;, &#39;local&#39;)
 &#34;&#34;&#34;Application execution environment; Configured by environment variable of the same name, **APP_ENV**.&#34;&#34;&#34;
-
-env_file = os.path.join(os.path.join(ROOT_DIR,&#39;env&#39;), &#39;.env&#39;)
-if APP_ENV != &#39;container&#39; and os.path.isfile(env_file):
-    dotenv.load_dotenv(os.path.join(os.path.join(ROOT_DIR,&#39;env&#39;), &#39;.env&#39;))
 
 LOG_LEVEL = str(os.environ.setdefault(&#34;LOG_LEVEL&#34;, &#34;info&#34;)).lower()
 &#34;&#34;&#34;Application log level output; Configured by environment of the same name, **LOG_LEVEL**.&#34;&#34;&#34;
@@ -167,6 +92,13 @@ COMMON_DIR=os.path.join(APP_DIR, &#39;data&#39;, &#39;common&#39;)
 &#34;&#34;&#34;Directory used to store common files, such as API keys, watchlist, etc.&#34;&#34;&#34;
 COMMON_WATCHLIST_FILE=os.path.join(COMMON_DIR, f&#39;watchlist.{FILE_EXT}&#39;)
 &#34;&#34;&#34;Location of file used to store watchlisted ticker symbols&#34;&#34;&#34;
+
+GUI_STYLESHEET_FILE=os.path.join(APP_DIR, &#39;gui&#39;, &#39;styles&#39;, &#39;app.qss&#39;)
+&#34;&#34;&#34;Location of the stylesheet applied to the GUI&#34;&#34;&#34;
+
+GUI_THEME_FILE=os.path.join(APP_DIR, &#39;gui&#39;, &#39;styles&#39;, &#39;themes.json&#39;)
+
+GUI_DARK_MODE = os.environ.setdefault(&#39;DARK_MODE&#39;, &#39;true&#39;).lower() == &#39;true&#39;
 
 ## GUI CONFIGURATION
 try:
@@ -358,6 +290,10 @@ if DIV_MANAGER == &#34;iex&#34;:
 <dd>
 <div class="desc"><p>Extension used to save files; Configured by environment variable of the same name, <strong>FILE_EXT</strong></p></div>
 </dd>
+<dt id="scrilla.settings.GUI_STYLESHEET_FILE"><code class="name">var <span class="ident">GUI_STYLESHEET_FILE</span></code></dt>
+<dd>
+<div class="desc"><p>Location of the stylesheet applied to the GUI</p></div>
+</dd>
 <dt id="scrilla.settings.LOG_LEVEL"><code class="name">var <span class="ident">LOG_LEVEL</span></code></dt>
 <dd>
 <div class="desc"><p>Application log level output; Configured by environment of the same name, <strong>LOG_LEVEL</strong>.</p></div>
@@ -377,10 +313,6 @@ if DIV_MANAGER == &#34;iex&#34;:
 <dt id="scrilla.settings.RISK_FREE_RATE"><code class="name">var <span class="ident">RISK_FREE_RATE</span></code></dt>
 <dd>
 <div class="desc"><p>Maturity of the US Treasury Yield Curve used as a proxy for the risk free rate</p></div>
-</dd>
-<dt id="scrilla.settings.ROOT_DIR"><code class="name">var <span class="ident">ROOT_DIR</span></code></dt>
-<dd>
-<div class="desc"><p>Folder containing the entire project</p></div>
 </dd>
 <dt id="scrilla.settings.STATIC_CRYPTO_FILE"><code class="name">var <span class="ident">STATIC_CRYPTO_FILE</span></code></dt>
 <dd>
@@ -434,9 +366,7 @@ if DIV_MANAGER == &#34;iex&#34;:
 <nav id="sidebar">
 <h1>Index</h1>
 <div class="toc">
-<ul>
-<li><a href="#attributes">Attributes</a></li>
-</ul>
+<ul></ul>
 </div>
 <ul id="index">
 <li><h3>Super-module</h3>
@@ -457,12 +387,12 @@ if DIV_MANAGER == &#34;iex&#34;:
 <li><code><a title="scrilla.settings.DIV_MANAGER" href="#scrilla.settings.DIV_MANAGER">DIV_MANAGER</a></code></li>
 <li><code><a title="scrilla.settings.ESTIMATION_METHOD" href="#scrilla.settings.ESTIMATION_METHOD">ESTIMATION_METHOD</a></code></li>
 <li><code><a title="scrilla.settings.FILE_EXT" href="#scrilla.settings.FILE_EXT">FILE_EXT</a></code></li>
+<li><code><a title="scrilla.settings.GUI_STYLESHEET_FILE" href="#scrilla.settings.GUI_STYLESHEET_FILE">GUI_STYLESHEET_FILE</a></code></li>
 <li><code><a title="scrilla.settings.LOG_LEVEL" href="#scrilla.settings.LOG_LEVEL">LOG_LEVEL</a></code></li>
 <li><code><a title="scrilla.settings.MARKET_PROXY" href="#scrilla.settings.MARKET_PROXY">MARKET_PROXY</a></code></li>
 <li><code><a title="scrilla.settings.PRICE_MANAGER" href="#scrilla.settings.PRICE_MANAGER">PRICE_MANAGER</a></code></li>
 <li><code><a title="scrilla.settings.PROJECT_DIR" href="#scrilla.settings.PROJECT_DIR">PROJECT_DIR</a></code></li>
 <li><code><a title="scrilla.settings.RISK_FREE_RATE" href="#scrilla.settings.RISK_FREE_RATE">RISK_FREE_RATE</a></code></li>
-<li><code><a title="scrilla.settings.ROOT_DIR" href="#scrilla.settings.ROOT_DIR">ROOT_DIR</a></code></li>
 <li><code><a title="scrilla.settings.STATIC_CRYPTO_FILE" href="#scrilla.settings.STATIC_CRYPTO_FILE">STATIC_CRYPTO_FILE</a></code></li>
 <li><code><a title="scrilla.settings.STATIC_DIR" href="#scrilla.settings.STATIC_DIR">STATIC_DIR</a></code></li>
 <li><code><a title="scrilla.settings.STATIC_ECON_FILE" href="#scrilla.settings.STATIC_ECON_FILE">STATIC_ECON_FILE</a></code></li>

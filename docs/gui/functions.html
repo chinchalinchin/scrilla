@@ -62,16 +62,24 @@ logger = outputter.Logger(&#39;gui.functions&#39;, settings.LOG_LEVEL)
 class RiskReturnWidget(CompositeWidget):
     def __init__(self):
         super().__init__(widget_title=&#34;Risk-Return Profile Over Last 100 Days&#34;, button_msg=&#34;Calculate Profile&#34;, 
-                            calculate_function=self.calculate, display_function=self.display)
+                            calculate_function=self.calculate, clear_function=self.clear)
+        
+        self._init_profile_widgets()
+        # self._arrange_profile_widgets()
+        # print(&#39;constructor complete&#39;)
 
     def _init_profile_widgets(self):
-        self.figure = QtWidgets.QLabel(&#34;Risk Profile Graph&#34;, alignment=QtCore.Qt.AlignHCenter)
+        self.figure = QtWidgets.QLabel(&#34;Risk Profile Graph&#34;)
 
     def _arrange_profile_widgets(self):
-        self.right_layout.insertWidget(1, self.figure, 1)
+        self.figure.setAlignment(QtCore.Qt.AlignHCenter)
+        self.right_layer.layout().insertWidget(1, self.figure, 1)
 
     @QtCore.Slot()
     def calculate(self):
+        if self.figure.isVisible():
+            self.figure.hide()
+
         symbols = helper.split_and_strip(self.symbol_input.text())
 
         self.table.setRowCount(len(symbols))
@@ -81,42 +89,35 @@ class RiskReturnWidget(CompositeWidget):
         self.table.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Stretch)
         self.table.setVerticalHeader(QtWidgets.QHeaderView(QtCore.Qt.Vertical))
         self.table.setVerticalHeaderLabels(symbols)
+        # self.table.verticalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Stretch)
 
-        for symbol in symbols:
-            try:
-                stats = statistics.calculate_risk_return(symbol)
-                formatted_ret, formatted_vol = formats.format_risk_return(stats)
-    
-                ret_item = QtWidgets.QTableWidgetItem(formatted_ret)
-                ret_item.setTextAlignment(QtCore.Qt.AlignHCenter)
-                vol_item = QtWidgets.QTableWidgetItem(formatted_vol)
-                vol_item.setTextAlignment(QtCore.Qt.AlignHCenter)
-                
-                self.table.setItem(symbols.index(symbol), 0, vol_item)
-                self.table.setItem(symbols.index(symbol), 1, ret_item)
-            except: 
-                self.error_message.show()
-                return
-
-        self.table.resizeColumnsToContents()
-        self.table.show()
-    
-    @QtCore.Slot()
-    def display(self):
-        if self.figure.isVisible():
-            self.figure.hide()
-
-        user_symbols = helper.strip_string_array(self.symbol_input.text().upper().split(&#34;,&#34;))
         profiles = {}
+        for symbol in symbols:
+            stats = statistics.calculate_risk_return(symbol)
+            profiles[symbol] = stats
+            formatted_ret, formatted_vol = formats.format_risk_return(stats)
 
-        for symbol in user_symbols:
-            profiles[symbol] = statistics.calculate_risk_return(symbol)
+            ret_item = QtWidgets.QTableWidgetItem(formatted_ret)
+            ret_item.setTextAlignment(QtCore.Qt.AlignHCenter)
+            vol_item = QtWidgets.QTableWidgetItem(formatted_vol)
+            vol_item.setTextAlignment(QtCore.Qt.AlignHCenter)
+            
+            self.table.setItem(symbols.index(symbol), 0, vol_item)
+            self.table.setItem(symbols.index(symbol), 1, ret_item)
 
-        plotter.plot_profiles(symbols=user_symbols, profiles=profiles, show=True,
+        plotter.plot_profiles(symbols=symbols, profiles=profiles, show=False,
                                         savefile=settings.CACHE_TEMP_FILE)
 
         self.figure.setPixmap(utilities.generate_pixmap_from_cache())
         self.figure.show()
+        self.table.resizeColumnsToContents()
+        self.table.show()
+
+    @QtCore.Slot()
+    def clear(self):
+        self.figure.hide()
+        self.table.clear()
+        self.symbol_input.clear()
 
 class CorrelationWidget(TableWidget):
     def __init__(self):
@@ -253,11 +254,11 @@ class EfficientFrontierWidget(GraphWidget):
         self.displayed = False
 
     def _init_frontier_widgets(self):
-        self.figure = QtWidgets.QLabel(&#34;Efficient Frontier&#34;)
+        self.figure = QtWidgets.QLabel(&#34;Efficient Frontier Graph&#34;)
 
     def _arrange_frontier_widgets(self):
         self.figure.setAlignment(QtCore.Qt.AlignHCenter)
-        self.layout.insertWidget(1, self.figure, 1)
+        self.layout().insertWidget(1, self.figure, 1)
 
         # TODO: DATES! &amp; PORTFOLIO TABS
     @QtCore.Slot()
@@ -543,15 +544,6 @@ Function trigged by clicking on <code>self.clear_button</code>.</li>
 <ol>
 <li><strong>layout</strong>: <code>PySide6.QtWidget.QVBoxLayout</code></li>
 </ol>
-<h2 id="methods">Methods</h2>
-<ol>
-<li>_init_widgets()
-Creates the children widgets and layouts</li>
-<li>_arrange_widgets()
-Arrange the children widget within the layouts</li>
-<li>_stage_widgets()
-Prepares the children widget for display</li>
-</ol>
 <p><strong>init</strong>(self, parent: Union[PySide6.QtWidgets.QWidget, NoneType] = None, f: PySide6.QtCore.Qt.WindowFlags = Default(Qt.WindowFlags)) -&gt; None</p>
 <p>Initialize self.
 See help(type(self)) for accurate signature.</p></div>
@@ -568,11 +560,11 @@ See help(type(self)) for accurate signature.</p></div>
         self.displayed = False
 
     def _init_frontier_widgets(self):
-        self.figure = QtWidgets.QLabel(&#34;Efficient Frontier&#34;)
+        self.figure = QtWidgets.QLabel(&#34;Efficient Frontier Graph&#34;)
 
     def _arrange_frontier_widgets(self):
         self.figure.setAlignment(QtCore.Qt.AlignHCenter)
-        self.layout.insertWidget(1, self.figure, 1)
+        self.layout().insertWidget(1, self.figure, 1)
 
         # TODO: DATES! &amp; PORTFOLIO TABS
     @QtCore.Slot()
@@ -679,15 +671,6 @@ Function trigged by clicking on <code>self.clear_button</code>.</li>
 <h2 id="attributes">Attributes</h2>
 <ol>
 <li><strong>layout</strong>: <code>PySide6.QtWidget.QVBoxLayout</code></li>
-</ol>
-<h2 id="methods">Methods</h2>
-<ol>
-<li>_init_widgets()
-Creates the children widgets and layouts</li>
-<li>_arrange_widgets()
-Arrange the children widget within the layouts</li>
-<li>_stage_widgets()
-Prepares the children widget for display</li>
 </ol>
 <p><strong>init</strong>(self, parent: Union[PySide6.QtWidgets.QWidget, NoneType] = None, f: PySide6.QtCore.Qt.WindowFlags = Default(Qt.WindowFlags)) -&gt; None</p>
 <p>Initialize self.
@@ -1023,13 +1006,8 @@ Function triggered by clicking on <code>self.calculate_button</code> or pressing
 <li><strong>figure</strong>: <code>Union[None, QtWidgets.QLabel]</code></li>
 <li><strong>table</strong></li>
 <li><strong>first_layer</strong></li>
-<li><strong>first_layout</strong></li>
-<li><strong>second_layer</strong></li>
-<li><strong>second_layout</strong></li>
 <li><strong>left_layer</strong></li>
-<li><strong>left_layout</strong></li>
 <li><strong>right_layer</strong></li>
-<li><strong>right_layout</strong></li>
 </ol>
 <p><strong>init</strong>(self, parent: Union[PySide6.QtWidgets.QWidget, NoneType] = None, f: PySide6.QtCore.Qt.WindowFlags = Default(Qt.WindowFlags)) -&gt; None</p>
 <p>Initialize self.
@@ -1041,16 +1019,24 @@ See help(type(self)) for accurate signature.</p></div>
 <pre><code class="python">class RiskReturnWidget(CompositeWidget):
     def __init__(self):
         super().__init__(widget_title=&#34;Risk-Return Profile Over Last 100 Days&#34;, button_msg=&#34;Calculate Profile&#34;, 
-                            calculate_function=self.calculate, display_function=self.display)
+                            calculate_function=self.calculate, clear_function=self.clear)
+        
+        self._init_profile_widgets()
+        # self._arrange_profile_widgets()
+        # print(&#39;constructor complete&#39;)
 
     def _init_profile_widgets(self):
-        self.figure = QtWidgets.QLabel(&#34;Risk Profile Graph&#34;, alignment=QtCore.Qt.AlignHCenter)
+        self.figure = QtWidgets.QLabel(&#34;Risk Profile Graph&#34;)
 
     def _arrange_profile_widgets(self):
-        self.right_layout.insertWidget(1, self.figure, 1)
+        self.figure.setAlignment(QtCore.Qt.AlignHCenter)
+        self.right_layer.layout().insertWidget(1, self.figure, 1)
 
     @QtCore.Slot()
     def calculate(self):
+        if self.figure.isVisible():
+            self.figure.hide()
+
         symbols = helper.split_and_strip(self.symbol_input.text())
 
         self.table.setRowCount(len(symbols))
@@ -1060,42 +1046,35 @@ See help(type(self)) for accurate signature.</p></div>
         self.table.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Stretch)
         self.table.setVerticalHeader(QtWidgets.QHeaderView(QtCore.Qt.Vertical))
         self.table.setVerticalHeaderLabels(symbols)
+        # self.table.verticalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Stretch)
 
-        for symbol in symbols:
-            try:
-                stats = statistics.calculate_risk_return(symbol)
-                formatted_ret, formatted_vol = formats.format_risk_return(stats)
-    
-                ret_item = QtWidgets.QTableWidgetItem(formatted_ret)
-                ret_item.setTextAlignment(QtCore.Qt.AlignHCenter)
-                vol_item = QtWidgets.QTableWidgetItem(formatted_vol)
-                vol_item.setTextAlignment(QtCore.Qt.AlignHCenter)
-                
-                self.table.setItem(symbols.index(symbol), 0, vol_item)
-                self.table.setItem(symbols.index(symbol), 1, ret_item)
-            except: 
-                self.error_message.show()
-                return
-
-        self.table.resizeColumnsToContents()
-        self.table.show()
-    
-    @QtCore.Slot()
-    def display(self):
-        if self.figure.isVisible():
-            self.figure.hide()
-
-        user_symbols = helper.strip_string_array(self.symbol_input.text().upper().split(&#34;,&#34;))
         profiles = {}
+        for symbol in symbols:
+            stats = statistics.calculate_risk_return(symbol)
+            profiles[symbol] = stats
+            formatted_ret, formatted_vol = formats.format_risk_return(stats)
 
-        for symbol in user_symbols:
-            profiles[symbol] = statistics.calculate_risk_return(symbol)
+            ret_item = QtWidgets.QTableWidgetItem(formatted_ret)
+            ret_item.setTextAlignment(QtCore.Qt.AlignHCenter)
+            vol_item = QtWidgets.QTableWidgetItem(formatted_vol)
+            vol_item.setTextAlignment(QtCore.Qt.AlignHCenter)
+            
+            self.table.setItem(symbols.index(symbol), 0, vol_item)
+            self.table.setItem(symbols.index(symbol), 1, ret_item)
 
-        plotter.plot_profiles(symbols=user_symbols, profiles=profiles, show=True,
+        plotter.plot_profiles(symbols=symbols, profiles=profiles, show=False,
                                         savefile=settings.CACHE_TEMP_FILE)
 
         self.figure.setPixmap(utilities.generate_pixmap_from_cache())
-        self.figure.show()</code></pre>
+        self.figure.show()
+        self.table.resizeColumnsToContents()
+        self.table.show()
+
+    @QtCore.Slot()
+    def clear(self):
+        self.figure.hide()
+        self.table.clear()
+        self.symbol_input.clear()</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -1126,6 +1105,9 @@ See help(type(self)) for accurate signature.</p></div>
 </summary>
 <pre><code class="python">@QtCore.Slot()
 def calculate(self):
+    if self.figure.isVisible():
+        self.figure.hide()
+
     symbols = helper.split_and_strip(self.symbol_input.text())
 
     self.table.setRowCount(len(symbols))
@@ -1135,29 +1117,33 @@ def calculate(self):
     self.table.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Stretch)
     self.table.setVerticalHeader(QtWidgets.QHeaderView(QtCore.Qt.Vertical))
     self.table.setVerticalHeaderLabels(symbols)
+    # self.table.verticalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Stretch)
 
+    profiles = {}
     for symbol in symbols:
-        try:
-            stats = statistics.calculate_risk_return(symbol)
-            formatted_ret, formatted_vol = formats.format_risk_return(stats)
+        stats = statistics.calculate_risk_return(symbol)
+        profiles[symbol] = stats
+        formatted_ret, formatted_vol = formats.format_risk_return(stats)
 
-            ret_item = QtWidgets.QTableWidgetItem(formatted_ret)
-            ret_item.setTextAlignment(QtCore.Qt.AlignHCenter)
-            vol_item = QtWidgets.QTableWidgetItem(formatted_vol)
-            vol_item.setTextAlignment(QtCore.Qt.AlignHCenter)
-            
-            self.table.setItem(symbols.index(symbol), 0, vol_item)
-            self.table.setItem(symbols.index(symbol), 1, ret_item)
-        except: 
-            self.error_message.show()
-            return
+        ret_item = QtWidgets.QTableWidgetItem(formatted_ret)
+        ret_item.setTextAlignment(QtCore.Qt.AlignHCenter)
+        vol_item = QtWidgets.QTableWidgetItem(formatted_vol)
+        vol_item.setTextAlignment(QtCore.Qt.AlignHCenter)
+        
+        self.table.setItem(symbols.index(symbol), 0, vol_item)
+        self.table.setItem(symbols.index(symbol), 1, ret_item)
 
+    plotter.plot_profiles(symbols=symbols, profiles=profiles, show=False,
+                                    savefile=settings.CACHE_TEMP_FILE)
+
+    self.figure.setPixmap(utilities.generate_pixmap_from_cache())
+    self.figure.show()
     self.table.resizeColumnsToContents()
     self.table.show()</code></pre>
 </details>
 </dd>
-<dt id="scrilla.gui.functions.RiskReturnWidget.display"><code class="name flex">
-<span>def <span class="ident">display</span></span>(<span>self)</span>
+<dt id="scrilla.gui.functions.RiskReturnWidget.clear"><code class="name flex">
+<span>def <span class="ident">clear</span></span>(<span>self)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -1166,21 +1152,10 @@ def calculate(self):
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@QtCore.Slot()
-def display(self):
-    if self.figure.isVisible():
-        self.figure.hide()
-
-    user_symbols = helper.strip_string_array(self.symbol_input.text().upper().split(&#34;,&#34;))
-    profiles = {}
-
-    for symbol in user_symbols:
-        profiles[symbol] = statistics.calculate_risk_return(symbol)
-
-    plotter.plot_profiles(symbols=user_symbols, profiles=profiles, show=True,
-                                    savefile=settings.CACHE_TEMP_FILE)
-
-    self.figure.setPixmap(utilities.generate_pixmap_from_cache())
-    self.figure.show()</code></pre>
+def clear(self):
+    self.figure.hide()
+    self.table.clear()
+    self.symbol_input.clear()</code></pre>
 </details>
 </dd>
 </dl>
@@ -1237,7 +1212,7 @@ def display(self):
 <h4><code><a title="scrilla.gui.functions.RiskReturnWidget" href="#scrilla.gui.functions.RiskReturnWidget">RiskReturnWidget</a></code></h4>
 <ul class="">
 <li><code><a title="scrilla.gui.functions.RiskReturnWidget.calculate" href="#scrilla.gui.functions.RiskReturnWidget.calculate">calculate</a></code></li>
-<li><code><a title="scrilla.gui.functions.RiskReturnWidget.display" href="#scrilla.gui.functions.RiskReturnWidget.display">display</a></code></li>
+<li><code><a title="scrilla.gui.functions.RiskReturnWidget.clear" href="#scrilla.gui.functions.RiskReturnWidget.clear">clear</a></code></li>
 <li><code><a title="scrilla.gui.functions.RiskReturnWidget.staticMetaObject" href="#scrilla.gui.functions.RiskReturnWidget.staticMetaObject">staticMetaObject</a></code></li>
 </ul>
 </li>

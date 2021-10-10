@@ -45,13 +45,16 @@
 import sys
 
 from PySide6 import QtWidgets, QtGui
-import scrilla.gui.menu as menu
 from scrilla import settings
 from scrilla.util import outputter
+from scrilla.gui import formats
+import scrilla.gui.menu as menu
 
 logger = outputter.Logger(&#39;main&#39;, settings.LOG_LEVEL)
 
 def do_gui():
+    # TODO: override width and height with CLI arguments
+
     app = QtWidgets.QApplication([])
 
     logger.debug(f&#39;Initializing GUI with dimensions ({settings.GUI_WIDTH}, {settings.GUI_HEIGHT})&#39;)
@@ -64,8 +67,13 @@ def do_gui():
     geo.moveCenter(center)
     widget.move(geo.topLeft())
 
-    widget.show()
+    with open(settings.GUI_STYLESHEET_FILE, &#34;r&#34;) as f:
+        _style = formats.format_stylesheet(f.read())
+        app.setStyleSheet(_style)
 
+    # widget.showFullScreen()
+    widget.show()
+    
     sys.exit(app.exec_())
 
 if __name__ == &#34;__main__&#34;:
@@ -89,6 +97,8 @@ if __name__ == &#34;__main__&#34;:
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def do_gui():
+    # TODO: override width and height with CLI arguments
+
     app = QtWidgets.QApplication([])
 
     logger.debug(f&#39;Initializing GUI with dimensions ({settings.GUI_WIDTH}, {settings.GUI_HEIGHT})&#39;)
@@ -101,8 +111,13 @@ if __name__ == &#34;__main__&#34;:
     geo.moveCenter(center)
     widget.move(geo.topLeft())
 
-    widget.show()
+    with open(settings.GUI_STYLESHEET_FILE, &#34;r&#34;) as f:
+        _style = formats.format_stylesheet(f.read())
+        app.setStyleSheet(_style)
 
+    # widget.showFullScreen()
+    widget.show()
+    
     sys.exit(app.exec_())</code></pre>
 </details>
 </dd>

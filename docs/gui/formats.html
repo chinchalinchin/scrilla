@@ -27,56 +27,54 @@
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">from typing import Tuple
+<pre><code class="python">import json
 
-from PySide6.QtGui import QFont
+from typing import Tuple
 
+from scrilla import settings
 from scrilla.static import constants
 
-STYLES ={
-    &#39;TITLE&#39;:{
-        &#39;font-family&#39;: &#39;Times&#39;,
-        &#39;font-size&#39;: 12,
-        &#39;font-weight&#39;: QFont.Bold,
-        &#39;font-italics&#39;: False
-    },
-    &#39;SUBTITLE&#39;:{
-        &#39;font-family&#39;: &#39;Times&#39;,
-        &#39;font-size&#39;: 10,
-        &#39;font-weight&#39;: QFont.DemiBold,
-        &#39;font-italics&#39;: False
-    },
-    &#39;TEXT&#39;:{
-        &#39;font-family&#39;: &#39;Times&#39;,
-        &#39;font-size&#39;: 8,
-        &#39;font-weight&#39;: QFont.Normal,
-        &#39;font-italics&#39;: False
-    },
-    &#39;ERROR&#39;: {
-        &#39;font-family&#39;: &#39;Helvetica&#39;,
-        &#39;font-size&#39;: 8,
-        &#39;font-weight&#39;: QFont.Medium,
-        &#39;font-italics&#39;: False
+
+def format_stylesheet(sheet):
+    if settings.GUI_DARK_MODE:
+        mode = get_dark_mode_theme()
+    else:
+        mode = get_light_mode_theme()
+
+    for element in mode:
+        sheet = sheet.replace(element, mode[element])
+
+    return sheet
+
+def get_dark_mode_theme():
+    with open(settings.GUI_THEME_FILE, &#39;r&#39;) as f:
+        MATERIAL = json.load(f)
+
+    return {
+        &#39;$TITLE_BG&#39;: MATERIAL[&#39;grey&#39;][&#39;500&#39;],
+        &#39;$ROOT_BG&#39;: MATERIAL[&#39;grey&#39;][&#39;800&#39;],
+        &#39;$CHILD_BG&#39;: MATERIAL[&#39;grey&#39;][&#39;700&#39;],
+        &#39;$GRANDCHILD_BG&#39;: MATERIAL[&#39;grey&#39;][&#39;600&#39;],
+        &#39;$GREATGRANDCHILD_BG&#39;: MATERIAL[&#39;grey&#39;][&#39;500&#39;],
+        &#39;$BUTTON_BG&#39;: MATERIAL[&#39;grey&#39;][&#39;500&#39;],
+        &#39;$ACTIVE_BUTTON_BG&#39;: MATERIAL[&#39;grey&#39;][&#39;100&#39;],
+        &#39;$PRESSED_BUTTON_BG&#39;: MATERIAL[&#39;grey&#39;][&#39;700&#39;]
     }
-}
 
-def get_font_style(style_dict: dict) -&gt; QFont:
-    &#34;&#34;&#34;
-    Accepts a configuration dictionary and generates a font style for the application.
-
-    Parameters
-    ----------
-    1. **stlye_dict**: ``dict``
-        A dictionary containing configuration for a ``PySide6.QtGui.QFont`` instance. Applications styles are statically accessible through elements of the `scrilla.gui.formats.STYLES` dictionary.
-    
-    Returns 
-    -------
-    ``PySide6.QtGui.QFont``
-    &#34;&#34;&#34;
-    font = QFont(style_dict[&#39;font-family&#39;], style_dict[&#39;font-size&#39;])
-    font.setWeight(style_dict[&#39;font-weight&#39;])
-    font.setItalic(style_dict[&#39;font-italics&#39;])
-    return font
+def get_light_mode_theme():
+    with open(settings.GUI_THEME_FILE, &#39;r&#39;) as f:
+        MATERIAL = json.load(f)
+        
+    return {
+        &#39;$TITLE_BG&#39;: MATERIAL[&#39;grey&#39;][&#39;200&#39;],
+        &#39;$ROOT_BG&#39;: MATERIAL[&#39;grey&#39;][&#39;500&#39;],
+        &#39;$CHILD_BG&#39;: MATERIAL[&#39;grey&#39;][&#39;400&#39;],
+        &#39;$GRANDCHILD_BG&#39;: MATERIAL[&#39;grey&#39;][&#39;300&#39;],
+        &#39;$GREATGRANDCHILD_BG&#39;: MATERIAL[&#39;grey&#39;][&#39;200&#39;],
+        &#39;$BUTTON_BG&#39;: MATERIAL[&#39;grey&#39;][&#39;200&#39;],
+        &#39;$ACTIVE_BUTTON_BG&#39;: MATERIAL[&#39;grey&#39;][&#39;600&#39;],
+        &#39;$PRESSED_BUTTON_BG&#39;: MATERIAL[&#39;grey&#39;][&#39;700&#39;]
+    }
 
 def format_allocation_profile_title(allocation, portfolio) -&gt; str:
     port_return, port_volatility = portfolio.return_function(allocation), portfolio.volatility_function(allocation)
@@ -172,39 +170,75 @@ def format_correlation(correlation: dict):
     return formatted_ret, formatted_vol</code></pre>
 </details>
 </dd>
-<dt id="scrilla.gui.formats.get_font_style"><code class="name flex">
-<span>def <span class="ident">get_font_style</span></span>(<span>style_dict: dict) ‑> PySide6.QtGui.QFont</span>
+<dt id="scrilla.gui.formats.format_stylesheet"><code class="name flex">
+<span>def <span class="ident">format_stylesheet</span></span>(<span>sheet)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Accepts a configuration dictionary and generates a font style for the application.</p>
-<h2 id="parameters">Parameters</h2>
-<ol>
-<li><strong>stlye_dict</strong>: <code>dict</code>
-A dictionary containing configuration for a <code>PySide6.QtGui.QFont</code> instance. Applications styles are statically accessible through elements of the <code>scrilla.gui.formats.STYLES</code> dictionary.</li>
-</ol>
-<h2 id="returns">Returns</h2>
-<p><code>PySide6.QtGui.QFont</code></p></div>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def get_font_style(style_dict: dict) -&gt; QFont:
-    &#34;&#34;&#34;
-    Accepts a configuration dictionary and generates a font style for the application.
+<pre><code class="python">def format_stylesheet(sheet):
+    if settings.GUI_DARK_MODE:
+        mode = get_dark_mode_theme()
+    else:
+        mode = get_light_mode_theme()
 
-    Parameters
-    ----------
-    1. **stlye_dict**: ``dict``
-        A dictionary containing configuration for a ``PySide6.QtGui.QFont`` instance. Applications styles are statically accessible through elements of the `scrilla.gui.formats.STYLES` dictionary.
-    
-    Returns 
-    -------
-    ``PySide6.QtGui.QFont``
-    &#34;&#34;&#34;
-    font = QFont(style_dict[&#39;font-family&#39;], style_dict[&#39;font-size&#39;])
-    font.setWeight(style_dict[&#39;font-weight&#39;])
-    font.setItalic(style_dict[&#39;font-italics&#39;])
-    return font</code></pre>
+    for element in mode:
+        sheet = sheet.replace(element, mode[element])
+
+    return sheet</code></pre>
+</details>
+</dd>
+<dt id="scrilla.gui.formats.get_dark_mode_theme"><code class="name flex">
+<span>def <span class="ident">get_dark_mode_theme</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_dark_mode_theme():
+    with open(settings.GUI_THEME_FILE, &#39;r&#39;) as f:
+        MATERIAL = json.load(f)
+
+    return {
+        &#39;$TITLE_BG&#39;: MATERIAL[&#39;grey&#39;][&#39;500&#39;],
+        &#39;$ROOT_BG&#39;: MATERIAL[&#39;grey&#39;][&#39;800&#39;],
+        &#39;$CHILD_BG&#39;: MATERIAL[&#39;grey&#39;][&#39;700&#39;],
+        &#39;$GRANDCHILD_BG&#39;: MATERIAL[&#39;grey&#39;][&#39;600&#39;],
+        &#39;$GREATGRANDCHILD_BG&#39;: MATERIAL[&#39;grey&#39;][&#39;500&#39;],
+        &#39;$BUTTON_BG&#39;: MATERIAL[&#39;grey&#39;][&#39;500&#39;],
+        &#39;$ACTIVE_BUTTON_BG&#39;: MATERIAL[&#39;grey&#39;][&#39;100&#39;],
+        &#39;$PRESSED_BUTTON_BG&#39;: MATERIAL[&#39;grey&#39;][&#39;700&#39;]
+    }</code></pre>
+</details>
+</dd>
+<dt id="scrilla.gui.formats.get_light_mode_theme"><code class="name flex">
+<span>def <span class="ident">get_light_mode_theme</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_light_mode_theme():
+    with open(settings.GUI_THEME_FILE, &#39;r&#39;) as f:
+        MATERIAL = json.load(f)
+        
+    return {
+        &#39;$TITLE_BG&#39;: MATERIAL[&#39;grey&#39;][&#39;200&#39;],
+        &#39;$ROOT_BG&#39;: MATERIAL[&#39;grey&#39;][&#39;500&#39;],
+        &#39;$CHILD_BG&#39;: MATERIAL[&#39;grey&#39;][&#39;400&#39;],
+        &#39;$GRANDCHILD_BG&#39;: MATERIAL[&#39;grey&#39;][&#39;300&#39;],
+        &#39;$GREATGRANDCHILD_BG&#39;: MATERIAL[&#39;grey&#39;][&#39;200&#39;],
+        &#39;$BUTTON_BG&#39;: MATERIAL[&#39;grey&#39;][&#39;200&#39;],
+        &#39;$ACTIVE_BUTTON_BG&#39;: MATERIAL[&#39;grey&#39;][&#39;600&#39;],
+        &#39;$PRESSED_BUTTON_BG&#39;: MATERIAL[&#39;grey&#39;][&#39;700&#39;]
+    }</code></pre>
 </details>
 </dd>
 </dl>
@@ -229,7 +263,9 @@ A dictionary containing configuration for a <code>PySide6.QtGui.QFont</code> ins
 <li><code><a title="scrilla.gui.formats.format_allocation_profile_title" href="#scrilla.gui.formats.format_allocation_profile_title">format_allocation_profile_title</a></code></li>
 <li><code><a title="scrilla.gui.formats.format_correlation" href="#scrilla.gui.formats.format_correlation">format_correlation</a></code></li>
 <li><code><a title="scrilla.gui.formats.format_risk_return" href="#scrilla.gui.formats.format_risk_return">format_risk_return</a></code></li>
-<li><code><a title="scrilla.gui.formats.get_font_style" href="#scrilla.gui.formats.get_font_style">get_font_style</a></code></li>
+<li><code><a title="scrilla.gui.formats.format_stylesheet" href="#scrilla.gui.formats.format_stylesheet">format_stylesheet</a></code></li>
+<li><code><a title="scrilla.gui.formats.get_dark_mode_theme" href="#scrilla.gui.formats.get_dark_mode_theme">get_dark_mode_theme</a></code></li>
+<li><code><a title="scrilla.gui.formats.get_light_mode_theme" href="#scrilla.gui.formats.get_light_mode_theme">get_light_mode_theme</a></code></li>
 </ul>
 </li>
 </ul>
