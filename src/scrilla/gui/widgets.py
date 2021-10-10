@@ -15,27 +15,32 @@
 
 from PySide6 import QtGui, QtCore, QtWidgets
 
-def get_title_font():
+def get_title_font() -> QtGui.QFont:
+    """font styled for widget titles"""
     font = QtGui.QFont('Arial', 12)
     font.setBold(True)
     return font
 
-def get_subtitle_font():
+def get_subtitle_font() -> QtGui.QFont:
+    """font styled for widget subtitles"""
     font = QtGui.QFont('Arial', 10)
     font.setItalic(True)
     return font
 
-def get_msg_font():
+def get_msg_font() -> QtGui.QFont:
+    """font styled for widget general text"""
     font = QtGui.QFont('Arial', 8)
     font.setItalic(True)
     return font
 
-def get_result_font():
+def get_result_font() -> QtGui.QFont:
+    """font styled for widget results"""
     font = QtGui.QFont('Arial', 8)
     font.setBold(True)
     return font
 
-def get_label_font():
+def get_label_font() -> QtGui.QFont:
+    """font styled for widget labels"""
     font = QtGui.QFont('Arial', 8)
     font.setBold(True)
     return font
@@ -47,10 +52,11 @@ class SymbolWidget(QtWidgets.QWidget):
         self.widget_title = widget_title
         self.button_msg = button_msg
 
-        self.init_widgets()
-        self.style_widgets()
+        self._init_widgets()
+        self._style_widgets()
+        self._stage_widgets()
     
-    def init_widgets(self):
+    def _init_widgets(self):
         self.title = QtWidgets.QLabel(self.widget_title, alignment=QtCore.Qt.AlignTop)
         self.message = QtWidgets.QLabel("Please separate symbols with a comma", alignment=QtCore.Qt.AlignBottom)
         self.error_message = QtWidgets.QLabel("Error message goes here", alignment=QtCore.Qt.AlignHCenter)
@@ -58,30 +64,27 @@ class SymbolWidget(QtWidgets.QWidget):
         self.clear_button = QtWidgets.QPushButton("Clear")
         self.symbol_input = QtWidgets.QLineEdit()
     
-    def style_widgets(self):
+    def _style_widgets(self):
         self.title.setFont(get_title_font())
         self.message.setFont(get_msg_font())    
         self.error_message.setFont(get_subtitle_font())
-
-        self.error_message.hide()
-
-            # emits 'clicked' when return is pressed
-        self.calculate_button.setAutoDefault(True)
-        self.clear_button.setAutoDefault(True)
-
         self.symbol_input.setMaxLength(100)
 
+    def _stage_widgets(self):
+        self.error_message.hide()
+        self.calculate_button.setAutoDefault(True) # emits 'clicked' when return is pressed
+        self.clear_button.setAutoDefault(True)
 
 class TableWidget(SymbolWidget):
     def __init__(self, widget_title, button_msg, table_function):
         super().__init__(widget_title=widget_title, button_msg=button_msg)
+        self.table_function = table_function
 
+    def _init_widgets(self):
         self.table = QtWidgets.QTableWidget()
-        self.table.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustToContents)
-        self.table.hide()
-
         self.layout = QtWidgets.QVBoxLayout()
-
+    
+    def _arrange_widgets(self):
         self.layout.addWidget(self.title)
         self.layout.addStretch()
         self.layout.addWidget(self.table, 1)
@@ -90,18 +93,19 @@ class TableWidget(SymbolWidget):
         self.layout.addWidget(self.symbol_input)
         self.layout.addWidget(self.calculate_button)
         self.layout.addWidget(self.clear_button)
-
         self.setLayout(self.layout)
 
-        self.clear_button.clicked.connect(self.clear)
-        self.calculate_button.clicked.connect(table_function)
-        self.symbol_input.returnPressed.connect(table_function)
-    
+    def _stage_widgets(self):
         self.displayed = False
         self.figure = None
+        self.clear_button.clicked.connect(self._clear)
+        self.calculate_button.clicked.connect(self.table_function)
+        self.symbol_input.returnPressed.connect(self.table_function)
+        self.table.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustToContents)
+        self.table.hide()
 
     @QtCore.Slot()
-    def clear(self):
+    def _clear(self):
         self.symbol_input.clear()
         self.error_message.hide()
         self.table.clear()
@@ -148,38 +152,54 @@ class CompositeWidget(SymbolWidget):
         self.table.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustToContents)
         self.table.hide()
 
-        self.first_layer = QtWidgets.QVBoxLayout()
-        self.second_layer = QtWidgets.QHBoxLayout()
-        self.left_layout = QtWidgets.QVBoxLayout()
-        self.right_layout = QtWidgets.QVBoxLayout()
-
-        self.first_layer.addWidget(self.title)
-        self.first_layer.addStretch()
-        self.first_layer.addWidget(self.error_message)
-
-        self.left_layout.addWidget(self.table, 1)
-        self.second_layer.addLayout(self.left_layout)
-        self.second_layer.addLayout(self.right_layout)
-
-        self.first_layer.addLayout(self.second_layer)
-        self.first_layer.addWidget(self.message)
-        self.first_layer.addWidget(self.symbol_input)
-        self.first_layer.addWidget(self.calculate_button)
-        self.first_layer.addWidget(self.clear_button)
-
-        self.setLayout(self.first_layer)
+        self._init_widgets()
+        self._arrange_widgets()
 
         self.displayed = False
         self.figure = None
 
-        self.clear_button.clicked.connect(self.clear)
+        self.clear_button.clicked.connect(self._clear)
         self.calculate_button.clicked.connect(calculate_function)
         self.calculate_button.clicked.connect(display_function)
         self.symbol_input.returnPressed.connect(calculate_function)
         self.symbol_input.returnPressed.connect(display_function)
 
+    def _init_widgets(self):
+        self.first_layer = QtWidgets.QWidget()
+        self.first_layout = QtWidgets.QVBoxLayout()
+
+        self.second_layer = QtWidgets.QWidget()
+        self.second_layout = QtWidgets.QHBoxLayout()
+
+        self.left_layer = QtWidgets.QWidget()
+        self.left_layout = QtWidgets.QVBoxLayout()
+
+        self.right_layer = QtWidgets.QWidget()
+        self.right_layout = QtWidgets.QVBoxLayout()
+
+    def _arrange_widgets(self):
+        self.right_layer.setLayout(self.right_layout)
+        self.left_layer.setLayout(self.left_layout)
+        self.second_layer.setLayout(self.second_layout)
+        self.first_layer.setLayout(self.first_layout)
+        self.setLayout(self.first_layout)
+
+        self.second_layout.addWidget(self.left_layer)
+        self.second_layout.addWidget(self.right_layer)
+
+        self.left_layout.addWidget(self.table, 1)
+
+        self.first_layout.addWidget(self.title)
+        self.first_layout.addWidget(self.second_layer)
+        self.first_layout.addStretch()
+        self.first_layout.addWidget(self.error_message)
+        self.first_layout.addWidget(self.message)
+        self.first_layout.addWidget(self.symbol_input)
+        self.first_layout.addWidget(self.calculate_button)
+        self.first_layout.addWidget(self.clear_button)
+
     @QtCore.Slot()
-    def clear(self):
+    def _clear(self):
         self.symbol_input.clear()
         self.error_message.hide()
         self.table.clear()

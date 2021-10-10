@@ -33,27 +33,25 @@ class MenuWidget(QtWidgets.QWidget):
     def __init__(self):
         super().__init__()
         
-        self.init_widgets()
-        self.arrange_widgets()
-        self.style_widgets()
+        self._init_widgets()
+        self._arrange_widgets()
+        self._style_widgets()
 
         for button in self.widget_buttons:
             button.setAutoDefault(True)
             if self.widget_buttons.index(button) == 0:
-                button.clicked.connect(lambda: self.show_widget(0))
+                button.clicked.connect(lambda: self._show_widget(0))
             elif self.widget_buttons.index(button) == 1:
-                button.clicked.connect(lambda: self.show_widget(1))
+                button.clicked.connect(lambda: self._show_widget(1))
             elif self.widget_buttons.index(button) == 2:
-                button.clicked.connect(lambda: self.show_widget(2))
+                button.clicked.connect(lambda: self._show_widget(2))
             elif self.widget_buttons.index(button) == 3:
-                button.clicked.connect(lambda: self.show_widget(3))
+                button.clicked.connect(lambda: self._show_widget(3))
             elif self.widget_buttons.index(button) == 4:
-                button.clicked.connect(lambda: self.show_widget(4))
+                button.clicked.connect(lambda: self._show_widget(4))
 
-    def init_widgets(self):
+    def _init_widgets(self):
         self.title = QtWidgets.QLabel("scrilla", alignment=QtCore.Qt.AlignTop)
-
-        self.back_button = QtWidgets.QPushButton("Menu")
 
         self.widget_buttons = [ QtWidgets.QPushButton("Correlation Matrix"),
                                 QtWidgets.QPushButton("Efficient Frontier"),
@@ -73,10 +71,10 @@ class MenuWidget(QtWidgets.QWidget):
         self.display_pane = QtWidgets.QWidget()
         self.container_pane = QtWidgets.QWidget()
 
-    def arrange_widgets(self):
+    def _arrange_widgets(self):
         """
         Arranges children in the component hierarchy and specifies their layout.
-        
+
         .. notes::
             * Menu Layout: 
                 1. Root Pane --> Vertically aligned
@@ -114,17 +112,17 @@ class MenuWidget(QtWidgets.QWidget):
 
 
 
-    def style_widgets(self):
+    def _style_widgets(self):
         self.title.setFont(get_title_font())
 
     @QtCore.Slot()
-    def show_widget(self, widget_index):
+    def _show_widget(self, widget_index):
         for widget in self.function_widgets:
             widget.hide()
         self.function_widgets[widget_index].show()
 
     @QtCore.Slot()
-    def clear(self):
+    def _clear(self):
         for widget in self.function_widgets:
             widget.hide()
             # TODO: widget.clear_contents() -> erase all saved data

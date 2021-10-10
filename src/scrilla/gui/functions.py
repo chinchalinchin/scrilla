@@ -57,9 +57,7 @@ class RiskReturnWidget(CompositeWidget):
                 stats = statistics.calculate_risk_return(symbol)
                 formatted_ret = str(100*stats['annual_return'])[:constants['SIG_FIGS']]+"%"
                 formatted_vol = str(100*stats['annual_volatility'])[:constants['SIG_FIGS']]+"%"
-                
-                logger.debug(f'(return, vol)_{symbol} = ({formatted_ret}, {formatted_vol})')
-
+    
                 ret_item = QtWidgets.QTableWidgetItem(formatted_ret)
                 ret_item.setTextAlignment(QtCore.Qt.AlignHCenter)
                 vol_item = QtWidgets.QTableWidgetItem(formatted_vol)
@@ -84,12 +82,13 @@ class RiskReturnWidget(CompositeWidget):
         profiles = {}
 
         for symbol in user_symbols:
-            profiles[symbol] = statistics.calculate_moment_risk_return(symbol)
+            profiles[symbol] = statistics.calculate_risk_return(symbol)
 
-        plotter.plot_profiles(symbols=user_symbols, profiles=profiles, show=False,
+        plotter.plot_profiles(symbols=user_symbols, profiles=profiles, show=True,
                                         savefile=settings.CACHE_TEMP_FILE)
 
         self.figure = QtWidgets.QLabel("Risk Profile Graph", alignment=QtCore.Qt.AlignHCenter)
+        print(self.figure)
         self.figure.setPixmap(QtGui.QPixmap(settings.CACHE_TEMP_FILE))
         self.right_layout.insertWidget(1, self.figure, 1)
         self.displayed = True
