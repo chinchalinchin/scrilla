@@ -13,10 +13,7 @@
 # along with scrilla.  If not, see <https://www.gnu.org/licenses/>
 # or <https://github.com/chinchalinchin/scrilla/blob/develop/main/LICENSE>.
 
-import time
-
 from PySide6 import Qt, QtCore, QtGui, QtWidgets
-from PIL.ImageQt import ImageQt
 
 
 from scrilla import settings
@@ -52,11 +49,9 @@ class RiskReturnWidget(CompositeWidget):
         self.table.setVerticalHeaderLabels(user_symbols)
 
         for symbol in user_symbols:
-            logger.debug(f'Calculating {symbol} Risk-Return Profile')
             try:
                 stats = statistics.calculate_risk_return(symbol)
-                formatted_ret = str(100*stats['annual_return'])[:constants['SIG_FIGS']]+"%"
-                formatted_vol = str(100*stats['annual_volatility'])[:constants['SIG_FIGS']]+"%"
+                formatted_ret, formatted_vol = formats.format_risk_return(stats)
     
                 ret_item = QtWidgets.QTableWidgetItem(formatted_ret)
                 ret_item.setTextAlignment(QtCore.Qt.AlignHCenter)
@@ -102,7 +97,6 @@ class CorrelationWidget(TableWidget):
     @QtCore.Slot()
     def calculate_table(self):
         if self.table.isVisible():
-            logger.debug('Clearing correlation matrix from table widget.')
             self.table.clear()
 
         user_symbols = helper.strip_string_array(self.symbol_input.text().upper().split(","))
@@ -125,15 +119,11 @@ class CorrelationWidget(TableWidget):
                         self.table.setItem(i, j, item)
                         
                     else:    
-                        logger.debug(f'Calculating correlation for ({value}, {user_symbols[j]})')
                         correlation = statistics.calculate_moment_correlation(value, user_symbols[j])
-                        formatted_correlation = str(100*correlation["correlation"])[:constants['SIG_FIGS']]+"%"
-                        item_1 = QtWidgets.QTableWidgetItem(formatted_correlation)
+                        item_1 = QtWidgets.QTableWidgetItem(formats.format_correlation(correlation))
                         item_1.setTextAlignment(QtCore.Qt.AlignHCenter)
-                        item_2 = QtWidgets.QTableWidgetItem(formatted_correlation)
+                        item_2 = QtWidgets.QTableWidgetItem(formats.format_correlation(correlation))
                         item_2.setTextAlignment(QtCore.Qt.AlignHCenter)
-
-                        logger.debug(f'Appending correlation = {formatted_correlation} to ({i}, {j}) and ({j}, {i}) entries of matrix')
                         self.table.setItem(j, i, item_1)
                         self.table.setItem(i, j, item_2)
         else:
@@ -149,14 +139,21 @@ class CorrelationWidget(TableWidget):
         self.table.resizeColumnsToContents()
         self.table.show()
 
+    @QtCore.Slot()
+    def _clear(self):
+        self.symbol_input.clear()
+        self.error_message.hide()
+        self.table.clear()
+        self.table.hide()
+
 class OptimizerWidget(PortfolioWidget):
     def __init__(self):
         super().__init__(widget_title="Portfolio Allocation Optimization",
-                            min_function=self.minimize, opt_function=self.optimize)
+                            optimize_function=self.optimize)
 
 
     @QtCore.Slot()
-    def minimize(self):
+    def optimize(self):
         if self.result_table.isVisible():
             self.reset_table()
 
@@ -212,34 +209,45 @@ class OptimizerWidget(PortfolioWidget):
             self.result.setText("Error Occurred. Check Input and Try Again.")
             self.result.show()
 
-    # TODO: combine with minimize function
-    @QtCore.Slot()
-    def optimize(self):
-        pass
 
 class EfficientFrontierWidget(GraphWidget):
     def __init__(self):
         super().__init__(widget_title = "Efficient Portfolio Frontier Plot", button_msg="Calculate Efficient Frontier",
-                            display_function=self.display)
+                            display_function=self.display, clear_function=self.clear)
+        self._init_frontier_widgets()
+        self._arrange_frontier_widgets()
+        self.displayed = False
 
+    def _init_frontier_widgets(self):
+        self.figure = QtWidgets.QLabel("Efficient Frontier", alignment=QtCore.Qt.AlignHCenter)
+
+    def _arrange_frontier_widgets(self):
+        self.layout.insertWidget(1, self.figure, 1)
+
+        # TODO: DATES! & PORTFOLIO TABS
     @QtCore.Slot()
     def display(self):
-        if self.displayed:
-            self.layout.removeWidget(self.figure)
-            self.figure = None
+        if self.figure.isVisible():
+            self.figure.hide()
 
-        user_symbols = helper.strip_string_array(self.symbol_input.text().upper().split(","))
-        this_portfolio = portfolio.Portfolio(tickers=user_symbols)
+        symbols = helper.split_and_strip(self.symbol_input.text())
 
-        # TODO: DATES!
-
+        this_portfolio = portfolio.Portfolio(tickers=symbols)
         frontier = optimizer.calculate_efficient_frontier(portfolio=this_portfolio)
         plotter.plot_frontier(portfolio=this_portfolio, frontier=frontier, show=False, savefile=settings.CACHE_TEMP_FILE)
 
-        self.figure = QtWidgets.QLabel("Efficient Frontier", alignment=QtCore.Qt.AlignHCenter)
-        self.figure.setPixmap(QtGui.QPixmap(settings.CACHE_TEMP_FILE))
-        self.layout.insertWidget(1, self.figure, 1)
-        self.displayed = True 
+        pixmap = QtGui.QPixmap(settings.CACHE_TEMP_FILE)
+        pixmap = pixmap.scaled(formats.calculate_image_width(), 
+                        formats.calculate_image_height(),
+                        aspectMode=QtCore.Qt.KeepAspectRatio)
+
+        self.figure.setPixmap(pixmap)
+    
+    @QtCore.Slot()
+    def clear(self):
+        self.symbol_input.clear()
+        if self.figure.isVisible():
+            self.figure.hide()
 
 class MovingAverageWidget(GraphWidget):
     def __init__(self):

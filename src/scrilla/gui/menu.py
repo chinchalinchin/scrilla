@@ -19,38 +19,31 @@ from PySide6 import QtCore, QtWidgets, QtGui
 
 from scrilla import settings
 
+from scrilla.gui import formats
 from scrilla.gui.functions import RiskReturnWidget, CorrelationWidget, \
                                     MovingAverageWidget, EfficientFrontierWidget, \
                                     OptimizerWidget
 
-def get_title_font():
-    font = QtGui.QFont('Times', 12, QtGui.QFont.Bold)
-    font.bold()
-    return font
-
 # NOTE: widget_buttons and function_widgets must preserve order.
 class MenuWidget(QtWidgets.QWidget):
+    """
+    
+    .. notes::
+        * Widget Hierarchy: 
+            1. root_layout --> Vertically aligned
+                a. container_layout --> Horizontally aligned
+                    i. menu_layout --> Vertically aligned
+                    ii. display_layout --> Vertically aligned
+    """
     def __init__(self):
         super().__init__()
         
-        self._init_widgets()
-        self._arrange_widgets()
-        self._style_widgets()
+        self._init_menu_widgets()
+        self._style_menu_widgets()
+        self._arrange_menu_widgets()
+        self._stage_menu_widgets()
 
-        for button in self.widget_buttons:
-            button.setAutoDefault(True)
-            if self.widget_buttons.index(button) == 0:
-                button.clicked.connect(lambda: self._show_widget(0))
-            elif self.widget_buttons.index(button) == 1:
-                button.clicked.connect(lambda: self._show_widget(1))
-            elif self.widget_buttons.index(button) == 2:
-                button.clicked.connect(lambda: self._show_widget(2))
-            elif self.widget_buttons.index(button) == 3:
-                button.clicked.connect(lambda: self._show_widget(3))
-            elif self.widget_buttons.index(button) == 4:
-                button.clicked.connect(lambda: self._show_widget(4))
-
-    def _init_widgets(self):
+    def _init_menu_widgets(self):
         self.title = QtWidgets.QLabel("scrilla", alignment=QtCore.Qt.AlignTop)
 
         self.widget_buttons = [ QtWidgets.QPushButton("Correlation Matrix"),
@@ -71,52 +64,52 @@ class MenuWidget(QtWidgets.QWidget):
         self.display_pane = QtWidgets.QWidget()
         self.container_pane = QtWidgets.QWidget()
 
-    def _arrange_widgets(self):
-        """
-        Arranges children in the component hierarchy and specifies their layout.
-
-        .. notes::
-            * Menu Layout: 
-                1. Root Pane --> Vertically aligned
-                    a. Container Pane --> Horizontally aligned
-                        i. Menu Pane --> Vertically aligned
-                        ii. Display Pane --> Vertically aligned
-        """
         self.menu_layout = QtWidgets.QVBoxLayout()
         self.display_layout = QtWidgets.QVBoxLayout()
         self.container_layout = QtWidgets.QHBoxLayout()
-        self.layout = QtWidgets.QVBoxLayout()
+        self.root_layout = QtWidgets.QVBoxLayout()
 
         self.menu_pane.setLayout(self.menu_layout)
         self.display_pane.setLayout(self.display_layout)
         self.container_pane.setLayout(self.container_layout)
+        self.setLayout(self.root_layout)
 
+
+    def _style_menu_widgets(self):
+        """Sets fonts and styles on child widgets"""
+        self.title.setFont(formats.get_font_style(formats.STYLES['TITLE']))
+
+    def _arrange_menu_widgets(self):
+        """Arranges child widget within their layouts."""
         self.container_layout.addWidget(self.menu_pane)
         self.container_layout.addWidget(self.display_pane)
 
-        self.layout.addWidget(self.title)
-        self.layout.addWidget(self.container_pane)
-        self.layout.addStretch()
-        self.setLayout(self.layout)
+        self.root_layout.addWidget(self.title)
+        self.root_layout.addStretch()
+        self.root_layout.addWidget(self.container_pane)
+        self.root_layout.addStretch()
 
+        self.menu_layout.addStretch()
         for button in self.widget_buttons:
             self.menu_layout.addWidget(button)
-            button.show()
         self.menu_layout.addStretch()
 
+        self.display_layout.addStretch()
+        for widget in self.function_widgets:
+            self.display_layout.addWidget(widget)
+        self.display_layout.addStretch()
+        
+    def _stage_menu_widgets(self):
+        for i, button in enumerate(self.widget_buttons):
+            button.show()
+            button.setAutoDefault(True)
+            button.clicked.connect((lambda i: lambda: self._show_widget(i))(i))
         for widget in self.function_widgets:
             widget.hide()
-            self.display_layout.addWidget(widget)
-        
-        self.setLayout(self.layout)
-
-
-
-    def _style_widgets(self):
-        self.title.setFont(get_title_font())
 
     @QtCore.Slot()
     def _show_widget(self, widget_index):
+        print(widget_index)
         for widget in self.function_widgets:
             widget.hide()
         self.function_widgets[widget_index].show()

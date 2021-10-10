@@ -119,7 +119,14 @@ If no API keys are found in these variables, the application will not function p
 
 ## Optional Configuration 
 
-<b>scrilla</b> can be configured with the following optional environment variables. Each variable in this list has a suitable default set and so does not need changed unless the user prefers a different setting.
+<b>scrilla</b> can be configured with the following optional environment variables. Each variable in this list has a suitable default set and so does not need changed unless the user prefers a different setting. Make sure you export these values from your current session, i.e.
+
+```
+export RISK_FREE=ONE_YEAR
+scrilla risk-free # returns one year risk free rate
+export RISK_FREE=THREE_YEAR
+scrilla risk-free # returns three year risk free rate
+```
 
 - ANALYSIS_MODE
 

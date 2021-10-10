@@ -14,6 +14,11 @@ def strip_string_array(array: List[str]) -> List[str]:
         new_array.append(string.strip())
     return new_array
 
+def split_and_strip(string: str, upper: bool = True, delimiter=",")-> List[str]:
+    if upper:
+        return strip_string_array(string.upper().split(delimiter))
+    return strip_string_array(string.lower().split(delimiter))
+
 def round_array(array: List[float], decimals: int) -> List[float]:
     cutoff = (1/10**decimals)
     return [0 if element < cutoff else truncate(element, decimals) for element in array]
