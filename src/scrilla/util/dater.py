@@ -133,10 +133,10 @@ def consecutive_trading_days(start_date_string: str, end_date_string: str) -> bo
     """
     Parameters
     ----------
-    start_date_string : str
-        Required. The start date of the time period under consideration. Must be formatted "YYYY-MM-DD"
-    end_date_string : str
-        Required. The end date of the time period under consideration. Must be formatted "YYYY-MM-DD"
+    1. **start_date_string**: ``str``
+        The start date of the time period under consideration. Must be formatted "YYYY-MM-DD"
+    2. **end_date_string**: ``str``
+        The end date of the time period under consideration. Must be formatted "YYYY-MM-DD"
     
     Returns 
     -------

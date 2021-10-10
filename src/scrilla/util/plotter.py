@@ -1,5 +1,5 @@
 import os, datetime
-from typing import Union
+from typing import List, Union
 import numpy, matplotlib
 from PIL import Image
 from PIL.Image import Image as img
@@ -9,6 +9,8 @@ from matplotlib import dates as mdates
 
 from scrilla import settings
 from scrilla.static import formats, keys
+from scrilla.analysis.objects.portfolio import Portfolio
+from scrilla.analysis.objects.cashflow import Cashflow
 from scrilla.errors import InputValidationError
 from scrilla.util import dater
 
@@ -30,6 +32,7 @@ def _show_or_save(canvas: FigureCanvas, show: bool = True, savefile: str = None)
 
     if show:
         im.show()
+        return None
     canvas.draw()
     return canvas
 
@@ -82,7 +85,7 @@ def plot_correlation_series(tickers: list, series: dict, show: bool=True, savefi
 
     return _show_or_save(canvas=canvas, show=show, savefile=savefile)
 
-def plot_frontier(portfolio, frontier, show=True, savefile=None):
+def plot_frontier(portfolio: Portfolio, frontier: list, show: bool=True, savefile: str=None) -> Union[FigureCanvas, None]:
     title = " ("
     for i, item in enumerate(portfolio.tickers):
         if i != (len(portfolio.tickers) - 1):
@@ -106,7 +109,7 @@ def plot_frontier(portfolio, frontier, show=True, savefile=None):
 
     return _show_or_save(canvas=canvas, show=show, savefile=savefile)
 
-def plot_yield_curve(yield_curve, show=True, savefile=None):
+def plot_yield_curve(yield_curve: dict, show: bool=True, savefile: str=None) -> Union[FigureCanvas, None]:
     title = f'US Treasury Yield Curve On {list(yield_curve.keys())[0]}'
 
     canvas = FigureCanvas(Figure())
@@ -125,7 +128,7 @@ def plot_yield_curve(yield_curve, show=True, savefile=None):
 
     return _show_or_save(canvas=canvas, show=show, savefile=savefile)
 
-def plot_profiles(symbols, profiles, show=True, savefile=None, subtitle=None):
+def plot_profiles(symbols: list, profiles: dict, show: bool=True, savefile: str=None, subtitle: str=None) -> Union[FigureCanvas, None]:
     canvas = FigureCanvas(Figure())
 
     no_symbols = len(symbols)
@@ -158,7 +161,7 @@ def plot_profiles(symbols, profiles, show=True, savefile=None, subtitle=None):
 
     # TODO: figure out date formatting for x-axis
 
-def plot_moving_averages(symbols, averages_output, periods, show=True, savefile=None):
+def plot_moving_averages(symbols:List[str], averages_output: List[List[float]], periods: List[int], show: bool=True, savefile: str=None) -> Union[FigureCanvas, None]:
     averages, dates = averages_output
     canvas = FigureCanvas(Figure())
     axes = canvas.figure.subplots()
@@ -221,7 +224,7 @@ def plot_moving_averages(symbols, averages_output, periods, show=True, savefile=
 
     return _show_or_save(canvas=canvas, show=show, savefile=savefile)
 
-def plot_cashflow(ticker, cashflow, show=True, savefile=None):
+def plot_cashflow(ticker: str, cashflow: Cashflow, show: bool=True, savefile: str=None) -> Union[FigureCanvas, None]:
     if not cashflow.beta or not cashflow.alpha or len(cashflow.sample) < 3:
         raise InputValidationError("Cashflow model does not contain enough information to be plotted")
     

@@ -28,7 +28,7 @@
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">import os, datetime
-from typing import Union
+from typing import List, Union
 import numpy, matplotlib
 from PIL import Image
 from PIL.Image import Image as img
@@ -38,6 +38,8 @@ from matplotlib import dates as mdates
 
 from scrilla import settings
 from scrilla.static import formats, keys
+from scrilla.analysis.objects.portfolio import Portfolio
+from scrilla.analysis.objects.cashflow import Cashflow
 from scrilla.errors import InputValidationError
 from scrilla.util import dater
 
@@ -59,6 +61,7 @@ def _show_or_save(canvas: FigureCanvas, show: bool = True, savefile: str = None)
 
     if show:
         im.show()
+        return None
     canvas.draw()
     return canvas
 
@@ -111,7 +114,7 @@ def plot_correlation_series(tickers: list, series: dict, show: bool=True, savefi
 
     return _show_or_save(canvas=canvas, show=show, savefile=savefile)
 
-def plot_frontier(portfolio, frontier, show=True, savefile=None):
+def plot_frontier(portfolio: Portfolio, frontier: list, show: bool=True, savefile: str=None) -&gt; Union[FigureCanvas, None]:
     title = &#34; (&#34;
     for i, item in enumerate(portfolio.tickers):
         if i != (len(portfolio.tickers) - 1):
@@ -135,7 +138,7 @@ def plot_frontier(portfolio, frontier, show=True, savefile=None):
 
     return _show_or_save(canvas=canvas, show=show, savefile=savefile)
 
-def plot_yield_curve(yield_curve, show=True, savefile=None):
+def plot_yield_curve(yield_curve: dict, show: bool=True, savefile: str=None) -&gt; Union[FigureCanvas, None]:
     title = f&#39;US Treasury Yield Curve On {list(yield_curve.keys())[0]}&#39;
 
     canvas = FigureCanvas(Figure())
@@ -154,7 +157,7 @@ def plot_yield_curve(yield_curve, show=True, savefile=None):
 
     return _show_or_save(canvas=canvas, show=show, savefile=savefile)
 
-def plot_profiles(symbols, profiles, show=True, savefile=None, subtitle=None):
+def plot_profiles(symbols: list, profiles: dict, show: bool=True, savefile: str=None, subtitle: str=None) -&gt; Union[FigureCanvas, None]:
     canvas = FigureCanvas(Figure())
 
     no_symbols = len(symbols)
@@ -187,7 +190,7 @@ def plot_profiles(symbols, profiles, show=True, savefile=None, subtitle=None):
 
     # TODO: figure out date formatting for x-axis
 
-def plot_moving_averages(symbols, averages_output, periods, show=True, savefile=None):
+def plot_moving_averages(symbols:List[str], averages_output: List[List[float]], periods: List[int], show: bool=True, savefile: str=None) -&gt; Union[FigureCanvas, None]:
     averages, dates = averages_output
     canvas = FigureCanvas(Figure())
     axes = canvas.figure.subplots()
@@ -250,7 +253,7 @@ def plot_moving_averages(symbols, averages_output, periods, show=True, savefile=
 
     return _show_or_save(canvas=canvas, show=show, savefile=savefile)
 
-def plot_cashflow(ticker, cashflow, show=True, savefile=None):
+def plot_cashflow(ticker: str, cashflow: Cashflow, show: bool=True, savefile: str=None) -&gt; Union[FigureCanvas, None]:
     if not cashflow.beta or not cashflow.alpha or len(cashflow.sample) &lt; 3:
         raise InputValidationError(&#34;Cashflow model does not contain enough information to be plotted&#34;)
     
@@ -295,7 +298,7 @@ def plot_cashflow(ticker, cashflow, show=True, savefile=None):
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
 <dt id="scrilla.util.plotter.plot_cashflow"><code class="name flex">
-<span>def <span class="ident">plot_cashflow</span></span>(<span>ticker, cashflow, show=True, savefile=None)</span>
+<span>def <span class="ident">plot_cashflow</span></span>(<span>ticker: str, cashflow: <a title="scrilla.analysis.objects.cashflow.Cashflow" href="../analysis/objects/cashflow.html#scrilla.analysis.objects.cashflow.Cashflow">Cashflow</a>, show: bool = True, savefile: str = None) ‑> Optional[matplotlib.backends.backend_qt5agg.FigureCanvasQTAgg]</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -303,7 +306,7 @@ def plot_cashflow(ticker, cashflow, show=True, savefile=None):
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def plot_cashflow(ticker, cashflow, show=True, savefile=None):
+<pre><code class="python">def plot_cashflow(ticker: str, cashflow: Cashflow, show: bool=True, savefile: str=None) -&gt; Union[FigureCanvas, None]:
     if not cashflow.beta or not cashflow.alpha or len(cashflow.sample) &lt; 3:
         raise InputValidationError(&#34;Cashflow model does not contain enough information to be plotted&#34;)
     
@@ -380,7 +383,7 @@ def plot_cashflow(ticker, cashflow, show=True, savefile=None):
 </details>
 </dd>
 <dt id="scrilla.util.plotter.plot_frontier"><code class="name flex">
-<span>def <span class="ident">plot_frontier</span></span>(<span>portfolio, frontier, show=True, savefile=None)</span>
+<span>def <span class="ident">plot_frontier</span></span>(<span>portfolio: <a title="scrilla.analysis.objects.portfolio.Portfolio" href="../analysis/objects/portfolio.html#scrilla.analysis.objects.portfolio.Portfolio">Portfolio</a>, frontier: list, show: bool = True, savefile: str = None) ‑> Optional[matplotlib.backends.backend_qt5agg.FigureCanvasQTAgg]</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -388,7 +391,7 @@ def plot_cashflow(ticker, cashflow, show=True, savefile=None):
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def plot_frontier(portfolio, frontier, show=True, savefile=None):
+<pre><code class="python">def plot_frontier(portfolio: Portfolio, frontier: list, show: bool=True, savefile: str=None) -&gt; Union[FigureCanvas, None]:
     title = &#34; (&#34;
     for i, item in enumerate(portfolio.tickers):
         if i != (len(portfolio.tickers) - 1):
@@ -414,7 +417,7 @@ def plot_cashflow(ticker, cashflow, show=True, savefile=None):
 </details>
 </dd>
 <dt id="scrilla.util.plotter.plot_moving_averages"><code class="name flex">
-<span>def <span class="ident">plot_moving_averages</span></span>(<span>symbols, averages_output, periods, show=True, savefile=None)</span>
+<span>def <span class="ident">plot_moving_averages</span></span>(<span>symbols: List[str], averages_output: List[List[float]], periods: List[int], show: bool = True, savefile: str = None) ‑> Optional[matplotlib.backends.backend_qt5agg.FigureCanvasQTAgg]</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -422,7 +425,7 @@ def plot_cashflow(ticker, cashflow, show=True, savefile=None):
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def plot_moving_averages(symbols, averages_output, periods, show=True, savefile=None):
+<pre><code class="python">def plot_moving_averages(symbols:List[str], averages_output: List[List[float]], periods: List[int], show: bool=True, savefile: str=None) -&gt; Union[FigureCanvas, None]:
     averages, dates = averages_output
     canvas = FigureCanvas(Figure())
     axes = canvas.figure.subplots()
@@ -487,7 +490,7 @@ def plot_cashflow(ticker, cashflow, show=True, savefile=None):
 </details>
 </dd>
 <dt id="scrilla.util.plotter.plot_profiles"><code class="name flex">
-<span>def <span class="ident">plot_profiles</span></span>(<span>symbols, profiles, show=True, savefile=None, subtitle=None)</span>
+<span>def <span class="ident">plot_profiles</span></span>(<span>symbols: list, profiles: dict, show: bool = True, savefile: str = None, subtitle: str = None) ‑> Optional[matplotlib.backends.backend_qt5agg.FigureCanvasQTAgg]</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -495,7 +498,7 @@ def plot_cashflow(ticker, cashflow, show=True, savefile=None):
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def plot_profiles(symbols, profiles, show=True, savefile=None, subtitle=None):
+<pre><code class="python">def plot_profiles(symbols: list, profiles: dict, show: bool=True, savefile: str=None, subtitle: str=None) -&gt; Union[FigureCanvas, None]:
     canvas = FigureCanvas(Figure())
 
     no_symbols = len(symbols)
@@ -560,7 +563,7 @@ def plot_cashflow(ticker, cashflow, show=True, savefile=None):
 </details>
 </dd>
 <dt id="scrilla.util.plotter.plot_yield_curve"><code class="name flex">
-<span>def <span class="ident">plot_yield_curve</span></span>(<span>yield_curve, show=True, savefile=None)</span>
+<span>def <span class="ident">plot_yield_curve</span></span>(<span>yield_curve: dict, show: bool = True, savefile: str = None) ‑> Optional[matplotlib.backends.backend_qt5agg.FigureCanvasQTAgg]</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -568,7 +571,7 @@ def plot_cashflow(ticker, cashflow, show=True, savefile=None):
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def plot_yield_curve(yield_curve, show=True, savefile=None):
+<pre><code class="python">def plot_yield_curve(yield_curve: dict, show: bool=True, savefile: str=None) -&gt; Union[FigureCanvas, None]:
     title = f&#39;US Treasury Yield Curve On {list(yield_curve.keys())[0]}&#39;
 
     canvas = FigureCanvas(Figure())
