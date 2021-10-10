@@ -89,15 +89,7 @@ You will need Python3.8 or greater. This application depends on the following <b
 - [scipy](https://pypi.org/project/scipy/)>=1.5.4<br>
 
 ### Optional
-- [PyQt5](https://pypi.org/project/PyQt5/)>=5.14<br>
-
-This libraries will be installed during the `pip install` command. If you wish to use the GUI, you will also need to ensure your operating system has a [Qt5](https://doc.qt.io/) library,
-
-```
-sudo apt-get install qt5-default
-```
-
-The GUI will not function without a <b>Qt</b> library.
+- [PySide6](https://wiki.qt.io/Qt_for_Python)>=6.2.0<br>
 
 ## Configuration
 

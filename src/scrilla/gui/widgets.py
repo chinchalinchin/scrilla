@@ -13,6 +13,7 @@
 # along with scrilla.  If not, see <https://www.gnu.org/licenses/>
 # or <https://github.com/chinchalinchin/scrilla/blob/develop/main/LICENSE>.
 
+from typing import Callable
 from PySide6 import QtGui, QtCore, QtWidgets
 
 def get_title_font() -> QtGui.QFont:
@@ -47,7 +48,35 @@ def get_label_font() -> QtGui.QFont:
 
 # Base Widget to get asset symbol input
 class SymbolWidget(QtWidgets.QWidget):
-    def __init__(self, widget_title, button_msg):
+    """
+    
+    Attributes
+    ----------
+    1. **widget_title**: ``str``
+        Title affixed to the top of the widget.
+    2. **button_msg**: ``str``
+        Message written on `self.calculate_button`
+    3. **message**: ``PySide6.QtWidgets.QLabel``
+        Label attached to `self.symbol_input`.
+    4. **error_message**: ``PySide6.QtWidget.QLabel``
+        Message displayed if there is an error thrown during calculation.
+    5. **calculate_button**: ``PySide6.QtWidget.QPushButton``
+        Empty button for super classes to inherit, primed to fire events on return presses
+    6. **clear_button**: ``PySide6.QtWidget.QPushButton``
+        Empty button for super classes to inherit, primed to fire events on return presses.
+    7. **symbol_input**: ``PySide6.QtWidget.QLineEdit``
+        Empty text area for super classes to inherit
+
+    Methods
+    -------
+    1. _init_widgets()
+        Creates the children widgets and layouts
+    2. _style_widgets()
+        Styles the children widgets
+    3. _stage_widgets()
+        Prepares the children widget for display
+    """
+    def __init__(self, widget_title: str, button_msg: str):
         super().__init__()
         self.widget_title = widget_title
         self.button_msg = button_msg
@@ -76,11 +105,41 @@ class SymbolWidget(QtWidgets.QWidget):
         self.clear_button.setAutoDefault(True)
 
 class TableWidget(SymbolWidget):
-    def __init__(self, widget_title, button_msg, table_function):
+    """
+    Parameters
+    ----------
+    1. **widget_title**: ``str``
+        Title of the widget. Passed to the super class `scrilla.gui.widgets.SymbolWidget`.
+    2. **button_msg**: ``str``
+        Message written on the `self.calculate_button`. Passed to the super class `scrilla.gui.widgets.SymbolWidget`.
+    3. **table_function**: ``Callable``
+        Function triggered by clicking on`self.calculate_button` or pressing return while focused on `self.symbol_input`.
+
+    Attributes
+    ----------
+    1. **table_function**: ``Callable``
+        Function triggered by clicking on`self.calculate_button` or pressing return while focused on `self.symbol_input`.
+    2. **table**: ``PySide6.QtWidget.QTableWidget``
+    3. **layout**: ``PySide6.QtWidget.QVBoxLayout`` 
+    4. **displayed**: ``bool``
+    5. **figure**: ``Union[None, QtWidgets.QLabel]``
+
+    Methods
+    -------
+    1. _init_widgets()
+        Creates the children widgets and layouts
+    2. _arrange_widgets()
+        Arrange the children widget within the layouts
+    3. _stage_widgets()
+        Prepares the children widget for display
+    """
+    def __init__(self, widget_title: str, button_msg: str, table_function: Callable):
         super().__init__(widget_title=widget_title, button_msg=button_msg)
         self.table_function = table_function
 
     def _init_widgets(self):
+        self.displayed = False
+        self.figure = None
         self.table = QtWidgets.QTableWidget()
         self.layout = QtWidgets.QVBoxLayout()
     
@@ -96,8 +155,6 @@ class TableWidget(SymbolWidget):
         self.setLayout(self.layout)
 
     def _stage_widgets(self):
-        self.displayed = False
-        self.figure = None
         self.clear_button.clicked.connect(self._clear)
         self.calculate_button.clicked.connect(self.table_function)
         self.symbol_input.returnPressed.connect(self.table_function)
@@ -114,29 +171,62 @@ class TableWidget(SymbolWidget):
 # NOTE: display_function MUST set displayed = True and set
 #       figure to FigureCanvasAgg object
 class GraphWidget(SymbolWidget):
+    """
+    Parameters
+    ----------
+    1. **widget_title**: ``str``
+        Title of the widget. Passed to the super class `scrilla.gui.widgets.SymbolWidget`.
+    2. **button_msg**: ``str``
+        Message written on the `self.calculate_button`. Passed to the super class `scrilla.gui.widgets.SymbolWidget`.
+    3. **display_function**: ``Callable``
+        Function triggered by clicking on`self.calculate_button` or pressing return while focused on `self.symbol_input`.
+
+    Attributes
+    ----------
+    1. **display_function**: ``Callable``
+        Function triggered by clicking on`self.calculate_button` or pressing return while focused on `self.symbol_input`.
+    2. **displayed**: ``bool``
+    3. **figure**: ``Union[None, QtWidgets.QLabel]``
+    4. **layout**: ``PySide6.QtWidget.QVBoxLayout`` 
+
+    Methods
+    -------
+    1. _init_widgets()
+        Creates the children widgets and layouts
+    2. _arrange_widgets()
+        Arrange the children widget within the layouts
+    3. _stage_widgets()
+        Prepares the children widget for display
+    """
     def __init__(self, widget_title, button_msg, display_function):
-        super().__init__(widget_title=widget_title, button_msg=button_msg)
-        
-        self.layout = QtWidgets.QVBoxLayout()
+        super().__init__(widget_title=widget_title, button_msg=button_msg)    
+        self.display_function = display_function
+        self._init_widgets()
+        self._arrange_widgets()
+        self._stage_widgets()
+       
     
+    def _init_widgets(self):
+        self.layout = QtWidgets.QVBoxLayout()
+        self.displayed = False
+        self.figure = None
+
+    def _arrange_widgets(self):
         self.layout.addWidget(self.title)
         self.layout.addStretch()
         self.layout.addWidget(self.message)
         self.layout.addWidget(self.symbol_input)
         self.layout.addWidget(self.calculate_button)
         self.layout.addWidget(self.clear_button)
-
         self.setLayout(self.layout)
-
-        self.clear_button.clicked.connect(self.clear)
-        self.calculate_button.clicked.connect(display_function)
-        self.symbol_input.returnPressed.connect(display_function)
     
-        self.displayed = False
-        self.figure = None
+    def _stage_widgets(self):
+        self.clear_button.clicked.connect(self._clear)
+        self.calculate_button.clicked.connect(self.display_function)
+        self.symbol_input.returnPressed.connect(self.display_function)
 
     @QtCore.Slot()
-    def clear(self):
+    def _clear(self):
         self.symbol_input.clear()
         if self.displayed:
             self.displayed = False
@@ -146,25 +236,50 @@ class GraphWidget(SymbolWidget):
 # NOTE: both calculate_function and display_function get binded to the Widget's calculate_button.
     # i.e. the display_function's figure should represent the result from the calculate_function
 class CompositeWidget(SymbolWidget):
+    """
+    Parameters
+    ----------
+    1. **widget_title**: ``str``
+        Title of the widget. Passed to the super class `scrilla.gui.widgets.SymbolWidget`.
+    2. **button_msg**: ``str``
+        Message written on the `self.calculate_button`. Passed to the super class `scrilla.gui.widgets.SymbolWidget`.
+    3. **display_function**: ``Callable``
+        Function triggered by clicking on`self.calculate_button` or pressing return while focused on `self.symbol_input`.
+    4. **calculate_function**: ``Callable``
+        Function triggered by clicking on `self.calculate_button` or pressing return while focused on `self.symbol_input`.
+
+    Attributes
+    ----------
+    1. **display_function**: ``Callable``
+        Function triggered by clicking on `self.calculate_button` or pressing return while focused on `self.symbol_input`.
+    2. **calculate_function**: ``Callable``
+        Function triggered by clicking on `self.calculate_button` or pressing return while focused on `self.symbol_input`.
+    3. **displayed**: ``bool``
+    4. **figure**: ``Union[None, QtWidgets.QLabel]``
+
+    Methods
+    -------
+    1. _init_widgets()
+        Creates the children widgets and layouts
+    2. _arrange_widgets()
+        Arrange the children widget within the layouts
+    3. _stage_widgets()
+        Prepares the children widget for display
+    """
     def __init__(self, widget_title, button_msg, calculate_function, display_function):
         super().__init__(widget_title=widget_title, button_msg=button_msg)
-        self.table = QtWidgets.QTableWidget()
-        self.table.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustToContents)
-        self.table.hide()
-
+        self.calculate_function = calculate_function
+        self.display_function = display_function
         self._init_widgets()
         self._arrange_widgets()
-
-        self.displayed = False
-        self.figure = None
-
-        self.clear_button.clicked.connect(self._clear)
-        self.calculate_button.clicked.connect(calculate_function)
-        self.calculate_button.clicked.connect(display_function)
-        self.symbol_input.returnPressed.connect(calculate_function)
-        self.symbol_input.returnPressed.connect(display_function)
+        self._stage_widgets()
 
     def _init_widgets(self):
+        self.displayed = False
+        self.figure = None
+        
+        self.table = QtWidgets.QTableWidget()
+
         self.first_layer = QtWidgets.QWidget()
         self.first_layout = QtWidgets.QVBoxLayout()
 
@@ -197,6 +312,15 @@ class CompositeWidget(SymbolWidget):
         self.first_layout.addWidget(self.symbol_input)
         self.first_layout.addWidget(self.calculate_button)
         self.first_layout.addWidget(self.clear_button)
+
+    def _stage_widgets(self):
+        self.table.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustToContents)
+        self.table.hide()
+        self.clear_button.clicked.connect(self._clear)
+        self.calculate_button.clicked.connect(self.calculate_function)
+        self.calculate_button.clicked.connect(self.display_function)
+        self.symbol_input.returnPressed.connect(self.calculate_function)
+        self.symbol_input.returnPressed.connect(self.display_function)
 
     @QtCore.Slot()
     def _clear(self):

@@ -305,7 +305,33 @@ class MovingAverageWidget(GraphWidget):
 <span>class <span class="ident">CorrelationWidget</span></span>
 </code></dt>
 <dd>
-<div class="desc"><p>QWidget(self, parent: Union[PySide6.QtWidgets.QWidget, NoneType] = None, f: PySide6.QtCore.Qt.WindowFlags = Default(Qt.WindowFlags)) -&gt; None</p>
+<div class="desc"><h2 id="parameters">Parameters</h2>
+<ol>
+<li><strong>widget_title</strong>: <code>str</code>
+Title of the widget. Passed to the super class <code><a title="scrilla.gui.widgets.SymbolWidget" href="widgets.html#scrilla.gui.widgets.SymbolWidget">SymbolWidget</a></code>.</li>
+<li><strong>button_msg</strong>: <code>str</code>
+Message written on the <code>self.calculate_button</code>. Passed to the super class <code><a title="scrilla.gui.widgets.SymbolWidget" href="widgets.html#scrilla.gui.widgets.SymbolWidget">SymbolWidget</a></code>.</li>
+<li><strong>table_function</strong>: <code>Callable</code>
+Function triggered by clicking on<code>self.calculate_button</code> or pressing return while focused on <code>self.symbol_input</code>.</li>
+</ol>
+<h2 id="attributes">Attributes</h2>
+<ol>
+<li><strong>table_function</strong>: <code>Callable</code>
+Function triggered by clicking on<code>self.calculate_button</code> or pressing return while focused on <code>self.symbol_input</code>.</li>
+<li><strong>table</strong>: <code>PySide6.QtWidget.QTableWidget</code></li>
+<li><strong>layout</strong>: <code>PySide6.QtWidget.QVBoxLayout</code> </li>
+<li><strong>displayed</strong>: <code>bool</code></li>
+<li><strong>figure</strong>: <code>Union[None, QtWidgets.QLabel]</code></li>
+</ol>
+<h2 id="methods">Methods</h2>
+<ol>
+<li>_init_widgets()
+Creates the children widgets and layouts</li>
+<li>_arrange_widgets()
+Arrange the children widget within the layouts</li>
+<li>_stage_widgets()
+Prepares the children widget for display</li>
+</ol>
 <p><strong>init</strong>(self, parent: Union[PySide6.QtWidgets.QWidget, NoneType] = None, f: PySide6.QtCore.Qt.WindowFlags = Default(Qt.WindowFlags)) -&gt; None</p>
 <p>Initialize self.
 See help(type(self)) for accurate signature.</p></div>
@@ -452,7 +478,32 @@ def calculate_table(self):
 <span>class <span class="ident">EfficientFrontierWidget</span></span>
 </code></dt>
 <dd>
-<div class="desc"><p>QWidget(self, parent: Union[PySide6.QtWidgets.QWidget, NoneType] = None, f: PySide6.QtCore.Qt.WindowFlags = Default(Qt.WindowFlags)) -&gt; None</p>
+<div class="desc"><h2 id="parameters">Parameters</h2>
+<ol>
+<li><strong>widget_title</strong>: <code>str</code>
+Title of the widget. Passed to the super class <code><a title="scrilla.gui.widgets.SymbolWidget" href="widgets.html#scrilla.gui.widgets.SymbolWidget">SymbolWidget</a></code>.</li>
+<li><strong>button_msg</strong>: <code>str</code>
+Message written on the <code>self.calculate_button</code>. Passed to the super class <code><a title="scrilla.gui.widgets.SymbolWidget" href="widgets.html#scrilla.gui.widgets.SymbolWidget">SymbolWidget</a></code>.</li>
+<li><strong>display_function</strong>: <code>Callable</code>
+Function triggered by clicking on<code>self.calculate_button</code> or pressing return while focused on <code>self.symbol_input</code>.</li>
+</ol>
+<h2 id="attributes">Attributes</h2>
+<ol>
+<li><strong>display_function</strong>: <code>Callable</code>
+Function triggered by clicking on<code>self.calculate_button</code> or pressing return while focused on <code>self.symbol_input</code>.</li>
+<li><strong>displayed</strong>: <code>bool</code></li>
+<li><strong>figure</strong>: <code>Union[None, QtWidgets.QLabel]</code></li>
+<li><strong>layout</strong>: <code>PySide6.QtWidget.QVBoxLayout</code> </li>
+</ol>
+<h2 id="methods">Methods</h2>
+<ol>
+<li>_init_widgets()
+Creates the children widgets and layouts</li>
+<li>_arrange_widgets()
+Arrange the children widget within the layouts</li>
+<li>_stage_widgets()
+Prepares the children widget for display</li>
+</ol>
 <p><strong>init</strong>(self, parent: Union[PySide6.QtWidgets.QWidget, NoneType] = None, f: PySide6.QtCore.Qt.WindowFlags = Default(Qt.WindowFlags)) -&gt; None</p>
 <p>Initialize self.
 See help(type(self)) for accurate signature.</p></div>
@@ -537,7 +588,32 @@ def display(self):
 <span>class <span class="ident">MovingAverageWidget</span></span>
 </code></dt>
 <dd>
-<div class="desc"><p>QWidget(self, parent: Union[PySide6.QtWidgets.QWidget, NoneType] = None, f: PySide6.QtCore.Qt.WindowFlags = Default(Qt.WindowFlags)) -&gt; None</p>
+<div class="desc"><h2 id="parameters">Parameters</h2>
+<ol>
+<li><strong>widget_title</strong>: <code>str</code>
+Title of the widget. Passed to the super class <code><a title="scrilla.gui.widgets.SymbolWidget" href="widgets.html#scrilla.gui.widgets.SymbolWidget">SymbolWidget</a></code>.</li>
+<li><strong>button_msg</strong>: <code>str</code>
+Message written on the <code>self.calculate_button</code>. Passed to the super class <code><a title="scrilla.gui.widgets.SymbolWidget" href="widgets.html#scrilla.gui.widgets.SymbolWidget">SymbolWidget</a></code>.</li>
+<li><strong>display_function</strong>: <code>Callable</code>
+Function triggered by clicking on<code>self.calculate_button</code> or pressing return while focused on <code>self.symbol_input</code>.</li>
+</ol>
+<h2 id="attributes">Attributes</h2>
+<ol>
+<li><strong>display_function</strong>: <code>Callable</code>
+Function triggered by clicking on<code>self.calculate_button</code> or pressing return while focused on <code>self.symbol_input</code>.</li>
+<li><strong>displayed</strong>: <code>bool</code></li>
+<li><strong>figure</strong>: <code>Union[None, QtWidgets.QLabel]</code></li>
+<li><strong>layout</strong>: <code>PySide6.QtWidget.QVBoxLayout</code> </li>
+</ol>
+<h2 id="methods">Methods</h2>
+<ol>
+<li>_init_widgets()
+Creates the children widgets and layouts</li>
+<li>_arrange_widgets()
+Arrange the children widget within the layouts</li>
+<li>_stage_widgets()
+Prepares the children widget for display</li>
+</ol>
 <p><strong>init</strong>(self, parent: Union[PySide6.QtWidgets.QWidget, NoneType] = None, f: PySide6.QtCore.Qt.WindowFlags = Default(Qt.WindowFlags)) -&gt; None</p>
 <p>Initialize self.
 See help(type(self)) for accurate signature.</p></div>
@@ -796,7 +872,35 @@ def optimize(self):
 <span>class <span class="ident">RiskReturnWidget</span></span>
 </code></dt>
 <dd>
-<div class="desc"><p>QWidget(self, parent: Union[PySide6.QtWidgets.QWidget, NoneType] = None, f: PySide6.QtCore.Qt.WindowFlags = Default(Qt.WindowFlags)) -&gt; None</p>
+<div class="desc"><h2 id="parameters">Parameters</h2>
+<ol>
+<li><strong>widget_title</strong>: <code>str</code>
+Title of the widget. Passed to the super class <code><a title="scrilla.gui.widgets.SymbolWidget" href="widgets.html#scrilla.gui.widgets.SymbolWidget">SymbolWidget</a></code>.</li>
+<li><strong>button_msg</strong>: <code>str</code>
+Message written on the <code>self.calculate_button</code>. Passed to the super class <code><a title="scrilla.gui.widgets.SymbolWidget" href="widgets.html#scrilla.gui.widgets.SymbolWidget">SymbolWidget</a></code>.</li>
+<li><strong>display_function</strong>: <code>Callable</code>
+Function triggered by clicking on<code>self.calculate_button</code> or pressing return while focused on <code>self.symbol_input</code>.</li>
+<li><strong>calculate_function</strong>: <code>Callable</code>
+Function triggered by clicking on <code>self.calculate_button</code> or pressing return while focused on <code>self.symbol_input</code>.</li>
+</ol>
+<h2 id="attributes">Attributes</h2>
+<ol>
+<li><strong>display_function</strong>: <code>Callable</code>
+Function triggered by clicking on <code>self.calculate_button</code> or pressing return while focused on <code>self.symbol_input</code>.</li>
+<li><strong>calculate_function</strong>: <code>Callable</code>
+Function triggered by clicking on <code>self.calculate_button</code> or pressing return while focused on <code>self.symbol_input</code>.</li>
+<li><strong>displayed</strong>: <code>bool</code></li>
+<li><strong>figure</strong>: <code>Union[None, QtWidgets.QLabel]</code></li>
+</ol>
+<h2 id="methods">Methods</h2>
+<ol>
+<li>_init_widgets()
+Creates the children widgets and layouts</li>
+<li>_arrange_widgets()
+Arrange the children widget within the layouts</li>
+<li>_stage_widgets()
+Prepares the children widget for display</li>
+</ol>
 <p><strong>init</strong>(self, parent: Union[PySide6.QtWidgets.QWidget, NoneType] = None, f: PySide6.QtCore.Qt.WindowFlags = Default(Qt.WindowFlags)) -&gt; None</p>
 <p>Initialize self.
 See help(type(self)) for accurate signature.</p></div>
