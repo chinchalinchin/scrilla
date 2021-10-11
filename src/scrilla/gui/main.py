@@ -35,8 +35,6 @@ def parse_dimensions():
 def do_gui():
     dimensions = parse_dimensions()
 
-    print(dimensions)
-
     app = QtWidgets.QApplication([])
 
     widget = menu.MenuWidget()
@@ -44,8 +42,6 @@ def do_gui():
     with open(settings.GUI_STYLESHEET_FILE, "r") as f:
         _style = formats.format_stylesheet(f.read())
         app.setStyleSheet(_style)
-
-    print(_style)
     
     if not dimensions['full_screen']:    
         widget.resize(dimensions['width'], dimensions['height'])
@@ -54,6 +50,7 @@ def do_gui():
         geo.moveCenter(center)
         widget.move(geo.topLeft())
         widget.show()
+        
     else:
         widget.showFullScreen()
     

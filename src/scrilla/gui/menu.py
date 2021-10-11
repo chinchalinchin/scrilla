@@ -36,38 +36,62 @@ class MenuWidget(QtWidgets.QWidget):
     """
     def __init__(self):
         super().__init__()
-        
         self._init_menu_widgets()
         self._arrange_menu_widgets()
         self._stage_menu_widgets()
 
+    def _generate_menu_bar(self):
+        self.menu_bar = QtWidgets.QMenuBar(None)
+        self.menu_bar.setObjectName('menu-bar')
+        file = self.menu_bar.addMenu('File')
+        export = file.addMenu('Export')
+
+        self.api_key_action = QtGui.QAction('Add API Key', self)
+        self.jpeg_export_action = QtGui.QAction('JPEG', self)
+        self.json_export_action = QtGui.QAction('JSON', self)
+
+        self.api_key_action.setEnabled(True)
+        self.jpeg_export_action.setEnabled(False)
+        self.json_export_action.setEnabled(False)
+
+        file.addAction(self.api_key_action)
+        export.addAction(self.jpeg_export_action)
+        export.addAction(self.json_export_action)
+
     def _init_menu_widgets(self):
+        self._generate_menu_bar()
+        
         self.setObjectName('root')
+
+        self.intro_msg = QtWidgets.QLabel("Select A Function To Get Started")
+        self.intro_msg.setObjectName('title')
 
         self.title = QtWidgets.QLabel("scrilla")
         self.title.setObjectName('title')
 
-        self.menu_title = QtWidgets.QLabel('Functions')
-        self.menu_title.setObjectName('menu-title')
+        self.function_menu = QtWidgets.QLabel('Functions')
+        self.function_menu.setObjectName('function-menu')
         
-        self.widget_buttons = [ QtWidgets.QPushButton("Correlation Matrix"),
-                                QtWidgets.QPushButton("Efficient Frontier"),
-                                QtWidgets.QPushButton("Moving Averages"),
-                                QtWidgets.QPushButton("Portfolio Optimization"),
-                                QtWidgets.QPushButton("Risk-Return Profile"),
-                            ]
+        self.widget_buttons = [ 
+            QtWidgets.QPushButton("Correlation Matrix"),
+            QtWidgets.QPushButton("Efficient Frontier"),
+            QtWidgets.QPushButton("Moving Averages"),
+            QtWidgets.QPushButton("Portfolio Optimization"),
+            QtWidgets.QPushButton("Risk-Return Profile"),
+        ]
         self.exit_button = QtWidgets.QPushButton("Exit")
         self.exit_button.setObjectName('button')
 
         for button in self.widget_buttons:
             button.setObjectName('button')
 
-        self.function_widgets = [ CorrelationWidget('great-grand-child'), 
-                                  EfficientFrontierWidget('great-grand-child'),
-                                  MovingAverageWidget('great-grand-child'),
-                                  OptimizerWidget('great-grand-child'),
-                                  RiskReturnWidget('great-grand-child'),
-                            ]
+        self.function_widgets = [ 
+            CorrelationWidget('great-grand-child'), 
+            EfficientFrontierWidget('great-grand-child'),
+            MovingAverageWidget('great-grand-child'),
+            OptimizerWidget('great-grand-child'),
+            RiskReturnWidget('great-grand-child'),
+        ]
 
         self.menu_pane = QtWidgets.QWidget()
         self.menu_pane.setLayout(QtWidgets.QVBoxLayout())
@@ -86,8 +110,8 @@ class MenuWidget(QtWidgets.QWidget):
     def _arrange_menu_widgets(self):
         """Arranges child widget within their layouts."""
         self.title.setAlignment(QtCore.Qt.AlignHCenter)
-        self.container_pane.layout().addWidget(self.menu_pane)
-        self.container_pane.layout().addWidget(self.display_pane)
+        self.intro_msg.setAlignment(QtCore.Qt.AlignCenter)
+        self.function_menu.setAlignment(QtCore.Qt.AlignHCenter)
 
         self.container_pane.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding,
                                                                 QtWidgets.QSizePolicy.Expanding))
@@ -98,15 +122,20 @@ class MenuWidget(QtWidgets.QWidget):
         self.title.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding,
                                                         QtWidgets.QSizePolicy.Minimum))
 
+        self.container_pane.layout().addWidget(self.menu_pane)
+        self.container_pane.layout().addWidget(self.display_pane)
+
+        self.layout().addWidget(self.menu_bar)
         self.layout().addWidget(self.title)
         self.layout().addWidget(self.container_pane)
 
-        self.menu_pane.layout().addWidget(self.menu_title)
+        self.menu_pane.layout().addWidget(self.function_menu)
         for button in self.widget_buttons:
             self.menu_pane.layout().addWidget(button)
         self.menu_pane.layout().addStretch()
         self.menu_pane.layout().addWidget(self.exit_button)
 
+        self.display_pane.layout().addWidget(self.intro_msg)
         for widget in self.function_widgets:
             self.display_pane.layout().addWidget(widget)
         
@@ -120,9 +149,11 @@ class MenuWidget(QtWidgets.QWidget):
             widget.hide()
         self.exit_button.clicked.connect(self.close)
         self.exit_button.show()
+        self.menu_bar.show()
 
     @QtCore.Slot()
     def _show_widget(self, widget_index):
+        self.intro_msg.hide()
         for widget in self.function_widgets:
             widget.hide()
         self.function_widgets[widget_index].show()
@@ -131,6 +162,7 @@ class MenuWidget(QtWidgets.QWidget):
     def _clear(self):
         for widget in self.function_widgets:
             widget.hide()
+        self.intro_msg.show()
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication([])

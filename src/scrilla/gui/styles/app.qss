@@ -4,50 +4,63 @@
     font-weight: 800;
     border-style: inset;
     border-radius: 2px;
+    border-width: 0.5px;
+    border-color: $primary-900;
     background-color: $primary-500;
 }
-#menu-title {
-    font-color: $primary-400;
+#menu-bar {
+    background-color: $primary-500;
+}
+#function-menu {
+    color: $primary-900;
+    text-align: center;
 }
 #subtitle {
     font-family: Times;
-    font-size: 10px;
+    font-size: 16px;
     font-weight: 600;
 }
 #text {
     font-family: Times;
-    font-size: 8px;
+    font-size: 12px;
     font-weight: 500;
 }
 #error {
     font-family: Helvetica;
-    font-size: 8px;
+    font-size: 12px;
     font-weight: 600;
 }
 
 #root {
     border-style: inset;
     border-radius: 2px;
+    border-width: 0.5px;
+    border-color: $primary-900;
     background-color: $primary-800;
 }
 
 #child {
     border-style: inset;
     border-radius: 2px;
+    border-width: 0.5px;
+    border-color: $primary-900;
     background-color: $primary-700;
 }
 
 #grand-child {
     border-style: inset;
     border-radius: 2px;
+    border-width: 0.5px;
+    border-color: $primary-900;
     background-color: $primary-600;
 }
 
 #great-grand-child {
     border-style: inset;
     border-radius: 2px;
+    border-width: 0.5px;
+    border-color: $primary-900;
     background-color: $primary-500;
-
 }
 QLineEdit#line-edit {
     
@@ -56,16 +69,21 @@ QPushButton#button {
     padding: 2px;
     border-style: outset;
     border-radius: 2px;
+    border-width: 0.5px;
+    border-color: $primary-900;
     background-color: $primary-400;
 }
 QPushButton#button:hover {
     border-style: outset;
     border-radius: 2px;
-    cursor: pointer;
+    border-width: 0.5px;
+    border-color: $primary-900;
     background-color: $primary-100;
 }
 QPushButton#button:pressed {
-    border-style:inset;
-    border-radius:2px;
+    border-style: inset;
+    border-radius: 2px;
+    border-width: 0.5px;
+    border-color: $primary-900;
     background-color: $primary-700;
 }

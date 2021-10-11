@@ -91,7 +91,7 @@ class SymbolWidget(QtWidgets.QWidget):
         self.title = QtWidgets.QLabel(self.widget_title)
         self.title.setObjectName('subtitle')
 
-        self.message = QtWidgets.QLabel("Please separate symbols with a comma")
+        self.message = QtWidgets.QLabel("Separate symbols with comma")
         self.message.setObjectName('text')
 
         self.error_message = QtWidgets.QLabel("Error message goes here")

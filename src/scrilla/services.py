@@ -279,8 +279,8 @@ class PriceManager():
             query += f'&{self.service_map["PARAMS"]["SIZE"]}={self.service_map["ARGUMENTS"]["FULL"]}'
 
         elif asset_type == keys.keys['ASSETS']['CRYPTO']:
-            query += f'&{self.service_map["PARAMS"]["FUNCTION"]}={self.service_map["ARGUMENTS"]["EQUITY_DAILY"]}'
-            query += f'&{self.service_map["PARAMS"]["FUNCTION"]}={constants.constants["DENOMINATION"]}'
+            query += f'&{self.service_map["PARAMS"]["FUNCTION"]}={self.service_map["ARGUMENTS"]["CRYPTO_DAILY"]}'
+            query += f'&{self.service_map["PARAMS"]["DENOMINATION"]}={constants.constants["DENOMINATION"]}'
 
         auth_query = query + f'&{self.service_map["PARAMS"]["KEY"]}={self.key}'
         url=f'{self.url}?{auth_query}'  
