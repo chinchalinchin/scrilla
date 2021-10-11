@@ -144,5 +144,12 @@ keys= {
                 }
             }
         }
+    },
+    'GUI':{
+        'TEMP':{
+            'PROFILE': 'profile',
+            'AVERAGES': 'averages',
+            'FRONTIER': 'frontier'
+        }
     }
 }

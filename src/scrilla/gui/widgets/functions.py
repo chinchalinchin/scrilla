@@ -17,6 +17,8 @@ from PySide6 import QtGui, QtCore, QtWidgets
 
 
 from scrilla import settings
+from scrilla.static import keys
+# TODO: conditional import based on ANALYSIS_MODE
 import scrilla.analysis.models.geometric.statistics as statistics
 import scrilla.analysis.optimizer as optimizer
 import scrilla.analysis.objects.portfolio as portfolio
@@ -24,8 +26,8 @@ import scrilla.analysis.objects.portfolio as portfolio
 from scrilla.util import outputter, helper, plotter
 
 from scrilla.gui import formats, utilities
-from scrilla.gui.widgets.components import ArgumentWidget, CompositeWidget, GraphWidget, \
-                                            TableWidget
+from scrilla.gui.widgets.components import ArgumentWidget, CompositeWidget, \
+                                            GraphWidget, TableWidget
 
 logger = outputter.Logger('gui.functions', settings.LOG_LEVEL)
 
@@ -40,7 +42,8 @@ class RiskReturnWidget(QtWidgets.QWidget):
         self.title = QtWidgets.QLabel('Risk Analysis')
         self.title.setObjectName('subtitle')
 
-        self.composite_widget = CompositeWidget('profile', widget_title="Risk Analysis",
+        self.composite_widget = CompositeWidget(keys.keys['GUI']['TEMP']['PROFILE'], 
+                                                    widget_title="Risk Analysis",
                                                     table_title="CAPM Risk Profile",
                                                     graph_title="Risk-Return Plane")
         self.arg_widget = ArgumentWidget(calculate_function=self.calculate,
@@ -70,7 +73,7 @@ class RiskReturnWidget(QtWidgets.QWidget):
             stats = statistics.calculate_risk_return(symbol)
             profiles[symbol] = stats
             formatted_ret, formatted_vol = formats.format_risk_return(stats)
-
+            # PULL REST OF RISK PROFILE, THEN ITERATE OVER PROFILE TO GENERATE TABLE ITEMS. CLEANER.
             ret_item = QtWidgets.QTableWidgetItem(formatted_ret)
             ret_item.setTextAlignment(QtCore.Qt.AlignHCenter)
             vol_item = QtWidgets.QTableWidgetItem(formatted_vol)
@@ -80,7 +83,7 @@ class RiskReturnWidget(QtWidgets.QWidget):
             self.composite_widget.table_widget.table.setItem(symbols.index(symbol), 1, vol_item)
 
         plotter.plot_profiles(symbols=symbols, profiles=profiles, show=False,
-                                        savefile=f'{settings.TEMP_DIR}/profile.jpeg')
+                                        savefile=f'{settings.TEMP_DIR}/{keys.keys["GUI"]["TEMP"]["PROFILE"]}')
 
         self.composite_widget.graph_widget.set_pixmap()
         self.composite_widget.table_widget.show_table()
@@ -96,77 +99,76 @@ class RiskReturnWidget(QtWidgets.QWidget):
         self.composite_widget.table_widget.table.clear()
         self.arg_widget.symbol_input.clear()
 
-class CorrelationWidget(TableWidget):
+class CorrelationWidget(QtWidgets.QWidget):
     def __init__(self, objectName):
-        super().__init__(widget_title = "Correlation Over Last 100 Days", button_msg="Calculate Correlation",
-                            table_function = self.calculate_table, clear_function=self.clear)
+        super().__init__(r)
         self.setObjectName(objectName)
 
+    def _init_correlation_widgets(self):
+        self.table_widget = TableWidget(widget_title="Correlation Matrix")
+        self.arg_widget = ArgumentWidget(calculate_function=self.calculate,
+                                            clear_function=self.clear,
+                                            controls=None)
+        self.setLayout(QtWidgets.QVBoxLayout())
+
+    def _arrange_correlation_widgets(self):
+        self.layout().addWidget(self.table_widget)
+        self.layout().addWidget(self.arg_widget)
 
     @QtCore.Slot()
-    def calculate_table(self):
-        if self.table.isVisible():
-            self.table.clear()
+    def calculate(self):
+        if self.table_widget.table.isVisible():
+            self.table_widget.table.clear()
+            self.table_widget.table.hide()
 
-        symbols = helper.split_and_strip(self.symbol_input.text())
+        symbols = helper.split_and_strip(self.arg_widget.symbol_input.text())
 
         if len(symbols) > 1:
-            self.table.setRowCount(len(symbols))
-            self.table.setColumnCount(len(symbols))
+            self.table_widget.table.setRowCount(len(symbols))
+            self.table_widget.table.setColumnCount(len(symbols))
 
-            self.table.setHorizontalHeaderLabels(symbols)
-            #self.table.horizontalHeader().setStretchLastSection(True)
-            self.table.setVerticalHeaderLabels(symbols)
+            self.table_widget.table.setHorizontalHeaderLabels(symbols)
+            self.table_widget.table.setVerticalHeaderLabels(symbols)
 
-            for i, value in enumerate(symbols):
+            matrix = statistics.correlation_matrix(tickers=symbols)
+            for i in range(0, len(symbols)):
                 for j in range(i, len(symbols)):
-                    if i == j:
-                        item = QtWidgets.QTableWidgetItem("100.0%")
-                        item.setTextAlignment(QtCore.Qt.AlignHCenter)
-                        self.table.setItem(i, j, item)
-                        
-                    else:    
-                        correlation = statistics.calculate_correlation(value, symbols[j])
+                    item_1 = QtWidgets.QTableWidgetItem(formats.format_correlation(matrix[i][j]))
+                    item_1.setTextAlignment(QtCore.Qt.AlignHCenter)
 
-                        item_1 = QtWidgets.QTableWidgetItem(formats.format_correlation(correlation))
-                        item_1.setTextAlignment(QtCore.Qt.AlignHCenter)
+                    item_2 = QtWidgets.QTableWidgetItem(formats.format_correlation(matrix[i][j]))
+                    item_2.setTextAlignment(QtCore.Qt.AlignHCenter)
 
-                        item_2 = QtWidgets.QTableWidgetItem(formats.format_correlation(correlation))
-                        item_2.setTextAlignment(QtCore.Qt.AlignHCenter)
-
-                        self.table.setItem(j, i, item_1)
-                        self.table.setItem(i, j, item_2)
+                    self.table_widget.table.setItem(j, i, item_1)
+                    self.table_widget.table.setItem(i, j, item_2)
         else:
-            self.table.setRowCount(1)
-            self.table.setColumnCount(1)
-            self.table.setHorizontalHeader(QtWidgets.QHeaderView(QtCore.Qt.Horizontal))
-            self.table.setHorizontalHeaderLabels(["Error, Will Robinson"])
-            self.table.horizontalHeader().setStretchLastSection(True)
-            error_item = QtWidgets.QTableWidgetItem("Error Occurred. Check Input and Try Again.")
-            error_item.setTextAlignment(QtCore.Qt.AlignHCenter)
-            self.table.setItem(0, 0, error_item)
+            print('error handling goes here')
 
-        self.table.resizeColumnsToContents()
-        self.table.show()
+        self.table_widget.show_table()
 
     @QtCore.Slot()
     def clear(self):
-        self.symbol_input.clear()
-        self.error_message.hide()
-        self.table.clear()
-        self.table.hide()
+        self.arg_widget.symbol_input.clear()
+        self.table_widget.table.clear()
+        self.table_widget.table.hide()
 
 class OptimizerWidget(QtWidgets.QWidget):
     def __init__(self, objectName):
-        super().__init__(widget_title="Portfolio Allocation Optimization",
-                            optimize_function=self.optimize, 
-                            clear_function=self.clear)
+        super().__init__()
         self.setObjectName(objectName)
         self._init_optimizer_widgets()
+        self._arrange_optimizer_widgets()
 
     def _init_optimizer_widgets(self):
         self.table_widget = TableWidget(widget_title="Optimization Results")
-        pass
+        self.arg_widget = ArgumentWidget(calculate_function=self.optimize,
+                                            clear_function=self.clear,
+                                            controls=None)
+        self.setLayout(QtWidgets.QVBoxLayout())
+
+    def _arrange_optimizer_widgets(self):
+        self.layout().addWidget(self.table_widget)
+        self.layout().addWidget(self.arg_widget)
 
     @QtCore.Slot()
     def optimize(self):
@@ -174,7 +176,7 @@ class OptimizerWidget(QtWidgets.QWidget):
             self.table_widget.table.clear()
             self.table_widget.table.hide()
 
-        symbols = helper.split_and_strip(self.symbol_input.text())
+        symbols = helper.split_and_strip(self.arg_widget.symbol_input.text())
 
         # TODO: better error checking
         if len(symbols) > 1:
@@ -221,84 +223,79 @@ class OptimizerWidget(QtWidgets.QWidget):
         self.table_widget.table.clear()
         self.table_widget.table.hide()
 
-class EfficientFrontierWidget(GraphWidget):
+class EfficientFrontierWidget(QtWidgets.QWidget):
     def __init__(self, objectName):
-        super().__init__(widget_title = "Efficient Portfolio Frontier Plot", button_msg="Calculate Efficient Frontier",
-                            display_function=self.display, clear_function=self.clear)
+        super().__init__()
         self.setObjectName(objectName)
         self._init_frontier_widgets()
         self._arrange_frontier_widgets()
-        self._stage_frontier_widgets()
 
     def _init_frontier_widgets(self):
-        self.figure = QtWidgets.QLabel("Efficient Frontier Graph")
+        self.graph_widget = GraphWidget(tmp_graph_key=keys.keys['GUI']['TEMP']['FRONTIER'])
+        self.arg_widget = ArgumentWidget(calculate_function=self.calculate, 
+                                            clear_function=self.clear,
+                                            controls=None)
+        self.setLayout(QtWidgets.QVBoxLayout())
+        # TODO: portfolio tabs
 
     def _arrange_frontier_widgets(self):
-        self.figure.setAlignment(QtCore.Qt.AlignHCenter)
-        self.layout().insertWidget(1, self.figure, 1)
+        self.layout().addWidget(self.graph_widget)
+        self.layout().addWidget(self.arg_widget)
 
-    def _stage_frontier_widgets(self):
-        self.figure.hide()
 
     def resizeEvent(self, event: QtGui.QResizeEvent) -> None:
-        if self.figure.isVisible():
-            self.figure.setPixmap(utilities.generate_pixmap_from_temp(self.width(), self.height(), 'frontier'))
+        if self.graph_widget.figure.isVisible():
+            self.graph_widget.set_pixmap()
         return super().resizeEvent(event)
 
-        # TODO: DATES! & PORTFOLIO TABS
     @QtCore.Slot()
-    def display(self):
-        if self.figure.isVisible():
-            self.figure.hide()
+    def calculate(self):
+        if self.graph_widget.figure.isVisible():
+            self.graph_widget.figure.hide()
 
-        symbols = helper.split_and_strip(self.symbol_input.text())
+        symbols = helper.split_and_strip(self.arg_widget.symbol_input.text())
 
         this_portfolio = portfolio.Portfolio(tickers=symbols)
         frontier = optimizer.calculate_efficient_frontier(portfolio=this_portfolio)
         plotter.plot_frontier(portfolio=this_portfolio, 
                                 frontier=frontier, 
                                 show=False, 
-                                savefile=f'{settings.TEMP_DIR}/frontier')
+                                savefile=f'{settings.TEMP_DIR}/{keys.keys["GUI"]["TEMP"]["FRONTIER"]}')
 
-        self.figure.setPixmap(utilities.generate_pixmap_from_temp(self.width(), self.height(), 'frontier'))
-        self.figure.show()
+        self.graph_widget.set_pixmap()
     
     @QtCore.Slot()
     def clear(self):
-        self.symbol_input.clear()
-        if self.figure.isVisible():
-            self.figure.hide()
+        self.graph_widget.figure.hide()
+        self.arg_widget.symbol_input.clear()
 
-class MovingAverageWidget(GraphWidget):
+class MovingAverageWidget(QtWidgets.QWidget):
     def __init__(self, objectName):
-        super().__init__(widget_title = "Rolling Moving Average Plot", button_msg="Calculate MAs",
-                            display_function=self.display, clear_function=self.clear)
+        super().__init__()
         self.setObjectName(objectName)
         self._init_average_widgets()
         self._arrange_average_widgets()
-        self._stage_average_widgets()
 
     def _init_average_widgets(self):
-        self.figure = QtWidgets.QLabel("Moving Averages")
+        self.graph_widget = GraphWidget(keys.keys['GUI']['TEMP']['AVERAGES'])
+        self.arg_widget = ArgumentWidget(calculate_function=self.calculate)
+        self.setLayout(QtWidgets.QVBoxLayout())
 
     def _arrange_average_widgets(self):
-        self.figure.setAlignment(QtCore.Qt.AlignHCenter)
-        self.layout().insertWidget(1, self.figure, 1)
-    
-    def _stage_average_widgets(self):
-        self.figure.hide()
+        self.layout().addWidget(self.graph_widget)
+        self.layout().addWidget(self.arg_widget)
         
     def resizeEvent(self, event: QtGui.QResizeEvent) -> None:
-        if self.figure.isVisible():
-            self.figure.setPixmap(utilities.generate_pixmap_from_temp(self.width(), self.height(), 'averages'))
+        if self.graph_widget.figure.isVisible():
+            self.graph_widget.set_pixmap()
         return super().resizeEvent(event)
 
     @QtCore.Slot()
-    def display(self):
-        if self.figure.isVisible():
-            self.figure.hide()
+    def calculate(self):
+        if self.graph_widget.figure.isVisible():
+            self.graph_widget.figure.hide()
 
-        symbols = helper.split_and_strip(self.symbol_input.text())
+        symbols = helper.split_and_strip(self.arg_widget.symbol_input.text())
 
         moving_averages = statistics.calculate_moving_averages(symbols)
         periods = [settings.MA_1_PERIOD, settings.MA_2_PERIOD, settings.MA_3_PERIOD]
@@ -308,10 +305,9 @@ class MovingAverageWidget(GraphWidget):
                                         show=False, 
                                         savefile=f'{settings.TEMP_DIR}/averages')
         
-        self.figure.setPixmap(utilities.generate_pixmap_from_temp(self.width(), self.height(), 'averages'))
-        self.figure.show()
+        self.graph_widget.set_pixmap()
     
     @QtCore.Slot()
     def clear(self):
-        self.symbol_input.clear()
-        self.figure.hide()
+        self.arg_widget.symbol_input.clear()
+        self.graph_widget.figure.hide()
