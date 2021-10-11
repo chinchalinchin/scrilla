@@ -57,12 +57,57 @@ All widgets have a similar structure in that they call a series of methods tailo
 def generate_control_skeleton():
     return { arg: False for arg in definitions.ARG_DICT }
 
-def _widget_factory(format: str, title: str = None) -> QtWidgets.QWidget:
+def _layout_factory(format: str):
+    widget = QtWidgets.QWidget()
+
+    if format == 'vertical-box':
+        widget.setLayout(QtWidgets.QVBoxLayout())
+    
+    elif format == 'horizontal-box':
+        widget.setLayout(QtWidgets.QHBoxLayout())
+    
+    else:
+        widget.setLayout(QtWidgets.QBoxLayout())
+
+    return widget
+
+def _atomic_widget_factory(format: str, title: str):
+    if format in ['title', 'subtitle', 'heading', 'label', 'error', 'text'] :
+        widget = QtWidgets.QLabel(title)
+        widget.setObjectName(format)
+        if format in ['title', 'subtitle', 'label', 'heading']:
+            widget.setAlignment(QtCore.Qt.AlignTop)
+    
+    elif format == 'button':
+        widget = QtWidgets.QPushButton(title)
+        widget.setObjectName(format)
+
+    else: 
+        widget = QtWidgets.QWidget()
+    
+    return widget
+# this methdo was separated into input and passive factory methods. combined them because i thought it made sense,
+# however, this method is now getting a little complex. it might not hurt to simplify and refactor a bit.
+def _composite_widget_factory(format: str, title: str = None) -> QtWidgets.QWidget:
+    # input widget
+
     if format == 'date':
-        widget = QtWidgets.QDateEdit()
-        widget.setDate(QtCore.QDate.currentDate())
-        widget.setMaximumDate(QtCore.QDate.currentDate())
-        widget.setMinimumDate(QtCore.QDate(constants.constants['PRICE_YEAR_CUTOFF'], 1,1))
+        widget = QtWidgets.QWidget()
+        widget.setLayout(QtWidgets.QHBoxLayout())
+        widget.setObjectName('input-container')
+
+        label_widget = QtWidgets.QLabel(title)
+        label_widget.setAlignment(QtCore.Qt.AlignBottom)
+        label_widget.setObjectName('input-label')
+
+        main_widget = QtWidgets.QDateEdit()
+        main_widget.setDate(QtCore.QDate.currentDate())
+        main_widget.setMaximumDate(QtCore.QDate.currentDate())
+        main_widget.setMinimumDate(QtCore.QDate(constants.constants['PRICE_YEAR_CUTOFF'], 1,1))
+        main_widget.setObjectName(format)
+
+        widget.layout().addWidget(label_widget)
+        widget.layout().addWidget(main_widget)
 
     elif format == 'decimal':
         pass
@@ -94,25 +139,21 @@ def _widget_factory(format: str, title: str = None) -> QtWidgets.QWidget:
     elif format == 'flag':
         pass
     
-    elif format in ['title', 'subtitle', 'label', 'error', 'text', 'input-label'] :
-        widget = QtWidgets.QLabel(title)
-        widget.setObjectName(format)
-    
-    elif format == 'button':
-        widget = QtWidgets.QPushButton(title)
-        widget.setObjectName('button')
-    
-    elif format == 'vertical-layout':
-        widget = QtWidgets.QWidget()
-        widget.setLayout(QtWidgets.QVBoxLayout())
-    
-    elif format == 'horizontal-layout':
+    elif format == 'line-edit':
         widget = QtWidgets.QWidget()
         widget.setLayout(QtWidgets.QHBoxLayout())
-    
-    elif format == 'line-edit':
-        widget = QtWidgets.QLineEdit()
-        widget.setObjectName('line-edit')
+        widget.setObjectName('input-container')
+
+        label_widget = QtWidgets.QLabel(title)
+        label_widget.setAlignment(QtCore.Qt.AlignBottom)
+        label_widget.setObjectName('input-label')
+
+        main_widget = QtWidgets.QLineEdit()
+        main_widget.setAlignment(QtCore.Qt.AlignTop)
+        main_widget.setObjectName(format)
+
+        widget.layout().addWidget(label_widget)
+        widget.layout().addWidget(main_widget)
 
     else:
         widget = QtWidgets.QWidget()
@@ -152,12 +193,13 @@ class ArgumentWidget(QtWidgets.QWidget):
         Empty button for super classes to inherit, primed to fire events on return presses
     9. **clear_button**: ``PySide6.QtWidget.QPushButton``
         Empty button for super classes to inherit, primed to fire events on return presses.
-    10. **symbol_input**: ``PySide6.QtWidget.QLineEdit``
+    10. **symbol_widget**: ``PySide6.QtWidget.QLineEdit``
         Empty text area for super classes to inherit
     """
     # TODO: calculate and clear should be part of THIS constructor, doesn't make sense to have other widgets hook them up.
-    def __init__(self, calculate_function: Callable, clear_function: Callable, controls: Dict[str, bool]):
+    def __init__(self, calculate_function: Callable, clear_function: Callable, controls: Dict[str, bool], layer):
         super().__init__()
+        self.layer = layer
         self.controls = controls
         self.control_widgets = {}
         self.calculate_function = calculate_function
@@ -169,55 +211,43 @@ class ArgumentWidget(QtWidgets.QWidget):
     
     def _init_arg_widgets(self):
         """Creates child widgets"""
-        self.title = _widget_factory(format='subtitle', title='Function Input')
-        self.required_title = _widget_factory(format='label', title='Required Arguments')
-        self.optional_title = _widget_factory(format='label', title='Optional Arguments')
-        self.error_message = _widget_factory(format='error', title="Error Message Goes Here")
-        self.calculate_button = _widget_factory(format='button', title='Calculate')
-        self.clear_button = _widget_factory(format='button', title='Clear')
-        self.symbol_hint = _widget_factory(format='text', title="Separate symbols with comma")
-        self.required_pane = _widget_factory(format='vertical-layout')
-        self.optional_pane =_widget_factory(format='vertical-layout')
-        self.symbol_holder = _widget_factory(format='horizontal-layout')
-        self.symbol_input = _widget_factory(format='line-edit')
+        self.title = _atomic_widget_factory(format='subtitle', title='Function Input')
+        self.required_title = _atomic_widget_factory(format='label', title='Required Arguments')
+        self.optional_title = _atomic_widget_factory(format='label', title='Optional Arguments')
+        self.error_message = _atomic_widget_factory(format='error', title="Error Message Goes Here")
+        self.calculate_button = _atomic_widget_factory(format='button', title='Calculate')
+        self.clear_button = _atomic_widget_factory(format='button', title='Clear')
+        self.symbol_hint = _atomic_widget_factory(format='text', title="Separate symbols with comma")
 
-        self.symbol_label = _widget_factory(format='input-label', title="Symbols :")
-
+        self.symbol_widget = _composite_widget_factory(format='line-edit', title="Symbols :")
         for control in self.controls:
             if self.controls[control]:
-                self.control_widgets[control] = _widget_factory(definitions.ARG_DICT[control]['widget_type'], 
-                                                                definitions.ARG_DICT[control]['name'])
+                self.control_widgets[control] = _composite_widget_factory(definitions.ARG_DICT[control]['widget_type'], 
+                                                                            f'{definitions.ARG_DICT[control]["name"]} :')
             else:
                 self.control_widgets[control] = None
 
+        self.required_pane = _layout_factory(format='vertical-box')
+        self.required_pane.setObjectName(self.layer)
+        self.optional_pane =_layout_factory(format='vertical-box')
+        self.optional_pane.setObjectName(self.layer)
         self.setLayout(QtWidgets.QVBoxLayout())
     
     def _arrange_arg_widgets(self):
         """Arrange child widgets in their layouts and provides rendering hints"""
-        self.title.setAlignment(QtCore.Qt.AlignTop)
-        self.required_title.setAlignment(QtCore.Qt.AlignTop)
-        self.optional_title.setAlignment(QtCore.Qt.AlignTop)
-        self.symbol_input.setAlignment(QtCore.Qt.AlignTop)
         self.symbol_hint.setAlignment(QtCore.Qt.AlignBottom)
         self.error_message.setAlignment(QtCore.Qt.AlignHCenter)
         
-        max_width_max_height_policy =  QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum)
-        min_width_max_height_policy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Maximum)
-        min_width_max_height_policy_list = [
-            self.title, self.required_title, self.optional_title, 
-            self.calculate_button, self.clear_button, self.symbol_input,
-            self.symbol_hint, self.symbol_holder, self.required_pane, 
-            self.optional_pane 
-        ]
-        _set_policy_on_widget_list(min_width_max_height_policy_list, min_width_max_height_policy)
-        _set_policy_on_widget_list([self.symbol_label], max_width_max_height_policy)
-
-        self.symbol_holder.layout().addWidget(self.symbol_label)
-        self.symbol_holder.layout().addWidget(self.symbol_input)
+        _set_policy_on_widget_list([self.title, self.required_title, self.optional_title, self.calculate_button, 
+                                    self.clear_button, self.symbol_hint, self.symbol_widget, self.required_pane, 
+                                    self.optional_pane], 
+                                    QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Maximum))
+        _set_policy_on_widget_list([self.symbol_widget], 
+                                    QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum))
 
         self.required_pane.layout().addWidget(self.required_title)
         self.required_pane.layout().addWidget(self.symbol_hint)
-        self.required_pane.layout().addWidget(self.symbol_holder)
+        self.required_pane.layout().addWidget(self.symbol_widget)
 
         self.optional_pane.layout().addWidget(self.optional_title)
         for control_widget in self.control_widgets.values():
@@ -234,13 +264,22 @@ class ArgumentWidget(QtWidgets.QWidget):
 
     def _stage_arg_widgets(self):
         """Prepares child widgets for display"""
-        self.symbol_input.setMaxLength(100)
         self.error_message.hide()
         self.calculate_button.setAutoDefault(True) # emits 'clicked' when return is pressed
         self.clear_button.setAutoDefault(True)
         self.clear_button.clicked.connect(self.clear_function)
         self.calculate_button.clicked.connect(self.calculate_function)
-        self.symbol_input.returnPressed.connect(self.calculate_function)
+        self.get_symbol_input().setMaxLength(100)
+        self.get_symbol_input().returnPressed.connect(self.calculate_function)
+
+    def get_symbol_input(self):
+        return self.symbol_widget.layout().itemAt(1).widget()
+
+    def get_control_input(self, control_widget_key):
+        if self.control_widgets[control_widget_key] is None:
+            return None
+        return self.control_widgets[control_widget_key].layout().itemAt(1).widget()
+
 
 class TableWidget(QtWidgets.QWidget):
     """
@@ -364,10 +403,11 @@ class CompositeWidget(QtWidgets.QWidget):
     4. **tab_widget**: ``PySide6.QtWidget.QWidget``
 
     """
-    def __init__(self, tmp_graph_key: str, widget_title: str="Results", 
+    def __init__(self, tmp_graph_key: str, layer: str, widget_title: str="Results", 
                     table_title: Union[str, None]=None, 
                     graph_title: Union[str,None]=None):
         super().__init__()
+        self.setObjectName(layer)
         self._init_composite_widgets(widget_title=widget_title,
                                         tmp_graph_key=tmp_graph_key)
         self._arrange_composite_widgets(graph_title=graph_title, 

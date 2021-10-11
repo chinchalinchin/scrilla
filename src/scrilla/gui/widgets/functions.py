@@ -26,16 +26,16 @@ from scrilla.analysis.objects.portfolio import Portfolio
 
 from scrilla.util import outputter, helper, plotter
 
-from scrilla.gui import formats
+from scrilla.gui import formats, utilities
 from scrilla.gui.widgets.components import ArgumentWidget, CompositeWidget, \
                                             GraphWidget, TableWidget, generate_control_skeleton
 
 logger = outputter.Logger('gui.functions', settings.LOG_LEVEL)
 
 class RiskReturnWidget(QtWidgets.QWidget):
-    def __init__(self, objectName):
+    def __init__(self, layer):
         super().__init__()
-        self.setObjectName(objectName)
+        self.setObjectName(layer)
         self._init_profile_widgets()
         self._arrange_profile_widgets()
 
@@ -44,17 +44,18 @@ class RiskReturnWidget(QtWidgets.QWidget):
         controls = generate_control_skeleton()
         controls['start_date'] = True
         controls['end_date'] = True
-        print(controls)
         return controls
 
     def _init_profile_widgets(self):
         self.composite_widget = CompositeWidget(keys.keys['GUI']['TEMP']['PROFILE'], 
                                                     widget_title="Risk Analysis",
                                                     table_title="CAPM Risk Profile",
-                                                    graph_title="Risk-Return Plane")
+                                                    graph_title="Risk-Return Plane",
+                                                    layer = utilities.get_next_layer(self.objectName()))
         self.arg_widget = ArgumentWidget(calculate_function=self.calculate,
                                             clear_function=self.clear,
-                                            controls= RiskReturnWidget._configure_control_skeleton())
+                                            controls= RiskReturnWidget._configure_control_skeleton(),
+                                            layer = utilities.get_next_layer(self.objectName()))
         self.setLayout(QtWidgets.QHBoxLayout())
 
     def _arrange_profile_widgets(self):
@@ -68,7 +69,7 @@ class RiskReturnWidget(QtWidgets.QWidget):
         if self.composite_widget.graph_widget.figure.isVisible():
             self.composite_widget.graph_widget.figure.hide()
 
-        symbols = helper.split_and_strip(self.arg_widget.symbol_input.text())
+        symbols = helper.split_and_strip(self.arg_widget.get_symbol_input().text())
 
         self.composite_widget.table_widget.table.setRowCount(len(symbols))
         self.composite_widget.table_widget.table.setColumnCount(5)
@@ -104,18 +105,26 @@ class RiskReturnWidget(QtWidgets.QWidget):
     def clear(self):
         self.composite_widget.graph_widget.figure.hide()
         self.composite_widget.table_widget.table.clear()
-        self.arg_widget.symbol_input.clear()
+        self.arg_widget.get_symbol_input().clear()
 
 class CorrelationWidget(QtWidgets.QWidget):
-    def __init__(self, objectName):
+    def __init__(self, layer):
         super().__init__()
-        self.setObjectName(objectName)
+        self.setObjectName(layer)
+
+    @staticmethod
+    def _configure_control_skeleton():
+        controls = generate_control_skeleton()
+        controls['start_date'] = True
+        controls['end_date'] = True
+        return controls
 
     def _init_correlation_widgets(self):
         self.table_widget = TableWidget(widget_title="Correlation Matrix")
         self.arg_widget = ArgumentWidget(calculate_function=self.calculate,
                                             clear_function=self.clear,
-                                            controls=generate_control_skeleton())
+                                            controls=CorrelationWidget._configure_control_skeleton(),
+                                            layer=utilities.get_next_layer(self.objectName()))
         self.setLayout(QtWidgets.QVBoxLayout())
 
     def _arrange_correlation_widgets(self):
@@ -128,7 +137,7 @@ class CorrelationWidget(QtWidgets.QWidget):
             self.table_widget.table.clear()
             self.table_widget.table.hide()
 
-        symbols = helper.split_and_strip(self.arg_widget.symbol_input.text())
+        symbols = helper.split_and_strip(self.arg_widget.get_symbol_input().text())
 
         if len(symbols) > 1:
             self.table_widget.table.setRowCount(len(symbols))
@@ -155,22 +164,30 @@ class CorrelationWidget(QtWidgets.QWidget):
 
     @QtCore.Slot()
     def clear(self):
-        self.arg_widget.symbol_input.clear()
+        self.arg_widget.get_symbol_input().clear()
         self.table_widget.table.clear()
         self.table_widget.table.hide()
 
 class OptimizerWidget(QtWidgets.QWidget):
-    def __init__(self, objectName):
+    def __init__(self, layer):
         super().__init__()
-        self.setObjectName(objectName)
+        self.setObjectName(layer)
         self._init_optimizer_widgets()
         self._arrange_optimizer_widgets()
+
+    @staticmethod
+    def _configure_control_skeleton():
+        controls = generate_control_skeleton()
+        controls['start_date'] = True
+        controls['end_date'] = True
+        return controls
 
     def _init_optimizer_widgets(self):
         self.table_widget = TableWidget(widget_title="Optimization Results")
         self.arg_widget = ArgumentWidget(calculate_function=self.optimize,
                                             clear_function=self.clear,
-                                            controls=generate_control_skeleton())
+                                            controls=OptimizerWidget._configure_control_skeleton(),
+                                            layer=utilities.get_next_layer(self.objectName()))
         self.setLayout(QtWidgets.QVBoxLayout())
 
     def _arrange_optimizer_widgets(self):
@@ -183,7 +200,7 @@ class OptimizerWidget(QtWidgets.QWidget):
             self.table_widget.table.clear()
             self.table_widget.table.hide()
 
-        symbols = helper.split_and_strip(self.arg_widget.symbol_input.text())
+        symbols = helper.split_and_strip(self.arg_widget.get_symbol_input().text())
 
         # TODO: better error checking
         if len(symbols) > 1:
@@ -231,17 +248,24 @@ class OptimizerWidget(QtWidgets.QWidget):
         self.table_widget.table.hide()
 
 class EfficientFrontierWidget(QtWidgets.QWidget):
-    def __init__(self, objectName):
+    def __init__(self, layer):
         super().__init__()
-        self.setObjectName(objectName)
+        self.setObjectName(layer)
         self._init_frontier_widgets()
         self._arrange_frontier_widgets()
+    @staticmethod
+    def _configure_control_skeleton():
+        controls = generate_control_skeleton()
+        controls['start_date'] = True
+        controls['end_date'] = True
+        return controls
 
     def _init_frontier_widgets(self):
         self.graph_widget = GraphWidget(tmp_graph_key=keys.keys['GUI']['TEMP']['FRONTIER'])
         self.arg_widget = ArgumentWidget(calculate_function=self.calculate, 
                                             clear_function=self.clear,
-                                            controls=generate_control_skeleton())
+                                            controls=EfficientFrontierWidget._configure_control_skeleton(),
+                                            layer=utilities.get_next_layer(self.objectName()))
         self.setLayout(QtWidgets.QVBoxLayout())
         # TODO: portfolio tabs
 
@@ -260,7 +284,7 @@ class EfficientFrontierWidget(QtWidgets.QWidget):
         if self.graph_widget.figure.isVisible():
             self.graph_widget.figure.hide()
 
-        symbols = helper.split_and_strip(self.arg_widget.symbol_input.text())
+        symbols = helper.split_and_strip(self.arg_widget.get_symbol_input().text())
 
         this_portfolio = Portfolio(tickers=symbols)
         frontier = optimizer.calculate_efficient_frontier(portfolio=this_portfolio)
@@ -274,12 +298,12 @@ class EfficientFrontierWidget(QtWidgets.QWidget):
     @QtCore.Slot()
     def clear(self):
         self.graph_widget.figure.hide()
-        self.arg_widget.symbol_input.clear()
+        self.arg_widget.get_symbol_input().clear()
 
 class MovingAverageWidget(QtWidgets.QWidget):
-    def __init__(self, objectName):
+    def __init__(self, layer):
         super().__init__()
-        self.setObjectName(objectName)
+        self.setObjectName(layer)
         self._init_average_widgets()
         self._arrange_average_widgets()
 
@@ -287,7 +311,8 @@ class MovingAverageWidget(QtWidgets.QWidget):
         self.graph_widget = GraphWidget(keys.keys['GUI']['TEMP']['AVERAGES'])
         self.arg_widget = ArgumentWidget(calculate_function=self.calculate,
                                             clear_function=self.clear,
-                                            controls = generate_control_skeleton())
+                                            controls = generate_control_skeleton(),
+                                            layer=utilities.get_next_layer(self.objectName()))
         self.setLayout(QtWidgets.QVBoxLayout())
 
     def _arrange_average_widgets(self):
@@ -304,7 +329,7 @@ class MovingAverageWidget(QtWidgets.QWidget):
         if self.graph_widget.figure.isVisible():
             self.graph_widget.figure.hide()
 
-        symbols = helper.split_and_strip(self.arg_widget.symbol_input.text())
+        symbols = helper.split_and_strip(self.arg_widget.get_symbol_input().text())
 
         moving_averages = statistics.calculate_moving_averages(symbols)
         periods = [settings.MA_1_PERIOD, settings.MA_2_PERIOD, settings.MA_3_PERIOD]
@@ -318,5 +343,5 @@ class MovingAverageWidget(QtWidgets.QWidget):
     
     @QtCore.Slot()
     def clear(self):
-        self.arg_widget.symbol_input.clear()
+        self.arg_widget.get_symbol_input().clear()
         self.graph_widget.figure.hide()

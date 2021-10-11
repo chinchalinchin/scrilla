@@ -74,6 +74,13 @@
     border-color: $primary-900;
     background-color: $primary-500;
 }
+#great-great-grand-child {
+    border-style: inset;
+    border-radius: 2px;
+    border-width: 0.5px;
+    border-color: $primary-900;
+    background-color: $primary-400;
+}
 QLineEdit#line-edit {
     background-color: $primary-200;
 }
