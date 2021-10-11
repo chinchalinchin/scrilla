@@ -19,6 +19,7 @@ from PySide6 import QtCore, QtWidgets, QtGui
 
 from scrilla import settings
 
+from scrilla.gui import formats
 from scrilla.gui.functions import RiskReturnWidget, CorrelationWidget, \
                                     MovingAverageWidget, EfficientFrontierWidget, \
                                     OptimizerWidget
@@ -37,18 +38,27 @@ class MenuWidget(QtWidgets.QWidget):
     def __init__(self):
         super().__init__()
         self._init_menu_widgets()
+        self._generate_menu_bar()
         self._arrange_menu_widgets()
         self._stage_menu_widgets()
 
     def _generate_menu_bar(self):
-        self.menu_bar = QtWidgets.QMenuBar(None)
-        self.menu_bar.setObjectName('menu-bar')
-        file = self.menu_bar.addMenu('File')
-        export = file.addMenu('Export')
-
         self.api_key_action = QtGui.QAction('Add API Key', self)
         self.jpeg_export_action = QtGui.QAction('JPEG', self)
         self.json_export_action = QtGui.QAction('JSON', self)
+
+        self.menu_bar = QtWidgets.QMenuBar(None)
+        self.menu_bar.setObjectName('menu-bar')
+
+        file = self.menu_bar.addMenu('File')
+        view = self.menu_bar.addMenu('Function')
+        preferences = self.menu_bar.addMenu('Preferences')
+
+        self.function_actions = [ QtGui.QAction(function, self) for function in formats.FUNCTIONS ]
+        for action in self.function_actions:
+            view.addAction(action)
+
+        export = file.addMenu('Export')
 
         self.api_key_action.setEnabled(True)
         self.jpeg_export_action.setEnabled(False)
@@ -59,8 +69,6 @@ class MenuWidget(QtWidgets.QWidget):
         export.addAction(self.json_export_action)
 
     def _init_menu_widgets(self):
-        self._generate_menu_bar()
-        
         self.setObjectName('root')
 
         self.intro_msg = QtWidgets.QLabel("Select A Function To Get Started")
@@ -72,13 +80,9 @@ class MenuWidget(QtWidgets.QWidget):
         self.function_menu = QtWidgets.QLabel('Functions')
         self.function_menu.setObjectName('function-menu')
         
-        self.widget_buttons = [ 
-            QtWidgets.QPushButton("Correlation Matrix"),
-            QtWidgets.QPushButton("Efficient Frontier"),
-            QtWidgets.QPushButton("Moving Averages"),
-            QtWidgets.QPushButton("Portfolio Optimization"),
-            QtWidgets.QPushButton("Risk-Return Profile"),
-        ]
+        
+        self.widget_buttons = [ QtWidgets.QPushButton(function) for function in formats.FUNCTIONS ]
+
         self.exit_button = QtWidgets.QPushButton("Exit")
         self.exit_button.setObjectName('button')
 

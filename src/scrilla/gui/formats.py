@@ -5,6 +5,13 @@ from typing import Tuple
 from scrilla import settings
 from scrilla.static import constants
 
+FUNCTIONS= [
+    "Correlation Matrix",
+    "Efficient Frontier",
+    "Moving Averages",
+    "Portfolio Optimization",
+    "Risk Profile"
+]
 
 def format_stylesheet(sheet):
     if settings.GUI_DARK_MODE:

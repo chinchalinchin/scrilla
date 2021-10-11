@@ -157,71 +157,70 @@ class CorrelationWidget(TableWidget):
         self.table.clear()
         self.table.hide()
 
-class OptimizerWidget(PortfolioWidget):
+class OptimizerWidget(QtWidgets.QWidget):
     def __init__(self, objectName):
         super().__init__(widget_title="Portfolio Allocation Optimization",
                             optimize_function=self.optimize, 
                             clear_function=self.clear)
         self.setObjectName(objectName)
+        self._init_optimizer_widgets()
+
+    def _init_optimizer_widgets(self):
+        self.table_widget = TableWidget(widget_title="Optimization Results")
+        pass
 
     @QtCore.Slot()
     def optimize(self):
-        if self.result_table.isVisible():
-            self.clear()
+        if self.table_widget.table.isVisible():
+            self.table_widget.table.clear()
+            self.table_widget.table.hide()
 
         symbols = helper.split_and_strip(self.symbol_input.text())
 
         # TODO: better error checking
         if len(symbols) > 1:
-            self.result_table.setRowCount(len(symbols))
-            self.result_table.setVerticalHeader(QtWidgets.QHeaderView(QtCore.Qt.Vertical))
-            self.result_table.setVerticalHeaderLabels(symbols)
-            self.result_table.setHorizontalHeader(QtWidgets.QHeaderView(QtCore.Qt.Horizontal))
-            self.result_table.horizontalHeader().setStretchLastSection(True)
+            self.table_widget.table.setRowCount(len(symbols))
+            self.table_widget.table.setVerticalHeaderLabels(symbols)
 
-            investment = self.portfolio_value.text()
+            # investment = self.portfolio_value.text()
 
             this_portfolio = portfolio.Portfolio(tickers=symbols)
             allocation = optimizer.optimize_portfolio_variance(portfolio=this_portfolio)
             
-            self.result.setText(formats.format_allocation_profile_title(allocation, this_portfolio))
+            # self.result.setText(formats.format_allocation_profile_title(allocation, this_portfolio))
             
-            if not investment:
-                self.result_table.setColumnCount(1)
-                labels = ['Allocation']
-            else:
-                self.result_table.setColumnCount(2)
-                labels = ['Allocation', 'Shares']
-                shares = this_portfolio.calculate_approximate_shares(allocation, float(investment))
-            self.result_table.setHorizontalHeaderLabels(labels)
+           # if not investment:
+                # self.table_widget.table.setColumnCount(1)
+                # labels = ['Allocation']
+            # else:
+                # self.table_widget.table.setColumnCount(2)
+                # labels = ['Allocation', 'Shares']
+                # shares = this_portfolio.calculate_approximate_shares(allocation, float(investment))
+
+            # self.table_widget.table.setHorizontalHeaderLabels(labels)
 
 
-            for i in range(len(symbols)):
-                item = QtWidgets.QTableWidgetItem(formats.format_allocation(allocation[i]))
-                item.setTextAlignment(QtCore.Qt.AlignHCenter)
-                self.result_table.setItem(i, 0, item)
-                if investment:
-                    share_item = QtWidgets.QTableWidgetItem(str(shares[i]))
-                    share_item.setTextAlignment(QtCore.Qt.AlignHCenter)
-                    self.result_table.setItem(i, 1, share_item)
+            # for i in range(len(symbols)):
+              #   item = QtWidgets.QTableWidgetItem(formats.format_allocation(allocation[i]))
+                # item.setTextAlignment(QtCore.Qt.AlignHCenter)
+                # self.table_widget.table.setItem(i, 0, item)
+                # if investment:
+                  #  share_item = QtWidgets.QTableWidgetItem(str(shares[i]))
+                  #  share_item.setTextAlignment(QtCore.Qt.AlignHCenter)
+                  #  self.table_widget.table.setItem(i, 1, share_item)
             
-            self.result_table.resizeColumnsToContents()
-            self.result_table.show()
-            self.result.show()
+            # self.table_widget.table.resizeColumnsToContents()
+            # self.table_widget.table.show()
+            # self.result.show()
         
-        else:
-            self.result.setText("Error Occurred. Check Input and Try Again.")
-            self.result.show()
+        # else:
+          #   self.result.setText("Error Occurred. Check Input and Try Again.")
+            # self.result.show()
 
     @QtCore.Slot()
     def clear(self):
-        self.symbol_input.clear()
-        self.target_return.clear()
-        self.portfolio_value.clear()
-        self.result_table.clear()
-        self.result_table.hide()
-        self.result.clear()
-        self.result.hide()
+        self.table_widget.table.clear()
+        self.table_widget.table.hide()
 
 class EfficientFrontierWidget(GraphWidget):
     def __init__(self, objectName):

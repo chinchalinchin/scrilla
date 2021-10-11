@@ -13,8 +13,10 @@
 # along with scrilla.  If not, see <https://www.gnu.org/licenses/>
 # or <https://github.com/chinchalinchin/scrilla/blob/develop/main/LICENSE>.
 
-from typing import Callable
+from typing import Callable, Dict
 from PySide6 import QtGui, QtCore, QtWidgets
+
+from scrilla.gui import utilities
 
 # TODO: have widgets create their own layouts and arrange their hcild widgets in them, i.e. not in their root layout.
 #       then compose the layouts in the functions module.
@@ -44,52 +46,74 @@ A series of classes that all inherit from ``PySide6.QtWidgets.QWidget` and build
 All widgets have a similar structure in that they call a series of methods tailored to their specific class: 
     1. **_init**
         Child widgets are constructed. Layouts are created.
-    2. **_style**
-        Child widgets are styled. Fonts and cues are applied.
-    3. **_arrange**
+    2. **_arrange**
         Child widgets are arranged. Layouts are applied.
-    4. **_stage**
+    3. **_stage**
         Child widgets are prepped for display.
 """
 
-class SymbolWidget(QtWidgets.QWidget):
+class ArgumentWidget(QtWidgets.QWidget):
     """
-    Base class for other more complex widgets to inherit. `scrilla.gui.widgets.SymbolWidget` only initializes its child widgets and applies no layouts. An instance of `scrilla.gui.widgets.SymbolWidget` provides essential widgets, such as ``PySide6.QtWidgets.QLabel``'s for the title widget and error message widget, a ``PySide6.QtWidgets.QPushButton`` for the calculate button widget, a ``PySide6.QtWidget.QLineEdit`` for ticker symbol input, etc. 
+    Base class for other more complex widgets to inherit. An instance of `scrilla.gui.widgets.ArgumentWidget` embeds its child widgets in its own layout,  which is an instance of``PySide6.QtWidgetQVBoxLayout``. This class provides access to the following widgets:a ``PySide6.QtWidgets.QLabel`` for the title widget, an error message widget, a ``PySide6.QtWidgets.QPushButton`` for the calculate button widget, a ``PySide6.QtWidget.QLineEdit`` for ticker symbol input, and a variety of optional input widgets enabled by boolean flags in the `controls` constructor argument. 
     
     Constructor
     -----------
-    1. **widget_title**: ``str``
-        Title affixed to the top of the widget.
-    2. **button_msg**: ``str``
-        Message written on `self.calculate_button`
+    1. **calculate_function**: ``str``
+    2. **clear_function**: ``str``
+    3. **controls:**: ``Dict[bool]``
+    4. **widget_title**: ``str``
+        *Optional*. Defaults to `Function Input`. Title affixed to the top of the widget.
+    5. **button_msg**: ``str``
+        *Optional*. Defaults to `Calculate`. Message written on `self.calculate_button`
 
     Attributes
     ----------
-    1. **message**: ``PySide6.QtWidgets.QLabel``
+    1. **title**: ``PySide6.QtWidgets.QLabel``
+    2. **required_title**: ``PySide6.QtWidgets.QLabel``
+    3. **optional_title**: ``PySide6.QtWidgets.QLabel``
+    4. **required_pane**: ``PySide6.QtWidgets.QLabel``
+    5. **optional_pane**: ``PySide6.QtWidgets.QLabel``
+    6. **message**: ``PySide6.QtWidgets.QLabel``
         Label attached to `self.symbol_input`.
-    2. **error_message**: ``PySide6.QtWidget.QLabel``
+    7. **error_message**: ``PySide6.QtWidget.QLabel``
         Message displayed if there is an error thrown during calculation.
-    3. **calculate_button**: ``PySide6.QtWidget.QPushButton``
+    8. **calculate_button**: ``PySide6.QtWidget.QPushButton``
         Empty button for super classes to inherit, primed to fire events on return presses
-    4. **clear_button**: ``PySide6.QtWidget.QPushButton``
+    9. **clear_button**: ``PySide6.QtWidget.QPushButton``
         Empty button for super classes to inherit, primed to fire events on return presses.
-    5. **symbol_input**: ``PySide6.QtWidget.QLineEdit``
+    10. **symbol_input**: ``PySide6.QtWidget.QLineEdit``
         Empty text area for super classes to inherit
     """
     # TODO: calculate and clear should be part of THIS constructor, doesn't make sense to have other widgets hook them up.
-    def __init__(self, widget_title: str, button_msg: str):
+    def __init__(self, calculate_function: Callable, clear_function: Callable, controls: Dict[bool],
+                    widget_title: str ="Function Input", button_msg: str ="Calculate",):
         super().__init__()
         self.widget_title = widget_title
         self.button_msg = button_msg
+        self.controls = controls
+        self.calculate_function = calculate_function
+        self.clear_function = clear_function
 
-        self._init_symbol_widgets()
-        self._arrange_symbol_widgets()
-        self._stage_symbol_widgets()
+        self._init_arg_widgets()
+        self._arrange_arg_widgets()
+        self._stage_arg_widgets()
     
-    def _init_symbol_widgets(self):
+    def _init_arg_widgets(self):
         """Creates child widgets"""
         self.title = QtWidgets.QLabel(self.widget_title)
         self.title.setObjectName('subtitle')
+
+        self.required_title = QtWidgets.QLabel("Required Arguments")
+        self.required_title.setObjectName('label')
+
+        self.optional_title = QtWidgets.QLabel("Optional Arguments")
+        self.optional_title.setObjectName('label')
+
+        self.required_pane = QtWidgets.QWidget()
+        self.required_pane.setLayout(QtWidgets.QVBoxLayout())
+
+        self.optional_pane = QtWidgets.QWidget()
+        self.optional_pane.setLayout(QtWidgets.QVBoxLayout())
 
         self.message = QtWidgets.QLabel("Separate symbols with comma")
         self.message.setObjectName('text')
@@ -105,63 +129,68 @@ class SymbolWidget(QtWidgets.QWidget):
 
         self.symbol_input = QtWidgets.QLineEdit()
         self.symbol_input.setObjectName('line-edit')
+
+        self.setLayout(QtWidgets.QHBoxLayout())
+
+        # TODO: init the rest of the argument widgets
     
-    def _arrange_symbol_widgets(self):
+    def _arrange_arg_widgets(self):
         """Provides rendering hints to child widgets"""
         self.title.setAlignment(QtCore.Qt.AlignTop)
         self.message.setAlignment(QtCore.Qt.AlignBottom)
         self.error_message.setAlignment(QtCore.Qt.AlignHCenter)
 
-    def _stage_symbol_widgets(self):
+        self.required_pane.layout().addWidget(self.required_title)
+        self.required_pane.layout().addWidget(self.symbol_input)
+
+        self.optional_pane.layout().addWidget(self.optional_title)
+        
+        self.layout().addWidget(self.title)
+        self.layout().addWidget(self.error_message)
+        self.layout().addWidget(self.required_pane)
+        self.layout().addWidget(self.optional_pane)
+
+        self.layout().addWidget(self.calculate_button)
+        self.layout().addWidget(self.clear_button)
+
+    def _stage_arg_widgets(self):
         """Prepares child widgets for display"""
         self.symbol_input.setMaxLength(100)
         self.error_message.hide()
         self.calculate_button.setAutoDefault(True) # emits 'clicked' when return is pressed
         self.clear_button.setAutoDefault(True)
-        # self.clear_button.clicked.connect(self.clear_function)
-        # self.calculate_button.clicked.connect(self.table_function)
-        # self.symbol_input.returnPressed.connect(self.table_function)
+        self.clear_button.clicked.connect(self.clear_function)
+        self.calculate_button.clicked.connect(self.calculate_function)
+        self.symbol_input.returnPressed.connect(self.calculate_function)
 
-class TableWidget(SymbolWidget):
+class TableWidget(QtWidgets.QWidget):
     """
+    Base class for other more complex widgets to inherit. An instance of `scrilla.gui.widgets.TableWidget` embeds its child widgets in its own layout, which is an instance of``PySide6.QtWidgetQVBoxLayout``. This class provides access to the following widgets: a ``PySide6.QtWidgets.QLabel`` for the title widget, an error message widget and a ``PySide6.QtWidgets.QTableWidget`` for results display. 
+
     Parameters
     ----------
     1. **widget_title**: ``str``
         Title of the widget. Passed to the super class `scrilla.gui.widgets.SymbolWidget`.
     2. **button_msg**: ``str``
         Message written on the `self.calculate_button`. Passed to the super class `scrilla.gui.widgets.SymbolWidget`.
-    3. **table_function**: ``Callable``
-        Function triggered by clicking on`self.calculate_button` or pressing return while focused on `self.symbol_input`.
 
     Attributes
     ----------
-    1. **table_function**: ``Callable``
-        Function triggered by clicking on`self.calculate_button` or pressing return while focused on `self.symbol_input`.
-    2. **table**: ``PySide6.QtWidget.QTableWidget``
-    3. **layout**: ``PySide6.QtWidget.QVBoxLayout`` 
-    4. **displayed**: ``bool``
-    5. **figure**: ``Union[None, QtWidgets.QLabel]``
+    1. **title**: ``PySide6.QtWidget.QLabel``
+    2.. **table**: ``PySide6.QtWidget.QTableWidget``
 
-    Methods
-    -------
-    1. _init_widgets()
-        Creates the children widgets and layouts
-    2. _arrange_widgets()
-        Arrange the children widget within the layouts
-    3. _stage_widgets()
-        Prepares the children widget for display
     """
-    def __init__(self, widget_title: str, button_msg: str, table_function: Callable, clear_function: Callable):
-        super().__init__(widget_title=widget_title, button_msg=button_msg)
-        self.table_function = table_function
-        self.clear_function = clear_function
-
-        self._init_table_widgets()
+    def __init__(self, widget_title: str ="Table Result"):
+        super().__init__(widget_title=widget_title)
+        self._init_table_widgets(widget_title)
         self._arrange_table_widgets()
         self._stage_table_widgets()
 
-    def _init_table_widgets(self):
+    def _init_table_widgets(self, widget_title):
         """Creates child widgets and their layouts"""
+        self.title = QtWidgets.QLabel(widget_title)
+        self.title.setObjectName('subtitle')
+
         self.table = QtWidgets.QTableWidget()
         self.table.setObjectName('table')
 
@@ -169,239 +198,100 @@ class TableWidget(SymbolWidget):
     
     def _arrange_table_widgets(self):
         self.table.setHorizontalHeader(QtWidgets.QHeaderView(QtCore.Qt.Horizontal))
+        self.table.horizontalHeader().setStretchLastSection(True)
+
         self.table.setVerticalHeader(QtWidgets.QHeaderView(QtCore.Qt.Vertical))
 
         self.layout().addWidget(self.title)
         self.layout().addStretch()
         self.layout().addWidget(self.table, 1)
-        self.layout().addWidget(self.error_message)
-        self.layout().addWidget(self.message)
-        self.layout().addWidget(self.symbol_input)
-        self.layout().addWidget(self.calculate_button)
-        self.layout().addWidget(self.clear_button)
 
     def _stage_table_widgets(self):
-        # TODO: remove button function hook
-        self.clear_button.clicked.connect(self.clear_function)
-        self.calculate_button.clicked.connect(self.table_function)
-        self.symbol_input.returnPressed.connect(self.table_function)
         self.table.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustToContents)
         self.table.hide()
 
-# NOTE: display_function MUST set displayed = True and set
-#       figure to FigureCanvasAgg object
-class GraphWidget(SymbolWidget):
+class GraphWidget(QtWidgets.QWidget):
     """
+    Base class for other more complex widgets to inherit. An instance of `scrilla.gui.widgets.GraphWidget` embeds its child widgets in its own layout, which is an instance of``PySide6.QtWidgetQVBoxLayout``. This class provides access to the following widgets: a ``PySide6.QtWidgets.QLabel`` for the title widget, an error message widget and a ``PySide6.QtWidgets.QTableWidget`` for results display. 
+
+    The graph to be displayed should be stored in the `scrilla.settings.TEMP_DIR` directory before calling the `show_pixmap` method on this class. It will load the graph from file and convert it into a ``PySide6.QtGui.QPixMap``.
+
     Parameters
     ----------
-    1. **widget_title**: ``str``
-        Title of the widget. Passed to the super class `scrilla.gui.widgets.SymbolWidget`.
-    2. **button_msg**: ``str``
-        Message written on the `self.calculate_button`. Passed to the super class `scrilla.gui.widgets.SymbolWidget`.
-    3. **display_function**: ``Callable``
-        Function triggered by clicking on`self.calculate_button` or pressing return while focused on `self.symbol_input`.
-    4. **clear_function**: ``Callable``
-        Function trigged by clicking on `self.clear_button`.
+    1. **tmp_graph_key**: ``str``
+        The key of the file in the `scrilla.settings.TEMP_DIR` used to store the image of the graph.
+    2. **widget_title**: ``str``
+        Title applied to the label of the graph.
 
     Attributes
     ----------
-    1. **layout**: ``PySide6.QtWidget.QVBoxLayout``
+    1. **tmp_graph_key**: ``str``
+    2. **title**: ``PySide6.QtWidget.QLabel``
+    3. **figure**: ``PySide6.QtWidget.QLabel``
     """
-    def __init__(self, widget_title: str, button_msg: str, display_function: Callable, clear_function: Callable):
-        super().__init__(widget_title=widget_title, button_msg=button_msg)    
-        self.display_function = display_function
-        self.clear_function = clear_function
-        self._init_graph_widgets()
+    def __init__(self, tmp_graph_key: str, widget_title: str ="Graph Results"):
+        super().__init__()    
+        self.tmp_graph_key = tmp_graph_key
+        self._init_graph_widgets(widget_title)
         self._arrange_graph_widgets()
         self._stage_graph_widgets() 
     
-    def _init_graph_widgets(self):
+    def _init_graph_widgets(self, widget_title):
         self.setLayout(QtWidgets.QVBoxLayout())
+        self.title = QtWidgets.QLabel(widget_title)
+        self.figure = QtWidgets.QLabel()
 
     def _arrange_graph_widgets(self):
+        self.figure.setAlignment(QtCore.Qt.AlignHCenter)
         self.layout().addWidget(self.title)
-        self.layout().addStretch()
-        self.layout().addWidget(self.message)
-        self.layout().addWidget(self.symbol_input)
-        self.layout().addWidget(self.calculate_button)
-        self.layout().addWidget(self.clear_button)
+        self.layout().addWidget(self.figure)
     
     def _stage_graph_widgets(self):
-        # TODO: remove button function hook
-        self.clear_button.clicked.connect(self.clear_function)
-        self.calculate_button.clicked.connect(self.display_function)
-        self.symbol_input.returnPressed.connect(self.display_function)
+        self.figure.hide()
 
-class CompositeWidget(SymbolWidget):
+    def show_pixmap(self):
+        self.figure.setPixmap(utilities.generate_pixmap_from_temp(self.width(), self.height(), self.tmp_graph_key))
+        self.figure.show()
+
+class CompositeWidget(QtWidgets.QWidget):
     """
     Constructor
     -----------
-    1. **widget_title**: ``str``
+    1. **tmp_graph_key**: ``str``
+    2. **widget_title**: ``str``
         Title of the widget. Passed to the super class `scrilla.gui.widgets.SymbolWidget`.
-    2. **button_msg**: ``str``
-        Message written on the `self.calculate_button`. Passed to the super class `scrilla.gui.widgets.SymbolWidget`.
-    3. **display_function**: ``Callable``
-        Function triggered by clicking on`self.calculate_button` or pressing return while focused on `self.symbol_input`.
-    4. **calculate_function**: ``Callable``
-        Function triggered by clicking on `self.calculate_button` or pressing return while focused on `self.symbol_input`.
+    3. **table_title**: ``str``
+    4. **graph_title**: ``str``
 
     Attributes
     ----------
-    1. **displayed**: ``bool``
-    2. **figure**: ``Union[None, QtWidgets.QLabel]``
-    3. **table**
-    4. **first_layer**
-    5. **left_layer**
-    6. **right_layer**
-
+    1. **title**: ``PySide6.QtWidgets.QLabel``
+    2. **table**: ``scrilla.gui.widgets.TableWidget``
+    3. **graph**: ``scrilla.gui.widgets.GraphWidget``
+    4. **result_pane**: ``PySide6.QtWidget.QWidget``
 
     """
-    def __init__(self, widget_title, button_msg, calculate_function, clear_function):
-        super().__init__(widget_title=widget_title, button_msg=button_msg)
-        self.calculate_function = calculate_function
-        self.clear_function = clear_function
+    def __init__(self, tmp_graph_key: str, widget_title: str="Results", table_title: str="Table Results", graph_title: str="Graph Results"):
+        super().__init__()
         self._init_composite_widgets()
-        self._arrange_composite_widgets()
-        self._stage_composite_widgets()
+        self._arrange_composite_widgets(widget_title=widget_title,
+                                        tmp_graph_key=tmp_graph_key, 
+                                        graph_title=graph_title, 
+                                        table_title=table_title)
 
-    def _init_composite_widgets(self):
-        """Creates child widgets and their layouts"""        
-        self.table = QtWidgets.QTableWidget()
-
+    def _init_composite_widgets(self, widget_title, tmp_graph_key, graph_title, table_title):
+        """Creates child widgets and their layouts"""
+        # TODO: tabs for graph and table, tab text set to title...
+        self.title = QtWidgets.QLabel(widget_title)
+        self.table = TableWidget(table_title)
+        self.graph = GraphWidget(tmp_graph_key, graph_title)
+        self.result_pane = QtWidgets.QWidget()
+        self.result_pane.setLayout(QtWidgets.QHBoxLayout())
         self.setLayout(QtWidgets.QVBoxLayout())
-
-        self.first_layer = QtWidgets.QWidget()
-        self.first_layer.setLayout(QtWidgets.QHBoxLayout())
-
-        self.left_layer = QtWidgets.QWidget()
-        self.left_layer.setLayout(QtWidgets.QVBoxLayout())
-
-        self.right_layer = QtWidgets.QWidget()
-        self.right_layer.setLayout(QtWidgets.QVBoxLayout())
         
     def _arrange_composite_widgets(self):
-        self.table.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustToContents)
-        self.first_layer.layout().addWidget(self.left_layer)
-        self.first_layer.layout().addWidget(self.right_layer)
-
-        self.left_layer.layout().addWidget(self.table, 1)
+        self.result_pane.layout().addWidget(self.table)
+        self.result_pane.layout().addWidget(self.graph)
         
         self.layout().addWidget(self.title)
-        self.layout().addWidget(self.first_layer)
-        self.layout().addStretch()
-        self.layout().addWidget(self.error_message)
-        self.layout().addWidget(self.message)
-        self.layout().addWidget(self.symbol_input)
-        self.layout().addWidget(self.calculate_button)
-        self.layout().addWidget(self.clear_button)
-
-    def _stage_composite_widgets(self):
-        self.table.hide()
-        # TODO: remove button function hook
-        self.clear_button.clicked.connect(self.clear_function)
-        self.calculate_button.clicked.connect(self.calculate_function)
-        self.symbol_input.returnPressed.connect(self.calculate_function)
-
-class PortfolioWidget(SymbolWidget):
-    """
-    Attributes
-    ----------
-    1. **widget_title**
-    2. **optimize_function**
-    3. **left_title**
-    4. **right_title**
-    5. **target_label**
-    6. **portfolio_label**
-    7. **result**
-    8. **result_table**
-    9. **target_return**
-    10. **portfolio_value**
-    11. **first_layer**
-    12. **left_layer**
-    13. **right_layer**
-
-    .. notes::
-        * Widget Hierarchy
-            1. root_layout -> Vertically aligned
-                a. first_layout -> Horizonitally aligned
-                    i. left_layout -> Vertically aligned
-                    ii. right_layout -> Vertically aligned
-    """
-    def __init__(self, widget_title, optimize_function, clear_function):
-        super().__init__(widget_title=widget_title, button_msg="Optimize Portfolio")
-        self.widget_title = widget_title
-        self.optimize_function = optimize_function
-        self.clear_function = clear_function
-
-        self._init_portfolio_widgets()
-        self._arrange_portfolio_widgets()
-        self._stage_portfolio_widgets()
-        
-    def _init_portfolio_widgets(self):
-        """Creates child widgets and the hierarchy of layouts"""
-        self.left_title = QtWidgets.QLabel("Portfolio")
-        self.right_title = QtWidgets.QLabel("Constraints")
-        self.target_label = QtWidgets.QLabel("Target Return")
-        self.portfolio_label = QtWidgets.QLabel("Investment")
-        self.result = QtWidgets.QLabel("Result")
-
-        self.result_table = QtWidgets.QTableWidget()
-
-        self.target_return = QtWidgets.QLineEdit()
-        self.target_return.setObjectName('line-edit')
-
-        self.portfolio_value = QtWidgets.QLineEdit()
-        self.portfolio_value.setObjectName('line-edit')
-
-        self.first_layer = QtWidgets.QWidget()
-        self.left_layer = QtWidgets.QWidget()
-        self.right_layer = QtWidgets.QWidget()
-
-        self.first_layer.setLayout(QtWidgets.QHBoxLayout())
-        self.left_layer.setLayout(QtWidgets.QVBoxLayout())
-        self.right_layer.setLayout(QtWidgets.QVBoxLayout())
-        self.setLayout(QtWidgets.QVBoxLayout())
-
-    def _arrange_portfolio_widgets(self):
-        """Arranges child widgets and provides rendering hints"""
-        self.result.setAlignment(QtCore.Qt.AlignRight)
-        self.result_table.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustToContents)
-
-        self.layout().addWidget(self.title)
-        self.layout().addWidget(self.result)
-        self.layout().addWidget(self.error_message)
-        self.layout().addWidget(self.result_table, 1)
-        self.layout().addStretch()
-        self.layout().addWidget(self.first_layer)
-        self.layout().addWidget(self.clear_button)
-        self.layout().addStretch()
-
-        self.first_layer.layout().addWidget(self.left_layer)
-        self.first_layer.layout().addWidget(self.right_layer)
-
-        self.left_layer.layout().addWidget(self.left_title)
-        self.left_layer.layout().addWidget(self.portfolio_label)
-        self.left_layer.layout().addWidget(self.portfolio_value)
-        self.left_layer.layout().addWidget(self.message)
-        self.left_layer.layout().addWidget(self.symbol_input)
-
-        self.right_layer.layout().addWidget(self.right_title)
-        self.right_layer.layout().addWidget(self.target_label)
-        self.right_layer.layout().addWidget(self.target_return)
-        self.right_layer.layout().addWidget(self.calculate_button)
-
-    def _stage_portfolio_widgets(self):
-        """Prepares child widgets for display and hooks widget functions into user input widgets"""
-        self.result.hide()
-        self.result_table.hide()
-
-        # TODO: remove button function hook...target return is specific to this widget though...
-        #       will need to think. 
-        self.calculate_button.clicked.connect(self.optimize_function)
-        self.clear_button.clicked.connect(self.clear_function)
-        self.symbol_input.returnPressed.connect(self.optimize_function)
-        self.target_return.returnPressed.connect(self.optimize_function)
-
-        self.target_return.setValidator(QtGui.QDoubleValidator(-10.0000, 10.0000, 4))
-        self.portfolio_value.setValidator(QtGui.QDoubleValidator(0, 1000000, 2))
-
+        self.layout().addWidget(self.result_pane)
