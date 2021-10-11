@@ -20,8 +20,18 @@
     font-size: 16px;
     font-weight: 600;
 }
+#heading {
+    font-family: Times;
+    font-size: 14px;
+    font-weight: 600;
+}
+#input-label {
+    color: $primary-900;
+    font-size: 10px;
+    font-style: italic;
+}
 #label {
-    color: $primary-900
+    color: $primary-900;
     font-size: 14px;
     font-weight: 600;
 }
@@ -43,7 +53,6 @@
     border-color: $primary-900;
     background-color: $primary-800;
 }
-
 #child {
     border-style: inset;
     border-radius: 2px;
@@ -51,7 +60,6 @@
     border-color: $primary-900;
     background-color: $primary-700;
 }
-
 #grand-child {
     border-style: inset;
     border-radius: 2px;
@@ -59,7 +67,6 @@
     border-color: $primary-900;
     background-color: $primary-600;
 }
-
 #great-grand-child {
     border-style: inset;
     border-radius: 2px;
@@ -68,7 +75,7 @@
     background-color: $primary-500;
 }
 QLineEdit#line-edit {
-    
+    background-color: $primary-200;
 }
 QPushButton#button {
     padding: 2px;
@@ -91,4 +98,10 @@ QPushButton#button:pressed {
     border-width: 0.5px;
     border-color: $primary-900;
     background-color: $primary-700;
+}
+#debug {
+    border-style: inset;
+    border-color: $warn-800;
+    border-radius: 1px;
+    border-width: 5px;
 }

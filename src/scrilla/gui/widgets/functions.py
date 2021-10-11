@@ -19,15 +19,15 @@ from PySide6 import QtGui, QtCore, QtWidgets
 from scrilla import settings
 from scrilla.static import keys
 # TODO: conditional import based on ANALYSIS_MODE
-import scrilla.analysis.models.geometric.statistics as statistics
-import scrilla.analysis.optimizer as optimizer
-import scrilla.analysis.objects.portfolio as portfolio
+from scrilla.analysis import markets, optimizer
+from scrilla.analysis.models.geometric import statistics
+from scrilla.analysis.objects.portfolio import Portfolio
 
 from scrilla.util import outputter, helper, plotter
 
-from scrilla.gui import formats, utilities
+from scrilla.gui import formats
 from scrilla.gui.widgets.components import ArgumentWidget, CompositeWidget, \
-                                            GraphWidget, TableWidget
+                                            GraphWidget, TableWidget, generate_control_skeleteon
 
 logger = outputter.Logger('gui.functions', settings.LOG_LEVEL)
 
@@ -39,20 +39,18 @@ class RiskReturnWidget(QtWidgets.QWidget):
         self._arrange_profile_widgets()
 
     def _init_profile_widgets(self):
-        self.title = QtWidgets.QLabel('Risk Analysis')
-        self.title.setObjectName('subtitle')
-
         self.composite_widget = CompositeWidget(keys.keys['GUI']['TEMP']['PROFILE'], 
                                                     widget_title="Risk Analysis",
                                                     table_title="CAPM Risk Profile",
                                                     graph_title="Risk-Return Plane")
         self.arg_widget = ArgumentWidget(calculate_function=self.calculate,
                                             clear_function=self.clear,
-                                            controls= None)
-        self.setLayout(QtWidgets.QVBoxLayout())
+                                            controls= generate_control_skeleteon())
+        self.setLayout(QtWidgets.QHBoxLayout())
 
     def _arrange_profile_widgets(self):
-        self.layout().addWidget(self.title)
+        self.arg_widget.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum,
+                                                            QtWidgets.QSizePolicy.Expanding))
         self.layout().addWidget(self.composite_widget)
         self.layout().addWidget(self.arg_widget)
 
@@ -64,23 +62,23 @@ class RiskReturnWidget(QtWidgets.QWidget):
         symbols = helper.split_and_strip(self.arg_widget.symbol_input.text())
 
         self.composite_widget.table_widget.table.setRowCount(len(symbols))
-        self.composite_widget.table_widget.table.setColumnCount(2)
-        self.composite_widget.table_widget.table.setHorizontalHeaderLabels(['Return','Risk'])
+        self.composite_widget.table_widget.table.setColumnCount(5)
+        self.composite_widget.table_widget.table.setHorizontalHeaderLabels(['Return','Volatility', 'Sharpe', 'Beta', 'Equity Cost'])
         self.composite_widget.table_widget.table.setVerticalHeaderLabels(symbols)
 
         profiles = {}
-        for symbol in symbols:
-            stats = statistics.calculate_risk_return(symbol)
-            profiles[symbol] = stats
-            formatted_ret, formatted_vol = formats.format_risk_return(stats)
-            # PULL REST OF RISK PROFILE, THEN ITERATE OVER PROFILE TO GENERATE TABLE ITEMS. CLEANER.
-            ret_item = QtWidgets.QTableWidgetItem(formatted_ret)
-            ret_item.setTextAlignment(QtCore.Qt.AlignHCenter)
-            vol_item = QtWidgets.QTableWidgetItem(formatted_vol)
-            vol_item.setTextAlignment(QtCore.Qt.AlignHCenter)
-            
-            self.composite_widget.table_widget.table.setItem(symbols.index(symbol), 0, ret_item)
-            self.composite_widget.table_widget.table.setItem(symbols.index(symbol), 1, vol_item)
+        for i, symbol in enumerate(symbols):
+            profiles[symbol] = statistics.calculate_risk_return(symbol)
+            profiles[symbol][keys.keys['APP']['PROFILE']['SHARPE']] = markets.sharpe_ratio(symbol)
+            profiles[symbol][keys.keys['APP']['PROFILE']['BETA']] = markets.market_beta(symbol)
+            profiles[symbol][keys.keys['APP']['PROFILE']['EQUITY']] = markets.cost_of_equity(symbol)
+
+            formatted_profile = formats.format_profile(profiles[symbol])
+
+            for j, statistic in enumerate(formatted_profile.keys()):
+                table_item = QtWidgets.QTableWidgetItem(formatted_profile[statistic])
+                table_item.setTextAlignment(QtCore.Qt.AlignHCenter)
+                self.composite_widget.table_widget.table.setItem(i, j, table_item)
 
         plotter.plot_profiles(symbols=symbols, profiles=profiles, show=False,
                                         savefile=f'{settings.TEMP_DIR}/{keys.keys["GUI"]["TEMP"]["PROFILE"]}')
@@ -101,14 +99,14 @@ class RiskReturnWidget(QtWidgets.QWidget):
 
 class CorrelationWidget(QtWidgets.QWidget):
     def __init__(self, objectName):
-        super().__init__(r)
+        super().__init__()
         self.setObjectName(objectName)
 
     def _init_correlation_widgets(self):
         self.table_widget = TableWidget(widget_title="Correlation Matrix")
         self.arg_widget = ArgumentWidget(calculate_function=self.calculate,
                                             clear_function=self.clear,
-                                            controls=None)
+                                            controls=generate_control_skeleteon())
         self.setLayout(QtWidgets.QVBoxLayout())
 
     def _arrange_correlation_widgets(self):
@@ -133,10 +131,10 @@ class CorrelationWidget(QtWidgets.QWidget):
             matrix = statistics.correlation_matrix(tickers=symbols)
             for i in range(0, len(symbols)):
                 for j in range(i, len(symbols)):
-                    item_1 = QtWidgets.QTableWidgetItem(formats.format_correlation(matrix[i][j]))
+                    item_1 = QtWidgets.QTableWidgetItem(helper.format_float_percent(matrix[i][j]))
                     item_1.setTextAlignment(QtCore.Qt.AlignHCenter)
 
-                    item_2 = QtWidgets.QTableWidgetItem(formats.format_correlation(matrix[i][j]))
+                    item_2 = QtWidgets.QTableWidgetItem(helper.format_float_percent(matrix[i][j]))
                     item_2.setTextAlignment(QtCore.Qt.AlignHCenter)
 
                     self.table_widget.table.setItem(j, i, item_1)
@@ -163,7 +161,7 @@ class OptimizerWidget(QtWidgets.QWidget):
         self.table_widget = TableWidget(widget_title="Optimization Results")
         self.arg_widget = ArgumentWidget(calculate_function=self.optimize,
                                             clear_function=self.clear,
-                                            controls=None)
+                                            controls=generate_control_skeleteon())
         self.setLayout(QtWidgets.QVBoxLayout())
 
     def _arrange_optimizer_widgets(self):
@@ -185,7 +183,7 @@ class OptimizerWidget(QtWidgets.QWidget):
 
             # investment = self.portfolio_value.text()
 
-            this_portfolio = portfolio.Portfolio(tickers=symbols)
+            this_portfolio = Portfolio(tickers=symbols)
             allocation = optimizer.optimize_portfolio_variance(portfolio=this_portfolio)
             
             # self.result.setText(formats.format_allocation_profile_title(allocation, this_portfolio))
@@ -234,7 +232,7 @@ class EfficientFrontierWidget(QtWidgets.QWidget):
         self.graph_widget = GraphWidget(tmp_graph_key=keys.keys['GUI']['TEMP']['FRONTIER'])
         self.arg_widget = ArgumentWidget(calculate_function=self.calculate, 
                                             clear_function=self.clear,
-                                            controls=None)
+                                            controls=generate_control_skeleteon())
         self.setLayout(QtWidgets.QVBoxLayout())
         # TODO: portfolio tabs
 
@@ -255,7 +253,7 @@ class EfficientFrontierWidget(QtWidgets.QWidget):
 
         symbols = helper.split_and_strip(self.arg_widget.symbol_input.text())
 
-        this_portfolio = portfolio.Portfolio(tickers=symbols)
+        this_portfolio = Portfolio(tickers=symbols)
         frontier = optimizer.calculate_efficient_frontier(portfolio=this_portfolio)
         plotter.plot_frontier(portfolio=this_portfolio, 
                                 frontier=frontier, 
@@ -278,7 +276,9 @@ class MovingAverageWidget(QtWidgets.QWidget):
 
     def _init_average_widgets(self):
         self.graph_widget = GraphWidget(keys.keys['GUI']['TEMP']['AVERAGES'])
-        self.arg_widget = ArgumentWidget(calculate_function=self.calculate)
+        self.arg_widget = ArgumentWidget(calculate_function=self.calculate,
+                                            clear_function=self.clear,
+                                            controls = generate_control_skeleteon())
         self.setLayout(QtWidgets.QVBoxLayout())
 
     def _arrange_average_widgets(self):

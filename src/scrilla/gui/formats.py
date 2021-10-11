@@ -3,7 +3,8 @@ import json
 from typing import Tuple
 
 from scrilla import settings
-from scrilla.static import constants
+from scrilla.util import helper
+from scrilla.static import keys
 
 FUNCTIONS= [
     "Correlation Matrix",
@@ -13,6 +14,7 @@ FUNCTIONS= [
     "Risk Profile"
 ]
 
+MARGINS = 5
 def format_stylesheet(sheet):
     if settings.GUI_DARK_MODE:
         mode = get_dark_mode_theme()
@@ -64,13 +66,11 @@ def format_allocation_profile_title(allocation, portfolio) -> str:
     whole_thing = formatted_result_title +" = "+formatted_result
     return whole_thing
 
-def format_allocation(allocation: float)->str:
-    return str(100*allocation)[:constants.constants['SIG_FIGS']]+"%"
-
-def format_risk_return(stats: dict) -> Tuple[str]:
-    formatted_ret = str(100*stats['annual_return'])[:constants.constants['SIG_FIGS']]+"%"
-    formatted_vol = str(100*stats['annual_volatility'])[:constants.constants['SIG_FIGS']]+"%"
-    return formatted_ret, formatted_vol
-
-def format_correlation(correlation: dict):
-    return str(100*correlation["correlation"])[:constants.constants['SIG_FIGS']]+"%"
+def format_profile(profile: dict) -> Tuple[str]:
+    profile_keys = keys.keys['APP']['PROFILE']
+    for key in profile_keys:
+        if key in ['RET', 'VOL', 'EQUITY']:
+            profile = helper.format_dict_percent(profile, profile_keys[key])
+        else:
+            profile = helper.format_dict_number(profile, profile_keys[key])
+    return profile

@@ -2,7 +2,7 @@ import argparse
 from math import trunc
 from typing import List, Tuple
 
-from scrilla.static import definitions
+from scrilla.static import definitions, constants
 
 def truncate(number: float, digits: int) -> float:
     stepper = 10.0 ** digits
@@ -35,6 +35,22 @@ def intersect_dict_keys(dict1: dict, dict2: dict) -> Tuple[dict, dict]:
             new_dict2[key] = value
     
     return new_dict1, new_dict2
+
+def format_float_number(decimal: float):
+    return str(decimal)[:constants.constants['SIG_FIGS']]
+
+def format_float_percent(decimal: float):
+    return str(100*float(format_float_number(decimal)))[:constants.constants['SIG_FIGS']]+"%"
+
+def format_dict_percent(this_dict: dict, which_key: str) -> dict:
+    buffer_dict = this_dict.copy()
+    buffer_dict[which_key] = format_float_percent(this_dict[which_key])
+    return buffer_dict
+
+def format_dict_number(this_dict: dict, which_key: str) -> dict:
+    buffer_dict = this_dict.copy()
+    buffer_dict[which_key] = format_float_number(this_dict[which_key])
+    return buffer_dict
 
 ################################################
 ##### PARSING FUNCTIONS

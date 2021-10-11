@@ -21,9 +21,7 @@ from scrilla.util import outputter
 from scrilla.gui import formats
 import scrilla.gui.widgets.menu as menu
 
-
 logger = outputter.Logger('main', settings.LOG_LEVEL)
-
 
 def parse_dimensions():
     parser = argparse.ArgumentParser()
@@ -42,7 +40,7 @@ def do_gui():
     with open(settings.GUI_STYLESHEET_FILE, "r") as f:
         _style = formats.format_stylesheet(f.read())
         app.setStyleSheet(_style)
-    
+        
     if not dimensions['full_screen']:    
         widget.resize(dimensions['width'], dimensions['height'])
         center = QtGui.QScreen.availableGeometry(QtWidgets.QApplication.primaryScreen()).center()

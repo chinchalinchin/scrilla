@@ -13,10 +13,10 @@
 # along with scrilla.  If not, see <https://www.gnu.org/licenses/>
 # or <https://github.com/chinchalinchin/scrilla/blob/develop/main/LICENSE>.
 
-from typing import Callable, Dict
+from typing import Callable, Dict, Union
 from PySide6 import QtGui, QtCore, QtWidgets
 
-from scrilla.gui import utilities
+from scrilla.gui import utilities, formats
 from scrilla.static import definitions
 
 # TODO: have widgets create their own layouts and arrange their hcild widgets in them, i.e. not in their root layout.
@@ -90,7 +90,7 @@ class ArgumentWidget(QtWidgets.QWidget):
         Empty text area for super classes to inherit
     """
     # TODO: calculate and clear should be part of THIS constructor, doesn't make sense to have other widgets hook them up.
-    def __init__(self, calculate_function: Callable, clear_function: Callable, controls: Dict[bool],
+    def __init__(self, calculate_function: Callable, clear_function: Callable, controls: Dict[str, bool],
                     widget_title: str ="Function Input", button_msg: str ="Calculate",):
         super().__init__()
         self.widget_title = widget_title
@@ -132,7 +132,11 @@ class ArgumentWidget(QtWidgets.QWidget):
         self.clear_button = QtWidgets.QPushButton("Clear")
         self.clear_button.setObjectName('button')
 
+        self.symbol_holder = QtWidgets.QWidget()
         self.symbol_input = QtWidgets.QLineEdit()
+        self.symbol_label = QtWidgets.QLabel('Symbols: ')
+        self.symbol_holder.setLayout(QtWidgets.QHBoxLayout())
+        self.symbol_label.setObjectName('input-label')
         self.symbol_input.setObjectName('line-edit')
 
         # TODO: init the rest of the argument widgets
@@ -140,27 +144,37 @@ class ArgumentWidget(QtWidgets.QWidget):
             if self.controls[control]:
                 pass
 
-        self.container_pane = QtWidgets.QWidget()
-        self.container_pane.setLayout(QtWidgets.QHBoxLayout)
         self.setLayout(QtWidgets.QVBoxLayout())
     
     def _arrange_arg_widgets(self):
         """Arrange child widgets in their layouts and provides rendering hints"""
         self.title.setAlignment(QtCore.Qt.AlignTop)
+        self.required_title.setAlignment(QtCore.Qt.AlignTop)
+        self.optional_title.setAlignment(QtCore.Qt.AlignTop)
+        self.symbol_input.setAlignment(QtCore.Qt.AlignTop)
         self.message.setAlignment(QtCore.Qt.AlignBottom)
         self.error_message.setAlignment(QtCore.Qt.AlignHCenter)
 
+        min_width_max_height = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Maximum)
+        max_width_max_height =  QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum)
+        self.title.setSizePolicy(min_width_max_height)
+        self.required_title.setSizePolicy(min_width_max_height)
+        self.optional_title.setSizePolicy(min_width_max_height)
+        self.calculate_button.setSizePolicy(min_width_max_height)
+        self.clear_button.setSizePolicy(min_width_max_height)
+        self.symbol_label.setSizePolicy(max_width_max_height)
+        self.symbol_input.setSizePolicy(min_width_max_height)
+        self.symbol_holder.setSizePolicy(min_width_max_height)
+
+        self.symbol_holder.layout().addWidget(self.symbol_label)
+        self.symbol_holder.layout().addWidget(self.symbol_input)
         self.required_pane.layout().addWidget(self.required_title)
-        self.required_pane.layout().addWidget(self.symbol_input)
-
+        self.required_pane.layout().addWidget(self.symbol_holder)
         self.optional_pane.layout().addWidget(self.optional_title)
-        
-        self.container_pane.layout().addWidget(self.required_pane)
-        self.container_pane.layout().addWidget(self.optional_pane)
-
         self.layout().addWidget(self.title)
         self.layout().addWidget(self.error_message)
-        self.layout().addWidget(self.container_pane)
+        self.layout().addWidget(self.required_pane)
+        self.layout().addWidget(self.optional_pane)
         self.layout().addWidget(self.calculate_button)
         self.layout().addWidget(self.clear_button)
 
@@ -192,7 +206,7 @@ class TableWidget(QtWidgets.QWidget):
 
     """
     def __init__(self, widget_title: str ="Table Result"):
-        super().__init__(widget_title=widget_title)
+        super().__init__()
         self._init_table_widgets(widget_title)
         self._arrange_table_widgets()
         self._stage_table_widgets()
@@ -200,7 +214,7 @@ class TableWidget(QtWidgets.QWidget):
     def _init_table_widgets(self, widget_title):
         """Creates child widgets and their layouts"""
         self.title = QtWidgets.QLabel(widget_title)
-        self.title.setObjectName('subtitle')
+        self.title.setObjectName('heading')
 
         self.table = QtWidgets.QTableWidget()
         self.table.setObjectName('table')
@@ -253,12 +267,21 @@ class GraphWidget(QtWidgets.QWidget):
         self._stage_graph_widgets() 
     
     def _init_graph_widgets(self, widget_title):
-        self.setLayout(QtWidgets.QVBoxLayout())
         self.title = QtWidgets.QLabel(widget_title)
+        self.title.setObjectName('heading')
         self.figure = QtWidgets.QLabel()
+        self.setLayout(QtWidgets.QVBoxLayout())
+
 
     def _arrange_graph_widgets(self):
-        self.figure.setAlignment(QtCore.Qt.AlignHCenter)
+        self.title.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding,
+                                                            QtWidgets.QSizePolicy.Minimum))
+        self.figure.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding,
+                                                            QtWidgets.QSizePolicy.Expanding))
+
+        self.title.setAlignment(QtCore.Qt.AlignLeft)
+        self.figure.setAlignment(QtCore.Qt.AlignCenter)
+
         self.layout().addWidget(self.title)
         self.layout().addWidget(self.figure)
     
@@ -287,24 +310,32 @@ class CompositeWidget(QtWidgets.QWidget):
     4. **tab_widget**: ``PySide6.QtWidget.QWidget``
 
     """
-    def __init__(self, tmp_graph_key: str, widget_title: str="Results", table_title: str="Table Results", graph_title: str="Graph Results"):
+    def __init__(self, tmp_graph_key: str, widget_title: str="Results", 
+                    table_title: Union[str, None]=None, 
+                    graph_title: Union[str,None]=None):
         super().__init__()
         self._init_composite_widgets(widget_title=widget_title,
-                                        tmp_graph_key=tmp_graph_key, 
-                                        graph_title=graph_title, 
-                                        table_title=table_title)
+                                        tmp_graph_key=tmp_graph_key)
         self._arrange_composite_widgets(graph_title=graph_title, 
                                         table_title=table_title)
 
-    def _init_composite_widgets(self, widget_title, tmp_graph_key, graph_title, table_title):
+    def _init_composite_widgets(self, widget_title, tmp_graph_key):
         """Creates child widgets and their layouts"""
         self.title = QtWidgets.QLabel(widget_title)
-        self.table_widget = TableWidget(table_title)
-        self.graph_widget = GraphWidget(tmp_graph_key, graph_title)
+        self.title.setObjectName('subtitle')
+
+        self.table_widget = TableWidget()
+        self.graph_widget = GraphWidget(tmp_graph_key)
+
         self.tab_widget = QtWidgets.QTabWidget()
+
         self.setLayout(QtWidgets.QVBoxLayout())
         
     def _arrange_composite_widgets(self, graph_title, table_title):
+        self.title.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding,
+                                                            QtWidgets.QSizePolicy.Minimum))
+        self.title.setAlignment(QtCore.Qt.AlignLeft)
+
         self.tab_widget.addTab(self.table_widget, table_title)
         self.tab_widget.addTab(self.graph_widget, graph_title)
         

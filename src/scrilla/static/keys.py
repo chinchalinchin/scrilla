@@ -151,5 +151,14 @@ keys= {
             'AVERAGES': 'averages',
             'FRONTIER': 'frontier'
         }
+    },
+    'APP':{
+        'PROFILE':{
+            'RET':'annual_return',
+            'VOL': 'annual_volatility',
+            'BETA': 'asset_beta',
+            'SHARPE': 'sharpe_ratio',
+            'EQUITY': 'equity_cost'
+        }
     }
 }

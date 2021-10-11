@@ -73,20 +73,20 @@ GUI_DARK_MODE = os.environ.setdefault('DARK_MODE', 'true').lower() == 'true'
 
 ## GUI CONFIGURATION
 try:
-    GUI_WIDTH = int(os.environ.setdefault('GUI_WIDTH', '800'))
+    GUI_WIDTH = int(os.environ.setdefault('GUI_WIDTH', '1024'))
     """Width of main Graphical User Interface window; Configured by environment variable of same name, **GUI_WIDTH**"""
 except (ValueError, TypeError) as ParseError: 
-    logger.debug('Failed to parse GUI_WIDTH from environment. Setting to default value of 800.')
-    GUI_WIDTH = 800
-    os.environ['GUI_WIDTH'] = '800'
+    logger.debug('Failed to parse GUI_WIDTH from environment. Setting to default value of 1024.')
+    GUI_WIDTH = 1024
+    os.environ['GUI_WIDTH'] = '1024'
 
 try:
-    GUI_HEIGHT = int(os.environ.setdefault('GUI_HEIGHT', '600'))
+    GUI_HEIGHT = int(os.environ.setdefault('GUI_HEIGHT', '768'))
     """Height of main Graphical User Interface window; Configured by environment variable of same name, **GUI_HEIGHT**."""
 except (ValueError, TypeError) as ParseError:
-    logger.debug('Failed to parse GUI_HEIGHT from enviroment. Setting to default value of 800.')
-    GUI_HEIGHT = 600
-    os.environ['GUI_HEIGHT'] = '600'
+    logger.debug('Failed to parse GUI_HEIGHT from enviroment. Setting to default value of 768.')
+    GUI_HEIGHT = 768
+    os.environ['GUI_HEIGHT'] = '768'
 
 ## FINANCIAL ALGORITHM CONFIGURATION
 try:

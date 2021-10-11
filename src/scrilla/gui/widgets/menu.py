@@ -30,10 +30,7 @@ class MenuWidget(QtWidgets.QWidget):
     
     .. notes::
         * Widget Hierarchy: 
-            1. root_layout --> Vertically aligned
-                a. container_layout --> Horizontally aligned
-                    i. menu_layout --> Vertically aligned
-                    ii. display_layout --> Vertically aligned
+
     """
     def __init__(self):
         super().__init__()
