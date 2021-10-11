@@ -24,45 +24,46 @@ import scrilla.analysis.objects.portfolio as portfolio
 from scrilla.util import outputter, helper, plotter
 
 from scrilla.gui import formats, utilities
-from scrilla.gui.widgets import CompositeWidget, GraphWidget, \
-                            TableWidget, PortfolioWidget
+from scrilla.gui.widgets.components import ArgumentWidget, CompositeWidget, GraphWidget, \
+                                            TableWidget
 
 logger = outputter.Logger('gui.functions', settings.LOG_LEVEL)
 
-class RiskReturnWidget(CompositeWidget):
+class RiskReturnWidget(QtWidgets.QWidget):
     def __init__(self, objectName):
-        super().__init__(widget_title="Risk-Return Profile Over Last 100 Days", button_msg="Calculate Profile", 
-                            calculate_function=self.calculate, clear_function=self.clear)
+        super().__init__()
         self.setObjectName(objectName)
         self._init_profile_widgets()
         self._arrange_profile_widgets()
-        self._stage_profile_widgets()
 
     def _init_profile_widgets(self):
-        self.figure = QtWidgets.QLabel("Risk Profile Graph")
+        self.title = QtWidgets.QLabel('Risk Analysis')
+        self.title.setObjectName('subtitle')
+
+        self.composite_widget = CompositeWidget('profile', widget_title="Risk Analysis",
+                                                    table_title="CAPM Risk Profile",
+                                                    graph_title="Risk-Return Plane")
+        self.arg_widget = ArgumentWidget(calculate_function=self.calculate,
+                                            clear_function=self.clear,
+                                            controls= None)
+        self.setLayout(QtWidgets.QVBoxLayout())
 
     def _arrange_profile_widgets(self):
-        self.figure.setAlignment(QtCore.Qt.AlignHCenter)
-        self.right_layer.layout().insertWidget(0, self.figure, 1)
-
-    def _stage_profile_widgets(self):
-        self.figure.hide()
+        self.layout().addWidget(self.title)
+        self.layout().addWidget(self.composite_widget)
+        self.layout().addWidget(self.arg_widget)
 
     @QtCore.Slot()
     def calculate(self):
-        if self.figure.isVisible():
-            self.figure.hide()
+        if self.composite_widget.graph_widget.figure.isVisible():
+            self.composite_widget.graph_widget.figure.hide()
 
-        symbols = helper.split_and_strip(self.symbol_input.text())
+        symbols = helper.split_and_strip(self.arg_widget.symbol_input.text())
 
-        self.table.setRowCount(len(symbols))
-        self.table.setColumnCount(2)
-        self.table.setHorizontalHeader(QtWidgets.QHeaderView(QtCore.Qt.Horizontal))
-        self.table.setHorizontalHeaderLabels(['Return','Risk'])
-        self.table.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Stretch)
-        self.table.setVerticalHeader(QtWidgets.QHeaderView(QtCore.Qt.Vertical))
-        self.table.setVerticalHeaderLabels(symbols)
-        # self.table.verticalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Stretch)
+        self.composite_widget.table_widget.table.setRowCount(len(symbols))
+        self.composite_widget.table_widget.table.setColumnCount(2)
+        self.composite_widget.table_widget.table.setHorizontalHeaderLabels(['Return','Risk'])
+        self.composite_widget.table_widget.table.setVerticalHeaderLabels(symbols)
 
         profiles = {}
         for symbol in symbols:
@@ -75,27 +76,25 @@ class RiskReturnWidget(CompositeWidget):
             vol_item = QtWidgets.QTableWidgetItem(formatted_vol)
             vol_item.setTextAlignment(QtCore.Qt.AlignHCenter)
             
-            self.table.setItem(symbols.index(symbol), 0, ret_item)
-            self.table.setItem(symbols.index(symbol), 1, vol_item)
+            self.composite_widget.table_widget.table.setItem(symbols.index(symbol), 0, ret_item)
+            self.composite_widget.table_widget.table.setItem(symbols.index(symbol), 1, vol_item)
 
         plotter.plot_profiles(symbols=symbols, profiles=profiles, show=False,
                                         savefile=f'{settings.TEMP_DIR}/profile.jpeg')
 
-        self.figure.setPixmap(utilities.generate_pixmap_from_temp(self.width(), self.height(),'profile'))
-        self.figure.show()
-        self.table.resizeColumnsToContents()
-        self.table.show()
+        self.composite_widget.graph_widget.set_pixmap()
+        self.composite_widget.table_widget.show_table()
 
     def resizeEvent(self, event: QtGui.QResizeEvent) -> None:
-        if self.figure.isVisible():
-            self.figure.setPixmap(utilities.generate_pixmap_from_temp(self.width(), self.height(),'profile'))
+        if self.composite_widget.graph_widget.figure.isVisible():
+            self.composite_widget.graph_widget.set_pixmap()
         return super().resizeEvent(event)
 
     @QtCore.Slot()
     def clear(self):
-        self.figure.hide()
-        self.table.clear()
-        self.symbol_input.clear()
+        self.composite_widget.graph_widget.figure.hide()
+        self.composite_widget.table_widget.table.clear()
+        self.arg_widget.symbol_input.clear()
 
 class CorrelationWidget(TableWidget):
     def __init__(self, objectName):

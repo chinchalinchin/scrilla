@@ -17,6 +17,7 @@ from typing import Callable, Dict
 from PySide6 import QtGui, QtCore, QtWidgets
 
 from scrilla.gui import utilities
+from scrilla.static import definitions
 
 # TODO: have widgets create their own layouts and arrange their hcild widgets in them, i.e. not in their root layout.
 #       then compose the layouts in the functions module.
@@ -51,6 +52,10 @@ All widgets have a similar structure in that they call a series of methods tailo
     3. **_stage**
         Child widgets are prepped for display.
 """
+
+
+def generate_control_skeleteon():
+    return { arg: False for arg in definitions.ARG_DICT }
 
 class ArgumentWidget(QtWidgets.QWidget):
     """
@@ -130,12 +135,17 @@ class ArgumentWidget(QtWidgets.QWidget):
         self.symbol_input = QtWidgets.QLineEdit()
         self.symbol_input.setObjectName('line-edit')
 
-        self.setLayout(QtWidgets.QHBoxLayout())
-
         # TODO: init the rest of the argument widgets
+        for control in self.controls:
+            if self.controls[control]:
+                pass
+
+        self.container_pane = QtWidgets.QWidget()
+        self.container_pane.setLayout(QtWidgets.QHBoxLayout)
+        self.setLayout(QtWidgets.QVBoxLayout())
     
     def _arrange_arg_widgets(self):
-        """Provides rendering hints to child widgets"""
+        """Arrange child widgets in their layouts and provides rendering hints"""
         self.title.setAlignment(QtCore.Qt.AlignTop)
         self.message.setAlignment(QtCore.Qt.AlignBottom)
         self.error_message.setAlignment(QtCore.Qt.AlignHCenter)
@@ -145,11 +155,12 @@ class ArgumentWidget(QtWidgets.QWidget):
 
         self.optional_pane.layout().addWidget(self.optional_title)
         
+        self.container_pane.layout().addWidget(self.required_pane)
+        self.container_pane.layout().addWidget(self.optional_pane)
+
         self.layout().addWidget(self.title)
         self.layout().addWidget(self.error_message)
-        self.layout().addWidget(self.required_pane)
-        self.layout().addWidget(self.optional_pane)
-
+        self.layout().addWidget(self.container_pane)
         self.layout().addWidget(self.calculate_button)
         self.layout().addWidget(self.clear_button)
 
@@ -198,9 +209,10 @@ class TableWidget(QtWidgets.QWidget):
     
     def _arrange_table_widgets(self):
         self.table.setHorizontalHeader(QtWidgets.QHeaderView(QtCore.Qt.Horizontal))
-        self.table.horizontalHeader().setStretchLastSection(True)
+        self.table.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Stretch)
 
         self.table.setVerticalHeader(QtWidgets.QHeaderView(QtCore.Qt.Vertical))
+        # self.table.verticalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Stretch)
 
         self.layout().addWidget(self.title)
         self.layout().addStretch()
@@ -209,6 +221,10 @@ class TableWidget(QtWidgets.QWidget):
     def _stage_table_widgets(self):
         self.table.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustToContents)
         self.table.hide()
+    
+    def show_table(self):
+        self.table.resizeColumnsToContents()
+        self.table.show()
 
 class GraphWidget(QtWidgets.QWidget):
     """
@@ -249,7 +265,7 @@ class GraphWidget(QtWidgets.QWidget):
     def _stage_graph_widgets(self):
         self.figure.hide()
 
-    def show_pixmap(self):
+    def set_pixmap(self):
         self.figure.setPixmap(utilities.generate_pixmap_from_temp(self.width(), self.height(), self.tmp_graph_key))
         self.figure.show()
 
@@ -266,32 +282,31 @@ class CompositeWidget(QtWidgets.QWidget):
     Attributes
     ----------
     1. **title**: ``PySide6.QtWidgets.QLabel``
-    2. **table**: ``scrilla.gui.widgets.TableWidget``
-    3. **graph**: ``scrilla.gui.widgets.GraphWidget``
-    4. **result_pane**: ``PySide6.QtWidget.QWidget``
+    2. **table_widget**: ``scrilla.gui.widgets.TableWidget``
+    3. **graph_widget**: ``scrilla.gui.widgets.GraphWidget``
+    4. **tab_widget**: ``PySide6.QtWidget.QWidget``
 
     """
     def __init__(self, tmp_graph_key: str, widget_title: str="Results", table_title: str="Table Results", graph_title: str="Graph Results"):
         super().__init__()
-        self._init_composite_widgets()
-        self._arrange_composite_widgets(widget_title=widget_title,
+        self._init_composite_widgets(widget_title=widget_title,
                                         tmp_graph_key=tmp_graph_key, 
                                         graph_title=graph_title, 
+                                        table_title=table_title)
+        self._arrange_composite_widgets(graph_title=graph_title, 
                                         table_title=table_title)
 
     def _init_composite_widgets(self, widget_title, tmp_graph_key, graph_title, table_title):
         """Creates child widgets and their layouts"""
-        # TODO: tabs for graph and table, tab text set to title...
         self.title = QtWidgets.QLabel(widget_title)
-        self.table = TableWidget(table_title)
-        self.graph = GraphWidget(tmp_graph_key, graph_title)
-        self.result_pane = QtWidgets.QWidget()
-        self.result_pane.setLayout(QtWidgets.QHBoxLayout())
+        self.table_widget = TableWidget(table_title)
+        self.graph_widget = GraphWidget(tmp_graph_key, graph_title)
+        self.tab_widget = QtWidgets.QTabWidget()
         self.setLayout(QtWidgets.QVBoxLayout())
         
-    def _arrange_composite_widgets(self):
-        self.result_pane.layout().addWidget(self.table)
-        self.result_pane.layout().addWidget(self.graph)
+    def _arrange_composite_widgets(self, graph_title, table_title):
+        self.tab_widget.addTab(self.table_widget, table_title)
+        self.tab_widget.addTab(self.graph_widget, graph_title)
         
         self.layout().addWidget(self.title)
-        self.layout().addWidget(self.result_pane)
+        self.layout().addWidget(self.tab_widget)

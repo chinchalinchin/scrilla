@@ -20,9 +20,9 @@ from PySide6 import QtCore, QtWidgets, QtGui
 from scrilla import settings
 
 from scrilla.gui import formats
-from scrilla.gui.functions import RiskReturnWidget, CorrelationWidget, \
-                                    MovingAverageWidget, EfficientFrontierWidget, \
-                                    OptimizerWidget
+from scrilla.gui.widgets.functions import RiskReturnWidget, CorrelationWidget, \
+                                            MovingAverageWidget, EfficientFrontierWidget, \
+                                            OptimizerWidget
 
 # NOTE: widget_buttons and function_widgets must preserve order.
 class MenuWidget(QtWidgets.QWidget):

@@ -19,7 +19,7 @@ from PySide6 import QtWidgets, QtGui
 from scrilla import settings
 from scrilla.util import outputter
 from scrilla.gui import formats
-import scrilla.gui.menu as menu
+import scrilla.gui.widgets.menu as menu
 
 
 logger = outputter.Logger('main', settings.LOG_LEVEL)
