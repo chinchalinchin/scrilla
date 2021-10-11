@@ -17,6 +17,7 @@ from PySide6 import QtGui, QtCore, QtWidgets
 
 
 from scrilla import settings
+from scrilla import static
 from scrilla.static import keys
 # TODO: conditional import based on ANALYSIS_MODE
 from scrilla.analysis import markets, optimizer
@@ -27,7 +28,7 @@ from scrilla.util import outputter, helper, plotter
 
 from scrilla.gui import formats
 from scrilla.gui.widgets.components import ArgumentWidget, CompositeWidget, \
-                                            GraphWidget, TableWidget, generate_control_skeleteon
+                                            GraphWidget, TableWidget, generate_control_skeleton
 
 logger = outputter.Logger('gui.functions', settings.LOG_LEVEL)
 
@@ -38,6 +39,14 @@ class RiskReturnWidget(QtWidgets.QWidget):
         self._init_profile_widgets()
         self._arrange_profile_widgets()
 
+    @staticmethod
+    def _configure_control_skeleton():
+        controls = generate_control_skeleton()
+        controls['start_date'] = True
+        controls['end_date'] = True
+        print(controls)
+        return controls
+
     def _init_profile_widgets(self):
         self.composite_widget = CompositeWidget(keys.keys['GUI']['TEMP']['PROFILE'], 
                                                     widget_title="Risk Analysis",
@@ -45,7 +54,7 @@ class RiskReturnWidget(QtWidgets.QWidget):
                                                     graph_title="Risk-Return Plane")
         self.arg_widget = ArgumentWidget(calculate_function=self.calculate,
                                             clear_function=self.clear,
-                                            controls= generate_control_skeleteon())
+                                            controls= RiskReturnWidget._configure_control_skeleton())
         self.setLayout(QtWidgets.QHBoxLayout())
 
     def _arrange_profile_widgets(self):
@@ -106,7 +115,7 @@ class CorrelationWidget(QtWidgets.QWidget):
         self.table_widget = TableWidget(widget_title="Correlation Matrix")
         self.arg_widget = ArgumentWidget(calculate_function=self.calculate,
                                             clear_function=self.clear,
-                                            controls=generate_control_skeleteon())
+                                            controls=generate_control_skeleton())
         self.setLayout(QtWidgets.QVBoxLayout())
 
     def _arrange_correlation_widgets(self):
@@ -161,7 +170,7 @@ class OptimizerWidget(QtWidgets.QWidget):
         self.table_widget = TableWidget(widget_title="Optimization Results")
         self.arg_widget = ArgumentWidget(calculate_function=self.optimize,
                                             clear_function=self.clear,
-                                            controls=generate_control_skeleteon())
+                                            controls=generate_control_skeleton())
         self.setLayout(QtWidgets.QVBoxLayout())
 
     def _arrange_optimizer_widgets(self):
@@ -232,7 +241,7 @@ class EfficientFrontierWidget(QtWidgets.QWidget):
         self.graph_widget = GraphWidget(tmp_graph_key=keys.keys['GUI']['TEMP']['FRONTIER'])
         self.arg_widget = ArgumentWidget(calculate_function=self.calculate, 
                                             clear_function=self.clear,
-                                            controls=generate_control_skeleteon())
+                                            controls=generate_control_skeleton())
         self.setLayout(QtWidgets.QVBoxLayout())
         # TODO: portfolio tabs
 
@@ -278,7 +287,7 @@ class MovingAverageWidget(QtWidgets.QWidget):
         self.graph_widget = GraphWidget(keys.keys['GUI']['TEMP']['AVERAGES'])
         self.arg_widget = ArgumentWidget(calculate_function=self.calculate,
                                             clear_function=self.clear,
-                                            controls = generate_control_skeleteon())
+                                            controls = generate_control_skeleton())
         self.setLayout(QtWidgets.QVBoxLayout())
 
     def _arrange_average_widgets(self):

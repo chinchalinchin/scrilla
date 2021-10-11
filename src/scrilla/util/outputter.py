@@ -138,8 +138,8 @@ def help_msg(indent=formats.formats['INDENT']):
                 if arg_dict[arg_name]['default'] is not None:
                     print(' '*2*indent, f'DEFAULT: {arg_dict[arg_name]["default"]}')
                     
-                if arg_dict[arg_name]['format_str'] is not None:
-                    print(' '*2*indent, f'FORMAT: {arg_dict[arg_name]["format_str"]}')    
+                if arg_dict[arg_name]['syntax'] is not None:
+                    print(' '*2*indent, f'FORMAT: {arg_dict[arg_name]["syntax"]}')    
         separator_line()    
 
 ### ANALYSIS SPECIFIC OUTPUT FUNCTIONS

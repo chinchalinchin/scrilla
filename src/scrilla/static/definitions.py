@@ -309,91 +309,101 @@ ARG_DICT = {
         'values': ['-start-date', '--start-date', '-start','--start' ],
         'description': 'Start date of historical sample',
         'default': '100 Trading Days Ago',
-        'format_str': 'YYYY-MM-DD',
+        'widget_type': 'date',
         'format': lambda s: datetime.datetime.strptime(s, '%Y-%m-%d'),
-        'required': False
+        'required': False,
+        'syntax': '<YYYY-MM-DD>'
     },
     'end_date': {
         'name': 'Sample End Date',
         'values': ['-end-date', '--end-date', '-end', '--end'],
         'description': 'End date of historical sample',
         'default': 'Last Trading Day',
-        'format_str': 'YYYY-MM-DD',
+        'widget_type': 'date',
         'format': lambda s: datetime.datetime.strptime(s, '%Y-%m-%d'),
-        'required': False
+        'required': False,
+        'syntax': '<YYYY-MM-DD>'
     },
     'target': {
         'name': 'Target Return',
         'values': ['-target-return', '--target-return', '-target','--target'],
         'description': 'Constraint for target rate of return',
         'default': None,
-        'format_str': 'decimal',
+        'widget_type': 'decimal',
         'format': float,
-        'required': False
+        'required': False,
+        'syntax': '<value>'
     },
     'discount': {
         'name': 'Discount Rate',
         'values': ['-discount-rate', '--discount-rate', '-discount','--discount'],
         'description': 'Rate of return used to discount future cash flows to present',
         'default': 'Cost of equity',
-        'format_str': 'decimal',
+        'widget_type': 'decimal',
         'format': float,
-        'required': False
+        'required': False,
+        'syntax': '<value>'
     },
     'investment': {
         'name': 'Total Investment',
         'values': ['-investment', '--investment', '-invest', '--invest'],
         'description': 'Total amount of money invested',
         'default': None,
-        'format_str': 'currency in USD',
+        'widget_type': 'currency',
         'format': float,
-        'required': False
+        'required': False,
+        'syntax': '<value>'
     },
     'expiry': {
         'name': 'Expiration',
         'values': ['-expiry', '--expiry', '-exp','--exp'],
         'description': 'Time until event expiration',
         'default': None,
-        'format_str': 'time in years',
+        'widget_type': 'years',
         'format': float,
-        'required': True
+        'required': True,
+        'syntax': '<value>'
     },
     'probability': {
         'name': 'Loss Probability',
         'values': ['-probability', '--probability', '-prob', '--prob'],
         'description': 'Probability a loss will occur',
         'default': None,
-        'format_str': 'decimal',
+        'widget_type': 'decimal',
         'format': float,
-        'required': True
+        'required': True,
+        'syntax': '<value>'
     },
     'steps': {
         'name': 'Efficient Frontier Data Points',
         'values': ['-frontier-steps', '--frontier-steps', '-steps','--steps'],
         'description': 'Number of data points included in efficient frontier calculations',
         'default': 'FRONTIER_STEPS environment variable',
-        'format_str': 'integer',
+        'widget_type': 'integer',
         'format': int,
-        'required': False
+        'required': False,
+        'syntax': '<value>'
     },
     'criteria': {
         'name': 'Watchlist Screener Critia',
         'values': ['-criteria', '--criteria', '-crit','--crit'],
         'description': 'Criteria used to sort saved watchlist',
         'default': None,
-        'format_str': 'DDM | sharpe | volatility | return',
+        'widget_type': 'select',
         'format': str,
         'required': False,
         'allowable': ['DDM', 'sharpe', 'volatility', 'return'],
+        'syntax': '<value>'
     },
     'save_file': {
         'name': 'Save File Location',
         'values': ['-save-file', '--save-file', '-save', '--save'],
         'description': 'Location where file will be saved',
         'default': None,
-        'format_str': 'path/to/file.jpeg | path/to/file.json',
+        'widget_type': 'file',
         'format': str,
-        'required': False
+        'required': False,
+        'syntax': '<path>'
     },
     'key': {
         'name': 'Key-Value Key',
@@ -401,74 +411,82 @@ ARG_DICT = {
         'description': 'API Key that will be saved to __installation_dir__/data/common/',
         'default': None,
         'format': str,
-        'format_str': 'ALPHA_VANTAGE_KEY | QUANDL_KEY | IEX_KEY',
+        'widget_type': 'key',
         'required': True,
-        'allowable': ["ALPHA_VANTAGE_KEY", "QUANDL_KEY", "IEX_KEY"]
+        'allowable': ["ALPHA_VANTAGE_KEY", "QUANDL_KEY", "IEX_KEY"],
+        'syntax': '<value>'
     },
     'value': {
         'name': 'Key-Value Value',
         'values':['-value', '--value', '-v', '--v'],
         'description': 'API Key-Value that will be saved to __installation_dir__/data/common/',
         'default': None,
-        'format_str': '<value>',
+        'widget_type': 'password',
         'format': str,
-        'required': True
+        'required': True,
+        'syntax': '<value>'
     },
     'optimize_sharpe': {
         'name': 'Optimize Portfolio Sharpe',
         'values': ['-sharpe', '--sharpe', '-sh', '--sh'],
         'description': 'Flag to optimize portfolio Sharpe Ratio',
         'default': None,
-        'format_str': None,
+        'widget_type': 'flag',
         'format': bool,
-        'required': False
+        'required': False,
+        'syntax': None
     },
     'json': {
         'name': 'JSON Display',
         'values': ['-json', '--json', '-js', '--js'],
         'description': 'Print output to screen as JSON',
         'default': None,
-        'format_str': None,
+        'widget_type': 'flag',
         'format': bool,
         'required': False,
+        'syntax': None,
     },
     'suppress_output': {
         'name': 'No Display',
         'values': ['-quiet', '--quiet', "-q", "--q"],
         'description': 'Suppress all console output',
         'default': None,
-        'format_str': None,
+        'widget_type': 'flag',
         'format': bool,
-        'required': False
+        'required': False,
+        'syntax': None,
     },
-    keys.keys['ESTIMATION']['MOMENT']: {
+    'moments' : {
         'name': 'Method of Moment Matching',
         'values': ['-moments', '--moments', '-mom', '--mom'],
         'description': 'Statistics are calculated using method of moment matching',
         'default': None,
-        'format_str': None,
+        'widget_type': 'flag',
         'format': 'group',
         'group': 'estimation_method',
-        'required': False
+        'required': False,
+        'syntax': None,
     },
-    keys.keys['ESTIMATION']['PERCENT']: {
+    'percentiles': {
         'name': 'Method of Percentile Matching',
         'values': ['-percentiles', '--percentiles', '-per', '--per'],
         'description': 'Statistics are calculated using method of percentile matching',
         'default': None,
-        'format_str': None,
+        'widget_type': 'flag',
         'format': 'group',
         'group': 'estimation_method',
-        'required': False
+        'required': False,
+        'syntax': None,
     },
-    keys.keys['ESTIMATION']['LIKE']: {
+    'likelihood': {
         'name': 'Maximum Likelihood Estimation',
         'values': ['-likelihood','--likelihood','-like', '--like'],
         'description': 'Statistics are calculated using maximum likelihood estimation',
         'default': None,
-        'format_str': None,
+        'widget_type': 'flag',
         'format': 'group',
         'group': 'estimation_method',
-        'required': False
+        'required': False,
+        'syntax': None,
     }
 }

@@ -13,11 +13,11 @@
 # along with scrilla.  If not, see <https://www.gnu.org/licenses/>
 # or <https://github.com/chinchalinchin/scrilla/blob/develop/main/LICENSE>.
 
-from typing import Callable, Dict, Union
+from typing import Callable, Dict, List, Union
 from PySide6 import QtGui, QtCore, QtWidgets
 
 from scrilla.gui import utilities, formats
-from scrilla.static import definitions
+from scrilla.static import definitions, constants
 
 # TODO: have widgets create their own layouts and arrange their hcild widgets in them, i.e. not in their root layout.
 #       then compose the layouts in the functions module.
@@ -54,8 +54,74 @@ All widgets have a similar structure in that they call a series of methods tailo
 """
 
 
-def generate_control_skeleteon():
+def generate_control_skeleton():
     return { arg: False for arg in definitions.ARG_DICT }
+
+def _widget_factory(format: str, title: str = None) -> QtWidgets.QWidget:
+    if format == 'date':
+        widget = QtWidgets.QDateEdit()
+        widget.setDate(QtCore.QDate.currentDate())
+        widget.setMaximumDate(QtCore.QDate.currentDate())
+        widget.setMinimumDate(QtCore.QDate(constants.constants['PRICE_YEAR_CUTOFF'], 1,1))
+
+    elif format == 'decimal':
+        pass
+
+    elif format == 'currency':
+        pass
+    
+    elif format == 'years':
+        pass
+    
+    elif format == 'integer':
+        pass
+    
+    elif format == 'model':
+        pass
+    
+    elif format == 'select':
+        pass
+    
+    elif format == 'file':
+        pass
+    
+    elif format == 'key':
+        pass
+    
+    elif format == 'password':
+        pass
+    
+    elif format == 'flag':
+        pass
+    
+    elif format in ['title', 'subtitle', 'label', 'error', 'text', 'input-label'] :
+        widget = QtWidgets.QLabel(title)
+        widget.setObjectName(format)
+    
+    elif format == 'button':
+        widget = QtWidgets.QPushButton(title)
+        widget.setObjectName('button')
+    
+    elif format == 'vertical-layout':
+        widget = QtWidgets.QWidget()
+        widget.setLayout(QtWidgets.QVBoxLayout())
+    
+    elif format == 'horizontal-layout':
+        widget = QtWidgets.QWidget()
+        widget.setLayout(QtWidgets.QHBoxLayout())
+    
+    elif format == 'line-edit':
+        widget = QtWidgets.QLineEdit()
+        widget.setObjectName('line-edit')
+
+    else:
+        widget = QtWidgets.QWidget()
+    
+    return widget
+
+def _set_policy_on_widget_list(widget_list: List[QtWidgets.QWidget], policy: QtWidgets.QSizePolicy):
+    for widget in widget_list:
+        widget.setSizePolicy(policy)
 
 class ArgumentWidget(QtWidgets.QWidget):
     """
@@ -90,12 +156,10 @@ class ArgumentWidget(QtWidgets.QWidget):
         Empty text area for super classes to inherit
     """
     # TODO: calculate and clear should be part of THIS constructor, doesn't make sense to have other widgets hook them up.
-    def __init__(self, calculate_function: Callable, clear_function: Callable, controls: Dict[str, bool],
-                    widget_title: str ="Function Input", button_msg: str ="Calculate",):
+    def __init__(self, calculate_function: Callable, clear_function: Callable, controls: Dict[str, bool]):
         super().__init__()
-        self.widget_title = widget_title
-        self.button_msg = button_msg
         self.controls = controls
+        self.control_widgets = {}
         self.calculate_function = calculate_function
         self.clear_function = clear_function
 
@@ -105,44 +169,26 @@ class ArgumentWidget(QtWidgets.QWidget):
     
     def _init_arg_widgets(self):
         """Creates child widgets"""
-        self.title = QtWidgets.QLabel(self.widget_title)
-        self.title.setObjectName('subtitle')
+        self.title = _widget_factory(format='subtitle', title='Function Input')
+        self.required_title = _widget_factory(format='label', title='Required Arguments')
+        self.optional_title = _widget_factory(format='label', title='Optional Arguments')
+        self.error_message = _widget_factory(format='error', title="Error Message Goes Here")
+        self.calculate_button = _widget_factory(format='button', title='Calculate')
+        self.clear_button = _widget_factory(format='button', title='Clear')
+        self.symbol_hint = _widget_factory(format='text', title="Separate symbols with comma")
+        self.required_pane = _widget_factory(format='vertical-layout')
+        self.optional_pane =_widget_factory(format='vertical-layout')
+        self.symbol_holder = _widget_factory(format='horizontal-layout')
+        self.symbol_input = _widget_factory(format='line-edit')
 
-        self.required_title = QtWidgets.QLabel("Required Arguments")
-        self.required_title.setObjectName('label')
+        self.symbol_label = _widget_factory(format='input-label', title="Symbols :")
 
-        self.optional_title = QtWidgets.QLabel("Optional Arguments")
-        self.optional_title.setObjectName('label')
-
-        self.required_pane = QtWidgets.QWidget()
-        self.required_pane.setLayout(QtWidgets.QVBoxLayout())
-
-        self.optional_pane = QtWidgets.QWidget()
-        self.optional_pane.setLayout(QtWidgets.QVBoxLayout())
-
-        self.message = QtWidgets.QLabel("Separate symbols with comma")
-        self.message.setObjectName('text')
-
-        self.error_message = QtWidgets.QLabel("Error message goes here")
-        self.error_message.setObjectName('error')
-
-        self.calculate_button = QtWidgets.QPushButton(self.button_msg)
-        self.calculate_button.setObjectName('button')
-        
-        self.clear_button = QtWidgets.QPushButton("Clear")
-        self.clear_button.setObjectName('button')
-
-        self.symbol_holder = QtWidgets.QWidget()
-        self.symbol_input = QtWidgets.QLineEdit()
-        self.symbol_label = QtWidgets.QLabel('Symbols: ')
-        self.symbol_holder.setLayout(QtWidgets.QHBoxLayout())
-        self.symbol_label.setObjectName('input-label')
-        self.symbol_input.setObjectName('line-edit')
-
-        # TODO: init the rest of the argument widgets
         for control in self.controls:
             if self.controls[control]:
-                pass
+                self.control_widgets[control] = _widget_factory(definitions.ARG_DICT[control]['widget_type'], 
+                                                                definitions.ARG_DICT[control]['name'])
+            else:
+                self.control_widgets[control] = None
 
         self.setLayout(QtWidgets.QVBoxLayout())
     
@@ -152,29 +198,37 @@ class ArgumentWidget(QtWidgets.QWidget):
         self.required_title.setAlignment(QtCore.Qt.AlignTop)
         self.optional_title.setAlignment(QtCore.Qt.AlignTop)
         self.symbol_input.setAlignment(QtCore.Qt.AlignTop)
-        self.message.setAlignment(QtCore.Qt.AlignBottom)
+        self.symbol_hint.setAlignment(QtCore.Qt.AlignBottom)
         self.error_message.setAlignment(QtCore.Qt.AlignHCenter)
-
-        min_width_max_height = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Maximum)
-        max_width_max_height =  QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum)
-        self.title.setSizePolicy(min_width_max_height)
-        self.required_title.setSizePolicy(min_width_max_height)
-        self.optional_title.setSizePolicy(min_width_max_height)
-        self.calculate_button.setSizePolicy(min_width_max_height)
-        self.clear_button.setSizePolicy(min_width_max_height)
-        self.symbol_label.setSizePolicy(max_width_max_height)
-        self.symbol_input.setSizePolicy(min_width_max_height)
-        self.symbol_holder.setSizePolicy(min_width_max_height)
+        
+        max_width_max_height_policy =  QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum)
+        min_width_max_height_policy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Maximum)
+        min_width_max_height_policy_list = [
+            self.title, self.required_title, self.optional_title, 
+            self.calculate_button, self.clear_button, self.symbol_input,
+            self.symbol_hint, self.symbol_holder, self.required_pane, 
+            self.optional_pane 
+        ]
+        _set_policy_on_widget_list(min_width_max_height_policy_list, min_width_max_height_policy)
+        _set_policy_on_widget_list([self.symbol_label], max_width_max_height_policy)
 
         self.symbol_holder.layout().addWidget(self.symbol_label)
         self.symbol_holder.layout().addWidget(self.symbol_input)
+
         self.required_pane.layout().addWidget(self.required_title)
+        self.required_pane.layout().addWidget(self.symbol_hint)
         self.required_pane.layout().addWidget(self.symbol_holder)
+
         self.optional_pane.layout().addWidget(self.optional_title)
+        for control_widget in self.control_widgets.values():
+            if control_widget is not None:
+                self.optional_pane.layout().addWidget(control_widget)
+
         self.layout().addWidget(self.title)
         self.layout().addWidget(self.error_message)
         self.layout().addWidget(self.required_pane)
         self.layout().addWidget(self.optional_pane)
+        self.layout().addStretch()
         self.layout().addWidget(self.calculate_button)
         self.layout().addWidget(self.clear_button)
 
