@@ -24,17 +24,17 @@ def round_array(array: List[float], decimals: int) -> List[float]:
     return [0 if element < cutoff else truncate(element, decimals) for element in array]
 
 def intersect_dict_keys(dict1: dict, dict2: dict) -> Tuple[dict, dict]:
-    intersection = [x for x in dict1.keys() if x in dict2.keys()]
+    """
+    Generates two new dictionaries from the inputted dictionaries such that the new dictionaries contain the same keys. In other words, this function takes the intersection of the dictionary keys and generates two new dictionaries with *only* those keys.
+    """
+    return {x: dict1[x] for x in dict1.keys if x in dict2.keys()}, {x: dict2[x] for x in dict2.keys() if x in dict1.keys()}
 
-    new_dict1, new_dict2 = {}, {}
-    for key, value in dict1.items():
-        if key in intersection:
-            new_dict1[key] = value
-    for key, value in dict2.items():
-        if key in intersection:
-            new_dict2[key] = value
-    
-    return new_dict1, new_dict2
+
+def complement_dict_keys(dict1: dict, dict2: dict):
+    """
+    Returns the a transformed first dictionary whose keys are a complement relative to the second dictionary keys. In other words, this function takes the complement of the first dictionary keys relative to the second dictionary keys. 
+    """
+    return {x: dict1[x] for x in dict1.keys() if x not in dict2.keys()}
 
 def format_float_number(decimal: float):
     return str(decimal)[:constants.constants['SIG_FIGS']]

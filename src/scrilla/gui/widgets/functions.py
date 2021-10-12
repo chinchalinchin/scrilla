@@ -17,8 +17,7 @@ from PySide6 import QtGui, QtCore, QtWidgets
 
 
 from scrilla import settings
-from scrilla import static
-from scrilla.static import keys
+from scrilla.static import keys, definitions
 # TODO: conditional import based on ANALYSIS_MODE
 from scrilla.analysis import markets, optimizer
 from scrilla.analysis.models.geometric import statistics
@@ -27,8 +26,7 @@ from scrilla.analysis.objects.portfolio import Portfolio
 from scrilla.util import outputter, helper, plotter
 
 from scrilla.gui import formats, utilities
-from scrilla.gui.widgets.components import ArgumentWidget, CompositeWidget, \
-                                            GraphWidget, TableWidget, generate_control_skeleton
+from scrilla.gui.widgets import factories, components
 
 logger = outputter.Logger('gui.functions', settings.LOG_LEVEL)
 
@@ -36,45 +34,47 @@ class RiskReturnWidget(QtWidgets.QWidget):
     def __init__(self, layer):
         super().__init__()
         self.setObjectName(layer)
-        self._init_profile_widgets()
-        self._arrange_profile_widgets()
+        self._init_widgets()
+        self._arrange_widgets()
+        self._stage_widgets()
 
     @staticmethod
     def _configure_control_skeleton():
-        controls = generate_control_skeleton()
-        controls['start_date'] = True
-        controls['end_date'] = True
+        controls = factories.generate_control_skeleton()
+
+        for arg in definitions.FUNC_DICT['risk_profile']['args']:
+            controls[arg] = True
+
         return controls
 
-    def _init_profile_widgets(self):
-        self.composite_widget = CompositeWidget(keys.keys['GUI']['TEMP']['PROFILE'], 
-                                                    widget_title="Risk Analysis",
-                                                    table_title="CAPM Risk Profile",
-                                                    graph_title="Risk-Return Plane",
+    def _init_widgets(self):
+        self.composite_widget = components.CompositeWidget(keys.keys['GUI']['TEMP']['PROFILE'], 
+                                                            widget_title="Risk Analysis",
+                                                            table_title="CAPM Risk Profile",
+                                                            graph_title="Risk-Return Plane",
+                                                            layer = utilities.get_next_layer(self.objectName()))
+        self.arg_widget = components.ArgumentWidget(calculate_function=self.calculate,
+                                                    clear_function=self.clear,
+                                                    controls= RiskReturnWidget._configure_control_skeleton(),
                                                     layer = utilities.get_next_layer(self.objectName()))
-        self.arg_widget = ArgumentWidget(calculate_function=self.calculate,
-                                            clear_function=self.clear,
-                                            controls= RiskReturnWidget._configure_control_skeleton(),
-                                            layer = utilities.get_next_layer(self.objectName()))
         self.setLayout(QtWidgets.QHBoxLayout())
 
-    def _arrange_profile_widgets(self):
-        self.arg_widget.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum,
-                                                            QtWidgets.QSizePolicy.Expanding))
+    def _arrange_widgets(self):
         self.layout().addWidget(self.composite_widget)
         self.layout().addWidget(self.arg_widget)
+
+    def _stage_widgets(self):
+        self.arg_widget.prime()
 
     @QtCore.Slot()
     def calculate(self):
         if self.composite_widget.graph_widget.figure.isVisible():
             self.composite_widget.graph_widget.figure.hide()
 
-        symbols = helper.split_and_strip(self.arg_widget.get_symbol_input().text())
+        symbols = self.arg_widget.get_symbol_input()
 
-        self.composite_widget.table_widget.table.setRowCount(len(symbols))
-        self.composite_widget.table_widget.table.setColumnCount(5)
-        self.composite_widget.table_widget.table.setHorizontalHeaderLabels(['Return','Volatility', 'Sharpe', 'Beta', 'Equity Cost'])
-        self.composite_widget.table_widget.table.setVerticalHeaderLabels(symbols)
+        self.composite_widget.table_widget.init_table(rows=symbols, 
+                                                        columns=['Return','Volatility', 'Sharpe', 'Beta', 'Equity Cost'])
 
         profiles = {}
         for i, symbol in enumerate(symbols):
@@ -86,8 +86,7 @@ class RiskReturnWidget(QtWidgets.QWidget):
             formatted_profile = formats.format_profile(profiles[symbol])
 
             for j, statistic in enumerate(formatted_profile.keys()):
-                table_item = QtWidgets.QTableWidgetItem(formatted_profile[statistic])
-                table_item.setTextAlignment(QtCore.Qt.AlignHCenter)
+                table_item = factories.atomic_widget_factory(format='table-item', title=formatted_profile[statistic] )
                 self.composite_widget.table_widget.table.setItem(i, j, table_item)
 
         plotter.plot_profiles(symbols=symbols, profiles=profiles, show=False,
@@ -95,6 +94,7 @@ class RiskReturnWidget(QtWidgets.QWidget):
 
         self.composite_widget.graph_widget.set_pixmap()
         self.composite_widget.table_widget.show_table()
+        self.arg_widget.fire()
 
     def resizeEvent(self, event: QtGui.QResizeEvent) -> None:
         if self.composite_widget.graph_widget.figure.isVisible():
@@ -105,31 +105,41 @@ class RiskReturnWidget(QtWidgets.QWidget):
     def clear(self):
         self.composite_widget.graph_widget.figure.hide()
         self.composite_widget.table_widget.table.clear()
-        self.arg_widget.get_symbol_input().clear()
+        self.composite_widget.table_widget.table.hide()
+        self.arg_widget.prime()
 
 class CorrelationWidget(QtWidgets.QWidget):
     def __init__(self, layer):
         super().__init__()
         self.setObjectName(layer)
+        self._init_widgets()
+        self._arrange_widgets()
+        self._stage_widgets()
 
     @staticmethod
     def _configure_control_skeleton():
-        controls = generate_control_skeleton()
-        controls['start_date'] = True
-        controls['end_date'] = True
+        controls = factories.generate_control_skeleton()
+
+        for arg in definitions.FUNC_DICT['correlation']['args']:
+            controls[arg] = True
+
         return controls
 
-    def _init_correlation_widgets(self):
-        self.table_widget = TableWidget(widget_title="Correlation Matrix")
-        self.arg_widget = ArgumentWidget(calculate_function=self.calculate,
-                                            clear_function=self.clear,
-                                            controls=CorrelationWidget._configure_control_skeleton(),
-                                            layer=utilities.get_next_layer(self.objectName()))
-        self.setLayout(QtWidgets.QVBoxLayout())
+    def _init_widgets(self):
+        self.table_widget = components.TableWidget(widget_title="Correlation Matrix",
+                                                    layer=utilities.get_next_layer(self.objectName()))
+        self.arg_widget = components.ArgumentWidget(calculate_function=self.calculate,
+                                                    clear_function=self.clear,
+                                                    controls=CorrelationWidget._configure_control_skeleton(),
+                                                    layer=utilities.get_next_layer(self.objectName()))
+        self.setLayout(QtWidgets.QHBoxLayout())
 
-    def _arrange_correlation_widgets(self):
+    def _arrange_widgets(self):
         self.layout().addWidget(self.table_widget)
         self.layout().addWidget(self.arg_widget)
+    
+    def _stage_widgets(self):
+        self.arg_widget.prime()
 
     @QtCore.Slot()
     def calculate(self):
@@ -137,34 +147,27 @@ class CorrelationWidget(QtWidgets.QWidget):
             self.table_widget.table.clear()
             self.table_widget.table.hide()
 
-        symbols = helper.split_and_strip(self.arg_widget.get_symbol_input().text())
+        symbols = self.arg_widget.get_symbol_input()
 
         if len(symbols) > 1:
-            self.table_widget.table.setRowCount(len(symbols))
-            self.table_widget.table.setColumnCount(len(symbols))
-
-            self.table_widget.table.setHorizontalHeaderLabels(symbols)
-            self.table_widget.table.setVerticalHeaderLabels(symbols)
+            self.table_widget.init_table(rows=symbols, columns=symbols)
 
             matrix = statistics.correlation_matrix(tickers=symbols)
             for i in range(0, len(symbols)):
                 for j in range(i, len(symbols)):
-                    item_1 = QtWidgets.QTableWidgetItem(helper.format_float_percent(matrix[i][j]))
-                    item_1.setTextAlignment(QtCore.Qt.AlignHCenter)
-
-                    item_2 = QtWidgets.QTableWidgetItem(helper.format_float_percent(matrix[i][j]))
-                    item_2.setTextAlignment(QtCore.Qt.AlignHCenter)
-
-                    self.table_widget.table.setItem(j, i, item_1)
-                    self.table_widget.table.setItem(i, j, item_2)
+                    item_upper = factories.atomic_widget_factory(format='table-item', title = helper.format_float_percent(matrix[i][j]))
+                    item_lower = factories.atomic_widget_factory(format='table-item', title = helper.format_float_percent(matrix[j][i]))
+                    self.table_widget.table.setItem(j, i, item_upper)
+                    self.table_widget.table.setItem(i, j, item_lower)
         else:
             print('error handling goes here')
 
         self.table_widget.show_table()
+        self.arg_widget.fire()
 
     @QtCore.Slot()
     def clear(self):
-        self.arg_widget.get_symbol_input().clear()
+        self.arg_widget.prime()
         self.table_widget.table.clear()
         self.table_widget.table.hide()
 
@@ -172,27 +175,35 @@ class OptimizerWidget(QtWidgets.QWidget):
     def __init__(self, layer):
         super().__init__()
         self.setObjectName(layer)
-        self._init_optimizer_widgets()
-        self._arrange_optimizer_widgets()
+        self._init_widgets()
+        self._arrange_widgets()
+        self._stage_widgets()
 
     @staticmethod
     def _configure_control_skeleton():
-        controls = generate_control_skeleton()
-        controls['start_date'] = True
-        controls['end_date'] = True
+        controls = factories.generate_control_skeleton()
+        
+        for arg in definitions.FUNC_DICT['optimize_portfolio']['args']:
+            controls[arg] = True
+
         return controls
 
-    def _init_optimizer_widgets(self):
-        self.table_widget = TableWidget(widget_title="Optimization Results")
-        self.arg_widget = ArgumentWidget(calculate_function=self.optimize,
-                                            clear_function=self.clear,
-                                            controls=OptimizerWidget._configure_control_skeleton(),
-                                            layer=utilities.get_next_layer(self.objectName()))
-        self.setLayout(QtWidgets.QVBoxLayout())
+    def _init_widgets(self):
+        self.title = factories.atomic_widget_factory(format='heading', title=None)
+        self.table_widget = components.TableWidget(widget_title="Optimization Results",
+                                                    layer=utilities.get_next_layer(self.objectName()))
+        self.arg_widget = components.ArgumentWidget(calculate_function=self.optimize,
+                                                    clear_function=self.clear,
+                                                    controls=OptimizerWidget._configure_control_skeleton(),
+                                                    layer=utilities.get_next_layer(self.objectName()))
+        self.setLayout(QtWidgets.QHBoxLayout())
 
-    def _arrange_optimizer_widgets(self):
+    def _arrange_widgets(self):
         self.layout().addWidget(self.table_widget)
         self.layout().addWidget(self.arg_widget)
+    
+    def _stage_widgets(self):
+        self.arg_widget.prime()
 
     @QtCore.Slot()
     def optimize(self):
@@ -200,79 +211,80 @@ class OptimizerWidget(QtWidgets.QWidget):
             self.table_widget.table.clear()
             self.table_widget.table.hide()
 
-        symbols = helper.split_and_strip(self.arg_widget.get_symbol_input().text())
+        symbols = self.arg_widget.get_symbol_input()
 
         # TODO: better error checking
         if len(symbols) > 1:
-            self.table_widget.table.setRowCount(len(symbols))
-            self.table_widget.table.setVerticalHeaderLabels(symbols)
-
-            # investment = self.portfolio_value.text()
-
-            this_portfolio = Portfolio(tickers=symbols)
-            allocation = optimizer.optimize_portfolio_variance(portfolio=this_portfolio)
+            investment = self.arg_widget.get_control_input('investment')
+            this_portfolio = Portfolio(tickers=symbols, 
+                                        start_date=self.arg_widget.get_control_input('start_date'),
+                                        end_date=self.arg_widget.get_control_input('end_date'))
+            allocation = optimizer.optimize_portfolio_variance(portfolio=this_portfolio,
+                                                                target_return=self.arg_widget.get_control_input('target'))
             
-            # self.result.setText(formats.format_allocation_profile_title(allocation, this_portfolio))
+            self.title.setText(formats.format_allocation_profile_title(allocation, this_portfolio))
             
-           # if not investment:
-                # self.table_widget.table.setColumnCount(1)
-                # labels = ['Allocation']
-            # else:
-                # self.table_widget.table.setColumnCount(2)
-                # labels = ['Allocation', 'Shares']
-                # shares = this_portfolio.calculate_approximate_shares(allocation, float(investment))
+            if investment is None:
+                self.table_widget.init_table(rows=symbols,columns=['Allocation'])
+            else:
+                self.table_widget.init_table(rows=symbols,columns=['Allocation', 'Shares'])
+                shares = this_portfolio.calculate_approximate_shares(allocation, float(investment))
 
-            # self.table_widget.table.setHorizontalHeaderLabels(labels)
+            for i in range(len(symbols)):
+                item = factories.atomic_widget_factory(format='table-item', title=helper.format_float_percent(allocation[i]))
+                self.table_widget.table.setItem(i, 0, item)
 
-
-            # for i in range(len(symbols)):
-              #   item = QtWidgets.QTableWidgetItem(formats.format_allocation(allocation[i]))
-                # item.setTextAlignment(QtCore.Qt.AlignHCenter)
-                # self.table_widget.table.setItem(i, 0, item)
-                # if investment:
-                  #  share_item = QtWidgets.QTableWidgetItem(str(shares[i]))
-                  #  share_item.setTextAlignment(QtCore.Qt.AlignHCenter)
-                  #  self.table_widget.table.setItem(i, 1, share_item)
+                if investment is not None:
+                    share_item = factories.atomic_widget_factory(format='table-item', title=str(shares[i]))
+                    self.table_widget.table.setItem(i, 1, share_item)
             
-            # self.table_widget.table.resizeColumnsToContents()
-            # self.table_widget.table.show()
-            # self.result.show()
+            # TODO: display amount vested per equity
+            # TODO: display total portfolio return and volatility
+            # TODO: display actual investment
+            self.table_widget.show_table()
+            self.arg_widget.fire()
         
-        # else:
-          #   self.result.setText("Error Occurred. Check Input and Try Again.")
-            # self.result.show()
+        else:
+            print('something went wrong')
 
     @QtCore.Slot()
     def clear(self):
         self.table_widget.table.clear()
         self.table_widget.table.hide()
+        self.arg_widget.prime()
 
 class EfficientFrontierWidget(QtWidgets.QWidget):
     def __init__(self, layer):
         super().__init__()
         self.setObjectName(layer)
-        self._init_frontier_widgets()
-        self._arrange_frontier_widgets()
+        self._init_widgets()
+        self._arrange_widgets()
+
     @staticmethod
     def _configure_control_skeleton():
-        controls = generate_control_skeleton()
-        controls['start_date'] = True
-        controls['end_date'] = True
+        controls = factories.generate_control_skeleton()
+
+        for arg in definitions.FUNC_DICT['efficient_frontier']['args']:
+            controls[arg] = True
+
         return controls
 
-    def _init_frontier_widgets(self):
-        self.graph_widget = GraphWidget(tmp_graph_key=keys.keys['GUI']['TEMP']['FRONTIER'])
-        self.arg_widget = ArgumentWidget(calculate_function=self.calculate, 
-                                            clear_function=self.clear,
-                                            controls=EfficientFrontierWidget._configure_control_skeleton(),
-                                            layer=utilities.get_next_layer(self.objectName()))
-        self.setLayout(QtWidgets.QVBoxLayout())
+    def _init_widgets(self):
+        self.graph_widget = components.GraphWidget(tmp_graph_key=keys.keys['GUI']['TEMP']['FRONTIER'],
+                                                    layer=utilities.get_next_layer(self.objectName()))
+        self.arg_widget = components.ArgumentWidget(calculate_function=self.calculate, 
+                                                    clear_function=self.clear,
+                                                    controls=EfficientFrontierWidget._configure_control_skeleton(),
+                                                    layer=utilities.get_next_layer(self.objectName()))
+        self.setLayout(QtWidgets.QHBoxLayout())
         # TODO: portfolio tabs
 
-    def _arrange_frontier_widgets(self):
+    def _arrange_widgets(self):
         self.layout().addWidget(self.graph_widget)
         self.layout().addWidget(self.arg_widget)
 
+    def _stage_widgets(self):
+        self.arg_widget.prime()
 
     def resizeEvent(self, event: QtGui.QResizeEvent) -> None:
         if self.graph_widget.figure.isVisible():
@@ -284,9 +296,7 @@ class EfficientFrontierWidget(QtWidgets.QWidget):
         if self.graph_widget.figure.isVisible():
             self.graph_widget.figure.hide()
 
-        symbols = helper.split_and_strip(self.arg_widget.get_symbol_input().text())
-
-        this_portfolio = Portfolio(tickers=symbols)
+        this_portfolio = Portfolio(tickers=self.arg_widget.get_symbol_input())
         frontier = optimizer.calculate_efficient_frontier(portfolio=this_portfolio)
         plotter.plot_frontier(portfolio=this_portfolio, 
                                 frontier=frontier, 
@@ -294,30 +304,36 @@ class EfficientFrontierWidget(QtWidgets.QWidget):
                                 savefile=f'{settings.TEMP_DIR}/{keys.keys["GUI"]["TEMP"]["FRONTIER"]}')
 
         self.graph_widget.set_pixmap()
+        self.arg_widget.fire()
     
     @QtCore.Slot()
     def clear(self):
         self.graph_widget.figure.hide()
-        self.arg_widget.get_symbol_input().clear()
+        self.arg_widget.prime()
 
 class MovingAverageWidget(QtWidgets.QWidget):
     def __init__(self, layer):
         super().__init__()
         self.setObjectName(layer)
-        self._init_average_widgets()
-        self._arrange_average_widgets()
+        self._init_widgets()
+        self._arrange_widgets()
+        self._stage_widgets()
 
-    def _init_average_widgets(self):
-        self.graph_widget = GraphWidget(keys.keys['GUI']['TEMP']['AVERAGES'])
-        self.arg_widget = ArgumentWidget(calculate_function=self.calculate,
-                                            clear_function=self.clear,
-                                            controls = generate_control_skeleton(),
-                                            layer=utilities.get_next_layer(self.objectName()))
-        self.setLayout(QtWidgets.QVBoxLayout())
+    def _init_widgets(self):
+        self.graph_widget = components.GraphWidget(keys.keys['GUI']['TEMP']['AVERAGES'],
+                                                    layer=utilities.get_next_layer(self.objectName()))
+        self.arg_widget = components.ArgumentWidget(calculate_function=self.calculate,
+                                                    clear_function=self.clear,
+                                                    controls = factories.generate_control_skeleton(),
+                                                    layer=utilities.get_next_layer(self.objectName()))
+        self.setLayout(QtWidgets.QHBoxLayout())
 
-    def _arrange_average_widgets(self):
+    def _arrange_widgets(self):
         self.layout().addWidget(self.graph_widget)
         self.layout().addWidget(self.arg_widget)
+    
+    def _stage_widgets(self):
+        self.arg_widget.prime()
         
     def resizeEvent(self, event: QtGui.QResizeEvent) -> None:
         if self.graph_widget.figure.isVisible():
@@ -329,7 +345,7 @@ class MovingAverageWidget(QtWidgets.QWidget):
         if self.graph_widget.figure.isVisible():
             self.graph_widget.figure.hide()
 
-        symbols = helper.split_and_strip(self.arg_widget.get_symbol_input().text())
+        symbols = self.arg_widget.get_symbol_input()
 
         moving_averages = statistics.calculate_moving_averages(symbols)
         periods = [settings.MA_1_PERIOD, settings.MA_2_PERIOD, settings.MA_3_PERIOD]
@@ -337,11 +353,11 @@ class MovingAverageWidget(QtWidgets.QWidget):
                                         averages_output=moving_averages, 
                                         periods=periods, 
                                         show=False, 
-                                        savefile=f'{settings.TEMP_DIR}/averages')
-        
+                                        savefile=f'{settings.TEMP_DIR}/{keys.keys["GUI"]["TEMP"]["AVERAGES"]}')
         self.graph_widget.set_pixmap()
+        self.arg_widget.fire()
     
     @QtCore.Slot()
     def clear(self):
-        self.arg_widget.get_symbol_input().clear()
+        self.arg_widget.prime()
         self.graph_widget.figure.hide()

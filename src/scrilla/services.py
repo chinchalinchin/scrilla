@@ -473,26 +473,32 @@ def get_daily_price_history(ticker: str, start_date: Union[None, date] = None,
     asset_type = errors.validate_asset_type(ticker, asset_type)
     start_date, end_date = errors.validate_dates(start_date, end_date, asset_type)
     
-    prices = price_cache.filter_price_cache(ticker=ticker, start_date=start_date, end_date=end_date)
+    cached_prices = price_cache.filter_price_cache(ticker=ticker, start_date=start_date, end_date=end_date)
+
+    if asset_type == keys.keys['ASSETS']['EQUITY']:
+        logger.debug(f'Comparing {len(cached_prices)} = {dater.business_days_between(start_date, end_date) + 1}')
 
     # make sure the length of cache is equal to the length of the requested sample
-    if prices is not None and dater.date_to_string(end_date) in prices.keys() and (
+    if cached_prices is not None and dater.date_to_string(end_date) in cached_prices.keys() and (
         (asset_type == keys.keys['ASSETS']['EQUITY']
-            and (dater.business_days_between(start_date, end_date) + 1) == len(prices))
+            and (dater.business_days_between(start_date, end_date) + 1) == len(cached_prices))
         or 
         (asset_type == keys.keys['ASSETS']['CRYPTO']
-            and (dater.days_between(start_date, end_date) + 1) == len(prices))
+            and (dater.days_between(start_date, end_date) + 1) == len(cached_prices))
     ):
-        return prices
+        return cached_prices
 
-    if prices is not None:
+    if cached_prices is not None:
         logger.debug(f'Cached {ticker} prices are out of date, passing request off to external service')
         
+
     prices = price_manager.get_prices(ticker=ticker,start_date=start_date, end_date=end_date, asset_type=asset_type)
 
-    for this_date in prices:
-        close_price = prices[this_date][keys.keys['PRICES']['OPEN']]
-        open_price = prices[this_date][keys.keys['PRICES']['CLOSE']]
+    new_prices = helper.complement_dict_keys(prices, cached_prices)
+
+    for this_date in new_prices:
+        close_price = new_prices[this_date][keys.keys['PRICES']['OPEN']]
+        open_price = new_prices[this_date][keys.keys['PRICES']['CLOSE']]
         price_cache.save_row(ticker=ticker, date=this_date, open_price=open_price, close_price=close_price)
 
     return prices

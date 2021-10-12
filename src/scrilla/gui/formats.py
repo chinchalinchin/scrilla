@@ -15,6 +15,7 @@ FUNCTIONS= [
 ]
 
 MARGINS = 5
+
 def format_stylesheet(sheet):
     if settings.GUI_DARK_MODE:
         mode = get_dark_mode_theme()

@@ -110,5 +110,5 @@ QPushButton#button:pressed {
     border-style: inset;
     border-color: $warn-800;
     border-radius: 1px;
-    border-width: 5px;
+    border-width: 1px;
 }

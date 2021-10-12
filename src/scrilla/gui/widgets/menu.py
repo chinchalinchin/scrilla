@@ -20,6 +20,7 @@ from PySide6 import QtCore, QtWidgets, QtGui
 from scrilla import settings
 
 from scrilla.gui import formats
+from scrilla.gui.widgets import factories
 from scrilla.gui.widgets.functions import RiskReturnWidget, CorrelationWidget, \
                                             MovingAverageWidget, EfficientFrontierWidget, \
                                             OptimizerWidget
@@ -41,12 +42,15 @@ class MenuWidget(QtWidgets.QWidget):
 
     def _generate_menu_bar(self):
         self.api_key_action = QtGui.QAction('Add API Key', self)
+        self.api_key_action.setEnabled(True)
+
         self.jpeg_export_action = QtGui.QAction('JPEG', self)
+        self.jpeg_export_action.setEnabled(False)
+
         self.json_export_action = QtGui.QAction('JSON', self)
+        self.json_export_action.setEnabled(False)
 
-        self.menu_bar = QtWidgets.QMenuBar(None)
-        self.menu_bar.setObjectName('menu-bar')
-
+        self.menu_bar = factories.atomic_widget_factory(format='menu-bar', title=None)
         file = self.menu_bar.addMenu('File')
         view = self.menu_bar.addMenu('Function')
         preferences = self.menu_bar.addMenu('Preferences')
@@ -57,10 +61,6 @@ class MenuWidget(QtWidgets.QWidget):
 
         export = file.addMenu('Export')
 
-        self.api_key_action.setEnabled(True)
-        self.jpeg_export_action.setEnabled(False)
-        self.json_export_action.setEnabled(False)
-
         file.addAction(self.api_key_action)
         export.addAction(self.jpeg_export_action)
         export.addAction(self.json_export_action)
@@ -68,23 +68,14 @@ class MenuWidget(QtWidgets.QWidget):
     def _init_menu_widgets(self):
         self.setObjectName('root')
 
-        self.intro_msg = QtWidgets.QLabel("Select A Function To Get Started")
-        self.intro_msg.setObjectName('title')
-
-        self.title = QtWidgets.QLabel("scrilla")
-        self.title.setObjectName('title')
+        self.intro_msg = factories.atomic_widget_factory(format='title', title="Select A Function To Get Started")
+        self.title = factories.atomic_widget_factory(format='title', title=settings.APP_NAME)
 
         self.function_menu = QtWidgets.QLabel('Functions')
         self.function_menu.setObjectName('function-menu')
         
-        
-        self.widget_buttons = [ QtWidgets.QPushButton(function) for function in formats.FUNCTIONS ]
-
-        self.exit_button = QtWidgets.QPushButton("Exit")
-        self.exit_button.setObjectName('button')
-
-        for button in self.widget_buttons:
-            button.setObjectName('button')
+        self.widget_buttons = [ factories.atomic_widget_factory(format='button', title=function) for function in formats.FUNCTIONS ]
+        self.exit_button = factories.atomic_widget_factory(format='button', title="Exit")
 
         self.function_widgets = [ 
             CorrelationWidget('great-grand-child'), 
@@ -94,16 +85,13 @@ class MenuWidget(QtWidgets.QWidget):
             RiskReturnWidget('great-grand-child'),
         ]
 
-        self.menu_pane = QtWidgets.QWidget()
-        self.menu_pane.setLayout(QtWidgets.QVBoxLayout())
+        self.menu_pane = factories.layout_factory(format='vertical-box')
         self.menu_pane.setObjectName('grand-child')
         
-        self.display_pane = QtWidgets.QWidget()
-        self.display_pane.setLayout(QtWidgets.QVBoxLayout())
+        self.display_pane = factories.layout_factory(format='vertical-box')
         self.display_pane.setObjectName('grand-child')
 
-        self.container_pane = QtWidgets.QWidget()
-        self.container_pane.setLayout(QtWidgets.QHBoxLayout())
+        self.container_pane = factories.layout_factory(format='horizontal-box')
         self.container_pane.setObjectName('child')
 
         self.setLayout(QtWidgets.QVBoxLayout())
@@ -143,11 +131,11 @@ class MenuWidget(QtWidgets.QWidget):
     def _stage_menu_widgets(self):
         for i, button in enumerate(self.widget_buttons):
             button.show()
-            button.setAutoDefault(True)
             button.clicked.connect((lambda i: lambda: self._show_widget(i))(i))
-            button.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
+
         for widget in self.function_widgets:
             widget.hide()
+
         self.exit_button.clicked.connect(self.close)
         self.exit_button.show()
         self.menu_bar.show()
