@@ -102,7 +102,7 @@ def composite_widget_factory(format: str, title: str = None, optional : bool = T
         main_widget = QtWidgets.QLineEdit()
         main_widget.setObjectName(format)
         # https://stackoverflow.com/questions/354044/what-is-the-best-u-s-currency-regex
-        main_widget.setValidator(QtGui.QRegularExpressionValidator("[+-]?[0-9]{1,3}(?:,?[0-9]{3})*(?:\.[0-9]{2})", main_widget))
+        main_widget.setValidator(QtGui.QRegularExpressionValidator(r"[+-]?[0-9]{1,3}(?:,?[0-9]{3})*(?:\.[0-9]{2})", main_widget))
         main_widget.setEnabled(False)
         main_widget.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum))
 
