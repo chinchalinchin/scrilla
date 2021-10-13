@@ -31,7 +31,7 @@
 from math import trunc
 from typing import List, Tuple
 
-from scrilla.static import definitions
+from scrilla.static import definitions, constants
 
 def truncate(number: float, digits: int) -&gt; float:
     stepper = 10.0 ** digits
@@ -53,17 +53,37 @@ def round_array(array: List[float], decimals: int) -&gt; List[float]:
     return [0 if element &lt; cutoff else truncate(element, decimals) for element in array]
 
 def intersect_dict_keys(dict1: dict, dict2: dict) -&gt; Tuple[dict, dict]:
-    intersection = [x for x in dict1.keys() if x in dict2.keys()]
+    &#34;&#34;&#34;
+    Generates two new dictionaries from the inputted dictionaries such that the new dictionaries contain the same keys. In other words, this function takes the intersection of the dictionary keys and generates two new dictionaries with *only* those keys.
+    &#34;&#34;&#34;
+    return {x: dict1[x] for x in dict1.keys if x in dict2.keys()}, {x: dict2[x] for x in dict2.keys() if x in dict1.keys()}
 
-    new_dict1, new_dict2 = {}, {}
-    for key, value in dict1.items():
-        if key in intersection:
-            new_dict1[key] = value
-    for key, value in dict2.items():
-        if key in intersection:
-            new_dict2[key] = value
-    
-    return new_dict1, new_dict2
+
+def complement_dict_keys(dict1: dict, dict2: dict):
+    &#34;&#34;&#34;
+    Returns the a transformed first dictionary whose keys are a complement relative to the second dictionary keys. In other words, this function takes the complement of the first dictionary keys relative to the second dictionary keys. 
+    &#34;&#34;&#34;
+    return {x: dict1[x] for x in dict1.keys() if x not in dict2.keys()}
+
+def format_float_number(decimal: float):
+    if decimal &lt; 10 **(-constants.constants[&#39;ACCURACY&#39;]):
+        return 0
+    return str(decimal)[:constants.constants[&#39;SIG_FIGS&#39;]]
+
+def format_float_percent(decimal: float):
+    if decimal &lt; 10 **(-constants.constants[&#39;ACCURACY&#39;]):
+        return &#34;0%&#34;
+    return str(100*float(format_float_number(decimal)))[:constants.constants[&#39;SIG_FIGS&#39;]]+&#34;%&#34;
+
+def format_dict_percent(this_dict: dict, which_key: str) -&gt; dict:
+    buffer_dict = this_dict.copy()
+    buffer_dict[which_key] = format_float_percent(this_dict[which_key])
+    return buffer_dict
+
+def format_dict_number(this_dict: dict, which_key: str) -&gt; dict:
+    buffer_dict = this_dict.copy()
+    buffer_dict[which_key] = format_float_number(this_dict[which_key])
+    return buffer_dict
 
 ################################################
 ##### PARSING FUNCTIONS
@@ -127,6 +147,22 @@ def replace_troublesome_chars(msg: str) -&gt; str:
 <section>
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
+<dt id="scrilla.util.helper.complement_dict_keys"><code class="name flex">
+<span>def <span class="ident">complement_dict_keys</span></span>(<span>dict1: dict, dict2: dict)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Returns the a transformed first dictionary whose keys are a complement relative to the second dictionary keys. In other words, this function takes the complement of the first dictionary keys relative to the second dictionary keys.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def complement_dict_keys(dict1: dict, dict2: dict):
+    &#34;&#34;&#34;
+    Returns the a transformed first dictionary whose keys are a complement relative to the second dictionary keys. In other words, this function takes the complement of the first dictionary keys relative to the second dictionary keys. 
+    &#34;&#34;&#34;
+    return {x: dict1[x] for x in dict1.keys() if x not in dict2.keys()}</code></pre>
+</details>
+</dd>
 <dt id="scrilla.util.helper.format_args"><code class="name flex">
 <span>def <span class="ident">format_args</span></span>(<span>args, default_estimation_method) ‑> argparse.Namespace</span>
 </code></dt>
@@ -181,6 +217,66 @@ def replace_troublesome_chars(msg: str) -&gt; str:
     return vars(parser.parse_args(args))</code></pre>
 </details>
 </dd>
+<dt id="scrilla.util.helper.format_dict_number"><code class="name flex">
+<span>def <span class="ident">format_dict_number</span></span>(<span>this_dict: dict, which_key: str) ‑> dict</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def format_dict_number(this_dict: dict, which_key: str) -&gt; dict:
+    buffer_dict = this_dict.copy()
+    buffer_dict[which_key] = format_float_number(this_dict[which_key])
+    return buffer_dict</code></pre>
+</details>
+</dd>
+<dt id="scrilla.util.helper.format_dict_percent"><code class="name flex">
+<span>def <span class="ident">format_dict_percent</span></span>(<span>this_dict: dict, which_key: str) ‑> dict</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def format_dict_percent(this_dict: dict, which_key: str) -&gt; dict:
+    buffer_dict = this_dict.copy()
+    buffer_dict[which_key] = format_float_percent(this_dict[which_key])
+    return buffer_dict</code></pre>
+</details>
+</dd>
+<dt id="scrilla.util.helper.format_float_number"><code class="name flex">
+<span>def <span class="ident">format_float_number</span></span>(<span>decimal: float)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def format_float_number(decimal: float):
+    if decimal &lt; 10 **(-constants.constants[&#39;ACCURACY&#39;]):
+        return 0
+    return str(decimal)[:constants.constants[&#39;SIG_FIGS&#39;]]</code></pre>
+</details>
+</dd>
+<dt id="scrilla.util.helper.format_float_percent"><code class="name flex">
+<span>def <span class="ident">format_float_percent</span></span>(<span>decimal: float)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def format_float_percent(decimal: float):
+    if decimal &lt; 10 **(-constants.constants[&#39;ACCURACY&#39;]):
+        return &#34;0%&#34;
+    return str(100*float(format_float_number(decimal)))[:constants.constants[&#39;SIG_FIGS&#39;]]+&#34;%&#34;</code></pre>
+</details>
+</dd>
 <dt id="scrilla.util.helper.get_first_json_key"><code class="name flex">
 <span>def <span class="ident">get_first_json_key</span></span>(<span>this_json: dict) ‑> str</span>
 </code></dt>
@@ -198,23 +294,16 @@ def replace_troublesome_chars(msg: str) -&gt; str:
 <span>def <span class="ident">intersect_dict_keys</span></span>(<span>dict1: dict, dict2: dict) ‑> Tuple[dict, dict]</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Generates two new dictionaries from the inputted dictionaries such that the new dictionaries contain the same keys. In other words, this function takes the intersection of the dictionary keys and generates two new dictionaries with <em>only</em> those keys.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def intersect_dict_keys(dict1: dict, dict2: dict) -&gt; Tuple[dict, dict]:
-    intersection = [x for x in dict1.keys() if x in dict2.keys()]
-
-    new_dict1, new_dict2 = {}, {}
-    for key, value in dict1.items():
-        if key in intersection:
-            new_dict1[key] = value
-    for key, value in dict2.items():
-        if key in intersection:
-            new_dict2[key] = value
-    
-    return new_dict1, new_dict2</code></pre>
+    &#34;&#34;&#34;
+    Generates two new dictionaries from the inputted dictionaries such that the new dictionaries contain the same keys. In other words, this function takes the intersection of the dictionary keys and generates two new dictionaries with *only* those keys.
+    &#34;&#34;&#34;
+    return {x: dict1[x] for x in dict1.keys if x in dict2.keys()}, {x: dict2[x] for x in dict2.keys() if x in dict1.keys()}</code></pre>
 </details>
 </dd>
 <dt id="scrilla.util.helper.replace_troublesome_chars"><code class="name flex">
@@ -307,7 +396,12 @@ def replace_troublesome_chars(msg: str) -&gt; str:
 </li>
 <li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="">
+<li><code><a title="scrilla.util.helper.complement_dict_keys" href="#scrilla.util.helper.complement_dict_keys">complement_dict_keys</a></code></li>
 <li><code><a title="scrilla.util.helper.format_args" href="#scrilla.util.helper.format_args">format_args</a></code></li>
+<li><code><a title="scrilla.util.helper.format_dict_number" href="#scrilla.util.helper.format_dict_number">format_dict_number</a></code></li>
+<li><code><a title="scrilla.util.helper.format_dict_percent" href="#scrilla.util.helper.format_dict_percent">format_dict_percent</a></code></li>
+<li><code><a title="scrilla.util.helper.format_float_number" href="#scrilla.util.helper.format_float_number">format_float_number</a></code></li>
+<li><code><a title="scrilla.util.helper.format_float_percent" href="#scrilla.util.helper.format_float_percent">format_float_percent</a></code></li>
 <li><code><a title="scrilla.util.helper.get_first_json_key" href="#scrilla.util.helper.get_first_json_key">get_first_json_key</a></code></li>
 <li><code><a title="scrilla.util.helper.intersect_dict_keys" href="#scrilla.util.helper.intersect_dict_keys">intersect_dict_keys</a></code></li>
 <li><code><a title="scrilla.util.helper.replace_troublesome_chars" href="#scrilla.util.helper.replace_troublesome_chars">replace_troublesome_chars</a></code></li>

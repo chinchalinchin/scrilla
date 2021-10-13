@@ -21,6 +21,7 @@ from scrilla.util import helper
 from scrilla.gui import utilities
 from scrilla.static import definitions
 from scrilla.gui.widgets import factories
+
 """
 A series of classes that all inherit from ``PySide6.QtWidgets.QWidget` and build up in sequence the necessary functionality to grab and validate user input, calculate and display results, etc. These widgets are not directly displayed on the GUI; rather, they are used as building blocks by the `scrilla.gui.functions` module, to create widgets specifically for application functions.
 
@@ -33,8 +34,9 @@ All widgets have a similar structure in that they call a series of methods tailo
         Child widgets are prepped for display.
 
 The idea behind the module is to hide as much widget initialization and styling as possible behind its functions, so the `scrilla.gui.functions` module can focus on application-level logic and isn't cluttered with ugly declarative configuration.
-"""
 
+Widgets have styles applied to them through the `scrilla.styles.app.qss` stylesheet. Widgets are layered over one another in a hierarchy described by: `root` -> `child` -> `grand-child` -> `great-grand-child` -> etc. Each layers has a theme that descends down the material color scheme hex codes in sequence with its place in the layer hierarchy. See `scrilla.gui.formats` for more information. 
+"""
 
 class ArgumentWidget(QtWidgets.QWidget):
     """
@@ -85,7 +87,9 @@ class ArgumentWidget(QtWidgets.QWidget):
         self._stage_widgets()
     
     def _init_widgets(self):
-        """Creates child widgets"""
+        """
+        Creates child widgets by calling factory methods from `scrilla.gui.widgets.factories`. This method will iterate over `self.controls` and initialize the optional input widget accordingly. `self.optional_pane` and `self.required_pane`, the container widgets for the input elements, are initialized with a style tag on the same layer as the `scrilla.gui.widgets.components.ArgumentWidget`.
+        """
         self.title = factories.atomic_widget_factory(format='subtitle', title='Function Input')
         self.required_title = factories.atomic_widget_factory(format='label', title='Required Arguments')
         self.optional_title = factories.atomic_widget_factory(format='label', title='Optional Arguments')
@@ -112,7 +116,10 @@ class ArgumentWidget(QtWidgets.QWidget):
         self.setLayout(QtWidgets.QVBoxLayout())
     
     def _arrange_widgets(self):
-        """Arrange child widgets in their layouts and provides rendering hints"""
+        """
+        Arrange child widgets in their layouts and provides rendering hints. The `self.symbol_widget` is set into a ``PySide6.QtWidgets.QVBoxLayout`` named `self.required_pane`. The optional input widgets are set into a separate ``PySide6.QtWidgets.QVBoxLayout`` named `self.optional_pane`. `self.required_pane` and `self.optional_pane` are in turn set into a parent `PySide6.QtWidgets.QVBoxLayout``, along with `self.calculate_button` and `self.clear_button`. A strecth widget is inserted between the input widgets and the button widgets. 
+        
+        """
         factories.set_policy_on_widget_list([self.title, self.required_title, self.optional_title, self.calculate_button, 
                                     self.clear_button, self.symbol_hint, self.required_pane, self.optional_pane], 
                                     QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Maximum))
@@ -136,7 +143,9 @@ class ArgumentWidget(QtWidgets.QWidget):
         self.layout().addWidget(self.clear_button)
 
     def _stage_widgets(self):
-        """Prepares child widgets for display"""
+        """
+        Prepares child widgets for display. `self.clear_function` and `self.calculate` function are hooked into the `clicked` signal emitted from `self.clear_button` and `self.calculate_button`, respectively.
+        """
         self.error_message.hide()
         self.clear_button.clicked.connect(self.clear_function)
         self.calculate_button.clicked.connect(self.calculate_function)

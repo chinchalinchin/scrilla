@@ -32,8 +32,18 @@
 from typing import Tuple
 
 from scrilla import settings
-from scrilla.static import constants
+from scrilla.util import helper
+from scrilla.static import keys
 
+FUNCTIONS= [
+    &#34;Correlation Matrix&#34;,
+    &#34;Efficient Frontier&#34;,
+    &#34;Moving Averages&#34;,
+    &#34;Portfolio Optimization&#34;,
+    &#34;Risk Profile&#34;
+]
+
+MARGINS = 5
 
 def format_stylesheet(sheet):
     if settings.GUI_DARK_MODE:
@@ -50,31 +60,29 @@ def get_dark_mode_theme():
     with open(settings.GUI_THEME_FILE, &#39;r&#39;) as f:
         MATERIAL = json.load(f)
 
-    return {
-        &#39;$TITLE_BG&#39;: MATERIAL[&#39;grey&#39;][&#39;500&#39;],
-        &#39;$ROOT_BG&#39;: MATERIAL[&#39;grey&#39;][&#39;800&#39;],
-        &#39;$CHILD_BG&#39;: MATERIAL[&#39;grey&#39;][&#39;700&#39;],
-        &#39;$GRANDCHILD_BG&#39;: MATERIAL[&#39;grey&#39;][&#39;600&#39;],
-        &#39;$GREATGRANDCHILD_BG&#39;: MATERIAL[&#39;grey&#39;][&#39;500&#39;],
-        &#39;$BUTTON_BG&#39;: MATERIAL[&#39;grey&#39;][&#39;500&#39;],
-        &#39;$ACTIVE_BUTTON_BG&#39;: MATERIAL[&#39;grey&#39;][&#39;100&#39;],
-        &#39;$PRESSED_BUTTON_BG&#39;: MATERIAL[&#39;grey&#39;][&#39;700&#39;]
-    }
+    dark_theme = {}
+    for color in MATERIAL[&#39;grey&#39;]:
+        dark_theme[f&#39;$primary-{color}&#39;]= MATERIAL[&#39;grey&#39;][color]
+    for color in MATERIAL[&#39;green&#39;]:
+        dark_theme[f&#39;$accent-{color}&#39;] = MATERIAL[&#39;green&#39;][color]
+    for color in MATERIAL[&#39;red&#39;]:
+        dark_theme[f&#39;$warn-{color}&#39;] = MATERIAL[&#39;red&#39;][color]
+
+    return dark_theme
 
 def get_light_mode_theme():
     with open(settings.GUI_THEME_FILE, &#39;r&#39;) as f:
         MATERIAL = json.load(f)
         
-    return {
-        &#39;$TITLE_BG&#39;: MATERIAL[&#39;grey&#39;][&#39;200&#39;],
-        &#39;$ROOT_BG&#39;: MATERIAL[&#39;grey&#39;][&#39;500&#39;],
-        &#39;$CHILD_BG&#39;: MATERIAL[&#39;grey&#39;][&#39;400&#39;],
-        &#39;$GRANDCHILD_BG&#39;: MATERIAL[&#39;grey&#39;][&#39;300&#39;],
-        &#39;$GREATGRANDCHILD_BG&#39;: MATERIAL[&#39;grey&#39;][&#39;200&#39;],
-        &#39;$BUTTON_BG&#39;: MATERIAL[&#39;grey&#39;][&#39;200&#39;],
-        &#39;$ACTIVE_BUTTON_BG&#39;: MATERIAL[&#39;grey&#39;][&#39;600&#39;],
-        &#39;$PRESSED_BUTTON_BG&#39;: MATERIAL[&#39;grey&#39;][&#39;700&#39;]
-    }
+    light_theme = {}
+    for color in MATERIAL[&#39;grey&#39;]:
+        light_theme[f&#39;$primary-{color}&#39;]= MATERIAL[&#39;grey&#39;][color]
+    for color in MATERIAL[&#39;green&#39;]:
+        light_theme[f&#39;$accent-{color}&#39;] = MATERIAL[&#39;green&#39;][color]
+    for color in MATERIAL[&#39;red&#39;]:
+        light_theme[f&#39;$warn-{color}&#39;] = MATERIAL[&#39;red&#39;][color]
+
+    return light_theme
 
 def format_allocation_profile_title(allocation, portfolio) -&gt; str:
     port_return, port_volatility = portfolio.return_function(allocation), portfolio.volatility_function(allocation)
@@ -88,16 +96,14 @@ def format_allocation_profile_title(allocation, portfolio) -&gt; str:
     whole_thing = formatted_result_title +&#34; = &#34;+formatted_result
     return whole_thing
 
-def format_allocation(allocation: float)-&gt;str:
-    return str(100*allocation)[:constants.constants[&#39;SIG_FIGS&#39;]]+&#34;%&#34;
-
-def format_risk_return(stats: dict) -&gt; Tuple[str]:
-    formatted_ret = str(100*stats[&#39;annual_return&#39;])[:constants.constants[&#39;SIG_FIGS&#39;]]+&#34;%&#34;
-    formatted_vol = str(100*stats[&#39;annual_volatility&#39;])[:constants.constants[&#39;SIG_FIGS&#39;]]+&#34;%&#34;
-    return formatted_ret, formatted_vol
-
-def format_correlation(correlation: dict):
-    return str(100*correlation[&#34;correlation&#34;])[:constants.constants[&#39;SIG_FIGS&#39;]]+&#34;%&#34;</code></pre>
+def format_profile(profile: dict) -&gt; Tuple[str]:
+    profile_keys = keys.keys[&#39;APP&#39;][&#39;PROFILE&#39;]
+    for key in profile_keys:
+        if key in [&#39;RET&#39;, &#39;VOL&#39;, &#39;EQUITY&#39;]:
+            profile = helper.format_dict_percent(profile, profile_keys[key])
+        else:
+            profile = helper.format_dict_number(profile, profile_keys[key])
+    return profile</code></pre>
 </details>
 </section>
 <section>
@@ -107,19 +113,6 @@ def format_correlation(correlation: dict):
 <section>
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
-<dt id="scrilla.gui.formats.format_allocation"><code class="name flex">
-<span>def <span class="ident">format_allocation</span></span>(<span>allocation: float) ‑> str</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def format_allocation(allocation: float)-&gt;str:
-    return str(100*allocation)[:constants.constants[&#39;SIG_FIGS&#39;]]+&#34;%&#34;</code></pre>
-</details>
-</dd>
 <dt id="scrilla.gui.formats.format_allocation_profile_title"><code class="name flex">
 <span>def <span class="ident">format_allocation_profile_title</span></span>(<span>allocation, portfolio) ‑> str</span>
 </code></dt>
@@ -142,8 +135,8 @@ def format_correlation(correlation: dict):
     return whole_thing</code></pre>
 </details>
 </dd>
-<dt id="scrilla.gui.formats.format_correlation"><code class="name flex">
-<span>def <span class="ident">format_correlation</span></span>(<span>correlation: dict)</span>
+<dt id="scrilla.gui.formats.format_profile"><code class="name flex">
+<span>def <span class="ident">format_profile</span></span>(<span>profile: dict) ‑> Tuple[str]</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -151,23 +144,14 @@ def format_correlation(correlation: dict):
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def format_correlation(correlation: dict):
-    return str(100*correlation[&#34;correlation&#34;])[:constants.constants[&#39;SIG_FIGS&#39;]]+&#34;%&#34;</code></pre>
-</details>
-</dd>
-<dt id="scrilla.gui.formats.format_risk_return"><code class="name flex">
-<span>def <span class="ident">format_risk_return</span></span>(<span>stats: dict) ‑> Tuple[str]</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def format_risk_return(stats: dict) -&gt; Tuple[str]:
-    formatted_ret = str(100*stats[&#39;annual_return&#39;])[:constants.constants[&#39;SIG_FIGS&#39;]]+&#34;%&#34;
-    formatted_vol = str(100*stats[&#39;annual_volatility&#39;])[:constants.constants[&#39;SIG_FIGS&#39;]]+&#34;%&#34;
-    return formatted_ret, formatted_vol</code></pre>
+<pre><code class="python">def format_profile(profile: dict) -&gt; Tuple[str]:
+    profile_keys = keys.keys[&#39;APP&#39;][&#39;PROFILE&#39;]
+    for key in profile_keys:
+        if key in [&#39;RET&#39;, &#39;VOL&#39;, &#39;EQUITY&#39;]:
+            profile = helper.format_dict_percent(profile, profile_keys[key])
+        else:
+            profile = helper.format_dict_number(profile, profile_keys[key])
+    return profile</code></pre>
 </details>
 </dd>
 <dt id="scrilla.gui.formats.format_stylesheet"><code class="name flex">
@@ -204,16 +188,15 @@ def format_correlation(correlation: dict):
     with open(settings.GUI_THEME_FILE, &#39;r&#39;) as f:
         MATERIAL = json.load(f)
 
-    return {
-        &#39;$TITLE_BG&#39;: MATERIAL[&#39;grey&#39;][&#39;500&#39;],
-        &#39;$ROOT_BG&#39;: MATERIAL[&#39;grey&#39;][&#39;800&#39;],
-        &#39;$CHILD_BG&#39;: MATERIAL[&#39;grey&#39;][&#39;700&#39;],
-        &#39;$GRANDCHILD_BG&#39;: MATERIAL[&#39;grey&#39;][&#39;600&#39;],
-        &#39;$GREATGRANDCHILD_BG&#39;: MATERIAL[&#39;grey&#39;][&#39;500&#39;],
-        &#39;$BUTTON_BG&#39;: MATERIAL[&#39;grey&#39;][&#39;500&#39;],
-        &#39;$ACTIVE_BUTTON_BG&#39;: MATERIAL[&#39;grey&#39;][&#39;100&#39;],
-        &#39;$PRESSED_BUTTON_BG&#39;: MATERIAL[&#39;grey&#39;][&#39;700&#39;]
-    }</code></pre>
+    dark_theme = {}
+    for color in MATERIAL[&#39;grey&#39;]:
+        dark_theme[f&#39;$primary-{color}&#39;]= MATERIAL[&#39;grey&#39;][color]
+    for color in MATERIAL[&#39;green&#39;]:
+        dark_theme[f&#39;$accent-{color}&#39;] = MATERIAL[&#39;green&#39;][color]
+    for color in MATERIAL[&#39;red&#39;]:
+        dark_theme[f&#39;$warn-{color}&#39;] = MATERIAL[&#39;red&#39;][color]
+
+    return dark_theme</code></pre>
 </details>
 </dd>
 <dt id="scrilla.gui.formats.get_light_mode_theme"><code class="name flex">
@@ -229,16 +212,15 @@ def format_correlation(correlation: dict):
     with open(settings.GUI_THEME_FILE, &#39;r&#39;) as f:
         MATERIAL = json.load(f)
         
-    return {
-        &#39;$TITLE_BG&#39;: MATERIAL[&#39;grey&#39;][&#39;200&#39;],
-        &#39;$ROOT_BG&#39;: MATERIAL[&#39;grey&#39;][&#39;500&#39;],
-        &#39;$CHILD_BG&#39;: MATERIAL[&#39;grey&#39;][&#39;400&#39;],
-        &#39;$GRANDCHILD_BG&#39;: MATERIAL[&#39;grey&#39;][&#39;300&#39;],
-        &#39;$GREATGRANDCHILD_BG&#39;: MATERIAL[&#39;grey&#39;][&#39;200&#39;],
-        &#39;$BUTTON_BG&#39;: MATERIAL[&#39;grey&#39;][&#39;200&#39;],
-        &#39;$ACTIVE_BUTTON_BG&#39;: MATERIAL[&#39;grey&#39;][&#39;600&#39;],
-        &#39;$PRESSED_BUTTON_BG&#39;: MATERIAL[&#39;grey&#39;][&#39;700&#39;]
-    }</code></pre>
+    light_theme = {}
+    for color in MATERIAL[&#39;grey&#39;]:
+        light_theme[f&#39;$primary-{color}&#39;]= MATERIAL[&#39;grey&#39;][color]
+    for color in MATERIAL[&#39;green&#39;]:
+        light_theme[f&#39;$accent-{color}&#39;] = MATERIAL[&#39;green&#39;][color]
+    for color in MATERIAL[&#39;red&#39;]:
+        light_theme[f&#39;$warn-{color}&#39;] = MATERIAL[&#39;red&#39;][color]
+
+    return light_theme</code></pre>
 </details>
 </dd>
 </dl>
@@ -259,10 +241,8 @@ def format_correlation(correlation: dict):
 </li>
 <li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="">
-<li><code><a title="scrilla.gui.formats.format_allocation" href="#scrilla.gui.formats.format_allocation">format_allocation</a></code></li>
 <li><code><a title="scrilla.gui.formats.format_allocation_profile_title" href="#scrilla.gui.formats.format_allocation_profile_title">format_allocation_profile_title</a></code></li>
-<li><code><a title="scrilla.gui.formats.format_correlation" href="#scrilla.gui.formats.format_correlation">format_correlation</a></code></li>
-<li><code><a title="scrilla.gui.formats.format_risk_return" href="#scrilla.gui.formats.format_risk_return">format_risk_return</a></code></li>
+<li><code><a title="scrilla.gui.formats.format_profile" href="#scrilla.gui.formats.format_profile">format_profile</a></code></li>
 <li><code><a title="scrilla.gui.formats.format_stylesheet" href="#scrilla.gui.formats.format_stylesheet">format_stylesheet</a></code></li>
 <li><code><a title="scrilla.gui.formats.get_dark_mode_theme" href="#scrilla.gui.formats.get_dark_mode_theme">get_dark_mode_theme</a></code></li>
 <li><code><a title="scrilla.gui.formats.get_light_mode_theme" href="#scrilla.gui.formats.get_light_mode_theme">get_light_mode_theme</a></code></li>

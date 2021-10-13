@@ -92,8 +92,9 @@ def is_date_string_weekend(date_string: str) -&gt; bool:
 # YYYY-MM-DD
 def is_date_holiday(date : datetime.date) -&gt; bool:
     us_holidays = holidays.UnitedStates(years=date.year)
-    # generate list without columbus day since markets are open on columbus day
-    custom_holidays = [ date for date in us_holidays if us_holidays[date] != &#34;Columbus Day&#34; ]
+    # generate list without columbus day and veterans day since markets are open on those days
+    trading_holidays = [ &#34;Columbus Day&#34;, &#34;Columbus Day (Observed)&#34;, &#34;Veterans Day&#34;, &#34;Veterans Day (Observed)&#34;]
+    custom_holidays = [ date for date in us_holidays if us_holidays[date] not in trading_holidays ]
     # add good friday to list since markets are closed on good friday
     custom_holidays.append(easter.easter(year=date.year) - datetime.timedelta(days=2))
 
@@ -205,17 +206,37 @@ def consecutive_trading_days(start_date_string: str, end_date_string: str) -&gt;
     return False
 
 def dates_between(start_date: datetime.date, end_date: datetime.date) -&gt; List[datetime.date]:
-    return [start_date + datetime.timedelta(x + 1) for x in range((end_date - start_date).days)]
+    &#34;&#34;&#34;
+    Returns a list of dates between the inputted dates. &#34;Between&#34; is used in the inclusive sense, i.e. the list includes `start_date` and `end_date`.
+
+    Parameters
+    ----------
+    1. **start_date**: ``datetime.date``
+        Start date of the date range.
+    2. **end_date**: ``datetime.date``
+        End date of the date range. 
+    &#34;&#34;&#34;
+    return [start_date + datetime.timedelta(x) for x in range((end_date - start_date).days+1)]
 
 def days_between(start_date: datetime.date, end_date: datetime.date) -&gt; int:
     return int((end_date - start_date).days)
 
 # excludes start_date
 def business_dates_between(start_date: datetime.date, end_date: datetime.date)-&gt; List[datetime.date]:
+    &#34;&#34;&#34;
+    Returns a list of business dates between the inputted dates. &#34;Between&#34; is used in the inclusive sense, i.e. the list includes `start_date` and `dates`
+
+    Parameters
+    ----------
+    1. **start_date**: ``datetime.date``
+        Start date of the date range.
+    2. **end_date**: ``datetime.date``
+        End date of the date range. 
+    &#34;&#34;&#34;
     new_start, new_end = validate_order_of_dates(start_date, end_date)
     dates = []
-    for x in range((new_end - new_start).days):
-        this_date = new_start + datetime.timedelta(x+1)
+    for x in range((new_end - new_start).days+1):
+        this_date = new_start + datetime.timedelta(x)
         if not (is_date_weekend(this_date) or is_date_holiday(this_date)):
             dates.append(this_date)
     return dates
@@ -326,16 +347,33 @@ def get_time_to_year()-&gt;float:
 <span>def <span class="ident">business_dates_between</span></span>(<span>start_date: datetime.date, end_date: datetime.date) ‑> List[datetime.date]</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Returns a list of business dates between the inputted dates. "Between" is used in the inclusive sense, i.e. the list includes <code>start_date</code> and <code>dates</code></p>
+<h2 id="parameters">Parameters</h2>
+<ol>
+<li><strong>start_date</strong>: <code>datetime.date</code>
+Start date of the date range.</li>
+<li><strong>end_date</strong>: <code>datetime.date</code>
+End date of the date range.</li>
+</ol></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def business_dates_between(start_date: datetime.date, end_date: datetime.date)-&gt; List[datetime.date]:
+    &#34;&#34;&#34;
+    Returns a list of business dates between the inputted dates. &#34;Between&#34; is used in the inclusive sense, i.e. the list includes `start_date` and `dates`
+
+    Parameters
+    ----------
+    1. **start_date**: ``datetime.date``
+        Start date of the date range.
+    2. **end_date**: ``datetime.date``
+        End date of the date range. 
+    &#34;&#34;&#34;
     new_start, new_end = validate_order_of_dates(start_date, end_date)
     dates = []
-    for x in range((new_end - new_start).days):
-        this_date = new_start + datetime.timedelta(x+1)
+    for x in range((new_end - new_start).days+1):
+        this_date = new_start + datetime.timedelta(x)
         if not (is_date_weekend(this_date) or is_date_holiday(this_date)):
             dates.append(this_date)
     return dates</code></pre>
@@ -450,13 +488,30 @@ if start_date_string and end_date_string are NOT consecutive trading days.</p></
 <span>def <span class="ident">dates_between</span></span>(<span>start_date: datetime.date, end_date: datetime.date) ‑> List[datetime.date]</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Returns a list of dates between the inputted dates. "Between" is used in the inclusive sense, i.e. the list includes <code>start_date</code> and <code>end_date</code>.</p>
+<h2 id="parameters">Parameters</h2>
+<ol>
+<li><strong>start_date</strong>: <code>datetime.date</code>
+Start date of the date range.</li>
+<li><strong>end_date</strong>: <code>datetime.date</code>
+End date of the date range.</li>
+</ol></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def dates_between(start_date: datetime.date, end_date: datetime.date) -&gt; List[datetime.date]:
-    return [start_date + datetime.timedelta(x + 1) for x in range((end_date - start_date).days)]</code></pre>
+    &#34;&#34;&#34;
+    Returns a list of dates between the inputted dates. &#34;Between&#34; is used in the inclusive sense, i.e. the list includes `start_date` and `end_date`.
+
+    Parameters
+    ----------
+    1. **start_date**: ``datetime.date``
+        Start date of the date range.
+    2. **end_date**: ``datetime.date``
+        End date of the date range. 
+    &#34;&#34;&#34;
+    return [start_date + datetime.timedelta(x) for x in range((end_date - start_date).days+1)]</code></pre>
 </details>
 </dd>
 <dt id="scrilla.util.dater.days_between"><code class="name flex">
@@ -761,8 +816,9 @@ if start_date_string and end_date_string are NOT consecutive trading days.</p></
 </summary>
 <pre><code class="python">def is_date_holiday(date : datetime.date) -&gt; bool:
     us_holidays = holidays.UnitedStates(years=date.year)
-    # generate list without columbus day since markets are open on columbus day
-    custom_holidays = [ date for date in us_holidays if us_holidays[date] != &#34;Columbus Day&#34; ]
+    # generate list without columbus day and veterans day since markets are open on those days
+    trading_holidays = [ &#34;Columbus Day&#34;, &#34;Columbus Day (Observed)&#34;, &#34;Veterans Day&#34;, &#34;Veterans Day (Observed)&#34;]
+    custom_holidays = [ date for date in us_holidays if us_holidays[date] not in trading_holidays ]
     # add good friday to list since markets are closed on good friday
     custom_holidays.append(easter.easter(year=date.year) - datetime.timedelta(days=2))
 

@@ -309,8 +309,8 @@ class PriceManager():
             query += f&#39;&amp;{self.service_map[&#34;PARAMS&#34;][&#34;SIZE&#34;]}={self.service_map[&#34;ARGUMENTS&#34;][&#34;FULL&#34;]}&#39;
 
         elif asset_type == keys.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]:
-            query += f&#39;&amp;{self.service_map[&#34;PARAMS&#34;][&#34;FUNCTION&#34;]}={self.service_map[&#34;ARGUMENTS&#34;][&#34;EQUITY_DAILY&#34;]}&#39;
-            query += f&#39;&amp;{self.service_map[&#34;PARAMS&#34;][&#34;FUNCTION&#34;]}={constants.constants[&#34;DENOMINATION&#34;]}&#39;
+            query += f&#39;&amp;{self.service_map[&#34;PARAMS&#34;][&#34;FUNCTION&#34;]}={self.service_map[&#34;ARGUMENTS&#34;][&#34;CRYPTO_DAILY&#34;]}&#39;
+            query += f&#39;&amp;{self.service_map[&#34;PARAMS&#34;][&#34;DENOMINATION&#34;]}={constants.constants[&#34;DENOMINATION&#34;]}&#39;
 
         auth_query = query + f&#39;&amp;{self.service_map[&#34;PARAMS&#34;][&#34;KEY&#34;]}={self.key}&#39;
         url=f&#39;{self.url}?{auth_query}&#39;  
@@ -503,26 +503,35 @@ def get_daily_price_history(ticker: str, start_date: Union[None, date] = None,
     asset_type = errors.validate_asset_type(ticker, asset_type)
     start_date, end_date = errors.validate_dates(start_date, end_date, asset_type)
     
-    prices = price_cache.filter_price_cache(ticker=ticker, start_date=start_date, end_date=end_date)
+    cached_prices = price_cache.filter_price_cache(ticker=ticker, start_date=start_date, end_date=end_date)
+
+    if cached_prices is not None and asset_type == keys.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]:
+        logger.debug(f&#39;Comparing {len(cached_prices)} = {dater.business_days_between(start_date, end_date)}&#39;)
 
     # make sure the length of cache is equal to the length of the requested sample
-    if prices is not None and dater.date_to_string(end_date) in prices.keys() and (
+    if cached_prices is not None and dater.date_to_string(end_date) in cached_prices.keys() and (
         (asset_type == keys.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]
-            and (dater.business_days_between(start_date, end_date) + 1) == len(prices))
+            and (dater.business_days_between(start_date, end_date)) == len(cached_prices))
         or 
         (asset_type == keys.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]
-            and (dater.days_between(start_date, end_date) + 1) == len(prices))
+            and (dater.days_between(start_date, end_date)) == len(cached_prices))
     ):
-        return prices
+        return cached_prices
 
-    if prices is not None:
+    if cached_prices is not None:
         logger.debug(f&#39;Cached {ticker} prices are out of date, passing request off to external service&#39;)
         
+
     prices = price_manager.get_prices(ticker=ticker,start_date=start_date, end_date=end_date, asset_type=asset_type)
 
-    for this_date in prices:
-        close_price = prices[this_date][keys.keys[&#39;PRICES&#39;][&#39;OPEN&#39;]]
-        open_price = prices[this_date][keys.keys[&#39;PRICES&#39;][&#39;CLOSE&#39;]]
+    if cached_prices is not None:
+        new_prices = helper.complement_dict_keys(prices, cached_prices)
+    else:
+        new_prices = prices
+
+    for this_date in new_prices:
+        close_price = new_prices[this_date][keys.keys[&#39;PRICES&#39;][&#39;OPEN&#39;]]
+        open_price = new_prices[this_date][keys.keys[&#39;PRICES&#39;][&#39;CLOSE&#39;]]
         price_cache.save_row(ticker=ticker, date=this_date, open_price=open_price, close_price=close_price)
 
     return prices
@@ -932,26 +941,35 @@ Dictionary with date strings formatted <code>YYYY-MM-DD</code> as keys and a nes
     asset_type = errors.validate_asset_type(ticker, asset_type)
     start_date, end_date = errors.validate_dates(start_date, end_date, asset_type)
     
-    prices = price_cache.filter_price_cache(ticker=ticker, start_date=start_date, end_date=end_date)
+    cached_prices = price_cache.filter_price_cache(ticker=ticker, start_date=start_date, end_date=end_date)
+
+    if cached_prices is not None and asset_type == keys.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]:
+        logger.debug(f&#39;Comparing {len(cached_prices)} = {dater.business_days_between(start_date, end_date)}&#39;)
 
     # make sure the length of cache is equal to the length of the requested sample
-    if prices is not None and dater.date_to_string(end_date) in prices.keys() and (
+    if cached_prices is not None and dater.date_to_string(end_date) in cached_prices.keys() and (
         (asset_type == keys.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]
-            and (dater.business_days_between(start_date, end_date) + 1) == len(prices))
+            and (dater.business_days_between(start_date, end_date)) == len(cached_prices))
         or 
         (asset_type == keys.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]
-            and (dater.days_between(start_date, end_date) + 1) == len(prices))
+            and (dater.days_between(start_date, end_date)) == len(cached_prices))
     ):
-        return prices
+        return cached_prices
 
-    if prices is not None:
+    if cached_prices is not None:
         logger.debug(f&#39;Cached {ticker} prices are out of date, passing request off to external service&#39;)
         
+
     prices = price_manager.get_prices(ticker=ticker,start_date=start_date, end_date=end_date, asset_type=asset_type)
 
-    for this_date in prices:
-        close_price = prices[this_date][keys.keys[&#39;PRICES&#39;][&#39;OPEN&#39;]]
-        open_price = prices[this_date][keys.keys[&#39;PRICES&#39;][&#39;CLOSE&#39;]]
+    if cached_prices is not None:
+        new_prices = helper.complement_dict_keys(prices, cached_prices)
+    else:
+        new_prices = prices
+
+    for this_date in new_prices:
+        close_price = new_prices[this_date][keys.keys[&#39;PRICES&#39;][&#39;OPEN&#39;]]
+        open_price = new_prices[this_date][keys.keys[&#39;PRICES&#39;][&#39;CLOSE&#39;]]
         price_cache.save_row(ticker=ticker, date=this_date, open_price=open_price, close_price=close_price)
 
     return prices</code></pre>
@@ -1213,8 +1231,8 @@ A dictionary containing keys unique to the service defined by <code>genre</code>
             query += f&#39;&amp;{self.service_map[&#34;PARAMS&#34;][&#34;SIZE&#34;]}={self.service_map[&#34;ARGUMENTS&#34;][&#34;FULL&#34;]}&#39;
 
         elif asset_type == keys.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]:
-            query += f&#39;&amp;{self.service_map[&#34;PARAMS&#34;][&#34;FUNCTION&#34;]}={self.service_map[&#34;ARGUMENTS&#34;][&#34;EQUITY_DAILY&#34;]}&#39;
-            query += f&#39;&amp;{self.service_map[&#34;PARAMS&#34;][&#34;FUNCTION&#34;]}={constants.constants[&#34;DENOMINATION&#34;]}&#39;
+            query += f&#39;&amp;{self.service_map[&#34;PARAMS&#34;][&#34;FUNCTION&#34;]}={self.service_map[&#34;ARGUMENTS&#34;][&#34;CRYPTO_DAILY&#34;]}&#39;
+            query += f&#39;&amp;{self.service_map[&#34;PARAMS&#34;][&#34;DENOMINATION&#34;]}={constants.constants[&#34;DENOMINATION&#34;]}&#39;
 
         auth_query = query + f&#39;&amp;{self.service_map[&#34;PARAMS&#34;][&#34;KEY&#34;]}={self.key}&#39;
         url=f&#39;{self.url}?{auth_query}&#39;  

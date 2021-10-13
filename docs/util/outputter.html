@@ -167,8 +167,8 @@ def help_msg(indent=formats.formats[&#39;INDENT&#39;]):
                 if arg_dict[arg_name][&#39;default&#39;] is not None:
                     print(&#39; &#39;*2*indent, f&#39;DEFAULT: {arg_dict[arg_name][&#34;default&#34;]}&#39;)
                     
-                if arg_dict[arg_name][&#39;format_str&#39;] is not None:
-                    print(&#39; &#39;*2*indent, f&#39;FORMAT: {arg_dict[arg_name][&#34;format_str&#34;]}&#39;)    
+                if arg_dict[arg_name][&#39;syntax&#39;] is not None:
+                    print(&#39; &#39;*2*indent, f&#39;FORMAT: {arg_dict[arg_name][&#34;syntax&#34;]}&#39;)    
         separator_line()    
 
 ### ANALYSIS SPECIFIC OUTPUT FUNCTIONS
@@ -670,8 +670,8 @@ End date of the time period over which correlation was calculated. </li>
                 if arg_dict[arg_name][&#39;default&#39;] is not None:
                     print(&#39; &#39;*2*indent, f&#39;DEFAULT: {arg_dict[arg_name][&#34;default&#34;]}&#39;)
                     
-                if arg_dict[arg_name][&#39;format_str&#39;] is not None:
-                    print(&#39; &#39;*2*indent, f&#39;FORMAT: {arg_dict[arg_name][&#34;format_str&#34;]}&#39;)    
+                if arg_dict[arg_name][&#39;syntax&#39;] is not None:
+                    print(&#39; &#39;*2*indent, f&#39;FORMAT: {arg_dict[arg_name][&#34;syntax&#34;]}&#39;)    
         separator_line()    </code></pre>
 </details>
 </dd>
