@@ -221,7 +221,6 @@ class OptimizerWidget(QtWidgets.QWidget):
                                         end_date=self.arg_widget.get_control_input('end_date'))
             allocation = optimizer.optimize_portfolio_variance(portfolio=this_portfolio,
                                                                 target_return=self.arg_widget.get_control_input('target'))
-            
             self.title.setText(formats.format_allocation_profile_title(allocation, this_portfolio))
             
             if investment is None:

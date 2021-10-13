@@ -63,8 +63,9 @@ def is_date_string_weekend(date_string: str) -> bool:
 # YYYY-MM-DD
 def is_date_holiday(date : datetime.date) -> bool:
     us_holidays = holidays.UnitedStates(years=date.year)
-    # generate list without columbus day since markets are open on columbus day
-    custom_holidays = [ date for date in us_holidays if us_holidays[date] != "Columbus Day" ]
+    # generate list without columbus day and veterans day since markets are open on those days
+    trading_holidays = [ "Columbus Day", "Columbus Day (Observed)", "Veterans Day", "Veterans Day (Observed)"]
+    custom_holidays = [ date for date in us_holidays if us_holidays[date] not in trading_holidays ]
     # add good friday to list since markets are closed on good friday
     custom_holidays.append(easter.easter(year=date.year) - datetime.timedelta(days=2))
 
@@ -176,17 +177,37 @@ def consecutive_trading_days(start_date_string: str, end_date_string: str) -> bo
     return False
 
 def dates_between(start_date: datetime.date, end_date: datetime.date) -> List[datetime.date]:
-    return [start_date + datetime.timedelta(x + 1) for x in range((end_date - start_date).days)]
+    """
+    Returns a list of dates between the inputted dates. "Between" is used in the inclusive sense, i.e. the list includes `start_date` and `end_date`.
+
+    Parameters
+    ----------
+    1. **start_date**: ``datetime.date``
+        Start date of the date range.
+    2. **end_date**: ``datetime.date``
+        End date of the date range. 
+    """
+    return [start_date + datetime.timedelta(x) for x in range((end_date - start_date).days+1)]
 
 def days_between(start_date: datetime.date, end_date: datetime.date) -> int:
     return int((end_date - start_date).days)
 
 # excludes start_date
 def business_dates_between(start_date: datetime.date, end_date: datetime.date)-> List[datetime.date]:
+    """
+    Returns a list of business dates between the inputted dates. "Between" is used in the inclusive sense, i.e. the list includes `start_date` and `dates`
+
+    Parameters
+    ----------
+    1. **start_date**: ``datetime.date``
+        Start date of the date range.
+    2. **end_date**: ``datetime.date``
+        End date of the date range. 
+    """
     new_start, new_end = validate_order_of_dates(start_date, end_date)
     dates = []
-    for x in range((new_end - new_start).days):
-        this_date = new_start + datetime.timedelta(x+1)
+    for x in range((new_end - new_start).days+1):
+        this_date = new_start + datetime.timedelta(x)
         if not (is_date_weekend(this_date) or is_date_holiday(this_date)):
             dates.append(this_date)
     return dates

@@ -3,7 +3,7 @@ constants = {
         'EQUITY': (1/252),
         'CRYPTO': (1/365)
     },
-    'ACCURACY': 5,
+    'ACCURACY': 7,
     'BACKOFF_PERIOD': 30,
     'KEEP_FILE': '.gitkeep',
     'PRICE_YEAR_CUTOFF': 1950,

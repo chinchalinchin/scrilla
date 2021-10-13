@@ -21,7 +21,7 @@
 23. Research annotations for cashflow object's growth function and portfolio's return/volatility functions. Perhaps a way of injecting them into the GUI easier. Not sure.
 
 26. Document how to use objects and functions in shell/scripts.
-\
+
 31. Allow relative file references when saving analysis. Right now needs to be absolute path inputted into -save argument. Also, save return profiles. 
 
 34. Mark important points of Efficient Frontier, i.e. minimum variance, maximum return, maximum sharpe ratio.

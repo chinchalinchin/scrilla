@@ -310,7 +310,7 @@ ARG_DICT = {
         'description': 'Start date of historical sample',
         'default': '100 Trading Days Ago',
         'widget_type': 'date',
-        'format': lambda s: datetime.datetime.strptime(s, '%Y-%m-%d'),
+        'format': lambda s: datetime.datetime.strptime(s, '%Y-%m-%d').date(),
         'required': False,
         'syntax': '<YYYY-MM-DD>'
     },
@@ -320,7 +320,7 @@ ARG_DICT = {
         'description': 'End date of historical sample',
         'default': 'Last Trading Day',
         'widget_type': 'date',
-        'format': lambda s: datetime.datetime.strptime(s, '%Y-%m-%d'),
+        'format': lambda s: datetime.datetime.strptime(s, '%Y-%m-%d').date(),
         'required': False,
         'syntax': '<YYYY-MM-DD>'
     },

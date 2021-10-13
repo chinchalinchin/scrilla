@@ -37,9 +37,13 @@ def complement_dict_keys(dict1: dict, dict2: dict):
     return {x: dict1[x] for x in dict1.keys() if x not in dict2.keys()}
 
 def format_float_number(decimal: float):
+    if decimal < 10 **(-constants.constants['ACCURACY']):
+        return 0
     return str(decimal)[:constants.constants['SIG_FIGS']]
 
 def format_float_percent(decimal: float):
+    if decimal < 10 **(-constants.constants['ACCURACY']):
+        return "0%"
     return str(100*float(format_float_number(decimal)))[:constants.constants['SIG_FIGS']]+"%"
 
 def format_dict_percent(this_dict: dict, which_key: str) -> dict:

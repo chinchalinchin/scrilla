@@ -475,16 +475,16 @@ def get_daily_price_history(ticker: str, start_date: Union[None, date] = None,
     
     cached_prices = price_cache.filter_price_cache(ticker=ticker, start_date=start_date, end_date=end_date)
 
-    if asset_type == keys.keys['ASSETS']['EQUITY']:
-        logger.debug(f'Comparing {len(cached_prices)} = {dater.business_days_between(start_date, end_date) + 1}')
+    if cached_prices is not None and asset_type == keys.keys['ASSETS']['EQUITY']:
+        logger.debug(f'Comparing {len(cached_prices)} = {dater.business_days_between(start_date, end_date)}')
 
     # make sure the length of cache is equal to the length of the requested sample
     if cached_prices is not None and dater.date_to_string(end_date) in cached_prices.keys() and (
         (asset_type == keys.keys['ASSETS']['EQUITY']
-            and (dater.business_days_between(start_date, end_date) + 1) == len(cached_prices))
+            and (dater.business_days_between(start_date, end_date)) == len(cached_prices))
         or 
         (asset_type == keys.keys['ASSETS']['CRYPTO']
-            and (dater.days_between(start_date, end_date) + 1) == len(cached_prices))
+            and (dater.days_between(start_date, end_date)) == len(cached_prices))
     ):
         return cached_prices
 
@@ -494,7 +494,10 @@ def get_daily_price_history(ticker: str, start_date: Union[None, date] = None,
 
     prices = price_manager.get_prices(ticker=ticker,start_date=start_date, end_date=end_date, asset_type=asset_type)
 
-    new_prices = helper.complement_dict_keys(prices, cached_prices)
+    if cached_prices is not None:
+        new_prices = helper.complement_dict_keys(prices, cached_prices)
+    else:
+        new_prices = prices
 
     for this_date in new_prices:
         close_price = new_prices[this_date][keys.keys['PRICES']['OPEN']]
