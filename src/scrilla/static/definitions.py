@@ -298,10 +298,15 @@ FUNC_DICT = {
         'tickers': False
     }
 }
+"""
+A dictionary containing configuration information for function arguments. This dictionary is used at various points in the library, such as `scrilla.gui.widgets.function` and `scrilla.util.helper`, to parse construct and parse input elements. 
+"""
 
 ARG_META = {
     'groups': ['estimation_method']
 }
+"""
+"""
 # Every argument has four ways of being inputted: short-dash-long, long-dash-long, short-dash-short, long-dash-short
 ARG_DICT = {
     'start_date': {
@@ -490,3 +495,16 @@ ARG_DICT = {
         'syntax': None,
     }
 }
+"""
+A dictionary containing configuration information for application arguments. This dictionary is used at various points in the library, such as `scrilla.gui.widgets.functions` and `scrilla.util.helper`, to parse construct and parse input elements.
+
+.. notes::
+    * Every argument has four ways of being inputted: short-dash-long, long-dash-long, short-dash-short, long-dash-short, e.g. the following commands are all equivalent,
+    ```
+    scrilla risk-profile LMT GD LNT -json
+    scrilla risk-profile LMT GD LNT --json
+    scrilla risk-profile LMT GD LNT -js
+    scrilla risk-profile LMT GD LNT --js
+    ```
+    * arguments with a format of `group` are mutually exclusively modes, similar to a radio button.
+"""

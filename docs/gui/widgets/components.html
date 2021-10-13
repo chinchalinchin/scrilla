@@ -411,7 +411,7 @@ Function attached to the <code>calculate_button</code> widget. Triggered when th
 <li><strong>clear_function</strong>: <code>str</code>
 Function attached to the <code>clear_button</code> widget. Trigged when the widget is clicked.</li>
 <li><strong>controls:</strong>: <code>Dict[bool]</code>
-Dictionary of boolean flags instructing the class which optional input to include. Optional keys can be found in <code>scrilla.static.definitions.ARG_DICT</code>. An dictionary skeleton with all the optional input disabled can be retrieved through <code><a title="scrilla.gui.widgets.factories.generate_control_skeleton" href="factories.html#scrilla.gui.widgets.factories.generate_control_skeleton">generate_control_skeleton()</a></code>.</li>
+Dictionary of boolean flags instructing the class which optional input to include. Optional keys can be found in <code><a title="scrilla.static.definitions.ARG_DICT" href="../../static/definitions.html#scrilla.static.definitions.ARG_DICT">ARG_DICT</a></code>. An dictionary skeleton with all the optional input disabled can be retrieved through <code><a title="scrilla.gui.widgets.factories.generate_control_skeleton" href="factories.html#scrilla.gui.widgets.factories.generate_control_skeleton">generate_control_skeleton()</a></code>.</li>
 <li><strong>layer</strong>: <code>str</code>
 Stylesheet property attached to widget.</li>
 </ol>
@@ -651,7 +651,7 @@ See help(type(self)) for accurate signature.</p></div>
 </code></dt>
 <dd>
 <div class="desc"><p>Get the value on the specified optional input widget. Optional keys are accessed through the keys of the
-<code>scrilla.static.definitions.ARG_DICT</code> dictionary.</p>
+<code><a title="scrilla.static.definitions.ARG_DICT" href="../../static/definitions.html#scrilla.static.definitions.ARG_DICT">ARG_DICT</a></code> dictionary.</p>
 <p>If the widget is disabled or has been excluded altogether from the parent widget, i.e. a value of <code>False</code> was passed in through the constructor's <code>controls</code> arguments for that optional input widget, this method will return <code>None</code>.</p></div>
 <details class="source">
 <summary>

@@ -327,10 +327,15 @@ FUNC_DICT = {
         &#39;tickers&#39;: False
     }
 }
+&#34;&#34;&#34;
+A dictionary containing configuration information for function arguments. This dictionary is used at various points in the library, such as `scrilla.gui.widgets.function` and `scrilla.util.helper`, to parse construct and parse input elements. 
+&#34;&#34;&#34;
 
 ARG_META = {
     &#39;groups&#39;: [&#39;estimation_method&#39;]
 }
+&#34;&#34;&#34;
+&#34;&#34;&#34;
 # Every argument has four ways of being inputted: short-dash-long, long-dash-long, short-dash-short, long-dash-short
 ARG_DICT = {
     &#39;start_date&#39;: {
@@ -518,12 +523,47 @@ ARG_DICT = {
         &#39;required&#39;: False,
         &#39;syntax&#39;: None,
     }
-}</code></pre>
+}
+&#34;&#34;&#34;
+A dictionary containing configuration information for application arguments. This dictionary is used at various points in the library, such as `scrilla.gui.widgets.functions` and `scrilla.util.helper`, to parse construct and parse input elements.
+
+.. notes::
+    * Every argument has four ways of being inputted: short-dash-long, long-dash-long, short-dash-short, long-dash-short, e.g. the following commands are all equivalent,
+    ```
+    scrilla risk-profile LMT GD LNT -json
+    scrilla risk-profile LMT GD LNT --json
+    scrilla risk-profile LMT GD LNT -js
+    scrilla risk-profile LMT GD LNT --js
+    ```
+    * arguments with a format of `group` are mutually exclusively modes, similar to a radio button.
+&#34;&#34;&#34;</code></pre>
 </details>
 </section>
 <section>
 </section>
 <section>
+<h2 class="section-title" id="header-variables">Global variables</h2>
+<dl>
+<dt id="scrilla.static.definitions.ARG_DICT"><code class="name">var <span class="ident">ARG_DICT</span></code></dt>
+<dd>
+<div class="desc"><p>A dictionary containing configuration information for application arguments. This dictionary is used at various points in the library, such as <code><a title="scrilla.gui.widgets.functions" href="../gui/widgets/functions.html">scrilla.gui.widgets.functions</a></code> and <code><a title="scrilla.util.helper" href="../util/helper.html">scrilla.util.helper</a></code>, to parse construct and parse input elements.</p>
+<div class="admonition notes">
+<p class="admonition-title">Notes</p>
+<ul>
+<li>Every argument has four ways of being inputted: short-dash-long, long-dash-long, short-dash-short, long-dash-short, e.g. the following commands are all equivalent,
+<code>scrilla risk-profile LMT GD LNT -json
+scrilla risk-profile LMT GD LNT --json
+scrilla risk-profile LMT GD LNT -js
+scrilla risk-profile LMT GD LNT --js</code></li>
+<li>arguments with a format of <code>group</code> are mutually exclusively modes, similar to a radio button.</li>
+</ul>
+</div></div>
+</dd>
+<dt id="scrilla.static.definitions.FUNC_DICT"><code class="name">var <span class="ident">FUNC_DICT</span></code></dt>
+<dd>
+<div class="desc"><p>A dictionary containing configuration information for function arguments. This dictionary is used at various points in the library, such as <code>scrilla.gui.widgets.function</code> and <code><a title="scrilla.util.helper" href="../util/helper.html">scrilla.util.helper</a></code>, to parse construct and parse input elements.</p></div>
+</dd>
+</dl>
 </section>
 <section>
 </section>
@@ -539,6 +579,12 @@ ARG_DICT = {
 <li><h3>Super-module</h3>
 <ul>
 <li><code><a title="scrilla.static" href="index.html">scrilla.static</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-variables">Global variables</a></h3>
+<ul class="">
+<li><code><a title="scrilla.static.definitions.ARG_DICT" href="#scrilla.static.definitions.ARG_DICT">ARG_DICT</a></code></li>
+<li><code><a title="scrilla.static.definitions.FUNC_DICT" href="#scrilla.static.definitions.FUNC_DICT">FUNC_DICT</a></code></li>
 </ul>
 </li>
 </ul>
