@@ -4,7 +4,7 @@ from PySide6 import QtWidgets, QtCore, QtGui
 from scrilla.static import definitions, constants
 
 def generate_control_skeleton():
-    return { arg: False for arg in definitions.ARG_DICT }
+    return { arg: False for arg in definitions.ARG_DICT if not definitions.ARG_DICT[arg]['cli_only']}
 
 def layout_factory(format: str):
     widget = QtWidgets.QWidget()
@@ -37,6 +37,7 @@ def atomic_widget_factory(format: str, title: str):
         widget = QtWidgets.QPushButton(title)
         widget.setAutoDefault(True)
         widget.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
+        widget.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Maximum))
         widget.setObjectName(format)
 
     elif format == 'table':
@@ -118,17 +119,11 @@ def composite_widget_factory(format: str, title: str = None, optional : bool = T
     elif format == 'select':
         return None
     
-    elif format == 'file':
-        return None
-    
-    elif format == 'key':
-        return None
-    
-    elif format == 'password':
-        return None
-    
+
     elif format == 'flag':
-        return None
+        main_widget = QtWidgets.QRadioButton(title)
+        main_widget.setObjectName(format)
+        main_widget.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum))
     
     elif format == 'group':
         return None

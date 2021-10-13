@@ -112,3 +112,7 @@ QPushButton#button:pressed {
     border-radius: 1px;
     border-width: 1px;
 }
+#flag {
+    min-width: 25px;
+    max-width: 25px;
+}

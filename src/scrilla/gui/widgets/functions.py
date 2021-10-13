@@ -43,7 +43,8 @@ class RiskReturnWidget(QtWidgets.QWidget):
         controls = factories.generate_control_skeleton()
 
         for arg in definitions.FUNC_DICT['risk_profile']['args']:
-            controls[arg] = True
+            if not definitions.ARG_DICT[arg]['cli_only']:
+                controls[arg] = True
 
         return controls
 
@@ -121,7 +122,8 @@ class CorrelationWidget(QtWidgets.QWidget):
         controls = factories.generate_control_skeleton()
 
         for arg in definitions.FUNC_DICT['correlation']['args']:
-            controls[arg] = True
+            if not definitions.ARG_DICT[arg]['cli_only']:
+                controls[arg] = True
 
         return controls
 
@@ -184,7 +186,8 @@ class OptimizerWidget(QtWidgets.QWidget):
         controls = factories.generate_control_skeleton()
         
         for arg in definitions.FUNC_DICT['optimize_portfolio']['args']:
-            controls[arg] = True
+            if not definitions.ARG_DICT[arg]['cli_only']:
+                controls[arg] = True
 
         return controls
 
@@ -264,7 +267,8 @@ class EfficientFrontierWidget(QtWidgets.QWidget):
         controls = factories.generate_control_skeleton()
 
         for arg in definitions.FUNC_DICT['efficient_frontier']['args']:
-            controls[arg] = True
+            if not definitions.ARG_DICT[arg]['cli_only']:
+                controls[arg] = True
 
         return controls
 

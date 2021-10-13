@@ -99,7 +99,6 @@ class ArgumentWidget(QtWidgets.QWidget):
         self.symbol_hint = factories.atomic_widget_factory(format='text', title="Separate Symbols With Commas")
 
         self.symbol_widget = factories.composite_widget_factory(format='symbols', title="Symbols :", optional=False)
-        # TODO: initialize toggle and connect to the toggle_control_input
 
         for control in self.controls:
             if self.controls[control]:
@@ -108,6 +107,7 @@ class ArgumentWidget(QtWidgets.QWidget):
                                                                             optional = True)
             else:
                 self.control_widgets[control] = None
+        # TODO: save group controls in dictionary and initialize in separate loop so all elements in group can be inputted.
 
         self.required_pane = factories.layout_factory(format='vertical-box')
         self.required_pane.setObjectName(self.layer)
@@ -120,9 +120,9 @@ class ArgumentWidget(QtWidgets.QWidget):
         Arrange child widgets in their layouts and provides rendering hints. The `self.symbol_widget` is set into a ``PySide6.QtWidgets.QVBoxLayout`` named `self.required_pane`. The optional input widgets are set into a separate ``PySide6.QtWidgets.QVBoxLayout`` named `self.optional_pane`. `self.required_pane` and `self.optional_pane` are in turn set into a parent `PySide6.QtWidgets.QVBoxLayout``, along with `self.calculate_button` and `self.clear_button`. A strecth widget is inserted between the input widgets and the button widgets. 
         
         """
-        factories.set_policy_on_widget_list([self.title, self.required_title, self.optional_title, self.calculate_button, 
-                                    self.clear_button, self.symbol_hint, self.required_pane, self.optional_pane], 
-                                    QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Maximum))
+        factories.set_policy_on_widget_list([self.title, self.required_title, self.optional_title, self.symbol_hint, 
+                                            self.required_pane, self.optional_pane], 
+                                            QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Maximum))
         self.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding))
 
         self.required_pane.layout().addWidget(self.required_title)
@@ -177,6 +177,8 @@ class ArgumentWidget(QtWidgets.QWidget):
             return widget.date().toPython()
         if type(widget) == QtWidgets.QLineEdit: 
             return widget.text()
+        if type(widget) == QtWidgets.QRadioButton:
+            return widget.isChecked()
     
     def prime(self) -> None:
         """
@@ -235,6 +237,10 @@ class TableWidget(QtWidgets.QWidget):
         self.setLayout(QtWidgets.QVBoxLayout())
     
     def _arrange_widgets(self) -> None:
+        self.title.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding,
+                                                            QtWidgets.QSizePolicy.Minimum))
+        self.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding,
+                                                            QtWidgets.QSizePolicy.Minimum))
         self.layout().addWidget(self.title)
         self.layout().addWidget(self.table, 1)
 
@@ -295,6 +301,8 @@ class GraphWidget(QtWidgets.QWidget):
 
     def _arrange_widgets(self) -> None:
         self.title.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding,
+                                                            QtWidgets.QSizePolicy.Minimum))
+        self.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding,
                                                             QtWidgets.QSizePolicy.Minimum))
         self.layout().addWidget(self.title)
         self.layout().addWidget(self.figure)

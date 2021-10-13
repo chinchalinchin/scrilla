@@ -15,7 +15,7 @@ FUNC_DICT = {
         'values': ["asset", "a"],
         'args': None,
         'description': "Outputs the asset type for the supplied symbol.",
-        'tickers': True
+        'tickers': True,
     },
     "cvar": {
         'name': 'Conditional Value At Risk',
@@ -299,7 +299,7 @@ FUNC_DICT = {
     }
 }
 """
-A dictionary containing configuration information for function arguments. This dictionary is used at various points in the library, such as `scrilla.gui.widgets.function` and `scrilla.util.helper`, to parse construct and parse input elements. 
+A dictionary containing configuration information for function arguments. This dictionary is used at various points in the library, such as `scrilla.gui.widgets.functions` and `scrilla.util.helper.format_args`, to generate function interfaces. 
 """
 
 ARG_META = {
@@ -317,7 +317,8 @@ ARG_DICT = {
         'widget_type': 'date',
         'format': lambda s: datetime.datetime.strptime(s, '%Y-%m-%d').date(),
         'required': False,
-        'syntax': '<YYYY-MM-DD>'
+        'syntax': '<YYYY-MM-DD>',
+        'cli_only': False
     },
     'end_date': {
         'name': 'Sample End Date',
@@ -327,7 +328,8 @@ ARG_DICT = {
         'widget_type': 'date',
         'format': lambda s: datetime.datetime.strptime(s, '%Y-%m-%d').date(),
         'required': False,
-        'syntax': '<YYYY-MM-DD>'
+        'syntax': '<YYYY-MM-DD>',
+        'cli_only': False
     },
     'target': {
         'name': 'Target Return',
@@ -337,7 +339,8 @@ ARG_DICT = {
         'widget_type': 'decimal',
         'format': float,
         'required': False,
-        'syntax': '<value>'
+        'syntax': '<value>',
+        'cli_only': False
     },
     'discount': {
         'name': 'Discount Rate',
@@ -347,7 +350,8 @@ ARG_DICT = {
         'widget_type': 'decimal',
         'format': float,
         'required': False,
-        'syntax': '<value>'
+        'syntax': '<value>',
+        'cli_only': False
     },
     'investment': {
         'name': 'Total Investment',
@@ -357,7 +361,8 @@ ARG_DICT = {
         'widget_type': 'currency',
         'format': float,
         'required': False,
-        'syntax': '<value>'
+        'syntax': '<value>',
+        'cli_only': False
     },
     'expiry': {
         'name': 'Expiration',
@@ -367,7 +372,8 @@ ARG_DICT = {
         'widget_type': 'decimal',
         'format': float,
         'required': True,
-        'syntax': '<value>'
+        'syntax': '<value>',
+        'cli_only': False
     },
     'probability': {
         'name': 'Loss Probability',
@@ -377,7 +383,8 @@ ARG_DICT = {
         'widget_type': 'decimal',
         'format': float,
         'required': True,
-        'syntax': '<value>'
+        'syntax': '<value>',
+        'cli_only': False
     },
     'steps': {
         'name': 'Efficient Frontier Data Points',
@@ -387,7 +394,8 @@ ARG_DICT = {
         'widget_type': 'integer',
         'format': int,
         'required': False,
-        'syntax': '<value>'
+        'syntax': '<value>',
+        'cli_only': False
     },
     'criteria': {
         'name': 'Watchlist Screener Critia',
@@ -398,17 +406,19 @@ ARG_DICT = {
         'format': str,
         'required': False,
         'allowable': ['DDM', 'sharpe', 'volatility', 'return'],
-        'syntax': '<value>'
+        'syntax': '<value>',
+        'cli_only': False
     },
     'save_file': {
         'name': 'Save File Location',
         'values': ['-save-file', '--save-file', '-save', '--save'],
         'description': 'Location where file will be saved',
         'default': None,
-        'widget_type': 'file',
+        'widget_type': None,
         'format': str,
         'required': False,
-        'syntax': '<path>'
+        'syntax': '<path>',
+        'cli_only': True
     },
     'key': {
         'name': 'Key-Value Key',
@@ -416,20 +426,22 @@ ARG_DICT = {
         'description': 'API Key that will be saved to __installation_dir__/data/common/',
         'default': None,
         'format': str,
-        'widget_type': 'key',
+        'widget_type': None,
         'required': True,
         'allowable': ["ALPHA_VANTAGE_KEY", "QUANDL_KEY", "IEX_KEY"],
-        'syntax': '<value>'
+        'syntax': '<value>',
+        'cli_only': True
     },
     'value': {
         'name': 'Key-Value Value',
         'values':['-value', '--value', '-v', '--v'],
         'description': 'API Key-Value that will be saved to __installation_dir__/data/common/',
         'default': None,
-        'widget_type': 'password',
+        'widget_type': None,
         'format': str,
         'required': True,
-        'syntax': '<value>'
+        'syntax': '<value>',
+        'cli_only': True
     },
     'optimize_sharpe': {
         'name': 'Optimize Portfolio Sharpe',
@@ -439,7 +451,8 @@ ARG_DICT = {
         'widget_type': 'flag',
         'format': bool,
         'required': False,
-        'syntax': None
+        'syntax': None,
+        'cli_only': False
     },
     'json': {
         'name': 'JSON Display',
@@ -450,6 +463,7 @@ ARG_DICT = {
         'format': bool,
         'required': False,
         'syntax': None,
+        'cli_only': True
     },
     'suppress_output': {
         'name': 'No Display',
@@ -460,6 +474,7 @@ ARG_DICT = {
         'format': bool,
         'required': False,
         'syntax': None,
+        'cli_only': True
     },
     'moments' : {
         'name': 'Method of Moment Matching',
@@ -471,6 +486,7 @@ ARG_DICT = {
         'group': 'estimation_method',
         'required': False,
         'syntax': None,
+        'cli_only': False
     },
     'percentiles': {
         'name': 'Method of Percentile Matching',
@@ -482,6 +498,7 @@ ARG_DICT = {
         'group': 'estimation_method',
         'required': False,
         'syntax': None,
+        'cli_only': False
     },
     'likelihood': {
         'name': 'Maximum Likelihood Estimation',
@@ -493,6 +510,7 @@ ARG_DICT = {
         'group': 'estimation_method',
         'required': False,
         'syntax': None,
+        'cli_only': False
     }
 }
 """
@@ -502,8 +520,14 @@ A dictionary containing configuration information for application arguments. Thi
     * Every argument has four ways of being inputted: short-dash-long, long-dash-long, short-dash-short, long-dash-short, e.g. the following commands are all equivalent,
     ```
     scrilla risk-profile LMT GD LNT -json
+    ```
+    ```
     scrilla risk-profile LMT GD LNT --json
+    ```
+    ```
     scrilla risk-profile LMT GD LNT -js
+    ```
+    ```
     scrilla risk-profile LMT GD LNT --js
     ```
     * arguments with a format of `group` are mutually exclusively modes, similar to a radio button.
