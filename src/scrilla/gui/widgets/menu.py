@@ -78,11 +78,11 @@ class MenuWidget(QtWidgets.QWidget):
         self.exit_button = factories.atomic_widget_factory(format='button', title="Exit")
 
         self.function_widgets = [ 
-            CorrelationWidget('great-grand-child'), 
-            EfficientFrontierWidget('great-grand-child'),
-            MovingAverageWidget('great-grand-child'),
-            OptimizerWidget('great-grand-child'),
-            RiskReturnWidget('great-grand-child'),
+            CorrelationWidget(layer='great-grand-child', parent=self), 
+            EfficientFrontierWidget(layer='great-grand-child', parent=self),
+            MovingAverageWidget(layer='great-grand-child', parent=self),
+            OptimizerWidget(layer='great-grand-child', parent=self),
+            RiskReturnWidget(layer='great-grand-child', parent=self),
         ]
 
         self.menu_pane = factories.layout_factory(format='vertical-box')

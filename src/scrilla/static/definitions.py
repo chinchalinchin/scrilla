@@ -108,13 +108,6 @@ FUNC_DICT = {
         'description': "Generate a sample of the portfolio's efficient frontier for the supplied list of tickers. The efficient frontier algorithm will minimize a portfolio's volality for a given rate of return and then maximize its return, and then use these points to generate the rest of the frontier by taking increments along the line connecting the (risk,return) profile of the minimum volatility portfolio to the (risk, return) profile of the maximum return portfolio. The number of points calculated in the efficient frontier can be specifed as an integer with the -steps flag. If no -steps is provided, the value of the environment variable FRONTIER_STEPS will be used.",
         'tickers': True
     },
-    "examples": {
-        'name': 'Example Usage',
-        'values': ["examples", "ex"],
-        'args': None,
-        'description': "Display examples of syntax.",
-        'tickers': False
-    },
     "help": {
         'name': 'Help Message',
         'values': ["help", "h"],

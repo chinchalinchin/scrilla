@@ -168,7 +168,6 @@ class StatManager():
         response = requests.get(url).json()
 
         raw_interest = response[self.service_map["KEYS"]["FIRST_LAYER"]][self.service_map["KEYS"]["SECOND_LAYER"]]
-
         formatted_interest = {}
         for rate in raw_interest:
             formatted_interest[rate[0]] = rate[1:]
@@ -181,6 +180,8 @@ class StatManager():
         except KeyError:
             raise errors.InputValidationError(f'{maturity} is not a valid maturity for US Treasury Bonds')
 
+        print(maturity)
+        print(maturity_key)
         formatted_interest = {}
         for result in results:
             formatted_interest[result] = results[result][maturity_key]
@@ -594,7 +595,7 @@ def get_daily_interest_history(maturity: str, start_date: Union[date, None]=None
 
         # TODO: this only works when stats are reported daily and that the latest date in the dataset is actually end_date.
     if rates is not None and dater.date_to_string(end_date) in rates.keys() \
-        and (dater.business_days_between(start_date, end_date) + 1) == len(rates): 
+        and (dater.business_days_between(start_date, end_date)) == len(rates): 
         return rates
 
     logger.debug(f'Cached {maturity} data is out of date, passing request to external service')

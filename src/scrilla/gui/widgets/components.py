@@ -159,7 +159,7 @@ class ArgumentWidget(QtWidgets.QWidget):
         """
         return helper.split_and_strip(self.symbol_widget.layout().itemAt(1).widget().text())
 
-    def get_control_input(self, control_widget_key: str) -> Union[datetime.date, str, None]:
+    def get_control_input(self, control_widget_key: str) -> Union[datetime.date, str, bool, None]:
         """
         Get the value on the specified optional input widget. Optional keys are accessed through the keys of the  `scrilla.static.definitions.ARG_DICT` dictionary.
 

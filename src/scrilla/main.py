@@ -637,7 +637,7 @@ def do_program() -> None:
                                                                         start_date=args['start_date'],
                                                                         end_date=args['end_date'])
                 for date in all_rates[arg]:
-                    all_rates[arg][date] = all_rates[arg][date]/100
+                    all_rates[arg][date] = all_rates[arg][date]
                     
                 if print_format_to_screen(args):
                     for date in all_rates[arg]:
@@ -658,7 +658,7 @@ def do_program() -> None:
 
             if print_format_to_screen(args):
                     outputter.title_line("Risk Free Rate")
-                    outputter.scalar_result(calculation=formats.formats.RISK_FREE_TITLE.format(settings.RISK_FREE_RATE), 
+                    outputter.scalar_result(calculation=formats.formats['RISK_FREE_TITLE'].format(settings.RISK_FREE_RATE), 
                                                 result=rate[settings.RISK_FREE_RATE], currency=False)
             if print_json_to_screen:
                 print(json.dumps(rate))

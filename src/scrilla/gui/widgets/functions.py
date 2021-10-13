@@ -13,6 +13,7 @@
 # along with scrilla.  If not, see <https://www.gnu.org/licenses/>
 # or <https://github.com/chinchalinchin/scrilla/blob/develop/main/LICENSE>.
 
+from typing import Union
 from PySide6 import QtGui, QtCore, QtWidgets
 
 
@@ -30,23 +31,28 @@ from scrilla.gui.widgets import factories, components
 
 logger = outputter.Logger('gui.functions', settings.LOG_LEVEL)
 
-class RiskReturnWidget(QtWidgets.QWidget):
-    def __init__(self, layer):
-        super().__init__()
+class SkeletonWidget(QtWidgets.QWidget):
+    def __init__(self, function: str, parent: QtWidgets.QWidget):
+        super(SkeletonWidget, self).__init__(parent)
+        self._configure_control_skeleton(function)
+    
+    def _configure_control_skeleton(self, function: str):
+        self.controls = factories.generate_control_skeleton()
+
+        for arg in definitions.FUNC_DICT[function]['args']:
+            if not definitions.ARG_DICT[arg]['cli_only']:
+                self.controls[arg] = True
+
+class DiscountDividendWidget(SkeletonWidget):
+    pass
+
+class RiskReturnWidget(SkeletonWidget):
+    def __init__(self, layer: str, parent:Union[QtWidgets.QWidget,None] = None):
+        super().__init__(function='risk_profile', parent=parent)
         self.setObjectName(layer)
         self._init_widgets()
         self._arrange_widgets()
         self._stage_widgets()
-
-    @staticmethod
-    def _configure_control_skeleton():
-        controls = factories.generate_control_skeleton()
-
-        for arg in definitions.FUNC_DICT['risk_profile']['args']:
-            if not definitions.ARG_DICT[arg]['cli_only']:
-                controls[arg] = True
-
-        return controls
 
     def _init_widgets(self):
         self.composite_widget = components.CompositeWidget(keys.keys['GUI']['TEMP']['PROFILE'], 
@@ -56,7 +62,7 @@ class RiskReturnWidget(QtWidgets.QWidget):
                                                             layer = utilities.get_next_layer(self.objectName()))
         self.arg_widget = components.ArgumentWidget(calculate_function=self.calculate,
                                                     clear_function=self.clear,
-                                                    controls= RiskReturnWidget._configure_control_skeleton(),
+                                                    controls= self.controls,
                                                     layer = utilities.get_next_layer(self.objectName()))
         self.setLayout(QtWidgets.QHBoxLayout())
 
@@ -79,7 +85,9 @@ class RiskReturnWidget(QtWidgets.QWidget):
 
         profiles = {}
         for i, symbol in enumerate(symbols):
-            profiles[symbol] = statistics.calculate_risk_return(symbol)
+            profiles[symbol] = statistics.calculate_risk_return(ticker=symbol,
+                                                                start_date=self.arg_widget.get_control_input('start_date'),
+                                                                end_date=self.arg_widget.get_control_input('end_date'))
             profiles[symbol][keys.keys['APP']['PROFILE']['SHARPE']] = markets.sharpe_ratio(symbol)
             profiles[symbol][keys.keys['APP']['PROFILE']['BETA']] = markets.market_beta(symbol)
             profiles[symbol][keys.keys['APP']['PROFILE']['EQUITY']] = markets.cost_of_equity(symbol)
@@ -109,30 +117,20 @@ class RiskReturnWidget(QtWidgets.QWidget):
         self.composite_widget.table_widget.table.hide()
         self.arg_widget.prime()
 
-class CorrelationWidget(QtWidgets.QWidget):
-    def __init__(self, layer):
-        super().__init__()
+class CorrelationWidget(SkeletonWidget):
+    def __init__(self, layer: str, parent: Union[QtWidgets.QWidget, None]=None):
+        super().__init__(function='correlation', parent=parent)
         self.setObjectName(layer)
         self._init_widgets()
         self._arrange_widgets()
         self._stage_widgets()
-
-    @staticmethod
-    def _configure_control_skeleton():
-        controls = factories.generate_control_skeleton()
-
-        for arg in definitions.FUNC_DICT['correlation']['args']:
-            if not definitions.ARG_DICT[arg]['cli_only']:
-                controls[arg] = True
-
-        return controls
 
     def _init_widgets(self):
         self.table_widget = components.TableWidget(widget_title="Correlation Matrix",
                                                     layer=utilities.get_next_layer(self.objectName()))
         self.arg_widget = components.ArgumentWidget(calculate_function=self.calculate,
                                                     clear_function=self.clear,
-                                                    controls=CorrelationWidget._configure_control_skeleton(),
+                                                    controls=self.controls,
                                                     layer=utilities.get_next_layer(self.objectName()))
         self.setLayout(QtWidgets.QHBoxLayout())
 
@@ -154,7 +152,9 @@ class CorrelationWidget(QtWidgets.QWidget):
         if len(symbols) > 1:
             self.table_widget.init_table(rows=symbols, columns=symbols)
 
-            matrix = statistics.correlation_matrix(tickers=symbols)
+            matrix = statistics.correlation_matrix(tickers=symbols, 
+                                                    start_date=self.arg_widget.get_control_input('start_date'),
+                                                    end_date=self.arg_widget.get_control_input('end_date'))
             for i in range(0, len(symbols)):
                 for j in range(i, len(symbols)):
                     item_upper = factories.atomic_widget_factory(format='table-item', title = helper.format_float_percent(matrix[i][j]))
@@ -173,23 +173,13 @@ class CorrelationWidget(QtWidgets.QWidget):
         self.table_widget.table.clear()
         self.table_widget.table.hide()
 
-class OptimizerWidget(QtWidgets.QWidget):
-    def __init__(self, layer):
-        super().__init__()
+class OptimizerWidget(SkeletonWidget):
+    def __init__(self, layer: str, parent: Union[QtWidgets.QWidget, None]=None):
+        super().__init__(function='optimize_portfolio', parent=parent)
         self.setObjectName(layer)
         self._init_widgets()
         self._arrange_widgets()
         self._stage_widgets()
-
-    @staticmethod
-    def _configure_control_skeleton():
-        controls = factories.generate_control_skeleton()
-        
-        for arg in definitions.FUNC_DICT['optimize_portfolio']['args']:
-            if not definitions.ARG_DICT[arg]['cli_only']:
-                controls[arg] = True
-
-        return controls
 
     def _init_widgets(self):
         self.title = factories.atomic_widget_factory(format='heading', title=None)
@@ -197,7 +187,7 @@ class OptimizerWidget(QtWidgets.QWidget):
                                                     layer=utilities.get_next_layer(self.objectName()))
         self.arg_widget = components.ArgumentWidget(calculate_function=self.optimize,
                                                     clear_function=self.clear,
-                                                    controls=OptimizerWidget._configure_control_skeleton(),
+                                                    controls=self.controls,
                                                     layer=utilities.get_next_layer(self.objectName()))
         self.setLayout(QtWidgets.QHBoxLayout())
 
@@ -255,29 +245,19 @@ class OptimizerWidget(QtWidgets.QWidget):
         self.table_widget.table.hide()
         self.arg_widget.prime()
 
-class EfficientFrontierWidget(QtWidgets.QWidget):
-    def __init__(self, layer):
-        super().__init__()
+class EfficientFrontierWidget(SkeletonWidget):
+    def __init__(self, layer: str, parent: Union[QtWidgets.QWidget, None]=None):
+        super().__init__(function='efficient_frontier', parent=parent)
         self.setObjectName(layer)
         self._init_widgets()
         self._arrange_widgets()
-
-    @staticmethod
-    def _configure_control_skeleton():
-        controls = factories.generate_control_skeleton()
-
-        for arg in definitions.FUNC_DICT['efficient_frontier']['args']:
-            if not definitions.ARG_DICT[arg]['cli_only']:
-                controls[arg] = True
-
-        return controls
 
     def _init_widgets(self):
         self.graph_widget = components.GraphWidget(tmp_graph_key=keys.keys['GUI']['TEMP']['FRONTIER'],
                                                     layer=utilities.get_next_layer(self.objectName()))
         self.arg_widget = components.ArgumentWidget(calculate_function=self.calculate, 
                                                     clear_function=self.clear,
-                                                    controls=EfficientFrontierWidget._configure_control_skeleton(),
+                                                    controls=self.controls,
                                                     layer=utilities.get_next_layer(self.objectName()))
         self.setLayout(QtWidgets.QHBoxLayout())
         # TODO: portfolio tabs
@@ -299,8 +279,11 @@ class EfficientFrontierWidget(QtWidgets.QWidget):
         if self.graph_widget.figure.isVisible():
             self.graph_widget.figure.hide()
 
-        this_portfolio = Portfolio(tickers=self.arg_widget.get_symbol_input())
-        frontier = optimizer.calculate_efficient_frontier(portfolio=this_portfolio)
+        this_portfolio = Portfolio(tickers=self.arg_widget.get_symbol_input(),
+                                    start_date=self.arg_widget.get_control_input('start_date'),
+                                    end_date=self.arg_widget.get_control_input('end_date'))
+        frontier = optimizer.calculate_efficient_frontier(portfolio=this_portfolio,
+                                                            steps=self.arg_widget.get_control_input('steps'))
         plotter.plot_frontier(portfolio=this_portfolio, 
                                 frontier=frontier, 
                                 show=False, 
@@ -314,9 +297,9 @@ class EfficientFrontierWidget(QtWidgets.QWidget):
         self.graph_widget.figure.hide()
         self.arg_widget.prime()
 
-class MovingAverageWidget(QtWidgets.QWidget):
-    def __init__(self, layer):
-        super().__init__()
+class MovingAverageWidget(SkeletonWidget):
+    def __init__(self, layer: str, parent: Union[QtWidgets.QWidget, None]=None):
+        super().__init__(function='moving_averages', parent=parent)
         self.setObjectName(layer)
         self._init_widgets()
         self._arrange_widgets()
@@ -327,7 +310,7 @@ class MovingAverageWidget(QtWidgets.QWidget):
                                                     layer=utilities.get_next_layer(self.objectName()))
         self.arg_widget = components.ArgumentWidget(calculate_function=self.calculate,
                                                     clear_function=self.clear,
-                                                    controls = factories.generate_control_skeleton(),
+                                                    controls = self.controls,
                                                     layer=utilities.get_next_layer(self.objectName()))
         self.setLayout(QtWidgets.QHBoxLayout())
 
@@ -350,7 +333,9 @@ class MovingAverageWidget(QtWidgets.QWidget):
 
         symbols = self.arg_widget.get_symbol_input()
 
-        moving_averages = statistics.calculate_moving_averages(symbols)
+        moving_averages = statistics.calculate_moving_averages(tickers=self.arg_widget.get_symbol_input(),
+                                                                start_date=self.arg_widget.get_control_input('start_date'),
+                                                                end_date=self.arg_widget.get_control_input('end_date'))
         periods = [settings.MA_1_PERIOD, settings.MA_2_PERIOD, settings.MA_3_PERIOD]
         plotter.plot_moving_averages(symbols=symbols, 
                                         averages_output=moving_averages, 
