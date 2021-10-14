@@ -4,7 +4,7 @@
 [![DeepSource](https://deepsource.io/gh/chinchalinchin/scrilla.svg/?label=resolved+issues&show_trend=true&token=tD25pyXAL4uIvrccqjlwzXIU)](https://deepsource.io/gh/chinchalinchin/scrilla/?ref=repository-badge)<br/>
 pypi/micro-update: [![CircleCI](https://circleci.com/gh/chinchalinchin/scrilla/tree/pypi%2Fmicro-update.svg?style=svg)](https://circleci.com/gh/chinchalinchin/scrilla/tree/pypi%2Fmicro-update)<br/>
 pypi/micro-update: [![CircleCI](https://circleci.com/gh/chinchalinchin/scrilla/tree/pypi%2Fminor-update.svg?style=svg)](https://circleci.com/gh/chinchalinchin/scrilla/tree/pypi%2Fminor-update)<br/>
-gh-pages: [![CircleCI](https://circleci.com/gh/chinchalinchin/scrilla/tree/gh-pages.svg?style=svg)](https://circleci.com/gh/chinchalinchin/scrilla/tree/gh-pages)
+gh-pages: [![CircleCI](https://circleci.com/gh/chinchalinchin/scrilla/tree/gh-pages.svg?style=svg)](https://circleci.com/gh/chinchalinchin/scrilla/tree/gh-pages)<br>
 [Documentation](https://chinchalinchin.github.io/scrilla/)<br/>
 
 ## Table of Contents
