@@ -1,26 +1,37 @@
 version: 2.1
 
 commands:
-  docs:
-    description: generate documentation html from docstrings
-    steps:
-      - run:
-          name: generate docs
-          command: bash ./scripts/generate-docs
-  install:
+  install_build_deps:
     description: install build dependencies
     steps:
       - run:
           name: dependency installation
+<<<<<<< HEAD
           command: |
             pip install -r requirements.txt
+=======
+          command: pip install twine setuptools build
+  install_doc_deps:
+    description: install documentation dependencies
+    steps:
+      - run:
+          name: dependency installation
+          command: |
+            pip3 install -r requirements.txt
+>>>>>>> gh-pages
   build_wheel:
     description: compress and build python package
     steps:
       - run:
           name: artifact build
           command: python -m build
-  upload:
+  generate_docs:
+    description: generate documentation html from docstrings
+    steps:
+      - run:
+          name: generate docs
+          command: bash ./scripts/generate-docs
+  upload_artifacts:
     description: upload package artifacts to PyPi
     steps:
       - run:
@@ -49,7 +60,10 @@ commands:
               git config user.email "chinchalinchin@gmail.com"
               git config user.name "CircleCi Bot"
               git add .
-              git commit -m 'Pipeline Documentation Generation $(echo $(date))'
+              git commit -m "Pipeline Documentation Generation $(echo $(date))"
+              git push --set-upstream origin gh-pages
+              git checkout develop/main
+              git merge gh-pages
               git push --set-upstream origin develop/main
 
 jobs:
@@ -58,13 +72,13 @@ jobs:
       - image: cimg/python:3.9.6
     steps:
       - checkout
-      - install
+      - install_build_deps
       - run:
           name: iterate micro version
           command: |
             python ./scripts/circleci/iterate_version.py micro
-      - build
-      - upload
+      - build_wheel
+      - upload_artifacts
       - commit_version
 
   pypi_minor_update:
@@ -72,13 +86,13 @@ jobs:
       - image: cimg/python:3.9.6
     steps:
       - checkout
-      - install
+      - install_build_deps
       - run:
           name: iterate minor version
           command: | 
             python ./scripts/circleci/iterate_version.py minor
-      - build
-      - upload
+      - build_wheel
+      - upload_artifacts
       - commit_version
 
   pypi_major_update:
@@ -86,13 +100,13 @@ jobs:
       - image: cimg/python:3.9.6
     steps:
       - checkout 
-      - install
+      - install_build_deps
       - run:
           name: iterate major version
           command: |
             python ./scripts/circleci/iterate_version.py major
-      - build
-      - upload
+      - build_wheel
+      - upload_artifacts
       - commit_version
   
   documentation:
@@ -102,7 +116,8 @@ jobs:
       - image: cimg/python:3.9.6
     steps:
       - checkout
-      - docs
+      - install_doc_deps
+      - generate_docs
       - commit_docs
 
 workflows:
@@ -124,8 +139,11 @@ workflows:
             branches:
               only:
                 - pypi/major-update
+
+  github_doc_pages:
+    jobs:
       - documentation:
           filters:
             branches:
               only:
-                - develop/main
+                - gh-pages

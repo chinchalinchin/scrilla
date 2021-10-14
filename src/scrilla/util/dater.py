@@ -4,6 +4,9 @@ from typing import List, Tuple, Union
 import dateutil.easter as easter
 
 def validate_date_string(parsed_date_string: str) -> bool:
+    """
+    Checks if the date string is a valid date in the 'YYYY-MM-DD' format.
+    """
     length_check = (len(parsed_date_string) == 3 )
     year_check = (int(parsed_date_string[0]) > 1950)
     month_check = (int(parsed_date_string[1])>0 and int(parsed_date_string[1])<13)
@@ -11,6 +14,9 @@ def validate_date_string(parsed_date_string: str) -> bool:
     return (length_check and year_check and month_check and day_check)
 
 def validate_order_of_dates(start_date: datetime.date, end_date: datetime.date) -> Tuple[datetime.date, datetime.date]:
+    """
+    Returns the inputted dates as an tuple ordered from earliest to latest.
+    """
     delta = (end_date - start_date).days
     if delta < 0:
         return end_date, start_date
