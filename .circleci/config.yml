@@ -95,6 +95,8 @@ jobs:
       - commit_version
   
   documentation:
+    docker:
+      - image: cimg/python:3.9.6
     steps:
       - docs
       - commit_docs
