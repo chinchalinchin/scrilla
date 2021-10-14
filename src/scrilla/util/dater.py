@@ -11,6 +11,9 @@ def validate_date_string(parsed_date_string: str) -> bool:
     return (length_check and year_check and month_check and day_check)
 
 def validate_order_of_dates(start_date: datetime.date, end_date: datetime.date) -> Tuple[datetime.date, datetime.date]:
+    """
+    Returns the inputted dates as an tuple ordered from earliest to latest.
+    """
     delta = (end_date - start_date).days
     if delta < 0:
         return end_date, start_date

@@ -49,6 +49,9 @@ commands:
               git config user.name "CircleCi Bot"
               git add .
               git commit -m 'Pipeline Documentation Generation $(echo $(date))'
+              git push --set-upstream origin gh-pages
+              git checkout develop/main
+              git merge gh-pages
               git push --set-upstream origin develop/main
 
 jobs:
@@ -121,8 +124,10 @@ workflows:
             branches:
               only:
                 - pypi/major-update
+  github_doc_pages:
+    jobs:
       - documentation:
           filters:
             branches:
               only:
-                - develop/main
+                - gh-pages
