@@ -13,7 +13,7 @@ commands:
       - run:
           name: dependency installation
           command: |
-            sudo apt install libopengl0 -y
+            sudo apt update -y && sudo apt install libopengl0 -y
             pip install -r requirements.txt
   build_wheel:
     description: compress and build python package
