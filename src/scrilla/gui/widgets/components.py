@@ -173,15 +173,15 @@ class ArgumentWidget(QtWidgets.QWidget):
         if not widget.isEnabled():
             return None
 
-        if type(widget) == QtWidgets.QDateEdit: 
+        if type(widget) is QtWidgets.QDateEdit: 
             return widget.date().toPython()
-        if type(widget) == QtWidgets.QLineEdit:
-            if type(widget.validator()) ==  QtGui.QIntValidator:
+        if type(widget) is QtWidgets.QLineEdit:
+            if type(widget.validator()) is QtGui.QIntValidator:
                 return int(widget.text())
             if type(widget.validator()) in [QtGui.QDoubleValidator, QtGui.QRegularExpressionValidator]:
                 return float(widget.text())
             return widget.text()
-        if type(widget) == QtWidgets.QRadioButton:
+        if type(widget) is QtWidgets.QRadioButton:
             return widget.isChecked()
     
     def prime(self) -> None:
