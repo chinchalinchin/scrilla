@@ -72,7 +72,7 @@ jobs:
           command: |
             python ./scripts/circleci/iterate_version.py micro
       - build_wheel
-      - upload_artifact
+      - upload_artifacts
       - commit_version
 
   pypi_minor_update:
