@@ -50,9 +50,6 @@ from scrilla import settings
 
 from scrilla.gui import formats
 from scrilla.gui.widgets import factories
-from scrilla.gui.widgets.functions import RiskReturnWidget, CorrelationWidget, \
-                                            MovingAverageWidget, EfficientFrontierWidget, \
-                                            OptimizerWidget
 
 # NOTE: widget_buttons and function_widgets must preserve order.
 class MenuWidget(QtWidgets.QWidget):
@@ -84,7 +81,7 @@ class MenuWidget(QtWidgets.QWidget):
         view = self.menu_bar.addMenu(&#39;Function&#39;)
         preferences = self.menu_bar.addMenu(&#39;Preferences&#39;)
 
-        self.function_actions = [ QtGui.QAction(function, self) for function in formats.FUNCTIONS ]
+        self.function_actions = [ QtGui.QAction(function[0], self) for function in formats.FUNCTIONS ]
         for action in self.function_actions:
             view.addAction(action)
 
@@ -103,16 +100,10 @@ class MenuWidget(QtWidgets.QWidget):
         self.function_menu = QtWidgets.QLabel(&#39;Functions&#39;)
         self.function_menu.setObjectName(&#39;function-menu&#39;)
         
-        self.widget_buttons = [ factories.atomic_widget_factory(format=&#39;button&#39;, title=function) for function in formats.FUNCTIONS ]
+        self.widget_buttons = [ factories.atomic_widget_factory(format=&#39;button&#39;, title=function[0]) for function in formats.FUNCTIONS ]
         self.exit_button = factories.atomic_widget_factory(format=&#39;button&#39;, title=&#34;Exit&#34;)
 
-        self.function_widgets = [ 
-            CorrelationWidget(&#39;great-grand-child&#39;), 
-            EfficientFrontierWidget(&#39;great-grand-child&#39;),
-            MovingAverageWidget(&#39;great-grand-child&#39;),
-            OptimizerWidget(&#39;great-grand-child&#39;),
-            RiskReturnWidget(&#39;great-grand-child&#39;),
-        ]
+        self.function_widgets = [ function[1](&#39;great-grand-child&#39;, self) for function in formats.FUNCTIONS ]
 
         self.menu_pane = factories.layout_factory(format=&#39;vertical-box&#39;)
         self.menu_pane.setObjectName(&#39;grand-child&#39;)
@@ -247,7 +238,7 @@ See help(type(self)) for accurate signature.</p></div>
         view = self.menu_bar.addMenu(&#39;Function&#39;)
         preferences = self.menu_bar.addMenu(&#39;Preferences&#39;)
 
-        self.function_actions = [ QtGui.QAction(function, self) for function in formats.FUNCTIONS ]
+        self.function_actions = [ QtGui.QAction(function[0], self) for function in formats.FUNCTIONS ]
         for action in self.function_actions:
             view.addAction(action)
 
@@ -266,16 +257,10 @@ See help(type(self)) for accurate signature.</p></div>
         self.function_menu = QtWidgets.QLabel(&#39;Functions&#39;)
         self.function_menu.setObjectName(&#39;function-menu&#39;)
         
-        self.widget_buttons = [ factories.atomic_widget_factory(format=&#39;button&#39;, title=function) for function in formats.FUNCTIONS ]
+        self.widget_buttons = [ factories.atomic_widget_factory(format=&#39;button&#39;, title=function[0]) for function in formats.FUNCTIONS ]
         self.exit_button = factories.atomic_widget_factory(format=&#39;button&#39;, title=&#34;Exit&#34;)
 
-        self.function_widgets = [ 
-            CorrelationWidget(&#39;great-grand-child&#39;), 
-            EfficientFrontierWidget(&#39;great-grand-child&#39;),
-            MovingAverageWidget(&#39;great-grand-child&#39;),
-            OptimizerWidget(&#39;great-grand-child&#39;),
-            RiskReturnWidget(&#39;great-grand-child&#39;),
-        ]
+        self.function_widgets = [ function[1](&#39;great-grand-child&#39;, self) for function in formats.FUNCTIONS ]
 
         self.menu_pane = factories.layout_factory(format=&#39;vertical-box&#39;)
         self.menu_pane.setObjectName(&#39;grand-child&#39;)

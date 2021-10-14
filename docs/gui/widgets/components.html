@@ -44,7 +44,7 @@
 
 import datetime
 from typing import Callable, Dict, List, Union
-from PySide6 import QtCore, QtWidgets
+from PySide6 import QtCore, QtWidgets, QtGui
 
 from scrilla.util import helper
 from scrilla.gui import utilities
@@ -128,7 +128,6 @@ class ArgumentWidget(QtWidgets.QWidget):
         self.symbol_hint = factories.atomic_widget_factory(format=&#39;text&#39;, title=&#34;Separate Symbols With Commas&#34;)
 
         self.symbol_widget = factories.composite_widget_factory(format=&#39;symbols&#39;, title=&#34;Symbols :&#34;, optional=False)
-        # TODO: initialize toggle and connect to the toggle_control_input
 
         for control in self.controls:
             if self.controls[control]:
@@ -137,6 +136,7 @@ class ArgumentWidget(QtWidgets.QWidget):
                                                                             optional = True)
             else:
                 self.control_widgets[control] = None
+        # TODO: save group controls in dictionary and initialize in separate loop so all elements in group can be inputted.
 
         self.required_pane = factories.layout_factory(format=&#39;vertical-box&#39;)
         self.required_pane.setObjectName(self.layer)
@@ -149,9 +149,9 @@ class ArgumentWidget(QtWidgets.QWidget):
         Arrange child widgets in their layouts and provides rendering hints. The `self.symbol_widget` is set into a ``PySide6.QtWidgets.QVBoxLayout`` named `self.required_pane`. The optional input widgets are set into a separate ``PySide6.QtWidgets.QVBoxLayout`` named `self.optional_pane`. `self.required_pane` and `self.optional_pane` are in turn set into a parent `PySide6.QtWidgets.QVBoxLayout``, along with `self.calculate_button` and `self.clear_button`. A strecth widget is inserted between the input widgets and the button widgets. 
         
         &#34;&#34;&#34;
-        factories.set_policy_on_widget_list([self.title, self.required_title, self.optional_title, self.calculate_button, 
-                                    self.clear_button, self.symbol_hint, self.required_pane, self.optional_pane], 
-                                    QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Maximum))
+        factories.set_policy_on_widget_list([self.title, self.required_title, self.optional_title, self.symbol_hint, 
+                                            self.required_pane, self.optional_pane], 
+                                            QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Maximum))
         self.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding))
 
         self.required_pane.layout().addWidget(self.required_title)
@@ -188,7 +188,7 @@ class ArgumentWidget(QtWidgets.QWidget):
         &#34;&#34;&#34;
         return helper.split_and_strip(self.symbol_widget.layout().itemAt(1).widget().text())
 
-    def get_control_input(self, control_widget_key: str) -&gt; Union[datetime.date, str, None]:
+    def get_control_input(self, control_widget_key: str) -&gt; Union[datetime.date, str, bool, None]:
         &#34;&#34;&#34;
         Get the value on the specified optional input widget. Optional keys are accessed through the keys of the  `scrilla.static.definitions.ARG_DICT` dictionary.
 
@@ -204,8 +204,14 @@ class ArgumentWidget(QtWidgets.QWidget):
 
         if type(widget) == QtWidgets.QDateEdit: 
             return widget.date().toPython()
-        if type(widget) == QtWidgets.QLineEdit: 
+        if type(widget) == QtWidgets.QLineEdit:
+            if type(widget.validator()) ==  QtGui.QIntValidator:
+                return int(widget.text())
+            if type(widget.validator()) in [QtGui.QDoubleValidator, QtGui.QRegularExpressionValidator]:
+                return float(widget.text())
             return widget.text()
+        if type(widget) == QtWidgets.QRadioButton:
+            return widget.isChecked()
     
     def prime(self) -&gt; None:
         &#34;&#34;&#34;
@@ -217,9 +223,14 @@ class ArgumentWidget(QtWidgets.QWidget):
         self.symbol_widget.layout().itemAt(1).widget().clear()
         for control in self.control_widgets:
             if self.control_widgets[control] is not None:
-                self.control_widgets[control].layout().itemAt(1).widget().setEnabled(False)
+                if type(self.control_widgets[control].layout().itemAt(1).widget()) != QtWidgets.QRadioButton:
+                    self.control_widgets[control].layout().itemAt(1).widget().clear()
                 self.control_widgets[control].layout().itemAt(2).widget().setEnabled(True)
                 self.control_widgets[control].layout().itemAt(2).widget().setCheckState(QtCore.Qt.Unchecked)
+                self.control_widgets[control].layout().itemAt(1).widget().setEnabled(False)
+                # NOTE: have to set Widget1 to disabled last since the signal on the Widget2 is connected
+                # through CheckState to the enabled stated of Widget1, i.e. flipping the CheckState on 
+                # Widget2 switches the enabled state of Widget1.
     
     def fire(self) -&gt; None:
         &#34;&#34;&#34;
@@ -264,6 +275,10 @@ class TableWidget(QtWidgets.QWidget):
         self.setLayout(QtWidgets.QVBoxLayout())
     
     def _arrange_widgets(self) -&gt; None:
+        self.title.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding,
+                                                            QtWidgets.QSizePolicy.Minimum))
+        self.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding,
+                                                            QtWidgets.QSizePolicy.Minimum))
         self.layout().addWidget(self.title)
         self.layout().addWidget(self.table, 1)
 
@@ -324,6 +339,8 @@ class GraphWidget(QtWidgets.QWidget):
 
     def _arrange_widgets(self) -&gt; None:
         self.title.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding,
+                                                            QtWidgets.QSizePolicy.Minimum))
+        self.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding,
                                                             QtWidgets.QSizePolicy.Minimum))
         self.layout().addWidget(self.title)
         self.layout().addWidget(self.figure)
@@ -503,7 +520,6 @@ See help(type(self)) for accurate signature.</p></div>
         self.symbol_hint = factories.atomic_widget_factory(format=&#39;text&#39;, title=&#34;Separate Symbols With Commas&#34;)
 
         self.symbol_widget = factories.composite_widget_factory(format=&#39;symbols&#39;, title=&#34;Symbols :&#34;, optional=False)
-        # TODO: initialize toggle and connect to the toggle_control_input
 
         for control in self.controls:
             if self.controls[control]:
@@ -512,6 +528,7 @@ See help(type(self)) for accurate signature.</p></div>
                                                                             optional = True)
             else:
                 self.control_widgets[control] = None
+        # TODO: save group controls in dictionary and initialize in separate loop so all elements in group can be inputted.
 
         self.required_pane = factories.layout_factory(format=&#39;vertical-box&#39;)
         self.required_pane.setObjectName(self.layer)
@@ -524,9 +541,9 @@ See help(type(self)) for accurate signature.</p></div>
         Arrange child widgets in their layouts and provides rendering hints. The `self.symbol_widget` is set into a ``PySide6.QtWidgets.QVBoxLayout`` named `self.required_pane`. The optional input widgets are set into a separate ``PySide6.QtWidgets.QVBoxLayout`` named `self.optional_pane`. `self.required_pane` and `self.optional_pane` are in turn set into a parent `PySide6.QtWidgets.QVBoxLayout``, along with `self.calculate_button` and `self.clear_button`. A strecth widget is inserted between the input widgets and the button widgets. 
         
         &#34;&#34;&#34;
-        factories.set_policy_on_widget_list([self.title, self.required_title, self.optional_title, self.calculate_button, 
-                                    self.clear_button, self.symbol_hint, self.required_pane, self.optional_pane], 
-                                    QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Maximum))
+        factories.set_policy_on_widget_list([self.title, self.required_title, self.optional_title, self.symbol_hint, 
+                                            self.required_pane, self.optional_pane], 
+                                            QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Maximum))
         self.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding))
 
         self.required_pane.layout().addWidget(self.required_title)
@@ -563,7 +580,7 @@ See help(type(self)) for accurate signature.</p></div>
         &#34;&#34;&#34;
         return helper.split_and_strip(self.symbol_widget.layout().itemAt(1).widget().text())
 
-    def get_control_input(self, control_widget_key: str) -&gt; Union[datetime.date, str, None]:
+    def get_control_input(self, control_widget_key: str) -&gt; Union[datetime.date, str, bool, None]:
         &#34;&#34;&#34;
         Get the value on the specified optional input widget. Optional keys are accessed through the keys of the  `scrilla.static.definitions.ARG_DICT` dictionary.
 
@@ -579,8 +596,14 @@ See help(type(self)) for accurate signature.</p></div>
 
         if type(widget) == QtWidgets.QDateEdit: 
             return widget.date().toPython()
-        if type(widget) == QtWidgets.QLineEdit: 
+        if type(widget) == QtWidgets.QLineEdit:
+            if type(widget.validator()) ==  QtGui.QIntValidator:
+                return int(widget.text())
+            if type(widget.validator()) in [QtGui.QDoubleValidator, QtGui.QRegularExpressionValidator]:
+                return float(widget.text())
             return widget.text()
+        if type(widget) == QtWidgets.QRadioButton:
+            return widget.isChecked()
     
     def prime(self) -&gt; None:
         &#34;&#34;&#34;
@@ -592,9 +615,14 @@ See help(type(self)) for accurate signature.</p></div>
         self.symbol_widget.layout().itemAt(1).widget().clear()
         for control in self.control_widgets:
             if self.control_widgets[control] is not None:
-                self.control_widgets[control].layout().itemAt(1).widget().setEnabled(False)
+                if type(self.control_widgets[control].layout().itemAt(1).widget()) != QtWidgets.QRadioButton:
+                    self.control_widgets[control].layout().itemAt(1).widget().clear()
                 self.control_widgets[control].layout().itemAt(2).widget().setEnabled(True)
                 self.control_widgets[control].layout().itemAt(2).widget().setCheckState(QtCore.Qt.Unchecked)
+                self.control_widgets[control].layout().itemAt(1).widget().setEnabled(False)
+                # NOTE: have to set Widget1 to disabled last since the signal on the Widget2 is connected
+                # through CheckState to the enabled stated of Widget1, i.e. flipping the CheckState on 
+                # Widget2 switches the enabled state of Widget1.
     
     def fire(self) -&gt; None:
         &#34;&#34;&#34;
@@ -647,7 +675,7 @@ See help(type(self)) for accurate signature.</p></div>
 </details>
 </dd>
 <dt id="scrilla.gui.widgets.components.ArgumentWidget.get_control_input"><code class="name flex">
-<span>def <span class="ident">get_control_input</span></span>(<span>self, control_widget_key: str) ‑> Union[datetime.date, str, None]</span>
+<span>def <span class="ident">get_control_input</span></span>(<span>self, control_widget_key: str) ‑> Union[datetime.date, str, bool, None]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Get the value on the specified optional input widget. Optional keys are accessed through the keys of the
@@ -657,7 +685,7 @@ See help(type(self)) for accurate signature.</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def get_control_input(self, control_widget_key: str) -&gt; Union[datetime.date, str, None]:
+<pre><code class="python">def get_control_input(self, control_widget_key: str) -&gt; Union[datetime.date, str, bool, None]:
     &#34;&#34;&#34;
     Get the value on the specified optional input widget. Optional keys are accessed through the keys of the  `scrilla.static.definitions.ARG_DICT` dictionary.
 
@@ -673,8 +701,14 @@ See help(type(self)) for accurate signature.</p></div>
 
     if type(widget) == QtWidgets.QDateEdit: 
         return widget.date().toPython()
-    if type(widget) == QtWidgets.QLineEdit: 
-        return widget.text()</code></pre>
+    if type(widget) == QtWidgets.QLineEdit:
+        if type(widget.validator()) ==  QtGui.QIntValidator:
+            return int(widget.text())
+        if type(widget.validator()) in [QtGui.QDoubleValidator, QtGui.QRegularExpressionValidator]:
+            return float(widget.text())
+        return widget.text()
+    if type(widget) == QtWidgets.QRadioButton:
+        return widget.isChecked()</code></pre>
 </details>
 </dd>
 <dt id="scrilla.gui.widgets.components.ArgumentWidget.get_symbol_input"><code class="name flex">
@@ -712,9 +746,14 @@ See help(type(self)) for accurate signature.</p></div>
     self.symbol_widget.layout().itemAt(1).widget().clear()
     for control in self.control_widgets:
         if self.control_widgets[control] is not None:
-            self.control_widgets[control].layout().itemAt(1).widget().setEnabled(False)
+            if type(self.control_widgets[control].layout().itemAt(1).widget()) != QtWidgets.QRadioButton:
+                self.control_widgets[control].layout().itemAt(1).widget().clear()
             self.control_widgets[control].layout().itemAt(2).widget().setEnabled(True)
-            self.control_widgets[control].layout().itemAt(2).widget().setCheckState(QtCore.Qt.Unchecked)</code></pre>
+            self.control_widgets[control].layout().itemAt(2).widget().setCheckState(QtCore.Qt.Unchecked)
+            self.control_widgets[control].layout().itemAt(1).widget().setEnabled(False)
+            # NOTE: have to set Widget1 to disabled last since the signal on the Widget2 is connected
+            # through CheckState to the enabled stated of Widget1, i.e. flipping the CheckState on 
+            # Widget2 switches the enabled state of Widget1.</code></pre>
 </details>
 </dd>
 </dl>
@@ -875,6 +914,8 @@ See help(type(self)) for accurate signature.</p></div>
     def _arrange_widgets(self) -&gt; None:
         self.title.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding,
                                                             QtWidgets.QSizePolicy.Minimum))
+        self.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding,
+                                                            QtWidgets.QSizePolicy.Minimum))
         self.layout().addWidget(self.title)
         self.layout().addWidget(self.figure)
     
@@ -973,6 +1014,10 @@ See help(type(self)) for accurate signature.</p></div>
         self.setLayout(QtWidgets.QVBoxLayout())
     
     def _arrange_widgets(self) -&gt; None:
+        self.title.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding,
+                                                            QtWidgets.QSizePolicy.Minimum))
+        self.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding,
+                                                            QtWidgets.QSizePolicy.Minimum))
         self.layout().addWidget(self.title)
         self.layout().addWidget(self.table, 1)
 

@@ -198,7 +198,6 @@ class StatManager():
         response = requests.get(url).json()
 
         raw_interest = response[self.service_map[&#34;KEYS&#34;][&#34;FIRST_LAYER&#34;]][self.service_map[&#34;KEYS&#34;][&#34;SECOND_LAYER&#34;]]
-
         formatted_interest = {}
         for rate in raw_interest:
             formatted_interest[rate[0]] = rate[1:]
@@ -505,8 +504,11 @@ def get_daily_price_history(ticker: str, start_date: Union[None, date] = None,
     
     cached_prices = price_cache.filter_price_cache(ticker=ticker, start_date=start_date, end_date=end_date)
 
-    if cached_prices is not None and asset_type == keys.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]:
-        logger.debug(f&#39;Comparing {len(cached_prices)} = {dater.business_days_between(start_date, end_date)}&#39;)
+    if cached_prices is not None:
+        if asset_type == keys.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]:
+            logger.debug(f&#39;Comparing {len(cached_prices)} = {dater.business_days_between(start_date, end_date)}&#39;)
+        elif asset_type == keys.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]:
+            logger.debug(f&#39;Comparing {len(cached_prices)} = {dater.days_between(start_date, end_date)}&#39;)
 
     # make sure the length of cache is equal to the length of the requested sample
     if cached_prices is not None and dater.date_to_string(end_date) in cached_prices.keys() and (
@@ -516,6 +518,7 @@ def get_daily_price_history(ticker: str, start_date: Union[None, date] = None,
         (asset_type == keys.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]
             and (dater.days_between(start_date, end_date)) == len(cached_prices))
     ):
+        # TODO: debug the crypto out of date check.
         return cached_prices
 
     if cached_prices is not None:
@@ -624,7 +627,7 @@ def get_daily_interest_history(maturity: str, start_date: Union[date, None]=None
 
         # TODO: this only works when stats are reported daily and that the latest date in the dataset is actually end_date.
     if rates is not None and dater.date_to_string(end_date) in rates.keys() \
-        and (dater.business_days_between(start_date, end_date) + 1) == len(rates): 
+        and (dater.business_days_between(start_date, end_date)) == len(rates): 
         return rates
 
     logger.debug(f&#39;Cached {maturity} data is out of date, passing request to external service&#39;)
@@ -836,7 +839,7 @@ Dictionary with date strings formatted <code>YYYY-MM-DD</code> as keys and the i
 
         # TODO: this only works when stats are reported daily and that the latest date in the dataset is actually end_date.
     if rates is not None and dater.date_to_string(end_date) in rates.keys() \
-        and (dater.business_days_between(start_date, end_date) + 1) == len(rates): 
+        and (dater.business_days_between(start_date, end_date)) == len(rates): 
         return rates
 
     logger.debug(f&#39;Cached {maturity} data is out of date, passing request to external service&#39;)
@@ -943,8 +946,11 @@ Dictionary with date strings formatted <code>YYYY-MM-DD</code> as keys and a nes
     
     cached_prices = price_cache.filter_price_cache(ticker=ticker, start_date=start_date, end_date=end_date)
 
-    if cached_prices is not None and asset_type == keys.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]:
-        logger.debug(f&#39;Comparing {len(cached_prices)} = {dater.business_days_between(start_date, end_date)}&#39;)
+    if cached_prices is not None:
+        if asset_type == keys.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]:
+            logger.debug(f&#39;Comparing {len(cached_prices)} = {dater.business_days_between(start_date, end_date)}&#39;)
+        elif asset_type == keys.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]:
+            logger.debug(f&#39;Comparing {len(cached_prices)} = {dater.days_between(start_date, end_date)}&#39;)
 
     # make sure the length of cache is equal to the length of the requested sample
     if cached_prices is not None and dater.date_to_string(end_date) in cached_prices.keys() and (
@@ -954,6 +960,7 @@ Dictionary with date strings formatted <code>YYYY-MM-DD</code> as keys and a nes
         (asset_type == keys.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]
             and (dater.days_between(start_date, end_date)) == len(cached_prices))
     ):
+        # TODO: debug the crypto out of date check.
         return cached_prices
 
     if cached_prices is not None:
@@ -1649,7 +1656,6 @@ If the <strong>STAT_MANAGER</strong> environment variable has been set to a valu
         response = requests.get(url).json()
 
         raw_interest = response[self.service_map[&#34;KEYS&#34;][&#34;FIRST_LAYER&#34;]][self.service_map[&#34;KEYS&#34;][&#34;SECOND_LAYER&#34;]]
-
         formatted_interest = {}
         for rate in raw_interest:
             formatted_interest[rate[0]] = rate[1:]
@@ -1708,7 +1714,6 @@ def format_for_maturity(maturity, results):
     response = requests.get(url).json()
 
     raw_interest = response[self.service_map[&#34;KEYS&#34;][&#34;FIRST_LAYER&#34;]][self.service_map[&#34;KEYS&#34;][&#34;SECOND_LAYER&#34;]]
-
     formatted_interest = {}
     for rate in raw_interest:
         formatted_interest[rate[0]] = rate[1:]

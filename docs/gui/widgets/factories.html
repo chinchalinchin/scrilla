@@ -33,7 +33,7 @@ from PySide6 import QtWidgets, QtCore, QtGui
 from scrilla.static import definitions, constants
 
 def generate_control_skeleton():
-    return { arg: False for arg in definitions.ARG_DICT }
+    return { arg: False for arg in definitions.ARG_DICT if not definitions.ARG_DICT[arg][&#39;cli_only&#39;]}
 
 def layout_factory(format: str):
     widget = QtWidgets.QWidget()
@@ -66,6 +66,7 @@ def atomic_widget_factory(format: str, title: str):
         widget = QtWidgets.QPushButton(title)
         widget.setAutoDefault(True)
         widget.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
+        widget.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Maximum))
         widget.setObjectName(format)
 
     elif format == &#39;table&#39;:
@@ -147,17 +148,11 @@ def composite_widget_factory(format: str, title: str = None, optional : bool = T
     elif format == &#39;select&#39;:
         return None
     
-    elif format == &#39;file&#39;:
-        return None
-    
-    elif format == &#39;key&#39;:
-        return None
-    
-    elif format == &#39;password&#39;:
-        return None
-    
+
     elif format == &#39;flag&#39;:
-        return None
+        main_widget = QtWidgets.QRadioButton(title)
+        main_widget.setObjectName(format)
+        main_widget.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum))
     
     elif format == &#39;group&#39;:
         return None
@@ -219,6 +214,7 @@ def set_policy_on_widget_list(widget_list: List[QtWidgets.QWidget], policy: QtWi
         widget = QtWidgets.QPushButton(title)
         widget.setAutoDefault(True)
         widget.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
+        widget.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Maximum))
         widget.setObjectName(format)
 
     elif format == &#39;table&#39;:
@@ -310,17 +306,11 @@ def set_policy_on_widget_list(widget_list: List[QtWidgets.QWidget], policy: QtWi
     elif format == &#39;select&#39;:
         return None
     
-    elif format == &#39;file&#39;:
-        return None
-    
-    elif format == &#39;key&#39;:
-        return None
-    
-    elif format == &#39;password&#39;:
-        return None
-    
+
     elif format == &#39;flag&#39;:
-        return None
+        main_widget = QtWidgets.QRadioButton(title)
+        main_widget.setObjectName(format)
+        main_widget.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum))
     
     elif format == &#39;group&#39;:
         return None
@@ -355,7 +345,7 @@ def set_policy_on_widget_list(widget_list: List[QtWidgets.QWidget], policy: QtWi
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def generate_control_skeleton():
-    return { arg: False for arg in definitions.ARG_DICT }</code></pre>
+    return { arg: False for arg in definitions.ARG_DICT if not definitions.ARG_DICT[arg][&#39;cli_only&#39;]}</code></pre>
 </details>
 </dd>
 <dt id="scrilla.gui.widgets.factories.layout_factory"><code class="name flex">

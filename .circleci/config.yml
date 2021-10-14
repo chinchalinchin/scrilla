@@ -1,6 +1,12 @@
 version: 2.1
 
 commands:
+  docs:
+    description: generate documentation html from docstrings
+    steps:
+      - run:
+          name: generate docs
+          command: bash ./scripts/generate-docs
   install:
     description: install build dependencies
     steps:
@@ -19,7 +25,7 @@ commands:
       - run:
           name: artifact upload
           command: twine upload -u $PYPI_USERNAME -p $PYPI_PASSWORD dist/*
-  commit:
+  commitVersion:
     description: commit new version to git
     steps:
       - run:
@@ -33,7 +39,18 @@ commands:
               git add . 
               git commit -m "Pipeline Build Version $(cat ./src/scrilla/version.txt)"
               git push --set-upstream origin develop/main
-
+  commitDocs:
+    description: commit re-generated docs to git
+    steps:
+      - run:
+          name: commit docs
+            command: |
+              git config user.email "chinchalinchin@gmail.com"
+              git config user.name "CircleCi Bot"
+              git add .
+              git commit -m 'Pipeline Documentation Generation $(echo $(date))'
+              git push --set-upstream origin develop/main
+              
 jobs:
   pypi_micro_update:
     docker:
@@ -47,7 +64,7 @@ jobs:
             python ./scripts/circleci/iterate_version.py micro
       - build
       - upload
-      - commit
+      - commitVersion
 
   pypi_minor_update:
     docker: 
@@ -61,7 +78,7 @@ jobs:
             python ./scripts/circleci/iterate_version.py minor
       - build
       - upload
-      - commit
+      - commitVersion
 
   pypi_major_update:
     docker: 
@@ -75,7 +92,11 @@ jobs:
             python ./scripts/circleci/iterate_version.py major
       - build
       - upload
-      - commit
+      - commitVersion
+  
+  documentation:
+    steps:
+      - docs
 
 workflows:
   version: 2
@@ -96,3 +117,8 @@ workflows:
             branches:
               only:
                 - pypi/major-update
+      - documentation:
+          filters:
+            branches:
+              only:
+                - develop/main

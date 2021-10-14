@@ -32,15 +32,18 @@
 from typing import Tuple
 
 from scrilla import settings
+from scrilla.gui.widgets.functions import CorrelationWidget, DiscountDividendWidget, EfficientFrontierWidget, MovingAverageWidget, OptimizerWidget, RiskProfileWidget, YieldCurveWidget
 from scrilla.util import helper
 from scrilla.static import keys
 
 FUNCTIONS= [
-    &#34;Correlation Matrix&#34;,
-    &#34;Efficient Frontier&#34;,
-    &#34;Moving Averages&#34;,
-    &#34;Portfolio Optimization&#34;,
-    &#34;Risk Profile&#34;
+    (&#34;Correlation Matrix&#34;, CorrelationWidget),
+    (&#34;Discount Dividend Model&#34;, DiscountDividendWidget),
+    (&#34;Efficient Frontier&#34;, EfficientFrontierWidget),
+    (&#34;Moving Averages&#34;, MovingAverageWidget),
+    (&#34;Portfolio Optimization&#34;, OptimizerWidget),
+    (&#34;Risk Profile&#34;, RiskProfileWidget),
+    (&#34;Yield Curve&#34;, YieldCurveWidget)
 ]
 
 MARGINS = 5

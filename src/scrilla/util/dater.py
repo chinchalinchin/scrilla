@@ -18,6 +18,12 @@ def validate_order_of_dates(start_date: datetime.date, end_date: datetime.date) 
 
 # YYYY-MM-DD
 def parse_date_string(date_string: str) -> Union[datetime.date, None]:
+    """
+    Converts a date string in the 'YYYY-MM-DD' format to a Python `datetime.date`.
+
+    ..notes ::
+        * can probably use `datetime.datetime.strptime` instead of this complicated mumbo-jumbo.
+    """
     parsed = str(date_string).split('-')
     if validate_date_string(parsed):
         date = datetime.date(year=int(parsed[0]), month=int(parsed[1]), day=int(parsed[2]))
@@ -25,6 +31,9 @@ def parse_date_string(date_string: str) -> Union[datetime.date, None]:
     return None
 
 def get_today() -> datetime.date:
+    """
+    Returns today's date
+    """
     return datetime.date.today()
     
 def is_date_today(date: datetime.date) -> bool:

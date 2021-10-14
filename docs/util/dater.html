@@ -104,7 +104,7 @@ def get_last_trading_date() -&gt; datetime.date:
     today = datetime.datetime.now()
     if is_date_holiday(today) or is_date_weekend(today):
         today = get_previous_business_date(today)
-    trading_close_today = today.replace(hour=20)
+    trading_close_today = today.replace(hour=14)
     if today &gt; trading_close_today:
         return today.date()
     return get_previous_business_date(today.date())
@@ -125,7 +125,12 @@ def verify_date_types(dates: Union[List[datetime.date], List[str]]) -&gt; Union[
             return None
     return verified_dates
 
-def date_to_string(date: datetime.date) -&gt; str:
+def date_to_string(date: Union[datetime.date, None] = None) -&gt; str:
+    &#34;&#34;&#34; 
+    Returns a datetime formatted as &#39;YYYY-MM-DD&#39;. If no date is provided, function will return today&#39;s formatted date.
+    &#34;&#34;&#34;
+    if date is None:
+        return date_to_string(get_today())
     month, day = date.month, date.day
     if month&lt;10:
         month_string = &#34;0&#34;+str(month)
@@ -219,7 +224,7 @@ def dates_between(start_date: datetime.date, end_date: datetime.date) -&gt; List
     return [start_date + datetime.timedelta(x) for x in range((end_date - start_date).days+1)]
 
 def days_between(start_date: datetime.date, end_date: datetime.date) -&gt; int:
-    return int((end_date - start_date).days)
+    return int((end_date - start_date).days) + 1
 
 # excludes start_date
 def business_dates_between(start_date: datetime.date, end_date: datetime.date)-&gt; List[datetime.date]:
@@ -463,15 +468,20 @@ if start_date_string and end_date_string are NOT consecutive trading days.</p></
 </details>
 </dd>
 <dt id="scrilla.util.dater.date_to_string"><code class="name flex">
-<span>def <span class="ident">date_to_string</span></span>(<span>date: datetime.date) ‑> str</span>
+<span>def <span class="ident">date_to_string</span></span>(<span>date: Optional[datetime.date] = None) ‑> str</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Returns a datetime formatted as 'YYYY-MM-DD'. If no date is provided, function will return today's formatted date.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def date_to_string(date: datetime.date) -&gt; str:
+<pre><code class="python">def date_to_string(date: Union[datetime.date, None] = None) -&gt; str:
+    &#34;&#34;&#34; 
+    Returns a datetime formatted as &#39;YYYY-MM-DD&#39;. If no date is provided, function will return today&#39;s formatted date.
+    &#34;&#34;&#34;
+    if date is None:
+        return date_to_string(get_today())
     month, day = date.month, date.day
     if month&lt;10:
         month_string = &#34;0&#34;+str(month)
@@ -524,7 +534,7 @@ End date of the date range.</li>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def days_between(start_date: datetime.date, end_date: datetime.date) -&gt; int:
-    return int((end_date - start_date).days)</code></pre>
+    return int((end_date - start_date).days) + 1</code></pre>
 </details>
 </dd>
 <dt id="scrilla.util.dater.decrement_date_by_business_days"><code class="name flex">
@@ -629,7 +639,7 @@ End date of the date range.</li>
     today = datetime.datetime.now()
     if is_date_holiday(today) or is_date_weekend(today):
         today = get_previous_business_date(today)
-    trading_close_today = today.replace(hour=20)
+    trading_close_today = today.replace(hour=14)
     if today &gt; trading_close_today:
         return today.date()
     return get_previous_business_date(today.date())</code></pre>

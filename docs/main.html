@@ -198,11 +198,13 @@ def do_program() -&gt; None:
         def cli_yield_curve():
             yield_curve = {}
             for maturity in keys.keys[&#39;YIELD_CURVE&#39;]:
-                curve_rate = services.get_daily_interest_latest(maturity=maturity)
+                curve_rate = services.get_daily_interest_history(maturity=maturity,
+                                                                    start_date=args[&#39;start_date&#39;],
+                                                                    end_date=args[&#39;start_date&#39;])
                 yield_curve[maturity] = curve_rate/100
 
                 if print_format_to_screen(args):
-                    outputter.scalar_result(calculation=maturity, result=curve_rate/100, currency=False)
+                    outputter.scalar_result(calculation=maturity, result=curve_rate, currency=False)
 
             if print_json_to_screen(args):
                 print(json.dumps(yield_curve))
@@ -670,7 +672,7 @@ def do_program() -&gt; None:
                                                                         start_date=args[&#39;start_date&#39;],
                                                                         end_date=args[&#39;end_date&#39;])
                 for date in all_rates[arg]:
-                    all_rates[arg][date] = all_rates[arg][date]/100
+                    all_rates[arg][date] = all_rates[arg][date]
                     
                 if print_format_to_screen(args):
                     for date in all_rates[arg]:
@@ -691,7 +693,7 @@ def do_program() -&gt; None:
 
             if print_format_to_screen(args):
                     outputter.title_line(&#34;Risk Free Rate&#34;)
-                    outputter.scalar_result(calculation=formats.formats.RISK_FREE_TITLE.format(settings.RISK_FREE_RATE), 
+                    outputter.scalar_result(calculation=formats.formats[&#39;RISK_FREE_TITLE&#39;].format(settings.RISK_FREE_RATE), 
                                                 result=rate[settings.RISK_FREE_RATE], currency=False)
             if print_json_to_screen:
                 print(json.dumps(rate))
@@ -918,11 +920,13 @@ if __name__ == &#34;__main__&#34;:
         def cli_yield_curve():
             yield_curve = {}
             for maturity in keys.keys[&#39;YIELD_CURVE&#39;]:
-                curve_rate = services.get_daily_interest_latest(maturity=maturity)
+                curve_rate = services.get_daily_interest_history(maturity=maturity,
+                                                                    start_date=args[&#39;start_date&#39;],
+                                                                    end_date=args[&#39;start_date&#39;])
                 yield_curve[maturity] = curve_rate/100
 
                 if print_format_to_screen(args):
-                    outputter.scalar_result(calculation=maturity, result=curve_rate/100, currency=False)
+                    outputter.scalar_result(calculation=maturity, result=curve_rate, currency=False)
 
             if print_json_to_screen(args):
                 print(json.dumps(yield_curve))
@@ -1390,7 +1394,7 @@ if __name__ == &#34;__main__&#34;:
                                                                         start_date=args[&#39;start_date&#39;],
                                                                         end_date=args[&#39;end_date&#39;])
                 for date in all_rates[arg]:
-                    all_rates[arg][date] = all_rates[arg][date]/100
+                    all_rates[arg][date] = all_rates[arg][date]
                     
                 if print_format_to_screen(args):
                     for date in all_rates[arg]:
@@ -1411,7 +1415,7 @@ if __name__ == &#34;__main__&#34;:
 
             if print_format_to_screen(args):
                     outputter.title_line(&#34;Risk Free Rate&#34;)
-                    outputter.scalar_result(calculation=formats.formats.RISK_FREE_TITLE.format(settings.RISK_FREE_RATE), 
+                    outputter.scalar_result(calculation=formats.formats[&#39;RISK_FREE_TITLE&#39;].format(settings.RISK_FREE_RATE), 
                                                 result=rate[settings.RISK_FREE_RATE], currency=False)
             if print_json_to_screen:
                 print(json.dumps(rate))

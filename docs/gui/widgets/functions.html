@@ -42,39 +42,159 @@
 # along with scrilla.  If not, see &lt;https://www.gnu.org/licenses/&gt;
 # or &lt;https://github.com/chinchalinchin/scrilla/blob/develop/main/LICENSE&gt;.
 
+from typing import Union
 from PySide6 import QtGui, QtCore, QtWidgets
 
 
-from scrilla import settings
+from scrilla import settings, services
 from scrilla.static import keys, definitions
 # TODO: conditional import based on ANALYSIS_MODE
 from scrilla.analysis import markets, optimizer
 from scrilla.analysis.models.geometric import statistics
 from scrilla.analysis.objects.portfolio import Portfolio
+from scrilla.analysis.objects.cashflow import Cashflow
 
-from scrilla.util import outputter, helper, plotter
+from scrilla.util import dater, outputter, helper, plotter
 
 from scrilla.gui import formats, utilities
 from scrilla.gui.widgets import factories, components
 
 logger = outputter.Logger(&#39;gui.functions&#39;, settings.LOG_LEVEL)
 
-class RiskReturnWidget(QtWidgets.QWidget):
-    def __init__(self, layer):
-        super().__init__()
+class SkeletonWidget(QtWidgets.QWidget):
+    def __init__(self, function: str, parent: QtWidgets.QWidget):
+        super(SkeletonWidget, self).__init__(parent)
+        self._configure_control_skeleton(function)
+    
+    def _configure_control_skeleton(self, function: str):
+        self.controls = factories.generate_control_skeleton()
+
+        for arg in definitions.FUNC_DICT[function][&#39;args&#39;]:
+            if not definitions.ARG_DICT[arg][&#39;cli_only&#39;]:
+                self.controls[arg] = True
+
+class YieldCurveWidget(SkeletonWidget):
+    def __init__(self, layer: str, parent: Union[QtWidgets.QWidget, None] = None):
+        super().__init__(function=&#39;yield_curve&#39;, parent=parent)
         self.setObjectName(layer)
         self._init_widgets()
         self._arrange_widgets()
         self._stage_widgets()
 
-    @staticmethod
-    def _configure_control_skeleton():
-        controls = factories.generate_control_skeleton()
+    def _init_widgets(self):
+        self.graph_widget = components.GraphWidget(tmp_graph_key=keys.keys[&#39;GUI&#39;][&#39;TEMP&#39;][&#39;YIELD&#39;],
+                                                    layer=utilities.get_next_layer(self.objectName()))
+        self.arg_widget = components.ArgumentWidget(calculate_function=self.calculate,
+                                                    clear_function=self.clear, 
+                                                    controls=self.controls,
+                                                    layer=utilities.get_next_layer(self.objectName()))
+        # TODO: initialize arg widget WITHOUT tickers
 
-        for arg in definitions.FUNC_DICT[&#39;risk_profile&#39;][&#39;args&#39;]:
-            controls[arg] = True
+        self.setLayout(QtWidgets.QHBoxLayout())
 
-        return controls
+    def _arrange_widgets(self):
+        self.layout().addWidget(self.graph_widget)
+        self.layout().addWidget(self.arg_widget)
+    
+    def _stage_widgets(self):
+        self.arg_widget.prime()
+        
+    def resizeEvent(self, event: QtGui.QResizeEvent) -&gt; None:
+        if self.graph_widget.figure.isVisible():
+            self.graph_widget.set_pixmap()
+        return super().resizeEvent(event)
+
+    @QtCore.Slot()
+    def calculate(self):
+        if self.graph_widget.figure.isVisible():
+            self.graph_widget.figure.hide()
+
+        yield_curve = {}
+        start_string = dater.date_to_string(self.arg_widget.get_control_input(&#39;start_date&#39;))
+        yield_curve[start_string] = []
+        for maturity in keys.keys[&#39;YIELD_CURVE&#39;]:
+            rate = services.get_daily_interest_history(maturity=maturity, 
+                                                            start_date=self.arg_widget.get_control_input(&#39;start_date&#39;),
+                                                            end_date=self.arg_widget.get_control_input(&#39;start_date&#39;))
+            yield_curve[start_string].append(rate[start_string])
+        
+        plotter.plot_yield_curve(yield_curve=yield_curve, 
+                                        show=False,
+                                        savefile=f&#39;{settings.TEMP_DIR}/{keys.keys[&#34;GUI&#34;][&#34;TEMP&#34;][&#34;YIELD&#34;]}&#39;)
+        self.graph_widget.set_pixmap()
+        self.arg_widget.fire()
+
+    @QtCore.Slot()
+    def clear(self):
+        self.graph_widget.figure.hide()
+        self.arg_widget.prime()
+
+class DiscountDividendWidget(SkeletonWidget):
+    def __init__(self, layer: str, parent: Union[QtWidgets.QWidget, None] = None):
+        super().__init__(function=&#39;discount_dividend&#39;, parent=parent)
+        self.setObjectName(layer)
+        self._init_widgets()
+        self._arrange_widgets()
+        self._stage_widgets()
+
+    def _init_widgets(self):
+        self.graph_widget = components.GraphWidget(tmp_graph_key=keys.keys[&#39;GUI&#39;][&#39;TEMP&#39;][&#39;DIVIDEND&#39;],
+                                                    layer=utilities.get_next_layer(self.objectName()))
+        self.arg_widget = components.ArgumentWidget(calculate_function=self.calculate,
+                                                    clear_function=self.clear, 
+                                                    controls=self.controls,
+                                                    layer=utilities.get_next_layer(self.objectName()))
+        # TODO: restrict arg symbol input to one symbol somehow
+        self.setLayout(QtWidgets.QHBoxLayout())
+    
+    def _arrange_widgets(self):
+        self.layout().addWidget(self.graph_widget)
+        self.layout().addWidget(self.arg_widget)
+    
+    def _stage_widgets(self):
+        self.arg_widget.prime()
+    
+    def resizeEvent(self, event: QtGui.QResizeEvent) -&gt; None:
+        if self.graph_widget.figure.isVisible():
+            self.graph_widget.set_pixmap()
+        return super().resizeEvent(event)
+
+    @QtCore.Slot()
+    def calculate(self):
+        if self.graph_widget.figure.isVisible():
+            self.graph_widget.figure.hide()
+
+        symbol = self.arg_widget.get_symbol_input()[0]
+        discount = self.arg_widget.get_control_input(&#39;discount&#39;)
+
+        print(discount)
+        if discount is None:
+            discount = markets.cost_of_equity(ticker=symbol, 
+                                                start_date=self.arg_widget.get_control_input(&#39;start_date&#39;),
+                                                end_date=self.arg_widget.get_control_input(&#39;end_date&#39;))
+        dividends = services.get_dividend_history(ticker=symbol)
+        cashflow = Cashflow(sample=dividends, discount_rate=discount)
+
+        plotter.plot_cashflow(ticker=symbol, 
+                                cashflow=cashflow, 
+                                show=False,
+                                savefile=f&#39;{settings.TEMP_DIR}/{keys.keys[&#34;GUI&#34;][&#34;TEMP&#34;][&#34;DIVIDEND&#34;]}&#39;)
+
+        self.graph_widget.set_pixmap()
+        self.arg_widget.fire()
+
+    @QtCore.Slot()
+    def clear(self):
+        self.graph_widget.figure.hide()
+        self.arg_widget.prime()
+
+class RiskProfileWidget(SkeletonWidget):
+    def __init__(self, layer: str, parent:Union[QtWidgets.QWidget,None] = None):
+        super().__init__(function=&#39;risk_profile&#39;, parent=parent)
+        self.setObjectName(layer)
+        self._init_widgets()
+        self._arrange_widgets()
+        self._stage_widgets()
 
     def _init_widgets(self):
         self.composite_widget = components.CompositeWidget(keys.keys[&#39;GUI&#39;][&#39;TEMP&#39;][&#39;PROFILE&#39;], 
@@ -84,7 +204,7 @@ class RiskReturnWidget(QtWidgets.QWidget):
                                                             layer = utilities.get_next_layer(self.objectName()))
         self.arg_widget = components.ArgumentWidget(calculate_function=self.calculate,
                                                     clear_function=self.clear,
-                                                    controls= RiskReturnWidget._configure_control_skeleton(),
+                                                    controls= self.controls,
                                                     layer = utilities.get_next_layer(self.objectName()))
         self.setLayout(QtWidgets.QHBoxLayout())
 
@@ -107,7 +227,9 @@ class RiskReturnWidget(QtWidgets.QWidget):
 
         profiles = {}
         for i, symbol in enumerate(symbols):
-            profiles[symbol] = statistics.calculate_risk_return(symbol)
+            profiles[symbol] = statistics.calculate_risk_return(ticker=symbol,
+                                                                start_date=self.arg_widget.get_control_input(&#39;start_date&#39;),
+                                                                end_date=self.arg_widget.get_control_input(&#39;end_date&#39;))
             profiles[symbol][keys.keys[&#39;APP&#39;][&#39;PROFILE&#39;][&#39;SHARPE&#39;]] = markets.sharpe_ratio(symbol)
             profiles[symbol][keys.keys[&#39;APP&#39;][&#39;PROFILE&#39;][&#39;BETA&#39;]] = markets.market_beta(symbol)
             profiles[symbol][keys.keys[&#39;APP&#39;][&#39;PROFILE&#39;][&#39;EQUITY&#39;]] = markets.cost_of_equity(symbol)
@@ -137,29 +259,20 @@ class RiskReturnWidget(QtWidgets.QWidget):
         self.composite_widget.table_widget.table.hide()
         self.arg_widget.prime()
 
-class CorrelationWidget(QtWidgets.QWidget):
-    def __init__(self, layer):
-        super().__init__()
+class CorrelationWidget(SkeletonWidget):
+    def __init__(self, layer: str, parent: Union[QtWidgets.QWidget, None]=None):
+        super().__init__(function=&#39;correlation&#39;, parent=parent)
         self.setObjectName(layer)
         self._init_widgets()
         self._arrange_widgets()
         self._stage_widgets()
-
-    @staticmethod
-    def _configure_control_skeleton():
-        controls = factories.generate_control_skeleton()
-
-        for arg in definitions.FUNC_DICT[&#39;correlation&#39;][&#39;args&#39;]:
-            controls[arg] = True
-
-        return controls
 
     def _init_widgets(self):
         self.table_widget = components.TableWidget(widget_title=&#34;Correlation Matrix&#34;,
                                                     layer=utilities.get_next_layer(self.objectName()))
         self.arg_widget = components.ArgumentWidget(calculate_function=self.calculate,
                                                     clear_function=self.clear,
-                                                    controls=CorrelationWidget._configure_control_skeleton(),
+                                                    controls=self.controls,
                                                     layer=utilities.get_next_layer(self.objectName()))
         self.setLayout(QtWidgets.QHBoxLayout())
 
@@ -181,7 +294,9 @@ class CorrelationWidget(QtWidgets.QWidget):
         if len(symbols) &gt; 1:
             self.table_widget.init_table(rows=symbols, columns=symbols)
 
-            matrix = statistics.correlation_matrix(tickers=symbols)
+            matrix = statistics.correlation_matrix(tickers=symbols, 
+                                                    start_date=self.arg_widget.get_control_input(&#39;start_date&#39;),
+                                                    end_date=self.arg_widget.get_control_input(&#39;end_date&#39;))
             for i in range(0, len(symbols)):
                 for j in range(i, len(symbols)):
                     item_upper = factories.atomic_widget_factory(format=&#39;table-item&#39;, title = helper.format_float_percent(matrix[i][j]))
@@ -200,22 +315,13 @@ class CorrelationWidget(QtWidgets.QWidget):
         self.table_widget.table.clear()
         self.table_widget.table.hide()
 
-class OptimizerWidget(QtWidgets.QWidget):
-    def __init__(self, layer):
-        super().__init__()
+class OptimizerWidget(SkeletonWidget):
+    def __init__(self, layer: str, parent: Union[QtWidgets.QWidget, None]=None):
+        super().__init__(function=&#39;optimize_portfolio&#39;, parent=parent)
         self.setObjectName(layer)
         self._init_widgets()
         self._arrange_widgets()
         self._stage_widgets()
-
-    @staticmethod
-    def _configure_control_skeleton():
-        controls = factories.generate_control_skeleton()
-        
-        for arg in definitions.FUNC_DICT[&#39;optimize_portfolio&#39;][&#39;args&#39;]:
-            controls[arg] = True
-
-        return controls
 
     def _init_widgets(self):
         self.title = factories.atomic_widget_factory(format=&#39;heading&#39;, title=None)
@@ -223,7 +329,7 @@ class OptimizerWidget(QtWidgets.QWidget):
                                                     layer=utilities.get_next_layer(self.objectName()))
         self.arg_widget = components.ArgumentWidget(calculate_function=self.optimize,
                                                     clear_function=self.clear,
-                                                    controls=OptimizerWidget._configure_control_skeleton(),
+                                                    controls=self.controls,
                                                     layer=utilities.get_next_layer(self.objectName()))
         self.setLayout(QtWidgets.QHBoxLayout())
 
@@ -281,28 +387,19 @@ class OptimizerWidget(QtWidgets.QWidget):
         self.table_widget.table.hide()
         self.arg_widget.prime()
 
-class EfficientFrontierWidget(QtWidgets.QWidget):
-    def __init__(self, layer):
-        super().__init__()
+class EfficientFrontierWidget(SkeletonWidget):
+    def __init__(self, layer: str, parent: Union[QtWidgets.QWidget, None]=None):
+        super().__init__(function=&#39;efficient_frontier&#39;, parent=parent)
         self.setObjectName(layer)
         self._init_widgets()
         self._arrange_widgets()
-
-    @staticmethod
-    def _configure_control_skeleton():
-        controls = factories.generate_control_skeleton()
-
-        for arg in definitions.FUNC_DICT[&#39;efficient_frontier&#39;][&#39;args&#39;]:
-            controls[arg] = True
-
-        return controls
 
     def _init_widgets(self):
         self.graph_widget = components.GraphWidget(tmp_graph_key=keys.keys[&#39;GUI&#39;][&#39;TEMP&#39;][&#39;FRONTIER&#39;],
                                                     layer=utilities.get_next_layer(self.objectName()))
         self.arg_widget = components.ArgumentWidget(calculate_function=self.calculate, 
                                                     clear_function=self.clear,
-                                                    controls=EfficientFrontierWidget._configure_control_skeleton(),
+                                                    controls=self.controls,
                                                     layer=utilities.get_next_layer(self.objectName()))
         self.setLayout(QtWidgets.QHBoxLayout())
         # TODO: portfolio tabs
@@ -324,8 +421,11 @@ class EfficientFrontierWidget(QtWidgets.QWidget):
         if self.graph_widget.figure.isVisible():
             self.graph_widget.figure.hide()
 
-        this_portfolio = Portfolio(tickers=self.arg_widget.get_symbol_input())
-        frontier = optimizer.calculate_efficient_frontier(portfolio=this_portfolio)
+        this_portfolio = Portfolio(tickers=self.arg_widget.get_symbol_input(),
+                                    start_date=self.arg_widget.get_control_input(&#39;start_date&#39;),
+                                    end_date=self.arg_widget.get_control_input(&#39;end_date&#39;))
+        frontier = optimizer.calculate_efficient_frontier(portfolio=this_portfolio,
+                                                            steps=self.arg_widget.get_control_input(&#39;steps&#39;))
         plotter.plot_frontier(portfolio=this_portfolio, 
                                 frontier=frontier, 
                                 show=False, 
@@ -339,9 +439,9 @@ class EfficientFrontierWidget(QtWidgets.QWidget):
         self.graph_widget.figure.hide()
         self.arg_widget.prime()
 
-class MovingAverageWidget(QtWidgets.QWidget):
-    def __init__(self, layer):
-        super().__init__()
+class MovingAverageWidget(SkeletonWidget):
+    def __init__(self, layer: str, parent: Union[QtWidgets.QWidget, None]=None):
+        super().__init__(function=&#39;moving_averages&#39;, parent=parent)
         self.setObjectName(layer)
         self._init_widgets()
         self._arrange_widgets()
@@ -352,7 +452,7 @@ class MovingAverageWidget(QtWidgets.QWidget):
                                                     layer=utilities.get_next_layer(self.objectName()))
         self.arg_widget = components.ArgumentWidget(calculate_function=self.calculate,
                                                     clear_function=self.clear,
-                                                    controls = factories.generate_control_skeleton(),
+                                                    controls = self.controls,
                                                     layer=utilities.get_next_layer(self.objectName()))
         self.setLayout(QtWidgets.QHBoxLayout())
 
@@ -375,7 +475,9 @@ class MovingAverageWidget(QtWidgets.QWidget):
 
         symbols = self.arg_widget.get_symbol_input()
 
-        moving_averages = statistics.calculate_moving_averages(symbols)
+        moving_averages = statistics.calculate_moving_averages(tickers=self.arg_widget.get_symbol_input(),
+                                                                start_date=self.arg_widget.get_control_input(&#39;start_date&#39;),
+                                                                end_date=self.arg_widget.get_control_input(&#39;end_date&#39;))
         periods = [settings.MA_1_PERIOD, settings.MA_2_PERIOD, settings.MA_3_PERIOD]
         plotter.plot_moving_averages(symbols=symbols, 
                                         averages_output=moving_averages, 
@@ -402,7 +504,7 @@ class MovingAverageWidget(QtWidgets.QWidget):
 <dl>
 <dt id="scrilla.gui.widgets.functions.CorrelationWidget"><code class="flex name class">
 <span>class <span class="ident">CorrelationWidget</span></span>
-<span>(</span><span>layer)</span>
+<span>(</span><span>layer: str, parent: Optional[PySide6.QtWidgets.QWidget] = None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>QWidget(self, parent: Union[PySide6.QtWidgets.QWidget, NoneType] = None, f: PySide6.QtCore.Qt.WindowFlags = Default(Qt.WindowFlags)) -&gt; None</p>
@@ -413,29 +515,20 @@ See help(type(self)) for accurate signature.</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class CorrelationWidget(QtWidgets.QWidget):
-    def __init__(self, layer):
-        super().__init__()
+<pre><code class="python">class CorrelationWidget(SkeletonWidget):
+    def __init__(self, layer: str, parent: Union[QtWidgets.QWidget, None]=None):
+        super().__init__(function=&#39;correlation&#39;, parent=parent)
         self.setObjectName(layer)
         self._init_widgets()
         self._arrange_widgets()
         self._stage_widgets()
-
-    @staticmethod
-    def _configure_control_skeleton():
-        controls = factories.generate_control_skeleton()
-
-        for arg in definitions.FUNC_DICT[&#39;correlation&#39;][&#39;args&#39;]:
-            controls[arg] = True
-
-        return controls
 
     def _init_widgets(self):
         self.table_widget = components.TableWidget(widget_title=&#34;Correlation Matrix&#34;,
                                                     layer=utilities.get_next_layer(self.objectName()))
         self.arg_widget = components.ArgumentWidget(calculate_function=self.calculate,
                                                     clear_function=self.clear,
-                                                    controls=CorrelationWidget._configure_control_skeleton(),
+                                                    controls=self.controls,
                                                     layer=utilities.get_next_layer(self.objectName()))
         self.setLayout(QtWidgets.QHBoxLayout())
 
@@ -457,7 +550,9 @@ See help(type(self)) for accurate signature.</p></div>
         if len(symbols) &gt; 1:
             self.table_widget.init_table(rows=symbols, columns=symbols)
 
-            matrix = statistics.correlation_matrix(tickers=symbols)
+            matrix = statistics.correlation_matrix(tickers=symbols, 
+                                                    start_date=self.arg_widget.get_control_input(&#39;start_date&#39;),
+                                                    end_date=self.arg_widget.get_control_input(&#39;end_date&#39;))
             for i in range(0, len(symbols)):
                 for j in range(i, len(symbols)):
                     item_upper = factories.atomic_widget_factory(format=&#39;table-item&#39;, title = helper.format_float_percent(matrix[i][j]))
@@ -478,6 +573,7 @@ See help(type(self)) for accurate signature.</p></div>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
+<li><a title="scrilla.gui.widgets.functions.SkeletonWidget" href="#scrilla.gui.widgets.functions.SkeletonWidget">SkeletonWidget</a></li>
 <li>PySide6.QtWidgets.QWidget</li>
 <li>PySide6.QtCore.QObject</li>
 <li>PySide6.QtGui.QPaintDevice</li>
@@ -512,7 +608,9 @@ def calculate(self):
     if len(symbols) &gt; 1:
         self.table_widget.init_table(rows=symbols, columns=symbols)
 
-        matrix = statistics.correlation_matrix(tickers=symbols)
+        matrix = statistics.correlation_matrix(tickers=symbols, 
+                                                start_date=self.arg_widget.get_control_input(&#39;start_date&#39;),
+                                                end_date=self.arg_widget.get_control_input(&#39;end_date&#39;))
         for i in range(0, len(symbols)):
             for j in range(i, len(symbols)):
                 item_upper = factories.atomic_widget_factory(format=&#39;table-item&#39;, title = helper.format_float_percent(matrix[i][j]))
@@ -544,9 +642,9 @@ def clear(self):
 </dd>
 </dl>
 </dd>
-<dt id="scrilla.gui.widgets.functions.EfficientFrontierWidget"><code class="flex name class">
-<span>class <span class="ident">EfficientFrontierWidget</span></span>
-<span>(</span><span>layer)</span>
+<dt id="scrilla.gui.widgets.functions.DiscountDividendWidget"><code class="flex name class">
+<span>class <span class="ident">DiscountDividendWidget</span></span>
+<span>(</span><span>layer: str, parent: Optional[PySide6.QtWidgets.QWidget] = None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>QWidget(self, parent: Union[PySide6.QtWidgets.QWidget, NoneType] = None, f: PySide6.QtCore.Qt.WindowFlags = Default(Qt.WindowFlags)) -&gt; None</p>
@@ -557,28 +655,174 @@ See help(type(self)) for accurate signature.</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class EfficientFrontierWidget(QtWidgets.QWidget):
-    def __init__(self, layer):
-        super().__init__()
+<pre><code class="python">class DiscountDividendWidget(SkeletonWidget):
+    def __init__(self, layer: str, parent: Union[QtWidgets.QWidget, None] = None):
+        super().__init__(function=&#39;discount_dividend&#39;, parent=parent)
         self.setObjectName(layer)
         self._init_widgets()
         self._arrange_widgets()
+        self._stage_widgets()
 
-    @staticmethod
-    def _configure_control_skeleton():
-        controls = factories.generate_control_skeleton()
+    def _init_widgets(self):
+        self.graph_widget = components.GraphWidget(tmp_graph_key=keys.keys[&#39;GUI&#39;][&#39;TEMP&#39;][&#39;DIVIDEND&#39;],
+                                                    layer=utilities.get_next_layer(self.objectName()))
+        self.arg_widget = components.ArgumentWidget(calculate_function=self.calculate,
+                                                    clear_function=self.clear, 
+                                                    controls=self.controls,
+                                                    layer=utilities.get_next_layer(self.objectName()))
+        # TODO: restrict arg symbol input to one symbol somehow
+        self.setLayout(QtWidgets.QHBoxLayout())
+    
+    def _arrange_widgets(self):
+        self.layout().addWidget(self.graph_widget)
+        self.layout().addWidget(self.arg_widget)
+    
+    def _stage_widgets(self):
+        self.arg_widget.prime()
+    
+    def resizeEvent(self, event: QtGui.QResizeEvent) -&gt; None:
+        if self.graph_widget.figure.isVisible():
+            self.graph_widget.set_pixmap()
+        return super().resizeEvent(event)
 
-        for arg in definitions.FUNC_DICT[&#39;efficient_frontier&#39;][&#39;args&#39;]:
-            controls[arg] = True
+    @QtCore.Slot()
+    def calculate(self):
+        if self.graph_widget.figure.isVisible():
+            self.graph_widget.figure.hide()
 
-        return controls
+        symbol = self.arg_widget.get_symbol_input()[0]
+        discount = self.arg_widget.get_control_input(&#39;discount&#39;)
+
+        print(discount)
+        if discount is None:
+            discount = markets.cost_of_equity(ticker=symbol, 
+                                                start_date=self.arg_widget.get_control_input(&#39;start_date&#39;),
+                                                end_date=self.arg_widget.get_control_input(&#39;end_date&#39;))
+        dividends = services.get_dividend_history(ticker=symbol)
+        cashflow = Cashflow(sample=dividends, discount_rate=discount)
+
+        plotter.plot_cashflow(ticker=symbol, 
+                                cashflow=cashflow, 
+                                show=False,
+                                savefile=f&#39;{settings.TEMP_DIR}/{keys.keys[&#34;GUI&#34;][&#34;TEMP&#34;][&#34;DIVIDEND&#34;]}&#39;)
+
+        self.graph_widget.set_pixmap()
+        self.arg_widget.fire()
+
+    @QtCore.Slot()
+    def clear(self):
+        self.graph_widget.figure.hide()
+        self.arg_widget.prime()</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="scrilla.gui.widgets.functions.SkeletonWidget" href="#scrilla.gui.widgets.functions.SkeletonWidget">SkeletonWidget</a></li>
+<li>PySide6.QtWidgets.QWidget</li>
+<li>PySide6.QtCore.QObject</li>
+<li>PySide6.QtGui.QPaintDevice</li>
+<li>Shiboken.Object</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="scrilla.gui.widgets.functions.DiscountDividendWidget.staticMetaObject"><code class="name">var <span class="ident">staticMetaObject</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="scrilla.gui.widgets.functions.DiscountDividendWidget.calculate"><code class="name flex">
+<span>def <span class="ident">calculate</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@QtCore.Slot()
+def calculate(self):
+    if self.graph_widget.figure.isVisible():
+        self.graph_widget.figure.hide()
+
+    symbol = self.arg_widget.get_symbol_input()[0]
+    discount = self.arg_widget.get_control_input(&#39;discount&#39;)
+
+    print(discount)
+    if discount is None:
+        discount = markets.cost_of_equity(ticker=symbol, 
+                                            start_date=self.arg_widget.get_control_input(&#39;start_date&#39;),
+                                            end_date=self.arg_widget.get_control_input(&#39;end_date&#39;))
+    dividends = services.get_dividend_history(ticker=symbol)
+    cashflow = Cashflow(sample=dividends, discount_rate=discount)
+
+    plotter.plot_cashflow(ticker=symbol, 
+                            cashflow=cashflow, 
+                            show=False,
+                            savefile=f&#39;{settings.TEMP_DIR}/{keys.keys[&#34;GUI&#34;][&#34;TEMP&#34;][&#34;DIVIDEND&#34;]}&#39;)
+
+    self.graph_widget.set_pixmap()
+    self.arg_widget.fire()</code></pre>
+</details>
+</dd>
+<dt id="scrilla.gui.widgets.functions.DiscountDividendWidget.clear"><code class="name flex">
+<span>def <span class="ident">clear</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@QtCore.Slot()
+def clear(self):
+    self.graph_widget.figure.hide()
+    self.arg_widget.prime()</code></pre>
+</details>
+</dd>
+<dt id="scrilla.gui.widgets.functions.DiscountDividendWidget.resizeEvent"><code class="name flex">
+<span>def <span class="ident">resizeEvent</span></span>(<span>self, event: PySide6.QtGui.QResizeEvent) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"><p>resizeEvent(self, event: PySide6.QtGui.QResizeEvent) -&gt; None</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def resizeEvent(self, event: QtGui.QResizeEvent) -&gt; None:
+    if self.graph_widget.figure.isVisible():
+        self.graph_widget.set_pixmap()
+    return super().resizeEvent(event)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="scrilla.gui.widgets.functions.EfficientFrontierWidget"><code class="flex name class">
+<span>class <span class="ident">EfficientFrontierWidget</span></span>
+<span>(</span><span>layer: str, parent: Optional[PySide6.QtWidgets.QWidget] = None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>QWidget(self, parent: Union[PySide6.QtWidgets.QWidget, NoneType] = None, f: PySide6.QtCore.Qt.WindowFlags = Default(Qt.WindowFlags)) -&gt; None</p>
+<p><strong>init</strong>(self, parent: Union[PySide6.QtWidgets.QWidget, NoneType] = None, f: PySide6.QtCore.Qt.WindowFlags = Default(Qt.WindowFlags)) -&gt; None</p>
+<p>Initialize self.
+See help(type(self)) for accurate signature.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class EfficientFrontierWidget(SkeletonWidget):
+    def __init__(self, layer: str, parent: Union[QtWidgets.QWidget, None]=None):
+        super().__init__(function=&#39;efficient_frontier&#39;, parent=parent)
+        self.setObjectName(layer)
+        self._init_widgets()
+        self._arrange_widgets()
 
     def _init_widgets(self):
         self.graph_widget = components.GraphWidget(tmp_graph_key=keys.keys[&#39;GUI&#39;][&#39;TEMP&#39;][&#39;FRONTIER&#39;],
                                                     layer=utilities.get_next_layer(self.objectName()))
         self.arg_widget = components.ArgumentWidget(calculate_function=self.calculate, 
                                                     clear_function=self.clear,
-                                                    controls=EfficientFrontierWidget._configure_control_skeleton(),
+                                                    controls=self.controls,
                                                     layer=utilities.get_next_layer(self.objectName()))
         self.setLayout(QtWidgets.QHBoxLayout())
         # TODO: portfolio tabs
@@ -600,8 +844,11 @@ See help(type(self)) for accurate signature.</p></div>
         if self.graph_widget.figure.isVisible():
             self.graph_widget.figure.hide()
 
-        this_portfolio = Portfolio(tickers=self.arg_widget.get_symbol_input())
-        frontier = optimizer.calculate_efficient_frontier(portfolio=this_portfolio)
+        this_portfolio = Portfolio(tickers=self.arg_widget.get_symbol_input(),
+                                    start_date=self.arg_widget.get_control_input(&#39;start_date&#39;),
+                                    end_date=self.arg_widget.get_control_input(&#39;end_date&#39;))
+        frontier = optimizer.calculate_efficient_frontier(portfolio=this_portfolio,
+                                                            steps=self.arg_widget.get_control_input(&#39;steps&#39;))
         plotter.plot_frontier(portfolio=this_portfolio, 
                                 frontier=frontier, 
                                 show=False, 
@@ -617,6 +864,7 @@ See help(type(self)) for accurate signature.</p></div>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
+<li><a title="scrilla.gui.widgets.functions.SkeletonWidget" href="#scrilla.gui.widgets.functions.SkeletonWidget">SkeletonWidget</a></li>
 <li>PySide6.QtWidgets.QWidget</li>
 <li>PySide6.QtCore.QObject</li>
 <li>PySide6.QtGui.QPaintDevice</li>
@@ -645,8 +893,11 @@ def calculate(self):
     if self.graph_widget.figure.isVisible():
         self.graph_widget.figure.hide()
 
-    this_portfolio = Portfolio(tickers=self.arg_widget.get_symbol_input())
-    frontier = optimizer.calculate_efficient_frontier(portfolio=this_portfolio)
+    this_portfolio = Portfolio(tickers=self.arg_widget.get_symbol_input(),
+                                start_date=self.arg_widget.get_control_input(&#39;start_date&#39;),
+                                end_date=self.arg_widget.get_control_input(&#39;end_date&#39;))
+    frontier = optimizer.calculate_efficient_frontier(portfolio=this_portfolio,
+                                                        steps=self.arg_widget.get_control_input(&#39;steps&#39;))
     plotter.plot_frontier(portfolio=this_portfolio, 
                             frontier=frontier, 
                             show=False, 
@@ -690,7 +941,7 @@ def clear(self):
 </dd>
 <dt id="scrilla.gui.widgets.functions.MovingAverageWidget"><code class="flex name class">
 <span>class <span class="ident">MovingAverageWidget</span></span>
-<span>(</span><span>layer)</span>
+<span>(</span><span>layer: str, parent: Optional[PySide6.QtWidgets.QWidget] = None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>QWidget(self, parent: Union[PySide6.QtWidgets.QWidget, NoneType] = None, f: PySide6.QtCore.Qt.WindowFlags = Default(Qt.WindowFlags)) -&gt; None</p>
@@ -701,9 +952,9 @@ See help(type(self)) for accurate signature.</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class MovingAverageWidget(QtWidgets.QWidget):
-    def __init__(self, layer):
-        super().__init__()
+<pre><code class="python">class MovingAverageWidget(SkeletonWidget):
+    def __init__(self, layer: str, parent: Union[QtWidgets.QWidget, None]=None):
+        super().__init__(function=&#39;moving_averages&#39;, parent=parent)
         self.setObjectName(layer)
         self._init_widgets()
         self._arrange_widgets()
@@ -714,7 +965,7 @@ See help(type(self)) for accurate signature.</p></div>
                                                     layer=utilities.get_next_layer(self.objectName()))
         self.arg_widget = components.ArgumentWidget(calculate_function=self.calculate,
                                                     clear_function=self.clear,
-                                                    controls = factories.generate_control_skeleton(),
+                                                    controls = self.controls,
                                                     layer=utilities.get_next_layer(self.objectName()))
         self.setLayout(QtWidgets.QHBoxLayout())
 
@@ -737,7 +988,9 @@ See help(type(self)) for accurate signature.</p></div>
 
         symbols = self.arg_widget.get_symbol_input()
 
-        moving_averages = statistics.calculate_moving_averages(symbols)
+        moving_averages = statistics.calculate_moving_averages(tickers=self.arg_widget.get_symbol_input(),
+                                                                start_date=self.arg_widget.get_control_input(&#39;start_date&#39;),
+                                                                end_date=self.arg_widget.get_control_input(&#39;end_date&#39;))
         periods = [settings.MA_1_PERIOD, settings.MA_2_PERIOD, settings.MA_3_PERIOD]
         plotter.plot_moving_averages(symbols=symbols, 
                                         averages_output=moving_averages, 
@@ -754,6 +1007,7 @@ See help(type(self)) for accurate signature.</p></div>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
+<li><a title="scrilla.gui.widgets.functions.SkeletonWidget" href="#scrilla.gui.widgets.functions.SkeletonWidget">SkeletonWidget</a></li>
 <li>PySide6.QtWidgets.QWidget</li>
 <li>PySide6.QtCore.QObject</li>
 <li>PySide6.QtGui.QPaintDevice</li>
@@ -784,7 +1038,9 @@ def calculate(self):
 
     symbols = self.arg_widget.get_symbol_input()
 
-    moving_averages = statistics.calculate_moving_averages(symbols)
+    moving_averages = statistics.calculate_moving_averages(tickers=self.arg_widget.get_symbol_input(),
+                                                            start_date=self.arg_widget.get_control_input(&#39;start_date&#39;),
+                                                            end_date=self.arg_widget.get_control_input(&#39;end_date&#39;))
     periods = [settings.MA_1_PERIOD, settings.MA_2_PERIOD, settings.MA_3_PERIOD]
     plotter.plot_moving_averages(symbols=symbols, 
                                     averages_output=moving_averages, 
@@ -829,7 +1085,7 @@ def clear(self):
 </dd>
 <dt id="scrilla.gui.widgets.functions.OptimizerWidget"><code class="flex name class">
 <span>class <span class="ident">OptimizerWidget</span></span>
-<span>(</span><span>layer)</span>
+<span>(</span><span>layer: str, parent: Optional[PySide6.QtWidgets.QWidget] = None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>QWidget(self, parent: Union[PySide6.QtWidgets.QWidget, NoneType] = None, f: PySide6.QtCore.Qt.WindowFlags = Default(Qt.WindowFlags)) -&gt; None</p>
@@ -840,22 +1096,13 @@ See help(type(self)) for accurate signature.</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class OptimizerWidget(QtWidgets.QWidget):
-    def __init__(self, layer):
-        super().__init__()
+<pre><code class="python">class OptimizerWidget(SkeletonWidget):
+    def __init__(self, layer: str, parent: Union[QtWidgets.QWidget, None]=None):
+        super().__init__(function=&#39;optimize_portfolio&#39;, parent=parent)
         self.setObjectName(layer)
         self._init_widgets()
         self._arrange_widgets()
         self._stage_widgets()
-
-    @staticmethod
-    def _configure_control_skeleton():
-        controls = factories.generate_control_skeleton()
-        
-        for arg in definitions.FUNC_DICT[&#39;optimize_portfolio&#39;][&#39;args&#39;]:
-            controls[arg] = True
-
-        return controls
 
     def _init_widgets(self):
         self.title = factories.atomic_widget_factory(format=&#39;heading&#39;, title=None)
@@ -863,7 +1110,7 @@ See help(type(self)) for accurate signature.</p></div>
                                                     layer=utilities.get_next_layer(self.objectName()))
         self.arg_widget = components.ArgumentWidget(calculate_function=self.optimize,
                                                     clear_function=self.clear,
-                                                    controls=OptimizerWidget._configure_control_skeleton(),
+                                                    controls=self.controls,
                                                     layer=utilities.get_next_layer(self.objectName()))
         self.setLayout(QtWidgets.QHBoxLayout())
 
@@ -923,6 +1170,7 @@ See help(type(self)) for accurate signature.</p></div>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
+<li><a title="scrilla.gui.widgets.functions.SkeletonWidget" href="#scrilla.gui.widgets.functions.SkeletonWidget">SkeletonWidget</a></li>
 <li>PySide6.QtWidgets.QWidget</li>
 <li>PySide6.QtCore.QObject</li>
 <li>PySide6.QtGui.QPaintDevice</li>
@@ -1006,9 +1254,9 @@ def optimize(self):
 </dd>
 </dl>
 </dd>
-<dt id="scrilla.gui.widgets.functions.RiskReturnWidget"><code class="flex name class">
-<span>class <span class="ident">RiskReturnWidget</span></span>
-<span>(</span><span>layer)</span>
+<dt id="scrilla.gui.widgets.functions.RiskProfileWidget"><code class="flex name class">
+<span>class <span class="ident">RiskProfileWidget</span></span>
+<span>(</span><span>layer: str, parent: Optional[PySide6.QtWidgets.QWidget] = None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>QWidget(self, parent: Union[PySide6.QtWidgets.QWidget, NoneType] = None, f: PySide6.QtCore.Qt.WindowFlags = Default(Qt.WindowFlags)) -&gt; None</p>
@@ -1019,22 +1267,13 @@ See help(type(self)) for accurate signature.</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class RiskReturnWidget(QtWidgets.QWidget):
-    def __init__(self, layer):
-        super().__init__()
+<pre><code class="python">class RiskProfileWidget(SkeletonWidget):
+    def __init__(self, layer: str, parent:Union[QtWidgets.QWidget,None] = None):
+        super().__init__(function=&#39;risk_profile&#39;, parent=parent)
         self.setObjectName(layer)
         self._init_widgets()
         self._arrange_widgets()
         self._stage_widgets()
-
-    @staticmethod
-    def _configure_control_skeleton():
-        controls = factories.generate_control_skeleton()
-
-        for arg in definitions.FUNC_DICT[&#39;risk_profile&#39;][&#39;args&#39;]:
-            controls[arg] = True
-
-        return controls
 
     def _init_widgets(self):
         self.composite_widget = components.CompositeWidget(keys.keys[&#39;GUI&#39;][&#39;TEMP&#39;][&#39;PROFILE&#39;], 
@@ -1044,7 +1283,7 @@ See help(type(self)) for accurate signature.</p></div>
                                                             layer = utilities.get_next_layer(self.objectName()))
         self.arg_widget = components.ArgumentWidget(calculate_function=self.calculate,
                                                     clear_function=self.clear,
-                                                    controls= RiskReturnWidget._configure_control_skeleton(),
+                                                    controls= self.controls,
                                                     layer = utilities.get_next_layer(self.objectName()))
         self.setLayout(QtWidgets.QHBoxLayout())
 
@@ -1067,7 +1306,9 @@ See help(type(self)) for accurate signature.</p></div>
 
         profiles = {}
         for i, symbol in enumerate(symbols):
-            profiles[symbol] = statistics.calculate_risk_return(symbol)
+            profiles[symbol] = statistics.calculate_risk_return(ticker=symbol,
+                                                                start_date=self.arg_widget.get_control_input(&#39;start_date&#39;),
+                                                                end_date=self.arg_widget.get_control_input(&#39;end_date&#39;))
             profiles[symbol][keys.keys[&#39;APP&#39;][&#39;PROFILE&#39;][&#39;SHARPE&#39;]] = markets.sharpe_ratio(symbol)
             profiles[symbol][keys.keys[&#39;APP&#39;][&#39;PROFILE&#39;][&#39;BETA&#39;]] = markets.market_beta(symbol)
             profiles[symbol][keys.keys[&#39;APP&#39;][&#39;PROFILE&#39;][&#39;EQUITY&#39;]] = markets.cost_of_equity(symbol)
@@ -1099,6 +1340,7 @@ See help(type(self)) for accurate signature.</p></div>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
+<li><a title="scrilla.gui.widgets.functions.SkeletonWidget" href="#scrilla.gui.widgets.functions.SkeletonWidget">SkeletonWidget</a></li>
 <li>PySide6.QtWidgets.QWidget</li>
 <li>PySide6.QtCore.QObject</li>
 <li>PySide6.QtGui.QPaintDevice</li>
@@ -1106,14 +1348,14 @@ See help(type(self)) for accurate signature.</p></div>
 </ul>
 <h3>Class variables</h3>
 <dl>
-<dt id="scrilla.gui.widgets.functions.RiskReturnWidget.staticMetaObject"><code class="name">var <span class="ident">staticMetaObject</span></code></dt>
+<dt id="scrilla.gui.widgets.functions.RiskProfileWidget.staticMetaObject"><code class="name">var <span class="ident">staticMetaObject</span></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
 </dl>
 <h3>Methods</h3>
 <dl>
-<dt id="scrilla.gui.widgets.functions.RiskReturnWidget.calculate"><code class="name flex">
+<dt id="scrilla.gui.widgets.functions.RiskProfileWidget.calculate"><code class="name flex">
 <span>def <span class="ident">calculate</span></span>(<span>self)</span>
 </code></dt>
 <dd>
@@ -1134,7 +1376,9 @@ def calculate(self):
 
     profiles = {}
     for i, symbol in enumerate(symbols):
-        profiles[symbol] = statistics.calculate_risk_return(symbol)
+        profiles[symbol] = statistics.calculate_risk_return(ticker=symbol,
+                                                            start_date=self.arg_widget.get_control_input(&#39;start_date&#39;),
+                                                            end_date=self.arg_widget.get_control_input(&#39;end_date&#39;))
         profiles[symbol][keys.keys[&#39;APP&#39;][&#39;PROFILE&#39;][&#39;SHARPE&#39;]] = markets.sharpe_ratio(symbol)
         profiles[symbol][keys.keys[&#39;APP&#39;][&#39;PROFILE&#39;][&#39;BETA&#39;]] = markets.market_beta(symbol)
         profiles[symbol][keys.keys[&#39;APP&#39;][&#39;PROFILE&#39;][&#39;EQUITY&#39;]] = markets.cost_of_equity(symbol)
@@ -1153,7 +1397,7 @@ def calculate(self):
     self.arg_widget.fire()</code></pre>
 </details>
 </dd>
-<dt id="scrilla.gui.widgets.functions.RiskReturnWidget.clear"><code class="name flex">
+<dt id="scrilla.gui.widgets.functions.RiskProfileWidget.clear"><code class="name flex">
 <span>def <span class="ident">clear</span></span>(<span>self)</span>
 </code></dt>
 <dd>
@@ -1170,7 +1414,7 @@ def clear(self):
     self.arg_widget.prime()</code></pre>
 </details>
 </dd>
-<dt id="scrilla.gui.widgets.functions.RiskReturnWidget.resizeEvent"><code class="name flex">
+<dt id="scrilla.gui.widgets.functions.RiskProfileWidget.resizeEvent"><code class="name flex">
 <span>def <span class="ident">resizeEvent</span></span>(<span>self, event: PySide6.QtGui.QResizeEvent) ‑> None</span>
 </code></dt>
 <dd>
@@ -1182,6 +1426,204 @@ def clear(self):
 <pre><code class="python">def resizeEvent(self, event: QtGui.QResizeEvent) -&gt; None:
     if self.composite_widget.graph_widget.figure.isVisible():
         self.composite_widget.graph_widget.set_pixmap()
+    return super().resizeEvent(event)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="scrilla.gui.widgets.functions.SkeletonWidget"><code class="flex name class">
+<span>class <span class="ident">SkeletonWidget</span></span>
+<span>(</span><span>function: str, parent: PySide6.QtWidgets.QWidget)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>QWidget(self, parent: Union[PySide6.QtWidgets.QWidget, NoneType] = None, f: PySide6.QtCore.Qt.WindowFlags = Default(Qt.WindowFlags)) -&gt; None</p>
+<p><strong>init</strong>(self, parent: Union[PySide6.QtWidgets.QWidget, NoneType] = None, f: PySide6.QtCore.Qt.WindowFlags = Default(Qt.WindowFlags)) -&gt; None</p>
+<p>Initialize self.
+See help(type(self)) for accurate signature.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class SkeletonWidget(QtWidgets.QWidget):
+    def __init__(self, function: str, parent: QtWidgets.QWidget):
+        super(SkeletonWidget, self).__init__(parent)
+        self._configure_control_skeleton(function)
+    
+    def _configure_control_skeleton(self, function: str):
+        self.controls = factories.generate_control_skeleton()
+
+        for arg in definitions.FUNC_DICT[function][&#39;args&#39;]:
+            if not definitions.ARG_DICT[arg][&#39;cli_only&#39;]:
+                self.controls[arg] = True</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>PySide6.QtWidgets.QWidget</li>
+<li>PySide6.QtCore.QObject</li>
+<li>PySide6.QtGui.QPaintDevice</li>
+<li>Shiboken.Object</li>
+</ul>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="scrilla.gui.widgets.functions.CorrelationWidget" href="#scrilla.gui.widgets.functions.CorrelationWidget">CorrelationWidget</a></li>
+<li><a title="scrilla.gui.widgets.functions.DiscountDividendWidget" href="#scrilla.gui.widgets.functions.DiscountDividendWidget">DiscountDividendWidget</a></li>
+<li><a title="scrilla.gui.widgets.functions.EfficientFrontierWidget" href="#scrilla.gui.widgets.functions.EfficientFrontierWidget">EfficientFrontierWidget</a></li>
+<li><a title="scrilla.gui.widgets.functions.MovingAverageWidget" href="#scrilla.gui.widgets.functions.MovingAverageWidget">MovingAverageWidget</a></li>
+<li><a title="scrilla.gui.widgets.functions.OptimizerWidget" href="#scrilla.gui.widgets.functions.OptimizerWidget">OptimizerWidget</a></li>
+<li><a title="scrilla.gui.widgets.functions.RiskProfileWidget" href="#scrilla.gui.widgets.functions.RiskProfileWidget">RiskProfileWidget</a></li>
+<li><a title="scrilla.gui.widgets.functions.YieldCurveWidget" href="#scrilla.gui.widgets.functions.YieldCurveWidget">YieldCurveWidget</a></li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="scrilla.gui.widgets.functions.SkeletonWidget.staticMetaObject"><code class="name">var <span class="ident">staticMetaObject</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="scrilla.gui.widgets.functions.YieldCurveWidget"><code class="flex name class">
+<span>class <span class="ident">YieldCurveWidget</span></span>
+<span>(</span><span>layer: str, parent: Optional[PySide6.QtWidgets.QWidget] = None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>QWidget(self, parent: Union[PySide6.QtWidgets.QWidget, NoneType] = None, f: PySide6.QtCore.Qt.WindowFlags = Default(Qt.WindowFlags)) -&gt; None</p>
+<p><strong>init</strong>(self, parent: Union[PySide6.QtWidgets.QWidget, NoneType] = None, f: PySide6.QtCore.Qt.WindowFlags = Default(Qt.WindowFlags)) -&gt; None</p>
+<p>Initialize self.
+See help(type(self)) for accurate signature.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class YieldCurveWidget(SkeletonWidget):
+    def __init__(self, layer: str, parent: Union[QtWidgets.QWidget, None] = None):
+        super().__init__(function=&#39;yield_curve&#39;, parent=parent)
+        self.setObjectName(layer)
+        self._init_widgets()
+        self._arrange_widgets()
+        self._stage_widgets()
+
+    def _init_widgets(self):
+        self.graph_widget = components.GraphWidget(tmp_graph_key=keys.keys[&#39;GUI&#39;][&#39;TEMP&#39;][&#39;YIELD&#39;],
+                                                    layer=utilities.get_next_layer(self.objectName()))
+        self.arg_widget = components.ArgumentWidget(calculate_function=self.calculate,
+                                                    clear_function=self.clear, 
+                                                    controls=self.controls,
+                                                    layer=utilities.get_next_layer(self.objectName()))
+        # TODO: initialize arg widget WITHOUT tickers
+
+        self.setLayout(QtWidgets.QHBoxLayout())
+
+    def _arrange_widgets(self):
+        self.layout().addWidget(self.graph_widget)
+        self.layout().addWidget(self.arg_widget)
+    
+    def _stage_widgets(self):
+        self.arg_widget.prime()
+        
+    def resizeEvent(self, event: QtGui.QResizeEvent) -&gt; None:
+        if self.graph_widget.figure.isVisible():
+            self.graph_widget.set_pixmap()
+        return super().resizeEvent(event)
+
+    @QtCore.Slot()
+    def calculate(self):
+        if self.graph_widget.figure.isVisible():
+            self.graph_widget.figure.hide()
+
+        yield_curve = {}
+        start_string = dater.date_to_string(self.arg_widget.get_control_input(&#39;start_date&#39;))
+        yield_curve[start_string] = []
+        for maturity in keys.keys[&#39;YIELD_CURVE&#39;]:
+            rate = services.get_daily_interest_history(maturity=maturity, 
+                                                            start_date=self.arg_widget.get_control_input(&#39;start_date&#39;),
+                                                            end_date=self.arg_widget.get_control_input(&#39;start_date&#39;))
+            yield_curve[start_string].append(rate[start_string])
+        
+        plotter.plot_yield_curve(yield_curve=yield_curve, 
+                                        show=False,
+                                        savefile=f&#39;{settings.TEMP_DIR}/{keys.keys[&#34;GUI&#34;][&#34;TEMP&#34;][&#34;YIELD&#34;]}&#39;)
+        self.graph_widget.set_pixmap()
+        self.arg_widget.fire()
+
+    @QtCore.Slot()
+    def clear(self):
+        self.graph_widget.figure.hide()
+        self.arg_widget.prime()</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="scrilla.gui.widgets.functions.SkeletonWidget" href="#scrilla.gui.widgets.functions.SkeletonWidget">SkeletonWidget</a></li>
+<li>PySide6.QtWidgets.QWidget</li>
+<li>PySide6.QtCore.QObject</li>
+<li>PySide6.QtGui.QPaintDevice</li>
+<li>Shiboken.Object</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="scrilla.gui.widgets.functions.YieldCurveWidget.staticMetaObject"><code class="name">var <span class="ident">staticMetaObject</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="scrilla.gui.widgets.functions.YieldCurveWidget.calculate"><code class="name flex">
+<span>def <span class="ident">calculate</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@QtCore.Slot()
+def calculate(self):
+    if self.graph_widget.figure.isVisible():
+        self.graph_widget.figure.hide()
+
+    yield_curve = {}
+    start_string = dater.date_to_string(self.arg_widget.get_control_input(&#39;start_date&#39;))
+    yield_curve[start_string] = []
+    for maturity in keys.keys[&#39;YIELD_CURVE&#39;]:
+        rate = services.get_daily_interest_history(maturity=maturity, 
+                                                        start_date=self.arg_widget.get_control_input(&#39;start_date&#39;),
+                                                        end_date=self.arg_widget.get_control_input(&#39;start_date&#39;))
+        yield_curve[start_string].append(rate[start_string])
+    
+    plotter.plot_yield_curve(yield_curve=yield_curve, 
+                                    show=False,
+                                    savefile=f&#39;{settings.TEMP_DIR}/{keys.keys[&#34;GUI&#34;][&#34;TEMP&#34;][&#34;YIELD&#34;]}&#39;)
+    self.graph_widget.set_pixmap()
+    self.arg_widget.fire()</code></pre>
+</details>
+</dd>
+<dt id="scrilla.gui.widgets.functions.YieldCurveWidget.clear"><code class="name flex">
+<span>def <span class="ident">clear</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@QtCore.Slot()
+def clear(self):
+    self.graph_widget.figure.hide()
+    self.arg_widget.prime()</code></pre>
+</details>
+</dd>
+<dt id="scrilla.gui.widgets.functions.YieldCurveWidget.resizeEvent"><code class="name flex">
+<span>def <span class="ident">resizeEvent</span></span>(<span>self, event: PySide6.QtGui.QResizeEvent) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"><p>resizeEvent(self, event: PySide6.QtGui.QResizeEvent) -&gt; None</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def resizeEvent(self, event: QtGui.QResizeEvent) -&gt; None:
+    if self.graph_widget.figure.isVisible():
+        self.graph_widget.set_pixmap()
     return super().resizeEvent(event)</code></pre>
 </details>
 </dd>
@@ -1212,6 +1654,15 @@ def clear(self):
 </ul>
 </li>
 <li>
+<h4><code><a title="scrilla.gui.widgets.functions.DiscountDividendWidget" href="#scrilla.gui.widgets.functions.DiscountDividendWidget">DiscountDividendWidget</a></code></h4>
+<ul class="">
+<li><code><a title="scrilla.gui.widgets.functions.DiscountDividendWidget.calculate" href="#scrilla.gui.widgets.functions.DiscountDividendWidget.calculate">calculate</a></code></li>
+<li><code><a title="scrilla.gui.widgets.functions.DiscountDividendWidget.clear" href="#scrilla.gui.widgets.functions.DiscountDividendWidget.clear">clear</a></code></li>
+<li><code><a title="scrilla.gui.widgets.functions.DiscountDividendWidget.resizeEvent" href="#scrilla.gui.widgets.functions.DiscountDividendWidget.resizeEvent">resizeEvent</a></code></li>
+<li><code><a title="scrilla.gui.widgets.functions.DiscountDividendWidget.staticMetaObject" href="#scrilla.gui.widgets.functions.DiscountDividendWidget.staticMetaObject">staticMetaObject</a></code></li>
+</ul>
+</li>
+<li>
 <h4><code><a title="scrilla.gui.widgets.functions.EfficientFrontierWidget" href="#scrilla.gui.widgets.functions.EfficientFrontierWidget">EfficientFrontierWidget</a></code></h4>
 <ul class="">
 <li><code><a title="scrilla.gui.widgets.functions.EfficientFrontierWidget.calculate" href="#scrilla.gui.widgets.functions.EfficientFrontierWidget.calculate">calculate</a></code></li>
@@ -1238,12 +1689,27 @@ def clear(self):
 </ul>
 </li>
 <li>
-<h4><code><a title="scrilla.gui.widgets.functions.RiskReturnWidget" href="#scrilla.gui.widgets.functions.RiskReturnWidget">RiskReturnWidget</a></code></h4>
+<h4><code><a title="scrilla.gui.widgets.functions.RiskProfileWidget" href="#scrilla.gui.widgets.functions.RiskProfileWidget">RiskProfileWidget</a></code></h4>
 <ul class="">
-<li><code><a title="scrilla.gui.widgets.functions.RiskReturnWidget.calculate" href="#scrilla.gui.widgets.functions.RiskReturnWidget.calculate">calculate</a></code></li>
-<li><code><a title="scrilla.gui.widgets.functions.RiskReturnWidget.clear" href="#scrilla.gui.widgets.functions.RiskReturnWidget.clear">clear</a></code></li>
-<li><code><a title="scrilla.gui.widgets.functions.RiskReturnWidget.resizeEvent" href="#scrilla.gui.widgets.functions.RiskReturnWidget.resizeEvent">resizeEvent</a></code></li>
-<li><code><a title="scrilla.gui.widgets.functions.RiskReturnWidget.staticMetaObject" href="#scrilla.gui.widgets.functions.RiskReturnWidget.staticMetaObject">staticMetaObject</a></code></li>
+<li><code><a title="scrilla.gui.widgets.functions.RiskProfileWidget.calculate" href="#scrilla.gui.widgets.functions.RiskProfileWidget.calculate">calculate</a></code></li>
+<li><code><a title="scrilla.gui.widgets.functions.RiskProfileWidget.clear" href="#scrilla.gui.widgets.functions.RiskProfileWidget.clear">clear</a></code></li>
+<li><code><a title="scrilla.gui.widgets.functions.RiskProfileWidget.resizeEvent" href="#scrilla.gui.widgets.functions.RiskProfileWidget.resizeEvent">resizeEvent</a></code></li>
+<li><code><a title="scrilla.gui.widgets.functions.RiskProfileWidget.staticMetaObject" href="#scrilla.gui.widgets.functions.RiskProfileWidget.staticMetaObject">staticMetaObject</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="scrilla.gui.widgets.functions.SkeletonWidget" href="#scrilla.gui.widgets.functions.SkeletonWidget">SkeletonWidget</a></code></h4>
+<ul class="">
+<li><code><a title="scrilla.gui.widgets.functions.SkeletonWidget.staticMetaObject" href="#scrilla.gui.widgets.functions.SkeletonWidget.staticMetaObject">staticMetaObject</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="scrilla.gui.widgets.functions.YieldCurveWidget" href="#scrilla.gui.widgets.functions.YieldCurveWidget">YieldCurveWidget</a></code></h4>
+<ul class="">
+<li><code><a title="scrilla.gui.widgets.functions.YieldCurveWidget.calculate" href="#scrilla.gui.widgets.functions.YieldCurveWidget.calculate">calculate</a></code></li>
+<li><code><a title="scrilla.gui.widgets.functions.YieldCurveWidget.clear" href="#scrilla.gui.widgets.functions.YieldCurveWidget.clear">clear</a></code></li>
+<li><code><a title="scrilla.gui.widgets.functions.YieldCurveWidget.resizeEvent" href="#scrilla.gui.widgets.functions.YieldCurveWidget.resizeEvent">resizeEvent</a></code></li>
+<li><code><a title="scrilla.gui.widgets.functions.YieldCurveWidget.staticMetaObject" href="#scrilla.gui.widgets.functions.YieldCurveWidget.staticMetaObject">staticMetaObject</a></code></li>
 </ul>
 </li>
 </ul>
