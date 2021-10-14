@@ -27,7 +27,7 @@ def intersect_dict_keys(dict1: dict, dict2: dict) -> Tuple[dict, dict]:
     """
     Generates two new dictionaries from the inputted dictionaries such that the new dictionaries contain the same keys. In other words, this function takes the intersection of the dictionary keys and generates two new dictionaries with *only* those keys.
     """
-    return {x: dict1[x] for x in dict1.keys if x in dict2.keys()}, {x: dict2[x] for x in dict2.keys() if x in dict1.keys()}
+    return {x: dict1[x] for x in dict1.keys() if x in dict2.keys()}, {x: dict2[x] for x in dict2.keys() if x in dict1.keys()}
 
 
 def complement_dict_keys(dict1: dict, dict2: dict):

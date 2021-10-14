@@ -3,15 +3,18 @@ import json
 from typing import Tuple
 
 from scrilla import settings
+from scrilla.gui.widgets.functions import CorrelationWidget, DiscountDividendWidget, EfficientFrontierWidget, MovingAverageWidget, OptimizerWidget, RiskProfileWidget, YieldCurveWidget
 from scrilla.util import helper
 from scrilla.static import keys
 
 FUNCTIONS= [
-    "Correlation Matrix",
-    "Efficient Frontier",
-    "Moving Averages",
-    "Portfolio Optimization",
-    "Risk Profile"
+    ("Correlation Matrix", CorrelationWidget),
+    ("Discount Dividend Model", DiscountDividendWidget),
+    ("Efficient Frontier", EfficientFrontierWidget),
+    ("Moving Averages", MovingAverageWidget),
+    ("Portfolio Optimization", OptimizerWidget),
+    ("Risk Profile", RiskProfileWidget),
+    ("Yield Curve", YieldCurveWidget)
 ]
 
 MARGINS = 5

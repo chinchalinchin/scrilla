@@ -75,7 +75,7 @@ def get_last_trading_date() -> datetime.date:
     today = datetime.datetime.now()
     if is_date_holiday(today) or is_date_weekend(today):
         today = get_previous_business_date(today)
-    trading_close_today = today.replace(hour=20)
+    trading_close_today = today.replace(hour=14)
     if today > trading_close_today:
         return today.date()
     return get_previous_business_date(today.date())
@@ -96,7 +96,12 @@ def verify_date_types(dates: Union[List[datetime.date], List[str]]) -> Union[Lis
             return None
     return verified_dates
 
-def date_to_string(date: datetime.date) -> str:
+def date_to_string(date: Union[datetime.date, None] = None) -> str:
+    """ 
+    Returns a datetime formatted as 'YYYY-MM-DD'. If no date is provided, function will return today's formatted date.
+    """
+    if date is None:
+        return date_to_string(get_today())
     month, day = date.month, date.day
     if month<10:
         month_string = "0"+str(month)
@@ -190,7 +195,7 @@ def dates_between(start_date: datetime.date, end_date: datetime.date) -> List[da
     return [start_date + datetime.timedelta(x) for x in range((end_date - start_date).days+1)]
 
 def days_between(start_date: datetime.date, end_date: datetime.date) -> int:
-    return int((end_date - start_date).days)
+    return int((end_date - start_date).days) + 1
 
 # excludes start_date
 def business_dates_between(start_date: datetime.date, end_date: datetime.date)-> List[datetime.date]:

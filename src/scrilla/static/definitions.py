@@ -29,203 +29,203 @@ FUNC_DICT = {
         'values': ["var", "v"],
         'args': ['probability', 'expiry', 'start_date', 'end_date', 'save_file', 'suppress_output', 'json', keys.keys['ESTIMATION']['MOMENT'], keys.keys['ESTIMATION']['PERCENT'], keys.keys['ESTIMATION']['LIKE']],
         'description': "Calculates the value at risk, i.e. for a given p, the Sv such that Prob(St<Sv) = p. 'expiry' and 'prob' are required arguments for this function. Note: 'expiry' is measured in years and is different from the `start` and `end` dates. `start` and `end` are used to calibrate the model to a historical sample and `expiry` is used as the time horizon over which the value at risk is calculated into the future.",
-        'tickers': True
+        'tickers': True,
     },
     "capm_equity_cost": {
         'name': 'Capital Asset Pricing Model Cost of Equity',
         'values': ["capm-equity","capm-e"],
         'args': ['start_date', 'end_date','save_file', 'suppress_output', 'json', keys.keys['ESTIMATION']['MOMENT'], keys.keys['ESTIMATION']['PERCENT'], keys.keys['ESTIMATION']['LIKE']],
         'description': "Computes the cost of equity according to CAPM for the supplied list of tickers. If no start or end dates are specified, calculations default to the last 100 days of prices. The environment variable MARKET_PROXY defines which ticker serves as a proxy for the market as whole.",
-        'tickers': True
+        'tickers': True,
     },
     "capm_beta": {
         'name': 'Capital Asset Pricing Model Beta',
         'values': ["capm-beta", "capm-b"],
         'args': ['start_date', 'end_date','save_file', 'suppress_output', 'json', keys.keys['ESTIMATION']['MOMENT'], keys.keys['ESTIMATION']['PERCENT'], keys.keys['ESTIMATION']['LIKE']],
         'description': "Computes the market beta according to CAPM for the supplied list of tickers. If no start or end dates are specified, calculations default to the last 100 days of prices. The environment variable MARKET_PROXY defines which ticker serves as a proxy for the market as whole.",
-        'tickers': True
+        'tickers': True,
     },
     "clear_cache": {
         'name': 'Clear Cache',
         'values': ["clear-cache", "cc"],
         'args': None,
         'description': "Clears the _installation_directiory_/data/cache/ directory of all data.",
-        'tickers': False
+        'tickers': False,
     },
     "clear_static": {
         'name': 'Clear Static',
         'values': ["clear-static", "cs"],
         'args': None,
         'description': "Clears the _installation_directory_/data/static/ directory of all data. Not recommended unless necessary; Static data takes a long time to reload.",
-        'tickers': False
+        'tickers': False,
     },
     "clear_common": {
         'name': 'Clear Common',
         'values': ["clear-common", "cc"],
         'args': None,
         'description': "Clears the _installation_directory_/data/common/, which includes API keys stored through the command line and ticker saved to the user watchlist.",
-        'tickers': False
+        'tickers': False,
     },
     "close": {
         'name': 'Last Closing Price',
         'values': ["close", "cl"],
         'args': None,
         'description': "Return latest closing value for the supplied list of symbols (equity or crypto).",
-        'tickers': True
+        'tickers': True,
     },
     "correlation": {
         'name': 'Correlation Matrix',
         'values': ["correlation", "cor"],
         'args': ['start_date', 'end_date','save_file', 'suppress_output', 'json', keys.keys['ESTIMATION']['MOMENT'], keys.keys['ESTIMATION']['PERCENT'], keys.keys['ESTIMATION']['LIKE']],
         'description': "Calculate pair-wise correlation for the supplied list of ticker symbols. If no start or end dates are specified, calculations default to the last 100 days of prices.",
-        'tickers': True
+        'tickers': True,
     }, 
     "correlation_time_series": {
         'name': 'Correlation Time Series',
         'values': ["correlations", "cors"],
         'args': ['start_date', 'end_date','save_file', 'suppress_output', 'json', keys.keys['ESTIMATION']['MOMENT'], keys.keys['ESTIMATION']['PERCENT'], keys.keys['ESTIMATION']['LIKE']],
         'description': "Calculate correlation time series for a pair of tickers over a specified date range. If no start or end dates are specified, the default analysis period of 100 days is applied.",
-        'tickers': True
+        'tickers': True,
     },
     "discount_dividend": {
         'name': 'Discount Dividend Model',
         'values': ["discount-dividend-model", "ddm"],
         'args': ['discount', 'save_file', 'suppress_output', 'json'],
         'description': "Extrapolates future dividend cashflows from historical dividend payments with linear regression and then uses that model to calculate the net present value of all future dividends. If no discount rate is specified, the calculations default to the asset's cost of equity as determined the by the CAPM model.",
-        'tickers': True
+        'tickers': True,
     },
     "dividends": {
         'name': 'Dividend History',
         'values': ["dividends", "divs"],
         'args': ['start_date', 'end_date', 'save_file', 'suppress_output', 'json'],
         'description': "Displays the price history over the specific date range. If no dates are provided, returns the entire dividend history.",
-        'tickers': True
+        'tickers': True,
     },
     "efficient_frontier": {
         'name': 'Portfolio Efficient Frontier',
         'values': ["efficient-frontier","ef"],
         'args': ['start_date', 'end_date', 'investment', 'target', 'steps', 'save_file', 'suppress_output', 'json', keys.keys['ESTIMATION']['MOMENT'], keys.keys['ESTIMATION']['PERCENT'], keys.keys['ESTIMATION']['LIKE']],
         'description': "Generate a sample of the portfolio's efficient frontier for the supplied list of tickers. The efficient frontier algorithm will minimize a portfolio's volality for a given rate of return and then maximize its return, and then use these points to generate the rest of the frontier by taking increments along the line connecting the (risk,return) profile of the minimum volatility portfolio to the (risk, return) profile of the maximum return portfolio. The number of points calculated in the efficient frontier can be specifed as an integer with the -steps flag. If no -steps is provided, the value of the environment variable FRONTIER_STEPS will be used.",
-        'tickers': True
+        'tickers': True,
     },
     "help": {
         'name': 'Help Message',
         'values': ["help", "h"],
         'args': None,
         'description': "Print this help message.",
-        'tickers': False
+        'tickers': False,
     },
     "interest_history": {
         'name': 'Interest Rate History',
         'values': ["interest", "int"],
         'args': ['start_date', 'end_date', 'save_file', 'suppress_output', 'json'],
         'description': "Prints the interest histories for each inputted maturity over the specified date range. If no date range is given, price histories will default to the last 100 days. See `scrilla -yield` for list of maturities.",
-        'tickers': True
+        'tickers': True,
     },
     "list_watchlist": {
         'name': 'Display Watchlist',
         'values': ["watchlist", "w-ls"],
         'args': None,
         'description': "Lists the equity symbols currently saved to your watchlist.",
-        'tickers': False
+        'tickers': False,
     },
     "maximize_return": {
         'name': 'Maximize Portfolio Return',
         'values': ["max-return", "max"],
         'args': ['start_date', 'end_date', 'investment', 'target','save_file', 'suppress_output', 'json', keys.keys['ESTIMATION']['MOMENT'], keys.keys['ESTIMATION']['PERCENT'], keys.keys['ESTIMATION']['LIKE']],
         'description': "Maximize the return of the portfolio defined by the supplied list of ticker symbols. Returns an array representing the allocations to be made for each asset in a portfolio. If no start or end dates are specified, calculations default to the last 100 days of prices. You can specify an investment with the '-invest' flag, otherwise the result will be output in percentage terms. Note: This function will always allocate 100% to the asset with the highest return. It's a good way to check and see if there are bugs in the algorithm after changes.",
-        'tickers': True
+        'tickers': True,
     },
     "moving_averages": {
         'name': 'Moving Averages Series',
         'values': ["mov-averages", "mas"],
         'args': ['start_date', 'end_date'],
         'description': "Calculate the current moving averages. If no start or end dates are specified, calculations default to the last 100 days of prices.",
-        'tickers': True
+        'tickers': True,
     },
     "optimize_portfolio": {
         'name': 'Optimize Portfolio Variance',
         'values': ["optimize-portfolio", "opt"],
         'args': ['start_date', 'end_date', 'optimize_sharpe', 'investment', 'target','save_file', 'suppress_output', 'json', keys.keys['ESTIMATION']['MOMENT'], keys.keys['ESTIMATION']['PERCENT'], keys.keys['ESTIMATION']['LIKE']],
         'description': "Optimize a portfolio's risk return profile.  Returns an array representing the allocations to be made for each asset in a portfolio.",
-        'tickers': True
+        'tickers': True,
     },
     "optimize_portfolio_conditional_var": {
         'name': 'Optimize Portfolio Conditional Value At Risk',
         'values':["optimize-cvar", "opt-cvar"],
         'args': ['start_date', 'end_date', 'investment', 'target', 'save_file', 'suppress_output', 'json', 'expiry', 'probability', keys.keys['ESTIMATION']['MOMENT'], keys.keys['ESTIMATION']['PERCENT'], keys.keys['ESTIMATION']['LIKE']],
         'description': "Optimizes the conditional value at risk, i.e. E(St | St < Sv) where Sv -> Prob(St<S0) = `prob` , for the portfolio defined by the list of inputted ticker symbols. Note: expiry is measured in years and is different from the start and end dates. Start and end dates are used to calibrate the model to a historical sample while expiry is used as the time horizon over which the value at risk is calculated into the future.",
-        'tickers': True
+        'tickers': True,
     },
     "plot_correlation": {
         'name': 'Plot Correlation Time Series',
         'values': ["plot-correlations", "plot-cors"],
         'args': ['start_date', 'end_date', 'save_file', keys.keys['ESTIMATION']['MOMENT'], keys.keys['ESTIMATION']['PERCENT'], keys.keys['ESTIMATION']['LIKE']],
         'description': "Generates a time series for the correlation of two ticker symbols over the specified date range.",
-        'tickers': True
+        'tickers': True,
     },
     "plot_dividends": {
         'name': 'Plot Discount Dividend Model',
         'values': ["plot-dividends", "plot-divs"],
         'args': ['save_file'],
         'description': "Generates a scatter plot graphic of the dividend history for the supplied ticker with a superimposed simple linear regression line. Note: this function only accepts one ticker at a time.",
-        'tickers': True
+        'tickers': True,
     },
     "plot_frontier": {
         'name': 'Plot Efficient Frontier',
         'values': ["plot-efficient-frontier", "plot-ef"],
         'args': ['start_date', 'end_date', 'save_file', 'steps', keys.keys['ESTIMATION']['MOMENT'], keys.keys['ESTIMATION']['PERCENT'], keys.keys['ESTIMATION']['LIKE']],
         'description': "Generates a scatter plot graphic of the portfolio\'s efficient frontier for the supplied list of tickers. The number of points calculated in the efficient frontier can be specifed as an integer with the -steps. If no -steps is provided, the value of the environment variable FRONTIER_STEPS will be used. If this value is not set, the function will default to a value of 5.",
-        'tickers': True
+        'tickers': True,
     },
     "plot_moving_averages": {
         'name': 'Plot Moving Averages Series',
         'values': ["plot-moving-averages", "plot-mas"],
         'args': ['start_date', 'end_date', 'save_file'],
         'description': "Generates a grouped bar chart of the moving averages for each equity in the supplied list of ticker symbols. If no start or end dates are specified, calculations default to the last 100 days of prices.",
-        'tickers': True
+        'tickers': True,
     },
     "plot_returns": {
-        'name': 'Plot Return Series',
+        'name': 'Distribution of Returns',
         'values': ["plot-returns", "plot-rets"],
         'args': ['start_date', 'end_date', 'save_file'],
         'description': "Generates a Q-Q Plot to graphically test the normality of returns for the inputted ticker symbol over the specified date range. If no start or date are specified, calculations default to the last 100 days of prices.",
-        'tickers': True
+        'tickers': True,
     },
     "plot_risk_profile": {
         'name': 'Plot Risk Profile',
         'values': ["plot-risk-profile", "plot-rp"],
         'args': ['start_date', 'end_date', 'save_file', keys.keys['ESTIMATION']['MOMENT'], keys.keys['ESTIMATION']['PERCENT'], keys.keys['ESTIMATION']['LIKE']],
         'description': "Generates a scatter plot of the risk-return profile for symbol in the supplied list of ticker symbols. If no start or end dates are specified, calculations default to the last 100 days of prices.",
-        'tickers': True
+        'tickers': True,
     },
     "plot_yield_curve": {
         'name': 'Plot Yield Curve',
         'values': ["plot-yield-curve","plot-yc"],
         'args': ['start_date', 'save_file'],
         'description': "Generates a plot of the latest United States Treasury Yield Curve. A yield curveo n a different date can be generated by specifying the date with an argument.",
-        'tickers': False
+        'tickers': False,
     },
     "price_history": {
         'name': 'Price History',
         'values': ["prices", "pr"],
         'args': ['start_date', 'end_date', 'save_file', 'suppress_output', 'json'],
         'description': "Prints the price histories for each inputted asset over the specified date range. If no date range is given, price histories will default to the last 100 days.",
-        'tickers': True
+        'tickers': True,
     },
     "purge": {
         'name': 'Purge All Data',
         'values': ["purge", "pu"],
         'args': None,
         'description': "Removes all files contained with the _installation_directory_/data/static/, _installation_directory_/data/cache/ and _installation_directory_/data/common/ directory, but retains the directories themselves.",
-        'tickers': False
+        'tickers': False,
     },
     "risk_free_rate": {
         'name': 'Risk Free Rate',
         'values': ["risk-free", "rf"],
         'args': None,
         'description': "Returns the current annualized US Treasury yield specified by the RISK_FREE environment variables. Allowable values for RISK_FREE environment variable: ONE_MONTH, TWO_MONTH, THREE_MONTH, SIX_MONTH, ONE_YEAR, TWO_YEAR, THREE_YEAR, FIVE_YEAR, SEVEN_YEAR, TEN_YEAR, TWENTY_YEAR, THIRTY_YEAR.",
-        'tickers': False
+        'tickers': False,
     },
     "risk_profile" : {
         'name': 'Risk Profile',
@@ -239,56 +239,56 @@ FUNC_DICT = {
         'values': ["screen", "scr"],
         'args': ['discount', 'criteria'],
         'description': "Searchs equity spot prices that trade at a discount to the provided model. If no model is provided, the screener will default to the Discount Dividend Model. If no discount rate is provided, the screener will default to the cost of equity for a ticker calculated using the CAPM model.",
-        'tickers': False
+        'tickers': False,
     },
     "sharpe_ratio": {
         'name': 'Sharpe Ratio',
         'values': ["sharpe-ratio", "sr"],
         'args': ['start_date', 'end_date', 'save_file', 'json', keys.keys['ESTIMATION']['MOMENT'], keys.keys['ESTIMATION']['PERCENT'], keys.keys['ESTIMATION']['LIKE']],
         'description': "Computes the sharpe ratio for each tickers in the supplied list",
-        'tickers': True
+        'tickers': True,
     },
     "statistic": {
         'name': 'Last Reported Value of Financial Statistic',
         'values': ["stat","s"],
         'args': ['save_file', 'suppress_output', 'json'],
         'description': "Retrieves the latest value for the supplied list of economic statistics. The available list of economic statistic can be found at https://www.quandl.com/data/FRED-Federal-Reserve-Economic-Data/documentation?anchor=growth; it is also stored in the minstallation_directory_/data/static/ directory of the application.",
-        'tickers': True
+        'tickers': True,
     },
     "statistic_history": {
         'name': 'Financial Statistic History',
         'values': ["stats", "ss"], 
         'args': ['start_date', 'end_date', 'save_file', 'suppress_output', 'json'],
         'description': "Prints the statistic history for the supplied list of economic statistics.The available list of economic statistic can be found at https://www.quandl.com/data/FRED-Federal-Reserve-Economic-Data/documentation?anchor=growth; it is also stored in the _installation_directory_/data/static/ directory of the application.",
-        'tickers': True
+        'tickers': True,
     },
     "store": {
         'name': 'API Key Store',
         'values': ["store", "st"],
         'args': ['key', 'value'],
         'description': "Save API key to local _installation_directory_/data/common/ directory.",
-        'tickers': False
+        'tickers': False,
     },
     "version": {
         'name': 'Display Version',
         'values': ["version", "v"],
         'args': None,
         'description': "Display installed version of this library.",
-        'tickers': False
+        'tickers': False,
     },
     "watchlist": {
         'name': 'Stock Watchlist',
         'values': ["watch", "w"],
         'args': None,
         'description': "Saves the supplist list of tickers to your watchlist. These equity symbol are used by the screening algorithms when searching for stocks that trade at a discount.",
-        'tickers': False
+        'tickers': False,
     },
     "yield_curve": {
         'name': 'Latest Yield Curve',
         'values': ["yield-curve", "yc"],
-        'args': None,
+        'args': ['start_date'],
         'description': "Displays the current United States Treasury Yield Curve.",
-        'tickers': False
+        'tickers': False,
     }
 }
 """

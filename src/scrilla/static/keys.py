@@ -149,7 +149,9 @@ keys= {
         'TEMP':{
             'PROFILE': 'profile',
             'AVERAGES': 'averages',
-            'FRONTIER': 'frontier'
+            'FRONTIER': 'frontier',
+            'DIVIDEND': 'dividends',
+            'YIELD': 'yieldcurve'
         }
     },
     'APP':{

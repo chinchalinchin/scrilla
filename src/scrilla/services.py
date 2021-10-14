@@ -180,8 +180,6 @@ class StatManager():
         except KeyError:
             raise errors.InputValidationError(f'{maturity} is not a valid maturity for US Treasury Bonds')
 
-        print(maturity)
-        print(maturity_key)
         formatted_interest = {}
         for result in results:
             formatted_interest[result] = results[result][maturity_key]
@@ -476,8 +474,11 @@ def get_daily_price_history(ticker: str, start_date: Union[None, date] = None,
     
     cached_prices = price_cache.filter_price_cache(ticker=ticker, start_date=start_date, end_date=end_date)
 
-    if cached_prices is not None and asset_type == keys.keys['ASSETS']['EQUITY']:
-        logger.debug(f'Comparing {len(cached_prices)} = {dater.business_days_between(start_date, end_date)}')
+    if cached_prices is not None:
+        if asset_type == keys.keys['ASSETS']['EQUITY']:
+            logger.debug(f'Comparing {len(cached_prices)} = {dater.business_days_between(start_date, end_date)}')
+        elif asset_type == keys.keys['ASSETS']['CRYPTO']:
+            logger.debug(f'Comparing {len(cached_prices)} = {dater.days_between(start_date, end_date)}')
 
     # make sure the length of cache is equal to the length of the requested sample
     if cached_prices is not None and dater.date_to_string(end_date) in cached_prices.keys() and (
@@ -487,6 +488,7 @@ def get_daily_price_history(ticker: str, start_date: Union[None, date] = None,
         (asset_type == keys.keys['ASSETS']['CRYPTO']
             and (dater.days_between(start_date, end_date)) == len(cached_prices))
     ):
+        # TODO: debug the crypto out of date check.
         return cached_prices
 
     if cached_prices is not None:

@@ -15,7 +15,7 @@
 
 import datetime
 from typing import Callable, Dict, List, Union
-from PySide6 import QtCore, QtWidgets
+from PySide6 import QtCore, QtWidgets, QtGui
 
 from scrilla.util import helper
 from scrilla.gui import utilities
@@ -175,7 +175,11 @@ class ArgumentWidget(QtWidgets.QWidget):
 
         if type(widget) == QtWidgets.QDateEdit: 
             return widget.date().toPython()
-        if type(widget) == QtWidgets.QLineEdit: 
+        if type(widget) == QtWidgets.QLineEdit:
+            if type(widget.validator()) ==  QtGui.QIntValidator:
+                return int(widget.text())
+            if type(widget.validator()) in [QtGui.QDoubleValidator, QtGui.QRegularExpressionValidator]:
+                return float(widget.text())
             return widget.text()
         if type(widget) == QtWidgets.QRadioButton:
             return widget.isChecked()
@@ -190,9 +194,14 @@ class ArgumentWidget(QtWidgets.QWidget):
         self.symbol_widget.layout().itemAt(1).widget().clear()
         for control in self.control_widgets:
             if self.control_widgets[control] is not None:
-                self.control_widgets[control].layout().itemAt(1).widget().setEnabled(False)
+                if type(self.control_widgets[control].layout().itemAt(1).widget()) != QtWidgets.QRadioButton:
+                    self.control_widgets[control].layout().itemAt(1).widget().clear()
                 self.control_widgets[control].layout().itemAt(2).widget().setEnabled(True)
                 self.control_widgets[control].layout().itemAt(2).widget().setCheckState(QtCore.Qt.Unchecked)
+                self.control_widgets[control].layout().itemAt(1).widget().setEnabled(False)
+                # NOTE: have to set Widget1 to disabled last since the signal on the Widget2 is connected
+                # through CheckState to the enabled stated of Widget1, i.e. flipping the CheckState on 
+                # Widget2 switches the enabled state of Widget1.
     
     def fire(self) -> None:
         """

@@ -21,9 +21,6 @@ from scrilla import settings
 
 from scrilla.gui import formats
 from scrilla.gui.widgets import factories
-from scrilla.gui.widgets.functions import RiskReturnWidget, CorrelationWidget, \
-                                            MovingAverageWidget, EfficientFrontierWidget, \
-                                            OptimizerWidget
 
 # NOTE: widget_buttons and function_widgets must preserve order.
 class MenuWidget(QtWidgets.QWidget):
@@ -55,7 +52,7 @@ class MenuWidget(QtWidgets.QWidget):
         view = self.menu_bar.addMenu('Function')
         preferences = self.menu_bar.addMenu('Preferences')
 
-        self.function_actions = [ QtGui.QAction(function, self) for function in formats.FUNCTIONS ]
+        self.function_actions = [ QtGui.QAction(function[0], self) for function in formats.FUNCTIONS ]
         for action in self.function_actions:
             view.addAction(action)
 
@@ -74,16 +71,10 @@ class MenuWidget(QtWidgets.QWidget):
         self.function_menu = QtWidgets.QLabel('Functions')
         self.function_menu.setObjectName('function-menu')
         
-        self.widget_buttons = [ factories.atomic_widget_factory(format='button', title=function) for function in formats.FUNCTIONS ]
+        self.widget_buttons = [ factories.atomic_widget_factory(format='button', title=function[0]) for function in formats.FUNCTIONS ]
         self.exit_button = factories.atomic_widget_factory(format='button', title="Exit")
 
-        self.function_widgets = [ 
-            CorrelationWidget(layer='great-grand-child', parent=self), 
-            EfficientFrontierWidget(layer='great-grand-child', parent=self),
-            MovingAverageWidget(layer='great-grand-child', parent=self),
-            OptimizerWidget(layer='great-grand-child', parent=self),
-            RiskReturnWidget(layer='great-grand-child', parent=self),
-        ]
+        self.function_widgets = [ function[1]('great-grand-child', self) for function in formats.FUNCTIONS ]
 
         self.menu_pane = factories.layout_factory(format='vertical-box')
         self.menu_pane.setObjectName('grand-child')

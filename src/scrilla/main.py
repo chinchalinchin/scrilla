@@ -165,11 +165,13 @@ def do_program() -> None:
         def cli_yield_curve():
             yield_curve = {}
             for maturity in keys.keys['YIELD_CURVE']:
-                curve_rate = services.get_daily_interest_latest(maturity=maturity)
+                curve_rate = services.get_daily_interest_history(maturity=maturity,
+                                                                    start_date=args['start_date'],
+                                                                    end_date=args['start_date'])
                 yield_curve[maturity] = curve_rate/100
 
                 if print_format_to_screen(args):
-                    outputter.scalar_result(calculation=maturity, result=curve_rate/100, currency=False)
+                    outputter.scalar_result(calculation=maturity, result=curve_rate, currency=False)
 
             if print_json_to_screen(args):
                 print(json.dumps(yield_curve))
