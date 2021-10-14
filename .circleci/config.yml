@@ -13,7 +13,7 @@ commands:
       - run:
           name: dependency installation
           command: |
-            sudo apt update -y && sudo apt install libopengl0 -y
+            sudo apt-get update -y && sudo apt-get install libopengl0 ffmpeg libsm6 libxext6 -y
             pip install -r requirements.txt
   build_wheel:
     description: compress and build python package
