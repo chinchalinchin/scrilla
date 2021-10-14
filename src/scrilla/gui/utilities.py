@@ -19,5 +19,4 @@ def get_next_layer(layer):
         return "child"
     if layer == "child":
         return "grand-child"
-    else:
-        return f'great-{layer}'
+    return f'great-{layer}'
