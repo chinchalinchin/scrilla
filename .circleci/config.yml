@@ -1,24 +1,30 @@
 version: 2.1
 
 commands:
-  docs:
-    description: generate documentation html from docstrings
-    steps:
-      - run:
-          name: generate docs
-          command: bash ./scripts/generate-docs
-  install:
+  install_build_deps:
     description: install build dependencies
     steps:
       - run:
           name: dependency installation
           command: pip install twine setuptools build
+  install_doc_deps:
+    description: install documentation dependencies
+    steps:
+      - run:
+          name: dependency installation
+          command: pip install pdoc3
   build:
     description: compress and build python package
     steps:
       - run:
           name: artifact build
           command: python -m build
+  generate_docs:
+    description: generate documentation html from docstrings
+    steps:
+      - run:
+          name: generate docs
+          command: bash ./scripts/generate-docs
   upload:
     description: upload package artifacts to PyPi
     steps:
@@ -60,7 +66,7 @@ jobs:
       - image: cimg/python:3.9.6
     steps:
       - checkout
-      - install
+      - install_build_deps
       - run:
           name: iterate micro version
           command: |
@@ -74,7 +80,7 @@ jobs:
       - image: cimg/python:3.9.6
     steps:
       - checkout
-      - install
+      - install_build_deps
       - run:
           name: iterate minor version
           command: | 
@@ -88,7 +94,7 @@ jobs:
       - image: cimg/python:3.9.6
     steps:
       - checkout 
-      - install
+      - install_build_deps
       - run:
           name: iterate major version
           command: |
@@ -102,6 +108,7 @@ jobs:
       - image: cimg/python:3.9.6
     steps:
       - checkout
+      - install_doc_deps
       - docs
       - commit_docs
 
@@ -124,7 +131,7 @@ workflows:
             branches:
               only:
                 - pypi/major-update
-                
+
   github_doc_pages:
     jobs:
       - documentation:
