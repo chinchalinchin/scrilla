@@ -48,7 +48,7 @@ commands:
               git config user.email "chinchalinchin@gmail.com"
               git config user.name "CircleCi Bot"
               git add .
-              git commit -m 'Pipeline Documentation Generation $(echo $(date))'
+              git commit -m "Pipeline Documentation Generation $(echo $(date))"
               git push --set-upstream origin gh-pages
               git checkout develop/main
               git merge gh-pages
@@ -124,6 +124,7 @@ workflows:
             branches:
               only:
                 - pypi/major-update
+                
   github_doc_pages:
     jobs:
       - documentation:

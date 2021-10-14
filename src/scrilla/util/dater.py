@@ -4,6 +4,9 @@ from typing import List, Tuple, Union
 import dateutil.easter as easter
 
 def validate_date_string(parsed_date_string: str) -> bool:
+    """
+    Checks if the date string is a valid date in the 'YYYY-MM-DD' format.
+    """
     length_check = (len(parsed_date_string) == 3 )
     year_check = (int(parsed_date_string[0]) > 1950)
     month_check = (int(parsed_date_string[1])>0 and int(parsed_date_string[1])<13)
