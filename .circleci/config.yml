@@ -12,14 +12,9 @@ commands:
     steps:
       - run:
           name: dependency installation
-<<<<<<< Updated upstream
-          command: pip install twine setuptools build
-  build:
-=======
           command: |
             pip install -r requirements.txt
   build_wheel:
->>>>>>> Stashed changes
     description: compress and build python package
     steps:
       - run:
