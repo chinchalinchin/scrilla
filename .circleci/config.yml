@@ -44,13 +44,13 @@ commands:
     steps:
       - run:
           name: commit docs
-            command: |
+          command: |
               git config user.email "chinchalinchin@gmail.com"
               git config user.name "CircleCi Bot"
               git add .
               git commit -m 'Pipeline Documentation Generation $(echo $(date))'
               git push --set-upstream origin develop/main
-              
+
 jobs:
   pypi_micro_update:
     docker:
