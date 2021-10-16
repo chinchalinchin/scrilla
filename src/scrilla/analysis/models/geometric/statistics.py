@@ -445,7 +445,7 @@ def calculate_likelihood_risk_return(ticker, start_date: Union[date, None]=None,
     if not prices:
         raise errors.PriceError(f'No prices could be retrieved for {ticker}')
 
-    sample_of_returns = get_sample_of_returns(prices=prices, asset_type=asset_type)
+    sample_of_returns = get_sample_of_returns(ticker=ticker, prices=prices, asset_type=asset_type)
 
     likelihood_estimates = optimizer.maximize_univariate_normal_likelihood(data=sample_of_returns)
     # See NOTE in docstring
@@ -523,7 +523,7 @@ def calculate_percentile_risk_return(ticker: str, start_date: Union[date, None]=
     if not prices:
         raise errors.PriceError(f'No prices could be retrieved for {ticker}')
 
-    sample_of_returns = get_sample_of_returns(prices=prices, asset_type=asset_type)
+    sample_of_returns = get_sample_of_returns(ticker=ticker, prices=prices, asset_type=asset_type)
 
     first_quartile = estimators.sample_percentile(data=sample_of_returns, percentile=0.25)
     median = estimators.sample_percentile(data=sample_of_returns, percentile=0.50)
@@ -783,8 +783,8 @@ def calculate_percentile_correlation(ticker_1, ticker_2, asset_type_1=None, asse
     else:
         trading_period = constants.constants['ONE_TRADING_DAY']['EQUITY']
     
-    sample_of_returns_1 = get_sample_of_returns(prices=sample_prices[ticker_1], asset_type=asset_type_1)
-    sample_of_returns_2 = get_sample_of_returns(prices=sample_prices[ticker_2], asset_type=asset_type_2)
+    sample_of_returns_1 = get_sample_of_returns(ticker=ticker_1, prices=sample_prices[ticker_1], asset_type=asset_type_1)
+    sample_of_returns_2 = get_sample_of_returns(ticker=ticker_2, prices=sample_prices[ticker_2], asset_type=asset_type_2)
     
     # TODO: find bivariate percentiles. 
     
@@ -866,10 +866,12 @@ def calculate_likelihood_correlation(ticker_1, ticker_2, asset_type_1=None, asse
     if 0 in [len(sample_prices[ticker_1]), len(sample_prices[ticker_2])]:
         raise errors.PriceError("Prices cannot be retrieved for correlation calculation")
     
-    sample_of_returns_1 = get_sample_of_returns(prices=sample_prices[ticker_1], 
-                                                    asset_type=asset_type_1)
-    sample_of_returns_2 = get_sample_of_returns(prices=sample_prices[ticker_2], 
-                                                    asset_type=asset_type_2)
+    sample_of_returns_1 = get_sample_of_returns(ticker=ticker_1,
+                                                prices=sample_prices[ticker_1], 
+                                                asset_type=asset_type_1)
+    sample_of_returns_2 = get_sample_of_returns(ticker=ticker_2,
+                                                prices=sample_prices[ticker_2], 
+                                                asset_type=asset_type_2)
     
     combined_sample = [ [sample_of_returns_1[i], sample_of_returns_2[i]] for i, el in enumerate(sample_of_returns_1)]
 
