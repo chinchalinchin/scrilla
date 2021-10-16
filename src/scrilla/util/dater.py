@@ -93,9 +93,9 @@ def get_last_trading_date() -> datetime.date:
 def this_date_or_last_trading_date(date : Union[datetime.date, None] = None) -> datetime.date:
     if date is None:
         return get_last_trading_date()
-    elif is_date_holiday(date) or is_date_weekend(date):
+    if is_date_holiday(date) or is_date_weekend(date):
         return get_previous_business_date(date)
-    elif is_date_today(date):
+    if is_date_today(date):
         return last_close_date()
     return date
     
