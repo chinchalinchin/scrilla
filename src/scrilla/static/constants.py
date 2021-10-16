@@ -11,7 +11,7 @@ constants = {
     'NPV_DELTA_TOLERANCE': 0.0000001,
     'OPTIMIZATION_METHOD': "SLSQP",
     'SIG_FIGS': 5,
-    'LOG_LEVEL':{
+    'LOG_LEVEL': {
         'NONE': 'none',
         'INFO': 'info',
         'DEBUG': 'debug',
