@@ -45,7 +45,6 @@
     font-size: 12px;
     font-weight: 600;
 }
-
 #root {
     border-style: inset;
     border-radius: 2px;
@@ -105,6 +104,50 @@ QPushButton#button:pressed {
     border-width: 0.5px;
     border-color: $primary-900;
     background-color: $primary-700;
+}
+QPushButton#clear-button {
+    padding: 2px;
+    border-style: outset;
+    border-radius: 2px;
+    border-width: 0.5px;
+    border-color: $warning-900;
+    background-color: $warning-400;
+}
+QPushButton#clear-button:hover {
+    border-style: outset;
+    border-radius: 2px;
+    border-width: 0.5px;
+    border-color: $warning-900;
+    background-color: $warning-100;
+}
+QPushButton#clear-button:pressed {
+    border-style: inset;
+    border-radius: 2px;
+    border-width: 0.5px;
+    border-color: $warning-900;
+    background-color: $warning-700;
+}
+QPushButton#calculate-button {
+    padding: 2px;
+    border-style: outset;
+    border-radius: 2px;
+    border-width: 0.5px;
+    border-color: $accent-900;
+    background-color: $accent-400;
+}
+QPushButton#calculate-button:hover {
+    border-style: outset;
+    border-radius: 2px;
+    border-width: 0.5px;
+    border-color: $accent-900;
+    background-color: $accent-100;
+}
+QPushButton#calculate-button:pressed {
+    border-style: inset;
+    border-radius: 2px;
+    border-width: 0.5px;
+    border-color: $accent-900;
+    background-color: $accent-700;
 }
 #debug {
     border-style: inset;

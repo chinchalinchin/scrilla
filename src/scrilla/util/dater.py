@@ -3,16 +3,6 @@ from typing import List, Tuple, Union
 
 import dateutil.easter as easter
 
-def validate_date_string(parsed_date_string: str) -> bool:
-    """
-    Checks if the date string is a valid date in the 'YYYY-MM-DD' format.
-    """
-    length_check = (len(parsed_date_string) == 3 )
-    year_check = (int(parsed_date_string[0]) > 1950)
-    month_check = (int(parsed_date_string[1])>0 and int(parsed_date_string[1])<13)
-    day_check = (int(parsed_date_string[2])>0 and int(parsed_date_string[2])<32)
-    return (length_check and year_check and month_check and day_check)
-
 def validate_order_of_dates(start_date: datetime.date, end_date: datetime.date) -> Tuple[datetime.date, datetime.date]:
     """
     Returns the inputted dates as an tuple ordered from earliest to latest.
@@ -30,11 +20,7 @@ def parse_date_string(date_string: str) -> Union[datetime.date, None]:
     ..notes ::
         * can probably use `datetime.datetime.strptime` instead of this complicated mumbo-jumbo.
     """
-    parsed = str(date_string).split('-')
-    if validate_date_string(parsed):
-        date = datetime.date(year=int(parsed[0]), month=int(parsed[1]), day=int(parsed[2]))
-        return date
-    return None
+    return datetime.datetime.strptime(date_string,'%Y-%m-%d').date()
 
 def get_today() -> datetime.date:
     """
@@ -80,13 +66,18 @@ def is_date_holiday(date : datetime.date) -> bool:
     us_holidays = holidays.UnitedStates(years=date.year)
     # generate list without columbus day and veterans day since markets are open on those days
     trading_holidays = [ "Columbus Day", "Columbus Day (Observed)", "Veterans Day", "Veterans Day (Observed)"]
-    custom_holidays = [ date for date in us_holidays if us_holidays[date] not in trading_holidays ]
+    custom_holidays = [ date for date in  list(us_holidays) if us_holidays[date] not in trading_holidays ]
     # add good friday to list since markets are closed on good friday
     custom_holidays.append(easter.easter(year=date.year) - datetime.timedelta(days=2))
 
     return (date in custom_holidays)
 
 def get_last_trading_date() -> datetime.date:
+    """
+    Returns
+    -------
+    The last full trading day. If today is a trading day and the time is past market close, today's date will be returned. Otherwise, the previous business day's date will be returned. 
+    """
     today = datetime.datetime.now()
     if is_date_holiday(today) or is_date_weekend(today):
         today = get_previous_business_date(today)
@@ -95,9 +86,14 @@ def get_last_trading_date() -> datetime.date:
         return today.date()
     return get_previous_business_date(today.date())
 
-def this_date_or_last_trading_date(date : datetime.date) -> datetime.date:
+def this_date_or_last_trading_date(date : Union[datetime.date, None] = None) -> datetime.date:
+    if date is None:
+        return get_last_trading_date()
     if is_date_holiday(date) or is_date_weekend(date):
         date = get_previous_business_date(date)
+    trading_close_today = datetime.datetime.now().replace(hour=14)
+    if datetime.datetime.now() > trading_close_today:
+        return datetime.datetime.now().date()
     return date
     
 def verify_date_types(dates: Union[List[datetime.date], List[str]]) -> Union[List[datetime.date], None]:

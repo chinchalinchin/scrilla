@@ -81,7 +81,7 @@ def print_list(list_to_print, indent=formats.formats['INDENT']):
         print(' '*indent, f'{i}. {item}')
 
 def string_result(operation, result, indent=formats.formats['INDENT'], display=True):
-    output = ' '*indent, operation, ' = ', result
+    output = ' '*indent + operation + ' = ' + result
     if display:
         print(output)
         return

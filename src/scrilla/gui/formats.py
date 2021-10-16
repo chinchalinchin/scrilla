@@ -3,7 +3,9 @@ import json
 from typing import Tuple
 
 from scrilla import settings
-from scrilla.gui.widgets.functions import CorrelationWidget, DiscountDividendWidget, EfficientFrontierWidget, MovingAverageWidget, OptimizerWidget, RiskProfileWidget, YieldCurveWidget
+from scrilla.gui.widgets.functions import CorrelationWidget, DiscountDividendWidget, DistributionWidget, \
+                                            EfficientFrontierWidget, MovingAverageWidget, OptimizerWidget, \
+                                            RiskProfileWidget, YieldCurveWidget
 from scrilla.util import helper
 from scrilla.static import keys
 
@@ -13,6 +15,7 @@ FUNCTIONS= [
     ("Efficient Frontier", EfficientFrontierWidget),
     ("Moving Averages", MovingAverageWidget),
     ("Portfolio Optimization", OptimizerWidget),
+    ("Return Distribution", DistributionWidget),
     ("Risk Profile", RiskProfileWidget),
     ("Yield Curve", YieldCurveWidget)
 ]

@@ -185,12 +185,19 @@ FUNC_DICT = {
         'description': "Generates a grouped bar chart of the moving averages for each equity in the supplied list of ticker symbols. If no start or end dates are specified, calculations default to the last 100 days of prices.",
         'tickers': True,
     },
-    "plot_returns": {
-        'name': 'Distribution of Returns',
-        'values': ["plot-returns", "plot-rets"],
+    "plot_return_qq": {
+        'name': 'Normality of Returns (QQ Plot)',
+        'values': ["plot-return-qq", "plot-qq"],
         'args': ['start_date', 'end_date', 'save_file'],
         'description': "Generates a Q-Q Plot to graphically test the normality of returns for the inputted ticker symbol over the specified date range. If no start or date are specified, calculations default to the last 100 days of prices.",
         'tickers': True,
+    },
+    "plot_return_dist":{
+        'name': 'Distribution of Returns',
+        'values': ["plot-return-distribution", "plot-dist"],
+        'args': ['start_date', 'end_date', 'save_file'],
+        'description': 'Generates a histogram of the annualized daily return over the specified date range.',
+        'tickers': True
     },
     "plot_risk_profile": {
         'name': 'Plot Risk Profile',

@@ -150,8 +150,10 @@ keys= {
             'PROFILE': 'profile',
             'AVERAGES': 'averages',
             'FRONTIER': 'frontier',
+            'DIST': 'distribution',
             'DIVIDEND': 'dividends',
-            'YIELD': 'yieldcurve'
+            'YIELD': 'yieldcurve',
+            'QQ': 'qqplot'
         }
     },
     'APP':{

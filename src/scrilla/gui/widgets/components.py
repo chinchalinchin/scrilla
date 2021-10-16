@@ -17,6 +17,7 @@ import datetime
 from typing import Callable, Dict, List, Union
 from PySide6 import QtCore, QtWidgets, QtGui
 
+from scrilla import settings
 from scrilla.util import helper
 from scrilla.gui import utilities
 from scrilla.static import definitions
@@ -38,6 +39,13 @@ The idea behind the module is to hide as much widget initialization and styling 
 Widgets have styles applied to them through the `scrilla.styles.app.qss` stylesheet. Widgets are layered over one another in a hierarchy described by: `root` -> `child` -> `grand-child` -> `great-grand-child` -> etc. Each layers has a theme that descends down the material color scheme hex codes in sequence with its place in the layer hierarchy. See `scrilla.gui.formats` for more information. 
 """
 
+SYMBOLS_LIST="list"
+"""Constant passed into `scrilla.gui.widgets.components.ArgumentWidget` to initialize an input control allowing user to input list of ticker symbols"""
+SYMBOLS_SINGLE="single"
+"""Constant passed into `scrilla.gui.widgets.components.ArgumentWidget` to initialize an input control allowing user to input  single ticker symbol"""
+SYMBOLS_NONE="none"
+"""Constant passed into `scrilla.gui.widgets.components.ArgumentWidget` to initialize an input control without ticker symbols"""
+
 class ArgumentWidget(QtWidgets.QWidget):
     """
     Base class for other more complex widgets to inherit. An instance of `scrilla.gui.widgets.ArgumentWidget` embeds its child widgets in its own layout,  which is an instance of``PySide6.QtWidgetQVBoxLayout``. This class provides access to the following widgets:a ``PySide6.QtWidgets.QLabel`` for the title widget, an error message widget, a ``PySide6.QtWidgets.QPushButton`` for the calculate button widget, a ``PySide6.QtWidget.QLineEdit`` for ticker symbol input, and a variety of optional input widgets enabled by boolean flags in the `controls` constructor argument. 
@@ -52,6 +60,8 @@ class ArgumentWidget(QtWidgets.QWidget):
         Dictionary of boolean flags instructing the class which optional input to include. Optional keys can be found in `scrilla.static.definitions.ARG_DICT`. An dictionary skeleton with all the optional input disabled can be retrieved through `scrilla.gui.widgets.factories.generate_control_skeleton`.
     4. **layer**: ``str``
         Stylesheet property attached to widget.
+    5. **single**: ``bool``
+        Flag to limit symbol input to one ticker symbol. Calls to `get_symbol_input()` will return 
 
     Attributes
     ----------
@@ -74,7 +84,7 @@ class ArgumentWidget(QtWidgets.QWidget):
         Dictionary containing the optional input widgets.
     """
     # TODO: calculate and clear should be part of THIS constructor, doesn't make sense to have other widgets hook them up.
-    def __init__(self, calculate_function: Callable, clear_function: Callable, controls: Dict[str, bool], layer):
+    def __init__(self, calculate_function: Callable, clear_function: Callable, controls: Dict[str, bool], layer, mode: str = SYMBOLS_LIST):
         super().__init__()
         self.layer = layer
         self.controls = controls
@@ -82,23 +92,34 @@ class ArgumentWidget(QtWidgets.QWidget):
         self.calculate_function = calculate_function
         self.clear_function = clear_function
 
-        self._init_widgets()
+        self._init_widgets(mode)
         self._arrange_widgets()
         self._stage_widgets()
     
-    def _init_widgets(self):
+    def _init_widgets(self, mode: str) -> None:
         """
         Creates child widgets by calling factory methods from `scrilla.gui.widgets.factories`. This method will iterate over `self.controls` and initialize the optional input widget accordingly. `self.optional_pane` and `self.required_pane`, the container widgets for the input elements, are initialized with a style tag on the same layer as the `scrilla.gui.widgets.components.ArgumentWidget`.
         """
         self.title = factories.atomic_widget_factory(format='subtitle', title='Function Input')
-        self.required_title = factories.atomic_widget_factory(format='label', title='Required Arguments')
         self.optional_title = factories.atomic_widget_factory(format='label', title='Optional Arguments')
         self.error_message = factories.atomic_widget_factory(format='error', title="Error Message Goes Here")
         self.calculate_button = factories.atomic_widget_factory(format='button', title='Calculate')
         self.clear_button = factories.atomic_widget_factory(format='button', title='Clear')
-        self.symbol_hint = factories.atomic_widget_factory(format='text', title="Separate Symbols With Commas")
 
-        self.symbol_widget = factories.composite_widget_factory(format='symbols', title="Symbols :", optional=False)
+        if mode == SYMBOLS_LIST:
+            self.required_title = factories.atomic_widget_factory(format='label', title='Required Arguments')
+            self.symbol_hint = factories.atomic_widget_factory(format='text', title="Separate Symbols With Commas")
+            self.required_pane = factories.layout_factory(format='vertical-box')
+            self.required_pane.setObjectName(self.layer)
+            self.symbol_widget = factories.composite_widget_factory(format='symbols', title="Symbols :", optional=False)
+        elif mode == SYMBOLS_SINGLE:
+            self.required_title = factories.atomic_widget_factory(format='label', title='Required Argument')
+            self.symbol_hint = factories.atomic_widget_factory(format='text', title="Enter a Single Symbol")
+            self.required_pane = factories.layout_factory(format='vertical-box')
+            self.required_pane.setObjectName(self.layer)
+            self.symbol_widget = factories.composite_widget_factory(format='symbol', title="Symbol: ", optional=False)
+        else:
+            self.symbol_widget = None
 
         for control in self.controls:
             if self.controls[control]:
@@ -107,10 +128,7 @@ class ArgumentWidget(QtWidgets.QWidget):
                                                                             optional = True)
             else:
                 self.control_widgets[control] = None
-        # TODO: save group controls in dictionary and initialize in separate loop so all elements in group can be inputted.
 
-        self.required_pane = factories.layout_factory(format='vertical-box')
-        self.required_pane.setObjectName(self.layer)
         self.optional_pane = factories.layout_factory(format='vertical-box')
         self.optional_pane.setObjectName(self.layer)
         self.setLayout(QtWidgets.QVBoxLayout())
@@ -120,14 +138,17 @@ class ArgumentWidget(QtWidgets.QWidget):
         Arrange child widgets in their layouts and provides rendering hints. The `self.symbol_widget` is set into a ``PySide6.QtWidgets.QVBoxLayout`` named `self.required_pane`. The optional input widgets are set into a separate ``PySide6.QtWidgets.QVBoxLayout`` named `self.optional_pane`. `self.required_pane` and `self.optional_pane` are in turn set into a parent `PySide6.QtWidgets.QVBoxLayout``, along with `self.calculate_button` and `self.clear_button`. A strecth widget is inserted between the input widgets and the button widgets. 
         
         """
-        factories.set_policy_on_widget_list([self.title, self.required_title, self.optional_title, self.symbol_hint, 
-                                            self.required_pane, self.optional_pane], 
+        factories.set_policy_on_widget_list([self.title, self.optional_title, self.optional_pane], 
                                             QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Maximum))
+        if self.symbol_widget is not None:
+            factories.set_policy_on_widget_list([self.symbol_hint, self.required_title, self.required_pane],
+                                                QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Maximum))
         self.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding))
 
-        self.required_pane.layout().addWidget(self.required_title)
-        self.required_pane.layout().addWidget(self.symbol_hint)
-        self.required_pane.layout().addWidget(self.symbol_widget)
+        if self.symbol_widget is not None:
+            self.required_pane.layout().addWidget(self.required_title)
+            self.required_pane.layout().addWidget(self.symbol_hint)
+            self.required_pane.layout().addWidget(self.symbol_widget)
 
         self.optional_pane.layout().addWidget(self.optional_title)
         for control_widget in self.control_widgets.values():
@@ -136,7 +157,8 @@ class ArgumentWidget(QtWidgets.QWidget):
 
         self.layout().addWidget(self.title)
         self.layout().addWidget(self.error_message)
-        self.layout().addWidget(self.required_pane)
+        if self.symbol_widget is not None:
+            self.layout().addWidget(self.required_pane)
         self.layout().addWidget(self.optional_pane)
         self.layout().addStretch()
         self.layout().addWidget(self.calculate_button)
@@ -149,19 +171,25 @@ class ArgumentWidget(QtWidgets.QWidget):
         self.error_message.hide()
         self.clear_button.clicked.connect(self.clear_function)
         self.calculate_button.clicked.connect(self.calculate_function)
+        if self.symbol_widget is not None:
             # NOTE: symbol widget is technically a layout in which the lineedit is abutted by a label, so need
             # to pull the actual input element from the layout
-        self.symbol_widget.layout().itemAt(1).widget().returnPressed.connect(self.calculate_function)
+            self.symbol_widget.layout().itemAt(1).widget().returnPressed.connect(self.calculate_function)
 
-    def get_symbol_input(self) -> str:
+    def get_symbol_input(self) -> Union[List[str], str, None]:
         """
-        Returns the list of symbols inputted into the `PySide6.QtWidgets.QLineEdit` child of `symbol_widget`. The strings in the returned list have been split on a comma delimiter and had whitespace trimmed. 
+        Returns the symbols inputted into the `PySide6.QtWidgets.QLineEdit` child of `symbol_widget`. If the `ArgumentWidget` has been initialized as a `scrilla.gui.widgets.components.SYMBOLS_LIST`, the method will return a list of inputted strings. If the `ArgumentWidget` has been initialied as a `scrilla.gui.widgets.components.SYMBOLS_SINGLE`, the method will return a single string. If the `ArgumentWidget` has been initialized as a `scrilla.gui.widgets.components.SYMBOLS_NONE`, this method will return `None`. In addition, in the first two cases, if no input has been entered, this method will return `None`. 
         """
-        return helper.split_and_strip(self.symbol_widget.layout().itemAt(1).widget().text())
+        if self.symbol_widget is not None:
+            input_string = helper.split_and_strip(self.symbol_widget.layout().itemAt(1).widget().text())
+            if len(input_string) == 1:
+                return input_string[0].strip()
+            return input_string
+        return None
 
     def get_control_input(self, control_widget_key: str) -> Union[datetime.date, str, bool, None]:
         """
-        Get the value on the specified optional input widget. Optional keys are accessed through the keys of the  `scrilla.static.definitions.ARG_DICT` dictionary.
+        Get the value on the specified optional input widget. Optional keys are accessed through the keys of the `scrilla.static.definitions.ARG_DICT` dictionary.
 
         If the widget is disabled or has been excluded altogether from the parent widget, i.e. a value of `False` was passed in through the constructor's `controls` arguments for that optional input widget, this method will return `None`.
         """
@@ -190,8 +218,9 @@ class ArgumentWidget(QtWidgets.QWidget):
         """
         self.clear_button.hide()
         self.calculate_button.show()
-        self.symbol_widget.layout().itemAt(1).widget().setEnabled(True)
-        self.symbol_widget.layout().itemAt(1).widget().clear()
+        if self.symbol_widget is not None:
+            self.symbol_widget.layout().itemAt(1).widget().setEnabled(True)
+            self.symbol_widget.layout().itemAt(1).widget().clear()
         for control in self.control_widgets:
             if self.control_widgets[control] is not None:
                 if type(self.control_widgets[control].layout().itemAt(1).widget()) != QtWidgets.QRadioButton:
@@ -209,7 +238,8 @@ class ArgumentWidget(QtWidgets.QWidget):
         """
         self.clear_button.show()
         self.calculate_button.hide()
-        self.symbol_widget.layout().itemAt(1).widget().setEnabled(False)
+        if self.symbol_widget is not None:
+            self.symbol_widget.layout().itemAt(1).widget().setEnabled(False)
         for control in self.control_widgets:
             if self.control_widgets[control] is not None:
                 self.control_widgets[control].layout().itemAt(1).widget().setEnabled(False)

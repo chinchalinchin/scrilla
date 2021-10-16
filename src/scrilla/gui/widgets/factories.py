@@ -33,7 +33,7 @@ def atomic_widget_factory(format: str, title: str):
             widget.setAlignment(QtCore.Qt.AlignBottom)
         widget.setObjectName(format)
 
-    elif format == 'button':
+    elif format in ['calculate-button', 'clear-button', 'button']:
         widget = QtWidgets.QPushButton(title)
         widget.setAutoDefault(True)
         widget.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
@@ -134,6 +134,12 @@ def composite_widget_factory(format: str, title: str = None, optional : bool = T
         main_widget.setMaxLength(100)
         main_widget.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum))
 
+    elif format == 'symbol':
+        main_widget = QtWidgets.QLineEdit()
+        main_widget.setObjectName(format)
+        main_widget.setMaxLength(100)
+        main_widget.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum))
+        main_widget.setValidator(QtGui.QRegularExpressionValidator(r"[A-Za-z]+", main_widget))
 
     else:
         main_widget = QtWidgets.QWidget()

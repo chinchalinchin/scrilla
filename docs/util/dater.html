@@ -33,6 +33,9 @@ from typing import List, Tuple, Union
 import dateutil.easter as easter
 
 def validate_date_string(parsed_date_string: str) -&gt; bool:
+    &#34;&#34;&#34;
+    Checks if the date string is a valid date in the &#39;YYYY-MM-DD&#39; format.
+    &#34;&#34;&#34;
     length_check = (len(parsed_date_string) == 3 )
     year_check = (int(parsed_date_string[0]) &gt; 1950)
     month_check = (int(parsed_date_string[1])&gt;0 and int(parsed_date_string[1])&lt;13)
@@ -40,6 +43,9 @@ def validate_date_string(parsed_date_string: str) -&gt; bool:
     return (length_check and year_check and month_check and day_check)
 
 def validate_order_of_dates(start_date: datetime.date, end_date: datetime.date) -&gt; Tuple[datetime.date, datetime.date]:
+    &#34;&#34;&#34;
+    Returns the inputted dates as an tuple ordered from earliest to latest.
+    &#34;&#34;&#34;
     delta = (end_date - start_date).days
     if delta &lt; 0:
         return end_date, start_date
@@ -997,12 +1003,15 @@ End date of the date range.</li>
 <span>def <span class="ident">validate_date_string</span></span>(<span>parsed_date_string: str) ‑> bool</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Checks if the date string is a valid date in the 'YYYY-MM-DD' format.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def validate_date_string(parsed_date_string: str) -&gt; bool:
+    &#34;&#34;&#34;
+    Checks if the date string is a valid date in the &#39;YYYY-MM-DD&#39; format.
+    &#34;&#34;&#34;
     length_check = (len(parsed_date_string) == 3 )
     year_check = (int(parsed_date_string[0]) &gt; 1950)
     month_check = (int(parsed_date_string[1])&gt;0 and int(parsed_date_string[1])&lt;13)
@@ -1014,12 +1023,15 @@ End date of the date range.</li>
 <span>def <span class="ident">validate_order_of_dates</span></span>(<span>start_date: datetime.date, end_date: datetime.date) ‑> Tuple[datetime.date, datetime.date]</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Returns the inputted dates as an tuple ordered from earliest to latest.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def validate_order_of_dates(start_date: datetime.date, end_date: datetime.date) -&gt; Tuple[datetime.date, datetime.date]:
+    &#34;&#34;&#34;
+    Returns the inputted dates as an tuple ordered from earliest to latest.
+    &#34;&#34;&#34;
     delta = (end_date - start_date).days
     if delta &lt; 0:
         return end_date, start_date

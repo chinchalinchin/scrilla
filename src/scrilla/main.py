@@ -560,20 +560,31 @@ def do_program() -> None:
         selected_function, required_length = cli_plot_moving_averages, 1
 
     ### FUNCTION: Plot Return QQ Series
-    elif args['function_arg'] in definitions.FUNC_DICT['plot_returns']['values']:
-        def cli_plot_returns():
-            asset_type = files.get_asset_type(symbol=args['tickers'][0])
-            prices = services.get_daily_price_history(ticker=args['tickers'][0], 
+    elif args['function_arg'] in definitions.FUNC_DICT['plot_return_qq']['values']:
+        def cli_plot_qq_returns():
+            returns = statistics.get_sample_of_returns(ticker=args['tickers'][0], 
                                                         start_date=args['start_date'],
                                                         end_date=args['end_date'],
-                                                        asset_type=asset_type)
-            returns = statistics.get_sample_of_returns(prices, asset_type)
+                                                        daily=True)
             qq_series = estimators.qq_series_for_sample(sample=returns)
             plotter.plot_qq_series(ticker=args['tickers'][0], 
-                                    sample=qq_series, 
+                                    qq_series=qq_series, 
                                     show=True, 
                                     savefile=args['save_file'])
-        selected_function, required_length, exact = cli_plot_returns, 1, True
+        selected_function, required_length, exact = cli_plot_qq_returns, 1, True
+
+    ### FUNCTION: Plot Histogram of Returns
+    elif args['function_arg'] in definitions.FUNC_DICT['plot_return_dist']['values']:
+        def cli_plot_dist_returns():
+            returns = statistics.get_sample_of_returns(ticker=args['tickers'][0],
+                                                        start_date=args['start_date'],
+                                                        end_date=args['end_date'],
+                                                        daily=True)
+            plotter.plot_return_histogram(ticker=args['tickers'][0],
+                                            sample=returns, 
+                                            show=True,
+                                            savefile=args['save_file'])
+        selected_function, required_length, exact = cli_plot_dist_returns, 1, True
 
     ### FUNCTION: Plot Risk-Return Profile
     elif args['function_arg'] in definitions.FUNC_DICT['plot_risk_profile']['values']:

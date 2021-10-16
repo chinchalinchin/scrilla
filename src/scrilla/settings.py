@@ -49,6 +49,8 @@ CACHE_SQLITE_FILE = os.environ.setdefault('SQLITE_FILE', os.path.join(CACHE_DIR,
 
 TEMP_DIR = os.path.join(APP_DIR, 'data', 'tmp')
 
+ASSET_DIR = os.path.join(APP_DIR, 'data', 'assets')
+
 STATIC_DIR = os.path.join(APP_DIR, 'data', 'static')
 """Directory containg static data, such as ticker symbols, statistic symbols, etc."""
 

@@ -2,10 +2,10 @@ import os, datetime
 from typing import List, Union
 import numpy, matplotlib
 from PIL import Image
-from PIL.Image import Image as img
 
 from matplotlib.figure import Figure
 from matplotlib import dates as mdates
+from matplotlib.ticker import PercentFormatter
 
 from scrilla import settings
 from scrilla.static import formats, keys
@@ -36,11 +36,11 @@ def _show_or_save(canvas: FigureCanvas, show: bool = True, savefile: str = None)
     canvas.draw()
     return canvas
 
-def plot_qq_series(ticker: str, sample: list, show: bool=True, savefile: str=None) -> Union[FigureCanvas, None]:
+def plot_qq_series(ticker: str, qq_series: list, show: bool=True, savefile: str=None) -> Union[FigureCanvas, None]:
     title = f'{ticker} Return Q-Q Plot'
     normal_series = []
     sample_series = []
-    for point in sample:
+    for point in qq_series:
         normal_series.append(point[0])
         sample_series.append(point[1])
 
@@ -48,7 +48,7 @@ def plot_qq_series(ticker: str, sample: list, show: bool=True, savefile: str=Non
     axes = canvas.figure.subplots()
 
     axes.plot(normal_series, sample_series, linestyle="None", marker=".", markersize=10.0)
-    axes.plot(normal_series, normal_series)
+    # axes.plot(normal_series, normal_series)
     axes.grid()
     axes.set_xlabel('Normal Percentiles')
     axes.set_ylabel('Sample Percentiles')
@@ -123,9 +123,20 @@ def plot_yield_curve(yield_curve: dict, show: bool=True, savefile: str=None) -> 
     axes.plot(maturities, rates, linestyle="dashed", marker= ".", markersize=10.0)
     axes.grid()
     axes.set_xlabel('Maturity')
-    axes.set_ylabel('Annual Yield')
+    axes.set_ylabel('Annual Yield %')
     axes.set_title(title)
 
+    return _show_or_save(canvas=canvas, show=show, savefile=savefile)
+
+def plot_return_histogram(ticker: str, sample: list, show: bool=True, savefile: str=None)-> Union[FigureCanvas, None]:
+    canvas = FigureCanvas(Figure())
+    axes = canvas.figure.subplots()
+
+    axes.hist(x=sample, bins=formats.formats['BINS'], density=True)
+    axes.xaxis.set_major_formatter(PercentFormatter(xmax=1))
+    axes.set_title(f'Distribution of {ticker} Returns')
+    axes.set_xlabel('Daily Return')
+    
     return _show_or_save(canvas=canvas, show=show, savefile=savefile)
 
 def plot_profiles(symbols: list, profiles: dict, show: bool=True, savefile: str=None, subtitle: str=None) -> Union[FigureCanvas, None]:

@@ -20,7 +20,7 @@ from PySide6 import QtGui, QtCore, QtWidgets
 from scrilla import settings, services
 from scrilla.static import keys, definitions
 # TODO: conditional import based on ANALYSIS_MODE
-from scrilla.analysis import markets, optimizer
+from scrilla.analysis import estimators, markets, optimizer
 from scrilla.analysis.models.geometric import statistics
 from scrilla.analysis.objects.portfolio import Portfolio
 from scrilla.analysis.objects.cashflow import Cashflow
@@ -44,6 +44,75 @@ class SkeletonWidget(QtWidgets.QWidget):
             if not definitions.ARG_DICT[arg]['cli_only']:
                 self.controls[arg] = True
 
+class DistributionWidget(SkeletonWidget):
+    def __init__(self, layer: str, parent: Union[QtWidgets.QWidget,None]=None):
+        super().__init__(function='plot_return_dist', parent=parent)
+        self.setObjectName(layer)
+        self._init_widgets()
+        self._arrange_widgets()
+        self._stage_widgets()
+
+    def _init_widgets(self):
+        self.arg_widget = components.ArgumentWidget(calculate_function=self.calculate,
+                                                    clear_function=self.clear,
+                                                    controls=self.controls,
+                                                    layer=utilities.get_next_layer(self.objectName()))
+        self.title = factories.atomic_widget_factory(format='heading', title='Distribution of Returns')
+        self.tab_container = factories.layout_factory(format='vertical-box')
+        self.tab_widget = QtWidgets.QTabWidget()
+        self.setLayout(QtWidgets.QHBoxLayout())
+
+    def _arrange_widgets(self):
+        self.tab_container.layout().addWidget(self.tab_widget)
+        self.layout().addWidget(self.tab_container)
+        self.layout().addWidget(self.arg_widget)
+
+    def _stage_widgets(self):
+        self.arg_widget.prime()
+
+    def resizeEvent(self, event: QtGui.QResizeEvent) -> None:
+        for i in range(self.tab_widget.count()):
+            if self.tab_widget.widget(i).figure.isVisible():
+                self.tab_widget.widget(i).set_pixmap()
+        return super().resizeEvent(event)
+
+    @QtCore.Slot()
+    def calculate(self):
+        symbols = self.arg_widget.get_symbol_input()
+        start_date = self.arg_widget.get_control_input('start_date')
+        end_date = self.arg_widget.get_control_input('end_date')
+
+        for symbol in symbols:
+            qq_plot = components.GraphWidget(tmp_graph_key=f'{keys.keys["GUI"]["TEMP"]["QQ"]}_{symbol}',
+                                                layer=utilities.get_next_layer(self.objectName()))
+            dist_plot = components.GraphWidget(tmp_graph_key=f'{keys.keys["GUI"]["TEMP"]["DIST"]}_{symbol}',
+                                                layer=utilities.get_next_layer(self.objectName()))
+            returns = statistics.get_sample_of_returns(ticker=symbol, 
+                                                        start_date=start_date,
+                                                        end_date=end_date,
+                                                        daily=True)
+            qq_series = estimators.qq_series_for_sample(sample=returns)
+            plotter.plot_qq_series(ticker=symbol,
+                                    qq_series=qq_series,
+                                    show=False,
+                                    savefile=f'{settings.TEMP_DIR}/{keys.keys["GUI"]["TEMP"]["QQ"]}_{symbol}')
+            plotter.plot_return_histogram(ticker=symbol,
+                                            sample=returns,
+                                            show=False,
+                                            savefile=f'{settings.TEMP_DIR}/{keys.keys["GUI"]["TEMP"]["DIST"]}_{symbol}',)
+            dist_plot.set_pixmap()
+            qq_plot.set_pixmap()
+            self.tab_widget.addTab(qq_plot, f'{symbol} QQ Plot')
+            self.tab_widget.addTab(dist_plot, f'{symbol} Distribution')
+        self.tab_widget.show()
+        self.arg_widget.fire()
+
+    @QtCore.Slot()
+    def clear(self):
+        self.arg_widget.prime()
+        for i in range(self.tab_widget.count()):
+            self.tab_widget.removeTab(i)
+
 class YieldCurveWidget(SkeletonWidget):
     def __init__(self, layer: str, parent: Union[QtWidgets.QWidget, None] = None):
         super().__init__(function='yield_curve', parent=parent)
@@ -58,7 +127,8 @@ class YieldCurveWidget(SkeletonWidget):
         self.arg_widget = components.ArgumentWidget(calculate_function=self.calculate,
                                                     clear_function=self.clear, 
                                                     controls=self.controls,
-                                                    layer=utilities.get_next_layer(self.objectName()))
+                                                    layer=utilities.get_next_layer(self.objectName()),
+                                                    mode=components.SYMBOLS_NONE)
         # TODO: initialize arg widget WITHOUT tickers
 
         self.setLayout(QtWidgets.QHBoxLayout())
@@ -81,12 +151,13 @@ class YieldCurveWidget(SkeletonWidget):
             self.graph_widget.figure.hide()
 
         yield_curve = {}
-        start_string = dater.date_to_string(self.arg_widget.get_control_input('start_date'))
+        start_date = dater.this_date_or_last_trading_date(self.arg_widget.get_control_input('start_date'))
+        start_string = dater.date_to_string(start_date)
         yield_curve[start_string] = []
         for maturity in keys.keys['YIELD_CURVE']:
             rate = services.get_daily_interest_history(maturity=maturity, 
-                                                            start_date=self.arg_widget.get_control_input('start_date'),
-                                                            end_date=self.arg_widget.get_control_input('start_date'))
+                                                            start_date=start_date,
+                                                            end_date=start_date)
             yield_curve[start_string].append(rate[start_string])
         
         plotter.plot_yield_curve(yield_curve=yield_curve, 
@@ -138,7 +209,6 @@ class DiscountDividendWidget(SkeletonWidget):
         symbol = self.arg_widget.get_symbol_input()[0]
         discount = self.arg_widget.get_control_input('discount')
 
-        print(discount)
         if discount is None:
             discount = markets.cost_of_equity(ticker=symbol, 
                                                 start_date=self.arg_widget.get_control_input('start_date'),
