@@ -1,7 +1,8 @@
 from typing import List
 
 from PySide6 import QtWidgets, QtCore, QtGui
-from scrilla.static import definitions, constants
+from scrilla import settings
+from scrilla.static import definitions, constants, keys
 
 def generate_control_skeleton():
     return { arg: False for arg in definitions.ARG_DICT if not definitions.ARG_DICT[arg]['cli_only']}
@@ -33,12 +34,25 @@ def atomic_widget_factory(format: str, title: str):
             widget.setAlignment(QtCore.Qt.AlignBottom)
         widget.setObjectName(format)
 
-    elif format in ['calculate-button', 'clear-button', 'button']:
-        widget = QtWidgets.QPushButton(title)
+    elif format in ['calculate-button', 'clear-button', 'hide-button', 'button', ]:
+        if format not in ['hide-button']:
+            widget = QtWidgets.QPushButton(title)
+            widget.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Maximum))
+
+        else:
+            widget = QtWidgets.QPushButton()
+            widget.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum))
+
         widget.setAutoDefault(True)
         widget.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
-        widget.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Maximum))
         widget.setObjectName(format)
+
+        if format == 'calculate-button':
+            widget.setIcon(QtGui.QIcon(f'{settings.ASSET_DIR}/{keys.keys["GUI"]["ICONS"]["CALC"]}'))
+        elif format == 'clear-button':
+            widget.setIcon(QtGui.QIcon(f'{settings.ASSET_DIR}/{keys.keys["GUI"]["ICONS"]["CLEAR"]}'))
+        elif format == 'hide-button':
+            widget.setIcon(QtGui.QIcon(f'{settings.ASSET_DIR}/{keys.keys["GUI"]["ICONS"]["HIDE"]}'))
 
     elif format == 'table':
         widget = QtWidgets.QTableWidget()

@@ -154,6 +154,18 @@ keys= {
             'DIVIDEND': 'dividends',
             'YIELD': 'yieldcurve',
             'QQ': 'qqplot'
+        },
+        'ICONS':{
+            'CALC': 'calculator-sharp.svg',
+            'CLEAR': 'close-circle-sharp.svg',
+            'HIDE': 'arrow-back-circle-sharp.svg'
+        },
+        'SHORTCUTS':{
+            'CORREL': 'Ctrl+1',
+            'DIVIDEND': 'Ctrl+2',
+            'FRONTIER': 'Ctrl+3',
+            'AVERAGES': 'Ctrl+4',
+            'OPTIMIZE': 'Ctrl+5'
         }
     },
     'APP':{

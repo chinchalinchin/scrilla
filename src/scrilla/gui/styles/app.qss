@@ -110,22 +110,22 @@ QPushButton#clear-button {
     border-style: outset;
     border-radius: 2px;
     border-width: 0.5px;
-    border-color: $warning-900;
-    background-color: $warning-400;
+    border-color: $warn-900;
+    background-color: $warn-400;
 }
 QPushButton#clear-button:hover {
     border-style: outset;
     border-radius: 2px;
     border-width: 0.5px;
-    border-color: $warning-900;
-    background-color: $warning-100;
+    border-color: $warn-900;
+    background-color: $warn-100;
 }
 QPushButton#clear-button:pressed {
     border-style: inset;
     border-radius: 2px;
     border-width: 0.5px;
-    border-color: $warning-900;
-    background-color: $warning-700;
+    border-color: $warn-900;
+    background-color: $warn-700;
 }
 QPushButton#calculate-button {
     padding: 2px;
@@ -148,6 +148,28 @@ QPushButton#calculate-button:pressed {
     border-width: 0.5px;
     border-color: $accent-900;
     background-color: $accent-700;
+}
+QPushButton#hide-button {
+    padding: 2px;
+    border-style: outset;
+    border-radius: 2px;
+    border-width: 0.5px;
+    border-color: $primary-900;
+    background-color: $primary-500;
+}
+QPushButton#hide-button:hover {
+    border-style: outset;
+    border-radius: 2px;
+    border-width: 0.5px;
+    border-color: $primary-900;
+    background-color: $primary-300;
+}
+QPushButton#hide-button:pressed {
+    border-style: inset;
+    border-radius: 2px;
+    border-width: 0.5px;
+    border-color: $primary-900;
+    background-color: $primary-900;
 }
 #debug {
     border-style: inset;

@@ -1,3 +1,4 @@
+from PySide6 import QtWidgets
 from PySide6.QtGui import QPixmap
 from PySide6.QtCore import Qt
 
@@ -20,3 +21,9 @@ def get_next_layer(layer):
     if layer == "child":
         return "grand-child"
     return f'great-{layer}'
+
+def switch_visibility(widget: QtWidgets.QWidget):
+    if widget.isVisible():
+        widget.hide()
+    else:
+        widget.show()

@@ -375,6 +375,7 @@ If the above problem is to be solved, the cache needs modified to separate price
 
 
 # Documentation
+## Dependencies
 - [dateutil](https://dateutil.readthedocs.io/en/stable/index.html)
 - [holidays](https://github.com/dr-prodigy/python-holidays)
 - [matplotlib](https://matplotlib.org/)
@@ -383,3 +384,5 @@ If the above problem is to be solved, the cache needs modified to separate price
 - [requests](https://docs.python-requests.org/en/latest/)
 - [scipy](https://www.scipy.org/docs.html)
 - [sqlite3](https://docs.python.org/3/library/sqlite3.html)
+## Assets
+- [Ionicons](https://ionic.io/ionicons)

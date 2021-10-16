@@ -40,7 +40,9 @@ def do_gui():
     with open(settings.GUI_STYLESHEET_FILE, "r") as f:
         _style = formats.format_stylesheet(f.read())
         app.setStyleSheet(_style)
-        
+    
+    logger.debug(f'Initializing GUI with style sheet: {_style}')
+    
     if not dimensions['full_screen']:    
         widget.resize(dimensions['width'], dimensions['height'])
         center = QtGui.QScreen.availableGeometry(QtWidgets.QApplication.primaryScreen()).center()

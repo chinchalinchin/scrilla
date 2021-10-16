@@ -9,18 +9,70 @@ from scrilla.gui.widgets.functions import CorrelationWidget, DiscountDividendWid
 from scrilla.util import helper
 from scrilla.static import keys
 
-FUNCTIONS= [
-    ("Correlation Matrix", CorrelationWidget),
-    ("Discount Dividend Model", DiscountDividendWidget),
-    ("Efficient Frontier", EfficientFrontierWidget),
-    ("Moving Averages", MovingAverageWidget),
-    ("Portfolio Optimization", OptimizerWidget),
-    ("Return Distribution", DistributionWidget),
-    ("Risk Profile", RiskProfileWidget),
-    ("Yield Curve", YieldCurveWidget)
-]
+FUNC_WIDGETS= {
+    'correlation':{
+        'name': 'Correlation Matrix',
+        'class': CorrelationWidget,
+        'shortcut': 'Ctrl+1',
+        'group': 'analysis'
+    },
+    'dividend': {
+        'name': 'Discount Discount Model',
+        'class': DiscountDividendWidget,
+        'shortcut':'Ctrl+2',
+        'group': 'analysis'
+    },
+    'frontier': {
+        'name': 'Efficient Frontiers',
+        'class': MovingAverageWidget,
+        'shortcut': 'Ctrl+3',
+        'group': 'analysis'
+    },
+    'averages':{
+        'name': 'Moving Averages',
+        'class': OptimizerWidget,
+        'shortcut': 'Ctrl+4',
+        'group': 'analysis'
+    },
+    'optimize':{
+        'name': 'Portfolio Optimization',
+        'class': DistributionWidget,
+        'shortcut': 'Ctrl+5',
+        'group': 'allocation'
+    },
+    'distribution':{
+        'name': 'Return Distribution',
+        'class': DistributionWidget,
+        'shortcut': 'Ctrl+7',
+        'group': 'analysis'
+    },
+    'risk_profile':{
+        'name': 'Risk Profile',
+        'class': RiskProfileWidget,
+        'shortcut': 'Ctrl+8',
+        'group': 'analysis'
+
+    }
+}
+
+MENUBAR_WIDGET={
+    'File': [ {
+        'name': 'Add API Key',
+        'shortcut': 'Ctrl+A', 
+    }],
+    'Functions' : [ {
+        'name': FUNC_WIDGETS[func_widget]['name'], 
+        'shortcut': FUNC_WIDGETS[func_widget]['shortcut']
+        } for func_widget in FUNC_WIDGETS
+    ],
+    'View': [ {
+        'name': 'Function Menu',
+        'shortcut': 'Ctrl+F'
+    }]
+}
 
 MARGINS = 5
+
 
 def format_stylesheet(sheet):
     if settings.GUI_DARK_MODE:

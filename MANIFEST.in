@@ -5,3 +5,4 @@ include src/scrilla/data/tmp/.gitkeep
 include src/scrilla/gui/styles/app.qss
 include src/scrilla/gui/styles/themes.json
 include src/scrilla/version.txt
+include src/scrilla/data/assets/*

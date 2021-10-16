@@ -103,8 +103,8 @@ class ArgumentWidget(QtWidgets.QWidget):
         self.title = factories.atomic_widget_factory(format='subtitle', title='Function Input')
         self.optional_title = factories.atomic_widget_factory(format='label', title='Optional Arguments')
         self.error_message = factories.atomic_widget_factory(format='error', title="Error Message Goes Here")
-        self.calculate_button = factories.atomic_widget_factory(format='button', title='Calculate')
-        self.clear_button = factories.atomic_widget_factory(format='button', title='Clear')
+        self.calculate_button = factories.atomic_widget_factory(format='calculate-button', title='Calculate')
+        self.clear_button = factories.atomic_widget_factory(format='clear-button', title='Clear')
 
         if mode == SYMBOLS_LIST:
             self.required_title = factories.atomic_widget_factory(format='label', title='Required Arguments')

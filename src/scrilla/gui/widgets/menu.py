@@ -19,7 +19,7 @@ from PySide6 import QtCore, QtWidgets, QtGui
 
 from scrilla import settings
 
-from scrilla.gui import formats
+from scrilla.gui import formats, utilities
 from scrilla.gui.widgets import factories
 
 # NOTE: widget_buttons and function_widgets must preserve order.
@@ -29,6 +29,8 @@ class MenuWidget(QtWidgets.QWidget):
     .. notes::
         * Widget Hierarchy: 
 
+    .. links::
+        * [Stack Overflow: Weird Lambda Behavior in Loops](https://stackoverflow.com/questions/19768456/weird-lambda-behaviour-in-loops)
     """
     def __init__(self):
         super().__init__()
@@ -38,47 +40,39 @@ class MenuWidget(QtWidgets.QWidget):
         self._stage_menu_widgets()
 
     def _generate_menu_bar(self):
-        self.api_key_action = QtGui.QAction('Add API Key', self)
-        self.api_key_action.setEnabled(True)
-
-        self.jpeg_export_action = QtGui.QAction('JPEG', self)
-        self.jpeg_export_action.setEnabled(False)
-
-        self.json_export_action = QtGui.QAction('JSON', self)
-        self.json_export_action.setEnabled(False)
-
         self.menu_bar = factories.atomic_widget_factory(format='menu-bar', title=None)
-        file = self.menu_bar.addMenu('File')
-        view = self.menu_bar.addMenu('Function')
-        preferences = self.menu_bar.addMenu('Preferences')
+        self.menus = []
 
-        self.function_actions = [ QtGui.QAction(function[0], self) for function in formats.FUNCTIONS ]
-        for action in self.function_actions:
-            view.addAction(action)
-
-        export = file.addMenu('Export')
-
-        file.addAction(self.api_key_action)
-        export.addAction(self.jpeg_export_action)
-        export.addAction(self.json_export_action)
+        for j, menu in enumerate(formats.MENUBAR_WIDGET):
+            self.menus.append(self.menu_bar.addMenu(menu))
+            for i, action in enumerate(formats.MENUBAR_WIDGET[menu]):
+                q_action = QtGui.QAction(action['name'], self)
+                q_action.setShortcut(action['shortcut'])
+                if menu == 'Functions':
+                    q_action.triggered.connect((lambda i: lambda: self._show_widget(i))(i))
+                elif menu== 'File':
+                    pass
+                elif menu == 'View':
+                    if action['name'] == 'Function Menu':
+                        q_action.triggered.connect(lambda: self.function_menu.show())
+                self.menus[j].addAction(q_action)
 
     def _init_menu_widgets(self):
         self.setObjectName('root')
-
         self.intro_msg = factories.atomic_widget_factory(format='title', title="Select A Function To Get Started")
         self.title = factories.atomic_widget_factory(format='title', title=settings.APP_NAME)
 
-        self.function_menu = QtWidgets.QLabel('Functions')
-        self.function_menu.setObjectName('function-menu')
+        self.function_menu = factories.layout_factory(format='vertical-box')
+        self.function_menu.setObjectName('grand-child')
+        self.function_title_container = factories.layout_factory(format='horizontal-box')
+        self.function_title = factories.atomic_widget_factory(format='heading', title='Functions')
+        self.function_hide_button = factories.atomic_widget_factory(format='hide-button', title=None)
         
-        self.widget_buttons = [ factories.atomic_widget_factory(format='button', title=function[0]) for function in formats.FUNCTIONS ]
+        self.widget_buttons = [ factories.atomic_widget_factory(format='button', title=function['name']) for function in formats.FUNC_WIDGETS.values() ]
         self.exit_button = factories.atomic_widget_factory(format='button', title="Exit")
 
-        self.function_widgets = [ function[1]('great-grand-child', self) for function in formats.FUNCTIONS ]
+        self.function_widgets = [ function['class']('great-grand-child', self) for function in formats.FUNC_WIDGETS.values() ]
 
-        self.menu_pane = factories.layout_factory(format='vertical-box')
-        self.menu_pane.setObjectName('grand-child')
-        
         self.display_pane = factories.layout_factory(format='vertical-box')
         self.display_pane.setObjectName('grand-child')
 
@@ -91,29 +85,30 @@ class MenuWidget(QtWidgets.QWidget):
         """Arranges child widget within their layouts."""
         self.title.setAlignment(QtCore.Qt.AlignHCenter)
         self.intro_msg.setAlignment(QtCore.Qt.AlignCenter)
-        self.function_menu.setAlignment(QtCore.Qt.AlignHCenter)
 
         self.container_pane.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding,
                                                                 QtWidgets.QSizePolicy.Expanding))
-        self.menu_pane.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum,
+        self.function_menu.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum,
                                                             QtWidgets.QSizePolicy.Expanding))
         self.display_pane.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding,
                                                             QtWidgets.QSizePolicy.Expanding))
         self.title.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding,
                                                         QtWidgets.QSizePolicy.Minimum))
 
-        self.container_pane.layout().addWidget(self.menu_pane)
+        self.container_pane.layout().addWidget(self.function_menu)
         self.container_pane.layout().addWidget(self.display_pane)
 
         self.layout().addWidget(self.menu_bar)
         self.layout().addWidget(self.title)
         self.layout().addWidget(self.container_pane)
 
-        self.menu_pane.layout().addWidget(self.function_menu)
+        self.function_title_container.layout().addWidget(self.function_title)
+        self.function_title_container.layout().addWidget(self.function_hide_button)
+        self.function_menu.layout().addWidget(self.function_title_container)
         for button in self.widget_buttons:
-            self.menu_pane.layout().addWidget(button)
-        self.menu_pane.layout().addStretch()
-        self.menu_pane.layout().addWidget(self.exit_button)
+            self.function_menu.layout().addWidget(button)
+        self.function_menu.layout().addStretch()
+        self.function_menu.layout().addWidget(self.exit_button)
 
         self.display_pane.layout().addWidget(self.intro_msg)
         for widget in self.function_widgets:
@@ -122,11 +117,13 @@ class MenuWidget(QtWidgets.QWidget):
     def _stage_menu_widgets(self):
         for i, button in enumerate(self.widget_buttons):
             button.show()
+            # see #NOTE
             button.clicked.connect((lambda i: lambda: self._show_widget(i))(i))
 
         for widget in self.function_widgets:
             widget.hide()
 
+        self.function_hide_button.clicked.connect(lambda: utilities.switch_visibility(self.function_menu))
         self.exit_button.clicked.connect(self.close)
         self.exit_button.show()
         self.menu_bar.show()
@@ -137,6 +134,8 @@ class MenuWidget(QtWidgets.QWidget):
         for widget in self.function_widgets:
             widget.hide()
         self.function_widgets[widget_index].show()
+        print(list(formats.FUNC_WIDGETS.values())[widget_index])
+        self.title.setText(list(formats.FUNC_WIDGETS.values())[widget_index]['name'])
 
     @QtCore.Slot()
     def _clear(self):
