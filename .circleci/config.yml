@@ -20,6 +20,9 @@ commands:
     description: install documentation dependencies
     steps:
       - run:
+          name: install virtual server
+          command: sudo apt-get install xvfb
+      - run:
           name: dependency installation
           command: |
             pip3 install -r requirements.txt

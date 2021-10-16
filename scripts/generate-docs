@@ -3,11 +3,19 @@ PROJECT_DIR=$SCRIPT_DIR/..
 DOCS_DIR=$PROJECT_DIR/docs
 APP_DIR=$PROJECT_DIR/src/scrilla
 
-rm -r $DOCS_DIR/*
+if [ -d $DOCS_DIR ]
+then
+    rm -r $DOCS_DIR/*
+fi
 
 mkdir $PROJECT_DIR/tmp
 
-pdoc --html -c latex_math=True -o $PROJECT_DIR/tmp $APP_DIR
+if [ "$1" == "circleci" ]
+then
+    xvfb-run pdoc --html -c latex_math=True -o $PROJECT_DIR/tmp $APP_DIR
+else
+    pdoc --html -c latex_math=True -o $PROJECT_DIR/tmp $APP_DIR
+fi
 
 if [ ! -d $DOCS_DIR ]
 then
