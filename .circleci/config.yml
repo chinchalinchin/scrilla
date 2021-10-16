@@ -5,7 +5,7 @@ commands:
     description: install build dependencies
     steps:
       - run: sudo chown -R circleci:circleci /usr/local/bin
-      - run: sudo chown -R circleci:circleci /usr/local/lib/python3.9/site-packages
+      - run: sudo chown -R circleci:circleci /usr/local/lib/python3.9.6/site-packages
       - restore_cache:  # ensure this step occurs *before* installing dependencies
           key: python-build-deps
       - run:
@@ -14,9 +14,8 @@ commands:
       - save_cache:
           key: python-build-deps
           paths:
-            - ".venv"
             - "/usr/local/bin"
-            - "/usr/local/lib/python3.9/site-packages"
+            - "/usr/local/lib/python3.9.6/site-packages"
 
   install_doc_deps:
     description: install documentation dependencies
@@ -25,7 +24,7 @@ commands:
           name: install build dependencies
           command: sudo apt-get update -y && sudo apt-get install -y xvfb freeglut3 freeglut3-dev libxkbcommon-x11-0
       - run: sudo chown -R circleci:circleci /usr/local/bin
-      - run: sudo chown -R circleci:circleci /usr/local/lib/python3.9/site-packages
+      - run: sudo chown -R circleci:circleci /usr/local/lib/python3.9.6/site-packages
       - restore_cache:  # ensure this step occurs *before* installing dependencies
           key: python-doc-deps
       - run:
@@ -36,9 +35,8 @@ commands:
       - save_cache:
           key: python-doc-deps
           paths:
-            - ".venv"
             - "/usr/local/bin"
-            - "/usr/local/lib/python3.9/site-packages"
+            - "/usr/local/lib/python3.9.6/site-packages"
 
   build_wheel:
     description: compress and build python package
