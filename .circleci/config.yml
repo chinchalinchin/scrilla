@@ -26,8 +26,6 @@ commands:
           key: python-doc-deps
       - run:
           name: install application dependencies
-          environment:
-            APP_ENV: container
           command: |
             python3.9 -m pip install --upgrade pip
             pip3 install -r requirements.txt
@@ -50,6 +48,8 @@ commands:
     steps:
       - run:
           name: generate docs
+          environment:
+            APP_ENV: container
           command: bash ./scripts/generate-docs circle-ci
 
   upload_artifacts:
