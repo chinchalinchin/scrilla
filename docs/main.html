@@ -593,24 +593,26 @@ def do_program() -&gt; None:
         selected_function, required_length = cli_plot_moving_averages, 1
 
     ### FUNCTION: Plot Return QQ Series
-    elif args[&#39;function_arg&#39;] in definitions.FUNC_DICT[&#39;plot_qq_returns&#39;][&#39;values&#39;]:
+    elif args[&#39;function_arg&#39;] in definitions.FUNC_DICT[&#39;plot_return_qq&#39;][&#39;values&#39;]:
         def cli_plot_qq_returns():
             returns = statistics.get_sample_of_returns(ticker=args[&#39;tickers&#39;][0], 
                                                         start_date=args[&#39;start_date&#39;],
-                                                        end_date=args[&#39;end_date&#39;])
+                                                        end_date=args[&#39;end_date&#39;],
+                                                        daily=True)
             qq_series = estimators.qq_series_for_sample(sample=returns)
             plotter.plot_qq_series(ticker=args[&#39;tickers&#39;][0], 
-                                    sample=qq_series, 
+                                    qq_series=qq_series, 
                                     show=True, 
                                     savefile=args[&#39;save_file&#39;])
         selected_function, required_length, exact = cli_plot_qq_returns, 1, True
 
     ### FUNCTION: Plot Histogram of Returns
-    elif args[&#39;function_arg&#39;] in definitions.FUNC_DICT[&#39;plot_dist_return&#39;][&#39;values&#39;]:
+    elif args[&#39;function_arg&#39;] in definitions.FUNC_DICT[&#39;plot_return_dist&#39;][&#39;values&#39;]:
         def cli_plot_dist_returns():
             returns = statistics.get_sample_of_returns(ticker=args[&#39;tickers&#39;][0],
                                                         start_date=args[&#39;start_date&#39;],
-                                                        end_date=args[&#39;end_date&#39;])
+                                                        end_date=args[&#39;end_date&#39;],
+                                                        daily=True)
             plotter.plot_return_histogram(ticker=args[&#39;tickers&#39;][0],
                                             sample=returns, 
                                             show=True,
@@ -1324,24 +1326,26 @@ if __name__ == &#34;__main__&#34;:
         selected_function, required_length = cli_plot_moving_averages, 1
 
     ### FUNCTION: Plot Return QQ Series
-    elif args[&#39;function_arg&#39;] in definitions.FUNC_DICT[&#39;plot_qq_returns&#39;][&#39;values&#39;]:
+    elif args[&#39;function_arg&#39;] in definitions.FUNC_DICT[&#39;plot_return_qq&#39;][&#39;values&#39;]:
         def cli_plot_qq_returns():
             returns = statistics.get_sample_of_returns(ticker=args[&#39;tickers&#39;][0], 
                                                         start_date=args[&#39;start_date&#39;],
-                                                        end_date=args[&#39;end_date&#39;])
+                                                        end_date=args[&#39;end_date&#39;],
+                                                        daily=True)
             qq_series = estimators.qq_series_for_sample(sample=returns)
             plotter.plot_qq_series(ticker=args[&#39;tickers&#39;][0], 
-                                    sample=qq_series, 
+                                    qq_series=qq_series, 
                                     show=True, 
                                     savefile=args[&#39;save_file&#39;])
         selected_function, required_length, exact = cli_plot_qq_returns, 1, True
 
     ### FUNCTION: Plot Histogram of Returns
-    elif args[&#39;function_arg&#39;] in definitions.FUNC_DICT[&#39;plot_dist_return&#39;][&#39;values&#39;]:
+    elif args[&#39;function_arg&#39;] in definitions.FUNC_DICT[&#39;plot_return_dist&#39;][&#39;values&#39;]:
         def cli_plot_dist_returns():
             returns = statistics.get_sample_of_returns(ticker=args[&#39;tickers&#39;][0],
                                                         start_date=args[&#39;start_date&#39;],
-                                                        end_date=args[&#39;end_date&#39;])
+                                                        end_date=args[&#39;end_date&#39;],
+                                                        daily=True)
             plotter.plot_return_histogram(ticker=args[&#39;tickers&#39;][0],
                                             sample=returns, 
                                             show=True,

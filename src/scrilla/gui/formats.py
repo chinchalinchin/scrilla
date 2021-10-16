@@ -24,19 +24,19 @@ FUNC_WIDGETS= {
     },
     'frontier': {
         'name': 'Efficient Frontiers',
-        'class': MovingAverageWidget,
+        'class': EfficientFrontierWidget,
         'shortcut': 'Ctrl+3',
         'group': 'analysis'
     },
     'averages':{
         'name': 'Moving Averages',
-        'class': OptimizerWidget,
+        'class': MovingAverageWidget,
         'shortcut': 'Ctrl+4',
         'group': 'analysis'
     },
     'optimize':{
         'name': 'Portfolio Optimization',
-        'class': DistributionWidget,
+        'class': OptimizerWidget,
         'shortcut': 'Ctrl+5',
         'group': 'allocation'
     },
@@ -52,6 +52,12 @@ FUNC_WIDGETS= {
         'shortcut': 'Ctrl+8',
         'group': 'analysis'
 
+    },
+    'yield_curve': {
+        'name': 'Yield Curve',
+        'class': YieldCurveWidget,
+        'shortcut': 'Ctrl+9',
+        'group': 'prices'
     }
 }
 

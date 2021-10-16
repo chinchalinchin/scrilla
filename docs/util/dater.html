@@ -32,16 +32,6 @@ from typing import List, Tuple, Union
 
 import dateutil.easter as easter
 
-def validate_date_string(parsed_date_string: str) -&gt; bool:
-    &#34;&#34;&#34;
-    Checks if the date string is a valid date in the &#39;YYYY-MM-DD&#39; format.
-    &#34;&#34;&#34;
-    length_check = (len(parsed_date_string) == 3 )
-    year_check = (int(parsed_date_string[0]) &gt; 1950)
-    month_check = (int(parsed_date_string[1])&gt;0 and int(parsed_date_string[1])&lt;13)
-    day_check = (int(parsed_date_string[2])&gt;0 and int(parsed_date_string[2])&lt;32)
-    return (length_check and year_check and month_check and day_check)
-
 def validate_order_of_dates(start_date: datetime.date, end_date: datetime.date) -&gt; Tuple[datetime.date, datetime.date]:
     &#34;&#34;&#34;
     Returns the inputted dates as an tuple ordered from earliest to latest.
@@ -59,11 +49,7 @@ def parse_date_string(date_string: str) -&gt; Union[datetime.date, None]:
     ..notes ::
         * can probably use `datetime.datetime.strptime` instead of this complicated mumbo-jumbo.
     &#34;&#34;&#34;
-    parsed = str(date_string).split(&#39;-&#39;)
-    if validate_date_string(parsed):
-        date = datetime.date(year=int(parsed[0]), month=int(parsed[1]), day=int(parsed[2]))
-        return date
-    return None
+    return datetime.datetime.strptime(date_string,&#39;%Y-%m-%d&#39;).date()
 
 def get_today() -&gt; datetime.date:
     &#34;&#34;&#34;
@@ -109,13 +95,18 @@ def is_date_holiday(date : datetime.date) -&gt; bool:
     us_holidays = holidays.UnitedStates(years=date.year)
     # generate list without columbus day and veterans day since markets are open on those days
     trading_holidays = [ &#34;Columbus Day&#34;, &#34;Columbus Day (Observed)&#34;, &#34;Veterans Day&#34;, &#34;Veterans Day (Observed)&#34;]
-    custom_holidays = [ date for date in us_holidays if us_holidays[date] not in trading_holidays ]
+    custom_holidays = [ date for date in  list(us_holidays) if us_holidays[date] not in trading_holidays ]
     # add good friday to list since markets are closed on good friday
     custom_holidays.append(easter.easter(year=date.year) - datetime.timedelta(days=2))
 
     return (date in custom_holidays)
 
 def get_last_trading_date() -&gt; datetime.date:
+    &#34;&#34;&#34;
+    Returns
+    -------
+    The last full trading day. If today is a trading day and the time is past market close, today&#39;s date will be returned. Otherwise, the previous business day&#39;s date will be returned. 
+    &#34;&#34;&#34;
     today = datetime.datetime.now()
     if is_date_holiday(today) or is_date_weekend(today):
         today = get_previous_business_date(today)
@@ -124,9 +115,14 @@ def get_last_trading_date() -&gt; datetime.date:
         return today.date()
     return get_previous_business_date(today.date())
 
-def this_date_or_last_trading_date(date : datetime.date) -&gt; datetime.date:
+def this_date_or_last_trading_date(date : Union[datetime.date, None] = None) -&gt; datetime.date:
+    if date is None:
+        return get_last_trading_date()
     if is_date_holiday(date) or is_date_weekend(date):
         date = get_previous_business_date(date)
+    trading_close_today = datetime.datetime.now().replace(hour=14)
+    if datetime.datetime.now() &gt; trading_close_today:
+        return datetime.datetime.now().date()
     return date
     
 def verify_date_types(dates: Union[List[datetime.date], List[str]]) -&gt; Union[List[datetime.date], None]:
@@ -645,12 +641,18 @@ End date of the date range.</li>
 <span>def <span class="ident">get_last_trading_date</span></span>(<span>) ‑> datetime.date</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><h2 id="returns">Returns</h2>
+<p>The last full trading day. If today is a trading day and the time is past market close, today's date will be returned. Otherwise, the previous business day's date will be returned.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def get_last_trading_date() -&gt; datetime.date:
+    &#34;&#34;&#34;
+    Returns
+    -------
+    The last full trading day. If today is a trading day and the time is past market close, today&#39;s date will be returned. Otherwise, the previous business day&#39;s date will be returned. 
+    &#34;&#34;&#34;
     today = datetime.datetime.now()
     if is_date_holiday(today) or is_date_weekend(today):
         today = get_previous_business_date(today)
@@ -846,7 +848,7 @@ End date of the date range.</li>
     us_holidays = holidays.UnitedStates(years=date.year)
     # generate list without columbus day and veterans day since markets are open on those days
     trading_holidays = [ &#34;Columbus Day&#34;, &#34;Columbus Day (Observed)&#34;, &#34;Veterans Day&#34;, &#34;Veterans Day (Observed)&#34;]
-    custom_holidays = [ date for date in us_holidays if us_holidays[date] not in trading_holidays ]
+    custom_holidays = [ date for date in  list(us_holidays) if us_holidays[date] not in trading_holidays ]
     # add good friday to list since markets are closed on good friday
     custom_holidays.append(easter.easter(year=date.year) - datetime.timedelta(days=2))
 
@@ -962,15 +964,11 @@ End date of the date range.</li>
     ..notes ::
         * can probably use `datetime.datetime.strptime` instead of this complicated mumbo-jumbo.
     &#34;&#34;&#34;
-    parsed = str(date_string).split(&#39;-&#39;)
-    if validate_date_string(parsed):
-        date = datetime.date(year=int(parsed[0]), month=int(parsed[1]), day=int(parsed[2]))
-        return date
-    return None</code></pre>
+    return datetime.datetime.strptime(date_string,&#39;%Y-%m-%d&#39;).date()</code></pre>
 </details>
 </dd>
 <dt id="scrilla.util.dater.this_date_or_last_trading_date"><code class="name flex">
-<span>def <span class="ident">this_date_or_last_trading_date</span></span>(<span>date: datetime.date) ‑> datetime.date</span>
+<span>def <span class="ident">this_date_or_last_trading_date</span></span>(<span>date: Optional[datetime.date] = None) ‑> datetime.date</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -978,9 +976,14 @@ End date of the date range.</li>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def this_date_or_last_trading_date(date : datetime.date) -&gt; datetime.date:
+<pre><code class="python">def this_date_or_last_trading_date(date : Union[datetime.date, None] = None) -&gt; datetime.date:
+    if date is None:
+        return get_last_trading_date()
     if is_date_holiday(date) or is_date_weekend(date):
         date = get_previous_business_date(date)
+    trading_close_today = datetime.datetime.now().replace(hour=14)
+    if datetime.datetime.now() &gt; trading_close_today:
+        return datetime.datetime.now().date()
     return date</code></pre>
 </details>
 </dd>
@@ -997,26 +1000,6 @@ End date of the date range.</li>
     if is_future_date(date):
         return get_today()
     return date</code></pre>
-</details>
-</dd>
-<dt id="scrilla.util.dater.validate_date_string"><code class="name flex">
-<span>def <span class="ident">validate_date_string</span></span>(<span>parsed_date_string: str) ‑> bool</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Checks if the date string is a valid date in the 'YYYY-MM-DD' format.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def validate_date_string(parsed_date_string: str) -&gt; bool:
-    &#34;&#34;&#34;
-    Checks if the date string is a valid date in the &#39;YYYY-MM-DD&#39; format.
-    &#34;&#34;&#34;
-    length_check = (len(parsed_date_string) == 3 )
-    year_check = (int(parsed_date_string[0]) &gt; 1950)
-    month_check = (int(parsed_date_string[1])&gt;0 and int(parsed_date_string[1])&lt;13)
-    day_check = (int(parsed_date_string[2])&gt;0 and int(parsed_date_string[2])&lt;32)
-    return (length_check and year_check and month_check and day_check)</code></pre>
 </details>
 </dd>
 <dt id="scrilla.util.dater.validate_order_of_dates"><code class="name flex">
@@ -1126,7 +1109,6 @@ End date of the date range.</li>
 <li><code><a title="scrilla.util.dater.parse_date_string" href="#scrilla.util.dater.parse_date_string">parse_date_string</a></code></li>
 <li><code><a title="scrilla.util.dater.this_date_or_last_trading_date" href="#scrilla.util.dater.this_date_or_last_trading_date">this_date_or_last_trading_date</a></code></li>
 <li><code><a title="scrilla.util.dater.truncate_future_from_date" href="#scrilla.util.dater.truncate_future_from_date">truncate_future_from_date</a></code></li>
-<li><code><a title="scrilla.util.dater.validate_date_string" href="#scrilla.util.dater.validate_date_string">validate_date_string</a></code></li>
 <li><code><a title="scrilla.util.dater.validate_order_of_dates" href="#scrilla.util.dater.validate_order_of_dates">validate_order_of_dates</a></code></li>
 <li><code><a title="scrilla.util.dater.verify_date_types" href="#scrilla.util.dater.verify_date_types">verify_date_types</a></code></li>
 <li><code><a title="scrilla.util.dater.weekends_between" href="#scrilla.util.dater.weekends_between">weekends_between</a></code></li>

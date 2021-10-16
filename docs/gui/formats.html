@@ -32,21 +32,82 @@
 from typing import Tuple
 
 from scrilla import settings
-from scrilla.gui.widgets.functions import CorrelationWidget, DiscountDividendWidget, EfficientFrontierWidget, MovingAverageWidget, OptimizerWidget, RiskProfileWidget, YieldCurveWidget
+from scrilla.gui.widgets.functions import CorrelationWidget, DiscountDividendWidget, DistributionWidget, \
+                                            EfficientFrontierWidget, MovingAverageWidget, OptimizerWidget, \
+                                            RiskProfileWidget, YieldCurveWidget
 from scrilla.util import helper
 from scrilla.static import keys
 
-FUNCTIONS= [
-    (&#34;Correlation Matrix&#34;, CorrelationWidget),
-    (&#34;Discount Dividend Model&#34;, DiscountDividendWidget),
-    (&#34;Efficient Frontier&#34;, EfficientFrontierWidget),
-    (&#34;Moving Averages&#34;, MovingAverageWidget),
-    (&#34;Portfolio Optimization&#34;, OptimizerWidget),
-    (&#34;Risk Profile&#34;, RiskProfileWidget),
-    (&#34;Yield Curve&#34;, YieldCurveWidget)
-]
+FUNC_WIDGETS= {
+    &#39;correlation&#39;:{
+        &#39;name&#39;: &#39;Correlation Matrix&#39;,
+        &#39;class&#39;: CorrelationWidget,
+        &#39;shortcut&#39;: &#39;Ctrl+1&#39;,
+        &#39;group&#39;: &#39;analysis&#39;
+    },
+    &#39;dividend&#39;: {
+        &#39;name&#39;: &#39;Discount Discount Model&#39;,
+        &#39;class&#39;: DiscountDividendWidget,
+        &#39;shortcut&#39;:&#39;Ctrl+2&#39;,
+        &#39;group&#39;: &#39;analysis&#39;
+    },
+    &#39;frontier&#39;: {
+        &#39;name&#39;: &#39;Efficient Frontiers&#39;,
+        &#39;class&#39;: EfficientFrontierWidget,
+        &#39;shortcut&#39;: &#39;Ctrl+3&#39;,
+        &#39;group&#39;: &#39;analysis&#39;
+    },
+    &#39;averages&#39;:{
+        &#39;name&#39;: &#39;Moving Averages&#39;,
+        &#39;class&#39;: MovingAverageWidget,
+        &#39;shortcut&#39;: &#39;Ctrl+4&#39;,
+        &#39;group&#39;: &#39;analysis&#39;
+    },
+    &#39;optimize&#39;:{
+        &#39;name&#39;: &#39;Portfolio Optimization&#39;,
+        &#39;class&#39;: OptimizerWidget,
+        &#39;shortcut&#39;: &#39;Ctrl+5&#39;,
+        &#39;group&#39;: &#39;allocation&#39;
+    },
+    &#39;distribution&#39;:{
+        &#39;name&#39;: &#39;Return Distribution&#39;,
+        &#39;class&#39;: DistributionWidget,
+        &#39;shortcut&#39;: &#39;Ctrl+7&#39;,
+        &#39;group&#39;: &#39;analysis&#39;
+    },
+    &#39;risk_profile&#39;:{
+        &#39;name&#39;: &#39;Risk Profile&#39;,
+        &#39;class&#39;: RiskProfileWidget,
+        &#39;shortcut&#39;: &#39;Ctrl+8&#39;,
+        &#39;group&#39;: &#39;analysis&#39;
+
+    },
+    &#39;yield_curve&#39;: {
+        &#39;name&#39;: &#39;Yield Curve&#39;,
+        &#39;class&#39;: YieldCurveWidget,
+        &#39;shortcut&#39;: &#39;Ctrl+9&#39;,
+        &#39;group&#39;: &#39;prices&#39;
+    }
+}
+
+MENUBAR_WIDGET={
+    &#39;File&#39;: [ {
+        &#39;name&#39;: &#39;Add API Key&#39;,
+        &#39;shortcut&#39;: &#39;Ctrl+A&#39;, 
+    }],
+    &#39;Functions&#39; : [ {
+        &#39;name&#39;: FUNC_WIDGETS[func_widget][&#39;name&#39;], 
+        &#39;shortcut&#39;: FUNC_WIDGETS[func_widget][&#39;shortcut&#39;]
+        } for func_widget in FUNC_WIDGETS
+    ],
+    &#39;View&#39;: [ {
+        &#39;name&#39;: &#39;Function Menu&#39;,
+        &#39;shortcut&#39;: &#39;Ctrl+F&#39;
+    }]
+}
 
 MARGINS = 5
+
 
 def format_stylesheet(sheet):
     if settings.GUI_DARK_MODE:

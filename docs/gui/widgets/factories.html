@@ -30,7 +30,8 @@
 <pre><code class="python">from typing import List
 
 from PySide6 import QtWidgets, QtCore, QtGui
-from scrilla.static import definitions, constants
+from scrilla import settings
+from scrilla.static import definitions, constants, keys
 
 def generate_control_skeleton():
     return { arg: False for arg in definitions.ARG_DICT if not definitions.ARG_DICT[arg][&#39;cli_only&#39;]}
@@ -62,12 +63,25 @@ def atomic_widget_factory(format: str, title: str):
             widget.setAlignment(QtCore.Qt.AlignBottom)
         widget.setObjectName(format)
 
-    elif format == &#39;button&#39;:
-        widget = QtWidgets.QPushButton(title)
+    elif format in [&#39;calculate-button&#39;, &#39;clear-button&#39;, &#39;hide-button&#39;, &#39;button&#39;, ]:
+        if format not in [&#39;hide-button&#39;]:
+            widget = QtWidgets.QPushButton(title)
+            widget.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Maximum))
+
+        else:
+            widget = QtWidgets.QPushButton()
+            widget.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum))
+
         widget.setAutoDefault(True)
         widget.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
-        widget.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Maximum))
         widget.setObjectName(format)
+
+        if format == &#39;calculate-button&#39;:
+            widget.setIcon(QtGui.QIcon(f&#39;{settings.ASSET_DIR}/{keys.keys[&#34;GUI&#34;][&#34;ICONS&#34;][&#34;CALC&#34;]}&#39;))
+        elif format == &#39;clear-button&#39;:
+            widget.setIcon(QtGui.QIcon(f&#39;{settings.ASSET_DIR}/{keys.keys[&#34;GUI&#34;][&#34;ICONS&#34;][&#34;CLEAR&#34;]}&#39;))
+        elif format == &#39;hide-button&#39;:
+            widget.setIcon(QtGui.QIcon(f&#39;{settings.ASSET_DIR}/{keys.keys[&#34;GUI&#34;][&#34;ICONS&#34;][&#34;HIDE&#34;]}&#39;))
 
     elif format == &#39;table&#39;:
         widget = QtWidgets.QTableWidget()
@@ -163,6 +177,12 @@ def composite_widget_factory(format: str, title: str = None, optional : bool = T
         main_widget.setMaxLength(100)
         main_widget.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum))
 
+    elif format == &#39;symbol&#39;:
+        main_widget = QtWidgets.QLineEdit()
+        main_widget.setObjectName(format)
+        main_widget.setMaxLength(100)
+        main_widget.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum))
+        main_widget.setValidator(QtGui.QRegularExpressionValidator(r&#34;[A-Za-z]+&#34;, main_widget))
 
     else:
         main_widget = QtWidgets.QWidget()
@@ -210,12 +230,25 @@ def set_policy_on_widget_list(widget_list: List[QtWidgets.QWidget], policy: QtWi
             widget.setAlignment(QtCore.Qt.AlignBottom)
         widget.setObjectName(format)
 
-    elif format == &#39;button&#39;:
-        widget = QtWidgets.QPushButton(title)
+    elif format in [&#39;calculate-button&#39;, &#39;clear-button&#39;, &#39;hide-button&#39;, &#39;button&#39;, ]:
+        if format not in [&#39;hide-button&#39;]:
+            widget = QtWidgets.QPushButton(title)
+            widget.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Maximum))
+
+        else:
+            widget = QtWidgets.QPushButton()
+            widget.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum))
+
         widget.setAutoDefault(True)
         widget.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
-        widget.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Maximum))
         widget.setObjectName(format)
+
+        if format == &#39;calculate-button&#39;:
+            widget.setIcon(QtGui.QIcon(f&#39;{settings.ASSET_DIR}/{keys.keys[&#34;GUI&#34;][&#34;ICONS&#34;][&#34;CALC&#34;]}&#39;))
+        elif format == &#39;clear-button&#39;:
+            widget.setIcon(QtGui.QIcon(f&#39;{settings.ASSET_DIR}/{keys.keys[&#34;GUI&#34;][&#34;ICONS&#34;][&#34;CLEAR&#34;]}&#39;))
+        elif format == &#39;hide-button&#39;:
+            widget.setIcon(QtGui.QIcon(f&#39;{settings.ASSET_DIR}/{keys.keys[&#34;GUI&#34;][&#34;ICONS&#34;][&#34;HIDE&#34;]}&#39;))
 
     elif format == &#39;table&#39;:
         widget = QtWidgets.QTableWidget()
@@ -321,6 +354,12 @@ def set_policy_on_widget_list(widget_list: List[QtWidgets.QWidget], policy: QtWi
         main_widget.setMaxLength(100)
         main_widget.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum))
 
+    elif format == &#39;symbol&#39;:
+        main_widget = QtWidgets.QLineEdit()
+        main_widget.setObjectName(format)
+        main_widget.setMaxLength(100)
+        main_widget.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum))
+        main_widget.setValidator(QtGui.QRegularExpressionValidator(r&#34;[A-Za-z]+&#34;, main_widget))
 
     else:
         main_widget = QtWidgets.QWidget()

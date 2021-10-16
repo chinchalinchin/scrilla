@@ -27,7 +27,8 @@
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">from PySide6.QtGui import QPixmap
+<pre><code class="python">from PySide6 import QtWidgets
+from PySide6.QtGui import QPixmap
 from PySide6.QtCore import Qt
 
 from scrilla import settings
@@ -48,7 +49,13 @@ def get_next_layer(layer):
         return &#34;child&#34;
     if layer == &#34;child&#34;:
         return &#34;grand-child&#34;
-    return f&#39;great-{layer}&#39;</code></pre>
+    return f&#39;great-{layer}&#39;
+
+def switch_visibility(widget: QtWidgets.QWidget):
+    if widget.isVisible():
+        widget.hide()
+    else:
+        widget.show()</code></pre>
 </details>
 </section>
 <section>
@@ -116,6 +123,22 @@ def get_next_layer(layer):
     return f&#39;great-{layer}&#39;</code></pre>
 </details>
 </dd>
+<dt id="scrilla.gui.utilities.switch_visibility"><code class="name flex">
+<span>def <span class="ident">switch_visibility</span></span>(<span>widget: PySide6.QtWidgets.QWidget)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def switch_visibility(widget: QtWidgets.QWidget):
+    if widget.isVisible():
+        widget.hide()
+    else:
+        widget.show()</code></pre>
+</details>
+</dd>
 </dl>
 </section>
 <section>
@@ -138,6 +161,7 @@ def get_next_layer(layer):
 <li><code><a title="scrilla.gui.utilities.calculate_image_width" href="#scrilla.gui.utilities.calculate_image_width">calculate_image_width</a></code></li>
 <li><code><a title="scrilla.gui.utilities.generate_pixmap_from_temp" href="#scrilla.gui.utilities.generate_pixmap_from_temp">generate_pixmap_from_temp</a></code></li>
 <li><code><a title="scrilla.gui.utilities.get_next_layer" href="#scrilla.gui.utilities.get_next_layer">get_next_layer</a></code></li>
+<li><code><a title="scrilla.gui.utilities.switch_visibility" href="#scrilla.gui.utilities.switch_visibility">switch_visibility</a></code></li>
 </ul>
 </li>
 </ul>

@@ -57,7 +57,7 @@ logger = outputter.Logger(&#39;statistics&#39;, settings.LOG_LEVEL)
 profile_cache = cache.ProfileCache()
 correlation_cache = cache.CorrelationCache()
     
-def get_sample_of_returns(ticker: str, sample_prices: dict = None,start_date: Union[date, None]=None, end_date: Union[date, None]=None, asset_type: Union[str, None]=None) -&gt; list:
+def get_sample_of_returns(ticker: str, sample_prices: dict = None,start_date: Union[date, None]=None, end_date: Union[date, None]=None, asset_type: Union[str, None]=None, daily: bool=False) -&gt; list:
     &#34;&#34;&#34;
     Generates a list of logarithmic returns on the sample `prices`. Sample return is annualized.
 
@@ -104,7 +104,11 @@ def get_sample_of_returns(ticker: str, sample_prices: dict = None,start_date: Un
             else:
                 time_delta = 1
 
-            todays_return = log(float(tomorrows_price)/float(todays_price))/(time_delta*trading_period)
+            
+            todays_return = log(float(tomorrows_price)/float(todays_price))/(time_delta)
+
+            if not daily:
+                todays_return = todays_return/trading_period
 
             sample_of_returns.append(todays_return)
         else:
@@ -2788,7 +2792,7 @@ correlation matrix of <code>tickers</code>. indices correspond to the Cartesian 
 </details>
 </dd>
 <dt id="scrilla.analysis.models.geometric.statistics.get_sample_of_returns"><code class="name flex">
-<span>def <span class="ident">get_sample_of_returns</span></span>(<span>ticker: str, sample_prices: dict = None, start_date: Optional[datetime.date] = None, end_date: Optional[datetime.date] = None, asset_type: Optional[str] = None) ‑> list</span>
+<span>def <span class="ident">get_sample_of_returns</span></span>(<span>ticker: str, sample_prices: dict = None, start_date: Optional[datetime.date] = None, end_date: Optional[datetime.date] = None, asset_type: Optional[str] = None, daily: bool = False) ‑> list</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Generates a list of logarithmic returns on the sample <code>prices</code>. Sample return is annualized.</p>
@@ -2813,7 +2817,7 @@ Optional. Start date of the time period over which the risk-return profile is to
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def get_sample_of_returns(ticker: str, sample_prices: dict = None,start_date: Union[date, None]=None, end_date: Union[date, None]=None, asset_type: Union[str, None]=None) -&gt; list:
+<pre><code class="python">def get_sample_of_returns(ticker: str, sample_prices: dict = None,start_date: Union[date, None]=None, end_date: Union[date, None]=None, asset_type: Union[str, None]=None, daily: bool=False) -&gt; list:
     &#34;&#34;&#34;
     Generates a list of logarithmic returns on the sample `prices`. Sample return is annualized.
 
@@ -2860,7 +2864,11 @@ Optional. Start date of the time period over which the risk-return profile is to
             else:
                 time_delta = 1
 
-            todays_return = log(float(tomorrows_price)/float(todays_price))/(time_delta*trading_period)
+            
+            todays_return = log(float(tomorrows_price)/float(todays_price))/(time_delta)
+
+            if not daily:
+                todays_return = todays_return/trading_period
 
             sample_of_returns.append(todays_return)
         else:

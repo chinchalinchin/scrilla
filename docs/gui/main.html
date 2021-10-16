@@ -69,7 +69,9 @@ def do_gui():
     with open(settings.GUI_STYLESHEET_FILE, &#34;r&#34;) as f:
         _style = formats.format_stylesheet(f.read())
         app.setStyleSheet(_style)
-        
+    
+    logger.debug(f&#39;Initializing GUI with style sheet: {_style}&#39;)
+    
     if not dimensions[&#39;full_screen&#39;]:    
         widget.resize(dimensions[&#39;width&#39;], dimensions[&#39;height&#39;])
         center = QtGui.QScreen.availableGeometry(QtWidgets.QApplication.primaryScreen()).center()
@@ -113,7 +115,9 @@ if __name__ == &#34;__main__&#34;:
     with open(settings.GUI_STYLESHEET_FILE, &#34;r&#34;) as f:
         _style = formats.format_stylesheet(f.read())
         app.setStyleSheet(_style)
-        
+    
+    logger.debug(f&#39;Initializing GUI with style sheet: {_style}&#39;)
+    
     if not dimensions[&#39;full_screen&#39;]:    
         widget.resize(dimensions[&#39;width&#39;], dimensions[&#39;height&#39;])
         center = QtGui.QScreen.availableGeometry(QtWidgets.QApplication.primaryScreen()).center()

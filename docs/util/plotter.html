@@ -65,11 +65,11 @@ def _show_or_save(canvas: FigureCanvas, show: bool = True, savefile: str = None)
     canvas.draw()
     return canvas
 
-def plot_qq_series(ticker: str, sample: list, show: bool=True, savefile: str=None) -&gt; Union[FigureCanvas, None]:
+def plot_qq_series(ticker: str, qq_series: list, show: bool=True, savefile: str=None) -&gt; Union[FigureCanvas, None]:
     title = f&#39;{ticker} Return Q-Q Plot&#39;
     normal_series = []
     sample_series = []
-    for point in sample:
+    for point in qq_series:
         normal_series.append(point[0])
         sample_series.append(point[1])
 
@@ -77,7 +77,7 @@ def plot_qq_series(ticker: str, sample: list, show: bool=True, savefile: str=Non
     axes = canvas.figure.subplots()
 
     axes.plot(normal_series, sample_series, linestyle=&#34;None&#34;, marker=&#34;.&#34;, markersize=10.0)
-    axes.plot(normal_series, normal_series)
+    # axes.plot(normal_series, normal_series)
     axes.grid()
     axes.set_xlabel(&#39;Normal Percentiles&#39;)
     axes.set_ylabel(&#39;Sample Percentiles&#39;)
@@ -152,7 +152,7 @@ def plot_yield_curve(yield_curve: dict, show: bool=True, savefile: str=None) -&g
     axes.plot(maturities, rates, linestyle=&#34;dashed&#34;, marker= &#34;.&#34;, markersize=10.0)
     axes.grid()
     axes.set_xlabel(&#39;Maturity&#39;)
-    axes.set_ylabel(&#39;Annual Yield&#39;)
+    axes.set_ylabel(&#39;Annual Yield %&#39;)
     axes.set_title(title)
 
     return _show_or_save(canvas=canvas, show=show, savefile=savefile)
@@ -162,12 +162,12 @@ def plot_return_histogram(ticker: str, sample: list, show: bool=True, savefile: 
     axes = canvas.figure.subplots()
 
     axes.hist(x=sample, bins=formats.formats[&#39;BINS&#39;], density=True)
-    axes.yaxis.set_major_formatter(PercentFormatter(xmax=1))
+    axes.xaxis.set_major_formatter(PercentFormatter(xmax=1))
     axes.set_title(f&#39;Distribution of {ticker} Returns&#39;)
-    axes.set_ylabel(&#39;Annualized Daily Return&#39;)
+    axes.set_xlabel(&#39;Daily Return&#39;)
     
     return _show_or_save(canvas=canvas, show=show, savefile=savefile)
-    
+
 def plot_profiles(symbols: list, profiles: dict, show: bool=True, savefile: str=None, subtitle: str=None) -&gt; Union[FigureCanvas, None]:
     canvas = FigureCanvas(Figure())
 
@@ -544,7 +544,7 @@ def plot_cashflow(ticker: str, cashflow: Cashflow, show: bool=True, savefile: st
 </details>
 </dd>
 <dt id="scrilla.util.plotter.plot_qq_series"><code class="name flex">
-<span>def <span class="ident">plot_qq_series</span></span>(<span>ticker: str, sample: list, show: bool = True, savefile: str = None) ‑> Optional[matplotlib.backends.backend_qt5agg.FigureCanvasQTAgg]</span>
+<span>def <span class="ident">plot_qq_series</span></span>(<span>ticker: str, qq_series: list, show: bool = True, savefile: str = None) ‑> Optional[matplotlib.backends.backend_qt5agg.FigureCanvasQTAgg]</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -552,11 +552,11 @@ def plot_cashflow(ticker: str, cashflow: Cashflow, show: bool=True, savefile: st
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def plot_qq_series(ticker: str, sample: list, show: bool=True, savefile: str=None) -&gt; Union[FigureCanvas, None]:
+<pre><code class="python">def plot_qq_series(ticker: str, qq_series: list, show: bool=True, savefile: str=None) -&gt; Union[FigureCanvas, None]:
     title = f&#39;{ticker} Return Q-Q Plot&#39;
     normal_series = []
     sample_series = []
-    for point in sample:
+    for point in qq_series:
         normal_series.append(point[0])
         sample_series.append(point[1])
 
@@ -564,7 +564,7 @@ def plot_cashflow(ticker: str, cashflow: Cashflow, show: bool=True, savefile: st
     axes = canvas.figure.subplots()
 
     axes.plot(normal_series, sample_series, linestyle=&#34;None&#34;, marker=&#34;.&#34;, markersize=10.0)
-    axes.plot(normal_series, normal_series)
+    # axes.plot(normal_series, normal_series)
     axes.grid()
     axes.set_xlabel(&#39;Normal Percentiles&#39;)
     axes.set_ylabel(&#39;Sample Percentiles&#39;)
@@ -587,9 +587,9 @@ def plot_cashflow(ticker: str, cashflow: Cashflow, show: bool=True, savefile: st
     axes = canvas.figure.subplots()
 
     axes.hist(x=sample, bins=formats.formats[&#39;BINS&#39;], density=True)
-    axes.yaxis.set_major_formatter(PercentFormatter(xmax=1))
+    axes.xaxis.set_major_formatter(PercentFormatter(xmax=1))
     axes.set_title(f&#39;Distribution of {ticker} Returns&#39;)
-    axes.set_ylabel(&#39;Annualized Daily Return&#39;)
+    axes.set_xlabel(&#39;Daily Return&#39;)
     
     return _show_or_save(canvas=canvas, show=show, savefile=savefile)</code></pre>
 </details>
@@ -617,7 +617,7 @@ def plot_cashflow(ticker: str, cashflow: Cashflow, show: bool=True, savefile: st
     axes.plot(maturities, rates, linestyle=&#34;dashed&#34;, marker= &#34;.&#34;, markersize=10.0)
     axes.grid()
     axes.set_xlabel(&#39;Maturity&#39;)
-    axes.set_ylabel(&#39;Annual Yield&#39;)
+    axes.set_ylabel(&#39;Annual Yield %&#39;)
     axes.set_title(title)
 
     return _show_or_save(canvas=canvas, show=show, savefile=savefile)</code></pre>
