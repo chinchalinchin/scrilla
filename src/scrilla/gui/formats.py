@@ -4,13 +4,13 @@ from typing import Tuple
 
 from scrilla import settings
 from scrilla.gui.widgets.functions import CorrelationWidget, DiscountDividendWidget, DistributionWidget, \
-                                            EfficientFrontierWidget, MovingAverageWidget, OptimizerWidget, \
-                                            RiskProfileWidget, YieldCurveWidget
+    EfficientFrontierWidget, MovingAverageWidget, OptimizerWidget, \
+    RiskProfileWidget, YieldCurveWidget
 from scrilla.util import helper
 from scrilla.static import keys
 
-FUNC_WIDGETS= {
-    'correlation':{
+FUNC_WIDGETS = {
+    'correlation': {
         'name': 'Correlation Matrix',
         'class': CorrelationWidget,
         'shortcut': 'Ctrl+1',
@@ -19,10 +19,10 @@ FUNC_WIDGETS= {
     'dividend': {
         'name': 'Discount Discount Model',
         'class': DiscountDividendWidget,
-        'shortcut':'Ctrl+2',
+        'shortcut': 'Ctrl+2',
         'group': 'analysis'
     },
-    'distribution':{
+    'distribution': {
         'name': 'Distribution of Returns',
         'class': DistributionWidget,
         'shortcut': 'Ctrl+7',
@@ -34,19 +34,19 @@ FUNC_WIDGETS= {
         'shortcut': 'Ctrl+3',
         'group': 'analysis'
     },
-    'averages':{
+    'averages': {
         'name': 'Moving Averages',
         'class': MovingAverageWidget,
         'shortcut': 'Ctrl+4',
         'group': 'analysis'
     },
-    'optimize':{
+    'optimize': {
         'name': 'Portfolio Optimization',
         'class': OptimizerWidget,
         'shortcut': 'Ctrl+5',
         'group': 'allocation'
     },
-    'risk_profile':{
+    'risk_profile': {
         'name': 'Risk Profile',
         'class': RiskProfileWidget,
         'shortcut': 'Ctrl+8',
@@ -61,17 +61,17 @@ FUNC_WIDGETS= {
     }
 }
 
-MENUBAR_WIDGET={
-    'File': [ {
+MENUBAR_WIDGET = {
+    'File': [{
         'name': 'Add API Key',
-        'shortcut': 'Ctrl+A', 
+        'shortcut': 'Ctrl+A',
     }],
-    'Functions' : [ {
-        'name': FUNC_WIDGETS[func_widget]['name'], 
+    'Functions': [{
+        'name': FUNC_WIDGETS[func_widget]['name'],
         'shortcut': FUNC_WIDGETS[func_widget]['shortcut']
-        } for func_widget in FUNC_WIDGETS
+    } for func_widget in FUNC_WIDGETS
     ],
-    'View': [ {
+    'View': [{
         'name': 'Function Menu',
         'shortcut': 'Ctrl+F'
     }]
@@ -91,13 +91,14 @@ def format_stylesheet(sheet):
 
     return sheet
 
+
 def get_dark_mode_theme():
     with open(settings.GUI_THEME_FILE, 'r') as f:
         MATERIAL = json.load(f)
 
     dark_theme = {}
     for color in MATERIAL['grey']:
-        dark_theme[f'$primary-{color}']= MATERIAL['grey'][color]
+        dark_theme[f'$primary-{color}'] = MATERIAL['grey'][color]
     for color in MATERIAL['green']:
         dark_theme[f'$accent-{color}'] = MATERIAL['green'][color]
     for color in MATERIAL['red']:
@@ -105,13 +106,14 @@ def get_dark_mode_theme():
 
     return dark_theme
 
+
 def get_light_mode_theme():
     with open(settings.GUI_THEME_FILE, 'r') as f:
         MATERIAL = json.load(f)
-        
+
     light_theme = {}
     for color in MATERIAL['grey']:
-        light_theme[f'$primary-{color}']= MATERIAL['grey'][color]
+        light_theme[f'$primary-{color}'] = MATERIAL['grey'][color]
     for color in MATERIAL['green']:
         light_theme[f'$accent-{color}'] = MATERIAL['green'][color]
     for color in MATERIAL['red']:
@@ -119,17 +121,21 @@ def get_light_mode_theme():
 
     return light_theme
 
+
 def format_allocation_profile_title(allocation, portfolio) -> str:
-    port_return, port_volatility = portfolio.return_function(allocation), portfolio.volatility_function(allocation)
-    formatted_result = "("+str(100*port_return)[:5]+"%, " + str(100*port_volatility)[:5]+"%)"
+    port_return, port_volatility = portfolio.return_function(
+        allocation), portfolio.volatility_function(allocation)
+    formatted_result = "("+str(100 *
+                               port_return)[:5]+"%, " + str(100*port_volatility)[:5]+"%)"
     formatted_result_title = "("
     for symbol in portfolio.tickers:
         if portfolio.tickers.index(symbol) != (len(portfolio.tickers) - 1):
             formatted_result_title += symbol+", "
         else:
             formatted_result_title += symbol + ") Portfolio Return-Risk Profile"
-    whole_thing = formatted_result_title +" = "+formatted_result
+    whole_thing = formatted_result_title + " = "+formatted_result
     return whole_thing
+
 
 def format_profile(profile: dict) -> Tuple[str]:
     profile_keys = keys.keys['APP']['PROFILE']

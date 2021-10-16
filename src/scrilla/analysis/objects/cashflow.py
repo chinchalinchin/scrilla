@@ -23,20 +23,22 @@ import scrilla.analysis.estimators as estimators
 logger = outputter.Logger('analysis.objects.cashflow', settings.LOG_LEVEL)
 
 # Technically these are periods
-FREQ_DAY=1/365
-FREQ_MONTH=1/12
-FREQ_QUARTER=1/4
-FREQ_ANNUAL=1
+FREQ_DAY = 1/365
+FREQ_MONTH = 1/12
+FREQ_QUARTER = 1/4
+FREQ_ANNUAL = 1
 
 # Frequency = 1 / period
+
+
 class Cashflow:
     r"""
     A class that represents a set of future cashflows. The class is initialized with the `sample` variable, a `dict` of past cashflows and their dates. From the `sample`, a linear regression model is inferred. Alternatively, a `growth_function` can be provided that describes the cash flow as a function of time measured in years. If a `growth_function` is provided, the class skips the linear regression model. See warning below for more information on constructing an instance of this cashflow. In general, it needs to know how to project future cashflows, whether that is through inference or a model assumption. 
 
     If the sample of data is not large enough to infer a linear regression model, the estimation model will default to simple Martingale process described by the equation,
-    
+
     $$ E(X_2 \mid X_1) = X_1 $$
-     
+
     Or, in plain English, the next expected value given the current value is the current value. To rephrase it yet again: without more information the best guess for the future value of an asset is its current value.
 
     The growth model, whether estimated or provided, is used to project the future value of cashflows and then these projections are discounted back to the present by the `discount_rate`. 
@@ -53,7 +55,7 @@ class Cashflow:
         *Optional.* The rate of return used to discount future cash flows back to the present. If not provided, the `discount_rate` defaults to the risk free rate defined by the **RISK_FREE** environment variable.
     5. **constant**: ``float``
         If the cashflow is constant with respect to time, specify the value of it with this argument. Will override `growth_function` and sample. If constant is specified, you MUST also specify a period or else you will encounter errors when trying to calculate the net present value of future cashflows.
-    
+
     .. warning::
     * In general, the Cashflow object must always be initialized in one of the following ways:
         1. **__init__** args: (`sample`) -> period inferred from sample, linear regression used for growth
@@ -62,7 +64,7 @@ class Cashflow:
         4. **__init__** args: (`sample`, `growth_function`) -> period inferred from sample, `growth_function` used for growth
         5. **__init__** args: (`period`, `growth_function`) -> period from constructor, `growth_function` used for growth
         6. **__init__** args: (`period`, `constant`) -> period from constructor, constant used for growth
-    
+
     .. notes::
         * A constant cashflow can be specified in three ways: 1. By passing in a constant amount through the constructor `constant` variable. 2. By passing in a constant function with respect to time through the constructor `growth_function` variable. 3. By passing in a dataset of length one through the constructor `sample` variable.  In any of the cases, you MUST pass in a period or the `net_present_value` method of this class will return False.
         * Both a growth_function and a sample of data can be passed in at once to this class. If doing so, the `growth_function` will take precedence and be used for calculations in the `net_present_value` method. The sample will be used to infer the length of a period between cashflows, unless a period is also specified. If a period is specified in addition to `sample_prices` and `growth_function`, the period will take precedence over the period inferred from the sample of data.
@@ -72,6 +74,7 @@ class Cashflow:
         * Implement prediction interval function to get error bars for graphs and general usage.
 
     """
+
     def __init__(self, sample=None, period=None, growth_function=None, constant=None, discount_rate=None):
         self.sample = sample
         self.period = period
@@ -91,7 +94,7 @@ class Cashflow:
         if self.sample is not None and self.growth_function is None:
             self.generate_time_series_for_sample()
             self.regress_growth_function()
-        
+
         if discount_rate is None:
             self.discount_rate = services.get_risk_free_rate()
         else:
@@ -116,7 +119,8 @@ class Cashflow:
         mean_delta = 0
 
         if no_of_dates < 2:
-            logger.debug('Cannot infer period from sample size less than or equal to 1')
+            logger.debug(
+                'Cannot infer period from sample size less than or equal to 1')
             self.period = None
             self.frequency = None
 
@@ -129,22 +133,23 @@ class Cashflow:
                 else:
                     todays_date = dater.parse_date_string(date)
                     delta = (tomorrows_date - todays_date).days / 365
-                    mean_delta += delta / no_of_dates 
+                    mean_delta += delta / no_of_dates
                     tomorrows_date = todays_date
 
-            self.period =  mean_delta
-            self.frequency = 1 / self.period 
+            self.period = mean_delta
+            self.frequency = 1 / self.period
             logger.debug(f'Inferred period = {self.period} yrs')
             logger.debug(f'Inferred frequency = {self.frequency}')
 
-    # TODO: trading days or actual days? 
+    # TODO: trading days or actual days?
     def generate_time_series_for_sample(self):
         self.time_series = []
 
         dates, no_of_dates = self.sample.keys(), len(self.sample.keys())
 
         if no_of_dates == 0:
-            logger.debug('Cannot generate a time series for a sample size of 0.')
+            logger.debug(
+                'Cannot generate a time series for a sample size of 0.')
             self.time_series = None
         else:
             first_date = dater.parse_date_string(list(dates)[-1])
@@ -154,30 +159,34 @@ class Cashflow:
                 delta = (this_date - first_date).days
                 time_in_years = delta / 365
                 self.time_series.append(time_in_years)
-    
-    # TODO: trading days or actual days? 
+
+    # TODO: trading days or actual days?
     def calculate_time_to_today(self):
         first_date = dater.parse_date_string(list(self.sample.keys())[-1])
         today = datetime.date.today()
         return ((today - first_date).days/365)
-        
 
     def regress_growth_function(self):
-        to_list = [ self.sample[date] for date in self.sample ]
+        to_list = [self.sample[date] for date in self.sample]
 
-        self.beta = estimators.simple_regression_beta(x=self.time_series, y=to_list)
-        self.alpha = estimators.simple_regression_alpha(x=self.time_series, y=to_list)
-        
+        self.beta = estimators.simple_regression_beta(
+            x=self.time_series, y=to_list)
+        self.alpha = estimators.simple_regression_alpha(
+            x=self.time_series, y=to_list)
+
         if not self.beta or not self.alpha:
             if len(self.sample) > 0:
                 self.alpha = list(self.sample.items())[0][1]
-                logger.debug('Error calculating regression coefficients; Defaulting to Markovian process E(X2|X1) = X1.')
+                logger.debug(
+                    'Error calculating regression coefficients; Defaulting to Markovian process E(X2|X1) = X1.')
                 logger.debug(f'Estimation model : y = {self.alpha}')
-            else: 
-                raise errors.SampleSizeError('Not enough information to formulate estimation model.')
+            else:
+                raise errors.SampleSizeError(
+                    'Not enough information to formulate estimation model.')
 
         else:
-            logger.debug(f'Linear regression model : y = {self.beta} * x + {self.alpha}')
+            logger.debug(
+                f'Linear regression model : y = {self.beta} * x + {self.alpha}')
 
     def generate_model_series(self):
         return [self.alpha + self.beta*time for time in self.time_series]
@@ -186,13 +195,13 @@ class Cashflow:
         """
         Returns a list of dictionaries with the predicted value of the linear regression model and the actual value on a given datas. Format: [ {'date': `str`, 'model_price': `float`, 'actual_price': `float` }, ... ]
         """
-        model_prices= self.generate_model_series()
+        model_prices = self.generate_model_series()
 
-        return[ { 'date': date, 
-                  'model_price': model_prices[index], 
-                  'actual_price': self.sample[date] } 
-                for index, date in enumerate(self.sample.keys()) ]
-        
+        return[{'date': date,
+                'model_price': model_prices[index],
+                'actual_price': self.sample[date]}
+               for index, date in enumerate(self.sample.keys())]
+
     def get_growth_function(self, x):
         """
         Traverses the hierarchy of instance variables to determine which method to use to describe the growth of future cashflows. Returns the value of determined function for the given value of `x`. Think of this function as a black box that hides the implementation of the `growth_function` from the user accessing the function. 
@@ -201,7 +210,7 @@ class Cashflow:
         ----------
         1. **x**: ``float``
             Time in years.
-        
+
         Returns
         -------
         ``float`` : Value of the cash flow's growth function at time `x`.
@@ -222,18 +231,19 @@ class Cashflow:
         ------
         1. **scrilla.errors.InputValidationError**
             If not enough information is present in the instance of the `Cashflow` object to project future cash flows, this error will be thrown.
-            
+
         Returns
         -------
         ``float`` : NPV of cash flow.
         """
         if self.period is None:
-            raise errors.InputValidationError("No period detected for cashflows. Not enough information to calculate net present value.")
-        
+            raise errors.InputValidationError(
+                "No period detected for cashflows. Not enough information to calculate net present value.")
+
         time_to_first_payment = 0
         if self.period == FREQ_ANNUAL:
             time_to_first_payment = dater.get_time_to_next_year()
-            
+
         elif self.period == FREQ_QUARTER:
             time_to_first_payment = dater.get_time_to_next_quarter()
 
@@ -242,27 +252,29 @@ class Cashflow:
 
         elif self.period == FREQ_DAY:
             time_to_first_payment = FREQ_DAY
-        
+
         else:
             dates = self.sample.keys()
             latest_date = dater.parse_date_string(list(dates)[0])
-            time_to_first_payment = dater.get_time_to_next_period(starting_date=latest_date, period=self.period)
+            time_to_first_payment = dater.get_time_to_next_period(
+                starting_date=latest_date, period=self.period)
 
         self.NPV, i, current_time = 0, 0, 0
         calculating = True
-        while calculating: 
+        while calculating:
             previous_value = self.NPV
 
             if self.period is not None:
                 current_time = time_to_first_payment + i * self.period
             else:
-                raise errors.InputValidationError('Not enough information to calculate net present value of cash flow.')
-            
-            self.NPV += self.get_growth_function(current_time) / ((1 + self.discount_rate)**current_time)
+                raise errors.InputValidationError(
+                    'Not enough information to calculate net present value of cash flow.')
+
+            self.NPV += self.get_growth_function(current_time) / (
+                (1 + self.discount_rate)**current_time)
 
             if self.NPV - previous_value < constants.constants['NPV_DELTA_TOLERANCE']:
                 calculating = False
             i += 1
 
         return self.NPV
-        
