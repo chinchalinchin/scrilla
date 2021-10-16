@@ -205,15 +205,12 @@ class ArgumentWidget(QtWidgets.QWidget):
             # to pull the actual input element from the layout
             self.symbol_widget.layout().itemAt(1).widget().returnPressed.connect(self.calculate_function)
 
-    def get_symbol_input(self) -&gt; Union[List[str], str, None]:
+    def get_symbol_input(self) -&gt; Union[List[str], None]:
         &#34;&#34;&#34;
-        Returns the symbols inputted into the `PySide6.QtWidgets.QLineEdit` child of `symbol_widget`. If the `ArgumentWidget` has been initialized as a `scrilla.gui.widgets.components.SYMBOLS_LIST`, the method will return a list of inputted strings. If the `ArgumentWidget` has been initialied as a `scrilla.gui.widgets.components.SYMBOLS_SINGLE`, the method will return a single string. If the `ArgumentWidget` has been initialized as a `scrilla.gui.widgets.components.SYMBOLS_NONE`, this method will return `None`. In addition, in the first two cases, if no input has been entered, this method will return `None`. 
+        Returns the symbols inputted into the `PySide6.QtWidgets.QLineEdit` child of `symbol_widget`. If the `ArgumentWidget` has been initialized as a `scrilla.gui.widgets.components.SYMBOLS_LIST`, the method will return a list of inputted strings. If the `ArgumentWidget` has been initialied as a `scrilla.gui.widgets.components.SYMBOLS_SINGLE`, the method will return a list with a string as its single element. If the `ArgumentWidget` has been initialized as a `scrilla.gui.widgets.components.SYMBOLS_NONE`, this method will return `None`. In addition, in the first two cases, if no input has been entered, this method will return `None`. 
         &#34;&#34;&#34;
         if self.symbol_widget is not None:
-            input_string = helper.split_and_strip(self.symbol_widget.layout().itemAt(1).widget().text())
-            if len(input_string) == 1:
-                return input_string[0].strip()
-            return input_string
+            return helper.split_and_strip(self.symbol_widget.layout().itemAt(1).widget().text())
         return None
 
     def get_control_input(self, control_widget_key: str) -&gt; Union[datetime.date, str, bool, None]:
@@ -231,7 +228,7 @@ class ArgumentWidget(QtWidgets.QWidget):
             return None
 
         if type(widget) is QtWidgets.QDateEdit: 
-            return widget.date().toPython()
+            return widget.date().toPython().date()
         if type(widget) is QtWidgets.QLineEdit:
             if type(widget.validator()) is QtGui.QIntValidator:
                 return int(widget.text())
@@ -637,15 +634,12 @@ See help(type(self)) for accurate signature.</p></div>
             # to pull the actual input element from the layout
             self.symbol_widget.layout().itemAt(1).widget().returnPressed.connect(self.calculate_function)
 
-    def get_symbol_input(self) -&gt; Union[List[str], str, None]:
+    def get_symbol_input(self) -&gt; Union[List[str], None]:
         &#34;&#34;&#34;
-        Returns the symbols inputted into the `PySide6.QtWidgets.QLineEdit` child of `symbol_widget`. If the `ArgumentWidget` has been initialized as a `scrilla.gui.widgets.components.SYMBOLS_LIST`, the method will return a list of inputted strings. If the `ArgumentWidget` has been initialied as a `scrilla.gui.widgets.components.SYMBOLS_SINGLE`, the method will return a single string. If the `ArgumentWidget` has been initialized as a `scrilla.gui.widgets.components.SYMBOLS_NONE`, this method will return `None`. In addition, in the first two cases, if no input has been entered, this method will return `None`. 
+        Returns the symbols inputted into the `PySide6.QtWidgets.QLineEdit` child of `symbol_widget`. If the `ArgumentWidget` has been initialized as a `scrilla.gui.widgets.components.SYMBOLS_LIST`, the method will return a list of inputted strings. If the `ArgumentWidget` has been initialied as a `scrilla.gui.widgets.components.SYMBOLS_SINGLE`, the method will return a list with a string as its single element. If the `ArgumentWidget` has been initialized as a `scrilla.gui.widgets.components.SYMBOLS_NONE`, this method will return `None`. In addition, in the first two cases, if no input has been entered, this method will return `None`. 
         &#34;&#34;&#34;
         if self.symbol_widget is not None:
-            input_string = helper.split_and_strip(self.symbol_widget.layout().itemAt(1).widget().text())
-            if len(input_string) == 1:
-                return input_string[0].strip()
-            return input_string
+            return helper.split_and_strip(self.symbol_widget.layout().itemAt(1).widget().text())
         return None
 
     def get_control_input(self, control_widget_key: str) -&gt; Union[datetime.date, str, bool, None]:
@@ -663,7 +657,7 @@ See help(type(self)) for accurate signature.</p></div>
             return None
 
         if type(widget) is QtWidgets.QDateEdit: 
-            return widget.date().toPython()
+            return widget.date().toPython().date()
         if type(widget) is QtWidgets.QLineEdit:
             if type(widget.validator()) is QtGui.QIntValidator:
                 return int(widget.text())
@@ -770,7 +764,7 @@ See help(type(self)) for accurate signature.</p></div>
         return None
 
     if type(widget) is QtWidgets.QDateEdit: 
-        return widget.date().toPython()
+        return widget.date().toPython().date()
     if type(widget) is QtWidgets.QLineEdit:
         if type(widget.validator()) is QtGui.QIntValidator:
             return int(widget.text())
@@ -782,23 +776,20 @@ See help(type(self)) for accurate signature.</p></div>
 </details>
 </dd>
 <dt id="scrilla.gui.widgets.components.ArgumentWidget.get_symbol_input"><code class="name flex">
-<span>def <span class="ident">get_symbol_input</span></span>(<span>self) ‑> Union[List[str], str, None]</span>
+<span>def <span class="ident">get_symbol_input</span></span>(<span>self) ‑> Optional[List[str]]</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Returns the symbols inputted into the <code>PySide6.QtWidgets.QLineEdit</code> child of <code>symbol_widget</code>. If the <code><a title="scrilla.gui.widgets.components.ArgumentWidget" href="#scrilla.gui.widgets.components.ArgumentWidget">ArgumentWidget</a></code> has been initialized as a <code><a title="scrilla.gui.widgets.components.SYMBOLS_LIST" href="#scrilla.gui.widgets.components.SYMBOLS_LIST">SYMBOLS_LIST</a></code>, the method will return a list of inputted strings. If the <code><a title="scrilla.gui.widgets.components.ArgumentWidget" href="#scrilla.gui.widgets.components.ArgumentWidget">ArgumentWidget</a></code> has been initialied as a <code><a title="scrilla.gui.widgets.components.SYMBOLS_SINGLE" href="#scrilla.gui.widgets.components.SYMBOLS_SINGLE">SYMBOLS_SINGLE</a></code>, the method will return a single string. If the <code><a title="scrilla.gui.widgets.components.ArgumentWidget" href="#scrilla.gui.widgets.components.ArgumentWidget">ArgumentWidget</a></code> has been initialized as a <code><a title="scrilla.gui.widgets.components.SYMBOLS_NONE" href="#scrilla.gui.widgets.components.SYMBOLS_NONE">SYMBOLS_NONE</a></code>, this method will return <code>None</code>. In addition, in the first two cases, if no input has been entered, this method will return <code>None</code>.</p></div>
+<div class="desc"><p>Returns the symbols inputted into the <code>PySide6.QtWidgets.QLineEdit</code> child of <code>symbol_widget</code>. If the <code><a title="scrilla.gui.widgets.components.ArgumentWidget" href="#scrilla.gui.widgets.components.ArgumentWidget">ArgumentWidget</a></code> has been initialized as a <code><a title="scrilla.gui.widgets.components.SYMBOLS_LIST" href="#scrilla.gui.widgets.components.SYMBOLS_LIST">SYMBOLS_LIST</a></code>, the method will return a list of inputted strings. If the <code><a title="scrilla.gui.widgets.components.ArgumentWidget" href="#scrilla.gui.widgets.components.ArgumentWidget">ArgumentWidget</a></code> has been initialied as a <code><a title="scrilla.gui.widgets.components.SYMBOLS_SINGLE" href="#scrilla.gui.widgets.components.SYMBOLS_SINGLE">SYMBOLS_SINGLE</a></code>, the method will return a list with a string as its single element. If the <code><a title="scrilla.gui.widgets.components.ArgumentWidget" href="#scrilla.gui.widgets.components.ArgumentWidget">ArgumentWidget</a></code> has been initialized as a <code><a title="scrilla.gui.widgets.components.SYMBOLS_NONE" href="#scrilla.gui.widgets.components.SYMBOLS_NONE">SYMBOLS_NONE</a></code>, this method will return <code>None</code>. In addition, in the first two cases, if no input has been entered, this method will return <code>None</code>.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def get_symbol_input(self) -&gt; Union[List[str], str, None]:
+<pre><code class="python">def get_symbol_input(self) -&gt; Union[List[str], None]:
     &#34;&#34;&#34;
-    Returns the symbols inputted into the `PySide6.QtWidgets.QLineEdit` child of `symbol_widget`. If the `ArgumentWidget` has been initialized as a `scrilla.gui.widgets.components.SYMBOLS_LIST`, the method will return a list of inputted strings. If the `ArgumentWidget` has been initialied as a `scrilla.gui.widgets.components.SYMBOLS_SINGLE`, the method will return a single string. If the `ArgumentWidget` has been initialized as a `scrilla.gui.widgets.components.SYMBOLS_NONE`, this method will return `None`. In addition, in the first two cases, if no input has been entered, this method will return `None`. 
+    Returns the symbols inputted into the `PySide6.QtWidgets.QLineEdit` child of `symbol_widget`. If the `ArgumentWidget` has been initialized as a `scrilla.gui.widgets.components.SYMBOLS_LIST`, the method will return a list of inputted strings. If the `ArgumentWidget` has been initialied as a `scrilla.gui.widgets.components.SYMBOLS_SINGLE`, the method will return a list with a string as its single element. If the `ArgumentWidget` has been initialized as a `scrilla.gui.widgets.components.SYMBOLS_NONE`, this method will return `None`. In addition, in the first two cases, if no input has been entered, this method will return `None`. 
     &#34;&#34;&#34;
     if self.symbol_widget is not None:
-        input_string = helper.split_and_strip(self.symbol_widget.layout().itemAt(1).widget().text())
-        if len(input_string) == 1:
-            return input_string[0].strip()
-        return input_string
+        return helper.split_and_strip(self.symbol_widget.layout().itemAt(1).widget().text())
     return None</code></pre>
 </details>
 </dd>

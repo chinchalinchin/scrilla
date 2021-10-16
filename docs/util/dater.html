@@ -68,6 +68,13 @@ def truncate_future_from_date(date: datetime.date) -&gt; datetime.date:
         return get_today()
     return date
 
+def last_close_date():
+    today = datetime.datetime.now()
+    trading_close_today = today.replace(hour=14)
+    if today &gt; trading_close_today:
+        return today.date()
+    return get_previous_business_date(today.date())
+
 def get_time_to_next_period(starting_date: datetime.date, period: float) -&gt; float:
     if period is None:
         return 0
@@ -109,20 +116,16 @@ def get_last_trading_date() -&gt; datetime.date:
     &#34;&#34;&#34;
     today = datetime.datetime.now()
     if is_date_holiday(today) or is_date_weekend(today):
-        today = get_previous_business_date(today)
-    trading_close_today = today.replace(hour=14)
-    if today &gt; trading_close_today:
-        return today.date()
-    return get_previous_business_date(today.date())
+        return get_previous_business_date(today.date())
+    return last_close_date()
 
 def this_date_or_last_trading_date(date : Union[datetime.date, None] = None) -&gt; datetime.date:
     if date is None:
         return get_last_trading_date()
     if is_date_holiday(date) or is_date_weekend(date):
-        date = get_previous_business_date(date)
-    trading_close_today = datetime.datetime.now().replace(hour=14)
-    if datetime.datetime.now() &gt; trading_close_today:
-        return datetime.datetime.now().date()
+        return get_previous_business_date(date)
+    if is_date_today(date):
+        return last_close_date()
     return date
     
 def verify_date_types(dates: Union[List[datetime.date], List[str]]) -&gt; Union[List[datetime.date], None]:
@@ -655,11 +658,8 @@ End date of the date range.</li>
     &#34;&#34;&#34;
     today = datetime.datetime.now()
     if is_date_holiday(today) or is_date_weekend(today):
-        today = get_previous_business_date(today)
-    trading_close_today = today.replace(hour=14)
-    if today &gt; trading_close_today:
-        return today.date()
-    return get_previous_business_date(today.date())</code></pre>
+        return get_previous_business_date(today.date())
+    return last_close_date()</code></pre>
 </details>
 </dd>
 <dt id="scrilla.util.dater.get_next_business_date"><code class="name flex">
@@ -946,6 +946,23 @@ End date of the date range.</li>
     return not is_date_weekend(date) and not is_date_holiday(date)</code></pre>
 </details>
 </dd>
+<dt id="scrilla.util.dater.last_close_date"><code class="name flex">
+<span>def <span class="ident">last_close_date</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def last_close_date():
+    today = datetime.datetime.now()
+    trading_close_today = today.replace(hour=14)
+    if today &gt; trading_close_today:
+        return today.date()
+    return get_previous_business_date(today.date())</code></pre>
+</details>
+</dd>
 <dt id="scrilla.util.dater.parse_date_string"><code class="name flex">
 <span>def <span class="ident">parse_date_string</span></span>(<span>date_string: str) ‑> Optional[datetime.date]</span>
 </code></dt>
@@ -980,10 +997,9 @@ End date of the date range.</li>
     if date is None:
         return get_last_trading_date()
     if is_date_holiday(date) or is_date_weekend(date):
-        date = get_previous_business_date(date)
-    trading_close_today = datetime.datetime.now().replace(hour=14)
-    if datetime.datetime.now() &gt; trading_close_today:
-        return datetime.datetime.now().date()
+        return get_previous_business_date(date)
+    if is_date_today(date):
+        return last_close_date()
     return date</code></pre>
 </details>
 </dd>
@@ -1106,6 +1122,7 @@ End date of the date range.</li>
 <li><code><a title="scrilla.util.dater.is_date_weekend" href="#scrilla.util.dater.is_date_weekend">is_date_weekend</a></code></li>
 <li><code><a title="scrilla.util.dater.is_future_date" href="#scrilla.util.dater.is_future_date">is_future_date</a></code></li>
 <li><code><a title="scrilla.util.dater.is_trading_date" href="#scrilla.util.dater.is_trading_date">is_trading_date</a></code></li>
+<li><code><a title="scrilla.util.dater.last_close_date" href="#scrilla.util.dater.last_close_date">last_close_date</a></code></li>
 <li><code><a title="scrilla.util.dater.parse_date_string" href="#scrilla.util.dater.parse_date_string">parse_date_string</a></code></li>
 <li><code><a title="scrilla.util.dater.this_date_or_last_trading_date" href="#scrilla.util.dater.this_date_or_last_trading_date">this_date_or_last_trading_date</a></code></li>
 <li><code><a title="scrilla.util.dater.truncate_future_from_date" href="#scrilla.util.dater.truncate_future_from_date">truncate_future_from_date</a></code></li>

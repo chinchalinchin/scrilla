@@ -83,7 +83,7 @@ class MenuWidget(QtWidgets.QWidget):
                     pass
                 elif menu == &#39;View&#39;:
                     if action[&#39;name&#39;] == &#39;Function Menu&#39;:
-                        q_action.triggered.connect(lambda: self.function_menu.show())
+                        q_action.triggered.connect(self.function_menu.show)
                 self.menus[j].addAction(q_action)
 
     def _init_menu_widgets(self):
@@ -163,7 +163,6 @@ class MenuWidget(QtWidgets.QWidget):
         for widget in self.function_widgets:
             widget.hide()
         self.function_widgets[widget_index].show()
-        print(list(formats.FUNC_WIDGETS.values())[widget_index])
         self.title.setText(list(formats.FUNC_WIDGETS.values())[widget_index][&#39;name&#39;])
 
     @QtCore.Slot()
@@ -245,7 +244,7 @@ See help(type(self)) for accurate signature.</p></div>
                     pass
                 elif menu == &#39;View&#39;:
                     if action[&#39;name&#39;] == &#39;Function Menu&#39;:
-                        q_action.triggered.connect(lambda: self.function_menu.show())
+                        q_action.triggered.connect(self.function_menu.show)
                 self.menus[j].addAction(q_action)
 
     def _init_menu_widgets(self):
@@ -325,7 +324,6 @@ See help(type(self)) for accurate signature.</p></div>
         for widget in self.function_widgets:
             widget.hide()
         self.function_widgets[widget_index].show()
-        print(list(formats.FUNC_WIDGETS.values())[widget_index])
         self.title.setText(list(formats.FUNC_WIDGETS.values())[widget_index][&#39;name&#39;])
 
     @QtCore.Slot()

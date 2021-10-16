@@ -474,7 +474,7 @@ def calculate_likelihood_risk_return(ticker, start_date: Union[date, None]=None,
     if not prices:
         raise errors.PriceError(f&#39;No prices could be retrieved for {ticker}&#39;)
 
-    sample_of_returns = get_sample_of_returns(prices=prices, asset_type=asset_type)
+    sample_of_returns = get_sample_of_returns(ticker=ticker, sample_prices=prices, asset_type=asset_type)
 
     likelihood_estimates = optimizer.maximize_univariate_normal_likelihood(data=sample_of_returns)
     # See NOTE in docstring
@@ -552,7 +552,7 @@ def calculate_percentile_risk_return(ticker: str, start_date: Union[date, None]=
     if not prices:
         raise errors.PriceError(f&#39;No prices could be retrieved for {ticker}&#39;)
 
-    sample_of_returns = get_sample_of_returns(prices=prices, asset_type=asset_type)
+    sample_of_returns = get_sample_of_returns(ticker=ticker, sample_prices=prices, asset_type=asset_type)
 
     first_quartile = estimators.sample_percentile(data=sample_of_returns, percentile=0.25)
     median = estimators.sample_percentile(data=sample_of_returns, percentile=0.50)
@@ -812,8 +812,8 @@ def calculate_percentile_correlation(ticker_1, ticker_2, asset_type_1=None, asse
     else:
         trading_period = constants.constants[&#39;ONE_TRADING_DAY&#39;][&#39;EQUITY&#39;]
     
-    sample_of_returns_1 = get_sample_of_returns(prices=sample_prices[ticker_1], asset_type=asset_type_1)
-    sample_of_returns_2 = get_sample_of_returns(prices=sample_prices[ticker_2], asset_type=asset_type_2)
+    sample_of_returns_1 = get_sample_of_returns(ticker=ticker_1, sample_prices=sample_prices[ticker_1], asset_type=asset_type_1)
+    sample_of_returns_2 = get_sample_of_returns(ticker=ticker_2, sample_prices=sample_prices[ticker_2], asset_type=asset_type_2)
     
     # TODO: find bivariate percentiles. 
     
@@ -895,10 +895,12 @@ def calculate_likelihood_correlation(ticker_1, ticker_2, asset_type_1=None, asse
     if 0 in [len(sample_prices[ticker_1]), len(sample_prices[ticker_2])]:
         raise errors.PriceError(&#34;Prices cannot be retrieved for correlation calculation&#34;)
     
-    sample_of_returns_1 = get_sample_of_returns(prices=sample_prices[ticker_1], 
-                                                    asset_type=asset_type_1)
-    sample_of_returns_2 = get_sample_of_returns(prices=sample_prices[ticker_2], 
-                                                    asset_type=asset_type_2)
+    sample_of_returns_1 = get_sample_of_returns(ticker=ticker_1,
+                                                sample_prices=sample_prices[ticker_1], 
+                                                asset_type=asset_type_1)
+    sample_of_returns_2 = get_sample_of_returns(ticker=ticker_2,
+                                                sample_prices=sample_prices[ticker_2], 
+                                                asset_type=asset_type_2)
     
     combined_sample = [ [sample_of_returns_1[i], sample_of_returns_2[i]] for i, el in enumerate(sample_of_returns_1)]
 
@@ -1446,10 +1448,12 @@ Dictionary containing the correlation of <code>ticker_1</code> and <code>ticker_
     if 0 in [len(sample_prices[ticker_1]), len(sample_prices[ticker_2])]:
         raise errors.PriceError(&#34;Prices cannot be retrieved for correlation calculation&#34;)
     
-    sample_of_returns_1 = get_sample_of_returns(prices=sample_prices[ticker_1], 
-                                                    asset_type=asset_type_1)
-    sample_of_returns_2 = get_sample_of_returns(prices=sample_prices[ticker_2], 
-                                                    asset_type=asset_type_2)
+    sample_of_returns_1 = get_sample_of_returns(ticker=ticker_1,
+                                                sample_prices=sample_prices[ticker_1], 
+                                                asset_type=asset_type_1)
+    sample_of_returns_2 = get_sample_of_returns(ticker=ticker_2,
+                                                sample_prices=sample_prices[ticker_2], 
+                                                asset_type=asset_type_2)
     
     combined_sample = [ [sample_of_returns_1[i], sample_of_returns_2[i]] for i, el in enumerate(sample_of_returns_1)]
 
@@ -1563,7 +1567,7 @@ Dictionary containing the annualized return and volatility. Formatted as <code>{
     if not prices:
         raise errors.PriceError(f&#39;No prices could be retrieved for {ticker}&#39;)
 
-    sample_of_returns = get_sample_of_returns(prices=prices, asset_type=asset_type)
+    sample_of_returns = get_sample_of_returns(ticker=ticker, sample_prices=prices, asset_type=asset_type)
 
     likelihood_estimates = optimizer.maximize_univariate_normal_likelihood(data=sample_of_returns)
     # See NOTE in docstring
@@ -2455,8 +2459,8 @@ Dictionary containing the correlation of <code>ticker_1</code> and <code>ticker_
     else:
         trading_period = constants.constants[&#39;ONE_TRADING_DAY&#39;][&#39;EQUITY&#39;]
     
-    sample_of_returns_1 = get_sample_of_returns(prices=sample_prices[ticker_1], asset_type=asset_type_1)
-    sample_of_returns_2 = get_sample_of_returns(prices=sample_prices[ticker_2], asset_type=asset_type_2)
+    sample_of_returns_1 = get_sample_of_returns(ticker=ticker_1, sample_prices=sample_prices[ticker_1], asset_type=asset_type_1)
+    sample_of_returns_2 = get_sample_of_returns(ticker=ticker_2, sample_prices=sample_prices[ticker_2], asset_type=asset_type_2)
     
     # TODO: find bivariate percentiles. 
     
@@ -2560,7 +2564,7 @@ If no price data is inputted into the function and the application cannot retrie
     if not prices:
         raise errors.PriceError(f&#39;No prices could be retrieved for {ticker}&#39;)
 
-    sample_of_returns = get_sample_of_returns(prices=prices, asset_type=asset_type)
+    sample_of_returns = get_sample_of_returns(ticker=ticker, sample_prices=prices, asset_type=asset_type)
 
     first_quartile = estimators.sample_percentile(data=sample_of_returns, percentile=0.25)
     median = estimators.sample_percentile(data=sample_of_returns, percentile=0.50)
