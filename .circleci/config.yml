@@ -5,12 +5,12 @@ commands:
     description: install build dependencies
     steps:
       - restore_cache:  # ensure this step occurs *before* installing dependencies
-          key: python-deps
+          key: python-dependencies
       - run:
           name: dependency installation
           command: pip install twine setuptools build
       - save_cache:
-          key: python-deps
+          key: python-dependencies
           paths:
             - ".venv"
             - "/usr/local/bin"
@@ -20,16 +20,17 @@ commands:
     description: install documentation dependencies
     steps:
       - run:
-          name: install virtual server
+          name: install build dependencies
           command: sudo apt-get update -y && sudo apt-get install -y xvfb freeglut3 freeglut3-dev libxkbcommon-x11-0
       - restore_cache:  # ensure this step occurs *before* installing dependencies
-          key: python-deps
+          key: python-dependencies
       - run:
-          name: dependency installation
+          name: install application dependencies
           command: |
+            python3.9 -m pip install --upgrade pip
             pip3 install -r requirements.txt
       - save_cache:
-          key: python-deps
+          key: python-dependencies
           paths:
             - ".venv"
             - "/usr/local/bin"
