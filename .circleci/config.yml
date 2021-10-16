@@ -21,7 +21,7 @@ commands:
     steps:
       - run:
           name: install virtual server
-          command: sudo apt-get update -y && sudo apt-get install -y xvfb libopengl0
+          command: sudo apt-get update -y && sudo apt-get install -y xvfb freeglut3 freeglut3-dev
       - restore_cache:  # ensure this step occurs *before* installing dependencies
           key: deps9-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
       - run:
@@ -48,7 +48,7 @@ commands:
     steps:
       - run:
           name: generate docs
-          command: bash ./scripts/generate-docs
+          command: bash ./scripts/generate-docs circle-ci
 
   upload_artifacts:
     description: upload package artifacts to PyPi
@@ -83,9 +83,6 @@ commands:
               git add .
               git commit -m "Pipeline Documentation Generation $(echo $(date))"
               git push --set-upstream origin gh-pages
-              git checkout develop/main
-              git merge gh-pages
-              git push --set-upstream origin develop/main
 
 jobs:
   pypi_micro_update:
