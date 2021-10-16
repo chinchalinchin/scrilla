@@ -8,13 +8,20 @@ then
     rm -r $DOCS_DIR/*
 fi
 
-mkdir $PROJECT_DIR/tmp
+if [ ! -d $PROJECT_DIR/tmp ]
+then
+    mkdir $PROJECT_DIR/tmp
+fi
 
 if [ "$1" == "circleci" ]
 then
-    xvfb-run pdoc --html -c latex_math=True -o $PROJECT_DIR/tmp $APP_DIR
+    if ! xvfb-run pdoc --html -c latex_math=True -o $PROJECT_DIR/tmp $APP_DIR; then
+        exit 1
+    fi
 else
-    pdoc --html -c latex_math=True -o $PROJECT_DIR/tmp $APP_DIR
+    if ! pdoc --html -c latex_math=True -o $PROJECT_DIR/tmp $APP_DIR; then
+        exit 1
+    fi
 fi
 
 if [ ! -d $DOCS_DIR ]

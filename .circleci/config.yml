@@ -70,8 +70,8 @@ commands:
               git stash pop
               git add . 
               git commit -m "Pipeline Build Version $(cat ./src/scrilla/version.txt)"
-              
               git push --set-upstream origin develop/main
+              
   commit_docs:
     description: commit re-generated docs to git
     steps:
