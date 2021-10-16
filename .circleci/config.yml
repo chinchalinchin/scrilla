@@ -21,7 +21,7 @@ commands:
     steps:
       - run:
           name: install virtual server
-          command: sudo apt-get install xvfb
+          command: sudo apt-get update -y && sudo apt-get install -y xvfb libopengl0
       - run:
           name: dependency installation
           command: |
