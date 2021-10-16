@@ -57,6 +57,7 @@ def validate_dates(start_date: date, end_date: date, asset_type: str) -> Tuple[d
     """
     
     """
+
     # if end date exists, make sure it is valid
     if end_date is not None:
         end_date = dater.truncate_future_from_date(end_date)
@@ -68,10 +69,6 @@ def validate_dates(start_date: date, end_date: date, asset_type: str) -> Tuple[d
             end_date = dater.get_today()
         else:
             end_date = dater.get_last_trading_date()        
-
-    # verify dates are in order if they exist after end_date is possibly changed
-    if end_date is not None and start_date is not None:
-        start_date, end_date = dater.validate_order_of_dates(start_date, end_date)
 
     # if start date exists, make sure it is valide
     if start_date is not None:
@@ -88,5 +85,9 @@ def validate_dates(start_date: date, end_date: date, asset_type: str) -> Tuple[d
             start_date = dater.decrement_date_by_days(end_date, settings.DEFAULT_ANALYSIS_PERIOD)
         else:
             start_date = dater.decrement_date_by_business_days(end_date, settings.DEFAULT_ANALYSIS_PERIOD)
+
+    # verify dates are in order if they exist after dates are possibly changed
+    if end_date is not None and start_date is not None:
+        start_date, end_date = dater.validate_order_of_dates(start_date, end_date)
 
     return start_date, end_date

@@ -110,8 +110,10 @@ class DistributionWidget(SkeletonWidget):
     @QtCore.Slot()
     def clear(self):
         self.arg_widget.prime()
-        for i in range(self.tab_widget.count()):
-            self.tab_widget.removeTab(i)
+        total = self.tab_widget.count()
+        print(total)
+        for i in range(total):
+            self.tab_widget.removeTab(0)
 
 class YieldCurveWidget(SkeletonWidget):
     def __init__(self, layer: str, parent: Union[QtWidgets.QWidget, None] = None):
@@ -434,6 +436,7 @@ class EfficientFrontierWidget(SkeletonWidget):
         self.setObjectName(layer)
         self._init_widgets()
         self._arrange_widgets()
+        self._stage_widgets()
 
     def _init_widgets(self):
         self.graph_widget = components.GraphWidget(tmp_graph_key=keys.keys['GUI']['TEMP']['FRONTIER'],

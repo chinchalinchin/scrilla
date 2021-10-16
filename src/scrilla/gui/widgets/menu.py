@@ -134,7 +134,6 @@ class MenuWidget(QtWidgets.QWidget):
         for widget in self.function_widgets:
             widget.hide()
         self.function_widgets[widget_index].show()
-        print(list(formats.FUNC_WIDGETS.values())[widget_index])
         self.title.setText(list(formats.FUNC_WIDGETS.values())[widget_index]['name'])
 
     @QtCore.Slot()

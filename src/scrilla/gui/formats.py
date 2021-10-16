@@ -22,6 +22,12 @@ FUNC_WIDGETS= {
         'shortcut':'Ctrl+2',
         'group': 'analysis'
     },
+    'distribution':{
+        'name': 'Distribution of Returns',
+        'class': DistributionWidget,
+        'shortcut': 'Ctrl+7',
+        'group': 'analysis'
+    },
     'frontier': {
         'name': 'Efficient Frontiers',
         'class': EfficientFrontierWidget,
@@ -39,12 +45,6 @@ FUNC_WIDGETS= {
         'class': OptimizerWidget,
         'shortcut': 'Ctrl+5',
         'group': 'allocation'
-    },
-    'distribution':{
-        'name': 'Return Distribution',
-        'class': DistributionWidget,
-        'shortcut': 'Ctrl+7',
-        'group': 'analysis'
     },
     'risk_profile':{
         'name': 'Risk Profile',

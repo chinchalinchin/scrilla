@@ -176,15 +176,12 @@ class ArgumentWidget(QtWidgets.QWidget):
             # to pull the actual input element from the layout
             self.symbol_widget.layout().itemAt(1).widget().returnPressed.connect(self.calculate_function)
 
-    def get_symbol_input(self) -> Union[List[str], str, None]:
+    def get_symbol_input(self) -> Union[List[str], None]:
         """
-        Returns the symbols inputted into the `PySide6.QtWidgets.QLineEdit` child of `symbol_widget`. If the `ArgumentWidget` has been initialized as a `scrilla.gui.widgets.components.SYMBOLS_LIST`, the method will return a list of inputted strings. If the `ArgumentWidget` has been initialied as a `scrilla.gui.widgets.components.SYMBOLS_SINGLE`, the method will return a single string. If the `ArgumentWidget` has been initialized as a `scrilla.gui.widgets.components.SYMBOLS_NONE`, this method will return `None`. In addition, in the first two cases, if no input has been entered, this method will return `None`. 
+        Returns the symbols inputted into the `PySide6.QtWidgets.QLineEdit` child of `symbol_widget`. If the `ArgumentWidget` has been initialized as a `scrilla.gui.widgets.components.SYMBOLS_LIST`, the method will return a list of inputted strings. If the `ArgumentWidget` has been initialied as a `scrilla.gui.widgets.components.SYMBOLS_SINGLE`, the method will return a list with a string as its single element. If the `ArgumentWidget` has been initialized as a `scrilla.gui.widgets.components.SYMBOLS_NONE`, this method will return `None`. In addition, in the first two cases, if no input has been entered, this method will return `None`. 
         """
         if self.symbol_widget is not None:
-            input_string = helper.split_and_strip(self.symbol_widget.layout().itemAt(1).widget().text())
-            if len(input_string) == 1:
-                return input_string[0].strip()
-            return input_string
+            return helper.split_and_strip(self.symbol_widget.layout().itemAt(1).widget().text())
         return None
 
     def get_control_input(self, control_widget_key: str) -> Union[datetime.date, str, bool, None]:
@@ -202,7 +199,7 @@ class ArgumentWidget(QtWidgets.QWidget):
             return None
 
         if type(widget) is QtWidgets.QDateEdit: 
-            return widget.date().toPython()
+            return widget.date().toPython().date()
         if type(widget) is QtWidgets.QLineEdit:
             if type(widget.validator()) is QtGui.QIntValidator:
                 return int(widget.text())

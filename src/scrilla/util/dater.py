@@ -39,6 +39,13 @@ def truncate_future_from_date(date: datetime.date) -> datetime.date:
         return get_today()
     return date
 
+def last_close_date():
+    today = datetime.datetime.now()
+    trading_close_today = today.replace(hour=14)
+    if today > trading_close_today:
+        return today.date()
+    return get_previous_business_date(today.date())
+
 def get_time_to_next_period(starting_date: datetime.date, period: float) -> float:
     if period is None:
         return 0
@@ -80,20 +87,16 @@ def get_last_trading_date() -> datetime.date:
     """
     today = datetime.datetime.now()
     if is_date_holiday(today) or is_date_weekend(today):
-        today = get_previous_business_date(today)
-    trading_close_today = today.replace(hour=14)
-    if today > trading_close_today:
-        return today.date()
-    return get_previous_business_date(today.date())
+        return get_previous_business_date(today.date())
+    return last_close_date()
 
 def this_date_or_last_trading_date(date : Union[datetime.date, None] = None) -> datetime.date:
     if date is None:
         return get_last_trading_date()
-    if is_date_holiday(date) or is_date_weekend(date):
-        date = get_previous_business_date(date)
-    trading_close_today = datetime.datetime.now().replace(hour=14)
-    if datetime.datetime.now() > trading_close_today:
-        return datetime.datetime.now().date()
+    elif is_date_holiday(date) or is_date_weekend(date):
+        return get_previous_business_date(date)
+    elif is_date_today(date):
+        return last_close_date()
     return date
     
 def verify_date_types(dates: Union[List[datetime.date], List[str]]) -> Union[List[datetime.date], None]:
