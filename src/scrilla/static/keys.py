@@ -1,6 +1,6 @@
 from scrilla.static.constants import constants
 
-keys= {
+keys = {
     'PRICES': {
         'OPEN': 'open',
         'CLOSE': 'close'
@@ -10,13 +10,13 @@ keys= {
         'PERCENT': 'percentiles',
         'LIKE': 'likelihood'
     },
-    'SDE':{
+    'SDE': {
         'GBM': 'geometric',
         'MEAN': 'reversion'
     },
-    'MODELS':{
-        'DDM':'discount_dividend',
-        'DCF':'discount_cashflow'
+    'MODELS': {
+        'DDM': 'discount_dividend',
+        'DCF': 'discount_cashflow'
     },
     'YIELD_CURVE': ["ONE_MONTH", "TWO_MONTH", "THREE_MONTH", "SIX_MONTH", "ONE_YEAR", "TWO_YEAR", "THREE_YEAR", "FIVE_YEAR", "SEVEN_YEAR", "TEN_YEAR", "TWENTY_YEAR", "THIRTY_YEAR"],
     'STATISTICS': {
@@ -27,39 +27,39 @@ keys= {
         'EQUITY': 'equity_cost',
         'CORRELATION': 'correlation'
     },
-    'ASSETS':{
+    'ASSETS': {
         'EQUITY': 'equity',
         'CRYPTO': 'crypto',
         'STAT': 'statistics',
         'BOND': 'bond'
     },
-    'CACHE':{
+    'CACHE': {
         'PRICES': 'prices',
         'PROFILE': 'profile',
         'CORRELATION': 'correlation',
         'DIVIDENDS': 'dividends',
         'STATISTIC': 'statistic'
     },
-    'PARAMETERS':{
+    'PARAMETERS': {
         'TICKER': 'ticker',
         'TICKERS': 'tickers',
-        'START':'start_date',
-        'END':'end_date'
+        'START': 'start_date',
+        'END': 'end_date'
     },
-    'SERVICES':{
-        'PRICES':{
+    'SERVICES': {
+        'PRICES': {
             'ALPHA_VANTAGE': {
                 'MANAGER': 'alpha_vantage',
                 'MAP': {
-                    'KEYS':{
-                        'EQUITY':{
+                    'KEYS': {
+                        'EQUITY': {
                             'FIRST_LAYER': 'Time Series (Daily)',
                             'CLOSE': '4. close',
                             'OPEN': '1. open',
                             'HEADER': 'symbol'
                         },
                         'CRYPTO': {
-                            'FIRST_LAYER' : 'Time Series (Digital Currency Daily)',
+                            'FIRST_LAYER': 'Time Series (Digital Currency Daily)',
                             'CLOSE': f'4a. close ({constants["DENOMINATION"]})',
                             'OPEN': f'1a. open ({constants["DENOMINATION"]})',
                             'HEADER': 'currency code'
@@ -68,7 +68,7 @@ keys= {
                         'THROTTLE': 'Note',
                         'LIMIT': 'Information'
                     },
-                    'PARAMS':{
+                    'PARAMS': {
                         'TICKER': 'symbol',
                         'FUNCTION': 'function',
                         'DENOMINATION': 'market',
@@ -81,7 +81,7 @@ keys= {
                         'CRYPTO_DAILY': 'DIGITAL_CURRENCY_DAILY',
                         'FULL': 'full'
                     },
-                    'ERRORS':{
+                    'ERRORS': {
                         'RATE_THROTTLE': 'Note',
                         'RATE_LIMIT': 'Information',
                         'INVALID': 'Error Message'
@@ -92,25 +92,25 @@ keys= {
         'STATISTICS': {
             'QUANDL': {
                 'MANAGER': 'quandl',
-                'MAP':{
-                    'PATHS':{
+                'MAP': {
+                    'PATHS': {
                         'FRED': 'FRED',
                         'YIELD': 'USTREASURY/YIELD'
                     },
-                    'KEYS':{
+                    'KEYS': {
                         'FIRST_LAYER': 'dataset',
                         'SECOND_LAYER': 'data',
                         'HEADER': 'code',
                         'ZIPFILE': 'FRED_metadata.csv'
                     },
-                    'PARAMS':{
-                        'KEY':'api_key',
+                    'PARAMS': {
+                        'KEY': 'api_key',
                         'METADATA': 'metadata.json',
                         'START': 'start_date',
                         'END': 'end_date'
                     },
-                    'YIELD_CURVE':{
-                        'ONE_MONTH' : '1 MO',
+                    'YIELD_CURVE': {
+                        'ONE_MONTH': '1 MO',
                         'TWO_MONTH': '2 MO',
                         'THREE_MONTH': '3 MO',
                         'SIX_MONTH': '6 MO',
@@ -130,23 +130,23 @@ keys= {
             'IEX': {
                 'MANAGER': 'iex',
                 'MAP': {
-                    'PATHS':{
+                    'PATHS': {
                         'DIV': 'dividends'
                     },
                     'KEYS': {
                         'DATE': 'paymentDate',
                         'AMOUNT': 'amount'
                     },
-                    'PARAMS':{
-                        'FULL':'5y',
+                    'PARAMS': {
+                        'FULL': '5y',
                         'KEY': 'token'
                     }
                 }
             }
         }
     },
-    'GUI':{
-        'TEMP':{
+    'GUI': {
+        'TEMP': {
             'PROFILE': 'profile',
             'AVERAGES': 'averages',
             'FRONTIER': 'frontier',
@@ -155,12 +155,12 @@ keys= {
             'YIELD': 'yieldcurve',
             'QQ': 'qqplot'
         },
-        'ICONS':{
+        'ICONS': {
             'CALC': 'calculator-sharp.svg',
             'CLEAR': 'close-circle-sharp.svg',
             'HIDE': 'arrow-back-circle-sharp.svg'
         },
-        'SHORTCUTS':{
+        'SHORTCUTS': {
             'CORREL': 'Ctrl+1',
             'DIVIDEND': 'Ctrl+2',
             'FRONTIER': 'Ctrl+3',
@@ -168,9 +168,9 @@ keys= {
             'OPTIMIZE': 'Ctrl+5'
         }
     },
-    'APP':{
-        'PROFILE':{
-            'RET':'annual_return',
+    'APP': {
+        'PROFILE': {
+            'RET': 'annual_return',
             'VOL': 'annual_volatility',
             'BETA': 'asset_beta',
             'SHARPE': 'sharpe_ratio',

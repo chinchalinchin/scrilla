@@ -26,7 +26,8 @@ import scrilla.util.outputter as outputter
 logger = outputter.Logger('markets', settings.LOG_LEVEL)
 profile_cache = cache.ProfileCache()
 
-def sharpe_ratio(ticker : str, start_date: Union[date, None]=None, end_date: Union[date, None]=None, risk_free_rate: Union[float, None]=None, ticker_profile: Union[dict, None]=None, method: str=settings.ESTIMATION_METHOD) -> float:
+
+def sharpe_ratio(ticker: str, start_date: Union[date, None] = None, end_date: Union[date, None] = None, risk_free_rate: Union[float, None] = None, ticker_profile: Union[dict, None] = None, method: str = settings.ESTIMATION_METHOD) -> float:
     """
     Calculates the sharpe ratio for the supplied ticker over the specified time range. If no start and end date are supplied, calculation will default to the last 100 days of prices. The risk free rate and ticker risk profile can be passed in to force calculations without historical data.
 
@@ -48,29 +49,34 @@ def sharpe_ratio(ticker : str, start_date: Union[date, None]=None, end_date: Uni
     .. notes:: 
         * if `ticker_profile` is provided, this function will skip both an external data service call and the calculation of the ticker's risk profile. The calculation will proceed as if the supplied profile were the true profile. If `ticker_profile` is not provided, all statistics will be estimated from historical data.
     """
-    start_date, end_date = errors.validate_dates(start_date=start_date, end_date=end_date, 
-                                                        asset_type=keys.keys['ASSETS']['EQUITY'])
+    start_date, end_date = errors.validate_dates(start_date=start_date, end_date=end_date,
+                                                 asset_type=keys.keys['ASSETS']['EQUITY'])
 
-    if ticker_profile is None:  
-        result = profile_cache.filter_profile_cache(ticker=ticker, start_date=start_date, end_date=end_date, method=method)
+    if ticker_profile is None:
+        result = profile_cache.filter_profile_cache(
+            ticker=ticker, start_date=start_date, end_date=end_date, method=method)
 
         if result is not None and result[keys.keys['STATISTICS']['SHARPE']] is not None:
             return result[keys.keys['STATISTICS']['SHARPE']]
 
-        ticker_profile = statistics.calculate_risk_return(ticker=ticker, start_date=start_date, end_date=end_date, method=method)
+        ticker_profile = statistics.calculate_risk_return(
+            ticker=ticker, start_date=start_date, end_date=end_date, method=method)
 
     if risk_free_rate is None:
         risk_free_rate = services.get_risk_free_rate()
 
-    sharpe_ratio = (ticker_profile['annual_return'] - risk_free_rate)/ticker_profile['annual_volatility']
+    sharpe_ratio = (ticker_profile['annual_return'] -
+                    risk_free_rate)/ticker_profile['annual_volatility']
 
     profile_cache.save_or_update_row(ticker=ticker, start_date=start_date,
-                                        end_date=end_date,sharpe_ratio=sharpe_ratio, method=method)
+                                     end_date=end_date, sharpe_ratio=sharpe_ratio, method=method)
 
     return sharpe_ratio
 
 # if no dates are specified, defaults to last 100 days
-def market_premium(start_date: Union[date, None]=None, end_date: Union[date, None]=None, market_profile: Union[dict, None]= None, method: str=settings.ESTIMATION_METHOD) -> float:
+
+
+def market_premium(start_date: Union[date, None] = None, end_date: Union[date, None] = None, market_profile: Union[dict, None] = None, method: str = settings.ESTIMATION_METHOD) -> float:
     """
     Returns the excess of the market return defined by the environment variable `MARKET_PROXY` over the risk free rate defined by the `RISK_FREE` environment variable.
 
@@ -85,17 +91,19 @@ def market_premium(start_date: Union[date, None]=None, end_date: Union[date, Non
         Estimation method used to calculate financial statistics. Defaults to the value set by `scrilla.settings.ESTIMATION_METHOD`. Allowable value are accessible through `scrilla.keys.keys['ESTIMATION']`.
 
     """
-    start_date, end_date = errors.validate_dates(start_date=start_date, end_date=end_date, 
-                                                        asset_type=keys.keys['ASSETS']['EQUITY'])
+    start_date, end_date = errors.validate_dates(start_date=start_date, end_date=end_date,
+                                                 asset_type=keys.keys['ASSETS']['EQUITY'])
 
     if market_profile is None:
-        market_profile = statistics.calculate_risk_return(ticker=settings.MARKET_PROXY, start_date=start_date, end_date=end_date, method=method)
-    
-    market_premium = (market_profile['annual_return'] - services.get_risk_free_rate())
-    return market_premium
-        
+        market_profile = statistics.calculate_risk_return(
+            ticker=settings.MARKET_PROXY, start_date=start_date, end_date=end_date, method=method)
 
-def market_beta(ticker : str, start_date: Union[date, None]=None, end_date: Union[date, None]=None, market_profile: Union[dict, None]=None, market_correlation: Union[dict, None]=None, ticker_profile: Union[dict, None]=None, sample_prices: Union[dict, None]=None, method: str=settings.ESTIMATION_METHOD) -> float:
+    market_premium = (
+        market_profile['annual_return'] - services.get_risk_free_rate())
+    return market_premium
+
+
+def market_beta(ticker: str, start_date: Union[date, None] = None, end_date: Union[date, None] = None, market_profile: Union[dict, None] = None, market_correlation: Union[dict, None] = None, ticker_profile: Union[dict, None] = None, sample_prices: Union[dict, None] = None, method: str = settings.ESTIMATION_METHOD) -> float:
     """
     Returns the beta of an asset with the market return defined by the environment variable MARKET_PROXY.
 
@@ -110,40 +118,43 @@ def market_beta(ticker : str, start_date: Union[date, None]=None, end_date: Unio
     4. **method** : ``str``
         Estimation method used to calculate financial statistics. Defaults to the value set by `scrilla.settings.ESTIMATION_METHOD`. Allowable value are accessible through `scrilla.keys.keys['ESTIMATION']`.
     """
-    start_date, end_date = errors.validate_dates(start_date=start_date, end_date=end_date, 
-                                                        asset_type=keys.keys['ASSETS']['EQUITY'])
+    start_date, end_date = errors.validate_dates(start_date=start_date, end_date=end_date,
+                                                 asset_type=keys.keys['ASSETS']['EQUITY'])
 
-    result = profile_cache.filter_profile_cache(ticker=ticker, start_date=start_date, end_date=end_date, method=method)
+    result = profile_cache.filter_profile_cache(
+        ticker=ticker, start_date=start_date, end_date=end_date, method=method)
 
     if result is not None and result[keys.keys['STATISTICS']['BETA']] is not None:
         return result[keys.keys['STATISTICS']['BETA']]
 
     if market_profile is None:
         if sample_prices is None:
-            market_profile = statistics.calculate_risk_return(ticker=settings.MARKET_PROXY, start_date=start_date, 
-                                                    end_date=end_date, method=method)
-        else:   
+            market_profile = statistics.calculate_risk_return(ticker=settings.MARKET_PROXY, start_date=start_date,
+                                                              end_date=end_date, method=method)
+        else:
             market_profile = statistics.calculate_risk_return(ticker=settings.MARKET_PROXY, method=method,
-                                                            sample_prices=sample_prices[settings.MARKET_PROXY])
+                                                              sample_prices=sample_prices[settings.MARKET_PROXY])
     if ticker_profile is None:
         if sample_prices is None:
-            ticker_profile = statistics.calculate_risk_return(ticker=ticker,start_date=start_date,
-                                                    end_date=end_date, method=method)
+            ticker_profile = statistics.calculate_risk_return(ticker=ticker, start_date=start_date,
+                                                              end_date=end_date, method=method)
         else:
             ticker_profile = statistics.calculate_risk_return(ticker=ticker, method=method,
-                                                    sample_prices=sample_prices[ticker])
+                                                              sample_prices=sample_prices[ticker])
 
     market_covariance = statistics.calculate_return_covariance(ticker_1=ticker, ticker_2=settings.MARKET_PROXY,
-                                                                profile_1=ticker_profile, profile_2=market_profile,
-                                                                correlation = market_correlation,
-                                                                sample_prices=sample_prices,
-                                                                start_date=start_date, end_date=end_date)
+                                                               profile_1=ticker_profile, profile_2=market_profile,
+                                                               correlation=market_correlation,
+                                                               sample_prices=sample_prices,
+                                                               start_date=start_date, end_date=end_date)
 
     beta = market_covariance / (market_profile['annual_volatility']**2)
 
-    profile_cache.save_or_update_row(ticker=ticker, start_date=start_date, end_date=end_date, asset_beta=beta, method=method)
+    profile_cache.save_or_update_row(
+        ticker=ticker, start_date=start_date, end_date=end_date, asset_beta=beta, method=method)
 
     return beta
+
 
 def cost_of_equity(ticker, start_date=None, end_date=None, market_profile=None, market_correlation=None, method=settings.ESTIMATION_METHOD):
     """
@@ -160,24 +171,27 @@ def cost_of_equity(ticker, start_date=None, end_date=None, market_profile=None, 
     4. **method** : ``str``
         *Optional*. Estimation method used to calculate financial statistics. Defaults to the value set by `scrilla.settings.ESTIMATION_METHOD`. Allowable value are accessible through `scrilla.keys.keys['ESTIMATION']`.
     """
-    start_date, end_date = errors.validate_dates(start_date=start_date, end_date=end_date, 
-                                                        asset_type=keys.keys['ASSETS']['EQUITY'])
+    start_date, end_date = errors.validate_dates(start_date=start_date, end_date=end_date,
+                                                 asset_type=keys.keys['ASSETS']['EQUITY'])
 
-    result = profile_cache.filter_profile_cache(ticker=ticker, start_date=start_date, end_date=end_date, method=method)
+    result = profile_cache.filter_profile_cache(
+        ticker=ticker, start_date=start_date, end_date=end_date, method=method)
 
     if result is not None and result[keys.keys['STATISTICS']['EQUITY']] is not None:
         return result[keys.keys['STATISTICS']['EQUITY']]
 
     beta = market_beta(ticker=ticker, start_date=start_date, end_date=end_date,
-                        market_profile=market_profile, market_correlation=market_correlation,
-                        method=method)
-    premium = market_premium(start_date=start_date, end_date=end_date, market_profile=market_profile, method=method)
-
+                       market_profile=market_profile, market_correlation=market_correlation,
+                       method=method)
+    premium = market_premium(start_date=start_date, end_date=end_date,
+                             market_profile=market_profile, method=method)
 
     equity_cost = (premium*beta + services.get_risk_free_rate())
 
-    profile_cache.save_or_update_row(ticker=ticker, start_date=start_date, end_date=end_date, equity_cost=equity_cost, method=method)
+    profile_cache.save_or_update_row(
+        ticker=ticker, start_date=start_date, end_date=end_date, equity_cost=equity_cost, method=method)
     return equity_cost
+
 
 def screen_for_discount(model=keys.keys['MODELS']['DDM'], discount_rate=None):
     """
@@ -205,11 +219,13 @@ def screen_for_discount(model=keys.keys['MODELS']['DDM'], discount_rate=None):
             discount_rate = user_discount_rate
 
         if model == keys.keys['MODELS']['DDM']:
-            logger.debug('Using Discount Dividend Model to screen watchlisted equities for discounts.')
+            logger.debug(
+                'Using Discount Dividend Model to screen watchlisted equities for discounts.')
             dividends = services.get_dividend_history(equity)
-            model_price = Cashflow(sample=dividends, discount_rate=discount_rate).calculate_net_present_value()
+            model_price = Cashflow(
+                sample=dividends, discount_rate=discount_rate).calculate_net_present_value()
             discount = float(model_price) - float(spot_price)
-                        
+
             if discount > 0:
                 discount_result = {}
                 discount_result['spot_price'] = spot_price

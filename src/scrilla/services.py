@@ -16,7 +16,9 @@
 """
 This module interfaces with the external services the program uses to hydrate with financial data. In the case of price and interest history, the functions in this module defer to the cache before making expensive HTTP requests. Statistical data retrieved from FRED and dividment payment histories are not persisted in the cache since most of the data is reported on an irregular basis and it is impossible to tell based on the date alone whether or not the cache is out of date.
 """
-import itertools, time, requests
+import itertools
+import time
+import requests
 from typing import Union
 
 from datetime import date
@@ -26,6 +28,7 @@ from scrilla.static import keys, constants
 from scrilla.util import outputter, helper, dater
 
 logger = outputter.Logger("services", settings.LOG_LEVEL)
+
 
 class StatManager():
     """
@@ -46,6 +49,7 @@ class StatManager():
     .. notes ::
         * This class handles retrieval of financial statistics from the [Quandl's FRED dataset](https://data.nasdaq.com/data/FRED-federal-reserve-economic-data) and [Quandl's USTREASURY dataset](https://data.nasdaq.com/data/USTREASURY-us-treasury). In other words, it handles statistics and interest rate service calls. Interest rates are technically prices, not statistics, but...well, I don't have a good explanation why this isn't `scrilla.services.PriceManager`; I suppose I grouped these classes more by service type than data type. Might do to refactor...
     """
+
     def __init__(self, genre):
         self.genre = genre
         self.service_map = None
@@ -54,8 +58,8 @@ class StatManager():
             self.key = settings.Q_KEY
             self.url = settings.Q_URL
         if self.service_map is None:
-            raise errors.ConfigurationError('No STAT_MANAGER found in the parsed environment settings')
-
+            raise errors.ConfigurationError(
+                'No STAT_MANAGER found in the parsed environment settings')
 
     def _is_quandl(self):
         """
@@ -92,18 +96,17 @@ class StatManager():
         query = ""
         if end_date is not None:
             end_string = dater.date_to_string(end_date)
-            query += f'&{self.service_map["PARAMS"]["END"]}={end_string}' 
+            query += f'&{self.service_map["PARAMS"]["END"]}={end_string}'
 
         if start_date is not None:
             start_string = dater.date_to_string(start_date)
             query += f'&{self.service_map["PARAMS"]["START"]}={start_string}'
-    
+
         if query:
             logger.debug(f'StatManager Query (w/o key) = {query}')
             return f'{query}&{self.service_map["PARAMS"]["KEY"]}={self.key}'
 
         return f'{self.service_map["PARAMS"]["KEY"]}={self.key}'
-
 
     def _construct_stat_url(self, symbol: str, start_date: date, end_date: date):
         """
@@ -128,7 +131,7 @@ class StatManager():
         url += self._construct_query(start_date=start_date, end_date=end_date)
         return url
 
-    def _construct_interest_url(self,start_date, end_date):
+    def _construct_interest_url(self, start_date, end_date):
         """
         Constructs the full URL path for the external interest rate service. Note, this method will return the URL with an API key appended as a query parameter. Be careful with the returned value.
 
@@ -151,23 +154,25 @@ class StatManager():
         url += self._construct_query(start_date=start_date, end_date=end_date)
         return url
 
-
     def get_stats(self, symbol, start_date, end_date):
         url = self._construct_stat_url(symbol, start_date, end_date)
         response = requests.get(url).json()
 
-        raw_stat = response[self.service_map["KEYS"]["FIRST_LAYER"]][self.service_map["KEYS"]["SECOND_LAYER"]]
+        raw_stat = response[self.service_map["KEYS"]["FIRST_LAYER"]
+                            ][self.service_map["KEYS"]["SECOND_LAYER"]]
         formatted_stat = {}
-    
+
         for stat in raw_stat:
             formatted_stat[stat[0]] = stat[1]
         return formatted_stat
 
     def get_interest_rates(self, start_date, end_date):
-        url = self._construct_interest_url(start_date=start_date, end_date=end_date)
+        url = self._construct_interest_url(
+            start_date=start_date, end_date=end_date)
         response = requests.get(url).json()
 
-        raw_interest = response[self.service_map["KEYS"]["FIRST_LAYER"]][self.service_map["KEYS"]["SECOND_LAYER"]]
+        raw_interest = response[self.service_map["KEYS"]
+                                ["FIRST_LAYER"]][self.service_map["KEYS"]["SECOND_LAYER"]]
         formatted_interest = {}
         for rate in raw_interest:
             formatted_interest[rate[0]] = rate[1:]
@@ -178,13 +183,15 @@ class StatManager():
         try:
             maturity_key = keys.keys['YIELD_CURVE'].index(maturity)
         except KeyError:
-            raise errors.InputValidationError(f'{maturity} is not a valid maturity for US Treasury Bonds')
+            raise errors.InputValidationError(
+                f'{maturity} is not a valid maturity for US Treasury Bonds')
 
         formatted_interest = {}
         for result in results:
             formatted_interest[result] = results[result][maturity_key]
         return formatted_interest
-        
+
+
 class DividendManager():
     """
     Attributes
@@ -194,6 +201,7 @@ class DividendManager():
     2. **self.service_map**: ``dict``
         A dictionary containing keys unique to the service defined by `genre`, such as endpoints, query parameters, etc. 
     """
+
     def __init__(self, genre):
         self.genre = genre
         if self.genre == keys.keys['SERVICES']['DIVIDENDS']['IEX']['MANAGER']:
@@ -202,14 +210,15 @@ class DividendManager():
             self.url = settings.IEX_URL
 
         if self.service_map is None:
-            raise errors.ConfigurationError('No DIV_MANAGER found in the parsed environment settings') 
+            raise errors.ConfigurationError(
+                'No DIV_MANAGER found in the parsed environment settings')
 
     def _construct_url(self, ticker):
-        query=f'{ticker}/{self.service_map["PATHS"]["DIV"]}/{self.service_map["PARAMS"]["FULL"]}'
+        query = f'{ticker}/{self.service_map["PATHS"]["DIV"]}/{self.service_map["PARAMS"]["FULL"]}'
         url = f'{self.url}/{query}?{self.service_map["PARAMS"]["KEY"]}={self.key}'
         logger.debug(f'DivManager Query (w/o key) = {query}')
         return url
-            
+
     def get_dividends(self, ticker):
         url = self._construct_url(ticker)
         response = requests.get(url).json()
@@ -219,8 +228,9 @@ class DividendManager():
             date = str(item[self.service_map['KEYS']['DATE']])
             div = item[self.service_map['KEYS']['AMOUNT']]
             formatted_response[date] = div
-        
+
         return formatted_response
+
 
 class PriceManager():
     """
@@ -239,6 +249,7 @@ class PriceManager():
         A dictionary containing keys unique to the service defined by `genre`, such as endpoints, query parameters, etc. 
 
     """
+
     def __init__(self, genre):
         self.genre = genre
         if self.genre == keys.keys['SERVICES']['PRICES']['ALPHA_VANTAGE']['MANAGER']:
@@ -246,9 +257,8 @@ class PriceManager():
             self.url = settings.AV_URL
             self.key = settings.AV_KEY
         if self.service_map is None:
-            raise errors.ConfigurationError('No PRICE_MANAGER found in the parsed environment settings')
-
-
+            raise errors.ConfigurationError(
+                'No PRICE_MANAGER found in the parsed environment settings')
 
     def _construct_url(self, ticker, asset_type):
         """
@@ -282,8 +292,8 @@ class PriceManager():
             query += f'&{self.service_map["PARAMS"]["DENOMINATION"]}={constants.constants["DENOMINATION"]}'
 
         auth_query = query + f'&{self.service_map["PARAMS"]["KEY"]}={self.key}'
-        url=f'{self.url}?{auth_query}'  
-        logger.debug(f'PriceManager query (w/o key) = {query}') 
+        url = f'{self.url}?{auth_query}'
+        logger.debug(f'PriceManager query (w/o key) = {query}')
         return url
 
     def get_prices(self, ticker, start_date, end_date, asset_type):
@@ -297,7 +307,7 @@ class PriceManager():
         2. **asset_type** : ``str``
             Asset type of the asset whose prices are being retrieved. Options are statically
             accessible in the `scrillla.static` module dictionary `scrilla.keys.keys['ASSETS']`.
-        
+
         Returns
         -------
         ``dict``: `{ 'date': value, 'date': value, ...}`
@@ -314,38 +324,44 @@ class PriceManager():
         response = requests.get(url).json()
 
         first_element = helper.get_first_json_key(response)
-        # end function is daily rate limit is reached 
+        # end function is daily rate limit is reached
         if first_element == self.service_map['ERRORS']['RATE_LIMIT']:
-            raise errors.APIResponseError(response[self.service_map['ERRORS']['RATE_LIMIT']])
+            raise errors.APIResponseError(
+                response[self.service_map['ERRORS']['RATE_LIMIT']])
             # check for bad response
         if first_element == self.service_map['ERRORS']['INVALID']:
-            raise errors.APIResponseError(response[self.service_map['ERRORS']['INVALID']])
+            raise errors.APIResponseError(
+                response[self.service_map['ERRORS']['INVALID']])
 
         # check and wait for API rate limit refresh
         first_pass, first_element = True, helper.get_first_json_key(response)
 
         while first_element == self.service_map['ERRORS']['RATE_THROTTLE']:
             if first_pass:
-                logger.comment(f'{self.genre} API rate limit per minute exceeded. Waiting...')
+                logger.comment(
+                    f'{self.genre} API rate limit per minute exceeded. Waiting...')
                 first_pass = False
             else:
                 logger.comment('Waiting...')
-            
+
             time.sleep(constants.constants['BACKOFF_PERIOD'])
             response = requests.get(url).json()
             first_element = helper.get_first_json_key(response)
 
             if first_element == self.service_map['ERRORS']['INVALID']:
-                raise errors.APIResponseError(response[self.service_map['ERRORS']['INVALID']])
+                raise errors.APIResponseError(
+                    response[self.service_map['ERRORS']['INVALID']])
 
-        prices = self._slice_prices(start_date=start_date, end_date=end_date, asset_type=asset_type, prices=response)
+        prices = self._slice_prices(
+            start_date=start_date, end_date=end_date, asset_type=asset_type, prices=response)
         format_prices = {}
         for this_date in prices:
-            close_price = self._parse_price_from_date(prices=prices, date=this_date, asset_type=asset_type, 
-                                                which_price=keys.keys['PRICES']['CLOSE'])
-            open_price = self._parse_price_from_date(prices=prices, date=this_date, asset_type=asset_type, 
-                                                which_price=keys.keys['PRICES']['OPEN'])
-            format_prices[this_date] = { keys.keys['PRICES']['OPEN'] : open_price, keys.keys['PRICES']['CLOSE'] : close_price }
+            close_price = self._parse_price_from_date(prices=prices, date=this_date, asset_type=asset_type,
+                                                      which_price=keys.keys['PRICES']['CLOSE'])
+            open_price = self._parse_price_from_date(prices=prices, date=this_date, asset_type=asset_type,
+                                                     which_price=keys.keys['PRICES']['OPEN'])
+            format_prices[this_date] = {
+                keys.keys['PRICES']['OPEN']: open_price, keys.keys['PRICES']['CLOSE']: close_price}
         return format_prices
 
     def _slice_prices(self, start_date: date, end_date: date, asset_type: str, prices: dict) -> dict:
@@ -361,7 +377,7 @@ class PriceManager():
             accessible in the `scrillla.static` module dictionary `scrilla.keys.keys['ASSETS']`.
         4. **response** : ``dict``
             The full response from the price manager, i.e. the entire price history returned by the external service in charge of retrieving pricce histories, the result returned from `scrilla.services.PriceManager.get_prices`
-       
+
         Returns
         -------
         ``dict``: `{ 'date': value, 'date': value, ...}`
@@ -377,12 +393,13 @@ class PriceManager():
         """
 
         # NOTE: only really needed for `alpha_vantage` responses so far, due to the fact AlphaVantage either returns everything or 100 days or prices.
-            # shouldn't need to verify genre anyway, since using service_map and service_map should abstract the response away.
+        # shouldn't need to verify genre anyway, since using service_map and service_map should abstract the response away.
         if self.genre == keys.keys['SERVICES']['PRICES']['ALPHA_VANTAGE']['MANAGER']:
 
-            # NOTE: Remember AlphaVantage is ordered current to earliest. END_INDEX is 
-            # actually the beginning of slice and START_INDEX is actually end of slice. 
-            start_string, end_string = dater.date_to_string(start_date), dater.date_to_string(end_date)
+            # NOTE: Remember AlphaVantage is ordered current to earliest. END_INDEX is
+            # actually the beginning of slice and START_INDEX is actually end of slice.
+            start_string, end_string = dater.date_to_string(
+                start_date), dater.date_to_string(end_date)
             if asset_type == keys.keys['ASSETS']['EQUITY']:
                 response_map = self.service_map['KEYS']['EQUITY']['FIRST_LAYER']
             elif asset_type == keys.keys['ASSETS']['CRYPTO']:
@@ -390,11 +407,13 @@ class PriceManager():
 
             start_index = list(prices[response_map].keys()).index(start_string)
             end_index = list(prices[response_map].keys()).index(end_string)
-            prices = dict(itertools.islice(prices[response_map].items(), end_index, start_index+1))
+            prices = dict(itertools.islice(
+                prices[response_map].items(), end_index, start_index+1))
             return prices
-                
-        raise errors.ConfigurationError('No PRICE_MANAGER found in the parsed environment settings')
-    
+
+        raise errors.ConfigurationError(
+            'No PRICE_MANAGER found in the parsed environment settings')
+
     def _parse_price_from_date(self, prices: dict, date: date, asset_type: str, which_price: str) -> str:
         """
         Parameters
@@ -410,12 +429,12 @@ class PriceManager():
             accessible in the `scrillla.static` module dictionary `scrilla.keys.keys['ASSETS']`
         4. **which_price**: ``str``
             String that specifies which price is to be retrieved, the closing price or the opening prices. Options are statically accessible 
-    
+
         Returns
         ------
         ``str``
             String containing the price on the specified date.
-        
+
         Raises
         ------
         1. **KeyError**
@@ -434,20 +453,23 @@ class PriceManager():
                 return prices[date][self.service_map['KEYS']['CRYPTO']['CLOSE']]
             if which_price == keys.keys['PRICES']['OPEN']:
                 return prices[date][self.service_map['KEYS']['CRYPTO']['OPEN']]
-        
-        raise errors.InputValidationError(f'Verify {asset_type}, {which_price} are allowable values')
+
+        raise errors.InputValidationError(
+            f'Verify {asset_type}, {which_price} are allowable values')
+
 
 price_manager = PriceManager(settings.PRICE_MANAGER)
 stat_manager = StatManager(settings.STAT_MANAGER)
 div_manager = DividendManager(settings.DIV_MANAGER)
-price_cache = cache.PriceCache()        
+price_cache = cache.PriceCache()
 interest_cache = cache.InterestCache()
 
-def get_daily_price_history(ticker: str, start_date: Union[None, date] = None, 
-                            end_date: Union[None,date] = None, asset_type: Union[None, str]=None) -> list:
+
+def get_daily_price_history(ticker: str, start_date: Union[None, date] = None,
+                            end_date: Union[None, date] = None, asset_type: Union[None, str] = None) -> list:
     """
     Wrapper around external service request for price data. Relies on an instance of `PriceManager` configured by `settings.PRICE_MANAGER` value, which in turn is configured by the `PRICE_MANAGER` environment variable, to hydrate with data. 
-    
+
     Before deferring to the `PriceManager` and letting it call the external service, however, this function checks if response is in local cache. If the response is not in the cache, it will pass the request off to `PriceManager` and then save the response in the cache so subsequent calls to the function can bypass the service request. Used to prevent excessive external HTTP requests and improve the performance of the application. Other parts of the program should interface with the external price data services through this function to utilize the cache functionality.
 
     Parameters
@@ -465,26 +487,30 @@ def get_daily_price_history(ticker: str, start_date: Union[None, date] = None,
     ------
     ``dict``: `{ 'date' : { 'open': value, 'close': value  }, 'date': { 'open' : value, 'close' : value }, ... }`
         Dictionary with date strings formatted `YYYY-MM-DD` as keys and a nested dictionary containing the 'open' and 'close' price as values. Ordered from latest to earliest.
-    
+
     .. notes::
         * The default analysis period, if no `start_date` and `end_date` are specified, is determined by the *DEFAULT_ANALYSIS_PERIOD** variable in the `settings,py` file. The default value of this variable is 100.
     """
     asset_type = errors.validate_asset_type(ticker, asset_type)
-    start_date, end_date = errors.validate_dates(start_date, end_date, asset_type)
-    
-    cached_prices = price_cache.filter_price_cache(ticker=ticker, start_date=start_date, end_date=end_date)
+    start_date, end_date = errors.validate_dates(
+        start_date, end_date, asset_type)
+
+    cached_prices = price_cache.filter_price_cache(
+        ticker=ticker, start_date=start_date, end_date=end_date)
 
     if cached_prices is not None:
         if asset_type == keys.keys['ASSETS']['EQUITY']:
-            logger.debug(f'Comparing {len(cached_prices)} = {dater.business_days_between(start_date, end_date)}')
+            logger.debug(
+                f'Comparing {len(cached_prices)} = {dater.business_days_between(start_date, end_date)}')
         elif asset_type == keys.keys['ASSETS']['CRYPTO']:
-            logger.debug(f'Comparing {len(cached_prices)} = {dater.days_between(start_date, end_date)}')
+            logger.debug(
+                f'Comparing {len(cached_prices)} = {dater.days_between(start_date, end_date)}')
 
     # make sure the length of cache is equal to the length of the requested sample
     if cached_prices is not None and dater.date_to_string(end_date) in cached_prices.keys() and (
         (asset_type == keys.keys['ASSETS']['EQUITY']
             and (dater.business_days_between(start_date, end_date)) == len(cached_prices))
-        or 
+        or
         (asset_type == keys.keys['ASSETS']['CRYPTO']
             and (dater.days_between(start_date, end_date)) == len(cached_prices))
     ):
@@ -492,10 +518,11 @@ def get_daily_price_history(ticker: str, start_date: Union[None, date] = None,
         return cached_prices
 
     if cached_prices is not None:
-        logger.debug(f'Cached {ticker} prices are out of date, passing request off to external service')
-        
+        logger.debug(
+            f'Cached {ticker} prices are out of date, passing request off to external service')
 
-    prices = price_manager.get_prices(ticker=ticker,start_date=start_date, end_date=end_date, asset_type=asset_type)
+    prices = price_manager.get_prices(
+        ticker=ticker, start_date=start_date, end_date=end_date, asset_type=asset_type)
 
     if cached_prices is not None:
         new_prices = helper.complement_dict_keys(prices, cached_prices)
@@ -505,11 +532,13 @@ def get_daily_price_history(ticker: str, start_date: Union[None, date] = None,
     for this_date in new_prices:
         close_price = new_prices[this_date][keys.keys['PRICES']['OPEN']]
         open_price = new_prices[this_date][keys.keys['PRICES']['CLOSE']]
-        price_cache.save_row(ticker=ticker, date=this_date, open_price=open_price, close_price=close_price)
+        price_cache.save_row(ticker=ticker, date=this_date,
+                             open_price=open_price, close_price=close_price)
 
     return prices
-    
-def get_daily_price_latest(ticker: str, asset_type: Union[None, str]=None) -> float:
+
+
+def get_daily_price_latest(ticker: str, asset_type: Union[None, str] = None) -> float:
     """
     Returns the latest closing price for a given ticker symbol.
 
@@ -520,14 +549,15 @@ def get_daily_price_latest(ticker: str, asset_type: Union[None, str]=None) -> fl
     2. **asset_type**: str``
         *Optional*. Asset type of the ticker whose history is to be retrieved. Will be calculated from the `ticker` symbol if not provided.
     """
-    prices = get_daily_price_history(ticker=ticker,asset_type=asset_type)
+    prices = get_daily_price_history(ticker=ticker, asset_type=asset_type)
     first_element = helper.get_first_json_key(prices)
     return prices[first_element][keys.keys['PRICES']['OPEN']]
-    
-def get_daily_fred_history(symbol: str, start_date: Union[date, None]=None, end_date: Union[date, None]=None) -> list:
+
+
+def get_daily_fred_history(symbol: str, start_date: Union[date, None] = None, end_date: Union[date, None] = None) -> list:
     """
     Wrapper around external service request for financial statistics data constructed by the Federal Reserve Economic Data. Relies on an instance of `StatManager` configured by `settings.STAT_MANAGER` value, which in turn is configured by the `STAT_MANAGER` environment variable, to hydrate with data.
-    
+
     Parameters
     ----------
     1. **symbol**: ``str`` 
@@ -546,12 +576,15 @@ def get_daily_fred_history(symbol: str, start_date: Union[date, None]=None, end_
         * Most financial statistics are not reported on weekends or holidays, so the `asset_type` for financial statistics is functionally equivalent to equities, at least as far as date calculations are concerned. The dates inputted into this function are validated as if they were labelled as equity `asset_types` for this reason.
 
     """
-   
-    start_date,end_date=errors.validate_dates(start_date=start_date, end_date=end_date, asset_type=keys.keys['ASSETS']['EQUITY'])
 
-    stats = stat_manager.get_stats(symbol=symbol, start_date=start_date, end_date=end_date)
+    start_date, end_date = errors.validate_dates(
+        start_date=start_date, end_date=end_date, asset_type=keys.keys['ASSETS']['EQUITY'])
+
+    stats = stat_manager.get_stats(
+        symbol=symbol, start_date=start_date, end_date=end_date)
 
     return stats
+
 
 def get_daily_fred_latest(symbol: str) -> float:
     """
@@ -566,10 +599,11 @@ def get_daily_fred_latest(symbol: str) -> float:
     first_element = helper.get_first_json_key(stats_history)
     return stats_history[first_element]
 
-def get_daily_interest_history(maturity: str, start_date: Union[date, None]=None, end_date: Union[date, None]=None) -> list:
+
+def get_daily_interest_history(maturity: str, start_date: Union[date, None] = None, end_date: Union[date, None] = None) -> list:
     """
     Wrapper around external service request for US Treasury Yield Curve data. Relies on an instance of `StatManager` configured by `settings.STAT_MANAGER` value, which in turn is configured by the `STAT_MANAGER` environment variable, to hydrate with data.
-    
+
     Before deferring to the `StatManager` and letting it call the external service, however, this function checks if response is in local cache. If the response is not in the cache, it will pass the request off to `StatManager` and then save the response in the cache so subsequent calls to the function can bypass the service request. Used to prevent excessive external HTTP requests and improve the performance of the application. Other parts of the program should interface with the external statistics data services through this function to utilize the cache functionality. 
 
     Parameters
@@ -589,19 +623,22 @@ def get_daily_interest_history(maturity: str, start_date: Union[date, None]=None
     .. notes::
         * Yield rates are not reported on weekends or holidays, so the `asset_type` for interest is functionally equivalent to equities, at least as far as date calculations are concerned. The dates inputted into this function are validated as if they were labelled as equity `asset_types` for this reason.
     """
-    start_date,end_date=errors.validate_dates(start_date=start_date, end_date=end_date, asset_type=keys.keys['ASSETS']['EQUITY'])
-    
+    start_date, end_date = errors.validate_dates(
+        start_date=start_date, end_date=end_date, asset_type=keys.keys['ASSETS']['EQUITY'])
 
     rates = None
-    rates = interest_cache.filter_interest_cache(maturity, start_date=start_date, end_date=end_date)
+    rates = interest_cache.filter_interest_cache(
+        maturity, start_date=start_date, end_date=end_date)
 
-        # TODO: this only works when stats are reported daily and that the latest date in the dataset is actually end_date.
+    # TODO: this only works when stats are reported daily and that the latest date in the dataset is actually end_date.
     if rates is not None and dater.date_to_string(end_date) in rates.keys() \
-        and (dater.business_days_between(start_date, end_date)) == len(rates): 
+            and (dater.business_days_between(start_date, end_date)) == len(rates):
         return rates
 
-    logger.debug(f'Cached {maturity} data is out of date, passing request to external service')
-    rates = stat_manager.get_interest_rates(start_date=start_date, end_date=end_date)
+    logger.debug(
+        f'Cached {maturity} data is out of date, passing request to external service')
+    rates = stat_manager.get_interest_rates(
+        start_date=start_date, end_date=end_date)
 
     for this_date in rates:
         interest_cache.save_row(date=this_date, value=rates[this_date])
@@ -609,6 +646,7 @@ def get_daily_interest_history(maturity: str, start_date: Union[date, None]=None
     rates = stat_manager.format_for_maturity(maturity=maturity, results=rates)
 
     return rates
+
 
 def get_daily_interest_latest(maturity: str) -> float:
     """
@@ -621,29 +659,32 @@ def get_daily_interest_latest(maturity: str) -> float:
     """
     end_date = dater.get_last_trading_date()
     start_date = dater.decrement_date_by_business_days(end_date, 1)
-    interest_history = get_daily_interest_history(maturity=maturity, start_date=start_date, end_date=end_date)
+    interest_history = get_daily_interest_history(
+        maturity=maturity, start_date=start_date, end_date=end_date)
     first_element = helper.get_first_json_key(interest_history)
     return interest_history[first_element]
+
 
 def get_dividend_history(ticker: str) -> dict:
     """
     Wrapper around external service request for dividend payment data. Relies on an instance of `DivManager` configured by `settings.DIV_MANAGER` value, which in turn is configured by the `DIV_MANAGER` environment variable, to hydrate with data.
-    
+
     Note, since dividend payments do not occur every day (if only), dividend amounts do not get cached, as there is no nice way to determine on a given day whether or not a payment should have been made, and thus to determine whether or not the cache is out of date. In other words, you can't look at today's date and the date of the last payment in the cache and determine based solely on the dates whether or not the cache is outdated. 
 
     Parameters
     ----------
     1. **ticker** : ``str`` 
         Ticker symbol of the equity whose dividend history is to be retrieved.
-    
+
     Returns
     ------
     ``list`` : `{ 'date' (str) :  amount (str),  'date' (str):  amount (str), ... }`
         Dictionary with date strings formatted `YYYY-MM-DD` as keys and the dividend payment amount on that date as the corresponding value.
     """
-    logger.debug(f'Retrieving {ticker} dividends from service')  
+    logger.debug(f'Retrieving {ticker} dividends from service')
     divs = div_manager.get_dividends(ticker=ticker)
     return divs
+
 
 def get_risk_free_rate() -> float:
     """
