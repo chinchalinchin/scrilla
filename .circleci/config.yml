@@ -4,6 +4,8 @@ commands:
   install_build_deps:
     description: install build dependencies
     steps:
+      - run: sudo chown -R circleci:circleci /usr/local/bin
+      - run: sudo chown -R circleci:circleci /usr/local/lib/python3.9/site-packages
       - restore_cache:  # ensure this step occurs *before* installing dependencies
           key: python-build-deps
       - run:
@@ -22,6 +24,8 @@ commands:
       - run:
           name: install build dependencies
           command: sudo apt-get update -y && sudo apt-get install -y xvfb freeglut3 freeglut3-dev libxkbcommon-x11-0
+      - run: sudo chown -R circleci:circleci /usr/local/bin
+      - run: sudo chown -R circleci:circleci /usr/local/lib/python3.9/site-packages
       - restore_cache:  # ensure this step occurs *before* installing dependencies
           key: python-doc-deps
       - run:
@@ -50,7 +54,7 @@ commands:
           name: generate docs
           environment:
             APP_ENV: container
-          command: bash ./scripts/generate-docs circle-ci
+          command: ./scripts/generate-docs circle-ci
 
   upload_artifacts:
     description: upload package artifacts to PyPi
