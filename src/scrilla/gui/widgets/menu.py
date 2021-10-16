@@ -54,7 +54,7 @@ class MenuWidget(QtWidgets.QWidget):
                     pass
                 elif menu == 'View':
                     if action['name'] == 'Function Menu':
-                        q_action.triggered.connect(lambda: self.function_menu.show())
+                        q_action.triggered.connect(self.function_menu.show)
                 self.menus[j].addAction(q_action)
 
     def _init_menu_widgets(self):
