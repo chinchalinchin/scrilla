@@ -14,8 +14,9 @@ commands:
           paths:
             - ".venv"
             - "/usr/local/bin"
-            - "/usr/local/lib/python3.6/site-packages"
-  build:
+            - "/usr/local/lib/python3.9/site-packages"
+
+  build_wheel:
     description: compress and build python package
     steps:
       - run:
