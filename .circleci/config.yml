@@ -5,12 +5,12 @@ commands:
     description: install build dependencies
     steps:
       - restore_cache:  # ensure this step occurs *before* installing dependencies
-          key: deps9-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
+          key: python-deps
       - run:
           name: dependency installation
           command: pip install twine setuptools build
       - save_cache:
-          key: deps9-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
+          key: python-deps
           paths:
             - ".venv"
             - "/usr/local/bin"
@@ -21,15 +21,15 @@ commands:
     steps:
       - run:
           name: install virtual server
-          command: sudo apt-get update -y && sudo apt-get install -y xvfb freeglut3 freeglut3-dev
+          command: sudo apt-get update -y && sudo apt-get install -y xvfb freeglut3 freeglut3-dev libxkbcommon-x11-0
       - restore_cache:  # ensure this step occurs *before* installing dependencies
-          key: deps9-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
+          key: python-deps
       - run:
           name: dependency installation
           command: |
             pip3 install -r requirements.txt
       - save_cache:
-          key: deps9-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
+          key: python-deps
           paths:
             - ".venv"
             - "/usr/local/bin"
@@ -71,7 +71,7 @@ commands:
               git add . 
               git commit -m "Pipeline Build Version $(cat ./src/scrilla/version.txt)"
               git push --set-upstream origin develop/main
-              
+
   commit_docs:
     description: commit re-generated docs to git
     steps:
