@@ -26,6 +26,8 @@ commands:
           key: python-dependencies
       - run:
           name: install application dependencies
+          environment:
+            APP_ENV: container
           command: |
             python3.9 -m pip install --upgrade pip
             pip3 install -r requirements.txt
