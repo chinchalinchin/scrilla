@@ -21,8 +21,10 @@ def generate_pixmap_from_temp(width, height, ext) -> QPixmap:
         width), calculate_image_height(height), aspectMode=Qt.KeepAspectRatio)
     return pixmap
 
+
 def download_tmp_to_file(tmp_key, dest):
     shutil.copy(f'{settings.TEMP_DIR}/{tmp_key}', dest)
+
 
 def get_next_layer(layer):
     if layer == "root":

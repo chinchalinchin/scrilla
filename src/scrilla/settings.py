@@ -79,7 +79,7 @@ GUI_STYLESHEET_FILE = os.path.join(APP_DIR, 'gui', 'styles', 'app.qss')
 GUI_THEME_FILE = os.path.join(APP_DIR, 'gui', 'styles', 'themes.json')
 """Location of the color schemes used to style components"""
 
-GUI_ICON_FILE = os.path.join(APP_DIR,'gui', 'styles', 'icons.json')
+GUI_ICON_FILE = os.path.join(APP_DIR, 'gui', 'styles', 'icons.json')
 """Location of the icon filenames used as icons for `PySide6.QtWidgets.QPushButtons`"""
 
 GUI_DARK_MODE = os.environ.setdefault('DARK_MODE', 'true').lower() == 'true'

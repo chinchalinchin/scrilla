@@ -8,6 +8,7 @@ from scrilla.static import keys
 
 MARGINS = 5
 
+
 def format_stylesheet(sheet):
     theme = get_mode_theme()
     for element in theme:
@@ -17,7 +18,8 @@ def format_stylesheet(sheet):
         ICONS = json.load(f)
         for icon in ICONS:
             for state in ICONS[icon]:
-                sheet = sheet.replace(f'{icon}-{state}', f'{settings.ASSET_DIR}/{ICONS[icon][state]}')
+                sheet = sheet.replace(
+                    f'{icon}-{state}', f'{settings.ASSET_DIR}/{ICONS[icon][state]}')
     return sheet
 
 
