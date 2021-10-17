@@ -63,18 +63,22 @@ class MenuWidget(QtWidgets.QWidget):
                         q_action.triggered.connect(self.function_menu.show)
                     elif action['name'] == 'Splash Menu':
                         q_action.triggered.connect(self._clear)
-                    
+
                 self.menus[j].addAction(q_action)
 
     def _generate_splash(self):
         self.splash_container = factories.layout_factory(format='vertical-box')
-        self.source_button = factories.atomic_widget_factory(format='source-button', title=None)
-        self.package_button = factories.atomic_widget_factory(format='package-button', title=None)
-        self.documentation_button = factories.atomic_widget_factory(format='documentation-button', title=None)
+        self.source_button = factories.atomic_widget_factory(
+            format='source-button', title=None)
+        self.package_button = factories.atomic_widget_factory(
+            format='package-button', title=None)
+        self.documentation_button = factories.atomic_widget_factory(
+            format='documentation-button', title=None)
         self.splash = factories.atomic_widget_factory(
             format='splash', title=None)
 
-        self.splash_button_panel = factories.layout_factory(format='horizontal-box')
+        self.splash_button_panel = factories.layout_factory(
+            format='horizontal-box')
 
         self.splash_button_panel.layout().addStretch()
         self.splash_button_panel.layout().addWidget(self.source_button)
@@ -135,7 +139,6 @@ class MenuWidget(QtWidgets.QWidget):
         self.function_menu.layout().addStretch()
         self.function_menu.layout().addWidget(self.exit_button)
 
-
         self.splash_container.layout().addWidget(self.splash)
         self.splash_container.layout().addStretch()
         self.splash_container.layout().addWidget(self.splash_button_panel)
@@ -144,7 +147,7 @@ class MenuWidget(QtWidgets.QWidget):
         for widget in self.function_widgets:
             self.display_pane.layout().addWidget(widget)
 
-        self.container_pane.layout().addWidget(self.function_menu)  
+        self.container_pane.layout().addWidget(self.function_menu)
         self.container_pane.layout().addWidget(self.display_pane)
 
         self.layout().addWidget(self.menu_bar)
@@ -163,9 +166,12 @@ class MenuWidget(QtWidgets.QWidget):
         self.function_hide_button.clicked.connect(
             lambda: utilities.switch_visibility(self.function_menu))
         self.exit_button.clicked.connect(self.close)
-        self.source_button.clicked.connect(lambda: utilities.open_browser(utilities.get_metadata('source')))
-        self.package_button.clicked.connect(lambda: utilities.open_browser(utilities.get_metadata('package')))
-        self.documentation_button.clicked.connect(lambda: utilities.open_browser(utilities.get_metadata('documentation')))
+        self.source_button.clicked.connect(
+            lambda: utilities.open_browser(utilities.get_metadata('source')))
+        self.package_button.clicked.connect(
+            lambda: utilities.open_browser(utilities.get_metadata('package')))
+        self.documentation_button.clicked.connect(
+            lambda: utilities.open_browser(utilities.get_metadata('documentation')))
         self.exit_button.show()
         self.menu_bar.show()
 
@@ -182,7 +188,6 @@ class MenuWidget(QtWidgets.QWidget):
         self.function_widgets[widget_index].show()
         self.title.setText(list(definitions.FUNC_WIDGETS.values())[
                            widget_index]['name'])
-
 
 
 if __name__ == "__main__":

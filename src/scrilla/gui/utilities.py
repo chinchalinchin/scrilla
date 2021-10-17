@@ -8,6 +8,8 @@ from PySide6.QtCore import Qt
 from scrilla import settings
 
 import webbrowser
+
+
 def calculate_image_width(width) -> float:
     return 9*width/10
 
@@ -15,8 +17,10 @@ def calculate_image_width(width) -> float:
 def calculate_image_height(height) -> float:
     return 9*height/10
 
+
 def open_browser(link):
     webbrowser.open(link)
+
 
 def generate_pixmap_from_temp(width, height, ext) -> QPixmap:
     pixmap = QPixmap(f'{settings.TEMP_DIR}/{ext}')
@@ -24,15 +28,18 @@ def generate_pixmap_from_temp(width, height, ext) -> QPixmap:
         width), calculate_image_height(height), aspectMode=Qt.KeepAspectRatio)
     return pixmap
 
+
 def get_metadata(key) -> str:
     with open(settings.METADATA_FILE, 'r') as f:
         dict_format = json.load(f)
     return dict_format[key]
 
+
 def load_html_template(template_key):
     with open(f'{settings.GUI_TEMPLATE_DIR}/{template_key}.html', 'r') as f:
         html = f.read()
     return html
+
 
 def download_tmp_to_file(tmp_key, dest):
     shutil.copy(f'{settings.TEMP_DIR}/{tmp_key}', dest)

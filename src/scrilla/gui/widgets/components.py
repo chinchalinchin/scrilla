@@ -46,6 +46,7 @@ SYMBOLS_SINGLE = "single"
 SYMBOLS_NONE = "none"
 """Constant passed into `scrilla.gui.widgets.components.ArgumentWidget` to initialize an input control without ticker symbols"""
 
+
 class SkeletonWidget(QtWidgets.QWidget):
     def __init__(self, function: str, parent: QtWidgets.QWidget):
         super(SkeletonWidget, self).__init__(parent)
@@ -57,6 +58,7 @@ class SkeletonWidget(QtWidgets.QWidget):
         for arg in definitions.FUNC_DICT[function]['args']:
             if not definitions.ARG_DICT[arg]['cli_only']:
                 self.controls[arg] = True
+
 
 class ArgumentWidget(QtWidgets.QWidget):
     """
@@ -421,7 +423,7 @@ class GraphWidget(QtWidgets.QWidget):
             self.width(), self.height(), self.tmp_graph_key))
         self.figure.show()
         self.download_button.show()
-    
+
     def clear(self):
         self.figure.hide()
         self.download_button.hide()
