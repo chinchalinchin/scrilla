@@ -294,10 +294,12 @@ class TableWidget(QtWidgets.QWidget):
 
     def _init_widgets(self, widget_title: str) -> None:
         """Creates child widgets and their layouts"""
-        self.title_container = factories.layout_factory(format='horizontal-box')
+        self.title_container = factories.layout_factory(
+            format='horizontal-box')
         self.title = factories.atomic_widget_factory(
             format='heading', title=widget_title)
-        self.download_button = factories.atomic_widget_factory(format='download-button', title=None)
+        self.download_button = factories.atomic_widget_factory(
+            format='download-button', title=None)
         self.table = factories.atomic_widget_factory(
             format='table', title=None)
         self.setLayout(QtWidgets.QVBoxLayout())
@@ -305,7 +307,7 @@ class TableWidget(QtWidgets.QWidget):
     def _arrange_widgets(self) -> None:
         factories.set_policy_on_widget_list([self, self.title, self.title_container],
                                             QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding,
-                                                       QtWidgets.QSizePolicy.Minimum))
+                                                                  QtWidgets.QSizePolicy.Minimum))
         self.title_container.layout().addWidget(self.title)
         self.title_container.layout().addWidget(self.download_button)
         self.layout().addWidget(self.title_container)
@@ -339,13 +341,14 @@ class TableWidget(QtWidgets.QWidget):
 
     @QtCore.Slot()
     def show_file_dialog(self) -> None:
-        file_path = factories.atomic_widget_factory(format='save-dialog', title=f'(*.{settings.FILE_EXT})')
+        file_path = factories.atomic_widget_factory(
+            format='save-dialog', title=f'(*.{settings.FILE_EXT})')
         file_path.selectFile(f'table.{settings.FILE_EXT}')
         filename = None
         if file_path.exec_() == QtWidgets.QDialog.Accepted:
             filename = file_path.selectedFiles()
-        if filename is not None and len(filename)>0:
-            if settings.FILE_EXT=='json':
+        if filename is not None and len(filename) > 0:
+            if settings.FILE_EXT == 'json':
                 utilities.download_table_to_json(self.table, filename[0])
 
 

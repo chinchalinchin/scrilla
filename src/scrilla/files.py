@@ -233,7 +233,7 @@ def get_static_data(static_type):
         if not os.path.isfile(path):
             init_static_data()
         logger.debug(f'Loading in cached {static_type} symbols.')
-        
+
         ext = path.split('.')[-1]
         print(ext)
 
