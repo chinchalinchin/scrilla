@@ -243,7 +243,7 @@ class Cashflow:
         time_to_first_payment = 0
         if self.period is None:
             raise errors.InputValidationError(
-                    'Not enough information to calculate net present value of cash flow.')
+                'Not enough information to calculate net present value of cash flow.')
         if self.period == FREQ_ANNUAL:
             time_to_first_payment = dater.get_time_to_next_year()
 
@@ -267,7 +267,7 @@ class Cashflow:
         while calculating:
             previous_value = net_present_value
             current_time = time_to_first_payment + i * self.period
-            
+
             net_present_value += self.get_growth_function(current_time) / (
                 (1 + self.discount_rate)**current_time)
 
