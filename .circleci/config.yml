@@ -5,14 +5,13 @@ commands:
     description: install build dependencies
     steps:
       - restore_cache:  # ensure this step occurs *before* installing dependencies
-          key: deps9-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
+          key: build-deps
       - run:
           name: dependency installation
           command: pip install twine setuptools build
       - save_cache:
-          key: deps9-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
+          key: build-deps
           paths:
-            - ".venv"
             - "/usr/local/bin"
             - "/usr/local/lib/python3.9/site-packages"
 
@@ -32,7 +31,9 @@ commands:
     steps:
       - run:
           name: artifact build
-          command: python -m build
+          command: |
+            touch ./src/scrilla/data/cache/scrilla.db
+            python -m build
 
   generate_docs:
     description: generate documentation html from docstrings
