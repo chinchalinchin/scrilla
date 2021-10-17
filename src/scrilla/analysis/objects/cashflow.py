@@ -259,10 +259,10 @@ class Cashflow:
             time_to_first_payment = dater.get_time_to_next_period(
                 starting_date=latest_date, period=self.period)
 
-        self.NPV, i, current_time = 0, 0, 0
+        net_present_value, i, current_time = 0, 0, 0
         calculating = True
         while calculating:
-            previous_value = self.NPV
+            previous_value = net_present_value
 
             if self.period is not None:
                 current_time = time_to_first_payment + i * self.period
@@ -270,11 +270,11 @@ class Cashflow:
                 raise errors.InputValidationError(
                     'Not enough information to calculate net present value of cash flow.')
 
-            self.NPV += self.get_growth_function(current_time) / (
+            net_present_value += self.get_growth_function(current_time) / (
                 (1 + self.discount_rate)**current_time)
 
-            if self.NPV - previous_value < constants.constants['NPV_DELTA_TOLERANCE']:
+            if net_present_value - previous_value < constants.constants['NPV_DELTA_TOLERANCE']:
                 calculating = False
             i += 1
 
-        return self.NPV
+        return net_present_value

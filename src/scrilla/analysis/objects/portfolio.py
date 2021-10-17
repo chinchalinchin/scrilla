@@ -95,6 +95,7 @@ class Portfolio:
         self.asset_volatility_functions = asset_volatility_functions
         self.asset_return_functions = asset_return_functions
         self.risk_profiles = risk_profiles
+        self.target_return = None
 
         if risk_free_rate is not None:
             self.risk_free_rate = risk_free_rate
@@ -253,7 +254,9 @@ class Portfolio:
         self.target_return = target
 
     def get_target_return_constraint(self, x):
-        return (numpy.dot(x, self.mean_return) - self.target_return)
+        if self.target_return is not None:
+            return (numpy.dot(x, self.mean_return) - self.target_return)
+        return None
 
     def calculate_approximate_shares(self, x, total, latest_prices=None):
         shares = []
