@@ -48,6 +48,9 @@ FILE_EXT = os.environ.setdefault("FILE_EXT", "json")
 IMG_EXT = os.environ.setdefault("IMG_EXT", "jpg")
 """Extension used to saved images; Configured by environment variable of the same name, **IMG_EXT**"""
 
+METADATA_FILE = os.path.join(APP_DIR, 'data','meta', 'data.json')
+"""File containing metadata information about the application"""
+
 CACHE_DIR = os.path.join(APP_DIR, 'data', 'cache')
 """Directory containing cached prices, statistics and calculations"""
 CACHE_SQLITE_FILE = os.environ.setdefault(
@@ -63,13 +66,20 @@ STATIC_DIR = os.path.join(APP_DIR, 'data', 'static')
 
 STATIC_TICKERS_FILE = os.path.join(STATIC_DIR, f'tickers.{FILE_EXT}')
 """Location of file used to store equity ticker symbols"""
+
 STATIC_ECON_FILE = os.path.join(STATIC_DIR, f'economics.{FILE_EXT}')
 """Location of file used to store statistic symbols"""
+
 STATIC_CRYPTO_FILE = os.path.join(STATIC_DIR, f'crypto.{FILE_EXT}')
 """Location of file used to store crypto ticker symbols"""
 
 COMMON_DIR = os.path.join(APP_DIR, 'data', 'common')
-"""Directory used to store common files, such as API keys, watchlist, etc."""
+"""Directory used to store common files, such as API keys, watchlist, etc.
+
+.. notes::
+    * It is recommended API keys are not stored in this directory, as they will be stored unencrypted. A better option is storing the keys as environment variables in your current session. See the documentation for more information. 
+"""
+
 COMMON_WATCHLIST_FILE = os.path.join(COMMON_DIR, f'watchlist.{FILE_EXT}')
 """Location of file used to store watchlisted ticker symbols"""
 
@@ -82,7 +92,11 @@ GUI_THEME_FILE = os.path.join(APP_DIR, 'gui', 'styles', 'themes.json')
 GUI_ICON_FILE = os.path.join(APP_DIR, 'gui', 'styles', 'icons.json')
 """Location of the icon filenames used as icons for `PySide6.QtWidgets.QPushButtons`"""
 
+GUI_TEMPLATE_DIR = os.path.join(APP_DIR, 'gui', 'templates')
+"""Location where the HTML templates for certain ``PySide6.QtWidgets.QWidget`'s are stored."""
+
 GUI_DARK_MODE = os.environ.setdefault('DARK_MODE', 'true').lower() == 'true'
+"""Flag determining the theme of the GUI, i.e. light mode or dark mode."""
 
 # GUI CONFIGURATION
 try:

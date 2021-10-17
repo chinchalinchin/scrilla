@@ -62,6 +62,10 @@ MENUBAR_WIDGET = {
     'View': [{
         'name': 'Function Menu',
         'shortcut': 'Ctrl+F'
+    },
+    {
+        'name': 'Splash Menu',
+        'shortcut': 'Ctrl+S'
     }],
     'Functions': [{
         'name': FUNC_WIDGETS[func_widget]['name'],

@@ -1,8 +1,8 @@
 from typing import List
 
 from PySide6 import QtWidgets, QtCore, QtGui
-from scrilla import settings
-from scrilla.static import definitions, constants, keys
+from scrilla.gui import utilities
+from scrilla.static import definitions, constants
 
 
 def generate_control_skeleton():
@@ -36,22 +36,39 @@ def atomic_widget_factory(format: str, title: str):
         elif format in ['text']:
             widget.setAlignment(QtCore.Qt.AlignBottom)
         widget.setObjectName(format)
+    
+    elif format in ['splash']:
+        widget = QtWidgets.QLabel(utilities.load_html_template(format))
+        widget.setAlignment(QtCore.Qt.AlignTop)
+        widget.setSizePolicy(QtWidgets.QSizePolicy(
+                QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum))
+        widget.setWordWrap(True)
+        widget.setOpenExternalLinks(True)
 
-    elif format in ['calculate-button', 'clear-button', 'hide-button', 'download-button', 'button']:
-        # icon buttons
-        if format not in ['hide-button', 'download-button']:
+    elif format in ['calculate-button', 'clear-button', 'hide-button', 
+                    'download-button', 'source-button', 'package-button', 
+                    'documentation-button', 'button']:
+        # buttons with text
+        if format not in ['hide-button', 'download-button', 'source-button']:
             widget = QtWidgets.QPushButton(title)
             widget.setSizePolicy(QtWidgets.QSizePolicy(
                 QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Maximum))
-            if format == 'hide-button':
-                widget.setToolTip('Hide')
-            elif format == 'download-button':
-                widget.setToolTip('Save As')
-        # buttons with text
+        
+        # icon buttons
         else:
             widget = QtWidgets.QPushButton()
             widget.setSizePolicy(QtWidgets.QSizePolicy(
                 QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum))
+            if format == 'hide-button':
+                widget.setToolTip('Hide')
+            elif format == 'download-button':
+                widget.setToolTip('Save As')
+            elif format == 'source-button':
+                widget.setToolTip('View Source')
+            elif format == 'package-button':
+                widget.setToolTip('View PyPi Package')
+            elif format == 'documentation-button':
+                widget.setToolTip('View Documentation')
 
         widget.setAutoDefault(True)
         widget.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))

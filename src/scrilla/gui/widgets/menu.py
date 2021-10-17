@@ -39,6 +39,7 @@ class MenuWidget(QtWidgets.QWidget):
         super().__init__()
         self._init_menu_widgets()
         self._generate_menu_bar()
+        self._generate_splash()
         self._arrange_menu_widgets()
         self._stage_menu_widgets()
 
@@ -60,12 +61,29 @@ class MenuWidget(QtWidgets.QWidget):
                 elif menu == 'View':
                     if action['name'] == 'Function Menu':
                         q_action.triggered.connect(self.function_menu.show)
+                    elif action['name'] == 'Splash Menu':
+                        q_action.triggered.connect(self._clear)
+                    
                 self.menus[j].addAction(q_action)
+
+    def _generate_splash(self):
+        self.splash_container = factories.layout_factory(format='vertical-box')
+        self.source_button = factories.atomic_widget_factory(format='source-button', title=None)
+        self.package_button = factories.atomic_widget_factory(format='package-button', title=None)
+        self.documentation_button = factories.atomic_widget_factory(format='documentation-button', title=None)
+        self.splash = factories.atomic_widget_factory(
+            format='splash', title=None)
+
+        self.splash_button_panel = factories.layout_factory(format='horizontal-box')
+
+        self.splash_button_panel.layout().addStretch()
+        self.splash_button_panel.layout().addWidget(self.source_button)
+        self.splash_button_panel.layout().addWidget(self.package_button)
+        self.splash_button_panel.layout().addWidget(self.documentation_button)
+        self.splash_button_panel.layout().addStretch()
 
     def _init_menu_widgets(self):
         self.setObjectName('root')
-        self.intro_msg = factories.atomic_widget_factory(
-            format='title', title="Select A Function To Get Started")
         self.title = factories.atomic_widget_factory(
             format='title', title=settings.APP_NAME)
 
@@ -97,7 +115,7 @@ class MenuWidget(QtWidgets.QWidget):
     def _arrange_menu_widgets(self):
         """Arranges child widget within their layouts."""
         self.title.setAlignment(QtCore.Qt.AlignHCenter)
-        self.intro_msg.setAlignment(QtCore.Qt.AlignCenter)
+        # self.splash.setAlignment(QtCore.Qt.AlignCenter)
 
         self.container_pane.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding,
                                                                 QtWidgets.QSizePolicy.Expanding))
@@ -108,24 +126,30 @@ class MenuWidget(QtWidgets.QWidget):
         self.title.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding,
                                                        QtWidgets.QSizePolicy.Minimum))
 
-        self.container_pane.layout().addWidget(self.function_menu)
-        self.container_pane.layout().addWidget(self.display_pane)
-
-        self.layout().addWidget(self.menu_bar)
-        self.layout().addWidget(self.title)
-        self.layout().addWidget(self.container_pane)
-
         self.function_title_container.layout().addWidget(self.function_title)
         self.function_title_container.layout().addWidget(self.function_hide_button)
+
         self.function_menu.layout().addWidget(self.function_title_container)
         for button in self.widget_buttons:
             self.function_menu.layout().addWidget(button)
         self.function_menu.layout().addStretch()
         self.function_menu.layout().addWidget(self.exit_button)
 
-        self.display_pane.layout().addWidget(self.intro_msg)
+
+        self.splash_container.layout().addWidget(self.splash)
+        self.splash_container.layout().addStretch()
+        self.splash_container.layout().addWidget(self.splash_button_panel)
+
+        self.display_pane.layout().addWidget(self.splash_container)
         for widget in self.function_widgets:
             self.display_pane.layout().addWidget(widget)
+
+        self.container_pane.layout().addWidget(self.function_menu)  
+        self.container_pane.layout().addWidget(self.display_pane)
+
+        self.layout().addWidget(self.menu_bar)
+        self.layout().addWidget(self.title)
+        self.layout().addWidget(self.container_pane)
 
     def _stage_menu_widgets(self):
         for i, button in enumerate(self.widget_buttons):
@@ -139,23 +163,26 @@ class MenuWidget(QtWidgets.QWidget):
         self.function_hide_button.clicked.connect(
             lambda: utilities.switch_visibility(self.function_menu))
         self.exit_button.clicked.connect(self.close)
+        self.source_button.clicked.connect(lambda: utilities.open_browser(utilities.get_metadata('source')))
+        self.package_button.clicked.connect(lambda: utilities.open_browser(utilities.get_metadata('package')))
+        self.documentation_button.clicked.connect(lambda: utilities.open_browser(utilities.get_metadata('documentation')))
         self.exit_button.show()
         self.menu_bar.show()
 
+    def _clear(self):
+        for widget in self.function_widgets:
+            widget.hide()
+        self.splash_container.show()
+
     @QtCore.Slot()
     def _show_widget(self, widget_index):
-        self.intro_msg.hide()
+        self.splash_container.hide()
         for widget in self.function_widgets:
             widget.hide()
         self.function_widgets[widget_index].show()
         self.title.setText(list(definitions.FUNC_WIDGETS.values())[
                            widget_index]['name'])
 
-    @QtCore.Slot()
-    def _clear(self):
-        for widget in self.function_widgets:
-            widget.hide()
-        self.intro_msg.show()
 
 
 if __name__ == "__main__":

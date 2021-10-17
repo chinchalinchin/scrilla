@@ -33,20 +33,7 @@ from scrilla.gui.widgets import factories, components
 logger = outputter.Logger('gui.functions', settings.LOG_LEVEL)
 
 
-class SkeletonWidget(QtWidgets.QWidget):
-    def __init__(self, function: str, parent: QtWidgets.QWidget):
-        super(SkeletonWidget, self).__init__(parent)
-        self._configure_control_skeleton(function)
-
-    def _configure_control_skeleton(self, function: str):
-        self.controls = factories.generate_control_skeleton()
-
-        for arg in definitions.FUNC_DICT[function]['args']:
-            if not definitions.ARG_DICT[arg]['cli_only']:
-                self.controls[arg] = True
-
-
-class DistributionWidget(SkeletonWidget):
+class DistributionWidget(components.SkeletonWidget):
     def __init__(self, layer: str, parent: Union[QtWidgets.QWidget, None] = None):
         super().__init__(function='plot_return_dist', parent=parent)
         self.setObjectName(layer)
@@ -114,12 +101,11 @@ class DistributionWidget(SkeletonWidget):
     def clear(self):
         self.arg_widget.prime()
         total = self.tab_widget.count()
-        print(total)
         for i in range(total):
             self.tab_widget.removeTab(0)
 
 
-class YieldCurveWidget(SkeletonWidget):
+class YieldCurveWidget(components.SkeletonWidget):
     def __init__(self, layer: str, parent: Union[QtWidgets.QWidget, None] = None):
         super().__init__(function='yield_curve', parent=parent)
         self.setObjectName(layer)
@@ -176,11 +162,11 @@ class YieldCurveWidget(SkeletonWidget):
 
     @QtCore.Slot()
     def clear(self):
-        self.graph_widget.figure.hide()
+        self.graph_widget.clear()
         self.arg_widget.prime()
 
 
-class DiscountDividendWidget(SkeletonWidget):
+class DiscountDividendWidget(components.SkeletonWidget):
     def __init__(self, layer: str, parent: Union[QtWidgets.QWidget, None] = None):
         super().__init__(function='discount_dividend', parent=parent)
         self.setObjectName(layer)
@@ -189,8 +175,8 @@ class DiscountDividendWidget(SkeletonWidget):
         self._stage_widgets()
 
     def _init_widgets(self):
-        self.graph_widget = components.GraphWidget(tmp_graph_key=keys.keys['GUI']['TEMP']['DIVIDEND'],
-                                                   layer=utilities.get_next_layer(self.objectName()))
+        self.tab_container = factories.layout_factory(format='vertical-box')
+        self.tab_widget = QtWidgets.QTabWidget()
         self.arg_widget = components.ArgumentWidget(calculate_function=self.calculate,
                                                     clear_function=self.clear,
                                                     controls=self.controls,
@@ -199,48 +185,53 @@ class DiscountDividendWidget(SkeletonWidget):
         self.setLayout(QtWidgets.QHBoxLayout())
 
     def _arrange_widgets(self):
-        self.layout().addWidget(self.graph_widget)
+        self.tab_container.layout().addWidget(self.tab_widget)
+        self.layout().addWidget(self.tab_container)
         self.layout().addWidget(self.arg_widget)
 
     def _stage_widgets(self):
         self.arg_widget.prime()
 
     def resizeEvent(self, event: QtGui.QResizeEvent) -> None:
-        if self.graph_widget.figure.isVisible():
-            self.graph_widget.set_pixmap()
+        for i in range(self.tab_widget.count()):
+            if self.tab_widget.widget(i).figure.isVisible():
+                self.tab_widget.widget(i).set_pixmap()
         return super().resizeEvent(event)
 
     @QtCore.Slot()
     def calculate(self):
-        if self.graph_widget.figure.isVisible():
-            self.graph_widget.figure.hide()
-
-        symbol = self.arg_widget.get_symbol_input()[0]
+        symbols = self.arg_widget.get_symbol_input()
         discount = self.arg_widget.get_control_input('discount')
 
-        if discount is None:
-            discount = markets.cost_of_equity(ticker=symbol,
-                                              start_date=self.arg_widget.get_control_input(
-                                                  'start_date'),
-                                              end_date=self.arg_widget.get_control_input('end_date'))
-        dividends = services.get_dividend_history(ticker=symbol)
-        cashflow = Cashflow(sample=dividends, discount_rate=discount)
+        for symbol in symbols:
+            if discount is None:
+                discount = markets.cost_of_equity(ticker=symbol,
+                                                  start_date=self.arg_widget.get_control_input(
+                                                      'start_date'),
+                                                  end_date=self.arg_widget.get_control_input('end_date'))
+            dividends = services.get_dividend_history(ticker=symbol)
+            cashflow = Cashflow(sample=dividends, discount_rate=discount)
+            graph_widget = components.GraphWidget(tmp_graph_key=f'{keys.keys["GUI"]["TEMP"]["DIVIDEND"]}_{symbol}',
+                                                   layer=utilities.get_next_layer(self.objectName()))
+            plotter.plot_cashflow(ticker=symbol,
+                                  cashflow=cashflow,
+                                  show=False,
+                                  savefile=f'{settings.TEMP_DIR}/{keys.keys["GUI"]["TEMP"]["DIVIDEND"]}_{symbol}')
 
-        plotter.plot_cashflow(ticker=symbol,
-                              cashflow=cashflow,
-                              show=False,
-                              savefile=f'{settings.TEMP_DIR}/{keys.keys["GUI"]["TEMP"]["DIVIDEND"]}')
-
-        self.graph_widget.set_pixmap()
+            graph_widget.set_pixmap()
+            self.tab_widget.addTab(graph_widget, f'{symbol} DDM PLOT')
+        self.tab_widget.show()
         self.arg_widget.fire()
 
     @QtCore.Slot()
     def clear(self):
-        self.graph_widget.figure.hide()
         self.arg_widget.prime()
+        total = self.tab_widget.count()
+        for i in range(total):
+            self.tab_widget.removeTab(0)
 
 
-class RiskProfileWidget(SkeletonWidget):
+class RiskProfileWidget(components.SkeletonWidget):
     def __init__(self, layer: str, parent: Union[QtWidgets.QWidget, None] = None):
         super().__init__(function='risk_profile', parent=parent)
         self.setObjectName(layer)
@@ -312,13 +303,13 @@ class RiskProfileWidget(SkeletonWidget):
 
     @QtCore.Slot()
     def clear(self):
-        self.composite_widget.graph_widget.figure.hide()
+        self.composite_widget.graph_widget.clear()
         self.composite_widget.table_widget.table.clear()
         self.composite_widget.table_widget.table.hide()
         self.arg_widget.prime()
 
 
-class CorrelationWidget(SkeletonWidget):
+class CorrelationWidget(components.SkeletonWidget):
     def __init__(self, layer: str, parent: Union[QtWidgets.QWidget, None] = None):
         super().__init__(function='correlation', parent=parent)
         self.setObjectName(layer)
@@ -378,7 +369,7 @@ class CorrelationWidget(SkeletonWidget):
         self.table_widget.table.hide()
 
 
-class OptimizerWidget(SkeletonWidget):
+class OptimizerWidget(components.SkeletonWidget):
     def __init__(self, layer: str, parent: Union[QtWidgets.QWidget, None] = None):
         super().__init__(function='optimize_portfolio', parent=parent)
         self.setObjectName(layer)
@@ -459,7 +450,7 @@ class OptimizerWidget(SkeletonWidget):
         self.arg_widget.prime()
 
 
-class EfficientFrontierWidget(SkeletonWidget):
+class EfficientFrontierWidget(components.SkeletonWidget):
     def __init__(self, layer: str, parent: Union[QtWidgets.QWidget, None] = None):
         super().__init__(function='efficient_frontier', parent=parent)
         self.setObjectName(layer)
@@ -514,7 +505,7 @@ class EfficientFrontierWidget(SkeletonWidget):
         self.arg_widget.prime()
 
 
-class MovingAverageWidget(SkeletonWidget):
+class MovingAverageWidget(components.SkeletonWidget):
     def __init__(self, layer: str, parent: Union[QtWidgets.QWidget, None] = None):
         super().__init__(function='moving_averages', parent=parent)
         self.setObjectName(layer)

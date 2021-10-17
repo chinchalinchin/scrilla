@@ -19,8 +19,16 @@
         "pressed": "calendar-sharp.svg",
         "unpressed": "calendar-outline.svg"
     },
-    "$github":{
+    "$source":{
         "unpressed": "logo-github.svg",
         "pressed": "logo-github.svg"
+    },
+    "$package":{
+        "unpressed": "logo-python.svg",
+        "pressed": "logo-python.svg"
+    },
+    "$documentation": {
+        "unpressed": "information-circle-sharp.svg",
+        "pressed": "information-circle-sharp.svg"
     }
 }
