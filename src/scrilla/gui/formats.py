@@ -3,108 +3,43 @@ import json
 from typing import Tuple
 
 from scrilla import settings
-from scrilla.gui.widgets.functions import CorrelationWidget, DiscountDividendWidget, DistributionWidget, \
-    EfficientFrontierWidget, MovingAverageWidget, OptimizerWidget, \
-    RiskProfileWidget, YieldCurveWidget
 from scrilla.util import helper
 from scrilla.static import keys
 
-FUNC_WIDGETS = {
-    'correlation': {
-        'name': 'Correlation Matrix',
-        'class': CorrelationWidget,
-        'shortcut': 'Ctrl+1',
-        'group': 'analysis'
-    },
-    'dividend': {
-        'name': 'Discount Discount Model',
-        'class': DiscountDividendWidget,
-        'shortcut': 'Ctrl+2',
-        'group': 'analysis'
-    },
-    'distribution': {
-        'name': 'Distribution of Returns',
-        'class': DistributionWidget,
-        'shortcut': 'Ctrl+7',
-        'group': 'analysis'
-    },
-    'frontier': {
-        'name': 'Efficient Frontiers',
-        'class': EfficientFrontierWidget,
-        'shortcut': 'Ctrl+3',
-        'group': 'analysis'
-    },
-    'averages': {
-        'name': 'Moving Averages',
-        'class': MovingAverageWidget,
-        'shortcut': 'Ctrl+4',
-        'group': 'analysis'
-    },
-    'optimize': {
-        'name': 'Portfolio Optimization',
-        'class': OptimizerWidget,
-        'shortcut': 'Ctrl+5',
-        'group': 'allocation'
-    },
-    'risk_profile': {
-        'name': 'Risk Profile',
-        'class': RiskProfileWidget,
-        'shortcut': 'Ctrl+8',
-        'group': 'analysis'
-
-    },
-    'yield_curve': {
-        'name': 'Yield Curve',
-        'class': YieldCurveWidget,
-        'shortcut': 'Ctrl+9',
-        'group': 'prices'
-    }
-}
-
-MENUBAR_WIDGET = {
-    'File': [{
-        'name': 'Add API Key',
-        'shortcut': 'Ctrl+A',
-    }],
-    'Functions': [{
-        'name': FUNC_WIDGETS[func_widget]['name'],
-        'shortcut': FUNC_WIDGETS[func_widget]['shortcut']
-    } for func_widget in FUNC_WIDGETS
-    ],
-    'View': [{
-        'name': 'Function Menu',
-        'shortcut': 'Ctrl+F'
-    }]
-}
-
 MARGINS = 5
 
-
 def format_stylesheet(sheet):
-    if settings.GUI_DARK_MODE:
-        mode = get_dark_mode_theme()
-    else:
-        mode = get_light_mode_theme()
+    theme = get_mode_theme()
+    for element in theme:
+        sheet = sheet.replace(element, theme[element])
 
-    for element in mode:
-        sheet = sheet.replace(element, mode[element])
-
+    with open(settings.GUI_ICON_FILE, 'r') as f:
+        ICONS = json.load(f)
+        for icon in ICONS:
+            for state in ICONS[icon]:
+                sheet = sheet.replace(f'{icon}-{state}', f'{settings.ASSET_DIR}/{ICONS[icon][state]}')
     return sheet
 
 
-def get_dark_mode_theme():
+def get_mode_theme():
     with open(settings.GUI_THEME_FILE, 'r') as f:
         MATERIAL = json.load(f)
 
-    dark_theme = {}
-    for color in MATERIAL['grey']:
-        dark_theme[f'$primary-{color}'] = MATERIAL['grey'][color]
-    for color in MATERIAL['green']:
-        dark_theme[f'$accent-{color}'] = MATERIAL['green'][color]
-    for color in MATERIAL['red']:
-        dark_theme[f'$warn-{color}'] = MATERIAL['red'][color]
+    if settings.GUI_DARK_MODE:
+        theme_key = 'dark_mode'
+    else:
+        theme_key = 'light_mode'
 
-    return dark_theme
+    theme = {}
+    for i, color in enumerate(MATERIAL[theme_key]):
+        for scheme in MATERIAL[color]:
+            if i == 0:
+                theme[f'$primary-{scheme}'] = MATERIAL[color][scheme]
+            elif i == 1:
+                theme[f'$accent-{scheme}'] = MATERIAL[color][scheme]
+            elif i == 2:
+                theme[f'$warn-{scheme}'] = MATERIAL[color][scheme]
+    return theme
 
 
 def get_light_mode_theme():

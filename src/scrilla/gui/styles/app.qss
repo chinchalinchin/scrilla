@@ -80,6 +80,9 @@
     border-color: $primary-900;
     background-color: $primary-400;
 }
+QAbstractButton {
+     qproperty-icon: theme_url("/button_action/add");
+}
 QLineEdit#line-edit {
     background-color: $primary-200;
 }
@@ -112,6 +115,7 @@ QPushButton#clear-button {
     border-width: 0.5px;
     border-color: $warn-900;
     background-color: $warn-400;
+    qproperty-icon: url($clear-unpressed);
 }
 QPushButton#clear-button:hover {
     border-style: outset;
@@ -119,6 +123,7 @@ QPushButton#clear-button:hover {
     border-width: 0.5px;
     border-color: $warn-900;
     background-color: $warn-100;
+    qproperty-icon: url($clear-unpressed);
 }
 QPushButton#clear-button:pressed {
     border-style: inset;
@@ -126,6 +131,7 @@ QPushButton#clear-button:pressed {
     border-width: 0.5px;
     border-color: $warn-900;
     background-color: $warn-700;
+    qproperty-icon: url($clear-pressed);
 }
 QPushButton#calculate-button {
     padding: 2px;
@@ -134,6 +140,7 @@ QPushButton#calculate-button {
     border-width: 0.5px;
     border-color: $accent-900;
     background-color: $accent-400;
+    qproperty-icon: url($calculate-unpressed);
 }
 QPushButton#calculate-button:hover {
     border-style: outset;
@@ -141,6 +148,8 @@ QPushButton#calculate-button:hover {
     border-width: 0.5px;
     border-color: $accent-900;
     background-color: $accent-100;
+    qproperty-icon: url($calculate-unpressed);
+
 }
 QPushButton#calculate-button:pressed {
     border-style: inset;
@@ -148,6 +157,7 @@ QPushButton#calculate-button:pressed {
     border-width: 0.5px;
     border-color: $accent-900;
     background-color: $accent-700;
+    qproperty-icon: url($calculate-pressed);
 }
 QPushButton#hide-button {
     padding: 2px;
@@ -156,6 +166,7 @@ QPushButton#hide-button {
     border-width: 0.5px;
     border-color: $primary-900;
     background-color: $primary-500;
+    qproperty-icon: url($hide-unpressed);
 }
 QPushButton#hide-button:hover {
     border-style: outset;
@@ -163,13 +174,40 @@ QPushButton#hide-button:hover {
     border-width: 0.5px;
     border-color: $primary-900;
     background-color: $primary-300;
+    qproperty-icon: url($hide-unpressed);
 }
 QPushButton#hide-button:pressed {
     border-style: inset;
     border-radius: 2px;
     border-width: 0.5px;
     border-color: $primary-900;
-    background-color: $primary-900;
+    background-color: $primary-700;
+    qproperty-icon: url($hide-pressed);
+}
+QPushButton#download-button {
+    padding: 2px;
+    border-style: outset;
+    border-radius: 2px;
+    border-width: 0.5px;
+    border-color: $primary-900;
+    background-color: $primary-500;
+    qproperty-icon: url($download-unpressed);
+}
+QPushButton#download-button:hover {
+    border-style: outset;
+    border-radius: 2px;
+    border-width: 0.5px;
+    border-color: $primary-900;
+    background-color: $primary-300;
+    qproperty-icon: url($download-unpressed);
+}
+QPushButton#download-button:pressed {
+    border-style: inset;
+    border-radius: 2px;
+    border-width: 0.5px;
+    border-color: $primary-900;
+    background-color: $primary-700;
+    qproperty-icon: url($download-pressed);
 }
 #debug {
     border-style: inset;

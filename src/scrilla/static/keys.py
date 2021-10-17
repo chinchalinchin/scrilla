@@ -155,11 +155,6 @@ keys = {
             'YIELD': 'yieldcurve',
             'QQ': 'qqplot'
         },
-        'ICONS': {
-            'CALC': 'calculator-sharp.svg',
-            'CLEAR': 'close-circle-sharp.svg',
-            'HIDE': 'arrow-back-circle-sharp.svg'
-        },
         'SHORTCUTS': {
             'CORREL': 'Ctrl+1',
             'DIVIDEND': 'Ctrl+2',

@@ -37,12 +37,13 @@ def atomic_widget_factory(format: str, title: str):
             widget.setAlignment(QtCore.Qt.AlignBottom)
         widget.setObjectName(format)
 
-    elif format in ['calculate-button', 'clear-button', 'hide-button', 'button', ]:
-        if format not in ['hide-button']:
+    elif format in ['calculate-button', 'clear-button', 'hide-button', 'download-button', 'button']:
+        # icon buttons
+        if format not in ['hide-button', 'download-button']:
             widget = QtWidgets.QPushButton(title)
             widget.setSizePolicy(QtWidgets.QSizePolicy(
                 QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Maximum))
-
+        # buttons with text
         else:
             widget = QtWidgets.QPushButton()
             widget.setSizePolicy(QtWidgets.QSizePolicy(
@@ -52,15 +53,12 @@ def atomic_widget_factory(format: str, title: str):
         widget.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
         widget.setObjectName(format)
 
-        if format == 'calculate-button':
-            widget.setIcon(QtGui.QIcon(
-                f'{settings.ASSET_DIR}/{keys.keys["GUI"]["ICONS"]["CALC"]}'))
-        elif format == 'clear-button':
-            widget.setIcon(QtGui.QIcon(
-                f'{settings.ASSET_DIR}/{keys.keys["GUI"]["ICONS"]["CLEAR"]}'))
-        elif format == 'hide-button':
-            widget.setIcon(QtGui.QIcon(
-                f'{settings.ASSET_DIR}/{keys.keys["GUI"]["ICONS"]["HIDE"]}'))
+    elif format in ['save-dialog']:
+        widget = QtWidgets.QFileDialog()
+        widget.setFileMode(QtWidgets.QFileDialog.AnyFile)
+        widget.setViewMode(QtWidgets.QFileDialog.Detail)
+        widget.setNameFilter(title)
+        widget.setAcceptMode(QtWidgets.QFileDialog.AcceptSave)
 
     elif format == 'table':
         widget = QtWidgets.QTableWidget()

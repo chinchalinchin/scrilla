@@ -19,7 +19,7 @@ from PySide6 import QtCore, QtWidgets, QtGui
 
 from scrilla import settings
 
-from scrilla.gui import formats, utilities
+from scrilla.gui import formats, utilities, definitions
 from scrilla.gui.widgets import factories
 
 # NOTE: widget_buttons and function_widgets must preserve order.
@@ -47,9 +47,9 @@ class MenuWidget(QtWidgets.QWidget):
             format='menu-bar', title=None)
         self.menus = []
 
-        for j, menu in enumerate(formats.MENUBAR_WIDGET):
+        for j, menu in enumerate(definitions.MENUBAR_WIDGET):
             self.menus.append(self.menu_bar.addMenu(menu))
-            for i, action in enumerate(formats.MENUBAR_WIDGET[menu]):
+            for i, action in enumerate(definitions.MENUBAR_WIDGET[menu]):
                 q_action = QtGui.QAction(action['name'], self)
                 q_action.setShortcut(action['shortcut'])
                 if menu == 'Functions':
@@ -79,12 +79,12 @@ class MenuWidget(QtWidgets.QWidget):
             format='hide-button', title=None)
 
         self.widget_buttons = [factories.atomic_widget_factory(
-            format='button', title=function['name']) for function in formats.FUNC_WIDGETS.values()]
+            format='button', title=function['name']) for function in definitions.FUNC_WIDGETS.values()]
         self.exit_button = factories.atomic_widget_factory(
             format='button', title="Exit")
 
         self.function_widgets = [function['class'](
-            'great-grand-child', self) for function in formats.FUNC_WIDGETS.values()]
+            'great-grand-child', self) for function in definitions.FUNC_WIDGETS.values()]
 
         self.display_pane = factories.layout_factory(format='vertical-box')
         self.display_pane.setObjectName('grand-child')
@@ -148,7 +148,7 @@ class MenuWidget(QtWidgets.QWidget):
         for widget in self.function_widgets:
             widget.hide()
         self.function_widgets[widget_index].show()
-        self.title.setText(list(formats.FUNC_WIDGETS.values())[
+        self.title.setText(list(definitions.FUNC_WIDGETS.values())[
                            widget_index]['name'])
 
     @QtCore.Slot()

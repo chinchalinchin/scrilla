@@ -1,0 +1,26 @@
+{
+    "$clear":{
+        "pressed": "close-circle-sharp.svg",
+        "unpressed": "close-circle-outline.svg"
+    },
+    "$calculate": {
+        "pressed": "calculator-sharp.svg",
+        "unpressed": "calculator-outline.svg"
+    },
+    "$hide": {
+        "pressed": "arrow-back-circle-sharp.svg",
+        "unpressed": "arrow-back-circle-outline.svg"
+    },
+    "$download":{
+        "pressed": "download-sharp.svg",
+        "unpressed": "download-outline.svg"
+    },
+    "$calendar":{
+        "pressed": "calendar-sharp.svg",
+        "unpressed": "calendar-outline.svg"
+    },
+    "$github":{
+        "unpressed": "logo-github.svg",
+        "pressed": "logo-github.svg"
+    }
+}

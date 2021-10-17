@@ -1,4 +1,6 @@
 {
+    "dark_mode": ["grey", "green", "red"],
+    "light_mode": ["grey", "green", "red"],
     "grey":{
         "base": "#FAFAFA",
         "100":"#F5F5F5",

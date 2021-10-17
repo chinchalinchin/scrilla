@@ -45,6 +45,9 @@ logger = outputter.Logger('settings', LOG_LEVEL)
 FILE_EXT = os.environ.setdefault("FILE_EXT", "json")
 """Extension used to save files; Configured by environment variable of the same name, **FILE_EXT**"""
 
+IMG_EXT = os.environ.setdefault("IMG_EXT", "jpeg")
+"""Extension used to saved images; Configured by environment variable of the same name, **IMG_EXT**"""
+
 CACHE_DIR = os.path.join(APP_DIR, 'data', 'cache')
 """Directory containing cached prices, statistics and calculations"""
 CACHE_SQLITE_FILE = os.environ.setdefault(
@@ -74,6 +77,10 @@ GUI_STYLESHEET_FILE = os.path.join(APP_DIR, 'gui', 'styles', 'app.qss')
 """Location of the stylesheet applied to the GUI"""
 
 GUI_THEME_FILE = os.path.join(APP_DIR, 'gui', 'styles', 'themes.json')
+"""Location of the color schemes used to style components"""
+
+GUI_ICON_FILE = os.path.join(APP_DIR,'gui', 'styles', 'icons.json')
+"""Location of the icon filenames used as icons for `PySide6.QtWidgets.QPushButtons`"""
 
 GUI_DARK_MODE = os.environ.setdefault('DARK_MODE', 'true').lower() == 'true'
 
