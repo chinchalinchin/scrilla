@@ -310,11 +310,11 @@ class TableWidget(QtWidgets.QWidget):
         self.title_container = factories.layout_factory(
             layout='horizontal-box')
         self.title = factories.atomic_widget_factory(
-            format='heading', title=widget_title)
+            component='heading', title=widget_title)
         self.download_button = factories.atomic_widget_factory(
-            format='download-button', title=None)
+            component='download-button', title=None)
         self.table = factories.atomic_widget_factory(
-            format='table', title=None)
+            component='table', title=None)
         self.setLayout(QtWidgets.QVBoxLayout())
 
     def _arrange_widgets(self) -> None:
@@ -355,7 +355,7 @@ class TableWidget(QtWidgets.QWidget):
     @QtCore.Slot()
     def show_file_dialog(self) -> None:
         file_path = factories.atomic_widget_factory(
-            format='save-dialog', title=f'(*.{settings.FILE_EXT})')
+            component='save-dialog', title=f'(*.{settings.FILE_EXT})')
         file_path.selectFile(f'table.{settings.FILE_EXT}')
         filename = None
         if file_path.exec_() == QtWidgets.QDialog.Accepted:
@@ -397,11 +397,11 @@ class GraphWidget(QtWidgets.QWidget):
         self.title_container = factories.layout_factory(
             layout='horizontal-box')
         self.title = factories.atomic_widget_factory(
-            format='heading', title=widget_title)
+            component='heading', title=widget_title)
         self.download_button = factories.atomic_widget_factory(
-            format='download-button', title=None)
+            component='download-button', title=None)
         self.figure = factories.atomic_widget_factory(
-            format='figure', title=None)
+            component='figure', title=None)
         self.setLayout(QtWidgets.QVBoxLayout())
 
     def _arrange_widgets(self) -> None:
@@ -431,7 +431,7 @@ class GraphWidget(QtWidgets.QWidget):
     @QtCore.Slot()
     def show_file_dialog(self) -> None:
         file_path = factories.atomic_widget_factory(
-            format='save-dialog', title=f'(*.{settings.IMG_EXT})')
+            component='save-dialog', title=f'(*.{settings.IMG_EXT})')
         file_path.selectFile(f'{self.tmp_graph_key}.{settings.IMG_EXT}')
         filename = None
         if file_path.exec_() == QtWidgets.QDialog.Accepted:
@@ -472,7 +472,7 @@ class CompositeWidget(QtWidgets.QWidget):
     def _init_widgets(self, widget_title: str, tmp_graph_key: str) -> None:
         """Creates child widgets and their layouts"""
         self.title = factories.atomic_widget_factory(
-            format='subtitle', title=widget_title)
+            component='subtitle', title=widget_title)
 
         self.table_widget = TableWidget(layer=self.objectName())
         self.graph_widget = GraphWidget(
