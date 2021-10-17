@@ -38,7 +38,7 @@ def atomic_widget_factory(component: str, title: str):
         widget.setObjectName(component)
 
     elif component in ['splash']:
-        widget = QtWidgets.QLabel(utilities.load_html_template(format))
+        widget = QtWidgets.QLabel(utilities.load_html_template(component))
         widget.setAlignment(QtCore.Qt.AlignTop)
         widget.setSizePolicy(QtWidgets.QSizePolicy(
             QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum))
@@ -109,16 +109,31 @@ def atomic_widget_factory(component: str, title: str):
 
     else:
         widget = QtWidgets.QWidget()
+        widget.setLayout(QtWidgets.QHBoxLayout())
+        widget.setSizePolicy(QtWidgets.QSizePolicy(
+        QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum))
 
     return widget
 
+def group_widget_factory(components: List[str], title: str):
+    widget_layout = QtWidgets.QVBoxLayout()
+
+    for i, component in enumerate(components):
+        radio_button=QtWidgets.QRadioButton(component)
+        radio_button.setObjectName('group-toggle')
+        widget_layout.addWidget(radio_button)
+        if i == 0:
+            radio_button.setChecked(True)
+
+    widget = QtWidgets.QGroupBox(title)
+    widget.setLayout(widget_layout)
+    widget.setObjectName('group-box')
+
+    return widget
 
 def argument_widget_factory(component: str, title: str = None, optional: bool = True) -> QtWidgets.QWidget:
-    widget = QtWidgets.QWidget()
-    widget.setLayout(QtWidgets.QHBoxLayout())
+    widget = atomic_widget_factory(None, None)
     widget.setObjectName('input-container')
-    widget.setSizePolicy(QtWidgets.QSizePolicy(
-        QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum))
 
     if optional:
         toggle_widget = QtWidgets.QCheckBox()
@@ -175,22 +190,19 @@ def argument_widget_factory(component: str, title: str = None, optional: bool = 
         main_widget.setSizePolicy(QtWidgets.QSizePolicy(
             QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum))
 
-    elif component == 'group':
-        return None
-
     elif component == 'symbols':
         main_widget = QtWidgets.QLineEdit()
         main_widget.setObjectName(component)
         main_widget.setMaxLength(100)
         main_widget.setSizePolicy(QtWidgets.QSizePolicy(
-            QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum))
+            QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Maximum))
 
     elif component == 'symbol':
         main_widget = QtWidgets.QLineEdit()
         main_widget.setObjectName(component)
         main_widget.setMaxLength(100)
         main_widget.setSizePolicy(QtWidgets.QSizePolicy(
-            QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum))
+            QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Maximum))
         main_widget.setValidator(
             QtGui.QRegularExpressionValidator(r"[A-Za-z]+", main_widget))
 

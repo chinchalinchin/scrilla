@@ -104,10 +104,12 @@ class ArgumentWidget(QtWidgets.QWidget):
         self.layer = layer
         self.controls = controls
         self.control_widgets = {}
+        self.group_control_widgets = None
         self.calculate_function = calculate_function
         self.clear_function = clear_function
 
         self._init_widgets(mode)
+        self._generate_group_widgets()
         self._arrange_widgets()
         self._stage_widgets()
 
@@ -130,12 +132,12 @@ class ArgumentWidget(QtWidgets.QWidget):
             self.required_title = factories.atomic_widget_factory(
                 component='label', title='Required Arguments')
             self.symbol_hint = factories.atomic_widget_factory(
-                component='text', title="Separate Symbols With Commas")
+                component='text', title="Separate Tickers With Commas")
             self.required_pane = factories.layout_factory(
                 layout='vertical-box')
             self.required_pane.setObjectName(self.layer)
             self.symbol_widget = factories.argument_widget_factory(
-                component='symbols', title="Symbols :", optional=False)
+                component='symbols', title="Asset Tickers :", optional=False)
         elif mode == SYMBOLS_SINGLE:
             self.required_title = factories.atomic_widget_factory(
                 component='label', title='Required Argument')
@@ -149,17 +151,40 @@ class ArgumentWidget(QtWidgets.QWidget):
         else:
             self.symbol_widget = None
 
+        self.group_definitions = None
         for control in self.controls:
             if self.controls[control]:
-                self.control_widgets[control] = factories.argument_widget_factory(definitions.ARG_DICT[control]['widget_type'],
+                if self.controls[control]:
+                    if definitions.ARG_DICT[control]["widget_type"] != "group":
+                        self.control_widgets[control] = factories.argument_widget_factory(definitions.ARG_DICT[control]['widget_type'],
                                                                                   f'{definitions.ARG_DICT[control]["name"]} :',
                                                                                   optional=True)
+                    else:
+                        if self.group_definitions is None:
+                            self.group_definitions = {}
+                        self.group_definitions[definitions.ARG_DICT[control]['name']] = definitions.ARG_DICT[control]
             else:
                 self.control_widgets[control] = None
 
         self.optional_pane = factories.layout_factory(layout='vertical-box')
         self.optional_pane.setObjectName(self.layer)
         self.setLayout(QtWidgets.QVBoxLayout())
+
+    def _generate_group_widgets(self):
+        if self.group_definitions is not None:
+            self.group_control_widgets = {}
+            groups = {}
+            for definition in self.group_definitions:
+                group_key = self.group_definitions[definition]['group']
+                group_name = definitions.GROUP_DICT[group_key]
+
+                if group_name not in groups.keys():
+                    groups[group_name] = [ definition ]
+                else:
+                    groups[group_name].append(definition)
+
+            for group in groups:
+                self.group_control_widgets[group] = factories.group_widget_factory(groups[group], group)
 
     def _arrange_widgets(self):
         """
@@ -178,6 +203,9 @@ class ArgumentWidget(QtWidgets.QWidget):
             self.required_pane.layout().addWidget(self.required_title)
             self.required_pane.layout().addWidget(self.symbol_hint)
             self.required_pane.layout().addWidget(self.symbol_widget)
+        if self.group_control_widgets is not None:
+            for widget in self.group_control_widgets.values():
+                self.required_pane.layout().addWidget(widget)
 
         self.optional_pane.layout().addWidget(self.optional_title)
         for control_widget in self.control_widgets.values():

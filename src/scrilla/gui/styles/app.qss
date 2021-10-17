@@ -1,3 +1,14 @@
+/**
+ */
+#debug {
+    border-style: inset;
+    border-color: $warn-800;
+    border-radius: 1px;
+    border-width: 1px;
+}
+
+/**
+ */
 #title {
     font-family: Times;
     font-size: 20px;
@@ -45,6 +56,18 @@
     font-size: 12px;
     font-weight: 600;
 }
+#group-box {
+    color: $primary-900;
+    font-size: 10px;
+    font-style: italic;
+}
+#group-toggle {
+    font-size: 8px;
+}
+#flag {
+    min-width: 25px;
+    max-width: 25px;
+}
 #root {
     border-style: inset;
     border-radius: 2px;
@@ -80,6 +103,9 @@
     border-color: $primary-900;
     background-color: $primary-400;
 }
+
+/**
+ */
 QAbstractButton {
      qproperty-icon: theme_url("/button_action/add");
 }
@@ -229,14 +255,4 @@ QPushButton#documentation-button:pressed {
     border-color: $primary-900;
     background-color: $primary-700;
     qproperty-icon: url($documentation-pressed);
-}
-#debug {
-    border-style: inset;
-    border-color: $warn-800;
-    border-radius: 1px;
-    border-width: 1px;
-}
-#flag {
-    min-width: 25px;
-    max-width: 25px;
 }

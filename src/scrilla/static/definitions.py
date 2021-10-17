@@ -302,11 +302,13 @@ FUNC_DICT = {
 A dictionary containing configuration information for function arguments. This dictionary is used at various points in the library, such as `scrilla.gui.widgets.functions` and `scrilla.util.helper.format_args`, to generate function interfaces. 
 """
 
-ARG_META = {
-    'groups': ['estimation_method']
+GROUP_DICT = {
+    'estimation_method': 'Estimation Method'
 }
 """
 """
+
+
 # Every argument has four ways of being inputted: short-dash-long, long-dash-long, short-dash-short, long-dash-short
 ARG_DICT = {
     'start_date': {
@@ -477,7 +479,7 @@ ARG_DICT = {
         'cli_only': True
     },
     'moments': {
-        'name': 'Method of Moment Matching',
+        'name': 'Moment Matching',
         'values': ['-moments', '--moments', '-mom', '--mom'],
         'description': 'Statistics are calculated using method of moment matching',
         'default': None,
@@ -489,7 +491,7 @@ ARG_DICT = {
         'cli_only': False
     },
     'percentiles': {
-        'name': 'Method of Percentile Matching',
+        'name': 'Percentile Matching',
         'values': ['-percentiles', '--percentiles', '-per', '--per'],
         'description': 'Statistics are calculated using method of percentile matching',
         'default': None,
@@ -501,7 +503,7 @@ ARG_DICT = {
         'cli_only': False
     },
     'likelihood': {
-        'name': 'Maximum Likelihood Estimation',
+        'name': 'Maximum Likelihood',
         'values': ['-likelihood', '--likelihood', '-like', '--like'],
         'description': 'Statistics are calculated using maximum likelihood estimation',
         'default': None,
