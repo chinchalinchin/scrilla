@@ -45,7 +45,7 @@ class MenuWidget(QtWidgets.QWidget):
 
     def _generate_menu_bar(self):
         self.menu_bar = factories.atomic_widget_factory(
-            format='menu-bar', title=None)
+            component='menu-bar', title=None)
         self.menus = []
 
         for j, menu in enumerate(definitions.MENUBAR_WIDGET):
@@ -67,18 +67,18 @@ class MenuWidget(QtWidgets.QWidget):
                 self.menus[j].addAction(q_action)
 
     def _generate_splash(self):
-        self.splash_container = factories.layout_factory(format='vertical-box')
+        self.splash_container = factories.layout_factory(layout='vertical-box')
         self.source_button = factories.atomic_widget_factory(
-            format='source-button', title=None)
+            component='source-button', title=None)
         self.package_button = factories.atomic_widget_factory(
-            format='package-button', title=None)
+            component='package-button', title=None)
         self.documentation_button = factories.atomic_widget_factory(
-            format='documentation-button', title=None)
+            component='documentation-button', title=None)
         self.splash = factories.atomic_widget_factory(
-            format='splash', title=None)
+            component='splash', title=None)
 
         self.splash_button_panel = factories.layout_factory(
-            format='horizontal-box')
+            layout='horizontal-box')
 
         self.splash_button_panel.layout().addStretch()
         self.splash_button_panel.layout().addWidget(self.source_button)
@@ -89,29 +89,29 @@ class MenuWidget(QtWidgets.QWidget):
     def _init_menu_widgets(self):
         self.setObjectName('root')
         self.title = factories.atomic_widget_factory(
-            format='title', title=settings.APP_NAME)
+            component='title', title=settings.APP_NAME)
 
-        self.function_menu = factories.layout_factory(format='vertical-box')
+        self.function_menu = factories.layout_factory(layout='vertical-box')
         self.function_menu.setObjectName('grand-child')
         self.function_title_container = factories.layout_factory(
-            format='horizontal-box')
+            layout='horizontal-box')
         self.function_title = factories.atomic_widget_factory(
-            format='heading', title='Functions')
+            component='heading', title='Functions')
         self.function_hide_button = factories.atomic_widget_factory(
-            format='hide-button', title=None)
+            component='hide-button', title=None)
 
         self.widget_buttons = [factories.atomic_widget_factory(
-            format='button', title=function['name']) for function in definitions.FUNC_WIDGETS.values()]
+            component='button', title=function['name']) for function in definitions.FUNC_WIDGETS.values()]
         self.exit_button = factories.atomic_widget_factory(
-            format='button', title="Exit")
+            component='button', title="Exit")
 
         self.function_widgets = [function['class'](
             'great-grand-child', self) for function in definitions.FUNC_WIDGETS.values()]
 
-        self.display_pane = factories.layout_factory(format='vertical-box')
+        self.display_pane = factories.layout_factory(layout='vertical-box')
         self.display_pane.setObjectName('grand-child')
 
-        self.container_pane = factories.layout_factory(format='horizontal-box')
+        self.container_pane = factories.layout_factory(layout='horizontal-box')
         self.container_pane.setObjectName('child')
 
         self.setLayout(QtWidgets.QVBoxLayout())

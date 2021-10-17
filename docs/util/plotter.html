@@ -154,7 +154,7 @@ def plot_yield_curve(yield_curve: dict, show: bool = True, savefile: str = None)
 
     maturities, rates = [], yield_curve[list(yield_curve.keys())[0]]
     yield_map = keys.keys[&#39;SERVICES&#39;][&#39;STATISTICS&#39;][&#39;QUANDL&#39;][&#39;MAP&#39;][&#39;YIELD_CURVE&#39;]
-    for i, rate in enumerate(rates):
+    for i in range(len(rates)):
         maturities.append(yield_map[keys.keys[&#39;YIELD_CURVE&#39;][i]])
 
     axes.plot(maturities, rates, linestyle=&#34;dashed&#34;,
@@ -641,7 +641,7 @@ def plot_cashflow(ticker: str, cashflow: Cashflow, show: bool = True, savefile: 
 
     maturities, rates = [], yield_curve[list(yield_curve.keys())[0]]
     yield_map = keys.keys[&#39;SERVICES&#39;][&#39;STATISTICS&#39;][&#39;QUANDL&#39;][&#39;MAP&#39;][&#39;YIELD_CURVE&#39;]
-    for i, rate in enumerate(rates):
+    for i in range(len(rates)):
         maturities.append(yield_map[keys.keys[&#39;YIELD_CURVE&#39;][i]])
 
     axes.plot(maturities, rates, linestyle=&#34;dashed&#34;,

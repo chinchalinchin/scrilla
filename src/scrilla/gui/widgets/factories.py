@@ -24,7 +24,7 @@ def layout_factory(format: str):
     return widget
 
 
-def atomic_widget_factory(format: str, title: str):
+def atomic_widget_factory(component: str, title: str):
     if format in ['title', 'subtitle', 'heading', 'label', 'error', 'text']:
         widget = QtWidgets.QLabel(title)
         if format in ['title', 'subtitle', 'label']:
@@ -35,7 +35,7 @@ def atomic_widget_factory(format: str, title: str):
             widget.setAlignment(QtCore.Qt.AlignHCenter)
         elif format in ['text']:
             widget.setAlignment(QtCore.Qt.AlignBottom)
-        widget.setObjectName(format)
+        widget.setObjectName(component)
 
     elif format in ['splash']:
         widget = QtWidgets.QLabel(utilities.load_html_template(format))
@@ -72,7 +72,7 @@ def atomic_widget_factory(format: str, title: str):
 
         widget.setAutoDefault(True)
         widget.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
-        widget.setObjectName(format)
+        widget.setObjectName(component)
 
     elif format in ['save-dialog']:
         widget = QtWidgets.QFileDialog()
@@ -91,7 +91,7 @@ def atomic_widget_factory(format: str, title: str):
         widget.setSizePolicy(QtWidgets.QSizePolicy(
             QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum))
         # widget.verticalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Stretch)
-        widget.setObjectName(format)
+        widget.setObjectName(component)
 
     elif format == 'table-item':
         widget = QtWidgets.QTableWidgetItem(title)
@@ -102,7 +102,7 @@ def atomic_widget_factory(format: str, title: str):
         widget.setAlignment(QtCore.Qt.AlignCenter)
         widget.setSizePolicy(QtWidgets.QSizePolicy(
             QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding))
-        widget.setObjectName(format)
+        widget.setObjectName(component)
 
     elif format == 'menu-bar':
         widget = QtWidgets.QMenuBar(title)
@@ -113,7 +113,7 @@ def atomic_widget_factory(format: str, title: str):
     return widget
 
 
-def composite_widget_factory(format: str, title: str = None, optional: bool = True) -> QtWidgets.QWidget:
+def composite_widget_factory(component: str, title: str = None, optional: bool = True) -> QtWidgets.QWidget:
     widget = QtWidgets.QWidget()
     widget.setLayout(QtWidgets.QHBoxLayout())
     widget.setObjectName('input-container')
@@ -136,12 +136,12 @@ def composite_widget_factory(format: str, title: str = None, optional: bool = Tr
         main_widget.setMaximumDate(QtCore.QDate.currentDate())
         main_widget.setMinimumDate(QtCore.QDate(
             constants.constants['PRICE_YEAR_CUTOFF'], 1, 1))
-        main_widget.setObjectName(format)
+        main_widget.setObjectName(component)
         main_widget.setEnabled(False)
 
     elif format == 'decimal':
         main_widget = QtWidgets.QLineEdit()
-        main_widget.setObjectName(format)
+        main_widget.setObjectName(component)
         main_widget.setValidator(
             QtGui.QDoubleValidator(-100, 100, 5, main_widget))
         main_widget.setEnabled(False)
@@ -150,7 +150,7 @@ def composite_widget_factory(format: str, title: str = None, optional: bool = Tr
 
     elif format == 'currency':
         main_widget = QtWidgets.QLineEdit()
-        main_widget.setObjectName(format)
+        main_widget.setObjectName(component)
         # https://stackoverflow.com/questions/354044/what-is-the-best-u-s-currency-regex
         main_widget.setValidator(QtGui.QRegularExpressionValidator(
             r"[+-]?[0-9]{1,3}(?:,?[0-9]{3})*(?:\.[0-9]{2})", main_widget))
@@ -160,7 +160,7 @@ def composite_widget_factory(format: str, title: str = None, optional: bool = Tr
 
     elif format == 'integer':
         main_widget = QtWidgets.QLineEdit()
-        main_widget.setObjectName(format)
+        main_widget.setObjectName(component)
         main_widget.setValidator(QtGui.QIntValidator(0, 100, main_widget))
         main_widget.setEnabled(False)
         main_widget.setSizePolicy(QtWidgets.QSizePolicy(
@@ -171,7 +171,7 @@ def composite_widget_factory(format: str, title: str = None, optional: bool = Tr
 
     elif format == 'flag':
         main_widget = QtWidgets.QRadioButton(title)
-        main_widget.setObjectName(format)
+        main_widget.setObjectName(component)
         main_widget.setSizePolicy(QtWidgets.QSizePolicy(
             QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum))
 
@@ -180,14 +180,14 @@ def composite_widget_factory(format: str, title: str = None, optional: bool = Tr
 
     elif format == 'symbols':
         main_widget = QtWidgets.QLineEdit()
-        main_widget.setObjectName(format)
+        main_widget.setObjectName(component)
         main_widget.setMaxLength(100)
         main_widget.setSizePolicy(QtWidgets.QSizePolicy(
             QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum))
 
     elif format == 'symbol':
         main_widget = QtWidgets.QLineEdit()
-        main_widget.setObjectName(format)
+        main_widget.setObjectName(component)
         main_widget.setMaxLength(100)
         main_widget.setSizePolicy(QtWidgets.QSizePolicy(
             QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum))

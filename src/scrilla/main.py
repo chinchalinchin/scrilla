@@ -716,7 +716,7 @@ def do_program() -> None:
                 outputter.title_line("Risk Free Rate")
                 outputter.scalar_result(calculation=formats.formats['RISK_FREE_TITLE'].format(settings.RISK_FREE_RATE),
                                         result=rate[settings.RISK_FREE_RATE], currency=False)
-            if print_json_to_screen:
+            if print_json_to_screen(args):
                 print(json.dumps(rate))
 
             if args['save_file'] is not None:

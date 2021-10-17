@@ -75,6 +75,7 @@ SYMBOLS_SINGLE = &#34;single&#34;
 SYMBOLS_NONE = &#34;none&#34;
 &#34;&#34;&#34;Constant passed into `scrilla.gui.widgets.components.ArgumentWidget` to initialize an input control without ticker symbols&#34;&#34;&#34;
 
+
 class SkeletonWidget(QtWidgets.QWidget):
     def __init__(self, function: str, parent: QtWidgets.QWidget):
         super(SkeletonWidget, self).__init__(parent)
@@ -86,6 +87,7 @@ class SkeletonWidget(QtWidgets.QWidget):
         for arg in definitions.FUNC_DICT[function][&#39;args&#39;]:
             if not definitions.ARG_DICT[arg][&#39;cli_only&#39;]:
                 self.controls[arg] = True
+
 
 class ArgumentWidget(QtWidgets.QWidget):
     &#34;&#34;&#34;
@@ -143,36 +145,36 @@ class ArgumentWidget(QtWidgets.QWidget):
         Creates child widgets by calling factory methods from `scrilla.gui.widgets.factories`. This method will iterate over `self.controls` and initialize the optional input widget accordingly. `self.optional_pane` and `self.required_pane`, the container widgets for the input elements, are initialized with a style tag on the same layer as the `scrilla.gui.widgets.components.ArgumentWidget`.
         &#34;&#34;&#34;
         self.title = factories.atomic_widget_factory(
-            format=&#39;subtitle&#39;, title=&#39;Function Input&#39;)
+            component=&#39;subtitle&#39;, title=&#39;Function Input&#39;)
         self.optional_title = factories.atomic_widget_factory(
-            format=&#39;label&#39;, title=&#39;Optional Arguments&#39;)
+            component=&#39;label&#39;, title=&#39;Optional Arguments&#39;)
         self.error_message = factories.atomic_widget_factory(
-            format=&#39;error&#39;, title=&#34;Error Message Goes Here&#34;)
+            component=&#39;error&#39;, title=&#34;Error Message Goes Here&#34;)
         self.calculate_button = factories.atomic_widget_factory(
-            format=&#39;calculate-button&#39;, title=&#39;Calculate&#39;)
+            component=&#39;calculate-button&#39;, title=&#39;Calculate&#39;)
         self.clear_button = factories.atomic_widget_factory(
-            format=&#39;clear-button&#39;, title=&#39;Clear&#39;)
+            component=&#39;clear-button&#39;, title=&#39;Clear&#39;)
 
         if mode == SYMBOLS_LIST:
             self.required_title = factories.atomic_widget_factory(
-                format=&#39;label&#39;, title=&#39;Required Arguments&#39;)
+                component=&#39;label&#39;, title=&#39;Required Arguments&#39;)
             self.symbol_hint = factories.atomic_widget_factory(
-                format=&#39;text&#39;, title=&#34;Separate Symbols With Commas&#34;)
+                component=&#39;text&#39;, title=&#34;Separate Symbols With Commas&#34;)
             self.required_pane = factories.layout_factory(
-                format=&#39;vertical-box&#39;)
+                layout=&#39;vertical-box&#39;)
             self.required_pane.setObjectName(self.layer)
             self.symbol_widget = factories.composite_widget_factory(
-                format=&#39;symbols&#39;, title=&#34;Symbols :&#34;, optional=False)
+                component=&#39;symbols&#39;, title=&#34;Symbols :&#34;, optional=False)
         elif mode == SYMBOLS_SINGLE:
             self.required_title = factories.atomic_widget_factory(
-                format=&#39;label&#39;, title=&#39;Required Argument&#39;)
+                component=&#39;label&#39;, title=&#39;Required Argument&#39;)
             self.symbol_hint = factories.atomic_widget_factory(
-                format=&#39;text&#39;, title=&#34;Enter a Single Symbol&#34;)
+                component=&#39;text&#39;, title=&#34;Enter a Single Symbol&#34;)
             self.required_pane = factories.layout_factory(
-                format=&#39;vertical-box&#39;)
+                layout=&#39;vertical-box&#39;)
             self.required_pane.setObjectName(self.layer)
             self.symbol_widget = factories.composite_widget_factory(
-                format=&#39;symbol&#39;, title=&#34;Symbol: &#34;, optional=False)
+                component=&#39;symbol&#39;, title=&#34;Symbol: &#34;, optional=False)
         else:
             self.symbol_widget = None
 
@@ -184,7 +186,7 @@ class ArgumentWidget(QtWidgets.QWidget):
             else:
                 self.control_widgets[control] = None
 
-        self.optional_pane = factories.layout_factory(format=&#39;vertical-box&#39;)
+        self.optional_pane = factories.layout_factory(layout=&#39;vertical-box&#39;)
         self.optional_pane.setObjectName(self.layer)
         self.setLayout(QtWidgets.QVBoxLayout())
 
@@ -335,7 +337,7 @@ class TableWidget(QtWidgets.QWidget):
     def _init_widgets(self, widget_title: str) -&gt; None:
         &#34;&#34;&#34;Creates child widgets and their layouts&#34;&#34;&#34;
         self.title_container = factories.layout_factory(
-            format=&#39;horizontal-box&#39;)
+            layout=&#39;horizontal-box&#39;)
         self.title = factories.atomic_widget_factory(
             format=&#39;heading&#39;, title=widget_title)
         self.download_button = factories.atomic_widget_factory(
@@ -422,7 +424,7 @@ class GraphWidget(QtWidgets.QWidget):
 
     def _init_widgets(self, widget_title: str) -&gt; None:
         self.title_container = factories.layout_factory(
-            format=&#39;horizontal-box&#39;)
+            layout=&#39;horizontal-box&#39;)
         self.title = factories.atomic_widget_factory(
             format=&#39;heading&#39;, title=widget_title)
         self.download_button = factories.atomic_widget_factory(
@@ -450,7 +452,7 @@ class GraphWidget(QtWidgets.QWidget):
             self.width(), self.height(), self.tmp_graph_key))
         self.figure.show()
         self.download_button.show()
-    
+
     def clear(self):
         self.figure.hide()
         self.download_button.hide()
@@ -651,36 +653,36 @@ See help(type(self)) for accurate signature.</p></div>
         Creates child widgets by calling factory methods from `scrilla.gui.widgets.factories`. This method will iterate over `self.controls` and initialize the optional input widget accordingly. `self.optional_pane` and `self.required_pane`, the container widgets for the input elements, are initialized with a style tag on the same layer as the `scrilla.gui.widgets.components.ArgumentWidget`.
         &#34;&#34;&#34;
         self.title = factories.atomic_widget_factory(
-            format=&#39;subtitle&#39;, title=&#39;Function Input&#39;)
+            component=&#39;subtitle&#39;, title=&#39;Function Input&#39;)
         self.optional_title = factories.atomic_widget_factory(
-            format=&#39;label&#39;, title=&#39;Optional Arguments&#39;)
+            component=&#39;label&#39;, title=&#39;Optional Arguments&#39;)
         self.error_message = factories.atomic_widget_factory(
-            format=&#39;error&#39;, title=&#34;Error Message Goes Here&#34;)
+            component=&#39;error&#39;, title=&#34;Error Message Goes Here&#34;)
         self.calculate_button = factories.atomic_widget_factory(
-            format=&#39;calculate-button&#39;, title=&#39;Calculate&#39;)
+            component=&#39;calculate-button&#39;, title=&#39;Calculate&#39;)
         self.clear_button = factories.atomic_widget_factory(
-            format=&#39;clear-button&#39;, title=&#39;Clear&#39;)
+            component=&#39;clear-button&#39;, title=&#39;Clear&#39;)
 
         if mode == SYMBOLS_LIST:
             self.required_title = factories.atomic_widget_factory(
-                format=&#39;label&#39;, title=&#39;Required Arguments&#39;)
+                component=&#39;label&#39;, title=&#39;Required Arguments&#39;)
             self.symbol_hint = factories.atomic_widget_factory(
-                format=&#39;text&#39;, title=&#34;Separate Symbols With Commas&#34;)
+                component=&#39;text&#39;, title=&#34;Separate Symbols With Commas&#34;)
             self.required_pane = factories.layout_factory(
-                format=&#39;vertical-box&#39;)
+                layout=&#39;vertical-box&#39;)
             self.required_pane.setObjectName(self.layer)
             self.symbol_widget = factories.composite_widget_factory(
-                format=&#39;symbols&#39;, title=&#34;Symbols :&#34;, optional=False)
+                component=&#39;symbols&#39;, title=&#34;Symbols :&#34;, optional=False)
         elif mode == SYMBOLS_SINGLE:
             self.required_title = factories.atomic_widget_factory(
-                format=&#39;label&#39;, title=&#39;Required Argument&#39;)
+                component=&#39;label&#39;, title=&#39;Required Argument&#39;)
             self.symbol_hint = factories.atomic_widget_factory(
-                format=&#39;text&#39;, title=&#34;Enter a Single Symbol&#34;)
+                component=&#39;text&#39;, title=&#34;Enter a Single Symbol&#34;)
             self.required_pane = factories.layout_factory(
-                format=&#39;vertical-box&#39;)
+                layout=&#39;vertical-box&#39;)
             self.required_pane.setObjectName(self.layer)
             self.symbol_widget = factories.composite_widget_factory(
-                format=&#39;symbol&#39;, title=&#34;Symbol: &#34;, optional=False)
+                component=&#39;symbol&#39;, title=&#34;Symbol: &#34;, optional=False)
         else:
             self.symbol_widget = None
 
@@ -692,7 +694,7 @@ See help(type(self)) for accurate signature.</p></div>
             else:
                 self.control_widgets[control] = None
 
-        self.optional_pane = factories.layout_factory(format=&#39;vertical-box&#39;)
+        self.optional_pane = factories.layout_factory(layout=&#39;vertical-box&#39;)
         self.optional_pane.setObjectName(self.layer)
         self.setLayout(QtWidgets.QVBoxLayout())
 
@@ -1100,7 +1102,7 @@ See help(type(self)) for accurate signature.</p></div>
 
     def _init_widgets(self, widget_title: str) -&gt; None:
         self.title_container = factories.layout_factory(
-            format=&#39;horizontal-box&#39;)
+            layout=&#39;horizontal-box&#39;)
         self.title = factories.atomic_widget_factory(
             format=&#39;heading&#39;, title=widget_title)
         self.download_button = factories.atomic_widget_factory(
@@ -1128,7 +1130,7 @@ See help(type(self)) for accurate signature.</p></div>
             self.width(), self.height(), self.tmp_graph_key))
         self.figure.show()
         self.download_button.show()
-    
+
     def clear(self):
         self.figure.hide()
         self.download_button.hide()
@@ -1317,7 +1319,7 @@ See help(type(self)) for accurate signature.</p></div>
     def _init_widgets(self, widget_title: str) -&gt; None:
         &#34;&#34;&#34;Creates child widgets and their layouts&#34;&#34;&#34;
         self.title_container = factories.layout_factory(
-            format=&#39;horizontal-box&#39;)
+            layout=&#39;horizontal-box&#39;)
         self.title = factories.atomic_widget_factory(
             format=&#39;heading&#39;, title=widget_title)
         self.download_button = factories.atomic_widget_factory(

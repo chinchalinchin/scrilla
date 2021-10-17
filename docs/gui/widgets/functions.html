@@ -76,8 +76,8 @@ class DistributionWidget(components.SkeletonWidget):
                                                     controls=self.controls,
                                                     layer=utilities.get_next_layer(self.objectName()))
         self.title = factories.atomic_widget_factory(
-            format=&#39;heading&#39;, title=&#39;Distribution of Returns&#39;)
-        self.tab_container = factories.layout_factory(format=&#39;vertical-box&#39;)
+            component=&#39;heading&#39;, title=&#39;Distribution of Returns&#39;)
+        self.tab_container = factories.layout_factory(layout=&#39;vertical-box&#39;)
         self.tab_widget = QtWidgets.QTabWidget()
         self.setLayout(QtWidgets.QHBoxLayout())
 
@@ -204,7 +204,7 @@ class DiscountDividendWidget(components.SkeletonWidget):
         self._stage_widgets()
 
     def _init_widgets(self):
-        self.tab_container = factories.layout_factory(format=&#39;vertical-box&#39;)
+        self.tab_container = factories.layout_factory(layout=&#39;vertical-box&#39;)
         self.tab_widget = QtWidgets.QTabWidget()
         self.arg_widget = components.ArgumentWidget(calculate_function=self.calculate,
                                                     clear_function=self.clear,
@@ -241,7 +241,7 @@ class DiscountDividendWidget(components.SkeletonWidget):
             dividends = services.get_dividend_history(ticker=symbol)
             cashflow = Cashflow(sample=dividends, discount_rate=discount)
             graph_widget = components.GraphWidget(tmp_graph_key=f&#39;{keys.keys[&#34;GUI&#34;][&#34;TEMP&#34;][&#34;DIVIDEND&#34;]}_{symbol}&#39;,
-                                                   layer=utilities.get_next_layer(self.objectName()))
+                                                  layer=utilities.get_next_layer(self.objectName()))
             plotter.plot_cashflow(ticker=symbol,
                                   cashflow=cashflow,
                                   show=False,
@@ -314,7 +314,7 @@ class RiskProfileWidget(components.SkeletonWidget):
 
             for j, statistic in enumerate(formatted_profile.keys()):
                 table_item = factories.atomic_widget_factory(
-                    format=&#39;table-item&#39;, title=formatted_profile[statistic])
+                    component=&#39;table-item&#39;, title=formatted_profile[statistic])
                 self.composite_widget.table_widget.table.setItem(
                     i, j, table_item)
 
@@ -380,9 +380,9 @@ class CorrelationWidget(components.SkeletonWidget):
             for i in range(0, len(symbols)):
                 for j in range(i, len(symbols)):
                     item_upper = factories.atomic_widget_factory(
-                        format=&#39;table-item&#39;, title=helper.format_float_percent(matrix[i][j]))
+                        component=&#39;table-item&#39;, title=helper.format_float_percent(matrix[i][j]))
                     item_lower = factories.atomic_widget_factory(
-                        format=&#39;table-item&#39;, title=helper.format_float_percent(matrix[j][i]))
+                        component=&#39;table-item&#39;, title=helper.format_float_percent(matrix[j][i]))
                     self.table_widget.table.setItem(j, i, item_upper)
                     self.table_widget.table.setItem(i, j, item_lower)
         else:
@@ -408,7 +408,7 @@ class OptimizerWidget(components.SkeletonWidget):
 
     def _init_widgets(self):
         self.title = factories.atomic_widget_factory(
-            format=&#39;heading&#39;, title=None)
+            component=&#39;heading&#39;, title=None)
         self.table_widget = components.TableWidget(widget_title=&#34;Optimization Results&#34;,
                                                    layer=utilities.get_next_layer(self.objectName()))
         self.arg_widget = components.ArgumentWidget(calculate_function=self.optimize,
@@ -455,12 +455,12 @@ class OptimizerWidget(components.SkeletonWidget):
 
             for i in range(len(symbols)):
                 item = factories.atomic_widget_factory(
-                    format=&#39;table-item&#39;, title=helper.format_float_percent(allocation[i]))
+                    component=&#39;table-item&#39;, title=helper.format_float_percent(allocation[i]))
                 self.table_widget.table.setItem(i, 0, item)
 
                 if investment is not None:
                     share_item = factories.atomic_widget_factory(
-                        format=&#39;table-item&#39;, title=str(shares[i]))
+                        component=&#39;table-item&#39;, title=str(shares[i]))
                     self.table_widget.table.setItem(i, 1, share_item)
 
             # TODO: display amount vested per equity
@@ -654,9 +654,9 @@ See help(type(self)) for accurate signature.</p></div>
             for i in range(0, len(symbols)):
                 for j in range(i, len(symbols)):
                     item_upper = factories.atomic_widget_factory(
-                        format=&#39;table-item&#39;, title=helper.format_float_percent(matrix[i][j]))
+                        component=&#39;table-item&#39;, title=helper.format_float_percent(matrix[i][j]))
                     item_lower = factories.atomic_widget_factory(
-                        format=&#39;table-item&#39;, title=helper.format_float_percent(matrix[j][i]))
+                        component=&#39;table-item&#39;, title=helper.format_float_percent(matrix[j][i]))
                     self.table_widget.table.setItem(j, i, item_upper)
                     self.table_widget.table.setItem(i, j, item_lower)
         else:
@@ -715,9 +715,9 @@ def calculate(self):
         for i in range(0, len(symbols)):
             for j in range(i, len(symbols)):
                 item_upper = factories.atomic_widget_factory(
-                    format=&#39;table-item&#39;, title=helper.format_float_percent(matrix[i][j]))
+                    component=&#39;table-item&#39;, title=helper.format_float_percent(matrix[i][j]))
                 item_lower = factories.atomic_widget_factory(
-                    format=&#39;table-item&#39;, title=helper.format_float_percent(matrix[j][i]))
+                    component=&#39;table-item&#39;, title=helper.format_float_percent(matrix[j][i]))
                 self.table_widget.table.setItem(j, i, item_upper)
                 self.table_widget.table.setItem(i, j, item_lower)
     else:
@@ -767,7 +767,7 @@ See help(type(self)) for accurate signature.</p></div>
         self._stage_widgets()
 
     def _init_widgets(self):
-        self.tab_container = factories.layout_factory(format=&#39;vertical-box&#39;)
+        self.tab_container = factories.layout_factory(layout=&#39;vertical-box&#39;)
         self.tab_widget = QtWidgets.QTabWidget()
         self.arg_widget = components.ArgumentWidget(calculate_function=self.calculate,
                                                     clear_function=self.clear,
@@ -804,7 +804,7 @@ See help(type(self)) for accurate signature.</p></div>
             dividends = services.get_dividend_history(ticker=symbol)
             cashflow = Cashflow(sample=dividends, discount_rate=discount)
             graph_widget = components.GraphWidget(tmp_graph_key=f&#39;{keys.keys[&#34;GUI&#34;][&#34;TEMP&#34;][&#34;DIVIDEND&#34;]}_{symbol}&#39;,
-                                                   layer=utilities.get_next_layer(self.objectName()))
+                                                  layer=utilities.get_next_layer(self.objectName()))
             plotter.plot_cashflow(ticker=symbol,
                                   cashflow=cashflow,
                                   show=False,
@@ -862,7 +862,7 @@ def calculate(self):
         dividends = services.get_dividend_history(ticker=symbol)
         cashflow = Cashflow(sample=dividends, discount_rate=discount)
         graph_widget = components.GraphWidget(tmp_graph_key=f&#39;{keys.keys[&#34;GUI&#34;][&#34;TEMP&#34;][&#34;DIVIDEND&#34;]}_{symbol}&#39;,
-                                               layer=utilities.get_next_layer(self.objectName()))
+                                              layer=utilities.get_next_layer(self.objectName()))
         plotter.plot_cashflow(ticker=symbol,
                               cashflow=cashflow,
                               show=False,
@@ -936,8 +936,8 @@ See help(type(self)) for accurate signature.</p></div>
                                                     controls=self.controls,
                                                     layer=utilities.get_next_layer(self.objectName()))
         self.title = factories.atomic_widget_factory(
-            format=&#39;heading&#39;, title=&#39;Distribution of Returns&#39;)
-        self.tab_container = factories.layout_factory(format=&#39;vertical-box&#39;)
+            component=&#39;heading&#39;, title=&#39;Distribution of Returns&#39;)
+        self.tab_container = factories.layout_factory(layout=&#39;vertical-box&#39;)
         self.tab_widget = QtWidgets.QTabWidget()
         self.setLayout(QtWidgets.QHBoxLayout())
 
@@ -1402,7 +1402,7 @@ See help(type(self)) for accurate signature.</p></div>
 
     def _init_widgets(self):
         self.title = factories.atomic_widget_factory(
-            format=&#39;heading&#39;, title=None)
+            component=&#39;heading&#39;, title=None)
         self.table_widget = components.TableWidget(widget_title=&#34;Optimization Results&#34;,
                                                    layer=utilities.get_next_layer(self.objectName()))
         self.arg_widget = components.ArgumentWidget(calculate_function=self.optimize,
@@ -1449,12 +1449,12 @@ See help(type(self)) for accurate signature.</p></div>
 
             for i in range(len(symbols)):
                 item = factories.atomic_widget_factory(
-                    format=&#39;table-item&#39;, title=helper.format_float_percent(allocation[i]))
+                    component=&#39;table-item&#39;, title=helper.format_float_percent(allocation[i]))
                 self.table_widget.table.setItem(i, 0, item)
 
                 if investment is not None:
                     share_item = factories.atomic_widget_factory(
-                        format=&#39;table-item&#39;, title=str(shares[i]))
+                        component=&#39;table-item&#39;, title=str(shares[i]))
                     self.table_widget.table.setItem(i, 1, share_item)
 
             # TODO: display amount vested per equity
@@ -1545,12 +1545,12 @@ def optimize(self):
 
         for i in range(len(symbols)):
             item = factories.atomic_widget_factory(
-                format=&#39;table-item&#39;, title=helper.format_float_percent(allocation[i]))
+                component=&#39;table-item&#39;, title=helper.format_float_percent(allocation[i]))
             self.table_widget.table.setItem(i, 0, item)
 
             if investment is not None:
                 share_item = factories.atomic_widget_factory(
-                    format=&#39;table-item&#39;, title=str(shares[i]))
+                    component=&#39;table-item&#39;, title=str(shares[i]))
                 self.table_widget.table.setItem(i, 1, share_item)
 
         # TODO: display amount vested per equity
@@ -1632,7 +1632,7 @@ See help(type(self)) for accurate signature.</p></div>
 
             for j, statistic in enumerate(formatted_profile.keys()):
                 table_item = factories.atomic_widget_factory(
-                    format=&#39;table-item&#39;, title=formatted_profile[statistic])
+                    component=&#39;table-item&#39;, title=formatted_profile[statistic])
                 self.composite_widget.table_widget.table.setItem(
                     i, j, table_item)
 
@@ -1708,7 +1708,7 @@ def calculate(self):
 
         for j, statistic in enumerate(formatted_profile.keys()):
             table_item = factories.atomic_widget_factory(
-                format=&#39;table-item&#39;, title=formatted_profile[statistic])
+                component=&#39;table-item&#39;, title=formatted_profile[statistic])
             self.composite_widget.table_widget.table.setItem(
                 i, j, table_item)
 

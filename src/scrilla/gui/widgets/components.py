@@ -116,36 +116,36 @@ class ArgumentWidget(QtWidgets.QWidget):
         Creates child widgets by calling factory methods from `scrilla.gui.widgets.factories`. This method will iterate over `self.controls` and initialize the optional input widget accordingly. `self.optional_pane` and `self.required_pane`, the container widgets for the input elements, are initialized with a style tag on the same layer as the `scrilla.gui.widgets.components.ArgumentWidget`.
         """
         self.title = factories.atomic_widget_factory(
-            format='subtitle', title='Function Input')
+            component='subtitle', title='Function Input')
         self.optional_title = factories.atomic_widget_factory(
-            format='label', title='Optional Arguments')
+            component='label', title='Optional Arguments')
         self.error_message = factories.atomic_widget_factory(
-            format='error', title="Error Message Goes Here")
+            component='error', title="Error Message Goes Here")
         self.calculate_button = factories.atomic_widget_factory(
-            format='calculate-button', title='Calculate')
+            component='calculate-button', title='Calculate')
         self.clear_button = factories.atomic_widget_factory(
-            format='clear-button', title='Clear')
+            component='clear-button', title='Clear')
 
         if mode == SYMBOLS_LIST:
             self.required_title = factories.atomic_widget_factory(
-                format='label', title='Required Arguments')
+                component='label', title='Required Arguments')
             self.symbol_hint = factories.atomic_widget_factory(
-                format='text', title="Separate Symbols With Commas")
+                component='text', title="Separate Symbols With Commas")
             self.required_pane = factories.layout_factory(
-                format='vertical-box')
+                layout='vertical-box')
             self.required_pane.setObjectName(self.layer)
             self.symbol_widget = factories.composite_widget_factory(
-                format='symbols', title="Symbols :", optional=False)
+                component='symbols', title="Symbols :", optional=False)
         elif mode == SYMBOLS_SINGLE:
             self.required_title = factories.atomic_widget_factory(
-                format='label', title='Required Argument')
+                component='label', title='Required Argument')
             self.symbol_hint = factories.atomic_widget_factory(
-                format='text', title="Enter a Single Symbol")
+                component='text', title="Enter a Single Symbol")
             self.required_pane = factories.layout_factory(
-                format='vertical-box')
+                layout='vertical-box')
             self.required_pane.setObjectName(self.layer)
             self.symbol_widget = factories.composite_widget_factory(
-                format='symbol', title="Symbol: ", optional=False)
+                component='symbol', title="Symbol: ", optional=False)
         else:
             self.symbol_widget = None
 
@@ -157,7 +157,7 @@ class ArgumentWidget(QtWidgets.QWidget):
             else:
                 self.control_widgets[control] = None
 
-        self.optional_pane = factories.layout_factory(format='vertical-box')
+        self.optional_pane = factories.layout_factory(layout='vertical-box')
         self.optional_pane.setObjectName(self.layer)
         self.setLayout(QtWidgets.QVBoxLayout())
 
@@ -308,7 +308,7 @@ class TableWidget(QtWidgets.QWidget):
     def _init_widgets(self, widget_title: str) -> None:
         """Creates child widgets and their layouts"""
         self.title_container = factories.layout_factory(
-            format='horizontal-box')
+            layout='horizontal-box')
         self.title = factories.atomic_widget_factory(
             format='heading', title=widget_title)
         self.download_button = factories.atomic_widget_factory(
@@ -395,7 +395,7 @@ class GraphWidget(QtWidgets.QWidget):
 
     def _init_widgets(self, widget_title: str) -> None:
         self.title_container = factories.layout_factory(
-            format='horizontal-box')
+            layout='horizontal-box')
         self.title = factories.atomic_widget_factory(
             format='heading', title=widget_title)
         self.download_button = factories.atomic_widget_factory(

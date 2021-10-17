@@ -53,7 +53,7 @@ def layout_factory(format: str):
     return widget
 
 
-def atomic_widget_factory(format: str, title: str):
+def atomic_widget_factory(component: str, title: str):
     if format in [&#39;title&#39;, &#39;subtitle&#39;, &#39;heading&#39;, &#39;label&#39;, &#39;error&#39;, &#39;text&#39;]:
         widget = QtWidgets.QLabel(title)
         if format in [&#39;title&#39;, &#39;subtitle&#39;, &#39;label&#39;]:
@@ -64,25 +64,25 @@ def atomic_widget_factory(format: str, title: str):
             widget.setAlignment(QtCore.Qt.AlignHCenter)
         elif format in [&#39;text&#39;]:
             widget.setAlignment(QtCore.Qt.AlignBottom)
-        widget.setObjectName(format)
-    
+        widget.setObjectName(component)
+
     elif format in [&#39;splash&#39;]:
         widget = QtWidgets.QLabel(utilities.load_html_template(format))
         widget.setAlignment(QtCore.Qt.AlignTop)
         widget.setSizePolicy(QtWidgets.QSizePolicy(
-                QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum))
+            QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum))
         widget.setWordWrap(True)
         widget.setOpenExternalLinks(True)
 
-    elif format in [&#39;calculate-button&#39;, &#39;clear-button&#39;, &#39;hide-button&#39;, 
-                    &#39;download-button&#39;, &#39;source-button&#39;, &#39;package-button&#39;, 
+    elif format in [&#39;calculate-button&#39;, &#39;clear-button&#39;, &#39;hide-button&#39;,
+                    &#39;download-button&#39;, &#39;source-button&#39;, &#39;package-button&#39;,
                     &#39;documentation-button&#39;, &#39;button&#39;]:
         # buttons with text
         if format not in [&#39;hide-button&#39;, &#39;download-button&#39;, &#39;source-button&#39;]:
             widget = QtWidgets.QPushButton(title)
             widget.setSizePolicy(QtWidgets.QSizePolicy(
                 QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Maximum))
-        
+
         # icon buttons
         else:
             widget = QtWidgets.QPushButton()
@@ -101,7 +101,7 @@ def atomic_widget_factory(format: str, title: str):
 
         widget.setAutoDefault(True)
         widget.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
-        widget.setObjectName(format)
+        widget.setObjectName(component)
 
     elif format in [&#39;save-dialog&#39;]:
         widget = QtWidgets.QFileDialog()
@@ -120,7 +120,7 @@ def atomic_widget_factory(format: str, title: str):
         widget.setSizePolicy(QtWidgets.QSizePolicy(
             QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum))
         # widget.verticalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Stretch)
-        widget.setObjectName(format)
+        widget.setObjectName(component)
 
     elif format == &#39;table-item&#39;:
         widget = QtWidgets.QTableWidgetItem(title)
@@ -131,7 +131,7 @@ def atomic_widget_factory(format: str, title: str):
         widget.setAlignment(QtCore.Qt.AlignCenter)
         widget.setSizePolicy(QtWidgets.QSizePolicy(
             QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding))
-        widget.setObjectName(format)
+        widget.setObjectName(component)
 
     elif format == &#39;menu-bar&#39;:
         widget = QtWidgets.QMenuBar(title)
@@ -142,7 +142,7 @@ def atomic_widget_factory(format: str, title: str):
     return widget
 
 
-def composite_widget_factory(format: str, title: str = None, optional: bool = True) -&gt; QtWidgets.QWidget:
+def composite_widget_factory(component: str, title: str = None, optional: bool = True) -&gt; QtWidgets.QWidget:
     widget = QtWidgets.QWidget()
     widget.setLayout(QtWidgets.QHBoxLayout())
     widget.setObjectName(&#39;input-container&#39;)
@@ -165,12 +165,12 @@ def composite_widget_factory(format: str, title: str = None, optional: bool = Tr
         main_widget.setMaximumDate(QtCore.QDate.currentDate())
         main_widget.setMinimumDate(QtCore.QDate(
             constants.constants[&#39;PRICE_YEAR_CUTOFF&#39;], 1, 1))
-        main_widget.setObjectName(format)
+        main_widget.setObjectName(component)
         main_widget.setEnabled(False)
 
     elif format == &#39;decimal&#39;:
         main_widget = QtWidgets.QLineEdit()
-        main_widget.setObjectName(format)
+        main_widget.setObjectName(component)
         main_widget.setValidator(
             QtGui.QDoubleValidator(-100, 100, 5, main_widget))
         main_widget.setEnabled(False)
@@ -179,7 +179,7 @@ def composite_widget_factory(format: str, title: str = None, optional: bool = Tr
 
     elif format == &#39;currency&#39;:
         main_widget = QtWidgets.QLineEdit()
-        main_widget.setObjectName(format)
+        main_widget.setObjectName(component)
         # https://stackoverflow.com/questions/354044/what-is-the-best-u-s-currency-regex
         main_widget.setValidator(QtGui.QRegularExpressionValidator(
             r&#34;[+-]?[0-9]{1,3}(?:,?[0-9]{3})*(?:\.[0-9]{2})&#34;, main_widget))
@@ -189,7 +189,7 @@ def composite_widget_factory(format: str, title: str = None, optional: bool = Tr
 
     elif format == &#39;integer&#39;:
         main_widget = QtWidgets.QLineEdit()
-        main_widget.setObjectName(format)
+        main_widget.setObjectName(component)
         main_widget.setValidator(QtGui.QIntValidator(0, 100, main_widget))
         main_widget.setEnabled(False)
         main_widget.setSizePolicy(QtWidgets.QSizePolicy(
@@ -200,7 +200,7 @@ def composite_widget_factory(format: str, title: str = None, optional: bool = Tr
 
     elif format == &#39;flag&#39;:
         main_widget = QtWidgets.QRadioButton(title)
-        main_widget.setObjectName(format)
+        main_widget.setObjectName(component)
         main_widget.setSizePolicy(QtWidgets.QSizePolicy(
             QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum))
 
@@ -209,14 +209,14 @@ def composite_widget_factory(format: str, title: str = None, optional: bool = Tr
 
     elif format == &#39;symbols&#39;:
         main_widget = QtWidgets.QLineEdit()
-        main_widget.setObjectName(format)
+        main_widget.setObjectName(component)
         main_widget.setMaxLength(100)
         main_widget.setSizePolicy(QtWidgets.QSizePolicy(
             QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum))
 
     elif format == &#39;symbol&#39;:
         main_widget = QtWidgets.QLineEdit()
-        main_widget.setObjectName(format)
+        main_widget.setObjectName(component)
         main_widget.setMaxLength(100)
         main_widget.setSizePolicy(QtWidgets.QSizePolicy(
             QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum))
@@ -250,7 +250,7 @@ def set_policy_on_widget_list(widget_list: List[QtWidgets.QWidget], policy: QtWi
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
 <dt id="scrilla.gui.widgets.factories.atomic_widget_factory"><code class="name flex">
-<span>def <span class="ident">atomic_widget_factory</span></span>(<span>format: str, title: str)</span>
+<span>def <span class="ident">atomic_widget_factory</span></span>(<span>component: str, title: str)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -258,7 +258,7 @@ def set_policy_on_widget_list(widget_list: List[QtWidgets.QWidget], policy: QtWi
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def atomic_widget_factory(format: str, title: str):
+<pre><code class="python">def atomic_widget_factory(component: str, title: str):
     if format in [&#39;title&#39;, &#39;subtitle&#39;, &#39;heading&#39;, &#39;label&#39;, &#39;error&#39;, &#39;text&#39;]:
         widget = QtWidgets.QLabel(title)
         if format in [&#39;title&#39;, &#39;subtitle&#39;, &#39;label&#39;]:
@@ -269,25 +269,25 @@ def set_policy_on_widget_list(widget_list: List[QtWidgets.QWidget], policy: QtWi
             widget.setAlignment(QtCore.Qt.AlignHCenter)
         elif format in [&#39;text&#39;]:
             widget.setAlignment(QtCore.Qt.AlignBottom)
-        widget.setObjectName(format)
-    
+        widget.setObjectName(component)
+
     elif format in [&#39;splash&#39;]:
         widget = QtWidgets.QLabel(utilities.load_html_template(format))
         widget.setAlignment(QtCore.Qt.AlignTop)
         widget.setSizePolicy(QtWidgets.QSizePolicy(
-                QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum))
+            QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum))
         widget.setWordWrap(True)
         widget.setOpenExternalLinks(True)
 
-    elif format in [&#39;calculate-button&#39;, &#39;clear-button&#39;, &#39;hide-button&#39;, 
-                    &#39;download-button&#39;, &#39;source-button&#39;, &#39;package-button&#39;, 
+    elif format in [&#39;calculate-button&#39;, &#39;clear-button&#39;, &#39;hide-button&#39;,
+                    &#39;download-button&#39;, &#39;source-button&#39;, &#39;package-button&#39;,
                     &#39;documentation-button&#39;, &#39;button&#39;]:
         # buttons with text
         if format not in [&#39;hide-button&#39;, &#39;download-button&#39;, &#39;source-button&#39;]:
             widget = QtWidgets.QPushButton(title)
             widget.setSizePolicy(QtWidgets.QSizePolicy(
                 QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Maximum))
-        
+
         # icon buttons
         else:
             widget = QtWidgets.QPushButton()
@@ -306,7 +306,7 @@ def set_policy_on_widget_list(widget_list: List[QtWidgets.QWidget], policy: QtWi
 
         widget.setAutoDefault(True)
         widget.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
-        widget.setObjectName(format)
+        widget.setObjectName(component)
 
     elif format in [&#39;save-dialog&#39;]:
         widget = QtWidgets.QFileDialog()
@@ -325,7 +325,7 @@ def set_policy_on_widget_list(widget_list: List[QtWidgets.QWidget], policy: QtWi
         widget.setSizePolicy(QtWidgets.QSizePolicy(
             QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum))
         # widget.verticalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Stretch)
-        widget.setObjectName(format)
+        widget.setObjectName(component)
 
     elif format == &#39;table-item&#39;:
         widget = QtWidgets.QTableWidgetItem(title)
@@ -336,7 +336,7 @@ def set_policy_on_widget_list(widget_list: List[QtWidgets.QWidget], policy: QtWi
         widget.setAlignment(QtCore.Qt.AlignCenter)
         widget.setSizePolicy(QtWidgets.QSizePolicy(
             QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding))
-        widget.setObjectName(format)
+        widget.setObjectName(component)
 
     elif format == &#39;menu-bar&#39;:
         widget = QtWidgets.QMenuBar(title)
@@ -348,7 +348,7 @@ def set_policy_on_widget_list(widget_list: List[QtWidgets.QWidget], policy: QtWi
 </details>
 </dd>
 <dt id="scrilla.gui.widgets.factories.composite_widget_factory"><code class="name flex">
-<span>def <span class="ident">composite_widget_factory</span></span>(<span>format: str, title: str = None, optional: bool = True) ‑> PySide6.QtWidgets.QWidget</span>
+<span>def <span class="ident">composite_widget_factory</span></span>(<span>component: str, title: str = None, optional: bool = True) ‑> PySide6.QtWidgets.QWidget</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -356,7 +356,7 @@ def set_policy_on_widget_list(widget_list: List[QtWidgets.QWidget], policy: QtWi
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def composite_widget_factory(format: str, title: str = None, optional: bool = True) -&gt; QtWidgets.QWidget:
+<pre><code class="python">def composite_widget_factory(component: str, title: str = None, optional: bool = True) -&gt; QtWidgets.QWidget:
     widget = QtWidgets.QWidget()
     widget.setLayout(QtWidgets.QHBoxLayout())
     widget.setObjectName(&#39;input-container&#39;)
@@ -379,12 +379,12 @@ def set_policy_on_widget_list(widget_list: List[QtWidgets.QWidget], policy: QtWi
         main_widget.setMaximumDate(QtCore.QDate.currentDate())
         main_widget.setMinimumDate(QtCore.QDate(
             constants.constants[&#39;PRICE_YEAR_CUTOFF&#39;], 1, 1))
-        main_widget.setObjectName(format)
+        main_widget.setObjectName(component)
         main_widget.setEnabled(False)
 
     elif format == &#39;decimal&#39;:
         main_widget = QtWidgets.QLineEdit()
-        main_widget.setObjectName(format)
+        main_widget.setObjectName(component)
         main_widget.setValidator(
             QtGui.QDoubleValidator(-100, 100, 5, main_widget))
         main_widget.setEnabled(False)
@@ -393,7 +393,7 @@ def set_policy_on_widget_list(widget_list: List[QtWidgets.QWidget], policy: QtWi
 
     elif format == &#39;currency&#39;:
         main_widget = QtWidgets.QLineEdit()
-        main_widget.setObjectName(format)
+        main_widget.setObjectName(component)
         # https://stackoverflow.com/questions/354044/what-is-the-best-u-s-currency-regex
         main_widget.setValidator(QtGui.QRegularExpressionValidator(
             r&#34;[+-]?[0-9]{1,3}(?:,?[0-9]{3})*(?:\.[0-9]{2})&#34;, main_widget))
@@ -403,7 +403,7 @@ def set_policy_on_widget_list(widget_list: List[QtWidgets.QWidget], policy: QtWi
 
     elif format == &#39;integer&#39;:
         main_widget = QtWidgets.QLineEdit()
-        main_widget.setObjectName(format)
+        main_widget.setObjectName(component)
         main_widget.setValidator(QtGui.QIntValidator(0, 100, main_widget))
         main_widget.setEnabled(False)
         main_widget.setSizePolicy(QtWidgets.QSizePolicy(
@@ -414,7 +414,7 @@ def set_policy_on_widget_list(widget_list: List[QtWidgets.QWidget], policy: QtWi
 
     elif format == &#39;flag&#39;:
         main_widget = QtWidgets.QRadioButton(title)
-        main_widget.setObjectName(format)
+        main_widget.setObjectName(component)
         main_widget.setSizePolicy(QtWidgets.QSizePolicy(
             QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum))
 
@@ -423,14 +423,14 @@ def set_policy_on_widget_list(widget_list: List[QtWidgets.QWidget], policy: QtWi
 
     elif format == &#39;symbols&#39;:
         main_widget = QtWidgets.QLineEdit()
-        main_widget.setObjectName(format)
+        main_widget.setObjectName(component)
         main_widget.setMaxLength(100)
         main_widget.setSizePolicy(QtWidgets.QSizePolicy(
             QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum))
 
     elif format == &#39;symbol&#39;:
         main_widget = QtWidgets.QLineEdit()
-        main_widget.setObjectName(format)
+        main_widget.setObjectName(component)
         main_widget.setMaxLength(100)
         main_widget.setSizePolicy(QtWidgets.QSizePolicy(
             QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum))
