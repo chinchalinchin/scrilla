@@ -134,7 +134,7 @@ class ArgumentWidget(QtWidgets.QWidget):
             self.required_pane = factories.layout_factory(
                 layout='vertical-box')
             self.required_pane.setObjectName(self.layer)
-            self.symbol_widget = factories.composite_widget_factory(
+            self.symbol_widget = factories.argument_widget_factory(
                 component='symbols', title="Symbols :", optional=False)
         elif mode == SYMBOLS_SINGLE:
             self.required_title = factories.atomic_widget_factory(
@@ -144,14 +144,14 @@ class ArgumentWidget(QtWidgets.QWidget):
             self.required_pane = factories.layout_factory(
                 layout='vertical-box')
             self.required_pane.setObjectName(self.layer)
-            self.symbol_widget = factories.composite_widget_factory(
+            self.symbol_widget = factories.argument_widget_factory(
                 component='symbol', title="Symbol: ", optional=False)
         else:
             self.symbol_widget = None
 
         for control in self.controls:
             if self.controls[control]:
-                self.control_widgets[control] = factories.composite_widget_factory(definitions.ARG_DICT[control]['widget_type'],
+                self.control_widgets[control] = factories.argument_widget_factory(definitions.ARG_DICT[control]['widget_type'],
                                                                                    f'{definitions.ARG_DICT[control]["name"]} :',
                                                                                    optional=True)
             else:
