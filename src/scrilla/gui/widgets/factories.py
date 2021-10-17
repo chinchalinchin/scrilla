@@ -59,15 +59,15 @@ def atomic_widget_factory(component: str, title: str):
             widget = QtWidgets.QPushButton()
             widget.setSizePolicy(QtWidgets.QSizePolicy(
                 QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum))
-            if format == 'hide-button':
+            if component == 'hide-button':
                 widget.setToolTip('Hide')
-            elif format == 'download-button':
+            elif component == 'download-button':
                 widget.setToolTip('Save As')
-            elif format == 'source-button':
+            elif component == 'source-button':
                 widget.setToolTip('View Source')
-            elif format == 'package-button':
+            elif component == 'package-button':
                 widget.setToolTip('View PyPi Package')
-            elif format == 'documentation-button':
+            elif component == 'documentation-button':
                 widget.setToolTip('View Documentation')
 
         widget.setAutoDefault(True)
