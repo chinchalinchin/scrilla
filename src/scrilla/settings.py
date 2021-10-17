@@ -199,6 +199,8 @@ if PRICE_MANAGER == 'alpha_vantage':
         'ALPHA_VANTAGE_CRYPTO_META_URL', 'https://www.alphavantage.co/digital_currency_list/')
 
     AV_KEY = os.environ.setdefault('ALPHA_VANTAGE_KEY', '')
+    """API Key used to query AlphaVantage service."""
+
     if not AV_KEY:
         keystore = os.path.join(COMMON_DIR, f'ALPHA_VANTAGE_KEY.{FILE_EXT}')
         if os.path.isfile(keystore):
@@ -206,10 +208,6 @@ if PRICE_MANAGER == 'alpha_vantage':
                 if FILE_EXT == "json":
                     AV_KEY = json.load(infile)['ALPHA_VANTAGE_KEY']
                     os.environ['ALPHA_VANTAGE_KEY'] = str(AV_KEY)
-
-    if not AV_KEY:
-        raise APIKeyError(
-            'Alpha Vantage API Key not found. Either set ALPHA_VANTAGE_KEY environment variable or use "-store" CLI function to save key.')
 
 # STAT_MANAGER CONFIGURATION
 STAT_MANAGER = os.environ.setdefault('STAT_MANAGER', 'quandl')
@@ -221,7 +219,9 @@ if STAT_MANAGER == "quandl":
         'QUANDL_URL', 'https://www.quandl.com/api/v3/datasets').strip("\"").strip("'")
     Q_META_URL = os.environ.setdefault(
         'QUANDL_META_URL', 'https://www.quandl.com/api/v3/databases')
+
     Q_KEY = os.environ.setdefault('QUANDL_KEY', '')
+    """API Key used to query Quandl/Nasdaq Service"""
 
     if not Q_KEY:
         keystore = os.path.join(COMMON_DIR, f'QUANDL_KEY.{FILE_EXT}')
@@ -230,10 +230,6 @@ if STAT_MANAGER == "quandl":
                 if FILE_EXT == "json":
                     Q_KEY = json.load(infile)['QUANDL_KEY']
                     os.environ['QUANDL_KEY'] = str(Q_KEY)
-
-    if not Q_KEY:
-        raise APIKeyError(
-            'Quandl API Key not found. Either set QUANDL_KEY environment variable or use "-store" CLI function to save key.')
 
 # DIVIDEND_MANAGER CONFIGURATION
 DIV_MANAGER = os.environ.setdefault("DIV_MANAGER", 'iex')
@@ -244,6 +240,8 @@ if DIV_MANAGER == "iex":
         "IEX_URL", 'https://cloud.iexapis.com/stable/stock')
 
     IEX_KEY = os.environ.setdefault("IEX_KEY", '')
+    """API Key used to query IEX service"""
+
     if not IEX_KEY:
         keystore = os.path.join(COMMON_DIR, f'IEX_KEY.{FILE_EXT}')
         if os.path.isfile(keystore):
@@ -252,6 +250,38 @@ if DIV_MANAGER == "iex":
                     IEX_KEY = json.load(infile)['IEX_KEY']
                     os.environ['IEX_KEY'] = str(IEX_KEY)
 
+def q_key() -> str:
+    """Wraps access to the `scrilla.settings.Q_KEY` in an `scrilla.settings.APIKeyError`. Exception is thrown if `scrilla.settings.Q_KEY` cannot be parsed from the environment or the local data directory.
+    
+    Raises
+    ------
+    1. **scrilla.settings.APIKeyError**
+    """
+    if not Q_KEY:
+        raise APIKeyError(
+            'Quandl API Key not found. Either set QUANDL_KEY environment variable or use "-store" CLI function to save key.')
+    return Q_KEY
+
+def iex_key() -> str:
+    """Wraps access to the `scrilla.settings.IEX_KEY` in an `scrilla.settings.APIKeyError`. Exception is thrown if `scrilla.settings.IEX_KEY` cannot be parsed from the environment or the local data directory
+    
+    Raises
+    ------
+    1. **scrilla.settings.APIKeyError**
+    """
     if not IEX_KEY:
         raise APIKeyError(
             'IEX API Key cannot be found. Either set IEX_KEY environment variable or use "-store" CLI function to save key.')
+    return IEX_KEY
+
+def av_key() -> str:
+    """Wraps access to the `scrilla.settings.AV_KEY` in an `scrilla.settings.APIKeyError`. Exception is thrown if `scrilla.settings.AV_KEY` cannot be parsed from the environment or the local data directory
+    
+    Raises
+    ------
+    1. **scrilla.settings.APIKeyError**
+    """
+    if not AV_KEY:
+        raise APIKeyError(
+            'Alpha Vantage API Key not found. Either set ALPHA_VANTAGE_KEY environment variable or use "-store" CLI function to save key.')
+    return AV_KEY

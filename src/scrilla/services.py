@@ -206,7 +206,7 @@ class DividendManager():
         self.genre = genre
         if self.genre == keys.keys['SERVICES']['DIVIDENDS']['IEX']['MANAGER']:
             self.service_map = keys.keys['SERVICES']['DIVIDENDS']['IEX']['MAP']
-            self.key = settings.IEX_KEY
+            self.key = settings.iex_key()
             self.url = settings.IEX_URL
 
         if self.service_map is None:
@@ -255,7 +255,7 @@ class PriceManager():
         if self.genre == keys.keys['SERVICES']['PRICES']['ALPHA_VANTAGE']['MANAGER']:
             self.service_map = keys.keys['SERVICES']['PRICES']['ALPHA_VANTAGE']['MAP']
             self.url = settings.AV_URL
-            self.key = settings.AV_KEY
+            self.key = settings.av_key()
         if self.service_map is None:
             raise errors.ConfigurationError(
                 'No PRICE_MANAGER found in the parsed environment settings')

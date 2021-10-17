@@ -150,7 +150,7 @@ def init_static_data():
                 # TODO: services calls should be in services.py! need to put this and the helper method
                 #       into services.py in the future.
                 query = f'{service_map["PARAMS"]["FUNCTION"]}={service_map["ARGUMENTS"]["EQUITY_LISTING"]}'
-                url = f'{settings.AV_URL}?{query}&{service_map["PARAMS"]["KEY"]}={settings.AV_KEY}'
+                url = f'{settings.AV_URL}?{query}&{service_map["PARAMS"]["KEY"]}={settings.av_key()}'
                 static_tickers_blob = parse_csv_response_column(column=0, url=url, savefile=settings.STATIC_TICKERS_FILE,
                                                                 firstRowHeader=service_map['KEYS']['EQUITY']['HEADER'])
 
