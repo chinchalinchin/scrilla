@@ -212,7 +212,7 @@ class DiscountDividendWidget(components.SkeletonWidget):
             dividends = services.get_dividend_history(ticker=symbol)
             cashflow = Cashflow(sample=dividends, discount_rate=discount)
             graph_widget = components.GraphWidget(tmp_graph_key=f'{keys.keys["GUI"]["TEMP"]["DIVIDEND"]}_{symbol}',
-                                                   layer=utilities.get_next_layer(self.objectName()))
+                                                  layer=utilities.get_next_layer(self.objectName()))
             plotter.plot_cashflow(ticker=symbol,
                                   cashflow=cashflow,
                                   show=False,

@@ -36,24 +36,24 @@ def atomic_widget_factory(format: str, title: str):
         elif format in ['text']:
             widget.setAlignment(QtCore.Qt.AlignBottom)
         widget.setObjectName(format)
-    
+
     elif format in ['splash']:
         widget = QtWidgets.QLabel(utilities.load_html_template(format))
         widget.setAlignment(QtCore.Qt.AlignTop)
         widget.setSizePolicy(QtWidgets.QSizePolicy(
-                QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum))
+            QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum))
         widget.setWordWrap(True)
         widget.setOpenExternalLinks(True)
 
-    elif format in ['calculate-button', 'clear-button', 'hide-button', 
-                    'download-button', 'source-button', 'package-button', 
+    elif format in ['calculate-button', 'clear-button', 'hide-button',
+                    'download-button', 'source-button', 'package-button',
                     'documentation-button', 'button']:
         # buttons with text
         if format not in ['hide-button', 'download-button', 'source-button']:
             widget = QtWidgets.QPushButton(title)
             widget.setSizePolicy(QtWidgets.QSizePolicy(
                 QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Maximum))
-        
+
         # icon buttons
         else:
             widget = QtWidgets.QPushButton()
