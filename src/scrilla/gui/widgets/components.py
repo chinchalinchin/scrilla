@@ -152,8 +152,8 @@ class ArgumentWidget(QtWidgets.QWidget):
         for control in self.controls:
             if self.controls[control]:
                 self.control_widgets[control] = factories.argument_widget_factory(definitions.ARG_DICT[control]['widget_type'],
-                                                                                   f'{definitions.ARG_DICT[control]["name"]} :',
-                                                                                   optional=True)
+                                                                                  f'{definitions.ARG_DICT[control]["name"]} :',
+                                                                                  optional=True)
             else:
                 self.control_widgets[control] = None
 
