@@ -1,4 +1,5 @@
-import shutil, json
+import shutil
+import json
 
 from PySide6 import QtWidgets
 from PySide6.QtGui import QPixmap

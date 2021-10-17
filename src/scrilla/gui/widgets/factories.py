@@ -57,7 +57,6 @@ def atomic_widget_factory(format: str, title: str):
         widget.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
         widget.setObjectName(format)
 
-
     elif format in ['save-dialog']:
         widget = QtWidgets.QFileDialog()
         widget.setFileMode(QtWidgets.QFileDialog.AnyFile)
