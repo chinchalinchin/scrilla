@@ -111,15 +111,16 @@ def atomic_widget_factory(component: str, title: str):
         widget = QtWidgets.QWidget()
         widget.setLayout(QtWidgets.QHBoxLayout())
         widget.setSizePolicy(QtWidgets.QSizePolicy(
-        QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum))
+            QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum))
 
     return widget
+
 
 def group_widget_factory(components: List[str], title: str):
     widget_layout = QtWidgets.QVBoxLayout()
 
     for i, component in enumerate(components):
-        radio_button=QtWidgets.QRadioButton(component)
+        radio_button = QtWidgets.QRadioButton(component)
         radio_button.setObjectName('group-toggle')
         widget_layout.addWidget(radio_button)
         if i == 0:
@@ -130,6 +131,7 @@ def group_widget_factory(components: List[str], title: str):
     widget.setObjectName('group-box')
 
     return widget
+
 
 def argument_widget_factory(component: str, title: str = None, optional: bool = True) -> QtWidgets.QWidget:
     widget = atomic_widget_factory(None, None)
