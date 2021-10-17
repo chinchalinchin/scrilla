@@ -38,13 +38,13 @@ def generate_control_skeleton():
     return {arg: False for arg in definitions.ARG_DICT if not definitions.ARG_DICT[arg][&#39;cli_only&#39;]}
 
 
-def layout_factory(format: str):
+def layout_factory(layout: str):
     widget = QtWidgets.QWidget()
 
-    if format == &#39;vertical-box&#39;:
+    if layout == &#39;vertical-box&#39;:
         widget.setLayout(QtWidgets.QVBoxLayout())
 
-    elif format == &#39;horizontal-box&#39;:
+    elif layout == &#39;horizontal-box&#39;:
         widget.setLayout(QtWidgets.QHBoxLayout())
 
     else:
@@ -54,19 +54,19 @@ def layout_factory(format: str):
 
 
 def atomic_widget_factory(component: str, title: str):
-    if format in [&#39;title&#39;, &#39;subtitle&#39;, &#39;heading&#39;, &#39;label&#39;, &#39;error&#39;, &#39;text&#39;]:
+    if component in [&#39;title&#39;, &#39;subtitle&#39;, &#39;heading&#39;, &#39;label&#39;, &#39;error&#39;, &#39;text&#39;]:
         widget = QtWidgets.QLabel(title)
-        if format in [&#39;title&#39;, &#39;subtitle&#39;, &#39;label&#39;]:
+        if component in [&#39;title&#39;, &#39;subtitle&#39;, &#39;label&#39;]:
             widget.setAlignment(QtCore.Qt.AlignTop)
-        elif format in [&#39;heading&#39;]:
+        elif component in [&#39;heading&#39;]:
             widget.setAlignment(QtCore.Qt.AlignLeft)
-        elif format in [&#39;error&#39;]:
+        elif component in [&#39;error&#39;]:
             widget.setAlignment(QtCore.Qt.AlignHCenter)
-        elif format in [&#39;text&#39;]:
+        elif component in [&#39;text&#39;]:
             widget.setAlignment(QtCore.Qt.AlignBottom)
         widget.setObjectName(component)
 
-    elif format in [&#39;splash&#39;]:
+    elif component in [&#39;splash&#39;]:
         widget = QtWidgets.QLabel(utilities.load_html_template(format))
         widget.setAlignment(QtCore.Qt.AlignTop)
         widget.setSizePolicy(QtWidgets.QSizePolicy(
@@ -74,9 +74,9 @@ def atomic_widget_factory(component: str, title: str):
         widget.setWordWrap(True)
         widget.setOpenExternalLinks(True)
 
-    elif format in [&#39;calculate-button&#39;, &#39;clear-button&#39;, &#39;hide-button&#39;,
-                    &#39;download-button&#39;, &#39;source-button&#39;, &#39;package-button&#39;,
-                    &#39;documentation-button&#39;, &#39;button&#39;]:
+    elif component in [&#39;calculate-button&#39;, &#39;clear-button&#39;, &#39;hide-button&#39;,
+                       &#39;download-button&#39;, &#39;source-button&#39;, &#39;package-button&#39;,
+                       &#39;documentation-button&#39;, &#39;button&#39;]:
         # buttons with text
         if format not in [&#39;hide-button&#39;, &#39;download-button&#39;, &#39;source-button&#39;]:
             widget = QtWidgets.QPushButton(title)
@@ -88,29 +88,29 @@ def atomic_widget_factory(component: str, title: str):
             widget = QtWidgets.QPushButton()
             widget.setSizePolicy(QtWidgets.QSizePolicy(
                 QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum))
-            if format == &#39;hide-button&#39;:
+            if component == &#39;hide-button&#39;:
                 widget.setToolTip(&#39;Hide&#39;)
-            elif format == &#39;download-button&#39;:
+            elif component == &#39;download-button&#39;:
                 widget.setToolTip(&#39;Save As&#39;)
-            elif format == &#39;source-button&#39;:
+            elif component == &#39;source-button&#39;:
                 widget.setToolTip(&#39;View Source&#39;)
-            elif format == &#39;package-button&#39;:
+            elif component == &#39;package-button&#39;:
                 widget.setToolTip(&#39;View PyPi Package&#39;)
-            elif format == &#39;documentation-button&#39;:
+            elif component == &#39;documentation-button&#39;:
                 widget.setToolTip(&#39;View Documentation&#39;)
 
         widget.setAutoDefault(True)
         widget.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
         widget.setObjectName(component)
 
-    elif format in [&#39;save-dialog&#39;]:
+    elif component in [&#39;save-dialog&#39;]:
         widget = QtWidgets.QFileDialog()
         widget.setFileMode(QtWidgets.QFileDialog.AnyFile)
         widget.setViewMode(QtWidgets.QFileDialog.Detail)
         widget.setNameFilter(title)
         widget.setAcceptMode(QtWidgets.QFileDialog.AcceptSave)
 
-    elif format == &#39;table&#39;:
+    elif component == &#39;table&#39;:
         widget = QtWidgets.QTableWidget()
         widget.setHorizontalHeader(QtWidgets.QHeaderView(QtCore.Qt.Horizontal))
         widget.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Stretch)
@@ -122,18 +122,18 @@ def atomic_widget_factory(component: str, title: str):
         # widget.verticalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Stretch)
         widget.setObjectName(component)
 
-    elif format == &#39;table-item&#39;:
+    elif component == &#39;table-item&#39;:
         widget = QtWidgets.QTableWidgetItem(title)
         widget.setTextAlignment(QtCore.Qt.AlignHCenter)
 
-    elif format == &#39;figure&#39;:
+    elif component == &#39;figure&#39;:
         widget = QtWidgets.QLabel()
         widget.setAlignment(QtCore.Qt.AlignCenter)
         widget.setSizePolicy(QtWidgets.QSizePolicy(
             QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding))
         widget.setObjectName(component)
 
-    elif format == &#39;menu-bar&#39;:
+    elif component == &#39;menu-bar&#39;:
         widget = QtWidgets.QMenuBar(title)
 
     else:
@@ -142,7 +142,7 @@ def atomic_widget_factory(component: str, title: str):
     return widget
 
 
-def composite_widget_factory(component: str, title: str = None, optional: bool = True) -&gt; QtWidgets.QWidget:
+def argument_widget_factory(component: str, title: str = None, optional: bool = True) -&gt; QtWidgets.QWidget:
     widget = QtWidgets.QWidget()
     widget.setLayout(QtWidgets.QHBoxLayout())
     widget.setObjectName(&#39;input-container&#39;)
@@ -159,7 +159,7 @@ def composite_widget_factory(component: str, title: str = None, optional: bool =
     label_widget.setAlignment(QtCore.Qt.AlignBottom)
     label_widget.setObjectName(&#39;input-label&#39;)
 
-    if format == &#39;date&#39;:
+    if component == &#39;date&#39;:
         main_widget = QtWidgets.QDateEdit()
         main_widget.setDate(QtCore.QDate.currentDate())
         main_widget.setMaximumDate(QtCore.QDate.currentDate())
@@ -168,7 +168,7 @@ def composite_widget_factory(component: str, title: str = None, optional: bool =
         main_widget.setObjectName(component)
         main_widget.setEnabled(False)
 
-    elif format == &#39;decimal&#39;:
+    elif component == &#39;decimal&#39;:
         main_widget = QtWidgets.QLineEdit()
         main_widget.setObjectName(component)
         main_widget.setValidator(
@@ -177,7 +177,7 @@ def composite_widget_factory(component: str, title: str = None, optional: bool =
         main_widget.setSizePolicy(QtWidgets.QSizePolicy(
             QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum))
 
-    elif format == &#39;currency&#39;:
+    elif component == &#39;currency&#39;:
         main_widget = QtWidgets.QLineEdit()
         main_widget.setObjectName(component)
         # https://stackoverflow.com/questions/354044/what-is-the-best-u-s-currency-regex
@@ -187,7 +187,7 @@ def composite_widget_factory(component: str, title: str = None, optional: bool =
         main_widget.setSizePolicy(QtWidgets.QSizePolicy(
             QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum))
 
-    elif format == &#39;integer&#39;:
+    elif component == &#39;integer&#39;:
         main_widget = QtWidgets.QLineEdit()
         main_widget.setObjectName(component)
         main_widget.setValidator(QtGui.QIntValidator(0, 100, main_widget))
@@ -195,26 +195,26 @@ def composite_widget_factory(component: str, title: str = None, optional: bool =
         main_widget.setSizePolicy(QtWidgets.QSizePolicy(
             QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum))
 
-    elif format == &#39;select&#39;:
+    elif component == &#39;select&#39;:
         return None
 
-    elif format == &#39;flag&#39;:
+    elif component == &#39;flag&#39;:
         main_widget = QtWidgets.QRadioButton(title)
         main_widget.setObjectName(component)
         main_widget.setSizePolicy(QtWidgets.QSizePolicy(
             QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum))
 
-    elif format == &#39;group&#39;:
+    elif component == &#39;group&#39;:
         return None
 
-    elif format == &#39;symbols&#39;:
+    elif component == &#39;symbols&#39;:
         main_widget = QtWidgets.QLineEdit()
         main_widget.setObjectName(component)
         main_widget.setMaxLength(100)
         main_widget.setSizePolicy(QtWidgets.QSizePolicy(
             QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum))
 
-    elif format == &#39;symbol&#39;:
+    elif component == &#39;symbol&#39;:
         main_widget = QtWidgets.QLineEdit()
         main_widget.setObjectName(component)
         main_widget.setMaxLength(100)
@@ -249,8 +249,8 @@ def set_policy_on_widget_list(widget_list: List[QtWidgets.QWidget], policy: QtWi
 <section>
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
-<dt id="scrilla.gui.widgets.factories.atomic_widget_factory"><code class="name flex">
-<span>def <span class="ident">atomic_widget_factory</span></span>(<span>component: str, title: str)</span>
+<dt id="scrilla.gui.widgets.factories.argument_widget_factory"><code class="name flex">
+<span>def <span class="ident">argument_widget_factory</span></span>(<span>component: str, title: str = None, optional: bool = True) ‑> PySide6.QtWidgets.QWidget</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -258,105 +258,7 @@ def set_policy_on_widget_list(widget_list: List[QtWidgets.QWidget], policy: QtWi
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def atomic_widget_factory(component: str, title: str):
-    if format in [&#39;title&#39;, &#39;subtitle&#39;, &#39;heading&#39;, &#39;label&#39;, &#39;error&#39;, &#39;text&#39;]:
-        widget = QtWidgets.QLabel(title)
-        if format in [&#39;title&#39;, &#39;subtitle&#39;, &#39;label&#39;]:
-            widget.setAlignment(QtCore.Qt.AlignTop)
-        elif format in [&#39;heading&#39;]:
-            widget.setAlignment(QtCore.Qt.AlignLeft)
-        elif format in [&#39;error&#39;]:
-            widget.setAlignment(QtCore.Qt.AlignHCenter)
-        elif format in [&#39;text&#39;]:
-            widget.setAlignment(QtCore.Qt.AlignBottom)
-        widget.setObjectName(component)
-
-    elif format in [&#39;splash&#39;]:
-        widget = QtWidgets.QLabel(utilities.load_html_template(format))
-        widget.setAlignment(QtCore.Qt.AlignTop)
-        widget.setSizePolicy(QtWidgets.QSizePolicy(
-            QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum))
-        widget.setWordWrap(True)
-        widget.setOpenExternalLinks(True)
-
-    elif format in [&#39;calculate-button&#39;, &#39;clear-button&#39;, &#39;hide-button&#39;,
-                    &#39;download-button&#39;, &#39;source-button&#39;, &#39;package-button&#39;,
-                    &#39;documentation-button&#39;, &#39;button&#39;]:
-        # buttons with text
-        if format not in [&#39;hide-button&#39;, &#39;download-button&#39;, &#39;source-button&#39;]:
-            widget = QtWidgets.QPushButton(title)
-            widget.setSizePolicy(QtWidgets.QSizePolicy(
-                QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Maximum))
-
-        # icon buttons
-        else:
-            widget = QtWidgets.QPushButton()
-            widget.setSizePolicy(QtWidgets.QSizePolicy(
-                QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum))
-            if format == &#39;hide-button&#39;:
-                widget.setToolTip(&#39;Hide&#39;)
-            elif format == &#39;download-button&#39;:
-                widget.setToolTip(&#39;Save As&#39;)
-            elif format == &#39;source-button&#39;:
-                widget.setToolTip(&#39;View Source&#39;)
-            elif format == &#39;package-button&#39;:
-                widget.setToolTip(&#39;View PyPi Package&#39;)
-            elif format == &#39;documentation-button&#39;:
-                widget.setToolTip(&#39;View Documentation&#39;)
-
-        widget.setAutoDefault(True)
-        widget.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
-        widget.setObjectName(component)
-
-    elif format in [&#39;save-dialog&#39;]:
-        widget = QtWidgets.QFileDialog()
-        widget.setFileMode(QtWidgets.QFileDialog.AnyFile)
-        widget.setViewMode(QtWidgets.QFileDialog.Detail)
-        widget.setNameFilter(title)
-        widget.setAcceptMode(QtWidgets.QFileDialog.AcceptSave)
-
-    elif format == &#39;table&#39;:
-        widget = QtWidgets.QTableWidget()
-        widget.setHorizontalHeader(QtWidgets.QHeaderView(QtCore.Qt.Horizontal))
-        widget.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Stretch)
-        widget.setVerticalHeader(QtWidgets.QHeaderView(QtCore.Qt.Vertical))
-        widget.setSizeAdjustPolicy(
-            QtWidgets.QAbstractScrollArea.AdjustToContents)
-        widget.setSizePolicy(QtWidgets.QSizePolicy(
-            QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum))
-        # widget.verticalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Stretch)
-        widget.setObjectName(component)
-
-    elif format == &#39;table-item&#39;:
-        widget = QtWidgets.QTableWidgetItem(title)
-        widget.setTextAlignment(QtCore.Qt.AlignHCenter)
-
-    elif format == &#39;figure&#39;:
-        widget = QtWidgets.QLabel()
-        widget.setAlignment(QtCore.Qt.AlignCenter)
-        widget.setSizePolicy(QtWidgets.QSizePolicy(
-            QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding))
-        widget.setObjectName(component)
-
-    elif format == &#39;menu-bar&#39;:
-        widget = QtWidgets.QMenuBar(title)
-
-    else:
-        widget = QtWidgets.QWidget()
-
-    return widget</code></pre>
-</details>
-</dd>
-<dt id="scrilla.gui.widgets.factories.composite_widget_factory"><code class="name flex">
-<span>def <span class="ident">composite_widget_factory</span></span>(<span>component: str, title: str = None, optional: bool = True) ‑> PySide6.QtWidgets.QWidget</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def composite_widget_factory(component: str, title: str = None, optional: bool = True) -&gt; QtWidgets.QWidget:
+<pre><code class="python">def argument_widget_factory(component: str, title: str = None, optional: bool = True) -&gt; QtWidgets.QWidget:
     widget = QtWidgets.QWidget()
     widget.setLayout(QtWidgets.QHBoxLayout())
     widget.setObjectName(&#39;input-container&#39;)
@@ -373,7 +275,7 @@ def set_policy_on_widget_list(widget_list: List[QtWidgets.QWidget], policy: QtWi
     label_widget.setAlignment(QtCore.Qt.AlignBottom)
     label_widget.setObjectName(&#39;input-label&#39;)
 
-    if format == &#39;date&#39;:
+    if component == &#39;date&#39;:
         main_widget = QtWidgets.QDateEdit()
         main_widget.setDate(QtCore.QDate.currentDate())
         main_widget.setMaximumDate(QtCore.QDate.currentDate())
@@ -382,7 +284,7 @@ def set_policy_on_widget_list(widget_list: List[QtWidgets.QWidget], policy: QtWi
         main_widget.setObjectName(component)
         main_widget.setEnabled(False)
 
-    elif format == &#39;decimal&#39;:
+    elif component == &#39;decimal&#39;:
         main_widget = QtWidgets.QLineEdit()
         main_widget.setObjectName(component)
         main_widget.setValidator(
@@ -391,7 +293,7 @@ def set_policy_on_widget_list(widget_list: List[QtWidgets.QWidget], policy: QtWi
         main_widget.setSizePolicy(QtWidgets.QSizePolicy(
             QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum))
 
-    elif format == &#39;currency&#39;:
+    elif component == &#39;currency&#39;:
         main_widget = QtWidgets.QLineEdit()
         main_widget.setObjectName(component)
         # https://stackoverflow.com/questions/354044/what-is-the-best-u-s-currency-regex
@@ -401,7 +303,7 @@ def set_policy_on_widget_list(widget_list: List[QtWidgets.QWidget], policy: QtWi
         main_widget.setSizePolicy(QtWidgets.QSizePolicy(
             QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum))
 
-    elif format == &#39;integer&#39;:
+    elif component == &#39;integer&#39;:
         main_widget = QtWidgets.QLineEdit()
         main_widget.setObjectName(component)
         main_widget.setValidator(QtGui.QIntValidator(0, 100, main_widget))
@@ -409,26 +311,26 @@ def set_policy_on_widget_list(widget_list: List[QtWidgets.QWidget], policy: QtWi
         main_widget.setSizePolicy(QtWidgets.QSizePolicy(
             QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum))
 
-    elif format == &#39;select&#39;:
+    elif component == &#39;select&#39;:
         return None
 
-    elif format == &#39;flag&#39;:
+    elif component == &#39;flag&#39;:
         main_widget = QtWidgets.QRadioButton(title)
         main_widget.setObjectName(component)
         main_widget.setSizePolicy(QtWidgets.QSizePolicy(
             QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum))
 
-    elif format == &#39;group&#39;:
+    elif component == &#39;group&#39;:
         return None
 
-    elif format == &#39;symbols&#39;:
+    elif component == &#39;symbols&#39;:
         main_widget = QtWidgets.QLineEdit()
         main_widget.setObjectName(component)
         main_widget.setMaxLength(100)
         main_widget.setSizePolicy(QtWidgets.QSizePolicy(
             QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum))
 
-    elif format == &#39;symbol&#39;:
+    elif component == &#39;symbol&#39;:
         main_widget = QtWidgets.QLineEdit()
         main_widget.setObjectName(component)
         main_widget.setMaxLength(100)
@@ -451,6 +353,104 @@ def set_policy_on_widget_list(widget_list: List[QtWidgets.QWidget], policy: QtWi
     return widget</code></pre>
 </details>
 </dd>
+<dt id="scrilla.gui.widgets.factories.atomic_widget_factory"><code class="name flex">
+<span>def <span class="ident">atomic_widget_factory</span></span>(<span>component: str, title: str)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def atomic_widget_factory(component: str, title: str):
+    if component in [&#39;title&#39;, &#39;subtitle&#39;, &#39;heading&#39;, &#39;label&#39;, &#39;error&#39;, &#39;text&#39;]:
+        widget = QtWidgets.QLabel(title)
+        if component in [&#39;title&#39;, &#39;subtitle&#39;, &#39;label&#39;]:
+            widget.setAlignment(QtCore.Qt.AlignTop)
+        elif component in [&#39;heading&#39;]:
+            widget.setAlignment(QtCore.Qt.AlignLeft)
+        elif component in [&#39;error&#39;]:
+            widget.setAlignment(QtCore.Qt.AlignHCenter)
+        elif component in [&#39;text&#39;]:
+            widget.setAlignment(QtCore.Qt.AlignBottom)
+        widget.setObjectName(component)
+
+    elif component in [&#39;splash&#39;]:
+        widget = QtWidgets.QLabel(utilities.load_html_template(format))
+        widget.setAlignment(QtCore.Qt.AlignTop)
+        widget.setSizePolicy(QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum))
+        widget.setWordWrap(True)
+        widget.setOpenExternalLinks(True)
+
+    elif component in [&#39;calculate-button&#39;, &#39;clear-button&#39;, &#39;hide-button&#39;,
+                       &#39;download-button&#39;, &#39;source-button&#39;, &#39;package-button&#39;,
+                       &#39;documentation-button&#39;, &#39;button&#39;]:
+        # buttons with text
+        if format not in [&#39;hide-button&#39;, &#39;download-button&#39;, &#39;source-button&#39;]:
+            widget = QtWidgets.QPushButton(title)
+            widget.setSizePolicy(QtWidgets.QSizePolicy(
+                QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Maximum))
+
+        # icon buttons
+        else:
+            widget = QtWidgets.QPushButton()
+            widget.setSizePolicy(QtWidgets.QSizePolicy(
+                QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum))
+            if component == &#39;hide-button&#39;:
+                widget.setToolTip(&#39;Hide&#39;)
+            elif component == &#39;download-button&#39;:
+                widget.setToolTip(&#39;Save As&#39;)
+            elif component == &#39;source-button&#39;:
+                widget.setToolTip(&#39;View Source&#39;)
+            elif component == &#39;package-button&#39;:
+                widget.setToolTip(&#39;View PyPi Package&#39;)
+            elif component == &#39;documentation-button&#39;:
+                widget.setToolTip(&#39;View Documentation&#39;)
+
+        widget.setAutoDefault(True)
+        widget.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
+        widget.setObjectName(component)
+
+    elif component in [&#39;save-dialog&#39;]:
+        widget = QtWidgets.QFileDialog()
+        widget.setFileMode(QtWidgets.QFileDialog.AnyFile)
+        widget.setViewMode(QtWidgets.QFileDialog.Detail)
+        widget.setNameFilter(title)
+        widget.setAcceptMode(QtWidgets.QFileDialog.AcceptSave)
+
+    elif component == &#39;table&#39;:
+        widget = QtWidgets.QTableWidget()
+        widget.setHorizontalHeader(QtWidgets.QHeaderView(QtCore.Qt.Horizontal))
+        widget.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Stretch)
+        widget.setVerticalHeader(QtWidgets.QHeaderView(QtCore.Qt.Vertical))
+        widget.setSizeAdjustPolicy(
+            QtWidgets.QAbstractScrollArea.AdjustToContents)
+        widget.setSizePolicy(QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum))
+        # widget.verticalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Stretch)
+        widget.setObjectName(component)
+
+    elif component == &#39;table-item&#39;:
+        widget = QtWidgets.QTableWidgetItem(title)
+        widget.setTextAlignment(QtCore.Qt.AlignHCenter)
+
+    elif component == &#39;figure&#39;:
+        widget = QtWidgets.QLabel()
+        widget.setAlignment(QtCore.Qt.AlignCenter)
+        widget.setSizePolicy(QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding))
+        widget.setObjectName(component)
+
+    elif component == &#39;menu-bar&#39;:
+        widget = QtWidgets.QMenuBar(title)
+
+    else:
+        widget = QtWidgets.QWidget()
+
+    return widget</code></pre>
+</details>
+</dd>
 <dt id="scrilla.gui.widgets.factories.generate_control_skeleton"><code class="name flex">
 <span>def <span class="ident">generate_control_skeleton</span></span>(<span>)</span>
 </code></dt>
@@ -465,7 +465,7 @@ def set_policy_on_widget_list(widget_list: List[QtWidgets.QWidget], policy: QtWi
 </details>
 </dd>
 <dt id="scrilla.gui.widgets.factories.layout_factory"><code class="name flex">
-<span>def <span class="ident">layout_factory</span></span>(<span>format: str)</span>
+<span>def <span class="ident">layout_factory</span></span>(<span>layout: str)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -473,13 +473,13 @@ def set_policy_on_widget_list(widget_list: List[QtWidgets.QWidget], policy: QtWi
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def layout_factory(format: str):
+<pre><code class="python">def layout_factory(layout: str):
     widget = QtWidgets.QWidget()
 
-    if format == &#39;vertical-box&#39;:
+    if layout == &#39;vertical-box&#39;:
         widget.setLayout(QtWidgets.QVBoxLayout())
 
-    elif format == &#39;horizontal-box&#39;:
+    elif layout == &#39;horizontal-box&#39;:
         widget.setLayout(QtWidgets.QHBoxLayout())
 
     else:
@@ -520,8 +520,8 @@ def set_policy_on_widget_list(widget_list: List[QtWidgets.QWidget], policy: QtWi
 </li>
 <li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="">
+<li><code><a title="scrilla.gui.widgets.factories.argument_widget_factory" href="#scrilla.gui.widgets.factories.argument_widget_factory">argument_widget_factory</a></code></li>
 <li><code><a title="scrilla.gui.widgets.factories.atomic_widget_factory" href="#scrilla.gui.widgets.factories.atomic_widget_factory">atomic_widget_factory</a></code></li>
-<li><code><a title="scrilla.gui.widgets.factories.composite_widget_factory" href="#scrilla.gui.widgets.factories.composite_widget_factory">composite_widget_factory</a></code></li>
 <li><code><a title="scrilla.gui.widgets.factories.generate_control_skeleton" href="#scrilla.gui.widgets.factories.generate_control_skeleton">generate_control_skeleton</a></code></li>
 <li><code><a title="scrilla.gui.widgets.factories.layout_factory" href="#scrilla.gui.widgets.factories.layout_factory">layout_factory</a></code></li>
 <li><code><a title="scrilla.gui.widgets.factories.set_policy_on_widget_list" href="#scrilla.gui.widgets.factories.set_policy_on_widget_list">set_policy_on_widget_list</a></code></li>

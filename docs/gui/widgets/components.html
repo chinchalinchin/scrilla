@@ -163,7 +163,7 @@ class ArgumentWidget(QtWidgets.QWidget):
             self.required_pane = factories.layout_factory(
                 layout=&#39;vertical-box&#39;)
             self.required_pane.setObjectName(self.layer)
-            self.symbol_widget = factories.composite_widget_factory(
+            self.symbol_widget = factories.argument_widget_factory(
                 component=&#39;symbols&#39;, title=&#34;Symbols :&#34;, optional=False)
         elif mode == SYMBOLS_SINGLE:
             self.required_title = factories.atomic_widget_factory(
@@ -173,16 +173,16 @@ class ArgumentWidget(QtWidgets.QWidget):
             self.required_pane = factories.layout_factory(
                 layout=&#39;vertical-box&#39;)
             self.required_pane.setObjectName(self.layer)
-            self.symbol_widget = factories.composite_widget_factory(
+            self.symbol_widget = factories.argument_widget_factory(
                 component=&#39;symbol&#39;, title=&#34;Symbol: &#34;, optional=False)
         else:
             self.symbol_widget = None
 
         for control in self.controls:
             if self.controls[control]:
-                self.control_widgets[control] = factories.composite_widget_factory(definitions.ARG_DICT[control][&#39;widget_type&#39;],
-                                                                                   f&#39;{definitions.ARG_DICT[control][&#34;name&#34;]} :&#39;,
-                                                                                   optional=True)
+                self.control_widgets[control] = factories.argument_widget_factory(definitions.ARG_DICT[control][&#39;widget_type&#39;],
+                                                                                  f&#39;{definitions.ARG_DICT[control][&#34;name&#34;]} :&#39;,
+                                                                                  optional=True)
             else:
                 self.control_widgets[control] = None
 
@@ -339,11 +339,11 @@ class TableWidget(QtWidgets.QWidget):
         self.title_container = factories.layout_factory(
             layout=&#39;horizontal-box&#39;)
         self.title = factories.atomic_widget_factory(
-            format=&#39;heading&#39;, title=widget_title)
+            component=&#39;heading&#39;, title=widget_title)
         self.download_button = factories.atomic_widget_factory(
-            format=&#39;download-button&#39;, title=None)
+            component=&#39;download-button&#39;, title=None)
         self.table = factories.atomic_widget_factory(
-            format=&#39;table&#39;, title=None)
+            component=&#39;table&#39;, title=None)
         self.setLayout(QtWidgets.QVBoxLayout())
 
     def _arrange_widgets(self) -&gt; None:
@@ -384,7 +384,7 @@ class TableWidget(QtWidgets.QWidget):
     @QtCore.Slot()
     def show_file_dialog(self) -&gt; None:
         file_path = factories.atomic_widget_factory(
-            format=&#39;save-dialog&#39;, title=f&#39;(*.{settings.FILE_EXT})&#39;)
+            component=&#39;save-dialog&#39;, title=f&#39;(*.{settings.FILE_EXT})&#39;)
         file_path.selectFile(f&#39;table.{settings.FILE_EXT}&#39;)
         filename = None
         if file_path.exec_() == QtWidgets.QDialog.Accepted:
@@ -426,11 +426,11 @@ class GraphWidget(QtWidgets.QWidget):
         self.title_container = factories.layout_factory(
             layout=&#39;horizontal-box&#39;)
         self.title = factories.atomic_widget_factory(
-            format=&#39;heading&#39;, title=widget_title)
+            component=&#39;heading&#39;, title=widget_title)
         self.download_button = factories.atomic_widget_factory(
-            format=&#39;download-button&#39;, title=None)
+            component=&#39;download-button&#39;, title=None)
         self.figure = factories.atomic_widget_factory(
-            format=&#39;figure&#39;, title=None)
+            component=&#39;figure&#39;, title=None)
         self.setLayout(QtWidgets.QVBoxLayout())
 
     def _arrange_widgets(self) -&gt; None:
@@ -460,7 +460,7 @@ class GraphWidget(QtWidgets.QWidget):
     @QtCore.Slot()
     def show_file_dialog(self) -&gt; None:
         file_path = factories.atomic_widget_factory(
-            format=&#39;save-dialog&#39;, title=f&#39;(*.{settings.IMG_EXT})&#39;)
+            component=&#39;save-dialog&#39;, title=f&#39;(*.{settings.IMG_EXT})&#39;)
         file_path.selectFile(f&#39;{self.tmp_graph_key}.{settings.IMG_EXT}&#39;)
         filename = None
         if file_path.exec_() == QtWidgets.QDialog.Accepted:
@@ -501,7 +501,7 @@ class CompositeWidget(QtWidgets.QWidget):
     def _init_widgets(self, widget_title: str, tmp_graph_key: str) -&gt; None:
         &#34;&#34;&#34;Creates child widgets and their layouts&#34;&#34;&#34;
         self.title = factories.atomic_widget_factory(
-            format=&#39;subtitle&#39;, title=widget_title)
+            component=&#39;subtitle&#39;, title=widget_title)
 
         self.table_widget = TableWidget(layer=self.objectName())
         self.graph_widget = GraphWidget(
@@ -671,7 +671,7 @@ See help(type(self)) for accurate signature.</p></div>
             self.required_pane = factories.layout_factory(
                 layout=&#39;vertical-box&#39;)
             self.required_pane.setObjectName(self.layer)
-            self.symbol_widget = factories.composite_widget_factory(
+            self.symbol_widget = factories.argument_widget_factory(
                 component=&#39;symbols&#39;, title=&#34;Symbols :&#34;, optional=False)
         elif mode == SYMBOLS_SINGLE:
             self.required_title = factories.atomic_widget_factory(
@@ -681,16 +681,16 @@ See help(type(self)) for accurate signature.</p></div>
             self.required_pane = factories.layout_factory(
                 layout=&#39;vertical-box&#39;)
             self.required_pane.setObjectName(self.layer)
-            self.symbol_widget = factories.composite_widget_factory(
+            self.symbol_widget = factories.argument_widget_factory(
                 component=&#39;symbol&#39;, title=&#34;Symbol: &#34;, optional=False)
         else:
             self.symbol_widget = None
 
         for control in self.controls:
             if self.controls[control]:
-                self.control_widgets[control] = factories.composite_widget_factory(definitions.ARG_DICT[control][&#39;widget_type&#39;],
-                                                                                   f&#39;{definitions.ARG_DICT[control][&#34;name&#34;]} :&#39;,
-                                                                                   optional=True)
+                self.control_widgets[control] = factories.argument_widget_factory(definitions.ARG_DICT[control][&#39;widget_type&#39;],
+                                                                                  f&#39;{definitions.ARG_DICT[control][&#34;name&#34;]} :&#39;,
+                                                                                  optional=True)
             else:
                 self.control_widgets[control] = None
 
@@ -1007,7 +1007,7 @@ See help(type(self)) for accurate signature.</p></div>
     def _init_widgets(self, widget_title: str, tmp_graph_key: str) -&gt; None:
         &#34;&#34;&#34;Creates child widgets and their layouts&#34;&#34;&#34;
         self.title = factories.atomic_widget_factory(
-            format=&#39;subtitle&#39;, title=widget_title)
+            component=&#39;subtitle&#39;, title=widget_title)
 
         self.table_widget = TableWidget(layer=self.objectName())
         self.graph_widget = GraphWidget(
@@ -1104,11 +1104,11 @@ See help(type(self)) for accurate signature.</p></div>
         self.title_container = factories.layout_factory(
             layout=&#39;horizontal-box&#39;)
         self.title = factories.atomic_widget_factory(
-            format=&#39;heading&#39;, title=widget_title)
+            component=&#39;heading&#39;, title=widget_title)
         self.download_button = factories.atomic_widget_factory(
-            format=&#39;download-button&#39;, title=None)
+            component=&#39;download-button&#39;, title=None)
         self.figure = factories.atomic_widget_factory(
-            format=&#39;figure&#39;, title=None)
+            component=&#39;figure&#39;, title=None)
         self.setLayout(QtWidgets.QVBoxLayout())
 
     def _arrange_widgets(self) -&gt; None:
@@ -1138,7 +1138,7 @@ See help(type(self)) for accurate signature.</p></div>
     @QtCore.Slot()
     def show_file_dialog(self) -&gt; None:
         file_path = factories.atomic_widget_factory(
-            format=&#39;save-dialog&#39;, title=f&#39;(*.{settings.IMG_EXT})&#39;)
+            component=&#39;save-dialog&#39;, title=f&#39;(*.{settings.IMG_EXT})&#39;)
         file_path.selectFile(f&#39;{self.tmp_graph_key}.{settings.IMG_EXT}&#39;)
         filename = None
         if file_path.exec_() == QtWidgets.QDialog.Accepted:
@@ -1204,7 +1204,7 @@ See help(type(self)) for accurate signature.</p></div>
 <pre><code class="python">@QtCore.Slot()
 def show_file_dialog(self) -&gt; None:
     file_path = factories.atomic_widget_factory(
-        format=&#39;save-dialog&#39;, title=f&#39;(*.{settings.IMG_EXT})&#39;)
+        component=&#39;save-dialog&#39;, title=f&#39;(*.{settings.IMG_EXT})&#39;)
     file_path.selectFile(f&#39;{self.tmp_graph_key}.{settings.IMG_EXT}&#39;)
     filename = None
     if file_path.exec_() == QtWidgets.QDialog.Accepted:
@@ -1321,11 +1321,11 @@ See help(type(self)) for accurate signature.</p></div>
         self.title_container = factories.layout_factory(
             layout=&#39;horizontal-box&#39;)
         self.title = factories.atomic_widget_factory(
-            format=&#39;heading&#39;, title=widget_title)
+            component=&#39;heading&#39;, title=widget_title)
         self.download_button = factories.atomic_widget_factory(
-            format=&#39;download-button&#39;, title=None)
+            component=&#39;download-button&#39;, title=None)
         self.table = factories.atomic_widget_factory(
-            format=&#39;table&#39;, title=None)
+            component=&#39;table&#39;, title=None)
         self.setLayout(QtWidgets.QVBoxLayout())
 
     def _arrange_widgets(self) -&gt; None:
@@ -1366,7 +1366,7 @@ See help(type(self)) for accurate signature.</p></div>
     @QtCore.Slot()
     def show_file_dialog(self) -&gt; None:
         file_path = factories.atomic_widget_factory(
-            format=&#39;save-dialog&#39;, title=f&#39;(*.{settings.FILE_EXT})&#39;)
+            component=&#39;save-dialog&#39;, title=f&#39;(*.{settings.FILE_EXT})&#39;)
         file_path.selectFile(f&#39;table.{settings.FILE_EXT}&#39;)
         filename = None
         if file_path.exec_() == QtWidgets.QDialog.Accepted:
@@ -1437,7 +1437,7 @@ List containing the column headers.</li>
 <pre><code class="python">@QtCore.Slot()
 def show_file_dialog(self) -&gt; None:
     file_path = factories.atomic_widget_factory(
-        format=&#39;save-dialog&#39;, title=f&#39;(*.{settings.FILE_EXT})&#39;)
+        component=&#39;save-dialog&#39;, title=f&#39;(*.{settings.FILE_EXT})&#39;)
     file_path.selectFile(f&#39;table.{settings.FILE_EXT}&#39;)
     filename = None
     if file_path.exec_() == QtWidgets.QDialog.Accepted:
