@@ -30,11 +30,13 @@
 <pre><code class="python">from typing import List
 
 from PySide6 import QtWidgets, QtCore, QtGui
-from scrilla import settings
-from scrilla.static import definitions, constants, keys
+from scrilla.gui import utilities
+from scrilla.static import definitions, constants
+
 
 def generate_control_skeleton():
-    return { arg: False for arg in definitions.ARG_DICT if not definitions.ARG_DICT[arg][&#39;cli_only&#39;]}
+    return {arg: False for arg in definitions.ARG_DICT if not definitions.ARG_DICT[arg][&#39;cli_only&#39;]}
+
 
 def layout_factory(format: str):
     widget = QtWidgets.QWidget()
@@ -44,52 +46,79 @@ def layout_factory(format: str):
 
     elif format == &#39;horizontal-box&#39;:
         widget.setLayout(QtWidgets.QHBoxLayout())
-    
+
     else:
         widget.setLayout(QtWidgets.QBoxLayout())
 
     return widget
 
+
 def atomic_widget_factory(format: str, title: str):
-    if format in [&#39;title&#39;, &#39;subtitle&#39;, &#39;heading&#39;, &#39;label&#39;, &#39;error&#39;, &#39;text&#39;] :
+    if format in [&#39;title&#39;, &#39;subtitle&#39;, &#39;heading&#39;, &#39;label&#39;, &#39;error&#39;, &#39;text&#39;]:
         widget = QtWidgets.QLabel(title)
         if format in [&#39;title&#39;, &#39;subtitle&#39;, &#39;label&#39;]:
             widget.setAlignment(QtCore.Qt.AlignTop)
-        elif format in [ &#39;heading&#39; ]:
+        elif format in [&#39;heading&#39;]:
             widget.setAlignment(QtCore.Qt.AlignLeft)
-        elif format in [ &#39;error&#39; ]:
+        elif format in [&#39;error&#39;]:
             widget.setAlignment(QtCore.Qt.AlignHCenter)
-        elif format in [ &#39;text&#39; ]:
+        elif format in [&#39;text&#39;]:
             widget.setAlignment(QtCore.Qt.AlignBottom)
         widget.setObjectName(format)
+    
+    elif format in [&#39;splash&#39;]:
+        widget = QtWidgets.QLabel(utilities.load_html_template(format))
+        widget.setAlignment(QtCore.Qt.AlignTop)
+        widget.setSizePolicy(QtWidgets.QSizePolicy(
+                QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum))
+        widget.setWordWrap(True)
+        widget.setOpenExternalLinks(True)
 
-    elif format in [&#39;calculate-button&#39;, &#39;clear-button&#39;, &#39;hide-button&#39;, &#39;button&#39;, ]:
-        if format not in [&#39;hide-button&#39;]:
+    elif format in [&#39;calculate-button&#39;, &#39;clear-button&#39;, &#39;hide-button&#39;, 
+                    &#39;download-button&#39;, &#39;source-button&#39;, &#39;package-button&#39;, 
+                    &#39;documentation-button&#39;, &#39;button&#39;]:
+        # buttons with text
+        if format not in [&#39;hide-button&#39;, &#39;download-button&#39;, &#39;source-button&#39;]:
             widget = QtWidgets.QPushButton(title)
-            widget.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Maximum))
-
+            widget.setSizePolicy(QtWidgets.QSizePolicy(
+                QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Maximum))
+        
+        # icon buttons
         else:
             widget = QtWidgets.QPushButton()
-            widget.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum))
+            widget.setSizePolicy(QtWidgets.QSizePolicy(
+                QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum))
+            if format == &#39;hide-button&#39;:
+                widget.setToolTip(&#39;Hide&#39;)
+            elif format == &#39;download-button&#39;:
+                widget.setToolTip(&#39;Save As&#39;)
+            elif format == &#39;source-button&#39;:
+                widget.setToolTip(&#39;View Source&#39;)
+            elif format == &#39;package-button&#39;:
+                widget.setToolTip(&#39;View PyPi Package&#39;)
+            elif format == &#39;documentation-button&#39;:
+                widget.setToolTip(&#39;View Documentation&#39;)
 
         widget.setAutoDefault(True)
         widget.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
         widget.setObjectName(format)
 
-        if format == &#39;calculate-button&#39;:
-            widget.setIcon(QtGui.QIcon(f&#39;{settings.ASSET_DIR}/{keys.keys[&#34;GUI&#34;][&#34;ICONS&#34;][&#34;CALC&#34;]}&#39;))
-        elif format == &#39;clear-button&#39;:
-            widget.setIcon(QtGui.QIcon(f&#39;{settings.ASSET_DIR}/{keys.keys[&#34;GUI&#34;][&#34;ICONS&#34;][&#34;CLEAR&#34;]}&#39;))
-        elif format == &#39;hide-button&#39;:
-            widget.setIcon(QtGui.QIcon(f&#39;{settings.ASSET_DIR}/{keys.keys[&#34;GUI&#34;][&#34;ICONS&#34;][&#34;HIDE&#34;]}&#39;))
+    elif format in [&#39;save-dialog&#39;]:
+        widget = QtWidgets.QFileDialog()
+        widget.setFileMode(QtWidgets.QFileDialog.AnyFile)
+        widget.setViewMode(QtWidgets.QFileDialog.Detail)
+        widget.setNameFilter(title)
+        widget.setAcceptMode(QtWidgets.QFileDialog.AcceptSave)
 
     elif format == &#39;table&#39;:
         widget = QtWidgets.QTableWidget()
         widget.setHorizontalHeader(QtWidgets.QHeaderView(QtCore.Qt.Horizontal))
         widget.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Stretch)
         widget.setVerticalHeader(QtWidgets.QHeaderView(QtCore.Qt.Vertical))
-        widget.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustToContents)
-        widget.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum))
+        widget.setSizeAdjustPolicy(
+            QtWidgets.QAbstractScrollArea.AdjustToContents)
+        widget.setSizePolicy(QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum))
         # widget.verticalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Stretch)
         widget.setObjectName(format)
 
@@ -100,28 +129,31 @@ def atomic_widget_factory(format: str, title: str):
     elif format == &#39;figure&#39;:
         widget = QtWidgets.QLabel()
         widget.setAlignment(QtCore.Qt.AlignCenter)
-        widget.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding))
+        widget.setSizePolicy(QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding))
         widget.setObjectName(format)
-
 
     elif format == &#39;menu-bar&#39;:
         widget = QtWidgets.QMenuBar(title)
 
-    else: 
+    else:
         widget = QtWidgets.QWidget()
 
     return widget
 
-def composite_widget_factory(format: str, title: str = None, optional : bool = True) -&gt; QtWidgets.QWidget:
+
+def composite_widget_factory(format: str, title: str = None, optional: bool = True) -&gt; QtWidgets.QWidget:
     widget = QtWidgets.QWidget()
     widget.setLayout(QtWidgets.QHBoxLayout())
     widget.setObjectName(&#39;input-container&#39;)
-    widget.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum))
+    widget.setSizePolicy(QtWidgets.QSizePolicy(
+        QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum))
 
     if optional:
         toggle_widget = QtWidgets.QCheckBox()
         toggle_widget.setObjectName(&#39;input-toggle&#39;)
-        toggle_widget.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum))
+        toggle_widget.setSizePolicy(QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum))
 
     label_widget = QtWidgets.QLabel(title)
     label_widget.setAlignment(QtCore.Qt.AlignBottom)
@@ -131,43 +163,47 @@ def composite_widget_factory(format: str, title: str = None, optional : bool = T
         main_widget = QtWidgets.QDateEdit()
         main_widget.setDate(QtCore.QDate.currentDate())
         main_widget.setMaximumDate(QtCore.QDate.currentDate())
-        main_widget.setMinimumDate(QtCore.QDate(constants.constants[&#39;PRICE_YEAR_CUTOFF&#39;], 1,1))
+        main_widget.setMinimumDate(QtCore.QDate(
+            constants.constants[&#39;PRICE_YEAR_CUTOFF&#39;], 1, 1))
         main_widget.setObjectName(format)
         main_widget.setEnabled(False)
 
     elif format == &#39;decimal&#39;:
         main_widget = QtWidgets.QLineEdit()
         main_widget.setObjectName(format)
-        main_widget.setValidator(QtGui.QDoubleValidator(-100, 100, 5, main_widget))
+        main_widget.setValidator(
+            QtGui.QDoubleValidator(-100, 100, 5, main_widget))
         main_widget.setEnabled(False)
-        main_widget.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum))
+        main_widget.setSizePolicy(QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum))
 
     elif format == &#39;currency&#39;:
         main_widget = QtWidgets.QLineEdit()
         main_widget.setObjectName(format)
         # https://stackoverflow.com/questions/354044/what-is-the-best-u-s-currency-regex
-        main_widget.setValidator(QtGui.QRegularExpressionValidator(r&#34;[+-]?[0-9]{1,3}(?:,?[0-9]{3})*(?:\.[0-9]{2})&#34;, main_widget))
+        main_widget.setValidator(QtGui.QRegularExpressionValidator(
+            r&#34;[+-]?[0-9]{1,3}(?:,?[0-9]{3})*(?:\.[0-9]{2})&#34;, main_widget))
         main_widget.setEnabled(False)
-        main_widget.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum))
+        main_widget.setSizePolicy(QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum))
 
-    
     elif format == &#39;integer&#39;:
         main_widget = QtWidgets.QLineEdit()
         main_widget.setObjectName(format)
         main_widget.setValidator(QtGui.QIntValidator(0, 100, main_widget))
         main_widget.setEnabled(False)
-        main_widget.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum))
+        main_widget.setSizePolicy(QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum))
 
-    
     elif format == &#39;select&#39;:
         return None
-    
 
     elif format == &#39;flag&#39;:
         main_widget = QtWidgets.QRadioButton(title)
         main_widget.setObjectName(format)
-        main_widget.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum))
-    
+        main_widget.setSizePolicy(QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum))
+
     elif format == &#39;group&#39;:
         return None
 
@@ -175,14 +211,17 @@ def composite_widget_factory(format: str, title: str = None, optional : bool = T
         main_widget = QtWidgets.QLineEdit()
         main_widget.setObjectName(format)
         main_widget.setMaxLength(100)
-        main_widget.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum))
+        main_widget.setSizePolicy(QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum))
 
     elif format == &#39;symbol&#39;:
         main_widget = QtWidgets.QLineEdit()
         main_widget.setObjectName(format)
         main_widget.setMaxLength(100)
-        main_widget.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum))
-        main_widget.setValidator(QtGui.QRegularExpressionValidator(r&#34;[A-Za-z]+&#34;, main_widget))
+        main_widget.setSizePolicy(QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum))
+        main_widget.setValidator(
+            QtGui.QRegularExpressionValidator(r&#34;[A-Za-z]+&#34;, main_widget))
 
     else:
         main_widget = QtWidgets.QWidget()
@@ -191,10 +230,12 @@ def composite_widget_factory(format: str, title: str = None, optional : bool = T
     widget.layout().addWidget(main_widget)
 
     if optional:
-       toggle_widget.stateChanged.connect(lambda : main_widget.setEnabled((not main_widget.isEnabled())))
-       widget.layout().addWidget(toggle_widget)
-    
+        toggle_widget.stateChanged.connect(
+            lambda: main_widget.setEnabled((not main_widget.isEnabled())))
+        widget.layout().addWidget(toggle_widget)
+
     return widget
+
 
 def set_policy_on_widget_list(widget_list: List[QtWidgets.QWidget], policy: QtWidgets.QSizePolicy):
     for widget in widget_list:
@@ -218,45 +259,71 @@ def set_policy_on_widget_list(widget_list: List[QtWidgets.QWidget], policy: QtWi
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def atomic_widget_factory(format: str, title: str):
-    if format in [&#39;title&#39;, &#39;subtitle&#39;, &#39;heading&#39;, &#39;label&#39;, &#39;error&#39;, &#39;text&#39;] :
+    if format in [&#39;title&#39;, &#39;subtitle&#39;, &#39;heading&#39;, &#39;label&#39;, &#39;error&#39;, &#39;text&#39;]:
         widget = QtWidgets.QLabel(title)
         if format in [&#39;title&#39;, &#39;subtitle&#39;, &#39;label&#39;]:
             widget.setAlignment(QtCore.Qt.AlignTop)
-        elif format in [ &#39;heading&#39; ]:
+        elif format in [&#39;heading&#39;]:
             widget.setAlignment(QtCore.Qt.AlignLeft)
-        elif format in [ &#39;error&#39; ]:
+        elif format in [&#39;error&#39;]:
             widget.setAlignment(QtCore.Qt.AlignHCenter)
-        elif format in [ &#39;text&#39; ]:
+        elif format in [&#39;text&#39;]:
             widget.setAlignment(QtCore.Qt.AlignBottom)
         widget.setObjectName(format)
+    
+    elif format in [&#39;splash&#39;]:
+        widget = QtWidgets.QLabel(utilities.load_html_template(format))
+        widget.setAlignment(QtCore.Qt.AlignTop)
+        widget.setSizePolicy(QtWidgets.QSizePolicy(
+                QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum))
+        widget.setWordWrap(True)
+        widget.setOpenExternalLinks(True)
 
-    elif format in [&#39;calculate-button&#39;, &#39;clear-button&#39;, &#39;hide-button&#39;, &#39;button&#39;, ]:
-        if format not in [&#39;hide-button&#39;]:
+    elif format in [&#39;calculate-button&#39;, &#39;clear-button&#39;, &#39;hide-button&#39;, 
+                    &#39;download-button&#39;, &#39;source-button&#39;, &#39;package-button&#39;, 
+                    &#39;documentation-button&#39;, &#39;button&#39;]:
+        # buttons with text
+        if format not in [&#39;hide-button&#39;, &#39;download-button&#39;, &#39;source-button&#39;]:
             widget = QtWidgets.QPushButton(title)
-            widget.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Maximum))
-
+            widget.setSizePolicy(QtWidgets.QSizePolicy(
+                QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Maximum))
+        
+        # icon buttons
         else:
             widget = QtWidgets.QPushButton()
-            widget.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum))
+            widget.setSizePolicy(QtWidgets.QSizePolicy(
+                QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum))
+            if format == &#39;hide-button&#39;:
+                widget.setToolTip(&#39;Hide&#39;)
+            elif format == &#39;download-button&#39;:
+                widget.setToolTip(&#39;Save As&#39;)
+            elif format == &#39;source-button&#39;:
+                widget.setToolTip(&#39;View Source&#39;)
+            elif format == &#39;package-button&#39;:
+                widget.setToolTip(&#39;View PyPi Package&#39;)
+            elif format == &#39;documentation-button&#39;:
+                widget.setToolTip(&#39;View Documentation&#39;)
 
         widget.setAutoDefault(True)
         widget.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
         widget.setObjectName(format)
 
-        if format == &#39;calculate-button&#39;:
-            widget.setIcon(QtGui.QIcon(f&#39;{settings.ASSET_DIR}/{keys.keys[&#34;GUI&#34;][&#34;ICONS&#34;][&#34;CALC&#34;]}&#39;))
-        elif format == &#39;clear-button&#39;:
-            widget.setIcon(QtGui.QIcon(f&#39;{settings.ASSET_DIR}/{keys.keys[&#34;GUI&#34;][&#34;ICONS&#34;][&#34;CLEAR&#34;]}&#39;))
-        elif format == &#39;hide-button&#39;:
-            widget.setIcon(QtGui.QIcon(f&#39;{settings.ASSET_DIR}/{keys.keys[&#34;GUI&#34;][&#34;ICONS&#34;][&#34;HIDE&#34;]}&#39;))
+    elif format in [&#39;save-dialog&#39;]:
+        widget = QtWidgets.QFileDialog()
+        widget.setFileMode(QtWidgets.QFileDialog.AnyFile)
+        widget.setViewMode(QtWidgets.QFileDialog.Detail)
+        widget.setNameFilter(title)
+        widget.setAcceptMode(QtWidgets.QFileDialog.AcceptSave)
 
     elif format == &#39;table&#39;:
         widget = QtWidgets.QTableWidget()
         widget.setHorizontalHeader(QtWidgets.QHeaderView(QtCore.Qt.Horizontal))
         widget.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Stretch)
         widget.setVerticalHeader(QtWidgets.QHeaderView(QtCore.Qt.Vertical))
-        widget.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustToContents)
-        widget.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum))
+        widget.setSizeAdjustPolicy(
+            QtWidgets.QAbstractScrollArea.AdjustToContents)
+        widget.setSizePolicy(QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum))
         # widget.verticalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Stretch)
         widget.setObjectName(format)
 
@@ -267,14 +334,14 @@ def set_policy_on_widget_list(widget_list: List[QtWidgets.QWidget], policy: QtWi
     elif format == &#39;figure&#39;:
         widget = QtWidgets.QLabel()
         widget.setAlignment(QtCore.Qt.AlignCenter)
-        widget.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding))
+        widget.setSizePolicy(QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding))
         widget.setObjectName(format)
-
 
     elif format == &#39;menu-bar&#39;:
         widget = QtWidgets.QMenuBar(title)
 
-    else: 
+    else:
         widget = QtWidgets.QWidget()
 
     return widget</code></pre>
@@ -289,16 +356,18 @@ def set_policy_on_widget_list(widget_list: List[QtWidgets.QWidget], policy: QtWi
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def composite_widget_factory(format: str, title: str = None, optional : bool = True) -&gt; QtWidgets.QWidget:
+<pre><code class="python">def composite_widget_factory(format: str, title: str = None, optional: bool = True) -&gt; QtWidgets.QWidget:
     widget = QtWidgets.QWidget()
     widget.setLayout(QtWidgets.QHBoxLayout())
     widget.setObjectName(&#39;input-container&#39;)
-    widget.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum))
+    widget.setSizePolicy(QtWidgets.QSizePolicy(
+        QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum))
 
     if optional:
         toggle_widget = QtWidgets.QCheckBox()
         toggle_widget.setObjectName(&#39;input-toggle&#39;)
-        toggle_widget.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum))
+        toggle_widget.setSizePolicy(QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum))
 
     label_widget = QtWidgets.QLabel(title)
     label_widget.setAlignment(QtCore.Qt.AlignBottom)
@@ -308,43 +377,47 @@ def set_policy_on_widget_list(widget_list: List[QtWidgets.QWidget], policy: QtWi
         main_widget = QtWidgets.QDateEdit()
         main_widget.setDate(QtCore.QDate.currentDate())
         main_widget.setMaximumDate(QtCore.QDate.currentDate())
-        main_widget.setMinimumDate(QtCore.QDate(constants.constants[&#39;PRICE_YEAR_CUTOFF&#39;], 1,1))
+        main_widget.setMinimumDate(QtCore.QDate(
+            constants.constants[&#39;PRICE_YEAR_CUTOFF&#39;], 1, 1))
         main_widget.setObjectName(format)
         main_widget.setEnabled(False)
 
     elif format == &#39;decimal&#39;:
         main_widget = QtWidgets.QLineEdit()
         main_widget.setObjectName(format)
-        main_widget.setValidator(QtGui.QDoubleValidator(-100, 100, 5, main_widget))
+        main_widget.setValidator(
+            QtGui.QDoubleValidator(-100, 100, 5, main_widget))
         main_widget.setEnabled(False)
-        main_widget.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum))
+        main_widget.setSizePolicy(QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum))
 
     elif format == &#39;currency&#39;:
         main_widget = QtWidgets.QLineEdit()
         main_widget.setObjectName(format)
         # https://stackoverflow.com/questions/354044/what-is-the-best-u-s-currency-regex
-        main_widget.setValidator(QtGui.QRegularExpressionValidator(r&#34;[+-]?[0-9]{1,3}(?:,?[0-9]{3})*(?:\.[0-9]{2})&#34;, main_widget))
+        main_widget.setValidator(QtGui.QRegularExpressionValidator(
+            r&#34;[+-]?[0-9]{1,3}(?:,?[0-9]{3})*(?:\.[0-9]{2})&#34;, main_widget))
         main_widget.setEnabled(False)
-        main_widget.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum))
+        main_widget.setSizePolicy(QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum))
 
-    
     elif format == &#39;integer&#39;:
         main_widget = QtWidgets.QLineEdit()
         main_widget.setObjectName(format)
         main_widget.setValidator(QtGui.QIntValidator(0, 100, main_widget))
         main_widget.setEnabled(False)
-        main_widget.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum))
+        main_widget.setSizePolicy(QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum))
 
-    
     elif format == &#39;select&#39;:
         return None
-    
 
     elif format == &#39;flag&#39;:
         main_widget = QtWidgets.QRadioButton(title)
         main_widget.setObjectName(format)
-        main_widget.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum))
-    
+        main_widget.setSizePolicy(QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum))
+
     elif format == &#39;group&#39;:
         return None
 
@@ -352,14 +425,17 @@ def set_policy_on_widget_list(widget_list: List[QtWidgets.QWidget], policy: QtWi
         main_widget = QtWidgets.QLineEdit()
         main_widget.setObjectName(format)
         main_widget.setMaxLength(100)
-        main_widget.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum))
+        main_widget.setSizePolicy(QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum))
 
     elif format == &#39;symbol&#39;:
         main_widget = QtWidgets.QLineEdit()
         main_widget.setObjectName(format)
         main_widget.setMaxLength(100)
-        main_widget.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum))
-        main_widget.setValidator(QtGui.QRegularExpressionValidator(r&#34;[A-Za-z]+&#34;, main_widget))
+        main_widget.setSizePolicy(QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum))
+        main_widget.setValidator(
+            QtGui.QRegularExpressionValidator(r&#34;[A-Za-z]+&#34;, main_widget))
 
     else:
         main_widget = QtWidgets.QWidget()
@@ -368,9 +444,10 @@ def set_policy_on_widget_list(widget_list: List[QtWidgets.QWidget], policy: QtWi
     widget.layout().addWidget(main_widget)
 
     if optional:
-       toggle_widget.stateChanged.connect(lambda : main_widget.setEnabled((not main_widget.isEnabled())))
-       widget.layout().addWidget(toggle_widget)
-    
+        toggle_widget.stateChanged.connect(
+            lambda: main_widget.setEnabled((not main_widget.isEnabled())))
+        widget.layout().addWidget(toggle_widget)
+
     return widget</code></pre>
 </details>
 </dd>
@@ -384,7 +461,7 @@ def set_policy_on_widget_list(widget_list: List[QtWidgets.QWidget], policy: QtWi
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def generate_control_skeleton():
-    return { arg: False for arg in definitions.ARG_DICT if not definitions.ARG_DICT[arg][&#39;cli_only&#39;]}</code></pre>
+    return {arg: False for arg in definitions.ARG_DICT if not definitions.ARG_DICT[arg][&#39;cli_only&#39;]}</code></pre>
 </details>
 </dd>
 <dt id="scrilla.gui.widgets.factories.layout_factory"><code class="name flex">
@@ -404,7 +481,7 @@ def set_policy_on_widget_list(widget_list: List[QtWidgets.QWidget], policy: QtWi
 
     elif format == &#39;horizontal-box&#39;:
         widget.setLayout(QtWidgets.QHBoxLayout())
-    
+
     else:
         widget.setLayout(QtWidgets.QBoxLayout())
 

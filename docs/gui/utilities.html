@@ -27,22 +27,58 @@
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">from PySide6 import QtWidgets
+<pre><code class="python">import shutil
+import json
+
+from PySide6 import QtWidgets
 from PySide6.QtGui import QPixmap
 from PySide6.QtCore import Qt
 
 from scrilla import settings
 
+import webbrowser
 def calculate_image_width(width) -&gt; float:
     return 9*width/10
+
 
 def calculate_image_height(height) -&gt; float:
     return 9*height/10
 
+def open_browser(link):
+    webbrowser.open(link)
+
 def generate_pixmap_from_temp(width, height, ext) -&gt; QPixmap:
     pixmap = QPixmap(f&#39;{settings.TEMP_DIR}/{ext}&#39;)
-    pixmap = pixmap.scaled(calculate_image_width(width), calculate_image_height(height), aspectMode=Qt.KeepAspectRatio)
+    pixmap = pixmap.scaled(calculate_image_width(
+        width), calculate_image_height(height), aspectMode=Qt.KeepAspectRatio)
     return pixmap
+
+def get_metadata(key) -&gt; str:
+    with open(settings.METADATA_FILE, &#39;r&#39;) as f:
+        dict_format = json.load(f)
+    return dict_format[key]
+
+def load_html_template(template_key):
+    with open(f&#39;{settings.GUI_TEMPLATE_DIR}/{template_key}.html&#39;, &#39;r&#39;) as f:
+        html = f.read()
+    return html
+
+def download_tmp_to_file(tmp_key, dest):
+    shutil.copy(f&#39;{settings.TEMP_DIR}/{tmp_key}&#39;, dest)
+
+
+def download_table_to_json(qtable: QtWidgets.QTableWidget, dest) -&gt; None:
+    result = {}
+    for row in range(qtable.rowCount()):
+        row_header = qtable.verticalHeaderItem(row).text()
+        result[row_header] = {}
+        for column in range(qtable.columnCount()):
+            column_header = qtable.horizontalHeaderItem(column).text()
+            result[row_header][column_header] = qtable.item(row, column).text()
+
+    with open(dest, &#39;w&#39;) as f:
+        json.dump(result, f)
+
 
 def get_next_layer(layer):
     if layer == &#34;root&#34;:
@@ -50,6 +86,7 @@ def get_next_layer(layer):
     if layer == &#34;child&#34;:
         return &#34;grand-child&#34;
     return f&#39;great-{layer}&#39;
+
 
 def switch_visibility(widget: QtWidgets.QWidget):
     if widget.isVisible():
@@ -91,6 +128,41 @@ def switch_visibility(widget: QtWidgets.QWidget):
     return 9*width/10</code></pre>
 </details>
 </dd>
+<dt id="scrilla.gui.utilities.download_table_to_json"><code class="name flex">
+<span>def <span class="ident">download_table_to_json</span></span>(<span>qtable: PySide6.QtWidgets.QTableWidget, dest) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def download_table_to_json(qtable: QtWidgets.QTableWidget, dest) -&gt; None:
+    result = {}
+    for row in range(qtable.rowCount()):
+        row_header = qtable.verticalHeaderItem(row).text()
+        result[row_header] = {}
+        for column in range(qtable.columnCount()):
+            column_header = qtable.horizontalHeaderItem(column).text()
+            result[row_header][column_header] = qtable.item(row, column).text()
+
+    with open(dest, &#39;w&#39;) as f:
+        json.dump(result, f)</code></pre>
+</details>
+</dd>
+<dt id="scrilla.gui.utilities.download_tmp_to_file"><code class="name flex">
+<span>def <span class="ident">download_tmp_to_file</span></span>(<span>tmp_key, dest)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def download_tmp_to_file(tmp_key, dest):
+    shutil.copy(f&#39;{settings.TEMP_DIR}/{tmp_key}&#39;, dest)</code></pre>
+</details>
+</dd>
 <dt id="scrilla.gui.utilities.generate_pixmap_from_temp"><code class="name flex">
 <span>def <span class="ident">generate_pixmap_from_temp</span></span>(<span>width, height, ext) ‑> PySide6.QtGui.QPixmap</span>
 </code></dt>
@@ -102,8 +174,24 @@ def switch_visibility(widget: QtWidgets.QWidget):
 </summary>
 <pre><code class="python">def generate_pixmap_from_temp(width, height, ext) -&gt; QPixmap:
     pixmap = QPixmap(f&#39;{settings.TEMP_DIR}/{ext}&#39;)
-    pixmap = pixmap.scaled(calculate_image_width(width), calculate_image_height(height), aspectMode=Qt.KeepAspectRatio)
+    pixmap = pixmap.scaled(calculate_image_width(
+        width), calculate_image_height(height), aspectMode=Qt.KeepAspectRatio)
     return pixmap</code></pre>
+</details>
+</dd>
+<dt id="scrilla.gui.utilities.get_metadata"><code class="name flex">
+<span>def <span class="ident">get_metadata</span></span>(<span>key) ‑> str</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_metadata(key) -&gt; str:
+    with open(settings.METADATA_FILE, &#39;r&#39;) as f:
+        dict_format = json.load(f)
+    return dict_format[key]</code></pre>
 </details>
 </dd>
 <dt id="scrilla.gui.utilities.get_next_layer"><code class="name flex">
@@ -121,6 +209,34 @@ def switch_visibility(widget: QtWidgets.QWidget):
     if layer == &#34;child&#34;:
         return &#34;grand-child&#34;
     return f&#39;great-{layer}&#39;</code></pre>
+</details>
+</dd>
+<dt id="scrilla.gui.utilities.load_html_template"><code class="name flex">
+<span>def <span class="ident">load_html_template</span></span>(<span>template_key)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def load_html_template(template_key):
+    with open(f&#39;{settings.GUI_TEMPLATE_DIR}/{template_key}.html&#39;, &#39;r&#39;) as f:
+        html = f.read()
+    return html</code></pre>
+</details>
+</dd>
+<dt id="scrilla.gui.utilities.open_browser"><code class="name flex">
+<span>def <span class="ident">open_browser</span></span>(<span>link)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def open_browser(link):
+    webbrowser.open(link)</code></pre>
 </details>
 </dd>
 <dt id="scrilla.gui.utilities.switch_visibility"><code class="name flex">
@@ -159,8 +275,13 @@ def switch_visibility(widget: QtWidgets.QWidget):
 <ul class="">
 <li><code><a title="scrilla.gui.utilities.calculate_image_height" href="#scrilla.gui.utilities.calculate_image_height">calculate_image_height</a></code></li>
 <li><code><a title="scrilla.gui.utilities.calculate_image_width" href="#scrilla.gui.utilities.calculate_image_width">calculate_image_width</a></code></li>
+<li><code><a title="scrilla.gui.utilities.download_table_to_json" href="#scrilla.gui.utilities.download_table_to_json">download_table_to_json</a></code></li>
+<li><code><a title="scrilla.gui.utilities.download_tmp_to_file" href="#scrilla.gui.utilities.download_tmp_to_file">download_tmp_to_file</a></code></li>
 <li><code><a title="scrilla.gui.utilities.generate_pixmap_from_temp" href="#scrilla.gui.utilities.generate_pixmap_from_temp">generate_pixmap_from_temp</a></code></li>
+<li><code><a title="scrilla.gui.utilities.get_metadata" href="#scrilla.gui.utilities.get_metadata">get_metadata</a></code></li>
 <li><code><a title="scrilla.gui.utilities.get_next_layer" href="#scrilla.gui.utilities.get_next_layer">get_next_layer</a></code></li>
+<li><code><a title="scrilla.gui.utilities.load_html_template" href="#scrilla.gui.utilities.load_html_template">load_html_template</a></code></li>
+<li><code><a title="scrilla.gui.utilities.open_browser" href="#scrilla.gui.utilities.open_browser">open_browser</a></code></li>
 <li><code><a title="scrilla.gui.utilities.switch_visibility" href="#scrilla.gui.utilities.switch_visibility">switch_visibility</a></code></li>
 </ul>
 </li>

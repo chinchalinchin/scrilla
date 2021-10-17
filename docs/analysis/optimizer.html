@@ -58,7 +58,8 @@ import scrilla.util.outputter as outputter
 
 logger = outputter.Logger(&#39;optimizer&#39;, settings.LOG_LEVEL)
 
-def maximize_univariate_normal_likelihood(data: List[float])-&gt; List[float]:
+
+def maximize_univariate_normal_likelihood(data: List[float]) -&gt; List[float]:
     r&#34;&#34;&#34;
     Maximizes the normal (log-)likelihood of the sample with respect to the mean and volatility in order to estimate the mean and volatility of the population distribution described by the sample.
 
@@ -78,7 +79,8 @@ def maximize_univariate_normal_likelihood(data: List[float])-&gt; List[float]:
         The author, however, is not considering the transformed Ito process, the log of the asset price process. It seems like his conclusion may be an artifact of Ito&#39;s Lemma? Not sure. Will need to think.
     &#34;&#34;&#34;
 
-    likelihood = lambda x: (-1)*estimators.univariate_normal_likelihood_function(params=x, data=data)
+    def likelihood(x): return (-1) * \
+        estimators.univariate_normal_likelihood_function(params=x, data=data)
 
     # make an educated guess
     first_quartile = estimators.sample_percentile(data=data, percentile=0.25)
@@ -86,11 +88,12 @@ def maximize_univariate_normal_likelihood(data: List[float])-&gt; List[float]:
     third_quartile = estimators.sample_percentile(data, percentile=0.75)
     guess = [median, (third_quartile-first_quartile)/2]
 
-    params = optimize.minimize(fun = likelihood, x0 = guess, options={&#39;disp&#39;: False},
-                                    method=constants.constants[&#39;OPTIMIZATION_METHOD&#39;])
+    params = optimize.minimize(fun=likelihood, x0=guess, options={&#39;disp&#39;: False},
+                               method=constants.constants[&#39;OPTIMIZATION_METHOD&#39;])
     return params.x
 
-def maximize_bivariate_normal_likelihood(data: List[Tuple[float,float]]) -&gt; List[float]:
+
+def maximize_bivariate_normal_likelihood(data: List[Tuple[float, float]]) -&gt; List[float]:
     r&#34;&#34;&#34;
 
     .. warning ::
@@ -102,8 +105,8 @@ def maximize_bivariate_normal_likelihood(data: List[Tuple[float,float]]) -&gt; L
         A list containing the maximum likelihood estimates of the bivariates normal distribution&#39;s parameters. The first element of the list corresponds to \\(\mu_x)\\), the second element the \\(\mu_y)\\), the third element \\(\sigma_x)\\), the fourth element \\(\sigma_y)\\) and the fifth element \\(\rho_{xy} \cdot \sigma_y \cdot \sigma_x)\\).
     &#34;&#34;&#34;
 
-    x_data = [ datum[0] for datum in data ]
-    y_data = [ datum[1] for datum in data ] 
+    x_data = [datum[0] for datum in data]
+    y_data = [datum[1] for datum in data]
 
     x_25_percentile = estimators.sample_percentile(x_data, 0.25)
     y_25_percentile = estimators.sample_percentile(y_data, 0.25)
@@ -116,30 +119,31 @@ def maximize_bivariate_normal_likelihood(data: List[Tuple[float,float]]) -&gt; L
     x_99_percentile = estimators.sample_percentile(x_data, 0.99)
     y_99_percentile = estimators.sample_percentile(y_data, 0.99)
 
-    likelihood = lambda x : (-1)*estimators.bivariate_normal_likelihood_function(params=x, 
-                                                                                data=data)
+    def likelihood(x): return (-1)*estimators.bivariate_normal_likelihood_function(params=x,
+                                                                                   data=data)
 
     var_x_guess = (x_75_percentile - x_25_percentile)/2
     var_y_guess = (y_75_percentile - y_25_percentile)/2
-    guess = [ x_median, y_median, var_x_guess, var_y_guess, 0]
+    guess = [x_median, y_median, var_x_guess, var_y_guess, 0]
     var_x_bounds = x_99_percentile - x_1_percentile
     var_y_bounds = y_99_percentile - y_1_percentile
     cov_bounds = sqrt(var_x_bounds*var_y_bounds)
 
-    params = optimize.minimize(fun = likelihood, 
-                                x0 = guess,
-                                bounds = [
-                                    (None, None),
-                                    (None, None),
-                                    (0, var_x_bounds),
-                                    (0, var_y_bounds),
-                                    (-cov_bounds, cov_bounds)
-                                ],
-                                options ={&#39;disp&#39;: False},
-                                method=&#39;Nelder-Mead&#39;)
+    params = optimize.minimize(fun=likelihood,
+                               x0=guess,
+                               bounds=[
+                                   (None, None),
+                                   (None, None),
+                                   (0, var_x_bounds),
+                                   (0, var_y_bounds),
+                                   (-cov_bounds, cov_bounds)
+                               ],
+                               options={&#39;disp&#39;: False},
+                               method=&#39;Nelder-Mead&#39;)
     return params.x
-    
-def optimize_portfolio_variance(portfolio: Portfolio, target_return: float=None)-&gt; List[float]:
+
+
+def optimize_portfolio_variance(portfolio: Portfolio, target_return: float = None) -&gt; List[float]:
     &#34;&#34;&#34;
     Parameters
     ----------
@@ -158,12 +162,13 @@ def optimize_portfolio_variance(portfolio: Portfolio, target_return: float=None)
     init_guess = portfolio.get_init_guess()
     equity_bounds = portfolio.get_default_bounds()
     equity_constraint = {
-            &#39;type&#39;: &#39;eq&#39;,
-            &#39;fun&#39;: portfolio.get_constraint
-        }
+        &#39;type&#39;: &#39;eq&#39;,
+        &#39;fun&#39;: portfolio.get_constraint
+    }
 
     if target_return is not None:
-        logger.debug(f&#39;Optimizing {tickers} Portfolio Volatility Subject To Return = {target_return}&#39;)
+        logger.debug(
+            f&#39;Optimizing {tickers} Portfolio Volatility Subject To Return = {target_return}&#39;)
 
         return_constraint = {
             &#39;type&#39;: &#39;eq&#39;,
@@ -174,13 +179,14 @@ def optimize_portfolio_variance(portfolio: Portfolio, target_return: float=None)
         logger.debug(f&#39;Minimizing {tickers} Portfolio Volatility&#39;)
         portfolio_constraints = equity_constraint
 
-    allocation = optimize.minimize(fun = portfolio.volatility_function, x0 = init_guess, 
-                                    method=constants.constants[&#39;OPTIMIZATION_METHOD&#39;], bounds=equity_bounds, 
-                                    constraints=portfolio_constraints, options={&#39;disp&#39;: False})
+    allocation = optimize.minimize(fun=portfolio.volatility_function, x0=init_guess,
+                                   method=constants.constants[&#39;OPTIMIZATION_METHOD&#39;], bounds=equity_bounds,
+                                   constraints=portfolio_constraints, options={&#39;disp&#39;: False})
 
     return allocation.x
 
-def optimize_conditional_value_at_risk(portfolio: Portfolio, prob: float, expiry: float, target_return: float=None) -&gt; List[float]:
+
+def optimize_conditional_value_at_risk(portfolio: Portfolio, prob: float, expiry: float, target_return: float = None) -&gt; List[float]:
     &#34;&#34;&#34;
     Parameters
     ----------
@@ -204,12 +210,13 @@ def optimize_conditional_value_at_risk(portfolio: Portfolio, prob: float, expiry
     equity_bounds = portfolio.get_default_bounds()
 
     equity_constraint = {
-            &#39;type&#39;: &#39;eq&#39;,
-            &#39;fun&#39;: portfolio.get_constraint
+        &#39;type&#39;: &#39;eq&#39;,
+        &#39;fun&#39;: portfolio.get_constraint
     }
 
     if target_return is not None:
-        logger.debug(f&#39;Optimizing {tickers} Portfolio Conditional Value at Risk Subject To Return = {target_return}&#39;)
+        logger.debug(
+            f&#39;Optimizing {tickers} Portfolio Conditional Value at Risk Subject To Return = {target_return}&#39;)
 
         return_constraint = {
             &#39;type&#39;: &#39;eq&#39;,
@@ -217,17 +224,19 @@ def optimize_conditional_value_at_risk(portfolio: Portfolio, prob: float, expiry
         }
         portfolio_constraints = [equity_constraint, return_constraint]
     else:
-        logger.debug(f&#39;Minimizing {tickers} Portfolio Conditional Value at Risk&#39;)
+        logger.debug(
+            f&#39;Minimizing {tickers} Portfolio Conditional Value at Risk&#39;)
         portfolio_constraints = equity_constraint
 
-    allocation = optimize.minimize(fun = lambda x: portfolio.conditional_value_at_risk_function(x, expiry, prob), 
-                                    x0 = init_guess, 
-                                    method=constants.constants[&#39;OPTIMIZATION_METHOD&#39;], bounds=equity_bounds, 
-                                    constraints=portfolio_constraints, options={&#39;disp&#39;: False})
+    allocation = optimize.minimize(fun=lambda x: portfolio.conditional_value_at_risk_function(x, expiry, prob),
+                                   x0=init_guess,
+                                   method=constants.constants[&#39;OPTIMIZATION_METHOD&#39;], bounds=equity_bounds,
+                                   constraints=portfolio_constraints, options={&#39;disp&#39;: False})
 
     return allocation.x
 
-def maximize_sharpe_ratio(portfolio: Portfolio, target_return: float=None) -&gt; List[float]:
+
+def maximize_sharpe_ratio(portfolio: Portfolio, target_return: float = None) -&gt; List[float]:
     &#34;&#34;&#34;
     Parameters
     ----------
@@ -247,12 +256,13 @@ def maximize_sharpe_ratio(portfolio: Portfolio, target_return: float=None) -&gt;
     init_guess = portfolio.get_init_guess()
     equity_bounds = portfolio.get_default_bounds()
     equity_constraint = {
-            &#39;type&#39;: &#39;eq&#39;,
-            &#39;fun&#39;: portfolio.get_constraint
-        }
+        &#39;type&#39;: &#39;eq&#39;,
+        &#39;fun&#39;: portfolio.get_constraint
+    }
 
     if target_return is not None:
-        logger.debug(f&#39;Optimizing {tickers} Portfolio Sharpe Ratio Subject To Return = {target_return}&#39;)
+        logger.debug(
+            f&#39;Optimizing {tickers} Portfolio Sharpe Ratio Subject To Return = {target_return}&#39;)
 
         return_constraint = {
             &#39;type&#39;: &#39;eq&#39;,
@@ -263,12 +273,13 @@ def maximize_sharpe_ratio(portfolio: Portfolio, target_return: float=None) -&gt;
         logger.debug(f&#39;Maximizing {tickers} Portfolio Sharpe Ratio&#39;)
         portfolio_constraints = equity_constraint
 
-    allocation = optimize.minimize(fun = lambda x: (-1)*portfolio.sharpe_ratio_function(x), 
-                                    x0 = init_guess, 
-                                    method=constants.constants[&#39;OPTIMIZATION_METHOD&#39;], bounds=equity_bounds, 
-                                    constraints=portfolio_constraints, options={&#39;disp&#39;: False})
+    allocation = optimize.minimize(fun=lambda x: (-1)*portfolio.sharpe_ratio_function(x),
+                                   x0=init_guess,
+                                   method=constants.constants[&#39;OPTIMIZATION_METHOD&#39;], bounds=equity_bounds,
+                                   constraints=portfolio_constraints, options={&#39;disp&#39;: False})
 
     return allocation.x
+
 
 def maximize_portfolio_return(portfolio: Portfolio) -&gt; List[float]:
     &#34;&#34;&#34;
@@ -289,14 +300,15 @@ def maximize_portfolio_return(portfolio: Portfolio) -&gt; List[float]:
         &#39;type&#39;: &#39;eq&#39;,
         &#39;fun&#39;: portfolio.get_constraint
     }
-    
+
     logger.debug(f&#39;Maximizing {tickers} Portfolio Return&#39;)
-    allocation = optimize.minimize(fun = lambda x: (-1)*portfolio.return_function(x),
-                                    x0 = init_guess, method=constants.constants[&#39;OPTIMIZATION_METHOD&#39;],
-                                    bounds=equity_bounds, constraints=equity_constraint, 
-                                    options={&#39;disp&#39;: False})
+    allocation = optimize.minimize(fun=lambda x: (-1)*portfolio.return_function(x),
+                                   x0=init_guess, method=constants.constants[&#39;OPTIMIZATION_METHOD&#39;],
+                                   bounds=equity_bounds, constraints=equity_constraint,
+                                   options={&#39;disp&#39;: False})
 
     return allocation.x
+
 
 def calculate_efficient_frontier(portfolio: Portfolio, steps=None) -&gt; List[List[float]]:
     &#34;&#34;&#34;
@@ -307,7 +319,7 @@ def calculate_efficient_frontier(portfolio: Portfolio, steps=None) -&gt; List[Li
 
     2. **steps**: ``int``
         *Optional*. Defaults to `None`. The number of points calculated in the efficient frontier. If none is provided, it defaults to the environment variable **FRONTIER_STEPS**.
-    
+
     Returns
     -------
     ``list``
@@ -323,12 +335,13 @@ def calculate_efficient_frontier(portfolio: Portfolio, steps=None) -&gt; List[Li
     maximum_return = portfolio.return_function(maximum_allocation)
     return_width = (maximum_return - minimum_return)/steps
 
-    frontier=[]
+    frontier = []
     for i in range(steps+1):
         target_return = minimum_return + return_width*i
-        allocation = optimize_portfolio_variance(portfolio=portfolio, target_return=target_return)
+        allocation = optimize_portfolio_variance(
+            portfolio=portfolio, target_return=target_return)
         frontier.append(allocation)
-        
+
     return frontier</code></pre>
 </details>
 </section>
@@ -371,7 +384,7 @@ A nested list of floats. Each float list corresponds to a point on a portfolio's
 
     2. **steps**: ``int``
         *Optional*. Defaults to `None`. The number of points calculated in the efficient frontier. If none is provided, it defaults to the environment variable **FRONTIER_STEPS**.
-    
+
     Returns
     -------
     ``list``
@@ -387,12 +400,13 @@ A nested list of floats. Each float list corresponds to a point on a portfolio's
     maximum_return = portfolio.return_function(maximum_allocation)
     return_width = (maximum_return - minimum_return)/steps
 
-    frontier=[]
+    frontier = []
     for i in range(steps+1):
         target_return = minimum_return + return_width*i
-        allocation = optimize_portfolio_variance(portfolio=portfolio, target_return=target_return)
+        allocation = optimize_portfolio_variance(
+            portfolio=portfolio, target_return=target_return)
         frontier.append(allocation)
-        
+
     return frontier</code></pre>
 </details>
 </dd>
@@ -409,7 +423,7 @@ A list containing the maximum likelihood estimates of the bivariates normal dist
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def maximize_bivariate_normal_likelihood(data: List[Tuple[float,float]]) -&gt; List[float]:
+<pre><code class="python">def maximize_bivariate_normal_likelihood(data: List[Tuple[float, float]]) -&gt; List[float]:
     r&#34;&#34;&#34;
 
     .. warning ::
@@ -421,8 +435,8 @@ A list containing the maximum likelihood estimates of the bivariates normal dist
         A list containing the maximum likelihood estimates of the bivariates normal distribution&#39;s parameters. The first element of the list corresponds to \\(\mu_x)\\), the second element the \\(\mu_y)\\), the third element \\(\sigma_x)\\), the fourth element \\(\sigma_y)\\) and the fifth element \\(\rho_{xy} \cdot \sigma_y \cdot \sigma_x)\\).
     &#34;&#34;&#34;
 
-    x_data = [ datum[0] for datum in data ]
-    y_data = [ datum[1] for datum in data ] 
+    x_data = [datum[0] for datum in data]
+    y_data = [datum[1] for datum in data]
 
     x_25_percentile = estimators.sample_percentile(x_data, 0.25)
     y_25_percentile = estimators.sample_percentile(y_data, 0.25)
@@ -435,27 +449,27 @@ A list containing the maximum likelihood estimates of the bivariates normal dist
     x_99_percentile = estimators.sample_percentile(x_data, 0.99)
     y_99_percentile = estimators.sample_percentile(y_data, 0.99)
 
-    likelihood = lambda x : (-1)*estimators.bivariate_normal_likelihood_function(params=x, 
-                                                                                data=data)
+    def likelihood(x): return (-1)*estimators.bivariate_normal_likelihood_function(params=x,
+                                                                                   data=data)
 
     var_x_guess = (x_75_percentile - x_25_percentile)/2
     var_y_guess = (y_75_percentile - y_25_percentile)/2
-    guess = [ x_median, y_median, var_x_guess, var_y_guess, 0]
+    guess = [x_median, y_median, var_x_guess, var_y_guess, 0]
     var_x_bounds = x_99_percentile - x_1_percentile
     var_y_bounds = y_99_percentile - y_1_percentile
     cov_bounds = sqrt(var_x_bounds*var_y_bounds)
 
-    params = optimize.minimize(fun = likelihood, 
-                                x0 = guess,
-                                bounds = [
-                                    (None, None),
-                                    (None, None),
-                                    (0, var_x_bounds),
-                                    (0, var_y_bounds),
-                                    (-cov_bounds, cov_bounds)
-                                ],
-                                options ={&#39;disp&#39;: False},
-                                method=&#39;Nelder-Mead&#39;)
+    params = optimize.minimize(fun=likelihood,
+                               x0=guess,
+                               bounds=[
+                                   (None, None),
+                                   (None, None),
+                                   (0, var_x_bounds),
+                                   (0, var_y_bounds),
+                                   (-cov_bounds, cov_bounds)
+                               ],
+                               options={&#39;disp&#39;: False},
+                               method=&#39;Nelder-Mead&#39;)
     return params.x</code></pre>
 </details>
 </dd>
@@ -495,12 +509,12 @@ An array of floats that represents the proportion of the portfolio that should b
         &#39;type&#39;: &#39;eq&#39;,
         &#39;fun&#39;: portfolio.get_constraint
     }
-    
+
     logger.debug(f&#39;Maximizing {tickers} Portfolio Return&#39;)
-    allocation = optimize.minimize(fun = lambda x: (-1)*portfolio.return_function(x),
-                                    x0 = init_guess, method=constants.constants[&#39;OPTIMIZATION_METHOD&#39;],
-                                    bounds=equity_bounds, constraints=equity_constraint, 
-                                    options={&#39;disp&#39;: False})
+    allocation = optimize.minimize(fun=lambda x: (-1)*portfolio.return_function(x),
+                                   x0=init_guess, method=constants.constants[&#39;OPTIMIZATION_METHOD&#39;],
+                                   bounds=equity_bounds, constraints=equity_constraint,
+                                   options={&#39;disp&#39;: False})
 
     return allocation.x</code></pre>
 </details>
@@ -523,7 +537,7 @@ A list of floats that represents the proportion of the portfolio that should be 
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def maximize_sharpe_ratio(portfolio: Portfolio, target_return: float=None) -&gt; List[float]:
+<pre><code class="python">def maximize_sharpe_ratio(portfolio: Portfolio, target_return: float = None) -&gt; List[float]:
     &#34;&#34;&#34;
     Parameters
     ----------
@@ -543,12 +557,13 @@ A list of floats that represents the proportion of the portfolio that should be 
     init_guess = portfolio.get_init_guess()
     equity_bounds = portfolio.get_default_bounds()
     equity_constraint = {
-            &#39;type&#39;: &#39;eq&#39;,
-            &#39;fun&#39;: portfolio.get_constraint
-        }
+        &#39;type&#39;: &#39;eq&#39;,
+        &#39;fun&#39;: portfolio.get_constraint
+    }
 
     if target_return is not None:
-        logger.debug(f&#39;Optimizing {tickers} Portfolio Sharpe Ratio Subject To Return = {target_return}&#39;)
+        logger.debug(
+            f&#39;Optimizing {tickers} Portfolio Sharpe Ratio Subject To Return = {target_return}&#39;)
 
         return_constraint = {
             &#39;type&#39;: &#39;eq&#39;,
@@ -559,10 +574,10 @@ A list of floats that represents the proportion of the portfolio that should be 
         logger.debug(f&#39;Maximizing {tickers} Portfolio Sharpe Ratio&#39;)
         portfolio_constraints = equity_constraint
 
-    allocation = optimize.minimize(fun = lambda x: (-1)*portfolio.sharpe_ratio_function(x), 
-                                    x0 = init_guess, 
-                                    method=constants.constants[&#39;OPTIMIZATION_METHOD&#39;], bounds=equity_bounds, 
-                                    constraints=portfolio_constraints, options={&#39;disp&#39;: False})
+    allocation = optimize.minimize(fun=lambda x: (-1)*portfolio.sharpe_ratio_function(x),
+                                   x0=init_guess,
+                                   method=constants.constants[&#39;OPTIMIZATION_METHOD&#39;], bounds=equity_bounds,
+                                   constraints=portfolio_constraints, options={&#39;disp&#39;: False})
 
     return allocation.x</code></pre>
 </details>
@@ -594,7 +609,7 @@ The author, however, is not considering the transformed Ito process, the log of 
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def maximize_univariate_normal_likelihood(data: List[float])-&gt; List[float]:
+<pre><code class="python">def maximize_univariate_normal_likelihood(data: List[float]) -&gt; List[float]:
     r&#34;&#34;&#34;
     Maximizes the normal (log-)likelihood of the sample with respect to the mean and volatility in order to estimate the mean and volatility of the population distribution described by the sample.
 
@@ -614,7 +629,8 @@ The author, however, is not considering the transformed Ito process, the log of 
         The author, however, is not considering the transformed Ito process, the log of the asset price process. It seems like his conclusion may be an artifact of Ito&#39;s Lemma? Not sure. Will need to think.
     &#34;&#34;&#34;
 
-    likelihood = lambda x: (-1)*estimators.univariate_normal_likelihood_function(params=x, data=data)
+    def likelihood(x): return (-1) * \
+        estimators.univariate_normal_likelihood_function(params=x, data=data)
 
     # make an educated guess
     first_quartile = estimators.sample_percentile(data=data, percentile=0.25)
@@ -622,8 +638,8 @@ The author, however, is not considering the transformed Ito process, the log of 
     third_quartile = estimators.sample_percentile(data, percentile=0.75)
     guess = [median, (third_quartile-first_quartile)/2]
 
-    params = optimize.minimize(fun = likelihood, x0 = guess, options={&#39;disp&#39;: False},
-                                    method=constants.constants[&#39;OPTIMIZATION_METHOD&#39;])
+    params = optimize.minimize(fun=likelihood, x0=guess, options={&#39;disp&#39;: False},
+                               method=constants.constants[&#39;OPTIMIZATION_METHOD&#39;])
     return params.x</code></pre>
 </details>
 </dd>
@@ -649,7 +665,7 @@ A list of floats that represents the proportion of the portfolio that should be 
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def optimize_conditional_value_at_risk(portfolio: Portfolio, prob: float, expiry: float, target_return: float=None) -&gt; List[float]:
+<pre><code class="python">def optimize_conditional_value_at_risk(portfolio: Portfolio, prob: float, expiry: float, target_return: float = None) -&gt; List[float]:
     &#34;&#34;&#34;
     Parameters
     ----------
@@ -673,12 +689,13 @@ A list of floats that represents the proportion of the portfolio that should be 
     equity_bounds = portfolio.get_default_bounds()
 
     equity_constraint = {
-            &#39;type&#39;: &#39;eq&#39;,
-            &#39;fun&#39;: portfolio.get_constraint
+        &#39;type&#39;: &#39;eq&#39;,
+        &#39;fun&#39;: portfolio.get_constraint
     }
 
     if target_return is not None:
-        logger.debug(f&#39;Optimizing {tickers} Portfolio Conditional Value at Risk Subject To Return = {target_return}&#39;)
+        logger.debug(
+            f&#39;Optimizing {tickers} Portfolio Conditional Value at Risk Subject To Return = {target_return}&#39;)
 
         return_constraint = {
             &#39;type&#39;: &#39;eq&#39;,
@@ -686,13 +703,14 @@ A list of floats that represents the proportion of the portfolio that should be 
         }
         portfolio_constraints = [equity_constraint, return_constraint]
     else:
-        logger.debug(f&#39;Minimizing {tickers} Portfolio Conditional Value at Risk&#39;)
+        logger.debug(
+            f&#39;Minimizing {tickers} Portfolio Conditional Value at Risk&#39;)
         portfolio_constraints = equity_constraint
 
-    allocation = optimize.minimize(fun = lambda x: portfolio.conditional_value_at_risk_function(x, expiry, prob), 
-                                    x0 = init_guess, 
-                                    method=constants.constants[&#39;OPTIMIZATION_METHOD&#39;], bounds=equity_bounds, 
-                                    constraints=portfolio_constraints, options={&#39;disp&#39;: False})
+    allocation = optimize.minimize(fun=lambda x: portfolio.conditional_value_at_risk_function(x, expiry, prob),
+                                   x0=init_guess,
+                                   method=constants.constants[&#39;OPTIMIZATION_METHOD&#39;], bounds=equity_bounds,
+                                   constraints=portfolio_constraints, options={&#39;disp&#39;: False})
 
     return allocation.x</code></pre>
 </details>
@@ -714,7 +732,7 @@ An instance of the <code>Portfolio</code> class. Must be initialized with an arr
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def optimize_portfolio_variance(portfolio: Portfolio, target_return: float=None)-&gt; List[float]:
+<pre><code class="python">def optimize_portfolio_variance(portfolio: Portfolio, target_return: float = None) -&gt; List[float]:
     &#34;&#34;&#34;
     Parameters
     ----------
@@ -733,12 +751,13 @@ An instance of the <code>Portfolio</code> class. Must be initialized with an arr
     init_guess = portfolio.get_init_guess()
     equity_bounds = portfolio.get_default_bounds()
     equity_constraint = {
-            &#39;type&#39;: &#39;eq&#39;,
-            &#39;fun&#39;: portfolio.get_constraint
-        }
+        &#39;type&#39;: &#39;eq&#39;,
+        &#39;fun&#39;: portfolio.get_constraint
+    }
 
     if target_return is not None:
-        logger.debug(f&#39;Optimizing {tickers} Portfolio Volatility Subject To Return = {target_return}&#39;)
+        logger.debug(
+            f&#39;Optimizing {tickers} Portfolio Volatility Subject To Return = {target_return}&#39;)
 
         return_constraint = {
             &#39;type&#39;: &#39;eq&#39;,
@@ -749,9 +768,9 @@ An instance of the <code>Portfolio</code> class. Must be initialized with an arr
         logger.debug(f&#39;Minimizing {tickers} Portfolio Volatility&#39;)
         portfolio_constraints = equity_constraint
 
-    allocation = optimize.minimize(fun = portfolio.volatility_function, x0 = init_guess, 
-                                    method=constants.constants[&#39;OPTIMIZATION_METHOD&#39;], bounds=equity_bounds, 
-                                    constraints=portfolio_constraints, options={&#39;disp&#39;: False})
+    allocation = optimize.minimize(fun=portfolio.volatility_function, x0=init_guess,
+                                   method=constants.constants[&#39;OPTIMIZATION_METHOD&#39;], bounds=equity_bounds,
+                                   constraints=portfolio_constraints, options={&#39;disp&#39;: False})
 
     return allocation.x</code></pre>
 </details>

@@ -27,9 +27,11 @@
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">import os, datetime
+<pre><code class="python">import os
+import datetime
 from typing import List, Union
-import numpy, matplotlib
+import numpy
+import matplotlib
 from PIL import Image
 
 from matplotlib.figure import Figure
@@ -43,7 +45,7 @@ from scrilla.analysis.objects.cashflow import Cashflow
 from scrilla.errors import InputValidationError
 from scrilla.util import dater
 
-APP_ENV=os.environ.setdefault(&#39;APP_ENV&#39;, &#39;local&#39;)
+APP_ENV = os.environ.setdefault(&#39;APP_ENV&#39;, &#39;local&#39;)
 
 if APP_ENV == &#39;local&#39;:
     from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
@@ -51,6 +53,7 @@ if APP_ENV == &#39;local&#39;:
 elif APP_ENV == &#39;container&#39;:
     from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
     matplotlib.use(&#34;agg&#34;)
+
 
 def _show_or_save(canvas: FigureCanvas, show: bool = True, savefile: str = None) -&gt; Union[FigureCanvas, None]:
     if savefile is not None:
@@ -65,7 +68,8 @@ def _show_or_save(canvas: FigureCanvas, show: bool = True, savefile: str = None)
     canvas.draw()
     return canvas
 
-def plot_qq_series(ticker: str, qq_series: list, show: bool=True, savefile: str=None) -&gt; Union[FigureCanvas, None]:
+
+def plot_qq_series(ticker: str, qq_series: list, show: bool = True, savefile: str = None) -&gt; Union[FigureCanvas, None]:
     title = f&#39;{ticker} Return Q-Q Plot&#39;
     normal_series = []
     sample_series = []
@@ -76,7 +80,8 @@ def plot_qq_series(ticker: str, qq_series: list, show: bool=True, savefile: str=
     canvas = FigureCanvas(Figure())
     axes = canvas.figure.subplots()
 
-    axes.plot(normal_series, sample_series, linestyle=&#34;None&#34;, marker=&#34;.&#34;, markersize=10.0)
+    axes.plot(normal_series, sample_series,
+              linestyle=&#34;None&#34;, marker=&#34;.&#34;, markersize=10.0)
     # axes.plot(normal_series, normal_series)
     axes.grid()
     axes.set_xlabel(&#39;Normal Percentiles&#39;)
@@ -85,7 +90,8 @@ def plot_qq_series(ticker: str, qq_series: list, show: bool=True, savefile: str=
 
     return _show_or_save(canvas=canvas, show=show, savefile=savefile)
 
-def plot_correlation_series(tickers: list, series: dict, show: bool=True, savefile: str=None) -&gt; Union[FigureCanvas, None]:
+
+def plot_correlation_series(tickers: list, series: dict, show: bool = True, savefile: str = None) -&gt; Union[FigureCanvas, None]:
     start, end = list(series.keys())[-1], list(series.keys())[0]
     title = f&#39;({tickers[0]}, {tickers[1]}) correlation time series&#39;
     subtitle = f&#39;{start} to {end}, rolling {settings.DEFAULT_ANALYSIS_PERIOD}-day estimate&#39;
@@ -97,7 +103,7 @@ def plot_correlation_series(tickers: list, series: dict, show: bool=True, savefi
     locator = mdates.AutoDateLocator()
     formatter = mdates.AutoDateFormatter(locator)
 
-    correl_history, dates= [], []
+    correl_history, dates = [], []
     for date in series:
         dates.append(dater.parse_date_string(date))
         correl_history.append(series[date])
@@ -114,14 +120,15 @@ def plot_correlation_series(tickers: list, series: dict, show: bool=True, savefi
 
     return _show_or_save(canvas=canvas, show=show, savefile=savefile)
 
-def plot_frontier(portfolio: Portfolio, frontier: list, show: bool=True, savefile: str=None) -&gt; Union[FigureCanvas, None]:
+
+def plot_frontier(portfolio: Portfolio, frontier: list, show: bool = True, savefile: str = None) -&gt; Union[FigureCanvas, None]:
     title = &#34; (&#34;
     for i, item in enumerate(portfolio.tickers):
         if i != (len(portfolio.tickers) - 1):
             title += item + &#34;, &#34;
         else:
             title += item + &#34;) Efficient Frontier&#34;
-    
+
     return_profile, risk_profile = [], []
     for allocation in frontier:
         return_profile.append(portfolio.return_function(allocation))
@@ -138,7 +145,8 @@ def plot_frontier(portfolio: Portfolio, frontier: list, show: bool=True, savefil
 
     return _show_or_save(canvas=canvas, show=show, savefile=savefile)
 
-def plot_yield_curve(yield_curve: dict, show: bool=True, savefile: str=None) -&gt; Union[FigureCanvas, None]:
+
+def plot_yield_curve(yield_curve: dict, show: bool = True, savefile: str = None) -&gt; Union[FigureCanvas, None]:
     title = f&#39;US Treasury Yield Curve On {list(yield_curve.keys())[0]}&#39;
 
     canvas = FigureCanvas(Figure())
@@ -149,7 +157,8 @@ def plot_yield_curve(yield_curve: dict, show: bool=True, savefile: str=None) -&g
     for i, rate in enumerate(rates):
         maturities.append(yield_map[keys.keys[&#39;YIELD_CURVE&#39;][i]])
 
-    axes.plot(maturities, rates, linestyle=&#34;dashed&#34;, marker= &#34;.&#34;, markersize=10.0)
+    axes.plot(maturities, rates, linestyle=&#34;dashed&#34;,
+              marker=&#34;.&#34;, markersize=10.0)
     axes.grid()
     axes.set_xlabel(&#39;Maturity&#39;)
     axes.set_ylabel(&#39;Annual Yield %&#39;)
@@ -157,7 +166,8 @@ def plot_yield_curve(yield_curve: dict, show: bool=True, savefile: str=None) -&g
 
     return _show_or_save(canvas=canvas, show=show, savefile=savefile)
 
-def plot_return_histogram(ticker: str, sample: list, show: bool=True, savefile: str=None)-&gt; Union[FigureCanvas, None]:
+
+def plot_return_histogram(ticker: str, sample: list, show: bool = True, savefile: str = None) -&gt; Union[FigureCanvas, None]:
     canvas = FigureCanvas(Figure())
     axes = canvas.figure.subplots()
 
@@ -165,21 +175,22 @@ def plot_return_histogram(ticker: str, sample: list, show: bool=True, savefile: 
     axes.xaxis.set_major_formatter(PercentFormatter(xmax=1))
     axes.set_title(f&#39;Distribution of {ticker} Returns&#39;)
     axes.set_xlabel(&#39;Daily Return&#39;)
-    
+
     return _show_or_save(canvas=canvas, show=show, savefile=savefile)
 
-def plot_profiles(symbols: list, profiles: dict, show: bool=True, savefile: str=None, subtitle: str=None) -&gt; Union[FigureCanvas, None]:
+
+def plot_profiles(symbols: list, profiles: dict, show: bool = True, savefile: str = None, subtitle: str = None) -&gt; Union[FigureCanvas, None]:
     canvas = FigureCanvas(Figure())
 
     no_symbols = len(symbols)
     axes = canvas.figure.subplots()
 
-    title =&#34;(&#34;
+    title = &#34;(&#34;
     for symbol in symbols:
         if symbols.index(symbol) != (len(symbols)-1):
-            title += symbol +&#34;, &#34;
+            title += symbol + &#34;, &#34;
         else:
-            title += symbol +&#39;) Risk-Return Profile&#39;
+            title += symbol + &#39;) Risk-Return Profile&#39;
             if subtitle is not None:
                 title += &#34;\n&#34; + subtitle
 
@@ -188,7 +199,8 @@ def plot_profiles(symbols: list, profiles: dict, show: bool=True, savefile: str=
         return_profile.append(profiles[profile][&#39;annual_return&#39;])
         risk_profile.append(profiles[profile][&#39;annual_volatility&#39;])
 
-    axes.plot(risk_profile, return_profile, linestyle=&#39;None&#39;, marker= &#34;.&#34;, markersize=10.0)
+    axes.plot(risk_profile, return_profile,
+              linestyle=&#39;None&#39;, marker=&#34;.&#34;, markersize=10.0)
     axes.grid()
     axes.set_xlabel(&#39;Volatility&#39;)
     axes.set_ylabel(&#39;Return&#39;)
@@ -201,7 +213,8 @@ def plot_profiles(symbols: list, profiles: dict, show: bool=True, savefile: str=
 
     # TODO: figure out date formatting for x-axis
 
-def plot_moving_averages(symbols:List[str], averages_output: List[List[float]], periods: List[int], show: bool=True, savefile: str=None) -&gt; Union[FigureCanvas, None]:
+
+def plot_moving_averages(symbols: List[str], averages_output: List[List[float]], periods: List[int], show: bool = True, savefile: str = None) -&gt; Union[FigureCanvas, None]:
     averages, dates = averages_output
     canvas = FigureCanvas(Figure())
     axes = canvas.figure.subplots()
@@ -213,7 +226,7 @@ def plot_moving_averages(symbols:List[str], averages_output: List[List[float]], 
             ma1s.append(averages[i][0])
             ma2s.append(averages[i][1])
             ma3s.append(averages[i][2])
-    
+
         width = formats.formats[&#39;BAR_WIDTH&#39;]
         x = numpy.arange(len(symbols))
 
@@ -222,71 +235,79 @@ def plot_moving_averages(symbols:List[str], averages_output: List[List[float]], 
         axes.bar(x - width, ma3s, width, label=ma3_label)
 
         axes.set_ylabel(&#39;Annual Logarithmic Return&#39;)
-        axes.set_title(&#39;Moving Averages of Annualized Daily Return Grouped By Equity&#39;)
+        axes.set_title(
+            &#39;Moving Averages of Annualized Daily Return Grouped By Equity&#39;)
         axes.set_xticks(x)
         axes.set_xticklabels(symbols)
         axes.legend()
 
     else:
-        
+
         # TODO: generate different locators based on length of period
-        x = [datetime.datetime.strptime(dater.date_to_string(date), &#39;%Y-%m-%d&#39;).toordinal() for date in dates]
-        date_locator = matplotlib.dates.WeekdayLocator(byweekday=(matplotlib.dates.WE))
+        x = [datetime.datetime.strptime(dater.date_to_string(
+            date), &#39;%Y-%m-%d&#39;).toordinal() for date in dates]
+        date_locator = matplotlib.dates.WeekdayLocator(
+            byweekday=(matplotlib.dates.WE))
         date_format = matplotlib.dates.DateFormatter(&#39;%m-%d&#39;)
-        
+
         for i, item in enumerate(symbols):
             ma1s, ma2s, ma3s = [], [], []
             ma1_label, ma2_label, ma3_label = f&#39;{item}_{ma1_label}&#39;, f&#39;{item}_{ma2_label}&#39;, f&#39;{item}_{ma3_label}&#39;
             for j in range(len(dates)):
                 MA_1 = averages[i][0][j]
                 ma1s.append(MA_1)
-                                  
+
                 MA_2 = averages[i][1][j]
                 ma2s.append(MA_2)
-         
+
                 MA_3 = averages[i][2][j]
                 ma3s.append(MA_3)
-            
-            start_date, end_date = dates[0], dates[-1] 
+
+            start_date, end_date = dates[0], dates[-1]
             title_str = f&#39;Moving Averages of Annualized Return From {start_date} to {end_date}&#39;
 
-            axes.plot(x, ma1s, linestyle=&#34;solid&#34;, color=&#34;darkgreen&#34;, label=ma1_label)
-            axes.plot(x, ma2s, linestyle=&#34;dotted&#34;, color=&#34;gold&#34;, label=ma2_label)
-            axes.plot(x, ma3s, linestyle=&#34;dashdot&#34;, color=&#34;orangered&#34;, label=ma3_label)
+            axes.plot(x, ma1s, linestyle=&#34;solid&#34;,
+                      color=&#34;darkgreen&#34;, label=ma1_label)
+            axes.plot(x, ma2s, linestyle=&#34;dotted&#34;,
+                      color=&#34;gold&#34;, label=ma2_label)
+            axes.plot(x, ma3s, linestyle=&#34;dashdot&#34;,
+                      color=&#34;orangered&#34;, label=ma3_label)
 
         axes.set_title(title_str)
         axes.set_ylabel(&#39;Annualized Logarthmic Return&#39;)
         axes.set_xlabel(&#39;Dates&#39;)
         axes.xaxis.set_major_locator(date_locator)
         axes.xaxis.set_major_formatter(date_format)
-        
+
         axes.legend()
 
     return _show_or_save(canvas=canvas, show=show, savefile=savefile)
 
-def plot_cashflow(ticker: str, cashflow: Cashflow, show: bool=True, savefile: str=None) -&gt; Union[FigureCanvas, None]:
+
+def plot_cashflow(ticker: str, cashflow: Cashflow, show: bool = True, savefile: str = None) -&gt; Union[FigureCanvas, None]:
     if not cashflow.beta or not cashflow.alpha or len(cashflow.sample) &lt; 3:
-        raise InputValidationError(&#34;Cashflow model does not contain enough information to be plotted&#34;)
-    
+        raise InputValidationError(
+            &#34;Cashflow model does not contain enough information to be plotted&#34;)
+
     canvas = FigureCanvas(Figure())
     figure = canvas.figure
     axes = figure.subplots()
 
-    date_format = mdates.DateFormatter(&#39;%m-%d&#39;)
-
     sup_title_str = f&#39;{ticker} Dividend Linear Regression Model&#39;
     title_str = f&#39;NPV(dividends | discount = {round(cashflow.discount_rate,4)}) = $ {round(cashflow.calculate_net_present_value(), 2)}&#39;
 
-    dividend_history, ordinal_x, dates= [], [], []
+    dividend_history, ordinal_x, dates = [], [], []
     for date in cashflow.sample:
         dates.append(date)
-        ordinal_x.append(datetime.datetime.strptime(date, &#39;%Y-%m-%d&#39;).toordinal())
+        ordinal_x.append(datetime.datetime.strptime(
+            date, &#39;%Y-%m-%d&#39;).toordinal())
         dividend_history.append(cashflow.sample[date])
 
     dates.reverse()
-    
-    model_map = list(map(lambda x: cashflow.alpha + cashflow.beta*x, cashflow.time_series))
-    
+
+    model_map = list(map(lambda x: cashflow.alpha +
+                     cashflow.beta*x, cashflow.time_series))
+
     axes.scatter(ordinal_x, dividend_history, marker=&#34;.&#34;)
     axes.plot(ordinal_x, model_map)
     axes.grid()
@@ -317,29 +338,30 @@ def plot_cashflow(ticker: str, cashflow: Cashflow, show: bool=True, savefile: st
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def plot_cashflow(ticker: str, cashflow: Cashflow, show: bool=True, savefile: str=None) -&gt; Union[FigureCanvas, None]:
+<pre><code class="python">def plot_cashflow(ticker: str, cashflow: Cashflow, show: bool = True, savefile: str = None) -&gt; Union[FigureCanvas, None]:
     if not cashflow.beta or not cashflow.alpha or len(cashflow.sample) &lt; 3:
-        raise InputValidationError(&#34;Cashflow model does not contain enough information to be plotted&#34;)
-    
+        raise InputValidationError(
+            &#34;Cashflow model does not contain enough information to be plotted&#34;)
+
     canvas = FigureCanvas(Figure())
     figure = canvas.figure
     axes = figure.subplots()
 
-    date_format = mdates.DateFormatter(&#39;%m-%d&#39;)
-
     sup_title_str = f&#39;{ticker} Dividend Linear Regression Model&#39;
     title_str = f&#39;NPV(dividends | discount = {round(cashflow.discount_rate,4)}) = $ {round(cashflow.calculate_net_present_value(), 2)}&#39;
 
-    dividend_history, ordinal_x, dates= [], [], []
+    dividend_history, ordinal_x, dates = [], [], []
     for date in cashflow.sample:
         dates.append(date)
-        ordinal_x.append(datetime.datetime.strptime(date, &#39;%Y-%m-%d&#39;).toordinal())
+        ordinal_x.append(datetime.datetime.strptime(
+            date, &#39;%Y-%m-%d&#39;).toordinal())
         dividend_history.append(cashflow.sample[date])
 
     dates.reverse()
-    
-    model_map = list(map(lambda x: cashflow.alpha + cashflow.beta*x, cashflow.time_series))
-    
+
+    model_map = list(map(lambda x: cashflow.alpha +
+                     cashflow.beta*x, cashflow.time_series))
+
     axes.scatter(ordinal_x, dividend_history, marker=&#34;.&#34;)
     axes.plot(ordinal_x, model_map)
     axes.grid()
@@ -363,7 +385,7 @@ def plot_cashflow(ticker: str, cashflow: Cashflow, show: bool=True, savefile: st
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def plot_correlation_series(tickers: list, series: dict, show: bool=True, savefile: str=None) -&gt; Union[FigureCanvas, None]:
+<pre><code class="python">def plot_correlation_series(tickers: list, series: dict, show: bool = True, savefile: str = None) -&gt; Union[FigureCanvas, None]:
     start, end = list(series.keys())[-1], list(series.keys())[0]
     title = f&#39;({tickers[0]}, {tickers[1]}) correlation time series&#39;
     subtitle = f&#39;{start} to {end}, rolling {settings.DEFAULT_ANALYSIS_PERIOD}-day estimate&#39;
@@ -375,7 +397,7 @@ def plot_cashflow(ticker: str, cashflow: Cashflow, show: bool=True, savefile: st
     locator = mdates.AutoDateLocator()
     formatter = mdates.AutoDateFormatter(locator)
 
-    correl_history, dates= [], []
+    correl_history, dates = [], []
     for date in series:
         dates.append(dater.parse_date_string(date))
         correl_history.append(series[date])
@@ -402,14 +424,14 @@ def plot_cashflow(ticker: str, cashflow: Cashflow, show: bool=True, savefile: st
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def plot_frontier(portfolio: Portfolio, frontier: list, show: bool=True, savefile: str=None) -&gt; Union[FigureCanvas, None]:
+<pre><code class="python">def plot_frontier(portfolio: Portfolio, frontier: list, show: bool = True, savefile: str = None) -&gt; Union[FigureCanvas, None]:
     title = &#34; (&#34;
     for i, item in enumerate(portfolio.tickers):
         if i != (len(portfolio.tickers) - 1):
             title += item + &#34;, &#34;
         else:
             title += item + &#34;) Efficient Frontier&#34;
-    
+
     return_profile, risk_profile = [], []
     for allocation in frontier:
         return_profile.append(portfolio.return_function(allocation))
@@ -436,7 +458,7 @@ def plot_cashflow(ticker: str, cashflow: Cashflow, show: bool=True, savefile: st
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def plot_moving_averages(symbols:List[str], averages_output: List[List[float]], periods: List[int], show: bool=True, savefile: str=None) -&gt; Union[FigureCanvas, None]:
+<pre><code class="python">def plot_moving_averages(symbols: List[str], averages_output: List[List[float]], periods: List[int], show: bool = True, savefile: str = None) -&gt; Union[FigureCanvas, None]:
     averages, dates = averages_output
     canvas = FigureCanvas(Figure())
     axes = canvas.figure.subplots()
@@ -448,7 +470,7 @@ def plot_cashflow(ticker: str, cashflow: Cashflow, show: bool=True, savefile: st
             ma1s.append(averages[i][0])
             ma2s.append(averages[i][1])
             ma3s.append(averages[i][2])
-    
+
         width = formats.formats[&#39;BAR_WIDTH&#39;]
         x = numpy.arange(len(symbols))
 
@@ -457,44 +479,50 @@ def plot_cashflow(ticker: str, cashflow: Cashflow, show: bool=True, savefile: st
         axes.bar(x - width, ma3s, width, label=ma3_label)
 
         axes.set_ylabel(&#39;Annual Logarithmic Return&#39;)
-        axes.set_title(&#39;Moving Averages of Annualized Daily Return Grouped By Equity&#39;)
+        axes.set_title(
+            &#39;Moving Averages of Annualized Daily Return Grouped By Equity&#39;)
         axes.set_xticks(x)
         axes.set_xticklabels(symbols)
         axes.legend()
 
     else:
-        
+
         # TODO: generate different locators based on length of period
-        x = [datetime.datetime.strptime(dater.date_to_string(date), &#39;%Y-%m-%d&#39;).toordinal() for date in dates]
-        date_locator = matplotlib.dates.WeekdayLocator(byweekday=(matplotlib.dates.WE))
+        x = [datetime.datetime.strptime(dater.date_to_string(
+            date), &#39;%Y-%m-%d&#39;).toordinal() for date in dates]
+        date_locator = matplotlib.dates.WeekdayLocator(
+            byweekday=(matplotlib.dates.WE))
         date_format = matplotlib.dates.DateFormatter(&#39;%m-%d&#39;)
-        
+
         for i, item in enumerate(symbols):
             ma1s, ma2s, ma3s = [], [], []
             ma1_label, ma2_label, ma3_label = f&#39;{item}_{ma1_label}&#39;, f&#39;{item}_{ma2_label}&#39;, f&#39;{item}_{ma3_label}&#39;
             for j in range(len(dates)):
                 MA_1 = averages[i][0][j]
                 ma1s.append(MA_1)
-                                  
+
                 MA_2 = averages[i][1][j]
                 ma2s.append(MA_2)
-         
+
                 MA_3 = averages[i][2][j]
                 ma3s.append(MA_3)
-            
-            start_date, end_date = dates[0], dates[-1] 
+
+            start_date, end_date = dates[0], dates[-1]
             title_str = f&#39;Moving Averages of Annualized Return From {start_date} to {end_date}&#39;
 
-            axes.plot(x, ma1s, linestyle=&#34;solid&#34;, color=&#34;darkgreen&#34;, label=ma1_label)
-            axes.plot(x, ma2s, linestyle=&#34;dotted&#34;, color=&#34;gold&#34;, label=ma2_label)
-            axes.plot(x, ma3s, linestyle=&#34;dashdot&#34;, color=&#34;orangered&#34;, label=ma3_label)
+            axes.plot(x, ma1s, linestyle=&#34;solid&#34;,
+                      color=&#34;darkgreen&#34;, label=ma1_label)
+            axes.plot(x, ma2s, linestyle=&#34;dotted&#34;,
+                      color=&#34;gold&#34;, label=ma2_label)
+            axes.plot(x, ma3s, linestyle=&#34;dashdot&#34;,
+                      color=&#34;orangered&#34;, label=ma3_label)
 
         axes.set_title(title_str)
         axes.set_ylabel(&#39;Annualized Logarthmic Return&#39;)
         axes.set_xlabel(&#39;Dates&#39;)
         axes.xaxis.set_major_locator(date_locator)
         axes.xaxis.set_major_formatter(date_format)
-        
+
         axes.legend()
 
     return _show_or_save(canvas=canvas, show=show, savefile=savefile)</code></pre>
@@ -509,18 +537,18 @@ def plot_cashflow(ticker: str, cashflow: Cashflow, show: bool=True, savefile: st
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def plot_profiles(symbols: list, profiles: dict, show: bool=True, savefile: str=None, subtitle: str=None) -&gt; Union[FigureCanvas, None]:
+<pre><code class="python">def plot_profiles(symbols: list, profiles: dict, show: bool = True, savefile: str = None, subtitle: str = None) -&gt; Union[FigureCanvas, None]:
     canvas = FigureCanvas(Figure())
 
     no_symbols = len(symbols)
     axes = canvas.figure.subplots()
 
-    title =&#34;(&#34;
+    title = &#34;(&#34;
     for symbol in symbols:
         if symbols.index(symbol) != (len(symbols)-1):
-            title += symbol +&#34;, &#34;
+            title += symbol + &#34;, &#34;
         else:
-            title += symbol +&#39;) Risk-Return Profile&#39;
+            title += symbol + &#39;) Risk-Return Profile&#39;
             if subtitle is not None:
                 title += &#34;\n&#34; + subtitle
 
@@ -529,7 +557,8 @@ def plot_cashflow(ticker: str, cashflow: Cashflow, show: bool=True, savefile: st
         return_profile.append(profiles[profile][&#39;annual_return&#39;])
         risk_profile.append(profiles[profile][&#39;annual_volatility&#39;])
 
-    axes.plot(risk_profile, return_profile, linestyle=&#39;None&#39;, marker= &#34;.&#34;, markersize=10.0)
+    axes.plot(risk_profile, return_profile,
+              linestyle=&#39;None&#39;, marker=&#34;.&#34;, markersize=10.0)
     axes.grid()
     axes.set_xlabel(&#39;Volatility&#39;)
     axes.set_ylabel(&#39;Return&#39;)
@@ -552,7 +581,7 @@ def plot_cashflow(ticker: str, cashflow: Cashflow, show: bool=True, savefile: st
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def plot_qq_series(ticker: str, qq_series: list, show: bool=True, savefile: str=None) -&gt; Union[FigureCanvas, None]:
+<pre><code class="python">def plot_qq_series(ticker: str, qq_series: list, show: bool = True, savefile: str = None) -&gt; Union[FigureCanvas, None]:
     title = f&#39;{ticker} Return Q-Q Plot&#39;
     normal_series = []
     sample_series = []
@@ -563,7 +592,8 @@ def plot_cashflow(ticker: str, cashflow: Cashflow, show: bool=True, savefile: st
     canvas = FigureCanvas(Figure())
     axes = canvas.figure.subplots()
 
-    axes.plot(normal_series, sample_series, linestyle=&#34;None&#34;, marker=&#34;.&#34;, markersize=10.0)
+    axes.plot(normal_series, sample_series,
+              linestyle=&#34;None&#34;, marker=&#34;.&#34;, markersize=10.0)
     # axes.plot(normal_series, normal_series)
     axes.grid()
     axes.set_xlabel(&#39;Normal Percentiles&#39;)
@@ -582,7 +612,7 @@ def plot_cashflow(ticker: str, cashflow: Cashflow, show: bool=True, savefile: st
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def plot_return_histogram(ticker: str, sample: list, show: bool=True, savefile: str=None)-&gt; Union[FigureCanvas, None]:
+<pre><code class="python">def plot_return_histogram(ticker: str, sample: list, show: bool = True, savefile: str = None) -&gt; Union[FigureCanvas, None]:
     canvas = FigureCanvas(Figure())
     axes = canvas.figure.subplots()
 
@@ -590,7 +620,7 @@ def plot_cashflow(ticker: str, cashflow: Cashflow, show: bool=True, savefile: st
     axes.xaxis.set_major_formatter(PercentFormatter(xmax=1))
     axes.set_title(f&#39;Distribution of {ticker} Returns&#39;)
     axes.set_xlabel(&#39;Daily Return&#39;)
-    
+
     return _show_or_save(canvas=canvas, show=show, savefile=savefile)</code></pre>
 </details>
 </dd>
@@ -603,7 +633,7 @@ def plot_cashflow(ticker: str, cashflow: Cashflow, show: bool=True, savefile: st
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def plot_yield_curve(yield_curve: dict, show: bool=True, savefile: str=None) -&gt; Union[FigureCanvas, None]:
+<pre><code class="python">def plot_yield_curve(yield_curve: dict, show: bool = True, savefile: str = None) -&gt; Union[FigureCanvas, None]:
     title = f&#39;US Treasury Yield Curve On {list(yield_curve.keys())[0]}&#39;
 
     canvas = FigureCanvas(Figure())
@@ -614,7 +644,8 @@ def plot_cashflow(ticker: str, cashflow: Cashflow, show: bool=True, savefile: st
     for i, rate in enumerate(rates):
         maturities.append(yield_map[keys.keys[&#39;YIELD_CURVE&#39;][i]])
 
-    axes.plot(maturities, rates, linestyle=&#34;dashed&#34;, marker= &#34;.&#34;, markersize=10.0)
+    axes.plot(maturities, rates, linestyle=&#34;dashed&#34;,
+              marker=&#34;.&#34;, markersize=10.0)
     axes.grid()
     axes.set_xlabel(&#39;Maturity&#39;)
     axes.set_ylabel(&#39;Annual Yield %&#39;)

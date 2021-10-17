@@ -31,6 +31,7 @@
 from scrilla.static import keys
 from scrilla.util import dater
 
+
 def get_trading_period(asset_type: str) -&gt; float:
     &#34;&#34;&#34;
     Returns the value of one trading day measured in years of the asset_type passed in as an argument.
@@ -38,12 +39,13 @@ def get_trading_period(asset_type: str) -&gt; float:
     Parameters
     ----------
     1. **asset_type**: ``str``
-    
+
     A string that represents a type of tradeable asset. Types are statically accessible through the ` settings` variables: ASSET_EQUITY and ASSET_CRYPTO.
     &#34;&#34;&#34;
     if asset_type == keys.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]:
         return constants[&#39;ONE_TRADING_DAY&#39;][&#39;CRYPTO&#39;]
     return constants[&#39;ONE_TRADING_DAY&#39;][&#39;EQUITY&#39;]
+
 
 def format_profiles(profiles: dict):
     profiles_format = []
@@ -53,14 +55,17 @@ def format_profiles(profiles: dict):
         profiles_format.append(holding)
     return profiles_format
 
+
 def format_allocation(allocation, portfolio, investment=None):
     allocation_format = []
 
     if investment is not None:
-        shares = portfolio.calculate_approximate_shares(x=allocation, total=investment)
-        total = portfolio.calculate_actual_total(x=allocation, total=investment)
+        shares = portfolio.calculate_approximate_shares(
+            x=allocation, total=investment)
+        total = portfolio.calculate_actual_total(
+            x=allocation, total=investment)
 
-    annual_volatility = portfolio.volatility_function(x=allocation) 
+    annual_volatility = portfolio.volatility_function(x=allocation)
     annual_return = portfolio.return_function(x=allocation)
 
     for j, item in enumerate(portfolio.tickers):
@@ -69,8 +74,10 @@ def format_allocation(allocation, portfolio, investment=None):
         holding[&#39;allocation&#39;] = round(allocation[j], constants[&#39;ACCURACY&#39;])
         if investment is not None:
             holding[&#39;shares&#39;] = float(shares[j])
-        holding[&#39;annual_return&#39;] = round(portfolio.mean_return[j], constants[&#39;ACCURACY&#39;]) 
-        holding[&#39;annual_volatility&#39;] = round(portfolio.sample_vol[j], constants[&#39;ACCURACY&#39;])
+        holding[&#39;annual_return&#39;] = round(
+            portfolio.mean_return[j], constants[&#39;ACCURACY&#39;])
+        holding[&#39;annual_volatility&#39;] = round(
+            portfolio.sample_vol[j], constants[&#39;ACCURACY&#39;])
         allocation_format.append(holding)
 
     json_format = {}
@@ -78,18 +85,20 @@ def format_allocation(allocation, portfolio, investment=None):
 
     if investment is not None:
         json_format[&#39;total&#39;] = float(total)
-        
+
     json_format[&#39;portfolio_return&#39;] = annual_return
     json_format[&#39;portfolio_volatility&#39;] = annual_volatility
-    
+
     return json_format
+
 
 def format_frontier(portfolio, frontier, investment=None):
     json_format = []
     for i, item in enumerate(frontier):
-        json_format.append(format_allocation(allocation=item, portfolio=portfolio, 
-                                                            investment=investment))
+        json_format.append(format_allocation(allocation=item, portfolio=portfolio,
+                                             investment=investment))
     return json_format
+
 
 def format_correlation_matrix(tickers, correlation_matrix):
     response = []
@@ -102,26 +111,32 @@ def format_correlation_matrix(tickers, correlation_matrix):
     return response
 
 # GUI FORMATTING
+
+
 def format_allocation_profile_title(allocation, portfolio) -&gt; str:
-    port_return, port_volatility = portfolio.return_function(allocation), portfolio.volatility_function(allocation)
-    formatted_result = &#34;(&#34;+str(100*port_return)[:5]+&#34;%, &#34; + str(100*port_volatility)[:5]+&#34;%)&#34;
+    port_return, port_volatility = portfolio.return_function(
+        allocation), portfolio.volatility_function(allocation)
+    formatted_result = &#34;(&#34;+str(100 *
+                               port_return)[:5]+&#34;%, &#34; + str(100*port_volatility)[:5]+&#34;%)&#34;
     formatted_result_title = &#34;(&#34;
     for symbol in portfolio.tickers:
         if portfolio.tickers.index(symbol) != (len(portfolio.tickers) - 1):
             formatted_result_title += symbol+&#34;, &#34;
         else:
             formatted_result_title += symbol + &#34;) Portfolio Return-Risk Profile&#34;
-    whole_thing = formatted_result_title +&#34; = &#34;+formatted_result
+    whole_thing = formatted_result_title + &#34; = &#34;+formatted_result
     return whole_thing
 
 # TODO: refactor this, along with scrilla.analysis.models.geometric.statistics.calculate_moving_averages
+
+
 def format_moving_averages(tickers, averages_output):
     these_moving_averages, dates = averages_output
 
     response = {}
     for i, item in enumerate(tickers):
-        ticker_str=f&#39;{item}&#39;
-        MA_1_str, MA_2_str, MA_3_str = f&#39;{ticker_str}_MA_1&#39;, f&#39;{ticker_str}_MA_2&#39;, f&#39;{ticker_str}_MA_3&#39;    
+        ticker_str = f&#39;{item}&#39;
+        MA_1_str, MA_2_str, MA_3_str = f&#39;{ticker_str}_MA_1&#39;, f&#39;{ticker_str}_MA_2&#39;, f&#39;{ticker_str}_MA_3&#39;
 
         subresponse = {}
         if dates is None:
@@ -131,9 +146,9 @@ def format_moving_averages(tickers, averages_output):
 
         else:
             subsubresponse_1, subsubresponse_2, subsubresponse_3 = {}, {}, {}
-    
+
             for j, this_item in enumerate(dates):
-                date_str=dater.date_to_string(this_item)
+                date_str = dater.date_to_string(this_item)
                 subsubresponse_1[date_str] = these_moving_averages[i][0][j]
                 subsubresponse_2[date_str] = these_moving_averages[i][1][j]
                 subsubresponse_3[date_str] = these_moving_averages[i][2][j]
@@ -143,7 +158,7 @@ def format_moving_averages(tickers, averages_output):
             subresponse[MA_3_str] = subsubresponse_3
 
         response[ticker_str] = subresponse
-    
+
     return response</code></pre>
 </details>
 </section>
@@ -167,10 +182,12 @@ def format_moving_averages(tickers, averages_output):
     allocation_format = []
 
     if investment is not None:
-        shares = portfolio.calculate_approximate_shares(x=allocation, total=investment)
-        total = portfolio.calculate_actual_total(x=allocation, total=investment)
+        shares = portfolio.calculate_approximate_shares(
+            x=allocation, total=investment)
+        total = portfolio.calculate_actual_total(
+            x=allocation, total=investment)
 
-    annual_volatility = portfolio.volatility_function(x=allocation) 
+    annual_volatility = portfolio.volatility_function(x=allocation)
     annual_return = portfolio.return_function(x=allocation)
 
     for j, item in enumerate(portfolio.tickers):
@@ -179,8 +196,10 @@ def format_moving_averages(tickers, averages_output):
         holding[&#39;allocation&#39;] = round(allocation[j], constants[&#39;ACCURACY&#39;])
         if investment is not None:
             holding[&#39;shares&#39;] = float(shares[j])
-        holding[&#39;annual_return&#39;] = round(portfolio.mean_return[j], constants[&#39;ACCURACY&#39;]) 
-        holding[&#39;annual_volatility&#39;] = round(portfolio.sample_vol[j], constants[&#39;ACCURACY&#39;])
+        holding[&#39;annual_return&#39;] = round(
+            portfolio.mean_return[j], constants[&#39;ACCURACY&#39;])
+        holding[&#39;annual_volatility&#39;] = round(
+            portfolio.sample_vol[j], constants[&#39;ACCURACY&#39;])
         allocation_format.append(holding)
 
     json_format = {}
@@ -188,10 +207,10 @@ def format_moving_averages(tickers, averages_output):
 
     if investment is not None:
         json_format[&#39;total&#39;] = float(total)
-        
+
     json_format[&#39;portfolio_return&#39;] = annual_return
     json_format[&#39;portfolio_volatility&#39;] = annual_volatility
-    
+
     return json_format</code></pre>
 </details>
 </dd>
@@ -205,15 +224,17 @@ def format_moving_averages(tickers, averages_output):
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def format_allocation_profile_title(allocation, portfolio) -&gt; str:
-    port_return, port_volatility = portfolio.return_function(allocation), portfolio.volatility_function(allocation)
-    formatted_result = &#34;(&#34;+str(100*port_return)[:5]+&#34;%, &#34; + str(100*port_volatility)[:5]+&#34;%)&#34;
+    port_return, port_volatility = portfolio.return_function(
+        allocation), portfolio.volatility_function(allocation)
+    formatted_result = &#34;(&#34;+str(100 *
+                               port_return)[:5]+&#34;%, &#34; + str(100*port_volatility)[:5]+&#34;%)&#34;
     formatted_result_title = &#34;(&#34;
     for symbol in portfolio.tickers:
         if portfolio.tickers.index(symbol) != (len(portfolio.tickers) - 1):
             formatted_result_title += symbol+&#34;, &#34;
         else:
             formatted_result_title += symbol + &#34;) Portfolio Return-Risk Profile&#34;
-    whole_thing = formatted_result_title +&#34; = &#34;+formatted_result
+    whole_thing = formatted_result_title + &#34; = &#34;+formatted_result
     return whole_thing</code></pre>
 </details>
 </dd>
@@ -249,8 +270,8 @@ def format_moving_averages(tickers, averages_output):
 <pre><code class="python">def format_frontier(portfolio, frontier, investment=None):
     json_format = []
     for i, item in enumerate(frontier):
-        json_format.append(format_allocation(allocation=item, portfolio=portfolio, 
-                                                            investment=investment))
+        json_format.append(format_allocation(allocation=item, portfolio=portfolio,
+                                             investment=investment))
     return json_format</code></pre>
 </details>
 </dd>
@@ -268,8 +289,8 @@ def format_moving_averages(tickers, averages_output):
 
     response = {}
     for i, item in enumerate(tickers):
-        ticker_str=f&#39;{item}&#39;
-        MA_1_str, MA_2_str, MA_3_str = f&#39;{ticker_str}_MA_1&#39;, f&#39;{ticker_str}_MA_2&#39;, f&#39;{ticker_str}_MA_3&#39;    
+        ticker_str = f&#39;{item}&#39;
+        MA_1_str, MA_2_str, MA_3_str = f&#39;{ticker_str}_MA_1&#39;, f&#39;{ticker_str}_MA_2&#39;, f&#39;{ticker_str}_MA_3&#39;
 
         subresponse = {}
         if dates is None:
@@ -279,9 +300,9 @@ def format_moving_averages(tickers, averages_output):
 
         else:
             subsubresponse_1, subsubresponse_2, subsubresponse_3 = {}, {}, {}
-    
+
             for j, this_item in enumerate(dates):
-                date_str=dater.date_to_string(this_item)
+                date_str = dater.date_to_string(this_item)
                 subsubresponse_1[date_str] = these_moving_averages[i][0][j]
                 subsubresponse_2[date_str] = these_moving_averages[i][1][j]
                 subsubresponse_3[date_str] = these_moving_averages[i][2][j]
@@ -291,7 +312,7 @@ def format_moving_averages(tickers, averages_output):
             subresponse[MA_3_str] = subsubresponse_3
 
         response[ticker_str] = subresponse
-    
+
     return response</code></pre>
 </details>
 </dd>
@@ -334,7 +355,7 @@ def format_moving_averages(tickers, averages_output):
     Parameters
     ----------
     1. **asset_type**: ``str``
-    
+
     A string that represents a type of tradeable asset. Types are statically accessible through the ` settings` variables: ASSET_EQUITY and ASSET_CRYPTO.
     &#34;&#34;&#34;
     if asset_type == keys.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]:

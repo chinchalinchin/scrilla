@@ -62,15 +62,15 @@ FUNC_DICT = {
     },
     &#34;capm_equity_cost&#34;: {
         &#39;name&#39;: &#39;Capital Asset Pricing Model Cost of Equity&#39;,
-        &#39;values&#39;: [&#34;capm-equity&#34;,&#34;capm-e&#34;],
-        &#39;args&#39;: [&#39;start_date&#39;, &#39;end_date&#39;,&#39;save_file&#39;, &#39;suppress_output&#39;, &#39;json&#39;, keys.keys[&#39;ESTIMATION&#39;][&#39;MOMENT&#39;], keys.keys[&#39;ESTIMATION&#39;][&#39;PERCENT&#39;], keys.keys[&#39;ESTIMATION&#39;][&#39;LIKE&#39;]],
+        &#39;values&#39;: [&#34;capm-equity&#34;, &#34;capm-e&#34;],
+        &#39;args&#39;: [&#39;start_date&#39;, &#39;end_date&#39;, &#39;save_file&#39;, &#39;suppress_output&#39;, &#39;json&#39;, keys.keys[&#39;ESTIMATION&#39;][&#39;MOMENT&#39;], keys.keys[&#39;ESTIMATION&#39;][&#39;PERCENT&#39;], keys.keys[&#39;ESTIMATION&#39;][&#39;LIKE&#39;]],
         &#39;description&#39;: &#34;Computes the cost of equity according to CAPM for the supplied list of tickers. If no start or end dates are specified, calculations default to the last 100 days of prices. The environment variable MARKET_PROXY defines which ticker serves as a proxy for the market as whole.&#34;,
         &#39;tickers&#39;: True,
     },
     &#34;capm_beta&#34;: {
         &#39;name&#39;: &#39;Capital Asset Pricing Model Beta&#39;,
         &#39;values&#39;: [&#34;capm-beta&#34;, &#34;capm-b&#34;],
-        &#39;args&#39;: [&#39;start_date&#39;, &#39;end_date&#39;,&#39;save_file&#39;, &#39;suppress_output&#39;, &#39;json&#39;, keys.keys[&#39;ESTIMATION&#39;][&#39;MOMENT&#39;], keys.keys[&#39;ESTIMATION&#39;][&#39;PERCENT&#39;], keys.keys[&#39;ESTIMATION&#39;][&#39;LIKE&#39;]],
+        &#39;args&#39;: [&#39;start_date&#39;, &#39;end_date&#39;, &#39;save_file&#39;, &#39;suppress_output&#39;, &#39;json&#39;, keys.keys[&#39;ESTIMATION&#39;][&#39;MOMENT&#39;], keys.keys[&#39;ESTIMATION&#39;][&#39;PERCENT&#39;], keys.keys[&#39;ESTIMATION&#39;][&#39;LIKE&#39;]],
         &#39;description&#39;: &#34;Computes the market beta according to CAPM for the supplied list of tickers. If no start or end dates are specified, calculations default to the last 100 days of prices. The environment variable MARKET_PROXY defines which ticker serves as a proxy for the market as whole.&#34;,
         &#39;tickers&#39;: True,
     },
@@ -105,14 +105,14 @@ FUNC_DICT = {
     &#34;correlation&#34;: {
         &#39;name&#39;: &#39;Correlation Matrix&#39;,
         &#39;values&#39;: [&#34;correlation&#34;, &#34;cor&#34;],
-        &#39;args&#39;: [&#39;start_date&#39;, &#39;end_date&#39;,&#39;save_file&#39;, &#39;suppress_output&#39;, &#39;json&#39;, keys.keys[&#39;ESTIMATION&#39;][&#39;MOMENT&#39;], keys.keys[&#39;ESTIMATION&#39;][&#39;PERCENT&#39;], keys.keys[&#39;ESTIMATION&#39;][&#39;LIKE&#39;]],
+        &#39;args&#39;: [&#39;start_date&#39;, &#39;end_date&#39;, &#39;save_file&#39;, &#39;suppress_output&#39;, &#39;json&#39;, keys.keys[&#39;ESTIMATION&#39;][&#39;MOMENT&#39;], keys.keys[&#39;ESTIMATION&#39;][&#39;PERCENT&#39;], keys.keys[&#39;ESTIMATION&#39;][&#39;LIKE&#39;]],
         &#39;description&#39;: &#34;Calculate pair-wise correlation for the supplied list of ticker symbols. If no start or end dates are specified, calculations default to the last 100 days of prices.&#34;,
         &#39;tickers&#39;: True,
-    }, 
+    },
     &#34;correlation_time_series&#34;: {
         &#39;name&#39;: &#39;Correlation Time Series&#39;,
         &#39;values&#39;: [&#34;correlations&#34;, &#34;cors&#34;],
-        &#39;args&#39;: [&#39;start_date&#39;, &#39;end_date&#39;,&#39;save_file&#39;, &#39;suppress_output&#39;, &#39;json&#39;, keys.keys[&#39;ESTIMATION&#39;][&#39;MOMENT&#39;], keys.keys[&#39;ESTIMATION&#39;][&#39;PERCENT&#39;], keys.keys[&#39;ESTIMATION&#39;][&#39;LIKE&#39;]],
+        &#39;args&#39;: [&#39;start_date&#39;, &#39;end_date&#39;, &#39;save_file&#39;, &#39;suppress_output&#39;, &#39;json&#39;, keys.keys[&#39;ESTIMATION&#39;][&#39;MOMENT&#39;], keys.keys[&#39;ESTIMATION&#39;][&#39;PERCENT&#39;], keys.keys[&#39;ESTIMATION&#39;][&#39;LIKE&#39;]],
         &#39;description&#39;: &#34;Calculate correlation time series for a pair of tickers over a specified date range. If no start or end dates are specified, the default analysis period of 100 days is applied.&#34;,
         &#39;tickers&#39;: True,
     },
@@ -132,7 +132,7 @@ FUNC_DICT = {
     },
     &#34;efficient_frontier&#34;: {
         &#39;name&#39;: &#39;Portfolio Efficient Frontier&#39;,
-        &#39;values&#39;: [&#34;efficient-frontier&#34;,&#34;ef&#34;],
+        &#39;values&#39;: [&#34;efficient-frontier&#34;, &#34;ef&#34;],
         &#39;args&#39;: [&#39;start_date&#39;, &#39;end_date&#39;, &#39;investment&#39;, &#39;target&#39;, &#39;steps&#39;, &#39;save_file&#39;, &#39;suppress_output&#39;, &#39;json&#39;, keys.keys[&#39;ESTIMATION&#39;][&#39;MOMENT&#39;], keys.keys[&#39;ESTIMATION&#39;][&#39;PERCENT&#39;], keys.keys[&#39;ESTIMATION&#39;][&#39;LIKE&#39;]],
         &#39;description&#39;: &#34;Generate a sample of the portfolio&#39;s efficient frontier for the supplied list of tickers. The efficient frontier algorithm will minimize a portfolio&#39;s volality for a given rate of return and then maximize its return, and then use these points to generate the rest of the frontier by taking increments along the line connecting the (risk,return) profile of the minimum volatility portfolio to the (risk, return) profile of the maximum return portfolio. The number of points calculated in the efficient frontier can be specifed as an integer with the -steps flag. If no -steps is provided, the value of the environment variable FRONTIER_STEPS will be used.&#34;,
         &#39;tickers&#39;: True,
@@ -161,7 +161,7 @@ FUNC_DICT = {
     &#34;maximize_return&#34;: {
         &#39;name&#39;: &#39;Maximize Portfolio Return&#39;,
         &#39;values&#39;: [&#34;max-return&#34;, &#34;max&#34;],
-        &#39;args&#39;: [&#39;start_date&#39;, &#39;end_date&#39;, &#39;investment&#39;, &#39;target&#39;,&#39;save_file&#39;, &#39;suppress_output&#39;, &#39;json&#39;, keys.keys[&#39;ESTIMATION&#39;][&#39;MOMENT&#39;], keys.keys[&#39;ESTIMATION&#39;][&#39;PERCENT&#39;], keys.keys[&#39;ESTIMATION&#39;][&#39;LIKE&#39;]],
+        &#39;args&#39;: [&#39;start_date&#39;, &#39;end_date&#39;, &#39;investment&#39;, &#39;target&#39;, &#39;save_file&#39;, &#39;suppress_output&#39;, &#39;json&#39;, keys.keys[&#39;ESTIMATION&#39;][&#39;MOMENT&#39;], keys.keys[&#39;ESTIMATION&#39;][&#39;PERCENT&#39;], keys.keys[&#39;ESTIMATION&#39;][&#39;LIKE&#39;]],
         &#39;description&#39;: &#34;Maximize the return of the portfolio defined by the supplied list of ticker symbols. Returns an array representing the allocations to be made for each asset in a portfolio. If no start or end dates are specified, calculations default to the last 100 days of prices. You can specify an investment with the &#39;-invest&#39; flag, otherwise the result will be output in percentage terms. Note: This function will always allocate 100% to the asset with the highest return. It&#39;s a good way to check and see if there are bugs in the algorithm after changes.&#34;,
         &#39;tickers&#39;: True,
     },
@@ -175,13 +175,13 @@ FUNC_DICT = {
     &#34;optimize_portfolio&#34;: {
         &#39;name&#39;: &#39;Optimize Portfolio Variance&#39;,
         &#39;values&#39;: [&#34;optimize-portfolio&#34;, &#34;opt&#34;],
-        &#39;args&#39;: [&#39;start_date&#39;, &#39;end_date&#39;, &#39;optimize_sharpe&#39;, &#39;investment&#39;, &#39;target&#39;,&#39;save_file&#39;, &#39;suppress_output&#39;, &#39;json&#39;, keys.keys[&#39;ESTIMATION&#39;][&#39;MOMENT&#39;], keys.keys[&#39;ESTIMATION&#39;][&#39;PERCENT&#39;], keys.keys[&#39;ESTIMATION&#39;][&#39;LIKE&#39;]],
+        &#39;args&#39;: [&#39;start_date&#39;, &#39;end_date&#39;, &#39;optimize_sharpe&#39;, &#39;investment&#39;, &#39;target&#39;, &#39;save_file&#39;, &#39;suppress_output&#39;, &#39;json&#39;, keys.keys[&#39;ESTIMATION&#39;][&#39;MOMENT&#39;], keys.keys[&#39;ESTIMATION&#39;][&#39;PERCENT&#39;], keys.keys[&#39;ESTIMATION&#39;][&#39;LIKE&#39;]],
         &#39;description&#39;: &#34;Optimize a portfolio&#39;s risk return profile.  Returns an array representing the allocations to be made for each asset in a portfolio.&#34;,
         &#39;tickers&#39;: True,
     },
     &#34;optimize_portfolio_conditional_var&#34;: {
         &#39;name&#39;: &#39;Optimize Portfolio Conditional Value At Risk&#39;,
-        &#39;values&#39;:[&#34;optimize-cvar&#34;, &#34;opt-cvar&#34;],
+        &#39;values&#39;: [&#34;optimize-cvar&#34;, &#34;opt-cvar&#34;],
         &#39;args&#39;: [&#39;start_date&#39;, &#39;end_date&#39;, &#39;investment&#39;, &#39;target&#39;, &#39;save_file&#39;, &#39;suppress_output&#39;, &#39;json&#39;, &#39;expiry&#39;, &#39;probability&#39;, keys.keys[&#39;ESTIMATION&#39;][&#39;MOMENT&#39;], keys.keys[&#39;ESTIMATION&#39;][&#39;PERCENT&#39;], keys.keys[&#39;ESTIMATION&#39;][&#39;LIKE&#39;]],
         &#39;description&#39;: &#34;Optimizes the conditional value at risk, i.e. E(St | St &lt; Sv) where Sv -&gt; Prob(St&lt;S0) = `prob` , for the portfolio defined by the list of inputted ticker symbols. Note: expiry is measured in years and is different from the start and end dates. Start and end dates are used to calibrate the model to a historical sample while expiry is used as the time horizon over which the value at risk is calculated into the future.&#34;,
         &#39;tickers&#39;: True,
@@ -221,7 +221,7 @@ FUNC_DICT = {
         &#39;description&#39;: &#34;Generates a Q-Q Plot to graphically test the normality of returns for the inputted ticker symbol over the specified date range. If no start or date are specified, calculations default to the last 100 days of prices.&#34;,
         &#39;tickers&#39;: True,
     },
-    &#34;plot_return_dist&#34;:{
+    &#34;plot_return_dist&#34;: {
         &#39;name&#39;: &#39;Distribution of Returns&#39;,
         &#39;values&#39;: [&#34;plot-return-distribution&#34;, &#34;plot-dist&#34;],
         &#39;args&#39;: [&#39;start_date&#39;, &#39;end_date&#39;, &#39;save_file&#39;],
@@ -237,7 +237,7 @@ FUNC_DICT = {
     },
     &#34;plot_yield_curve&#34;: {
         &#39;name&#39;: &#39;Plot Yield Curve&#39;,
-        &#39;values&#39;: [&#34;plot-yield-curve&#34;,&#34;plot-yc&#34;],
+        &#39;values&#39;: [&#34;plot-yield-curve&#34;, &#34;plot-yc&#34;],
         &#39;args&#39;: [&#39;start_date&#39;, &#39;save_file&#39;],
         &#39;description&#39;: &#34;Generates a plot of the latest United States Treasury Yield Curve. A yield curveo n a different date can be generated by specifying the date with an argument.&#34;,
         &#39;tickers&#39;: False,
@@ -263,7 +263,7 @@ FUNC_DICT = {
         &#39;description&#39;: &#34;Returns the current annualized US Treasury yield specified by the RISK_FREE environment variables. Allowable values for RISK_FREE environment variable: ONE_MONTH, TWO_MONTH, THREE_MONTH, SIX_MONTH, ONE_YEAR, TWO_YEAR, THREE_YEAR, FIVE_YEAR, SEVEN_YEAR, TEN_YEAR, TWENTY_YEAR, THIRTY_YEAR.&#34;,
         &#39;tickers&#39;: False,
     },
-    &#34;risk_profile&#34; : {
+    &#34;risk_profile&#34;: {
         &#39;name&#39;: &#39;Risk Profile&#39;,
         &#39;values&#39;: [&#34;risk-profile&#34;, &#34;rp&#34;],
         &#39;args&#39;: [&#39;start_date&#39;, &#39;end_date&#39;, &#39;save_file&#39;, &#39;suppress_output&#39;, &#39;json&#39;, keys.keys[&#39;ESTIMATION&#39;][&#39;MOMENT&#39;], keys.keys[&#39;ESTIMATION&#39;][&#39;PERCENT&#39;], keys.keys[&#39;ESTIMATION&#39;][&#39;LIKE&#39;]],
@@ -286,14 +286,14 @@ FUNC_DICT = {
     },
     &#34;statistic&#34;: {
         &#39;name&#39;: &#39;Last Reported Value of Financial Statistic&#39;,
-        &#39;values&#39;: [&#34;stat&#34;,&#34;s&#34;],
+        &#39;values&#39;: [&#34;stat&#34;, &#34;s&#34;],
         &#39;args&#39;: [&#39;save_file&#39;, &#39;suppress_output&#39;, &#39;json&#39;],
         &#39;description&#39;: &#34;Retrieves the latest value for the supplied list of economic statistics. The available list of economic statistic can be found at https://www.quandl.com/data/FRED-Federal-Reserve-Economic-Data/documentation?anchor=growth; it is also stored in the minstallation_directory_/data/static/ directory of the application.&#34;,
         &#39;tickers&#39;: True,
     },
     &#34;statistic_history&#34;: {
         &#39;name&#39;: &#39;Financial Statistic History&#39;,
-        &#39;values&#39;: [&#34;stats&#34;, &#34;ss&#34;], 
+        &#39;values&#39;: [&#34;stats&#34;, &#34;ss&#34;],
         &#39;args&#39;: [&#39;start_date&#39;, &#39;end_date&#39;, &#39;save_file&#39;, &#39;suppress_output&#39;, &#39;json&#39;],
         &#39;description&#39;: &#34;Prints the statistic history for the supplied list of economic statistics.The available list of economic statistic can be found at https://www.quandl.com/data/FRED-Federal-Reserve-Economic-Data/documentation?anchor=growth; it is also stored in the _installation_directory_/data/static/ directory of the application.&#34;,
         &#39;tickers&#39;: True,
@@ -340,7 +340,7 @@ ARG_META = {
 ARG_DICT = {
     &#39;start_date&#39;: {
         &#39;name&#39;: &#39;Sample Start Date&#39;,
-        &#39;values&#39;: [&#39;-start-date&#39;, &#39;--start-date&#39;, &#39;-start&#39;,&#39;--start&#39; ],
+        &#39;values&#39;: [&#39;-start-date&#39;, &#39;--start-date&#39;, &#39;-start&#39;, &#39;--start&#39;],
         &#39;description&#39;: &#39;Start date of historical sample&#39;,
         &#39;default&#39;: &#39;100 Trading Days Ago&#39;,
         &#39;widget_type&#39;: &#39;date&#39;,
@@ -362,7 +362,7 @@ ARG_DICT = {
     },
     &#39;target&#39;: {
         &#39;name&#39;: &#39;Target Return&#39;,
-        &#39;values&#39;: [&#39;-target-return&#39;, &#39;--target-return&#39;, &#39;-target&#39;,&#39;--target&#39;],
+        &#39;values&#39;: [&#39;-target-return&#39;, &#39;--target-return&#39;, &#39;-target&#39;, &#39;--target&#39;],
         &#39;description&#39;: &#39;Constraint for target rate of return&#39;,
         &#39;default&#39;: None,
         &#39;widget_type&#39;: &#39;decimal&#39;,
@@ -373,7 +373,7 @@ ARG_DICT = {
     },
     &#39;discount&#39;: {
         &#39;name&#39;: &#39;Discount Rate&#39;,
-        &#39;values&#39;: [&#39;-discount-rate&#39;, &#39;--discount-rate&#39;, &#39;-discount&#39;,&#39;--discount&#39;],
+        &#39;values&#39;: [&#39;-discount-rate&#39;, &#39;--discount-rate&#39;, &#39;-discount&#39;, &#39;--discount&#39;],
         &#39;description&#39;: &#39;Rate of return used to discount future cash flows to present&#39;,
         &#39;default&#39;: &#39;Cost of equity&#39;,
         &#39;widget_type&#39;: &#39;decimal&#39;,
@@ -395,7 +395,7 @@ ARG_DICT = {
     },
     &#39;expiry&#39;: {
         &#39;name&#39;: &#39;Expiration&#39;,
-        &#39;values&#39;: [&#39;-expiry&#39;, &#39;--expiry&#39;, &#39;-exp&#39;,&#39;--exp&#39;],
+        &#39;values&#39;: [&#39;-expiry&#39;, &#39;--expiry&#39;, &#39;-exp&#39;, &#39;--exp&#39;],
         &#39;description&#39;: &#39;Time until event expiration&#39;,
         &#39;default&#39;: None,
         &#39;widget_type&#39;: &#39;decimal&#39;,
@@ -417,7 +417,7 @@ ARG_DICT = {
     },
     &#39;steps&#39;: {
         &#39;name&#39;: &#39;Efficient Frontier Data Points&#39;,
-        &#39;values&#39;: [&#39;-frontier-steps&#39;, &#39;--frontier-steps&#39;, &#39;-steps&#39;,&#39;--steps&#39;],
+        &#39;values&#39;: [&#39;-frontier-steps&#39;, &#39;--frontier-steps&#39;, &#39;-steps&#39;, &#39;--steps&#39;],
         &#39;description&#39;: &#39;Number of data points included in efficient frontier calculations&#39;,
         &#39;default&#39;: &#39;FRONTIER_STEPS environment variable&#39;,
         &#39;widget_type&#39;: &#39;integer&#39;,
@@ -428,7 +428,7 @@ ARG_DICT = {
     },
     &#39;criteria&#39;: {
         &#39;name&#39;: &#39;Watchlist Screener Critia&#39;,
-        &#39;values&#39;: [&#39;-criteria&#39;, &#39;--criteria&#39;, &#39;-crit&#39;,&#39;--crit&#39;],
+        &#39;values&#39;: [&#39;-criteria&#39;, &#39;--criteria&#39;, &#39;-crit&#39;, &#39;--crit&#39;],
         &#39;description&#39;: &#39;Criteria used to sort saved watchlist&#39;,
         &#39;default&#39;: None,
         &#39;widget_type&#39;: &#39;select&#39;,
@@ -463,7 +463,7 @@ ARG_DICT = {
     },
     &#39;value&#39;: {
         &#39;name&#39;: &#39;Key-Value Value&#39;,
-        &#39;values&#39;:[&#39;-value&#39;, &#39;--value&#39;, &#39;-v&#39;, &#39;--v&#39;],
+        &#39;values&#39;: [&#39;-value&#39;, &#39;--value&#39;, &#39;-v&#39;, &#39;--v&#39;],
         &#39;description&#39;: &#39;API Key-Value that will be saved to __installation_dir__/data/common/&#39;,
         &#39;default&#39;: None,
         &#39;widget_type&#39;: None,
@@ -505,7 +505,7 @@ ARG_DICT = {
         &#39;syntax&#39;: None,
         &#39;cli_only&#39;: True
     },
-    &#39;moments&#39; : {
+    &#39;moments&#39;: {
         &#39;name&#39;: &#39;Method of Moment Matching&#39;,
         &#39;values&#39;: [&#39;-moments&#39;, &#39;--moments&#39;, &#39;-mom&#39;, &#39;--mom&#39;],
         &#39;description&#39;: &#39;Statistics are calculated using method of moment matching&#39;,
@@ -531,7 +531,7 @@ ARG_DICT = {
     },
     &#39;likelihood&#39;: {
         &#39;name&#39;: &#39;Maximum Likelihood Estimation&#39;,
-        &#39;values&#39;: [&#39;-likelihood&#39;,&#39;--likelihood&#39;,&#39;-like&#39;, &#39;--like&#39;],
+        &#39;values&#39;: [&#39;-likelihood&#39;, &#39;--likelihood&#39;, &#39;-like&#39;, &#39;--like&#39;],
         &#39;description&#39;: &#39;Statistics are calculated using maximum likelihood estimation&#39;,
         &#39;default&#39;: None,
         &#39;widget_type&#39;: &#39;group&#39;,

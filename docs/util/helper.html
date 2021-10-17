@@ -33,9 +33,11 @@ from typing import List, Tuple
 
 from scrilla.static import definitions, constants
 
+
 def truncate(number: float, digits: int) -&gt; float:
     stepper = 10.0 ** digits
     return trunc(stepper * number) / stepper
+
 
 def strip_string_array(array: List[str]) -&gt; List[str]:
     new_array = []
@@ -43,14 +45,17 @@ def strip_string_array(array: List[str]) -&gt; List[str]:
         new_array.append(string.strip())
     return new_array
 
-def split_and_strip(string: str, upper: bool = True, delimiter=&#34;,&#34;)-&gt; List[str]:
+
+def split_and_strip(string: str, upper: bool = True, delimiter=&#34;,&#34;) -&gt; List[str]:
     if upper:
         return strip_string_array(string.upper().split(delimiter))
     return strip_string_array(string.lower().split(delimiter))
 
+
 def round_array(array: List[float], decimals: int) -&gt; List[float]:
     cutoff = (1/10**decimals)
     return [0 if element &lt; cutoff else truncate(element, decimals) for element in array]
+
 
 def intersect_dict_keys(dict1: dict, dict2: dict) -&gt; Tuple[dict, dict]:
     &#34;&#34;&#34;
@@ -65,20 +70,24 @@ def complement_dict_keys(dict1: dict, dict2: dict):
     &#34;&#34;&#34;
     return {x: dict1[x] for x in dict1.keys() if x not in dict2.keys()}
 
+
 def format_float_number(decimal: float):
-    if decimal &lt; 10 **(-constants.constants[&#39;ACCURACY&#39;]):
+    if decimal &lt; 10 ** (-constants.constants[&#39;ACCURACY&#39;]):
         return 0
     return str(decimal)[:constants.constants[&#39;SIG_FIGS&#39;]]
 
+
 def format_float_percent(decimal: float):
-    if decimal &lt; 10 **(-constants.constants[&#39;ACCURACY&#39;]):
+    if decimal &lt; 10 ** (-constants.constants[&#39;ACCURACY&#39;]):
         return &#34;0%&#34;
     return str(100*float(format_float_number(decimal)))[:constants.constants[&#39;SIG_FIGS&#39;]]+&#34;%&#34;
+
 
 def format_dict_percent(this_dict: dict, which_key: str) -&gt; dict:
     buffer_dict = this_dict.copy()
     buffer_dict[which_key] = format_float_percent(this_dict[which_key])
     return buffer_dict
+
 
 def format_dict_number(this_dict: dict, which_key: str) -&gt; dict:
     buffer_dict = this_dict.copy()
@@ -86,9 +95,11 @@ def format_dict_number(this_dict: dict, which_key: str) -&gt; dict:
     return buffer_dict
 
 ################################################
-##### PARSING FUNCTIONS
+# PARSING FUNCTIONS
 
-### CLI PARSING
+# CLI PARSING
+
+
 def format_args(args, default_estimation_method) -&gt; argparse.Namespace:
     parser = argparse.ArgumentParser()
 
@@ -99,32 +110,34 @@ def format_args(args, default_estimation_method) -&gt; argparse.Namespace:
 
     parser.add_argument(&#39;function_arg&#39;, choices=choices)
 
-    groups = [parser.add_mutually_exclusive_group() for arg_group in definitions.ARG_META[&#39;groups&#39;] ]
+    groups = [parser.add_mutually_exclusive_group()
+              for arg_group in definitions.ARG_META[&#39;groups&#39;]]
 
     for arg in definitions.ARG_DICT:
         if definitions.ARG_DICT[arg][&#39;format&#39;] not in (&#39;group&#39;, bool):
-            parser.add_argument(definitions.ARG_DICT[arg][&#39;values&#39;][0], 
-                                definitions.ARG_DICT[arg][&#39;values&#39;][1], 
-                                definitions.ARG_DICT[arg][&#39;values&#39;][2], 
+            parser.add_argument(definitions.ARG_DICT[arg][&#39;values&#39;][0],
+                                definitions.ARG_DICT[arg][&#39;values&#39;][1],
+                                definitions.ARG_DICT[arg][&#39;values&#39;][2],
                                 definitions.ARG_DICT[arg][&#39;values&#39;][3],
-                                default=None, 
+                                default=None,
                                 type=definitions.ARG_DICT[arg][&#39;format&#39;],
                                 dest=arg)
         elif definitions.ARG_DICT[arg][&#39;format&#39;] == &#39;group&#39;:
-            group_index = definitions.ARG_META[&#39;groups&#39;].index(definitions.ARG_DICT[arg][&#39;group&#39;])
+            group_index = definitions.ARG_META[&#39;groups&#39;].index(
+                definitions.ARG_DICT[arg][&#39;group&#39;])
             groups[group_index].add_argument(definitions.ARG_DICT[arg][&#39;values&#39;][0],
-                                            definitions.ARG_DICT[arg][&#39;values&#39;][1],
-                                            definitions.ARG_DICT[arg][&#39;values&#39;][2],
-                                            definitions.ARG_DICT[arg][&#39;values&#39;][3],
-                                            action=&#39;store_const&#39;,
-                                            dest=definitions.ARG_DICT[arg][&#39;group&#39;],
-                                            const=arg)
+                                             definitions.ARG_DICT[arg][&#39;values&#39;][1],
+                                             definitions.ARG_DICT[arg][&#39;values&#39;][2],
+                                             definitions.ARG_DICT[arg][&#39;values&#39;][3],
+                                             action=&#39;store_const&#39;,
+                                             dest=definitions.ARG_DICT[arg][&#39;group&#39;],
+                                             const=arg)
         # NOTE: &#39;format&#39; == group AND &#39;format&#39; == bool =&gt; Empty Set, so only other alternative is
         # &#39;format&#39; == bool
         else:
-            parser.add_argument(definitions.ARG_DICT[arg][&#39;values&#39;][0], 
-                                definitions.ARG_DICT[arg][&#39;values&#39;][1], 
-                                definitions.ARG_DICT[arg][&#39;values&#39;][2], 
+            parser.add_argument(definitions.ARG_DICT[arg][&#39;values&#39;][0],
+                                definitions.ARG_DICT[arg][&#39;values&#39;][1],
+                                definitions.ARG_DICT[arg][&#39;values&#39;][2],
                                 definitions.ARG_DICT[arg][&#39;values&#39;][3],
                                 action=&#39;store_true&#39;,
                                 dest=arg)
@@ -133,11 +146,13 @@ def format_args(args, default_estimation_method) -&gt; argparse.Namespace:
     parser.add_argument(&#39;tickers&#39;, nargs=&#39;*&#39;, type=str)
     return vars(parser.parse_args(args))
 
+
 def get_first_json_key(this_json: dict) -&gt; str:
     return list(this_json.keys())[0]
 
+
 def replace_troublesome_chars(msg: str) -&gt; str:
-    return msg.replace(&#39;\u2265&#39;,&#39;&#39;).replace(&#39;\u0142&#39;, &#39;&#39;)</code></pre>
+    return msg.replace(&#39;\u2265&#39;, &#39;&#39;).replace(&#39;\u0142&#39;, &#39;&#39;)</code></pre>
 </details>
 </section>
 <section>
@@ -182,32 +197,34 @@ def replace_troublesome_chars(msg: str) -&gt; str:
 
     parser.add_argument(&#39;function_arg&#39;, choices=choices)
 
-    groups = [parser.add_mutually_exclusive_group() for arg_group in definitions.ARG_META[&#39;groups&#39;] ]
+    groups = [parser.add_mutually_exclusive_group()
+              for arg_group in definitions.ARG_META[&#39;groups&#39;]]
 
     for arg in definitions.ARG_DICT:
         if definitions.ARG_DICT[arg][&#39;format&#39;] not in (&#39;group&#39;, bool):
-            parser.add_argument(definitions.ARG_DICT[arg][&#39;values&#39;][0], 
-                                definitions.ARG_DICT[arg][&#39;values&#39;][1], 
-                                definitions.ARG_DICT[arg][&#39;values&#39;][2], 
+            parser.add_argument(definitions.ARG_DICT[arg][&#39;values&#39;][0],
+                                definitions.ARG_DICT[arg][&#39;values&#39;][1],
+                                definitions.ARG_DICT[arg][&#39;values&#39;][2],
                                 definitions.ARG_DICT[arg][&#39;values&#39;][3],
-                                default=None, 
+                                default=None,
                                 type=definitions.ARG_DICT[arg][&#39;format&#39;],
                                 dest=arg)
         elif definitions.ARG_DICT[arg][&#39;format&#39;] == &#39;group&#39;:
-            group_index = definitions.ARG_META[&#39;groups&#39;].index(definitions.ARG_DICT[arg][&#39;group&#39;])
+            group_index = definitions.ARG_META[&#39;groups&#39;].index(
+                definitions.ARG_DICT[arg][&#39;group&#39;])
             groups[group_index].add_argument(definitions.ARG_DICT[arg][&#39;values&#39;][0],
-                                            definitions.ARG_DICT[arg][&#39;values&#39;][1],
-                                            definitions.ARG_DICT[arg][&#39;values&#39;][2],
-                                            definitions.ARG_DICT[arg][&#39;values&#39;][3],
-                                            action=&#39;store_const&#39;,
-                                            dest=definitions.ARG_DICT[arg][&#39;group&#39;],
-                                            const=arg)
+                                             definitions.ARG_DICT[arg][&#39;values&#39;][1],
+                                             definitions.ARG_DICT[arg][&#39;values&#39;][2],
+                                             definitions.ARG_DICT[arg][&#39;values&#39;][3],
+                                             action=&#39;store_const&#39;,
+                                             dest=definitions.ARG_DICT[arg][&#39;group&#39;],
+                                             const=arg)
         # NOTE: &#39;format&#39; == group AND &#39;format&#39; == bool =&gt; Empty Set, so only other alternative is
         # &#39;format&#39; == bool
         else:
-            parser.add_argument(definitions.ARG_DICT[arg][&#39;values&#39;][0], 
-                                definitions.ARG_DICT[arg][&#39;values&#39;][1], 
-                                definitions.ARG_DICT[arg][&#39;values&#39;][2], 
+            parser.add_argument(definitions.ARG_DICT[arg][&#39;values&#39;][0],
+                                definitions.ARG_DICT[arg][&#39;values&#39;][1],
+                                definitions.ARG_DICT[arg][&#39;values&#39;][2],
                                 definitions.ARG_DICT[arg][&#39;values&#39;][3],
                                 action=&#39;store_true&#39;,
                                 dest=arg)
@@ -257,7 +274,7 @@ def replace_troublesome_chars(msg: str) -&gt; str:
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def format_float_number(decimal: float):
-    if decimal &lt; 10 **(-constants.constants[&#39;ACCURACY&#39;]):
+    if decimal &lt; 10 ** (-constants.constants[&#39;ACCURACY&#39;]):
         return 0
     return str(decimal)[:constants.constants[&#39;SIG_FIGS&#39;]]</code></pre>
 </details>
@@ -272,7 +289,7 @@ def replace_troublesome_chars(msg: str) -&gt; str:
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def format_float_percent(decimal: float):
-    if decimal &lt; 10 **(-constants.constants[&#39;ACCURACY&#39;]):
+    if decimal &lt; 10 ** (-constants.constants[&#39;ACCURACY&#39;]):
         return &#34;0%&#34;
     return str(100*float(format_float_number(decimal)))[:constants.constants[&#39;SIG_FIGS&#39;]]+&#34;%&#34;</code></pre>
 </details>
@@ -316,7 +333,7 @@ def replace_troublesome_chars(msg: str) -&gt; str:
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def replace_troublesome_chars(msg: str) -&gt; str:
-    return msg.replace(&#39;\u2265&#39;,&#39;&#39;).replace(&#39;\u0142&#39;, &#39;&#39;)</code></pre>
+    return msg.replace(&#39;\u2265&#39;, &#39;&#39;).replace(&#39;\u0142&#39;, &#39;&#39;)</code></pre>
 </details>
 </dd>
 <dt id="scrilla.util.helper.round_array"><code class="name flex">
@@ -342,7 +359,7 @@ def replace_troublesome_chars(msg: str) -&gt; str:
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def split_and_strip(string: str, upper: bool = True, delimiter=&#34;,&#34;)-&gt; List[str]:
+<pre><code class="python">def split_and_strip(string: str, upper: bool = True, delimiter=&#34;,&#34;) -&gt; List[str]:
     if upper:
         return strip_string_array(string.upper().split(delimiter))
     return strip_string_array(string.lower().split(delimiter))</code></pre>

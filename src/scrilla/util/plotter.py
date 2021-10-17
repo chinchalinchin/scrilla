@@ -264,8 +264,6 @@ def plot_cashflow(ticker: str, cashflow: Cashflow, show: bool = True, savefile: 
     figure = canvas.figure
     axes = figure.subplots()
 
-    date_format = mdates.DateFormatter('%m-%d')
-
     sup_title_str = f'{ticker} Dividend Linear Regression Model'
     title_str = f'NPV(dividends | discount = {round(cashflow.discount_rate,4)}) = $ {round(cashflow.calculate_net_present_value(), 2)}'
 

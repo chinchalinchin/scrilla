@@ -68,17 +68,29 @@ The idea behind the module is to hide as much widget initialization and styling 
 Widgets have styles applied to them through the `scrilla.styles.app.qss` stylesheet. Widgets are layered over one another in a hierarchy described by: `root` -&gt; `child` -&gt; `grand-child` -&gt; `great-grand-child` -&gt; etc. Each layers has a theme that descends down the material color scheme hex codes in sequence with its place in the layer hierarchy. See `scrilla.gui.formats` for more information. 
 &#34;&#34;&#34;
 
-SYMBOLS_LIST=&#34;list&#34;
+SYMBOLS_LIST = &#34;list&#34;
 &#34;&#34;&#34;Constant passed into `scrilla.gui.widgets.components.ArgumentWidget` to initialize an input control allowing user to input list of ticker symbols&#34;&#34;&#34;
-SYMBOLS_SINGLE=&#34;single&#34;
+SYMBOLS_SINGLE = &#34;single&#34;
 &#34;&#34;&#34;Constant passed into `scrilla.gui.widgets.components.ArgumentWidget` to initialize an input control allowing user to input  single ticker symbol&#34;&#34;&#34;
-SYMBOLS_NONE=&#34;none&#34;
+SYMBOLS_NONE = &#34;none&#34;
 &#34;&#34;&#34;Constant passed into `scrilla.gui.widgets.components.ArgumentWidget` to initialize an input control without ticker symbols&#34;&#34;&#34;
+
+class SkeletonWidget(QtWidgets.QWidget):
+    def __init__(self, function: str, parent: QtWidgets.QWidget):
+        super(SkeletonWidget, self).__init__(parent)
+        self._configure_control_skeleton(function)
+
+    def _configure_control_skeleton(self, function: str):
+        self.controls = factories.generate_control_skeleton()
+
+        for arg in definitions.FUNC_DICT[function][&#39;args&#39;]:
+            if not definitions.ARG_DICT[arg][&#39;cli_only&#39;]:
+                self.controls[arg] = True
 
 class ArgumentWidget(QtWidgets.QWidget):
     &#34;&#34;&#34;
     Base class for other more complex widgets to inherit. An instance of `scrilla.gui.widgets.ArgumentWidget` embeds its child widgets in its own layout,  which is an instance of``PySide6.QtWidgetQVBoxLayout``. This class provides access to the following widgets:a ``PySide6.QtWidgets.QLabel`` for the title widget, an error message widget, a ``PySide6.QtWidgets.QPushButton`` for the calculate button widget, a ``PySide6.QtWidget.QLineEdit`` for ticker symbol input, and a variety of optional input widgets enabled by boolean flags in the `controls` constructor argument. 
-    
+
     Constructor
     -----------
     1. **calculate_function**: ``str``
@@ -113,6 +125,7 @@ class ArgumentWidget(QtWidgets.QWidget):
         Dictionary containing the optional input widgets.
     &#34;&#34;&#34;
     # TODO: calculate and clear should be part of THIS constructor, doesn&#39;t make sense to have other widgets hook them up.
+
     def __init__(self, calculate_function: Callable, clear_function: Callable, controls: Dict[str, bool], layer, mode: str = SYMBOLS_LIST):
         super().__init__()
         self.layer = layer
@@ -124,55 +137,69 @@ class ArgumentWidget(QtWidgets.QWidget):
         self._init_widgets(mode)
         self._arrange_widgets()
         self._stage_widgets()
-    
+
     def _init_widgets(self, mode: str) -&gt; None:
         &#34;&#34;&#34;
         Creates child widgets by calling factory methods from `scrilla.gui.widgets.factories`. This method will iterate over `self.controls` and initialize the optional input widget accordingly. `self.optional_pane` and `self.required_pane`, the container widgets for the input elements, are initialized with a style tag on the same layer as the `scrilla.gui.widgets.components.ArgumentWidget`.
         &#34;&#34;&#34;
-        self.title = factories.atomic_widget_factory(format=&#39;subtitle&#39;, title=&#39;Function Input&#39;)
-        self.optional_title = factories.atomic_widget_factory(format=&#39;label&#39;, title=&#39;Optional Arguments&#39;)
-        self.error_message = factories.atomic_widget_factory(format=&#39;error&#39;, title=&#34;Error Message Goes Here&#34;)
-        self.calculate_button = factories.atomic_widget_factory(format=&#39;calculate-button&#39;, title=&#39;Calculate&#39;)
-        self.clear_button = factories.atomic_widget_factory(format=&#39;clear-button&#39;, title=&#39;Clear&#39;)
+        self.title = factories.atomic_widget_factory(
+            format=&#39;subtitle&#39;, title=&#39;Function Input&#39;)
+        self.optional_title = factories.atomic_widget_factory(
+            format=&#39;label&#39;, title=&#39;Optional Arguments&#39;)
+        self.error_message = factories.atomic_widget_factory(
+            format=&#39;error&#39;, title=&#34;Error Message Goes Here&#34;)
+        self.calculate_button = factories.atomic_widget_factory(
+            format=&#39;calculate-button&#39;, title=&#39;Calculate&#39;)
+        self.clear_button = factories.atomic_widget_factory(
+            format=&#39;clear-button&#39;, title=&#39;Clear&#39;)
 
         if mode == SYMBOLS_LIST:
-            self.required_title = factories.atomic_widget_factory(format=&#39;label&#39;, title=&#39;Required Arguments&#39;)
-            self.symbol_hint = factories.atomic_widget_factory(format=&#39;text&#39;, title=&#34;Separate Symbols With Commas&#34;)
-            self.required_pane = factories.layout_factory(format=&#39;vertical-box&#39;)
+            self.required_title = factories.atomic_widget_factory(
+                format=&#39;label&#39;, title=&#39;Required Arguments&#39;)
+            self.symbol_hint = factories.atomic_widget_factory(
+                format=&#39;text&#39;, title=&#34;Separate Symbols With Commas&#34;)
+            self.required_pane = factories.layout_factory(
+                format=&#39;vertical-box&#39;)
             self.required_pane.setObjectName(self.layer)
-            self.symbol_widget = factories.composite_widget_factory(format=&#39;symbols&#39;, title=&#34;Symbols :&#34;, optional=False)
+            self.symbol_widget = factories.composite_widget_factory(
+                format=&#39;symbols&#39;, title=&#34;Symbols :&#34;, optional=False)
         elif mode == SYMBOLS_SINGLE:
-            self.required_title = factories.atomic_widget_factory(format=&#39;label&#39;, title=&#39;Required Argument&#39;)
-            self.symbol_hint = factories.atomic_widget_factory(format=&#39;text&#39;, title=&#34;Enter a Single Symbol&#34;)
-            self.required_pane = factories.layout_factory(format=&#39;vertical-box&#39;)
+            self.required_title = factories.atomic_widget_factory(
+                format=&#39;label&#39;, title=&#39;Required Argument&#39;)
+            self.symbol_hint = factories.atomic_widget_factory(
+                format=&#39;text&#39;, title=&#34;Enter a Single Symbol&#34;)
+            self.required_pane = factories.layout_factory(
+                format=&#39;vertical-box&#39;)
             self.required_pane.setObjectName(self.layer)
-            self.symbol_widget = factories.composite_widget_factory(format=&#39;symbol&#39;, title=&#34;Symbol: &#34;, optional=False)
+            self.symbol_widget = factories.composite_widget_factory(
+                format=&#39;symbol&#39;, title=&#34;Symbol: &#34;, optional=False)
         else:
             self.symbol_widget = None
 
         for control in self.controls:
             if self.controls[control]:
-                self.control_widgets[control] = factories.composite_widget_factory(definitions.ARG_DICT[control][&#39;widget_type&#39;], 
-                                                                            f&#39;{definitions.ARG_DICT[control][&#34;name&#34;]} :&#39;,
-                                                                            optional = True)
+                self.control_widgets[control] = factories.composite_widget_factory(definitions.ARG_DICT[control][&#39;widget_type&#39;],
+                                                                                   f&#39;{definitions.ARG_DICT[control][&#34;name&#34;]} :&#39;,
+                                                                                   optional=True)
             else:
                 self.control_widgets[control] = None
 
         self.optional_pane = factories.layout_factory(format=&#39;vertical-box&#39;)
         self.optional_pane.setObjectName(self.layer)
         self.setLayout(QtWidgets.QVBoxLayout())
-    
+
     def _arrange_widgets(self):
         &#34;&#34;&#34;
         Arrange child widgets in their layouts and provides rendering hints. The `self.symbol_widget` is set into a ``PySide6.QtWidgets.QVBoxLayout`` named `self.required_pane`. The optional input widgets are set into a separate ``PySide6.QtWidgets.QVBoxLayout`` named `self.optional_pane`. `self.required_pane` and `self.optional_pane` are in turn set into a parent `PySide6.QtWidgets.QVBoxLayout``, along with `self.calculate_button` and `self.clear_button`. A strecth widget is inserted between the input widgets and the button widgets. 
-        
+
         &#34;&#34;&#34;
-        factories.set_policy_on_widget_list([self.title, self.optional_title, self.optional_pane], 
+        factories.set_policy_on_widget_list([self.title, self.optional_title, self.optional_pane],
                                             QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Maximum))
         if self.symbol_widget is not None:
             factories.set_policy_on_widget_list([self.symbol_hint, self.required_title, self.required_pane],
                                                 QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Maximum))
-        self.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding))
+        self.setSizePolicy(QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding))
 
         if self.symbol_widget is not None:
             self.required_pane.layout().addWidget(self.required_title)
@@ -203,7 +230,8 @@ class ArgumentWidget(QtWidgets.QWidget):
         if self.symbol_widget is not None:
             # NOTE: symbol widget is technically a layout in which the lineedit is abutted by a label, so need
             # to pull the actual input element from the layout
-            self.symbol_widget.layout().itemAt(1).widget().returnPressed.connect(self.calculate_function)
+            self.symbol_widget.layout().itemAt(1).widget(
+            ).returnPressed.connect(self.calculate_function)
 
     def get_symbol_input(self) -&gt; Union[List[str], None]:
         &#34;&#34;&#34;
@@ -222,12 +250,13 @@ class ArgumentWidget(QtWidgets.QWidget):
         if self.control_widgets[control_widget_key] is None:
             return None
 
-        widget = self.control_widgets[control_widget_key].layout().itemAt(1).widget()
+        widget = self.control_widgets[control_widget_key].layout().itemAt(
+            1).widget()
 
         if not widget.isEnabled():
             return None
 
-        if type(widget) is QtWidgets.QDateEdit: 
+        if type(widget) is QtWidgets.QDateEdit:
             return widget.date().toPython().date()
         if type(widget) is QtWidgets.QLineEdit:
             if type(widget.validator()) is QtGui.QIntValidator:
@@ -237,7 +266,7 @@ class ArgumentWidget(QtWidgets.QWidget):
             return widget.text()
         if type(widget) is QtWidgets.QRadioButton:
             return widget.isChecked()
-    
+
     def prime(self) -&gt; None:
         &#34;&#34;&#34;
         Enables user input on child widgets, except `clear_button` which is disabled.
@@ -250,14 +279,18 @@ class ArgumentWidget(QtWidgets.QWidget):
         for control in self.control_widgets:
             if self.control_widgets[control] is not None:
                 if type(self.control_widgets[control].layout().itemAt(1).widget()) != QtWidgets.QRadioButton:
-                    self.control_widgets[control].layout().itemAt(1).widget().clear()
-                self.control_widgets[control].layout().itemAt(2).widget().setEnabled(True)
-                self.control_widgets[control].layout().itemAt(2).widget().setCheckState(QtCore.Qt.Unchecked)
-                self.control_widgets[control].layout().itemAt(1).widget().setEnabled(False)
+                    self.control_widgets[control].layout().itemAt(
+                        1).widget().clear()
+                self.control_widgets[control].layout().itemAt(
+                    2).widget().setEnabled(True)
+                self.control_widgets[control].layout().itemAt(
+                    2).widget().setCheckState(QtCore.Qt.Unchecked)
+                self.control_widgets[control].layout().itemAt(
+                    1).widget().setEnabled(False)
                 # NOTE: have to set Widget1 to disabled last since the signal on the Widget2 is connected
-                # through CheckState to the enabled stated of Widget1, i.e. flipping the CheckState on 
+                # through CheckState to the enabled stated of Widget1, i.e. flipping the CheckState on
                 # Widget2 switches the enabled state of Widget1.
-    
+
     def fire(self) -&gt; None:
         &#34;&#34;&#34;
         Disables user input on child widgets, except `clear_button` which is enabled.
@@ -268,8 +301,11 @@ class ArgumentWidget(QtWidgets.QWidget):
             self.symbol_widget.layout().itemAt(1).widget().setEnabled(False)
         for control in self.control_widgets:
             if self.control_widgets[control] is not None:
-                self.control_widgets[control].layout().itemAt(1).widget().setEnabled(False)
-                self.control_widgets[control].layout().itemAt(2).widget().setEnabled(False)
+                self.control_widgets[control].layout().itemAt(
+                    1).widget().setEnabled(False)
+                self.control_widgets[control].layout().itemAt(
+                    2).widget().setEnabled(False)
+
 
 class TableWidget(QtWidgets.QWidget):
     &#34;&#34;&#34;
@@ -288,7 +324,8 @@ class TableWidget(QtWidgets.QWidget):
     2.. **table**: ``PySide6.QtWidget.QTableWidget``
 
     &#34;&#34;&#34;
-    def __init__(self, layer, widget_title: str =&#34;Table Result&#34;):
+
+    def __init__(self, layer, widget_title: str = &#34;Table Result&#34;):
         super().__init__()
         self.layer = layer
         self._init_widgets(widget_title)
@@ -297,21 +334,30 @@ class TableWidget(QtWidgets.QWidget):
 
     def _init_widgets(self, widget_title: str) -&gt; None:
         &#34;&#34;&#34;Creates child widgets and their layouts&#34;&#34;&#34;
-        self.title = factories.atomic_widget_factory(format=&#39;heading&#39;, title=widget_title)
-        self.table = factories.atomic_widget_factory(format=&#39;table&#39;, title=None)
+        self.title_container = factories.layout_factory(
+            format=&#39;horizontal-box&#39;)
+        self.title = factories.atomic_widget_factory(
+            format=&#39;heading&#39;, title=widget_title)
+        self.download_button = factories.atomic_widget_factory(
+            format=&#39;download-button&#39;, title=None)
+        self.table = factories.atomic_widget_factory(
+            format=&#39;table&#39;, title=None)
         self.setLayout(QtWidgets.QVBoxLayout())
-    
+
     def _arrange_widgets(self) -&gt; None:
-        self.title.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding,
-                                                            QtWidgets.QSizePolicy.Minimum))
-        self.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding,
-                                                            QtWidgets.QSizePolicy.Minimum))
-        self.layout().addWidget(self.title)
+        factories.set_policy_on_widget_list([self, self.title, self.title_container],
+                                            QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding,
+                                                                  QtWidgets.QSizePolicy.Minimum))
+        self.title_container.layout().addWidget(self.title)
+        self.title_container.layout().addWidget(self.download_button)
+        self.layout().addWidget(self.title_container)
         self.layout().addWidget(self.table, 1)
 
     def _stage_widgets(self) -&gt; None:
         self.table.hide()
-    
+        self.download_button.hide()
+        self.download_button.clicked.connect(self.show_file_dialog)
+
     def init_table(self, rows: List[str], columns: List[str]) -&gt; None:
         &#34;&#34;&#34;
         Initializes `table` for display. Number of rows and columns is determined by the length of the passed in lists.
@@ -327,10 +373,24 @@ class TableWidget(QtWidgets.QWidget):
         self.table.setColumnCount(len(columns))
         self.table.setHorizontalHeaderLabels(columns)
         self.table.setVerticalHeaderLabels(rows)
+        self.download_button.show()
 
     def show_table(self):
         self.table.resizeColumnsToContents()
         self.table.show()
+
+    @QtCore.Slot()
+    def show_file_dialog(self) -&gt; None:
+        file_path = factories.atomic_widget_factory(
+            format=&#39;save-dialog&#39;, title=f&#39;(*.{settings.FILE_EXT})&#39;)
+        file_path.selectFile(f&#39;table.{settings.FILE_EXT}&#39;)
+        filename = None
+        if file_path.exec_() == QtWidgets.QDialog.Accepted:
+            filename = file_path.selectedFiles()
+        if filename is not None and len(filename) &gt; 0:
+            if settings.FILE_EXT == &#39;json&#39;:
+                utilities.download_table_to_json(self.table, filename[0])
+
 
 class GraphWidget(QtWidgets.QWidget):
     &#34;&#34;&#34;
@@ -351,33 +411,61 @@ class GraphWidget(QtWidgets.QWidget):
     2. **title**: ``PySide6.QtWidget.QLabel``
     3. **figure**: ``PySide6.QtWidget.QLabel``
     &#34;&#34;&#34;
-    def __init__(self, tmp_graph_key: str, layer: str, widget_title: str =&#34;Graph Results&#34;):
-        super().__init__()    
+
+    def __init__(self, tmp_graph_key: str, layer: str, widget_title: str = &#34;Graph Results&#34;):
+        super().__init__()
         self.layer = layer
         self.tmp_graph_key = tmp_graph_key
         self._init_widgets(widget_title)
         self._arrange_widgets()
-        self._stage_widgets() 
-    
+        self._stage_widgets()
+
     def _init_widgets(self, widget_title: str) -&gt; None:
-        self.title = factories.atomic_widget_factory(format=&#39;heading&#39;, title=widget_title)
-        self.figure = factories.atomic_widget_factory(format=&#39;figure&#39;, title=None)
+        self.title_container = factories.layout_factory(
+            format=&#39;horizontal-box&#39;)
+        self.title = factories.atomic_widget_factory(
+            format=&#39;heading&#39;, title=widget_title)
+        self.download_button = factories.atomic_widget_factory(
+            format=&#39;download-button&#39;, title=None)
+        self.figure = factories.atomic_widget_factory(
+            format=&#39;figure&#39;, title=None)
         self.setLayout(QtWidgets.QVBoxLayout())
 
     def _arrange_widgets(self) -&gt; None:
-        self.title.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding,
-                                                            QtWidgets.QSizePolicy.Minimum))
-        self.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding,
-                                                            QtWidgets.QSizePolicy.Minimum))
-        self.layout().addWidget(self.title)
+        factories.set_policy_on_widget_list([self, self.title, self.title_container],
+                                            QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding,
+                                                                  QtWidgets.QSizePolicy.Minimum))
+        self.title_container.layout().addWidget(self.title)
+        self.title_container.layout().addWidget(self.download_button)
+        self.layout().addWidget(self.title_container)
         self.layout().addWidget(self.figure)
-    
+
     def _stage_widgets(self) -&gt; None:
         self.figure.hide()
+        self.download_button.hide()
+        self.download_button.clicked.connect(self.show_file_dialog)
 
     def set_pixmap(self) -&gt; None:
-        self.figure.setPixmap(utilities.generate_pixmap_from_temp(self.width(), self.height(), self.tmp_graph_key))
+        self.figure.setPixmap(utilities.generate_pixmap_from_temp(
+            self.width(), self.height(), self.tmp_graph_key))
         self.figure.show()
+        self.download_button.show()
+    
+    def clear(self):
+        self.figure.hide()
+        self.download_button.hide()
+
+    @QtCore.Slot()
+    def show_file_dialog(self) -&gt; None:
+        file_path = factories.atomic_widget_factory(
+            format=&#39;save-dialog&#39;, title=f&#39;(*.{settings.IMG_EXT})&#39;)
+        file_path.selectFile(f&#39;{self.tmp_graph_key}.{settings.IMG_EXT}&#39;)
+        filename = None
+        if file_path.exec_() == QtWidgets.QDialog.Accepted:
+            filename = file_path.selectedFiles()
+        if filename is not None and len(filename) &gt; 0:
+            utilities.download_tmp_to_file(self.tmp_graph_key, filename[0])
+
 
 class CompositeWidget(QtWidgets.QWidget):
     &#34;&#34;&#34;
@@ -397,37 +485,40 @@ class CompositeWidget(QtWidgets.QWidget):
     4. **tab_widget**: ``PySide6.QtWidget.QTabWidget``
 
     &#34;&#34;&#34;
-    def __init__(self, tmp_graph_key: str, layer: str, widget_title: str=&#34;Results&#34;, 
-                    table_title: Union[str, None]=None, 
-                    graph_title: Union[str,None]=None):
+
+    def __init__(self, tmp_graph_key: str, layer: str, widget_title: str = &#34;Results&#34;,
+                 table_title: Union[str, None] = None,
+                 graph_title: Union[str, None] = None):
         super().__init__()
         self.setObjectName(layer)
         self._init_widgets(widget_title=widget_title,
-                                        tmp_graph_key=tmp_graph_key)
-        self._arrange_widgets(graph_title=graph_title, 
-                                        table_title=table_title)
+                           tmp_graph_key=tmp_graph_key)
+        self._arrange_widgets(graph_title=graph_title,
+                              table_title=table_title)
 
     def _init_widgets(self, widget_title: str, tmp_graph_key: str) -&gt; None:
         &#34;&#34;&#34;Creates child widgets and their layouts&#34;&#34;&#34;
-        self.title = factories.atomic_widget_factory(format=&#39;subtitle&#39;, title=widget_title)
+        self.title = factories.atomic_widget_factory(
+            format=&#39;subtitle&#39;, title=widget_title)
 
         self.table_widget = TableWidget(layer=self.objectName())
-        self.graph_widget = GraphWidget(tmp_graph_key=tmp_graph_key, layer=self.objectName())
+        self.graph_widget = GraphWidget(
+            tmp_graph_key=tmp_graph_key, layer=self.objectName())
 
         self.tab_widget = QtWidgets.QTabWidget()
 
         self.setLayout(QtWidgets.QVBoxLayout())
-        
+
     def _arrange_widgets(self, graph_title: str, table_title: str) -&gt; None:
         self.title.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding,
-                                                            QtWidgets.QSizePolicy.Minimum))
+                                                       QtWidgets.QSizePolicy.Minimum))
         self.tab_widget.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding,
                                                             QtWidgets.QSizePolicy.Expanding))
         self.title.setAlignment(QtCore.Qt.AlignLeft)
 
         self.tab_widget.addTab(self.table_widget, table_title)
         self.tab_widget.addTab(self.graph_widget, graph_title)
-        
+
         self.layout().addWidget(self.title)
         self.layout().addWidget(self.tab_widget)</code></pre>
 </details>
@@ -507,7 +598,7 @@ See help(type(self)) for accurate signature.</p></div>
 <pre><code class="python">class ArgumentWidget(QtWidgets.QWidget):
     &#34;&#34;&#34;
     Base class for other more complex widgets to inherit. An instance of `scrilla.gui.widgets.ArgumentWidget` embeds its child widgets in its own layout,  which is an instance of``PySide6.QtWidgetQVBoxLayout``. This class provides access to the following widgets:a ``PySide6.QtWidgets.QLabel`` for the title widget, an error message widget, a ``PySide6.QtWidgets.QPushButton`` for the calculate button widget, a ``PySide6.QtWidget.QLineEdit`` for ticker symbol input, and a variety of optional input widgets enabled by boolean flags in the `controls` constructor argument. 
-    
+
     Constructor
     -----------
     1. **calculate_function**: ``str``
@@ -542,6 +633,7 @@ See help(type(self)) for accurate signature.</p></div>
         Dictionary containing the optional input widgets.
     &#34;&#34;&#34;
     # TODO: calculate and clear should be part of THIS constructor, doesn&#39;t make sense to have other widgets hook them up.
+
     def __init__(self, calculate_function: Callable, clear_function: Callable, controls: Dict[str, bool], layer, mode: str = SYMBOLS_LIST):
         super().__init__()
         self.layer = layer
@@ -553,55 +645,69 @@ See help(type(self)) for accurate signature.</p></div>
         self._init_widgets(mode)
         self._arrange_widgets()
         self._stage_widgets()
-    
+
     def _init_widgets(self, mode: str) -&gt; None:
         &#34;&#34;&#34;
         Creates child widgets by calling factory methods from `scrilla.gui.widgets.factories`. This method will iterate over `self.controls` and initialize the optional input widget accordingly. `self.optional_pane` and `self.required_pane`, the container widgets for the input elements, are initialized with a style tag on the same layer as the `scrilla.gui.widgets.components.ArgumentWidget`.
         &#34;&#34;&#34;
-        self.title = factories.atomic_widget_factory(format=&#39;subtitle&#39;, title=&#39;Function Input&#39;)
-        self.optional_title = factories.atomic_widget_factory(format=&#39;label&#39;, title=&#39;Optional Arguments&#39;)
-        self.error_message = factories.atomic_widget_factory(format=&#39;error&#39;, title=&#34;Error Message Goes Here&#34;)
-        self.calculate_button = factories.atomic_widget_factory(format=&#39;calculate-button&#39;, title=&#39;Calculate&#39;)
-        self.clear_button = factories.atomic_widget_factory(format=&#39;clear-button&#39;, title=&#39;Clear&#39;)
+        self.title = factories.atomic_widget_factory(
+            format=&#39;subtitle&#39;, title=&#39;Function Input&#39;)
+        self.optional_title = factories.atomic_widget_factory(
+            format=&#39;label&#39;, title=&#39;Optional Arguments&#39;)
+        self.error_message = factories.atomic_widget_factory(
+            format=&#39;error&#39;, title=&#34;Error Message Goes Here&#34;)
+        self.calculate_button = factories.atomic_widget_factory(
+            format=&#39;calculate-button&#39;, title=&#39;Calculate&#39;)
+        self.clear_button = factories.atomic_widget_factory(
+            format=&#39;clear-button&#39;, title=&#39;Clear&#39;)
 
         if mode == SYMBOLS_LIST:
-            self.required_title = factories.atomic_widget_factory(format=&#39;label&#39;, title=&#39;Required Arguments&#39;)
-            self.symbol_hint = factories.atomic_widget_factory(format=&#39;text&#39;, title=&#34;Separate Symbols With Commas&#34;)
-            self.required_pane = factories.layout_factory(format=&#39;vertical-box&#39;)
+            self.required_title = factories.atomic_widget_factory(
+                format=&#39;label&#39;, title=&#39;Required Arguments&#39;)
+            self.symbol_hint = factories.atomic_widget_factory(
+                format=&#39;text&#39;, title=&#34;Separate Symbols With Commas&#34;)
+            self.required_pane = factories.layout_factory(
+                format=&#39;vertical-box&#39;)
             self.required_pane.setObjectName(self.layer)
-            self.symbol_widget = factories.composite_widget_factory(format=&#39;symbols&#39;, title=&#34;Symbols :&#34;, optional=False)
+            self.symbol_widget = factories.composite_widget_factory(
+                format=&#39;symbols&#39;, title=&#34;Symbols :&#34;, optional=False)
         elif mode == SYMBOLS_SINGLE:
-            self.required_title = factories.atomic_widget_factory(format=&#39;label&#39;, title=&#39;Required Argument&#39;)
-            self.symbol_hint = factories.atomic_widget_factory(format=&#39;text&#39;, title=&#34;Enter a Single Symbol&#34;)
-            self.required_pane = factories.layout_factory(format=&#39;vertical-box&#39;)
+            self.required_title = factories.atomic_widget_factory(
+                format=&#39;label&#39;, title=&#39;Required Argument&#39;)
+            self.symbol_hint = factories.atomic_widget_factory(
+                format=&#39;text&#39;, title=&#34;Enter a Single Symbol&#34;)
+            self.required_pane = factories.layout_factory(
+                format=&#39;vertical-box&#39;)
             self.required_pane.setObjectName(self.layer)
-            self.symbol_widget = factories.composite_widget_factory(format=&#39;symbol&#39;, title=&#34;Symbol: &#34;, optional=False)
+            self.symbol_widget = factories.composite_widget_factory(
+                format=&#39;symbol&#39;, title=&#34;Symbol: &#34;, optional=False)
         else:
             self.symbol_widget = None
 
         for control in self.controls:
             if self.controls[control]:
-                self.control_widgets[control] = factories.composite_widget_factory(definitions.ARG_DICT[control][&#39;widget_type&#39;], 
-                                                                            f&#39;{definitions.ARG_DICT[control][&#34;name&#34;]} :&#39;,
-                                                                            optional = True)
+                self.control_widgets[control] = factories.composite_widget_factory(definitions.ARG_DICT[control][&#39;widget_type&#39;],
+                                                                                   f&#39;{definitions.ARG_DICT[control][&#34;name&#34;]} :&#39;,
+                                                                                   optional=True)
             else:
                 self.control_widgets[control] = None
 
         self.optional_pane = factories.layout_factory(format=&#39;vertical-box&#39;)
         self.optional_pane.setObjectName(self.layer)
         self.setLayout(QtWidgets.QVBoxLayout())
-    
+
     def _arrange_widgets(self):
         &#34;&#34;&#34;
         Arrange child widgets in their layouts and provides rendering hints. The `self.symbol_widget` is set into a ``PySide6.QtWidgets.QVBoxLayout`` named `self.required_pane`. The optional input widgets are set into a separate ``PySide6.QtWidgets.QVBoxLayout`` named `self.optional_pane`. `self.required_pane` and `self.optional_pane` are in turn set into a parent `PySide6.QtWidgets.QVBoxLayout``, along with `self.calculate_button` and `self.clear_button`. A strecth widget is inserted between the input widgets and the button widgets. 
-        
+
         &#34;&#34;&#34;
-        factories.set_policy_on_widget_list([self.title, self.optional_title, self.optional_pane], 
+        factories.set_policy_on_widget_list([self.title, self.optional_title, self.optional_pane],
                                             QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Maximum))
         if self.symbol_widget is not None:
             factories.set_policy_on_widget_list([self.symbol_hint, self.required_title, self.required_pane],
                                                 QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Maximum))
-        self.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding))
+        self.setSizePolicy(QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding))
 
         if self.symbol_widget is not None:
             self.required_pane.layout().addWidget(self.required_title)
@@ -632,7 +738,8 @@ See help(type(self)) for accurate signature.</p></div>
         if self.symbol_widget is not None:
             # NOTE: symbol widget is technically a layout in which the lineedit is abutted by a label, so need
             # to pull the actual input element from the layout
-            self.symbol_widget.layout().itemAt(1).widget().returnPressed.connect(self.calculate_function)
+            self.symbol_widget.layout().itemAt(1).widget(
+            ).returnPressed.connect(self.calculate_function)
 
     def get_symbol_input(self) -&gt; Union[List[str], None]:
         &#34;&#34;&#34;
@@ -651,12 +758,13 @@ See help(type(self)) for accurate signature.</p></div>
         if self.control_widgets[control_widget_key] is None:
             return None
 
-        widget = self.control_widgets[control_widget_key].layout().itemAt(1).widget()
+        widget = self.control_widgets[control_widget_key].layout().itemAt(
+            1).widget()
 
         if not widget.isEnabled():
             return None
 
-        if type(widget) is QtWidgets.QDateEdit: 
+        if type(widget) is QtWidgets.QDateEdit:
             return widget.date().toPython().date()
         if type(widget) is QtWidgets.QLineEdit:
             if type(widget.validator()) is QtGui.QIntValidator:
@@ -666,7 +774,7 @@ See help(type(self)) for accurate signature.</p></div>
             return widget.text()
         if type(widget) is QtWidgets.QRadioButton:
             return widget.isChecked()
-    
+
     def prime(self) -&gt; None:
         &#34;&#34;&#34;
         Enables user input on child widgets, except `clear_button` which is disabled.
@@ -679,14 +787,18 @@ See help(type(self)) for accurate signature.</p></div>
         for control in self.control_widgets:
             if self.control_widgets[control] is not None:
                 if type(self.control_widgets[control].layout().itemAt(1).widget()) != QtWidgets.QRadioButton:
-                    self.control_widgets[control].layout().itemAt(1).widget().clear()
-                self.control_widgets[control].layout().itemAt(2).widget().setEnabled(True)
-                self.control_widgets[control].layout().itemAt(2).widget().setCheckState(QtCore.Qt.Unchecked)
-                self.control_widgets[control].layout().itemAt(1).widget().setEnabled(False)
+                    self.control_widgets[control].layout().itemAt(
+                        1).widget().clear()
+                self.control_widgets[control].layout().itemAt(
+                    2).widget().setEnabled(True)
+                self.control_widgets[control].layout().itemAt(
+                    2).widget().setCheckState(QtCore.Qt.Unchecked)
+                self.control_widgets[control].layout().itemAt(
+                    1).widget().setEnabled(False)
                 # NOTE: have to set Widget1 to disabled last since the signal on the Widget2 is connected
-                # through CheckState to the enabled stated of Widget1, i.e. flipping the CheckState on 
+                # through CheckState to the enabled stated of Widget1, i.e. flipping the CheckState on
                 # Widget2 switches the enabled state of Widget1.
-    
+
     def fire(self) -&gt; None:
         &#34;&#34;&#34;
         Disables user input on child widgets, except `clear_button` which is enabled.
@@ -697,8 +809,10 @@ See help(type(self)) for accurate signature.</p></div>
             self.symbol_widget.layout().itemAt(1).widget().setEnabled(False)
         for control in self.control_widgets:
             if self.control_widgets[control] is not None:
-                self.control_widgets[control].layout().itemAt(1).widget().setEnabled(False)
-                self.control_widgets[control].layout().itemAt(2).widget().setEnabled(False)</code></pre>
+                self.control_widgets[control].layout().itemAt(
+                    1).widget().setEnabled(False)
+                self.control_widgets[control].layout().itemAt(
+                    2).widget().setEnabled(False)</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -735,8 +849,10 @@ See help(type(self)) for accurate signature.</p></div>
         self.symbol_widget.layout().itemAt(1).widget().setEnabled(False)
     for control in self.control_widgets:
         if self.control_widgets[control] is not None:
-            self.control_widgets[control].layout().itemAt(1).widget().setEnabled(False)
-            self.control_widgets[control].layout().itemAt(2).widget().setEnabled(False)</code></pre>
+            self.control_widgets[control].layout().itemAt(
+                1).widget().setEnabled(False)
+            self.control_widgets[control].layout().itemAt(
+                2).widget().setEnabled(False)</code></pre>
 </details>
 </dd>
 <dt id="scrilla.gui.widgets.components.ArgumentWidget.get_control_input"><code class="name flex">
@@ -758,12 +874,13 @@ See help(type(self)) for accurate signature.</p></div>
     if self.control_widgets[control_widget_key] is None:
         return None
 
-    widget = self.control_widgets[control_widget_key].layout().itemAt(1).widget()
+    widget = self.control_widgets[control_widget_key].layout().itemAt(
+        1).widget()
 
     if not widget.isEnabled():
         return None
 
-    if type(widget) is QtWidgets.QDateEdit: 
+    if type(widget) is QtWidgets.QDateEdit:
         return widget.date().toPython().date()
     if type(widget) is QtWidgets.QLineEdit:
         if type(widget.validator()) is QtGui.QIntValidator:
@@ -814,12 +931,16 @@ See help(type(self)) for accurate signature.</p></div>
     for control in self.control_widgets:
         if self.control_widgets[control] is not None:
             if type(self.control_widgets[control].layout().itemAt(1).widget()) != QtWidgets.QRadioButton:
-                self.control_widgets[control].layout().itemAt(1).widget().clear()
-            self.control_widgets[control].layout().itemAt(2).widget().setEnabled(True)
-            self.control_widgets[control].layout().itemAt(2).widget().setCheckState(QtCore.Qt.Unchecked)
-            self.control_widgets[control].layout().itemAt(1).widget().setEnabled(False)
+                self.control_widgets[control].layout().itemAt(
+                    1).widget().clear()
+            self.control_widgets[control].layout().itemAt(
+                2).widget().setEnabled(True)
+            self.control_widgets[control].layout().itemAt(
+                2).widget().setCheckState(QtCore.Qt.Unchecked)
+            self.control_widgets[control].layout().itemAt(
+                1).widget().setEnabled(False)
             # NOTE: have to set Widget1 to disabled last since the signal on the Widget2 is connected
-            # through CheckState to the enabled stated of Widget1, i.e. flipping the CheckState on 
+            # through CheckState to the enabled stated of Widget1, i.e. flipping the CheckState on
             # Widget2 switches the enabled state of Widget1.</code></pre>
 </details>
 </dd>
@@ -870,37 +991,40 @@ See help(type(self)) for accurate signature.</p></div>
     4. **tab_widget**: ``PySide6.QtWidget.QTabWidget``
 
     &#34;&#34;&#34;
-    def __init__(self, tmp_graph_key: str, layer: str, widget_title: str=&#34;Results&#34;, 
-                    table_title: Union[str, None]=None, 
-                    graph_title: Union[str,None]=None):
+
+    def __init__(self, tmp_graph_key: str, layer: str, widget_title: str = &#34;Results&#34;,
+                 table_title: Union[str, None] = None,
+                 graph_title: Union[str, None] = None):
         super().__init__()
         self.setObjectName(layer)
         self._init_widgets(widget_title=widget_title,
-                                        tmp_graph_key=tmp_graph_key)
-        self._arrange_widgets(graph_title=graph_title, 
-                                        table_title=table_title)
+                           tmp_graph_key=tmp_graph_key)
+        self._arrange_widgets(graph_title=graph_title,
+                              table_title=table_title)
 
     def _init_widgets(self, widget_title: str, tmp_graph_key: str) -&gt; None:
         &#34;&#34;&#34;Creates child widgets and their layouts&#34;&#34;&#34;
-        self.title = factories.atomic_widget_factory(format=&#39;subtitle&#39;, title=widget_title)
+        self.title = factories.atomic_widget_factory(
+            format=&#39;subtitle&#39;, title=widget_title)
 
         self.table_widget = TableWidget(layer=self.objectName())
-        self.graph_widget = GraphWidget(tmp_graph_key=tmp_graph_key, layer=self.objectName())
+        self.graph_widget = GraphWidget(
+            tmp_graph_key=tmp_graph_key, layer=self.objectName())
 
         self.tab_widget = QtWidgets.QTabWidget()
 
         self.setLayout(QtWidgets.QVBoxLayout())
-        
+
     def _arrange_widgets(self, graph_title: str, table_title: str) -&gt; None:
         self.title.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding,
-                                                            QtWidgets.QSizePolicy.Minimum))
+                                                       QtWidgets.QSizePolicy.Minimum))
         self.tab_widget.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding,
                                                             QtWidgets.QSizePolicy.Expanding))
         self.title.setAlignment(QtCore.Qt.AlignLeft)
 
         self.tab_widget.addTab(self.table_widget, table_title)
         self.tab_widget.addTab(self.graph_widget, graph_title)
-        
+
         self.layout().addWidget(self.title)
         self.layout().addWidget(self.tab_widget)</code></pre>
 </details>
@@ -965,33 +1089,60 @@ See help(type(self)) for accurate signature.</p></div>
     2. **title**: ``PySide6.QtWidget.QLabel``
     3. **figure**: ``PySide6.QtWidget.QLabel``
     &#34;&#34;&#34;
-    def __init__(self, tmp_graph_key: str, layer: str, widget_title: str =&#34;Graph Results&#34;):
-        super().__init__()    
+
+    def __init__(self, tmp_graph_key: str, layer: str, widget_title: str = &#34;Graph Results&#34;):
+        super().__init__()
         self.layer = layer
         self.tmp_graph_key = tmp_graph_key
         self._init_widgets(widget_title)
         self._arrange_widgets()
-        self._stage_widgets() 
-    
+        self._stage_widgets()
+
     def _init_widgets(self, widget_title: str) -&gt; None:
-        self.title = factories.atomic_widget_factory(format=&#39;heading&#39;, title=widget_title)
-        self.figure = factories.atomic_widget_factory(format=&#39;figure&#39;, title=None)
+        self.title_container = factories.layout_factory(
+            format=&#39;horizontal-box&#39;)
+        self.title = factories.atomic_widget_factory(
+            format=&#39;heading&#39;, title=widget_title)
+        self.download_button = factories.atomic_widget_factory(
+            format=&#39;download-button&#39;, title=None)
+        self.figure = factories.atomic_widget_factory(
+            format=&#39;figure&#39;, title=None)
         self.setLayout(QtWidgets.QVBoxLayout())
 
     def _arrange_widgets(self) -&gt; None:
-        self.title.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding,
-                                                            QtWidgets.QSizePolicy.Minimum))
-        self.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding,
-                                                            QtWidgets.QSizePolicy.Minimum))
-        self.layout().addWidget(self.title)
+        factories.set_policy_on_widget_list([self, self.title, self.title_container],
+                                            QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding,
+                                                                  QtWidgets.QSizePolicy.Minimum))
+        self.title_container.layout().addWidget(self.title)
+        self.title_container.layout().addWidget(self.download_button)
+        self.layout().addWidget(self.title_container)
         self.layout().addWidget(self.figure)
-    
+
     def _stage_widgets(self) -&gt; None:
         self.figure.hide()
+        self.download_button.hide()
+        self.download_button.clicked.connect(self.show_file_dialog)
 
     def set_pixmap(self) -&gt; None:
-        self.figure.setPixmap(utilities.generate_pixmap_from_temp(self.width(), self.height(), self.tmp_graph_key))
-        self.figure.show()</code></pre>
+        self.figure.setPixmap(utilities.generate_pixmap_from_temp(
+            self.width(), self.height(), self.tmp_graph_key))
+        self.figure.show()
+        self.download_button.show()
+    
+    def clear(self):
+        self.figure.hide()
+        self.download_button.hide()
+
+    @QtCore.Slot()
+    def show_file_dialog(self) -&gt; None:
+        file_path = factories.atomic_widget_factory(
+            format=&#39;save-dialog&#39;, title=f&#39;(*.{settings.IMG_EXT})&#39;)
+        file_path.selectFile(f&#39;{self.tmp_graph_key}.{settings.IMG_EXT}&#39;)
+        filename = None
+        if file_path.exec_() == QtWidgets.QDialog.Accepted:
+            filename = file_path.selectedFiles()
+        if filename is not None and len(filename) &gt; 0:
+            utilities.download_tmp_to_file(self.tmp_graph_key, filename[0])</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -1009,6 +1160,20 @@ See help(type(self)) for accurate signature.</p></div>
 </dl>
 <h3>Methods</h3>
 <dl>
+<dt id="scrilla.gui.widgets.components.GraphWidget.clear"><code class="name flex">
+<span>def <span class="ident">clear</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def clear(self):
+    self.figure.hide()
+    self.download_button.hide()</code></pre>
+</details>
+</dd>
 <dt id="scrilla.gui.widgets.components.GraphWidget.set_pixmap"><code class="name flex">
 <span>def <span class="ident">set_pixmap</span></span>(<span>self) ‑> None</span>
 </code></dt>
@@ -1019,9 +1184,83 @@ See help(type(self)) for accurate signature.</p></div>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def set_pixmap(self) -&gt; None:
-    self.figure.setPixmap(utilities.generate_pixmap_from_temp(self.width(), self.height(), self.tmp_graph_key))
-    self.figure.show()</code></pre>
+    self.figure.setPixmap(utilities.generate_pixmap_from_temp(
+        self.width(), self.height(), self.tmp_graph_key))
+    self.figure.show()
+    self.download_button.show()</code></pre>
 </details>
+</dd>
+<dt id="scrilla.gui.widgets.components.GraphWidget.show_file_dialog"><code class="name flex">
+<span>def <span class="ident">show_file_dialog</span></span>(<span>self) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@QtCore.Slot()
+def show_file_dialog(self) -&gt; None:
+    file_path = factories.atomic_widget_factory(
+        format=&#39;save-dialog&#39;, title=f&#39;(*.{settings.IMG_EXT})&#39;)
+    file_path.selectFile(f&#39;{self.tmp_graph_key}.{settings.IMG_EXT}&#39;)
+    filename = None
+    if file_path.exec_() == QtWidgets.QDialog.Accepted:
+        filename = file_path.selectedFiles()
+    if filename is not None and len(filename) &gt; 0:
+        utilities.download_tmp_to_file(self.tmp_graph_key, filename[0])</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="scrilla.gui.widgets.components.SkeletonWidget"><code class="flex name class">
+<span>class <span class="ident">SkeletonWidget</span></span>
+<span>(</span><span>function: str, parent: PySide6.QtWidgets.QWidget)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>QWidget(self, parent: Union[PySide6.QtWidgets.QWidget, NoneType] = None, f: PySide6.QtCore.Qt.WindowFlags = Default(Qt.WindowFlags)) -&gt; None</p>
+<p><strong>init</strong>(self, parent: Union[PySide6.QtWidgets.QWidget, NoneType] = None, f: PySide6.QtCore.Qt.WindowFlags = Default(Qt.WindowFlags)) -&gt; None</p>
+<p>Initialize self.
+See help(type(self)) for accurate signature.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class SkeletonWidget(QtWidgets.QWidget):
+    def __init__(self, function: str, parent: QtWidgets.QWidget):
+        super(SkeletonWidget, self).__init__(parent)
+        self._configure_control_skeleton(function)
+
+    def _configure_control_skeleton(self, function: str):
+        self.controls = factories.generate_control_skeleton()
+
+        for arg in definitions.FUNC_DICT[function][&#39;args&#39;]:
+            if not definitions.ARG_DICT[arg][&#39;cli_only&#39;]:
+                self.controls[arg] = True</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>PySide6.QtWidgets.QWidget</li>
+<li>PySide6.QtCore.QObject</li>
+<li>PySide6.QtGui.QPaintDevice</li>
+<li>Shiboken.Object</li>
+</ul>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="scrilla.gui.widgets.functions.CorrelationWidget" href="functions.html#scrilla.gui.widgets.functions.CorrelationWidget">CorrelationWidget</a></li>
+<li><a title="scrilla.gui.widgets.functions.DiscountDividendWidget" href="functions.html#scrilla.gui.widgets.functions.DiscountDividendWidget">DiscountDividendWidget</a></li>
+<li><a title="scrilla.gui.widgets.functions.DistributionWidget" href="functions.html#scrilla.gui.widgets.functions.DistributionWidget">DistributionWidget</a></li>
+<li><a title="scrilla.gui.widgets.functions.EfficientFrontierWidget" href="functions.html#scrilla.gui.widgets.functions.EfficientFrontierWidget">EfficientFrontierWidget</a></li>
+<li><a title="scrilla.gui.widgets.functions.MovingAverageWidget" href="functions.html#scrilla.gui.widgets.functions.MovingAverageWidget">MovingAverageWidget</a></li>
+<li><a title="scrilla.gui.widgets.functions.OptimizerWidget" href="functions.html#scrilla.gui.widgets.functions.OptimizerWidget">OptimizerWidget</a></li>
+<li><a title="scrilla.gui.widgets.functions.RiskProfileWidget" href="functions.html#scrilla.gui.widgets.functions.RiskProfileWidget">RiskProfileWidget</a></li>
+<li><a title="scrilla.gui.widgets.functions.YieldCurveWidget" href="functions.html#scrilla.gui.widgets.functions.YieldCurveWidget">YieldCurveWidget</a></li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="scrilla.gui.widgets.components.SkeletonWidget.staticMetaObject"><code class="name">var <span class="ident">staticMetaObject</span></code></dt>
+<dd>
+<div class="desc"></div>
 </dd>
 </dl>
 </dd>
@@ -1067,7 +1306,8 @@ See help(type(self)) for accurate signature.</p></div>
     2.. **table**: ``PySide6.QtWidget.QTableWidget``
 
     &#34;&#34;&#34;
-    def __init__(self, layer, widget_title: str =&#34;Table Result&#34;):
+
+    def __init__(self, layer, widget_title: str = &#34;Table Result&#34;):
         super().__init__()
         self.layer = layer
         self._init_widgets(widget_title)
@@ -1076,21 +1316,30 @@ See help(type(self)) for accurate signature.</p></div>
 
     def _init_widgets(self, widget_title: str) -&gt; None:
         &#34;&#34;&#34;Creates child widgets and their layouts&#34;&#34;&#34;
-        self.title = factories.atomic_widget_factory(format=&#39;heading&#39;, title=widget_title)
-        self.table = factories.atomic_widget_factory(format=&#39;table&#39;, title=None)
+        self.title_container = factories.layout_factory(
+            format=&#39;horizontal-box&#39;)
+        self.title = factories.atomic_widget_factory(
+            format=&#39;heading&#39;, title=widget_title)
+        self.download_button = factories.atomic_widget_factory(
+            format=&#39;download-button&#39;, title=None)
+        self.table = factories.atomic_widget_factory(
+            format=&#39;table&#39;, title=None)
         self.setLayout(QtWidgets.QVBoxLayout())
-    
+
     def _arrange_widgets(self) -&gt; None:
-        self.title.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding,
-                                                            QtWidgets.QSizePolicy.Minimum))
-        self.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding,
-                                                            QtWidgets.QSizePolicy.Minimum))
-        self.layout().addWidget(self.title)
+        factories.set_policy_on_widget_list([self, self.title, self.title_container],
+                                            QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding,
+                                                                  QtWidgets.QSizePolicy.Minimum))
+        self.title_container.layout().addWidget(self.title)
+        self.title_container.layout().addWidget(self.download_button)
+        self.layout().addWidget(self.title_container)
         self.layout().addWidget(self.table, 1)
 
     def _stage_widgets(self) -&gt; None:
         self.table.hide()
-    
+        self.download_button.hide()
+        self.download_button.clicked.connect(self.show_file_dialog)
+
     def init_table(self, rows: List[str], columns: List[str]) -&gt; None:
         &#34;&#34;&#34;
         Initializes `table` for display. Number of rows and columns is determined by the length of the passed in lists.
@@ -1106,10 +1355,23 @@ See help(type(self)) for accurate signature.</p></div>
         self.table.setColumnCount(len(columns))
         self.table.setHorizontalHeaderLabels(columns)
         self.table.setVerticalHeaderLabels(rows)
+        self.download_button.show()
 
     def show_table(self):
         self.table.resizeColumnsToContents()
-        self.table.show()</code></pre>
+        self.table.show()
+
+    @QtCore.Slot()
+    def show_file_dialog(self) -&gt; None:
+        file_path = factories.atomic_widget_factory(
+            format=&#39;save-dialog&#39;, title=f&#39;(*.{settings.FILE_EXT})&#39;)
+        file_path.selectFile(f&#39;table.{settings.FILE_EXT}&#39;)
+        filename = None
+        if file_path.exec_() == QtWidgets.QDialog.Accepted:
+            filename = file_path.selectedFiles()
+        if filename is not None and len(filename) &gt; 0:
+            if settings.FILE_EXT == &#39;json&#39;:
+                utilities.download_table_to_json(self.table, filename[0])</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -1157,7 +1419,30 @@ List containing the column headers.</li>
     self.table.setRowCount(len(rows))
     self.table.setColumnCount(len(columns))
     self.table.setHorizontalHeaderLabels(columns)
-    self.table.setVerticalHeaderLabels(rows)</code></pre>
+    self.table.setVerticalHeaderLabels(rows)
+    self.download_button.show()</code></pre>
+</details>
+</dd>
+<dt id="scrilla.gui.widgets.components.TableWidget.show_file_dialog"><code class="name flex">
+<span>def <span class="ident">show_file_dialog</span></span>(<span>self) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@QtCore.Slot()
+def show_file_dialog(self) -&gt; None:
+    file_path = factories.atomic_widget_factory(
+        format=&#39;save-dialog&#39;, title=f&#39;(*.{settings.FILE_EXT})&#39;)
+    file_path.selectFile(f&#39;table.{settings.FILE_EXT}&#39;)
+    filename = None
+    if file_path.exec_() == QtWidgets.QDialog.Accepted:
+        filename = file_path.selectedFiles()
+    if filename is not None and len(filename) &gt; 0:
+        if settings.FILE_EXT == &#39;json&#39;:
+            utilities.download_table_to_json(self.table, filename[0])</code></pre>
 </details>
 </dd>
 <dt id="scrilla.gui.widgets.components.TableWidget.show_table"><code class="name flex">
@@ -1218,14 +1503,23 @@ List containing the column headers.</li>
 <li>
 <h4><code><a title="scrilla.gui.widgets.components.GraphWidget" href="#scrilla.gui.widgets.components.GraphWidget">GraphWidget</a></code></h4>
 <ul class="">
+<li><code><a title="scrilla.gui.widgets.components.GraphWidget.clear" href="#scrilla.gui.widgets.components.GraphWidget.clear">clear</a></code></li>
 <li><code><a title="scrilla.gui.widgets.components.GraphWidget.set_pixmap" href="#scrilla.gui.widgets.components.GraphWidget.set_pixmap">set_pixmap</a></code></li>
+<li><code><a title="scrilla.gui.widgets.components.GraphWidget.show_file_dialog" href="#scrilla.gui.widgets.components.GraphWidget.show_file_dialog">show_file_dialog</a></code></li>
 <li><code><a title="scrilla.gui.widgets.components.GraphWidget.staticMetaObject" href="#scrilla.gui.widgets.components.GraphWidget.staticMetaObject">staticMetaObject</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="scrilla.gui.widgets.components.SkeletonWidget" href="#scrilla.gui.widgets.components.SkeletonWidget">SkeletonWidget</a></code></h4>
+<ul class="">
+<li><code><a title="scrilla.gui.widgets.components.SkeletonWidget.staticMetaObject" href="#scrilla.gui.widgets.components.SkeletonWidget.staticMetaObject">staticMetaObject</a></code></li>
 </ul>
 </li>
 <li>
 <h4><code><a title="scrilla.gui.widgets.components.TableWidget" href="#scrilla.gui.widgets.components.TableWidget">TableWidget</a></code></h4>
 <ul class="">
 <li><code><a title="scrilla.gui.widgets.components.TableWidget.init_table" href="#scrilla.gui.widgets.components.TableWidget.init_table">init_table</a></code></li>
+<li><code><a title="scrilla.gui.widgets.components.TableWidget.show_file_dialog" href="#scrilla.gui.widgets.components.TableWidget.show_file_dialog">show_file_dialog</a></code></li>
 <li><code><a title="scrilla.gui.widgets.components.TableWidget.show_table" href="#scrilla.gui.widgets.components.TableWidget.show_table">show_table</a></code></li>
 <li><code><a title="scrilla.gui.widgets.components.TableWidget.staticMetaObject" href="#scrilla.gui.widgets.components.TableWidget.staticMetaObject">staticMetaObject</a></code></li>
 </ul>

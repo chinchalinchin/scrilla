@@ -45,12 +45,15 @@
 &#34;&#34;&#34;
 Application-wide configuration settings. 
 &#34;&#34;&#34;
-import os, json
+import os
+import json
 
 import scrilla.util.outputter as outputter
 
+
 class APIKeyError(Exception):
     pass
+
 
 APP_DIR = os.path.dirname(os.path.abspath(__file__))
 &#34;&#34;&#34;Folder containing the root module of the project&#34;&#34;&#34;
@@ -58,7 +61,7 @@ APP_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_DIR = os.path.dirname(APP_DIR)
 &#34;&#34;&#34;Folder containing the project source&#34;&#34;&#34;
 
-APP_NAME=&#34;scrilla&#34;
+APP_NAME = &#34;scrilla&#34;
 &#34;&#34;&#34;Name of the application&#34;&#34;&#34;
 
 APP_ENV = os.environ.setdefault(&#39;APP_ENV&#39;, &#39;local&#39;)
@@ -72,9 +75,16 @@ logger = outputter.Logger(&#39;settings&#39;, LOG_LEVEL)
 FILE_EXT = os.environ.setdefault(&#34;FILE_EXT&#34;, &#34;json&#34;)
 &#34;&#34;&#34;Extension used to save files; Configured by environment variable of the same name, **FILE_EXT**&#34;&#34;&#34;
 
+IMG_EXT = os.environ.setdefault(&#34;IMG_EXT&#34;, &#34;jpg&#34;)
+&#34;&#34;&#34;Extension used to saved images; Configured by environment variable of the same name, **IMG_EXT**&#34;&#34;&#34;
+
+METADATA_FILE = os.path.join(APP_DIR, &#39;data&#39;,&#39;meta&#39;, &#39;data.json&#39;)
+&#34;&#34;&#34;File containing metadata information about the application&#34;&#34;&#34;
+
 CACHE_DIR = os.path.join(APP_DIR, &#39;data&#39;, &#39;cache&#39;)
 &#34;&#34;&#34;Directory containing cached prices, statistics and calculations&#34;&#34;&#34;
-CACHE_SQLITE_FILE = os.environ.setdefault(&#39;SQLITE_FILE&#39;, os.path.join(CACHE_DIR, &#39;scrilla.db&#39;))
+CACHE_SQLITE_FILE = os.environ.setdefault(
+    &#39;SQLITE_FILE&#39;, os.path.join(CACHE_DIR, &#39;scrilla.db&#39;))
 &#34;&#34;&#34;Location of the SQLite database flat file; Configured by environment variable **SQLITE_FILE***&#34;&#34;&#34;
 
 TEMP_DIR = os.path.join(APP_DIR, &#39;data&#39;, &#39;tmp&#39;)
@@ -86,29 +96,45 @@ STATIC_DIR = os.path.join(APP_DIR, &#39;data&#39;, &#39;static&#39;)
 
 STATIC_TICKERS_FILE = os.path.join(STATIC_DIR, f&#39;tickers.{FILE_EXT}&#39;)
 &#34;&#34;&#34;Location of file used to store equity ticker symbols&#34;&#34;&#34;
+
 STATIC_ECON_FILE = os.path.join(STATIC_DIR, f&#39;economics.{FILE_EXT}&#39;)
 &#34;&#34;&#34;Location of file used to store statistic symbols&#34;&#34;&#34;
+
 STATIC_CRYPTO_FILE = os.path.join(STATIC_DIR, f&#39;crypto.{FILE_EXT}&#39;)
 &#34;&#34;&#34;Location of file used to store crypto ticker symbols&#34;&#34;&#34;
 
-COMMON_DIR=os.path.join(APP_DIR, &#39;data&#39;, &#39;common&#39;)
-&#34;&#34;&#34;Directory used to store common files, such as API keys, watchlist, etc.&#34;&#34;&#34;
-COMMON_WATCHLIST_FILE=os.path.join(COMMON_DIR, f&#39;watchlist.{FILE_EXT}&#39;)
+COMMON_DIR = os.path.join(APP_DIR, &#39;data&#39;, &#39;common&#39;)
+&#34;&#34;&#34;Directory used to store common files, such as API keys, watchlist, etc.
+
+.. notes::
+    * It is recommended API keys are not stored in this directory, as they will be stored unencrypted. A better option is storing the keys as environment variables in your current session. See the documentation for more information. 
+&#34;&#34;&#34;
+
+COMMON_WATCHLIST_FILE = os.path.join(COMMON_DIR, f&#39;watchlist.{FILE_EXT}&#39;)
 &#34;&#34;&#34;Location of file used to store watchlisted ticker symbols&#34;&#34;&#34;
 
-GUI_STYLESHEET_FILE=os.path.join(APP_DIR, &#39;gui&#39;, &#39;styles&#39;, &#39;app.qss&#39;)
+GUI_STYLESHEET_FILE = os.path.join(APP_DIR, &#39;gui&#39;, &#39;styles&#39;, &#39;app.qss&#39;)
 &#34;&#34;&#34;Location of the stylesheet applied to the GUI&#34;&#34;&#34;
 
-GUI_THEME_FILE=os.path.join(APP_DIR, &#39;gui&#39;, &#39;styles&#39;, &#39;themes.json&#39;)
+GUI_THEME_FILE = os.path.join(APP_DIR, &#39;gui&#39;, &#39;styles&#39;, &#39;themes.json&#39;)
+&#34;&#34;&#34;Location of the color schemes used to style components&#34;&#34;&#34;
+
+GUI_ICON_FILE = os.path.join(APP_DIR, &#39;gui&#39;, &#39;styles&#39;, &#39;icons.json&#39;)
+&#34;&#34;&#34;Location of the icon filenames used as icons for `PySide6.QtWidgets.QPushButtons`&#34;&#34;&#34;
+
+GUI_TEMPLATE_DIR = os.path.join(APP_DIR, &#39;gui&#39;, &#39;templates&#39;)
+&#34;&#34;&#34;Location where the HTML templates for certain ``PySide6.QtWidgets.QWidget`&#39;s are stored.&#34;&#34;&#34;
 
 GUI_DARK_MODE = os.environ.setdefault(&#39;DARK_MODE&#39;, &#39;true&#39;).lower() == &#39;true&#39;
+&#34;&#34;&#34;Flag determining the theme of the GUI, i.e. light mode or dark mode.&#34;&#34;&#34;
 
-## GUI CONFIGURATION
+# GUI CONFIGURATION
 try:
     GUI_WIDTH = int(os.environ.setdefault(&#39;GUI_WIDTH&#39;, &#39;1024&#39;))
     &#34;&#34;&#34;Width of main Graphical User Interface window; Configured by environment variable of same name, **GUI_WIDTH**&#34;&#34;&#34;
-except (ValueError, TypeError) as ParseError: 
-    logger.debug(&#39;Failed to parse GUI_WIDTH from environment. Setting to default value of 1024.&#39;)
+except (ValueError, TypeError) as ParseError:
+    logger.debug(
+        &#39;Failed to parse GUI_WIDTH from environment. Setting to default value of 1024.&#39;)
     GUI_WIDTH = 1024
     os.environ[&#39;GUI_WIDTH&#39;] = &#39;1024&#39;
 
@@ -116,40 +142,45 @@ try:
     GUI_HEIGHT = int(os.environ.setdefault(&#39;GUI_HEIGHT&#39;, &#39;768&#39;))
     &#34;&#34;&#34;Height of main Graphical User Interface window; Configured by environment variable of same name, **GUI_HEIGHT**.&#34;&#34;&#34;
 except (ValueError, TypeError) as ParseError:
-    logger.debug(&#39;Failed to parse GUI_HEIGHT from enviroment. Setting to default value of 768.&#39;)
+    logger.debug(
+        &#39;Failed to parse GUI_HEIGHT from enviroment. Setting to default value of 768.&#39;)
     GUI_HEIGHT = 768
     os.environ[&#39;GUI_HEIGHT&#39;] = &#39;768&#39;
 
-## FINANCIAL ALGORITHM CONFIGURATION
+# FINANCIAL ALGORITHM CONFIGURATION
 try:
     FRONTIER_STEPS = int(os.environ.setdefault(&#39;FRONTIER_STEPS&#39;, &#39;5&#39;))
     &#34;&#34;&#34;Number of data points used to trace out the efficient frontier; Configured by environment variable of same name, **FRONTIER_STEPS** &#34;&#34;&#34;
 except (ValueError, TypeError) as ParseError:
-    logger.debug(&#39;Failed to parse FRONTIER_STEPS from enviroment. Setting to default value of 5.&#39;)
+    logger.debug(
+        &#39;Failed to parse FRONTIER_STEPS from enviroment. Setting to default value of 5.&#39;)
     FRONTIER_STEPS = 5
     os.environ[&#39;FRONTIER_STEPS&#39;] = &#39;5&#39;
 
 try:
     MA_1_PERIOD = int(os.environ.setdefault(&#39;MA_1&#39;, &#39;20&#39;))
     &#34;&#34;&#34;Number of data points in first moving average period; Configured by environment variable, **MA_1**&#34;&#34;&#34;
-except (ValueError, TypeError) as ParseError: 
-    logger.debug(&#39;Failed to parse MA_1 from environment. Setting to default value of 20.&#39;)
+except (ValueError, TypeError) as ParseError:
+    logger.debug(
+        &#39;Failed to parse MA_1 from environment. Setting to default value of 20.&#39;)
     MA_1_PERIOD = 20
     os.environ[&#39;MA_1&#39;] = &#39;20&#39;
 
 try:
     MA_2_PERIOD = int(os.environ.setdefault(&#39;MA_2&#39;, &#39;60&#39;))
     &#34;&#34;&#34;Number of data points in second moving average period; Configured by environment variable, **MA_2**&#34;&#34;&#34;
-except (ValueError, TypeError) as ParseError: 
-    logger.debug(&#39;Failed to parse MA_2 from environment. Setting to default value of 60.&#39;)
+except (ValueError, TypeError) as ParseError:
+    logger.debug(
+        &#39;Failed to parse MA_2 from environment. Setting to default value of 60.&#39;)
     MA_2_PERIOD = 60
     os.environ[&#39;MA_2&#39;] = &#39;60&#39;
 
 try:
     MA_3_PERIOD = int(os.environ.setdefault(&#39;MA_3&#39;, &#39;100&#39;))
     &#34;&#34;&#34;Number of data points in third moving average period; Configured by environment variable, **MA_3***&#34;&#34;&#34;
-except (ValueError, TypeError) as ParseError: 
-    logger.debug(&#39;Failed to parse MA_3 from environment. Setting to default value of 100.&#39;)
+except (ValueError, TypeError) as ParseError:
+    logger.debug(
+        &#39;Failed to parse MA_3 from environment. Setting to default value of 100.&#39;)
     MA_3_PERIOD = 100
     os.environ[&#39;MA_3&#39;] = &#39;100&#39;
 
@@ -157,39 +188,45 @@ try:
     ITO_STEPS = int(os.environ.setdefault(&#39;ITO_STEPS&#39;, &#39;10000&#39;))
     &#34;&#34;&#34;Number of iterations used to approximate an Ito integral; Configured by environment variable of same name, **ITO_STEPS**&#34;&#34;&#34;
 except (ValueError, TypeError) as ParseError:
-    logger.debug(&#39;Failed to parse ITO_STEPS from environment. Setting to default of 10000.&#39;)
+    logger.debug(
+        &#39;Failed to parse ITO_STEPS from environment. Setting to default of 10000.&#39;)
     ITO_STEPS = 10000
     os.environ[&#39;ITO_STEPS&#39;] = &#39;10000&#39;
 
 try:
-    DEFAULT_ANALYSIS_PERIOD=int(os.environ.setdefault(&#39;DEFAULT_ANALYSIS_PERIOD&#39;, &#39;100&#39;))
+    DEFAULT_ANALYSIS_PERIOD = int(
+        os.environ.setdefault(&#39;DEFAULT_ANALYSIS_PERIOD&#39;, &#39;100&#39;))
     &#34;&#34;&#34;Number of days used in a historical sample, if no date range is specified; Configured by environment variable of same name, **DEFAULT_ANALYSIS_PERIOD**&#34;&#34;&#34;
 except (ValueError, TypeError) as ParseError:
-    logger.debug(&#39;Failed to parse DEFAULT_ANALYSIS_PERIOD from environment. Setting to default of 100.&#39;)
-    DEFAULT_ANALYSIS_PERIOD=100
-    os.environ[&#39;DEFAULT_ANALYSIS_PERIOD&#39;]=100
+    logger.debug(
+        &#39;Failed to parse DEFAULT_ANALYSIS_PERIOD from environment. Setting to default of 100.&#39;)
+    DEFAULT_ANALYSIS_PERIOD = 100
+    os.environ[&#39;DEFAULT_ANALYSIS_PERIOD&#39;] = 100
 
-RISK_FREE_RATE=os.environ.setdefault(&#34;RISK_FREE&#34;, &#34;TEN_YEAR&#34;).strip(&#34;\&#34;&#34;)
+RISK_FREE_RATE = os.environ.setdefault(&#34;RISK_FREE&#34;, &#34;TEN_YEAR&#34;).strip(&#34;\&#34;&#34;)
 &#34;&#34;&#34;Maturity of the US Treasury Yield Curve used as a proxy for the risk free rate&#34;&#34;&#34;
 
-MARKET_PROXY=os.environ.setdefault(&#39;MARKET_PROXY&#39;, &#39;SPY&#39;)
+MARKET_PROXY = os.environ.setdefault(&#39;MARKET_PROXY&#39;, &#39;SPY&#39;)
 &#34;&#34;&#34;Ticker symbol used as a proxy for the overall market rate of return&#34;&#34;&#34;
 
-ANALYSIS_MODE=os.environ.setdefault(&#39;ANALYSIS_MODE&#39;, &#39;geometric&#39;)
+ANALYSIS_MODE = os.environ.setdefault(&#39;ANALYSIS_MODE&#39;, &#39;geometric&#39;)
 &#34;&#34;&#34;Determines the asset price process and thus, the underlying probability distribution of an asset&#39;s return&#34;&#34;&#34;
 
-ESTIMATION_METHOD=os.environ.setdefault(&#39;DEFAULT_ESTIMATION_METHOD&#39;, &#39;moments&#39;)
+ESTIMATION_METHOD = os.environ.setdefault(
+    &#39;DEFAULT_ESTIMATION_METHOD&#39;, &#39;moments&#39;)
 &#34;&#34;&#34;Determines the default estimation method using in statistical estimations&#34;&#34;&#34;
 
-## SERVICE CONFIGURATION
-### PRICE_MANAGER CONFIGRUATION
+# SERVICE CONFIGURATION
+# PRICE_MANAGER CONFIGRUATION
 PRICE_MANAGER = os.environ.setdefault(&#39;PRICE_MANAGER&#39;, &#39;alpha_vantage&#39;)
 &#34;&#34;&#34;Determines the service used to retrieve price data&#34;&#34;&#34;
 
-#### ALPHAVANTAGE CONFIGURATION
+# ALPHAVANTAGE CONFIGURATION
 if PRICE_MANAGER == &#39;alpha_vantage&#39;:
-    AV_URL = os.environ.setdefault(&#39;ALPHA_VANTAGE_URL&#39;, &#39;https://www.alphavantage.co/query&#39;).strip(&#34;\&#34;&#34;).strip(&#34;&#39;&#34;)
-    AV_CRYPTO_LIST=os.environ.setdefault(&#39;ALPHA_VANTAGE_CRYPTO_META_URL&#39;, &#39;https://www.alphavantage.co/digital_currency_list/&#39;)
+    AV_URL = os.environ.setdefault(
+        &#39;ALPHA_VANTAGE_URL&#39;, &#39;https://www.alphavantage.co/query&#39;).strip(&#34;\&#34;&#34;).strip(&#34;&#39;&#34;)
+    AV_CRYPTO_LIST = os.environ.setdefault(
+        &#39;ALPHA_VANTAGE_CRYPTO_META_URL&#39;, &#39;https://www.alphavantage.co/digital_currency_list/&#39;)
 
     AV_KEY = os.environ.setdefault(&#39;ALPHA_VANTAGE_KEY&#39;, &#39;&#39;)
     if not AV_KEY:
@@ -201,16 +238,19 @@ if PRICE_MANAGER == &#39;alpha_vantage&#39;:
                     os.environ[&#39;ALPHA_VANTAGE_KEY&#39;] = str(AV_KEY)
 
     if not AV_KEY:
-        raise APIKeyError(&#39;Alpha Vantage API Key not found. Either set ALPHA_VANTAGE_KEY environment variable or use &#34;-store&#34; CLI function to save key.&#39;)
+        raise APIKeyError(
+            &#39;Alpha Vantage API Key not found. Either set ALPHA_VANTAGE_KEY environment variable or use &#34;-store&#34; CLI function to save key.&#39;)
 
-### STAT_MANAGER CONFIGURATION
+# STAT_MANAGER CONFIGURATION
 STAT_MANAGER = os.environ.setdefault(&#39;STAT_MANAGER&#39;, &#39;quandl&#39;)
 &#34;&#34;&#34;Determines the service used to retrieve statistics data&#34;&#34;&#34;
 
-#### QUANDL CONFIGURAITON
+# QUANDL CONFIGURAITON
 if STAT_MANAGER == &#34;quandl&#34;:
-    Q_URL = os.environ.setdefault(&#39;QUANDL_URL&#39;, &#39;https://www.quandl.com/api/v3/datasets&#39;).strip(&#34;\&#34;&#34;).strip(&#34;&#39;&#34;)
-    Q_META_URL = os.environ.setdefault(&#39;QUANDL_META_URL&#39; ,&#39;https://www.quandl.com/api/v3/databases&#39;)
+    Q_URL = os.environ.setdefault(
+        &#39;QUANDL_URL&#39;, &#39;https://www.quandl.com/api/v3/datasets&#39;).strip(&#34;\&#34;&#34;).strip(&#34;&#39;&#34;)
+    Q_META_URL = os.environ.setdefault(
+        &#39;QUANDL_META_URL&#39;, &#39;https://www.quandl.com/api/v3/databases&#39;)
     Q_KEY = os.environ.setdefault(&#39;QUANDL_KEY&#39;, &#39;&#39;)
 
     if not Q_KEY:
@@ -222,15 +262,17 @@ if STAT_MANAGER == &#34;quandl&#34;:
                     os.environ[&#39;QUANDL_KEY&#39;] = str(Q_KEY)
 
     if not Q_KEY:
-        raise APIKeyError(&#39;Quandl API Key not found. Either set QUANDL_KEY environment variable or use &#34;-store&#34; CLI function to save key.&#39;)
+        raise APIKeyError(
+            &#39;Quandl API Key not found. Either set QUANDL_KEY environment variable or use &#34;-store&#34; CLI function to save key.&#39;)
 
-### DIVIDEND_MANAGER CONFIGURATION
-DIV_MANAGER=os.environ.setdefault(&#34;DIV_MANAGER&#34;, &#39;iex&#39;)
+# DIVIDEND_MANAGER CONFIGURATION
+DIV_MANAGER = os.environ.setdefault(&#34;DIV_MANAGER&#34;, &#39;iex&#39;)
 &#34;&#34;&#34;Determines the service used to retrieve dividends data&#34;&#34;&#34;
 
 if DIV_MANAGER == &#34;iex&#34;:
-    IEX_URL = os.environ.setdefault(&#34;IEX_URL&#34;, &#39;https://cloud.iexapis.com/stable/stock&#39;)
-    
+    IEX_URL = os.environ.setdefault(
+        &#34;IEX_URL&#34;, &#39;https://cloud.iexapis.com/stable/stock&#39;)
+
     IEX_KEY = os.environ.setdefault(&#34;IEX_KEY&#34;, &#39;&#39;)
     if not IEX_KEY:
         keystore = os.path.join(COMMON_DIR, f&#39;IEX_KEY.{FILE_EXT}&#39;)
@@ -241,7 +283,8 @@ if DIV_MANAGER == &#34;iex&#34;:
                     os.environ[&#39;IEX_KEY&#39;] = str(IEX_KEY)
 
     if not IEX_KEY:
-        raise APIKeyError(&#39;IEX API Key cannot be found. Either set IEX_KEY environment variable or use &#34;-store&#34; CLI function to save key.&#39;)</code></pre>
+        raise APIKeyError(
+            &#39;IEX API Key cannot be found. Either set IEX_KEY environment variable or use &#34;-store&#34; CLI function to save key.&#39;)</code></pre>
 </details>
 </section>
 <section>
@@ -275,7 +318,13 @@ if DIV_MANAGER == &#34;iex&#34;:
 </dd>
 <dt id="scrilla.settings.COMMON_DIR"><code class="name">var <span class="ident">COMMON_DIR</span></code></dt>
 <dd>
-<div class="desc"><p>Directory used to store common files, such as API keys, watchlist, etc.</p></div>
+<div class="desc"><p>Directory used to store common files, such as API keys, watchlist, etc.</p>
+<div class="admonition notes">
+<p class="admonition-title">Notes</p>
+<ul>
+<li>It is recommended API keys are not stored in this directory, as they will be stored unencrypted. A better option is storing the keys as environment variables in your current session. See the documentation for more information.</li>
+</ul>
+</div></div>
 </dd>
 <dt id="scrilla.settings.COMMON_WATCHLIST_FILE"><code class="name">var <span class="ident">COMMON_WATCHLIST_FILE</span></code></dt>
 <dd>
@@ -293,9 +342,29 @@ if DIV_MANAGER == &#34;iex&#34;:
 <dd>
 <div class="desc"><p>Extension used to save files; Configured by environment variable of the same name, <strong>FILE_EXT</strong></p></div>
 </dd>
+<dt id="scrilla.settings.GUI_DARK_MODE"><code class="name">var <span class="ident">GUI_DARK_MODE</span></code></dt>
+<dd>
+<div class="desc"><p>Flag determining the theme of the GUI, i.e. light mode or dark mode.</p></div>
+</dd>
+<dt id="scrilla.settings.GUI_ICON_FILE"><code class="name">var <span class="ident">GUI_ICON_FILE</span></code></dt>
+<dd>
+<div class="desc"><p>Location of the icon filenames used as icons for <code>PySide6.QtWidgets.QPushButtons</code></p></div>
+</dd>
 <dt id="scrilla.settings.GUI_STYLESHEET_FILE"><code class="name">var <span class="ident">GUI_STYLESHEET_FILE</span></code></dt>
 <dd>
 <div class="desc"><p>Location of the stylesheet applied to the GUI</p></div>
+</dd>
+<dt id="scrilla.settings.GUI_TEMPLATE_DIR"><code class="name">var <span class="ident">GUI_TEMPLATE_DIR</span></code></dt>
+<dd>
+<div class="desc"><p>Location where the HTML templates for certain <code>`PySide6.QtWidgets.QWidget</code>'s are stored.</p></div>
+</dd>
+<dt id="scrilla.settings.GUI_THEME_FILE"><code class="name">var <span class="ident">GUI_THEME_FILE</span></code></dt>
+<dd>
+<div class="desc"><p>Location of the color schemes used to style components</p></div>
+</dd>
+<dt id="scrilla.settings.IMG_EXT"><code class="name">var <span class="ident">IMG_EXT</span></code></dt>
+<dd>
+<div class="desc"><p>Extension used to saved images; Configured by environment variable of the same name, <strong>IMG_EXT</strong></p></div>
 </dd>
 <dt id="scrilla.settings.LOG_LEVEL"><code class="name">var <span class="ident">LOG_LEVEL</span></code></dt>
 <dd>
@@ -304,6 +373,10 @@ if DIV_MANAGER == &#34;iex&#34;:
 <dt id="scrilla.settings.MARKET_PROXY"><code class="name">var <span class="ident">MARKET_PROXY</span></code></dt>
 <dd>
 <div class="desc"><p>Ticker symbol used as a proxy for the overall market rate of return</p></div>
+</dd>
+<dt id="scrilla.settings.METADATA_FILE"><code class="name">var <span class="ident">METADATA_FILE</span></code></dt>
+<dd>
+<div class="desc"><p>File containing metadata information about the application</p></div>
 </dd>
 <dt id="scrilla.settings.PRICE_MANAGER"><code class="name">var <span class="ident">PRICE_MANAGER</span></code></dt>
 <dd>
@@ -390,9 +463,15 @@ if DIV_MANAGER == &#34;iex&#34;:
 <li><code><a title="scrilla.settings.DIV_MANAGER" href="#scrilla.settings.DIV_MANAGER">DIV_MANAGER</a></code></li>
 <li><code><a title="scrilla.settings.ESTIMATION_METHOD" href="#scrilla.settings.ESTIMATION_METHOD">ESTIMATION_METHOD</a></code></li>
 <li><code><a title="scrilla.settings.FILE_EXT" href="#scrilla.settings.FILE_EXT">FILE_EXT</a></code></li>
+<li><code><a title="scrilla.settings.GUI_DARK_MODE" href="#scrilla.settings.GUI_DARK_MODE">GUI_DARK_MODE</a></code></li>
+<li><code><a title="scrilla.settings.GUI_ICON_FILE" href="#scrilla.settings.GUI_ICON_FILE">GUI_ICON_FILE</a></code></li>
 <li><code><a title="scrilla.settings.GUI_STYLESHEET_FILE" href="#scrilla.settings.GUI_STYLESHEET_FILE">GUI_STYLESHEET_FILE</a></code></li>
+<li><code><a title="scrilla.settings.GUI_TEMPLATE_DIR" href="#scrilla.settings.GUI_TEMPLATE_DIR">GUI_TEMPLATE_DIR</a></code></li>
+<li><code><a title="scrilla.settings.GUI_THEME_FILE" href="#scrilla.settings.GUI_THEME_FILE">GUI_THEME_FILE</a></code></li>
+<li><code><a title="scrilla.settings.IMG_EXT" href="#scrilla.settings.IMG_EXT">IMG_EXT</a></code></li>
 <li><code><a title="scrilla.settings.LOG_LEVEL" href="#scrilla.settings.LOG_LEVEL">LOG_LEVEL</a></code></li>
 <li><code><a title="scrilla.settings.MARKET_PROXY" href="#scrilla.settings.MARKET_PROXY">MARKET_PROXY</a></code></li>
+<li><code><a title="scrilla.settings.METADATA_FILE" href="#scrilla.settings.METADATA_FILE">METADATA_FILE</a></code></li>
 <li><code><a title="scrilla.settings.PRICE_MANAGER" href="#scrilla.settings.PRICE_MANAGER">PRICE_MANAGER</a></code></li>
 <li><code><a title="scrilla.settings.PROJECT_DIR" href="#scrilla.settings.PROJECT_DIR">PROJECT_DIR</a></code></li>
 <li><code><a title="scrilla.settings.RISK_FREE_RATE" href="#scrilla.settings.RISK_FREE_RATE">RISK_FREE_RATE</a></code></li>

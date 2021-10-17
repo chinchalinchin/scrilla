@@ -50,7 +50,9 @@ This module contains probability functions unique to the Geometric Brownian Moti
 
 The calculations have no stance on whether the actual probability distribution or the risk-neutral probability distribution should be used. This is implicitly specified by the user when they provided a rate of return to functions in this module. If the user wishes to use a risk-neutral probability, simply provide the assumed risk-free rate. If the user wishes to use an actual probability, provide the estimate of the rate of the return for the asset.
 &#34;&#34;&#34;
-def d1(S0: float, ST: float, vol: float, ret: float, expiry: float, div:float = 0) -&gt; float:
+
+
+def d1(S0: float, ST: float, vol: float, ret: float, expiry: float, div: float = 0) -&gt; float:
     &#34;&#34;&#34;
     Returns the value of *d1* defined by the Black Scholes model (Geometric Brownian Motion)
 
@@ -68,14 +70,15 @@ def d1(S0: float, ST: float, vol: float, ret: float, expiry: float, div:float = 
         Time horizon in years, i.e. the time delta between `ST` and `S0` measured in years. 
     6. **div**: ``float``
         *Optional*. Annualized dividend yield. Defaults to 0.
-    
+
     Returns
     -------
     ``float`` : Black-Scholes *d1*
     &#34;&#34;&#34;
-    numerator = log(S0/ST) + (ret - div + 0.5 * (vol **2))*expiry
+    numerator = log(S0/ST) + (ret - div + 0.5 * (vol ** 2))*expiry
     denominator = vol * sqrt(expiry)
     return (numerator/denominator)
+
 
 def d2(S0: float, ST: float, vol: float, ret: float, expiry: float, div: float = 0) -&gt; float:
     &#34;&#34;&#34;
@@ -104,7 +107,8 @@ def d2(S0: float, ST: float, vol: float, ret: float, expiry: float, div: float =
     adjust = vol * sqrt(expiry)
     return (thisD1 - adjust)
 
-def prob_d1(S0: float, ST: float, vol: float, ret: float, expiry: float, div: float=0, neg: bool=False) -&gt; float:
+
+def prob_d1(S0: float, ST: float, vol: float, ret: float, expiry: float, div: float = 0, neg: bool = False) -&gt; float:
     &#34;&#34;&#34;
     Returns the probability of *d1* defined by the Black Scholes model (Geometric Brownian Motion)
 
@@ -135,7 +139,7 @@ def prob_d1(S0: float, ST: float, vol: float, ret: float, expiry: float, div: fl
     return norm.cdf(thisD1)
 
 
-def prob_d2(S0: float, ST: float, vol: float, ret: float, expiry: float, div: float=0, neg: bool=False):
+def prob_d2(S0: float, ST: float, vol: float, ret: float, expiry: float, div: float = 0, neg: bool = False):
     &#34;&#34;&#34;
     Returns the probability of *d2* defined by the Black Scholes model (Geometric Brownian Motion)
 
@@ -165,7 +169,8 @@ def prob_d2(S0: float, ST: float, vol: float, ret: float, expiry: float, div: fl
         thisD2 = -thisD2
     return norm.cdf(thisD2)
 
-def percentile(S0: float, vol: float, ret: float, expiry: float, percentile: float, div: float=0) -&gt; float:
+
+def percentile(S0: float, vol: float, ret: float, expiry: float, percentile: float, div: float = 0) -&gt; float:
     &#34;&#34;&#34;
     Returns the final value of the asset price over the time horizon `expiry` that corresponds the `percentile` of the price&#39;s distribution. The asset price process is assumed to follow Geometric Brownian Motion, i.e. the return distribution is lognormal. 
 
@@ -195,16 +200,17 @@ def percentile(S0: float, vol: float, ret: float, expiry: float, percentile: flo
     exponent = (ret - div - 0.5*(vol**2))*expiry + vol*sqrt(expiry)*inv_norm
     return (S0*exp(exponent))
 
-def conditional_expected_value(S0: float, vol: float, ret: float, expiry: float, conditional_value: float,  greater: bool = False, div: float=0)-&gt; float:
+
+def conditional_expected_value(S0: float, vol: float, ret: float, expiry: float, conditional_value: float,  greater: bool = False, div: float = 0) -&gt; float:
     &#34;&#34;&#34;
     Calculates the conditional expected value of an equity, assuming the price process follows Geometric Brownian Motion, i.e. the price distribution is lognormal.
-    
+
     Note: Returns either
         &gt;&gt;&gt; if greater:
             &gt;&gt;&gt; E( St | St &gt; condtional_value)
         &gt;&gt;&gt; if not greater:
             &gt;&gt;&gt; E( St | St &lt; conditional_value)
-    
+
     Parameters
     ----------
     1. **S0** : ``float``
@@ -222,13 +228,17 @@ def conditional_expected_value(S0: float, vol: float, ret: float, expiry: float,
     7. **div**: ``float``
         *Optional*. Defaults to `0`. Annualized dividend yield.
     &#34;&#34;&#34;
-    forward_value = S0*exp( (ret - div)*expiry)
+    forward_value = S0*exp((ret - div)*expiry)
     if greater:
-        this_prob_d1 = prob_d1(S0=S0, ST=conditional_value, vol=vol, ret=ret, expiry=expiry, div=div)
-        this_prob_d2 = prob_d2(S0=S0, ST=conditional_value, vol=vol, ret=ret, expiry=expiry, div=div)
+        this_prob_d1 = prob_d1(S0=S0, ST=conditional_value,
+                               vol=vol, ret=ret, expiry=expiry, div=div)
+        this_prob_d2 = prob_d2(S0=S0, ST=conditional_value,
+                               vol=vol, ret=ret, expiry=expiry, div=div)
     else:
-        this_prob_d1 = prob_d1(S0=S0, ST=conditional_value, vol=vol, ret=ret, expiry=expiry, div=div, neg=True)
-        this_prob_d2 = prob_d2(S0=S0, ST=conditional_value, vol=vol, ret=ret, expiry=expiry, div=div, neg=True)
+        this_prob_d1 = prob_d1(S0=S0, ST=conditional_value,
+                               vol=vol, ret=ret, expiry=expiry, div=div, neg=True)
+        this_prob_d2 = prob_d2(S0=S0, ST=conditional_value,
+                               vol=vol, ret=ret, expiry=expiry, div=div, neg=True)
 
     return (forward_value*this_prob_d1/this_prob_d2)</code></pre>
 </details>
@@ -271,16 +281,16 @@ The value of the equity conditioned on at time <code>expiry</code>.</li>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def conditional_expected_value(S0: float, vol: float, ret: float, expiry: float, conditional_value: float,  greater: bool = False, div: float=0)-&gt; float:
+<pre><code class="python">def conditional_expected_value(S0: float, vol: float, ret: float, expiry: float, conditional_value: float,  greater: bool = False, div: float = 0) -&gt; float:
     &#34;&#34;&#34;
     Calculates the conditional expected value of an equity, assuming the price process follows Geometric Brownian Motion, i.e. the price distribution is lognormal.
-    
+
     Note: Returns either
         &gt;&gt;&gt; if greater:
             &gt;&gt;&gt; E( St | St &gt; condtional_value)
         &gt;&gt;&gt; if not greater:
             &gt;&gt;&gt; E( St | St &lt; conditional_value)
-    
+
     Parameters
     ----------
     1. **S0** : ``float``
@@ -298,13 +308,17 @@ The value of the equity conditioned on at time <code>expiry</code>.</li>
     7. **div**: ``float``
         *Optional*. Defaults to `0`. Annualized dividend yield.
     &#34;&#34;&#34;
-    forward_value = S0*exp( (ret - div)*expiry)
+    forward_value = S0*exp((ret - div)*expiry)
     if greater:
-        this_prob_d1 = prob_d1(S0=S0, ST=conditional_value, vol=vol, ret=ret, expiry=expiry, div=div)
-        this_prob_d2 = prob_d2(S0=S0, ST=conditional_value, vol=vol, ret=ret, expiry=expiry, div=div)
+        this_prob_d1 = prob_d1(S0=S0, ST=conditional_value,
+                               vol=vol, ret=ret, expiry=expiry, div=div)
+        this_prob_d2 = prob_d2(S0=S0, ST=conditional_value,
+                               vol=vol, ret=ret, expiry=expiry, div=div)
     else:
-        this_prob_d1 = prob_d1(S0=S0, ST=conditional_value, vol=vol, ret=ret, expiry=expiry, div=div, neg=True)
-        this_prob_d2 = prob_d2(S0=S0, ST=conditional_value, vol=vol, ret=ret, expiry=expiry, div=div, neg=True)
+        this_prob_d1 = prob_d1(S0=S0, ST=conditional_value,
+                               vol=vol, ret=ret, expiry=expiry, div=div, neg=True)
+        this_prob_d2 = prob_d2(S0=S0, ST=conditional_value,
+                               vol=vol, ret=ret, expiry=expiry, div=div, neg=True)
 
     return (forward_value*this_prob_d1/this_prob_d2)</code></pre>
 </details>
@@ -335,7 +349,7 @@ Time horizon in years, i.e. the time delta between <code>ST</code> and <code>S0<
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def d1(S0: float, ST: float, vol: float, ret: float, expiry: float, div:float = 0) -&gt; float:
+<pre><code class="python">def d1(S0: float, ST: float, vol: float, ret: float, expiry: float, div: float = 0) -&gt; float:
     &#34;&#34;&#34;
     Returns the value of *d1* defined by the Black Scholes model (Geometric Brownian Motion)
 
@@ -353,12 +367,12 @@ Time horizon in years, i.e. the time delta between <code>ST</code> and <code>S0<
         Time horizon in years, i.e. the time delta between `ST` and `S0` measured in years. 
     6. **div**: ``float``
         *Optional*. Annualized dividend yield. Defaults to 0.
-    
+
     Returns
     -------
     ``float`` : Black-Scholes *d1*
     &#34;&#34;&#34;
-    numerator = log(S0/ST) + (ret - div + 0.5 * (vol **2))*expiry
+    numerator = log(S0/ST) + (ret - div + 0.5 * (vol ** 2))*expiry
     denominator = vol * sqrt(expiry)
     return (numerator/denominator)</code></pre>
 </details>
@@ -449,7 +463,7 @@ Percentile of the distribution to be returned, i.e. if S is the price process, P
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def percentile(S0: float, vol: float, ret: float, expiry: float, percentile: float, div: float=0) -&gt; float:
+<pre><code class="python">def percentile(S0: float, vol: float, ret: float, expiry: float, percentile: float, div: float = 0) -&gt; float:
     &#34;&#34;&#34;
     Returns the final value of the asset price over the time horizon `expiry` that corresponds the `percentile` of the price&#39;s distribution. The asset price process is assumed to follow Geometric Brownian Motion, i.e. the return distribution is lognormal. 
 
@@ -509,7 +523,7 @@ Time horizon in years, i.e. the time delta between <code>ST</code> and <code>S0<
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def prob_d1(S0: float, ST: float, vol: float, ret: float, expiry: float, div: float=0, neg: bool=False) -&gt; float:
+<pre><code class="python">def prob_d1(S0: float, ST: float, vol: float, ret: float, expiry: float, div: float = 0, neg: bool = False) -&gt; float:
     &#34;&#34;&#34;
     Returns the probability of *d1* defined by the Black Scholes model (Geometric Brownian Motion)
 
@@ -569,7 +583,7 @@ Time horizon in years, i.e. the time delta between <code>ST</code> and <code>S0<
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def prob_d2(S0: float, ST: float, vol: float, ret: float, expiry: float, div: float=0, neg: bool=False):
+<pre><code class="python">def prob_d2(S0: float, ST: float, vol: float, ret: float, expiry: float, div: float = 0, neg: bool = False):
     &#34;&#34;&#34;
     Returns the probability of *d2* defined by the Black Scholes model (Geometric Brownian Motion)
 

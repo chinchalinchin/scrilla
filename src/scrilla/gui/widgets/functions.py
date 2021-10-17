@@ -101,7 +101,7 @@ class DistributionWidget(components.SkeletonWidget):
     def clear(self):
         self.arg_widget.prime()
         total = self.tab_widget.count()
-        for i in range(total):
+        for _ in range(total):
             self.tab_widget.removeTab(0)
 
 
@@ -227,7 +227,7 @@ class DiscountDividendWidget(components.SkeletonWidget):
     def clear(self):
         self.arg_widget.prime()
         total = self.tab_widget.count()
-        for i in range(total):
+        for _ in range(total):
             self.tab_widget.removeTab(0)
 
 
