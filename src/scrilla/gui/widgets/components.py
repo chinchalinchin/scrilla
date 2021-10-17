@@ -157,12 +157,13 @@ class ArgumentWidget(QtWidgets.QWidget):
                 if self.controls[control]:
                     if definitions.ARG_DICT[control]["widget_type"] != "group":
                         self.control_widgets[control] = factories.argument_widget_factory(definitions.ARG_DICT[control]['widget_type'],
-                                                                                  f'{definitions.ARG_DICT[control]["name"]} :',
-                                                                                  optional=True)
+                                                                                          f'{definitions.ARG_DICT[control]["name"]} :',
+                                                                                          optional=True)
                     else:
                         if self.group_definitions is None:
                             self.group_definitions = {}
-                        self.group_definitions[definitions.ARG_DICT[control]['name']] = definitions.ARG_DICT[control]
+                        self.group_definitions[definitions.ARG_DICT[control]
+                                               ['name']] = definitions.ARG_DICT[control]
             else:
                 self.control_widgets[control] = None
 
@@ -179,12 +180,13 @@ class ArgumentWidget(QtWidgets.QWidget):
                 group_name = definitions.GROUP_DICT[group_key]
 
                 if group_name not in groups.keys():
-                    groups[group_name] = [ definition ]
+                    groups[group_name] = [definition]
                 else:
                     groups[group_name].append(definition)
 
             for group in groups:
-                self.group_control_widgets[group] = factories.group_widget_factory(groups[group], group)
+                self.group_control_widgets[group] = factories.group_widget_factory(
+                    groups[group], group)
 
     def _arrange_widgets(self):
         """
