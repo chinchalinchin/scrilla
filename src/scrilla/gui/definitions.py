@@ -63,7 +63,7 @@ MENUBAR_WIDGET = {
         'name': 'Function Menu',
         'shortcut': 'Ctrl+F'
     },
-    {
+        {
         'name': 'Splash Menu',
         'shortcut': 'Ctrl+S'
     }],

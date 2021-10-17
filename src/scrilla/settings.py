@@ -48,7 +48,7 @@ FILE_EXT = os.environ.setdefault("FILE_EXT", "json")
 IMG_EXT = os.environ.setdefault("IMG_EXT", "jpg")
 """Extension used to saved images; Configured by environment variable of the same name, **IMG_EXT**"""
 
-METADATA_FILE = os.path.join(APP_DIR, 'data','meta', 'data.json')
+METADATA_FILE = os.path.join(APP_DIR, 'data', 'meta', 'data.json')
 """File containing metadata information about the application"""
 
 CACHE_DIR = os.path.join(APP_DIR, 'data', 'cache')
