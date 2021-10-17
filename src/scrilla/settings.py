@@ -250,9 +250,10 @@ if DIV_MANAGER == "iex":
                     IEX_KEY = json.load(infile)['IEX_KEY']
                     os.environ['IEX_KEY'] = str(IEX_KEY)
 
+
 def q_key() -> str:
     """Wraps access to the `scrilla.settings.Q_KEY` in an `scrilla.settings.APIKeyError`. Exception is thrown if `scrilla.settings.Q_KEY` cannot be parsed from the environment or the local data directory.
-    
+
     Raises
     ------
     1. **scrilla.settings.APIKeyError**
@@ -262,9 +263,10 @@ def q_key() -> str:
             'Quandl API Key not found. Either set QUANDL_KEY environment variable or use "-store" CLI function to save key.')
     return Q_KEY
 
+
 def iex_key() -> str:
     """Wraps access to the `scrilla.settings.IEX_KEY` in an `scrilla.settings.APIKeyError`. Exception is thrown if `scrilla.settings.IEX_KEY` cannot be parsed from the environment or the local data directory
-    
+
     Raises
     ------
     1. **scrilla.settings.APIKeyError**
@@ -274,9 +276,10 @@ def iex_key() -> str:
             'IEX API Key cannot be found. Either set IEX_KEY environment variable or use "-store" CLI function to save key.')
     return IEX_KEY
 
+
 def av_key() -> str:
     """Wraps access to the `scrilla.settings.AV_KEY` in an `scrilla.settings.APIKeyError`. Exception is thrown if `scrilla.settings.AV_KEY` cannot be parsed from the environment or the local data directory
-    
+
     Raises
     ------
     1. **scrilla.settings.APIKeyError**
