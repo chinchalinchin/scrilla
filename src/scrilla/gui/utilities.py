@@ -24,6 +24,12 @@ def generate_pixmap_from_temp(width, height, ext) -> QPixmap:
 def download_tmp_to_file(tmp_key, dest):
     shutil.copy(f'{settings.TEMP_DIR}/{tmp_key}', dest)
 
+def download_table_to_json(qtable: QtWidgets.QTableWidget, dest) -> None:
+    for row in range(qtable.rowCount()):
+        print(qtable.verticalHeaderItem(row))
+        for column in range(qtable.columnCount()):
+            print(qtable.horizontalHeaderItem(column))
+
 def get_next_layer(layer):
     if layer == "root":
         return "child"

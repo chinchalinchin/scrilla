@@ -294,22 +294,27 @@ class TableWidget(QtWidgets.QWidget):
 
     def _init_widgets(self, widget_title: str) -> None:
         """Creates child widgets and their layouts"""
+        self.title_container = factories.layout_factory(format='horizontal-box')
         self.title = factories.atomic_widget_factory(
             format='heading', title=widget_title)
+        self.download_button = factories.atomic_widget_factory(format='download-button', title=None)
         self.table = factories.atomic_widget_factory(
             format='table', title=None)
         self.setLayout(QtWidgets.QVBoxLayout())
 
     def _arrange_widgets(self) -> None:
-        self.title.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding,
+        factories.set_policy_on_widget_list([self, self.title, self.title_container],
+                                            QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding,
                                                        QtWidgets.QSizePolicy.Minimum))
-        self.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding,
-                                                 QtWidgets.QSizePolicy.Minimum))
-        self.layout().addWidget(self.title)
+        self.title_container.layout().addWidget(self.title)
+        self.title_container.layout().addWidget(self.download_button)
+        self.layout().addWidget(self.title_container)
         self.layout().addWidget(self.table, 1)
 
     def _stage_widgets(self) -> None:
         self.table.hide()
+        self.download_button.hide()
+        self.download_button.clicked.connect(self.show_file_dialog)
 
     def init_table(self, rows: List[str], columns: List[str]) -> None:
         """
@@ -326,10 +331,21 @@ class TableWidget(QtWidgets.QWidget):
         self.table.setColumnCount(len(columns))
         self.table.setHorizontalHeaderLabels(columns)
         self.table.setVerticalHeaderLabels(rows)
+        self.download_button.show()
 
     def show_table(self):
         self.table.resizeColumnsToContents()
         self.table.show()
+        
+    @QtCore.Slot()
+    def show_file_dialog(self) -> None:
+        file_path = factories.atomic_widget_factory(format='save-dialog', title=f'(*.{settings.FILE_EXT})')
+        file_path.selectFile(f'table.{settings.FILE_EXT}')
+        filename = None
+        if file_path.exec_() == QtWidgets.QDialog.Accepted:
+            filename = file_path.selectedFiles()
+        if filename is not None and len(filename)>0:
+            utilities.download_table_to_json(self.table, filename)
 
 
 class GraphWidget(QtWidgets.QWidget):
