@@ -125,7 +125,7 @@ def plot_yield_curve(yield_curve: dict, show: bool = True, savefile: str = None)
 
     maturities, rates = [], yield_curve[list(yield_curve.keys())[0]]
     yield_map = keys.keys['SERVICES']['STATISTICS']['QUANDL']['MAP']['YIELD_CURVE']
-    for i, rate in enumerate(rates):
+    for i in range(len(rates)):
         maturities.append(yield_map[keys.keys['YIELD_CURVE'][i]])
 
     axes.plot(maturities, rates, linestyle="dashed",

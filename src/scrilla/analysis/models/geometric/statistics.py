@@ -1221,7 +1221,7 @@ def correlation_matrix(tickers, asset_types=None, start_date=None, end_date=None
     # let correlation function handle argument parsing
     if asset_types is None:
         asset_types = []
-        for ticker in tickers:
+        for _ in tickers:
             asset_types.append(None)
 
     if(len(tickers) > 1):

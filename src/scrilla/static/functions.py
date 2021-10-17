@@ -65,7 +65,7 @@ def format_allocation(allocation, portfolio, investment=None):
 
 def format_frontier(portfolio, frontier, investment=None):
     json_format = []
-    for i, item in enumerate(frontier):
+    for item in frontier:
         json_format.append(format_allocation(allocation=item, portfolio=portfolio,
                                              investment=investment))
     return json_format
