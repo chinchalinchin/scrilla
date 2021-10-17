@@ -22,12 +22,11 @@ import io
 import json
 import csv
 import zipfile
-from typing import Any
+from typing import Any, Dict
 import requests
 
 from scrilla import settings, errors
-from scrilla.static import functions
-from scrilla.static import keys, constants
+from scrilla.static import functions, keys, constants
 from scrilla.util import outputter, helper
 
 logger = outputter.Logger("files", settings.LOG_LEVEL)
@@ -36,23 +35,26 @@ static_tickers_blob, static_econ_blob, static_crypto_blob = None, None, None
 
 
 def load_file(file_name: str) -> Any:
+    """
+    Infers the file extensions from the provided `file_name` and parses the file appropriately. 
+    """
+    ext = file_name.split('.')[-1]
     with open(file_name, 'r') as infile:
-        if settings.FILE_EXT == "json":
+        if ext == "json":
             file = json.load(infile)
         return file
         # TODO: implement other file loading extensions
 
 
-def save_file(file_to_save: Any, file_name: str) -> bool:
+def save_file(file_to_save: Dict[str, Any], file_name: str) -> bool:
+    ext = file_name.split('.')[-1]
     with open(file_name, 'w') as outfile:
-        if settings.FILE_EXT == "json":
-            try:
-                json.dump(file_to_save, outfile)
-                return True
-            except Exception as e:
-                logger.debug(f'A {e.__class__} exception occured.')
-                return False
-
+        if ext == "json":
+            json.dump(file_to_save, outfile)
+        elif ext == "csv":
+            # TODO: assume input is dict since ll functions in library return dict.
+            writer = csv.DictWriter(outfile, file_to_save.keys())
+            writer.writeheader()
         # TODO: implement other file saving extensions.
 
 
@@ -110,9 +112,9 @@ def parse_csv_response_column(column: int, url: str, firstRowHeader: str = None,
             col.append(row[column])
 
     if savefile is not None:
-        # TODO: Possibly infer file type extension from filename
+        ext = savefile.split('.')[-1]
         with open(savefile, 'w') as outfile:
-            if settings.FILE_EXT == "json":
+            if ext == "json":
                 json.dump(col, outfile)
 
     return col
@@ -230,10 +232,13 @@ def get_static_data(static_type):
     if path is not None:
         if not os.path.isfile(path):
             init_static_data()
-
         logger.debug(f'Loading in cached {static_type} symbols.')
+        
+        ext = path.split('.')[-1]
+        print(ext)
+
         with open(path, 'r') as infile:
-            if settings.FILE_EXT == "json":
+            if ext == "json":
                 symbols = json.load(infile)
             # TODO: implement other file loading exts
 
@@ -312,8 +317,9 @@ def get_watchlist() -> list:
 
     if os.path.isfile(settings.COMMON_WATCHLIST_FILE):
         logger.debug('Watchlist found.')
+        ext = settings.COMMON_WATCHLIST_FILE.split('.')[-1]
         with open(settings.COMMON_WATCHLIST_FILE, 'r') as infile:
-            if settings.FILE_EXT == "json":
+            if ext == "json":
                 watchlist = json.load(infile)
                 logger.debug('Watchlist loaded in JSON format.')
 
@@ -343,8 +349,9 @@ def add_watchlist(new_tickers: list) -> None:
 
     current_tickers = sorted(current_tickers)
 
+    ext = settings.COMMON_WATCHLIST_FILE.split('.')[-1]
     with open(settings.COMMON_WATCHLIST_FILE, 'w+') as outfile:
-        if settings.FILE_EXT == "json":
+        if ext == "json":
             json.dump(current_tickers, outfile)
         # TODO: implement other file extensions
 

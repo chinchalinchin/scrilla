@@ -43,6 +43,10 @@ def atomic_widget_factory(format: str, title: str):
             widget = QtWidgets.QPushButton(title)
             widget.setSizePolicy(QtWidgets.QSizePolicy(
                 QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Maximum))
+            if format == 'hide-button':
+                widget.setToolTip('Hide')
+            elif format == 'download-button':
+                widget.setToolTip('Save As')
         # buttons with text
         else:
             widget = QtWidgets.QPushButton()
@@ -52,6 +56,7 @@ def atomic_widget_factory(format: str, title: str):
         widget.setAutoDefault(True)
         widget.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
         widget.setObjectName(format)
+
 
     elif format in ['save-dialog']:
         widget = QtWidgets.QFileDialog()

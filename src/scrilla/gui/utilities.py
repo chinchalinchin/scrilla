@@ -1,8 +1,8 @@
+import shutil, json
+
 from PySide6 import QtWidgets
 from PySide6.QtGui import QPixmap
 from PySide6.QtCore import Qt
-
-import shutil
 
 from scrilla import settings
 
@@ -21,14 +21,23 @@ def generate_pixmap_from_temp(width, height, ext) -> QPixmap:
         width), calculate_image_height(height), aspectMode=Qt.KeepAspectRatio)
     return pixmap
 
+
 def download_tmp_to_file(tmp_key, dest):
     shutil.copy(f'{settings.TEMP_DIR}/{tmp_key}', dest)
 
+
 def download_table_to_json(qtable: QtWidgets.QTableWidget, dest) -> None:
+    result = {}
     for row in range(qtable.rowCount()):
-        print(qtable.verticalHeaderItem(row))
+        row_header = qtable.verticalHeaderItem(row).text()
+        result[row_header] = {}
         for column in range(qtable.columnCount()):
-            print(qtable.horizontalHeaderItem(column))
+            column_header = qtable.horizontalHeaderItem(column).text()
+            result[row_header][column_header] = qtable.item(row, column).text()
+
+    with open(dest, 'w') as f:
+        json.dump(result, f)
+
 
 def get_next_layer(layer):
     if layer == "root":

@@ -55,7 +55,7 @@ class MenuWidget(QtWidgets.QWidget):
                 if menu == 'Functions':
                     q_action.triggered.connect(
                         (lambda i: lambda: self._show_widget(i))(i))
-                elif menu == 'File':
+                elif menu == 'Account':
                     pass
                 elif menu == 'View':
                     if action['name'] == 'Function Menu':
