@@ -15,9 +15,9 @@
 
 from datetime import timedelta, date
 from typing import Dict, List, Union
-from numpy import log, sqrt
+from numpy import log, sqrt, inf
 from scipy.stats import norm, multivariate_normal
-from scipy.optimize import fsolve
+from scipy.optimize import fsolve, least_squares
 
 from scrilla import services, files, settings, errors, cache
 from scrilla.static import keys, functions, constants
@@ -36,7 +36,7 @@ def get_sample_of_returns(ticker: str, sample_prices: dict = None, start_date: U
     Parameters
     ----------
     2. **start_date** : ``datetime.date``
-        Optional. Start date of the time period over which the risk-return profile is to be calculated. Defaults to `None`, in which case the calculation proceeds as if `start_date` were set to 100 trading days prior to `end_date`. If `get_asset_type(ticker)=scrilla.keys.keys['ASSETS']['CRYPTO']`, this means 100 days regardless. If `get_asset_type(ticker)=scrilla.keys.keys['ASSETS']['EQUITY']`, this excludes weekends and holidays and decrements the `end_date` by 100 trading days.
+        *Optional*. Start date of the time period over which the risk-return profile is to be calculated. Defaults to `None`, in which case the calculation proceeds as if `start_date` were set to 100 trading days prior to `end_date`. If `get_asset_type(ticker)=scrilla.keys.keys['ASSETS']['CRYPTO']`, this means 100 days regardless. If `get_asset_type(ticker)=scrilla.keys.keys['ASSETS']['EQUITY']`, this excludes weekends and holidays and decrements the `end_date` by 100 trading days.
     3. **end_date** : ``datetime.date``
         *Optional*. End date of the time period over which the risk-return profile is to be calculated. Defaults to `None`, in which the calculation proceeds as if `end_date` were set to today. If the `get_asset_type(ticker)==keys.keys['ASSETS']['CRYPTO']` this means today regardless. If `get_asset_type(ticker)=keys.keys['ASSETS']['EQUITY']` this excludes holidays and weekends and sets the end date to the last valid trading date. 
     4. **sample_prices** : ``list``
@@ -832,7 +832,7 @@ def calculate_percentile_correlation(ticker_1, ticker_2, asset_type_1=None, asse
         # TODO: extra save_or_update argument for estimation method, i.e. moments, percentiles or likelihood
         correlation = correlation_cache.filter_correlation_cache(ticker_1=ticker_1, ticker_2=ticker_2,
                                                                  start_date=start_date, end_date=end_date,
-                                                                 method=keys.keys['ESTIMATION']['LIKE'])
+                                                                 method=keys.keys['ESTIMATION']['PERCENT'])
         if correlation is not None:
             return correlation
 
@@ -874,24 +874,38 @@ def calculate_percentile_correlation(ticker_1, ticker_2, asset_type_1=None, asse
             data=sample_of_returns_2, percentile=percentile))
 
     def cov_matrix(params):
+        determinant = params[0]*params[1] - params[2]**2
+        print('calling cov matrix', params)
+        print('determinant', determinant)
+        if determinant == 0 or determinant < 0 or determinant < 0.00000001:
+            return 0
         return [[params[0], params[2]], [params[2], params[1]]]
 
     def objective(params):
+        print('calling objective', params)
         return [
             (
                 multivariate_normal.cdf(x=[sample_percentiles_1[i], sample_percentiles_2[i]],
                                         mean=params[:2],
-                                        cov=cov_matrix(params[2:5])) - percentile
+                                        cov=cov_matrix(params[2:5]),allow_singular=True) - percentile
             ) for i, percentile in enumerate(percentiles)
         ]
 
-    vol_1_guess = (sample_percentiles_1[1]-sample_percentiles_1[3])/2
-    vol_2_guess = (sample_percentiles_2[1]-sample_percentiles_2[3])/2
+    vol_1_guess = (sample_percentiles_1[3]-sample_percentiles_1[1])/2
+    vol_2_guess = (sample_percentiles_2[3]-sample_percentiles_2[1])/2
+    vol_1_bounds = max(sample_of_returns_1) - min(sample_of_returns_1)
+    vol_2_bounds = max(sample_of_returns_2) - min(sample_of_returns_2)
+    cov_bounds = ( -1*sqrt(vol_1_bounds*vol_2_bounds), sqrt(vol_1_bounds*vol_2_bounds) )
     guess = (
         sample_percentiles_1[2], sample_percentiles_2[2], vol_1_guess, vol_2_guess, 0)
 
-    parameters = fsolve(objective, guess)
-
+    lower_bound = (sample_percentiles_1[0], sample_percentiles_2[0], 0, 0, cov_bounds[0])
+    upper_bound = (sample_percentiles_1[4], sample_percentiles_2[4], vol_1_bounds, vol_2_bounds, cov_bounds[1])
+    print('guess', guess)
+    print('lower bound', lower_bound)
+    print('upper bound', upper_bound)
+    parameters = least_squares(objective, guess, bounds=(lower_bound, upper_bound))
+    
     print(parameters)
     result = {keys.keys['STATISTICS']['correlation']:  parameters[4]}
 
