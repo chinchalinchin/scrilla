@@ -82,7 +82,7 @@ def format_args(args, default_estimation_method) -> argparse.Namespace:
     parser.add_argument('function_arg', choices=choices)
 
     groups = [parser.add_mutually_exclusive_group()
-              for arg_group in definitions.ARG_META['groups']]
+              for arg_group in definitions.ARG_META_DICT['groups']]
 
     for arg in definitions.ARG_DICT:
         if definitions.ARG_DICT[arg]['format'] not in ('group', bool):
@@ -94,7 +94,7 @@ def format_args(args, default_estimation_method) -> argparse.Namespace:
                                 type=definitions.ARG_DICT[arg]['format'],
                                 dest=arg)
         elif definitions.ARG_DICT[arg]['format'] == 'group':
-            group_index = definitions.ARG_META['groups'].index(
+            group_index = definitions.ARG_META_DICT['groups'].index(
                 definitions.ARG_DICT[arg]['group'])
             groups[group_index].add_argument(definitions.ARG_DICT[arg]['values'][0],
                                              definitions.ARG_DICT[arg]['values'][1],

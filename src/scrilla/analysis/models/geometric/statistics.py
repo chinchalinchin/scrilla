@@ -16,7 +16,7 @@
 from datetime import timedelta, date
 from typing import Dict, List, Union
 from numpy import log, sqrt
-from scipy.stats import norm
+from scipy.stats import norm, multivariate_normal
 from scipy.optimize import fsolve
 
 from scrilla import services, files, settings, errors, cache
@@ -774,8 +774,10 @@ def calculate_correlation(ticker_1, ticker_2, asset_type_1=None, asset_type_2=No
     """
     if method == keys.keys['ESTIMATION']['MOMENT']:
         return calculate_moment_correlation(ticker_1, ticker_2, asset_type_1, asset_type_2, start_date, end_date, sample_prices)
-    if method == keys.keys['ESTIMATION']['LIKE']:
+    elif method == keys.keys['ESTIMATION']['LIKE']:
         return calculate_likelihood_correlation(ticker_1, ticker_2, asset_type_1, asset_type_2, start_date, end_date, sample_prices)
+    elif method == keys.keys['ESTIMATION']['PERCENT']:
+        return calculate_percentile_correlation(ticker_1,ticker_2, asset_type_1, asset_type_2, start_date, end_date, sample_prices) 
     raise KeyError('Estimation method not found')
 
 
@@ -863,13 +865,36 @@ def calculate_percentile_correlation(ticker_1, ticker_2, asset_type_1=None, asse
     sample_of_returns_2 = get_sample_of_returns(
         ticker=ticker_2, sample_prices=sample_prices[ticker_2], asset_type=asset_type_2)
 
-    # TODO: find bivariate percentiles.
+    percentiles = [0.1, 0.25, 0.5, 0.75, 0.9]
+    sample_percentiles_1, sample_percentiles_2 = [], []
+    for percentile in percentiles:
+        sample_percentiles_1.append(estimators.sample_percentile(data=sample_of_returns_1,percentile=percentile))
+        sample_percentiles_2.append(estimators.sample_percentile(data=sample_of_returns_2, percentile=percentile))
 
-    result = {'correlation': 0}
+    def cov_matrix(params):
+        return [ [params[0], params[2]], [params[2], params[1]] ]
 
-    correlation_cache.save_row(ticker_1=ticker_1, ticker_2=ticker_2,
-                               start_date=start_date, end_date=end_date,
-                               correlation=correlation, method=keys.keys['ESTIMATION']['LIKE'])
+    def objective(params):
+        return [ 
+            ( 
+                multivariate_normal.cdf(x = [sample_percentiles_1[i], sample_percentiles_2[i]], 
+                                        mean=params[:2], 
+                                        cov=cov_matrix(params[2:5]))  - percentile 
+            ) for i,percentile in enumerate(percentiles)  
+        ]
+
+    vol_1_guess = (sample_percentiles_1[1]-sample_percentiles_1[3])/2
+    vol_2_guess = (sample_percentiles_2[1]-sample_percentiles_2[3])/2
+    guess = (sample_percentiles_1[2], sample_percentiles_2[2], vol_1_guess, vol_2_guess, 0)
+
+    parameters = fsolve(objective, guess)
+
+    print(parameters)
+    result = { keys.keys['STATISTICS']['correlation'] :  parameters[4] }
+
+    # correlation_cache.save_row(ticker_1=ticker_1, ticker_2=ticker_2,
+      #                         start_date=start_date, end_date=end_date,
+       #                        correlation=correlation, method=keys.keys['ESTIMATION']['PERCENT'])
     return result
 
 

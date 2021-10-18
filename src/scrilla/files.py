@@ -235,7 +235,6 @@ def get_static_data(static_type):
         logger.debug(f'Loading in cached {static_type} symbols.')
 
         ext = path.split('.')[-1]
-        print(ext)
 
         with open(path, 'r') as infile:
             if ext == "json":

@@ -6,10 +6,21 @@ from scrilla.static import definitions, constants
 
 
 def generate_control_skeleton():
+    """
+    Generates a control dictionary with all argument controls initialized to `False` using the `scrilla.static.definitions.ARG_DICT`. This dictionary is used to configured the input widgets enabled on `scrilla.gui.widgets.components.ArgumentWidget`. By switching controls in this dictionary on before passing it into the constructor, the widgets for that specific input control will be displayed on `scrilla.gui.widgets.components.ArgumentWidget`.
+    """
     return {arg: False for arg in definitions.ARG_DICT if not definitions.ARG_DICT[arg]['cli_only']}
 
 
 def layout_factory(layout: str):
+    """
+    Factory function for generating instances of `PySide6.QtWidgets.QLayout`. 
+
+    Parameters
+    ----------
+    1. **layout** : ``str``
+        Type of layout being constructed. Allowable values: `vertical-box`, `horizontal-box`. If `layout=None`, a `PySide6.QtWidgets.QBoxLayout` will be returned.
+    """
     widget = QtWidgets.QWidget()
 
     if layout == 'vertical-box':
@@ -25,6 +36,14 @@ def layout_factory(layout: str):
 
 
 def atomic_widget_factory(component: str, title: str):
+    """
+    Factory function for generating various subclasses of `PySide6.QtWidgets.QWidget` pre-configured for application display.
+
+    Parameters
+    ----------
+    1. **component**: ``str``
+        Allowable values: `title`, `subtitle`, `heading`, `label`, `error`, `text`, `splash`, `calculate-button`, `clear-button`, `hide-button`, `download-button`, `source-button`, `package-button`, `documentation-button`, `button`, `save-dialog`, `table`, `table-item`, `figure`, `menu-bar`. If `component=None` is provided, a `PySide6.QtWidgets.QWidget` will be constructed with a `PySide6.QtWidgets.QHBoxLayout` will be returned.
+    """
     if component in ['title', 'subtitle', 'heading', 'label', 'error', 'text']:
         widget = QtWidgets.QLabel(title)
         if component in ['title', 'subtitle', 'label']:
@@ -41,7 +60,7 @@ def atomic_widget_factory(component: str, title: str):
         widget = QtWidgets.QLabel(utilities.load_html_template(component))
         widget.setAlignment(QtCore.Qt.AlignTop)
         widget.setSizePolicy(QtWidgets.QSizePolicy(
-            QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum))
+            QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Maximum))
         widget.setWordWrap(True)
         widget.setOpenExternalLinks(True)
 
@@ -134,6 +153,14 @@ def group_widget_factory(components: List[str], title: str):
 
 
 def argument_widget_factory(component: str, title: str = None, optional: bool = True) -> QtWidgets.QWidget:
+    """
+    Factory function for generating various subclasses of instance `PySide6.QtWidgets.QWidgets` pre-configured for user-input. 
+
+    Parameters
+    ----------
+    1. **components** : ``str``
+        Allowable values: `date`, `decimal`, `currency`, `integer`, `select`, `flag`, `symbols`, `symbol`. If `components=None`, a `PySide6.QtWidgets.QWidget` will be returned.
+    """
     widget = atomic_widget_factory(None, None)
     widget.setObjectName('input-container')
 
