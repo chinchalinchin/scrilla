@@ -89,7 +89,8 @@ class MenuWidget(QtWidgets.QWidget):
                     pass
                 elif menu == &#39;View&#39;:
                     if action[&#39;name&#39;] == &#39;Function Menu&#39;:
-                        q_action.triggered.connect(self.function_menu.show)
+                        q_action.triggered.connect(lambda: self.function_menu.setVisible(
+                            (not self.function_menu.isVisible())))
                     elif action[&#39;name&#39;] == &#39;Splash Menu&#39;:
                         q_action.triggered.connect(self._clear)
 
@@ -296,7 +297,8 @@ See help(type(self)) for accurate signature.</p></div>
                     pass
                 elif menu == &#39;View&#39;:
                     if action[&#39;name&#39;] == &#39;Function Menu&#39;:
-                        q_action.triggered.connect(self.function_menu.show)
+                        q_action.triggered.connect(lambda: self.function_menu.setVisible(
+                            (not self.function_menu.isVisible())))
                     elif action[&#39;name&#39;] == &#39;Splash Menu&#39;:
                         q_action.triggered.connect(self._clear)
 

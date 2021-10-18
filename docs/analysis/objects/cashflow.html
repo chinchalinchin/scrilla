@@ -270,6 +270,9 @@ class Cashflow:
                 &#34;No period detected for cashflows. Not enough information to calculate net present value.&#34;)
 
         time_to_first_payment = 0
+        if self.period is None:
+            raise errors.InputValidationError(
+                &#39;Not enough information to calculate net present value of cash flow.&#39;)
         if self.period == FREQ_ANNUAL:
             time_to_first_payment = dater.get_time_to_next_year()
 
@@ -288,25 +291,20 @@ class Cashflow:
             time_to_first_payment = dater.get_time_to_next_period(
                 starting_date=latest_date, period=self.period)
 
-        self.NPV, i, current_time = 0, 0, 0
+        net_present_value, i, current_time = 0, 0, 0
         calculating = True
         while calculating:
-            previous_value = self.NPV
+            previous_value = net_present_value
+            current_time = time_to_first_payment + i * self.period
 
-            if self.period is not None:
-                current_time = time_to_first_payment + i * self.period
-            else:
-                raise errors.InputValidationError(
-                    &#39;Not enough information to calculate net present value of cash flow.&#39;)
-
-            self.NPV += self.get_growth_function(current_time) / (
+            net_present_value += self.get_growth_function(current_time) / (
                 (1 + self.discount_rate)**current_time)
 
-            if self.NPV - previous_value &lt; constants.constants[&#39;NPV_DELTA_TOLERANCE&#39;]:
+            if net_present_value - previous_value &lt; constants.constants[&#39;NPV_DELTA_TOLERANCE&#39;]:
                 calculating = False
             i += 1
 
-        return self.NPV</code></pre>
+        return net_present_value</code></pre>
 </details>
 </section>
 <section>
@@ -584,6 +582,9 @@ In any of the cases, you MUST pass in a period or the <code>net_present_value</c
                 &#34;No period detected for cashflows. Not enough information to calculate net present value.&#34;)
 
         time_to_first_payment = 0
+        if self.period is None:
+            raise errors.InputValidationError(
+                &#39;Not enough information to calculate net present value of cash flow.&#39;)
         if self.period == FREQ_ANNUAL:
             time_to_first_payment = dater.get_time_to_next_year()
 
@@ -602,25 +603,20 @@ In any of the cases, you MUST pass in a period or the <code>net_present_value</c
             time_to_first_payment = dater.get_time_to_next_period(
                 starting_date=latest_date, period=self.period)
 
-        self.NPV, i, current_time = 0, 0, 0
+        net_present_value, i, current_time = 0, 0, 0
         calculating = True
         while calculating:
-            previous_value = self.NPV
+            previous_value = net_present_value
+            current_time = time_to_first_payment + i * self.period
 
-            if self.period is not None:
-                current_time = time_to_first_payment + i * self.period
-            else:
-                raise errors.InputValidationError(
-                    &#39;Not enough information to calculate net present value of cash flow.&#39;)
-
-            self.NPV += self.get_growth_function(current_time) / (
+            net_present_value += self.get_growth_function(current_time) / (
                 (1 + self.discount_rate)**current_time)
 
-            if self.NPV - previous_value &lt; constants.constants[&#39;NPV_DELTA_TOLERANCE&#39;]:
+            if net_present_value - previous_value &lt; constants.constants[&#39;NPV_DELTA_TOLERANCE&#39;]:
                 calculating = False
             i += 1
 
-        return self.NPV</code></pre>
+        return net_present_value</code></pre>
 </details>
 <h3>Methods</h3>
 <dl>
@@ -658,6 +654,9 @@ If not enough information is present in the instance of the <code><a title="scri
             &#34;No period detected for cashflows. Not enough information to calculate net present value.&#34;)
 
     time_to_first_payment = 0
+    if self.period is None:
+        raise errors.InputValidationError(
+            &#39;Not enough information to calculate net present value of cash flow.&#39;)
     if self.period == FREQ_ANNUAL:
         time_to_first_payment = dater.get_time_to_next_year()
 
@@ -676,25 +675,20 @@ If not enough information is present in the instance of the <code><a title="scri
         time_to_first_payment = dater.get_time_to_next_period(
             starting_date=latest_date, period=self.period)
 
-    self.NPV, i, current_time = 0, 0, 0
+    net_present_value, i, current_time = 0, 0, 0
     calculating = True
     while calculating:
-        previous_value = self.NPV
+        previous_value = net_present_value
+        current_time = time_to_first_payment + i * self.period
 
-        if self.period is not None:
-            current_time = time_to_first_payment + i * self.period
-        else:
-            raise errors.InputValidationError(
-                &#39;Not enough information to calculate net present value of cash flow.&#39;)
-
-        self.NPV += self.get_growth_function(current_time) / (
+        net_present_value += self.get_growth_function(current_time) / (
             (1 + self.discount_rate)**current_time)
 
-        if self.NPV - previous_value &lt; constants.constants[&#39;NPV_DELTA_TOLERANCE&#39;]:
+        if net_present_value - previous_value &lt; constants.constants[&#39;NPV_DELTA_TOLERANCE&#39;]:
             calculating = False
         i += 1
 
-    return self.NPV</code></pre>
+    return net_present_value</code></pre>
 </details>
 </dd>
 <dt id="scrilla.analysis.objects.cashflow.Cashflow.calculate_time_to_today"><code class="name flex">

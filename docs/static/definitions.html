@@ -331,11 +331,16 @@ FUNC_DICT = {
 A dictionary containing configuration information for function arguments. This dictionary is used at various points in the library, such as `scrilla.gui.widgets.functions` and `scrilla.util.helper.format_args`, to generate function interfaces. 
 &#34;&#34;&#34;
 
-ARG_META = {
-    &#39;groups&#39;: [&#39;estimation_method&#39;]
+GROUP_DICT = {
+    &#39;estimation_method&#39;: &#39;Estimation Method&#39;
 }
 &#34;&#34;&#34;
 &#34;&#34;&#34;
+
+ARG_META_DICT = {
+    &#39;groups&#39;: [&#39;estimation_method&#39;]
+}
+
 # Every argument has four ways of being inputted: short-dash-long, long-dash-long, short-dash-short, long-dash-short
 ARG_DICT = {
     &#39;start_date&#39;: {
@@ -506,7 +511,7 @@ ARG_DICT = {
         &#39;cli_only&#39;: True
     },
     &#39;moments&#39;: {
-        &#39;name&#39;: &#39;Method of Moment Matching&#39;,
+        &#39;name&#39;: &#39;Moment Matching&#39;,
         &#39;values&#39;: [&#39;-moments&#39;, &#39;--moments&#39;, &#39;-mom&#39;, &#39;--mom&#39;],
         &#39;description&#39;: &#39;Statistics are calculated using method of moment matching&#39;,
         &#39;default&#39;: None,
@@ -518,7 +523,7 @@ ARG_DICT = {
         &#39;cli_only&#39;: False
     },
     &#39;percentiles&#39;: {
-        &#39;name&#39;: &#39;Method of Percentile Matching&#39;,
+        &#39;name&#39;: &#39;Percentile Matching&#39;,
         &#39;values&#39;: [&#39;-percentiles&#39;, &#39;--percentiles&#39;, &#39;-per&#39;, &#39;--per&#39;],
         &#39;description&#39;: &#39;Statistics are calculated using method of percentile matching&#39;,
         &#39;default&#39;: None,
@@ -530,7 +535,7 @@ ARG_DICT = {
         &#39;cli_only&#39;: False
     },
     &#39;likelihood&#39;: {
-        &#39;name&#39;: &#39;Maximum Likelihood Estimation&#39;,
+        &#39;name&#39;: &#39;Maximum Likelihood&#39;,
         &#39;values&#39;: [&#39;-likelihood&#39;, &#39;--likelihood&#39;, &#39;-like&#39;, &#39;--like&#39;],
         &#39;description&#39;: &#39;Statistics are calculated using maximum likelihood estimation&#39;,
         &#39;default&#39;: None,

@@ -236,7 +236,7 @@ class DividendManager():
         self.genre = genre
         if self.genre == keys.keys[&#39;SERVICES&#39;][&#39;DIVIDENDS&#39;][&#39;IEX&#39;][&#39;MANAGER&#39;]:
             self.service_map = keys.keys[&#39;SERVICES&#39;][&#39;DIVIDENDS&#39;][&#39;IEX&#39;][&#39;MAP&#39;]
-            self.key = settings.IEX_KEY
+            self.key = settings.iex_key()
             self.url = settings.IEX_URL
 
         if self.service_map is None:
@@ -285,7 +285,7 @@ class PriceManager():
         if self.genre == keys.keys[&#39;SERVICES&#39;][&#39;PRICES&#39;][&#39;ALPHA_VANTAGE&#39;][&#39;MANAGER&#39;]:
             self.service_map = keys.keys[&#39;SERVICES&#39;][&#39;PRICES&#39;][&#39;ALPHA_VANTAGE&#39;][&#39;MAP&#39;]
             self.url = settings.AV_URL
-            self.key = settings.AV_KEY
+            self.key = settings.av_key()
         if self.service_map is None:
             raise errors.ConfigurationError(
                 &#39;No PRICE_MANAGER found in the parsed environment settings&#39;)
@@ -1164,7 +1164,7 @@ A dictionary containing keys unique to the service defined by <code>genre</code>
         self.genre = genre
         if self.genre == keys.keys[&#39;SERVICES&#39;][&#39;DIVIDENDS&#39;][&#39;IEX&#39;][&#39;MANAGER&#39;]:
             self.service_map = keys.keys[&#39;SERVICES&#39;][&#39;DIVIDENDS&#39;][&#39;IEX&#39;][&#39;MAP&#39;]
-            self.key = settings.IEX_KEY
+            self.key = settings.iex_key()
             self.url = settings.IEX_URL
 
         if self.service_map is None:
@@ -1260,7 +1260,7 @@ A dictionary containing keys unique to the service defined by <code>genre</code>
         if self.genre == keys.keys[&#39;SERVICES&#39;][&#39;PRICES&#39;][&#39;ALPHA_VANTAGE&#39;][&#39;MANAGER&#39;]:
             self.service_map = keys.keys[&#39;SERVICES&#39;][&#39;PRICES&#39;][&#39;ALPHA_VANTAGE&#39;][&#39;MAP&#39;]
             self.url = settings.AV_URL
-            self.key = settings.AV_KEY
+            self.key = settings.av_key()
         if self.service_map is None:
             raise errors.ConfigurationError(
                 &#39;No PRICE_MANAGER found in the parsed environment settings&#39;)

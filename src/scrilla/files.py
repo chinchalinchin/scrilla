@@ -126,8 +126,8 @@ def init_static_data():
 
     Raises
     ------
-    1. **scrilla.errors.ConfigurationError**
-        If `scrilla.settings.PRICE_MANAGER` and `scrilla.settings.STAT_MANAGER` are not configured or are incorrectly configured through the environment variables `PRICE_MANAGER` and `STAT_MANAGER`, the function will throw this error.
+    1. `scrilla.errors.ConfigurationError`
+        If `scrilla.settings.PRICE_MANAGER` and `scrilla.settings.STAT_MANAGER` are not configured or are incorrectly configured through the environment variables `scrilla.settings.PRICE_MANAGER` and `scrilla.settings.STAT_MANAGER`, the function will throw this error.
     """
     global static_tickers_blob
     global static_econ_blob

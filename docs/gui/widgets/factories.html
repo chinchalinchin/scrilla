@@ -35,10 +35,21 @@ from scrilla.static import definitions, constants
 
 
 def generate_control_skeleton():
+    &#34;&#34;&#34;
+    Generates a control dictionary with all argument controls initialized to `False` using the `scrilla.static.definitions.ARG_DICT`. This dictionary is used to configured the input widgets enabled on `scrilla.gui.widgets.components.ArgumentWidget`. By switching controls in this dictionary on before passing it into the constructor, the widgets for that specific input control will be displayed on `scrilla.gui.widgets.components.ArgumentWidget`.
+    &#34;&#34;&#34;
     return {arg: False for arg in definitions.ARG_DICT if not definitions.ARG_DICT[arg][&#39;cli_only&#39;]}
 
 
 def layout_factory(layout: str):
+    &#34;&#34;&#34;
+    Factory function for generating instances of `PySide6.QtWidgets.QLayout`. 
+
+    Parameters
+    ----------
+    1. **layout** : ``str``
+        Type of layout being constructed. Allowable values: `vertical-box`, `horizontal-box`. If `layout=None`, a `PySide6.QtWidgets.QBoxLayout` will be returned.
+    &#34;&#34;&#34;
     widget = QtWidgets.QWidget()
 
     if layout == &#39;vertical-box&#39;:
@@ -54,6 +65,14 @@ def layout_factory(layout: str):
 
 
 def atomic_widget_factory(component: str, title: str):
+    &#34;&#34;&#34;
+    Factory function for generating various subclasses of `PySide6.QtWidgets.QWidget` pre-configured for application display.
+
+    Parameters
+    ----------
+    1. **component**: ``str``
+        Allowable values: `title`, `subtitle`, `heading`, `label`, `error`, `text`, `splash`, `calculate-button`, `clear-button`, `hide-button`, `download-button`, `source-button`, `package-button`, `documentation-button`, `button`, `save-dialog`, `table`, `table-item`, `figure`, `menu-bar`. If `component=None` is provided, a `PySide6.QtWidgets.QWidget` will be constructed with a `PySide6.QtWidgets.QHBoxLayout` will be returned.
+    &#34;&#34;&#34;
     if component in [&#39;title&#39;, &#39;subtitle&#39;, &#39;heading&#39;, &#39;label&#39;, &#39;error&#39;, &#39;text&#39;]:
         widget = QtWidgets.QLabel(title)
         if component in [&#39;title&#39;, &#39;subtitle&#39;, &#39;label&#39;]:
@@ -67,10 +86,10 @@ def atomic_widget_factory(component: str, title: str):
         widget.setObjectName(component)
 
     elif component in [&#39;splash&#39;]:
-        widget = QtWidgets.QLabel(utilities.load_html_template(format))
+        widget = QtWidgets.QLabel(utilities.load_html_template(component))
         widget.setAlignment(QtCore.Qt.AlignTop)
         widget.setSizePolicy(QtWidgets.QSizePolicy(
-            QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum))
+            QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Maximum))
         widget.setWordWrap(True)
         widget.setOpenExternalLinks(True)
 
@@ -138,16 +157,41 @@ def atomic_widget_factory(component: str, title: str):
 
     else:
         widget = QtWidgets.QWidget()
+        widget.setLayout(QtWidgets.QHBoxLayout())
+        widget.setSizePolicy(QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum))
+
+    return widget
+
+
+def group_widget_factory(components: List[str], title: str):
+    widget_layout = QtWidgets.QVBoxLayout()
+
+    for i, component in enumerate(components):
+        radio_button = QtWidgets.QRadioButton(component)
+        radio_button.setObjectName(&#39;group-toggle&#39;)
+        widget_layout.addWidget(radio_button)
+        if i == 0:
+            radio_button.setChecked(True)
+
+    widget = QtWidgets.QGroupBox(title)
+    widget.setLayout(widget_layout)
+    widget.setObjectName(&#39;group-box&#39;)
 
     return widget
 
 
 def argument_widget_factory(component: str, title: str = None, optional: bool = True) -&gt; QtWidgets.QWidget:
-    widget = QtWidgets.QWidget()
-    widget.setLayout(QtWidgets.QHBoxLayout())
+    &#34;&#34;&#34;
+    Factory function for generating various subclasses of instance `PySide6.QtWidgets.QWidgets` pre-configured for user-input. 
+
+    Parameters
+    ----------
+    1. **components** : ``str``
+        Allowable values: `date`, `decimal`, `currency`, `integer`, `select`, `flag`, `symbols`, `symbol`. If `components=None`, a `PySide6.QtWidgets.QWidget` will be returned.
+    &#34;&#34;&#34;
+    widget = atomic_widget_factory(None, None)
     widget.setObjectName(&#39;input-container&#39;)
-    widget.setSizePolicy(QtWidgets.QSizePolicy(
-        QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum))
 
     if optional:
         toggle_widget = QtWidgets.QCheckBox()
@@ -204,22 +248,19 @@ def argument_widget_factory(component: str, title: str = None, optional: bool = 
         main_widget.setSizePolicy(QtWidgets.QSizePolicy(
             QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum))
 
-    elif component == &#39;group&#39;:
-        return None
-
     elif component == &#39;symbols&#39;:
         main_widget = QtWidgets.QLineEdit()
         main_widget.setObjectName(component)
         main_widget.setMaxLength(100)
         main_widget.setSizePolicy(QtWidgets.QSizePolicy(
-            QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum))
+            QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Maximum))
 
     elif component == &#39;symbol&#39;:
         main_widget = QtWidgets.QLineEdit()
         main_widget.setObjectName(component)
         main_widget.setMaxLength(100)
         main_widget.setSizePolicy(QtWidgets.QSizePolicy(
-            QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum))
+            QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Maximum))
         main_widget.setValidator(
             QtGui.QRegularExpressionValidator(r&#34;[A-Za-z]+&#34;, main_widget))
 
@@ -253,17 +294,27 @@ def set_policy_on_widget_list(widget_list: List[QtWidgets.QWidget], policy: QtWi
 <span>def <span class="ident">argument_widget_factory</span></span>(<span>component: str, title: str = None, optional: bool = True) ‑> PySide6.QtWidgets.QWidget</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Factory function for generating various subclasses of instance <code>PySide6.QtWidgets.QWidgets</code> pre-configured for user-input. </p>
+<h2 id="parameters">Parameters</h2>
+<ol>
+<li><strong>components</strong> : <code>str</code>
+Allowable values: <code>date</code>, <code>decimal</code>, <code>currency</code>, <code>integer</code>, <code>select</code>, <code>flag</code>, <code>symbols</code>, <code>symbol</code>. If <code>components=None</code>, a <code>PySide6.QtWidgets.QWidget</code> will be returned.</li>
+</ol></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def argument_widget_factory(component: str, title: str = None, optional: bool = True) -&gt; QtWidgets.QWidget:
-    widget = QtWidgets.QWidget()
-    widget.setLayout(QtWidgets.QHBoxLayout())
+    &#34;&#34;&#34;
+    Factory function for generating various subclasses of instance `PySide6.QtWidgets.QWidgets` pre-configured for user-input. 
+
+    Parameters
+    ----------
+    1. **components** : ``str``
+        Allowable values: `date`, `decimal`, `currency`, `integer`, `select`, `flag`, `symbols`, `symbol`. If `components=None`, a `PySide6.QtWidgets.QWidget` will be returned.
+    &#34;&#34;&#34;
+    widget = atomic_widget_factory(None, None)
     widget.setObjectName(&#39;input-container&#39;)
-    widget.setSizePolicy(QtWidgets.QSizePolicy(
-        QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum))
 
     if optional:
         toggle_widget = QtWidgets.QCheckBox()
@@ -320,22 +371,19 @@ def set_policy_on_widget_list(widget_list: List[QtWidgets.QWidget], policy: QtWi
         main_widget.setSizePolicy(QtWidgets.QSizePolicy(
             QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum))
 
-    elif component == &#39;group&#39;:
-        return None
-
     elif component == &#39;symbols&#39;:
         main_widget = QtWidgets.QLineEdit()
         main_widget.setObjectName(component)
         main_widget.setMaxLength(100)
         main_widget.setSizePolicy(QtWidgets.QSizePolicy(
-            QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum))
+            QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Maximum))
 
     elif component == &#39;symbol&#39;:
         main_widget = QtWidgets.QLineEdit()
         main_widget.setObjectName(component)
         main_widget.setMaxLength(100)
         main_widget.setSizePolicy(QtWidgets.QSizePolicy(
-            QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum))
+            QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Maximum))
         main_widget.setValidator(
             QtGui.QRegularExpressionValidator(r&#34;[A-Za-z]+&#34;, main_widget))
 
@@ -357,12 +405,25 @@ def set_policy_on_widget_list(widget_list: List[QtWidgets.QWidget], policy: QtWi
 <span>def <span class="ident">atomic_widget_factory</span></span>(<span>component: str, title: str)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Factory function for generating various subclasses of <code>PySide6.QtWidgets.QWidget</code> pre-configured for application display.</p>
+<h2 id="parameters">Parameters</h2>
+<ol>
+<li><strong>component</strong>: <code>str</code>
+Allowable values: <code>title</code>, <code>subtitle</code>, <code>heading</code>, <code>label</code>, <code>error</code>, <code>text</code>, <code>splash</code>, <code>calculate-button</code>, <code>clear-button</code>, <code>hide-button</code>, <code>download-button</code>, <code>source-button</code>, <code>package-button</code>, <code>documentation-button</code>, <code>button</code>, <code>save-dialog</code>, <code>table</code>, <code>table-item</code>, <code>figure</code>, <code>menu-bar</code>. If <code>component=None</code> is provided, a <code>PySide6.QtWidgets.QWidget</code> will be constructed with a <code>PySide6.QtWidgets.QHBoxLayout</code> will be returned.</li>
+</ol></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def atomic_widget_factory(component: str, title: str):
+    &#34;&#34;&#34;
+    Factory function for generating various subclasses of `PySide6.QtWidgets.QWidget` pre-configured for application display.
+
+    Parameters
+    ----------
+    1. **component**: ``str``
+        Allowable values: `title`, `subtitle`, `heading`, `label`, `error`, `text`, `splash`, `calculate-button`, `clear-button`, `hide-button`, `download-button`, `source-button`, `package-button`, `documentation-button`, `button`, `save-dialog`, `table`, `table-item`, `figure`, `menu-bar`. If `component=None` is provided, a `PySide6.QtWidgets.QWidget` will be constructed with a `PySide6.QtWidgets.QHBoxLayout` will be returned.
+    &#34;&#34;&#34;
     if component in [&#39;title&#39;, &#39;subtitle&#39;, &#39;heading&#39;, &#39;label&#39;, &#39;error&#39;, &#39;text&#39;]:
         widget = QtWidgets.QLabel(title)
         if component in [&#39;title&#39;, &#39;subtitle&#39;, &#39;label&#39;]:
@@ -376,10 +437,10 @@ def set_policy_on_widget_list(widget_list: List[QtWidgets.QWidget], policy: QtWi
         widget.setObjectName(component)
 
     elif component in [&#39;splash&#39;]:
-        widget = QtWidgets.QLabel(utilities.load_html_template(format))
+        widget = QtWidgets.QLabel(utilities.load_html_template(component))
         widget.setAlignment(QtCore.Qt.AlignTop)
         widget.setSizePolicy(QtWidgets.QSizePolicy(
-            QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum))
+            QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Maximum))
         widget.setWordWrap(True)
         widget.setOpenExternalLinks(True)
 
@@ -447,6 +508,9 @@ def set_policy_on_widget_list(widget_list: List[QtWidgets.QWidget], policy: QtWi
 
     else:
         widget = QtWidgets.QWidget()
+        widget.setLayout(QtWidgets.QHBoxLayout())
+        widget.setSizePolicy(QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum))
 
     return widget</code></pre>
 </details>
@@ -455,17 +519,20 @@ def set_policy_on_widget_list(widget_list: List[QtWidgets.QWidget], policy: QtWi
 <span>def <span class="ident">generate_control_skeleton</span></span>(<span>)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Generates a control dictionary with all argument controls initialized to <code>False</code> using the <code><a title="scrilla.static.definitions.ARG_DICT" href="../../static/definitions.html#scrilla.static.definitions.ARG_DICT">ARG_DICT</a></code>. This dictionary is used to configured the input widgets enabled on <code><a title="scrilla.gui.widgets.components.ArgumentWidget" href="components.html#scrilla.gui.widgets.components.ArgumentWidget">ArgumentWidget</a></code>. By switching controls in this dictionary on before passing it into the constructor, the widgets for that specific input control will be displayed on <code><a title="scrilla.gui.widgets.components.ArgumentWidget" href="components.html#scrilla.gui.widgets.components.ArgumentWidget">ArgumentWidget</a></code>.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def generate_control_skeleton():
+    &#34;&#34;&#34;
+    Generates a control dictionary with all argument controls initialized to `False` using the `scrilla.static.definitions.ARG_DICT`. This dictionary is used to configured the input widgets enabled on `scrilla.gui.widgets.components.ArgumentWidget`. By switching controls in this dictionary on before passing it into the constructor, the widgets for that specific input control will be displayed on `scrilla.gui.widgets.components.ArgumentWidget`.
+    &#34;&#34;&#34;
     return {arg: False for arg in definitions.ARG_DICT if not definitions.ARG_DICT[arg][&#39;cli_only&#39;]}</code></pre>
 </details>
 </dd>
-<dt id="scrilla.gui.widgets.factories.layout_factory"><code class="name flex">
-<span>def <span class="ident">layout_factory</span></span>(<span>layout: str)</span>
+<dt id="scrilla.gui.widgets.factories.group_widget_factory"><code class="name flex">
+<span>def <span class="ident">group_widget_factory</span></span>(<span>components: List[str], title: str)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -473,7 +540,46 @@ def set_policy_on_widget_list(widget_list: List[QtWidgets.QWidget], policy: QtWi
 <summary>
 <span>Expand source code</span>
 </summary>
+<pre><code class="python">def group_widget_factory(components: List[str], title: str):
+    widget_layout = QtWidgets.QVBoxLayout()
+
+    for i, component in enumerate(components):
+        radio_button = QtWidgets.QRadioButton(component)
+        radio_button.setObjectName(&#39;group-toggle&#39;)
+        widget_layout.addWidget(radio_button)
+        if i == 0:
+            radio_button.setChecked(True)
+
+    widget = QtWidgets.QGroupBox(title)
+    widget.setLayout(widget_layout)
+    widget.setObjectName(&#39;group-box&#39;)
+
+    return widget</code></pre>
+</details>
+</dd>
+<dt id="scrilla.gui.widgets.factories.layout_factory"><code class="name flex">
+<span>def <span class="ident">layout_factory</span></span>(<span>layout: str)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Factory function for generating instances of <code>PySide6.QtWidgets.QLayout</code>. </p>
+<h2 id="parameters">Parameters</h2>
+<ol>
+<li><strong>layout</strong> : <code>str</code>
+Type of layout being constructed. Allowable values: <code>vertical-box</code>, <code>horizontal-box</code>. If <code>layout=None</code>, a <code>PySide6.QtWidgets.QBoxLayout</code> will be returned.</li>
+</ol></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
 <pre><code class="python">def layout_factory(layout: str):
+    &#34;&#34;&#34;
+    Factory function for generating instances of `PySide6.QtWidgets.QLayout`. 
+
+    Parameters
+    ----------
+    1. **layout** : ``str``
+        Type of layout being constructed. Allowable values: `vertical-box`, `horizontal-box`. If `layout=None`, a `PySide6.QtWidgets.QBoxLayout` will be returned.
+    &#34;&#34;&#34;
     widget = QtWidgets.QWidget()
 
     if layout == &#39;vertical-box&#39;:
@@ -523,6 +629,7 @@ def set_policy_on_widget_list(widget_list: List[QtWidgets.QWidget], policy: QtWi
 <li><code><a title="scrilla.gui.widgets.factories.argument_widget_factory" href="#scrilla.gui.widgets.factories.argument_widget_factory">argument_widget_factory</a></code></li>
 <li><code><a title="scrilla.gui.widgets.factories.atomic_widget_factory" href="#scrilla.gui.widgets.factories.atomic_widget_factory">atomic_widget_factory</a></code></li>
 <li><code><a title="scrilla.gui.widgets.factories.generate_control_skeleton" href="#scrilla.gui.widgets.factories.generate_control_skeleton">generate_control_skeleton</a></code></li>
+<li><code><a title="scrilla.gui.widgets.factories.group_widget_factory" href="#scrilla.gui.widgets.factories.group_widget_factory">group_widget_factory</a></code></li>
 <li><code><a title="scrilla.gui.widgets.factories.layout_factory" href="#scrilla.gui.widgets.factories.layout_factory">layout_factory</a></code></li>
 <li><code><a title="scrilla.gui.widgets.factories.set_policy_on_widget_list" href="#scrilla.gui.widgets.factories.set_policy_on_widget_list">set_policy_on_widget_list</a></code></li>
 </ul>

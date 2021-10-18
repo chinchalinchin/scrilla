@@ -156,8 +156,8 @@ def init_static_data():
 
     Raises
     ------
-    1. **scrilla.errors.ConfigurationError**
-        If `scrilla.settings.PRICE_MANAGER` and `scrilla.settings.STAT_MANAGER` are not configured or are incorrectly configured through the environment variables `PRICE_MANAGER` and `STAT_MANAGER`, the function will throw this error.
+    1. `scrilla.errors.ConfigurationError`
+        If `scrilla.settings.PRICE_MANAGER` and `scrilla.settings.STAT_MANAGER` are not configured or are incorrectly configured through the environment variables `scrilla.settings.PRICE_MANAGER` and `scrilla.settings.STAT_MANAGER`, the function will throw this error.
     &#34;&#34;&#34;
     global static_tickers_blob
     global static_econ_blob
@@ -180,7 +180,7 @@ def init_static_data():
                 # TODO: services calls should be in services.py! need to put this and the helper method
                 #       into services.py in the future.
                 query = f&#39;{service_map[&#34;PARAMS&#34;][&#34;FUNCTION&#34;]}={service_map[&#34;ARGUMENTS&#34;][&#34;EQUITY_LISTING&#34;]}&#39;
-                url = f&#39;{settings.AV_URL}?{query}&amp;{service_map[&#34;PARAMS&#34;][&#34;KEY&#34;]}={settings.AV_KEY}&#39;
+                url = f&#39;{settings.AV_URL}?{query}&amp;{service_map[&#34;PARAMS&#34;][&#34;KEY&#34;]}={settings.av_key()}&#39;
                 static_tickers_blob = parse_csv_response_column(column=0, url=url, savefile=settings.STATIC_TICKERS_FILE,
                                                                 firstRowHeader=service_map[&#39;KEYS&#39;][&#39;EQUITY&#39;][&#39;HEADER&#39;])
 
@@ -265,7 +265,6 @@ def get_static_data(static_type):
         logger.debug(f&#39;Loading in cached {static_type} symbols.&#39;)
 
         ext = path.split(&#39;.&#39;)[-1]
-        print(ext)
 
         with open(path, &#39;r&#39;) as infile:
             if ext == &#34;json&#34;:
@@ -665,7 +664,6 @@ A string corresponding to the type of static data to be retrieved. The types can
         logger.debug(f&#39;Loading in cached {static_type} symbols.&#39;)
 
         ext = path.split(&#39;.&#39;)[-1]
-        print(ext)
 
         with open(path, &#39;r&#39;) as infile:
             if ext == &#34;json&#34;:
@@ -725,8 +723,8 @@ A string corresponding to the type of static data to be retrieved. The types can
 settings: <code>STATIC_TICKERS_FILE</code>, <code>STATIC_CRYPTO_FILE</code> and <code>STATIC_ECON_FILE</code>. The data for these files is retrieved from the service managers. While this function blurs the lines between file management and service management, the function has been included in the <code>files.py</code> module rather than the <code>services.py</code> module due the unique response types of static metadata. All metadata is returned as a csv or zipped csvs. These responses require specialized functions. Moreover, these files should only be initialized the first time the application executes. Subsequent executions will refer to their cached versions residing in the local filesytems. </p>
 <h2 id="raises">Raises</h2>
 <ol>
-<li><strong>scrilla.errors.ConfigurationError</strong>
-If <code><a title="scrilla.settings.PRICE_MANAGER" href="settings.html#scrilla.settings.PRICE_MANAGER">PRICE_MANAGER</a></code> and <code><a title="scrilla.settings.STAT_MANAGER" href="settings.html#scrilla.settings.STAT_MANAGER">STAT_MANAGER</a></code> are not configured or are incorrectly configured through the environment variables <code>PRICE_MANAGER</code> and <code>STAT_MANAGER</code>, the function will throw this error.</li>
+<li><code><a title="scrilla.errors.ConfigurationError" href="errors.html#scrilla.errors.ConfigurationError">ConfigurationError</a></code>
+If <code><a title="scrilla.settings.PRICE_MANAGER" href="settings.html#scrilla.settings.PRICE_MANAGER">PRICE_MANAGER</a></code> and <code><a title="scrilla.settings.STAT_MANAGER" href="settings.html#scrilla.settings.STAT_MANAGER">STAT_MANAGER</a></code> are not configured or are incorrectly configured through the environment variables <code><a title="scrilla.settings.PRICE_MANAGER" href="settings.html#scrilla.settings.PRICE_MANAGER">PRICE_MANAGER</a></code> and <code><a title="scrilla.settings.STAT_MANAGER" href="settings.html#scrilla.settings.STAT_MANAGER">STAT_MANAGER</a></code>, the function will throw this error.</li>
 </ol></div>
 <details class="source">
 <summary>
@@ -738,8 +736,8 @@ If <code><a title="scrilla.settings.PRICE_MANAGER" href="settings.html#scrilla.s
 
     Raises
     ------
-    1. **scrilla.errors.ConfigurationError**
-        If `scrilla.settings.PRICE_MANAGER` and `scrilla.settings.STAT_MANAGER` are not configured or are incorrectly configured through the environment variables `PRICE_MANAGER` and `STAT_MANAGER`, the function will throw this error.
+    1. `scrilla.errors.ConfigurationError`
+        If `scrilla.settings.PRICE_MANAGER` and `scrilla.settings.STAT_MANAGER` are not configured or are incorrectly configured through the environment variables `scrilla.settings.PRICE_MANAGER` and `scrilla.settings.STAT_MANAGER`, the function will throw this error.
     &#34;&#34;&#34;
     global static_tickers_blob
     global static_econ_blob
@@ -762,7 +760,7 @@ If <code><a title="scrilla.settings.PRICE_MANAGER" href="settings.html#scrilla.s
                 # TODO: services calls should be in services.py! need to put this and the helper method
                 #       into services.py in the future.
                 query = f&#39;{service_map[&#34;PARAMS&#34;][&#34;FUNCTION&#34;]}={service_map[&#34;ARGUMENTS&#34;][&#34;EQUITY_LISTING&#34;]}&#39;
-                url = f&#39;{settings.AV_URL}?{query}&amp;{service_map[&#34;PARAMS&#34;][&#34;KEY&#34;]}={settings.AV_KEY}&#39;
+                url = f&#39;{settings.AV_URL}?{query}&amp;{service_map[&#34;PARAMS&#34;][&#34;KEY&#34;]}={settings.av_key()}&#39;
                 static_tickers_blob = parse_csv_response_column(column=0, url=url, savefile=settings.STATIC_TICKERS_FILE,
                                                                 firstRowHeader=service_map[&#39;KEYS&#39;][&#39;EQUITY&#39;][&#39;HEADER&#39;])
 

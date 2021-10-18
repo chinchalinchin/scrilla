@@ -229,6 +229,8 @@ if PRICE_MANAGER == &#39;alpha_vantage&#39;:
         &#39;ALPHA_VANTAGE_CRYPTO_META_URL&#39;, &#39;https://www.alphavantage.co/digital_currency_list/&#39;)
 
     AV_KEY = os.environ.setdefault(&#39;ALPHA_VANTAGE_KEY&#39;, &#39;&#39;)
+    &#34;&#34;&#34;API Key used to query AlphaVantage service.&#34;&#34;&#34;
+
     if not AV_KEY:
         keystore = os.path.join(COMMON_DIR, f&#39;ALPHA_VANTAGE_KEY.{FILE_EXT}&#39;)
         if os.path.isfile(keystore):
@@ -236,10 +238,6 @@ if PRICE_MANAGER == &#39;alpha_vantage&#39;:
                 if FILE_EXT == &#34;json&#34;:
                     AV_KEY = json.load(infile)[&#39;ALPHA_VANTAGE_KEY&#39;]
                     os.environ[&#39;ALPHA_VANTAGE_KEY&#39;] = str(AV_KEY)
-
-    if not AV_KEY:
-        raise APIKeyError(
-            &#39;Alpha Vantage API Key not found. Either set ALPHA_VANTAGE_KEY environment variable or use &#34;-store&#34; CLI function to save key.&#39;)
 
 # STAT_MANAGER CONFIGURATION
 STAT_MANAGER = os.environ.setdefault(&#39;STAT_MANAGER&#39;, &#39;quandl&#39;)
@@ -251,7 +249,9 @@ if STAT_MANAGER == &#34;quandl&#34;:
         &#39;QUANDL_URL&#39;, &#39;https://www.quandl.com/api/v3/datasets&#39;).strip(&#34;\&#34;&#34;).strip(&#34;&#39;&#34;)
     Q_META_URL = os.environ.setdefault(
         &#39;QUANDL_META_URL&#39;, &#39;https://www.quandl.com/api/v3/databases&#39;)
+
     Q_KEY = os.environ.setdefault(&#39;QUANDL_KEY&#39;, &#39;&#39;)
+    &#34;&#34;&#34;API Key used to query Quandl/Nasdaq Service&#34;&#34;&#34;
 
     if not Q_KEY:
         keystore = os.path.join(COMMON_DIR, f&#39;QUANDL_KEY.{FILE_EXT}&#39;)
@@ -260,10 +260,6 @@ if STAT_MANAGER == &#34;quandl&#34;:
                 if FILE_EXT == &#34;json&#34;:
                     Q_KEY = json.load(infile)[&#39;QUANDL_KEY&#39;]
                     os.environ[&#39;QUANDL_KEY&#39;] = str(Q_KEY)
-
-    if not Q_KEY:
-        raise APIKeyError(
-            &#39;Quandl API Key not found. Either set QUANDL_KEY environment variable or use &#34;-store&#34; CLI function to save key.&#39;)
 
 # DIVIDEND_MANAGER CONFIGURATION
 DIV_MANAGER = os.environ.setdefault(&#34;DIV_MANAGER&#34;, &#39;iex&#39;)
@@ -274,6 +270,8 @@ if DIV_MANAGER == &#34;iex&#34;:
         &#34;IEX_URL&#34;, &#39;https://cloud.iexapis.com/stable/stock&#39;)
 
     IEX_KEY = os.environ.setdefault(&#34;IEX_KEY&#34;, &#39;&#39;)
+    &#34;&#34;&#34;API Key used to query IEX service&#34;&#34;&#34;
+
     if not IEX_KEY:
         keystore = os.path.join(COMMON_DIR, f&#39;IEX_KEY.{FILE_EXT}&#39;)
         if os.path.isfile(keystore):
@@ -282,9 +280,44 @@ if DIV_MANAGER == &#34;iex&#34;:
                     IEX_KEY = json.load(infile)[&#39;IEX_KEY&#39;]
                     os.environ[&#39;IEX_KEY&#39;] = str(IEX_KEY)
 
+
+def q_key() -&gt; str:
+    &#34;&#34;&#34;Wraps access to the `scrilla.settings.Q_KEY` in an `scrilla.settings.APIKeyError`. Exception is thrown if `scrilla.settings.Q_KEY` cannot be parsed from the environment or the local data directory.
+
+    Raises
+    ------
+    1. **scrilla.settings.APIKeyError**
+    &#34;&#34;&#34;
+    if not Q_KEY:
+        raise APIKeyError(
+            &#39;Quandl API Key not found. Either set QUANDL_KEY environment variable or use &#34;-store&#34; CLI function to save key.&#39;)
+    return Q_KEY
+
+
+def iex_key() -&gt; str:
+    &#34;&#34;&#34;Wraps access to the `scrilla.settings.IEX_KEY` in an `scrilla.settings.APIKeyError`. Exception is thrown if `scrilla.settings.IEX_KEY` cannot be parsed from the environment or the local data directory
+
+    Raises
+    ------
+    1. **scrilla.settings.APIKeyError**
+    &#34;&#34;&#34;
     if not IEX_KEY:
         raise APIKeyError(
-            &#39;IEX API Key cannot be found. Either set IEX_KEY environment variable or use &#34;-store&#34; CLI function to save key.&#39;)</code></pre>
+            &#39;IEX API Key cannot be found. Either set IEX_KEY environment variable or use &#34;-store&#34; CLI function to save key.&#39;)
+    return IEX_KEY
+
+
+def av_key() -&gt; str:
+    &#34;&#34;&#34;Wraps access to the `scrilla.settings.AV_KEY` in an `scrilla.settings.APIKeyError`. Exception is thrown if `scrilla.settings.AV_KEY` cannot be parsed from the environment or the local data directory
+
+    Raises
+    ------
+    1. **scrilla.settings.APIKeyError**
+    &#34;&#34;&#34;
+    if not AV_KEY:
+        raise APIKeyError(
+            &#39;Alpha Vantage API Key not found. Either set ALPHA_VANTAGE_KEY environment variable or use &#34;-store&#34; CLI function to save key.&#39;)
+    return AV_KEY</code></pre>
 </details>
 </section>
 <section>
@@ -413,6 +446,87 @@ if DIV_MANAGER == &#34;iex&#34;:
 </dl>
 </section>
 <section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="scrilla.settings.av_key"><code class="name flex">
+<span>def <span class="ident">av_key</span></span>(<span>) ‑> str</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Wraps access to the <code>scrilla.settings.AV_KEY</code> in an <code><a title="scrilla.settings.APIKeyError" href="#scrilla.settings.APIKeyError">APIKeyError</a></code>. Exception is thrown if <code>scrilla.settings.AV_KEY</code> cannot be parsed from the environment or the local data directory</p>
+<h2 id="raises">Raises</h2>
+<ol>
+<li><strong>scrilla.settings.APIKeyError</strong></li>
+</ol></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def av_key() -&gt; str:
+    &#34;&#34;&#34;Wraps access to the `scrilla.settings.AV_KEY` in an `scrilla.settings.APIKeyError`. Exception is thrown if `scrilla.settings.AV_KEY` cannot be parsed from the environment or the local data directory
+
+    Raises
+    ------
+    1. **scrilla.settings.APIKeyError**
+    &#34;&#34;&#34;
+    if not AV_KEY:
+        raise APIKeyError(
+            &#39;Alpha Vantage API Key not found. Either set ALPHA_VANTAGE_KEY environment variable or use &#34;-store&#34; CLI function to save key.&#39;)
+    return AV_KEY</code></pre>
+</details>
+</dd>
+<dt id="scrilla.settings.iex_key"><code class="name flex">
+<span>def <span class="ident">iex_key</span></span>(<span>) ‑> str</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Wraps access to the <code>scrilla.settings.IEX_KEY</code> in an <code><a title="scrilla.settings.APIKeyError" href="#scrilla.settings.APIKeyError">APIKeyError</a></code>. Exception is thrown if <code>scrilla.settings.IEX_KEY</code> cannot be parsed from the environment or the local data directory</p>
+<h2 id="raises">Raises</h2>
+<ol>
+<li><strong>scrilla.settings.APIKeyError</strong></li>
+</ol></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def iex_key() -&gt; str:
+    &#34;&#34;&#34;Wraps access to the `scrilla.settings.IEX_KEY` in an `scrilla.settings.APIKeyError`. Exception is thrown if `scrilla.settings.IEX_KEY` cannot be parsed from the environment or the local data directory
+
+    Raises
+    ------
+    1. **scrilla.settings.APIKeyError**
+    &#34;&#34;&#34;
+    if not IEX_KEY:
+        raise APIKeyError(
+            &#39;IEX API Key cannot be found. Either set IEX_KEY environment variable or use &#34;-store&#34; CLI function to save key.&#39;)
+    return IEX_KEY</code></pre>
+</details>
+</dd>
+<dt id="scrilla.settings.q_key"><code class="name flex">
+<span>def <span class="ident">q_key</span></span>(<span>) ‑> str</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Wraps access to the <code>scrilla.settings.Q_KEY</code> in an <code><a title="scrilla.settings.APIKeyError" href="#scrilla.settings.APIKeyError">APIKeyError</a></code>. Exception is thrown if <code>scrilla.settings.Q_KEY</code> cannot be parsed from the environment or the local data directory.</p>
+<h2 id="raises">Raises</h2>
+<ol>
+<li><strong>scrilla.settings.APIKeyError</strong></li>
+</ol></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def q_key() -&gt; str:
+    &#34;&#34;&#34;Wraps access to the `scrilla.settings.Q_KEY` in an `scrilla.settings.APIKeyError`. Exception is thrown if `scrilla.settings.Q_KEY` cannot be parsed from the environment or the local data directory.
+
+    Raises
+    ------
+    1. **scrilla.settings.APIKeyError**
+    &#34;&#34;&#34;
+    if not Q_KEY:
+        raise APIKeyError(
+            &#39;Quandl API Key not found. Either set QUANDL_KEY environment variable or use &#34;-store&#34; CLI function to save key.&#39;)
+    return Q_KEY</code></pre>
+</details>
+</dd>
+</dl>
 </section>
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
@@ -480,6 +594,13 @@ if DIV_MANAGER == &#34;iex&#34;:
 <li><code><a title="scrilla.settings.STATIC_ECON_FILE" href="#scrilla.settings.STATIC_ECON_FILE">STATIC_ECON_FILE</a></code></li>
 <li><code><a title="scrilla.settings.STATIC_TICKERS_FILE" href="#scrilla.settings.STATIC_TICKERS_FILE">STATIC_TICKERS_FILE</a></code></li>
 <li><code><a title="scrilla.settings.STAT_MANAGER" href="#scrilla.settings.STAT_MANAGER">STAT_MANAGER</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="scrilla.settings.av_key" href="#scrilla.settings.av_key">av_key</a></code></li>
+<li><code><a title="scrilla.settings.iex_key" href="#scrilla.settings.iex_key">iex_key</a></code></li>
+<li><code><a title="scrilla.settings.q_key" href="#scrilla.settings.q_key">q_key</a></code></li>
 </ul>
 </li>
 <li><h3><a href="#header-classes">Classes</a></h3>
