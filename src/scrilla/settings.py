@@ -103,7 +103,7 @@ GUI_DARK_MODE = os.environ.setdefault('DARK_MODE', 'true').lower() == 'true'
 # OPTIONAL USER CONFIGURATION
 GUI_WIDTH = None
 """Width of main Graphical User Interface window; Configured by environment variable of same name, **GUI_WIDTH**"""
-GUI_HEIGHT =  None
+GUI_HEIGHT = None
 """Height of main Graphical User Interface window; Configured by environment variable of same name, **GUI_HEIGHT**."""
 FRONTIER_STEPS = None
 """Number of data points used to trace out the efficient frontier; Configured by environment variable of same name, **FRONTIER_STEPS** """
