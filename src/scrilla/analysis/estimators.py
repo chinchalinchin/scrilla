@@ -354,7 +354,7 @@ def qq_series_for_sample(sample: list) -> List[list]:
     """
     qq_series = []
     n = len(sample)
-    for i, point in enumerate(sample):
+    for i in range(len(sample)):
         percentile = (i + 0.5)/n
         percentile_sample = sample_percentile(
             data=sample, percentile=percentile)
