@@ -36,12 +36,12 @@ def maximize_univariate_normal_likelihood(data: List[float]) -> List[float]:
 
     Parameters
     ----------
-    1. **data**: ``list[float]``
+    1. **data**: ``List[float]``
         Sample of data drawn from a univariate normal population. 
 
     Returns
     -------
-    ``list``
+    ``List[float]``
         A list containing the maximum likelihood estimates of the univariates normal distribution's parameters. The first element of the list corresponds to the mean and the second element corresponds to the volatility.
 
     .. notes::
@@ -72,7 +72,7 @@ def maximize_bivariate_normal_likelihood(data: List[Tuple[float, float]]) -> Lis
 
     Returns
     -------
-    ``list``
+    ``List[float]``
         A list containing the maximum likelihood estimates of the bivariates normal distribution's parameters. The first element of the list corresponds to \\(\mu_x)\\), the second element the \\(\mu_y)\\), the third element \\(\sigma_x)\\), the fourth element \\(\sigma_y)\\) and the fifth element \\(\rho_{xy} \cdot \sigma_y \cdot \sigma_x)\\).
     """
 
@@ -118,14 +118,15 @@ def optimize_portfolio_variance(portfolio: Portfolio, target_return: float = Non
     """
     Parameters
     ----------
-    1. **portfolio**: ``scrilla.analysis.objects.Portfolio``
+    1. **portfolio**: `scrilla.analysis.objects.Portfolio`
         An instance of the `Portfolio` class. Must be initialized with an array of ticker symbols. Optionally, it can be initialized with a start_date and end_date datetime. If start_date and end_date are specified, the portfolio will be optimized over the stated time period. Otherwise, date range will default to range defined by `scrilla.settings.DEFAULT_ANALYSIS_PERIOD`.
     2. **target_return**: ``float``
         *Optional*. Defaults to `None`. The target return, as a decimal, subject to which the portfolio's volatility will be minimized.
 
     Returns
     -------
-    An array of floats that represents the proportion of the portfolio that should be allocated to the corresponding ticker symbols given as a parameter within the portfolio object. In other words, if portfolio.tickers = ['AAPL', 'MSFT'] and the output is [0.25, 0.75], this result means a portfolio with 25% allocation in AAPL and a 75% allocation in MSFT will result in an optimally constructed portfolio with respect to its volatility.  
+    `List[float]`
+        A list of floats that represents the proportion of the portfolio that should be allocated to the corresponding ticker symbols given as a parameter within the portfolio object. In other words, if portfolio.tickers = ['AAPL', 'MSFT'] and the output is [0.25, 0.75], this result means a portfolio with 25% allocation in AAPL and a 75% allocation in MSFT will result in an optimally constructed portfolio with respect to its volatility.  
     """
     tickers = portfolio.tickers
     portfolio.set_target_return(target_return)
@@ -161,7 +162,7 @@ def optimize_conditional_value_at_risk(portfolio: Portfolio, prob: float, expiry
     """
     Parameters
     ----------
-    1. **portfolio**: ``scrilla.analysis.objects.Portfolio``
+    1. **portfolio**: `scrilla.analysis.objects.Portfolio`
         An instance of the `Portfolio` class. Must be initialized with an array of ticker symbols. Optionally, it can be initialized with a start_date and end_date datetime. If start_date and end_date are specified, the portfolio will be optimized over the stated time period. Otherwise, date range will default to range defined by `scrilla.settings.DEFAULT_ANALYSIS_PERIOD`.
     2. **prob**: ``float``
         Probability of loss.
@@ -211,7 +212,7 @@ def maximize_sharpe_ratio(portfolio: Portfolio, target_return: float = None) -> 
     """
     Parameters
     ----------
-    1. **portfolio**: ``scrilla.analysis.objects.Portfolio``
+    1. **portfolio**: `scrilla.analysis.objects.Portfolio`
         An instance of the `Portfolio` class. Must be initialized with an array of ticker symbols. Optionally, it can be initialized with a start_date and end_date datetime. If start_date and end_date are specified, the portfolio will be optimized over the stated time period. Otherwise, date range will default to range defined by `scrilla.settings.DEFAULT_ANALYSIS_PERIOD`.
     2. **target_return**: ``float``
         *Optional*. Defaults to `None`. The target return constraint, as a decimal, subject to which the portfolio's sharpe ratio will be maximized.
@@ -256,12 +257,12 @@ def maximize_portfolio_return(portfolio: Portfolio) -> List[float]:
     """
     Parameters
     ----------
-    1. **portfolio**: ``scrilla.analysis.objects.Portfolio``
-        An instance of the Portfolio class defined in  analysis.objects.portfolio. Must be initialized with an array of ticker symbols. Optionally, it can be initialized with a start_date and end_date datetime. If start_date and end_date are specified, the portfolio will be optimized over the stated time period.
+    1. **portfolio**: `scrilla.analysis.objects.Portfolio`
+        An instance of the Portfolio class. Must be initialized with an array of ticker symbols. Optionally, it can be initialized with a ``start_date`` and ``end_date`` ``datetime.date``. If ``start_date`` and ``end_date`` are specified, the portfolio will be optimized over the stated time period.
 
     Output
     ------
-    ``list``
+    ``List[float]``
         An array of floats that represents the proportion of the portfolio that should be allocated to the corresponding ticker symbols given as a parameter within the portfolio object to achieve the maximum return. Note, this function is often uninteresting because if the rate of return for equity A is 50% and the rate of return of equity B is 25%, the portfolio with a maximized return will always allocated 100% of its value to equity A. However, this function is useful for determining whether or not the optimization algorithm is actually working, so it has been left in the program for debugging purposes. 
     """
     tickers = portfolio.tickers
@@ -285,7 +286,7 @@ def calculate_efficient_frontier(portfolio: Portfolio, steps=None) -> List[List[
     """
     Parameters
     ----------
-    1. **portfolio**: ``scrilla.analysis.objects.Portfolio``
+    1. **portfolio**: `scrilla.analysis.objects.Portfolio`
         An instance of the Portfolio class defined in  analysis.objects.portfolio. Must be initialized with an array of ticker symbols. Optionally, it can be initialized with a start_date and end_date datetime. If start_date and end_date are specified, the portfolio will be optimized over the stated time period.\n \n
 
     2. **steps**: ``int``
@@ -293,7 +294,7 @@ def calculate_efficient_frontier(portfolio: Portfolio, steps=None) -> List[List[
 
     Returns
     -------
-    ``list``
+    ``List[List[float]]``
         A nested list of floats. Each float list corresponds to a point on a portfolio's efficient frontier, i.e. each list represents the percentage of a portfolio that should be allocated to the equity with the corresponding ticker symbol supplied as an attribute to the ``scrilla.analysis.objects.Portfolio`` object parameter.
     """
     if steps is None:

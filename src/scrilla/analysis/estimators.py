@@ -123,9 +123,9 @@ def sample_correlation(x: list, y: list):
 
     Raises 
     ------
-    1. **scrilla.errors.SampleSizeError**
+    1. `scrilla.errors.SampleSizeError` :
         If the sample sizes do not meet the requirements for estimation, this error will be thrown.
-    2. **ValueError**
+    2. **ValueError** :
         If the denominator of the correlation coefficient becomes too small for floating point arithmetic, this error is thrown.
 
     .. todos ::
@@ -188,8 +188,8 @@ def sample_mean(x: list) -> float:
 
     Raises 
     ------
-    1. **scrilla.errors.SampleSizeError**
-        If `len(x)==0`, this error will be thrown.
+    1. `scrilla.errors.SampleSizeError`
+        If ``len(x)==0``, this error will be thrown.
     """
     xbar, n = 0, len(x)
 
@@ -220,7 +220,7 @@ def sample_variance(x: list):
 
     Raises 
     ------
-    1. **scrilla.errors.SampleSizeError**
+    1. `scrilla.errors.SampleSizeError`
     """
 
     mu, sigma, n = sample_mean(x=x), 0, len(x)
@@ -253,8 +253,8 @@ def sample_covariance(x: list, y: list):
 
     Raises 
     ------
-    1. **scrilla.errors.SampleSizeError**
-        If `len(x) != len(y)` (samples of incomparable length) or `len(x) in [0,1]` (insufficient data/degrees of freedom), this error will be thrown.
+    1. `scrilla.errors.SampleSizeError`
+        If ``len(x) != len(y)`` (samples of incomparable length) or ``len(x) in [0,1]`` (insufficient data/degrees of freedom), this error will be thrown.
     """
 
     if len(x) != len(y):
@@ -296,8 +296,8 @@ def simple_regression_beta(x: list, y: list):
 
     Raises 
     ------
-    1. **scrilla.errors.statistics.SampleSizeError**
-        If `len(x) != len(y)` (samples of incomparable length) or `len(x) < 3` (insufficient data/degrees of freedom), this error will be thrown.
+    1. `scrilla.errors.statistics.SampleSizeError`
+        If ``len(x) != len(y)`` (samples of incomparable length) or ``len(x) < 3`` (insufficient data/degrees of freedom), this error will be thrown.
     """
 
     if len(x) != len(y):
@@ -325,8 +325,8 @@ def simple_regression_alpha(x: list, y: list):
 
     Raises 
     ------
-    1. **scrilla.errors.SampleSizeError**
-        If `len(x) != len(y)` (samples of incomparable length) or `len(x) < 3` (insufficient data/degrees of freedom), this error will be thrown.
+    1. `scrilla.errors.SampleSizeError`
+        If ``len(x) != len(y)`` (samples of incomparable length) or ``len(x) < 3`` (insufficient data/degrees of freedom), this error will be thrown.
     """
 
     if len(x) != len(y):

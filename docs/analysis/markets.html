@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.10.0" />
 <title>scrilla.analysis.markets API documentation</title>
-<meta name="description" content="A module of functions that calculate financial statistics" />
+<meta name="description" content="A module of functions that calculate financial statistics." />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
 <link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
@@ -23,7 +23,7 @@
 <h1 class="title">Module <code>scrilla.analysis.markets</code></h1>
 </header>
 <section id="section-intro">
-<p>A module of functions that calculate financial statistics</p>
+<p>A module of functions that calculate financial statistics.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -43,9 +43,10 @@
 # along with scrilla.  If not, see &lt;https://www.gnu.org/licenses/&gt;
 # or &lt;https://github.com/chinchalinchin/scrilla/blob/develop/main/LICENSE&gt;.
 &#34;&#34;&#34;
-A module of functions that calculate financial statistics
+A module of functions that calculate financial statistics.
 &#34;&#34;&#34;
-from typing import Union
+import datetime
+from typing import Dict, Union
 from datetime import date
 from scrilla import settings, services, files, cache, errors
 from scrilla.static import keys
@@ -74,10 +75,10 @@ def sharpe_ratio(ticker: str, start_date: Union[date, None] = None, end_date: Un
     5. **ticker_profile**: ``dict`` 
         Risk-return profile for the supplied ticker. Formatted as follows: `{ &#39;annual_return&#39;: float, &#39;annual_volatility&#39;: float } `
     6. **method** : ``str``
-        Estimation method used to calculate financial statistics. Defaults to the value set by `scrilla.settings.ESTIMATION_METHOD`. Allowable value are accessible through `scrilla.keys.keys[&#39;ESTIMATION&#39;]`.
+        Estimation method used to calculate financial statistics. Defaults to the value set by `scrilla.settings.ESTIMATION_METHOD`. Allowable value are accessible through the `scrilla.keys.keys` dictionary.
 
     .. notes:: 
-        * if `ticker_profile` is provided, this function will skip both an external data service call and the calculation of the ticker&#39;s risk profile. The calculation will proceed as if the supplied profile were the true profile. If `ticker_profile` is not provided, all statistics will be estimated from historical data.
+        * if ``ticker_profile`` is provided, this function will skip both an external data service call and the calculation of the ticker&#39;s risk profile. The calculation will proceed as if the supplied profile were the true profile. If ``ticker_profile`` is not provided, all statistics will be estimated from historical data.
     &#34;&#34;&#34;
     start_date, end_date = errors.validate_dates(start_date=start_date, end_date=end_date,
                                                  asset_type=keys.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;])
@@ -118,7 +119,7 @@ def market_premium(start_date: Union[date, None] = None, end_date: Union[date, N
         End_date of the time period for which the market premium will be computed.
     3. **market_profile**: ``dict``
     4. **method** : ``str``
-        Estimation method used to calculate financial statistics. Defaults to the value set by `scrilla.settings.ESTIMATION_METHOD`. Allowable value are accessible through `scrilla.keys.keys[&#39;ESTIMATION&#39;]`.
+        Estimation method used to calculate financial statistics. Defaults to the value set by `scrilla.settings.ESTIMATION_METHOD`. Allowable value are accessible through the `scrilla.keys.keys` dictionary.
 
     &#34;&#34;&#34;
     start_date, end_date = errors.validate_dates(start_date=start_date, end_date=end_date,
@@ -135,7 +136,7 @@ def market_premium(start_date: Union[date, None] = None, end_date: Union[date, N
 
 def market_beta(ticker: str, start_date: Union[date, None] = None, end_date: Union[date, None] = None, market_profile: Union[dict, None] = None, market_correlation: Union[dict, None] = None, ticker_profile: Union[dict, None] = None, sample_prices: Union[dict, None] = None, method: str = settings.ESTIMATION_METHOD) -&gt; float:
     &#34;&#34;&#34;
-    Returns the beta of an asset with the market return defined by the environment variable MARKET_PROXY.
+    Returns the beta of an asset against the market return defined by the ticker symbol set `scrilla.settings.MARKET_PROXY`, which in turn is configured through the environment variable of the same name, `MARKET_PROXY`. 
 
     Parameters
     ----------
@@ -146,7 +147,10 @@ def market_beta(ticker: str, start_date: Union[date, None] = None, end_date: Uni
     3. **end_date**: ``datetime.date`` 
         End_date of the time period for which the asset beta will be computed.
     4. **method** : ``str``
-        Estimation method used to calculate financial statistics. Defaults to the value set by `scrilla.settings.ESTIMATION_METHOD`. Allowable value are accessible through `scrilla.keys.keys[&#39;ESTIMATION&#39;]`.
+        Estimation method used to calculate financial statistics. Defaults to the value set by `scrilla.settings.ESTIMATION_METHOD`. Allowable value are accessible through the `scrilla.keys.keys` dictionary.
+
+    .. notes::
+        * If not configured by an environment variable, `scrilla.settings.MARKET_PROXY` defaults to ``SPY``, the ETF tracking the *S&amp;P500*.
     &#34;&#34;&#34;
     start_date, end_date = errors.validate_dates(start_date=start_date, end_date=end_date,
                                                  asset_type=keys.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;])
@@ -186,7 +190,7 @@ def market_beta(ticker: str, start_date: Union[date, None] = None, end_date: Uni
     return beta
 
 
-def cost_of_equity(ticker, start_date=None, end_date=None, market_profile=None, market_correlation=None, method=settings.ESTIMATION_METHOD):
+def cost_of_equity(ticker: str, start_date: Union[datetime.date, None]=None, end_date: Union[datetime.date,None]=None, market_profile: Union[Dict[str, float],None]=None, market_correlation: Union[Dict[str,float], None]=None, method=settings.ESTIMATION_METHOD) -&gt; float:
     &#34;&#34;&#34;
     Returns the cost of equity of an asset as estimated by the Capital Asset Pricing Model, i.e. the product of the market premium and asset beta increased by the risk free rate.
 
@@ -194,12 +198,16 @@ def cost_of_equity(ticker, start_date=None, end_date=None, market_profile=None, 
     ----------
     1. **ticker**: ``str``
         A string of the ticker symbol whose cost of equity ratio will be computed.
-    2. **start_date**: ``datetime.date``
+    2. **start_date**: ``Union[datetime.date, None]``
         *Optional*. Start date of the time period for which the cost of equity ratio will be computed
-    3. **end_date**: ``datetime.date``
+    3. **end_date**: ``Union[datetime.date, None]``
         *Optional.* End_date of the time period for which the cost of equity ratio will be computed.
-    4. **method** : ``str``
-        *Optional*. Estimation method used to calculate financial statistics. Defaults to the value set by `scrilla.settings.ESTIMATION_METHOD`. Allowable value are accessible through `scrilla.keys.keys[&#39;ESTIMATION&#39;]`.
+    4. **market_profile**: ``Union[Dict[str, float], None]``
+        *Optional*. Dictionary containing the assumed risk profile for the market proxy. Overrides calls to services and staistical methods, forcing the calculation fo the cost of equity with the inputted market profile. Format: ``{ &#39;annual_return&#39;: value, &#39;annual_volatility&#39;: value}``
+    5. **market_correlation**: ``Union[Dict[str, float], None]``
+        *Optional*. Dictionary containing the assumed correlation for the calculation. Overrides calls to services and statistical methods, forcing the calculation of the cost of equity with the inputted correlation. Format: ``{ &#39;correlation&#39; : value }``
+    6. **method** : ``str``
+        *Optional*. Estimation method used to calculate financial statistics. Defaults to the value set by `scrilla.settings.ESTIMATION_METHOD`. Allowable value are accessible through the `scrilla.keys.keys` dictionary.
     &#34;&#34;&#34;
     start_date, end_date = errors.validate_dates(start_date=start_date, end_date=end_date,
                                                  asset_type=keys.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;])
@@ -223,17 +231,21 @@ def cost_of_equity(ticker, start_date=None, end_date=None, market_profile=None, 
     return equity_cost
 
 
-def screen_for_discount(model=keys.keys[&#39;MODELS&#39;][&#39;DDM&#39;], discount_rate=None):
+def screen_for_discount(model: str=keys.keys[&#39;MODELS&#39;][&#39;DDM&#39;], discount_rate: float=None) -&gt; Dict[str, Dict[str, float]]:
     &#34;&#34;&#34;
+    Screens the stocks saved under the user watchlist in the `scrilla.settings.COMMON_DIR` directory for discounts relative to the model inputted into the function.
+
     Parameters
     ----------
-    1. model : str
-        *Optional*. Model used to evaluated the equities saved in the watchlist. If no model is specified, the function will default to the discount dividend model. Model constants are statically accessible through the `scrilla.keys.keys[&#39;MODELS&#39;]`
+    1. **model** : ``str``
+        *Optional*. Model used to evaluated the equities saved in the watchlist. If no model is specified, the function will default to the discount dividend model. Model constants are accessible through the the `scrilla.keys.keys` dictionary.
+    2. **discount_rate** : ``float``
+        *Optional*. Rate used to discount future cashflows to present. Defaults to an equity&#39;s CAPM cost of equity, as calculated by `scrilla.analysis.markets.cost_of_equity`.
 
     Returns
     -------
     ``dict``
-        A list of tickers that trade at a discount relative to the model price, formatted as follows: `{ &#39;ticker&#39; : { &#39;spot_price&#39;: value, &#39;model_price&#39;: value,&#39;discount&#39;: value } }`
+        A list of tickers that trade at a discount relative to the model price, formatted as follows: `{ &#39;ticker&#39; : { &#39;spot_price&#39;: value, &#39;model_price&#39;: value,&#39;discount&#39;: value }, ... }`
     &#34;&#34;&#34;
 
     equities = list(files.get_watchlist())
@@ -275,7 +287,7 @@ def screen_for_discount(model=keys.keys[&#39;MODELS&#39;][&#39;DDM&#39;], discou
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
 <dt id="scrilla.analysis.markets.cost_of_equity"><code class="name flex">
-<span>def <span class="ident">cost_of_equity</span></span>(<span>ticker, start_date=None, end_date=None, market_profile=None, market_correlation=None, method='moments')</span>
+<span>def <span class="ident">cost_of_equity</span></span>(<span>ticker: str, start_date: Optional[datetime.date] = None, end_date: Optional[datetime.date] = None, market_profile: Optional[Dict[str, float]] = None, market_correlation: Optional[Dict[str, float]] = None, method='moments') ‑> float</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Returns the cost of equity of an asset as estimated by the Capital Asset Pricing Model, i.e. the product of the market premium and asset beta increased by the risk free rate.</p>
@@ -283,18 +295,22 @@ def screen_for_discount(model=keys.keys[&#39;MODELS&#39;][&#39;DDM&#39;], discou
 <ol>
 <li><strong>ticker</strong>: <code>str</code>
 A string of the ticker symbol whose cost of equity ratio will be computed.</li>
-<li><strong>start_date</strong>: <code>datetime.date</code>
+<li><strong>start_date</strong>: <code>Union[datetime.date, None]</code>
 <em>Optional</em>. Start date of the time period for which the cost of equity ratio will be computed</li>
-<li><strong>end_date</strong>: <code>datetime.date</code>
+<li><strong>end_date</strong>: <code>Union[datetime.date, None]</code>
 <em>Optional.</em> End_date of the time period for which the cost of equity ratio will be computed.</li>
+<li><strong>market_profile</strong>: <code>Union[Dict[str, float], None]</code>
+<em>Optional</em>. Dictionary containing the assumed risk profile for the market proxy. Overrides calls to services and staistical methods, forcing the calculation fo the cost of equity with the inputted market profile. Format: <code>{ 'annual_return': value, 'annual_volatility': value}</code></li>
+<li><strong>market_correlation</strong>: <code>Union[Dict[str, float], None]</code>
+<em>Optional</em>. Dictionary containing the assumed correlation for the calculation. Overrides calls to services and statistical methods, forcing the calculation of the cost of equity with the inputted correlation. Format: <code>{ 'correlation' : value }</code></li>
 <li><strong>method</strong> : <code>str</code>
-<em>Optional</em>. Estimation method used to calculate financial statistics. Defaults to the value set by <code><a title="scrilla.settings.ESTIMATION_METHOD" href="../settings.html#scrilla.settings.ESTIMATION_METHOD">ESTIMATION_METHOD</a></code>. Allowable value are accessible through <code>scrilla.keys.keys['ESTIMATION']</code>.</li>
+<em>Optional</em>. Estimation method used to calculate financial statistics. Defaults to the value set by <code><a title="scrilla.settings.ESTIMATION_METHOD" href="../settings.html#scrilla.settings.ESTIMATION_METHOD">ESTIMATION_METHOD</a></code>. Allowable value are accessible through the <code>scrilla.keys.keys</code> dictionary.</li>
 </ol></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def cost_of_equity(ticker, start_date=None, end_date=None, market_profile=None, market_correlation=None, method=settings.ESTIMATION_METHOD):
+<pre><code class="python">def cost_of_equity(ticker: str, start_date: Union[datetime.date, None]=None, end_date: Union[datetime.date,None]=None, market_profile: Union[Dict[str, float],None]=None, market_correlation: Union[Dict[str,float], None]=None, method=settings.ESTIMATION_METHOD) -&gt; float:
     &#34;&#34;&#34;
     Returns the cost of equity of an asset as estimated by the Capital Asset Pricing Model, i.e. the product of the market premium and asset beta increased by the risk free rate.
 
@@ -302,12 +318,16 @@ A string of the ticker symbol whose cost of equity ratio will be computed.</li>
     ----------
     1. **ticker**: ``str``
         A string of the ticker symbol whose cost of equity ratio will be computed.
-    2. **start_date**: ``datetime.date``
+    2. **start_date**: ``Union[datetime.date, None]``
         *Optional*. Start date of the time period for which the cost of equity ratio will be computed
-    3. **end_date**: ``datetime.date``
+    3. **end_date**: ``Union[datetime.date, None]``
         *Optional.* End_date of the time period for which the cost of equity ratio will be computed.
-    4. **method** : ``str``
-        *Optional*. Estimation method used to calculate financial statistics. Defaults to the value set by `scrilla.settings.ESTIMATION_METHOD`. Allowable value are accessible through `scrilla.keys.keys[&#39;ESTIMATION&#39;]`.
+    4. **market_profile**: ``Union[Dict[str, float], None]``
+        *Optional*. Dictionary containing the assumed risk profile for the market proxy. Overrides calls to services and staistical methods, forcing the calculation fo the cost of equity with the inputted market profile. Format: ``{ &#39;annual_return&#39;: value, &#39;annual_volatility&#39;: value}``
+    5. **market_correlation**: ``Union[Dict[str, float], None]``
+        *Optional*. Dictionary containing the assumed correlation for the calculation. Overrides calls to services and statistical methods, forcing the calculation of the cost of equity with the inputted correlation. Format: ``{ &#39;correlation&#39; : value }``
+    6. **method** : ``str``
+        *Optional*. Estimation method used to calculate financial statistics. Defaults to the value set by `scrilla.settings.ESTIMATION_METHOD`. Allowable value are accessible through the `scrilla.keys.keys` dictionary.
     &#34;&#34;&#34;
     start_date, end_date = errors.validate_dates(start_date=start_date, end_date=end_date,
                                                  asset_type=keys.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;])
@@ -335,7 +355,7 @@ A string of the ticker symbol whose cost of equity ratio will be computed.</li>
 <span>def <span class="ident">market_beta</span></span>(<span>ticker: str, start_date: Optional[datetime.date] = None, end_date: Optional[datetime.date] = None, market_profile: Optional[dict] = None, market_correlation: Optional[dict] = None, ticker_profile: Optional[dict] = None, sample_prices: Optional[dict] = None, method: str = 'moments') ‑> float</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Returns the beta of an asset with the market return defined by the environment variable MARKET_PROXY.</p>
+<div class="desc"><p>Returns the beta of an asset against the market return defined by the ticker symbol set <code><a title="scrilla.settings.MARKET_PROXY" href="../settings.html#scrilla.settings.MARKET_PROXY">MARKET_PROXY</a></code>, which in turn is configured through the environment variable of the same name, <code>MARKET_PROXY</code>. </p>
 <h2 id="parameters">Parameters</h2>
 <ol>
 <li><strong>ticker</strong>: <code>str</code>
@@ -345,15 +365,21 @@ Start date of the time period for which the asset beta will be computed.</li>
 <li><strong>end_date</strong>: <code>datetime.date</code>
 End_date of the time period for which the asset beta will be computed.</li>
 <li><strong>method</strong> : <code>str</code>
-Estimation method used to calculate financial statistics. Defaults to the value set by <code><a title="scrilla.settings.ESTIMATION_METHOD" href="../settings.html#scrilla.settings.ESTIMATION_METHOD">ESTIMATION_METHOD</a></code>. Allowable value are accessible through <code>scrilla.keys.keys['ESTIMATION']</code>.</li>
-</ol></div>
+Estimation method used to calculate financial statistics. Defaults to the value set by <code><a title="scrilla.settings.ESTIMATION_METHOD" href="../settings.html#scrilla.settings.ESTIMATION_METHOD">ESTIMATION_METHOD</a></code>. Allowable value are accessible through the <code>scrilla.keys.keys</code> dictionary.</li>
+</ol>
+<div class="admonition notes">
+<p class="admonition-title">Notes</p>
+<ul>
+<li>If not configured by an environment variable, <code><a title="scrilla.settings.MARKET_PROXY" href="../settings.html#scrilla.settings.MARKET_PROXY">MARKET_PROXY</a></code> defaults to <code>SPY</code>, the ETF tracking the <em>S&amp;P500</em>.</li>
+</ul>
+</div></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def market_beta(ticker: str, start_date: Union[date, None] = None, end_date: Union[date, None] = None, market_profile: Union[dict, None] = None, market_correlation: Union[dict, None] = None, ticker_profile: Union[dict, None] = None, sample_prices: Union[dict, None] = None, method: str = settings.ESTIMATION_METHOD) -&gt; float:
     &#34;&#34;&#34;
-    Returns the beta of an asset with the market return defined by the environment variable MARKET_PROXY.
+    Returns the beta of an asset against the market return defined by the ticker symbol set `scrilla.settings.MARKET_PROXY`, which in turn is configured through the environment variable of the same name, `MARKET_PROXY`. 
 
     Parameters
     ----------
@@ -364,7 +390,10 @@ Estimation method used to calculate financial statistics. Defaults to the value 
     3. **end_date**: ``datetime.date`` 
         End_date of the time period for which the asset beta will be computed.
     4. **method** : ``str``
-        Estimation method used to calculate financial statistics. Defaults to the value set by `scrilla.settings.ESTIMATION_METHOD`. Allowable value are accessible through `scrilla.keys.keys[&#39;ESTIMATION&#39;]`.
+        Estimation method used to calculate financial statistics. Defaults to the value set by `scrilla.settings.ESTIMATION_METHOD`. Allowable value are accessible through the `scrilla.keys.keys` dictionary.
+
+    .. notes::
+        * If not configured by an environment variable, `scrilla.settings.MARKET_PROXY` defaults to ``SPY``, the ETF tracking the *S&amp;P500*.
     &#34;&#34;&#34;
     start_date, end_date = errors.validate_dates(start_date=start_date, end_date=end_date,
                                                  asset_type=keys.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;])
@@ -417,7 +446,7 @@ Start date of the time period for which the market premium will be computed.</li
 End_date of the time period for which the market premium will be computed.</li>
 <li><strong>market_profile</strong>: <code>dict</code></li>
 <li><strong>method</strong> : <code>str</code>
-Estimation method used to calculate financial statistics. Defaults to the value set by <code><a title="scrilla.settings.ESTIMATION_METHOD" href="../settings.html#scrilla.settings.ESTIMATION_METHOD">ESTIMATION_METHOD</a></code>. Allowable value are accessible through <code>scrilla.keys.keys['ESTIMATION']</code>.</li>
+Estimation method used to calculate financial statistics. Defaults to the value set by <code><a title="scrilla.settings.ESTIMATION_METHOD" href="../settings.html#scrilla.settings.ESTIMATION_METHOD">ESTIMATION_METHOD</a></code>. Allowable value are accessible through the <code>scrilla.keys.keys</code> dictionary.</li>
 </ol></div>
 <details class="source">
 <summary>
@@ -435,7 +464,7 @@ Estimation method used to calculate financial statistics. Defaults to the value 
         End_date of the time period for which the market premium will be computed.
     3. **market_profile**: ``dict``
     4. **method** : ``str``
-        Estimation method used to calculate financial statistics. Defaults to the value set by `scrilla.settings.ESTIMATION_METHOD`. Allowable value are accessible through `scrilla.keys.keys[&#39;ESTIMATION&#39;]`.
+        Estimation method used to calculate financial statistics. Defaults to the value set by `scrilla.settings.ESTIMATION_METHOD`. Allowable value are accessible through the `scrilla.keys.keys` dictionary.
 
     &#34;&#34;&#34;
     start_date, end_date = errors.validate_dates(start_date=start_date, end_date=end_date,
@@ -451,32 +480,39 @@ Estimation method used to calculate financial statistics. Defaults to the value 
 </details>
 </dd>
 <dt id="scrilla.analysis.markets.screen_for_discount"><code class="name flex">
-<span>def <span class="ident">screen_for_discount</span></span>(<span>model='discount_dividend', discount_rate=None)</span>
+<span>def <span class="ident">screen_for_discount</span></span>(<span>model: str = 'discount_dividend', discount_rate: float = None) ‑> Dict[str, Dict[str, float]]</span>
 </code></dt>
 <dd>
-<div class="desc"><h2 id="parameters">Parameters</h2>
+<div class="desc"><p>Screens the stocks saved under the user watchlist in the <code><a title="scrilla.settings.COMMON_DIR" href="../settings.html#scrilla.settings.COMMON_DIR">COMMON_DIR</a></code> directory for discounts relative to the model inputted into the function.</p>
+<h2 id="parameters">Parameters</h2>
 <ol>
-<li>model : str
-<em>Optional</em>. Model used to evaluated the equities saved in the watchlist. If no model is specified, the function will default to the discount dividend model. Model constants are statically accessible through the <code>scrilla.keys.keys['MODELS']</code></li>
+<li><strong>model</strong> : <code>str</code>
+<em>Optional</em>. Model used to evaluated the equities saved in the watchlist. If no model is specified, the function will default to the discount dividend model. Model constants are accessible through the the <code>scrilla.keys.keys</code> dictionary.</li>
+<li><strong>discount_rate</strong> : <code>float</code>
+<em>Optional</em>. Rate used to discount future cashflows to present. Defaults to an equity's CAPM cost of equity, as calculated by <code><a title="scrilla.analysis.markets.cost_of_equity" href="#scrilla.analysis.markets.cost_of_equity">cost_of_equity()</a></code>.</li>
 </ol>
 <h2 id="returns">Returns</h2>
 <p><code>dict</code>
-A list of tickers that trade at a discount relative to the model price, formatted as follows: <code>{ 'ticker' : { 'spot_price': value, 'model_price': value,'discount': value } }</code></p></div>
+A list of tickers that trade at a discount relative to the model price, formatted as follows: <code>{ 'ticker' : { 'spot_price': value, 'model_price': value,'discount': value }, ... }</code></p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def screen_for_discount(model=keys.keys[&#39;MODELS&#39;][&#39;DDM&#39;], discount_rate=None):
+<pre><code class="python">def screen_for_discount(model: str=keys.keys[&#39;MODELS&#39;][&#39;DDM&#39;], discount_rate: float=None) -&gt; Dict[str, Dict[str, float]]:
     &#34;&#34;&#34;
+    Screens the stocks saved under the user watchlist in the `scrilla.settings.COMMON_DIR` directory for discounts relative to the model inputted into the function.
+
     Parameters
     ----------
-    1. model : str
-        *Optional*. Model used to evaluated the equities saved in the watchlist. If no model is specified, the function will default to the discount dividend model. Model constants are statically accessible through the `scrilla.keys.keys[&#39;MODELS&#39;]`
+    1. **model** : ``str``
+        *Optional*. Model used to evaluated the equities saved in the watchlist. If no model is specified, the function will default to the discount dividend model. Model constants are accessible through the the `scrilla.keys.keys` dictionary.
+    2. **discount_rate** : ``float``
+        *Optional*. Rate used to discount future cashflows to present. Defaults to an equity&#39;s CAPM cost of equity, as calculated by `scrilla.analysis.markets.cost_of_equity`.
 
     Returns
     -------
     ``dict``
-        A list of tickers that trade at a discount relative to the model price, formatted as follows: `{ &#39;ticker&#39; : { &#39;spot_price&#39;: value, &#39;model_price&#39;: value,&#39;discount&#39;: value } }`
+        A list of tickers that trade at a discount relative to the model price, formatted as follows: `{ &#39;ticker&#39; : { &#39;spot_price&#39;: value, &#39;model_price&#39;: value,&#39;discount&#39;: value }, ... }`
     &#34;&#34;&#34;
 
     equities = list(files.get_watchlist())
@@ -528,7 +564,7 @@ Risk free rate used to evaluate excess return. Defaults to settings.RISK_FREE_RA
 <li><strong>ticker_profile</strong>: <code>dict</code>
 Risk-return profile for the supplied ticker. Formatted as follows: <code>{ 'annual_return': float, 'annual_volatility': float }</code></li>
 <li><strong>method</strong> : <code>str</code>
-Estimation method used to calculate financial statistics. Defaults to the value set by <code><a title="scrilla.settings.ESTIMATION_METHOD" href="../settings.html#scrilla.settings.ESTIMATION_METHOD">ESTIMATION_METHOD</a></code>. Allowable value are accessible through <code>scrilla.keys.keys['ESTIMATION']</code>.</li>
+Estimation method used to calculate financial statistics. Defaults to the value set by <code><a title="scrilla.settings.ESTIMATION_METHOD" href="../settings.html#scrilla.settings.ESTIMATION_METHOD">ESTIMATION_METHOD</a></code>. Allowable value are accessible through the <code>scrilla.keys.keys</code> dictionary.</li>
 </ol>
 <div class="admonition notes">
 <p class="admonition-title">Notes</p>
@@ -557,10 +593,10 @@ Estimation method used to calculate financial statistics. Defaults to the value 
     5. **ticker_profile**: ``dict`` 
         Risk-return profile for the supplied ticker. Formatted as follows: `{ &#39;annual_return&#39;: float, &#39;annual_volatility&#39;: float } `
     6. **method** : ``str``
-        Estimation method used to calculate financial statistics. Defaults to the value set by `scrilla.settings.ESTIMATION_METHOD`. Allowable value are accessible through `scrilla.keys.keys[&#39;ESTIMATION&#39;]`.
+        Estimation method used to calculate financial statistics. Defaults to the value set by `scrilla.settings.ESTIMATION_METHOD`. Allowable value are accessible through the `scrilla.keys.keys` dictionary.
 
     .. notes:: 
-        * if `ticker_profile` is provided, this function will skip both an external data service call and the calculation of the ticker&#39;s risk profile. The calculation will proceed as if the supplied profile were the true profile. If `ticker_profile` is not provided, all statistics will be estimated from historical data.
+        * if ``ticker_profile`` is provided, this function will skip both an external data service call and the calculation of the ticker&#39;s risk profile. The calculation will proceed as if the supplied profile were the true profile. If ``ticker_profile`` is not provided, all statistics will be estimated from historical data.
     &#34;&#34;&#34;
     start_date, end_date = errors.validate_dates(start_date=start_date, end_date=end_date,
                                                  asset_type=keys.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;])

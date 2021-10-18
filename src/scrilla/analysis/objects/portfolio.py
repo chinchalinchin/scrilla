@@ -205,8 +205,8 @@ class Portfolio:
 
         Parameters
         ----------
-        1. **x**: list
-            Vector representing the allocation of each asset in the portfolio. Must be preserve the order of `portfolio.tickers`, i.e. each element's index should map to each element of the `portfolio.tickers`'s list.
+        1. **x**: ``list``
+            Vector representing the allocation of each asset in the portfolio. Must be preserve the order of `self.tickers`, i.e. each element's index should map to each element of the `self.tickers`'s list.
         2: **time**: ``float``
             time horizon (in years) of the value at risk, i.e. the period of time into the future at which the value at risk is being calculated 
         3. **prob**: ``float``
@@ -226,7 +226,7 @@ class Portfolio:
         ----------
         1. **x**: ``list``
             an array of decimals representing percentage allocations of the portfolio. Must preserve order with `self.tickers`.
-        2.**time**: ``float``
+        2. **time**: ``float``
             time horizon (in years) of the value at risk, i.e. the period of time into the future at which the value at risk is being calculated.
         3. **prob**: ``float``
             desired probability of loss.

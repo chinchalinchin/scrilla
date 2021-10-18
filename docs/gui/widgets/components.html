@@ -1111,11 +1111,11 @@ See help(type(self)) for accurate signature.</p></div>
 </code></dt>
 <dd>
 <div class="desc"><p>Base class for other more complex widgets to inherit. An instance of <code>scrilla.gui.widgets.GraphWidget</code> embeds its child widgets in its own layout, which is an instance of<code>PySide6.QtWidgetQVBoxLayout</code>. This class provides access to the following widgets: a <code>PySide6.QtWidgets.QLabel</code> for the title widget, an error message widget and a <code>PySide6.QtWidgets.QTableWidget</code> for results display. </p>
-<p>The graph to be displayed should be stored in the <code>scrilla.settings.TEMP_DIR</code> directory before calling the <code>show_pixmap</code> method on this class. It will load the graph from file and convert it into a <code>PySide6.QtGui.QPixMap</code>.</p>
+<p>The graph to be displayed should be stored in the <code><a title="scrilla.settings.TEMP_DIR" href="../../settings.html#scrilla.settings.TEMP_DIR">TEMP_DIR</a></code> directory before calling the <code>show_pixmap</code> method on this class. It will load the graph from file and convert it into a <code>PySide6.QtGui.QPixMap</code>.</p>
 <h2 id="parameters">Parameters</h2>
 <ol>
 <li><strong>tmp_graph_key</strong>: <code>str</code>
-The key of the file in the <code>scrilla.settings.TEMP_DIR</code> used to store the image of the graph.</li>
+The key of the file in the <code><a title="scrilla.settings.TEMP_DIR" href="../../settings.html#scrilla.settings.TEMP_DIR">TEMP_DIR</a></code> used to store the image of the graph.</li>
 <li><strong>widget_title</strong>: <code>str</code>
 <em>Optional</em>. Defaults to "Graph Results". Title of the widget.</li>
 </ol>

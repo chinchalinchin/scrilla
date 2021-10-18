@@ -58,8 +58,10 @@ CACHE_SQLITE_FILE = os.environ.setdefault(
 """Location of the SQLite database flat file; Configured by environment variable **SQLITE_FILE***"""
 
 TEMP_DIR = os.path.join(APP_DIR, 'data', 'tmp')
+"""Buffer directory for graphics generated while using the GUI."""
 
 ASSET_DIR = os.path.join(APP_DIR, 'data', 'assets')
+"""Directory containing application assets such as icons, HTML templates, jpegs, etc."""
 
 STATIC_DIR = os.path.join(APP_DIR, 'data', 'static')
 """Directory containg static data, such as ticker symbols, statistic symbols, etc."""
@@ -98,10 +100,26 @@ GUI_TEMPLATE_DIR = os.path.join(APP_DIR, 'gui', 'templates')
 GUI_DARK_MODE = os.environ.setdefault('DARK_MODE', 'true').lower() == 'true'
 """Flag determining the theme of the GUI, i.e. light mode or dark mode."""
 
-# GUI CONFIGURATION
+# OPTIONAL USER CONFIGURATION
+GUI_WIDTH = None
+"""Width of main Graphical User Interface window; Configured by environment variable of same name, **GUI_WIDTH**"""
+GUI_HEIGHT =  None
+"""Height of main Graphical User Interface window; Configured by environment variable of same name, **GUI_HEIGHT**."""
+FRONTIER_STEPS = None
+"""Number of data points used to trace out the efficient frontier; Configured by environment variable of same name, **FRONTIER_STEPS** """
+MA_1_PERIOD = None
+"""Number of data points in first moving average period; Configured by environment variable, **MA_1**"""
+MA_2_PERIOD = None
+"""Number of data points in second moving average period; Configured by environment variable, **MA_2**"""
+MA_3_PERIOD = None
+"""Number of data points in third moving average period; Configured by environment variable, **MA_3***"""
+ITO_STEPS = None
+"""Number of iterations used to approximate an Ito integral; Configured by environment variable of same name, **ITO_STEPS**"""
+DEFAULT_ANALYSIS_PERIOD = None
+"""Number of days used in a historical sample, if no date range is specified; Configured by environment variable of same name, **DEFAULT_ANALYSIS_PERIOD**"""
+
 try:
     GUI_WIDTH = int(os.environ.setdefault('GUI_WIDTH', '1024'))
-    """Width of main Graphical User Interface window; Configured by environment variable of same name, **GUI_WIDTH**"""
 except (ValueError, TypeError) as ParseError:
     logger.debug(
         'Failed to parse GUI_WIDTH from environment. Setting to default value of 1024.')
@@ -110,7 +128,6 @@ except (ValueError, TypeError) as ParseError:
 
 try:
     GUI_HEIGHT = int(os.environ.setdefault('GUI_HEIGHT', '768'))
-    """Height of main Graphical User Interface window; Configured by environment variable of same name, **GUI_HEIGHT**."""
 except (ValueError, TypeError) as ParseError:
     logger.debug(
         'Failed to parse GUI_HEIGHT from enviroment. Setting to default value of 768.')
@@ -120,7 +137,6 @@ except (ValueError, TypeError) as ParseError:
 # FINANCIAL ALGORITHM CONFIGURATION
 try:
     FRONTIER_STEPS = int(os.environ.setdefault('FRONTIER_STEPS', '5'))
-    """Number of data points used to trace out the efficient frontier; Configured by environment variable of same name, **FRONTIER_STEPS** """
 except (ValueError, TypeError) as ParseError:
     logger.debug(
         'Failed to parse FRONTIER_STEPS from enviroment. Setting to default value of 5.')
@@ -129,7 +145,6 @@ except (ValueError, TypeError) as ParseError:
 
 try:
     MA_1_PERIOD = int(os.environ.setdefault('MA_1', '20'))
-    """Number of data points in first moving average period; Configured by environment variable, **MA_1**"""
 except (ValueError, TypeError) as ParseError:
     logger.debug(
         'Failed to parse MA_1 from environment. Setting to default value of 20.')
@@ -138,7 +153,6 @@ except (ValueError, TypeError) as ParseError:
 
 try:
     MA_2_PERIOD = int(os.environ.setdefault('MA_2', '60'))
-    """Number of data points in second moving average period; Configured by environment variable, **MA_2**"""
 except (ValueError, TypeError) as ParseError:
     logger.debug(
         'Failed to parse MA_2 from environment. Setting to default value of 60.')
@@ -147,7 +161,6 @@ except (ValueError, TypeError) as ParseError:
 
 try:
     MA_3_PERIOD = int(os.environ.setdefault('MA_3', '100'))
-    """Number of data points in third moving average period; Configured by environment variable, **MA_3***"""
 except (ValueError, TypeError) as ParseError:
     logger.debug(
         'Failed to parse MA_3 from environment. Setting to default value of 100.')
@@ -156,7 +169,6 @@ except (ValueError, TypeError) as ParseError:
 
 try:
     ITO_STEPS = int(os.environ.setdefault('ITO_STEPS', '10000'))
-    """Number of iterations used to approximate an Ito integral; Configured by environment variable of same name, **ITO_STEPS**"""
 except (ValueError, TypeError) as ParseError:
     logger.debug(
         'Failed to parse ITO_STEPS from environment. Setting to default of 10000.')
@@ -166,7 +178,6 @@ except (ValueError, TypeError) as ParseError:
 try:
     DEFAULT_ANALYSIS_PERIOD = int(
         os.environ.setdefault('DEFAULT_ANALYSIS_PERIOD', '100'))
-    """Number of days used in a historical sample, if no date range is specified; Configured by environment variable of same name, **DEFAULT_ANALYSIS_PERIOD**"""
 except (ValueError, TypeError) as ParseError:
     logger.debug(
         'Failed to parse DEFAULT_ANALYSIS_PERIOD from environment. Setting to default of 100.')
@@ -191,6 +202,9 @@ ESTIMATION_METHOD = os.environ.setdefault(
 PRICE_MANAGER = os.environ.setdefault('PRICE_MANAGER', 'alpha_vantage')
 """Determines the service used to retrieve price data"""
 
+AV_KEY = None
+"""API Key used to query *AlphaVantage* service."""
+
 # ALPHAVANTAGE CONFIGURATION
 if PRICE_MANAGER == 'alpha_vantage':
     AV_URL = os.environ.setdefault(
@@ -198,8 +212,7 @@ if PRICE_MANAGER == 'alpha_vantage':
     AV_CRYPTO_LIST = os.environ.setdefault(
         'ALPHA_VANTAGE_CRYPTO_META_URL', 'https://www.alphavantage.co/digital_currency_list/')
 
-    AV_KEY = os.environ.setdefault('ALPHA_VANTAGE_KEY', '')
-    """API Key used to query AlphaVantage service."""
+    AV_KEY = os.environ.setdefault('ALPHA_VANTAGE_KEY', None)
 
     if not AV_KEY:
         keystore = os.path.join(COMMON_DIR, f'ALPHA_VANTAGE_KEY.{FILE_EXT}')
@@ -213,6 +226,9 @@ if PRICE_MANAGER == 'alpha_vantage':
 STAT_MANAGER = os.environ.setdefault('STAT_MANAGER', 'quandl')
 """Determines the service used to retrieve statistics data"""
 
+Q_KEY = None
+"""API Key used to query *Quandl/Nasdaq* service"""
+
 # QUANDL CONFIGURAITON
 if STAT_MANAGER == "quandl":
     Q_URL = os.environ.setdefault(
@@ -220,8 +236,7 @@ if STAT_MANAGER == "quandl":
     Q_META_URL = os.environ.setdefault(
         'QUANDL_META_URL', 'https://www.quandl.com/api/v3/databases')
 
-    Q_KEY = os.environ.setdefault('QUANDL_KEY', '')
-    """API Key used to query Quandl/Nasdaq Service"""
+    Q_KEY = os.environ.setdefault('QUANDL_KEY', None)
 
     if not Q_KEY:
         keystore = os.path.join(COMMON_DIR, f'QUANDL_KEY.{FILE_EXT}')
@@ -235,12 +250,14 @@ if STAT_MANAGER == "quandl":
 DIV_MANAGER = os.environ.setdefault("DIV_MANAGER", 'iex')
 """Determines the service used to retrieve dividends data"""
 
+IEX_KEY = None
+"""API Key used to query IEX service"""
+
 if DIV_MANAGER == "iex":
     IEX_URL = os.environ.setdefault(
         "IEX_URL", 'https://cloud.iexapis.com/stable/stock')
 
-    IEX_KEY = os.environ.setdefault("IEX_KEY", '')
-    """API Key used to query IEX service"""
+    IEX_KEY = os.environ.setdefault("IEX_KEY", None)
 
     if not IEX_KEY:
         keystore = os.path.join(COMMON_DIR, f'IEX_KEY.{FILE_EXT}')

@@ -153,9 +153,9 @@ def sample_correlation(x: list, y: list):
 
     Raises 
     ------
-    1. **scrilla.errors.SampleSizeError**
+    1. `scrilla.errors.SampleSizeError` :
         If the sample sizes do not meet the requirements for estimation, this error will be thrown.
-    2. **ValueError**
+    2. **ValueError** :
         If the denominator of the correlation coefficient becomes too small for floating point arithmetic, this error is thrown.
 
     .. todos ::
@@ -218,8 +218,8 @@ def sample_mean(x: list) -&gt; float:
 
     Raises 
     ------
-    1. **scrilla.errors.SampleSizeError**
-        If `len(x)==0`, this error will be thrown.
+    1. `scrilla.errors.SampleSizeError`
+        If ``len(x)==0``, this error will be thrown.
     &#34;&#34;&#34;
     xbar, n = 0, len(x)
 
@@ -250,7 +250,7 @@ def sample_variance(x: list):
 
     Raises 
     ------
-    1. **scrilla.errors.SampleSizeError**
+    1. `scrilla.errors.SampleSizeError`
     &#34;&#34;&#34;
 
     mu, sigma, n = sample_mean(x=x), 0, len(x)
@@ -283,8 +283,8 @@ def sample_covariance(x: list, y: list):
 
     Raises 
     ------
-    1. **scrilla.errors.SampleSizeError**
-        If `len(x) != len(y)` (samples of incomparable length) or `len(x) in [0,1]` (insufficient data/degrees of freedom), this error will be thrown.
+    1. `scrilla.errors.SampleSizeError`
+        If ``len(x) != len(y)`` (samples of incomparable length) or ``len(x) in [0,1]`` (insufficient data/degrees of freedom), this error will be thrown.
     &#34;&#34;&#34;
 
     if len(x) != len(y):
@@ -326,8 +326,8 @@ def simple_regression_beta(x: list, y: list):
 
     Raises 
     ------
-    1. **scrilla.errors.statistics.SampleSizeError**
-        If `len(x) != len(y)` (samples of incomparable length) or `len(x) &lt; 3` (insufficient data/degrees of freedom), this error will be thrown.
+    1. `scrilla.errors.statistics.SampleSizeError`
+        If ``len(x) != len(y)`` (samples of incomparable length) or ``len(x) &lt; 3`` (insufficient data/degrees of freedom), this error will be thrown.
     &#34;&#34;&#34;
 
     if len(x) != len(y):
@@ -355,8 +355,8 @@ def simple_regression_alpha(x: list, y: list):
 
     Raises 
     ------
-    1. **scrilla.errors.SampleSizeError**
-        If `len(x) != len(y)` (samples of incomparable length) or `len(x) &lt; 3` (insufficient data/degrees of freedom), this error will be thrown.
+    1. `scrilla.errors.SampleSizeError`
+        If ``len(x) != len(y)`` (samples of incomparable length) or ``len(x) &lt; 3`` (insufficient data/degrees of freedom), this error will be thrown.
     &#34;&#34;&#34;
 
     if len(x) != len(y):
@@ -570,9 +570,9 @@ The <em>y</em> sample of paired data (<em>x</em>, <em>y</em>). Must preserve ord
 </ol>
 <h2 id="raises">Raises</h2>
 <ol>
-<li><strong>scrilla.errors.SampleSizeError</strong>
+<li><code><a title="scrilla.errors.SampleSizeError" href="../errors.html#scrilla.errors.SampleSizeError">SampleSizeError</a></code> :
 If the sample sizes do not meet the requirements for estimation, this error will be thrown.</li>
-<li><strong>ValueError</strong>
+<li><strong>ValueError</strong> :
 If the denominator of the correlation coefficient becomes too small for floating point arithmetic, this error is thrown.</li>
 </ol>
 <p>.. todos ::
@@ -596,9 +596,9 @@ If the denominator of the correlation coefficient becomes too small for floating
 
     Raises 
     ------
-    1. **scrilla.errors.SampleSizeError**
+    1. `scrilla.errors.SampleSizeError` :
         If the sample sizes do not meet the requirements for estimation, this error will be thrown.
-    2. **ValueError**
+    2. **ValueError** :
         If the denominator of the correlation coefficient becomes too small for floating point arithmetic, this error is thrown.
 
     .. todos ::
@@ -655,7 +655,7 @@ The <em>y</em> sample of paired data (<em>x</em>, <em>y</em>). Must preserve ord
 </ol>
 <h2 id="raises">Raises</h2>
 <ol>
-<li><strong>scrilla.errors.SampleSizeError</strong>
+<li><code><a title="scrilla.errors.SampleSizeError" href="../errors.html#scrilla.errors.SampleSizeError">SampleSizeError</a></code>
 If <code>len(x) != len(y)</code> (samples of incomparable length) or <code>len(x) in [0,1]</code> (insufficient data/degrees of freedom), this error will be thrown.</li>
 </ol></div>
 <details class="source">
@@ -673,8 +673,8 @@ If <code>len(x) != len(y)</code> (samples of incomparable length) or <code>len(x
 
     Raises 
     ------
-    1. **scrilla.errors.SampleSizeError**
-        If `len(x) != len(y)` (samples of incomparable length) or `len(x) in [0,1]` (insufficient data/degrees of freedom), this error will be thrown.
+    1. `scrilla.errors.SampleSizeError`
+        If ``len(x) != len(y)`` (samples of incomparable length) or ``len(x) in [0,1]`` (insufficient data/degrees of freedom), this error will be thrown.
     &#34;&#34;&#34;
 
     if len(x) != len(y):
@@ -707,7 +707,7 @@ List containing a sample of numerical data.</li>
 </ol>
 <h2 id="raises">Raises</h2>
 <ol>
-<li><strong>scrilla.errors.SampleSizeError</strong>
+<li><code><a title="scrilla.errors.SampleSizeError" href="../errors.html#scrilla.errors.SampleSizeError">SampleSizeError</a></code>
 If <code>len(x)==0</code>, this error will be thrown.</li>
 </ol></div>
 <details class="source">
@@ -727,8 +727,8 @@ If <code>len(x)==0</code>, this error will be thrown.</li>
 
     Raises 
     ------
-    1. **scrilla.errors.SampleSizeError**
-        If `len(x)==0`, this error will be thrown.
+    1. `scrilla.errors.SampleSizeError`
+        If ``len(x)==0``, this error will be thrown.
     &#34;&#34;&#34;
     xbar, n = 0, len(x)
 
@@ -802,7 +802,7 @@ List containing a sample of numerical data.</li>
 </ol>
 <h2 id="raises">Raises</h2>
 <ol>
-<li><strong>scrilla.errors.SampleSizeError</strong></li>
+<li><code><a title="scrilla.errors.SampleSizeError" href="../errors.html#scrilla.errors.SampleSizeError">SampleSizeError</a></code></li>
 </ol></div>
 <details class="source">
 <summary>
@@ -821,7 +821,7 @@ List containing a sample of numerical data.</li>
 
     Raises 
     ------
-    1. **scrilla.errors.SampleSizeError**
+    1. `scrilla.errors.SampleSizeError`
     &#34;&#34;&#34;
 
     mu, sigma, n = sample_mean(x=x), 0, len(x)
@@ -848,7 +848,7 @@ The <em>y</em> sample of paired data (<em>x</em>, <em>y</em>). Must preserve ord
 </ol>
 <h2 id="raises">Raises</h2>
 <ol>
-<li><strong>scrilla.errors.SampleSizeError</strong>
+<li><code><a title="scrilla.errors.SampleSizeError" href="../errors.html#scrilla.errors.SampleSizeError">SampleSizeError</a></code>
 If <code>len(x) != len(y)</code> (samples of incomparable length) or <code>len(x) &lt; 3</code> (insufficient data/degrees of freedom), this error will be thrown.</li>
 </ol></div>
 <details class="source">
@@ -866,8 +866,8 @@ If <code>len(x) != len(y)</code> (samples of incomparable length) or <code>len(x
 
     Raises 
     ------
-    1. **scrilla.errors.SampleSizeError**
-        If `len(x) != len(y)` (samples of incomparable length) or `len(x) &lt; 3` (insufficient data/degrees of freedom), this error will be thrown.
+    1. `scrilla.errors.SampleSizeError`
+        If ``len(x) != len(y)`` (samples of incomparable length) or ``len(x) &lt; 3`` (insufficient data/degrees of freedom), this error will be thrown.
     &#34;&#34;&#34;
 
     if len(x) != len(y):
@@ -897,7 +897,7 @@ The <em>y</em> sample of paired data (<em>x</em>, <em>y</em>). Must preserve ord
 </ol>
 <h2 id="raises">Raises</h2>
 <ol>
-<li><strong>scrilla.errors.statistics.SampleSizeError</strong>
+<li><code>scrilla.errors.statistics.SampleSizeError</code>
 If <code>len(x) != len(y)</code> (samples of incomparable length) or <code>len(x) &lt; 3</code> (insufficient data/degrees of freedom), this error will be thrown.</li>
 </ol></div>
 <details class="source">
@@ -915,8 +915,8 @@ If <code>len(x) != len(y)</code> (samples of incomparable length) or <code>len(x
 
     Raises 
     ------
-    1. **scrilla.errors.statistics.SampleSizeError**
-        If `len(x) != len(y)` (samples of incomparable length) or `len(x) &lt; 3` (insufficient data/degrees of freedom), this error will be thrown.
+    1. `scrilla.errors.statistics.SampleSizeError`
+        If ``len(x) != len(y)`` (samples of incomparable length) or ``len(x) &lt; 3`` (insufficient data/degrees of freedom), this error will be thrown.
     &#34;&#34;&#34;
 
     if len(x) != len(y):

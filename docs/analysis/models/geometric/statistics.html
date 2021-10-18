@@ -916,7 +916,7 @@ def calculate_percentile_correlation(ticker_1, ticker_2, asset_type_1=None, asse
             (
                 multivariate_normal.cdf(x=[sample_percentiles_1[i], sample_percentiles_2[i]],
                                         mean=params[:2],
-                                        cov=cov_matrix(params[2:5]),allow_singular=True) - percentile
+                                        cov=cov_matrix(params[2:5]), allow_singular=True) - percentile
             ) for i, percentile in enumerate(percentiles)
         ]
 
@@ -924,17 +924,21 @@ def calculate_percentile_correlation(ticker_1, ticker_2, asset_type_1=None, asse
     vol_2_guess = (sample_percentiles_2[3]-sample_percentiles_2[1])/2
     vol_1_bounds = max(sample_of_returns_1) - min(sample_of_returns_1)
     vol_2_bounds = max(sample_of_returns_2) - min(sample_of_returns_2)
-    cov_bounds = ( -1*sqrt(vol_1_bounds*vol_2_bounds), sqrt(vol_1_bounds*vol_2_bounds) )
+    cov_bounds = (-1*sqrt(vol_1_bounds*vol_2_bounds),
+                  sqrt(vol_1_bounds*vol_2_bounds))
     guess = (
         sample_percentiles_1[2], sample_percentiles_2[2], vol_1_guess, vol_2_guess, 0)
 
-    lower_bound = (sample_percentiles_1[0], sample_percentiles_2[0], 0, 0, cov_bounds[0])
-    upper_bound = (sample_percentiles_1[4], sample_percentiles_2[4], vol_1_bounds, vol_2_bounds, cov_bounds[1])
+    lower_bound = (
+        sample_percentiles_1[0], sample_percentiles_2[0], 0, 0, cov_bounds[0])
+    upper_bound = (sample_percentiles_1[4], sample_percentiles_2[4],
+                   vol_1_bounds, vol_2_bounds, cov_bounds[1])
     print(&#39;guess&#39;, guess)
     print(&#39;lower bound&#39;, lower_bound)
     print(&#39;upper bound&#39;, upper_bound)
-    parameters = least_squares(objective, guess, bounds=(lower_bound, upper_bound))
-    
+    parameters = least_squares(
+        objective, guess, bounds=(lower_bound, upper_bound))
+
     print(parameters)
     result = {keys.keys[&#39;STATISTICS&#39;][&#39;correlation&#39;]:  parameters[4]}
 
@@ -2731,7 +2735,7 @@ Dictionary containing the correlation of <code>ticker_1</code> and <code>ticker_
             (
                 multivariate_normal.cdf(x=[sample_percentiles_1[i], sample_percentiles_2[i]],
                                         mean=params[:2],
-                                        cov=cov_matrix(params[2:5]),allow_singular=True) - percentile
+                                        cov=cov_matrix(params[2:5]), allow_singular=True) - percentile
             ) for i, percentile in enumerate(percentiles)
         ]
 
@@ -2739,17 +2743,21 @@ Dictionary containing the correlation of <code>ticker_1</code> and <code>ticker_
     vol_2_guess = (sample_percentiles_2[3]-sample_percentiles_2[1])/2
     vol_1_bounds = max(sample_of_returns_1) - min(sample_of_returns_1)
     vol_2_bounds = max(sample_of_returns_2) - min(sample_of_returns_2)
-    cov_bounds = ( -1*sqrt(vol_1_bounds*vol_2_bounds), sqrt(vol_1_bounds*vol_2_bounds) )
+    cov_bounds = (-1*sqrt(vol_1_bounds*vol_2_bounds),
+                  sqrt(vol_1_bounds*vol_2_bounds))
     guess = (
         sample_percentiles_1[2], sample_percentiles_2[2], vol_1_guess, vol_2_guess, 0)
 
-    lower_bound = (sample_percentiles_1[0], sample_percentiles_2[0], 0, 0, cov_bounds[0])
-    upper_bound = (sample_percentiles_1[4], sample_percentiles_2[4], vol_1_bounds, vol_2_bounds, cov_bounds[1])
+    lower_bound = (
+        sample_percentiles_1[0], sample_percentiles_2[0], 0, 0, cov_bounds[0])
+    upper_bound = (sample_percentiles_1[4], sample_percentiles_2[4],
+                   vol_1_bounds, vol_2_bounds, cov_bounds[1])
     print(&#39;guess&#39;, guess)
     print(&#39;lower bound&#39;, lower_bound)
     print(&#39;upper bound&#39;, upper_bound)
-    parameters = least_squares(objective, guess, bounds=(lower_bound, upper_bound))
-    
+    parameters = least_squares(
+        objective, guess, bounds=(lower_bound, upper_bound))
+
     print(parameters)
     result = {keys.keys[&#39;STATISTICS&#39;][&#39;correlation&#39;]:  parameters[4]}
 

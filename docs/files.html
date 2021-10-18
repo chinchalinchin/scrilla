@@ -152,11 +152,11 @@ def parse_csv_response_column(column: int, url: str, firstRowHeader: str = None,
 
 def init_static_data():
     &#34;&#34;&#34;
-    Initializes the three static files defined in  settings: `STATIC_TICKERS_FILE`, `STATIC_CRYPTO_FILE` and `STATIC_ECON_FILE`. The data for these files is retrieved from the service managers. While this function blurs the lines between file management and service management, the function has been included in the `files.py` module rather than the `services.py` module due the unique response types of static metadata. All metadata is returned as a csv or zipped csvs. These responses require specialized functions. Moreover, these files should only be initialized the first time the application executes. Subsequent executions will refer to their cached versions residing in the local filesytems. 
+    Initializes the three static files defined in  settings: `scrilla.settings.STATIC_TICKERS_FILE`, `scrilla.settings.STATIC_CRYPTO_FILE` and `scrilla.settings.STATIC_ECON_FILE`. The data for these files is retrieved from the service managers. While this function blurs the lines between file management and service management, the function has been included in the `files.py` module rather than the `services.py` module due the unique response types of static metadata. All metadata is returned as a csv or zipped csvs. These responses require specialized functions. Moreover, these files should only be initialized the first time the application executes. Subsequent executions will refer to their cached versions residing in the local filesytems. 
 
     Raises
     ------
-    1. `scrilla.errors.ConfigurationError`
+    1. `scrilla.errors.ConfigurationError` :
         If `scrilla.settings.PRICE_MANAGER` and `scrilla.settings.STAT_MANAGER` are not configured or are incorrectly configured through the environment variables `scrilla.settings.PRICE_MANAGER` and `scrilla.settings.STAT_MANAGER`, the function will throw this error.
     &#34;&#34;&#34;
     global static_tickers_blob
@@ -720,10 +720,10 @@ A string corresponding to the type of static data to be retrieved. The types can
 </code></dt>
 <dd>
 <div class="desc"><p>Initializes the three static files defined in
-settings: <code>STATIC_TICKERS_FILE</code>, <code>STATIC_CRYPTO_FILE</code> and <code>STATIC_ECON_FILE</code>. The data for these files is retrieved from the service managers. While this function blurs the lines between file management and service management, the function has been included in the <code>files.py</code> module rather than the <code>services.py</code> module due the unique response types of static metadata. All metadata is returned as a csv or zipped csvs. These responses require specialized functions. Moreover, these files should only be initialized the first time the application executes. Subsequent executions will refer to their cached versions residing in the local filesytems. </p>
+settings: <code><a title="scrilla.settings.STATIC_TICKERS_FILE" href="settings.html#scrilla.settings.STATIC_TICKERS_FILE">STATIC_TICKERS_FILE</a></code>, <code><a title="scrilla.settings.STATIC_CRYPTO_FILE" href="settings.html#scrilla.settings.STATIC_CRYPTO_FILE">STATIC_CRYPTO_FILE</a></code> and <code><a title="scrilla.settings.STATIC_ECON_FILE" href="settings.html#scrilla.settings.STATIC_ECON_FILE">STATIC_ECON_FILE</a></code>. The data for these files is retrieved from the service managers. While this function blurs the lines between file management and service management, the function has been included in the <code>files.py</code> module rather than the <code>services.py</code> module due the unique response types of static metadata. All metadata is returned as a csv or zipped csvs. These responses require specialized functions. Moreover, these files should only be initialized the first time the application executes. Subsequent executions will refer to their cached versions residing in the local filesytems. </p>
 <h2 id="raises">Raises</h2>
 <ol>
-<li><code><a title="scrilla.errors.ConfigurationError" href="errors.html#scrilla.errors.ConfigurationError">ConfigurationError</a></code>
+<li><code><a title="scrilla.errors.ConfigurationError" href="errors.html#scrilla.errors.ConfigurationError">ConfigurationError</a></code> :
 If <code><a title="scrilla.settings.PRICE_MANAGER" href="settings.html#scrilla.settings.PRICE_MANAGER">PRICE_MANAGER</a></code> and <code><a title="scrilla.settings.STAT_MANAGER" href="settings.html#scrilla.settings.STAT_MANAGER">STAT_MANAGER</a></code> are not configured or are incorrectly configured through the environment variables <code><a title="scrilla.settings.PRICE_MANAGER" href="settings.html#scrilla.settings.PRICE_MANAGER">PRICE_MANAGER</a></code> and <code><a title="scrilla.settings.STAT_MANAGER" href="settings.html#scrilla.settings.STAT_MANAGER">STAT_MANAGER</a></code>, the function will throw this error.</li>
 </ol></div>
 <details class="source">
@@ -732,11 +732,11 @@ If <code><a title="scrilla.settings.PRICE_MANAGER" href="settings.html#scrilla.s
 </summary>
 <pre><code class="python">def init_static_data():
     &#34;&#34;&#34;
-    Initializes the three static files defined in  settings: `STATIC_TICKERS_FILE`, `STATIC_CRYPTO_FILE` and `STATIC_ECON_FILE`. The data for these files is retrieved from the service managers. While this function blurs the lines between file management and service management, the function has been included in the `files.py` module rather than the `services.py` module due the unique response types of static metadata. All metadata is returned as a csv or zipped csvs. These responses require specialized functions. Moreover, these files should only be initialized the first time the application executes. Subsequent executions will refer to their cached versions residing in the local filesytems. 
+    Initializes the three static files defined in  settings: `scrilla.settings.STATIC_TICKERS_FILE`, `scrilla.settings.STATIC_CRYPTO_FILE` and `scrilla.settings.STATIC_ECON_FILE`. The data for these files is retrieved from the service managers. While this function blurs the lines between file management and service management, the function has been included in the `files.py` module rather than the `services.py` module due the unique response types of static metadata. All metadata is returned as a csv or zipped csvs. These responses require specialized functions. Moreover, these files should only be initialized the first time the application executes. Subsequent executions will refer to their cached versions residing in the local filesytems. 
 
     Raises
     ------
-    1. `scrilla.errors.ConfigurationError`
+    1. `scrilla.errors.ConfigurationError` :
         If `scrilla.settings.PRICE_MANAGER` and `scrilla.settings.STAT_MANAGER` are not configured or are incorrectly configured through the environment variables `scrilla.settings.PRICE_MANAGER` and `scrilla.settings.STAT_MANAGER`, the function will throw this error.
     &#34;&#34;&#34;
     global static_tickers_blob

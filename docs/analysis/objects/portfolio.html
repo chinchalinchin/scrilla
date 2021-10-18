@@ -234,8 +234,8 @@ class Portfolio:
 
         Parameters
         ----------
-        1. **x**: list
-            Vector representing the allocation of each asset in the portfolio. Must be preserve the order of `portfolio.tickers`, i.e. each element&#39;s index should map to each element of the `portfolio.tickers`&#39;s list.
+        1. **x**: ``list``
+            Vector representing the allocation of each asset in the portfolio. Must be preserve the order of `self.tickers`, i.e. each element&#39;s index should map to each element of the `self.tickers`&#39;s list.
         2: **time**: ``float``
             time horizon (in years) of the value at risk, i.e. the period of time into the future at which the value at risk is being calculated 
         3. **prob**: ``float``
@@ -255,7 +255,7 @@ class Portfolio:
         ----------
         1. **x**: ``list``
             an array of decimals representing percentage allocations of the portfolio. Must preserve order with `self.tickers`.
-        2.**time**: ``float``
+        2. **time**: ``float``
             time horizon (in years) of the value at risk, i.e. the period of time into the future at which the value at risk is being calculated.
         3. **prob**: ``float``
             desired probability of loss.
@@ -365,7 +365,7 @@ Optional: Rather than use correlations calculated from historical data, this arg
 <li><em>Portfolio</em>(<code>sample_prices</code>) -&gt; <code>start_date</code> and <code>end_date</code> are ignored and <code>sample_prices</code> are used for statistical calculations.</li>
 <li><em>Portfolio</em>(<code>risk_profile</code>) -&gt; <code>start_date</code>, <code>end_date</code> and <code>sample_prices</code> are ignored and the statistics in <code>risk_profile</code> are used istead of manual calculations.
 *The priority hierarchy is as follows : <code>risk_profile</code> &gt; <code>sample_prices</code> &gt; (<code>start_date</code>, <code>end_date</code>).
-If no arguments are provided to the constructor at all, the portfolio will default to the <code>scrilla.settings.DEFAULT_ANALYSIS_PERIOD</code> variable configured by the corresponding environment variable. If the environment variable is not set, this value will default to the last 100 trading days.</li>
+If no arguments are provided to the constructor at all, the portfolio will default to the <code><a title="scrilla.settings.DEFAULT_ANALYSIS_PERIOD" href="../../settings.html#scrilla.settings.DEFAULT_ANALYSIS_PERIOD">DEFAULT_ANALYSIS_PERIOD</a></code> variable configured by the corresponding environment variable. If the environment variable is not set, this value will default to the last 100 trading days.</li>
 </ol>
 </li>
 <li>The <code>asset_return_functions</code> and <code>asset_volatility_functions</code> can be understood as the drift and noise functions for a random stochastic process,</li>
@@ -552,8 +552,8 @@ If no arguments are provided to the constructor at all, the portfolio will defau
 
         Parameters
         ----------
-        1. **x**: list
-            Vector representing the allocation of each asset in the portfolio. Must be preserve the order of `portfolio.tickers`, i.e. each element&#39;s index should map to each element of the `portfolio.tickers`&#39;s list.
+        1. **x**: ``list``
+            Vector representing the allocation of each asset in the portfolio. Must be preserve the order of `self.tickers`, i.e. each element&#39;s index should map to each element of the `self.tickers`&#39;s list.
         2: **time**: ``float``
             time horizon (in years) of the value at risk, i.e. the period of time into the future at which the value at risk is being calculated 
         3. **prob**: ``float``
@@ -573,7 +573,7 @@ If no arguments are provided to the constructor at all, the portfolio will defau
         ----------
         1. **x**: ``list``
             an array of decimals representing percentage allocations of the portfolio. Must preserve order with `self.tickers`.
-        2.**time**: ``float``
+        2. **time**: ``float``
             time horizon (in years) of the value at risk, i.e. the period of time into the future at which the value at risk is being calculated.
         3. **prob**: ``float``
             desired probability of loss.
@@ -766,8 +766,8 @@ def get_constraint(x):
 <h2 id="parameters">Parameters</h2>
 <ol>
 <li><strong>x</strong>: <code>list</code>
-an array of decimals representing percentage allocations of the portfolio. Must preserve order with <code>self.tickers</code>.
-2.<strong>time</strong>: <code>float</code>
+an array of decimals representing percentage allocations of the portfolio. Must preserve order with <code>self.tickers</code>.</li>
+<li><strong>time</strong>: <code>float</code>
 time horizon (in years) of the value at risk, i.e. the period of time into the future at which the value at risk is being calculated.</li>
 <li><strong>prob</strong>: <code>float</code>
 desired probability of loss.</li>
@@ -784,7 +784,7 @@ desired probability of loss.</li>
     ----------
     1. **x**: ``list``
         an array of decimals representing percentage allocations of the portfolio. Must preserve order with `self.tickers`.
-    2.**time**: ``float``
+    2. **time**: ``float``
         time horizon (in years) of the value at risk, i.e. the period of time into the future at which the value at risk is being calculated.
     3. **prob**: ``float``
         desired probability of loss.
@@ -849,8 +849,8 @@ desired probability of loss.</li>
 <ol>
 <li>
 <dl>
-<dt><strong>x</strong>: list</dt>
-<dt>Vector representing the allocation of each asset in the portfolio. Must be preserve the order of <code>portfolio.tickers</code>, i.e. each element's index should map to each element of the <code>portfolio.tickers</code>'s list.</dt>
+<dt><strong>x</strong>: <code>list</code></dt>
+<dt>Vector representing the allocation of each asset in the portfolio. Must be preserve the order of <code>self.tickers</code>, i.e. each element's index should map to each element of the <code>self.tickers</code>'s list.</dt>
 <dt><strong><code>2</code></strong> :&ensp;`<strong>time</strong>: ``float```</dt>
 <dd>time horizon (in years) of the value at risk, i.e. the period of time into the future at which the value at risk is being calculated</dd>
 </dl>
@@ -870,8 +870,8 @@ percentile desired</p>
 
     Parameters
     ----------
-    1. **x**: list
-        Vector representing the allocation of each asset in the portfolio. Must be preserve the order of `portfolio.tickers`, i.e. each element&#39;s index should map to each element of the `portfolio.tickers`&#39;s list.
+    1. **x**: ``list``
+        Vector representing the allocation of each asset in the portfolio. Must be preserve the order of `self.tickers`, i.e. each element&#39;s index should map to each element of the `self.tickers`&#39;s list.
     2: **time**: ``float``
         time horizon (in years) of the value at risk, i.e. the period of time into the future at which the value at risk is being calculated 
     3. **prob**: ``float``

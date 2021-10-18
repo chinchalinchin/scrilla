@@ -88,8 +88,10 @@ CACHE_SQLITE_FILE = os.environ.setdefault(
 &#34;&#34;&#34;Location of the SQLite database flat file; Configured by environment variable **SQLITE_FILE***&#34;&#34;&#34;
 
 TEMP_DIR = os.path.join(APP_DIR, &#39;data&#39;, &#39;tmp&#39;)
+&#34;&#34;&#34;Buffer directory for graphics generated while using the GUI.&#34;&#34;&#34;
 
 ASSET_DIR = os.path.join(APP_DIR, &#39;data&#39;, &#39;assets&#39;)
+&#34;&#34;&#34;Directory containing application assets such as icons, HTML templates, jpegs, etc.&#34;&#34;&#34;
 
 STATIC_DIR = os.path.join(APP_DIR, &#39;data&#39;, &#39;static&#39;)
 &#34;&#34;&#34;Directory containg static data, such as ticker symbols, statistic symbols, etc.&#34;&#34;&#34;
@@ -128,10 +130,26 @@ GUI_TEMPLATE_DIR = os.path.join(APP_DIR, &#39;gui&#39;, &#39;templates&#39;)
 GUI_DARK_MODE = os.environ.setdefault(&#39;DARK_MODE&#39;, &#39;true&#39;).lower() == &#39;true&#39;
 &#34;&#34;&#34;Flag determining the theme of the GUI, i.e. light mode or dark mode.&#34;&#34;&#34;
 
-# GUI CONFIGURATION
+# OPTIONAL USER CONFIGURATION
+GUI_WIDTH = None
+&#34;&#34;&#34;Width of main Graphical User Interface window; Configured by environment variable of same name, **GUI_WIDTH**&#34;&#34;&#34;
+GUI_HEIGHT =  None
+&#34;&#34;&#34;Height of main Graphical User Interface window; Configured by environment variable of same name, **GUI_HEIGHT**.&#34;&#34;&#34;
+FRONTIER_STEPS = None
+&#34;&#34;&#34;Number of data points used to trace out the efficient frontier; Configured by environment variable of same name, **FRONTIER_STEPS** &#34;&#34;&#34;
+MA_1_PERIOD = None
+&#34;&#34;&#34;Number of data points in first moving average period; Configured by environment variable, **MA_1**&#34;&#34;&#34;
+MA_2_PERIOD = None
+&#34;&#34;&#34;Number of data points in second moving average period; Configured by environment variable, **MA_2**&#34;&#34;&#34;
+MA_3_PERIOD = None
+&#34;&#34;&#34;Number of data points in third moving average period; Configured by environment variable, **MA_3***&#34;&#34;&#34;
+ITO_STEPS = None
+&#34;&#34;&#34;Number of iterations used to approximate an Ito integral; Configured by environment variable of same name, **ITO_STEPS**&#34;&#34;&#34;
+DEFAULT_ANALYSIS_PERIOD = None
+&#34;&#34;&#34;Number of days used in a historical sample, if no date range is specified; Configured by environment variable of same name, **DEFAULT_ANALYSIS_PERIOD**&#34;&#34;&#34;
+
 try:
     GUI_WIDTH = int(os.environ.setdefault(&#39;GUI_WIDTH&#39;, &#39;1024&#39;))
-    &#34;&#34;&#34;Width of main Graphical User Interface window; Configured by environment variable of same name, **GUI_WIDTH**&#34;&#34;&#34;
 except (ValueError, TypeError) as ParseError:
     logger.debug(
         &#39;Failed to parse GUI_WIDTH from environment. Setting to default value of 1024.&#39;)
@@ -140,7 +158,6 @@ except (ValueError, TypeError) as ParseError:
 
 try:
     GUI_HEIGHT = int(os.environ.setdefault(&#39;GUI_HEIGHT&#39;, &#39;768&#39;))
-    &#34;&#34;&#34;Height of main Graphical User Interface window; Configured by environment variable of same name, **GUI_HEIGHT**.&#34;&#34;&#34;
 except (ValueError, TypeError) as ParseError:
     logger.debug(
         &#39;Failed to parse GUI_HEIGHT from enviroment. Setting to default value of 768.&#39;)
@@ -150,7 +167,6 @@ except (ValueError, TypeError) as ParseError:
 # FINANCIAL ALGORITHM CONFIGURATION
 try:
     FRONTIER_STEPS = int(os.environ.setdefault(&#39;FRONTIER_STEPS&#39;, &#39;5&#39;))
-    &#34;&#34;&#34;Number of data points used to trace out the efficient frontier; Configured by environment variable of same name, **FRONTIER_STEPS** &#34;&#34;&#34;
 except (ValueError, TypeError) as ParseError:
     logger.debug(
         &#39;Failed to parse FRONTIER_STEPS from enviroment. Setting to default value of 5.&#39;)
@@ -159,7 +175,6 @@ except (ValueError, TypeError) as ParseError:
 
 try:
     MA_1_PERIOD = int(os.environ.setdefault(&#39;MA_1&#39;, &#39;20&#39;))
-    &#34;&#34;&#34;Number of data points in first moving average period; Configured by environment variable, **MA_1**&#34;&#34;&#34;
 except (ValueError, TypeError) as ParseError:
     logger.debug(
         &#39;Failed to parse MA_1 from environment. Setting to default value of 20.&#39;)
@@ -168,7 +183,6 @@ except (ValueError, TypeError) as ParseError:
 
 try:
     MA_2_PERIOD = int(os.environ.setdefault(&#39;MA_2&#39;, &#39;60&#39;))
-    &#34;&#34;&#34;Number of data points in second moving average period; Configured by environment variable, **MA_2**&#34;&#34;&#34;
 except (ValueError, TypeError) as ParseError:
     logger.debug(
         &#39;Failed to parse MA_2 from environment. Setting to default value of 60.&#39;)
@@ -177,7 +191,6 @@ except (ValueError, TypeError) as ParseError:
 
 try:
     MA_3_PERIOD = int(os.environ.setdefault(&#39;MA_3&#39;, &#39;100&#39;))
-    &#34;&#34;&#34;Number of data points in third moving average period; Configured by environment variable, **MA_3***&#34;&#34;&#34;
 except (ValueError, TypeError) as ParseError:
     logger.debug(
         &#39;Failed to parse MA_3 from environment. Setting to default value of 100.&#39;)
@@ -186,7 +199,6 @@ except (ValueError, TypeError) as ParseError:
 
 try:
     ITO_STEPS = int(os.environ.setdefault(&#39;ITO_STEPS&#39;, &#39;10000&#39;))
-    &#34;&#34;&#34;Number of iterations used to approximate an Ito integral; Configured by environment variable of same name, **ITO_STEPS**&#34;&#34;&#34;
 except (ValueError, TypeError) as ParseError:
     logger.debug(
         &#39;Failed to parse ITO_STEPS from environment. Setting to default of 10000.&#39;)
@@ -196,7 +208,6 @@ except (ValueError, TypeError) as ParseError:
 try:
     DEFAULT_ANALYSIS_PERIOD = int(
         os.environ.setdefault(&#39;DEFAULT_ANALYSIS_PERIOD&#39;, &#39;100&#39;))
-    &#34;&#34;&#34;Number of days used in a historical sample, if no date range is specified; Configured by environment variable of same name, **DEFAULT_ANALYSIS_PERIOD**&#34;&#34;&#34;
 except (ValueError, TypeError) as ParseError:
     logger.debug(
         &#39;Failed to parse DEFAULT_ANALYSIS_PERIOD from environment. Setting to default of 100.&#39;)
@@ -221,6 +232,9 @@ ESTIMATION_METHOD = os.environ.setdefault(
 PRICE_MANAGER = os.environ.setdefault(&#39;PRICE_MANAGER&#39;, &#39;alpha_vantage&#39;)
 &#34;&#34;&#34;Determines the service used to retrieve price data&#34;&#34;&#34;
 
+AV_KEY = None
+&#34;&#34;&#34;API Key used to query *AlphaVantage* service.&#34;&#34;&#34;
+
 # ALPHAVANTAGE CONFIGURATION
 if PRICE_MANAGER == &#39;alpha_vantage&#39;:
     AV_URL = os.environ.setdefault(
@@ -228,8 +242,7 @@ if PRICE_MANAGER == &#39;alpha_vantage&#39;:
     AV_CRYPTO_LIST = os.environ.setdefault(
         &#39;ALPHA_VANTAGE_CRYPTO_META_URL&#39;, &#39;https://www.alphavantage.co/digital_currency_list/&#39;)
 
-    AV_KEY = os.environ.setdefault(&#39;ALPHA_VANTAGE_KEY&#39;, &#39;&#39;)
-    &#34;&#34;&#34;API Key used to query AlphaVantage service.&#34;&#34;&#34;
+    AV_KEY = os.environ.setdefault(&#39;ALPHA_VANTAGE_KEY&#39;, None)
 
     if not AV_KEY:
         keystore = os.path.join(COMMON_DIR, f&#39;ALPHA_VANTAGE_KEY.{FILE_EXT}&#39;)
@@ -243,6 +256,9 @@ if PRICE_MANAGER == &#39;alpha_vantage&#39;:
 STAT_MANAGER = os.environ.setdefault(&#39;STAT_MANAGER&#39;, &#39;quandl&#39;)
 &#34;&#34;&#34;Determines the service used to retrieve statistics data&#34;&#34;&#34;
 
+Q_KEY = None
+&#34;&#34;&#34;API Key used to query *Quandl/Nasdaq* service&#34;&#34;&#34;
+
 # QUANDL CONFIGURAITON
 if STAT_MANAGER == &#34;quandl&#34;:
     Q_URL = os.environ.setdefault(
@@ -250,8 +266,7 @@ if STAT_MANAGER == &#34;quandl&#34;:
     Q_META_URL = os.environ.setdefault(
         &#39;QUANDL_META_URL&#39;, &#39;https://www.quandl.com/api/v3/databases&#39;)
 
-    Q_KEY = os.environ.setdefault(&#39;QUANDL_KEY&#39;, &#39;&#39;)
-    &#34;&#34;&#34;API Key used to query Quandl/Nasdaq Service&#34;&#34;&#34;
+    Q_KEY = os.environ.setdefault(&#39;QUANDL_KEY&#39;, None)
 
     if not Q_KEY:
         keystore = os.path.join(COMMON_DIR, f&#39;QUANDL_KEY.{FILE_EXT}&#39;)
@@ -265,12 +280,14 @@ if STAT_MANAGER == &#34;quandl&#34;:
 DIV_MANAGER = os.environ.setdefault(&#34;DIV_MANAGER&#34;, &#39;iex&#39;)
 &#34;&#34;&#34;Determines the service used to retrieve dividends data&#34;&#34;&#34;
 
+IEX_KEY = None
+&#34;&#34;&#34;API Key used to query IEX service&#34;&#34;&#34;
+
 if DIV_MANAGER == &#34;iex&#34;:
     IEX_URL = os.environ.setdefault(
         &#34;IEX_URL&#34;, &#39;https://cloud.iexapis.com/stable/stock&#39;)
 
-    IEX_KEY = os.environ.setdefault(&#34;IEX_KEY&#34;, &#39;&#39;)
-    &#34;&#34;&#34;API Key used to query IEX service&#34;&#34;&#34;
+    IEX_KEY = os.environ.setdefault(&#34;IEX_KEY&#34;, None)
 
     if not IEX_KEY:
         keystore = os.path.join(COMMON_DIR, f&#39;IEX_KEY.{FILE_EXT}&#39;)
@@ -341,6 +358,14 @@ def av_key() -&gt; str:
 <dd>
 <div class="desc"><p>Name of the application</p></div>
 </dd>
+<dt id="scrilla.settings.ASSET_DIR"><code class="name">var <span class="ident">ASSET_DIR</span></code></dt>
+<dd>
+<div class="desc"><p>Directory containing application assets such as icons, HTML templates, jpegs, etc.</p></div>
+</dd>
+<dt id="scrilla.settings.AV_KEY"><code class="name">var <span class="ident">AV_KEY</span></code></dt>
+<dd>
+<div class="desc"><p>API Key used to query <em>AlphaVantage</em> service.</p></div>
+</dd>
 <dt id="scrilla.settings.CACHE_DIR"><code class="name">var <span class="ident">CACHE_DIR</span></code></dt>
 <dd>
 <div class="desc"><p>Directory containing cached prices, statistics and calculations</p></div>
@@ -363,6 +388,10 @@ def av_key() -&gt; str:
 <dd>
 <div class="desc"><p>Location of file used to store watchlisted ticker symbols</p></div>
 </dd>
+<dt id="scrilla.settings.DEFAULT_ANALYSIS_PERIOD"><code class="name">var <span class="ident">DEFAULT_ANALYSIS_PERIOD</span></code></dt>
+<dd>
+<div class="desc"><p>Number of days used in a historical sample, if no date range is specified; Configured by environment variable of same name, <strong>DEFAULT_ANALYSIS_PERIOD</strong></p></div>
+</dd>
 <dt id="scrilla.settings.DIV_MANAGER"><code class="name">var <span class="ident">DIV_MANAGER</span></code></dt>
 <dd>
 <div class="desc"><p>Determines the service used to retrieve dividends data</p></div>
@@ -375,9 +404,17 @@ def av_key() -&gt; str:
 <dd>
 <div class="desc"><p>Extension used to save files; Configured by environment variable of the same name, <strong>FILE_EXT</strong></p></div>
 </dd>
+<dt id="scrilla.settings.FRONTIER_STEPS"><code class="name">var <span class="ident">FRONTIER_STEPS</span></code></dt>
+<dd>
+<div class="desc"><p>Number of data points used to trace out the efficient frontier; Configured by environment variable of same name, <strong>FRONTIER_STEPS</strong></p></div>
+</dd>
 <dt id="scrilla.settings.GUI_DARK_MODE"><code class="name">var <span class="ident">GUI_DARK_MODE</span></code></dt>
 <dd>
 <div class="desc"><p>Flag determining the theme of the GUI, i.e. light mode or dark mode.</p></div>
+</dd>
+<dt id="scrilla.settings.GUI_HEIGHT"><code class="name">var <span class="ident">GUI_HEIGHT</span></code></dt>
+<dd>
+<div class="desc"><p>Height of main Graphical User Interface window; Configured by environment variable of same name, <strong>GUI_HEIGHT</strong>.</p></div>
 </dd>
 <dt id="scrilla.settings.GUI_ICON_FILE"><code class="name">var <span class="ident">GUI_ICON_FILE</span></code></dt>
 <dd>
@@ -395,9 +432,21 @@ def av_key() -&gt; str:
 <dd>
 <div class="desc"><p>Location of the color schemes used to style components</p></div>
 </dd>
+<dt id="scrilla.settings.GUI_WIDTH"><code class="name">var <span class="ident">GUI_WIDTH</span></code></dt>
+<dd>
+<div class="desc"><p>Width of main Graphical User Interface window; Configured by environment variable of same name, <strong>GUI_WIDTH</strong></p></div>
+</dd>
+<dt id="scrilla.settings.IEX_KEY"><code class="name">var <span class="ident">IEX_KEY</span></code></dt>
+<dd>
+<div class="desc"><p>API Key used to query IEX service</p></div>
+</dd>
 <dt id="scrilla.settings.IMG_EXT"><code class="name">var <span class="ident">IMG_EXT</span></code></dt>
 <dd>
 <div class="desc"><p>Extension used to saved images; Configured by environment variable of the same name, <strong>IMG_EXT</strong></p></div>
+</dd>
+<dt id="scrilla.settings.ITO_STEPS"><code class="name">var <span class="ident">ITO_STEPS</span></code></dt>
+<dd>
+<div class="desc"><p>Number of iterations used to approximate an Ito integral; Configured by environment variable of same name, <strong>ITO_STEPS</strong></p></div>
 </dd>
 <dt id="scrilla.settings.LOG_LEVEL"><code class="name">var <span class="ident">LOG_LEVEL</span></code></dt>
 <dd>
@@ -406,6 +455,18 @@ def av_key() -&gt; str:
 <dt id="scrilla.settings.MARKET_PROXY"><code class="name">var <span class="ident">MARKET_PROXY</span></code></dt>
 <dd>
 <div class="desc"><p>Ticker symbol used as a proxy for the overall market rate of return</p></div>
+</dd>
+<dt id="scrilla.settings.MA_1_PERIOD"><code class="name">var <span class="ident">MA_1_PERIOD</span></code></dt>
+<dd>
+<div class="desc"><p>Number of data points in first moving average period; Configured by environment variable, <strong>MA_1</strong></p></div>
+</dd>
+<dt id="scrilla.settings.MA_2_PERIOD"><code class="name">var <span class="ident">MA_2_PERIOD</span></code></dt>
+<dd>
+<div class="desc"><p>Number of data points in second moving average period; Configured by environment variable, <strong>MA_2</strong></p></div>
+</dd>
+<dt id="scrilla.settings.MA_3_PERIOD"><code class="name">var <span class="ident">MA_3_PERIOD</span></code></dt>
+<dd>
+<div class="desc"><p>Number of data points in third moving average period; Configured by environment variable, <strong>MA_3</strong>*</p></div>
 </dd>
 <dt id="scrilla.settings.METADATA_FILE"><code class="name">var <span class="ident">METADATA_FILE</span></code></dt>
 <dd>
@@ -418,6 +479,10 @@ def av_key() -&gt; str:
 <dt id="scrilla.settings.PROJECT_DIR"><code class="name">var <span class="ident">PROJECT_DIR</span></code></dt>
 <dd>
 <div class="desc"><p>Folder containing the project source</p></div>
+</dd>
+<dt id="scrilla.settings.Q_KEY"><code class="name">var <span class="ident">Q_KEY</span></code></dt>
+<dd>
+<div class="desc"><p>API Key used to query <em>Quandl/Nasdaq</em> service</p></div>
 </dd>
 <dt id="scrilla.settings.RISK_FREE_RATE"><code class="name">var <span class="ident">RISK_FREE_RATE</span></code></dt>
 <dd>
@@ -443,6 +508,10 @@ def av_key() -&gt; str:
 <dd>
 <div class="desc"><p>Determines the service used to retrieve statistics data</p></div>
 </dd>
+<dt id="scrilla.settings.TEMP_DIR"><code class="name">var <span class="ident">TEMP_DIR</span></code></dt>
+<dd>
+<div class="desc"><p>Buffer directory for graphics generated while using the GUI.</p></div>
+</dd>
 </dl>
 </section>
 <section>
@@ -452,7 +521,7 @@ def av_key() -&gt; str:
 <span>def <span class="ident">av_key</span></span>(<span>) ‑> str</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Wraps access to the <code>scrilla.settings.AV_KEY</code> in an <code><a title="scrilla.settings.APIKeyError" href="#scrilla.settings.APIKeyError">APIKeyError</a></code>. Exception is thrown if <code>scrilla.settings.AV_KEY</code> cannot be parsed from the environment or the local data directory</p>
+<div class="desc"><p>Wraps access to the <code><a title="scrilla.settings.AV_KEY" href="#scrilla.settings.AV_KEY">AV_KEY</a></code> in an <code><a title="scrilla.settings.APIKeyError" href="#scrilla.settings.APIKeyError">APIKeyError</a></code>. Exception is thrown if <code><a title="scrilla.settings.AV_KEY" href="#scrilla.settings.AV_KEY">AV_KEY</a></code> cannot be parsed from the environment or the local data directory</p>
 <h2 id="raises">Raises</h2>
 <ol>
 <li><strong>scrilla.settings.APIKeyError</strong></li>
@@ -478,7 +547,7 @@ def av_key() -&gt; str:
 <span>def <span class="ident">iex_key</span></span>(<span>) ‑> str</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Wraps access to the <code>scrilla.settings.IEX_KEY</code> in an <code><a title="scrilla.settings.APIKeyError" href="#scrilla.settings.APIKeyError">APIKeyError</a></code>. Exception is thrown if <code>scrilla.settings.IEX_KEY</code> cannot be parsed from the environment or the local data directory</p>
+<div class="desc"><p>Wraps access to the <code><a title="scrilla.settings.IEX_KEY" href="#scrilla.settings.IEX_KEY">IEX_KEY</a></code> in an <code><a title="scrilla.settings.APIKeyError" href="#scrilla.settings.APIKeyError">APIKeyError</a></code>. Exception is thrown if <code><a title="scrilla.settings.IEX_KEY" href="#scrilla.settings.IEX_KEY">IEX_KEY</a></code> cannot be parsed from the environment or the local data directory</p>
 <h2 id="raises">Raises</h2>
 <ol>
 <li><strong>scrilla.settings.APIKeyError</strong></li>
@@ -504,7 +573,7 @@ def av_key() -&gt; str:
 <span>def <span class="ident">q_key</span></span>(<span>) ‑> str</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Wraps access to the <code>scrilla.settings.Q_KEY</code> in an <code><a title="scrilla.settings.APIKeyError" href="#scrilla.settings.APIKeyError">APIKeyError</a></code>. Exception is thrown if <code>scrilla.settings.Q_KEY</code> cannot be parsed from the environment or the local data directory.</p>
+<div class="desc"><p>Wraps access to the <code><a title="scrilla.settings.Q_KEY" href="#scrilla.settings.Q_KEY">Q_KEY</a></code> in an <code><a title="scrilla.settings.APIKeyError" href="#scrilla.settings.APIKeyError">APIKeyError</a></code>. Exception is thrown if <code><a title="scrilla.settings.Q_KEY" href="#scrilla.settings.Q_KEY">Q_KEY</a></code> cannot be parsed from the environment or the local data directory.</p>
 <h2 id="raises">Raises</h2>
 <ol>
 <li><strong>scrilla.settings.APIKeyError</strong></li>
@@ -570,30 +639,43 @@ def av_key() -&gt; str:
 <li><code><a title="scrilla.settings.APP_DIR" href="#scrilla.settings.APP_DIR">APP_DIR</a></code></li>
 <li><code><a title="scrilla.settings.APP_ENV" href="#scrilla.settings.APP_ENV">APP_ENV</a></code></li>
 <li><code><a title="scrilla.settings.APP_NAME" href="#scrilla.settings.APP_NAME">APP_NAME</a></code></li>
+<li><code><a title="scrilla.settings.ASSET_DIR" href="#scrilla.settings.ASSET_DIR">ASSET_DIR</a></code></li>
+<li><code><a title="scrilla.settings.AV_KEY" href="#scrilla.settings.AV_KEY">AV_KEY</a></code></li>
 <li><code><a title="scrilla.settings.CACHE_DIR" href="#scrilla.settings.CACHE_DIR">CACHE_DIR</a></code></li>
 <li><code><a title="scrilla.settings.CACHE_SQLITE_FILE" href="#scrilla.settings.CACHE_SQLITE_FILE">CACHE_SQLITE_FILE</a></code></li>
 <li><code><a title="scrilla.settings.COMMON_DIR" href="#scrilla.settings.COMMON_DIR">COMMON_DIR</a></code></li>
 <li><code><a title="scrilla.settings.COMMON_WATCHLIST_FILE" href="#scrilla.settings.COMMON_WATCHLIST_FILE">COMMON_WATCHLIST_FILE</a></code></li>
+<li><code><a title="scrilla.settings.DEFAULT_ANALYSIS_PERIOD" href="#scrilla.settings.DEFAULT_ANALYSIS_PERIOD">DEFAULT_ANALYSIS_PERIOD</a></code></li>
 <li><code><a title="scrilla.settings.DIV_MANAGER" href="#scrilla.settings.DIV_MANAGER">DIV_MANAGER</a></code></li>
 <li><code><a title="scrilla.settings.ESTIMATION_METHOD" href="#scrilla.settings.ESTIMATION_METHOD">ESTIMATION_METHOD</a></code></li>
 <li><code><a title="scrilla.settings.FILE_EXT" href="#scrilla.settings.FILE_EXT">FILE_EXT</a></code></li>
+<li><code><a title="scrilla.settings.FRONTIER_STEPS" href="#scrilla.settings.FRONTIER_STEPS">FRONTIER_STEPS</a></code></li>
 <li><code><a title="scrilla.settings.GUI_DARK_MODE" href="#scrilla.settings.GUI_DARK_MODE">GUI_DARK_MODE</a></code></li>
+<li><code><a title="scrilla.settings.GUI_HEIGHT" href="#scrilla.settings.GUI_HEIGHT">GUI_HEIGHT</a></code></li>
 <li><code><a title="scrilla.settings.GUI_ICON_FILE" href="#scrilla.settings.GUI_ICON_FILE">GUI_ICON_FILE</a></code></li>
 <li><code><a title="scrilla.settings.GUI_STYLESHEET_FILE" href="#scrilla.settings.GUI_STYLESHEET_FILE">GUI_STYLESHEET_FILE</a></code></li>
 <li><code><a title="scrilla.settings.GUI_TEMPLATE_DIR" href="#scrilla.settings.GUI_TEMPLATE_DIR">GUI_TEMPLATE_DIR</a></code></li>
 <li><code><a title="scrilla.settings.GUI_THEME_FILE" href="#scrilla.settings.GUI_THEME_FILE">GUI_THEME_FILE</a></code></li>
+<li><code><a title="scrilla.settings.GUI_WIDTH" href="#scrilla.settings.GUI_WIDTH">GUI_WIDTH</a></code></li>
+<li><code><a title="scrilla.settings.IEX_KEY" href="#scrilla.settings.IEX_KEY">IEX_KEY</a></code></li>
 <li><code><a title="scrilla.settings.IMG_EXT" href="#scrilla.settings.IMG_EXT">IMG_EXT</a></code></li>
+<li><code><a title="scrilla.settings.ITO_STEPS" href="#scrilla.settings.ITO_STEPS">ITO_STEPS</a></code></li>
 <li><code><a title="scrilla.settings.LOG_LEVEL" href="#scrilla.settings.LOG_LEVEL">LOG_LEVEL</a></code></li>
 <li><code><a title="scrilla.settings.MARKET_PROXY" href="#scrilla.settings.MARKET_PROXY">MARKET_PROXY</a></code></li>
+<li><code><a title="scrilla.settings.MA_1_PERIOD" href="#scrilla.settings.MA_1_PERIOD">MA_1_PERIOD</a></code></li>
+<li><code><a title="scrilla.settings.MA_2_PERIOD" href="#scrilla.settings.MA_2_PERIOD">MA_2_PERIOD</a></code></li>
+<li><code><a title="scrilla.settings.MA_3_PERIOD" href="#scrilla.settings.MA_3_PERIOD">MA_3_PERIOD</a></code></li>
 <li><code><a title="scrilla.settings.METADATA_FILE" href="#scrilla.settings.METADATA_FILE">METADATA_FILE</a></code></li>
 <li><code><a title="scrilla.settings.PRICE_MANAGER" href="#scrilla.settings.PRICE_MANAGER">PRICE_MANAGER</a></code></li>
 <li><code><a title="scrilla.settings.PROJECT_DIR" href="#scrilla.settings.PROJECT_DIR">PROJECT_DIR</a></code></li>
+<li><code><a title="scrilla.settings.Q_KEY" href="#scrilla.settings.Q_KEY">Q_KEY</a></code></li>
 <li><code><a title="scrilla.settings.RISK_FREE_RATE" href="#scrilla.settings.RISK_FREE_RATE">RISK_FREE_RATE</a></code></li>
 <li><code><a title="scrilla.settings.STATIC_CRYPTO_FILE" href="#scrilla.settings.STATIC_CRYPTO_FILE">STATIC_CRYPTO_FILE</a></code></li>
 <li><code><a title="scrilla.settings.STATIC_DIR" href="#scrilla.settings.STATIC_DIR">STATIC_DIR</a></code></li>
 <li><code><a title="scrilla.settings.STATIC_ECON_FILE" href="#scrilla.settings.STATIC_ECON_FILE">STATIC_ECON_FILE</a></code></li>
 <li><code><a title="scrilla.settings.STATIC_TICKERS_FILE" href="#scrilla.settings.STATIC_TICKERS_FILE">STATIC_TICKERS_FILE</a></code></li>
 <li><code><a title="scrilla.settings.STAT_MANAGER" href="#scrilla.settings.STAT_MANAGER">STAT_MANAGER</a></code></li>
+<li><code><a title="scrilla.settings.TEMP_DIR" href="#scrilla.settings.TEMP_DIR">TEMP_DIR</a></code></li>
 </ul>
 </li>
 <li><h3><a href="#header-functions">Functions</a></h3>
