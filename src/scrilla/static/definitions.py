@@ -308,8 +308,8 @@ GROUP_DICT = {
 """
 """
 
-ARG_META_DICT={
-    'groups': [ 'estimation_method' ]
+ARG_META_DICT = {
+    'groups': ['estimation_method']
 }
 
 # Every argument has four ways of being inputted: short-dash-long, long-dash-long, short-dash-short, long-dash-short
