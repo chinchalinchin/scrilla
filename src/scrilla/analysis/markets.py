@@ -160,7 +160,7 @@ def market_beta(ticker: str, start_date: Union[date, None] = None, end_date: Uni
     return beta
 
 
-def cost_of_equity(ticker: str, start_date: Union[datetime.date, None]=None, end_date: Union[datetime.date,None]=None, market_profile: Union[Dict[str, float],None]=None, market_correlation: Union[Dict[str,float], None]=None, method=settings.ESTIMATION_METHOD) -> float:
+def cost_of_equity(ticker: str, start_date: Union[datetime.date, None] = None, end_date: Union[datetime.date, None] = None, market_profile: Union[Dict[str, float], None] = None, market_correlation: Union[Dict[str, float], None] = None, method=settings.ESTIMATION_METHOD) -> float:
     """
     Returns the cost of equity of an asset as estimated by the Capital Asset Pricing Model, i.e. the product of the market premium and asset beta increased by the risk free rate.
 
@@ -201,7 +201,7 @@ def cost_of_equity(ticker: str, start_date: Union[datetime.date, None]=None, end
     return equity_cost
 
 
-def screen_for_discount(model: str=keys.keys['MODELS']['DDM'], discount_rate: float=None) -> Dict[str, Dict[str, float]]:
+def screen_for_discount(model: str = keys.keys['MODELS']['DDM'], discount_rate: float = None) -> Dict[str, Dict[str, float]]:
     """
     Screens the stocks saved under the user watchlist in the `scrilla.settings.COMMON_DIR` directory for discounts relative to the model inputted into the function.
 
