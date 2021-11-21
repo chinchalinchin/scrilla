@@ -102,10 +102,18 @@ class Portfolio:
         else:
             self.risk_free_rate = services.get_risk_free_rate()
 
+        if self.start_date is None or self.end_date is None:
+            self.init_dates()
+        
+        self.init_asset_types()
+
         self.calculate_stats()
 
-        # todo: calculate stats with lambda functions.
-    # Returns False if calculations fail
+    def init_dates(self):
+        pass
+
+    def init_asset_types():
+        pass
 
     def calculate_stats(self):
         self.mean_return = []
