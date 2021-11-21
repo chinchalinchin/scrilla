@@ -70,6 +70,35 @@ def test_univariate_normal_likelihood_probability_bounds(x):
     likelihood = math.exp(estimators.univariate_normal_likelihood_function([sample_mean, sample_variance], x))
     assert(likelihood > 0 and likelihood < 1 )
 
+@pytest.mark.parametrize("x", [( univariate_data[datum] ) for datum in univariate_data])
+def test_univariate_normal_likelihood_monotonicity(x):
+    sample_mean = estimators.sample_mean(x)
+    sample_variance = estimators.sample_variance(x)
+    likelihood_whole = math.exp(estimators.univariate_normal_likelihood_function([sample_mean, sample_variance], x))
+
+    sample_mean_truncated = estimators.sample_mean(x[:-2])
+    sample_variance_truncated = estimators.sample_variance(x[:-2])
+    likelihood_truncated = math.exp(estimators.univariate_normal_likelihood_function([sample_mean_truncated, sample_variance_truncated], x[:-2]))
+
+    # NOTE: 
+    #   Proposition
+    #       the event of the whole sample is a subset of the event of the truncated sample
+    # 
+    #   Notes
+    #       observing the sequence (1, 2, 3) is a subset of observing the sequence (1, 2)
+    #                                                                         e.g. (1, 2, 3)
+    #                                                                              (1, 2, 75),
+    #                                                                              (1, 2, -6), etc.
+    #
+    #       is this true? isn't observing two random elements from a sample a different type of thing than
+    #       observing three random elements? or can we say, the probability the third element is something
+    #       from the sample is 1, so the probability of the sequence (1, 2) is equal to the probability 
+    #       (1, 2, x) where x represents all possible values of the third element from the population?
+    #
+    #       does the equivalence of probability imply these two events are the same event? is the probability 
+    #       of all possible future events embedded in the probability of a sequence, if it is understood 
+    #       the sequence is generated identical random draws from the same population? 
+    assert(likelihood_truncated > likelihood_whole)
 
 @pytest.mark.parametrize("x,y", [( bivariate_data[datum] ) for datum in bivariate_data])
 def test_bivariate_normal_likelihood_probability_bounds(x,y):

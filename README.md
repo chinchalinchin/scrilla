@@ -48,31 +48,31 @@ The links below will take you to the registration pages for each API service Key
 
 Install the package with the <b>Python</b> package manager,
 
-```
+```shell
 pip install scrilla
 ``` 
 
 This will install a command line interface on your path under the name `scrilla`. Confirm your installation with with the `-version` flag,
 
-```
+```shell
 scrilla -version
 ```
 
 If you are on Windows, you may need to add your Python scripts bin to the $PATH. To keep the installation as minimal as possible, the base package does not include the GUI libraries. You can install the optional GUI dependency with,
 
-```
+```shell
 pip install scrilla[gui]
 ```
 
 Note, the GUI has a different CLI entrypoint, namely,
 
-```
+```shell
 scrilla-gui
 ```
 
 If you prefer, you can build from source. `git clone` the [repository](https://github.com/chinchalinchin/scrilla) and then from the root directory install the project dependencies and build the library,
 
-```
+```shell
 pip3 install -r requirements
 python3 -m build
 ```
@@ -103,7 +103,7 @@ You will need Python3.8 or greater. This application depends on the following <b
 
 In order to use this application, you will need to register for API keys. The program will need to be made aware of these keys somehow. The best option is storing these credentials in environment variables. See [Required Configuration](#required-configuration) for more information. You can also invoke the CLI function `store` to store the credentials in the local installation <i>/data/common/</i> directory. To do so,
 
-```
+```shell
 scrilla store -key <key> -value <value>
 ```
 
@@ -119,7 +119,7 @@ A sample environment file is located [here](https://github.com/chinchalinchin/sc
 
 As mentioned, you will need to register for API keys at <b>AlphaVantage</b>, <b>IEX</b> and <b>Quandl</b>. One way of passing API keys to the program is by storing these in your session's environment. <b>scrilla</b> will search for environment variables named <b>ALPHA_VANTAGE_KEY</b>, <b>QUANDL_KEY</b> and <b>IEX_KEY</b>. You can add the following lines to your <i>.bashrc</i> profile or corresponding configuration file for whatever shell you are using,
 
-```
+```shell
 export ALPHA_VANTAGE_KEY=<key goes here>
 export QUANDL_KEY=<key goes here>
 export IEX_KEY=<key goes here>
@@ -131,7 +131,7 @@ If no API keys are found in these variables, the application will not function p
 
 <b>scrilla</b> can be configured with the following optional environment variables. Each variable in this list has a suitable default set and so does not need changed unless the user prefers a different setting. Make sure you export these values from your current session, i.e.
 
-```
+```shell
 export RISK_FREE=ONE_YEAR
 scrilla risk-free # returns one year risk free rate
 export RISK_FREE=THREE_YEAR
@@ -178,7 +178,7 @@ Determines the amount of output. Defaults to `info`. Allowable values: `none`, `
 
 Most functions have been wired into command line arguments. For a full list of <b>scrilla</b>'s functionality,
 
-```
+```shell
 scrilla help
 ```
 
@@ -186,7 +186,7 @@ The main usage of <b>scrilla</b> is detailed below.
 
 ## Synatx
 
-```
+```shell 
 scrilla [COMMAND] [TICKERS] [OPTIONS]
 ```
 
@@ -202,7 +202,7 @@ scrilla [COMMAND] [TICKERS] [OPTIONS]
 
 A portfolio of consisting of the equities <i>ALLY</i>, <i>BX</i> and <i>SONY</i> can be optimized with the following command,
 
-```
+```shell
 scrilla optimize-portfolio ALLY BX SONY
 ```
 
@@ -210,13 +210,13 @@ By default, <b>scrilla</b> will optimize over the last 100 trading days. If you 
 
 Also by default, the optimization function will minimize the portfolio variance. You can also specify the portfolio should be maximized with respect to the Sharpe ratio,
 
-```
+```shell
 scrilla optimize-portfolio ALLY BX SONY -sh
 ```
 
 There are several other arguments you may use to configure your optimization program. The full list of arguments is shown below,
 
-```
+```shell
 scrilla optimize-portfolio [TICKERS] -sh \
                                      -start <YYYY-MM-DD> \
                                      -end <YYYY-MM-DD> \
@@ -230,7 +230,7 @@ scrilla optimize-portfolio [TICKERS] -sh \
 
 For example, the following command,
 
-```
+```shell
 scrilla optimize-portfolio ALLY BX SONY -sh \
                                         -save <path-to-json-file> \
                                         -target 0.25 \
@@ -291,25 +291,25 @@ In the near future, a mean reversion model will implemented.
 
 For example, the following command will return the risk profile of <b>ACI</b> using the method of moment matching,
 
-```
+```shell
 scrilla risk-profile ACI -moments
 ```
 
 Where as the following command will return the risk profile of <b>ACI</b> using maximum likelihood estimation,
 
-```
+```shell
 scrilla risk-profile ACI -likelihood
 ```
 
 And the following command will return the risk profile of <b>ACI</b> using the method of percentile matching,
 
-```
+```shell
 scrilla risk-profile ACI -percentiles
 ```
 
 Note, the following command,
 
-```
+```shell
 scrilla risk-profile ACI
 ```
 
@@ -319,13 +319,13 @@ will return the risk profile of <b>ACI</b> using the method set in the <b>DEFAUL
 
 <b>scrilla</b> will pull an equity's dividend payment history, regress the payment amount against its date and infer a [simple linear regression model](https://en.wikipedia.org/wiki/Simple_linear_regression) from this time series. It will use this model to project future dividend payments and then calculate the current cost of equity and use that to discount the sum of dividend payments back to the present. The following command will perform this action,
 
-```
+```shell
 scrilla ddm ALLY
 ```
 
 Alternatively, you can visualize the dividend payments against the regression model with a <b>matplotlib</b> graphic,
 
-```
+```shell
 scrilla plot-divs ALLY
 ```
 
@@ -342,13 +342,13 @@ scrilla plot-divs ALLY
 
 Stocks can be added to your watchlist with,
 
-```
+```shell
 scrilla watch [TICKERS]
 ```
 
 You can then screen stocks according to some criteria. For example, the following command will search your watchlist for stock prices that are less than their Discount Dividend Model (very rare this happens...),
 
-```
+```shell
 scrilla screen -criteria DDM
 ```
 
