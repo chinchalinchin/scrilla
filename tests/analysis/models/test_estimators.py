@@ -1,4 +1,5 @@
 import pytest
+import math
 
 from scrilla.static import constants
 from scrilla.analysis import estimators
@@ -17,7 +18,6 @@ recursive_univariate_data = [
     (univariate_data['case_4'][:-1], univariate_data['case_4'][1:]),
     (univariate_data['case_5'][:-1], univariate_data['case_5'][1:]),
 ]
-
 bivariate_data = {
     'case_1': (univariate_data['case_1'], univariate_data['case_2']),
     'case_2': (univariate_data['case_1'], univariate_data['case_3']),
@@ -62,6 +62,26 @@ regression_cases = [
 
 def is_within_tolerance(func):
     return (abs(func()) < 10 ** (-constants.constants['ACCURACY']) )
+
+@pytest.mark.parametrize("x", [( univariate_data[datum] ) for datum in univariate_data])
+def test_univariate_normal_likelihood_probability_bounds(x):
+    sample_mean = estimators.sample_mean(x)
+    sample_variance = estimators.sample_variance(x)
+    likelihood = math.exp(estimators.univariate_normal_likelihood_function([sample_mean, sample_variance], x))
+    assert(likelihood > 0 and likelihood < 1 )
+
+
+@pytest.mark.parametrize("x,y", [( bivariate_data[datum] ) for datum in bivariate_data])
+def test_bivariate_normal_likelihood_probability_bounds(x,y):
+    sample_x_mean = estimators.sample_mean(x)
+    sample_x_var = estimators.sample_variance(x)
+    sample_y_mean = estimators.sample_mean(y)
+    sample_y_var = estimators.sample_variance(y)
+    sample_xy_cov = estimators.sample_covariance(x,y)
+    data = [ [sample_x, y[i]] for i, sample_x in enumerate(x)]
+    params = [sample_x_mean, sample_y_mean, sample_x_var, sample_y_var, sample_xy_cov ]
+    likelihood = math.exp(estimators.bivariate_normal_likelihood_function(params, data))
+    assert(likelihood > 0 and likelihood < 1 )
 
 @pytest.mark.parametrize("x,mu", mean_cases)
 def test_mean(x, mu):
