@@ -123,6 +123,16 @@ class Portfolio:
 
         else:
 
+            # TODO: there is a logical error here. if the portfolio is made up of mixed assets (crypto, equity),
+            #       then calculate_risk_return will calculate the risk profile over a different time period than
+            #       the correlation matrix. the reason is: risk_return is univariate, but correlation is bivariate,
+            #       so when the correlation of an equity and crypto is calculated, it truncates the sample to dates
+            #       where both assets trade, i.e. crypto prices on weekends get ignored. the risk_profile of the crypto
+            #       will be over a shorter date range because the analysis will include weekends, whereas the crypto
+            #       correlation will not include weekends if the asset types are mixed. the problem is further 
+            #       compounded since the correlation method will retrieve the univariate profile to use in its calculation.
+            #       need a flag in the cache to tell the program the statistic includes/exclude weekend prices.
+
             if self.risk_profiles is None:
                 for ticker in self.tickers:
                     if self.sample_prices is not None:

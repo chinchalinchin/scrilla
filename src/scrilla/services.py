@@ -549,7 +549,8 @@ def get_daily_price_latest(ticker: str, asset_type: Union[None, str] = None) -> 
     2. **asset_type**: str``
         *Optional*. Asset type of the ticker whose history is to be retrieved. Will be calculated from the `ticker` symbol if not provided.
     """
-    prices = get_daily_price_history(ticker=ticker, asset_type=asset_type)
+    last_date = dater.this_date_or_last_trading_date()
+    prices = get_daily_price_history(ticker=ticker, asset_type=asset_type, start_date=last_date, end_date=last_date)
     first_element = helper.get_first_json_key(prices)
     return prices[first_element][keys.keys['PRICES']['OPEN']]
 

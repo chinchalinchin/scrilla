@@ -1,9 +1,5 @@
 # TODOS
 
-1. Rejigger GUI to have DateWidgets to select dates in GUI and take advantage of the new date filtering functionality.
-
-2. Hook up 'Optimize' widget to optimize subject to constraint.
-
 5. Copy IV algorithm and option greek algorithms from old python cli program. 
 
 6. TEST MOVING AVERAGE ALGORITHM FOR MIX OF ASSET TYPES. I think there may be some mismatch of types in date comparisons.
@@ -11,8 +7,6 @@
 16. If an option prices API is found, then IV can be calculated for a specific equity. The optimization algorithm can be expanded to optimize over IV of a portfolio, instead of the Historical Volatility. Allow user to specify what type of volatility the portfolio will use in its optimization, historical or implied. Will need to account for skew, somehow. 
 
 17. Test moving averages plot generation.
-
-18. Pretty sure the reason the len(moving_averages) != len(dates_between) in moving average algorithm is because dates_between doesn't include the dates themselves; it's only returning...dun dun dun...the dates between, not the dates themselves. 
 
 20. Other types of screening. Discounted Cash Flow, for instance. 
 
@@ -37,3 +31,5 @@
 46. redo statistic operations with vector and matrix operations for greater generalization.
 
 47. don't import in main.py until you have to.
+
+48. Correlation matrix widget not formatting decimals between 0 and 1 correctly. 

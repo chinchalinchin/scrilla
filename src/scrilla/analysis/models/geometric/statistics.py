@@ -1075,6 +1075,11 @@ def calculate_moment_correlation(ticker_1, ticker_2, asset_type_1=None, asset_ty
         start_date, end_date = errors.validate_dates(start_date=start_date, end_date=end_date,
                                                      asset_type=keys.keys['ASSETS']['EQUITY'])
 
+    # TODO: there is a problem here. two different correlations can be cached and each one overrides the
+    #       other. if the asset types are mixed, the correlation is calculated over a truncated (weekends removed)
+    #       sample. if the asset types are equal to crypto, then the correlation is calculated over the entire
+    #       date range.
+    # TODO: do i need a flag
     if sample_prices is None:
         correlation = correlation_cache.filter_correlation_cache(ticker_1=ticker_1, ticker_2=ticker_2,
                                                                  start_date=start_date, end_date=end_date,
