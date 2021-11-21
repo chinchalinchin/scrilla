@@ -24,6 +24,13 @@ mean_cases = [
     (univariate_data['case_4'],  46.8),
     (univariate_data['case_5'],  39.1),
 ]
+recursive_mean_cases = [
+    (univariate_data['case_1'][:-1], univariate_data['case_1'][1:]),
+    (univariate_data['case_2'][:-1], univariate_data['case_2'][1:]),
+    (univariate_data['case_3'][:-1], univariate_data['case_3'][1:]),
+    (univariate_data['case_4'][:-1], univariate_data['case_4'][1:]),
+    (univariate_data['case_5'][:-1], univariate_data['case_5'][1:]),
+]
 
 variance_cases = [
     (univariate_data['case_1'], 161.777777777778),
@@ -53,32 +60,44 @@ regression_cases = [
     (bivariate_data['case_4'][0], bivariate_data['case_4'][1], 39.1, -0.548763736263736), 
 ]
 
+def is_within_tolerance(func):
+    return (abs(func()) < 10 ** (-constants.constants['ACCURACY']) )
+
 @pytest.mark.parametrize("x,mu", mean_cases)
 def test_mean(x, mu):
     mean = estimators.sample_mean(x=x)
-    assert(abs(mean - mu)< 10 ** (-constants.constants['ACCURACY']))
+    assert(is_within_tolerance(lambda: mean - mu))
+
+@pytest.mark.parametrize("first_x,second_x", recursive_mean_cases)
+def test_rolling_recursive_mean(first_x, second_x):
+    lost_obs, new_obs = first_x[0], second_x[-1]
+    n = len(first_x)
+    actual_previous_mean = estimators.sample_mean(first_x)
+    actual_next_mean = estimators.sample_mean(second_x)
+    recursive_mean = estimators.recursive_rolling_mean(actual_previous_mean, new_obs,lost_obs, n)
+    assert(is_within_tolerance(lambda: recursive_mean - actual_next_mean))
 
 @pytest.mark.parametrize("x,var", variance_cases)
 def test_variance(x, var):
     variance = estimators.sample_variance(x)
-    assert(abs(variance - var ) < 10 ** (-constants.constants['ACCURACY']))
+    assert(is_within_tolerance(lambda: variance - var))
 
 @pytest.mark.parametrize("x,y,cov", covariance_cases)
 def test_covariance(x, y, cov):
     covariance = estimators.sample_covariance(x=x, y=y)
-    assert(abs(covariance - cov) < 10 ** (-constants.constants['ACCURACY']))
+    assert(is_within_tolerance(lambda: covariance - cov ))
 
 @pytest.mark.parametrize("x,y,correl", correlation_cases)
 def test_correlation(x, y, correl):
     correlation = estimators.sample_correlation(x=x,y=y)
-    assert(abs(correlation - correl) < 10 ** (-constants.constants['ACCURACY']))
+    assert(is_within_tolerance(lambda: correlation - correl))
 
 @pytest.mark.parametrize("x,y,beta", [ (case[0], case[1], case[3])for case in regression_cases])
 def test_simple_regression_slope(x, y, beta):
     slope = estimators.simple_regression_beta(x = x, y = y)
-    assert(abs(slope - beta) < 10 ** (-constants.constants['ACCURACY']))
+    assert(is_within_tolerance(lambda: slope - beta))
 
 @pytest.mark.parametrize("x,y,alpha", [(case[0:3]) for case in regression_cases])
 def test_simple_regression_intercept(x, y, alpha):
-    slope = estimators.simple_regression_alpha(x = x, y = y)
-    assert(abs(slope - alpha) < 10 ** (-constants.constants['ACCURACY']))
+    intercept = estimators.simple_regression_alpha(x = x, y = y)
+    assert(is_within_tolerance(lambda: intercept - alpha))
