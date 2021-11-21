@@ -72,13 +72,18 @@ def test_univariate_normal_likelihood_probability_bounds(x):
 
 @pytest.mark.parametrize("x", [( univariate_data[datum] ) for datum in univariate_data])
 def test_univariate_normal_likelihood_monotonicity(x):
+    """
+    Assume the samples are populations, then sample mean is population mean. The sample mean of the 
+    truncated sample is distributed around the sample mean of the population. In other words, observations 
+    from the population and the truncated sample have the same distribution. Therefore, by the monotonicity
+    of probability distributions, the probability of the truncated sample should be less than the probability
+    of the entire population.
+    """
     sample_mean = estimators.sample_mean(x)
     sample_variance = estimators.sample_variance(x)
     likelihood_whole = math.exp(estimators.univariate_normal_likelihood_function([sample_mean, sample_variance], x))
 
-    sample_mean_truncated = estimators.sample_mean(x[:-2])
-    sample_variance_truncated = estimators.sample_variance(x[:-2])
-    likelihood_truncated = math.exp(estimators.univariate_normal_likelihood_function([sample_mean_truncated, sample_variance_truncated], x[:-2]))
+    likelihood_truncated = math.exp(estimators.univariate_normal_likelihood_function([sample_mean, sample_variance], x[:-2]))
 
     # NOTE: 
     #   Proposition
@@ -102,15 +107,29 @@ def test_univariate_normal_likelihood_monotonicity(x):
 
 @pytest.mark.parametrize("x,y", [( bivariate_data[datum] ) for datum in bivariate_data])
 def test_bivariate_normal_likelihood_probability_bounds(x,y):
-    sample_x_mean = estimators.sample_mean(x)
-    sample_x_var = estimators.sample_variance(x)
-    sample_y_mean = estimators.sample_mean(y)
-    sample_y_var = estimators.sample_variance(y)
-    sample_xy_cov = estimators.sample_covariance(x,y)
+    sample_x_mean_whole = estimators.sample_mean(x)
+    sample_x_var_whole = estimators.sample_variance(x)
+    sample_y_mean_whole = estimators.sample_mean(y)
+    sample_y_var_whole = estimators.sample_variance(y)
+    sample_xy_cov_whole = estimators.sample_covariance(x,y)
     data = [ [sample_x, y[i]] for i, sample_x in enumerate(x)]
-    params = [sample_x_mean, sample_y_mean, sample_x_var, sample_y_var, sample_xy_cov ]
-    likelihood = math.exp(estimators.bivariate_normal_likelihood_function(params, data))
-    assert(likelihood > 0 and likelihood < 1 )
+    params = [sample_x_mean_whole, sample_y_mean_whole, sample_x_var_whole, 
+                sample_y_var_whole, sample_xy_cov_whole ]
+    likelihood_whole = math.exp(estimators.bivariate_normal_likelihood_function(params, data))
+
+
+    sample_x_mean_truncated = estimators.sample_mean(x)
+    sample_x_var_truncated = estimators.sample_variance(x)
+    sample_y_mean_truncated = estimators.sample_mean(y)
+    sample_y_var_truncated = estimators.sample_variance(y)
+    sample_xy_cov_truncated = estimators.sample_covariance(x,y)
+    data = [ [sample_x, y[i]] for i, sample_x in enumerate(x[:-2])]
+    params = [sample_x_mean_truncated, sample_y_mean_truncated, sample_x_var_truncated, 
+                sample_y_var_truncated, sample_xy_cov_truncated ]
+    likelihood_truncated = math.exp(estimators.bivariate_normal_likelihood_function(params, data))
+
+    # NOTE: see note in previous test.
+    assert( likelihood_truncated > likelihood_whole )
 
 @pytest.mark.parametrize("x,mu", mean_cases)
 def test_mean(x, mu):

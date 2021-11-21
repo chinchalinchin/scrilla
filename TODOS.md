@@ -32,4 +32,4 @@
 
 47. don't import in main.py until you have to.
 
-48. Correlation matrix widget not formatting decimals between 0 and 1 correctly. 
+48. Correlation matrix widget not formatting decimals < 0.01 for some reason. negatives are no go as well.
