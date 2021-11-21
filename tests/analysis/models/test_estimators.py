@@ -10,6 +10,14 @@ univariate_data = {
     'case_4': [ 77, 74, 64, 49, 31, 7, 35, 46, 15, 70] ,
     'case_5': [ 21, 8, 30, 62, 47, 29, 38, 71, 78, 7 ]
 }
+recursive_univariate_data = [
+    (univariate_data['case_1'][:-1], univariate_data['case_1'][1:]),
+    (univariate_data['case_2'][:-1], univariate_data['case_2'][1:]),
+    (univariate_data['case_3'][:-1], univariate_data['case_3'][1:]),
+    (univariate_data['case_4'][:-1], univariate_data['case_4'][1:]),
+    (univariate_data['case_5'][:-1], univariate_data['case_5'][1:]),
+]
+
 bivariate_data = {
     'case_1': (univariate_data['case_1'], univariate_data['case_2']),
     'case_2': (univariate_data['case_1'], univariate_data['case_3']),
@@ -24,14 +32,6 @@ mean_cases = [
     (univariate_data['case_4'],  46.8),
     (univariate_data['case_5'],  39.1),
 ]
-recursive_mean_cases = [
-    (univariate_data['case_1'][:-1], univariate_data['case_1'][1:]),
-    (univariate_data['case_2'][:-1], univariate_data['case_2'][1:]),
-    (univariate_data['case_3'][:-1], univariate_data['case_3'][1:]),
-    (univariate_data['case_4'][:-1], univariate_data['case_4'][1:]),
-    (univariate_data['case_5'][:-1], univariate_data['case_5'][1:]),
-]
-
 variance_cases = [
     (univariate_data['case_1'], 161.777777777778),
     (univariate_data['case_2'], 968.177777777778),
@@ -68,7 +68,7 @@ def test_mean(x, mu):
     mean = estimators.sample_mean(x=x)
     assert(is_within_tolerance(lambda: mean - mu))
 
-@pytest.mark.parametrize("first_x,second_x", recursive_mean_cases)
+@pytest.mark.parametrize("first_x,second_x", recursive_univariate_data)
 def test_rolling_recursive_mean(first_x, second_x):
     lost_obs, new_obs = first_x[0], second_x[-1]
     n = len(first_x)
@@ -81,6 +81,16 @@ def test_rolling_recursive_mean(first_x, second_x):
 def test_variance(x, var):
     variance = estimators.sample_variance(x)
     assert(is_within_tolerance(lambda: variance - var))
+
+@pytest.mark.parametrize("first_x,second_x", recursive_univariate_data)
+def test_rolling_recursive_variance(first_x, second_x):
+    lost_obs, new_obs = first_x[0], second_x[-1]
+    n = len(first_x)
+    actual_previous_mean = estimators.sample_mean(first_x)
+    actual_previous_variance = estimators.sample_variance(first_x)
+    actual_next_variance = estimators.sample_variance(second_x)
+    recursive_variance = estimators.recursive_rolling_variance(actual_previous_variance, actual_previous_mean, new_obs, lost_obs, n)
+    assert(is_within_tolerance(lambda: recursive_variance - actual_next_variance))
 
 @pytest.mark.parametrize("x,y,cov", covariance_cases)
 def test_covariance(x, y, cov):
