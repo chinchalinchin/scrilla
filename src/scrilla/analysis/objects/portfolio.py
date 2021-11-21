@@ -17,7 +17,7 @@ import numpy
 import math
 from decimal import Decimal
 
-from scrilla import services, settings
+from scrilla import services, settings, errors
 import scrilla.util.outputter as outputter
 
 # TODO: conditional import module based on analysis_mode, i.e. geometric versus mean reverting.
@@ -112,8 +112,18 @@ class Portfolio:
     def init_dates(self):
         pass
 
-    def init_asset_types():
-        pass
+    def init_asset_types(self):
+        self.asset_types = []
+        for ticker in self.tickers:
+            self.asset_types.append(errors.validate_asset_type(ticker))
+            
+        self.mixed_assets = False
+
+        for this_asset_type in self.asset_types:
+            for that_asset_type in self.asset_types:
+                if this_asset_type != that_asset_type:
+                    self.mixed_assets = True
+                    break
 
     def calculate_stats(self):
         self.mean_return = []
