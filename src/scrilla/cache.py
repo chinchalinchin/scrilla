@@ -19,7 +19,7 @@ This module provides a data access layer for a SQLite database maintained on the
 In addition to preventing excessive API calls, the cache prevents redundant calculations. For example, calculating the market beta for a series of assets requires the variance of the market proxy for each calculation. Rather than recalculate this quantity each time, the program will defer to the values stored in the cache.
 """
 import sqlite3
-
+import datetime
 from scrilla import settings
 from scrilla.static import keys
 from scrilla.util import outputter
@@ -208,9 +208,9 @@ class CorrelationCache(Cache):
     .. notes::
         * do not need to order `correlation_query` and `profile_query` because profiles and correlations are uniquely determined by the (`start_date`, `end_date`, 'ticker_1', 'ticker_2')-tuple. More or less. There is a bit of fuzziness, since the permutation of the previous tuple, ('start_date', 'end_date', 'ticker_2', 'ticker_1'), will also be associated with the same correlation value. No other mappings between a date's correlation value and the correlation's tickers are possible though. In other words, the query, for a given (ticker_1, ticker_2)-permutation will only ever return one result.
     """
-    create_table_transaction = "CREATE TABLE IF NOT EXISTS correlations (ticker_1 TEXT, ticker_2 TEXT, start_date TEXT, end_date TEXT, correlation REAL, method TEXT)"
-    insert_row_transaction = "INSERT INTO correlations (ticker_1, ticker_2, start_date, end_date, correlation, method) VALUES (:ticker_1, :ticker_2, :start_date, :end_date, :correlation, :method)"
-    correlation_query = "SELECT correlation FROM correlations WHERE ticker_1=:ticker_1 AND ticker_2=:ticker_2 AND start_date=date(:start_date) AND end_date=date(:end_date) AND method=:method"
+    create_table_transaction = "CREATE TABLE IF NOT EXISTS correlations (ticker_1 TEXT, ticker_2 TEXT, start_date TEXT, end_date TEXT, correlation REAL, method TEXT, weekends INT NOT NULL)"
+    insert_row_transaction = "INSERT INTO correlations (ticker_1, ticker_2, start_date, end_date, correlation, method, weekends) VALUES (:ticker_1, :ticker_2, :start_date, :end_date, :correlation, :method, :weekends)"
+    correlation_query = "SELECT correlation FROM correlations WHERE ticker_1=:ticker_1 AND ticker_2=:ticker_2 AND start_date=date(:start_date) AND end_date=date(:end_date) AND method=:method AND weekends=:weekends"
 
     def __init__(self):
         super().__init__(CorrelationCache.create_table_transaction)
@@ -227,23 +227,39 @@ class CorrelationCache(Cache):
         """
         return {keys.keys['STATISTICS']['CORRELATION']: query_results[0][0]}
 
-    def save_row(self, ticker_1, ticker_2, start_date, end_date, correlation, method=settings.ESTIMATION_METHOD):
+    def save_row(self, ticker_1: str, ticker_2: str, start_date: datetime.date, end_date: datetime.date, correlation: float, weekends: bool, method: str=settings.ESTIMATION_METHOD):
+        """
+        Uses `self.insert_row_transaction` to save the passed-in information to the SQLite cache.
+
+        Parameters
+        ----------
+        1. **ticker_1**: ``str``
+        2. **ticker_2**: ``str``
+        3. **start_date**: ``datetime.date``
+        4. **end_date**: ``datetime.date``
+        5. **correlation**: ``float``
+        6. **weekends**: ``bool``
+        7. **method**: ``str``
+            *Optional*. Method used to calculate the correlation. Defaults to `scrilla.settings.ESTIMATION_METHOD`, which in turn is configured by the environment variable, *DEFAULT_ESTIMATION_METHOD*.
+        """
         logger.verbose(
             f'Saving ({ticker_1}, {ticker_2}) correlation from {start_date} to {end_date} to the cacche')
         formatter_1 = {'ticker_1': ticker_1, 'ticker_2': ticker_2, 'method': method,
-                       'start_date': start_date, 'end_date': end_date, 'correlation': correlation}
+                       'start_date': start_date, 'end_date': end_date, 'correlation': correlation,
+                        'weekends': weekends}
         formatter_2 = {'ticker_1': ticker_2, 'ticker_2': ticker_1, 'method': method,
-                       'start_date': start_date, 'end_date': end_date, 'correlation': correlation}
+                       'start_date': start_date, 'end_date': end_date, 'correlation': correlation,
+                       'weekends': weekends}
         self.execute_transaction(
             transaction=CorrelationCache.insert_row_transaction, formatter=formatter_1)
         self.execute_transaction(
             transaction=CorrelationCache.insert_row_transaction, formatter=formatter_2)
 
-    def filter_correlation_cache(self, ticker_1, ticker_2, start_date, end_date, method=settings.ESTIMATION_METHOD):
+    def filter_correlation_cache(self, ticker_1, ticker_2, start_date, end_date, weekends, method=settings.ESTIMATION_METHOD):
         formatter_1 = {'ticker_1': ticker_1, 'ticker_2': ticker_2, 'method': method,
-                       'start_date': start_date, 'end_date': end_date}
+                       'start_date': start_date, 'end_date': end_date, 'weekends': weekends}
         formatter_2 = {'ticker_1': ticker_2, 'ticker_2': ticker_1, 'method': method,
-                       'start_date': start_date, 'end_date': end_date}
+                       'start_date': start_date, 'end_date': end_date, 'weekends': weekends}
 
         logger.debug(
             f'Querying SQLite cache \n\t{CorrelationCache.correlation_query}\n\t\t with :ticker_1={ticker_1}, :ticker_2={ticker_2},:start_date={start_date}, :end_date={end_date}')
