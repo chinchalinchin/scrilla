@@ -55,7 +55,7 @@ pip install scrilla
 This will install a command line interface on your path under the name `scrilla`. Confirm your installation with with the `-version` flag,
 
 ```
-scrilla --version
+scrilla -version
 ```
 
 If you are on Windows, you may need to add your Python scripts bin to the $PATH. To keep the installation as minimal as possible, the base package does not include the GUI libraries. You can install the optional GUI dependency with,
@@ -104,7 +104,7 @@ You will need Python3.8 or greater. This application depends on the following <b
 In order to use this application, you will need to register for API keys. The program will need to be made aware of these keys somehow. The best option is storing these credentials in environment variables. See [Required Configuration](#required-configuration) for more information. You can also invoke the CLI function `store` to store the credentials in the local installation <i>/data/common/</i> directory. To do so,
 
 ```
-scrilla store --key <key> --value <value>
+scrilla store -key <key> -value <value>
 ```
 
 where `<key>` is one of the values: **ALPHA_VANTAGE_KEY**, **QUANDL_KEY** or **IEX_KEY**. `<value>` is the corresponding key itself given to you after registration. `<value>` is case-sensitive!
@@ -217,26 +217,26 @@ scrilla optimize-portfolio ALLY BX SONY -sh
 There are several other arguments you may use to configure your optimization program. The full list of arguments is shown below,
 
 ```
-scrilla optimize-portfolio [TICKERS] --sh \
-                                     --start <YYYY-MM-DD> \
-                                     --end <YYYY-MM-DD> \
-                                     --save <absolute path to json file> \
+scrilla optimize-portfolio [TICKERS] -sh \
+                                     -start <YYYY-MM-DD> \
+                                     -end <YYYY-MM-DD> \
+                                     -save <absolute path to json file> \
                                      --target <float> --invest <float>
 ```
 
-`--target` will optimize the portfolio with the additional constraint that its rate of return must equal `target`. Note the target return must be between the minimum rate of return and maximum rate of return in a basket of equities. For example, if ALLY had a rate of return of 10%, BX 15%, SONY 20%, the frontier of possible rates of returns resides in the range [10%, 20%]. It is impossible to combine the equities in such a way to get a rate of return less than 10% or one greater than 20%. Note, this assumes shorting is not possible. A future release will relax this assumption and allow portfolio weights to be negative.
+`-target` will optimize the portfolio with the additional constraint that its rate of return must equal `target`. Note the target return must be between the minimum rate of return and maximum rate of return in a basket of equities. For example, if ALLY had a rate of return of 10%, BX 15%, SONY 20%, the frontier of possible rates of returns resides in the range [10%, 20%]. It is impossible to combine the equities in such a way to get a rate of return less than 10% or one greater than 20%. Note, this assumes shorting is not possible. A future release will relax this assumption and allow portfolio weights to be negative.
 
-`--invest` represents the total amount of money invested in a portfolio. 
+`-invest` represents the total amount of money invested in a portfolio. 
 
 For example, the following command,
 
 ```
-scrilla optimize-portfolio ALLY BX SONY --sh \
-                                        --save <path-to-json-file> \
-                                        --target 0.25 \
-                                        --invest 10000 \
-                                        --start 2020-01-03 \
-                                        --end 2021-05-15
+scrilla optimize-portfolio ALLY BX SONY -sh \
+                                        -save <path-to-json-file> \
+                                        -target 0.25 \
+                                        -invest 10000 \
+                                        -start 2020-01-03 \
+                                        -end 2021-05-15
 ```
 
 Will optimize a portfolio consisting of <i>ALLY</i>, <i>BX</i> and <i>SONY</i> using historical data between the dates of January 1st, 2020 and May 15th, 2021. The portfolio will be constrained to return a rate of 25%. A total $10,000 will be invested into this portfolio (to the nearest whole share). The output of this command will look like this,
@@ -270,7 +270,7 @@ The two new arguments are `prob` and `expiry`. `prob`, in essence, represents th
 With these two new arguments, a portfolio's conditional value at risk can be optimized using the following,
 
 ```
-scrilla optimize-cvar ALLY BX SONY --prob 0.05 --expiry 0.5
+scrilla optimize-cvar ALLY BX SONY -prob 0.05 -expiry 0.5
 ```
 
 The command given above will optimize the portfolio's value at risk consisting of <b>ALLY</b>, <b>BX</b> and <b>SONY</b> over the next half year (`expiry` = 0.5) conditioned the value at risk being in the 5th percentile. 
@@ -292,19 +292,19 @@ In the near future, a mean reversion model will implemented.
 For example, the following command will return the risk profile of <b>ACI</b> using the method of moment matching,
 
 ```
-scrilla risk-profile ACI --moments
+scrilla risk-profile ACI -moments
 ```
 
 Where as the following command will return the risk profile of <b>ACI</b> using maximum likelihood estimation,
 
 ```
-scrilla risk-profile ACI --likelihood
+scrilla risk-profile ACI -likelihood
 ```
 
 And the following command will return the risk profile of <b>ACI</b> using the method of percentile matching,
 
 ```
-scrilla risk-profile ACI --percentiles
+scrilla risk-profile ACI -percentiles
 ```
 
 Note, the following command,
@@ -349,7 +349,7 @@ scrilla watch [TICKERS]
 You can then screen stocks according to some criteria. For example, the following command will search your watchlist for stock prices that are less than their Discount Dividend Model (very rare this happens...),
 
 ```
-scrilla screen --criteria DDM
+scrilla screen -criteria DDM
 ```
 
 5. Visualizations
