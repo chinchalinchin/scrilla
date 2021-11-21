@@ -15,3 +15,7 @@
 /dist/*
 .vscode
 /scrilla/static/*
+/tests/*/.pytest_cache
+/tests/*/*/.pytest_cache
+/tests/*/*/*/.pytest_cache
+/tests/*/*/*/*/.pytest_cache
