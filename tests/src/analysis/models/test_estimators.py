@@ -1,5 +1,6 @@
 import pytest
 import math
+import random 
 
 from scrilla.static import constants
 from scrilla.analysis import estimators
@@ -169,6 +170,18 @@ def test_covariance(x, y, cov):
 def test_correlation(x, y, correl):
     correlation = estimators.sample_correlation(x=x,y=y)
     assert(is_within_tolerance(lambda: correlation - correl))
+
+@pytest.mark.parametrize("x,y", [ 
+                                 ([random.randint(0,100) for x in range(99)],[random.randint(0,100) for x in range(99)]),
+                                 ([random.randint(0,100) for x in range(99)],[random.randint(0,100) for x in range(99)]),
+                                 ([random.randint(0,100) for x in range(99)],[random.randint(0,100) for x in range(99)]),
+                                 ([random.randint(0,100) for x in range(99)],[random.randint(0,100) for x in range(99)])
+                                ]
+                        )   
+def test_correlation_bounds(x,y):
+    correlation = estimators.sample_correlation(x=x,y=y)
+    assert(abs(correlation) > 0 and abs(correlation) < 1)                              
+
 
 @pytest.mark.parametrize("x,y,beta", [ (case[0], case[1], case[3])for case in regression_cases])
 def test_simple_regression_slope(x, y, beta):
