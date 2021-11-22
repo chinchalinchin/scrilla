@@ -18,6 +18,7 @@ import math
 from decimal import Decimal
 
 from scrilla import services, settings, errors
+from scrilla.static import keys
 import scrilla.util.outputter as outputter
 
 # TODO: conditional import module based on analysis_mode, i.e. geometric versus mean reverting.
@@ -81,38 +82,31 @@ class Portfolio:
         self.actual_total = None
         self.risk_free_rate = None
         self.estimation_method = method
-
-        if sample_prices is None:
-            self.start_date = start_date
-            self.end_date = end_date
-        else:
-            self.start_date = list(sample_prices.keys())[-1]
-            self.end_date = list(sample_prices.keys())[0]
-
+        self.sample_prices = sample_prices  
         self.tickers = tickers
-        self.sample_prices = sample_prices
         self.correlation_matrix = correlation_matrix
         self.asset_volatility_functions = asset_volatility_functions
         self.asset_return_functions = asset_return_functions
         self.risk_profiles = risk_profiles
         self.target_return = None
 
+        if self.sample_prices is None:
+            self.start_date = start_date
+            self.end_date = end_date
+        else:
+            self.start_date = list(self.sample_prices.keys())[-1]
+            self.end_date = list(self.sample_prices.keys())[0]
+
         if risk_free_rate is not None:
             self.risk_free_rate = risk_free_rate
         else:
             self.risk_free_rate = services.get_risk_free_rate()
 
-        if self.start_date is None or self.end_date is None:
-            self.init_dates()
-        
-        self.init_asset_types()
+        self._init_asset_types()
+        self._init_dates()
+        self._calculate_stats()
 
-        self.calculate_stats()
-
-    def init_dates(self):
-        pass
-
-    def init_asset_types(self):
+    def _init_asset_types(self):
         self.asset_types = []
         for ticker in self.tickers:
             self.asset_types.append(errors.validate_asset_type(ticker))
@@ -125,7 +119,23 @@ class Portfolio:
                     self.mixed_assets = True
                     break
 
-    def calculate_stats(self):
+    def _init_dates(self):
+        if self.mixed_assets:
+            self.start_date, self.end_date = errors.validate_dates(self.start_date, 
+                                                                    self.end_date, 
+                                                                    keys.keys['ASSETS']['EQUITY'])
+            self.weekends = 1
+        else:
+            self.start_date, self.end_date = errors.validate_dates(self.start_date, 
+                                                                    self.end_date, 
+                                                                    self.asset_types[0])
+            if self.asset_types[0] == keys.keys['ASSETS']['EQUITY']:
+                self.weekends = 0
+            else:
+                self.weekends = 1
+
+
+    def _calculate_stats(self):
         self.mean_return = []
         self.sample_vol = []
 
@@ -177,6 +187,7 @@ class Portfolio:
                                                                         start_date=self.start_date,
                                                                         end_date=self.end_date,
                                                                         sample_prices=self.sample_prices,
+                                                                        weekends=self.weekends,
                                                                         method=self.estimation_method)
 
     def return_function(self, x):

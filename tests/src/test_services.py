@@ -28,5 +28,23 @@ def test_past_price(ticker, date, price):
     response_price = response[date][keys.keys['PRICES']['CLOSE']]
     assert(float(response_price) == price)
 
+@pytest.mark.parametrize("maturity, yield_rate", [
+                                                    ('ONE_MONTH', 0.11), 
+                                                    ('THIRTY_YEAR', 1.91), 
+                                                    ('ONE_YEAR', 0.18)] )
+def test_latest_interest(maturity, yield_rate):
+    with HTTMock(mock.mock_interest):
+        response = services.get_daily_interest_latest(maturity=maturity)
+    assert(float(response) == yield_rate)
 
+
+@pytest.mark.parametrize("maturity,date,yield_rate", [
+                                                        ('ONE_MONTH',"2021-11-01", 0.05), 
+                                                        ('THIRTY_YEAR',"2021-10-26", 2.05), 
+                                                        ('ONE_YEAR', "2021-10-14", 0.1)
+                                                    ])
+def test_past_interest(maturity,date,yield_rate):
+    with HTTMock(mock.mock_interest):
+        response = services.get_daily_interest_history(maturity=maturity)
+    assert(response[date] == yield_rate)
 

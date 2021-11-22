@@ -14,6 +14,7 @@
 # or <https://github.com/chinchalinchin/scrilla/blob/develop/main/LICENSE>.
 
 from datetime import timedelta, date
+import datetime
 from typing import Dict, List, Union
 from numpy import log, sqrt, inf
 from scipy.stats import norm, multivariate_normal
@@ -97,7 +98,7 @@ def get_sample_of_returns(ticker: str, sample_prices: dict = None, start_date: U
     return sample_of_returns
 
 
-def calculate_moving_averages(tickers: list, start_date: Union[date, None] = None, end_date: Union[date, None] = None, sample_prices: Union[dict, None] = None) -> list:
+def calculate_moving_averages(tickers: list, start_date: Union[date, None] = None, end_date: Union[date, None] = None, sample_prices: Union[Dict[str,Dict[str,float]], None] = None) -> list:
     # TODO: i need to redo this. this is needlessly inefficient. mean telescopes when
     #       calculating with moments. don't need to sum everything.
     # TODO: calculate moving averages with different estimation techniques.
@@ -426,7 +427,7 @@ def calculate_moving_averages(tickers: list, start_date: Union[date, None] = Non
     return moving_averages, dates_between
 
 
-def calculate_risk_return(ticker: str, start_date: Union[date, None] = None, end_date: Union[date, None] = None, sample_prices: Union[dict, None] = None, asset_type: Union[str, None] = None, method: str = settings.ESTIMATION_METHOD) -> Dict[str, float]:
+def calculate_risk_return(ticker: str, start_date: Union[date, None] = None, end_date: Union[date, None] = None, sample_prices: Union[Dict[str,Dict[str,float]], None] = None, asset_type: Union[str, None] = None, method: str = settings.ESTIMATION_METHOD) -> Dict[str, float]:
     if method == keys.keys['ESTIMATION']['MOMENT']:
         return calculate_moment_risk_return(ticker, start_date, end_date, sample_prices, asset_type)
     if method == keys.keys['ESTIMATION']['PERCENT']:
@@ -436,7 +437,7 @@ def calculate_risk_return(ticker: str, start_date: Union[date, None] = None, end
     raise errors.ConfigurationError('Statistic estimation method not found')
 
 
-def calculate_likelihood_risk_return(ticker, start_date: Union[date, None] = None, end_date: Union[date, None] = None, sample_prices: Union[dict, None] = None, asset_type: Union[str, None] = None) -> Dict[str, float]:
+def calculate_likelihood_risk_return(ticker, start_date: Union[date, None] = None, end_date: Union[date, None] = None, sample_prices: Union[, None] = None, asset_type: Union[str, None] = None) -> Dict[str, float]:
     """
     Estimates the mean rate of return and volatility for a sample of asset prices as if the asset price followed a Geometric Brownian Motion process, i.e. the mean rate of return and volatility are constant and not functions of time or the asset price. Moreover, the return and volatility are estimated using the method of maximum likelihood estimation. The probability of each observation is calculated and then the product is taken to find the probability of the intersection; this probability is maximized with respect to the parameters of the normal distribution, the mean and the volatility.
 
@@ -739,7 +740,7 @@ def calculate_moment_risk_return(ticker: str, start_date: Union[date, None] = No
     return results
 
 
-def calculate_correlation(ticker_1, ticker_2, asset_type_1=None, asset_type_2=None, start_date=None, end_date=None, sample_prices=None, method=settings.ESTIMATION_METHOD) -> dict:
+def calculate_correlation(ticker_1: str, ticker_2: str, asset_type_1: Union[str,None]=None, asset_type_2: Union[str, None]=None, start_date: Union[datetime.date,None]=None, end_date: Union[datetime.date,None]=None, sample_prices: Union[Dict[str,Dict[str,float]],None]=None, weekends: Union[int,None]=None, method: str=settings.ESTIMATION_METHOD) -> dict:
     """
     Returns the correlation between *ticker_1* and *ticker_2* from *start_date* to *end_date* using the estimation method *method*.
 
@@ -773,15 +774,15 @@ def calculate_correlation(ticker_1, ticker_2, asset_type_1=None, asset_type_2=No
         Dictionary containing the correlation of `ticker_1` and `ticker_2`: Formatted as: `{ 'correlation' : float }`.
     """
     if method == keys.keys['ESTIMATION']['MOMENT']:
-        return calculate_moment_correlation(ticker_1, ticker_2, asset_type_1, asset_type_2, start_date, end_date, sample_prices)
+        return calculate_moment_correlation(ticker_1, ticker_2, asset_type_1, asset_type_2, start_date, end_date, sample_prices, weekends)
     if method == keys.keys['ESTIMATION']['LIKE']:
-        return calculate_likelihood_correlation(ticker_1, ticker_2, asset_type_1, asset_type_2, start_date, end_date, sample_prices)
+        return calculate_likelihood_correlation(ticker_1, ticker_2, asset_type_1, asset_type_2, start_date, end_date, sample_prices, weekends)
     if method == keys.keys['ESTIMATION']['PERCENT']:
-        return calculate_percentile_correlation(ticker_1, ticker_2, asset_type_1, asset_type_2, start_date, end_date, sample_prices)
+        return calculate_percentile_correlation(ticker_1, ticker_2, asset_type_1, asset_type_2, start_date, end_date, sample_prices, weekends)
     raise KeyError('Estimation method not found')
 
 
-def calculate_percentile_correlation(ticker_1, ticker_2, asset_type_1=None, asset_type_2=None, start_date=None, end_date=None, sample_prices=None) -> Dict[str, float]:
+def calculate_percentile_correlation(ticker_1: str, ticker_2: str, asset_type_1: Union[str,None]=None, asset_type_2: Union[str, None]=None, start_date: Union[datetime.date,None]=None, end_date: Union[datetime.date,None]=None, sample_prices: Union[Dict[str,Dict[str,float]],None]=None, weekends: Union[int,None]=None) -> Dict[str, float]:
     """
     Returns the sample correlation calculated using the method of Percentile Matching, assuming underlying price process follows Geometric Brownian Motion, i.e. the price distribution is lognormal. 
 
@@ -818,7 +819,7 @@ def calculate_percentile_correlation(ticker_1, ticker_2, asset_type_1=None, asse
     asset_type_2 = errors.validate_asset_type(
         ticker=ticker_2, asset_type=asset_type_2)
 
-    if asset_type_1 == asset_type_2 and asset_type_1 == keys.keys['ASSETS']['CRYPTO']:
+    if weekends is None and asset_type_1 == asset_type_2 and asset_type_1 == keys.keys['ASSETS']['CRYPTO']:
         weekends = 1
     else: 
         weekends = 0
@@ -926,7 +927,7 @@ def calculate_percentile_correlation(ticker_1, ticker_2, asset_type_1=None, asse
     return result
 
 
-def calculate_likelihood_correlation(ticker_1, ticker_2, asset_type_1=None, asset_type_2=None, start_date=None, end_date=None, sample_prices=None) -> Dict[str, float]:
+def calculate_likelihood_correlation(ticker_1: str, ticker_2: str, asset_type_1: Union[str,None]=None, asset_type_2: Union[str, None]=None, start_date: Union[datetime.date,None]=None, end_date: Union[datetime.date,None]=None, sample_prices: Union[Dict[str,Dict[str,float]],None]=None, weekends: Union[int,None]=None) -> Dict[str, float]:
     """
     Calculates the sample correlation using the maximum likelihood estimators, assuming underlying price process follows Geometric Brownian Motion, i.e. the price distribution is lognormal. 
 
@@ -963,7 +964,7 @@ def calculate_likelihood_correlation(ticker_1, ticker_2, asset_type_1=None, asse
     asset_type_2 = errors.validate_asset_type(
         ticker=ticker_2, asset_type=asset_type_2)
 
-    if asset_type_1 == asset_type_2 and asset_type_1 == keys.keys['ASSETS']['CRYPTO']:
+    if weekends is None and asset_type_1 == asset_type_2 and asset_type_1 == keys.keys['ASSETS']['CRYPTO']:
         weekends = 1
     else: 
         weekends = 0
@@ -1040,7 +1041,7 @@ def calculate_likelihood_correlation(ticker_1, ticker_2, asset_type_1=None, asse
     return result
 
 
-def calculate_moment_correlation(ticker_1, ticker_2, asset_type_1=None, asset_type_2=None, start_date=None, end_date=None, sample_prices=None) -> Dict[str, float]:
+def calculate_moment_correlation(ticker_1: str, ticker_2: str, asset_type_1: Union[str,None]=None, asset_type_2: Union[str, None]=None, start_date: Union[datetime.date,None]=None, end_date: Union[datetime.date,None]=None, sample_prices: Union[Dict[str,Dict[str,float]],None]=None, weekends: Union[int,None]=None) -> Dict[str, float]:
     """
     Returns the sample correlation using the method of Moment Matching, assuming underlying price process follows Geometric Brownian Motion, i.e. the price distribution is lognormal. 
 
@@ -1080,7 +1081,8 @@ def calculate_moment_correlation(ticker_1, ticker_2, asset_type_1=None, asset_ty
     asset_type_2 = errors.validate_asset_type(
         ticker=ticker_2, asset_type=asset_type_2)
     
-    if asset_type_1 == asset_type_2 and asset_type_1 == keys.keys['ASSETS']['CRYPTO']:
+    # cache flag to signal if calculation includes weekends or not
+    if weekends is None and asset_type_1 == asset_type_2 and asset_type_1 == keys.keys['ASSETS']['CRYPTO']:
         weekends = 1
     else: 
         weekends = 0
@@ -1143,6 +1145,10 @@ def calculate_moment_correlation(ticker_1, ticker_2, asset_type_1=None, asset_ty
         f'Preparing calculation dependencies for ({ticker_1},{ticker_2}) correlation')
     # NOTE: override cache by providing sample prices if the sample lost data due to
     #       inter asset correlation. See note in summary for more infromation.
+
+    # TODO: the cache override can be disregarded if the weekend flag is incorporated into the profile
+    #       cache as well, i.e. profile cache partitions crypto profiles into profiles with weekends
+    #       and profiles without weekends.
     if override_cache and asset_type_1 == keys.keys['ASSETS']['CRYPTO']:
         stats_1 = calculate_moment_risk_return(ticker=ticker_1,
                                                start_date=start_date,
@@ -1260,7 +1266,7 @@ def calculate_moment_correlation(ticker_1, ticker_2, asset_type_1=None, asset_ty
     return result
 
 
-def correlation_matrix(tickers, asset_types=None, start_date=None, end_date=None, sample_prices=None, method=settings.ESTIMATION_METHOD) -> List[List[float]]:
+def correlation_matrix(tickers, asset_types=None, start_date=None, end_date=None, sample_prices=None, weekends: Union[int,None]=None, method=settings.ESTIMATION_METHOD) -> List[List[float]]:
     """
     Returns the correlation matrix for *tickers* from *start_date* to *end_date* using the estimation method *method*.
 
@@ -1295,8 +1301,17 @@ def correlation_matrix(tickers, asset_types=None, start_date=None, end_date=None
     # let correlation function handle argument parsing
     if asset_types is None:
         asset_types = []
-        for _ in tickers:
-            asset_types.append(None)
+        for ticker in tickers:
+            asset_types.append(errors.validate_asset_type(ticker))
+    
+    # cache flag to signal if calculation includes weekends or not
+    weekends = 0
+    for this_type in asset_types:
+        for that_type in asset_types:
+            if this_type != that_type:
+                weekends = 1
+                break
+
 
     if(len(tickers) > 1):
         for i, item in enumerate(tickers):
@@ -1309,6 +1324,7 @@ def correlation_matrix(tickers, asset_types=None, start_date=None, end_date=None
                                             start_date=start_date,
                                             end_date=end_date,
                                             sample_prices=sample_prices,
+                                            weekends=weekends,
                                             method=method)
                 correl_matrix[i][j] = cor['correlation']
                 correl_matrix[j][i] = correl_matrix[i][j]
