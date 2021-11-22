@@ -33,3 +33,9 @@
 47. don't import in main.py until you have to.
 
 48. Correlation matrix widget not formatting decimals < 0.01 for some reason. negatives are no go as well.
+
+49. cross asset correlation matrices are over different time frames. can't tell from inside of correlation function whether portfolio is mixed, so the asset comparison in correlation is only checking the two assets in question. when (crypto,crytpo) it calculates everything including weekends, when (crypto,equity) it skips weekends and adds dates to the sample to get a sample of 100. which fine, but when calculating a larger correlation matrix, the like asset pairs will be over one time frame while the cross asset pairs will be over one time frame.
+
+the only solution to this problem seems to be to *always* ignore weekends for crypto prices. i don't see any other way around it...
+
+unless there is some way to calculate correlation between two samples where one has missing information on specific dates, i.e. weekends...if this possible, that would solve everything. 

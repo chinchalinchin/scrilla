@@ -818,10 +818,10 @@ def calculate_percentile_correlation(ticker_1, ticker_2, asset_type_1=None, asse
     asset_type_2 = errors.validate_asset_type(
         ticker=ticker_2, asset_type=asset_type_2)
 
-    if asset_type_1 != asset_type_2:
-        weekends = True
+    if asset_type_1 == asset_type_2 and asset_type_1 == keys.keys['ASSETS']['CRYPTO']:
+        weekends = 1
     else: 
-        weekends = False
+        weekends = 0
 
     if asset_type_1 == keys.keys['ASSETS']['CRYPTO'] and asset_type_2 == keys.keys['ASSETS']['CRYPTO']:
         # validate over all days
@@ -962,11 +962,11 @@ def calculate_likelihood_correlation(ticker_1, ticker_2, asset_type_1=None, asse
         ticker=ticker_1, asset_type=asset_type_1)
     asset_type_2 = errors.validate_asset_type(
         ticker=ticker_2, asset_type=asset_type_2)
-        
-    if asset_type_1 != asset_type_2:
-        weekends = True
+
+    if asset_type_1 == asset_type_2 and asset_type_1 == keys.keys['ASSETS']['CRYPTO']:
+        weekends = 1
     else: 
-        weekends = False
+        weekends = 0
 
     if asset_type_1 == keys.keys['ASSETS']['CRYPTO'] and asset_type_2 == keys.keys['ASSETS']['CRYPTO']:
         # validate over all days
@@ -982,6 +982,7 @@ def calculate_likelihood_correlation(ticker_1, ticker_2, asset_type_1=None, asse
     if sample_prices is None:
         correlation = correlation_cache.filter_correlation_cache(ticker_1=ticker_1, ticker_2=ticker_2,
                                                                  start_date=start_date, end_date=end_date,
+                                                                 weekends=weekends,
                                                                  method=keys.keys['ESTIMATION']['LIKE'])
         if correlation is not None:
             return correlation
@@ -1034,7 +1035,8 @@ def calculate_likelihood_correlation(ticker_1, ticker_2, asset_type_1=None, asse
 
     correlation_cache.save_row(ticker_1=ticker_1, ticker_2=ticker_2,
                                start_date=start_date, end_date=end_date,
-                               correlation=correlation, method=keys.keys['ESTIMATION']['LIKE'])
+                               correlation=correlation, weekends = weekends,
+                               method=keys.keys['ESTIMATION']['LIKE'])
     return result
 
 
@@ -1078,10 +1080,10 @@ def calculate_moment_correlation(ticker_1, ticker_2, asset_type_1=None, asset_ty
     asset_type_2 = errors.validate_asset_type(
         ticker=ticker_2, asset_type=asset_type_2)
     
-    if asset_type_1 != asset_type_2:
-        weekends = True
+    if asset_type_1 == asset_type_2 and asset_type_1 == keys.keys['ASSETS']['CRYPTO']:
+        weekends = 1
     else: 
-        weekends = False
+        weekends = 0
 
     if asset_type_1 == keys.keys['ASSETS']['CRYPTO'] and asset_type_2 == keys.keys['ASSETS']['CRYPTO']:
         # validate over all days
@@ -1253,7 +1255,8 @@ def calculate_moment_correlation(ticker_1, ticker_2, asset_type_1=None, asset_ty
 
     correlation_cache.save_row(ticker_1=ticker_1, ticker_2=ticker_2,
                                start_date=start_date, end_date=end_date,
-                               correlation=correlation, method=keys.keys['ESTIMATION']['MOMENT'])
+                               correlation=correlation, weekends=weekends,
+                               method=keys.keys['ESTIMATION']['MOMENT'])
     return result
 
 

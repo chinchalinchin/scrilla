@@ -73,7 +73,7 @@ def validate_function_usage(selection: str, args: list, wrapper_function: Callab
         raise InputValidationError(
             f'Invalid number of arguments for \'{selection}\' function.')
     end_time = time.time()
-    logger.debug(f'Total execution time: {end_time - start_time}s')
+    logger.comment(f'Total execution time: {end_time - start_time}s')
 
 
 def print_format_to_screen(args: dict) -> bool:
@@ -180,11 +180,11 @@ def do_program() -> None:
                 curve_rate = services.get_daily_interest_history(maturity=maturity,
                                                                  start_date=args['start_date'],
                                                                  end_date=args['start_date'])
-                yield_curve[maturity] = curve_rate/100
+                yield_curve[maturity] = curve_rate[list(curve_rate.keys())[0]]/100
 
                 if print_format_to_screen(args):
                     outputter.scalar_result(
-                        calculation=maturity, result=curve_rate, currency=False)
+                        calculation=maturity, result=yield_curve[maturity], currency=False)
 
             if print_json_to_screen(args):
                 print(json.dumps(yield_curve))

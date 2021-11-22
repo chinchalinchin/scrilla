@@ -631,9 +631,15 @@ def get_daily_interest_history(maturity: str, start_date: Union[date, None] = No
     rates = interest_cache.filter_interest_cache(
         maturity, start_date=start_date, end_date=end_date)
 
+    if rates is not None:
+        logger.debug(
+            f'Comparing {len(rates)} = {dater.business_days_between(start_date, end_date)}')
+
+
     # TODO: this only works when stats are reported daily and that the latest date in the dataset is actually end_date.
-    if rates is not None and dater.date_to_string(end_date) in rates.keys() \
-            and (dater.business_days_between(start_date, end_date)) == len(rates):
+    if rates is not None and \
+        dater.date_to_string(end_date) in rates.keys() and \
+        dater.business_days_between(start_date, end_date) == len(rates):
         return rates
 
     logger.debug(
