@@ -46,7 +46,7 @@ import numpy
 import math
 from decimal import Decimal
 
-from scrilla import services, settings
+from scrilla import services, settings, errors
 import scrilla.util.outputter as outputter
 
 # TODO: conditional import module based on analysis_mode, i.e. geometric versus mean reverting.
@@ -131,10 +131,28 @@ class Portfolio:
         else:
             self.risk_free_rate = services.get_risk_free_rate()
 
+        if self.start_date is None or self.end_date is None:
+            self.init_dates()
+        
+        self.init_asset_types()
+
         self.calculate_stats()
 
-        # todo: calculate stats with lambda functions.
-    # Returns False if calculations fail
+    def init_dates(self):
+        pass
+
+    def init_asset_types(self):
+        self.asset_types = []
+        for ticker in self.tickers:
+            self.asset_types.append(errors.validate_asset_type(ticker))
+            
+        self.mixed_assets = False
+
+        for this_asset_type in self.asset_types:
+            for that_asset_type in self.asset_types:
+                if this_asset_type != that_asset_type:
+                    self.mixed_assets = True
+                    break
 
     def calculate_stats(self):
         self.mean_return = []
@@ -151,6 +169,16 @@ class Portfolio:
             pass
 
         else:
+
+            # TODO: there is a logical error here. if the portfolio is made up of mixed assets (crypto, equity),
+            #       then calculate_risk_return will calculate the risk profile over a different time period than
+            #       the correlation matrix. the reason is: risk_return is univariate, but correlation is bivariate,
+            #       so when the correlation of an equity and crypto is calculated, it truncates the sample to dates
+            #       where both assets trade, i.e. crypto prices on weekends get ignored. the risk_profile of the crypto
+            #       will be over a shorter date range because the analysis will include weekends, whereas the crypto
+            #       correlation will not include weekends if the asset types are mixed. the problem is further 
+            #       compounded since the correlation method will retrieve the univariate profile to use in its calculation.
+            #       need a flag in the cache to tell the program the statistic includes/exclude weekend prices.
 
             if self.risk_profiles is None:
                 for ticker in self.tickers:
@@ -449,10 +477,28 @@ If no arguments are provided to the constructor at all, the portfolio will defau
         else:
             self.risk_free_rate = services.get_risk_free_rate()
 
+        if self.start_date is None or self.end_date is None:
+            self.init_dates()
+        
+        self.init_asset_types()
+
         self.calculate_stats()
 
-        # todo: calculate stats with lambda functions.
-    # Returns False if calculations fail
+    def init_dates(self):
+        pass
+
+    def init_asset_types(self):
+        self.asset_types = []
+        for ticker in self.tickers:
+            self.asset_types.append(errors.validate_asset_type(ticker))
+            
+        self.mixed_assets = False
+
+        for this_asset_type in self.asset_types:
+            for that_asset_type in self.asset_types:
+                if this_asset_type != that_asset_type:
+                    self.mixed_assets = True
+                    break
 
     def calculate_stats(self):
         self.mean_return = []
@@ -469,6 +515,16 @@ If no arguments are provided to the constructor at all, the portfolio will defau
             pass
 
         else:
+
+            # TODO: there is a logical error here. if the portfolio is made up of mixed assets (crypto, equity),
+            #       then calculate_risk_return will calculate the risk profile over a different time period than
+            #       the correlation matrix. the reason is: risk_return is univariate, but correlation is bivariate,
+            #       so when the correlation of an equity and crypto is calculated, it truncates the sample to dates
+            #       where both assets trade, i.e. crypto prices on weekends get ignored. the risk_profile of the crypto
+            #       will be over a shorter date range because the analysis will include weekends, whereas the crypto
+            #       correlation will not include weekends if the asset types are mixed. the problem is further 
+            #       compounded since the correlation method will retrieve the univariate profile to use in its calculation.
+            #       need a flag in the cache to tell the program the statistic includes/exclude weekend prices.
 
             if self.risk_profiles is None:
                 for ticker in self.tickers:
@@ -729,6 +785,16 @@ def get_constraint(x):
 
     else:
 
+        # TODO: there is a logical error here. if the portfolio is made up of mixed assets (crypto, equity),
+        #       then calculate_risk_return will calculate the risk profile over a different time period than
+        #       the correlation matrix. the reason is: risk_return is univariate, but correlation is bivariate,
+        #       so when the correlation of an equity and crypto is calculated, it truncates the sample to dates
+        #       where both assets trade, i.e. crypto prices on weekends get ignored. the risk_profile of the crypto
+        #       will be over a shorter date range because the analysis will include weekends, whereas the crypto
+        #       correlation will not include weekends if the asset types are mixed. the problem is further 
+        #       compounded since the correlation method will retrieve the univariate profile to use in its calculation.
+        #       need a flag in the cache to tell the program the statistic includes/exclude weekend prices.
+
         if self.risk_profiles is None:
             for ticker in self.tickers:
                 if self.sample_prices is not None:
@@ -838,6 +904,42 @@ desired probability of loss.</li>
     if self.target_return is not None:
         return (numpy.dot(x, self.mean_return) - self.target_return)
     return None</code></pre>
+</details>
+</dd>
+<dt id="scrilla.analysis.objects.portfolio.Portfolio.init_asset_types"><code class="name flex">
+<span>def <span class="ident">init_asset_types</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def init_asset_types(self):
+    self.asset_types = []
+    for ticker in self.tickers:
+        self.asset_types.append(errors.validate_asset_type(ticker))
+        
+    self.mixed_assets = False
+
+    for this_asset_type in self.asset_types:
+        for that_asset_type in self.asset_types:
+            if this_asset_type != that_asset_type:
+                self.mixed_assets = True
+                break</code></pre>
+</details>
+</dd>
+<dt id="scrilla.analysis.objects.portfolio.Portfolio.init_dates"><code class="name flex">
+<span>def <span class="ident">init_dates</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def init_dates(self):
+    pass</code></pre>
 </details>
 </dd>
 <dt id="scrilla.analysis.objects.portfolio.Portfolio.percentile_function"><code class="name flex">
@@ -1028,6 +1130,8 @@ The portfolio volatility on an annualized basis.</p></div>
 <li><code><a title="scrilla.analysis.objects.portfolio.Portfolio.get_default_bounds" href="#scrilla.analysis.objects.portfolio.Portfolio.get_default_bounds">get_default_bounds</a></code></li>
 <li><code><a title="scrilla.analysis.objects.portfolio.Portfolio.get_init_guess" href="#scrilla.analysis.objects.portfolio.Portfolio.get_init_guess">get_init_guess</a></code></li>
 <li><code><a title="scrilla.analysis.objects.portfolio.Portfolio.get_target_return_constraint" href="#scrilla.analysis.objects.portfolio.Portfolio.get_target_return_constraint">get_target_return_constraint</a></code></li>
+<li><code><a title="scrilla.analysis.objects.portfolio.Portfolio.init_asset_types" href="#scrilla.analysis.objects.portfolio.Portfolio.init_asset_types">init_asset_types</a></code></li>
+<li><code><a title="scrilla.analysis.objects.portfolio.Portfolio.init_dates" href="#scrilla.analysis.objects.portfolio.Portfolio.init_dates">init_dates</a></code></li>
 <li><code><a title="scrilla.analysis.objects.portfolio.Portfolio.percentile_function" href="#scrilla.analysis.objects.portfolio.Portfolio.percentile_function">percentile_function</a></code></li>
 <li><code><a title="scrilla.analysis.objects.portfolio.Portfolio.return_function" href="#scrilla.analysis.objects.portfolio.Portfolio.return_function">return_function</a></code></li>
 <li><code><a title="scrilla.analysis.objects.portfolio.Portfolio.set_target_return" href="#scrilla.analysis.objects.portfolio.Portfolio.set_target_return">set_target_return</a></code></li>

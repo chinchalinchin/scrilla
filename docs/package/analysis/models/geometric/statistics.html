@@ -846,6 +846,12 @@ def calculate_percentile_correlation(ticker_1, ticker_2, asset_type_1=None, asse
         ticker=ticker_1, asset_type=asset_type_1)
     asset_type_2 = errors.validate_asset_type(
         ticker=ticker_2, asset_type=asset_type_2)
+
+    if asset_type_1 != asset_type_2:
+        weekends = True
+    else: 
+        weekends = False
+
     if asset_type_1 == keys.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;] and asset_type_2 == keys.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]:
         # validate over all days
         start_date, end_date = errors.validate_dates(start_date=start_date, end_date=end_date,
@@ -861,6 +867,7 @@ def calculate_percentile_correlation(ticker_1, ticker_2, asset_type_1=None, asse
         # TODO: extra save_or_update argument for estimation method, i.e. moments, percentiles or likelihood
         correlation = correlation_cache.filter_correlation_cache(ticker_1=ticker_1, ticker_2=ticker_2,
                                                                  start_date=start_date, end_date=end_date,
+                                                                 weekends=weekends,
                                                                  method=keys.keys[&#39;ESTIMATION&#39;][&#39;PERCENT&#39;])
         if correlation is not None:
             return correlation
@@ -984,6 +991,12 @@ def calculate_likelihood_correlation(ticker_1, ticker_2, asset_type_1=None, asse
         ticker=ticker_1, asset_type=asset_type_1)
     asset_type_2 = errors.validate_asset_type(
         ticker=ticker_2, asset_type=asset_type_2)
+        
+    if asset_type_1 != asset_type_2:
+        weekends = True
+    else: 
+        weekends = False
+
     if asset_type_1 == keys.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;] and asset_type_2 == keys.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]:
         # validate over all days
         start_date, end_date = errors.validate_dates(start_date=start_date, end_date=end_date,
@@ -1093,6 +1106,12 @@ def calculate_moment_correlation(ticker_1, ticker_2, asset_type_1=None, asset_ty
         ticker=ticker_1, asset_type=asset_type_1)
     asset_type_2 = errors.validate_asset_type(
         ticker=ticker_2, asset_type=asset_type_2)
+    
+    if asset_type_1 != asset_type_2:
+        weekends = True
+    else: 
+        weekends = False
+
     if asset_type_1 == keys.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;] and asset_type_2 == keys.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]:
         # validate over all days
         start_date, end_date = errors.validate_dates(start_date=start_date, end_date=end_date,
@@ -1104,9 +1123,15 @@ def calculate_moment_correlation(ticker_1, ticker_2, asset_type_1=None, asset_ty
         start_date, end_date = errors.validate_dates(start_date=start_date, end_date=end_date,
                                                      asset_type=keys.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;])
 
+    # TODO: there is a problem here. two different correlations can be cached and each one overrides the
+    #       other. if the asset types are mixed, the correlation is calculated over a truncated (weekends removed)
+    #       sample. if the asset types are equal to crypto, then the correlation is calculated over the entire
+    #       date range.
+    # TODO: do i need a flag
     if sample_prices is None:
         correlation = correlation_cache.filter_correlation_cache(ticker_1=ticker_1, ticker_2=ticker_2,
                                                                  start_date=start_date, end_date=end_date,
+                                                                 weekends=weekends,
                                                                  method=keys.keys[&#39;ESTIMATION&#39;][&#39;MOMENT&#39;])
         if correlation is not None:
             return correlation
@@ -1576,6 +1601,12 @@ Dictionary containing the correlation of <code>ticker_1</code> and <code>ticker_
         ticker=ticker_1, asset_type=asset_type_1)
     asset_type_2 = errors.validate_asset_type(
         ticker=ticker_2, asset_type=asset_type_2)
+        
+    if asset_type_1 != asset_type_2:
+        weekends = True
+    else: 
+        weekends = False
+
     if asset_type_1 == keys.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;] and asset_type_2 == keys.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]:
         # validate over all days
         start_date, end_date = errors.validate_dates(start_date=start_date, end_date=end_date,
@@ -1845,6 +1876,12 @@ Dictionary containing the correlation of <code>ticker_1</code> and <code>ticker_
         ticker=ticker_1, asset_type=asset_type_1)
     asset_type_2 = errors.validate_asset_type(
         ticker=ticker_2, asset_type=asset_type_2)
+    
+    if asset_type_1 != asset_type_2:
+        weekends = True
+    else: 
+        weekends = False
+
     if asset_type_1 == keys.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;] and asset_type_2 == keys.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]:
         # validate over all days
         start_date, end_date = errors.validate_dates(start_date=start_date, end_date=end_date,
@@ -1856,9 +1893,15 @@ Dictionary containing the correlation of <code>ticker_1</code> and <code>ticker_
         start_date, end_date = errors.validate_dates(start_date=start_date, end_date=end_date,
                                                      asset_type=keys.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;])
 
+    # TODO: there is a problem here. two different correlations can be cached and each one overrides the
+    #       other. if the asset types are mixed, the correlation is calculated over a truncated (weekends removed)
+    #       sample. if the asset types are equal to crypto, then the correlation is calculated over the entire
+    #       date range.
+    # TODO: do i need a flag
     if sample_prices is None:
         correlation = correlation_cache.filter_correlation_cache(ticker_1=ticker_1, ticker_2=ticker_2,
                                                                  start_date=start_date, end_date=end_date,
+                                                                 weekends=weekends,
                                                                  method=keys.keys[&#39;ESTIMATION&#39;][&#39;MOMENT&#39;])
         if correlation is not None:
             return correlation
@@ -2665,6 +2708,12 @@ Dictionary containing the correlation of <code>ticker_1</code> and <code>ticker_
         ticker=ticker_1, asset_type=asset_type_1)
     asset_type_2 = errors.validate_asset_type(
         ticker=ticker_2, asset_type=asset_type_2)
+
+    if asset_type_1 != asset_type_2:
+        weekends = True
+    else: 
+        weekends = False
+
     if asset_type_1 == keys.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;] and asset_type_2 == keys.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]:
         # validate over all days
         start_date, end_date = errors.validate_dates(start_date=start_date, end_date=end_date,
@@ -2680,6 +2729,7 @@ Dictionary containing the correlation of <code>ticker_1</code> and <code>ticker_
         # TODO: extra save_or_update argument for estimation method, i.e. moments, percentiles or likelihood
         correlation = correlation_cache.filter_correlation_cache(ticker_1=ticker_1, ticker_2=ticker_2,
                                                                  start_date=start_date, end_date=end_date,
+                                                                 weekends=weekends,
                                                                  method=keys.keys[&#39;ESTIMATION&#39;][&#39;PERCENT&#39;])
         if correlation is not None:
             return correlation

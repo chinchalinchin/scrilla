@@ -7,7 +7,7 @@ from scrilla import services
 from scrilla.static import keys
 from scrilla.files import load_file
 
-from . import settings
+from .. import settings
 
 ally_response = json.dumps(load_file(os.path.join(settings.MOCK_DIR, 'ally_response.json')))
 bx_response = json.dumps(load_file(os.path.join(settings.MOCK_DIR, 'bx_response.json')))
@@ -21,7 +21,7 @@ def mock_prices(url, request):
         return bx_response
     elif 'DIS' in request.url:
         return dis_response
-    return "nada"
+    raise KeyError('No mock data for request!')
 
 @pytest.mark.parametrize("ticker,price", [('ALLY', 47.93), ('BX', 146.44), ('DIS', 154.00)] )
 def test_latest_price(ticker, price):
@@ -29,13 +29,11 @@ def test_latest_price(ticker, price):
         response = services.get_daily_price_latest(ticker=ticker)
     assert(float(response) == price)
 
-@pytest.mark.parametrize("ticker,date,price", 
-                                            [
+@pytest.mark.parametrize("ticker,date,price", [
                                                 ('ALLY', '2021-10-22', 50.70), 
                                                 ('BX', '2021-09-08', 128.31), 
                                                 ('DIS', '2021-10-04', 173.46)
-                                            ]
-                        )
+                                            ])
 def test_past_price(ticker, date, price):
     with HTTMock(mock_prices):
         response = services.get_daily_price_history(ticker=ticker)

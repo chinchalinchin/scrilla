@@ -1,0 +1,8 @@
+[run]
+source = /home/chinchalinchin/.local/lib/python3.8/site-packages/scrilla/
+omit = 
+    */__init__.py
+
+[html]
+title = "Scrilla Unit Test Coverage"
+directory = docs/coverage

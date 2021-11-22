@@ -56,6 +56,7 @@ The arguments are parsed in such a way that arguments which are not supplied are
 import sys
 import os
 import json
+import time
 from typing import Callable
 
 from scrilla import settings, services, files
@@ -96,6 +97,7 @@ def validate_function_usage(selection: str, args: list, wrapper_function: Callab
         raise InputValidationError(
             &#39;Graphics functionality disabled when application is containerized.&#39;)
 
+    start_time = time.time()
     if(not exact and (len(args) &gt; (required_length-1))):
         wrapper_function()
     elif(exact and (len(args) == required_length)):
@@ -103,6 +105,8 @@ def validate_function_usage(selection: str, args: list, wrapper_function: Callab
     else:
         raise InputValidationError(
             f&#39;Invalid number of arguments for \&#39;{selection}\&#39; function.&#39;)
+    end_time = time.time()
+    logger.debug(f&#39;Total execution time: {end_time - start_time}s&#39;)
 
 
 def print_format_to_screen(args: dict) -&gt; bool:
@@ -1771,13 +1775,16 @@ The number of tickers required for the function.</li>
         raise InputValidationError(
             &#39;Graphics functionality disabled when application is containerized.&#39;)
 
+    start_time = time.time()
     if(not exact and (len(args) &gt; (required_length-1))):
         wrapper_function()
     elif(exact and (len(args) == required_length)):
         wrapper_function()
     else:
         raise InputValidationError(
-            f&#39;Invalid number of arguments for \&#39;{selection}\&#39; function.&#39;)</code></pre>
+            f&#39;Invalid number of arguments for \&#39;{selection}\&#39; function.&#39;)
+    end_time = time.time()
+    logger.debug(f&#39;Total execution time: {end_time - start_time}s&#39;)</code></pre>
 </details>
 </dd>
 </dl>
