@@ -1,10 +1,14 @@
 import pytest 
 from httmock import HTTMock
 
+from scrilla import settings as scrilla_settings
+from scrilla.files import clear_directory
+clear_directory(scrilla_settings.CACHE_DIR)
+
 from scrilla import services
 from scrilla.static import keys
 
-from . import mock
+from .. import mock
 
 
 @pytest.mark.parametrize("ticker,price", [('ALLY', 47.93), ('BX', 146.44), ('DIS', 154.00)] )

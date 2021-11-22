@@ -3,12 +3,9 @@ import json
 
 from httmock import urlmatch
 
-from scrilla.files import load_file, clear_directory
-from scrilla import settings as scrilla_settings
+from scrilla.files import load_file
 
-from .. import settings as test_settings
-
-clear_directory(scrilla_settings.CACHE_DIR)
+from . import settings as test_settings
 
 @urlmatch(netloc=r'(.*\.)?alphavantage\.co*$')
 def mock_prices(url, request):
