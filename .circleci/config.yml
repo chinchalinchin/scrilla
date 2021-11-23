@@ -83,8 +83,7 @@ commands:
     description: run unit tests against installed wheel
     steps:
       - run: unit tests
-        command:
-            bash ./scripts/tests
+        command: bash ./scripts/tests
 
   commit_coverage:
     description: commit re-generated docs to git
