@@ -97,6 +97,7 @@ commands:
             cp -ap ./docs/. /tmp/docs/
             git stash
             git checkout gh-pages
+            git pull
             cp -ap /tmp/docs/. ./
             git config user.email "chinchalinchin@gmail.com"
             git config user.name "CircleCi Bot"
