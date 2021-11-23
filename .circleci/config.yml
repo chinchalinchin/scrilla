@@ -64,7 +64,7 @@ commands:
           name: generate docs
           command: |
             mkdir /tmp/docs/
-            bash ./scripts/docs
+            bash ./scripts/docs circle-ci
             cp -ap ./docs/. /tmp/docs/
             git stash
             git checkout gh-pages
