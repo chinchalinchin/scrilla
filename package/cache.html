@@ -406,11 +406,11 @@ class ProfileCache(Cache):
             self.execute_transaction(
                 transaction=ProfileCache.update_equity_tranasction, formatter=formatter)
 
-    def filter_profile_cache(self, ticker: str, start_date: datetime.date, end_date: datetime.date, weekends:int=0, method=settings.ESTIMATION_METHOD):
+    def filter_profile_cache(self, ticker, start_date, end_date, method=settings.ESTIMATION_METHOD):
         logger.debug(
             f&#39;Querying SQLite cache: \n\t{ProfileCache.profile_query}\n\t\t with :ticker={ticker}, :start_date={start_date}, :end_date={end_date}&#39;)
         formatter = {&#39;ticker&#39;: ticker, &#39;start_date&#39;: start_date,
-                     &#39;end_date&#39;: end_date, &#39;method&#39;: method, &#39;weekends&#39;: weekends}
+                     &#39;end_date&#39;: end_date, &#39;method&#39;: method}
         result = self.execute_query(
             query=ProfileCache.profile_query, formatter=formatter)
 
@@ -1304,11 +1304,11 @@ def to_dict(query_results):
             self.execute_transaction(
                 transaction=ProfileCache.update_equity_tranasction, formatter=formatter)
 
-    def filter_profile_cache(self, ticker: str, start_date: datetime.date, end_date: datetime.date, weekends:int=0, method=settings.ESTIMATION_METHOD):
+    def filter_profile_cache(self, ticker, start_date, end_date, method=settings.ESTIMATION_METHOD):
         logger.debug(
             f&#39;Querying SQLite cache: \n\t{ProfileCache.profile_query}\n\t\t with :ticker={ticker}, :start_date={start_date}, :end_date={end_date}&#39;)
         formatter = {&#39;ticker&#39;: ticker, &#39;start_date&#39;: start_date,
-                     &#39;end_date&#39;: end_date, &#39;method&#39;: method, &#39;weekends&#39;: weekends}
+                     &#39;end_date&#39;: end_date, &#39;method&#39;: method}
         result = self.execute_query(
             query=ProfileCache.profile_query, formatter=formatter)
 
@@ -1422,7 +1422,7 @@ def to_dict(query_result):
 <h3>Methods</h3>
 <dl>
 <dt id="scrilla.cache.ProfileCache.filter_profile_cache"><code class="name flex">
-<span>def <span class="ident">filter_profile_cache</span></span>(<span>self, ticker: str, start_date: datetime.date, end_date: datetime.date, weekends: int = 0, method='moments')</span>
+<span>def <span class="ident">filter_profile_cache</span></span>(<span>self, ticker, start_date, end_date, method='moments')</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -1430,11 +1430,11 @@ def to_dict(query_result):
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def filter_profile_cache(self, ticker: str, start_date: datetime.date, end_date: datetime.date, weekends:int=0, method=settings.ESTIMATION_METHOD):
+<pre><code class="python">def filter_profile_cache(self, ticker, start_date, end_date, method=settings.ESTIMATION_METHOD):
     logger.debug(
         f&#39;Querying SQLite cache: \n\t{ProfileCache.profile_query}\n\t\t with :ticker={ticker}, :start_date={start_date}, :end_date={end_date}&#39;)
     formatter = {&#39;ticker&#39;: ticker, &#39;start_date&#39;: start_date,
-                 &#39;end_date&#39;: end_date, &#39;method&#39;: method, &#39;weekends&#39;: weekends}
+                 &#39;end_date&#39;: end_date, &#39;method&#39;: method}
     result = self.execute_query(
         query=ProfileCache.profile_query, formatter=formatter)
 

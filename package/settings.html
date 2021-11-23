@@ -133,7 +133,7 @@ GUI_DARK_MODE = os.environ.setdefault(&#39;DARK_MODE&#39;, &#39;true&#39;).lower
 # OPTIONAL USER CONFIGURATION
 GUI_WIDTH = None
 &#34;&#34;&#34;Width of main Graphical User Interface window; Configured by environment variable of same name, **GUI_WIDTH**&#34;&#34;&#34;
-GUI_HEIGHT = None
+GUI_HEIGHT =  None
 &#34;&#34;&#34;Height of main Graphical User Interface window; Configured by environment variable of same name, **GUI_HEIGHT**.&#34;&#34;&#34;
 FRONTIER_STEPS = None
 &#34;&#34;&#34;Number of data points used to trace out the efficient frontier; Configured by environment variable of same name, **FRONTIER_STEPS** &#34;&#34;&#34;
@@ -244,7 +244,7 @@ if PRICE_MANAGER == &#39;alpha_vantage&#39;:
 
     AV_KEY = os.environ.setdefault(&#39;ALPHA_VANTAGE_KEY&#39;, None)
 
-    if AV_KEY is None:
+    if not AV_KEY:
         keystore = os.path.join(COMMON_DIR, f&#39;ALPHA_VANTAGE_KEY.{FILE_EXT}&#39;)
         if os.path.isfile(keystore):
             with open(keystore, &#39;r&#39;) as infile:
@@ -268,7 +268,7 @@ if STAT_MANAGER == &#34;quandl&#34;:
 
     Q_KEY = os.environ.setdefault(&#39;QUANDL_KEY&#39;, None)
 
-    if Q_KEY is None:
+    if not Q_KEY:
         keystore = os.path.join(COMMON_DIR, f&#39;QUANDL_KEY.{FILE_EXT}&#39;)
         if os.path.isfile(keystore):
             with open(keystore, &#39;r&#39;) as infile:
@@ -289,7 +289,7 @@ if DIV_MANAGER == &#34;iex&#34;:
 
     IEX_KEY = os.environ.setdefault(&#34;IEX_KEY&#34;, None)
 
-    if IEX_KEY is None:
+    if not IEX_KEY:
         keystore = os.path.join(COMMON_DIR, f&#39;IEX_KEY.{FILE_EXT}&#39;)
         if os.path.isfile(keystore):
             with open(keystore, &#39;r&#39;) as infile:
