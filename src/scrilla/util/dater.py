@@ -21,9 +21,6 @@ def validate_order_of_dates(start_date: datetime.date, end_date: datetime.date) 
 def parse_date_string(date_string: str) -> Union[datetime.date, None]:
     """
     Converts a date string in the 'YYYY-MM-DD' format to a Python `datetime.date`.
-
-    ..notes ::
-        * can probably use `datetime.datetime.strptime` instead of this complicated mumbo-jumbo.
     """
     return datetime.datetime.strptime(date_string, '%Y-%m-%d').date()
 
@@ -169,6 +166,11 @@ def is_date_string_holiday(date_string: str) -> bool:
 
 def is_trading_date(date: datetime.date) -> bool:
     return not is_date_weekend(date) and not is_date_holiday(date)
+
+
+def intersect_with_trading_dates(date_key_dict: dict) -> dict:
+    return {date: date_key_dict[date] for date in date_key_dict if is_trading_date(parse_date_string(date))}
+    
 
 # YYYY-MM-DD
 

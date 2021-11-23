@@ -230,13 +230,13 @@ def screen_results(info, model):
 #         optimal result.
 
 
-def optimal_result(portfolio, allocation, investment=None):
+def optimal_result(portfolio, allocation, investment=None, latest_prices=None):
     title_line('Optimal Percentage Allocation')
     portfolio_percent_result(allocation, portfolio.tickers)
 
     if investment is not None:
-        shares = portfolio.calculate_approximate_shares(allocation, investment)
-        total = portfolio.calculate_actual_total(allocation, investment)
+        shares = portfolio.calculate_approximate_shares(allocation, investment, latest_prices)
+        total = portfolio.calculate_actual_total(allocation, investment, latest_prices)
 
         title_line('Optimal Share Allocation')
         portfolio_shares_result(shares, portfolio.tickers)
@@ -250,7 +250,7 @@ def optimal_result(portfolio, allocation, investment=None):
         allocation), currency=False)
 
 
-def efficient_frontier(portfolio, frontier, investment=None):
+def efficient_frontier(portfolio, frontier, investment=None, latest_prices=None):
     title_line('(Annual Return %, Annual Volatility %) Portfolio')
 
     # TODO: edit title to include dates
@@ -269,8 +269,8 @@ def efficient_frontier(portfolio, frontier, investment=None):
 
         if investment is not None:
             shares = portfolio.calculate_approximate_shares(
-                allocation, investment)
-            total = portfolio.calculate_actual_total(allocation, investment)
+                allocation, investment, latest_prices)
+            total = portfolio.calculate_actual_total(allocation, investment, latest_prices)
 
             title_line('Optimal Share Allocation')
             portfolio_shares_result(shares, portfolio.tickers)

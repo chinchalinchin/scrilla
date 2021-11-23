@@ -29,7 +29,7 @@ from scrilla import settings, errors
 from scrilla.static import functions, keys, constants
 from scrilla.util import outputter, helper
 
-logger = outputter.Logger("files", settings.LOG_LEVEL)
+logger = outputter.Logger("scrilla.files", settings.LOG_LEVEL)
 
 static_tickers_blob, static_econ_blob, static_crypto_blob = None, None, None
 
@@ -360,15 +360,15 @@ def save_profiles(profiles: dict, file_name: str):
     save_file(file_to_save=save_format, file_name=file_name)
 
 
-def save_allocation(allocation, portfolio, file_name, investment=None):
+def save_allocation(allocation, portfolio, file_name, investment=None, latest_prices=None):
     save_format = functions.format_allocation(
-        allocation=allocation, portfolio=portfolio, investment=investment)
+        allocation=allocation, portfolio=portfolio, investment=investment, latest_prices=latest_prices)
     save_file(file_to_save=save_format, file_name=file_name)
 
 
-def save_frontier(portfolio, frontier, file_name, investment=None):
+def save_frontier(portfolio, frontier, file_name, investment=None, latest_prices=None):
     save_format = functions.format_frontier(
-        portfolio=portfolio, frontier=frontier, investment=investment)
+        portfolio=portfolio, frontier=frontier, investment=investment, latest_prices=latest_prices)
     save_file(file_to_save=save_format, file_name=file_name)
 
 

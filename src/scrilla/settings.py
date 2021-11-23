@@ -214,7 +214,7 @@ if PRICE_MANAGER == 'alpha_vantage':
 
     AV_KEY = os.environ.setdefault('ALPHA_VANTAGE_KEY', None)
 
-    if not AV_KEY:
+    if AV_KEY is None:
         keystore = os.path.join(COMMON_DIR, f'ALPHA_VANTAGE_KEY.{FILE_EXT}')
         if os.path.isfile(keystore):
             with open(keystore, 'r') as infile:
@@ -238,7 +238,7 @@ if STAT_MANAGER == "quandl":
 
     Q_KEY = os.environ.setdefault('QUANDL_KEY', None)
 
-    if not Q_KEY:
+    if Q_KEY is None:
         keystore = os.path.join(COMMON_DIR, f'QUANDL_KEY.{FILE_EXT}')
         if os.path.isfile(keystore):
             with open(keystore, 'r') as infile:
@@ -259,7 +259,7 @@ if DIV_MANAGER == "iex":
 
     IEX_KEY = os.environ.setdefault("IEX_KEY", None)
 
-    if not IEX_KEY:
+    if IEX_KEY is None:
         keystore = os.path.join(COMMON_DIR, f'IEX_KEY.{FILE_EXT}')
         if os.path.isfile(keystore):
             with open(keystore, 'r') as infile:

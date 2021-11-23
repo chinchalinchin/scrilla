@@ -23,9 +23,11 @@ The arguments are parsed in such a way that arguments which are not supplied are
 import sys
 import os
 import json
+import time
 from typing import Callable
 
 from scrilla import settings, services, files
+from scrilla.cache import PriceCache
 from scrilla.static import functions, definitions, formats, keys
 from scrilla.errors import InputValidationError
 from scrilla.util import dater, outputter, helper
@@ -63,6 +65,7 @@ def validate_function_usage(selection: str, args: list, wrapper_function: Callab
         raise InputValidationError(
             'Graphics functionality disabled when application is containerized.')
 
+    start_time = time.time()
     if(not exact and (len(args) > (required_length-1))):
         wrapper_function()
     elif(exact and (len(args) == required_length)):
@@ -70,6 +73,8 @@ def validate_function_usage(selection: str, args: list, wrapper_function: Callab
     else:
         raise InputValidationError(
             f'Invalid number of arguments for \'{selection}\' function.')
+    end_time = time.time()
+    logger.comment(f'Total execution time: {end_time - start_time}s')
 
 
 def print_format_to_screen(args: dict) -> bool:
@@ -176,11 +181,11 @@ def do_program() -> None:
                 curve_rate = services.get_daily_interest_history(maturity=maturity,
                                                                  start_date=args['start_date'],
                                                                  end_date=args['start_date'])
-                yield_curve[maturity] = curve_rate/100
+                yield_curve[maturity] = curve_rate[list(curve_rate.keys())[0]]/100
 
                 if print_format_to_screen(args):
                     outputter.scalar_result(
-                        calculation=maturity, result=curve_rate, currency=False)
+                        calculation=maturity, result=yield_curve[maturity], currency=False)
 
             if print_json_to_screen(args):
                 print(json.dumps(yield_curve))
@@ -430,20 +435,28 @@ def do_program() -> None:
             frontier = optimizer.calculate_efficient_frontier(portfolio=portfolio,
                                                               steps=args['steps'])
 
+            if args['investment'] is not None:            
+                prices = services.get_daily_prices_latest(tickers=args['tickers'])
+            else:
+                prices = None
+
             if print_format_to_screen(args):
                 outputter.efficient_frontier(portfolio=portfolio,
                                              frontier=frontier,
-                                             investment=args['investment'])
+                                             investment=args['investment'],
+                                             latest_prices=prices)
             if print_json_to_screen(args):
                 print(json.dumps(functions.format_frontier(portfolio=portfolio,
                                                            frontier=frontier,
-                                                           investment=args['investment'])))
+                                                           investment=args['investment'],
+                                                           latest_prices=prices)))
 
             if args['save_file'] is not None:
                 files.save_frontier(portfolio=portfolio,
                                     frontier=frontier,
                                     investment=args['investment'],
-                                    file_name=args['save_file'])
+                                    file_name=args['save_file'],
+                                    latest_prices=prices)
         selected_function, required_length = cli_efficient_frontier, 2
 
     # FUNCTION: Maximize Portfolio Return
@@ -456,20 +469,29 @@ def do_program() -> None:
             allocation = optimizer.maximize_portfolio_return(
                 portfolio=portfolio)
 
+            if args['investment'] is not None:            
+                prices = services.get_daily_prices_latest(tickers=args['tickers'])
+            else:
+                prices = None
+
             if print_format_to_screen(args):
                 outputter.optimal_result(portfolio=portfolio,
                                          allocation=allocation,
-                                         investment=args['investment'])
+                                         investment=args['investment'],
+                                         latest_prices=prices)
+
             if print_json_to_screen(args):
                 print(json.dumps(functions.format_allocation(allocation=allocation,
                                                              portfolio=portfolio,
-                                                             investment=args['investment'])))
+                                                             investment=args['investment'],
+                                                             latest_prices=prices)))
 
             if args['save_file'] is not None:
                 files.save_allocation(allocation=allocation,
                                       portfolio=portfolio,
                                       file_name=args['save_file'],
-                                      investment=args['investment'])
+                                      investment=args['investment'],
+                                      latest_prices=prices)
         selected_function, required_length = cli_maximize_return, 2
 
     # FUNCTION: Moving Averages of Logarithmic Returns
@@ -503,17 +525,23 @@ def do_program() -> None:
                 allocation = optimizer.optimize_portfolio_variance(
                     portfolio=portfolio, target_return=args['target'])
 
+            if args['investment'] is not None:            
+                prices = services.get_daily_prices_latest(tickers=args['tickers'])
+            else:
+                prices = None
+
             if print_format_to_screen(args):
                 outputter.optimal_result(
                     portfolio=portfolio, allocation=allocation, investment=args['investment'])
 
             if print_json_to_screen(args):
                 print(json.dumps(functions.format_allocation(
-                    allocation=allocation, portfolio=portfolio, investment=args['investment'])))
+                    allocation=allocation, portfolio=portfolio, investment=args['investment'],
+                    latest_prices=prices)))
 
             if args['save_file'] is not None:
                 files.save_allocation(allocation=allocation, portfolio=portfolio, file_name=args['save_file'],
-                                      investment=args['investment'])
+                                      investment=args['investment'], latest_prices=prices)
         selected_function, required_length = cli_optimize_portfolio_variance, 2
 
     # FUNCTION: Optimize Portfolio Conditional Value At Risk
@@ -527,17 +555,22 @@ def do_program() -> None:
                                                                       prob=args['probability'],
                                                                       expiry=args['expiry'],
                                                                       target_return=args['target'])
+            if args['investment'] is not None:            
+                prices = services.get_daily_prices_latest(tickers=args['tickers'])
+            else:
+                prices = None
+
             if print_format_to_screen(args):
                 outputter.optimal_result(
-                    portfolio=portfolio, allocation=allocation, investment=args['investment'])
+                    portfolio=portfolio, allocation=allocation, investment=args['investment'], latest_prices=prices)
 
             if print_json_to_screen(args):
                 print(json.dumps(functions.format_allocation(
-                    allocation=allocation, portfolio=portfolio, investment=args['investment'])))
+                    allocation=allocation, portfolio=portfolio, investment=args['investment'], latest_prices=prices)))
 
             if args['save_file'] is not None:
                 files.save_allocation(allocation=allocation, portfolio=portfolio, file_name=args['save_file'],
-                                      investment=args['investment'])
+                                      investment=args['investment'], latest_prices=prices)
         selected_function, required_length = cli_optimize_conditional_value_at_risk, 2
 
     # FUNCTION: Plot Correlation Time Series

@@ -30,7 +30,7 @@ if __name__ == "__main__":
 from scrilla import settings, errors, cache
 import scrilla.util.outputter as outputter
 
-logger = outputter.Logger('estimators', settings.LOG_LEVEL)
+logger = outputter.Logger('scrilla.analysis.estimators', settings.LOG_LEVEL)
 profile_cache = cache.ProfileCache()
 correlation_cache = cache.CorrelationCache()
 

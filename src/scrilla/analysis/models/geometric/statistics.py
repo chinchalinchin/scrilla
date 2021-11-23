@@ -14,6 +14,7 @@
 # or <https://github.com/chinchalinchin/scrilla/blob/develop/main/LICENSE>.
 
 from datetime import timedelta, date
+import datetime
 from typing import Dict, List, Union
 from numpy import log, sqrt, inf
 from scipy.stats import norm, multivariate_normal
@@ -21,10 +22,10 @@ from scipy.optimize import fsolve, least_squares
 
 from scrilla import services, files, settings, errors, cache
 from scrilla.static import keys, functions, constants
-from scrilla.analysis import estimators, optimizer
+from scrilla.analysis import estimators
 from scrilla.util import outputter, helper, dater
 
-logger = outputter.Logger('statistics', settings.LOG_LEVEL)
+logger = outputter.Logger('scrilla.analysis.models.geometric.statistics', settings.LOG_LEVEL)
 profile_cache = cache.ProfileCache()
 correlation_cache = cache.CorrelationCache()
 
@@ -97,7 +98,7 @@ def get_sample_of_returns(ticker: str, sample_prices: dict = None, start_date: U
     return sample_of_returns
 
 
-def calculate_moving_averages(tickers: list, start_date: Union[date, None] = None, end_date: Union[date, None] = None, sample_prices: Union[dict, None] = None) -> list:
+def calculate_moving_averages(tickers: list, start_date: Union[date, None] = None, end_date: Union[date, None] = None, sample_prices: Union[Dict[str,Dict[str,float]], None] = None) -> list:
     # TODO: i need to redo this. this is needlessly inefficient. mean telescopes when
     #       calculating with moments. don't need to sum everything.
     # TODO: calculate moving averages with different estimation techniques.
@@ -426,17 +427,32 @@ def calculate_moving_averages(tickers: list, start_date: Union[date, None] = Non
     return moving_averages, dates_between
 
 
-def calculate_risk_return(ticker: str, start_date: Union[date, None] = None, end_date: Union[date, None] = None, sample_prices: Union[dict, None] = None, asset_type: Union[str, None] = None, method: str = settings.ESTIMATION_METHOD) -> Dict[str, float]:
+def calculate_risk_return(ticker: str, start_date: Union[date, None] = None, end_date: Union[date, None] = None, sample_prices: Union[Dict[str,Dict[str,float]], None] = None, asset_type: Union[str, None] = None, weekends: Union[int, None]=None, method: str = settings.ESTIMATION_METHOD) -> Dict[str, float]:
     if method == keys.keys['ESTIMATION']['MOMENT']:
-        return calculate_moment_risk_return(ticker, start_date, end_date, sample_prices, asset_type)
+        return calculate_moment_risk_return(ticker=ticker, 
+                                            start_date=start_date, 
+                                            end_date=end_date, 
+                                            sample_prices=sample_prices, 
+                                            asset_type=asset_type,
+                                            weekends=weekends)
     if method == keys.keys['ESTIMATION']['PERCENT']:
-        return calculate_percentile_risk_return(ticker, start_date, end_date, sample_prices, asset_type)
+        return calculate_percentile_risk_return(ticker=ticker, 
+                                                start_date=start_date, 
+                                                end_date=end_date, 
+                                                sample_prices=sample_prices, 
+                                                asset_type=asset_type,
+                                                weekends=weekends)
     if method == keys.keys['ESTIMATION']['LIKE']:
-        return calculate_likelihood_risk_return(ticker, start_date, end_date, sample_prices, asset_type)
+        return calculate_likelihood_risk_return(ticker=ticker, 
+                                                start_date=start_date, 
+                                                end_date=end_date, 
+                                                sample_prices=sample_prices, 
+                                                asset_type=asset_type,
+                                                weekends=weekends)
     raise errors.ConfigurationError('Statistic estimation method not found')
 
 
-def calculate_likelihood_risk_return(ticker, start_date: Union[date, None] = None, end_date: Union[date, None] = None, sample_prices: Union[dict, None] = None, asset_type: Union[str, None] = None) -> Dict[str, float]:
+def calculate_likelihood_risk_return(ticker, start_date: Union[date, None] = None, end_date: Union[date, None] = None, sample_prices: Union[dict, None] = None, asset_type: Union[str, None] = None, weekends: Union[int, None] = None) -> Dict[str, float]:
     """
     Estimates the mean rate of return and volatility for a sample of asset prices as if the asset price followed a Geometric Brownian Motion process, i.e. the mean rate of return and volatility are constant and not functions of time or the asset price. Moreover, the return and volatility are estimated using the method of maximum likelihood estimation. The probability of each observation is calculated and then the product is taken to find the probability of the intersection; this probability is maximized with respect to the parameters of the normal distribution, the mean and the volatility.
 
@@ -468,8 +484,16 @@ def calculate_likelihood_risk_return(ticker, start_date: Union[date, None] = Non
         * assumes price history is ordered from latest to earliest date.
         * if the `sample_prices` dictionary is provided, the function will bypass the cache and the service call altogether. The function will assume `sample_prices` is the source of the truth.
     """
+    from scrilla.analysis import optimizer
+
     asset_type = errors.validate_asset_type(ticker, asset_type)
     trading_period = functions.get_trading_period(asset_type)
+
+    if weekends is None:
+        if asset_type == keys.keys['ASSETS']['CRYPTO']:
+            weekends = 1
+        else: 
+            weekends = 0
 
     if sample_prices is None:
         start_date, end_date = errors.validate_dates(
@@ -485,6 +509,11 @@ def calculate_likelihood_risk_return(ticker, start_date: Union[date, None] = Non
         logger.debug('No sample prices provided, calling service.')
         prices = services.get_daily_price_history(
             ticker=ticker, start_date=start_date, end_date=end_date, asset_type=asset_type)
+        
+        if asset_type == keys.keys['ASSETS']['CRYPTO'] and weekends == 0:
+            logger.debug('Removing weekends from crypto sample')
+            prices = dater.intersect_with_trading_dates(prices)
+
     else:
         logger.debug(
             f'{ticker} sample prices provided, skipping service call.')
@@ -512,14 +541,14 @@ def calculate_likelihood_risk_return(ticker, start_date: Union[date, None] = Non
     }
 
     profile_cache.save_or_update_row(ticker=ticker, start_date=start_date, end_date=end_date,
-                                     method=keys.keys['ESTIMATION']['LIKE'],
+                                     method=keys.keys['ESTIMATION']['LIKE'], weekends=weekends,
                                      annual_return=results[keys.keys['STATISTICS']['RETURN']],
                                      annual_volatility=results[keys.keys['STATISTICS']['VOLATILITY']])
 
     return results
 
 
-def calculate_percentile_risk_return(ticker: str, start_date: Union[date, None] = None, end_date: Union[date, None] = None, sample_prices: Union[dict, None] = None, asset_type: Union[str, None] = None) -> Dict[str, float]:
+def calculate_percentile_risk_return(ticker: str, start_date: Union[date, None] = None, end_date: Union[date, None] = None, sample_prices: Union[dict, None] = None, asset_type: Union[str, None] = None, weekends: Union[int, None]=None) -> Dict[str, float]:
     """
     Estimates the mean rate of return and volatility for a sample of asset prices as if the asset price followed a Geometric Brownian Motion process, i.e. the mean rate of return and volatility are constant and not functions of time or the asset price. Moreover, the return and volatility are estimated using the method of percentile matching, where the return and volatility are estimated by matching the 25th and 75th percentile calculated from the assumed GBM distribution to the sample of data.
 
@@ -553,11 +582,23 @@ def calculate_percentile_risk_return(ticker: str, start_date: Union[date, None] 
     asset_type = errors.validate_asset_type(ticker, asset_type)
     trading_period = functions.get_trading_period(asset_type)
 
+    if weekends is None:
+        if asset_type == keys.keys['ASSETS']['CRYPTO']:
+            weekends = 1
+        else: 
+            weekends = 0
+
     if sample_prices is None:
-        start_date, end_date = errors.validate_dates(
-            start_date, end_date, asset_type)
+        if weekends == 1:
+            start_date, end_date = errors.validate_dates(
+                start_date, end_date, keys.keys['ASSETS']['CRYPTO'])
+        else:
+            start_date, end_date = errors.validate_dates(
+                start_date, end_date, keys.keys['ASSETS']['EQUITY'])
+
         results = profile_cache.filter_profile_cache(ticker=ticker, start_date=start_date, end_date=end_date,
-                                                     method=keys.keys['ESTIMATION']['PERCENT'])
+                                                     method=keys.keys['ESTIMATION']['PERCENT'],
+                                                     weekends=weekends)
 
         if results is not None \
                 and results[keys.keys['STATISTICS']['RETURN']] is not None \
@@ -568,6 +609,9 @@ def calculate_percentile_risk_return(ticker: str, start_date: Union[date, None] 
         prices = services.get_daily_price_history(
             ticker=ticker, start_date=start_date, end_date=end_date, asset_type=asset_type)
 
+        if asset_type == keys.keys['ASSETS']['CRYPTO'] and weekends == 0:
+            logger.debug('Removing weekends from crypto sample')
+            prices = dater.intersect_with_trading_dates(prices)
     else:
         logger.debug(
             f'{ticker} sample prices provided, skipping service call.')
@@ -604,13 +648,13 @@ def calculate_percentile_risk_return(ticker: str, start_date: Union[date, None] 
     }
 
     profile_cache.save_or_update_row(ticker=ticker, start_date=start_date, end_date=end_date,
-                                     method=keys.keys['ESTIMATION']['PERCENT'],
+                                     method=keys.keys['ESTIMATION']['PERCENT'], weekends=weekends,
                                      annual_return=results[keys.keys['STATISTICS']['RETURN']],
                                      annual_volatility=results[keys.keys['STATISTICS']['VOLATILITY']])
     return results
 
 
-def calculate_moment_risk_return(ticker: str, start_date: Union[date, None] = None, end_date: Union[date, None] = None, sample_prices: Union[dict, None] = None, asset_type: Union[str, None] = None) -> Dict[str, float]:
+def calculate_moment_risk_return(ticker: str, start_date: Union[date, None] = None, end_date: Union[date, None] = None, sample_prices: Union[Dict[str,Dict[str,float]], None] = None, asset_type: Union[str, None] = None, weekends: Union[int, None] = None) -> Dict[str, float]:
     """
     Estimates the mean rate of return and volatility for a sample of asset prices as if the asset price followed a Geometric Brownian Motion process, i.e. the mean rate of return and volatility are constant and not functions of time or the asset price. Moreover, the return and volatility are estimated using the method of moment matching, where the return is estimated by equating it to the first moment of the sample and the volatility is estimated by equating it to the square root of the second moment of the sample.
 
@@ -618,14 +662,15 @@ def calculate_moment_risk_return(ticker: str, start_date: Union[date, None] = No
     ----------
     1. **ticker** : ``str``
          Ticker symbol whose risk-return profile is to be calculated.
-    2. **start_date** : ``datetime.date``
+    2. **start_date** : ``Union[datetime.date, None]``
         *Optional*. Start date of the time period over which the risk-return profile is to be calculated. Defaults to `None`, in which case the calculation proceeds as if `start_date` were set to 100 trading days prior to `end_date`. If `get_asset_type(ticker)=scrilla.keys.keys['ASSETS']['CRYPTO']`, this means 100 days regardless.  If `get_asset_type(ticker)=scrilla.keys.keys['ASSETS']['EQUITY']`, this excludes weekends and holidays and decrements the `end_date` by 100 trading days.
-    3. **end_date** : ``datetime.date`` 
+    3. **end_date** : ``Union[datetime.date, None]`` 
         *Optional*. End date of the time period over which the risk-return profile is to be calculated. Defaults to `None`, in which the calculation proceeds as if `end_date` were set to today. If the `get_asset_type(ticker)==keys.keys['ASSETS']['CRYPTO']` this means today regardless. If `get_asset_type(ticker)=keys.keys['ASSETS']['EQUITY']` this excludes holidays and weekends and sets the end date to the last valid trading date. \n \n
-    4. **sample_prices** : ``list`
+    4. **sample_prices** : ``Union[Dict[str, Dict[str, float], None]`
         Optional. A list of the asset prices for which correlation will be calculated. Overrides calls to service and forces calculation of correlation for sample of prices supplied. Function will disregard `start_date` and `end_date` and use the first and last key as the latest and earliest date, respectively. In other words, the `sample_prices` dictionary must be ordered from latest to earliest. If this argument is supplied, the function will bypass calls to the cache for stored calculations. Format: `{ 'date_1' : { 'open' : number, 'close' : number}, 'date_2': { 'open': number, 'close': number} ... }`
-    5. **asset_type** : ``str``
+    5. **asset_type** : ``Union[str, None]``
          *Optional*. Specify asset type to prevent overusing redundant calculations. Allowable values can be found in `scrilla.keys.keys['ASSETS']`
+    6. **weekends**: ``Union[int, None]``
 
     Raises 
     ------
@@ -644,11 +689,22 @@ def calculate_moment_risk_return(ticker: str, start_date: Union[date, None] = No
     asset_type = errors.validate_asset_type(ticker, asset_type)
     trading_period = functions.get_trading_period(asset_type)
 
+    if weekends is None:
+        if asset_type == keys.keys['ASSETS']['CRYPTO']:
+            weekends = 1
+        else: 
+            weekends = 0
+
     if sample_prices is None:
-        start_date, end_date = errors.validate_dates(
-            start_date, end_date, asset_type)
+        if weekends == 1:
+            start_date, end_date = errors.validate_dates(
+                start_date, end_date, keys.keys['ASSETS']['CRYPTO'])
+        else:
+            start_date, end_date = errors.validate_dates(
+                start_date, end_date, keys.keys['ASSETS']['EQUITY'])
+
         results = profile_cache.filter_profile_cache(ticker=ticker, start_date=start_date, end_date=end_date,
-                                                     method=keys.keys['ESTIMATION']['MOMENT'])
+                                                     method=keys.keys['ESTIMATION']['MOMENT'], weekends=weekends)
 
         if results is not None \
                 and results[keys.keys['STATISTICS']['RETURN']] is not None \
@@ -658,6 +714,10 @@ def calculate_moment_risk_return(ticker: str, start_date: Union[date, None] = No
         logger.debug('No sample prices provided, calling service.')
         prices = services.get_daily_price_history(
             ticker=ticker, start_date=start_date, end_date=end_date, asset_type=asset_type)
+        
+        if asset_type == keys.keys['ASSETS']['CRYPTO'] and weekends == 0:
+            logger.debug('Removing weekends from crypto sample')
+            prices = dater.intersect_with_trading_dates(prices)
 
     else:
         logger.debug(
@@ -733,13 +793,13 @@ def calculate_moment_risk_return(ticker: str, start_date: Union[date, None] = No
     }
 
     profile_cache.save_or_update_row(ticker=ticker, start_date=start_date, end_date=end_date,
-                                     method=keys.keys['ESTIMATION']['MOMENT'],
+                                     method=keys.keys['ESTIMATION']['MOMENT'], weekends=weekends,
                                      annual_return=results[keys.keys['STATISTICS']['RETURN']],
                                      annual_volatility=results[keys.keys['STATISTICS']['VOLATILITY']])
     return results
 
 
-def calculate_correlation(ticker_1, ticker_2, asset_type_1=None, asset_type_2=None, start_date=None, end_date=None, sample_prices=None, method=settings.ESTIMATION_METHOD) -> dict:
+def calculate_correlation(ticker_1: str, ticker_2: str, asset_type_1: Union[str,None]=None, asset_type_2: Union[str, None]=None, start_date: Union[datetime.date,None]=None, end_date: Union[datetime.date,None]=None, sample_prices: Union[Dict[str,Dict[str,float]],None]=None, weekends: Union[int,None]=None, method: str=settings.ESTIMATION_METHOD) -> dict:
     """
     Returns the correlation between *ticker_1* and *ticker_2* from *start_date* to *end_date* using the estimation method *method*.
 
@@ -773,15 +833,15 @@ def calculate_correlation(ticker_1, ticker_2, asset_type_1=None, asset_type_2=No
         Dictionary containing the correlation of `ticker_1` and `ticker_2`: Formatted as: `{ 'correlation' : float }`.
     """
     if method == keys.keys['ESTIMATION']['MOMENT']:
-        return calculate_moment_correlation(ticker_1, ticker_2, asset_type_1, asset_type_2, start_date, end_date, sample_prices)
+        return calculate_moment_correlation(ticker_1, ticker_2, asset_type_1, asset_type_2, start_date, end_date, sample_prices, weekends)
     if method == keys.keys['ESTIMATION']['LIKE']:
-        return calculate_likelihood_correlation(ticker_1, ticker_2, asset_type_1, asset_type_2, start_date, end_date, sample_prices)
+        return calculate_likelihood_correlation(ticker_1, ticker_2, asset_type_1, asset_type_2, start_date, end_date, sample_prices, weekends)
     if method == keys.keys['ESTIMATION']['PERCENT']:
-        return calculate_percentile_correlation(ticker_1, ticker_2, asset_type_1, asset_type_2, start_date, end_date, sample_prices)
+        return calculate_percentile_correlation(ticker_1, ticker_2, asset_type_1, asset_type_2, start_date, end_date, sample_prices, weekends)
     raise KeyError('Estimation method not found')
 
 
-def calculate_percentile_correlation(ticker_1, ticker_2, asset_type_1=None, asset_type_2=None, start_date=None, end_date=None, sample_prices=None) -> Dict[str, float]:
+def calculate_percentile_correlation(ticker_1: str, ticker_2: str, asset_type_1: Union[str,None]=None, asset_type_2: Union[str, None]=None, start_date: Union[datetime.date,None]=None, end_date: Union[datetime.date,None]=None, sample_prices: Union[Dict[str,Dict[str,float]],None]=None, weekends: Union[int,None]=None) -> Dict[str, float]:
     """
     Returns the sample correlation calculated using the method of Percentile Matching, assuming underlying price process follows Geometric Brownian Motion, i.e. the price distribution is lognormal. 
 
@@ -817,12 +877,21 @@ def calculate_percentile_correlation(ticker_1, ticker_2, asset_type_1=None, asse
         ticker=ticker_1, asset_type=asset_type_1)
     asset_type_2 = errors.validate_asset_type(
         ticker=ticker_2, asset_type=asset_type_2)
-    if asset_type_1 == keys.keys['ASSETS']['CRYPTO'] and asset_type_2 == keys.keys['ASSETS']['CRYPTO']:
-        # validate over all days
-        start_date, end_date = errors.validate_dates(start_date=start_date, end_date=end_date,
-                                                     asset_type=keys.keys['ASSETS']['CRYPTO'])
+
+    # cache flag to signal if calculation includes weekends or not,
+        # only perform check if not passed in as argument
+    if weekends is None:
+        if asset_type_1 == asset_type_2 and asset_type_2 == keys.keys['ASSETS']['CRYPTO']:
+            weekends = 1
+        else: 
+            weekends = 0
+
+    if asset_type_1 == asset_type_2 and asset_type_2 == keys.keys['ASSETS']['CRYPTO'] and weekends == 1:
+            # validate over total days.
+            start_date, end_date = errors.validate_dates(start_date=start_date, end_date=end_date,
+                                                            asset_type=keys.keys['ASSETS']['CRYPTO'])
     else:
-        #   validate over trading days. since (date - 100 days) > (date - 100 trading days), always
+        #   validate over trading days. since sample(date - 100 days) > (date - 100 trading days), always
         #   take the largest sample so intersect_dict_keys will return a sample of the correct size
         #   for mixed asset types.
         start_date, end_date = errors.validate_dates(start_date=start_date, end_date=end_date,
@@ -832,6 +901,7 @@ def calculate_percentile_correlation(ticker_1, ticker_2, asset_type_1=None, asse
         # TODO: extra save_or_update argument for estimation method, i.e. moments, percentiles or likelihood
         correlation = correlation_cache.filter_correlation_cache(ticker_1=ticker_1, ticker_2=ticker_2,
                                                                  start_date=start_date, end_date=end_date,
+                                                                 weekends=weekends,
                                                                  method=keys.keys['ESTIMATION']['PERCENT'])
         if correlation is not None:
             return correlation
@@ -845,9 +915,11 @@ def calculate_percentile_correlation(ticker_1, ticker_2, asset_type_1=None, asse
         sample_prices[ticker_2] = services.get_daily_price_history(ticker=ticker_2, start_date=start_date,
                                                                    end_date=end_date, asset_type=asset_type_2)
 
-    if asset_type_1 != asset_type_2:
-        # remove weekends and holidays from crypto prices so samples can be compared
-        # NOTE: data is lost here.
+    if asset_type_1 == asset_type_2 and asset_type_2 == keys.keys['ASSETS']['CRYPTO'] and weekends == 0:
+        sample_prices[ticker_1] = dater.intersect_with_trading_dates(sample_prices[ticker_1])
+        sample_prices[ticker_2] = dater.intersect_with_trading_dates(sample_prices[ticker_2])
+    else:
+        # intersect with equity keys to get trading days
         sample_prices[ticker_1], sample_prices[ticker_2] = helper.intersect_dict_keys(
             sample_prices[ticker_1], sample_prices[ticker_2])
 
@@ -919,7 +991,7 @@ def calculate_percentile_correlation(ticker_1, ticker_2, asset_type_1=None, asse
     return result
 
 
-def calculate_likelihood_correlation(ticker_1, ticker_2, asset_type_1=None, asset_type_2=None, start_date=None, end_date=None, sample_prices=None) -> Dict[str, float]:
+def calculate_likelihood_correlation(ticker_1: str, ticker_2: str, asset_type_1: Union[str,None]=None, asset_type_2: Union[str, None]=None, start_date: Union[datetime.date,None]=None, end_date: Union[datetime.date,None]=None, sample_prices: Union[Dict[str,Dict[str,float]],None]=None, weekends: Union[int,None]=None) -> Dict[str, float]:
     """
     Calculates the sample correlation using the maximum likelihood estimators, assuming underlying price process follows Geometric Brownian Motion, i.e. the price distribution is lognormal. 
 
@@ -950,17 +1022,27 @@ def calculate_likelihood_correlation(ticker_1, ticker_2, asset_type_1=None, asse
     ``Dict[str, float]``
         Dictionary containing the correlation of `ticker_1` and `ticker_2`: Formatted as: `{ 'correlation' : float }`.
     """
+    from scrilla.analysis import optimizer
     ### START ARGUMENT PARSING ###
     asset_type_1 = errors.validate_asset_type(
         ticker=ticker_1, asset_type=asset_type_1)
     asset_type_2 = errors.validate_asset_type(
         ticker=ticker_2, asset_type=asset_type_2)
-    if asset_type_1 == keys.keys['ASSETS']['CRYPTO'] and asset_type_2 == keys.keys['ASSETS']['CRYPTO']:
-        # validate over all days
-        start_date, end_date = errors.validate_dates(start_date=start_date, end_date=end_date,
-                                                     asset_type=keys.keys['ASSETS']['CRYPTO'])
+
+    # cache flag to signal if calculation includes weekends or not,
+        # only perform check if not passed in as argument
+    if weekends is None:
+        if asset_type_1 == asset_type_2 and asset_type_2 == keys.keys['ASSETS']['CRYPTO']:
+            weekends = 1
+        else: 
+            weekends = 0
+
+    if asset_type_1 == asset_type_2 and asset_type_2 == keys.keys['ASSETS']['CRYPTO'] and weekends == 1:
+            # validate over total days.
+            start_date, end_date = errors.validate_dates(start_date=start_date, end_date=end_date,
+                                                            asset_type=keys.keys['ASSETS']['CRYPTO'])
     else:
-        #   validate over trading days. since (date - 100 days) > (date - 100 trading days), always
+        #   validate over trading days. since sample(date - 100 days) > (date - 100 trading days), always
         #   take the largest sample so intersect_dict_keys will return a sample of the correct size
         #   for mixed asset types.
         start_date, end_date = errors.validate_dates(start_date=start_date, end_date=end_date,
@@ -969,6 +1051,7 @@ def calculate_likelihood_correlation(ticker_1, ticker_2, asset_type_1=None, asse
     if sample_prices is None:
         correlation = correlation_cache.filter_correlation_cache(ticker_1=ticker_1, ticker_2=ticker_2,
                                                                  start_date=start_date, end_date=end_date,
+                                                                 weekends=weekends,
                                                                  method=keys.keys['ESTIMATION']['LIKE'])
         if correlation is not None:
             return correlation
@@ -985,9 +1068,12 @@ def calculate_likelihood_correlation(ticker_1, ticker_2, asset_type_1=None, asse
                                                                    start_date=start_date,
                                                                    end_date=end_date,
                                                                    asset_type=asset_type_2)
-    if asset_type_1 != asset_type_2:
-        # remove weekends and holidays from crypto prices so samples can be compared
-        # NOTE: data is lost here.
+
+    if asset_type_1 == asset_type_2 and asset_type_2 == keys.keys['ASSETS']['CRYPTO'] and weekends == 0:
+        sample_prices[ticker_1] = dater.intersect_with_trading_dates(sample_prices[ticker_1])
+        sample_prices[ticker_2] = dater.intersect_with_trading_dates(sample_prices[ticker_2])
+    else:
+        # intersect with equity keys to get trading days
         sample_prices[ticker_1], sample_prices[ticker_2] = helper.intersect_dict_keys(
             sample_prices[ticker_1], sample_prices[ticker_2])
 
@@ -1021,11 +1107,12 @@ def calculate_likelihood_correlation(ticker_1, ticker_2, asset_type_1=None, asse
 
     correlation_cache.save_row(ticker_1=ticker_1, ticker_2=ticker_2,
                                start_date=start_date, end_date=end_date,
-                               correlation=correlation, method=keys.keys['ESTIMATION']['LIKE'])
+                               correlation=correlation, weekends = weekends,
+                               method=keys.keys['ESTIMATION']['LIKE'])
     return result
 
 
-def calculate_moment_correlation(ticker_1, ticker_2, asset_type_1=None, asset_type_2=None, start_date=None, end_date=None, sample_prices=None) -> Dict[str, float]:
+def calculate_moment_correlation(ticker_1: str, ticker_2: str, asset_type_1: Union[str,None]=None, asset_type_2: Union[str, None]=None, start_date: Union[datetime.date,None]=None, end_date: Union[datetime.date,None]=None, sample_prices: Union[Dict[str,Dict[str,float]],None]=None, weekends: Union[int,None]=None) -> Dict[str, float]:
     """
     Returns the sample correlation using the method of Moment Matching, assuming underlying price process follows Geometric Brownian Motion, i.e. the price distribution is lognormal. 
 
@@ -1035,16 +1122,18 @@ def calculate_moment_correlation(ticker_1, ticker_2, asset_type_1=None, asset_ty
         Ticker symbol for first asset.
     2. **ticker_2** : ``str``
         Ticker symbol for second asset
-    3. **asset_type_1** : ``str``
+    3. **asset_type_1** : ``Union[str,None]``
         *Optional*. Specify asset type to prevent redundant calculations down the stack. Allowable values can be found in `scrilla.keys.keys['ASSETS]' dictionary.
-    4. **asset_type_2** : ``str``
+    4. **asset_type_2** : ``Union[str,None]``
         *Optional*. Specify asset type to prevent redundant calculations down the stack. Allowable values can be found in `scrilla.keys.keys['ASSETS]' dictionary.
-    5. *start_date* : ``datetime.date``
+    5. *start_date* : ``Union[datetime.date,None]``
         *Optional*. Start date of the time period over which correlation will be calculated. If `None`, defaults to 100 trading days ago.
-    6. **end_date** : ``datetime.date`` 
+    6. **end_date** : ``Union[datetime.date None]`` 
         *Optional*. End date of the time period over which correlation will be calculated. If `None`, defaults to last trading day.
-    7. **sample_prices** : ``dict``
+    7. **sample_prices** : ``Union[dict,None]``
         *Optional*. A list of the asset prices for which correlation will be calculated. Overrides calls to service and calculates correlation for sample of prices supplied. Will disregard start_date and end_date. Must be of the format: `{'ticker_1': { 'date_1' : 'price_1', 'date_2': 'price_2' ...}, 'ticker_2': { 'date_1' : 'price_1:, ... } }` and ordered from latest date to earliest date. 
+    8. **weekends** : ``Union[int,None]``
+        **Optional**. A flag to signal that calculations should include/exclude weekend dates. See *notes* for more information. Defauts to `None` and is implicitly determined by the asset types passed in.
 
     Raises
     ------
@@ -1058,26 +1147,38 @@ def calculate_moment_correlation(ticker_1, ticker_2, asset_type_1=None, asset_ty
 
     .. notes:: 
         * when the asset types are mixed, i.e. `asset_type_1` == 'equity' and `asset_type_2`== 'crypto', the sample prices will contain different information, since crypto trades on weekends and holidays. The solution is to throw away the weekend and holiday prices for crypto. This presents another problem, since the risk profile for a crypto-currency that is cached in the local fileystem will be calculated over the entire sample including the missing data, whereas the risk profile required by the correlation needs to be calculated over the censored sample (i.e. the one with weekends and holidays removed) so that the means of the mixed asset types are scaled to the same time delta. In this case, the correlation algorithm needs to be able to override calls to the cache and force the risk profile algorithms to calculate based on the sample. Note: this issue only applies to correlation calculations using the method of moment matching, since the other methods determine the value of the correlation by solving constrained systems of equations instead of deriving it analytically with a formula. 
+        * The `weekends` flag is only relevant for assets of type `scrilla.static.keys.keys['ASSETS']['CRYPTO']`, i.e. cryptocurrency. It is passed in when the correlation calculation is part of a larger correlation matrix calculation, so that entries in the matrix have equivalent time frames. E.g., if the `scrilla.analysis.models.geometric.statistics.correlation_matrix` is calculating a matrix for a collection of mixed asset types, say, `["BTC", "ETH", "ALLY", "SPY"]`, the correlations between (crypto, equity) and (equity, equity) will only include weekdays, where as the (crypto,crypto) pairing will include weekends and thus result in an inaccurate matrix. To resolve this problem, the `weekends` flag can be passed into this calculation to prevent (crypto,crypto) pairings from including weekends.
+
     """
     ### START ARGUMENT PARSING ###
     asset_type_1 = errors.validate_asset_type(
         ticker=ticker_1, asset_type=asset_type_1)
     asset_type_2 = errors.validate_asset_type(
         ticker=ticker_2, asset_type=asset_type_2)
-    if asset_type_1 == keys.keys['ASSETS']['CRYPTO'] and asset_type_2 == keys.keys['ASSETS']['CRYPTO']:
-        # validate over all days
+    
+    # cache flag to signal if calculation includes weekends or not,
+        # only perform check if not passed in as argument so that agent
+        # calling can override default weekend behavior, i.e. make 
+        # crypto pairing forcibly exclude weekends from their calculation.
+    if weekends is None:
+        if asset_type_1 == asset_type_2 and asset_type_2 == keys.keys['ASSETS']['CRYPTO']:
+            weekends = 1
+        else: 
+            weekends = 0
+
+    if asset_type_1 == asset_type_2 and asset_type_2 == keys.keys['ASSETS']['CRYPTO'] and weekends == 1:
+        # validate over total days.
         start_date, end_date = errors.validate_dates(start_date=start_date, end_date=end_date,
-                                                     asset_type=keys.keys['ASSETS']['CRYPTO'])
+                                                        asset_type=keys.keys['ASSETS']['CRYPTO'])
     else:
-        #   validate over trading days. since (date - 100 days) > (date - 100 trading days), always
-        #   take the largest sample so intersect_dict_keys will return a sample of the correct size
-        #   for mixed asset types.
+        # validate over trading days. 
         start_date, end_date = errors.validate_dates(start_date=start_date, end_date=end_date,
                                                      asset_type=keys.keys['ASSETS']['EQUITY'])
 
     if sample_prices is None:
         correlation = correlation_cache.filter_correlation_cache(ticker_1=ticker_1, ticker_2=ticker_2,
                                                                  start_date=start_date, end_date=end_date,
+                                                                 weekends=weekends,
                                                                  method=keys.keys['ESTIMATION']['MOMENT'])
         if correlation is not None:
             return correlation
@@ -1091,12 +1192,13 @@ def calculate_moment_correlation(ticker_1, ticker_2, asset_type_1=None, asset_ty
         sample_prices[ticker_2] = services.get_daily_price_history(ticker=ticker_2, start_date=start_date,
                                                                    end_date=end_date, asset_type=asset_type_2)
 
-    override_cache = False
-    if asset_type_1 != asset_type_2:
-        # remove weekends and holidays from crypto prices so samples can be compared
-        # NOTE: data is lost here. see note in description.
-        #       for this reason, the crypto cache has to be disregarded.
-        override_cache = True
+    if asset_type_1 == asset_type_2 and asset_type_2 == keys.keys['ASSETS']['CRYPTO'] and weekends == 0:
+        # remove weekends and holidays from sample
+        logger.debug('Removing weekends from crypto sample')
+        sample_prices[ticker_1] = dater.intersect_with_trading_dates(sample_prices[ticker_1])
+        sample_prices[ticker_2] = dater.intersect_with_trading_dates(sample_prices[ticker_2])
+    else:
+        # intersect with equity keys to get trading days
         sample_prices[ticker_1], sample_prices[ticker_2] = helper.intersect_dict_keys(
             sample_prices[ticker_1], sample_prices[ticker_2])
 
@@ -1104,63 +1206,45 @@ def calculate_moment_correlation(ticker_1, ticker_2, asset_type_1=None, asset_ty
         raise errors.PriceError(
             "Prices cannot be retrieved for correlation calculation")
 
-    if asset_type_1 == asset_type_2 and asset_type_1 == keys.keys['ASSETS']['CRYPTO']:
-        trading_period = constants.constants['ONE_TRADING_DAY']['CRYPTO']
+    if asset_type_1 == keys.keys['ASSETS']['CRYPTO']:
+        trading_period_1 = constants.constants['ONE_TRADING_DAY']['CRYPTO']
     else:
-        trading_period = constants.constants['ONE_TRADING_DAY']['EQUITY']
+        trading_period_1 = constants.constants['ONE_TRADING_DAY']['EQUITY']
+    if asset_type_2 == keys.keys['ASSETS']['CRYPTO']:
+        trading_period_2 = constants.constants['ONE_TRADING_DAY']['CRYPTO']
+    else:
+        trading_period_2 = constants.constants['ONE_TRADING_DAY']['EQUITY']
     ### END ARGUMENT PARSING ###
 
     ### START SAMPLE STATISTICS CALCULATION DEPENDENCIES ###
         # i.e. statistics that need to be calculated before correlation can be calculated
     logger.debug(
         f'Preparing calculation dependencies for ({ticker_1},{ticker_2}) correlation')
-    # NOTE: override cache by providing sample prices if the sample lost data due to
-    #       inter asset correlation. See note in summary for more infromation.
-    if override_cache and asset_type_1 == keys.keys['ASSETS']['CRYPTO']:
-        stats_1 = calculate_moment_risk_return(ticker=ticker_1,
-                                               start_date=start_date,
-                                               end_date=end_date,
-                                               sample_prices=sample_prices[ticker_1],
-                                               asset_type=asset_type_1)
-    else:
-        stats_1 = calculate_moment_risk_return(ticker=ticker_1,
-                                               start_date=start_date,
-                                               end_date=end_date,
-                                               asset_type=asset_type_1)
-    if override_cache and asset_type_2 == keys.keys['ASSETS']['CRYPTO']:
-        stats_2 = calculate_moment_risk_return(ticker=ticker_2,
-                                               start_date=start_date,
-                                               end_date=end_date,
-                                               sample_prices=sample_prices[ticker_2],
-                                               asset_type=asset_type_2)
-    else:
-        stats_2 = calculate_moment_risk_return(ticker=ticker_2,
-                                               start_date=start_date,
-                                               end_date=end_date,
-                                               asset_type=asset_type_2)
+    
+    stats_1 = calculate_moment_risk_return(ticker=ticker_1,
+                                            start_date=start_date,
+                                            end_date=end_date,
+                                            asset_type=asset_type_1,
+                                            weekends=weekends)
+
+    stats_2 = calculate_moment_risk_return(ticker=ticker_2,
+                                            start_date=start_date,
+                                            end_date=end_date,
+                                            asset_type=asset_type_2,
+                                            weekends=weekends)
 
     # ito's lemma
-        # note: can't use trading_period to condense this conditional because the mod_mean_i's need
-        #       to be scaled to the correlation calculation differently based on the asset type.
-    if asset_type_1 == keys.keys['ASSETS']['EQUITY']:
-        mod_mean_1 = (stats_1['annual_return'] - 0.5*(stats_1['annual_volatility'])
-                      ** 2)*sqrt(constants.constants['ONE_TRADING_DAY']['EQUITY'])
-    elif asset_type_1 == keys.keys['ASSETS']['CRYPTO']:
-        mod_mean_1 = (stats_1['annual_return'] - 0.5*(stats_1['annual_volatility'])
-                      ** 2)*sqrt(constants.constants['ONE_TRADING_DAY']['CRYPTO'])
+    mod_mean_1 = (stats_1['annual_return'] - 0.5*(stats_1['annual_volatility'])
+                    ** 2)*sqrt(trading_period_1)
 
-    if asset_type_2 == keys.keys['ASSETS']['EQUITY']:
-        mod_mean_2 = (stats_2['annual_return'] - 0.5*(stats_2['annual_volatility'])
-                      ** 2)*sqrt(constants.constants['ONE_TRADING_DAY']['EQUITY'])
-    elif asset_type_2 == keys.keys['ASSETS']['CRYPTO']:
-        mod_mean_2 = (stats_2['annual_return'] - 0.5*(stats_2['annual_volatility'])
-                      ** 2)*sqrt(constants.constants['ONE_TRADING_DAY']['CRYPTO'])
+    mod_mean_2 = (stats_2['annual_return'] - 0.5*(stats_2['annual_volatility'])
+                    ** 2)*sqrt(trading_period_2)
 
     logger.debug(f'Calculating ({ticker_1}, {ticker_2}) correlation.')
     # END SAMPLE STATISTICS CALCULATION DEPENDENCIES
 
     # Initialize loop variables
-    i, covariance, time_delta = 0, 0, 1
+    covariance, time_delta = 0, 1
     today, tomorrows_date = False, None
     sample = len(sample_prices[ticker_1])
 
@@ -1172,7 +1256,6 @@ def calculate_moment_correlation(ticker_1, ticker_2, asset_type_1=None, asset_ty
             f'(todays_date, todays_price_{ticker_1}, todays_price_{ticker_2}) = ({this_date}, {todays_price_1}, {todays_price_2})')
 
         if today:
-            logger.verbose(f'Iteration #{i}')
             logger.verbose(
                 f'(todays_price, tomorrows_price)_{ticker_1} = ({todays_price_1}, {tomorrows_price_1})')
             logger.verbose(
@@ -1189,7 +1272,7 @@ def calculate_moment_correlation(ticker_1, ticker_2, asset_type_1=None, asset_ty
                 time_delta = 1
 
             current_mod_return_1 = log(
-                float(tomorrows_price_1)/float(todays_price_1))/sqrt(time_delta*trading_period)
+                float(tomorrows_price_1)/float(todays_price_1))/sqrt(time_delta*trading_period_1)
 
             # see above note
             if asset_type_2 == keys.keys['ASSETS']['CRYPTO'] or \
@@ -1200,7 +1283,7 @@ def calculate_moment_correlation(ticker_1, ticker_2, asset_type_1=None, asset_ty
                 time_delta = 1
 
             current_mod_return_2 = log(
-                float(tomorrows_price_2)/float(todays_price_2))/sqrt(time_delta*trading_period)
+                float(tomorrows_price_2)/float(todays_price_2))/sqrt(time_delta*trading_period_2)
 
             current_sample_covariance = (
                 current_mod_return_1 - mod_mean_1)*(current_mod_return_2 - mod_mean_2)/(sample - 1)
@@ -1214,7 +1297,6 @@ def calculate_moment_correlation(ticker_1, ticker_2, asset_type_1=None, asset_ty
         else:
             today = True
 
-        i += 1
         tomorrows_price_1, tomorrows_price_2, tomorrows_date = todays_price_1, todays_price_2, this_date
     #### END CORRELATION LOOP ####
 
@@ -1228,11 +1310,12 @@ def calculate_moment_correlation(ticker_1, ticker_2, asset_type_1=None, asset_ty
 
     correlation_cache.save_row(ticker_1=ticker_1, ticker_2=ticker_2,
                                start_date=start_date, end_date=end_date,
-                               correlation=correlation, method=keys.keys['ESTIMATION']['MOMENT'])
+                               correlation=correlation, weekends=weekends,
+                               method=keys.keys['ESTIMATION']['MOMENT'])
     return result
 
 
-def correlation_matrix(tickers, asset_types=None, start_date=None, end_date=None, sample_prices=None, method=settings.ESTIMATION_METHOD) -> List[List[float]]:
+def correlation_matrix(tickers, asset_types=None, start_date=None, end_date=None, sample_prices=None, method=settings.ESTIMATION_METHOD, weekends: Union[int, None]=None) -> List[List[float]]:
     """
     Returns the correlation matrix for *tickers* from *start_date* to *end_date* using the estimation method *method*.
 
@@ -1267,8 +1350,36 @@ def correlation_matrix(tickers, asset_types=None, start_date=None, end_date=None
     # let correlation function handle argument parsing
     if asset_types is None:
         asset_types = []
-        for _ in tickers:
-            asset_types.append(None)
+        for ticker in tickers:
+            asset_types.append(errors.validate_asset_type(ticker))
+    
+    # NOTE: since crypto trades on weekends and equities do not, the function
+    #       must determine if the inputted assets are of mixed type. If any 
+    #       single asset is of a different type, weekends must be truncated
+    #       from sample to ensure correlation is calculated over the samples
+    #       of like size.
+    # By default, exclude weekends. 
+    if weekends is not None:
+        weekends = 0
+        same_type = True
+        # check if any assets in the matrix are mixed types
+        for this_type in asset_types:
+            for that_type in asset_types:
+                if this_type != that_type:
+                    same_type = False
+                    break
+    
+    if not same_type:
+        logger.debug('Assets of different type, removing weekends')
+
+    # if all assets of the same type, include weekends only if asset type is crypto
+    if same_type and asset_types[0] == keys.keys['ASSETS']['CRYPTO']:
+        logger.debug('Assets of same type, which is crypto, keeping weekends')
+        weekends = 1
+    elif same_type:
+        logger.debug('Assets of same type, which is equity, excluding weekends')
+
+
 
     if(len(tickers) > 1):
         for i, item in enumerate(tickers):
@@ -1281,6 +1392,7 @@ def correlation_matrix(tickers, asset_types=None, start_date=None, end_date=None
                                             start_date=start_date,
                                             end_date=end_date,
                                             sample_prices=sample_prices,
+                                            weekends=weekends,
                                             method=method)
                 correl_matrix[i][j] = cor['correlation']
                 correl_matrix[j][i] = correl_matrix[i][j]

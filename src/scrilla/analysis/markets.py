@@ -24,7 +24,7 @@ from scrilla.analysis.objects.cashflow import Cashflow
 import scrilla.analysis.models.geometric.statistics as statistics
 import scrilla.util.outputter as outputter
 
-logger = outputter.Logger('markets', settings.LOG_LEVEL)
+logger = outputter.Logger('scrilla.analysis.markets', settings.LOG_LEVEL)
 profile_cache = cache.ProfileCache()
 
 
