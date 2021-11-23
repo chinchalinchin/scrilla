@@ -620,7 +620,7 @@ Empty text area for super classes to inherit</li>
 <li><strong>control_widgets</strong>: ``Dict[str,Union[PySide6.QtWidgets.QWidget,None]]
 Dictionary containing the optional input widgets.</li>
 </ol>
-<p><strong>init</strong>(self, parent: Union[PySide6.QtWidgets.QWidget, NoneType] = None, f: PySide6.QtCore.Qt.WindowFlags = Default(Qt.WindowFlags)) -&gt; None</p>
+<p><strong>init</strong>(self, parent: Optional[PySide6.QtWidgets.QWidget] = None, f: PySide6.QtCore.Qt.WindowFlags = Default(Qt.WindowFlags)) -&gt; None</p>
 <p>Initialize self.
 See help(type(self)) for accurate signature.</p></div>
 <details class="source">
@@ -918,7 +918,7 @@ See help(type(self)) for accurate signature.</p></div>
 </details>
 </dd>
 <dt id="scrilla.gui.widgets.components.ArgumentWidget.get_control_input"><code class="name flex">
-<span>def <span class="ident">get_control_input</span></span>(<span>self, control_widget_key: str) ‑> Union[datetime.date, str, bool, None]</span>
+<span>def <span class="ident">get_control_input</span></span>(<span>self, control_widget_key: str) ‑> Union[datetime.date, str, bool, ForwardRef(None)]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Get the value on the specified optional input widget. Optional keys are accessed through the keys of the <code><a title="scrilla.static.definitions.ARG_DICT" href="../../static/definitions.html#scrilla.static.definitions.ARG_DICT">ARG_DICT</a></code> dictionary.</p>
@@ -1028,7 +1028,7 @@ See help(type(self)) for accurate signature.</p></div>
 <li><strong>graph_widget</strong>: <code>scrilla.gui.widgets.GraphWidget</code></li>
 <li><strong>tab_widget</strong>: <code>PySide6.QtWidget.QTabWidget</code></li>
 </ol>
-<p><strong>init</strong>(self, parent: Union[PySide6.QtWidgets.QWidget, NoneType] = None, f: PySide6.QtCore.Qt.WindowFlags = Default(Qt.WindowFlags)) -&gt; None</p>
+<p><strong>init</strong>(self, parent: Optional[PySide6.QtWidgets.QWidget] = None, f: PySide6.QtCore.Qt.WindowFlags = Default(Qt.WindowFlags)) -&gt; None</p>
 <p>Initialize self.
 See help(type(self)) for accurate signature.</p></div>
 <details class="source">
@@ -1125,7 +1125,7 @@ The key of the file in the <code><a title="scrilla.settings.TEMP_DIR" href="../.
 <li><strong>title</strong>: <code>PySide6.QtWidget.QLabel</code></li>
 <li><strong>figure</strong>: <code>PySide6.QtWidget.QLabel</code></li>
 </ol>
-<p><strong>init</strong>(self, parent: Union[PySide6.QtWidgets.QWidget, NoneType] = None, f: PySide6.QtCore.Qt.WindowFlags = Default(Qt.WindowFlags)) -&gt; None</p>
+<p><strong>init</strong>(self, parent: Optional[PySide6.QtWidgets.QWidget] = None, f: PySide6.QtCore.Qt.WindowFlags = Default(Qt.WindowFlags)) -&gt; None</p>
 <p>Initialize self.
 See help(type(self)) for accurate signature.</p></div>
 <details class="source">
@@ -1280,8 +1280,8 @@ def show_file_dialog(self) -&gt; None:
 <span>(</span><span>function: str, parent: PySide6.QtWidgets.QWidget)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>QWidget(self, parent: Union[PySide6.QtWidgets.QWidget, NoneType] = None, f: PySide6.QtCore.Qt.WindowFlags = Default(Qt.WindowFlags)) -&gt; None</p>
-<p><strong>init</strong>(self, parent: Union[PySide6.QtWidgets.QWidget, NoneType] = None, f: PySide6.QtCore.Qt.WindowFlags = Default(Qt.WindowFlags)) -&gt; None</p>
+<div class="desc"><p>QWidget(self, parent: Optional[PySide6.QtWidgets.QWidget] = None, f: PySide6.QtCore.Qt.WindowFlags = Default(Qt.WindowFlags)) -&gt; None</p>
+<p><strong>init</strong>(self, parent: Optional[PySide6.QtWidgets.QWidget] = None, f: PySide6.QtCore.Qt.WindowFlags = Default(Qt.WindowFlags)) -&gt; None</p>
 <p>Initialize self.
 See help(type(self)) for accurate signature.</p></div>
 <details class="source">
@@ -1344,7 +1344,7 @@ Stylesheet property attached to widget.</li>
 <li><strong>title</strong>: <code>PySide6.QtWidget.QLabel</code>
 2.. <strong>table</strong>: <code>PySide6.QtWidget.QTableWidget</code></li>
 </ol>
-<p><strong>init</strong>(self, parent: Union[PySide6.QtWidgets.QWidget, NoneType] = None, f: PySide6.QtCore.Qt.WindowFlags = Default(Qt.WindowFlags)) -&gt; None</p>
+<p><strong>init</strong>(self, parent: Optional[PySide6.QtWidgets.QWidget] = None, f: PySide6.QtCore.Qt.WindowFlags = Default(Qt.WindowFlags)) -&gt; None</p>
 <p>Initialize self.
 See help(type(self)) for accurate signature.</p></div>
 <details class="source">
