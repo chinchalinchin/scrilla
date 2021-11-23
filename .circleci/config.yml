@@ -15,17 +15,6 @@ commands:
             - "/usr/local/bin"
             - "/usr/local/lib/python3.9/site-packages"
 
-  install_doc_deps:
-    description: install documentation dependencies
-    steps:
-      - run:
-          name: install virtual server
-          command: sudo apt-get update -y && sudo apt-get install -y xvfb libopengl0
-      - run:
-          name: dependency installation
-          command: |
-            pip3 install -r requirements.txt
-
   build_wheel:
     description: compress and build python package
     steps:
@@ -34,13 +23,6 @@ commands:
           command: |
             touch ./src/scrilla/data/cache/scrilla.db
             python -m build
-
-  generate_docs:
-    description: generate documentation html from docstrings
-    steps:
-      - run:
-          name: generate docs
-          command: bash ./scripts/generate-docs
 
   upload_artifacts:
     description: upload package artifacts to PyPi
@@ -64,6 +46,32 @@ commands:
               git commit -m "Pipeline Build Version $(cat ./src/scrilla/version.txt)"
               
               git push --set-upstream origin develop/main
+
+  install_doc_deps:
+    description: install documentation dependencies
+    steps:
+      - run:
+          name: install virtual server
+          command: sudo apt-get update -y && sudo apt-get install -y xvfb libopengl0
+      - run:
+          name: dependency installation
+          command: |
+            pip3 install -r requirements.txt
+
+  generate_docs:
+    description: generate documentation html from docstrings
+    steps:
+      - run:
+          name: generate docs
+          command: |
+            mkdir /tmp/docs/
+            bash ./scripts/generate-docs
+            cp -ap ./docs/. /tmp/docs/
+            git stash
+            git checkout gh-pages
+            cp -ap /tmp/docs/. ./
+
+
   commit_docs:
     description: commit re-generated docs to git
     steps:
@@ -75,9 +83,6 @@ commands:
               git add .
               git commit -m "Pipeline Documentation Generation $(echo $(date))"
               git push --set-upstream origin gh-pages
-              git checkout develop/main
-              git merge gh-pages
-              git push --set-upstream origin develop/main
 
 jobs:
   pypi_micro_update:
@@ -159,4 +164,4 @@ workflows:
           filters:
             branches:
               only:
-                - gh-pages
+                - develop/main
