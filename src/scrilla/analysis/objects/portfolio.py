@@ -124,7 +124,7 @@ class Portfolio:
             self.start_date, self.end_date = errors.validate_dates(self.start_date, 
                                                                     self.end_date, 
                                                                     keys.keys['ASSETS']['EQUITY'])
-            self.weekends = 1
+            self.weekends = 0
         else:
             self.start_date, self.end_date = errors.validate_dates(self.start_date, 
                                                                     self.end_date, 
@@ -166,12 +166,14 @@ class Portfolio:
                     if self.sample_prices is not None:
                         stats = statistics.calculate_risk_return(ticker=ticker,
                                                                  sample_prices=self.sample_prices[ticker],
-                                                                 method=self.estimation_method)
+                                                                 method=self.estimation_method,
+                                                                 weekends=self.weekends)
                     else:
                         stats = statistics.calculate_risk_return(ticker=ticker,
                                                                  start_date=self.start_date,
                                                                  end_date=self.end_date,
-                                                                 method=self.estimation_method)
+                                                                 method=self.estimation_method,
+                                                                 weekends=self.weekends)
 
                     self.mean_return.append(stats['annual_return'])
                     self.sample_vol.append(stats['annual_volatility'])
