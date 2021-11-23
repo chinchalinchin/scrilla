@@ -379,7 +379,7 @@ class ProfileCache(Cache):
         logger.debug(
             f'Querying SQLite cache: \n\t{ProfileCache.profile_query}\n\t\t with :ticker={ticker}, :start_date={start_date}, :end_date={end_date}')
         formatter = {'ticker': ticker, 'start_date': start_date,
-                     'end_date': end_date, 'method': method, weekends: 'weekends'}
+                     'end_date': end_date, 'method': method, 'weekends': weekends}
         result = self.execute_query(
             query=ProfileCache.profile_query, formatter=formatter)
 

@@ -488,7 +488,7 @@ def calculate_likelihood_risk_return(ticker, start_date: Union[date, None] = Non
     trading_period = functions.get_trading_period(asset_type)
 
     if weekends is None:
-        if asset_type == keys.keys['ASSET']['CRYPTO']:
+        if asset_type == keys.keys['ASSETS']['CRYPTO']:
             weekends = 1
         else: 
             weekends = 0
@@ -509,6 +509,7 @@ def calculate_likelihood_risk_return(ticker, start_date: Union[date, None] = Non
             ticker=ticker, start_date=start_date, end_date=end_date, asset_type=asset_type)
         
         if asset_type == keys.keys['ASSETS']['CRYPTO'] and weekends == 0:
+            logger.debug('Removing weekends from crypto sample')
             prices = dater.intersect_with_trading_dates(prices)
 
     else:
@@ -545,7 +546,7 @@ def calculate_likelihood_risk_return(ticker, start_date: Union[date, None] = Non
     return results
 
 
-def calculate_percentile_risk_return(ticker: str, start_date: Union[date, None] = None, end_date: Union[date, None] = None, sample_prices: Union[dict, None] = None, asset_type: Union[str, None] = None, weekends: Union[int, None]) -> Dict[str, float]:
+def calculate_percentile_risk_return(ticker: str, start_date: Union[date, None] = None, end_date: Union[date, None] = None, sample_prices: Union[dict, None] = None, asset_type: Union[str, None] = None, weekends: Union[int, None]=None) -> Dict[str, float]:
     """
     Estimates the mean rate of return and volatility for a sample of asset prices as if the asset price followed a Geometric Brownian Motion process, i.e. the mean rate of return and volatility are constant and not functions of time or the asset price. Moreover, the return and volatility are estimated using the method of percentile matching, where the return and volatility are estimated by matching the 25th and 75th percentile calculated from the assumed GBM distribution to the sample of data.
 
@@ -607,6 +608,7 @@ def calculate_percentile_risk_return(ticker: str, start_date: Union[date, None] 
             ticker=ticker, start_date=start_date, end_date=end_date, asset_type=asset_type)
 
         if asset_type == keys.keys['ASSETS']['CRYPTO'] and weekends == 0:
+            logger.debug('Removing weekends from crypto sample')
             prices = dater.intersect_with_trading_dates(prices)
     else:
         logger.debug(
@@ -644,7 +646,7 @@ def calculate_percentile_risk_return(ticker: str, start_date: Union[date, None] 
     }
 
     profile_cache.save_or_update_row(ticker=ticker, start_date=start_date, end_date=end_date,
-                                     method=keys.keys['ESTIMATION']['PERCENT'], weekends=weekends,s
+                                     method=keys.keys['ESTIMATION']['PERCENT'], weekends=weekends,
                                      annual_return=results[keys.keys['STATISTICS']['RETURN']],
                                      annual_volatility=results[keys.keys['STATISTICS']['VOLATILITY']])
     return results
@@ -686,7 +688,7 @@ def calculate_moment_risk_return(ticker: str, start_date: Union[date, None] = No
     trading_period = functions.get_trading_period(asset_type)
 
     if weekends is None:
-        if asset_type == keys.keys['ASSET']['CRYPTO']:
+        if asset_type == keys.keys['ASSETS']['CRYPTO']:
             weekends = 1
         else: 
             weekends = 0
@@ -694,10 +696,10 @@ def calculate_moment_risk_return(ticker: str, start_date: Union[date, None] = No
     if sample_prices is None:
         if weekends == 1:
             start_date, end_date = errors.validate_dates(
-                start_date, end_date, keys.keys['ASSET']['CRYPTO'])
+                start_date, end_date, keys.keys['ASSETS']['CRYPTO'])
         else:
             start_date, end_date = errors.validate_dates(
-                start_date, end_date, keys.keys['ASSET']['EQUITY'])
+                start_date, end_date, keys.keys['ASSETS']['EQUITY'])
 
         results = profile_cache.filter_profile_cache(ticker=ticker, start_date=start_date, end_date=end_date,
                                                      method=keys.keys['ESTIMATION']['MOMENT'], weekends=weekends)
@@ -712,6 +714,7 @@ def calculate_moment_risk_return(ticker: str, start_date: Union[date, None] = No
             ticker=ticker, start_date=start_date, end_date=end_date, asset_type=asset_type)
         
         if asset_type == keys.keys['ASSETS']['CRYPTO'] and weekends == 0:
+            logger.debug('Removing weekends from crypto sample')
             prices = dater.intersect_with_trading_dates(prices)
 
     else:
@@ -1188,6 +1191,7 @@ def calculate_moment_correlation(ticker_1: str, ticker_2: str, asset_type_1: Uni
 
     if asset_type_1 == asset_type_2 and asset_type_2 == keys.keys['ASSETS']['CRYPTO'] and weekends == 0:
         # remove weekends and holidays from sample
+        logger.debug('Removing weekends from crypto sample')
         sample_prices[ticker_1] = dater.intersect_with_trading_dates(sample_prices[ticker_1])
         sample_prices[ticker_2] = dater.intersect_with_trading_dates(sample_prices[ticker_2])
     else:
@@ -1360,9 +1364,17 @@ def correlation_matrix(tickers, asset_types=None, start_date=None, end_date=None
             if this_type != that_type:
                 same_type = False
                 break
+    
+    if not same_type:
+        logger.debug('Assets of different type, removing weekends')
+
     # if all assets of the same type, include weekends only if asset type is crypto
-    if same_type and asset_types[0] == keys.keys['ASSET']['CRYPTO']:
+    if same_type and asset_types[0] == keys.keys['ASSETS']['CRYPTO']:
+        logger.debug('Assets of same type, which is crypto, keeping weekends')
         weekends = 1
+    elif same_type:
+        logger.debug('Assets of same type, which is equity, excluding weekends')
+
 
 
     if(len(tickers) > 1):
