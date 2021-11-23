@@ -375,11 +375,11 @@ class ProfileCache(Cache):
             self.execute_transaction(
                 transaction=ProfileCache.update_equity_tranasction, formatter=formatter)
 
-    def filter_profile_cache(self, ticker, start_date, end_date, method=settings.ESTIMATION_METHOD):
+    def filter_profile_cache(self, ticker: str, start_date: datetime.date, end_date: datetime.date, weekends:int=0, method=settings.ESTIMATION_METHOD):
         logger.debug(
             f'Querying SQLite cache: \n\t{ProfileCache.profile_query}\n\t\t with :ticker={ticker}, :start_date={start_date}, :end_date={end_date}')
         formatter = {'ticker': ticker, 'start_date': start_date,
-                     'end_date': end_date, 'method': method}
+                     'end_date': end_date, 'method': method, weekends: 'weekends'}
         result = self.execute_query(
             query=ProfileCache.profile_query, formatter=formatter)
 

@@ -167,6 +167,11 @@ def is_date_string_holiday(date_string: str) -> bool:
 def is_trading_date(date: datetime.date) -> bool:
     return not is_date_weekend(date) and not is_date_holiday(date)
 
+
+def intersect_with_trading_dates(date_key_dict: dict) -> dict:
+    return {date: date_key_dict[date] for date in date_key_dict if is_trading_date(date)}
+    
+
 # YYYY-MM-DD
 
 
