@@ -83,8 +83,9 @@ commands:
           name: unit tests
           environment:
             APP_ENV: container
+            PYTHON_LIB: /home/circleci/.pyenv/versions/3.9.6/lib/python3.9/site-packages/scrilla/
           command: |
-            bash ./scripts/tests
+            bash ./scripts/tests circleci
 
   commit_coverage:
     description: commit re-generated docs to git

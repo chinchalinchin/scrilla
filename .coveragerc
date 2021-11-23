@@ -1,5 +1,5 @@
 [run]
-source = /home/chinchalinchin/.local/lib/python3.8/site-packages/scrilla/
+source = ${PYTHON_LIB}
 omit = 
     */__init__.py
 
