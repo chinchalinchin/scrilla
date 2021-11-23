@@ -11,7 +11,7 @@
 | ------ | ------ |
 | pypi/micro-update | [![CircleCI](https://circleci.com/gh/chinchalinchin/scrilla/tree/pypi%2Fmicro-update.svg?style=svg)](https://circleci.com/gh/chinchalinchin/scrilla/tree/pypi%2Fmicro-update) |
 | pypi/micro-update | [![CircleCI](https://circleci.com/gh/chinchalinchin/scrilla/tree/pypi%2Fminor-update.svg?style=svg)](https://circleci.com/gh/chinchalinchin/scrilla/tree/pypi%2Fminor-update) |
-| gh-pages | [![CircleCI](https://circleci.com/gh/chinchalinchin/scrilla/tree/gh-pages.svg?style=svg)](https://circleci.com/gh/chinchalinchin/scrilla/tree/gh-pages)| 
+| develop/main | [![CircleCI](https://circleci.com/gh/chinchalinchin/scrilla/tree/develop/main.svg?style=svg)](https://circleci.com/gh/chinchalinchin/scrilla/tree/develop/main)| 
 
 ## Docs
 - [Package Documentation](https://chinchalinchin.github.io/scrilla/)<br/>

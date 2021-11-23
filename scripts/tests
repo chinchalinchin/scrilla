@@ -10,17 +10,13 @@ then
     rm -r $DOCS_DIR/coverage/*
 fi
 
-if [ "$1" == "circleci" ]
-then
-    echo "on circleci"
-else
-    cd $PROJECT_DIR
+cd $PROJECT_DIR
 
-    scrilla clear-cache
-    
-    coverage run -m pytest
-    coverage html
+scrilla clear-cache
 
-    rm $DOCS_DIR/coverage/.gitignore
-fi
+coverage run -m pytest
+coverage html
+
+rm $DOCS_DIR/coverage/.gitignore
+
 

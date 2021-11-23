@@ -50,7 +50,7 @@ commands:
     description: install documentation dependencies
     steps:
       - run:
-          name: install virtual server
+          name: install virtual server & gui libraries
           command: sudo apt-get update -y && sudo apt-get install -y xvfb libopengl0 libegl1-mesa libxkbcommon-dev
       - run:
           name: dependency installation
@@ -70,8 +70,23 @@ commands:
             git checkout gh-pages
             cp -ap /tmp/docs/. ./
 
+  install_test_deps:
+    description: install testing libraries
+    steps:
+      - run:
+          name: dependency installation
+          command: |
+            pip3 install -r requirements.txt
+            bash ./scripts/build
+  
+  run_unit_tests: 
+    description: run unit tests against installed wheel
+    steps:
+      - run: unit tests
+        command:
+            bash ./scripts/tests
 
-  commit_docs:
+  commit_coverage:
     description: commit re-generated docs to git
     steps:
       - run:
@@ -126,6 +141,14 @@ jobs:
       - upload_artifacts
       - commit_version
   
+  unit_tests:
+    docker:
+      - image: cimg/python:3.9.6
+    steps:
+      - checkout
+      - install_test_deps
+      - run_unit_tests
+
   documentation:
     # machine:
       # image: ubuntu-2004:202107-02
@@ -135,7 +158,12 @@ jobs:
       - checkout
       - install_doc_deps
       - generate_docs
-      - commit_docs
+
+  upload_coverage:
+    docker:
+      - image: cimg/python:3.9.6
+    steps:
+      - commit_coverage
 
 workflows:
   version: 2
@@ -159,7 +187,17 @@ workflows:
 
   github_doc_pages:
     jobs:
+      - unit_tests:
+          filters:
+            branches:
+              only:
+                - develop/main
       - documentation:
+          filters:
+            branches:
+              only:
+                - develop/main
+      - upload_coverage:
           filters:
             branches:
               only:
