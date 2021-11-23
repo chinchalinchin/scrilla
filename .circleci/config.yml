@@ -44,7 +44,6 @@ commands:
               git stash pop
               git add . 
               git commit -m "Pipeline Build Version $(cat ./src/scrilla/version.txt)"
-              
               git push --set-upstream origin develop/main
 
   install_doc_deps:
@@ -65,7 +64,7 @@ commands:
           name: generate docs
           command: |
             mkdir /tmp/docs/
-            bash ./scripts/generate-docs
+            bash ./scripts/docs
             cp -ap ./docs/. /tmp/docs/
             git stash
             git checkout gh-pages
