@@ -43,8 +43,8 @@ commands:
               git checkout develop/main
               git stash pop
               git add . 
-              git commit -m "Pipeline Build Version $(cat ./src/scrilla/version.txt)"
-              git push --set-upstream origin develop/main
+              git commit -m "Pipeline Build Version $(cat ./src/scrilla/version.txt)" || true
+              git push --set-upstream origin develop/main || true
 
   install_doc_deps:
     description: install documentation dependencies
