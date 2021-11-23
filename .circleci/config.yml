@@ -1,0 +1,203 @@
+version: 2.1
+
+commands:
+  install_build_deps:
+    description: install build dependencies
+    steps:
+      - restore_cache:  # ensure this step occurs *before* installing dependencies
+          key: build-deps
+      - run:
+          name: dependency installation
+          command: pip install twine setuptools build
+      - save_cache:
+          key: build-deps
+          paths:
+            - "/usr/local/bin"
+            - "/usr/local/lib/python3.9/site-packages"
+
+  build_wheel:
+    description: compress and build python package
+    steps:
+      - run:
+          name: artifact build
+          command: |
+            touch ./src/scrilla/data/cache/scrilla.db
+            python -m build
+
+  upload_artifacts:
+    description: upload package artifacts to PyPi
+    steps:
+      - run:
+          name: artifact upload
+          command: twine upload -u $PYPI_USERNAME -p $PYPI_PASSWORD dist/*
+
+  commit_version:
+    description: commit new version to git
+    steps:
+      - run:
+          name: commit version
+          command: |
+            git config user.email "chinchalinchin@gmail.com"
+            git config user.name "CircleCi Bot"
+            git stash
+            git checkout develop/main
+            git stash pop
+            git add . 
+            git commit -m "Pipeline Build Version $(cat ./src/scrilla/version.txt)" || true
+            git push --set-upstream origin develop/main || true
+
+  install_doc_deps:
+    description: install documentation dependencies
+    steps:
+      - run:
+          name: install virtual server & gui libraries
+          command: sudo apt-get update -y && sudo apt-get install -y xvfb libopengl0 libegl1-mesa libxkbcommon-dev
+      - run:
+          name: dependency installation
+          command: pip3 install -r requirements.txt
+
+  generate_docs:
+    description: generate documentation html from docstrings
+    steps:
+      - run:
+          name: generate docs
+          command: bash ./scripts/docs circle-ci
+
+
+  install_test_deps:
+    description: install testing libraries
+    steps:
+      - run:
+          name: dependency installation
+          environment:
+            APP_ENV: container
+          command: |
+            pip3 install -r requirements.txt
+            bash ./scripts/install
+            scrilla version
+  
+  run_unit_tests: 
+    description: run unit tests against installed wheel
+    steps:
+      - run: 
+          name: unit tests
+          environment:
+            APP_ENV: container
+            PYTHON_LIB: /home/circleci/.pyenv/versions/3.9.6/lib/python3.9/site-packages/scrilla/
+          command: |
+            bash ./scripts/tests circleci
+
+  commit_coverage:
+    description: commit re-generated docs to git
+    steps:
+      - run:
+          name: commit unit test coverage and docs
+          command: |
+            mkdir /tmp/docs/
+            cp -ap ./docs/. /tmp/docs/
+            git stash
+            git checkout gh-pages
+            cp -ap /tmp/docs/. ./
+            git config user.email "chinchalinchin@gmail.com"
+            git config user.name "CircleCi Bot"
+            git add .
+            git commit -m "Pipeline Documentation Generation $(echo $(date))"
+            git push --set-upstream origin gh-pages
+
+jobs:
+  pypi_micro_update:
+    docker:
+      - image: cimg/python:3.9.6
+    steps:
+      - checkout
+      - install_build_deps
+      - run:
+          name: iterate micro version
+          command: |
+            python ./scripts/circleci/iterate_version.py micro
+      - build_wheel
+      - upload_artifacts
+      - commit_version
+
+  pypi_minor_update:
+    docker: 
+      - image: cimg/python:3.9.6
+    steps:
+      - checkout
+      - install_build_deps
+      - run:
+          name: iterate minor version
+          command: | 
+            python ./scripts/circleci/iterate_version.py minor
+      - build_wheel
+      - upload_artifacts
+      - commit_version
+
+  pypi_major_update:
+    docker: 
+      - image: cimg/python:3.9.6
+    steps:
+      - checkout 
+      - install_build_deps
+      - run:
+          name: iterate major version
+          command: |
+            python ./scripts/circleci/iterate_version.py major
+      - build_wheel
+      - upload_artifacts
+      - commit_version
+  
+  unit_tests:
+    docker:
+      - image: cimg/python:3.9.6
+    steps:
+      - checkout
+      - install_test_deps
+      - run_unit_tests
+      - commit_coverage
+
+  documentation:
+    # machine:
+      # image: ubuntu-2004:202107-02
+    docker: 
+      - image: cimg/python:3.9.6
+    steps:
+      - checkout
+      - install_doc_deps
+      - generate_docs
+      - commit_coverage
+
+workflows:
+  version: 2
+  build_and_push:
+    jobs:
+      - pypi_micro_update:
+          filters:
+            branches:
+              only:
+                - pypi/micro-update
+      - pypi_minor_update:
+          filters: 
+            branches:
+              only:
+                - pypi/minor-update
+      - pypi_major_update:
+          filters:
+            branches:
+              only:
+                - pypi/major-update
+
+  github_pages:
+    jobs:
+      - unit_tests:
+          filters:
+            branches:
+              only:
+                - develop/main
+      - documentation:
+          filters:
+            branches:
+              only:
+                - develop/main
+          requires:
+            - unit_tests
