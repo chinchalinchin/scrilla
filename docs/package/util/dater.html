@@ -50,9 +50,6 @@ def validate_order_of_dates(start_date: datetime.date, end_date: datetime.date) 
 def parse_date_string(date_string: str) -&gt; Union[datetime.date, None]:
     &#34;&#34;&#34;
     Converts a date string in the &#39;YYYY-MM-DD&#39; format to a Python `datetime.date`.
-
-    ..notes ::
-        * can probably use `datetime.datetime.strptime` instead of this complicated mumbo-jumbo.
     &#34;&#34;&#34;
     return datetime.datetime.strptime(date_string, &#39;%Y-%m-%d&#39;).date()
 
@@ -1025,9 +1022,7 @@ End date of the date range.</li>
 <span>def <span class="ident">parse_date_string</span></span>(<span>date_string: str) ‑> Optional[datetime.date]</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Converts a date string in the 'YYYY-MM-DD' format to a Python <code>datetime.date</code>.</p>
-<p>..notes ::
-* can probably use <code>datetime.datetime.strptime</code> instead of this complicated mumbo-jumbo.</p></div>
+<div class="desc"><p>Converts a date string in the 'YYYY-MM-DD' format to a Python <code>datetime.date</code>.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1035,9 +1030,6 @@ End date of the date range.</li>
 <pre><code class="python">def parse_date_string(date_string: str) -&gt; Union[datetime.date, None]:
     &#34;&#34;&#34;
     Converts a date string in the &#39;YYYY-MM-DD&#39; format to a Python `datetime.date`.
-
-    ..notes ::
-        * can probably use `datetime.datetime.strptime` instead of this complicated mumbo-jumbo.
     &#34;&#34;&#34;
     return datetime.datetime.strptime(date_string, &#39;%Y-%m-%d&#39;).date()</code></pre>
 </details>

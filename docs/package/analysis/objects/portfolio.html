@@ -47,6 +47,7 @@ import math
 from decimal import Decimal
 
 from scrilla import services, settings, errors
+from scrilla.static import keys
 import scrilla.util.outputter as outputter
 
 # TODO: conditional import module based on analysis_mode, i.e. geometric versus mean reverting.
@@ -110,38 +111,31 @@ class Portfolio:
         self.actual_total = None
         self.risk_free_rate = None
         self.estimation_method = method
-
-        if sample_prices is None:
-            self.start_date = start_date
-            self.end_date = end_date
-        else:
-            self.start_date = list(sample_prices.keys())[-1]
-            self.end_date = list(sample_prices.keys())[0]
-
+        self.sample_prices = sample_prices  
         self.tickers = tickers
-        self.sample_prices = sample_prices
         self.correlation_matrix = correlation_matrix
         self.asset_volatility_functions = asset_volatility_functions
         self.asset_return_functions = asset_return_functions
         self.risk_profiles = risk_profiles
         self.target_return = None
 
+        if self.sample_prices is None:
+            self.start_date = start_date
+            self.end_date = end_date
+        else:
+            self.start_date = list(self.sample_prices.keys())[-1]
+            self.end_date = list(self.sample_prices.keys())[0]
+
         if risk_free_rate is not None:
             self.risk_free_rate = risk_free_rate
         else:
             self.risk_free_rate = services.get_risk_free_rate()
 
-        if self.start_date is None or self.end_date is None:
-            self.init_dates()
-        
-        self.init_asset_types()
+        self._init_asset_types()
+        self._init_dates()
+        self._calculate_stats()
 
-        self.calculate_stats()
-
-    def init_dates(self):
-        pass
-
-    def init_asset_types(self):
+    def _init_asset_types(self):
         self.asset_types = []
         for ticker in self.tickers:
             self.asset_types.append(errors.validate_asset_type(ticker))
@@ -154,7 +148,23 @@ class Portfolio:
                     self.mixed_assets = True
                     break
 
-    def calculate_stats(self):
+    def _init_dates(self):
+        if self.mixed_assets:
+            self.start_date, self.end_date = errors.validate_dates(self.start_date, 
+                                                                    self.end_date, 
+                                                                    keys.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;])
+            self.weekends = 1
+        else:
+            self.start_date, self.end_date = errors.validate_dates(self.start_date, 
+                                                                    self.end_date, 
+                                                                    self.asset_types[0])
+            if self.asset_types[0] == keys.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]:
+                self.weekends = 0
+            else:
+                self.weekends = 1
+
+
+    def _calculate_stats(self):
         self.mean_return = []
         self.sample_vol = []
 
@@ -206,6 +216,7 @@ class Portfolio:
                                                                         start_date=self.start_date,
                                                                         end_date=self.end_date,
                                                                         sample_prices=self.sample_prices,
+                                                                        weekends=self.weekends,
                                                                         method=self.estimation_method)
 
     def return_function(self, x):
@@ -456,38 +467,31 @@ If no arguments are provided to the constructor at all, the portfolio will defau
         self.actual_total = None
         self.risk_free_rate = None
         self.estimation_method = method
-
-        if sample_prices is None:
-            self.start_date = start_date
-            self.end_date = end_date
-        else:
-            self.start_date = list(sample_prices.keys())[-1]
-            self.end_date = list(sample_prices.keys())[0]
-
+        self.sample_prices = sample_prices  
         self.tickers = tickers
-        self.sample_prices = sample_prices
         self.correlation_matrix = correlation_matrix
         self.asset_volatility_functions = asset_volatility_functions
         self.asset_return_functions = asset_return_functions
         self.risk_profiles = risk_profiles
         self.target_return = None
 
+        if self.sample_prices is None:
+            self.start_date = start_date
+            self.end_date = end_date
+        else:
+            self.start_date = list(self.sample_prices.keys())[-1]
+            self.end_date = list(self.sample_prices.keys())[0]
+
         if risk_free_rate is not None:
             self.risk_free_rate = risk_free_rate
         else:
             self.risk_free_rate = services.get_risk_free_rate()
 
-        if self.start_date is None or self.end_date is None:
-            self.init_dates()
-        
-        self.init_asset_types()
+        self._init_asset_types()
+        self._init_dates()
+        self._calculate_stats()
 
-        self.calculate_stats()
-
-    def init_dates(self):
-        pass
-
-    def init_asset_types(self):
+    def _init_asset_types(self):
         self.asset_types = []
         for ticker in self.tickers:
             self.asset_types.append(errors.validate_asset_type(ticker))
@@ -500,7 +504,23 @@ If no arguments are provided to the constructor at all, the portfolio will defau
                     self.mixed_assets = True
                     break
 
-    def calculate_stats(self):
+    def _init_dates(self):
+        if self.mixed_assets:
+            self.start_date, self.end_date = errors.validate_dates(self.start_date, 
+                                                                    self.end_date, 
+                                                                    keys.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;])
+            self.weekends = 1
+        else:
+            self.start_date, self.end_date = errors.validate_dates(self.start_date, 
+                                                                    self.end_date, 
+                                                                    self.asset_types[0])
+            if self.asset_types[0] == keys.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]:
+                self.weekends = 0
+            else:
+                self.weekends = 1
+
+
+    def _calculate_stats(self):
         self.mean_return = []
         self.sample_vol = []
 
@@ -552,6 +572,7 @@ If no arguments are provided to the constructor at all, the portfolio will defau
                                                                         start_date=self.start_date,
                                                                         end_date=self.end_date,
                                                                         sample_prices=self.sample_prices,
+                                                                        weekends=self.weekends,
                                                                         method=self.estimation_method)
 
     def return_function(self, x):
@@ -760,70 +781,6 @@ def get_constraint(x):
     return shares</code></pre>
 </details>
 </dd>
-<dt id="scrilla.analysis.objects.portfolio.Portfolio.calculate_stats"><code class="name flex">
-<span>def <span class="ident">calculate_stats</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def calculate_stats(self):
-    self.mean_return = []
-    self.sample_vol = []
-
-    # priority hierarchy: asset_functions -&gt; risk_profiles -&gt; sample_prices -&gt; statistics.py calls
-    if self.asset_volatility_functions is not None and self.asset_return_functions is not None:
-        # TODO: implement ito integration and calculate asset return and volatilities!
-        # use return and volatility functions to integrate over time period [0, infinity] for each asset. don&#39;t forget to
-        #   discount! I(x) = discounted expected payoff
-        #   Integral(d ln S) = Integral(Mean dt) + Integral(Vol dZ)
-        #   Need methods to compute ito Integrals in...statistics.py? markets.py? Perhaps a new module.
-        # https://math.stackexchange.com/questions/1780956/mean-and-variance-geometric-brownian-motion-with-not-constant-drift-and-volatili
-        pass
-
-    else:
-
-        # TODO: there is a logical error here. if the portfolio is made up of mixed assets (crypto, equity),
-        #       then calculate_risk_return will calculate the risk profile over a different time period than
-        #       the correlation matrix. the reason is: risk_return is univariate, but correlation is bivariate,
-        #       so when the correlation of an equity and crypto is calculated, it truncates the sample to dates
-        #       where both assets trade, i.e. crypto prices on weekends get ignored. the risk_profile of the crypto
-        #       will be over a shorter date range because the analysis will include weekends, whereas the crypto
-        #       correlation will not include weekends if the asset types are mixed. the problem is further 
-        #       compounded since the correlation method will retrieve the univariate profile to use in its calculation.
-        #       need a flag in the cache to tell the program the statistic includes/exclude weekend prices.
-
-        if self.risk_profiles is None:
-            for ticker in self.tickers:
-                if self.sample_prices is not None:
-                    stats = statistics.calculate_risk_return(ticker=ticker,
-                                                             sample_prices=self.sample_prices[ticker],
-                                                             method=self.estimation_method)
-                else:
-                    stats = statistics.calculate_risk_return(ticker=ticker,
-                                                             start_date=self.start_date,
-                                                             end_date=self.end_date,
-                                                             method=self.estimation_method)
-
-                self.mean_return.append(stats[&#39;annual_return&#39;])
-                self.sample_vol.append(stats[&#39;annual_volatility&#39;])
-        else:
-            for ticker in self.risk_profiles:
-                self.mean_return.append(
-                    self.risk_profiles[ticker][&#39;annual_return&#39;])
-                self.sample_vol.append(
-                    self.risk_profiles[ticker][&#39;annual_volatility&#39;])
-
-        if self.correlation_matrix is None:
-            self.correlation_matrix = statistics.correlation_matrix(tickers=self.tickers,
-                                                                    start_date=self.start_date,
-                                                                    end_date=self.end_date,
-                                                                    sample_prices=self.sample_prices,
-                                                                    method=self.estimation_method)</code></pre>
-</details>
-</dd>
 <dt id="scrilla.analysis.objects.portfolio.Portfolio.conditional_value_at_risk_function"><code class="name flex">
 <span>def <span class="ident">conditional_value_at_risk_function</span></span>(<span>self, x, time, prob)</span>
 </code></dt>
@@ -904,42 +861,6 @@ desired probability of loss.</li>
     if self.target_return is not None:
         return (numpy.dot(x, self.mean_return) - self.target_return)
     return None</code></pre>
-</details>
-</dd>
-<dt id="scrilla.analysis.objects.portfolio.Portfolio.init_asset_types"><code class="name flex">
-<span>def <span class="ident">init_asset_types</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def init_asset_types(self):
-    self.asset_types = []
-    for ticker in self.tickers:
-        self.asset_types.append(errors.validate_asset_type(ticker))
-        
-    self.mixed_assets = False
-
-    for this_asset_type in self.asset_types:
-        for that_asset_type in self.asset_types:
-            if this_asset_type != that_asset_type:
-                self.mixed_assets = True
-                break</code></pre>
-</details>
-</dd>
-<dt id="scrilla.analysis.objects.portfolio.Portfolio.init_dates"><code class="name flex">
-<span>def <span class="ident">init_dates</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def init_dates(self):
-    pass</code></pre>
 </details>
 </dd>
 <dt id="scrilla.analysis.objects.portfolio.Portfolio.percentile_function"><code class="name flex">
@@ -1124,14 +1045,11 @@ The portfolio volatility on an annualized basis.</p></div>
 <ul class="">
 <li><code><a title="scrilla.analysis.objects.portfolio.Portfolio.calculate_actual_total" href="#scrilla.analysis.objects.portfolio.Portfolio.calculate_actual_total">calculate_actual_total</a></code></li>
 <li><code><a title="scrilla.analysis.objects.portfolio.Portfolio.calculate_approximate_shares" href="#scrilla.analysis.objects.portfolio.Portfolio.calculate_approximate_shares">calculate_approximate_shares</a></code></li>
-<li><code><a title="scrilla.analysis.objects.portfolio.Portfolio.calculate_stats" href="#scrilla.analysis.objects.portfolio.Portfolio.calculate_stats">calculate_stats</a></code></li>
 <li><code><a title="scrilla.analysis.objects.portfolio.Portfolio.conditional_value_at_risk_function" href="#scrilla.analysis.objects.portfolio.Portfolio.conditional_value_at_risk_function">conditional_value_at_risk_function</a></code></li>
 <li><code><a title="scrilla.analysis.objects.portfolio.Portfolio.get_constraint" href="#scrilla.analysis.objects.portfolio.Portfolio.get_constraint">get_constraint</a></code></li>
 <li><code><a title="scrilla.analysis.objects.portfolio.Portfolio.get_default_bounds" href="#scrilla.analysis.objects.portfolio.Portfolio.get_default_bounds">get_default_bounds</a></code></li>
 <li><code><a title="scrilla.analysis.objects.portfolio.Portfolio.get_init_guess" href="#scrilla.analysis.objects.portfolio.Portfolio.get_init_guess">get_init_guess</a></code></li>
 <li><code><a title="scrilla.analysis.objects.portfolio.Portfolio.get_target_return_constraint" href="#scrilla.analysis.objects.portfolio.Portfolio.get_target_return_constraint">get_target_return_constraint</a></code></li>
-<li><code><a title="scrilla.analysis.objects.portfolio.Portfolio.init_asset_types" href="#scrilla.analysis.objects.portfolio.Portfolio.init_asset_types">init_asset_types</a></code></li>
-<li><code><a title="scrilla.analysis.objects.portfolio.Portfolio.init_dates" href="#scrilla.analysis.objects.portfolio.Portfolio.init_dates">init_dates</a></code></li>
 <li><code><a title="scrilla.analysis.objects.portfolio.Portfolio.percentile_function" href="#scrilla.analysis.objects.portfolio.Portfolio.percentile_function">percentile_function</a></code></li>
 <li><code><a title="scrilla.analysis.objects.portfolio.Portfolio.return_function" href="#scrilla.analysis.objects.portfolio.Portfolio.return_function">return_function</a></code></li>
 <li><code><a title="scrilla.analysis.objects.portfolio.Portfolio.set_target_return" href="#scrilla.analysis.objects.portfolio.Portfolio.set_target_return">set_target_return</a></code></li>

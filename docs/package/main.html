@@ -106,7 +106,7 @@ def validate_function_usage(selection: str, args: list, wrapper_function: Callab
         raise InputValidationError(
             f&#39;Invalid number of arguments for \&#39;{selection}\&#39; function.&#39;)
     end_time = time.time()
-    logger.debug(f&#39;Total execution time: {end_time - start_time}s&#39;)
+    logger.comment(f&#39;Total execution time: {end_time - start_time}s&#39;)
 
 
 def print_format_to_screen(args: dict) -&gt; bool:
@@ -213,11 +213,11 @@ def do_program() -&gt; None:
                 curve_rate = services.get_daily_interest_history(maturity=maturity,
                                                                  start_date=args[&#39;start_date&#39;],
                                                                  end_date=args[&#39;start_date&#39;])
-                yield_curve[maturity] = curve_rate/100
+                yield_curve[maturity] = curve_rate[list(curve_rate.keys())[0]]/100
 
                 if print_format_to_screen(args):
                     outputter.scalar_result(
-                        calculation=maturity, result=curve_rate, currency=False)
+                        calculation=maturity, result=yield_curve[maturity], currency=False)
 
             if print_json_to_screen(args):
                 print(json.dumps(yield_curve))
@@ -990,11 +990,11 @@ if __name__ == &#34;__main__&#34;:
                 curve_rate = services.get_daily_interest_history(maturity=maturity,
                                                                  start_date=args[&#39;start_date&#39;],
                                                                  end_date=args[&#39;start_date&#39;])
-                yield_curve[maturity] = curve_rate/100
+                yield_curve[maturity] = curve_rate[list(curve_rate.keys())[0]]/100
 
                 if print_format_to_screen(args):
                     outputter.scalar_result(
-                        calculation=maturity, result=curve_rate, currency=False)
+                        calculation=maturity, result=yield_curve[maturity], currency=False)
 
             if print_json_to_screen(args):
                 print(json.dumps(yield_curve))
@@ -1784,7 +1784,7 @@ The number of tickers required for the function.</li>
         raise InputValidationError(
             f&#39;Invalid number of arguments for \&#39;{selection}\&#39; function.&#39;)
     end_time = time.time()
-    logger.debug(f&#39;Total execution time: {end_time - start_time}s&#39;)</code></pre>
+    logger.comment(f&#39;Total execution time: {end_time - start_time}s&#39;)</code></pre>
 </details>
 </dd>
 </dl>

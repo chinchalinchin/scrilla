@@ -437,7 +437,7 @@ def calculate_risk_return(ticker: str, start_date: Union[date, None] = None, end
     raise errors.ConfigurationError('Statistic estimation method not found')
 
 
-def calculate_likelihood_risk_return(ticker, start_date: Union[date, None] = None, end_date: Union[date, None] = None, sample_prices: Union[, None] = None, asset_type: Union[str, None] = None) -> Dict[str, float]:
+def calculate_likelihood_risk_return(ticker, start_date: Union[date, None] = None, end_date: Union[date, None] = None, sample_prices: Union[dict, None] = None, asset_type: Union[str, None] = None) -> Dict[str, float]:
     """
     Estimates the mean rate of return and volatility for a sample of asset prices as if the asset price followed a Geometric Brownian Motion process, i.e. the mean rate of return and volatility are constant and not functions of time or the asset price. Moreover, the return and volatility are estimated using the method of maximum likelihood estimation. The probability of each observation is calculated and then the product is taken to find the probability of the intersection; this probability is maximized with respect to the parameters of the normal distribution, the mean and the volatility.
 
@@ -1102,11 +1102,6 @@ def calculate_moment_correlation(ticker_1: str, ticker_2: str, asset_type_1: Uni
         start_date, end_date = errors.validate_dates(start_date=start_date, end_date=end_date,
                                                      asset_type=keys.keys['ASSETS']['EQUITY'])
 
-    # TODO: there is a problem here. two different correlations can be cached and each one overrides the
-    #       other. if the asset types are mixed, the correlation is calculated over a truncated (weekends removed)
-    #       sample. if the asset types are equal to crypto, then the correlation is calculated over the entire
-    #       date range.
-    # TODO: do i need a flag
     if sample_prices is None:
         correlation = correlation_cache.filter_correlation_cache(ticker_1=ticker_1, ticker_2=ticker_2,
                                                                  start_date=start_date, end_date=end_date,
