@@ -202,3 +202,6 @@ workflows:
             branches:
               only:
                 - develop/main
+          requires:
+            - unit_tests
+            - documentation
