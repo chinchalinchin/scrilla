@@ -187,7 +187,7 @@ workflows:
               only:
                 - pypi/major-update
 
-  github_doc_pages:
+  github_pages:
     jobs:
       - unit_tests:
           filters:
