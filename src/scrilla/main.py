@@ -74,7 +74,7 @@ def validate_function_usage(selection: str, args: list, wrapper_function: Callab
         raise InputValidationError(
             f'Invalid number of arguments for \'{selection}\' function.')
     end_time = time.time()
-    logger.comment(f'Total execution time: {end_time - start_time}s')
+    logger.info(f'Total execution time: {end_time - start_time}s')
 
 
 def print_format_to_screen(args: dict) -> bool:

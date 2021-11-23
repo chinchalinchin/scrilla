@@ -153,9 +153,9 @@ def init_static_data():
                 url = f'{settings.AV_URL}?{query}&{service_map["PARAMS"]["KEY"]}={settings.av_key()}'
                 static_tickers_blob = parse_csv_response_column(column=0, url=url, savefile=settings.STATIC_TICKERS_FILE,
                                                                 firstRowHeader=service_map['KEYS']['EQUITY']['HEADER'])
-
-            raise errors.ConfigurationError(
-                "No PRICE_MANAGER set in .env file!")
+            else:
+                raise errors.ConfigurationError(
+                    "No PRICE_MANAGER set in .env file!")
 
         # grab crypto symbols and store in STATIC_DIR
         if not os.path.isfile(settings.STATIC_CRYPTO_FILE):
@@ -166,8 +166,9 @@ def init_static_data():
                 url = settings.AV_CRYPTO_LIST
                 static_crypto_blob = parse_csv_response_column(column=0, url=url, savefile=settings.STATIC_CRYPTO_FILE,
                                                                firstRowHeader=service_map['KEYS']['CRYPTO']['HEADER'])
-            raise errors.ConfigurationError(
-                "No PRICE_MANAGER set in .env file!")
+            else:
+                raise errors.ConfigurationError(
+                    "No PRICE_MANAGER set in .env file!")
 
         # grab econominc indicator symbols and store in STATIC_DIR
         if not os.path.isfile(settings.STATIC_ECON_FILE):
@@ -183,8 +184,9 @@ def init_static_data():
                                                              firstRowHeader=service_map["KEYS"]["HEADER"],
                                                              zipped=service_map["KEYS"]["ZIPFILE"])
 
-            raise errors.ConfigurationError(
-                "No STAT_MANAGER set in .env file!")
+            else:
+                raise errors.ConfigurationError(
+                    "No STAT_MANAGER set in .env file!")
 
     else:
         logger.debug('Static data already initialized!')

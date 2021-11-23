@@ -37,14 +37,14 @@ commands:
       - run:
           name: commit version
           command: |
-              git config user.email "chinchalinchin@gmail.com"
-              git config user.name "CircleCi Bot"
-              git stash
-              git checkout develop/main
-              git stash pop
-              git add . 
-              git commit -m "Pipeline Build Version $(cat ./src/scrilla/version.txt)" || true
-              git push --set-upstream origin develop/main || true
+            git config user.email "chinchalinchin@gmail.com"
+            git config user.name "CircleCi Bot"
+            git stash
+            git checkout develop/main
+            git stash pop
+            git add . 
+            git commit -m "Pipeline Build Version $(cat ./src/scrilla/version.txt)" || true
+            git push --set-upstream origin develop/main || true
 
   install_doc_deps:
     description: install documentation dependencies
@@ -54,21 +54,15 @@ commands:
           command: sudo apt-get update -y && sudo apt-get install -y xvfb libopengl0 libegl1-mesa libxkbcommon-dev
       - run:
           name: dependency installation
-          command: |
-            pip3 install -r requirements.txt
+          command: pip3 install -r requirements.txt
 
   generate_docs:
     description: generate documentation html from docstrings
     steps:
       - run:
           name: generate docs
-          command: |
-            mkdir /tmp/docs/
-            bash ./scripts/docs circle-ci
-            cp -ap ./docs/. /tmp/docs/
-            git stash
-            git checkout gh-pages
-            cp -ap /tmp/docs/. ./
+          command: bash ./scripts/docs circle-ci
+
 
   install_test_deps:
     description: install testing libraries
@@ -77,7 +71,8 @@ commands:
           name: dependency installation
           command: |
             pip3 install -r requirements.txt
-            bash ./scripts/build
+            bash ./scripts/install
+            scrilla version
   
   run_unit_tests: 
     description: run unit tests against installed wheel
@@ -90,8 +85,13 @@ commands:
     description: commit re-generated docs to git
     steps:
       - run:
-          name: commit docs
+          name: commit unit test coverage and docs
           command: |
+            mkdir /tmp/docs/
+            cp -ap ./docs/. /tmp/docs/
+            git stash
+            git checkout gh-pages
+            cp -ap /tmp/docs/. ./
             git config user.email "chinchalinchin@gmail.com"
             git config user.name "CircleCi Bot"
             git add .
