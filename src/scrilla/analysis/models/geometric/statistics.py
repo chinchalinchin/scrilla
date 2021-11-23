@@ -510,7 +510,7 @@ def calculate_likelihood_risk_return(ticker, start_date: Union[date, None] = Non
         
         if asset_type == keys.keys['ASSETS']['CRYPTO'] and weekends == 0:
             prices = dater.intersect_with_trading_dates(prices)
-            
+
     else:
         logger.debug(
             f'{ticker} sample prices provided, skipping service call.')
@@ -538,7 +538,7 @@ def calculate_likelihood_risk_return(ticker, start_date: Union[date, None] = Non
     }
 
     profile_cache.save_or_update_row(ticker=ticker, start_date=start_date, end_date=end_date,
-                                     method=keys.keys['ESTIMATION']['LIKE'],
+                                     method=keys.keys['ESTIMATION']['LIKE'], weekends=weekends,
                                      annual_return=results[keys.keys['STATISTICS']['RETURN']],
                                      annual_volatility=results[keys.keys['STATISTICS']['VOLATILITY']])
 
@@ -644,7 +644,7 @@ def calculate_percentile_risk_return(ticker: str, start_date: Union[date, None] 
     }
 
     profile_cache.save_or_update_row(ticker=ticker, start_date=start_date, end_date=end_date,
-                                     method=keys.keys['ESTIMATION']['PERCENT'],
+                                     method=keys.keys['ESTIMATION']['PERCENT'], weekends=weekends,s
                                      annual_return=results[keys.keys['STATISTICS']['RETURN']],
                                      annual_volatility=results[keys.keys['STATISTICS']['VOLATILITY']])
     return results
