@@ -78,11 +78,11 @@ commands:
       - run:
           name: commit docs
           command: |
-              git config user.email "chinchalinchin@gmail.com"
-              git config user.name "CircleCi Bot"
-              git add .
-              git commit -m "Pipeline Documentation Generation $(echo $(date))"
-              git push --set-upstream origin gh-pages
+            git config user.email "chinchalinchin@gmail.com"
+            git config user.name "CircleCi Bot"
+            git add .
+            git commit -m "Pipeline Documentation Generation $(echo $(date))"
+            git push --set-upstream origin gh-pages
 
 jobs:
   pypi_micro_update:
