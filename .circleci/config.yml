@@ -51,7 +51,7 @@ commands:
     steps:
       - run:
           name: install virtual server
-          command: sudo apt-get update -y && sudo apt-get install -y xvfb libopengl0
+          command: sudo apt-get update -y && sudo apt-get install -y xvfb fmpeg libsm6 libxext6
       - run:
           name: dependency installation
           command: |
