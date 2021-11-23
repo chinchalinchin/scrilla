@@ -170,7 +170,7 @@ def is_trading_date(date: datetime.date) -> bool:
 
 def intersect_with_trading_dates(date_key_dict: dict) -> dict:
     return {date: date_key_dict[date] for date in date_key_dict if is_trading_date(parse_date_string(date))}
-    
+
 
 # YYYY-MM-DD
 

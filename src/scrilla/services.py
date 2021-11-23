@@ -537,6 +537,7 @@ def get_daily_price_history(ticker: str, start_date: Union[None, date] = None,
 
     return prices
 
+
 def get_daily_price_latest(ticker: str, asset_type: Union[None, str] = None) -> float:
     """
     Returns the latest closing price for a given ticker symbol.
@@ -549,12 +550,15 @@ def get_daily_price_latest(ticker: str, asset_type: Union[None, str] = None) -> 
         *Optional*. Asset type of the ticker whose history is to be retrieved. Will be calculated from the `ticker` symbol if not provided.
     """
     last_date = dater.this_date_or_last_trading_date()
-    prices = get_daily_price_history(ticker=ticker, asset_type=asset_type, start_date=last_date, end_date=last_date)
+    prices = get_daily_price_history(
+        ticker=ticker, asset_type=asset_type, start_date=last_date, end_date=last_date)
     first_element = helper.get_first_json_key(prices)
     return prices[first_element][keys.keys['PRICES']['OPEN']]
 
+
 def get_daily_prices_latest(tickers: List[str], asset_types: Union[None, List[str]] = None):
-    return { ticker: get_daily_price_latest(ticker, asset_types[i]) for i, ticker in enumerate(tickers) }
+    return {ticker: get_daily_price_latest(ticker, asset_types[i]) for i, ticker in enumerate(tickers)}
+
 
 def get_daily_fred_history(symbol: str, start_date: Union[date, None] = None, end_date: Union[date, None] = None) -> list:
     """
@@ -636,11 +640,10 @@ def get_daily_interest_history(maturity: str, start_date: Union[date, None] = No
         logger.debug(
             f'Comparing {len(rates)} = {dater.business_days_between(start_date, end_date)}')
 
-
     # TODO: this only works when stats are reported daily and that the latest date in the dataset is actually end_date.
     if rates is not None and \
-        dater.date_to_string(end_date) in rates.keys() and \
-        dater.business_days_between(start_date, end_date) == len(rates):
+            dater.date_to_string(end_date) in rates.keys() and \
+            dater.business_days_between(start_date, end_date) == len(rates):
         return rates
 
     logger.debug(

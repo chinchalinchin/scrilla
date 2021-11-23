@@ -235,8 +235,10 @@ def optimal_result(portfolio, allocation, investment=None, latest_prices=None):
     portfolio_percent_result(allocation, portfolio.tickers)
 
     if investment is not None:
-        shares = portfolio.calculate_approximate_shares(allocation, investment, latest_prices)
-        total = portfolio.calculate_actual_total(allocation, investment, latest_prices)
+        shares = portfolio.calculate_approximate_shares(
+            allocation, investment, latest_prices)
+        total = portfolio.calculate_actual_total(
+            allocation, investment, latest_prices)
 
         title_line('Optimal Share Allocation')
         portfolio_shares_result(shares, portfolio.tickers)
@@ -270,7 +272,8 @@ def efficient_frontier(portfolio, frontier, investment=None, latest_prices=None)
         if investment is not None:
             shares = portfolio.calculate_approximate_shares(
                 allocation, investment, latest_prices)
-            total = portfolio.calculate_actual_total(allocation, investment, latest_prices)
+            total = portfolio.calculate_actual_total(
+                allocation, investment, latest_prices)
 
             title_line('Optimal Share Allocation')
             portfolio_shares_result(shares, portfolio.tickers)

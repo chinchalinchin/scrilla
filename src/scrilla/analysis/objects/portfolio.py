@@ -16,7 +16,7 @@
 from math import trunc, sqrt
 from decimal import Decimal
 
-# TODO: get rid of numpy functions. 
+# TODO: get rid of numpy functions.
 #       dot, multiply and transpose should be easy to replicate
 #       and it removes a big dependency from the package...
 from numpy import dot, multiply, transpose
@@ -28,9 +28,11 @@ from scrilla.util import outputter
 from scrilla.analysis.models.geometric.statistics import calculate_risk_return, correlation_matrix
 from scrilla.analysis.models.geometric.probability import percentile, conditional_expected_value
 
-logger = outputter.Logger("scrilla.analysis.objects.portfolio", settings.LOG_LEVEL)
+logger = outputter.Logger(
+    "scrilla.analysis.objects.portfolio", settings.LOG_LEVEL)
 
 # TODO: allow user to specify bounds for equities, i.e. min and max allocations.
+
 
 class Portfolio:
     r"""
@@ -84,7 +86,7 @@ class Portfolio:
         self.actual_total = None
         self.risk_free_rate = None
         self.estimation_method = method
-        self.sample_prices = sample_prices  
+        self.sample_prices = sample_prices
         self.tickers = tickers
         self.correlation_matrix = correlation_matrix
         self.asset_volatility_functions = asset_volatility_functions
@@ -112,7 +114,7 @@ class Portfolio:
         self.asset_types = []
         for ticker in self.tickers:
             self.asset_types.append(errors.validate_asset_type(ticker))
-            
+
         self.mixed_assets = False
 
         for this_asset_type in self.asset_types:
@@ -123,19 +125,18 @@ class Portfolio:
 
     def _init_dates(self):
         if self.mixed_assets:
-            self.start_date, self.end_date = errors.validate_dates(self.start_date, 
-                                                                    self.end_date, 
-                                                                    keys.keys['ASSETS']['EQUITY'])
+            self.start_date, self.end_date = errors.validate_dates(self.start_date,
+                                                                   self.end_date,
+                                                                   keys.keys['ASSETS']['EQUITY'])
             self.weekends = 0
         else:
-            self.start_date, self.end_date = errors.validate_dates(self.start_date, 
-                                                                    self.end_date, 
-                                                                    self.asset_types[0])
+            self.start_date, self.end_date = errors.validate_dates(self.start_date,
+                                                                   self.end_date,
+                                                                   self.asset_types[0])
             if self.asset_types[0] == keys.keys['ASSETS']['EQUITY']:
                 self.weekends = 0
             else:
                 self.weekends = 1
-
 
     def _calculate_stats(self):
         self.mean_return = []
@@ -159,7 +160,7 @@ class Portfolio:
             #       so when the correlation of an equity and crypto is calculated, it truncates the sample to dates
             #       where both assets trade, i.e. crypto prices on weekends get ignored. the risk_profile of the crypto
             #       will be over a shorter date range because the analysis will include weekends, whereas the crypto
-            #       correlation will not include weekends if the asset types are mixed. the problem is further 
+            #       correlation will not include weekends if the asset types are mixed. the problem is further
             #       compounded since the correlation method will retrieve the univariate profile to use in its calculation.
             #       need a flag in the cache to tell the program the statistic includes/exclude weekend prices.
 
@@ -167,15 +168,15 @@ class Portfolio:
                 for ticker in self.tickers:
                     if self.sample_prices is not None:
                         stats = calculate_risk_return(ticker=ticker,
-                                                        sample_prices=self.sample_prices[ticker],
-                                                        method=self.estimation_method,
-                                                        weekends=self.weekends)
+                                                      sample_prices=self.sample_prices[ticker],
+                                                      method=self.estimation_method,
+                                                      weekends=self.weekends)
                     else:
                         stats = calculate_risk_return(ticker=ticker,
-                                                        start_date=self.start_date,
-                                                        end_date=self.end_date,
-                                                        method=self.estimation_method,
-                                                        weekends=self.weekends)
+                                                      start_date=self.start_date,
+                                                      end_date=self.end_date,
+                                                      method=self.estimation_method,
+                                                      weekends=self.weekends)
 
                     self.mean_return.append(stats['annual_return'])
                     self.sample_vol.append(stats['annual_volatility'])
@@ -188,11 +189,11 @@ class Portfolio:
 
             if self.correlation_matrix is None:
                 self.correlation_matrix = correlation_matrix(tickers=self.tickers,
-                                                            start_date=self.start_date,
-                                                            end_date=self.end_date,
-                                                            sample_prices=self.sample_prices,
-                                                            weekends=self.weekends,
-                                                            method=self.estimation_method)
+                                                             start_date=self.start_date,
+                                                             end_date=self.end_date,
+                                                             sample_prices=self.sample_prices,
+                                                             weekends=self.weekends,
+                                                             method=self.estimation_method)
 
     def return_function(self, x):
         """
@@ -259,7 +260,7 @@ class Portfolio:
         portfolio_volatility = self.volatility_function(x) * sqrt(time)
 
         return percentile(S0=1, vol=portfolio_volatility, ret=portfolio_return,
-                            expiry=time, percentile=prob)
+                          expiry=time, percentile=prob)
 
     def conditional_value_at_risk_function(self, x, time, prob):
         """
@@ -278,7 +279,7 @@ class Portfolio:
         portfolio_volatility = self.volatility_function(x) * sqrt(time)
         value_at_risk = self.percentile_function(x=x, time=time, prob=prob)
         return (1 - conditional_expected_value(S0=1, vol=portfolio_volatility, ret=portfolio_return,
-                                                expiry=time, conditional_value=value_at_risk))
+                                               expiry=time, conditional_value=value_at_risk))
 
     def get_init_guess(self):
         length = len(self.tickers)

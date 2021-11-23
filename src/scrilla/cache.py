@@ -228,7 +228,7 @@ class CorrelationCache(Cache):
         """
         return {keys.keys['STATISTICS']['CORRELATION']: query_results[0][0]}
 
-    def save_row(self, ticker_1: str, ticker_2: str, start_date: datetime.date, end_date: datetime.date, correlation: float, weekends: bool, method: str=settings.ESTIMATION_METHOD):
+    def save_row(self, ticker_1: str, ticker_2: str, start_date: datetime.date, end_date: datetime.date, correlation: float, weekends: bool, method: str = settings.ESTIMATION_METHOD):
         """
         Uses `self.insert_row_transaction` to save the passed-in information to the SQLite cache.
 
@@ -247,7 +247,7 @@ class CorrelationCache(Cache):
             f'Saving ({ticker_1}, {ticker_2}) correlation from {start_date} to {end_date} to the cacche')
         formatter_1 = {'ticker_1': ticker_1, 'ticker_2': ticker_2, 'method': method,
                        'start_date': start_date, 'end_date': end_date, 'correlation': correlation,
-                        'weekends': weekends}
+                       'weekends': weekends}
         formatter_2 = {'ticker_1': ticker_2, 'ticker_2': ticker_1, 'method': method,
                        'start_date': start_date, 'end_date': end_date, 'correlation': correlation,
                        'weekends': weekends}
@@ -340,7 +340,7 @@ class ProfileCache(Cache):
                 keys.keys['STATISTICS']['BETA']: query_result[0][3] if query_result[0][3] != 'empty' else None,
                 keys.keys['STATISTICS']['EQUITY']: query_result[0][4] if query_result[0][4] != 'empty' else None}
 
-    def save_or_update_row(self, ticker: str, start_date: datetime.date, end_date:datetime.date, annual_return:Union[float,None]=None, annual_volatility:Union[float,None]=None, sharpe_ratio:Union[float,None]=None, asset_beta:Union[float,None]=None, equity_cost:Union[float,None]=None, weekends:int=0, method:str=settings.ESTIMATION_METHOD):
+    def save_or_update_row(self, ticker: str, start_date: datetime.date, end_date: datetime.date, annual_return: Union[float, None] = None, annual_volatility: Union[float, None] = None, sharpe_ratio: Union[float, None] = None, asset_beta: Union[float, None] = None, equity_cost: Union[float, None] = None, weekends: int = 0, method: str = settings.ESTIMATION_METHOD):
         formatter = {'ticker': ticker, 'start_date': start_date,
                      'end_date': end_date, 'method': method, 'weekends': weekends}
 
@@ -375,7 +375,7 @@ class ProfileCache(Cache):
             self.execute_transaction(
                 transaction=ProfileCache.update_equity_tranasction, formatter=formatter)
 
-    def filter_profile_cache(self, ticker: str, start_date: datetime.date, end_date: datetime.date, weekends:int=0, method=settings.ESTIMATION_METHOD):
+    def filter_profile_cache(self, ticker: str, start_date: datetime.date, end_date: datetime.date, weekends: int = 0, method=settings.ESTIMATION_METHOD):
         logger.debug(
             f'Querying SQLite cache: \n\t{ProfileCache.profile_query}\n\t\t with :ticker={ticker}, :start_date={start_date}, :end_date={end_date}')
         formatter = {'ticker': ticker, 'start_date': start_date,
