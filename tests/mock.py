@@ -15,6 +15,8 @@ def mock_prices(url, request):
         return json.dumps(load_file(os.path.join(test_settings.MOCK_DIR, 'bx_response.json')))
     elif 'DIS' in request.url:
         return json.dumps(load_file(os.path.join(test_settings.MOCK_DIR, 'dis_response.json')))
+    elif 'SPY' in request.url:
+        return json.dumps(load_file(os.path.join(test_settings.MOCK_DIR, 'dis_response.json')))
     raise KeyError('No mock data for request!')
 
 @urlmatch(netloc=r'(.*\.)?quandl\.com*$')

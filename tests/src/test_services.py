@@ -11,7 +11,11 @@ from scrilla.static import keys
 from .. import mock
 
 
-@pytest.mark.parametrize("ticker,price", [('ALLY', 47.93), ('BX', 146.44), ('DIS', 154.00)] )
+@pytest.mark.parametrize("ticker,price", [
+                                            ('ALLY', 47.93), 
+                                            ('BX', 146.44), 
+                                            ('DIS', 154.00)
+                                        ])
 def test_latest_price(ticker, price):
     with HTTMock(mock.mock_prices):
         response = services.get_daily_price_latest(ticker=ticker)
@@ -31,7 +35,8 @@ def test_past_price(ticker, date, price):
 @pytest.mark.parametrize("maturity, yield_rate", [
                                                     ('ONE_MONTH', 0.11), 
                                                     ('THIRTY_YEAR', 1.91), 
-                                                    ('ONE_YEAR', 0.18)] )
+                                                    ('ONE_YEAR', 0.18)
+                                                ])
 def test_latest_interest(maturity, yield_rate):
     with HTTMock(mock.mock_interest):
         response = services.get_daily_interest_latest(maturity=maturity)
