@@ -27,7 +27,7 @@ from scrilla import settings, errors, cache
 from scrilla.static import keys, constants
 from scrilla.util import outputter, helper, dater
 
-logger = outputter.Logger("services", settings.LOG_LEVEL)
+logger = outputter.Logger("scrilla.services", settings.LOG_LEVEL)
 
 
 class StatManager():

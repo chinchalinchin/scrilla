@@ -3,12 +3,17 @@ import json
 
 from httmock import urlmatch
 
+from scrilla import settings
 from scrilla.files import load_file
+from scrilla.util.outputter import Logger
 
 from . import settings as test_settings
 
+logger = Logger("tests.mock", settings.LOG_LEVEL)
+
 @urlmatch(netloc=r'(.*\.)?alphavantage\.co*$')
 def mock_prices(url, request):
+    logger.info('Returning mock AlphaVantage data')
     if 'ALLY' in request.url:
         return json.dumps(load_file(os.path.join(test_settings.MOCK_DIR, 'ally_response.json')))
     elif 'BX' in request.url:
@@ -27,4 +32,5 @@ def mock_prices(url, request):
 
 @urlmatch(netloc=r'(.*\.)?quandl\.com*$')
 def mock_interest(url, request):
+    logger.info('Returning mock Quandl data')
     return json.dumps(load_file(os.path.join(test_settings.MOCK_DIR, 'yield_response.json')))

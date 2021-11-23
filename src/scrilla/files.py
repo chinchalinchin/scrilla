@@ -29,7 +29,7 @@ from scrilla import settings, errors
 from scrilla.static import functions, keys, constants
 from scrilla.util import outputter, helper
 
-logger = outputter.Logger("files", settings.LOG_LEVEL)
+logger = outputter.Logger("scrilla.files", settings.LOG_LEVEL)
 
 static_tickers_blob, static_econ_blob, static_crypto_blob = None, None, None
 

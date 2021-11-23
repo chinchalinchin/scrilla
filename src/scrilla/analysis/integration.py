@@ -25,7 +25,7 @@ import random
 from scrilla import settings, errors
 import scrilla.util.outputter as outputter
 
-logger = outputter.Logger("calculator", settings.LOG_LEVEL)
+logger = outputter.Logger("scrilla.analysis.integration", settings.LOG_LEVEL)
 
 
 def generate_random_walk(periods: int):

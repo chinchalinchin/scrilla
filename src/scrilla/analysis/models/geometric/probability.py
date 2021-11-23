@@ -12,15 +12,17 @@
 # You should have received a copy of the GNU General Public License
 # along with scrilla.  If not, see <https://www.gnu.org/licenses/>
 # or <https://github.com/chinchalinchin/scrilla/blob/develop/main/LICENSE>.
-
-from scipy.stats import norm
-from numpy import log, sqrt, exp
-
 """
 This module contains probability functions unique to the Geometric Brownian Motion stochastic model. All functions assume an asset price process that follows GBM. In other words, the return distribution is lognormal. This is equivalent to the Black-Scholes model from finance. 
 
 The calculations have no stance on whether the actual probability distribution or the risk-neutral probability distribution should be used. This is implicitly specified by the user when they provided a rate of return to functions in this module. If the user wishes to use a risk-neutral probability, simply provide the assumed risk-free rate. If the user wishes to use an actual probability, provide the estimate of the rate of the return for the asset.
 """
+from scipy.stats import norm
+from math import sqrt, exp, log
+from scrilla import settings
+from scrilla.util.outputter import Logger
+
+logger = Logger('scrilla.analysis.models.geometric.statistics', settings.LOG_LEVEL)
 
 
 def d1(S0: float, ST: float, vol: float, ret: float, expiry: float, div: float = 0) -> float:

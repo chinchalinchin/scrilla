@@ -19,15 +19,17 @@ A module of functions that wrap around `scipy.optimize` in order to optimize sta
 """
 
 from typing import List, Tuple
+from math import sqrt
+
 import scipy.optimize as optimize
-from numpy import sqrt
+
 from scrilla import settings
 from scrilla.static import constants
 from scrilla.analysis import estimators
 from scrilla.analysis.objects.portfolio import Portfolio
 import scrilla.util.outputter as outputter
 
-logger = outputter.Logger('optimizer', settings.LOG_LEVEL)
+logger = outputter.Logger('scrilla.analysis.optimizer', settings.LOG_LEVEL)
 
 
 def maximize_univariate_normal_likelihood(data: List[float]) -> List[float]:

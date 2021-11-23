@@ -27,13 +27,9 @@ def test_portfolio_initialization(portfolios):
     vol_init = all([len(portfolio.sample_vol) == len(portfolio.tickers) for portfolio in portfolios])
     correl_init = all([portfolio.correlation_matrix is not None for portfolio in portfolios])
     rf_init = all([portfolio.risk_free_rate is not None for portfolio in portfolios])
-    assert(False)
-    assert(end_date_init)
-    assert(asset_type_init)
-    assert(return_init)
-    assert(vol_init)
-    assert(correl_init)
-    assert(rf_init)
+    assert(start_date_init and end_date_init)
+    assert(asset_type_init and rf_init)
+    assert(return_init and vol_init and correl_init)
 
 @pytest.mark.parametrize('tickers,weekends', [
                                                 (['ALLY', 'BX'], 0),

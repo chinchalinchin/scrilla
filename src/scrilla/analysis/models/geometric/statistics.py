@@ -25,7 +25,7 @@ from scrilla.static import keys, functions, constants
 from scrilla.analysis import estimators
 from scrilla.util import outputter, helper, dater
 
-logger = outputter.Logger('statistics', settings.LOG_LEVEL)
+logger = outputter.Logger('scrilla.analysis.models.geometric.statistics', settings.LOG_LEVEL)
 profile_cache = cache.ProfileCache()
 correlation_cache = cache.CorrelationCache()
 

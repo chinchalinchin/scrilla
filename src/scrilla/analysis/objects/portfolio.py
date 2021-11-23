@@ -21,18 +21,16 @@ from decimal import Decimal
 #       and it removes a big dependency from the package...
 from numpy import dot, multiply, transpose
 
-from scrilla import services, settings, errors
+from scrilla import settings, errors
 from scrilla.static import keys
-import scrilla.util.outputter as outputter
-
+from scrilla.util import outputter
 # TODO: conditional import module based on analysis_mode, i.e. geometric versus mean reverting.
 from scrilla.analysis.models.geometric.statistics import calculate_risk_return, correlation_matrix
 from scrilla.analysis.models.geometric.probability import percentile, conditional_expected_value
 
-logger = outputter.Logger("analysis.objects.portfolio", settings.LOG_LEVEL)
+logger = outputter.Logger("scrilla.analysis.objects.portfolio", settings.LOG_LEVEL)
 
 # TODO: allow user to specify bounds for equities, i.e. min and max allocations.
-
 
 class Portfolio:
     r"""
