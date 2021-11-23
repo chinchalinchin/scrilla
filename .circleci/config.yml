@@ -79,7 +79,9 @@ commands:
     steps:
       - run: 
           name: unit tests
-          command: bash ./scripts/tests
+          command: |
+            export APP_ENV="container"
+            bash ./scripts/tests
 
   commit_coverage:
     description: commit re-generated docs to git
