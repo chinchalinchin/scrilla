@@ -259,13 +259,13 @@ def screen_results(info, model):
 #         optimal result.
 
 
-def optimal_result(portfolio, allocation, investment=None, latest_prices=None):
+def optimal_result(portfolio, allocation, investment=None):
     title_line(&#39;Optimal Percentage Allocation&#39;)
     portfolio_percent_result(allocation, portfolio.tickers)
 
     if investment is not None:
-        shares = portfolio.calculate_approximate_shares(allocation, investment, latest_prices)
-        total = portfolio.calculate_actual_total(allocation, investment, latest_prices)
+        shares = portfolio.calculate_approximate_shares(allocation, investment)
+        total = portfolio.calculate_actual_total(allocation, investment)
 
         title_line(&#39;Optimal Share Allocation&#39;)
         portfolio_shares_result(shares, portfolio.tickers)
@@ -279,7 +279,7 @@ def optimal_result(portfolio, allocation, investment=None, latest_prices=None):
         allocation), currency=False)
 
 
-def efficient_frontier(portfolio, frontier, investment=None, latest_prices=None):
+def efficient_frontier(portfolio, frontier, investment=None):
     title_line(&#39;(Annual Return %, Annual Volatility %) Portfolio&#39;)
 
     # TODO: edit title to include dates
@@ -298,8 +298,8 @@ def efficient_frontier(portfolio, frontier, investment=None, latest_prices=None)
 
         if investment is not None:
             shares = portfolio.calculate_approximate_shares(
-                allocation, investment, latest_prices)
-            total = portfolio.calculate_actual_total(allocation, investment, latest_prices)
+                allocation, investment)
+            total = portfolio.calculate_actual_total(allocation, investment)
 
             title_line(&#39;Optimal Share Allocation&#39;)
             portfolio_shares_result(shares, portfolio.tickers)
@@ -610,7 +610,7 @@ End date of the time period over which correlation was calculated. </li>
 </details>
 </dd>
 <dt id="scrilla.util.outputter.efficient_frontier"><code class="name flex">
-<span>def <span class="ident">efficient_frontier</span></span>(<span>portfolio, frontier, investment=None, latest_prices=None)</span>
+<span>def <span class="ident">efficient_frontier</span></span>(<span>portfolio, frontier, investment=None)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -618,7 +618,7 @@ End date of the time period over which correlation was calculated. </li>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def efficient_frontier(portfolio, frontier, investment=None, latest_prices=None):
+<pre><code class="python">def efficient_frontier(portfolio, frontier, investment=None):
     title_line(&#39;(Annual Return %, Annual Volatility %) Portfolio&#39;)
 
     # TODO: edit title to include dates
@@ -637,8 +637,8 @@ End date of the time period over which correlation was calculated. </li>
 
         if investment is not None:
             shares = portfolio.calculate_approximate_shares(
-                allocation, investment, latest_prices)
-            total = portfolio.calculate_actual_total(allocation, investment, latest_prices)
+                allocation, investment)
+            total = portfolio.calculate_actual_total(allocation, investment)
 
             title_line(&#39;Optimal Share Allocation&#39;)
             portfolio_shares_result(shares, portfolio.tickers)
@@ -775,7 +775,7 @@ End date of the time period over which correlation was calculated. </li>
 </details>
 </dd>
 <dt id="scrilla.util.outputter.optimal_result"><code class="name flex">
-<span>def <span class="ident">optimal_result</span></span>(<span>portfolio, allocation, investment=None, latest_prices=None)</span>
+<span>def <span class="ident">optimal_result</span></span>(<span>portfolio, allocation, investment=None)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -783,13 +783,13 @@ End date of the time period over which correlation was calculated. </li>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def optimal_result(portfolio, allocation, investment=None, latest_prices=None):
+<pre><code class="python">def optimal_result(portfolio, allocation, investment=None):
     title_line(&#39;Optimal Percentage Allocation&#39;)
     portfolio_percent_result(allocation, portfolio.tickers)
 
     if investment is not None:
-        shares = portfolio.calculate_approximate_shares(allocation, investment, latest_prices)
-        total = portfolio.calculate_actual_total(allocation, investment, latest_prices)
+        shares = portfolio.calculate_approximate_shares(allocation, investment)
+        total = portfolio.calculate_actual_total(allocation, investment)
 
         title_line(&#39;Optimal Share Allocation&#39;)
         portfolio_shares_result(shares, portfolio.tickers)

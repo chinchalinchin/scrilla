@@ -1,0 +1,10 @@
+numpy>=1.19.3
+scipy>=1.5.4
+matplotlib>=3.3.3
+holidays>=0.10.4
+python-dateutil>=2.8.2
+python-dotenv>=0.15.0
+requests>=2.25.0
+
+[gui]
+PySide6>=6.2.0

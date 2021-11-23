@@ -1,0 +1,4 @@
+[console_scripts]
+scrilla = scrilla.main:do_program
+scrilla-gui = scrilla.gui.main:do_gui [gui]
+
