@@ -181,7 +181,8 @@ def do_program() -> None:
                 curve_rate = services.get_daily_interest_history(maturity=maturity,
                                                                  start_date=args['start_date'],
                                                                  end_date=args['start_date'])
-                yield_curve[maturity] = curve_rate[list(curve_rate.keys())[0]]/100
+                yield_curve[maturity] = curve_rate[list(
+                    curve_rate.keys())[0]]/100
 
                 if print_format_to_screen(args):
                     outputter.scalar_result(
@@ -435,8 +436,9 @@ def do_program() -> None:
             frontier = optimizer.calculate_efficient_frontier(portfolio=portfolio,
                                                               steps=args['steps'])
 
-            if args['investment'] is not None:            
-                prices = services.get_daily_prices_latest(tickers=args['tickers'])
+            if args['investment'] is not None:
+                prices = services.get_daily_prices_latest(
+                    tickers=args['tickers'])
             else:
                 prices = None
 
@@ -469,8 +471,9 @@ def do_program() -> None:
             allocation = optimizer.maximize_portfolio_return(
                 portfolio=portfolio)
 
-            if args['investment'] is not None:            
-                prices = services.get_daily_prices_latest(tickers=args['tickers'])
+            if args['investment'] is not None:
+                prices = services.get_daily_prices_latest(
+                    tickers=args['tickers'])
             else:
                 prices = None
 
@@ -525,8 +528,9 @@ def do_program() -> None:
                 allocation = optimizer.optimize_portfolio_variance(
                     portfolio=portfolio, target_return=args['target'])
 
-            if args['investment'] is not None:            
-                prices = services.get_daily_prices_latest(tickers=args['tickers'])
+            if args['investment'] is not None:
+                prices = services.get_daily_prices_latest(
+                    tickers=args['tickers'])
             else:
                 prices = None
 
@@ -555,8 +559,9 @@ def do_program() -> None:
                                                                       prob=args['probability'],
                                                                       expiry=args['expiry'],
                                                                       target_return=args['target'])
-            if args['investment'] is not None:            
-                prices = services.get_daily_prices_latest(tickers=args['tickers'])
+            if args['investment'] is not None:
+                prices = services.get_daily_prices_latest(
+                    tickers=args['tickers'])
             else:
                 prices = None
 
