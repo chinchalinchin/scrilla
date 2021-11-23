@@ -213,7 +213,8 @@ def do_program() -&gt; None:
                 curve_rate = services.get_daily_interest_history(maturity=maturity,
                                                                  start_date=args[&#39;start_date&#39;],
                                                                  end_date=args[&#39;start_date&#39;])
-                yield_curve[maturity] = curve_rate[list(curve_rate.keys())[0]]/100
+                yield_curve[maturity] = curve_rate[list(
+                    curve_rate.keys())[0]]/100
 
                 if print_format_to_screen(args):
                     outputter.scalar_result(
@@ -467,8 +468,9 @@ def do_program() -&gt; None:
             frontier = optimizer.calculate_efficient_frontier(portfolio=portfolio,
                                                               steps=args[&#39;steps&#39;])
 
-            if args[&#39;investment&#39;] is not None:            
-                prices = services.get_daily_prices_latest(tickers=args[&#39;tickers&#39;])
+            if args[&#39;investment&#39;] is not None:
+                prices = services.get_daily_prices_latest(
+                    tickers=args[&#39;tickers&#39;])
             else:
                 prices = None
 
@@ -501,8 +503,9 @@ def do_program() -&gt; None:
             allocation = optimizer.maximize_portfolio_return(
                 portfolio=portfolio)
 
-            if args[&#39;investment&#39;] is not None:            
-                prices = services.get_daily_prices_latest(tickers=args[&#39;tickers&#39;])
+            if args[&#39;investment&#39;] is not None:
+                prices = services.get_daily_prices_latest(
+                    tickers=args[&#39;tickers&#39;])
             else:
                 prices = None
 
@@ -557,8 +560,9 @@ def do_program() -&gt; None:
                 allocation = optimizer.optimize_portfolio_variance(
                     portfolio=portfolio, target_return=args[&#39;target&#39;])
 
-            if args[&#39;investment&#39;] is not None:            
-                prices = services.get_daily_prices_latest(tickers=args[&#39;tickers&#39;])
+            if args[&#39;investment&#39;] is not None:
+                prices = services.get_daily_prices_latest(
+                    tickers=args[&#39;tickers&#39;])
             else:
                 prices = None
 
@@ -587,8 +591,9 @@ def do_program() -&gt; None:
                                                                       prob=args[&#39;probability&#39;],
                                                                       expiry=args[&#39;expiry&#39;],
                                                                       target_return=args[&#39;target&#39;])
-            if args[&#39;investment&#39;] is not None:            
-                prices = services.get_daily_prices_latest(tickers=args[&#39;tickers&#39;])
+            if args[&#39;investment&#39;] is not None:
+                prices = services.get_daily_prices_latest(
+                    tickers=args[&#39;tickers&#39;])
             else:
                 prices = None
 
@@ -1018,7 +1023,8 @@ if __name__ == &#34;__main__&#34;:
                 curve_rate = services.get_daily_interest_history(maturity=maturity,
                                                                  start_date=args[&#39;start_date&#39;],
                                                                  end_date=args[&#39;start_date&#39;])
-                yield_curve[maturity] = curve_rate[list(curve_rate.keys())[0]]/100
+                yield_curve[maturity] = curve_rate[list(
+                    curve_rate.keys())[0]]/100
 
                 if print_format_to_screen(args):
                     outputter.scalar_result(
@@ -1272,8 +1278,9 @@ if __name__ == &#34;__main__&#34;:
             frontier = optimizer.calculate_efficient_frontier(portfolio=portfolio,
                                                               steps=args[&#39;steps&#39;])
 
-            if args[&#39;investment&#39;] is not None:            
-                prices = services.get_daily_prices_latest(tickers=args[&#39;tickers&#39;])
+            if args[&#39;investment&#39;] is not None:
+                prices = services.get_daily_prices_latest(
+                    tickers=args[&#39;tickers&#39;])
             else:
                 prices = None
 
@@ -1306,8 +1313,9 @@ if __name__ == &#34;__main__&#34;:
             allocation = optimizer.maximize_portfolio_return(
                 portfolio=portfolio)
 
-            if args[&#39;investment&#39;] is not None:            
-                prices = services.get_daily_prices_latest(tickers=args[&#39;tickers&#39;])
+            if args[&#39;investment&#39;] is not None:
+                prices = services.get_daily_prices_latest(
+                    tickers=args[&#39;tickers&#39;])
             else:
                 prices = None
 
@@ -1362,8 +1370,9 @@ if __name__ == &#34;__main__&#34;:
                 allocation = optimizer.optimize_portfolio_variance(
                     portfolio=portfolio, target_return=args[&#39;target&#39;])
 
-            if args[&#39;investment&#39;] is not None:            
-                prices = services.get_daily_prices_latest(tickers=args[&#39;tickers&#39;])
+            if args[&#39;investment&#39;] is not None:
+                prices = services.get_daily_prices_latest(
+                    tickers=args[&#39;tickers&#39;])
             else:
                 prices = None
 
@@ -1392,8 +1401,9 @@ if __name__ == &#34;__main__&#34;:
                                                                       prob=args[&#39;probability&#39;],
                                                                       expiry=args[&#39;expiry&#39;],
                                                                       target_return=args[&#39;target&#39;])
-            if args[&#39;investment&#39;] is not None:            
-                prices = services.get_daily_prices_latest(tickers=args[&#39;tickers&#39;])
+            if args[&#39;investment&#39;] is not None:
+                prices = services.get_daily_prices_latest(
+                    tickers=args[&#39;tickers&#39;])
             else:
                 prices = None
 

@@ -259,7 +259,7 @@ class CorrelationCache(Cache):
         &#34;&#34;&#34;
         return {keys.keys[&#39;STATISTICS&#39;][&#39;CORRELATION&#39;]: query_results[0][0]}
 
-    def save_row(self, ticker_1: str, ticker_2: str, start_date: datetime.date, end_date: datetime.date, correlation: float, weekends: bool, method: str=settings.ESTIMATION_METHOD):
+    def save_row(self, ticker_1: str, ticker_2: str, start_date: datetime.date, end_date: datetime.date, correlation: float, weekends: bool, method: str = settings.ESTIMATION_METHOD):
         &#34;&#34;&#34;
         Uses `self.insert_row_transaction` to save the passed-in information to the SQLite cache.
 
@@ -278,7 +278,7 @@ class CorrelationCache(Cache):
             f&#39;Saving ({ticker_1}, {ticker_2}) correlation from {start_date} to {end_date} to the cacche&#39;)
         formatter_1 = {&#39;ticker_1&#39;: ticker_1, &#39;ticker_2&#39;: ticker_2, &#39;method&#39;: method,
                        &#39;start_date&#39;: start_date, &#39;end_date&#39;: end_date, &#39;correlation&#39;: correlation,
-                        &#39;weekends&#39;: weekends}
+                       &#39;weekends&#39;: weekends}
         formatter_2 = {&#39;ticker_1&#39;: ticker_2, &#39;ticker_2&#39;: ticker_1, &#39;method&#39;: method,
                        &#39;start_date&#39;: start_date, &#39;end_date&#39;: end_date, &#39;correlation&#39;: correlation,
                        &#39;weekends&#39;: weekends}
@@ -371,7 +371,7 @@ class ProfileCache(Cache):
                 keys.keys[&#39;STATISTICS&#39;][&#39;BETA&#39;]: query_result[0][3] if query_result[0][3] != &#39;empty&#39; else None,
                 keys.keys[&#39;STATISTICS&#39;][&#39;EQUITY&#39;]: query_result[0][4] if query_result[0][4] != &#39;empty&#39; else None}
 
-    def save_or_update_row(self, ticker: str, start_date: datetime.date, end_date:datetime.date, annual_return:Union[float,None]=None, annual_volatility:Union[float,None]=None, sharpe_ratio:Union[float,None]=None, asset_beta:Union[float,None]=None, equity_cost:Union[float,None]=None, weekends:int=0, method:str=settings.ESTIMATION_METHOD):
+    def save_or_update_row(self, ticker: str, start_date: datetime.date, end_date: datetime.date, annual_return: Union[float, None] = None, annual_volatility: Union[float, None] = None, sharpe_ratio: Union[float, None] = None, asset_beta: Union[float, None] = None, equity_cost: Union[float, None] = None, weekends: int = 0, method: str = settings.ESTIMATION_METHOD):
         formatter = {&#39;ticker&#39;: ticker, &#39;start_date&#39;: start_date,
                      &#39;end_date&#39;: end_date, &#39;method&#39;: method, &#39;weekends&#39;: weekends}
 
@@ -406,7 +406,7 @@ class ProfileCache(Cache):
             self.execute_transaction(
                 transaction=ProfileCache.update_equity_tranasction, formatter=formatter)
 
-    def filter_profile_cache(self, ticker: str, start_date: datetime.date, end_date: datetime.date, weekends:int=0, method=settings.ESTIMATION_METHOD):
+    def filter_profile_cache(self, ticker: str, start_date: datetime.date, end_date: datetime.date, weekends: int = 0, method=settings.ESTIMATION_METHOD):
         logger.debug(
             f&#39;Querying SQLite cache: \n\t{ProfileCache.profile_query}\n\t\t with :ticker={ticker}, :start_date={start_date}, :end_date={end_date}&#39;)
         formatter = {&#39;ticker&#39;: ticker, &#39;start_date&#39;: start_date,
@@ -645,7 +645,7 @@ def execute_transaction(transaction, formatter=None):
         &#34;&#34;&#34;
         return {keys.keys[&#39;STATISTICS&#39;][&#39;CORRELATION&#39;]: query_results[0][0]}
 
-    def save_row(self, ticker_1: str, ticker_2: str, start_date: datetime.date, end_date: datetime.date, correlation: float, weekends: bool, method: str=settings.ESTIMATION_METHOD):
+    def save_row(self, ticker_1: str, ticker_2: str, start_date: datetime.date, end_date: datetime.date, correlation: float, weekends: bool, method: str = settings.ESTIMATION_METHOD):
         &#34;&#34;&#34;
         Uses `self.insert_row_transaction` to save the passed-in information to the SQLite cache.
 
@@ -664,7 +664,7 @@ def execute_transaction(transaction, formatter=None):
             f&#39;Saving ({ticker_1}, {ticker_2}) correlation from {start_date} to {end_date} to the cacche&#39;)
         formatter_1 = {&#39;ticker_1&#39;: ticker_1, &#39;ticker_2&#39;: ticker_2, &#39;method&#39;: method,
                        &#39;start_date&#39;: start_date, &#39;end_date&#39;: end_date, &#39;correlation&#39;: correlation,
-                        &#39;weekends&#39;: weekends}
+                       &#39;weekends&#39;: weekends}
         formatter_2 = {&#39;ticker_1&#39;: ticker_2, &#39;ticker_2&#39;: ticker_1, &#39;method&#39;: method,
                        &#39;start_date&#39;: start_date, &#39;end_date&#39;: end_date, &#39;correlation&#39;: correlation,
                        &#39;weekends&#39;: weekends}
@@ -802,7 +802,7 @@ def to_dict(query_results):
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def save_row(self, ticker_1: str, ticker_2: str, start_date: datetime.date, end_date: datetime.date, correlation: float, weekends: bool, method: str=settings.ESTIMATION_METHOD):
+<pre><code class="python">def save_row(self, ticker_1: str, ticker_2: str, start_date: datetime.date, end_date: datetime.date, correlation: float, weekends: bool, method: str = settings.ESTIMATION_METHOD):
     &#34;&#34;&#34;
     Uses `self.insert_row_transaction` to save the passed-in information to the SQLite cache.
 
@@ -821,7 +821,7 @@ def to_dict(query_results):
         f&#39;Saving ({ticker_1}, {ticker_2}) correlation from {start_date} to {end_date} to the cacche&#39;)
     formatter_1 = {&#39;ticker_1&#39;: ticker_1, &#39;ticker_2&#39;: ticker_2, &#39;method&#39;: method,
                    &#39;start_date&#39;: start_date, &#39;end_date&#39;: end_date, &#39;correlation&#39;: correlation,
-                    &#39;weekends&#39;: weekends}
+                   &#39;weekends&#39;: weekends}
     formatter_2 = {&#39;ticker_1&#39;: ticker_2, &#39;ticker_2&#39;: ticker_1, &#39;method&#39;: method,
                    &#39;start_date&#39;: start_date, &#39;end_date&#39;: end_date, &#39;correlation&#39;: correlation,
                    &#39;weekends&#39;: weekends}
@@ -1269,7 +1269,7 @@ def to_dict(query_results):
                 keys.keys[&#39;STATISTICS&#39;][&#39;BETA&#39;]: query_result[0][3] if query_result[0][3] != &#39;empty&#39; else None,
                 keys.keys[&#39;STATISTICS&#39;][&#39;EQUITY&#39;]: query_result[0][4] if query_result[0][4] != &#39;empty&#39; else None}
 
-    def save_or_update_row(self, ticker: str, start_date: datetime.date, end_date:datetime.date, annual_return:Union[float,None]=None, annual_volatility:Union[float,None]=None, sharpe_ratio:Union[float,None]=None, asset_beta:Union[float,None]=None, equity_cost:Union[float,None]=None, weekends:int=0, method:str=settings.ESTIMATION_METHOD):
+    def save_or_update_row(self, ticker: str, start_date: datetime.date, end_date: datetime.date, annual_return: Union[float, None] = None, annual_volatility: Union[float, None] = None, sharpe_ratio: Union[float, None] = None, asset_beta: Union[float, None] = None, equity_cost: Union[float, None] = None, weekends: int = 0, method: str = settings.ESTIMATION_METHOD):
         formatter = {&#39;ticker&#39;: ticker, &#39;start_date&#39;: start_date,
                      &#39;end_date&#39;: end_date, &#39;method&#39;: method, &#39;weekends&#39;: weekends}
 
@@ -1304,7 +1304,7 @@ def to_dict(query_results):
             self.execute_transaction(
                 transaction=ProfileCache.update_equity_tranasction, formatter=formatter)
 
-    def filter_profile_cache(self, ticker: str, start_date: datetime.date, end_date: datetime.date, weekends:int=0, method=settings.ESTIMATION_METHOD):
+    def filter_profile_cache(self, ticker: str, start_date: datetime.date, end_date: datetime.date, weekends: int = 0, method=settings.ESTIMATION_METHOD):
         logger.debug(
             f&#39;Querying SQLite cache: \n\t{ProfileCache.profile_query}\n\t\t with :ticker={ticker}, :start_date={start_date}, :end_date={end_date}&#39;)
         formatter = {&#39;ticker&#39;: ticker, &#39;start_date&#39;: start_date,
@@ -1430,7 +1430,7 @@ def to_dict(query_result):
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def filter_profile_cache(self, ticker: str, start_date: datetime.date, end_date: datetime.date, weekends:int=0, method=settings.ESTIMATION_METHOD):
+<pre><code class="python">def filter_profile_cache(self, ticker: str, start_date: datetime.date, end_date: datetime.date, weekends: int = 0, method=settings.ESTIMATION_METHOD):
     logger.debug(
         f&#39;Querying SQLite cache: \n\t{ProfileCache.profile_query}\n\t\t with :ticker={ticker}, :start_date={start_date}, :end_date={end_date}&#39;)
     formatter = {&#39;ticker&#39;: ticker, &#39;start_date&#39;: start_date,
@@ -1454,7 +1454,7 @@ def to_dict(query_result):
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def save_or_update_row(self, ticker: str, start_date: datetime.date, end_date:datetime.date, annual_return:Union[float,None]=None, annual_volatility:Union[float,None]=None, sharpe_ratio:Union[float,None]=None, asset_beta:Union[float,None]=None, equity_cost:Union[float,None]=None, weekends:int=0, method:str=settings.ESTIMATION_METHOD):
+<pre><code class="python">def save_or_update_row(self, ticker: str, start_date: datetime.date, end_date: datetime.date, annual_return: Union[float, None] = None, annual_volatility: Union[float, None] = None, sharpe_ratio: Union[float, None] = None, asset_beta: Union[float, None] = None, equity_cost: Union[float, None] = None, weekends: int = 0, method: str = settings.ESTIMATION_METHOD):
     formatter = {&#39;ticker&#39;: ticker, &#39;start_date&#39;: start_date,
                  &#39;end_date&#39;: end_date, &#39;method&#39;: method, &#39;weekends&#39;: weekends}
 

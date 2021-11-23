@@ -53,7 +53,8 @@ from math import sqrt, exp, log
 from scrilla import settings
 from scrilla.util.outputter import Logger
 
-logger = Logger(&#39;scrilla.analysis.models.geometric.statistics&#39;, settings.LOG_LEVEL)
+logger = Logger(&#39;scrilla.analysis.models.geometric.statistics&#39;,
+                settings.LOG_LEVEL)
 
 
 def d1(S0: float, ST: float, vol: float, ret: float, expiry: float, div: float = 0) -&gt; float:
