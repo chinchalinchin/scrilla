@@ -154,6 +154,7 @@ jobs:
       - checkout
       - install_test_deps
       - run_unit_tests
+      - commit_coverage
 
   documentation:
     # machine:
@@ -164,11 +165,6 @@ jobs:
       - checkout
       - install_doc_deps
       - generate_docs
-
-  upload_coverage:
-    docker:
-      - image: cimg/python:3.9.6
-    steps:
       - commit_coverage
 
 workflows:
@@ -203,11 +199,5 @@ workflows:
             branches:
               only:
                 - develop/main
-      - upload_coverage:
-          filters:
-            branches:
-              only:
-                - develop/main
           requires:
             - unit_tests
-            - documentation
