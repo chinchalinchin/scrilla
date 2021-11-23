@@ -26,7 +26,7 @@ enabled = true
 
 [[analyzers]]
 name = "test-coverage"
-enabled = "true"
+enabled = true
 
 [[transformers]]
 name = "autopep8"
