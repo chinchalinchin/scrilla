@@ -19,6 +19,10 @@ cd $PROJECT_DIR
 
 scrilla clear-cache
 
+echo "PYTHON LIB $PYTHON_LIB"
+
+cat .coveragerc
+
 coverage run -m pytest
 
 coverage html
