@@ -196,6 +196,11 @@ def is_date_string_holiday(date_string: str) -&gt; bool:
 def is_trading_date(date: datetime.date) -&gt; bool:
     return not is_date_weekend(date) and not is_date_holiday(date)
 
+
+def intersect_with_trading_dates(date_key_dict: dict) -&gt; dict:
+    return {date: date_key_dict[date] for date in date_key_dict if is_trading_date(parse_date_string(date))}
+
+
 # YYYY-MM-DD
 
 
@@ -887,6 +892,19 @@ End date of the date range.</li>
     return date_to_string(increment_date_by_business_days(start_date, business_days))</code></pre>
 </details>
 </dd>
+<dt id="scrilla.util.dater.intersect_with_trading_dates"><code class="name flex">
+<span>def <span class="ident">intersect_with_trading_dates</span></span>(<span>date_key_dict: dict) ‑> dict</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def intersect_with_trading_dates(date_key_dict: dict) -&gt; dict:
+    return {date: date_key_dict[date] for date in date_key_dict if is_trading_date(parse_date_string(date))}</code></pre>
+</details>
+</dd>
 <dt id="scrilla.util.dater.is_date_holiday"><code class="name flex">
 <span>def <span class="ident">is_date_holiday</span></span>(<span>date: datetime.date) ‑> bool</span>
 </code></dt>
@@ -1164,6 +1182,7 @@ End date of the date range.</li>
 <li><code><a title="scrilla.util.dater.get_today" href="#scrilla.util.dater.get_today">get_today</a></code></li>
 <li><code><a title="scrilla.util.dater.increment_date_by_business_days" href="#scrilla.util.dater.increment_date_by_business_days">increment_date_by_business_days</a></code></li>
 <li><code><a title="scrilla.util.dater.increment_date_string_by_business_days" href="#scrilla.util.dater.increment_date_string_by_business_days">increment_date_string_by_business_days</a></code></li>
+<li><code><a title="scrilla.util.dater.intersect_with_trading_dates" href="#scrilla.util.dater.intersect_with_trading_dates">intersect_with_trading_dates</a></code></li>
 <li><code><a title="scrilla.util.dater.is_date_holiday" href="#scrilla.util.dater.is_date_holiday">is_date_holiday</a></code></li>
 <li><code><a title="scrilla.util.dater.is_date_string_holiday" href="#scrilla.util.dater.is_date_string_holiday">is_date_string_holiday</a></code></li>
 <li><code><a title="scrilla.util.dater.is_date_string_today" href="#scrilla.util.dater.is_date_string_today">is_date_string_today</a></code></li>
