@@ -16,7 +16,13 @@ def mock_prices(url, request):
     elif 'DIS' in request.url:
         return json.dumps(load_file(os.path.join(test_settings.MOCK_DIR, 'dis_response.json')))
     elif 'SPY' in request.url:
-        return json.dumps(load_file(os.path.join(test_settings.MOCK_DIR, 'dis_response.json')))
+        return json.dumps(load_file(os.path.join(test_settings.MOCK_DIR, 'spy_response.json')))
+    elif 'GLD' in request.url:
+        return json.dumps(load_file(os.path.join(test_settings.MOCK_DIR, 'gld_response.json')))
+    elif 'BTC' in request.url:
+        return json.dumps(load_file(os.path.join(test_settings.MOCK_DIR, 'btc_response.json')))
+    elif 'ALGO' in request.url:
+        return json.dumps(load_file(os.path.join(test_settings.MOCK_DIR, 'algo_response.json')))
     raise KeyError('No mock data for request!')
 
 @urlmatch(netloc=r'(.*\.)?quandl\.com*$')

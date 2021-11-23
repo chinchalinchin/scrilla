@@ -27,14 +27,14 @@ def format_profiles(profiles: dict):
     return profiles_format
 
 
-def format_allocation(allocation, portfolio, investment=None):
+def format_allocation(allocation, portfolio, investment=None, latest_prices=None):
     allocation_format = []
 
     if investment is not None:
         shares = portfolio.calculate_approximate_shares(
-            x=allocation, total=investment)
+            x=allocation, total=investment,latest_prices=latest_prices)
         total = portfolio.calculate_actual_total(
-            x=allocation, total=investment)
+            x=allocation, total=investment, latest_prices=latest_prices)
 
     annual_volatility = portfolio.volatility_function(x=allocation)
     annual_return = portfolio.return_function(x=allocation)
@@ -63,11 +63,11 @@ def format_allocation(allocation, portfolio, investment=None):
     return json_format
 
 
-def format_frontier(portfolio, frontier, investment=None):
+def format_frontier(portfolio, frontier, investment=None, latest_prices=None):
     json_format = []
     for item in frontier:
         json_format.append(format_allocation(allocation=item, portfolio=portfolio,
-                                             investment=investment))
+                                             investment=investment, latest_prices=latest_prices))
     return json_format
 
 

@@ -15,6 +15,9 @@ then
     echo "on circleci"
 else
     cd $PROJECT_DIR
+
+    scrilla clear-cache
+    
     coverage run -m pytest
     coverage html
 

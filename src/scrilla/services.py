@@ -19,7 +19,7 @@ This module interfaces with the external services the program uses to hydrate wi
 import itertools
 import time
 import requests
-from typing import Union
+from typing import List, Union
 
 from datetime import date
 
@@ -537,7 +537,6 @@ def get_daily_price_history(ticker: str, start_date: Union[None, date] = None,
 
     return prices
 
-
 def get_daily_price_latest(ticker: str, asset_type: Union[None, str] = None) -> float:
     """
     Returns the latest closing price for a given ticker symbol.
@@ -554,6 +553,8 @@ def get_daily_price_latest(ticker: str, asset_type: Union[None, str] = None) -> 
     first_element = helper.get_first_json_key(prices)
     return prices[first_element][keys.keys['PRICES']['OPEN']]
 
+def get_daily_prices_latest(tickers: List[str], asset_types: Union[None, List[str]] = None):
+    return { ticker: get_daily_price_latest(ticker, asset_types[i]) for i, ticker in enumerate(tickers) }
 
 def get_daily_fred_history(symbol: str, start_date: Union[date, None] = None, end_date: Union[date, None] = None) -> list:
     """

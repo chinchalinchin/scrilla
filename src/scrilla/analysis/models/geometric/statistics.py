@@ -22,7 +22,7 @@ from scipy.optimize import fsolve, least_squares
 
 from scrilla import services, files, settings, errors, cache
 from scrilla.static import keys, functions, constants
-from scrilla.analysis import estimators, optimizer
+from scrilla.analysis import estimators
 from scrilla.util import outputter, helper, dater
 
 logger = outputter.Logger('statistics', settings.LOG_LEVEL)
@@ -484,6 +484,8 @@ def calculate_likelihood_risk_return(ticker, start_date: Union[date, None] = Non
         * assumes price history is ordered from latest to earliest date.
         * if the `sample_prices` dictionary is provided, the function will bypass the cache and the service call altogether. The function will assume `sample_prices` is the source of the truth.
     """
+    from scrilla.analysis import optimizer
+
     asset_type = errors.validate_asset_type(ticker, asset_type)
     trading_period = functions.get_trading_period(asset_type)
 
@@ -1020,6 +1022,7 @@ def calculate_likelihood_correlation(ticker_1: str, ticker_2: str, asset_type_1:
     ``Dict[str, float]``
         Dictionary containing the correlation of `ticker_1` and `ticker_2`: Formatted as: `{ 'correlation' : float }`.
     """
+    from scrilla.analysis import optimizer
     ### START ARGUMENT PARSING ###
     asset_type_1 = errors.validate_asset_type(
         ticker=ticker_1, asset_type=asset_type_1)
@@ -1312,7 +1315,7 @@ def calculate_moment_correlation(ticker_1: str, ticker_2: str, asset_type_1: Uni
     return result
 
 
-def correlation_matrix(tickers, asset_types=None, start_date=None, end_date=None, sample_prices=None, method=settings.ESTIMATION_METHOD) -> List[List[float]]:
+def correlation_matrix(tickers, asset_types=None, start_date=None, end_date=None, sample_prices=None, method=settings.ESTIMATION_METHOD, weekends: Union[int, None]=None) -> List[List[float]]:
     """
     Returns the correlation matrix for *tickers* from *start_date* to *end_date* using the estimation method *method*.
 
@@ -1356,14 +1359,15 @@ def correlation_matrix(tickers, asset_types=None, start_date=None, end_date=None
     #       from sample to ensure correlation is calculated over the samples
     #       of like size.
     # By default, exclude weekends. 
-    weekends = 0
-    same_type = True
-    # check if any assets in the matrix are mixed types
-    for this_type in asset_types:
-        for that_type in asset_types:
-            if this_type != that_type:
-                same_type = False
-                break
+    if weekends is not None:
+        weekends = 0
+        same_type = True
+        # check if any assets in the matrix are mixed types
+        for this_type in asset_types:
+            for that_type in asset_types:
+                if this_type != that_type:
+                    same_type = False
+                    break
     
     if not same_type:
         logger.debug('Assets of different type, removing weekends')

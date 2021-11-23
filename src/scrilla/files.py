@@ -360,15 +360,15 @@ def save_profiles(profiles: dict, file_name: str):
     save_file(file_to_save=save_format, file_name=file_name)
 
 
-def save_allocation(allocation, portfolio, file_name, investment=None):
+def save_allocation(allocation, portfolio, file_name, investment=None, latest_prices=None):
     save_format = functions.format_allocation(
-        allocation=allocation, portfolio=portfolio, investment=investment)
+        allocation=allocation, portfolio=portfolio, investment=investment, latest_prices=latest_prices)
     save_file(file_to_save=save_format, file_name=file_name)
 
 
-def save_frontier(portfolio, frontier, file_name, investment=None):
+def save_frontier(portfolio, frontier, file_name, investment=None, latest_prices=None):
     save_format = functions.format_frontier(
-        portfolio=portfolio, frontier=frontier, investment=investment)
+        portfolio=portfolio, frontier=frontier, investment=investment, latest_prices=latest_prices)
     save_file(file_to_save=save_format, file_name=file_name)
 
 

@@ -39,3 +39,5 @@
 the only solution to this problem seems to be to *always* ignore weekends for crypto prices. i don't see any other way around it...
 
 unless there is some way to calculate correlation between two samples where one has missing information on specific dates, i.e. weekends...if this possible, that would solve everything. 
+
+50. refactor to use math.sqrt from standard library and create dot, multiply and transpose methods for matrices.
