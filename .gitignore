@@ -13,6 +13,8 @@
 *.pyc
 /src/scrilla.egg-info/*
 /dist/*
+/docs/package/*
+/docs/coverage/*
 .vscode
 /scrilla/static/*
 /tests/.pytest_cache
