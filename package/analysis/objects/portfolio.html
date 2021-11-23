@@ -42,23 +42,19 @@
 # along with scrilla.  If not, see &lt;https://www.gnu.org/licenses/&gt;
 # or &lt;https://github.com/chinchalinchin/scrilla/blob/develop/main/LICENSE&gt;.
 
-from math import trunc, sqrt
+import numpy
+import math
 from decimal import Decimal
 
-# TODO: get rid of numpy functions.
-#       dot, multiply and transpose should be easy to replicate
-#       and it removes a big dependency from the package...
-from numpy import dot, multiply, transpose
-
-from scrilla import settings, errors
+from scrilla import services, settings, errors
 from scrilla.static import keys
-from scrilla.util import outputter
-# TODO: conditional import module based on analysis_mode, i.e. geometric versus mean reverting.
-from scrilla.analysis.models.geometric.statistics import calculate_risk_return, correlation_matrix
-from scrilla.analysis.models.geometric.probability import percentile, conditional_expected_value
+import scrilla.util.outputter as outputter
 
-logger = outputter.Logger(
-    &#34;scrilla.analysis.objects.portfolio&#34;, settings.LOG_LEVEL)
+# TODO: conditional import module based on analysis_mode, i.e. geometric versus mean reverting.
+import scrilla.analysis.models.geometric.statistics as statistics
+import scrilla.analysis.models.geometric.probability as probability
+
+logger = outputter.Logger(&#34;analysis.objects.portfolio&#34;, settings.LOG_LEVEL)
 
 # TODO: allow user to specify bounds for equities, i.e. min and max allocations.
 
@@ -115,7 +111,7 @@ class Portfolio:
         self.actual_total = None
         self.risk_free_rate = None
         self.estimation_method = method
-        self.sample_prices = sample_prices
+        self.sample_prices = sample_prices  
         self.tickers = tickers
         self.correlation_matrix = correlation_matrix
         self.asset_volatility_functions = asset_volatility_functions
@@ -133,7 +129,7 @@ class Portfolio:
         if risk_free_rate is not None:
             self.risk_free_rate = risk_free_rate
         else:
-            self.risk_free_rate = 0
+            self.risk_free_rate = services.get_risk_free_rate()
 
         self._init_asset_types()
         self._init_dates()
@@ -143,7 +139,7 @@ class Portfolio:
         self.asset_types = []
         for ticker in self.tickers:
             self.asset_types.append(errors.validate_asset_type(ticker))
-
+            
         self.mixed_assets = False
 
         for this_asset_type in self.asset_types:
@@ -154,18 +150,19 @@ class Portfolio:
 
     def _init_dates(self):
         if self.mixed_assets:
-            self.start_date, self.end_date = errors.validate_dates(self.start_date,
-                                                                   self.end_date,
-                                                                   keys.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;])
-            self.weekends = 0
+            self.start_date, self.end_date = errors.validate_dates(self.start_date, 
+                                                                    self.end_date, 
+                                                                    keys.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;])
+            self.weekends = 1
         else:
-            self.start_date, self.end_date = errors.validate_dates(self.start_date,
-                                                                   self.end_date,
-                                                                   self.asset_types[0])
+            self.start_date, self.end_date = errors.validate_dates(self.start_date, 
+                                                                    self.end_date, 
+                                                                    self.asset_types[0])
             if self.asset_types[0] == keys.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]:
                 self.weekends = 0
             else:
                 self.weekends = 1
+
 
     def _calculate_stats(self):
         self.mean_return = []
@@ -189,23 +186,21 @@ class Portfolio:
             #       so when the correlation of an equity and crypto is calculated, it truncates the sample to dates
             #       where both assets trade, i.e. crypto prices on weekends get ignored. the risk_profile of the crypto
             #       will be over a shorter date range because the analysis will include weekends, whereas the crypto
-            #       correlation will not include weekends if the asset types are mixed. the problem is further
+            #       correlation will not include weekends if the asset types are mixed. the problem is further 
             #       compounded since the correlation method will retrieve the univariate profile to use in its calculation.
             #       need a flag in the cache to tell the program the statistic includes/exclude weekend prices.
 
             if self.risk_profiles is None:
                 for ticker in self.tickers:
                     if self.sample_prices is not None:
-                        stats = calculate_risk_return(ticker=ticker,
-                                                      sample_prices=self.sample_prices[ticker],
-                                                      method=self.estimation_method,
-                                                      weekends=self.weekends)
+                        stats = statistics.calculate_risk_return(ticker=ticker,
+                                                                 sample_prices=self.sample_prices[ticker],
+                                                                 method=self.estimation_method)
                     else:
-                        stats = calculate_risk_return(ticker=ticker,
-                                                      start_date=self.start_date,
-                                                      end_date=self.end_date,
-                                                      method=self.estimation_method,
-                                                      weekends=self.weekends)
+                        stats = statistics.calculate_risk_return(ticker=ticker,
+                                                                 start_date=self.start_date,
+                                                                 end_date=self.end_date,
+                                                                 method=self.estimation_method)
 
                     self.mean_return.append(stats[&#39;annual_return&#39;])
                     self.sample_vol.append(stats[&#39;annual_volatility&#39;])
@@ -217,12 +212,12 @@ class Portfolio:
                         self.risk_profiles[ticker][&#39;annual_volatility&#39;])
 
             if self.correlation_matrix is None:
-                self.correlation_matrix = correlation_matrix(tickers=self.tickers,
-                                                             start_date=self.start_date,
-                                                             end_date=self.end_date,
-                                                             sample_prices=self.sample_prices,
-                                                             weekends=self.weekends,
-                                                             method=self.estimation_method)
+                self.correlation_matrix = statistics.correlation_matrix(tickers=self.tickers,
+                                                                        start_date=self.start_date,
+                                                                        end_date=self.end_date,
+                                                                        sample_prices=self.sample_prices,
+                                                                        weekends=self.weekends,
+                                                                        method=self.estimation_method)
 
     def return_function(self, x):
         &#34;&#34;&#34;
@@ -238,7 +233,7 @@ class Portfolio:
         ``float``
             The portfolio return on an annualized basis.
         &#34;&#34;&#34;
-        return dot(x, self.mean_return)
+        return numpy.dot(x, self.mean_return)
 
     def volatility_function(self, x):
         &#34;&#34;&#34;
@@ -254,7 +249,7 @@ class Portfolio:
         ``float``
             The portfolio volatility on an annualized basis.
         &#34;&#34;&#34;
-        return sqrt(multiply(x, self.sample_vol).dot(self.correlation_matrix).dot(transpose(multiply(x, self.sample_vol))))
+        return numpy.sqrt(numpy.multiply(x, self.sample_vol).dot(self.correlation_matrix).dot(numpy.transpose(numpy.multiply(x, self.sample_vol))))
 
     def sharpe_ratio_function(self, x):
         &#34;&#34;&#34;
@@ -270,7 +265,7 @@ class Portfolio:
         ``float``
             The portfolio sharpe ratio on an annualized basis.
         &#34;&#34;&#34;
-        return (dot(x, self.mean_return) - self.risk_free_rate) / (self.volatility_function(x))
+        return (numpy.dot(x, self.mean_return) - self.risk_free_rate) / (self.volatility_function(x))
 
     def percentile_function(self, x, time, prob):
         &#34;&#34;&#34;
@@ -286,10 +281,10 @@ class Portfolio:
             percentile desired
         &#34;&#34;&#34;
         portfolio_return = self.return_function(x) * time
-        portfolio_volatility = self.volatility_function(x) * sqrt(time)
+        portfolio_volatility = self.volatility_function(x) * numpy.sqrt(time)
 
-        return percentile(S0=1, vol=portfolio_volatility, ret=portfolio_return,
-                          expiry=time, percentile=prob)
+        return probability.percentile(S0=1, vol=portfolio_volatility, ret=portfolio_return,
+                                      expiry=time, percentile=prob)
 
     def conditional_value_at_risk_function(self, x, time, prob):
         &#34;&#34;&#34;
@@ -305,10 +300,10 @@ class Portfolio:
             desired probability of loss.
         &#34;&#34;&#34;
         portfolio_return = self.return_function(x) * time
-        portfolio_volatility = self.volatility_function(x) * sqrt(time)
+        portfolio_volatility = self.volatility_function(x) * numpy.sqrt(time)
         value_at_risk = self.percentile_function(x=x, time=time, prob=prob)
-        return (1 - conditional_expected_value(S0=1, vol=portfolio_volatility, ret=portfolio_return,
-                                               expiry=time, conditional_value=value_at_risk))
+        return (1 - probability.conditional_expected_value(S0=1, vol=portfolio_volatility, ret=portfolio_return,
+                                                           expiry=time, conditional_value=value_at_risk))
 
     def get_init_guess(self):
         length = len(self.tickers)
@@ -328,24 +323,35 @@ class Portfolio:
 
     def get_target_return_constraint(self, x):
         if self.target_return is not None:
-            return (dot(x, self.mean_return) - self.target_return)
+            return (numpy.dot(x, self.mean_return) - self.target_return)
         return None
 
-    def calculate_approximate_shares(self, x, total, latest_prices):
+    def calculate_approximate_shares(self, x, total, latest_prices=None):
         shares = []
         for i, item in enumerate(x):
-            price = latest_prices[i]
+            if latest_prices is not None:
+                price = latest_prices[i]
+            elif self.sample_prices is not None:
+                price = self.sample_prices[self.tickers[i]][0]
+            else:
+                price = services.get_daily_price_latest(self.tickers[i])
+
             share = Decimal(item) * Decimal(total) / Decimal(price)
-            shares.append(trunc(share))
+            shares.append(math.trunc(share))
 
         return shares
 
-    def calculate_actual_total(self, x, total, latest_prices):
+    def calculate_actual_total(self, x, total, latest_prices=None):
         actual_total = 0
         shares = self.calculate_approximate_shares(
             x=x, total=total, latest_prices=latest_prices)
         for i, item in enumerate(shares):
-            price = latest_prices[i]
+            if latest_prices is not None:
+                price = latest_prices[i]
+            elif self.sample_prices is not None:
+                price = self.sample_prices[self.tickers[i]][0]
+            else:
+                price = services.get_daily_price_latest(self.tickers[i])
             portion = Decimal(item) * Decimal(price)
             actual_total = actual_total + portion
         return actual_total</code></pre>
@@ -461,7 +467,7 @@ If no arguments are provided to the constructor at all, the portfolio will defau
         self.actual_total = None
         self.risk_free_rate = None
         self.estimation_method = method
-        self.sample_prices = sample_prices
+        self.sample_prices = sample_prices  
         self.tickers = tickers
         self.correlation_matrix = correlation_matrix
         self.asset_volatility_functions = asset_volatility_functions
@@ -479,7 +485,7 @@ If no arguments are provided to the constructor at all, the portfolio will defau
         if risk_free_rate is not None:
             self.risk_free_rate = risk_free_rate
         else:
-            self.risk_free_rate = 0
+            self.risk_free_rate = services.get_risk_free_rate()
 
         self._init_asset_types()
         self._init_dates()
@@ -489,7 +495,7 @@ If no arguments are provided to the constructor at all, the portfolio will defau
         self.asset_types = []
         for ticker in self.tickers:
             self.asset_types.append(errors.validate_asset_type(ticker))
-
+            
         self.mixed_assets = False
 
         for this_asset_type in self.asset_types:
@@ -500,18 +506,19 @@ If no arguments are provided to the constructor at all, the portfolio will defau
 
     def _init_dates(self):
         if self.mixed_assets:
-            self.start_date, self.end_date = errors.validate_dates(self.start_date,
-                                                                   self.end_date,
-                                                                   keys.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;])
-            self.weekends = 0
+            self.start_date, self.end_date = errors.validate_dates(self.start_date, 
+                                                                    self.end_date, 
+                                                                    keys.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;])
+            self.weekends = 1
         else:
-            self.start_date, self.end_date = errors.validate_dates(self.start_date,
-                                                                   self.end_date,
-                                                                   self.asset_types[0])
+            self.start_date, self.end_date = errors.validate_dates(self.start_date, 
+                                                                    self.end_date, 
+                                                                    self.asset_types[0])
             if self.asset_types[0] == keys.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]:
                 self.weekends = 0
             else:
                 self.weekends = 1
+
 
     def _calculate_stats(self):
         self.mean_return = []
@@ -535,23 +542,21 @@ If no arguments are provided to the constructor at all, the portfolio will defau
             #       so when the correlation of an equity and crypto is calculated, it truncates the sample to dates
             #       where both assets trade, i.e. crypto prices on weekends get ignored. the risk_profile of the crypto
             #       will be over a shorter date range because the analysis will include weekends, whereas the crypto
-            #       correlation will not include weekends if the asset types are mixed. the problem is further
+            #       correlation will not include weekends if the asset types are mixed. the problem is further 
             #       compounded since the correlation method will retrieve the univariate profile to use in its calculation.
             #       need a flag in the cache to tell the program the statistic includes/exclude weekend prices.
 
             if self.risk_profiles is None:
                 for ticker in self.tickers:
                     if self.sample_prices is not None:
-                        stats = calculate_risk_return(ticker=ticker,
-                                                      sample_prices=self.sample_prices[ticker],
-                                                      method=self.estimation_method,
-                                                      weekends=self.weekends)
+                        stats = statistics.calculate_risk_return(ticker=ticker,
+                                                                 sample_prices=self.sample_prices[ticker],
+                                                                 method=self.estimation_method)
                     else:
-                        stats = calculate_risk_return(ticker=ticker,
-                                                      start_date=self.start_date,
-                                                      end_date=self.end_date,
-                                                      method=self.estimation_method,
-                                                      weekends=self.weekends)
+                        stats = statistics.calculate_risk_return(ticker=ticker,
+                                                                 start_date=self.start_date,
+                                                                 end_date=self.end_date,
+                                                                 method=self.estimation_method)
 
                     self.mean_return.append(stats[&#39;annual_return&#39;])
                     self.sample_vol.append(stats[&#39;annual_volatility&#39;])
@@ -563,12 +568,12 @@ If no arguments are provided to the constructor at all, the portfolio will defau
                         self.risk_profiles[ticker][&#39;annual_volatility&#39;])
 
             if self.correlation_matrix is None:
-                self.correlation_matrix = correlation_matrix(tickers=self.tickers,
-                                                             start_date=self.start_date,
-                                                             end_date=self.end_date,
-                                                             sample_prices=self.sample_prices,
-                                                             weekends=self.weekends,
-                                                             method=self.estimation_method)
+                self.correlation_matrix = statistics.correlation_matrix(tickers=self.tickers,
+                                                                        start_date=self.start_date,
+                                                                        end_date=self.end_date,
+                                                                        sample_prices=self.sample_prices,
+                                                                        weekends=self.weekends,
+                                                                        method=self.estimation_method)
 
     def return_function(self, x):
         &#34;&#34;&#34;
@@ -584,7 +589,7 @@ If no arguments are provided to the constructor at all, the portfolio will defau
         ``float``
             The portfolio return on an annualized basis.
         &#34;&#34;&#34;
-        return dot(x, self.mean_return)
+        return numpy.dot(x, self.mean_return)
 
     def volatility_function(self, x):
         &#34;&#34;&#34;
@@ -600,7 +605,7 @@ If no arguments are provided to the constructor at all, the portfolio will defau
         ``float``
             The portfolio volatility on an annualized basis.
         &#34;&#34;&#34;
-        return sqrt(multiply(x, self.sample_vol).dot(self.correlation_matrix).dot(transpose(multiply(x, self.sample_vol))))
+        return numpy.sqrt(numpy.multiply(x, self.sample_vol).dot(self.correlation_matrix).dot(numpy.transpose(numpy.multiply(x, self.sample_vol))))
 
     def sharpe_ratio_function(self, x):
         &#34;&#34;&#34;
@@ -616,7 +621,7 @@ If no arguments are provided to the constructor at all, the portfolio will defau
         ``float``
             The portfolio sharpe ratio on an annualized basis.
         &#34;&#34;&#34;
-        return (dot(x, self.mean_return) - self.risk_free_rate) / (self.volatility_function(x))
+        return (numpy.dot(x, self.mean_return) - self.risk_free_rate) / (self.volatility_function(x))
 
     def percentile_function(self, x, time, prob):
         &#34;&#34;&#34;
@@ -632,10 +637,10 @@ If no arguments are provided to the constructor at all, the portfolio will defau
             percentile desired
         &#34;&#34;&#34;
         portfolio_return = self.return_function(x) * time
-        portfolio_volatility = self.volatility_function(x) * sqrt(time)
+        portfolio_volatility = self.volatility_function(x) * numpy.sqrt(time)
 
-        return percentile(S0=1, vol=portfolio_volatility, ret=portfolio_return,
-                          expiry=time, percentile=prob)
+        return probability.percentile(S0=1, vol=portfolio_volatility, ret=portfolio_return,
+                                      expiry=time, percentile=prob)
 
     def conditional_value_at_risk_function(self, x, time, prob):
         &#34;&#34;&#34;
@@ -651,10 +656,10 @@ If no arguments are provided to the constructor at all, the portfolio will defau
             desired probability of loss.
         &#34;&#34;&#34;
         portfolio_return = self.return_function(x) * time
-        portfolio_volatility = self.volatility_function(x) * sqrt(time)
+        portfolio_volatility = self.volatility_function(x) * numpy.sqrt(time)
         value_at_risk = self.percentile_function(x=x, time=time, prob=prob)
-        return (1 - conditional_expected_value(S0=1, vol=portfolio_volatility, ret=portfolio_return,
-                                               expiry=time, conditional_value=value_at_risk))
+        return (1 - probability.conditional_expected_value(S0=1, vol=portfolio_volatility, ret=portfolio_return,
+                                                           expiry=time, conditional_value=value_at_risk))
 
     def get_init_guess(self):
         length = len(self.tickers)
@@ -674,24 +679,35 @@ If no arguments are provided to the constructor at all, the portfolio will defau
 
     def get_target_return_constraint(self, x):
         if self.target_return is not None:
-            return (dot(x, self.mean_return) - self.target_return)
+            return (numpy.dot(x, self.mean_return) - self.target_return)
         return None
 
-    def calculate_approximate_shares(self, x, total, latest_prices):
+    def calculate_approximate_shares(self, x, total, latest_prices=None):
         shares = []
         for i, item in enumerate(x):
-            price = latest_prices[i]
+            if latest_prices is not None:
+                price = latest_prices[i]
+            elif self.sample_prices is not None:
+                price = self.sample_prices[self.tickers[i]][0]
+            else:
+                price = services.get_daily_price_latest(self.tickers[i])
+
             share = Decimal(item) * Decimal(total) / Decimal(price)
-            shares.append(trunc(share))
+            shares.append(math.trunc(share))
 
         return shares
 
-    def calculate_actual_total(self, x, total, latest_prices):
+    def calculate_actual_total(self, x, total, latest_prices=None):
         actual_total = 0
         shares = self.calculate_approximate_shares(
             x=x, total=total, latest_prices=latest_prices)
         for i, item in enumerate(shares):
-            price = latest_prices[i]
+            if latest_prices is not None:
+                price = latest_prices[i]
+            elif self.sample_prices is not None:
+                price = self.sample_prices[self.tickers[i]][0]
+            else:
+                price = services.get_daily_price_latest(self.tickers[i])
             portion = Decimal(item) * Decimal(price)
             actual_total = actual_total + portion
         return actual_total</code></pre>
@@ -716,7 +732,7 @@ def get_constraint(x):
 <h3>Methods</h3>
 <dl>
 <dt id="scrilla.analysis.objects.portfolio.Portfolio.calculate_actual_total"><code class="name flex">
-<span>def <span class="ident">calculate_actual_total</span></span>(<span>self, x, total, latest_prices)</span>
+<span>def <span class="ident">calculate_actual_total</span></span>(<span>self, x, total, latest_prices=None)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -724,19 +740,24 @@ def get_constraint(x):
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def calculate_actual_total(self, x, total, latest_prices):
+<pre><code class="python">def calculate_actual_total(self, x, total, latest_prices=None):
     actual_total = 0
     shares = self.calculate_approximate_shares(
         x=x, total=total, latest_prices=latest_prices)
     for i, item in enumerate(shares):
-        price = latest_prices[i]
+        if latest_prices is not None:
+            price = latest_prices[i]
+        elif self.sample_prices is not None:
+            price = self.sample_prices[self.tickers[i]][0]
+        else:
+            price = services.get_daily_price_latest(self.tickers[i])
         portion = Decimal(item) * Decimal(price)
         actual_total = actual_total + portion
     return actual_total</code></pre>
 </details>
 </dd>
 <dt id="scrilla.analysis.objects.portfolio.Portfolio.calculate_approximate_shares"><code class="name flex">
-<span>def <span class="ident">calculate_approximate_shares</span></span>(<span>self, x, total, latest_prices)</span>
+<span>def <span class="ident">calculate_approximate_shares</span></span>(<span>self, x, total, latest_prices=None)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -744,12 +765,18 @@ def get_constraint(x):
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def calculate_approximate_shares(self, x, total, latest_prices):
+<pre><code class="python">def calculate_approximate_shares(self, x, total, latest_prices=None):
     shares = []
     for i, item in enumerate(x):
-        price = latest_prices[i]
+        if latest_prices is not None:
+            price = latest_prices[i]
+        elif self.sample_prices is not None:
+            price = self.sample_prices[self.tickers[i]][0]
+        else:
+            price = services.get_daily_price_latest(self.tickers[i])
+
         share = Decimal(item) * Decimal(total) / Decimal(price)
-        shares.append(trunc(share))
+        shares.append(math.trunc(share))
 
     return shares</code></pre>
 </details>
@@ -786,10 +813,10 @@ desired probability of loss.</li>
         desired probability of loss.
     &#34;&#34;&#34;
     portfolio_return = self.return_function(x) * time
-    portfolio_volatility = self.volatility_function(x) * sqrt(time)
+    portfolio_volatility = self.volatility_function(x) * numpy.sqrt(time)
     value_at_risk = self.percentile_function(x=x, time=time, prob=prob)
-    return (1 - conditional_expected_value(S0=1, vol=portfolio_volatility, ret=portfolio_return,
-                                           expiry=time, conditional_value=value_at_risk))</code></pre>
+    return (1 - probability.conditional_expected_value(S0=1, vol=portfolio_volatility, ret=portfolio_return,
+                                                       expiry=time, conditional_value=value_at_risk))</code></pre>
 </details>
 </dd>
 <dt id="scrilla.analysis.objects.portfolio.Portfolio.get_default_bounds"><code class="name flex">
@@ -832,7 +859,7 @@ desired probability of loss.</li>
 </summary>
 <pre><code class="python">def get_target_return_constraint(self, x):
     if self.target_return is not None:
-        return (dot(x, self.mean_return) - self.target_return)
+        return (numpy.dot(x, self.mean_return) - self.target_return)
     return None</code></pre>
 </details>
 </dd>
@@ -874,10 +901,10 @@ percentile desired</p>
         percentile desired
     &#34;&#34;&#34;
     portfolio_return = self.return_function(x) * time
-    portfolio_volatility = self.volatility_function(x) * sqrt(time)
+    portfolio_volatility = self.volatility_function(x) * numpy.sqrt(time)
 
-    return percentile(S0=1, vol=portfolio_volatility, ret=portfolio_return,
-                      expiry=time, percentile=prob)</code></pre>
+    return probability.percentile(S0=1, vol=portfolio_volatility, ret=portfolio_return,
+                                  expiry=time, percentile=prob)</code></pre>
 </details>
 </dd>
 <dt id="scrilla.analysis.objects.portfolio.Portfolio.return_function"><code class="name flex">
@@ -911,7 +938,7 @@ The portfolio return on an annualized basis.</p></div>
     ``float``
         The portfolio return on an annualized basis.
     &#34;&#34;&#34;
-    return dot(x, self.mean_return)</code></pre>
+    return numpy.dot(x, self.mean_return)</code></pre>
 </details>
 </dd>
 <dt id="scrilla.analysis.objects.portfolio.Portfolio.set_target_return"><code class="name flex">
@@ -958,7 +985,7 @@ The portfolio sharpe ratio on an annualized basis.</p></div>
     ``float``
         The portfolio sharpe ratio on an annualized basis.
     &#34;&#34;&#34;
-    return (dot(x, self.mean_return) - self.risk_free_rate) / (self.volatility_function(x))</code></pre>
+    return (numpy.dot(x, self.mean_return) - self.risk_free_rate) / (self.volatility_function(x))</code></pre>
 </details>
 </dd>
 <dt id="scrilla.analysis.objects.portfolio.Portfolio.volatility_function"><code class="name flex">
@@ -992,7 +1019,7 @@ The portfolio volatility on an annualized basis.</p></div>
     ``float``
         The portfolio volatility on an annualized basis.
     &#34;&#34;&#34;
-    return sqrt(multiply(x, self.sample_vol).dot(self.correlation_matrix).dot(transpose(multiply(x, self.sample_vol))))</code></pre>
+    return numpy.sqrt(numpy.multiply(x, self.sample_vol).dot(self.correlation_matrix).dot(numpy.transpose(numpy.multiply(x, self.sample_vol))))</code></pre>
 </details>
 </dd>
 </dl>
