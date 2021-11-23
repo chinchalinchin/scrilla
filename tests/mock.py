@@ -11,6 +11,7 @@ from . import settings as test_settings
 
 logger = Logger("tests.mock", settings.LOG_LEVEL)
 
+
 @urlmatch(netloc=r'(.*\.)?alphavantage\.co*$')
 def mock_prices(url, request):
     logger.info('Returning mock AlphaVantage data')
@@ -29,6 +30,7 @@ def mock_prices(url, request):
     elif 'ALGO' in request.url:
         return json.dumps(load_file(os.path.join(test_settings.MOCK_DIR, 'algo_response.json')))
     raise KeyError('No mock data for request!')
+
 
 @urlmatch(netloc=r'(.*\.)?quandl\.com*$')
 def mock_interest(url, request):

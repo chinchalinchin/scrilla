@@ -32,7 +32,7 @@ def format_allocation(allocation, portfolio, investment=None, latest_prices=None
 
     if investment is not None:
         shares = portfolio.calculate_approximate_shares(
-            x=allocation, total=investment,latest_prices=latest_prices)
+            x=allocation, total=investment, latest_prices=latest_prices)
         total = portfolio.calculate_actual_total(
             x=allocation, total=investment, latest_prices=latest_prices)
 

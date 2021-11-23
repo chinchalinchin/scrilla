@@ -20,7 +20,8 @@ from scrilla.static import constants
 from scrilla.util import dater, outputter
 import scrilla.analysis.estimators as estimators
 
-logger = outputter.Logger('scrilla.analysis.objects.cashflow', settings.LOG_LEVEL)
+logger = outputter.Logger(
+    'scrilla.analysis.objects.cashflow', settings.LOG_LEVEL)
 
 # Technically these are periods
 FREQ_DAY = 1/365
