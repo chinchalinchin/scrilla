@@ -98,8 +98,6 @@ commands:
           command: |
             mkdir /tmp/docs/
             cp -ap ./docs/. /tmp/docs/
-            rm -r ./bin/ 
-            rm coverage.xml
             git stash
             git checkout gh-pages
             git pull
