@@ -72,6 +72,7 @@ commands:
           environment:
             APP_ENV: container
           command: |
+            curl https://deepsource.io/cli | sh
             pip3 install -r requirements.txt
             bash ./scripts/install
             scrilla version
@@ -86,6 +87,8 @@ commands:
             PYTHON_LIB: /home/circleci/.pyenv/versions/3.9.6/lib/python3.9/site-packages/scrilla/
           command: |
             bash ./scripts/tests circleci
+            coverage xml
+            ./bin/deepsource report --analyzer test-coverage --key python --value-file ./coverage.xml
 
   commit_coverage:
     description: commit re-generated docs to git

@@ -9,7 +9,8 @@ exclude_patterns = [
   "*.env",
   "*.pyc",
   ".gitignore",
-  ".dockerignore"
+  ".dockerignore",
+  "tests/**"
 ]
 
 [[analyzers]]
@@ -22,6 +23,10 @@ enabled = true
 [[analyzers]]
 name = "shell"
 enabled = true
+
+[[analyzers]]
+name = "test-coverage"
+enabled = "true"
 
 [[transformers]]
 name = "autopep8"
