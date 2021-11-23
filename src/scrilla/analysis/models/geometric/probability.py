@@ -22,7 +22,8 @@ from math import sqrt, exp, log
 from scrilla import settings
 from scrilla.util.outputter import Logger
 
-logger = Logger('scrilla.analysis.models.geometric.statistics', settings.LOG_LEVEL)
+logger = Logger('scrilla.analysis.models.geometric.statistics',
+                settings.LOG_LEVEL)
 
 
 def d1(S0: float, ST: float, vol: float, ret: float, expiry: float, div: float = 0) -> float:
