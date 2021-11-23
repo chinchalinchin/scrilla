@@ -69,6 +69,8 @@ commands:
     steps:
       - run:
           name: dependency installation
+          environment:
+            APP_ENV: container
           command: |
             pip3 install -r requirements.txt
             bash ./scripts/install
