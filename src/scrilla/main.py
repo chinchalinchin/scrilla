@@ -27,7 +27,6 @@ import time
 from typing import Callable
 
 from scrilla import settings, services, files
-from scrilla.cache import PriceCache
 from scrilla.static import functions, definitions, formats, keys
 from scrilla.errors import InputValidationError
 from scrilla.util import dater, outputter, helper

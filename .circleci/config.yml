@@ -79,8 +79,9 @@ commands:
     steps:
       - run: 
           name: unit tests
+          environment:
+            APP_ENV: container
           command: |
-            export APP_ENV="container"
             bash ./scripts/tests
 
   commit_coverage:
