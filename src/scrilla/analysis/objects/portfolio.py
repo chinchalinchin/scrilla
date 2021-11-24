@@ -117,7 +117,7 @@ class Portfolio:
             self.asset_types.append(errors.validate_asset_type(ticker))
 
         self.mixed_assets = False
-        self.asset_groups = 0     
+        self.asset_groups = 0
         for _ in groupby(sorted(self.asset_types)):
             self.asset_groups += 1
 
@@ -131,7 +131,7 @@ class Portfolio:
             self.start_date, self.end_date = errors.validate_dates(self.start_date,
                                                                    self.end_date,
                                                                    keys.keys['ASSETS']['EQUITY'])
-            self.weekends = 0 
+            self.weekends = 0
 
     def _init_stats(self):
         self.mean_return = []

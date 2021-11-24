@@ -1353,13 +1353,13 @@ def correlation_matrix(tickers, asset_types=None, start_date=None, end_date=None
         correlation matrix of `tickers`. indices correspond to the Cartesian product of `tickers` x `tickers`. 
     """
     correl_matrix = [
-                        [ 0 for _ in tickers ] for _ in tickers
-                    ]
-
+        [0 for _ in tickers] for _ in tickers
+    ]
 
     # let correlation function handle argument parsing
     if asset_types is None:
-        asset_types = [ errors.validate_asset_type(ticker) for ticker in tickers ]
+        asset_types = [errors.validate_asset_type(
+            ticker) for ticker in tickers]
 
     # NOTE: since crypto trades on weekends and equities do not, the function
     #       must determine if the inputted assets are of mixed type. If any
@@ -1371,10 +1371,9 @@ def correlation_matrix(tickers, asset_types=None, start_date=None, end_date=None
     if weekends is None:
         weekends = 0
 
-    asset_groups = 0     
+    asset_groups = 0
     for _ in groupby(sorted(asset_types)):
         asset_groups += 1
-
 
     # if all assets of the same type, include weekends only if asset type is crypto
     if asset_groups == 1 and asset_types[0] == keys.keys['ASSETS']['CRYPTO']:
