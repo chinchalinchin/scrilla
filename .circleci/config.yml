@@ -20,6 +20,8 @@ commands:
     steps:
       - run:
           name: artifact build
+          environment:
+            APP_ENV: container
           command: |
             touch ./src/scrilla/data/cache/scrilla.db
             bash ./scripts/install
@@ -72,8 +74,6 @@ commands:
     steps:
       - run:
           name: dependency installation
-          environment:
-            APP_ENV: container
           command: curl https://deepsource.io/cli | sh
   
   run_unit_tests: 
@@ -112,8 +112,8 @@ commands:
             git config user.email "chinchalinchin@gmail.com"
             git config user.name "CircleCi Bot"
             git add .
-            git commit -m "Pipeline Unit Tests & Documentation $(echo $(date))"
-            git push --set-upstream origin gh-pages
+            git commit -m "Pipeline Unit Tests & Documentation $(echo $(date))" || true
+            git push --set-upstream origin gh-pages || true
 
 jobs:
   pypi_micro_update:
@@ -164,6 +164,7 @@ jobs:
     steps:
       - checkout
       - install_python_deps
+      - build_wheel
       - install_test_deps
       - run_unit_tests
       - commit_coverage
