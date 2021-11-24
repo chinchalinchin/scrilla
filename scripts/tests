@@ -5,7 +5,7 @@ PROJECT_DIR=$SCRIPT_DIR/..
 DOCS_DIR=$PROJECT_DIR/docs
 APP_DIR=$PROJECT_DIR/src/scrilla
 
-if [ -d $DOCS_DIR ]
+if [ -d $DOCS_DIR/coverage/ ]
 then
     rm -r $DOCS_DIR/coverage/*
 fi
