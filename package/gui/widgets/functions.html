@@ -443,11 +443,7 @@ class OptimizerWidget(components.SkeletonWidget):
                                                                target_return=self.arg_widget.get_control_input(&#39;target&#39;))
             self.title.setText(formats.format_allocation_profile_title(
                 allocation, this_portfolio))
-            prices = services.get_daily_prices_latest(tickers=symbols,
-                                                    start_date=self.arg_widget.get_control_input(
-                                                        &#39;start_date&#39;
-                                                    ),
-                                                    end_date=self.arg_widget.get_control_input(&#39;end_date&#39;))
+            prices = services.get_daily_prices_latest(tickers=symbols)
             if investment is None:
                 self.table_widget.init_table(
                     rows=symbols, columns=[&#39;Allocation&#39;])
@@ -1441,11 +1437,7 @@ See help(type(self)) for accurate signature.</p></div>
                                                                target_return=self.arg_widget.get_control_input(&#39;target&#39;))
             self.title.setText(formats.format_allocation_profile_title(
                 allocation, this_portfolio))
-            prices = services.get_daily_prices_latest(tickers=symbols,
-                                                    start_date=self.arg_widget.get_control_input(
-                                                        &#39;start_date&#39;
-                                                    ),
-                                                    end_date=self.arg_widget.get_control_input(&#39;end_date&#39;))
+            prices = services.get_daily_prices_latest(tickers=symbols)
             if investment is None:
                 self.table_widget.init_table(
                     rows=symbols, columns=[&#39;Allocation&#39;])
@@ -1541,11 +1533,7 @@ def optimize(self):
                                                            target_return=self.arg_widget.get_control_input(&#39;target&#39;))
         self.title.setText(formats.format_allocation_profile_title(
             allocation, this_portfolio))
-        prices = services.get_daily_prices_latest(tickers=symbols,
-                                                start_date=self.arg_widget.get_control_input(
-                                                    &#39;start_date&#39;
-                                                ),
-                                                end_date=self.arg_widget.get_control_input(&#39;end_date&#39;))
+        prices = services.get_daily_prices_latest(tickers=symbols)
         if investment is None:
             self.table_widget.init_table(
                 rows=symbols, columns=[&#39;Allocation&#39;])
