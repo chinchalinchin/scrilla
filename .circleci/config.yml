@@ -112,8 +112,8 @@ commands:
             git config user.email "chinchalinchin@gmail.com"
             git config user.name "CircleCi Bot"
             git add .
-            git commit -m "Pipeline Unit Tests & Documentation $(echo $(date))"
-            git push --set-upstream origin gh-pages
+            git commit -m "Pipeline Unit Tests & Documentation $(echo $(date))" || true
+            git push --set-upstream origin gh-pages || true
 
 jobs:
   pypi_micro_update:
