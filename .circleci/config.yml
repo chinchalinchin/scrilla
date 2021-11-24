@@ -67,7 +67,7 @@ commands:
       - persist_to_workspace:
           root: docs
           path: 
-            - package/*
+            - package
 
 
   install_test_deps:
@@ -102,7 +102,7 @@ commands:
       - persist_to_workspace:
           root: docs
           path: 
-            - coverage/*
+            - coverage
     
 
   commit_coverage:
