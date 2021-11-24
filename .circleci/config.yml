@@ -66,7 +66,7 @@ commands:
           command: bash ./scripts/docs circle-ci
       - persist_to_workspace:
           root: docs
-          path: 
+          paths: 
             - package
 
 
@@ -101,7 +101,7 @@ commands:
             ./bin/deepsource report --analyzer test-coverage --key python --value-file ./coverage.xml
       - persist_to_workspace:
           root: docs
-          path: 
+          paths: 
             - coverage
     
 
