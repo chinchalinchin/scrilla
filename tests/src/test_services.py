@@ -1,6 +1,6 @@
 import pytest
 
-from scrilla import services
+from scrilla import services, errors
 from scrilla.static import keys
 
 from .. import mock, settings
@@ -31,6 +31,20 @@ def test_cache_price(ticker, date, price):
             ticker=ticker, start_date=settings.START, end_date=settings.END)
     response_price = response[date][keys.keys['PRICES']['CLOSE']]
     assert(float(response_price) == price)
+
+@pytest.mark.parametrize('ticker,asset_type', [
+    ('ALLY', keys['ASSETS']['EQUITY']),
+    ('BTC', keys['ASSETS']['CRYPTO']),
+    ('ALGO', keys['ASSETS']['CRYPTO']),
+    ('SPY', keys['ASSETS']['EQUITY'])
+])
+def test_service_date_validation(ticker, asset_type):
+    with HTTMock(mock.mock_prices):
+        response = services.get_daily_price_history(
+            ticker=ticker, start_date=settings.START, end_date=settings.END)
+    validated_start, validated_end = errors.validate_dates(start_date=settings.START, end_date=settings.END,
+                                                            asset_type=asset_type)
+    assert(validated_start in response.keys() and validated_end in response.key())
 
 
 @pytest.mark.parametrize("maturity,date,yield_rate", [
