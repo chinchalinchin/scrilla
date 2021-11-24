@@ -91,21 +91,28 @@ commands:
             ./bin/deepsource report --analyzer test-coverage --key python --value-file ./coverage.xml
 
   commit_coverage:
-    description: commit re-generated docs to git
+    description: push coverage back to git
     steps:
       - run:
-          name: commit unit test coverage and docs
+          name: coverage
           command: |
             mkdir /tmp/docs/
             cp -ap ./docs/. /tmp/docs/
-            git stash
+            if [ -d ./bin/ ]
+            then
+              rm -r ./bin
+            fi
+            if [ -f coverage.xml ]
+            then 
+              rm coverage.xml
+            fi
             git checkout gh-pages
             git pull
             cp -ap /tmp/docs/. ./
             git config user.email "chinchalinchin@gmail.com"
             git config user.name "CircleCi Bot"
             git add .
-            git commit -m "Pipeline Documentation Generation $(echo $(date))"
+            git commit -m "Pipeline Unit Tests & Documentation $(echo $(date))"
             git push --set-upstream origin gh-pages
 
 jobs:
