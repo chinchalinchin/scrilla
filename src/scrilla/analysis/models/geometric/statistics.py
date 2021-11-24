@@ -14,6 +14,7 @@
 # or <https://github.com/chinchalinchin/scrilla/blob/develop/main/LICENSE>.
 
 from datetime import timedelta, date
+from itertools import groupby
 import datetime
 from typing import Dict, List, Union
 from numpy import log, sqrt, inf
@@ -1197,6 +1198,7 @@ def calculate_moment_correlation(ticker_1: str, ticker_2: str, asset_type_1: Uni
         sample_prices[ticker_2] = services.get_daily_price_history(ticker=ticker_2, start_date=start_date,
                                                                    end_date=end_date, asset_type=asset_type_2)
 
+    # TODO: pretty sure something about this is causing the issue.
     if asset_type_1 == asset_type_2 and asset_type_2 == keys.keys['ASSETS']['CRYPTO'] and weekends == 0:
         # remove weekends and holidays from sample
         logger.debug('Removing weekends from crypto sample')
@@ -1259,10 +1261,9 @@ def calculate_moment_correlation(ticker_1: str, ticker_2: str, asset_type_1: Uni
     for this_date in sample_prices[ticker_1]:
         todays_price_1 = sample_prices[ticker_1][this_date][keys.keys['PRICES']['CLOSE']]
         todays_price_2 = sample_prices[ticker_2][this_date][keys.keys['PRICES']['CLOSE']]
-        logger.verbose(
-            f'(todays_date, todays_price_{ticker_1}, todays_price_{ticker_2}) = ({this_date}, {todays_price_1}, {todays_price_2})')
 
         if today:
+            logger.verbose(f'today = {this_date}')
             logger.verbose(
                 f'(todays_price, tomorrows_price)_{ticker_1} = ({todays_price_1}, {tomorrows_price_1})')
             logger.verbose(
@@ -1297,7 +1298,7 @@ def calculate_moment_correlation(ticker_1: str, ticker_2: str, asset_type_1: Uni
             covariance = covariance + current_sample_covariance
 
             logger.verbose(
-                f'(return_1, return_2) = ({round(current_mod_return_1, 2)}, {round(current_mod_return_2, 2)})')
+                f'(return_{ticker_1}, return_{ticker_2}) = ({round(current_mod_return_1, 2)}, {round(current_mod_return_2, 2)})')
             logger.verbose(
                 f'(current_sample_covariance, covariance) = ({round(current_sample_covariance, 2)}, {round(covariance, 2)})')
 
@@ -1351,41 +1352,40 @@ def correlation_matrix(tickers, asset_types=None, start_date=None, end_date=None
     ``List[List[float]]`` 
         correlation matrix of `tickers`. indices correspond to the Cartesian product of `tickers` x `tickers`. 
     """
-    correl_matrix = [[0 for x in range(len(tickers))]
-                     for y in range(len(tickers))]
+    correl_matrix = [
+                        [ 0 for _ in tickers ] for _ in tickers
+                    ]
+
 
     # let correlation function handle argument parsing
     if asset_types is None:
-        asset_types = []
-        for ticker in tickers:
-            asset_types.append(errors.validate_asset_type(ticker))
+        asset_types = [ errors.validate_asset_type(ticker) for ticker in tickers ]
 
     # NOTE: since crypto trades on weekends and equities do not, the function
     #       must determine if the inputted assets are of mixed type. If any
     #       single asset is of a different type, weekends must be truncated
     #       from sample to ensure correlation is calculated over the samples
     #       of like size.
-    # By default, exclude weekends.
-    if weekends is not None:
-        weekends = 0
-        same_type = True
-        # check if any assets in the matrix are mixed types
-        for this_type in asset_types:
-            for that_type in asset_types:
-                if this_type != that_type:
-                    same_type = False
-                    break
 
-    if not same_type:
-        logger.debug('Assets of different type, removing weekends')
+    # By default, exclude weekends.
+    if weekends is None:
+        weekends = 0
+
+    asset_groups = 0     
+    for _ in groupby(sorted(asset_types)):
+        asset_groups += 1
+
 
     # if all assets of the same type, include weekends only if asset type is crypto
-    if same_type and asset_types[0] == keys.keys['ASSETS']['CRYPTO']:
+    if asset_groups == 1 and asset_types[0] == keys.keys['ASSETS']['CRYPTO']:
         logger.debug('Assets of same type, which is crypto, keeping weekends')
         weekends = 1
-    elif same_type:
-        logger.debug(
-            'Assets of same type, which is equity, excluding weekends')
+    else:
+        if asset_groups > 1:
+            logger.debug('Assets of different type, removing weekends')
+        else:
+            logger.debug(
+                'Assets of same type, which is equity, excluding weekends')
 
     if(len(tickers) > 1):
         for i, item in enumerate(tickers):

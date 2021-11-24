@@ -25,7 +25,7 @@ from scrilla import settings
 from scrilla.static import keys
 from scrilla.util import outputter
 
-logger = outputter.Logger("cache", settings.LOG_LEVEL)
+logger = outputter.Logger("scrilla.cache", settings.LOG_LEVEL)
 
 
 class Cache():

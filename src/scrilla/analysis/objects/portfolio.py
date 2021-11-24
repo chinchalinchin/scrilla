@@ -15,6 +15,7 @@
 
 from math import trunc, sqrt
 from decimal import Decimal
+from itertools import groupby
 
 # TODO: get rid of numpy functions.
 #       dot, multiply and transpose should be easy to replicate
@@ -108,7 +109,7 @@ class Portfolio:
 
         self._init_asset_types()
         self._init_dates()
-        self._calculate_stats()
+        self._init_stats()
 
     def _init_asset_types(self):
         self.asset_types = []
@@ -116,29 +117,23 @@ class Portfolio:
             self.asset_types.append(errors.validate_asset_type(ticker))
 
         self.mixed_assets = False
-
-        for this_asset_type in self.asset_types:
-            for that_asset_type in self.asset_types:
-                if this_asset_type != that_asset_type:
-                    self.mixed_assets = True
-                    break
+        self.asset_groups = 0     
+        for _ in groupby(sorted(self.asset_types)):
+            self.asset_groups += 1
 
     def _init_dates(self):
-        if self.mixed_assets:
+        if self.asset_groups == 1 and self.asset_types[0] == keys.keys['ASSETS']['CRYPTO']:
             self.start_date, self.end_date = errors.validate_dates(self.start_date,
                                                                    self.end_date,
-                                                                   keys.keys['ASSETS']['EQUITY'])
-            self.weekends = 0
+                                                                   keys.keys['ASSETS']['CRYPTO'])
+            self.weekends = 1
         else:
             self.start_date, self.end_date = errors.validate_dates(self.start_date,
                                                                    self.end_date,
-                                                                   self.asset_types[0])
-            if self.asset_types[0] == keys.keys['ASSETS']['EQUITY']:
-                self.weekends = 0
-            else:
-                self.weekends = 1
+                                                                   keys.keys['ASSETS']['EQUITY'])
+            self.weekends = 0 
 
-    def _calculate_stats(self):
+    def _init_stats(self):
         self.mean_return = []
         self.sample_vol = []
 

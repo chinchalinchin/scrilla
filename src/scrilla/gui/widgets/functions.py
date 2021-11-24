@@ -414,7 +414,11 @@ class OptimizerWidget(components.SkeletonWidget):
                                                                target_return=self.arg_widget.get_control_input('target'))
             self.title.setText(formats.format_allocation_profile_title(
                 allocation, this_portfolio))
-
+            prices = services.get_daily_prices_latest(tickers=symbols,
+                                                    start_date=self.arg_widget.get_control_input(
+                                                        'start_date'
+                                                    ),
+                                                    end_date=self.arg_widget.get_control_input('end_date'))
             if investment is None:
                 self.table_widget.init_table(
                     rows=symbols, columns=['Allocation'])
@@ -422,7 +426,7 @@ class OptimizerWidget(components.SkeletonWidget):
                 self.table_widget.init_table(rows=symbols, columns=[
                                              'Allocation', 'Shares'])
                 shares = this_portfolio.calculate_approximate_shares(
-                    allocation, float(investment))
+                    allocation, float(investment), prices)
 
             for i in range(len(symbols)):
                 item = factories.atomic_widget_factory(

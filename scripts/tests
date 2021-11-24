@@ -7,7 +7,7 @@ APP_DIR=$PROJECT_DIR/src/scrilla
 
 if [ -d $DOCS_DIR/coverage/ ]
 then
-    rm -r $DOCS_DIR/coverage/*
+    rm -r $DOCS_DIR/coverage/
 fi
 
 if [ "$1" != "circleci" ]

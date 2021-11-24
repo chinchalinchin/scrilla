@@ -59,3 +59,16 @@ def test_weekend_initialization(tickers, weekends):
             test_portfolio = Portfolio(
                 tickers=tickers, start_date=settings.START, end_date=settings.END)
     assert(test_portfolio.weekends == weekends)
+
+@pytest.mark.parametrize('tickers, groups', [
+    (['ALLY', 'BX'], 1),
+    (['BTC', 'ALGO'],1 ),
+    (['BTC', 'ALLY'], 2),
+    (['BTC', 'ALGO', 'SPY'], 2)
+])
+def test_asset_groups(tickers, groups):
+    with HTTMock(mock.mock_prices):
+        with HTTMock(mock.mock_interest):
+            test_portfolio = Portfolio(
+                tickers=tickers, start_date=settings.START, end_date=settings.END)
+    assert(test_portfolio.asset_groups == groups)
