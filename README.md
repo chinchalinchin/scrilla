@@ -14,7 +14,7 @@
 | develop/main | [![CircleCI](https://circleci.com/gh/chinchalinchin/scrilla/tree/develop%2Fmain.svg?style=svg)](https://circleci.com/gh/chinchalinchin/scrilla/tree/develop%2Fmain)| 
 
 ## Docs
-- [Package Documentation](https://chinchalinchin.github.io/scrilla/)<br/>
+- [Documentation](https://chinchalinchin.github.io/scrilla/)<br/>
 
 ## Table of Contents
 - [Setup](#setup)
