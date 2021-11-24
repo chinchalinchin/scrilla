@@ -443,7 +443,11 @@ class OptimizerWidget(components.SkeletonWidget):
                                                                target_return=self.arg_widget.get_control_input(&#39;target&#39;))
             self.title.setText(formats.format_allocation_profile_title(
                 allocation, this_portfolio))
-
+            prices = services.get_daily_prices_latest(tickers=symbols,
+                                                    start_date=self.arg_widget.get_control_input(
+                                                        &#39;start_date&#39;
+                                                    ),
+                                                    end_date=self.arg_widget.get_control_input(&#39;end_date&#39;))
             if investment is None:
                 self.table_widget.init_table(
                     rows=symbols, columns=[&#39;Allocation&#39;])
@@ -451,7 +455,7 @@ class OptimizerWidget(components.SkeletonWidget):
                 self.table_widget.init_table(rows=symbols, columns=[
                                              &#39;Allocation&#39;, &#39;Shares&#39;])
                 shares = this_portfolio.calculate_approximate_shares(
-                    allocation, float(investment))
+                    allocation, float(investment), prices)
 
             for i in range(len(symbols)):
                 item = factories.atomic_widget_factory(
@@ -1437,7 +1441,11 @@ See help(type(self)) for accurate signature.</p></div>
                                                                target_return=self.arg_widget.get_control_input(&#39;target&#39;))
             self.title.setText(formats.format_allocation_profile_title(
                 allocation, this_portfolio))
-
+            prices = services.get_daily_prices_latest(tickers=symbols,
+                                                    start_date=self.arg_widget.get_control_input(
+                                                        &#39;start_date&#39;
+                                                    ),
+                                                    end_date=self.arg_widget.get_control_input(&#39;end_date&#39;))
             if investment is None:
                 self.table_widget.init_table(
                     rows=symbols, columns=[&#39;Allocation&#39;])
@@ -1445,7 +1453,7 @@ See help(type(self)) for accurate signature.</p></div>
                 self.table_widget.init_table(rows=symbols, columns=[
                                              &#39;Allocation&#39;, &#39;Shares&#39;])
                 shares = this_portfolio.calculate_approximate_shares(
-                    allocation, float(investment))
+                    allocation, float(investment), prices)
 
             for i in range(len(symbols)):
                 item = factories.atomic_widget_factory(
@@ -1533,7 +1541,11 @@ def optimize(self):
                                                            target_return=self.arg_widget.get_control_input(&#39;target&#39;))
         self.title.setText(formats.format_allocation_profile_title(
             allocation, this_portfolio))
-
+        prices = services.get_daily_prices_latest(tickers=symbols,
+                                                start_date=self.arg_widget.get_control_input(
+                                                    &#39;start_date&#39;
+                                                ),
+                                                end_date=self.arg_widget.get_control_input(&#39;end_date&#39;))
         if investment is None:
             self.table_widget.init_table(
                 rows=symbols, columns=[&#39;Allocation&#39;])
@@ -1541,7 +1553,7 @@ def optimize(self):
             self.table_widget.init_table(rows=symbols, columns=[
                                          &#39;Allocation&#39;, &#39;Shares&#39;])
             shares = this_portfolio.calculate_approximate_shares(
-                allocation, float(investment))
+                allocation, float(investment), prices)
 
         for i in range(len(symbols)):
             item = factories.atomic_widget_factory(

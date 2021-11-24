@@ -60,6 +60,13 @@ def get_today() -&gt; datetime.date:
     &#34;&#34;&#34;
     return datetime.date.today()
 
+def date_to_string(date: Union[datetime.date, None] = None) -&gt; str:
+    &#34;&#34;&#34; 
+    Returns a datetime formatted as &#39;YYYY-MM-DD&#39;. If no date is provided, function will return today&#39;s formatted date.
+    &#34;&#34;&#34;
+    if date is None:
+        return date_to_string(get_today())
+    return datetime.datetime.strftime(date, &#39;%Y-%m-%d&#39;)
 
 def is_date_today(date: datetime.date) -&gt; bool:
     return (date == datetime.date.today())
@@ -95,16 +102,10 @@ def get_time_to_next_period(starting_date: datetime.date, period: float) -&gt; f
 
     return float((today - starting_date).days / 365)
 
-
-def is_date_string_today(date: datetime.date) -&gt; bool:
-    return is_date_today(parse_date_string(date))
-
-
 def is_date_weekend(date: datetime.date) -&gt; bool:
     return date.weekday() in [5, 6]
 
 # YYYY-MM-DD
-
 
 def is_date_string_weekend(date_string: str) -&gt; bool:
     return is_date_weekend(parse_date_string(date_string))
@@ -159,23 +160,6 @@ def verify_date_types(dates: Union[List[datetime.date], List[str]]) -&gt; Union[
             return None
     return verified_dates
 
-
-def date_to_string(date: Union[datetime.date, None] = None) -&gt; str:
-    &#34;&#34;&#34; 
-    Returns a datetime formatted as &#39;YYYY-MM-DD&#39;. If no date is provided, function will return today&#39;s formatted date.
-    &#34;&#34;&#34;
-    if date is None:
-        return date_to_string(get_today())
-    month, day = date.month, date.day
-    if month &lt; 10:
-        month_string = &#34;0&#34;+str(month)
-    else:
-        month_string = str(month)
-    if day &lt; 10:
-        day_string = &#34;0&#34;+str(day)
-    else:
-        day_string = str(day)
-    return f&#39;{date.year}-{month_string}-{day_string}&#39;
 
 
 def format_date_range(start_date: datetime.date, end_date: datetime.date) -&gt; str:
@@ -553,16 +537,7 @@ if start_date_string and end_date_string are NOT consecutive trading days.</p></
     &#34;&#34;&#34;
     if date is None:
         return date_to_string(get_today())
-    month, day = date.month, date.day
-    if month &lt; 10:
-        month_string = &#34;0&#34;+str(month)
-    else:
-        month_string = str(month)
-    if day &lt; 10:
-        day_string = &#34;0&#34;+str(day)
-    else:
-        day_string = str(day)
-    return f&#39;{date.year}-{month_string}-{day_string}&#39;</code></pre>
+    return datetime.datetime.strftime(date, &#39;%Y-%m-%d&#39;)</code></pre>
 </details>
 </dd>
 <dt id="scrilla.util.dater.dates_between"><code class="name flex">
@@ -941,19 +916,6 @@ End date of the date range.</li>
     return is_date_holiday(parse_date_string(date_string))</code></pre>
 </details>
 </dd>
-<dt id="scrilla.util.dater.is_date_string_today"><code class="name flex">
-<span>def <span class="ident">is_date_string_today</span></span>(<span>date: datetime.date) ‑> bool</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def is_date_string_today(date: datetime.date) -&gt; bool:
-    return is_date_today(parse_date_string(date))</code></pre>
-</details>
-</dd>
 <dt id="scrilla.util.dater.is_date_string_weekend"><code class="name flex">
 <span>def <span class="ident">is_date_string_weekend</span></span>(<span>date_string: str) ‑> bool</span>
 </code></dt>
@@ -1185,7 +1147,6 @@ End date of the date range.</li>
 <li><code><a title="scrilla.util.dater.intersect_with_trading_dates" href="#scrilla.util.dater.intersect_with_trading_dates">intersect_with_trading_dates</a></code></li>
 <li><code><a title="scrilla.util.dater.is_date_holiday" href="#scrilla.util.dater.is_date_holiday">is_date_holiday</a></code></li>
 <li><code><a title="scrilla.util.dater.is_date_string_holiday" href="#scrilla.util.dater.is_date_string_holiday">is_date_string_holiday</a></code></li>
-<li><code><a title="scrilla.util.dater.is_date_string_today" href="#scrilla.util.dater.is_date_string_today">is_date_string_today</a></code></li>
 <li><code><a title="scrilla.util.dater.is_date_string_weekend" href="#scrilla.util.dater.is_date_string_weekend">is_date_string_weekend</a></code></li>
 <li><code><a title="scrilla.util.dater.is_date_today" href="#scrilla.util.dater.is_date_today">is_date_today</a></code></li>
 <li><code><a title="scrilla.util.dater.is_date_weekend" href="#scrilla.util.dater.is_date_weekend">is_date_weekend</a></code></li>

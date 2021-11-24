@@ -24,6 +24,13 @@
 </header>
 <section id="section-intro">
 <p>This module interfaces with the external services the program uses to hydrate with financial data. In the case of price and interest history, the functions in this module defer to the cache before making expensive HTTP requests. Statistical data retrieved from FRED and dividment payment histories are not persisted in the cache since most of the data is reported on an irregular basis and it is impossible to tell based on the date alone whether or not the cache is out of date.</p>
+<p>This module can be imported and used directly in other Python scripts if the API keys for the services have been set.</p>
+<pre><code>import os
+from scrilla.services import get_daily_price_history
+
+os.environ.setdefault('ALPHA_VANTAGE_KEY')
+prices = get_daily_price_history('AAPL')
+</code></pre>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -45,6 +52,16 @@
 
 &#34;&#34;&#34;
 This module interfaces with the external services the program uses to hydrate with financial data. In the case of price and interest history, the functions in this module defer to the cache before making expensive HTTP requests. Statistical data retrieved from FRED and dividment payment histories are not persisted in the cache since most of the data is reported on an irregular basis and it is impossible to tell based on the date alone whether or not the cache is out of date.
+
+This module can be imported and used directly in other Python scripts if the API keys for the services have been set.
+
+```
+import os
+from scrilla.services import get_daily_price_history
+
+os.environ.setdefault(&#39;ALPHA_VANTAGE_KEY&#39;)
+prices = get_daily_price_history(&#39;AAPL&#39;)
+```
 &#34;&#34;&#34;
 import itertools
 import time
@@ -560,8 +577,8 @@ def get_daily_price_history(ticker: str, start_date: Union[None, date] = None,
         new_prices = prices
 
     for this_date in new_prices:
-        close_price = new_prices[this_date][keys.keys[&#39;PRICES&#39;][&#39;OPEN&#39;]]
-        open_price = new_prices[this_date][keys.keys[&#39;PRICES&#39;][&#39;CLOSE&#39;]]
+        open_price = new_prices[this_date][keys.keys[&#39;PRICES&#39;][&#39;OPEN&#39;]]
+        close_price = new_prices[this_date][keys.keys[&#39;PRICES&#39;][&#39;CLOSE&#39;]]
         price_cache.save_row(ticker=ticker, date=this_date,
                              open_price=open_price, close_price=close_price)
 
@@ -1043,8 +1060,8 @@ Dictionary with date strings formatted <code>YYYY-MM-DD</code> as keys and a nes
         new_prices = prices
 
     for this_date in new_prices:
-        close_price = new_prices[this_date][keys.keys[&#39;PRICES&#39;][&#39;OPEN&#39;]]
-        open_price = new_prices[this_date][keys.keys[&#39;PRICES&#39;][&#39;CLOSE&#39;]]
+        open_price = new_prices[this_date][keys.keys[&#39;PRICES&#39;][&#39;OPEN&#39;]]
+        close_price = new_prices[this_date][keys.keys[&#39;PRICES&#39;][&#39;CLOSE&#39;]]
         price_cache.save_row(ticker=ticker, date=this_date,
                              open_price=open_price, close_price=close_price)
 
