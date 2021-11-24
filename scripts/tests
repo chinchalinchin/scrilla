@@ -19,8 +19,6 @@ cd $PROJECT_DIR
 
 scrilla clear-cache
 
-cat .coveragerc
-
 coverage run -m pytest
 
 coverage html

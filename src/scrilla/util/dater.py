@@ -31,6 +31,13 @@ def get_today() -> datetime.date:
     """
     return datetime.date.today()
 
+def date_to_string(date: Union[datetime.date, None] = None) -> str:
+    """ 
+    Returns a datetime formatted as 'YYYY-MM-DD'. If no date is provided, function will return today's formatted date.
+    """
+    if date is None:
+        return date_to_string(get_today())
+    return datetime.datetime.strftime(date, '%Y-%m-%d')
 
 def is_date_today(date: datetime.date) -> bool:
     return (date == datetime.date.today())
@@ -66,16 +73,10 @@ def get_time_to_next_period(starting_date: datetime.date, period: float) -> floa
 
     return float((today - starting_date).days / 365)
 
-
-def is_date_string_today(date: datetime.date) -> bool:
-    return is_date_today(parse_date_string(date))
-
-
 def is_date_weekend(date: datetime.date) -> bool:
     return date.weekday() in [5, 6]
 
 # YYYY-MM-DD
-
 
 def is_date_string_weekend(date_string: str) -> bool:
     return is_date_weekend(parse_date_string(date_string))
@@ -130,23 +131,6 @@ def verify_date_types(dates: Union[List[datetime.date], List[str]]) -> Union[Lis
             return None
     return verified_dates
 
-
-def date_to_string(date: Union[datetime.date, None] = None) -> str:
-    """ 
-    Returns a datetime formatted as 'YYYY-MM-DD'. If no date is provided, function will return today's formatted date.
-    """
-    if date is None:
-        return date_to_string(get_today())
-    month, day = date.month, date.day
-    if month < 10:
-        month_string = "0"+str(month)
-    else:
-        month_string = str(month)
-    if day < 10:
-        day_string = "0"+str(day)
-    else:
-        day_string = str(day)
-    return f'{date.year}-{month_string}-{day_string}'
 
 
 def format_date_range(start_date: datetime.date, end_date: datetime.date) -> str:
