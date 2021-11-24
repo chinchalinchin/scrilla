@@ -62,6 +62,9 @@ commands:
       - run:
           name: generate docs
           command: bash ./scripts/docs circle-ci
+      - persist_to_workspace:
+          root: .
+          path: docs
 
 
   install_test_deps:
@@ -80,6 +83,8 @@ commands:
   run_unit_tests: 
     description: run unit tests against installed wheel
     steps:
+      - attach_workspace:
+          at: .
       - run: 
           name: unit tests
           environment:
@@ -89,23 +94,21 @@ commands:
             bash ./scripts/tests circleci
             coverage xml
             ./bin/deepsource report --analyzer test-coverage --key python --value-file ./coverage.xml
+      - persist_to_workspace:
+          root: .
+          path: docs
+    
 
   commit_coverage:
     description: push coverage back to git
     steps:
+      - attach_workspace:
+          at: .
       - run:
           name: coverage
           command: |
             mkdir /tmp/docs/
             cp -ap ./docs/. /tmp/docs/
-            if [ -d ./bin/ ]
-            then
-              rm -r ./bin
-            fi
-            if [ -f coverage.xml ]
-            then 
-              rm coverage.xml
-            fi
             git checkout gh-pages
             git pull
             cp -ap /tmp/docs/. ./
