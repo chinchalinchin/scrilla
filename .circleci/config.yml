@@ -93,6 +93,8 @@ commands:
             APP_ENV: container
             PYTHON_LIB: /home/circleci/.pyenv/versions/3.9.6/lib/python3.9/site-packages/scrilla/
           command: |
+            pwd
+            ls -al
             bash ./scripts/tests circleci
             coverage xml
             ./bin/deepsource report --analyzer test-coverage --key python --value-file ./coverage.xml
