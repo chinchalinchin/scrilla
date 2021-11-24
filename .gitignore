@@ -23,5 +23,5 @@
 /tests/*/*/*/.pytest_cache
 /tests/*/*/*/*/.pytest_cache
 .coverage
-coverge.xml
+coverage.xml
 /bin/
