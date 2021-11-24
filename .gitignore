@@ -25,3 +25,4 @@
 .coverage
 coverage.xml
 /bin/
+/tests/reports
