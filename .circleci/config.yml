@@ -59,12 +59,14 @@ commands:
   generate_docs:
     description: generate documentation html from docstrings
     steps:
+      - attach_workspace:
+          at: docs
       - run:
           name: generate docs
           command: bash ./scripts/docs circle-ci
       - persist_to_workspace:
-          root: .
-          path: docs
+          root: docs
+          path: package/*
 
 
   install_test_deps:
@@ -84,7 +86,7 @@ commands:
     description: run unit tests against installed wheel
     steps:
       - attach_workspace:
-          at: .
+          at: docs
       - run: 
           name: unit tests
           environment:
@@ -95,15 +97,15 @@ commands:
             coverage xml
             ./bin/deepsource report --analyzer test-coverage --key python --value-file ./coverage.xml
       - persist_to_workspace:
-          root: .
-          path: docs
+          root: docs
+          path: coverage/*
     
 
   commit_coverage:
     description: push coverage back to git
     steps:
       - attach_workspace:
-          at: .
+          at: docs
       - run:
           name: coverage
           command: |
