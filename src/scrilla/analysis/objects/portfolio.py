@@ -303,7 +303,8 @@ class Portfolio:
 
         return shares
 
-    def calculate_actual_total(self, x, total, latest_prices):
+    @staticmethod
+    def calculate_actual_total(x, total, latest_prices):
         actual_total = 0
         shares = Portfolio.calculate_approximate_shares(
             x=x, total=total, latest_prices=latest_prices)
