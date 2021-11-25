@@ -6,16 +6,15 @@
 [Quandl API Key Registration](https://www.quandl.com/account/api)<br>
 [IEX API Key Registration](https://iexcloud.io/)<br>
 
-In order to use this application, you will need to register for API keys for each of the services. The program will need to be made aware of these keys somehow. The best option is storing these credentials in environment variables. See [Required Configuration](#required-configuration) for more information. 
-
+In order to use this application, you will need to register for API keys for each of the above services. The program will need to be made aware of these keys somehow. The best option is storing these credentials in environment variables.
 # Environment
 
-*scrilla* scans the environment in its *settings.py* file for shell variables. Various properties of the application can be configured through these environment variables. A sample environment file is located [here](https://github.com/chinchalinchin/scrilla/blob/develop/main/env/.sample.env), along with comments describing the purpose of each variable. The application sets sensible defaults for most of the environment variable configurations, but there are several required environment variables you will need to set yourself. 
+*scrilla* scans the environment in its *settings.py* file for shell variables. Various properties of the application can be configured through these environment variables. A sample environment file is located [here](https://github.com/chinchalinchin/scrilla/blob/develop/main/env/.sample.env), along with comments describing the purpose of each variable. The application sets sensible defaults for most of these environment variables, but there are several required environment variables you will need to set yourself. 
 
 ## Required Configuration
 
 ### Environment Variables
-As mentioned, you will need to register for API keys at <b>AlphaVantage</b>, <b>IEX</b> and <b>Quandl</b>. One way of passing API keys to the program is by storing these in your session's environment. <b>scrilla</b> will search for environment variables named <b>ALPHA_VANTAGE_KEY</b>, <b>QUANDL_KEY</b> and <b>IEX_KEY</b>. You can add the following lines to your <i>.bashrc</i> profile or corresponding configuration file for whatever shell you are using,
+As mentioned, you will need to register for API keys at **AlphaVantage**, **IEX** and **Quandl**. One way of passing API keys to the program is by storing these in your session's environment. *scrilla* will search for environment variables named **ALPHA_VANTAGE_KEY**, **QUANDL_KEY** and **IEX_KEY**. You can add the following lines to your *.bashrc* profile or corresponding configuration file for whatever shell you are using, or simply execute these lines before invoking *scrilla*
 
 ```shell
 export ALPHA_VANTAGE_KEY=<key goes here>
@@ -33,13 +32,13 @@ You can also invoke the CLI function `store` to store the credentials in the loc
 scrilla store -key <key> -value <value>
 ```
 
-where `<key>` is one of the values: **ALPHA_VANTAGE_KEY**, **QUANDL_KEY** or **IEX_KEY**. `<value>` is the corresponding key itself given to you after registration. `<value>` is case-sensitive! Keep in mind if using this method to store the API keys, the keys will be stored unencrypted in the local <i>/data/common/</i> directory. 
+where `<key>` is one of the values: **ALPHA_VANTAGE_KEY**, **QUANDL_KEY** or **IEX_KEY**. `<value>` is the corresponding key itself given to you after registration. `<value>` is case-sensitive! Keep in mind if using this method to store the API keys, the keys will be stored unencrypted in the local */data/common/* directory. 
 
-If no API keys are found in these variables, the application will not function properly; be sure to load these variables into your shell session before using <b>scrilla</b>. 
+If no API keys are found in these variables, the application will not function properly; be sure to load these variables into your shell session before using *scrilla*. 
 
 ## Optional Configuration 
 
-<b>scrilla</b> can be configured with the following optional environment variables. Each variable in this list has a suitable default set and so does not need changed unless the user prefers a different setting. Make sure you export these values from your current session, i.e.
+*scrilla* can be configured with the following optional environment variables. Each variable in this list has a suitable default set and so does not need changed unless the user prefers a different setting. Set these values in your shell profile or export them directly from your current session, i.e.
 
 ```shell
 export RISK_FREE=ONE_YEAR
@@ -56,7 +55,7 @@ Note, it is highly recommended that if you change this value, you should clear t
 
 - DEFAULT_ESTIMATION_METHOD
 
-Determines the method used to calculate risk-return profiles. If set to `moments`, the return and volatility will be estimated by setting them equal to the first and second sample moments. If set to `percents`, the return and volatilty will be estimated by setting the 25th percentile and 75th percentile of the assumed distribution (see above <b>ANALYSIS_MODE</b>) equal to the 25th and 75th percentile from the sample of data. If set to `likely`, the likelihood function calculated from the assumed distribution (see <b>ANALYSIS_MODE</b> again) will be maximized with respect to the return and volatility; the values which maximize will be used as the estimates. 
+Determines the method used to calculate risk-return profiles. If set to `moments`, the return and volatility will be estimated by setting them equal to the first and second sample moments. If set to `percents`, the return and volatilty will be estimated by setting the 25th percentile and 75th percentile of the assumed distribution (see above **ANALYSIS_MODE**) equal to the 25th and 75th percentile from the sample of data. If set to `likely`, the likelihood function calculated from the assumed distribution (see **ANALYSIS_MODE** again) will be maximized with respect to the return and volatility; the values which maximize will be used as the estimates. 
 
 - RISK_FREE
 
@@ -72,12 +71,12 @@ Determines the number of data points in a portfolio's efficient frontier. This v
 
 - MA_1, MA_2, MA_3
 
-Determines the number of days used in the sample for moving average series and plots. These variables default to the values of `20`, `60` and `100`. In other words, by default, moving average plots will display the 20-day moving average, the 60-day moving average and the 100-day moving average. These variables can be set equal to any integer, as long as <b>MA_1</b> < <b>MA_2</b> < <b>MA_3</b>. 
+Determines the number of days used in the sample for moving average series and plots. These variables default to the values of `20`, `60` and `100`. In other words, by default, moving average plots will display the 20-day moving average, the 60-day moving average and the 100-day moving average. These variables can be set equal to any integer, as long as **MA_1**, **MA_2**, **MA_3**. 
 
 - FILE_EXT 
 
-Determines the type of files that are output by <b>scrilla</b>. This variable is currently only defined for an argument of `json`. A future release will include `csv`. 
+Determines the type of files that are output by **scrilla**. This variable is currently only defined for an argument of `json`. A future release will include `csv`. 
 
 - LOG_LEVEL
 
-Determines the amount of output. Defaults to `info`. Allowable values: `none`, `info`, `debug` or `verbose`. Be warned, `verbose` is <i>extremely</i> verbose.
+Determines the amount of output. Defaults to `info`. Allowable values: `none`, `info`, `debug` or `verbose`. Be warned, `verbose` is *extremely* verbose.
