@@ -35,8 +35,8 @@
             
   <section class="tex2jax_ignore mathjax_ignore" id="usage">
 <h1>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h1>
-<section id="command-line-interface">
-<h2>Command Line Interface<a class="headerlink" href="#command-line-interface" title="Permalink to this headline">¶</a></h2>
+<section id="command-line">
+<h2>Command Line<a class="headerlink" href="#command-line" title="Permalink to this headline">¶</a></h2>
 <p>Most functions have been wired into command line arguments. For a full list of <b>scrilla</b>’s functionality,</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>scrilla <span class="nb">help</span>
 </pre></div>
@@ -204,6 +204,76 @@ SONY = 56<br>
 </ol>
 </section>
 </section>
+<section id="programmatic">
+<h2>Programmatic<a class="headerlink" href="#programmatic" title="Permalink to this headline">¶</a></h2>
+<p>You can import and use <strong>scrilla</strong>’s function in a Python script. You must ensure the API keys have been set. See <span class="xref myst">Configuration</span> for more information. If the keys have not been configured through environment variables or set through the CLI, you must set the keys through Python’s <code class="docutils literal notranslate"><span class="pre">os</span></code> library before importing any functions or modules from <strong>scrilla</strong>,</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;ALPHA_VANTAGE_KEY&#39;</span><span class="p">,</span> <span class="s1">&#39;key&#39;</span><span class="p">)</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;QUANDL_KEY&#39;</span><span class="p">,</span> <span class="s1">&#39;key&#39;</span><span class="p">)</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;IEX_KEY&#39;</span><span class="p">,</span> <span class="s1">&#39;key&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Replace <code class="docutils literal notranslate"><span class="pre">key</span></code> with the appropriate API key. Append this to the top of the script before <strong>scrilla</strong>’s modules are imported.</p>
+<section id="retrieve-price-data">
+<h3>Retrieve Price Data<a class="headerlink" href="#retrieve-price-data" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;ALPHA_VANTAGE_KEY&#39;</span><span class="p">,</span> <span class="s1">&#39;key&#39;</span><span class="p">)</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;QUANDL_KEY&#39;</span><span class="p">,</span> <span class="s1">&#39;key&#39;</span><span class="p">)</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;IEX_KEY&#39;</span><span class="p">,</span> <span class="s1">&#39;key&#39;</span><span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">scrilla.services</span> <span class="kn">import</span> <span class="n">get_daily_price_history</span>
+<span class="kn">from</span> <span class="nn">scrilla.util</span> <span class="kn">import</span> <span class="n">dater</span>
+
+<span class="n">start</span> <span class="o">=</span> <span class="n">dater</span><span class="o">.</span><span class="n">parse_date_string</span><span class="p">(</span><span class="s1">&#39;2021-01-01&#39;</span><span class="p">)</span>
+<span class="n">end</span> <span class="o">=</span> <span class="n">dater</span><span class="o">.</span><span class="n">parse_date_string</span><span class="p">(</span><span class="s1">&#39;2021-04-05&#39;</span><span class="p">)</span>
+<span class="n">prices</span> <span class="o">=</span> <span class="n">get_daily_price_history</span><span class="p">(</span><span class="n">ticker</span><span class="o">=</span><span class="s1">&#39;ALLY&#39;</span><span class="p">,</span> <span class="n">start_date</span><span class="o">=</span><span class="n">start</span><span class="p">,</span> <span class="n">end_date</span><span class="o">=</span><span class="n">end</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="risk-return">
+<h3>Risk Return<a class="headerlink" href="#risk-return" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;ALPHA_VANTAGE_KEY&#39;</span><span class="p">,</span> <span class="s1">&#39;key&#39;</span><span class="p">)</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;QUANDL_KEY&#39;</span><span class="p">,</span> <span class="s1">&#39;key&#39;</span><span class="p">)</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;IEX_KEY&#39;</span><span class="p">,</span> <span class="s1">&#39;key&#39;</span><span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">scrilla.analysis.models.geometric.statistics</span> <span class="kn">import</span> <span class="n">calculate_risk_return</span>
+<span class="kn">from</span> <span class="nn">scrilla.util</span> <span class="kn">import</span> <span class="n">dater</span>
+
+<span class="n">start</span> <span class="o">=</span> <span class="n">dater</span><span class="o">.</span><span class="n">parse_date_string</span><span class="p">(</span><span class="s1">&#39;2021-01-01&#39;</span><span class="p">)</span>
+<span class="n">end</span> <span class="o">=</span> <span class="n">dater</span><span class="o">.</span><span class="n">parse_date_string</span><span class="p">(</span><span class="s1">&#39;2021-04-05&#39;</span><span class="p">)</span>
+<span class="n">prices</span> <span class="o">=</span> <span class="n">calulate_risk_return</span><span class="p">(</span><span class="n">ticker</span><span class="o">=</span><span class="s1">&#39;BTC&#39;</span><span class="p">,</span> <span class="n">start_date</span><span class="o">=</span><span class="n">start</span><span class="p">,</span> <span class="n">end_date</span><span class="o">=</span><span class="n">end</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="id1">
+<h3>Portfolio Optimization<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;ALPHA_VANTAGE_KEY&#39;</span><span class="p">,</span> <span class="s1">&#39;key&#39;</span><span class="p">)</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;QUANDL_KEY&#39;</span><span class="p">,</span> <span class="s1">&#39;key&#39;</span><span class="p">)</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;IEX_KEY&#39;</span><span class="p">,</span> <span class="s1">&#39;key&#39;</span><span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">scrilla.analysis.objects.portfolio</span> <span class="kn">import</span> <span class="n">Portfolio</span>
+<span class="kn">from</span> <span class="nn">scrilla.analysis.optimizer</span> <span class="kn">import</span> <span class="n">optimize_portfolio_variance</span><span class="p">,</span> <span class="n">maximize_sharpe_ratio</span>
+<span class="kn">from</span> <span class="nn">scrilla.util</span> <span class="kn">import</span> <span class="n">dater</span>
+
+<span class="n">start</span> <span class="o">=</span> <span class="n">dater</span><span class="o">.</span><span class="n">parse_date_string</span><span class="p">(</span><span class="s1">&#39;2021-01-01&#39;</span><span class="p">)</span>
+<span class="n">end</span> <span class="o">=</span> <span class="n">dater</span><span class="o">.</span><span class="n">parse_date_string</span><span class="p">(</span><span class="s1">&#39;2021-04-05&#39;</span><span class="p">)</span>
+<span class="n">port</span> <span class="o">=</span> <span class="n">Portfolio</span><span class="p">(</span><span class="n">tickers</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;BTC&#39;</span><span class="p">,</span><span class="s1">&#39;ALLY&#39;</span><span class="p">,</span><span class="s1">&#39;SPY&#39;</span><span class="p">,</span><span class="s1">&#39;GLD&#39;</span><span class="p">],</span> <span class="n">start_date</span><span class="o">=</span><span class="n">start</span><span class="p">,</span> <span class="n">end_date</span><span class="o">=</span><span class="n">end</span><span class="p">)</span>
+
+<span class="c1"># calculate minimum variance portfolio &amp; its risk profile</span>
+<span class="n">min_vol_allocation</span> <span class="o">=</span> <span class="n">optimize_portfolio_variance</span><span class="p">(</span><span class="n">port</span><span class="p">)</span>
+<span class="n">min_vol_port_ret</span> <span class="o">=</span> <span class="n">port</span><span class="o">.</span><span class="n">return_function</span><span class="p">(</span><span class="n">min_vol_allocation</span><span class="p">)</span>
+<span class="n">min_vol_port_vol</span> <span class="o">=</span> <span class="n">port</span><span class="o">.</span><span class="n">volatility_function</span><span class="p">(</span><span class="n">min_vol_allocation</span><span class="p">)</span>
+
+<span class="c1"># calculate maximum sharpe ratio portfolio &amp; its risk profile</span>
+<span class="n">max_sh_allocation</span> <span class="o">=</span> <span class="n">maximize_sharpe_ratio</span><span class="p">(</span><span class="n">port</span><span class="p">)</span>
+<span class="n">max_sh_port_ret</span> <span class="o">=</span> <span class="n">port</span><span class="o">.</span><span class="n">return_function</span><span class="p">(</span><span class="n">max_sh_allocation</span><span class="p">)</span>
+<span class="n">max_sh_port_vol</span> <span class="o">=</span> <span class="n">port</span><span class="o">.</span><span class="n">volatility_function</span><span class="p">(</span><span class="n">max_sh_allocation</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
 </section>
 
 
@@ -230,8 +300,9 @@ SONY = 56<br>
 <li class="toctree-l1"><a class="reference internal" href="CONFIGURATION.html">Configuration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="CONFIGURATION.html#environment">Environment</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Usage</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#command-line-interface">Command Line Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#command-line">Command Line</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#synatx">Synatx</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#programmatic">Programmatic</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="APPENDIX.html">Notes</a></li>
