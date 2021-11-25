@@ -94,6 +94,9 @@ commands:
           name: commit unit test coverage and docs
           command: |
             mkdir /tmp/docs/
+            rm -rf ./docs/make.bat
+            rm -rf ./docs/Makefile
+            rm -rf ./docs/.buildinfo
             cp -ap ./docs/. /tmp/docs/
             git stash
             git checkout gh-pages
