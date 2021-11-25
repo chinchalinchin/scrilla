@@ -10,7 +10,7 @@ FUNC_WIDGETS = {
         'group': 'analysis'
     },
     'dividend': {
-        'name': 'Discount Discount Model',
+        'name': 'Discount Dividend Model',
         'class': DiscountDividendWidget,
         'shortcut': 'Ctrl+2',
         'group': 'analysis'
