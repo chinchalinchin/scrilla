@@ -56,7 +56,7 @@ commands:
           name: install virtual server & gui libraries
           command: sudo apt-get update -y && sudo apt-get install -y xvfb libopengl0 libegl1-mesa libxkbcommon-dev
 
-  generate_docs:
+  generate_package_docs:
     description: generate documentation html from docstrings
     steps:
       - attach_workspace:
@@ -68,6 +68,22 @@ commands:
           root: docs
           paths: 
             - package
+  
+  generate_source_docs:
+    description: generate documentation html from markdown
+    steps:
+      - attach_workspec:
+          at: docs
+      - run:
+          name: generate docs
+          command: |
+            cd docs
+            make html
+            cp -ap ./build/html/. ./
+      - persist_to_workspace:
+          root: docs
+          paths:
+            - *
 
   install_test_deps:
     description: install testing libraries
@@ -178,7 +194,8 @@ jobs:
       - checkout
       - install_python_deps
       - install_doc_deps
-      - generate_docs
+      - generate_package_docs
+      - generate_source_docs
       - commit_coverage
 
 workflows:

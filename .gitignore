@@ -15,6 +15,7 @@
 /dist/*
 /docs/package/*
 /docs/coverage/*
+/docs/build/*
 .vscode
 /scrilla/static/*
 /tests/.pytest_cache
