@@ -19,18 +19,18 @@ You will need Python3.8 or greater. This application depends on the following <b
 ### Development
 
 **Testing**
-- [pytest]()
-- [coverage]()
-- [httmock]()
+- [pytest](https://pypi.org/project/pytest/)
+- [coverage](https://pypi.org/project/coverage/)
+- [httmock](https://pypi.org/project/httmock/)
 
 **Documentation**
-- [sphinx]()
-- [pdoc3]()
+- [sphinx](https://pypi.org/project/Sphinx/)
+- [pdoc3](https://pypi.org/project/pdoc3/)
 
 **Build**
-- [setuptools]()
-- [twine]()
-- [build]()
+- [setuptools](https://pypi.org/project/setuptools/)
+- [twine](https://pypi.org/project/twine/)
+- [build](https://pypi.org/project/build/)
 
 ## Installation
 

@@ -10,7 +10,7 @@ scrilla help
 
 The main usage of <b>scrilla</b> is detailed below.
 
-## Synatx
+## Syntax
 
 ```shell 
 scrilla [COMMAND] [TICKERS] [OPTIONS]
@@ -192,7 +192,7 @@ scrilla screen -criteria DDM
 
 ## Programmatic
 
-You can import and use **scrilla**'s function in a Python script. You must ensure the API keys have been set. See [Configuration](CONFIGURATION.html) for more information. If the keys have not been configured through environment variables or set through the CLI, you must set the keys through Python's ``os`` library before importing any functions or modules from **scrilla**,
+You can import and use **scrilla**'s function in a Python script. You must ensure the API keys have been set. See [Configuration](/CONFIGURATION.md) for more information. If the keys have not been configured through environment variables or set through the CLI, you must set the keys through Python's ``os`` library before importing any functions or modules from **scrilla**,
 
 ```python
 import os
