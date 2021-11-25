@@ -305,7 +305,7 @@ class Portfolio:
 
     def calculate_actual_total(self, x, total, latest_prices):
         actual_total = 0
-        shares = self.calculate_approximate_shares(
+        shares = Portfolio.calculate_approximate_shares(
             x=x, total=total, latest_prices=latest_prices)
         for i, item in enumerate(shares):
             price = latest_prices[i]
