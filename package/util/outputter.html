@@ -28,7 +28,7 @@
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">import datetime
-from typing import List
+from typing import Dict, List, Tuple, Union
 
 from scrilla.static import constants, formats, definitions
 
@@ -202,45 +202,45 @@ def spot_price(ticker, this_spot_price):
     scalar_result(f&#39;{ticker} spot price&#39;, formatted_price)
 
 
-def model_price(ticker, this_model_price, model):
+def model_price(ticker: str, this_model_price: Union[str, float], model: str) -&gt; None:
     formatted_price = round(float(this_model_price), 2)
     scalar_result(f&#39;{ticker} {str(model).upper()} price&#39;, formatted_price)
 
 
-def risk_profile(profiles):
+def risk_profile(profiles: Dict[str, Dict[str, float]]) -&gt; None:
     for key, value in profiles.items():
         title_line(f&#39;{key} Risk Profile&#39;)
         for subkey, subvalue in value.items():
             scalar_result(f&#39;{subkey}&#39;, f&#39;{subvalue}&#39;, currency=False)
 
 
-def moving_average_result(tickers, averages_output, periods, start_date=None, end_date=None):
+def moving_average_result(tickers: List[str], averages_output: Tuple[List[List[float]], List[str]], periods: List[int], start_date: Union[str, None]=None, end_date: Union[str, None]=None) -&gt; None:
     averages, dates = averages_output
     MA1_prefix, MA2_prefix, MA3_prefix = f&#39;MA({periods[0]})&#39;, f&#39;MA({periods[1]})&#39;, f&#39;MA({periods[2]})&#39;
     if start_date is None and end_date is None:
-        for i, item in enumerate(tickers):
-            title = f&#39;{item} Moving Average of Daily Return for {periods[0]}, {periods[1]} &amp; {periods[0]} Days&#39;
+        for i, ticker in enumerate(tickers):
+            title = f&#39;{ticker} Moving Average of Daily Return for {periods[0]}, {periods[1]} &amp; {periods[0]} Days&#39;
             title_line(title)
 
-            MA1_title, MA2_title, MA3_title = f&#39;{MA1_prefix}_{item}&#39;, f&#39;{MA2_prefix}_{item}&#39;, f&#39;{MA3_prefix}_{item}&#39;
+            MA1_title, MA2_title, MA3_title = f&#39;{MA1_prefix}_{ticker}&#39;, f&#39;{MA2_prefix}_{ticker}&#39;, f&#39;{MA3_prefix}_{ticker}&#39;
             scalar_result(MA1_title, round(averages[i][0], 2))
             scalar_result(MA2_title, round(averages[i][1], 2))
             scalar_result(MA3_title, round(averages[i][2], 2))
     else:
-        for i, item in enumerate(tickers):
+        for i, ticker in enumerate(tickers):
 
-            title = f&#39;{item} Moving Average of Daily Return for {periods[0]}, {periods[1]} &amp; {periods[0]} Days&#39;
+            title = f&#39;{ticker} Moving Average of Daily Return for {periods[0]}, {periods[1]} &amp; {periods[0]} Days&#39;
             title_line(title)
 
-            MA1_title, MA2_title, MA3_title = f&#39;{MA1_prefix}_{item}&#39;, f&#39;{MA2_prefix}_{item}&#39;, f&#39;{MA3_prefix}_{item}&#39;
-            for j, item in enumerate(dates):
-                msg_1 = f&#39;{item} : {MA1_title}&#39;
+            MA1_title, MA2_title, MA3_title = f&#39;{MA1_prefix}_{ticker}&#39;, f&#39;{MA2_prefix}_{ticker}&#39;, f&#39;{MA3_prefix}_{ticker}&#39;
+            for j, this_date in enumerate(dates):
+                msg_1 = f&#39;{this_date} : {MA1_title}&#39;
                 scalar_result(msg_1, round(averages[i][0][j], 2))
-            for j, item in enumerate(dates):
-                msg_2 = f&#39;{item} : {MA2_title}&#39;
+            for j, this_date in enumerate(dates):
+                msg_2 = f&#39;{this_date} : {MA2_title}&#39;
                 scalar_result(msg_2, round(averages[i][1][j], 2))
-            for j, item in enumerate(dates):
-                msg_3 = f&#39;{item} : {MA3_title}&#39;
+            for j, this_date in enumerate(dates):
+                msg_3 = f&#39;{this_date} : {MA3_title}&#39;
                 scalar_result(msg_3, round(averages[i][2][j], 2))
 
 
@@ -317,7 +317,7 @@ def efficient_frontier(portfolio, frontier, investment=None, latest_prices=None)
         print(&#39;\n&#39;)
 
 
-def correlation_matrix(tickers: List[str], correlation_matrix: List[List[float]], display: bool = True):
+def correlation_matrix(tickers: List[str], correl_matrix: List[List[float]], display: bool = True):
     &#34;&#34;&#34;
     Parameters
     ----------
@@ -359,7 +359,7 @@ def correlation_matrix(tickers: List[str], correlation_matrix: List[List[float]]
                 new_line += &#34; 100.0%&#34;
 
             else:
-                result = correlation_matrix[i][j]
+                result = correl_matrix[i][j]
                 formatted_result = str(
                     100*result)[:constants.constants[&#39;SIG_FIGS&#39;]]
                 new_line += f&#39; {formatted_result}%&#39;
@@ -524,7 +524,7 @@ If the inputted line is larged than the line length, this error will be thrown.<
 </details>
 </dd>
 <dt id="scrilla.util.outputter.correlation_matrix"><code class="name flex">
-<span>def <span class="ident">correlation_matrix</span></span>(<span>tickers: List[str], correlation_matrix: List[List[float]], display: bool = True)</span>
+<span>def <span class="ident">correlation_matrix</span></span>(<span>tickers: List[str], correl_matrix: List[List[float]], display: bool = True)</span>
 </code></dt>
 <dd>
 <div class="desc"><h2 id="parameters">Parameters</h2>
@@ -544,7 +544,7 @@ End date of the time period over which correlation was calculated. </li>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def correlation_matrix(tickers: List[str], correlation_matrix: List[List[float]], display: bool = True):
+<pre><code class="python">def correlation_matrix(tickers: List[str], correl_matrix: List[List[float]], display: bool = True):
     &#34;&#34;&#34;
     Parameters
     ----------
@@ -586,7 +586,7 @@ End date of the time period over which correlation was calculated. </li>
                 new_line += &#34; 100.0%&#34;
 
             else:
-                result = correlation_matrix[i][j]
+                result = correl_matrix[i][j]
                 formatted_result = str(
                     100*result)[:constants.constants[&#39;SIG_FIGS&#39;]]
                 new_line += f&#39; {formatted_result}%&#39;
@@ -726,7 +726,7 @@ End date of the time period over which correlation was calculated. </li>
 </details>
 </dd>
 <dt id="scrilla.util.outputter.model_price"><code class="name flex">
-<span>def <span class="ident">model_price</span></span>(<span>ticker, this_model_price, model)</span>
+<span>def <span class="ident">model_price</span></span>(<span>ticker: str, this_model_price: Union[str, float], model: str) ‑> None</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -734,13 +734,13 @@ End date of the time period over which correlation was calculated. </li>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def model_price(ticker, this_model_price, model):
+<pre><code class="python">def model_price(ticker: str, this_model_price: Union[str, float], model: str) -&gt; None:
     formatted_price = round(float(this_model_price), 2)
     scalar_result(f&#39;{ticker} {str(model).upper()} price&#39;, formatted_price)</code></pre>
 </details>
 </dd>
 <dt id="scrilla.util.outputter.moving_average_result"><code class="name flex">
-<span>def <span class="ident">moving_average_result</span></span>(<span>tickers, averages_output, periods, start_date=None, end_date=None)</span>
+<span>def <span class="ident">moving_average_result</span></span>(<span>tickers: List[str], averages_output: Tuple[List[List[float]], List[str]], periods: List[int], start_date: Optional[str] = None, end_date: Optional[str] = None) ‑> None</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -748,33 +748,33 @@ End date of the time period over which correlation was calculated. </li>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def moving_average_result(tickers, averages_output, periods, start_date=None, end_date=None):
+<pre><code class="python">def moving_average_result(tickers: List[str], averages_output: Tuple[List[List[float]], List[str]], periods: List[int], start_date: Union[str, None]=None, end_date: Union[str, None]=None) -&gt; None:
     averages, dates = averages_output
     MA1_prefix, MA2_prefix, MA3_prefix = f&#39;MA({periods[0]})&#39;, f&#39;MA({periods[1]})&#39;, f&#39;MA({periods[2]})&#39;
     if start_date is None and end_date is None:
-        for i, item in enumerate(tickers):
-            title = f&#39;{item} Moving Average of Daily Return for {periods[0]}, {periods[1]} &amp; {periods[0]} Days&#39;
+        for i, ticker in enumerate(tickers):
+            title = f&#39;{ticker} Moving Average of Daily Return for {periods[0]}, {periods[1]} &amp; {periods[0]} Days&#39;
             title_line(title)
 
-            MA1_title, MA2_title, MA3_title = f&#39;{MA1_prefix}_{item}&#39;, f&#39;{MA2_prefix}_{item}&#39;, f&#39;{MA3_prefix}_{item}&#39;
+            MA1_title, MA2_title, MA3_title = f&#39;{MA1_prefix}_{ticker}&#39;, f&#39;{MA2_prefix}_{ticker}&#39;, f&#39;{MA3_prefix}_{ticker}&#39;
             scalar_result(MA1_title, round(averages[i][0], 2))
             scalar_result(MA2_title, round(averages[i][1], 2))
             scalar_result(MA3_title, round(averages[i][2], 2))
     else:
-        for i, item in enumerate(tickers):
+        for i, ticker in enumerate(tickers):
 
-            title = f&#39;{item} Moving Average of Daily Return for {periods[0]}, {periods[1]} &amp; {periods[0]} Days&#39;
+            title = f&#39;{ticker} Moving Average of Daily Return for {periods[0]}, {periods[1]} &amp; {periods[0]} Days&#39;
             title_line(title)
 
-            MA1_title, MA2_title, MA3_title = f&#39;{MA1_prefix}_{item}&#39;, f&#39;{MA2_prefix}_{item}&#39;, f&#39;{MA3_prefix}_{item}&#39;
-            for j, item in enumerate(dates):
-                msg_1 = f&#39;{item} : {MA1_title}&#39;
+            MA1_title, MA2_title, MA3_title = f&#39;{MA1_prefix}_{ticker}&#39;, f&#39;{MA2_prefix}_{ticker}&#39;, f&#39;{MA3_prefix}_{ticker}&#39;
+            for j, this_date in enumerate(dates):
+                msg_1 = f&#39;{this_date} : {MA1_title}&#39;
                 scalar_result(msg_1, round(averages[i][0][j], 2))
-            for j, item in enumerate(dates):
-                msg_2 = f&#39;{item} : {MA2_title}&#39;
+            for j, this_date in enumerate(dates):
+                msg_2 = f&#39;{this_date} : {MA2_title}&#39;
                 scalar_result(msg_2, round(averages[i][1][j], 2))
-            for j, item in enumerate(dates):
-                msg_3 = f&#39;{item} : {MA3_title}&#39;
+            for j, this_date in enumerate(dates):
+                msg_3 = f&#39;{this_date} : {MA3_title}&#39;
                 scalar_result(msg_3, round(averages[i][2][j], 2))</code></pre>
 </details>
 </dd>
@@ -865,7 +865,7 @@ End date of the time period over which correlation was calculated. </li>
 </details>
 </dd>
 <dt id="scrilla.util.outputter.risk_profile"><code class="name flex">
-<span>def <span class="ident">risk_profile</span></span>(<span>profiles)</span>
+<span>def <span class="ident">risk_profile</span></span>(<span>profiles: Dict[str, Dict[str, float]]) ‑> None</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -873,7 +873,7 @@ End date of the time period over which correlation was calculated. </li>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def risk_profile(profiles):
+<pre><code class="python">def risk_profile(profiles: Dict[str, Dict[str, float]]) -&gt; None:
     for key, value in profiles.items():
         title_line(f&#39;{key} Risk Profile&#39;)
         for subkey, subvalue in value.items():

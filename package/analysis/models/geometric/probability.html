@@ -175,7 +175,7 @@ def prob_d2(S0: float, ST: float, vol: float, ret: float, expiry: float, div: fl
     return norm.cdf(thisD2)
 
 
-def percentile(S0: float, vol: float, ret: float, expiry: float, percentile: float, div: float = 0) -&gt; float:
+def percentile(S0: float, vol: float, ret: float, expiry: float, prob: float, div: float = 0) -&gt; float:
     &#34;&#34;&#34;
     Returns the final value of the asset price over the time horizon `expiry` that corresponds the `percentile` of the price&#39;s distribution. The asset price process is assumed to follow Geometric Brownian Motion, i.e. the return distribution is lognormal. 
 
@@ -189,8 +189,11 @@ def percentile(S0: float, vol: float, ret: float, expiry: float, percentile: flo
         Annualized return of the asset price process.
     4. **expiry**: ``float``
         Time horizon in years, i.e. the time delta between `ST` and `S0` measured in years. 
-    5. **percentile**: ``float``
-        Percentile of the distribution to be returned, i.e. if S is the price process, Pr(S&lt;St)=percentile.
+    5. **prob**: ``float``
+        Percentile of the distribution to be returned, i.e. if S is the price process and \\(S_t\\) is the percentile,
+        
+        $$ Pr(S&lt;S_t)=prob $$
+        
     6. **div**: ``float``
         *Optional*. Annualized dividend yield. Defaults to 0. 
 
@@ -201,7 +204,7 @@ def percentile(S0: float, vol: float, ret: float, expiry: float, percentile: flo
     .. notes::
         * Percentiles are preserved under log transformations, so the asset percentile is equal to the exponentiated return percentile. See Wiki article for more information: https://en.wikipedia.org/wiki/Log-normal_distribution#Mode,_median,_quantiles
     &#34;&#34;&#34;
-    inv_norm = norm.ppf(percentile)
+    inv_norm = norm.ppf(prob)
     exponent = (ret - div - 0.5*(vol**2))*expiry + vol*sqrt(expiry)*inv_norm
     return (S0*exp(exponent))
 
@@ -437,7 +440,7 @@ Time horizon in years, i.e. the time delta between <code>ST</code> and <code>S0<
 </details>
 </dd>
 <dt id="scrilla.analysis.models.geometric.probability.percentile"><code class="name flex">
-<span>def <span class="ident">percentile</span></span>(<span>S0: float, vol: float, ret: float, expiry: float, percentile: float, div: float = 0) ‑> float</span>
+<span>def <span class="ident">percentile</span></span>(<span>S0: float, vol: float, ret: float, expiry: float, prob: float, div: float = 0) ‑> float</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Returns the final value of the asset price over the time horizon <code>expiry</code> that corresponds the <code><a title="scrilla.analysis.models.geometric.probability.percentile" href="#scrilla.analysis.models.geometric.probability.percentile">percentile()</a></code> of the price's distribution. The asset price process is assumed to follow Geometric Brownian Motion, i.e. the return distribution is lognormal. </p>
@@ -451,10 +454,15 @@ Annualized volatility of the asset price process.</li>
 Annualized return of the asset price process.</li>
 <li><strong>expiry</strong>: <code>float</code>
 Time horizon in years, i.e. the time delta between <code>ST</code> and <code>S0</code> measured in years. </li>
-<li><strong>percentile</strong>: <code>float</code>
-Percentile of the distribution to be returned, i.e. if S is the price process, Pr(S&lt;St)=percentile.</li>
-<li><strong>div</strong>: <code>float</code>
-<em>Optional</em>. Annualized dividend yield. Defaults to 0. </li>
+<li>
+<p><strong>prob</strong>: <code>float</code>
+Percentile of the distribution to be returned, i.e. if S is the price process and <span><span class="MathJax_Preview">S_t</span><script type="math/tex">S_t</script></span> is the percentile,</p>
+<p><span><span class="MathJax_Preview"> Pr(S&lt;S_t)=prob </span><script type="math/tex; mode=display"> Pr(S<S_t)=prob </script></span></p>
+</li>
+<li>
+<p><strong>div</strong>: <code>float</code>
+<em>Optional</em>. Annualized dividend yield. Defaults to 0. </p>
+</li>
 </ol>
 <h2 id="returns">Returns</h2>
 <p><code>float</code> : percentile of lognormal distribution</p>
@@ -468,7 +476,7 @@ Percentile of the distribution to be returned, i.e. if S is the price process, P
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def percentile(S0: float, vol: float, ret: float, expiry: float, percentile: float, div: float = 0) -&gt; float:
+<pre><code class="python">def percentile(S0: float, vol: float, ret: float, expiry: float, prob: float, div: float = 0) -&gt; float:
     &#34;&#34;&#34;
     Returns the final value of the asset price over the time horizon `expiry` that corresponds the `percentile` of the price&#39;s distribution. The asset price process is assumed to follow Geometric Brownian Motion, i.e. the return distribution is lognormal. 
 
@@ -482,8 +490,11 @@ Percentile of the distribution to be returned, i.e. if S is the price process, P
         Annualized return of the asset price process.
     4. **expiry**: ``float``
         Time horizon in years, i.e. the time delta between `ST` and `S0` measured in years. 
-    5. **percentile**: ``float``
-        Percentile of the distribution to be returned, i.e. if S is the price process, Pr(S&lt;St)=percentile.
+    5. **prob**: ``float``
+        Percentile of the distribution to be returned, i.e. if S is the price process and \\(S_t\\) is the percentile,
+        
+        $$ Pr(S&lt;S_t)=prob $$
+        
     6. **div**: ``float``
         *Optional*. Annualized dividend yield. Defaults to 0. 
 
@@ -494,7 +505,7 @@ Percentile of the distribution to be returned, i.e. if S is the price process, P
     .. notes::
         * Percentiles are preserved under log transformations, so the asset percentile is equal to the exponentiated return percentile. See Wiki article for more information: https://en.wikipedia.org/wiki/Log-normal_distribution#Mode,_median,_quantiles
     &#34;&#34;&#34;
-    inv_norm = norm.ppf(percentile)
+    inv_norm = norm.ppf(prob)
     exponent = (ret - div - 0.5*(vol**2))*expiry + vol*sqrt(expiry)*inv_norm
     return (S0*exp(exponent))</code></pre>
 </details>
