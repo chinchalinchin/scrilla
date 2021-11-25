@@ -4,7 +4,12 @@
 
 Documentation
 ---
-- [Docs](https://chinchalinchin.github.io/scrilla/)
+- [Source](https://chinchalinchin.github.io/scrilla/)
+- [Package](https://chinchalinchin.github.io/scrilla/package/index.html)
+
+Coverage
+---
+- [Unit Tests](https://chinchalinchin.github.io/scrilla/coverage/index.html)
 
 Code Analysis
 ---

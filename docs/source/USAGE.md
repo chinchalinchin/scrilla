@@ -47,7 +47,8 @@ scrilla optimize-portfolio [TICKERS] -sh \
                                      -start <YYYY-MM-DD> \
                                      -end <YYYY-MM-DD> \
                                      -save <absolute path to json file> \
-                                     -target <float> --invest <float>
+                                     -target <float> \
+                                     -invest <float>
 ```
 
 `-target` will optimize the portfolio with the additional constraint that its rate of return must equal `target`. Note the target return must be between the minimum rate of return and maximum rate of return in a basket of equities. For example, if ALLY had a rate of return of 10%, BX 15%, SONY 20%, the frontier of possible rates of returns resides in the range [10%, 20%]. It is impossible to combine the equities in such a way to get a rate of return less than 10% or one greater than 20%. Note, this assumes shorting is not possible. A future release will relax this assumption and allow portfolio weights to be negative.

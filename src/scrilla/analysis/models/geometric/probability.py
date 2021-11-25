@@ -107,6 +107,8 @@ def prob_d1(S0: float, ST: float, vol: float, ret: float, expiry: float, div: fl
     -------
     ``float`` : cumulative probability of *d1*
     """
+    if vol == 0:
+        pass
     thisD1 = d1(S0=S0, ST=ST, vol=vol, ret=ret, expiry=expiry, div=div)
     if neg:
         thisD1 = -thisD1
@@ -138,6 +140,15 @@ def prob_d2(S0: float, ST: float, vol: float, ret: float, expiry: float, div: fl
     -------
     ``float`` : cumulative probability of *d2*
     """
+    # if no uncertainty
+    if vol == 0:
+        # if the future value of initial price is greater than the strike
+        if S0*exp((ret-div)*expiry)>ST:
+            # probability(S>St)=1
+            return 1
+        # probability(S>St)=0
+        return 0
+
     thisD2 = d2(S0=S0, ST=ST, vol=vol, ret=ret, expiry=expiry, div=div)
     if neg:
         thisD2 = -thisD2
