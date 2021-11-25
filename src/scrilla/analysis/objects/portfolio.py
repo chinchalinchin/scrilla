@@ -81,7 +81,7 @@ class Portfolio:
     where B(t) ~ \\(N(0, \Delta \cdot t)\\).
     """
 
-    def __init__(self, tickers: List[str], start_date=Union[date, None], end_date=Union[date, None], sample_prices: Union[Dict[str, Dict[str, float]], None]=None,correl_matrix: Union[List[List[int]], None]=None, risk_profiles: Union[Dict[str, Dict[str, float]]]=None, risk_free_rate: Union[float, None]=None,asset_return_functions: Union[List[Callable],None]=None, asset_volatility_functions: Union[List[Callable], None]=None, method: str=settings.ESTIMATION_METHOD):
+    def __init__(self, tickers: List[str], start_date=Union[date, None], end_date=Union[date, None], sample_prices: Union[Dict[str, Dict[str, float]], None] = None, correl_matrix: Union[List[List[int]], None] = None, risk_profiles: Union[Dict[str, Dict[str, float]]] = None, risk_free_rate: Union[float, None] = None, asset_return_functions: Union[List[Callable], None] = None, asset_volatility_functions: Union[List[Callable], None] = None, method: str = settings.ESTIMATION_METHOD):
         self.estimation_method = method
         self.sample_prices = sample_prices
         self.tickers = tickers
@@ -180,11 +180,11 @@ class Portfolio:
 
             if self.correl_matrix is None:
                 self.correl_matrix = correlation_matrix(tickers=self.tickers,
-                                                             start_date=self.start_date,
-                                                             end_date=self.end_date,
-                                                             sample_prices=self.sample_prices,
-                                                             weekends=self.weekends,
-                                                             method=self.estimation_method)
+                                                        start_date=self.start_date,
+                                                        end_date=self.end_date,
+                                                        sample_prices=self.sample_prices,
+                                                        weekends=self.weekends,
+                                                        method=self.estimation_method)
 
     def return_function(self, x):
         """
