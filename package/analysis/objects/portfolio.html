@@ -332,7 +332,8 @@ class Portfolio:
 
         return shares
 
-    def calculate_actual_total(self, x, total, latest_prices):
+    @staticmethod
+    def calculate_actual_total(x, total, latest_prices):
         actual_total = 0
         shares = Portfolio.calculate_approximate_shares(
             x=x, total=total, latest_prices=latest_prices)
@@ -667,7 +668,8 @@ If no arguments are provided to the constructor at all, the portfolio will defau
 
         return shares
 
-    def calculate_actual_total(self, x, total, latest_prices):
+    @staticmethod
+    def calculate_actual_total(x, total, latest_prices):
         actual_total = 0
         shares = Portfolio.calculate_approximate_shares(
             x=x, total=total, latest_prices=latest_prices)
@@ -679,6 +681,27 @@ If no arguments are provided to the constructor at all, the portfolio will defau
 </details>
 <h3>Static methods</h3>
 <dl>
+<dt id="scrilla.analysis.objects.portfolio.Portfolio.calculate_actual_total"><code class="name flex">
+<span>def <span class="ident">calculate_actual_total</span></span>(<span>x, total, latest_prices)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@staticmethod
+def calculate_actual_total(x, total, latest_prices):
+    actual_total = 0
+    shares = Portfolio.calculate_approximate_shares(
+        x=x, total=total, latest_prices=latest_prices)
+    for i, item in enumerate(shares):
+        price = latest_prices[i]
+        portion = Decimal(item) * Decimal(price)
+        actual_total = actual_total + portion
+    return actual_total</code></pre>
+</details>
+</dd>
 <dt id="scrilla.analysis.objects.portfolio.Portfolio.calculate_approximate_shares"><code class="name flex">
 <span>def <span class="ident">calculate_approximate_shares</span></span>(<span>x, total, latest_prices)</span>
 </code></dt>
@@ -716,26 +739,6 @@ def get_constraint(x):
 </dl>
 <h3>Methods</h3>
 <dl>
-<dt id="scrilla.analysis.objects.portfolio.Portfolio.calculate_actual_total"><code class="name flex">
-<span>def <span class="ident">calculate_actual_total</span></span>(<span>self, x, total, latest_prices)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def calculate_actual_total(self, x, total, latest_prices):
-    actual_total = 0
-    shares = Portfolio.calculate_approximate_shares(
-        x=x, total=total, latest_prices=latest_prices)
-    for i, item in enumerate(shares):
-        price = latest_prices[i]
-        portion = Decimal(item) * Decimal(price)
-        actual_total = actual_total + portion
-    return actual_total</code></pre>
-</details>
-</dd>
 <dt id="scrilla.analysis.objects.portfolio.Portfolio.conditional_value_at_risk_function"><code class="name flex">
 <span>def <span class="ident">conditional_value_at_risk_function</span></span>(<span>self, x, time, prob)</span>
 </code></dt>
