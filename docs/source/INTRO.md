@@ -1,6 +1,6 @@
-# scrilla
+# Overview
 
-![](https://github.com/chinchalinchin/chinchalinchin/blob/main/assets/scrilla_gui_ii.png)
+![](https://chinchalinchin.github.io/scrilla/assets/scrilla_gui_ii.png)
 
 *scrilla* is a financial analysis application. It can calculate asset correlations, generate statistical summaries and produce various graphical visualizations to help with analysis It was originally designed to optimize portfolio allocations using data it retrieves from external services (currently: [AlphaVantage](https://www.alphavantage.co), [IEX](https://iexcloud.io/) and [Quandl](https://www.quandl.com/)), but has since taken on a life of its own as a way for [me](https://github.com/chinchalinchin) to explore different areas of Python, development, finance and mathematics that interest me. 
 
@@ -12,19 +12,20 @@ This application optimizes across asset classes, i.e. the theoretical portfolio 
 
 The program's functions are wrapped in [PyQt5](https://doc.qt.io/qtforpython/index.html) widgets which provide a user interface (this feature is still in development and may explode). In addition, visualizations are created by [matplotlib](https://matplotlib.org/3.3.3/contents.html).
 
-# Links
 
 ## Documentation
-- [Package Documentation](https://chinchalinchin.github.io/scrilla/package/index.html)
+
+- [Package](https://chinchalinchin.github.io/scrilla/package/index.html)
 
 ## Test Coverage
-- [Unit Test Report](https://chinchalinchin.github.io/scrilla/coverage/index.html)
 
-## Static Code Analysis
+- [Unit Tests](https://chinchalinchin.github.io/scrilla/coverage/index.html)
+
+## Code Analysis
 [![DeepSource](https://deepsource.io/gh/chinchalinchin/scrilla.svg/?label=active+issues&show_trend=true&token=tD25pyXAL4uIvrccqjlwzXIU)](https://deepsource.io/gh/chinchalinchin/scrilla/?ref=repository-badge)
 [![DeepSource](https://deepsource.io/gh/chinchalinchin/scrilla.svg/?label=resolved+issues&show_trend=true&token=tD25pyXAL4uIvrccqjlwzXIU)](https://deepsource.io/gh/chinchalinchin/scrilla/?ref=repository-badge)
 
-## Branch Pipelines
+## CI/CD Pipelines
 | Branch | Status |
 | ------ | ------ |
 | pypi/micro-update | [![CircleCI](https://circleci.com/gh/chinchalinchin/scrilla/tree/pypi%2Fmicro-update.svg?style=svg)](https://circleci.com/gh/chinchalinchin/scrilla/tree/pypi%2Fmicro-update) |
