@@ -94,11 +94,10 @@ If no API keys are found through either of these methods, the application will n
 The following command will optimize a portfolio of consisting of *ALLY*, *BX*, *GLD*, *BTC* and *ETH* over the specified date range and save the result to a JSON file.
 
 ```shell
-scrilla optimize-portfolio \
-                            ALLY BX GLD BTC ETH \
-                                -start <YYYY-MM-DD> \
-                                -end <YYYY-MM-DD> \
-                                -save <absolute path to json file> 
+scrilla optimize-portfolio ALLY BX GLD BTC ETH \
+    -start <YYYY-MM-DD> \
+    -end <YYYY-MM-DD> \
+    -save <absolute path to json file> 
 ```
 
 See [usage](https://chinchalinchin.github.io/scrilla/USAGE.html) for more information.
