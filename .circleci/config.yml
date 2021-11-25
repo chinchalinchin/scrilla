@@ -83,7 +83,7 @@ commands:
       - persist_to_workspace:
           root: docs
           paths:
-            - *
+            - ./*
 
   install_test_deps:
     description: install testing libraries
