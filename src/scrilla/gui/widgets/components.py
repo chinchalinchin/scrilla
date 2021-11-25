@@ -184,9 +184,9 @@ class ArgumentWidget(QtWidgets.QWidget):
                 else:
                     groups[group_name].append(definition)
 
-            for group in groups:
-                self.group_control_widgets[group] = factories.group_widget_factory(
-                    groups[group], group)
+            for group_name, group in groups:
+                self.group_control_widgets[group_name] = factories.group_widget_factory(
+                    group, group_name)
 
     def _arrange_widgets(self):
         """
