@@ -45,12 +45,13 @@
 </section>
 <section class="tex2jax_ignore mathjax_ignore" id="environment">
 <h1>Environment<a class="headerlink" href="#environment" title="Permalink to this headline">¶</a></h1>
-<p><em>scrilla</em> scans the environment in its <em>settings.py</em> file for shell variables. Various properties of the application can be configured through these environment variables. A sample environment file is located <a class="reference external" href="https://github.com/chinchalinchin/scrilla/blob/develop/main/env/.sample.env">here</a>, along with comments describing the purpose of each variable. The application sets sensible defaults for most of these environment variables, but there are several required environment variables you will need to set yourself.</p>
+<p><strong>scrilla</strong> scans the environment in its <em>settings.py</em> file for shell variables. Various properties of the application can be configured through these environment variables. A sample environment file is located <a class="reference external" href="https://github.com/chinchalinchin/scrilla/blob/develop/main/env/.sample.env">here</a>, along with comments describing the purpose of each variable. The application sets sensible defaults for most of these environment variables, but there are several required environment variables you will need to set yourself.</p>
 <section id="required-configuration">
 <h2>Required Configuration<a class="headerlink" href="#required-configuration" title="Permalink to this headline">¶</a></h2>
+<p><em>NOTE</em>: If no API keys are found through either of the following methods, the application will not function properly.</p>
 <section id="environment-variables">
 <h3>Environment Variables<a class="headerlink" href="#environment-variables" title="Permalink to this headline">¶</a></h3>
-<p>As mentioned, you will need to register for API keys at <strong>AlphaVantage</strong>, <strong>IEX</strong> and <strong>Quandl</strong>. One way of passing API keys to the program is by storing these in your session’s environment. <em>scrilla</em> will search for environment variables named <strong>ALPHA_VANTAGE_KEY</strong>, <strong>QUANDL_KEY</strong> and <strong>IEX_KEY</strong>. You can add the following lines to your <em>.bashrc</em> profile or corresponding configuration file for whatever shell you are using, or simply execute these lines before invoking <em>scrilla</em></p>
+<p>You will need to register for API keys at <strong>AlphaVantage</strong>, <strong>IEX</strong> and <strong>Quandl</strong> in order to retrieve financial data. One way of passing API keys to the program is by storing these in your session’s environment. <strong>scrilla</strong> will search for environment variables named <strong>ALPHA_VANTAGE_KEY</strong>, <strong>QUANDL_KEY</strong> and <strong>IEX_KEY</strong>. You can add the following lines to your <em>.bashrc</em> profile or corresponding configuration file for whatever shell you are using, or simply execute these lines before invoking <strong>scrilla</strong></p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span> <span class="nv">ALPHA_VANTAGE_KEY</span><span class="o">=</span>&lt;key goes here&gt;
 <span class="nb">export</span> <span class="nv">QUANDL_KEY</span><span class="o">=</span>&lt;key goes here&gt;
 <span class="nb">export</span> <span class="nv">IEX_KEY</span><span class="o">=</span>&lt;key goes here&gt;
@@ -65,7 +66,6 @@
 </pre></div>
 </div>
 <p>where <code class="docutils literal notranslate"><span class="pre">&lt;key&gt;</span></code> is one of the values: <strong>ALPHA_VANTAGE_KEY</strong>, <strong>QUANDL_KEY</strong> or <strong>IEX_KEY</strong>. <code class="docutils literal notranslate"><span class="pre">&lt;value&gt;</span></code> is the corresponding key itself given to you after registration. <code class="docutils literal notranslate"><span class="pre">&lt;value&gt;</span></code> is case-sensitive! Keep in mind if using this method to store the API keys, the keys will be stored unencrypted in the local <em>/data/common/</em> directory.</p>
-<p>If no API keys are found in these variables, the application will not function properly; be sure to load these variables into your shell session before using <em>scrilla</em>.</p>
 </section>
 </section>
 <section id="optional-configuration">
