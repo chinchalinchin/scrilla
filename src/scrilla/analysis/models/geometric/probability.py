@@ -160,9 +160,9 @@ def percentile(S0: float, vol: float, ret: float, expiry: float, prob: float, di
         Time horizon in years, i.e. the time delta between `ST` and `S0` measured in years. 
     5. **prob**: ``float``
         Percentile of the distribution to be returned, i.e. if S is the price process and \\(S_t\\) is the percentile,
-        
+
         $$ Pr(S<S_t)=prob $$
-        
+
     6. **div**: ``float``
         *Optional*. Annualized dividend yield. Defaults to 0. 
 

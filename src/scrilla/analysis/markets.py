@@ -67,7 +67,7 @@ def sharpe_ratio(ticker: str, start_date: Union[date, None] = None, end_date: Un
         risk_free_rate = services.get_risk_free_rate()
 
     sh_ratio = (ticker_profile['annual_return'] -
-                    risk_free_rate)/ticker_profile['annual_volatility']
+                risk_free_rate)/ticker_profile['annual_volatility']
 
     profile_cache.save_or_update_row(ticker=ticker, start_date=start_date,
                                      end_date=end_date, sharpe_ratio=sh_ratio, method=method)

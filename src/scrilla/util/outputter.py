@@ -185,7 +185,7 @@ def risk_profile(profiles: Dict[Dict[str, float]]) -> None:
             scalar_result(f'{subkey}', f'{subvalue}', currency=False)
 
 
-def moving_average_result(tickers: List[str], averages_output: Tuple[List[List[float]], List[str]], periods: List[int], start_date: Union[str, None]=None, end_date: Union[str, None]=None) -> None:
+def moving_average_result(tickers: List[str], averages_output: Tuple[List[List[float]], List[str]], periods: List[int], start_date: Union[str, None] = None, end_date: Union[str, None] = None) -> None:
     averages, dates = averages_output
     MA1_prefix, MA2_prefix, MA3_prefix = f'MA({periods[0]})', f'MA({periods[1]})', f'MA({periods[2]})'
     if start_date is None and end_date is None:
