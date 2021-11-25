@@ -22,10 +22,18 @@ The program's functions are wrapped in [PyQt5](https://doc.qt.io/qtforpython/ind
 - [Unit Tests](https://chinchalinchin.github.io/scrilla/coverage/index.html)
 
 ## Code Analysis
-[![DeepSource](https://deepsource.io/gh/chinchalinchin/scrilla.svg/?label=active+issues&show_trend=true&token=tD25pyXAL4uIvrccqjlwzXIU)](https://deepsource.io/gh/chinchalinchin/scrilla/?ref=repository-badge)
-[![DeepSource](https://deepsource.io/gh/chinchalinchin/scrilla.svg/?label=resolved+issues&show_trend=true&token=tD25pyXAL4uIvrccqjlwzXIU)](https://deepsource.io/gh/chinchalinchin/scrilla/?ref=repository-badge)
+
+- [Dashboard](https://deepsource.io/gh/chinchalinchin/scrilla)
+
+| Badge |
+| ----- |
+| [![DeepSource](https://deepsource.io/gh/chinchalinchin/scrilla.svg/?label=active+issues&show_trend=true&token=tD25pyXAL4uIvrccqjlwzXIU)](https://deepsource.io/gh/chinchalinchin/scrilla/?ref=repository-badge) |
+| [![DeepSource](https://deepsource.io/gh/chinchalinchin/scrilla.svg/?label=resolved+issues&show_trend=true&token=tD25pyXAL4uIvrccqjlwzXIU)](https://deepsource.io/gh/chinchalinchin/scrilla/?ref=repository-badge) |
 
 ## CI/CD Pipelines
+
+- [Dashboard](https://app.circleci.com/pipelines/github/chinchalinchin/scrilla)
+
 | Branch | Status |
 | ------ | ------ |
 | pypi/micro-update | [![CircleCI](https://circleci.com/gh/chinchalinchin/scrilla/tree/pypi%2Fmicro-update.svg?style=svg)](https://circleci.com/gh/chinchalinchin/scrilla/tree/pypi%2Fmicro-update) |
