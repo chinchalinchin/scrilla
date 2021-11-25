@@ -143,7 +143,7 @@ def prob_d2(S0: float, ST: float, vol: float, ret: float, expiry: float, div: fl
     # if no uncertainty
     if vol == 0:
         # if the future value of initial price is greater than the strike
-        if S0*exp((ret-div)*expiry)>ST:
+        if S0*exp((ret-div)*expiry) > ST:
             # probability(S>St)=1
             return 1
         # probability(S>St)=0
