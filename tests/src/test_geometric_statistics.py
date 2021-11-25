@@ -3,7 +3,6 @@ from httmock import HTTMock
 
 from scrilla import settings as scrilla_settings
 
-from scrilla import services
 from scrilla.static import keys
 
 from .. import mock

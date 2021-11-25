@@ -1,0 +1,146 @@
+[
+    {
+        "holdings": [
+            {
+                "ticker": "BTC",
+                "allocation": 0.9810915,
+                "annual_return": 1.0536272,
+                "annual_volatility": 0.6649456
+            },
+            {
+                "ticker": "ALGO",
+                "allocation": 0.0189085,
+                "annual_return": 3.4957281,
+                "annual_volatility": 1.4758968
+            },
+            {
+                "ticker": "ETH",
+                "allocation": 0,
+                "annual_return": 1.5361804,
+                "annual_volatility": 0.828171
+            }
+        ],
+        "portfolio_return": 1.0998036725119422,
+        "portfolio_volatility": 0.66444771389909
+    },
+    {
+        "holdings": [
+            {
+                "ticker": "BTC",
+                "allocation": 0.7558275,
+                "annual_return": 1.0536272,
+                "annual_volatility": 0.6649456
+            },
+            {
+                "ticker": "ALGO",
+                "allocation": 0.2079741,
+                "annual_return": 3.4957281,
+                "annual_volatility": 1.4758968
+            },
+            {
+                "ticker": "ETH",
+                "allocation": 0.0361984,
+                "annual_return": 1.5361804,
+                "annual_volatility": 0.828171
+            }
+        ],
+        "portfolio_return": 1.5789885647908266,
+        "portfolio_volatility": 0.7145293314574225
+    },
+    {
+        "holdings": [
+            {
+                "ticker": "BTC",
+                "allocation": 0.4648512,
+                "annual_return": 1.0536272,
+                "annual_volatility": 0.6649456
+            },
+            {
+                "ticker": "ALGO",
+                "allocation": 0.3808575,
+                "annual_return": 3.4957281,
+                "annual_volatility": 1.4758968
+            },
+            {
+                "ticker": "ETH",
+                "allocation": 0.1542913,
+                "annual_return": 1.5361804,
+                "annual_volatility": 0.828171
+            }
+        ],
+        "portfolio_return": 2.0581734570661157,
+        "portfolio_volatility": 0.8452511175693436
+    },
+    {
+        "holdings": [
+            {
+                "ticker": "BTC",
+                "allocation": 0.1741244,
+                "annual_return": 1.0536272,
+                "annual_volatility": 0.6649456
+            },
+            {
+                "ticker": "ALGO",
+                "allocation": 0.5538024,
+                "annual_return": 3.4957281,
+                "annual_volatility": 1.4758968
+            },
+            {
+                "ticker": "ETH",
+                "allocation": 0.2720732,
+                "annual_return": 1.5361804,
+                "annual_volatility": 0.828171
+            }
+        ],
+        "portfolio_return": 2.537358349897212,
+        "portfolio_volatility": 1.025627537097716
+    },
+    {
+        "holdings": [
+            {
+                "ticker": "BTC",
+                "allocation": 0,
+                "annual_return": 1.0536272,
+                "annual_volatility": 0.6649456
+            },
+            {
+                "ticker": "ALGO",
+                "allocation": 0.7554615,
+                "annual_return": 3.4957281,
+                "annual_volatility": 1.4758968
+            },
+            {
+                "ticker": "ETH",
+                "allocation": 0.2445385,
+                "annual_return": 1.5361804,
+                "annual_volatility": 0.828171
+            }
+        ],
+        "portfolio_return": 3.0165432425047483,
+        "portfolio_volatility": 1.2357542650042124
+    },
+    {
+        "holdings": [
+            {
+                "ticker": "BTC",
+                "allocation": 0,
+                "annual_return": 1.0536272,
+                "annual_volatility": 0.6649456
+            },
+            {
+                "ticker": "ALGO",
+                "allocation": 1,
+                "annual_return": 3.4957281,
+                "annual_volatility": 1.4758968
+            },
+            {
+                "ticker": "ETH",
+                "allocation": 0,
+                "annual_return": 1.5361804,
+                "annual_volatility": 0.828171
+            }
+        ],
+        "portfolio_return": 3.495728124451037,
+        "portfolio_volatility": 1.475896820999919
+    }
+]
