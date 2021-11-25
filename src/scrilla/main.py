@@ -222,7 +222,7 @@ def do_program() -> None:
                                                      vol=profile['annual_volatility'],
                                                      ret=profile['annual_return'],
                                                      expiry=args['expiry'],
-                                                     percentile=args['probability'])
+                                                     p=args['probability'])
                 all_vars[arg] = valueatrisk
 
                 if print_format_to_screen(args):
@@ -255,7 +255,7 @@ def do_program() -> None:
                                                      vol=profile['annual_volatility'],
                                                      ret=profile['annual_return'],
                                                      expiry=args['expiry'],
-                                                     percentile=args['probability'])
+                                                     prob=args['probability'])
                 cvar = probability.conditional_expected_value(S0=latest_price,
                                                               vol=profile['annual_volatility'],
                                                               ret=profile['annual_return'],
@@ -354,7 +354,7 @@ def do_program() -> None:
                                                    method=args['estimation_method'])
             if print_format_to_screen(args):
                 outputter.correlation_matrix(
-                    tickers=args['tickers'], correlation_matrix=matrix)
+                    tickers=args['tickers'], correl_matrix=matrix)
 
             elif print_json_to_screen(args):
                 print(json.dumps(matrix))

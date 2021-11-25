@@ -931,10 +931,10 @@ def calculate_percentile_correlation(ticker_1: str, ticker_2: str, asset_type_1:
         raise errors.PriceError(
             "Prices cannot be retrieved for correlation calculation")
 
-    if asset_type_1 == asset_type_2 and asset_type_1 == keys.keys['ASSETS']['CRYPTO']:
-        trading_period = constants.constants['ONE_TRADING_DAY']['CRYPTO']
-    else:
-        trading_period = constants.constants['ONE_TRADING_DAY']['EQUITY']
+    # if asset_type_1 == asset_type_2 and asset_type_1 == keys.keys['ASSETS']['CRYPTO']:
+    #     trading_period = constants.constants['ONE_TRADING_DAY']['CRYPTO']
+    # else:
+    #     trading_period = constants.constants['ONE_TRADING_DAY']['EQUITY']
 
     sample_of_returns_1 = get_sample_of_returns(
         ticker=ticker_1, sample_prices=sample_prices[ticker_1], asset_type=asset_type_1)

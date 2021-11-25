@@ -12,8 +12,8 @@ version_file = os.path.join(project_dir, 'src', 'scrilla', 'version.txt')
 
 def load_current_version():
     with open(version_file, 'r') as f:
-        version = f.read()
-    return version
+        ver = f.read()
+    return ver
 
 
 def save_new_version(version_str):

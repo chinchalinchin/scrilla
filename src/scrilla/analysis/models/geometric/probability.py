@@ -144,7 +144,7 @@ def prob_d2(S0: float, ST: float, vol: float, ret: float, expiry: float, div: fl
     return norm.cdf(thisD2)
 
 
-def percentile(S0: float, vol: float, ret: float, expiry: float, percentile: float, div: float = 0) -> float:
+def percentile(S0: float, vol: float, ret: float, expiry: float, prob: float, div: float = 0) -> float:
     """
     Returns the final value of the asset price over the time horizon `expiry` that corresponds the `percentile` of the price's distribution. The asset price process is assumed to follow Geometric Brownian Motion, i.e. the return distribution is lognormal. 
 
@@ -158,8 +158,11 @@ def percentile(S0: float, vol: float, ret: float, expiry: float, percentile: flo
         Annualized return of the asset price process.
     4. **expiry**: ``float``
         Time horizon in years, i.e. the time delta between `ST` and `S0` measured in years. 
-    5. **percentile**: ``float``
-        Percentile of the distribution to be returned, i.e. if S is the price process, Pr(S<St)=percentile.
+    5. **prob**: ``float``
+        Percentile of the distribution to be returned, i.e. if S is the price process and \\(S_t\\) is the percentile,
+        
+        $$ Pr(S<S_t)=prob $$
+        
     6. **div**: ``float``
         *Optional*. Annualized dividend yield. Defaults to 0. 
 
@@ -170,7 +173,7 @@ def percentile(S0: float, vol: float, ret: float, expiry: float, percentile: flo
     .. notes::
         * Percentiles are preserved under log transformations, so the asset percentile is equal to the exponentiated return percentile. See Wiki article for more information: https://en.wikipedia.org/wiki/Log-normal_distribution#Mode,_median,_quantiles
     """
-    inv_norm = norm.ppf(percentile)
+    inv_norm = norm.ppf(prob)
     exponent = (ret - div - 0.5*(vol**2))*expiry + vol*sqrt(expiry)*inv_norm
     return (S0*exp(exponent))
 

@@ -1,5 +1,5 @@
 import datetime
-from typing import List
+from typing import Dict, List, Tuple, Union
 
 from scrilla.static import constants, formats, definitions
 
@@ -173,45 +173,45 @@ def spot_price(ticker, this_spot_price):
     scalar_result(f'{ticker} spot price', formatted_price)
 
 
-def model_price(ticker, this_model_price, model):
+def model_price(ticker: str, this_model_price: Union[str, float], model: str) -> None:
     formatted_price = round(float(this_model_price), 2)
     scalar_result(f'{ticker} {str(model).upper()} price', formatted_price)
 
 
-def risk_profile(profiles):
+def risk_profile(profiles: Dict[Dict[str, float]]) -> None:
     for key, value in profiles.items():
         title_line(f'{key} Risk Profile')
         for subkey, subvalue in value.items():
             scalar_result(f'{subkey}', f'{subvalue}', currency=False)
 
 
-def moving_average_result(tickers, averages_output, periods, start_date=None, end_date=None):
+def moving_average_result(tickers: List[str], averages_output: Tuple[List[List[float]], List[str]], periods: List[int], start_date: Union[str, None]=None, end_date: Union[str, None]=None) -> None:
     averages, dates = averages_output
     MA1_prefix, MA2_prefix, MA3_prefix = f'MA({periods[0]})', f'MA({periods[1]})', f'MA({periods[2]})'
     if start_date is None and end_date is None:
-        for i, item in enumerate(tickers):
-            title = f'{item} Moving Average of Daily Return for {periods[0]}, {periods[1]} & {periods[0]} Days'
+        for i, ticker in enumerate(tickers):
+            title = f'{ticker} Moving Average of Daily Return for {periods[0]}, {periods[1]} & {periods[0]} Days'
             title_line(title)
 
-            MA1_title, MA2_title, MA3_title = f'{MA1_prefix}_{item}', f'{MA2_prefix}_{item}', f'{MA3_prefix}_{item}'
+            MA1_title, MA2_title, MA3_title = f'{MA1_prefix}_{ticker}', f'{MA2_prefix}_{ticker}', f'{MA3_prefix}_{ticker}'
             scalar_result(MA1_title, round(averages[i][0], 2))
             scalar_result(MA2_title, round(averages[i][1], 2))
             scalar_result(MA3_title, round(averages[i][2], 2))
     else:
-        for i, item in enumerate(tickers):
+        for i, ticker in enumerate(tickers):
 
-            title = f'{item} Moving Average of Daily Return for {periods[0]}, {periods[1]} & {periods[0]} Days'
+            title = f'{ticker} Moving Average of Daily Return for {periods[0]}, {periods[1]} & {periods[0]} Days'
             title_line(title)
 
-            MA1_title, MA2_title, MA3_title = f'{MA1_prefix}_{item}', f'{MA2_prefix}_{item}', f'{MA3_prefix}_{item}'
-            for j, item in enumerate(dates):
-                msg_1 = f'{item} : {MA1_title}'
+            MA1_title, MA2_title, MA3_title = f'{MA1_prefix}_{ticker}', f'{MA2_prefix}_{ticker}', f'{MA3_prefix}_{ticker}'
+            for j, this_date in enumerate(dates):
+                msg_1 = f'{this_date} : {MA1_title}'
                 scalar_result(msg_1, round(averages[i][0][j], 2))
-            for j, item in enumerate(dates):
-                msg_2 = f'{item} : {MA2_title}'
+            for j, this_date in enumerate(dates):
+                msg_2 = f'{this_date} : {MA2_title}'
                 scalar_result(msg_2, round(averages[i][1][j], 2))
-            for j, item in enumerate(dates):
-                msg_3 = f'{item} : {MA3_title}'
+            for j, this_date in enumerate(dates):
+                msg_3 = f'{this_date} : {MA3_title}'
                 scalar_result(msg_3, round(averages[i][2][j], 2))
 
 
@@ -288,7 +288,7 @@ def efficient_frontier(portfolio, frontier, investment=None, latest_prices=None)
         print('\n')
 
 
-def correlation_matrix(tickers: List[str], correlation_matrix: List[List[float]], display: bool = True):
+def correlation_matrix(tickers: List[str], correl_matrix: List[List[float]], display: bool = True):
     """
     Parameters
     ----------
@@ -330,7 +330,7 @@ def correlation_matrix(tickers: List[str], correlation_matrix: List[List[float]]
                 new_line += " 100.0%"
 
             else:
-                result = correlation_matrix[i][j]
+                result = correl_matrix[i][j]
                 formatted_result = str(
                     100*result)[:constants.constants['SIG_FIGS']]
                 new_line += f' {formatted_result}%'

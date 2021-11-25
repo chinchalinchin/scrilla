@@ -29,7 +29,7 @@ prices = get_daily_price_history('AAPL')
 import itertools
 import time
 import requests
-from typing import List, Union
+from typing import Dict, List, Union
 
 from datetime import date
 
@@ -235,9 +235,9 @@ class DividendManager():
         formatted_response = {}
 
         for item in response:
-            date = str(item[self.service_map['KEYS']['DATE']])
+            this_date = str(item[self.service_map['KEYS']['DATE']])
             div = item[self.service_map['KEYS']['AMOUNT']]
-            formatted_response[date] = div
+            formatted_response[this_date] = div
 
         return formatted_response
 
@@ -306,7 +306,7 @@ class PriceManager():
         logger.debug(f'PriceManager query (w/o key) = {query}')
         return url
 
-    def get_prices(self, ticker, start_date, end_date, asset_type):
+    def get_prices(self, ticker: str, start_date: date, end_date: date, asset_type: str):
         """
         Retrieve prices from external service.
 
@@ -314,14 +314,28 @@ class PriceManager():
         ----------
         1. **ticker** : ``str``
             Ticker symbol of the asset whose prices are being retrieved.
-        2. **asset_type** : ``str``
+        2. **start_date**; ``str``
+        3. **end_date**: ``str``
+        4. **asset_type** : ``str``
             Asset type of the asset whose prices are being retrieved. Options are statically
             accessible in the `scrillla.static` module dictionary `scrilla.keys.keys['ASSETS']`.
 
         Returns
         -------
-        ``dict``: `{ 'date': value, 'date': value, ...}`
-            Dictionary of prices with date as key, ordered from latest to earliest.
+        ``Dict[str, Dict[str, float]]``
+        ```
+            prices = { 
+                        'date': { 
+                            'open': value, 
+                            'close': value
+                        },  
+                        'date': { 
+                            'open': value,
+                            'close': value
+                        }
+            }
+        ```
+         Dictionary of prices with date as key, ordered from latest to earliest.
 
         Raises
         ------
@@ -366,9 +380,9 @@ class PriceManager():
             start_date=start_date, end_date=end_date, asset_type=asset_type, prices=response)
         format_prices = {}
         for this_date in prices:
-            close_price = self._parse_price_from_date(prices=prices, date=this_date, asset_type=asset_type,
+            close_price = self._parse_price_from_date(prices=prices, this_date=this_date, asset_type=asset_type,
                                                       which_price=keys.keys['PRICES']['CLOSE'])
-            open_price = self._parse_price_from_date(prices=prices, date=this_date, asset_type=asset_type,
+            open_price = self._parse_price_from_date(prices=prices, this_date=this_date, asset_type=asset_type,
                                                      which_price=keys.keys['PRICES']['OPEN'])
             format_prices[this_date] = {
                 keys.keys['PRICES']['OPEN']: open_price, keys.keys['PRICES']['CLOSE']: close_price}
@@ -424,14 +438,14 @@ class PriceManager():
         raise errors.ConfigurationError(
             'No PRICE_MANAGER found in the parsed environment settings')
 
-    def _parse_price_from_date(self, prices: dict, date: date, asset_type: str, which_price: str) -> str:
+    def _parse_price_from_date(self, prices: Dict[str, Dict[str, float]], this_date: date, asset_type: str, which_price: str) -> str:
         """
         Parameters
         ----------
-        1. **prices** : ``dict``
+        1. **prices** : ``Dict[str, Dict[str, float]]``
             List containing the AlphaVantage response with the first layer peeled off, i.e.
             no metadata, just the date and prices.
-        2. **date**: ``str``
+        2. **date**: `date``
             String of the date to be parsed. Note: this is not a datetime.date object. String
             must be formatted `YYYY-MM-DD`
         3. **asset_type**: ``str``
@@ -454,15 +468,15 @@ class PriceManager():
         """
         if asset_type == keys.keys['ASSETS']['EQUITY']:
             if which_price == keys.keys['PRICES']['CLOSE']:
-                return prices[date][self.service_map['KEYS']['EQUITY']['CLOSE']]
+                return prices[this_date][self.service_map['KEYS']['EQUITY']['CLOSE']]
             if which_price == keys.keys['PRICES']['OPEN']:
-                return prices[date][self.service_map['KEYS']['EQUITY']['CLOSE']]
+                return prices[this_date][self.service_map['KEYS']['EQUITY']['CLOSE']]
 
         elif asset_type == keys.keys['ASSETS']['CRYPTO']:
             if which_price == keys.keys['PRICES']['CLOSE']:
-                return prices[date][self.service_map['KEYS']['CRYPTO']['CLOSE']]
+                return prices[this_date][self.service_map['KEYS']['CRYPTO']['CLOSE']]
             if which_price == keys.keys['PRICES']['OPEN']:
-                return prices[date][self.service_map['KEYS']['CRYPTO']['OPEN']]
+                return prices[this_date][self.service_map['KEYS']['CRYPTO']['OPEN']]
 
         raise errors.InputValidationError(
             f'Verify {asset_type}, {which_price} are allowable values')

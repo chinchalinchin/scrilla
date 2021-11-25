@@ -66,13 +66,13 @@ def sharpe_ratio(ticker: str, start_date: Union[date, None] = None, end_date: Un
     if risk_free_rate is None:
         risk_free_rate = services.get_risk_free_rate()
 
-    sharpe_ratio = (ticker_profile['annual_return'] -
+    sh_ratio = (ticker_profile['annual_return'] -
                     risk_free_rate)/ticker_profile['annual_volatility']
 
     profile_cache.save_or_update_row(ticker=ticker, start_date=start_date,
-                                     end_date=end_date, sharpe_ratio=sharpe_ratio, method=method)
+                                     end_date=end_date, sharpe_ratio=sh_ratio, method=method)
 
-    return sharpe_ratio
+    return sh_ratio
 
 # if no dates are specified, defaults to last 100 days
 
@@ -99,9 +99,9 @@ def market_premium(start_date: Union[date, None] = None, end_date: Union[date, N
         market_profile = statistics.calculate_risk_return(
             ticker=settings.MARKET_PROXY, start_date=start_date, end_date=end_date, method=method)
 
-    market_premium = (
+    market_prem = (
         market_profile['annual_return'] - services.get_risk_free_rate())
-    return market_premium
+    return market_prem
 
 
 def market_beta(ticker: str, start_date: Union[date, None] = None, end_date: Union[date, None] = None, market_profile: Union[dict, None] = None, market_correlation: Union[dict, None] = None, ticker_profile: Union[dict, None] = None, sample_prices: Union[dict, None] = None, method: str = settings.ESTIMATION_METHOD) -> float:

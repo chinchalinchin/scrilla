@@ -13,9 +13,11 @@
 # along with scrilla.  If not, see <https://www.gnu.org/licenses/>
 # or <https://github.com/chinchalinchin/scrilla/blob/develop/main/LICENSE>.
 
+from datetime import date
 from math import trunc, sqrt
 from decimal import Decimal
 from itertools import groupby
+from typing import Callable, Dict, List, Union
 
 # TODO: get rid of numpy functions.
 #       dot, multiply and transpose should be easy to replicate
@@ -45,21 +47,21 @@ class Portfolio:
 
     Parameters
     ----------
-    1. **tickers**: ``list``
+    1. **tickers**: ``List[str]``
         An array of ticker symbols that decribe the assets in a portfolio.
-    2. **start_date**: ``datetime.date``
+    2. **start_date**: ``Union[date, None]``
         *Optional*. The start date for the range of historical prices over which the portfolio will be optimized. 
-    3. **end_date**: ``datetime.date``
+    3. **end_date**: ``Union[date, None]``
         *Optional*. The end date for the range of historical prices over which the portfolio will be optimized.
-    4. **sample_prices**: ``dict``
+    4. **sample_prices**: ``Union[Dict[str, Dict[str, float]], None]``
         *Optional*. A list representing a sample of historical data over a time range. The list must be ordered in descending order, i.e. from latest to earliest. Must be formatted as: `{ 'ticker_1': { 'date' : { 'open': value, 'close': value},... }}
-    5. **risk_profile** : ``dict``
+    5. **risk_profile** : ``Union[Dict[str, Dict[str, float]], None]``
         Optional: Rather than use sample statistics calculated from historical data, this argument can override the calculated values. Must be formatted as: `{ ticker: { 'annual_return': float, 'annual_volatility': float }}`
-    6. **correlation_matrix**: ``[ list ]``
+    6. **correlation_matrix**: ``Union[List[List[float]], None]``
         Optional: Rather than use correlations calculated from historical data, this argument can override the calculated vlaues.
-    7. **asset_return_functions**: ``[ function(t) ]``
+    7. **asset_return_functions**: ``Union[List[Callable], None]``
         *Optional*. An array of function that describes the expected logarithmic rate of return of each asset in the portfolio with respect to time. The order between `asset_return_functions` and `tickers` be must be preserved, i.e. the index of tickers must correspond to the symbol described by the function with same index in `asset_return_functions`.
-    8. **asset_volatility_funtions**: ``[ function(t) ]``
+    8. **asset_volatility_funtions**: ``Union[List[Callable], None]``
         *Optional*. An array of functions that describe the mean volatility of each asset in the portfolio with respect to time. The order between `asset_volatility_functions` and `tickers` be must be preserved, i.e. the index of tickers must correspond to the symbol described by the function with the same index in `asset_volatility_functions`.
 
     Attributes
@@ -79,17 +81,11 @@ class Portfolio:
     where B(t) ~ \\(N(0, \Delta \cdot t)\\).
     """
 
-    def __init__(self, tickers, start_date=None, end_date=None, sample_prices=None,
-                 correlation_matrix=None, risk_profiles=None, risk_free_rate=None,
-                 asset_return_functions=None, asset_volatility_functions=None,
-                 method=settings.ESTIMATION_METHOD):
-        self.shares = None
-        self.actual_total = None
-        self.risk_free_rate = None
+    def __init__(self, tickers: List[str], start_date=Union[date, None], end_date=Union[date, None], sample_prices: Union[Dict[str, Dict[str, float]], None]=None,correl_matrix: Union[List[List[int]], None]=None, risk_profiles: Union[Dict[str, Dict[str, float]]]=None, risk_free_rate: Union[float, None]=None,asset_return_functions: Union[List[Callable],None]=None, asset_volatility_functions: Union[List[Callable], None]=None, method: str=settings.ESTIMATION_METHOD):
         self.estimation_method = method
         self.sample_prices = sample_prices
         self.tickers = tickers
-        self.correlation_matrix = correlation_matrix
+        self.correl_matrix = correl_matrix
         self.asset_volatility_functions = asset_volatility_functions
         self.asset_return_functions = asset_return_functions
         self.risk_profiles = risk_profiles
@@ -182,8 +178,8 @@ class Portfolio:
                     self.sample_vol.append(
                         self.risk_profiles[ticker]['annual_volatility'])
 
-            if self.correlation_matrix is None:
-                self.correlation_matrix = correlation_matrix(tickers=self.tickers,
+            if self.correl_matrix is None:
+                self.correl_matrix = correlation_matrix(tickers=self.tickers,
                                                              start_date=self.start_date,
                                                              end_date=self.end_date,
                                                              sample_prices=self.sample_prices,
@@ -220,7 +216,7 @@ class Portfolio:
         ``float``
             The portfolio volatility on an annualized basis.
         """
-        return sqrt(multiply(x, self.sample_vol).dot(self.correlation_matrix).dot(transpose(multiply(x, self.sample_vol))))
+        return sqrt(multiply(x, self.sample_vol).dot(self.correl_matrix).dot(transpose(multiply(x, self.sample_vol))))
 
     def sharpe_ratio_function(self, x):
         """
