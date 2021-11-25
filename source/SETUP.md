@@ -18,7 +18,7 @@ pip install -r requirements.txtss
 - [scipy](https://pypi.org/project/scipy/)
 
 ### Optional
-- [PySide6](https://pypi.org/project/PySide6/)>=6.2.0<br>
+- [PySide6](https://pypi.org/project/PySide6/)
 
 ### Development
 
@@ -52,7 +52,10 @@ This will install a command line interface on your path under the name `scrilla`
 scrilla version
 ```
 
-If you are on Windows, you may need to add your Python scripts bin to the $PATH. To keep the installation as minimal as possible, the base package does not include the GUI libraries. You can install the optional GUI dependency with,
+.. warning::
+    If you are on Windows, you may need to add your Python scripts bin to the **$PATH**.
+
+To keep the installation as minimal as possible, the base package does not include the GUI libraries. You can install the optional GUI dependency with,
 
 ```shell
 pip install scrilla[gui]
