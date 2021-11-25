@@ -17,24 +17,24 @@ You will need Python3.8 or greater. This application depends on the following <b
 - [PySide6](https://wiki.qt.io/Qt_for_Python)>=6.2.0<br>
 
 ### Development
-Testing
----
+
+**Testing**
 - [pytest]()
 - [coverage]()
 - [httmock]()
 
-Documentation
----
+**Documentation**
 - [sphinx]()
 - [pdoc3]()
 
-Build
----
+**Build**
 - [setuptools]()
 - [twine]()
 - [build]()
 
 ## Installation
+
+### PyPi Distribution
 
 Install the package with the <b>Python</b> package manager,
 
@@ -59,6 +59,8 @@ Note, the GUI has a different CLI entrypoint, namely,
 ```shell
 scrilla-gui
 ```
+
+### Source
 
 If you prefer, you can build from source. `git clone` the [repository](https://github.com/chinchalinchin/scrilla) and then from the root directory install the project dependencies and build the library,
 
