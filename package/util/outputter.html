@@ -214,7 +214,7 @@ def risk_profile(profiles: Dict[str, Dict[str, float]]) -&gt; None:
             scalar_result(f&#39;{subkey}&#39;, f&#39;{subvalue}&#39;, currency=False)
 
 
-def moving_average_result(tickers: List[str], averages_output: Tuple[List[List[float]], List[str]], periods: List[int], start_date: Union[str, None]=None, end_date: Union[str, None]=None) -&gt; None:
+def moving_average_result(tickers: List[str], averages_output: Tuple[List[List[float]], List[str]], periods: List[int], start_date: Union[str, None] = None, end_date: Union[str, None] = None) -&gt; None:
     averages, dates = averages_output
     MA1_prefix, MA2_prefix, MA3_prefix = f&#39;MA({periods[0]})&#39;, f&#39;MA({periods[1]})&#39;, f&#39;MA({periods[2]})&#39;
     if start_date is None and end_date is None:
@@ -748,7 +748,7 @@ End date of the time period over which correlation was calculated. </li>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def moving_average_result(tickers: List[str], averages_output: Tuple[List[List[float]], List[str]], periods: List[int], start_date: Union[str, None]=None, end_date: Union[str, None]=None) -&gt; None:
+<pre><code class="python">def moving_average_result(tickers: List[str], averages_output: Tuple[List[List[float]], List[str]], periods: List[int], start_date: Union[str, None] = None, end_date: Union[str, None] = None) -&gt; None:
     averages, dates = averages_output
     MA1_prefix, MA2_prefix, MA3_prefix = f&#39;MA({periods[0]})&#39;, f&#39;MA({periods[1]})&#39;, f&#39;MA({periods[2]})&#39;
     if start_date is None and end_date is None:

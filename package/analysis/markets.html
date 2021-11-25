@@ -97,7 +97,7 @@ def sharpe_ratio(ticker: str, start_date: Union[date, None] = None, end_date: Un
         risk_free_rate = services.get_risk_free_rate()
 
     sh_ratio = (ticker_profile[&#39;annual_return&#39;] -
-                    risk_free_rate)/ticker_profile[&#39;annual_volatility&#39;]
+                risk_free_rate)/ticker_profile[&#39;annual_volatility&#39;]
 
     profile_cache.save_or_update_row(ticker=ticker, start_date=start_date,
                                      end_date=end_date, sharpe_ratio=sh_ratio, method=method)
@@ -615,7 +615,7 @@ Estimation method used to calculate financial statistics. Defaults to the value 
         risk_free_rate = services.get_risk_free_rate()
 
     sh_ratio = (ticker_profile[&#39;annual_return&#39;] -
-                    risk_free_rate)/ticker_profile[&#39;annual_volatility&#39;]
+                risk_free_rate)/ticker_profile[&#39;annual_volatility&#39;]
 
     profile_cache.save_or_update_row(ticker=ticker, start_date=start_date,
                                      end_date=end_date, sharpe_ratio=sh_ratio, method=method)
