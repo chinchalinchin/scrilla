@@ -9,12 +9,14 @@
 In order to use this application, you will need to register for API keys for each of the above services. The program will need to be made aware of these keys somehow. The best option is storing these credentials in environment variables.
 # Environment
 
-*scrilla* scans the environment in its *settings.py* file for shell variables. Various properties of the application can be configured through these environment variables. A sample environment file is located [here](https://github.com/chinchalinchin/scrilla/blob/develop/main/env/.sample.env), along with comments describing the purpose of each variable. The application sets sensible defaults for most of these environment variables, but there are several required environment variables you will need to set yourself. 
+**scrilla** scans the environment in its *settings.py* file for shell variables. Various properties of the application can be configured through these environment variables. A sample environment file is located [here](https://github.com/chinchalinchin/scrilla/blob/develop/main/env/.sample.env), along with comments describing the purpose of each variable. The application sets sensible defaults for most of these environment variables, but there are several required environment variables you will need to set yourself. 
 
 ## Required Configuration
 
+*NOTE*: If no API keys are found through either of the following methods, the application will not function properly.
+
 ### Environment Variables
-As mentioned, you will need to register for API keys at **AlphaVantage**, **IEX** and **Quandl**. One way of passing API keys to the program is by storing these in your session's environment. *scrilla* will search for environment variables named **ALPHA_VANTAGE_KEY**, **QUANDL_KEY** and **IEX_KEY**. You can add the following lines to your *.bashrc* profile or corresponding configuration file for whatever shell you are using, or simply execute these lines before invoking *scrilla*
+You will need to register for API keys at **AlphaVantage**, **IEX** and **Quandl** in order to retrieve financial data. One way of passing API keys to the program is by storing these in your session's environment. **scrilla** will search for environment variables named **ALPHA_VANTAGE_KEY**, **QUANDL_KEY** and **IEX_KEY**. You can add the following lines to your *.bashrc* profile or corresponding configuration file for whatever shell you are using, or simply execute these lines before invoking **scrilla**
 
 ```shell
 export ALPHA_VANTAGE_KEY=<key goes here>
@@ -33,8 +35,6 @@ scrilla store -key <key> -value <value>
 ```
 
 where `<key>` is one of the values: **ALPHA_VANTAGE_KEY**, **QUANDL_KEY** or **IEX_KEY**. `<value>` is the corresponding key itself given to you after registration. `<value>` is case-sensitive! Keep in mind if using this method to store the API keys, the keys will be stored unencrypted in the local */data/common/* directory. 
-
-If no API keys are found in these variables, the application will not function properly; be sure to load these variables into your shell session before using *scrilla*. 
 
 ## Optional Configuration 
 
