@@ -1,6 +1,6 @@
 # Overview
 
-![](https://chinchalinchin.github.io/scrilla/assets/scrilla_gui_ii.png)
+![](https://chinchalinchin.github.io/scrilla/assets/scrilla_gui_2.png)
 
 *scrilla* is a financial analysis application. It can calculate asset correlations, generate statistical summaries and produce various graphical visualizations to help with analysis It was originally designed to optimize portfolio allocations using data it retrieves from external services (currently: [AlphaVantage](https://www.alphavantage.co), [IEX](https://iexcloud.io/) and [Quandl](https://www.quandl.com/)), but has since taken on a life of its own as a way for [me](https://github.com/chinchalinchin) to explore different areas of Python, development, finance and mathematics that interest me. 
 
