@@ -43,9 +43,9 @@
             </div>
         </div>
         <h2>
-            <span class="text">567 statements &nbsp;</span>
+            <span class="text">564 statements &nbsp;</span>
             <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">160<span class="text"> run</span></button>
-            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">407<span class="text"> missing</span></button>
+            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">404<span class="text"> missing</span></button>
             <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">0<span class="text"> excluded</span></button>
         </h2>
         <div style="display: none;">
@@ -990,10 +990,10 @@
     <p class="mis show_mis"><span class="n"><a id="t931" href="#t931">931</a></span><span class="t">        <span class="key">raise</span> <span class="nam">errors</span><span class="op">.</span><span class="nam">PriceError</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t932" href="#t932">932</a></span><span class="t">            <span class="str">"Prices cannot be retrieved for correlation calculation"</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t933" href="#t933">933</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t934" href="#t934">934</a></span><span class="t">    <span class="key">if</span> <span class="nam">asset_type_1</span> <span class="op">==</span> <span class="nam">asset_type_2</span> <span class="key">and</span> <span class="nam">asset_type_1</span> <span class="op">==</span> <span class="nam">keys</span><span class="op">.</span><span class="nam">keys</span><span class="op">[</span><span class="str">'ASSETS'</span><span class="op">]</span><span class="op">[</span><span class="str">'CRYPTO'</span><span class="op">]</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t935" href="#t935">935</a></span><span class="t">        <span class="nam">trading_period</span> <span class="op">=</span> <span class="nam">constants</span><span class="op">.</span><span class="nam">constants</span><span class="op">[</span><span class="str">'ONE_TRADING_DAY'</span><span class="op">]</span><span class="op">[</span><span class="str">'CRYPTO'</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t936" href="#t936">936</a></span><span class="t">    <span class="key">else</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t937" href="#t937">937</a></span><span class="t">        <span class="nam">trading_period</span> <span class="op">=</span> <span class="nam">constants</span><span class="op">.</span><span class="nam">constants</span><span class="op">[</span><span class="str">'ONE_TRADING_DAY'</span><span class="op">]</span><span class="op">[</span><span class="str">'EQUITY'</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t934" href="#t934">934</a></span><span class="t">    <span class="com"># if asset_type_1 == asset_type_2 and asset_type_1 == keys.keys['ASSETS']['CRYPTO']:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t935" href="#t935">935</a></span><span class="t">    <span class="com">#     trading_period = constants.constants['ONE_TRADING_DAY']['CRYPTO']</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t936" href="#t936">936</a></span><span class="t">    <span class="com"># else:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t937" href="#t937">937</a></span><span class="t">    <span class="com">#     trading_period = constants.constants['ONE_TRADING_DAY']['EQUITY']</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t938" href="#t938">938</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t939" href="#t939">939</a></span><span class="t">    <span class="nam">sample_of_returns_1</span> <span class="op">=</span> <span class="nam">get_sample_of_returns</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t940" href="#t940">940</a></span><span class="t">        <span class="nam">ticker</span><span class="op">=</span><span class="nam">ticker_1</span><span class="op">,</span> <span class="nam">sample_prices</span><span class="op">=</span><span class="nam">sample_prices</span><span class="op">[</span><span class="nam">ticker_1</span><span class="op">]</span><span class="op">,</span> <span class="nam">asset_type</span><span class="op">=</span><span class="nam">asset_type_1</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
@@ -1571,7 +1571,7 @@
     <div class="content">
         <p>
             <a class="nav" href="index.html">&#xab; index</a> &nbsp; &nbsp; <a class="nav" href="https://coverage.readthedocs.io">coverage.py v6.1.2</a>,
-            created at 2021-11-25 15:04 +0000
+            created at 2021-11-25 15:34 +0000
         </p>
     </div>
 </footer>
