@@ -202,7 +202,7 @@
     <p class="pln"><span class="n"><a id="t143" href="#t143">143</a></span><span class="t">    <span class="com"># if no uncertainty</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t144" href="#t144">144</a></span><span class="t">    <span class="key">if</span> <span class="nam">vol</span> <span class="op">==</span> <span class="num">0</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t145" href="#t145">145</a></span><span class="t">        <span class="com"># if the future value of initial price is greater than the strike</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t146" href="#t146">146</a></span><span class="t">        <span class="key">if</span> <span class="nam">S0</span><span class="op">*</span><span class="nam">exp</span><span class="op">(</span><span class="op">(</span><span class="nam">ret</span><span class="op">-</span><span class="nam">div</span><span class="op">)</span><span class="op">*</span><span class="nam">expiry</span><span class="op">)</span><span class="op">></span><span class="nam">ST</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t146" href="#t146">146</a></span><span class="t">        <span class="key">if</span> <span class="nam">S0</span><span class="op">*</span><span class="nam">exp</span><span class="op">(</span><span class="op">(</span><span class="nam">ret</span><span class="op">-</span><span class="nam">div</span><span class="op">)</span><span class="op">*</span><span class="nam">expiry</span><span class="op">)</span> <span class="op">></span> <span class="nam">ST</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t147" href="#t147">147</a></span><span class="t">            <span class="com"># probability(S>St)=1</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t148" href="#t148">148</a></span><span class="t">            <span class="key">return</span> <span class="num">1</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t149" href="#t149">149</a></span><span class="t">        <span class="com"># probability(S>St)=0</span>&nbsp;</span><span class="r"></span></p>
@@ -293,7 +293,7 @@
     <div class="content">
         <p>
             <a class="nav" href="index.html">&#xab; index</a> &nbsp; &nbsp; <a class="nav" href="https://coverage.readthedocs.io">coverage.py v6.1.2</a>,
-            created at 2021-11-25 19:17 +0000
+            created at 2021-11-25 19:22 +0000
         </p>
     </div>
 </footer>
