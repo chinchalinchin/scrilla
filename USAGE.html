@@ -1,0 +1,290 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Usage &#8212; scrilla-docs  documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="canonical" href="/scrilla/USAGE.html" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Notes" href="APPENDIX.html" />
+    <link rel="prev" title="Configuration" href="CONFIGURATION.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section class="tex2jax_ignore mathjax_ignore" id="usage">
+<h1>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h1>
+<section id="command-line-interface">
+<h2>Command Line Interface<a class="headerlink" href="#command-line-interface" title="Permalink to this headline">¶</a></h2>
+<p>Most functions have been wired into command line arguments. For a full list of <b>scrilla</b>’s functionality,</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>scrilla <span class="nb">help</span>
+</pre></div>
+</div>
+<p>The main usage of <b>scrilla</b> is detailed below.</p>
+</section>
+<section id="synatx">
+<h2>Synatx<a class="headerlink" href="#synatx" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>scrilla <span class="o">[</span>COMMAND<span class="o">]</span> <span class="o">[</span>TICKERS<span class="o">]</span> <span class="o">[</span>OPTIONS<span class="o">]</span>
+</pre></div>
+</div>
+<p><strong>Commands</strong>: asset,cvar,var,capm-equity,capm-beta,clear-cache,clear-static,clear-common,close,correlation,correlations,discount-dividend-model,dividends,efficient-frontier,help,interest,watchlist,max-return,mov-averages,optimize-portfolio,optimize-cvar,plot-correlations,plot-dividends,plot-efficient-frontier,plot-moving-averages,plot-returns,plot-risk-profile,plot-yield-curve,prices,purge,risk-free,risk-profile,screen,sharpe-ratio,stat,stats,store,version,watch,yield-curve</p>
+<p><strong>Tickers</strong>: space-separated list of asset tickers/statistic symbols/interest maturities (depending on the command)</p>
+<p><strong>Options</strong>: command-specific flags and configuration.</p>
+<section id="portfolio-optimization">
+<h3>Portfolio Optimization<a class="headerlink" href="#portfolio-optimization" title="Permalink to this headline">¶</a></h3>
+<ol class="simple">
+<li><p>Volatility Minimization &amp; Sharpe-Ratio Maximization</p></li>
+</ol>
+<p>A portfolio of consisting of the equities <i>ALLY</i>, <i>BX</i> and <i>SONY</i> can be optimized with the following command,</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>scrilla optimize-portfolio ALLY BX SONY
+</pre></div>
+</div>
+<p>By default, <b>scrilla</b> will optimize over the last 100 trading days. If you wish to optimize over a different time period, you may use the <code class="docutils literal notranslate"><span class="pre">-start</span></code> and <code class="docutils literal notranslate"><span class="pre">-end</span></code> argument flags to provide starting and ending dates in the <code class="docutils literal notranslate"><span class="pre">YYYY-MM-DD</span></code> format.</p>
+<p>Also by default, the optimization function will minimize the portfolio variance. You can also specify the portfolio should be maximized with respect to the Sharpe ratio,</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>scrilla optimize-portfolio ALLY BX SONY -sh
+</pre></div>
+</div>
+<p>There are several other arguments you may use to configure your optimization program. The full list of arguments is shown below,</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>scrilla optimize-portfolio <span class="o">[</span>TICKERS<span class="o">]</span> -sh <span class="se">\</span>
+                                     -start &lt;YYYY-MM-DD&gt; <span class="se">\</span>
+                                     -end &lt;YYYY-MM-DD&gt; <span class="se">\</span>
+                                     -save &lt;absolute path to json file&gt; <span class="se">\</span>
+                                     -target &lt;float&gt; --invest &lt;float&gt;
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">-target</span></code> will optimize the portfolio with the additional constraint that its rate of return must equal <code class="docutils literal notranslate"><span class="pre">target</span></code>. Note the target return must be between the minimum rate of return and maximum rate of return in a basket of equities. For example, if ALLY had a rate of return of 10%, BX 15%, SONY 20%, the frontier of possible rates of returns resides in the range [10%, 20%]. It is impossible to combine the equities in such a way to get a rate of return less than 10% or one greater than 20%. Note, this assumes shorting is not possible. A future release will relax this assumption and allow portfolio weights to be negative.</p>
+<p><code class="docutils literal notranslate"><span class="pre">-invest</span></code> represents the total amount of money invested in a portfolio.</p>
+<p>For example, the following command,</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>scrilla optimize-portfolio ALLY BX SONY -sh <span class="se">\</span>
+                                        -save &lt;path-to-json-file&gt; <span class="se">\</span>
+                                        -target <span class="m">0</span>.25 <span class="se">\</span>
+                                        -invest <span class="m">10000</span> <span class="se">\</span>
+                                        -start <span class="m">2020</span>-01-03 <span class="se">\</span>
+                                        -end <span class="m">2021</span>-05-15
+</pre></div>
+</div>
+<p>Will optimize a portfolio consisting of <i>ALLY</i>, <i>BX</i> and <i>SONY</i> using historical data between the dates of January 1st, 2020 and May 15th, 2021. The portfolio will be constrained to return a rate of 25%. A total $10,000 will be invested into this portfolio (to the nearest whole share). The output of this command will look like this,</p>
+<blockquote>
+<div><p>———————————————- Results ———————————————-<br>
+———————————– Optimal Percentage Allocation ———————————–<br>
+ALLY = 22.83 %<br>
+BX = 19.26 %<br>
+SONY = 57.91 %<br>
+————————————– Optimal Share Allocation ————————————–<br>
+ALLY = 42<br>
+BX = 15<br>
+SONY = 56<br>
+————————————– Optimal Portfolio Value ————————————–<br>
+&gt;&gt; Total  = $ 9893.98<br>
+—————————————- Risk-Return Profile —————————————-<br>
+&gt;&gt; Return  =  0.25<br>
+&gt;&gt; Volatility  =  0.201<br>
+—————————————————————————————————-<br></p>
+</div></blockquote>
+<p>Note the optimal share allocation does not allow fractional shares. <b>scrilla</b> will attempt to get as close to the total investment inputted without going over using only whole shares. Also note the return of this portfolio is 25%, as this was inputted into the target return constraint.</p>
+<ol class="simple">
+<li><p>Conditional Value at Risk Minimization</p></li>
+</ol>
+<p>The portfolio optimization can also be done by minimizing its conditional value at risk. Because the underlying calculations are a bit different, this function is accessed through a different command and requires different arguments.</p>
+<p>The two new arguments are <code class="docutils literal notranslate"><span class="pre">prob</span></code> and <code class="docutils literal notranslate"><span class="pre">expiry</span></code>. <code class="docutils literal notranslate"><span class="pre">prob</span></code>, in essence, represents the percentile of the portfolio’s distribution on which the value at risk will be conditioned. In other words, if the portfolio value is represented by a random variable <strong>P</strong>, for a given value of <strong>P</strong>=<em>p</em>, the <code class="docutils literal notranslate"><span class="pre">prob</span></code> is the probability such that <code class="docutils literal notranslate"><span class="pre">Probability(P&lt;p)=prob</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">expiry</span></code> represents the time horizon over which the value at risk will be calculated, i.e. the point in time in which the hypothetical loss occurs.</p>
+<p>With these two new arguments, a portfolio’s conditional value at risk can be optimized using the following,</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">scrilla</span> <span class="n">optimize</span><span class="o">-</span><span class="n">cvar</span> <span class="n">ALLY</span> <span class="n">BX</span> <span class="n">SONY</span> <span class="o">-</span><span class="n">prob</span> <span class="mf">0.05</span> <span class="o">-</span><span class="n">expiry</span> <span class="mf">0.5</span>
+</pre></div>
+</div>
+<p>The command given above will optimize the portfolio’s value at risk consisting of <b>ALLY</b>, <b>BX</b> and <b>SONY</b> over the next half year (<code class="docutils literal notranslate"><span class="pre">expiry</span></code> = 0.5) conditioned the value at risk being in the 5th percentile.</p>
+</section>
+<section id="other-notable-features">
+<h3>Other Notable Features<a class="headerlink" href="#other-notable-features" title="Permalink to this headline">¶</a></h3>
+<ol class="simple">
+<li><p>Distribution Modes</p></li>
+</ol>
+<p><b>scrilla</b> will assume an asset price process and therefore a probability distribution for the population of asset returns. The model <b>scrilla</b> assumes is determined by the environment variable <b>ANALYSIS_MODE</b>. Currently, only one model is available: <code class="docutils literal notranslate"><span class="pre">geometric</span></code>, which corresponds to an assume price process that follows <a class="reference external" href="https://en.wikipedia.org/wiki/Geometric_Brownian_motion">geometric brownian motion</a> and thus a probability distribution for the asset returns that is log-normal.</p>
+<p>In the near future, a mean reversion model will implemented.</p>
+<ol class="simple">
+<li><p>Estimation Modes</p></li>
+</ol>
+<p><b>scrilla</b> can estimate model parameters in a number of ways. The default estimation method is defined by the environment variable <b>DEFAULT_ESTIMATION_METHOD</b>, but all statistical functions can have their estimation overridden with a flag. <b>scrilla</b> supports three estimation modes: <code class="docutils literal notranslate"><span class="pre">moments</span></code>, <code class="docutils literal notranslate"><span class="pre">percents</span></code> and <code class="docutils literal notranslate"><span class="pre">likely</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">moments</span></code> will use the <a class="reference external" href="https://en.wikipedia.org/wiki/Method_of_moments_(statistics)">method of moment matching</a>, where the moments of a sample of data are equated to the moments of the assumed distribution in order to determine the distribution parameters. <code class="docutils literal notranslate"><span class="pre">percents</span></code> will use the method of percentile matching, where the first and third quartile of the sample are equated to the theoretical distribution percentiles to determine the distribution parameters. <code class="docutils literal notranslate"><span class="pre">likely</span></code> will use <a class="reference external" href="https://en.wikipedia.org/wiki/Maximum_likelihood_estimation">maximum likelihood estimation</a>, where the probability of each observation given the assumed distribution is calculated and then the intersection of the probabilities is minimized with respect to the distribution parameters. (Note: the underlying distribution can be configured through the <b>ANALYSIS_MODE</b> environment variable; see <a class="reference external" href="#environment">Environment</a> for more information)</p>
+<p>For example, the following command will return the risk profile of <b>ACI</b> using the method of moment matching,</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>scrilla risk-profile ACI -moments
+</pre></div>
+</div>
+<p>Where as the following command will return the risk profile of <b>ACI</b> using maximum likelihood estimation,</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>scrilla risk-profile ACI -likelihood
+</pre></div>
+</div>
+<p>And the following command will return the risk profile of <b>ACI</b> using the method of percentile matching,</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>scrilla risk-profile ACI -percentiles
+</pre></div>
+</div>
+<p>Note, the following command,</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>scrilla risk-profile ACI
+</pre></div>
+</div>
+<p>will return the risk profile of <b>ACI</b> using the method set in the <b>DEFAULT_ESTIMATION_METHOD</b> environment variable. If this variable is not set, it will default to a value of <code class="docutils literal notranslate"><span class="pre">moments</span></code>.</p>
+<ol class="simple">
+<li><p>Discount Dividend Model</p></li>
+</ol>
+<p><b>scrilla</b> will pull an equity’s dividend payment history, regress the payment amount against its date and infer a <a class="reference external" href="https://en.wikipedia.org/wiki/Simple_linear_regression">simple linear regression model</a> from this time series. It will use this model to project future dividend payments and then calculate the current cost of equity and use that to discount the sum of dividend payments back to the present. The following command will perform this action,</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>scrilla ddm ALLY
+</pre></div>
+</div>
+<p>Alternatively, you can visualize the dividend payments against the regression model with a <b>matplotlib</b> graphic,</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>scrilla plot-divs ALLY
+</pre></div>
+</div>
+<ol class="simple">
+<li><p>Financial Statistics</p>
+<ul class="simple">
+<li><p>Beta: <code class="docutils literal notranslate"><span class="pre">scrilla</span> <span class="pre">capm-beta</span> <span class="pre">[TICKERS]</span> <span class="pre">[OPTIONS]</span></code></p></li>
+<li><p>Correlation Matrix: <code class="docutils literal notranslate"><span class="pre">scrilla</span> <span class="pre">cor</span> <span class="pre">[TICKERS]</span> <span class="pre">[OPTIONS]</span></code></p></li>
+<li><p>Conditional Value At Risk <code class="docutils literal notranslate"><span class="pre">scrilla</span> <span class="pre">cvar</span> <span class="pre">[TICKERS]</span> <span class="pre">-prob</span> <span class="pre">PROB</span> <span class="pre">-expiry</span> <span class="pre">EXP</span> <span class="pre">[OPTIONS]</span></code></p></li>
+<li><p>Cost Of Equity: <code class="docutils literal notranslate"><span class="pre">scrilla</span> <span class="pre">capm-equity</span> <span class="pre">[TICKERS]</span> <span class="pre">[OPTIONS]</span></code></p></li>
+<li><p>Risk-Return Profile: <code class="docutils literal notranslate"><span class="pre">scrilla</span> <span class="pre">risk-profile</span> <span class="pre">[TICKERS]</span> <span class="pre">[OPTIONS]</span></code></p></li>
+<li><p>Sharpe Ratio: <code class="docutils literal notranslate"><span class="pre">scrilla</span> <span class="pre">sharpe-ratio</span> <span class="pre">[TICKERS]</span> <span class="pre">[OPTIONS]</span></code></p></li>
+<li><p>Value At Risk: <code class="docutils literal notranslate"><span class="pre">scrilla</span> <span class="pre">var</span> <span class="pre">[TICKERS]</span> <span class="pre">-prob</span> <span class="pre">PROB</span> <span class="pre">-expiry</span> <span class="pre">EXP</span> <span class="pre">[OPTIONS]</span></code></p></li>
+</ul>
+</li>
+<li><p>Stock Watchlist and Screening</p></li>
+</ol>
+<p>Stocks can be added to your watchlist with,</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>scrilla watch <span class="o">[</span>TICKERS<span class="o">]</span>
+</pre></div>
+</div>
+<p>You can then screen stocks according to some criteria. For example, the following command will search your watchlist for stock prices that are less than their Discount Dividend Model (very rare this happens…),</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>scrilla screen -criteria DDM
+</pre></div>
+</div>
+<ol class="simple">
+<li><p>Visualizations</p>
+<ul class="simple">
+<li><p>Discount Dividend Model: <code class="docutils literal notranslate"><span class="pre">scrilla</span> <span class="pre">plot-divs</span> <span class="pre">[TICKER]</span> <span class="pre">[OPTIONS]</span></code></p>
+<ul>
+<li><p>NOTE: THIS FUNCTION ONLY ACCEPTS ONE TICKER AT A TIME.</p></li>
+</ul>
+</li>
+<li><p>Efficient Fronter: <code class="docutils literal notranslate"><span class="pre">scrilla</span> <span class="pre">plot-ef</span> <span class="pre">[TICKERS]</span> <span class="pre">[OPTIONS]</span></code></p></li>
+<li><p>Moving Averages: <code class="docutils literal notranslate"><span class="pre">scrilla</span> <span class="pre">plot-mas</span> <span class="pre">[TICKERS]</span> <span class="pre">[OPTIONS]</span></code></p></li>
+<li><p>Risk Return Profile: <code class="docutils literal notranslate"><span class="pre">scrilla</span> <span class="pre">plot-rp</span> <span class="pre">[TICKERS]</span> <span class="pre">[OPTIONS]</span></code></p></li>
+<li><p>Yield Curve: <code class="docutils literal notranslate"><span class="pre">scrilla</span> <span class="pre">plot-yield</span></code></p></li>
+<li><p>QQ Plot of Returns: <code class="docutils literal notranslate"><span class="pre">scrilla</span> <span class="pre">plot-rets</span> <span class="pre">[TICKER]</span> <span class="pre">[OPTIONS]</span></code></p>
+<ul>
+<li><p>NOTE: THIS FUNCTION ONLY ACCEPTS ONE TICKER AT A TIME</p></li>
+</ul>
+</li>
+<li><p>Correlation Time Series <code class="docutils literal notranslate"><span class="pre">scrilla</span> <span class="pre">plot-cors</span> <span class="pre">[TICKERS]</span> <span class="pre">[OPTIONS]</span></code></p>
+<ul>
+<li><p>NOTE: THIS FUNCTION ACCEPTS EXACTLY TWO TICKERS</p></li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+</section>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">scrilla-docs</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="INTRO.html">scrilla</a></li>
+<li class="toctree-l1"><a class="reference internal" href="INTRO.html#links">Links</a></li>
+<li class="toctree-l1"><a class="reference internal" href="SETUP.html">Setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CONFIGURATION.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CONFIGURATION.html#environment">Environment</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Usage</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#command-line-interface">Command Line Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#synatx">Synatx</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="APPENDIX.html">Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="APPENDIX.html#documentation">Documentation</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="CONFIGURATION.html" title="previous chapter">Configuration</a></li>
+      <li>Next: <a href="APPENDIX.html" title="next chapter">Notes</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2021, Grant Moore.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.3.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/USAGE.md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
