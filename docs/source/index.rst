@@ -17,9 +17,7 @@ Welcome to scrilla-docs's documentation!
    APPENDIX
 
 
-Indices and tables
-==================
+Reference
+=========
 
-* :ref:`genindex`
-* :ref:`modindex`
 * :ref:`search`
