@@ -10,7 +10,7 @@ Welcome to scrilla-docs's documentation!
    :maxdepth: 2
    :caption: Contents:
    
-   INTRO
+   OVERVIEW
    SETUP
    CONFIGURATION
    USAGE
