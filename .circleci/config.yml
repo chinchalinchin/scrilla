@@ -121,6 +121,8 @@ commands:
           name: coverage
           command: |
             mkdir /tmp/docs/
+            rm -rf ./docs/make.bat
+            rm -rf ./docs/Makefile
             cp -ap ./docs/. /tmp/docs/
             git checkout gh-pages
             git pull
@@ -186,8 +188,6 @@ jobs:
       - commit_coverage
 
   documentation:
-    # machine:
-      # image: ubuntu-2004:202107-02
     docker: 
       - image: cimg/python:3.9.6
     steps:
