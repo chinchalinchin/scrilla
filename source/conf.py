@@ -17,7 +17,7 @@
 
 # -- Project information -----------------------------------------------------
 
-project = 'scrilla-docs'
+project = 'scrilla'
 copyright = '2021, Grant Moore'
 author = 'Grant Moore'
 
