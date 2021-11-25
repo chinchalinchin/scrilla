@@ -72,7 +72,7 @@ commands:
   generate_source_docs:
     description: generate documentation html from markdown
     steps:
-      - attach_workspec:
+      - attach_workspace:
           at: docs
       - run:
           name: generate docs
