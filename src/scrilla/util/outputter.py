@@ -178,7 +178,7 @@ def model_price(ticker: str, this_model_price: Union[str, float], model: str) ->
     scalar_result(f'{ticker} {str(model).upper()} price', formatted_price)
 
 
-def risk_profile(profiles: Dict[Dict[str, float]]) -> None:
+def risk_profile(profiles: Dict[str, Dict[str, float]]) -> None:
     for key, value in profiles.items():
         title_line(f'{key} Risk Profile')
         for subkey, subvalue in value.items():
