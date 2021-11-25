@@ -63,7 +63,7 @@ commands:
           at: docs
       - run:
           name: generate docs
-          command: bash ./scripts/docs circle-ci
+          command: bash ./scripts/package-docs circle-ci
       - persist_to_workspace:
           root: docs
           paths: 
@@ -106,11 +106,11 @@ commands:
             bash ./scripts/tests circleci
             coverage xml
             ./bin/deepsource report --analyzer test-coverage --key python --value-file ./coverage.xml
+            rm -rf ./bin/
       - persist_to_workspace:
           root: docs
           paths: 
             - coverage
-    
 
   commit_coverage:
     description: push coverage back to git
