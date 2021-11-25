@@ -293,7 +293,8 @@ class Portfolio:
             return (dot(x, self.mean_return) - self.target_return)
         return None
 
-    def calculate_approximate_shares(self, x, total, latest_prices):
+    @staticmethod
+    def calculate_approximate_shares(x, total, latest_prices):
         shares = []
         for i, item in enumerate(x):
             price = latest_prices[i]
