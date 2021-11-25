@@ -17,18 +17,18 @@ You will need Python3.8 or greater. This application depends on the following <b
 - [PySide6](https://wiki.qt.io/Qt_for_Python)>=6.2.0<br>
 
 ### Development
-**Testing**
+Testing
 ---
 - [pytest]()
 - [coverage]()
 - [httmock]()
 
-**Documentation**
+Documentation
 ---
 - [sphinx]()
 - [pdoc3]()
 
-**Build**
+Build
 ---
 - [setuptools]()
 - [twine]()

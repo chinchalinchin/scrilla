@@ -25,5 +25,5 @@
 /tests/*/*/*/*/.pytest_cache
 .coverage
 coverage.xml
-/bin/
+/bin/*
 /tests/reports
