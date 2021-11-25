@@ -29,6 +29,7 @@ author = 'Grant Moore'
 # ones.
 extensions = ['myst_parser']
 source_suffix = {
+    '.rst': 'restructuredtext',
     '.md': 'markdown',
 }
 # Add any paths that contain templates here, relative to this directory.
@@ -52,4 +53,8 @@ html_theme = 'alabaster'
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
 
-master_doc = 'INTRO'
+html_baseurl="/scrilla/"
+
+html_use_index=True
+
+master_doc = 'index'

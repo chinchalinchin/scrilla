@@ -9,12 +9,13 @@ Welcome to scrilla-docs's documentation!
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
-
+   
    INTRO
    SETUP
    CONFIGURATION
    USAGE
    APPENDIX
+
 
 Indices and tables
 ==================
