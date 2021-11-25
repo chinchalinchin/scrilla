@@ -2,19 +2,23 @@
 
 ## Dependencies
 
-You will need Python3.8 or greater. This application depends on the following <b>Python</b> libraries: 
+You will need Python3.8 or greater. If you are building from source, you will need to install the libraries in the following sections. The versions have been frozen in the `requirements.txt` file, so they can be installed via,
+
+```shell
+pip install -r requirements.txtss
+```
 
 ### Required
-- [dateutil](https://dateutil.readthedocs.io/en/stable/index.html)>=2.8.2<br>
-- [holidays](https://pypi.org/project/holidays/)>=0.10.4<br>
-- [matplotlib](https://pypi.org/project/matplotlib/)>=3.3.3<br>
-- [numpy](https://pypi.org/project/numpy/)>=1.19.3<br>
-- [python-dotenv](https://pypi.org/project/python-dotenv/)>=0.17.0<br>
-- [requests](https://pypi.org/project/requests/)>=2.25.0<br>
-- [scipy](https://pypi.org/project/scipy/)>=1.5.4<br>
+- [dateutil](https://dateutil.readthedocs.io/en/stable/index.html)
+- [holidays](https://pypi.org/project/holidays/)
+- [matplotlib](https://pypi.org/project/matplotlib/)
+- [numpy](https://pypi.org/project/numpy/)>
+- [python-dotenv](https://pypi.org/project/python-dotenv/)
+- [requests](https://pypi.org/project/requests/)>
+- [scipy](https://pypi.org/project/scipy/)
 
 ### Optional
-- [PySide6](https://wiki.qt.io/Qt_for_Python)>=6.2.0<br>
+- [PySide6](https://pypi.org/project/PySide6/)>=6.2.0<br>
 
 ### Development
 
