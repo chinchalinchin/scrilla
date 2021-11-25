@@ -414,7 +414,9 @@ class OptimizerWidget(components.SkeletonWidget):
                                                                target_return=self.arg_widget.get_control_input('target'))
             self.title.setText(formats.format_allocation_profile_title(
                 allocation, this_portfolio))
+
             prices = services.get_daily_prices_latest(tickers=symbols)
+
             if investment is None:
                 self.table_widget.init_table(
                     rows=symbols, columns=['Allocation'])
