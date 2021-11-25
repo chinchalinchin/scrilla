@@ -43,8 +43,8 @@
             </div>
         </div>
         <h2>
-            <span class="text">111 statements &nbsp;</span>
-            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">70<span class="text"> run</span></button>
+            <span class="text">112 statements &nbsp;</span>
+            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">71<span class="text"> run</span></button>
             <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">41<span class="text"> missing</span></button>
             <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">0<span class="text"> excluded</span></button>
         </h2>
@@ -362,21 +362,22 @@
     <p class="pln"><span class="n"><a id="t303" href="#t303">303</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t304" href="#t304">304</a></span><span class="t">        <span class="key">return</span> <span class="nam">shares</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t305" href="#t305">305</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t306" href="#t306">306</a></span><span class="t">    <span class="key">def</span> <span class="nam">calculate_actual_total</span><span class="op">(</span><span class="nam">self</span><span class="op">,</span> <span class="nam">x</span><span class="op">,</span> <span class="nam">total</span><span class="op">,</span> <span class="nam">latest_prices</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t307" href="#t307">307</a></span><span class="t">        <span class="nam">actual_total</span> <span class="op">=</span> <span class="num">0</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t308" href="#t308">308</a></span><span class="t">        <span class="nam">shares</span> <span class="op">=</span> <span class="nam">Portfolio</span><span class="op">.</span><span class="nam">calculate_approximate_shares</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t309" href="#t309">309</a></span><span class="t">            <span class="nam">x</span><span class="op">=</span><span class="nam">x</span><span class="op">,</span> <span class="nam">total</span><span class="op">=</span><span class="nam">total</span><span class="op">,</span> <span class="nam">latest_prices</span><span class="op">=</span><span class="nam">latest_prices</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t310" href="#t310">310</a></span><span class="t">        <span class="key">for</span> <span class="nam">i</span><span class="op">,</span> <span class="nam">item</span> <span class="key">in</span> <span class="nam">enumerate</span><span class="op">(</span><span class="nam">shares</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t311" href="#t311">311</a></span><span class="t">            <span class="nam">price</span> <span class="op">=</span> <span class="nam">latest_prices</span><span class="op">[</span><span class="nam">i</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t312" href="#t312">312</a></span><span class="t">            <span class="nam">portion</span> <span class="op">=</span> <span class="nam">Decimal</span><span class="op">(</span><span class="nam">item</span><span class="op">)</span> <span class="op">*</span> <span class="nam">Decimal</span><span class="op">(</span><span class="nam">price</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t313" href="#t313">313</a></span><span class="t">            <span class="nam">actual_total</span> <span class="op">=</span> <span class="nam">actual_total</span> <span class="op">+</span> <span class="nam">portion</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t314" href="#t314">314</a></span><span class="t">        <span class="key">return</span> <span class="nam">actual_total</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t306" href="#t306">306</a></span><span class="t">    <span class="op">@</span><span class="nam">staticmethod</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t307" href="#t307">307</a></span><span class="t">    <span class="key">def</span> <span class="nam">calculate_actual_total</span><span class="op">(</span><span class="nam">x</span><span class="op">,</span> <span class="nam">total</span><span class="op">,</span> <span class="nam">latest_prices</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t308" href="#t308">308</a></span><span class="t">        <span class="nam">actual_total</span> <span class="op">=</span> <span class="num">0</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t309" href="#t309">309</a></span><span class="t">        <span class="nam">shares</span> <span class="op">=</span> <span class="nam">Portfolio</span><span class="op">.</span><span class="nam">calculate_approximate_shares</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t310" href="#t310">310</a></span><span class="t">            <span class="nam">x</span><span class="op">=</span><span class="nam">x</span><span class="op">,</span> <span class="nam">total</span><span class="op">=</span><span class="nam">total</span><span class="op">,</span> <span class="nam">latest_prices</span><span class="op">=</span><span class="nam">latest_prices</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t311" href="#t311">311</a></span><span class="t">        <span class="key">for</span> <span class="nam">i</span><span class="op">,</span> <span class="nam">item</span> <span class="key">in</span> <span class="nam">enumerate</span><span class="op">(</span><span class="nam">shares</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t312" href="#t312">312</a></span><span class="t">            <span class="nam">price</span> <span class="op">=</span> <span class="nam">latest_prices</span><span class="op">[</span><span class="nam">i</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t313" href="#t313">313</a></span><span class="t">            <span class="nam">portion</span> <span class="op">=</span> <span class="nam">Decimal</span><span class="op">(</span><span class="nam">item</span><span class="op">)</span> <span class="op">*</span> <span class="nam">Decimal</span><span class="op">(</span><span class="nam">price</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t314" href="#t314">314</a></span><span class="t">            <span class="nam">actual_total</span> <span class="op">=</span> <span class="nam">actual_total</span> <span class="op">+</span> <span class="nam">portion</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t315" href="#t315">315</a></span><span class="t">        <span class="key">return</span> <span class="nam">actual_total</span>&nbsp;</span><span class="r"></span></p>
 </main>
 <footer>
     <div class="content">
         <p>
             <a class="nav" href="index.html">&#xab; index</a> &nbsp; &nbsp; <a class="nav" href="https://coverage.readthedocs.io">coverage.py v6.1.2</a>,
-            created at 2021-11-25 15:50 +0000
+            created at 2021-11-25 15:53 +0000
         </p>
     </div>
 </footer>
