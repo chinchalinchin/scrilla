@@ -251,7 +251,7 @@ class Portfolio:
         portfolio_volatility = self.volatility_function(x) * sqrt(time)
 
         return percentile(S0=1, vol=portfolio_volatility, ret=portfolio_return,
-                          expiry=time, percentile=prob)
+                          expiry=time, prob=prob)
 
     def conditional_value_at_risk_function(self, x, time, prob):
         """

@@ -222,7 +222,7 @@ def do_program() -> None:
                                                      vol=profile['annual_volatility'],
                                                      ret=profile['annual_return'],
                                                      expiry=args['expiry'],
-                                                     p=args['probability'])
+                                                     prob=args['probability'])
                 all_vars[arg] = valueatrisk
 
                 if print_format_to_screen(args):
