@@ -352,7 +352,8 @@ def get_time_to_next_month(todays_date: date = today(), trading_days: int = 252)
     """
     # TODO: what if first day of the month falls on non-trading days?
     todays_date = datetime.date.today()
-    next_month = datetime.date(year=todays_date.year, month=(todays_date.month+1), day=1)
+    next_month = datetime.date(
+        year=todays_date.year, month=(todays_date.month+1), day=1)
     return ((next_month - todays_date).days / trading_days)
 
 
@@ -395,6 +396,7 @@ def get_time_to_next_quarter(todays_date: date = today(), trading_days: int = 25
     next_delta = (next_first_q - todays_date).days / trading_days
 
     return min(i for i in [first_delta, second_delta, third_delta, fourth_delta, next_delta] if i > 0)
+
 
 def get_time_to_next_period(starting_date: Union[date, str], period: float) -> float:
     """
