@@ -2,7 +2,6 @@ import datetime
 from datetime import date
 
 import math
-from attr import validate
 import holidays
 from typing import Any, List, Tuple, Union
 
@@ -40,7 +39,7 @@ def validate_date(this_date):
         return parse(this_date)
     if not isinstance(this_date, date):
         raise ValueError(
-            f'{this_date} is neither date nor \'{DATE_FORMAT}\'formatted string')
+            f'{this_date} is neither date nor \'{DATE_FORMAT}\' formatted string')
     return this_date
 
 
@@ -49,12 +48,12 @@ def validate_date_range(start_date: Any, end_date: Any) -> Tuple[date, date]:
         start_date = parse(start_date)
     elif not isinstance(start_date, date):
         raise ValueError(
-            f'{start_date} is neither date nor \'{DATE_FORMAT}\'formatted string')
+            f'{start_date} is neither date nor \'{DATE_FORMAT}\' formatted string')
     if isinstance(end_date, str):
         end_date = parse(end_date)
     elif not isinstance(end_date, date):
         raise ValueError(
-            f'{end_date} is neither date nor \'{DATE_FORMAT}\'formatted string')
+            f'{end_date} is neither date nor \'{DATE_FORMAT}\' formatted string')
     return validate_order_of_dates(start_date, end_date)
 
 

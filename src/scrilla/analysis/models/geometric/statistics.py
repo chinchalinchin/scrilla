@@ -104,6 +104,48 @@ def get_sample_of_returns(ticker: str, sample_prices: Union[Dict[str, Dict[str, 
     return sample_of_returns
 
 
+def calculate_moving_averages_v2(ticker: str, start_date:Union[date, None] = None, end_date: Union[date, None]= None,sample_prices: Union[Dict[str,Dict[str,float]]] = None):
+    """
+    
+    .. notes::
+        * there are two different sets of dates. `(start_date, end_date)` refer to the endpoints of the date range for which the moving averages will be calculated. `(sample_start, sample_end)` refer to the endpoints of the sample necessary to calculate the previously define calculation. Note, `sample_end == end_date`, but `sample_start == start_date - max(MA_1_PERIOD, MA_2_PERIOD, MA_3_PERIOD)`, in order for the sample to contain enough data points to estimate the moving average. 
+    """
+    asset_type = files.get_asset_type(ticker)
+    trading_period = functions.get_trading_period(asset_type)
+
+    if start_date is None:
+        if asset_type == keys.keys['ASSETS']['EQUITY']:
+            sample_start = dater.this_date_or_last_trading_date()
+        elif asset_type == keys.keys['ASSETS']['CRYPTO']:
+            sample_start = dater.today()
+        start_date = sample_start
+    if end_date is None:
+        if asset_type == keys.keys['ASSETS']['EQUITY']:
+            end_date = dater.this_date_or_last_trading_date()
+        elif asset_type == keys.key['ASSETS']['CRYPTO']:
+            end_date = dater.today()
+
+    ma_date_range = dater.dates_between(start_date, end_date)
+
+    if asset_type == keys.keys['ASSETS']['EQUITY']:
+        sample_start = dater.decrement_date_by_business_days(start_date, settings.MA_3_PERIOD)
+    elif asset_type == keys.keys['ASSETS']['CRYPTO']:
+        sample_start = dater.decrement_date_by_days(start_date, settings.MA_3_PERIOD)
+
+
+    sample_prices = services.get_daily_price_history(ticker=ticker,start_date=sample_start, end_date=end_date)
+    
+    moving_averages = {}
+    for this_date in ma_date_range:
+        pass
+
+        moving_averages[list(sample_prices.keys())[0]]= {
+            f'MA_{settings.MA_1_PERIOD}': 0, 
+            f'MA_{settings.MA_2_PERIOD}': 0, 
+            f'MA_{settings.MA_3_PERIOD}': 0
+        }
+
+    
 def calculate_moving_averages(tickers: list, start_date: Union[date, None] = None, end_date: Union[date, None] = None, sample_prices: Union[Dict[str, Dict[str, float]], None] = None) -> list:
     # TODO: i need to redo this. this is needlessly inefficient. mean telescopes when
     #       calculating with moments. don't need to sum everything.
