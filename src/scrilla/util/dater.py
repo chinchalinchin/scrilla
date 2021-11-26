@@ -72,7 +72,7 @@ def validate_date_list(dates: Union[List[Union[datetime.date, str]]]) -> Union[L
         if isinstance(this_date, str):
             verified_dates.append(parse(this_date))
             continue
-        elif isinstance(this_date, datetime.date):
+        if isinstance(this_date, datetime.date):
             verified_dates.append(this_date)
             continue
         raise ValueError(
