@@ -14,8 +14,6 @@
 
 23. Research annotations for cashflow object's growth function and portfolio's return/volatility functions. Perhaps a way of injecting them into the GUI easier. Not sure.
 
-26. Document how to use objects and functions in shell/scripts.
-
 31. Allow relative file references when saving analysis. Right now needs to be absolute path inputted into -save argument. Also, save return profiles. 
 
 34. Mark important points of Efficient Frontier, i.e. minimum variance, maximum return, maximum sharpe ratio.
@@ -33,12 +31,6 @@
 47. don't import in main.py until you have to.
 
 48. Correlation matrix widget not formatting decimals < 0.01 for some reason. negatives are no go as well.
-
-49. cross asset correlation matrices are over different time frames. can't tell from inside of correlation function whether portfolio is mixed, so the asset comparison in correlation is only checking the two assets in question. when (crypto,crytpo) it calculates everything including weekends, when (crypto,equity) it skips weekends and adds dates to the sample to get a sample of 100. which fine, but when calculating a larger correlation matrix, the like asset pairs will be over one time frame while the cross asset pairs will be over one time frame.
-
-the only solution to this problem seems to be to *always* ignore weekends for crypto prices. i don't see any other way around it...
-
-unless there is some way to calculate correlation between two samples where one has missing information on specific dates, i.e. weekends...if this possible, that would solve everything. 
 
 50. refactor to use math.sqrt from standard library and create dot, multiply and transpose methods for matrices.
 

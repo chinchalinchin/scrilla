@@ -56,8 +56,8 @@ def test_service_date_validation(ticker, asset_type):
             ticker=ticker, start_date=settings.START, end_date=settings.END)
     validated_start, validated_end = validate_dates(start_date=settings.START, end_date=settings.END,
                                                             asset_type=asset_type)
-    assert(dater.date_to_string(validated_start) in list(response.keys()))
-    assert(dater.date_to_string(validated_end) in list(response.keys()))
+    assert(dater.to_string(validated_start) in list(response.keys()))
+    assert(dater.to_string(validated_end) in list(response.keys()))
 
 
 @pytest.mark.parametrize("maturity,date,yield_rate", [

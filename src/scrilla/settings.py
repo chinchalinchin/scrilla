@@ -101,6 +101,8 @@ GUI_DARK_MODE = os.environ.setdefault('DARK_MODE', 'true').lower() == 'true'
 """Flag determining the theme of the GUI, i.e. light mode or dark mode."""
 
 # OPTIONAL USER CONFIGURATION
+DATE_FORMAT = None
+"""datetime.strptime format for parsing date strings; Configured by environment of same name, **DATE_FORMAT**"""
 GUI_WIDTH = None
 """Width of main Graphical User Interface window; Configured by environment variable of same name, **GUI_WIDTH**"""
 GUI_HEIGHT = None
@@ -117,6 +119,14 @@ ITO_STEPS = None
 """Number of iterations used to approximate an Ito integral; Configured by environment variable of same name, **ITO_STEPS**"""
 DEFAULT_ANALYSIS_PERIOD = None
 """Number of days used in a historical sample, if no date range is specified; Configured by environment variable of same name, **DEFAULT_ANALYSIS_PERIOD**"""
+
+try:
+    DATE_FORMAT = str(os.environ.setdefault('DATE_FORMAT', '%Y-%m-%d'))
+except:
+    logger.debug(
+        'Failed to parse DATE_FORMAT from environment. Setting to default value of 1024.')
+    DATE_FORMAT = '%Y-%m-%d'
+    os.environ['GUI_WIDTH'] = '%Y-%m-%d'
 
 try:
     GUI_WIDTH = int(os.environ.setdefault('GUI_WIDTH', '1024'))

@@ -77,7 +77,7 @@ def validate_dates(start_date: date, end_date: date, asset_type: str) -> Tuple[d
     # else create a sensible end date
     else:
         if asset_type == keys.keys['ASSETS']['CRYPTO']:
-            end_date = dater.get_today()
+            end_date = dater.today()
         else:
             end_date = dater.get_last_trading_date()
 
@@ -86,7 +86,7 @@ def validate_dates(start_date: date, end_date: date, asset_type: str) -> Tuple[d
         if dater.is_future_date(start_date):
             # only invalid user input is if start date doesn't exist yet
             raise InputValidationError(
-                f'Start date of {dater.date_to_string(start_date)} is greater than today')
+                f'Start date of {dater.to_string(start_date)} is greater than today')
 
         if asset_type == keys.keys['ASSETS']['EQUITY']:
             start_date = dater.this_date_or_last_trading_date(start_date)

@@ -76,7 +76,7 @@ def plot_correlation_series(tickers: list, series: dict, show: bool = True, save
 
     correl_history, dates = [], []
     for date in series:
-        dates.append(dater.parse_date_string(date))
+        dates.append(dater.parse(date))
         correl_history.append(series[date])
 
     axes.plot(dates, correl_history)
@@ -215,7 +215,7 @@ def plot_moving_averages(symbols: List[str], averages_output: List[List[float]],
     else:
 
         # TODO: generate different locators based on length of period
-        x = [datetime.datetime.strptime(dater.date_to_string(
+        x = [datetime.datetime.strptime(dater.to_string(
             date), '%Y-%m-%d').toordinal() for date in dates]
         date_locator = matplotlib.dates.WeekdayLocator(
             byweekday=(matplotlib.dates.WE))

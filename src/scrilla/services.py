@@ -105,11 +105,11 @@ class StatManager():
         """
         query = ""
         if end_date is not None:
-            end_string = dater.date_to_string(end_date)
+            end_string = dater.to_string(end_date)
             query += f'&{self.service_map["PARAMS"]["END"]}={end_string}'
 
         if start_date is not None:
-            start_string = dater.date_to_string(start_date)
+            start_string = dater.to_string(start_date)
             query += f'&{self.service_map["PARAMS"]["START"]}={start_string}'
 
         if query:
@@ -422,8 +422,8 @@ class PriceManager():
 
             # NOTE: Remember AlphaVantage is ordered current to earliest. END_INDEX is
             # actually the beginning of slice and START_INDEX is actually end of slice.
-            start_string, end_string = dater.date_to_string(
-                start_date), dater.date_to_string(end_date)
+            start_string, end_string = dater.to_string(
+                start_date), dater.to_string(end_date)
             if asset_type == keys.keys['ASSETS']['EQUITY']:
                 response_map = self.service_map['KEYS']['EQUITY']['FIRST_LAYER']
             elif asset_type == keys.keys['ASSETS']['CRYPTO']:
@@ -489,8 +489,7 @@ price_cache = cache.PriceCache()
 interest_cache = cache.InterestCache()
 
 
-def get_daily_price_history(ticker: str, start_date: Union[None, date] = None,
-                            end_date: Union[None, date] = None, asset_type: Union[None, str] = None) -> list:
+def get_daily_price_history(ticker: str, start_date: Union[None, date] = None,end_date: Union[None, date] = None, asset_type: Union[None, str] = None) -> Dict[str, Dict[str, float]]:
     """
     Wrapper around external service request for price data. Relies on an instance of `PriceManager` configured by `settings.PRICE_MANAGER` value, which in turn is configured by the `PRICE_MANAGER` environment variable, to hydrate with data. 
 
@@ -509,8 +508,27 @@ def get_daily_price_history(ticker: str, start_date: Union[None, date] = None,
 
     Returns
     ------
-    ``dict``: `{ 'date' : { 'open': value, 'close': value  }, 'date': { 'open' : value, 'close' : value }, ... }`
-        Dictionary with date strings formatted `YYYY-MM-DD` as keys and a nested dictionary containing the 'open' and 'close' price as values. Ordered from latest to earliest.
+    ``Dict[str, Dict[str, float]]`` : Dictionary with date strings formatted `YYYY-MM-DD` as keys and a nested dictionary containing the 'open' and 'close' price as values. Ordered from latest to earliest, e.g., 
+    ```
+        { 
+            'date' : 
+                { 
+                    'open': value, 
+                    'close': value  
+                }, 
+            'date': 
+                { 
+                    'open' : value, 
+                    'close' : value 
+                }, 
+            ... 
+        }
+    ```
+
+    Raises
+    ------
+    1. **scrilla.errors.PriceError**
+        If no sample prices can be retrieved, this error is thrown. 
 
     .. notes::
         * The default analysis period, if no `start_date` and `end_date` are specified, is determined by the *DEFAULT_ANALYSIS_PERIOD** variable in the `settings,py` file. The default value of this variable is 100.
@@ -531,7 +549,7 @@ def get_daily_price_history(ticker: str, start_date: Union[None, date] = None,
                 f'Comparing {len(cached_prices)} = {dater.days_between(start_date, end_date)}')
 
     # make sure the length of cache is equal to the length of the requested sample
-    if cached_prices is not None and dater.date_to_string(end_date) in cached_prices.keys() and (
+    if cached_prices is not None and dater.to_string(end_date) in cached_prices.keys() and (
         (asset_type == keys.keys['ASSETS']['EQUITY']
             and (dater.business_days_between(start_date, end_date)) == len(cached_prices))
         or
@@ -558,6 +576,10 @@ def get_daily_price_history(ticker: str, start_date: Union[None, date] = None,
         close_price = new_prices[this_date][keys.keys['PRICES']['CLOSE']]
         price_cache.save_row(ticker=ticker, date=this_date,
                              open_price=open_price, close_price=close_price)
+
+    if not prices:
+        raise errors.PriceError(
+            f'Prices could not be retrieved for {ticker}')
 
     return prices
 
@@ -592,15 +614,20 @@ def get_daily_fred_history(symbol: str, start_date: Union[date, None] = None, en
     ----------
     1. **symbol**: ``str`` 
         Symbol representing the statistic whose history is to be retrieved. List of allowable values can be found [here](https://www.quandl.com/data/FRED-Federal-Reserve-Economic-Data/documentation)
-     2. **start_date**: ``datetime.date`` 
+    2. **start_date**: ``Union[date, None]`` 
         *Optional*. Start date of price history. Defaults to None. If `start_date is None`, the calculation is made as if the `start_date` were set to 100 trading days ago. This excludes weekends and holidays.
-    3. **end_date**: ``datetime.date``
+    3. **end_date**: ``Union[date, None]``
         *Optional*. End date of price history. Defaults to None. If `end_date is None`, the calculation is made as if the `end_date` were set to today. This excludes weekends and holidays so that `end_date` is set to the last previous business date.
 
     Returns
     ------
     ``list``: `{ 'date' (str) :  value (str),  'date' (str):  value (str), ... }`
         Dictionary with date strings formatted `YYYY-MM-DD` as keys and the statistic on that date as the corresponding value.
+
+    Raises
+    ------
+    1. **scrilla.errors.PriceError**
+        If no sample prices can be retrieved, this error is thrown. 
 
     .. notes::
         * Most financial statistics are not reported on weekends or holidays, so the `asset_type` for financial statistics is functionally equivalent to equities, at least as far as date calculations are concerned. The dates inputted into this function are validated as if they were labelled as equity `asset_types` for this reason.
@@ -612,6 +639,10 @@ def get_daily_fred_history(symbol: str, start_date: Union[date, None] = None, en
 
     stats = stat_manager.get_stats(
         symbol=symbol, start_date=start_date, end_date=end_date)
+    
+    if not stats:
+        raise errors.PriceError(
+            f'Prices could not be retrieved for {symbol}')
 
     return stats
 
@@ -666,7 +697,7 @@ def get_daily_interest_history(maturity: str, start_date: Union[date, None] = No
 
     # TODO: this only works when stats are reported daily and that the latest date in the dataset is actually end_date.
     if rates is not None and \
-            dater.date_to_string(end_date) in rates.keys() and \
+            dater.to_string(end_date) in rates.keys() and \
             dater.business_days_between(start_date, end_date) == len(rates):
         return rates
 

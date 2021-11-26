@@ -146,7 +146,7 @@ class YieldCurveWidget(components.SkeletonWidget):
         yield_curve = {}
         start_date = dater.this_date_or_last_trading_date(
             self.arg_widget.get_control_input('start_date'))
-        start_string = dater.date_to_string(start_date)
+        start_string = dater.to_string(start_date)
         yield_curve[start_string] = []
         for maturity in keys.keys['YIELD_CURVE']:
             rate = services.get_daily_interest_history(maturity=maturity,

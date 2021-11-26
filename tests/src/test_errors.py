@@ -29,8 +29,8 @@ def test_asset_type_validation(ticker,asset_type):
 ])
 def test_date_validation(ticker, asset_type, start_date_str, end_date_str, 
                          expected_start_str, expected_end_str):
-    start_date = dater.parse_date_string(start_date_str)
-    end_date = dater.parse_date_string(end_date_str)
+    start_date = dater.parse(start_date_str)
+    end_date = dater.parse(end_date_str)
     validated_start, validated_end = errors.validate_dates(start_date, end_date, asset_type)
-    assert(dater.date_to_string(validated_start) == expected_start_str and \
-            dater.date_to_string(validated_end) == expected_end_str)
+    assert(dater.to_string(validated_start) == expected_start_str and \
+            dater.to_string(validated_end) == expected_end_str)
