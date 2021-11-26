@@ -1,4 +1,6 @@
-# Notes
+# Appendix
+
+## Notes
 
 1. The following symbols have both equity and crypto assets trading on exchanges:
 
@@ -15,15 +17,31 @@ If the above problem is to be solved, the cache needs modified to separate price
 2. There is a slight discrepancy between the results of maximum likelihood estimation and moment matching when the underyling distribution of the price process is log-normal. The likelihood algorithm in this library relies on the generalized idea of likelihood estimation; it will compute the log-likelihood function for a given vector of parameters and then optimize that function by varying the vector until the input that produces the maximum output; the usual matter of course is to derive a formula using calculus that can then be analytically solved. Both operations should be equivalent. Moreover, theoretically, it can be shown the maximization operation should be equivalent to the results obtained by the moment matching operation, i.e the maximum likelihood estimator for the mean is the sample mean, etc. However, the results between maximum likelihood estimation and moment matching are off by a few decimal points. It may be due to some vagary of floating point arithmetic, but something else may be going on. See comments in `scrilla.analysis.models.geometric.statistics'
 
 
-# Documentation
-## Dependencies
+## Documentation
+
+### Dependencies
+**Application**
 - [dateutil](https://dateutil.readthedocs.io/en/stable/index.html)
-- [holidays](https://github.com/dr-prodigy/python-holidays)
-- [matplotlib](https://matplotlib.org/)
-- [numpy](https://numpy.org/doc/)
-- [pyqt](https://doc.qt.io/qtforpython/)
-- [requests](https://docs.python-requests.org/en/latest/)
-- [scipy](https://www.scipy.org/docs.html)
-- [sqlite3](https://docs.python.org/3/library/sqlite3.html)
+- [holidays](https://pypi.org/project/holidays/)
+- [matplotlib](https://pypi.org/project/matplotlib/)
+- [numpy](https://pypi.org/project/numpy/)
+- [python-dotenv](https://pypi.org/project/python-dotenv/)
+- [requests](https://pypi.org/project/requests/)
+- [scipy](https://pypi.org/project/scipy/)
+**GUI**
+- [PySide6](https://pypi.org/project/PySide6/)
+**Testing**
+- [pytest](https://pypi.org/project/pytest/)
+- [coverage](https://pypi.org/project/coverage/)
+- [httmock](https://pypi.org/project/httmock/)
+**Documentation**
+- [sphinx](https://pypi.org/project/Sphinx/)
+- [pdoc3](https://pypi.org/project/pdoc3/)
+
+**Build**
+- [setuptools](https://pypi.org/project/setuptools/)
+- [twine](https://pypi.org/project/twine/)
+- [build](https://pypi.org/project/build/)
+
 ## Assets
 - [Ionicons](https://ionic.io/ionicons)

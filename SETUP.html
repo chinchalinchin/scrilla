@@ -35,51 +35,7 @@
             
   <section class="tex2jax_ignore mathjax_ignore" id="setup">
 <h1>Setup<a class="headerlink" href="#setup" title="Permalink to this headline">¶</a></h1>
-<section id="dependencies">
-<h2>Dependencies<a class="headerlink" href="#dependencies" title="Permalink to this headline">¶</a></h2>
-<p>You will need Python3.8 or greater. If you are building from source, you will need to install the libraries in the following sections. The versions have been frozen in the <code class="docutils literal notranslate"><span class="pre">requirements.txt</span></code> file, so they can be installed via,</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pip install -r requirements.txtss
-</pre></div>
-</div>
-<section id="required">
-<h3>Required<a class="headerlink" href="#required" title="Permalink to this headline">¶</a></h3>
-<ul class="simple">
-<li><p><a class="reference external" href="https://dateutil.readthedocs.io/en/stable/index.html">dateutil</a></p></li>
-<li><p><a class="reference external" href="https://pypi.org/project/holidays/">holidays</a></p></li>
-<li><p><a class="reference external" href="https://pypi.org/project/matplotlib/">matplotlib</a></p></li>
-<li><p><a class="reference external" href="https://pypi.org/project/numpy/">numpy</a>&gt;</p></li>
-<li><p><a class="reference external" href="https://pypi.org/project/python-dotenv/">python-dotenv</a></p></li>
-<li><p><a class="reference external" href="https://pypi.org/project/requests/">requests</a>&gt;</p></li>
-<li><p><a class="reference external" href="https://pypi.org/project/scipy/">scipy</a></p></li>
-</ul>
-</section>
-<section id="optional">
-<h3>Optional<a class="headerlink" href="#optional" title="Permalink to this headline">¶</a></h3>
-<ul class="simple">
-<li><p><a class="reference external" href="https://pypi.org/project/PySide6/">PySide6</a></p></li>
-</ul>
-</section>
-<section id="development">
-<h3>Development<a class="headerlink" href="#development" title="Permalink to this headline">¶</a></h3>
-<p><strong>Testing</strong></p>
-<ul class="simple">
-<li><p><a class="reference external" href="https://pypi.org/project/pytest/">pytest</a></p></li>
-<li><p><a class="reference external" href="https://pypi.org/project/coverage/">coverage</a></p></li>
-<li><p><a class="reference external" href="https://pypi.org/project/httmock/">httmock</a></p></li>
-</ul>
-<p><strong>Documentation</strong></p>
-<ul class="simple">
-<li><p><a class="reference external" href="https://pypi.org/project/Sphinx/">sphinx</a></p></li>
-<li><p><a class="reference external" href="https://pypi.org/project/pdoc3/">pdoc3</a></p></li>
-</ul>
-<p><strong>Build</strong></p>
-<ul class="simple">
-<li><p><a class="reference external" href="https://pypi.org/project/setuptools/">setuptools</a></p></li>
-<li><p><a class="reference external" href="https://pypi.org/project/twine/">twine</a></p></li>
-<li><p><a class="reference external" href="https://pypi.org/project/build/">build</a></p></li>
-</ul>
-</section>
-</section>
+<p>This application was built and tested on Python 3.9.</p>
 <section id="installation">
 <h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
 <section id="pypi-distribution">
@@ -92,13 +48,12 @@
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>scrilla version
 </pre></div>
 </div>
-<p>.. warning::
-If you are on Windows, you may need to add your Python scripts bin to the <strong>$PATH</strong>.</p>
-<p>To keep the installation as minimal as possible, the base package does not include the GUI libraries. You can install the optional GUI dependency with,</p>
+<p>If you are on Windows, you may need to add your Python scripts bin to the <strong>$PATH</strong>.</p>
+<p>To keep the installation as minimal as possible, the base package does not include the GUI libraries. You can install the optional GUI with,</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pip install scrilla<span class="o">[</span>gui<span class="o">]</span>
 </pre></div>
 </div>
-<p>Note, the GUI has a different CLI entrypoint, namely,</p>
+<p>The GUI has a different CLI entrypoint, namely,</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>scrilla-gui
 </pre></div>
 </div>
@@ -143,15 +98,12 @@ python3 -m build
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="OVERVIEW.html">Overview</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Setup</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#dependencies">Dependencies</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="CONFIGURATION.html">Configuration</a></li>
-<li class="toctree-l1"><a class="reference internal" href="CONFIGURATION.html#environment">Environment</a></li>
 <li class="toctree-l1"><a class="reference internal" href="USAGE.html">Usage</a></li>
-<li class="toctree-l1"><a class="reference internal" href="APPENDIX.html">Notes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="APPENDIX.html#documentation">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="APPENDIX.html">Appendix</a></li>
 </ul>
 
 <div class="relations">

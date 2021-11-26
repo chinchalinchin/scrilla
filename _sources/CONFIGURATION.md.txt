@@ -7,7 +7,8 @@
 [IEX API Key Registration](https://iexcloud.io/)<br>
 
 In order to use this application, you will need to register for API keys for each of the above services. The program will need to be made aware of these keys somehow. The best option is storing these credentials in environment variables.
-# Environment
+
+## Environment
 
 **scrilla** scans the environment in its *settings.py* file for shell variables. Various properties of the application can be configured through these environment variables. A sample environment file is located [here](https://github.com/chinchalinchin/scrilla/blob/develop/main/env/.sample.env), along with comments describing the purpose of each variable. The application sets sensible defaults for most of these environment variables, but there are several required environment variables you will need to set yourself. 
 
