@@ -142,11 +142,11 @@ class StatManager():
         &#34;&#34;&#34;
         query = &#34;&#34;
         if end_date is not None:
-            end_string = dater.date_to_string(end_date)
+            end_string = dater.to_string(end_date)
             query += f&#39;&amp;{self.service_map[&#34;PARAMS&#34;][&#34;END&#34;]}={end_string}&#39;
 
         if start_date is not None:
-            start_string = dater.date_to_string(start_date)
+            start_string = dater.to_string(start_date)
             query += f&#39;&amp;{self.service_map[&#34;PARAMS&#34;][&#34;START&#34;]}={start_string}&#39;
 
         if query:
@@ -459,8 +459,8 @@ class PriceManager():
 
             # NOTE: Remember AlphaVantage is ordered current to earliest. END_INDEX is
             # actually the beginning of slice and START_INDEX is actually end of slice.
-            start_string, end_string = dater.date_to_string(
-                start_date), dater.date_to_string(end_date)
+            start_string, end_string = dater.to_string(
+                start_date), dater.to_string(end_date)
             if asset_type == keys.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]:
                 response_map = self.service_map[&#39;KEYS&#39;][&#39;EQUITY&#39;][&#39;FIRST_LAYER&#39;]
             elif asset_type == keys.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]:
@@ -526,8 +526,7 @@ price_cache = cache.PriceCache()
 interest_cache = cache.InterestCache()
 
 
-def get_daily_price_history(ticker: str, start_date: Union[None, date] = None,
-                            end_date: Union[None, date] = None, asset_type: Union[None, str] = None) -&gt; list:
+def get_daily_price_history(ticker: str, start_date: Union[None, date] = None,end_date: Union[None, date] = None, asset_type: Union[None, str] = None) -&gt; Dict[str, Dict[str, float]]:
     &#34;&#34;&#34;
     Wrapper around external service request for price data. Relies on an instance of `PriceManager` configured by `settings.PRICE_MANAGER` value, which in turn is configured by the `PRICE_MANAGER` environment variable, to hydrate with data. 
 
@@ -546,8 +545,27 @@ def get_daily_price_history(ticker: str, start_date: Union[None, date] = None,
 
     Returns
     ------
-    ``dict``: `{ &#39;date&#39; : { &#39;open&#39;: value, &#39;close&#39;: value  }, &#39;date&#39;: { &#39;open&#39; : value, &#39;close&#39; : value }, ... }`
-        Dictionary with date strings formatted `YYYY-MM-DD` as keys and a nested dictionary containing the &#39;open&#39; and &#39;close&#39; price as values. Ordered from latest to earliest.
+    ``Dict[str, Dict[str, float]]`` : Dictionary with date strings formatted `YYYY-MM-DD` as keys and a nested dictionary containing the &#39;open&#39; and &#39;close&#39; price as values. Ordered from latest to earliest, e.g., 
+    ```
+        { 
+            &#39;date&#39; : 
+                { 
+                    &#39;open&#39;: value, 
+                    &#39;close&#39;: value  
+                }, 
+            &#39;date&#39;: 
+                { 
+                    &#39;open&#39; : value, 
+                    &#39;close&#39; : value 
+                }, 
+            ... 
+        }
+    ```
+
+    Raises
+    ------
+    1. **scrilla.errors.PriceError**
+        If no sample prices can be retrieved, this error is thrown. 
 
     .. notes::
         * The default analysis period, if no `start_date` and `end_date` are specified, is determined by the *DEFAULT_ANALYSIS_PERIOD** variable in the `settings,py` file. The default value of this variable is 100.
@@ -568,7 +586,7 @@ def get_daily_price_history(ticker: str, start_date: Union[None, date] = None,
                 f&#39;Comparing {len(cached_prices)} = {dater.days_between(start_date, end_date)}&#39;)
 
     # make sure the length of cache is equal to the length of the requested sample
-    if cached_prices is not None and dater.date_to_string(end_date) in cached_prices.keys() and (
+    if cached_prices is not None and dater.to_string(end_date) in cached_prices.keys() and (
         (asset_type == keys.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]
             and (dater.business_days_between(start_date, end_date)) == len(cached_prices))
         or
@@ -595,6 +613,10 @@ def get_daily_price_history(ticker: str, start_date: Union[None, date] = None,
         close_price = new_prices[this_date][keys.keys[&#39;PRICES&#39;][&#39;CLOSE&#39;]]
         price_cache.save_row(ticker=ticker, date=this_date,
                              open_price=open_price, close_price=close_price)
+
+    if not prices:
+        raise errors.PriceError(
+            f&#39;Prices could not be retrieved for {ticker}&#39;)
 
     return prices
 
@@ -629,15 +651,20 @@ def get_daily_fred_history(symbol: str, start_date: Union[date, None] = None, en
     ----------
     1. **symbol**: ``str`` 
         Symbol representing the statistic whose history is to be retrieved. List of allowable values can be found [here](https://www.quandl.com/data/FRED-Federal-Reserve-Economic-Data/documentation)
-     2. **start_date**: ``datetime.date`` 
+    2. **start_date**: ``Union[date, None]`` 
         *Optional*. Start date of price history. Defaults to None. If `start_date is None`, the calculation is made as if the `start_date` were set to 100 trading days ago. This excludes weekends and holidays.
-    3. **end_date**: ``datetime.date``
+    3. **end_date**: ``Union[date, None]``
         *Optional*. End date of price history. Defaults to None. If `end_date is None`, the calculation is made as if the `end_date` were set to today. This excludes weekends and holidays so that `end_date` is set to the last previous business date.
 
     Returns
     ------
     ``list``: `{ &#39;date&#39; (str) :  value (str),  &#39;date&#39; (str):  value (str), ... }`
         Dictionary with date strings formatted `YYYY-MM-DD` as keys and the statistic on that date as the corresponding value.
+
+    Raises
+    ------
+    1. **scrilla.errors.PriceError**
+        If no sample prices can be retrieved, this error is thrown. 
 
     .. notes::
         * Most financial statistics are not reported on weekends or holidays, so the `asset_type` for financial statistics is functionally equivalent to equities, at least as far as date calculations are concerned. The dates inputted into this function are validated as if they were labelled as equity `asset_types` for this reason.
@@ -649,6 +676,10 @@ def get_daily_fred_history(symbol: str, start_date: Union[date, None] = None, en
 
     stats = stat_manager.get_stats(
         symbol=symbol, start_date=start_date, end_date=end_date)
+    
+    if not stats:
+        raise errors.PriceError(
+            f&#39;Prices could not be retrieved for {symbol}&#39;)
 
     return stats
 
@@ -703,7 +734,7 @@ def get_daily_interest_history(maturity: str, start_date: Union[date, None] = No
 
     # TODO: this only works when stats are reported daily and that the latest date in the dataset is actually end_date.
     if rates is not None and \
-            dater.date_to_string(end_date) in rates.keys() and \
+            dater.to_string(end_date) in rates.keys() and \
             dater.business_days_between(start_date, end_date) == len(rates):
         return rates
 
@@ -781,9 +812,9 @@ def get_risk_free_rate() -&gt; float:
 <ol>
 <li><strong>symbol</strong>: <code>str</code>
 Symbol representing the statistic whose history is to be retrieved. List of allowable values can be found <a href="https://www.quandl.com/data/FRED-Federal-Reserve-Economic-Data/documentation">here</a></li>
-<li><strong>start_date</strong>: <code>datetime.date</code>
+<li><strong>start_date</strong>: <code>Union[date, None]</code>
 <em>Optional</em>. Start date of price history. Defaults to None. If <code>start_date is None</code>, the calculation is made as if the <code>start_date</code> were set to 100 trading days ago. This excludes weekends and holidays.</li>
-<li><strong>end_date</strong>: <code>datetime.date</code>
+<li><strong>end_date</strong>: <code>Union[date, None]</code>
 <em>Optional</em>. End date of price history. Defaults to None. If <code>end_date is None</code>, the calculation is made as if the <code>end_date</code> were set to today. This excludes weekends and holidays so that <code>end_date</code> is set to the last previous business date.</li>
 </ol>
 <h2 id="returns">Returns</h2>
@@ -792,6 +823,11 @@ value (str),
 'date' (str):
 value (str), ... }</code>
 Dictionary with date strings formatted <code>YYYY-MM-DD</code> as keys and the statistic on that date as the corresponding value.</p>
+<h2 id="raises">Raises</h2>
+<ol>
+<li><strong>scrilla.errors.PriceError</strong>
+If no sample prices can be retrieved, this error is thrown. </li>
+</ol>
 <div class="admonition notes">
 <p class="admonition-title">Notes</p>
 <ul>
@@ -810,15 +846,20 @@ Dictionary with date strings formatted <code>YYYY-MM-DD</code> as keys and the s
     ----------
     1. **symbol**: ``str`` 
         Symbol representing the statistic whose history is to be retrieved. List of allowable values can be found [here](https://www.quandl.com/data/FRED-Federal-Reserve-Economic-Data/documentation)
-     2. **start_date**: ``datetime.date`` 
+    2. **start_date**: ``Union[date, None]`` 
         *Optional*. Start date of price history. Defaults to None. If `start_date is None`, the calculation is made as if the `start_date` were set to 100 trading days ago. This excludes weekends and holidays.
-    3. **end_date**: ``datetime.date``
+    3. **end_date**: ``Union[date, None]``
         *Optional*. End date of price history. Defaults to None. If `end_date is None`, the calculation is made as if the `end_date` were set to today. This excludes weekends and holidays so that `end_date` is set to the last previous business date.
 
     Returns
     ------
     ``list``: `{ &#39;date&#39; (str) :  value (str),  &#39;date&#39; (str):  value (str), ... }`
         Dictionary with date strings formatted `YYYY-MM-DD` as keys and the statistic on that date as the corresponding value.
+
+    Raises
+    ------
+    1. **scrilla.errors.PriceError**
+        If no sample prices can be retrieved, this error is thrown. 
 
     .. notes::
         * Most financial statistics are not reported on weekends or holidays, so the `asset_type` for financial statistics is functionally equivalent to equities, at least as far as date calculations are concerned. The dates inputted into this function are validated as if they were labelled as equity `asset_types` for this reason.
@@ -830,6 +871,10 @@ Dictionary with date strings formatted <code>YYYY-MM-DD</code> as keys and the s
 
     stats = stat_manager.get_stats(
         symbol=symbol, start_date=start_date, end_date=end_date)
+    
+    if not stats:
+        raise errors.PriceError(
+            f&#39;Prices could not be retrieved for {symbol}&#39;)
 
     return stats</code></pre>
 </details>
@@ -929,7 +974,7 @@ Dictionary with date strings formatted <code>YYYY-MM-DD</code> as keys and the i
 
     # TODO: this only works when stats are reported daily and that the latest date in the dataset is actually end_date.
     if rates is not None and \
-            dater.date_to_string(end_date) in rates.keys() and \
+            dater.to_string(end_date) in rates.keys() and \
             dater.business_days_between(start_date, end_date) == len(rates):
         return rates
 
@@ -978,7 +1023,7 @@ Maturity of the US Treasury security whose interest rate is to be retrieved. All
 </details>
 </dd>
 <dt id="scrilla.services.get_daily_price_history"><code class="name flex">
-<span>def <span class="ident">get_daily_price_history</span></span>(<span>ticker: str, start_date: Optional[datetime.date] = None, end_date: Optional[datetime.date] = None, asset_type: Optional[str] = None) ‑> list</span>
+<span>def <span class="ident">get_daily_price_history</span></span>(<span>ticker: str, start_date: Optional[datetime.date] = None, end_date: Optional[datetime.date] = None, asset_type: Optional[str] = None) ‑> Dict[str, Dict[str, float]]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Wrapper around external service request for price data. Relies on an instance of <code><a title="scrilla.services.PriceManager" href="#scrilla.services.PriceManager">PriceManager</a></code> configured by <code>settings.PRICE_MANAGER</code> value, which in turn is configured by the <code>PRICE_MANAGER</code> environment variable, to hydrate with data. </p>
@@ -996,9 +1041,26 @@ Optional End date of price history. Defaults to None. If <code>end_date is None<
 <em>Optional</em>. Asset type of the ticker whose history is to be retrieved. Used to prevent excessive calls to IO and list searching. <code>asset_type</code> is determined by comparing the ticker symbol <code>ticker</code> to a large static list of ticker symbols maintained in installation directory's /data/static/ subdirectory, which can slow the program down if the file is constantly accessed and lots of comparison are made against it. Once an <code>asset_type</code> is calculated, it is best to preserve it in the process environment somehow, so this function allows the value to be passed in. If no value is detected, it will make a call to the aforementioned directory and parse the file to determine to the <code>asset_type</code>. Asset types are statically accessible through the <code>scrilla.keys.keys['ASSETS']</code> dictionary.</li>
 </ol>
 <h2 id="returns">Returns</h2>
-<p><code>dict</code>: <code>{ 'date' : { 'open': value, 'close': value
-}, 'date': { 'open' : value, 'close' : value }, ... }</code>
-Dictionary with date strings formatted <code>YYYY-MM-DD</code> as keys and a nested dictionary containing the 'open' and 'close' price as values. Ordered from latest to earliest.</p>
+<p><code>Dict[str, Dict[str, float]]</code> : Dictionary with date strings formatted <code>YYYY-MM-DD</code> as keys and a nested dictionary containing the 'open' and 'close' price as values. Ordered from latest to earliest, e.g., </p>
+<pre><code>    { 
+        'date' : 
+            { 
+                'open': value, 
+                'close': value  
+            }, 
+        'date': 
+            { 
+                'open' : value, 
+                'close' : value 
+            }, 
+        ... 
+    }
+</code></pre>
+<h2 id="raises">Raises</h2>
+<ol>
+<li><strong>scrilla.errors.PriceError</strong>
+If no sample prices can be retrieved, this error is thrown. </li>
+</ol>
 <div class="admonition notes">
 <p class="admonition-title">Notes</p>
 <ul>
@@ -1009,8 +1071,7 @@ Dictionary with date strings formatted <code>YYYY-MM-DD</code> as keys and a nes
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def get_daily_price_history(ticker: str, start_date: Union[None, date] = None,
-                            end_date: Union[None, date] = None, asset_type: Union[None, str] = None) -&gt; list:
+<pre><code class="python">def get_daily_price_history(ticker: str, start_date: Union[None, date] = None,end_date: Union[None, date] = None, asset_type: Union[None, str] = None) -&gt; Dict[str, Dict[str, float]]:
     &#34;&#34;&#34;
     Wrapper around external service request for price data. Relies on an instance of `PriceManager` configured by `settings.PRICE_MANAGER` value, which in turn is configured by the `PRICE_MANAGER` environment variable, to hydrate with data. 
 
@@ -1029,8 +1090,27 @@ Dictionary with date strings formatted <code>YYYY-MM-DD</code> as keys and a nes
 
     Returns
     ------
-    ``dict``: `{ &#39;date&#39; : { &#39;open&#39;: value, &#39;close&#39;: value  }, &#39;date&#39;: { &#39;open&#39; : value, &#39;close&#39; : value }, ... }`
-        Dictionary with date strings formatted `YYYY-MM-DD` as keys and a nested dictionary containing the &#39;open&#39; and &#39;close&#39; price as values. Ordered from latest to earliest.
+    ``Dict[str, Dict[str, float]]`` : Dictionary with date strings formatted `YYYY-MM-DD` as keys and a nested dictionary containing the &#39;open&#39; and &#39;close&#39; price as values. Ordered from latest to earliest, e.g., 
+    ```
+        { 
+            &#39;date&#39; : 
+                { 
+                    &#39;open&#39;: value, 
+                    &#39;close&#39;: value  
+                }, 
+            &#39;date&#39;: 
+                { 
+                    &#39;open&#39; : value, 
+                    &#39;close&#39; : value 
+                }, 
+            ... 
+        }
+    ```
+
+    Raises
+    ------
+    1. **scrilla.errors.PriceError**
+        If no sample prices can be retrieved, this error is thrown. 
 
     .. notes::
         * The default analysis period, if no `start_date` and `end_date` are specified, is determined by the *DEFAULT_ANALYSIS_PERIOD** variable in the `settings,py` file. The default value of this variable is 100.
@@ -1051,7 +1131,7 @@ Dictionary with date strings formatted <code>YYYY-MM-DD</code> as keys and a nes
                 f&#39;Comparing {len(cached_prices)} = {dater.days_between(start_date, end_date)}&#39;)
 
     # make sure the length of cache is equal to the length of the requested sample
-    if cached_prices is not None and dater.date_to_string(end_date) in cached_prices.keys() and (
+    if cached_prices is not None and dater.to_string(end_date) in cached_prices.keys() and (
         (asset_type == keys.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]
             and (dater.business_days_between(start_date, end_date)) == len(cached_prices))
         or
@@ -1078,6 +1158,10 @@ Dictionary with date strings formatted <code>YYYY-MM-DD</code> as keys and a nes
         close_price = new_prices[this_date][keys.keys[&#39;PRICES&#39;][&#39;CLOSE&#39;]]
         price_cache.save_row(ticker=ticker, date=this_date,
                              open_price=open_price, close_price=close_price)
+
+    if not prices:
+        raise errors.PriceError(
+            f&#39;Prices could not be retrieved for {ticker}&#39;)
 
     return prices</code></pre>
 </details>
@@ -1479,8 +1563,8 @@ A dictionary containing keys unique to the service defined by <code>genre</code>
 
             # NOTE: Remember AlphaVantage is ordered current to earliest. END_INDEX is
             # actually the beginning of slice and START_INDEX is actually end of slice.
-            start_string, end_string = dater.date_to_string(
-                start_date), dater.date_to_string(end_date)
+            start_string, end_string = dater.to_string(
+                start_date), dater.to_string(end_date)
             if asset_type == keys.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]:
                 response_map = self.service_map[&#39;KEYS&#39;][&#39;EQUITY&#39;][&#39;FIRST_LAYER&#39;]
             elif asset_type == keys.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]:
@@ -1754,11 +1838,11 @@ If the <strong>STAT_MANAGER</strong> environment variable has been set to a valu
         &#34;&#34;&#34;
         query = &#34;&#34;
         if end_date is not None:
-            end_string = dater.date_to_string(end_date)
+            end_string = dater.to_string(end_date)
             query += f&#39;&amp;{self.service_map[&#34;PARAMS&#34;][&#34;END&#34;]}={end_string}&#39;
 
         if start_date is not None:
-            start_string = dater.date_to_string(start_date)
+            start_string = dater.to_string(start_date)
             query += f&#39;&amp;{self.service_map[&#34;PARAMS&#34;][&#34;START&#34;]}={start_string}&#39;
 
         if query:

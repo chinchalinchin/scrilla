@@ -131,6 +131,8 @@ GUI_DARK_MODE = os.environ.setdefault(&#39;DARK_MODE&#39;, &#39;true&#39;).lower
 &#34;&#34;&#34;Flag determining the theme of the GUI, i.e. light mode or dark mode.&#34;&#34;&#34;
 
 # OPTIONAL USER CONFIGURATION
+DATE_FORMAT = None
+&#34;&#34;&#34;datetime.strptime format for parsing date strings; Configured by environment of same name, **DATE_FORMAT**&#34;&#34;&#34;
 GUI_WIDTH = None
 &#34;&#34;&#34;Width of main Graphical User Interface window; Configured by environment variable of same name, **GUI_WIDTH**&#34;&#34;&#34;
 GUI_HEIGHT = None
@@ -147,6 +149,14 @@ ITO_STEPS = None
 &#34;&#34;&#34;Number of iterations used to approximate an Ito integral; Configured by environment variable of same name, **ITO_STEPS**&#34;&#34;&#34;
 DEFAULT_ANALYSIS_PERIOD = None
 &#34;&#34;&#34;Number of days used in a historical sample, if no date range is specified; Configured by environment variable of same name, **DEFAULT_ANALYSIS_PERIOD**&#34;&#34;&#34;
+
+try:
+    DATE_FORMAT = str(os.environ.setdefault(&#39;DATE_FORMAT&#39;, &#39;%Y-%m-%d&#39;))
+except:
+    logger.debug(
+        &#39;Failed to parse DATE_FORMAT from environment. Setting to default value of 1024.&#39;)
+    DATE_FORMAT = &#39;%Y-%m-%d&#39;
+    os.environ[&#39;GUI_WIDTH&#39;] = &#39;%Y-%m-%d&#39;
 
 try:
     GUI_WIDTH = int(os.environ.setdefault(&#39;GUI_WIDTH&#39;, &#39;1024&#39;))
@@ -387,6 +397,10 @@ def av_key() -&gt; str:
 <dt id="scrilla.settings.COMMON_WATCHLIST_FILE"><code class="name">var <span class="ident">COMMON_WATCHLIST_FILE</span></code></dt>
 <dd>
 <div class="desc"><p>Location of file used to store watchlisted ticker symbols</p></div>
+</dd>
+<dt id="scrilla.settings.DATE_FORMAT"><code class="name">var <span class="ident">DATE_FORMAT</span></code></dt>
+<dd>
+<div class="desc"><p>datetime.strptime format for parsing date strings; Configured by environment of same name, <strong>DATE_FORMAT</strong></p></div>
 </dd>
 <dt id="scrilla.settings.DEFAULT_ANALYSIS_PERIOD"><code class="name">var <span class="ident">DEFAULT_ANALYSIS_PERIOD</span></code></dt>
 <dd>
@@ -645,6 +659,7 @@ def av_key() -&gt; str:
 <li><code><a title="scrilla.settings.CACHE_SQLITE_FILE" href="#scrilla.settings.CACHE_SQLITE_FILE">CACHE_SQLITE_FILE</a></code></li>
 <li><code><a title="scrilla.settings.COMMON_DIR" href="#scrilla.settings.COMMON_DIR">COMMON_DIR</a></code></li>
 <li><code><a title="scrilla.settings.COMMON_WATCHLIST_FILE" href="#scrilla.settings.COMMON_WATCHLIST_FILE">COMMON_WATCHLIST_FILE</a></code></li>
+<li><code><a title="scrilla.settings.DATE_FORMAT" href="#scrilla.settings.DATE_FORMAT">DATE_FORMAT</a></code></li>
 <li><code><a title="scrilla.settings.DEFAULT_ANALYSIS_PERIOD" href="#scrilla.settings.DEFAULT_ANALYSIS_PERIOD">DEFAULT_ANALYSIS_PERIOD</a></code></li>
 <li><code><a title="scrilla.settings.DIV_MANAGER" href="#scrilla.settings.DIV_MANAGER">DIV_MANAGER</a></code></li>
 <li><code><a title="scrilla.settings.ESTIMATION_METHOD" href="#scrilla.settings.ESTIMATION_METHOD">ESTIMATION_METHOD</a></code></li>

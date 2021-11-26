@@ -61,20 +61,24 @@ profile_cache = cache.ProfileCache()
 correlation_cache = cache.CorrelationCache()
 
 
-def get_sample_of_returns(ticker: str, sample_prices: dict = None, start_date: Union[date, None] = None, end_date: Union[date, None] = None, asset_type: Union[str, None] = None, daily: bool = False) -&gt; list:
+def get_sample_of_returns(ticker: str, sample_prices: Union[Dict[str, Dict[str, float]], None] = None, start_date: Union[date, None] = None, end_date: Union[date, None] = None, asset_type: Union[str, None] = None, daily: bool = False) -&gt; List[float]:
     &#34;&#34;&#34;
     Generates a list of logarithmic returns on the sample `prices`. Sample return is annualized.
 
     Parameters
     ----------
-    2. **start_date** : ``datetime.date``
+    1. **ticker**: ``str``
+
+    2. **start_date** : ``Union[date, None]``
         *Optional*. Start date of the time period over which the risk-return profile is to be calculated. Defaults to `None`, in which case the calculation proceeds as if `start_date` were set to 100 trading days prior to `end_date`. If `get_asset_type(ticker)=scrilla.keys.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]`, this means 100 days regardless. If `get_asset_type(ticker)=scrilla.keys.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]`, this excludes weekends and holidays and decrements the `end_date` by 100 trading days.
-    3. **end_date** : ``datetime.date``
+    3. **end_date** : ``Union[date, None]``
         *Optional*. End date of the time period over which the risk-return profile is to be calculated. Defaults to `None`, in which the calculation proceeds as if `end_date` were set to today. If the `get_asset_type(ticker)==keys.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]` this means today regardless. If `get_asset_type(ticker)=keys.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]` this excludes holidays and weekends and sets the end date to the last valid trading date. 
-    4. **sample_prices** : ``list``
+    4. **sample_prices** : ``Union[Dict[str, Dict[str, float]], None]``
         *Optional*. A list of the asset prices for which the risk profile will be calculated. Overrides calls to service and forces calculation of risk price for sample of prices supplied. Function will disregard `start_date` and `end_date` and use the first and last key as the latest and earliest date, respectively. In other words, the `sample_prices` dictionary must be ordered from latest to earliest. Format: `{ &#39;date_1&#39; : { &#39;open&#39; : number, &#39;close&#39; : number}, &#39;date_2&#39;: { &#39;open&#39;: number, &#39;close&#39;: number} ... }`
-    5. **asset_type** : ``str``
+    5. **asset_type** : ``Union[str, None]``
          *Optional*. Specify asset type to prevent overusing redundant calculations. Allowable values: `scrilla.keys.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]`, `scrilla.keys.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]`
+    6. **daily**: ``bool``
+
 
     .. notes::
         * the `trading_period` for a single asset can be determined from its `asset_type`...should i use a conditional and fork constants.constants[&#39;ONE_TRADING_DAY&#39;] instead of passing it in?
@@ -108,8 +112,8 @@ def get_sample_of_returns(ticker: str, sample_prices: dict = None, start_date: U
             # the time_delta by the number of missed days.
             if asset_type == keys.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;] or \
                     (asset_type == keys.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;] and not dater.consecutive_trading_days(tomorrows_date, this_date)):
-                time_delta = (dater.parse_date_string(
-                    tomorrows_date) - dater.parse_date_string(this_date)).days
+                time_delta = (dater.parse(
+                    tomorrows_date) - dater.parse(this_date)).days
             else:
                 time_delta = 1
 
@@ -177,10 +181,6 @@ def calculate_moving_averages(tickers: list, start_date: Union[date, None] = Non
                 prices = services.get_daily_price_history(ticker)
             else:
                 prices = sample_prices[ticker]
-
-            if not prices:
-                raise errors.PriceError(
-                    f&#39;Prices could not be retrieved for {ticker}&#39;)
 
             asset_type = files.get_asset_type(ticker)
             trading_period = functions.get_trading_period(asset_type)
@@ -340,7 +340,7 @@ def calculate_moving_averages(tickers: list, start_date: Union[date, None] = Non
                         if len(MAs_1) - MAs_1.index(MA) == settings.MA_1_PERIOD - 1:
                             end_flag = True
                             if asset_type == keys.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]:
-                                date_of_MA1 = dater.decrement_date_string_by_business_days(
+                                date_of_MA1 = dater.decrement_date_by_business_days(
                                     this_date, MAs_1.index(MA))
                             elif asset_type == keys.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]:
                                 date_of_MA1 = dater.string_to_date(
@@ -357,7 +357,8 @@ def calculate_moving_averages(tickers: list, start_date: Union[date, None] = Non
 
                 # See NOTE #3
                 if mixed_flag or portfolio_asset_type == keys.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]:
-                    if not(dater.is_date_string_holiday(this_date) or dater.is_date_string_weekend(this_date)):
+                    # if dater.is_trading_date(this_date):
+                    if dater.is_trading_date(this_date):
                         MAs_1.append((todays_return / settings.MA_1_PERIOD))
                 elif portfolio_asset_type == keys.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]:
                     MAs_1.append((todays_return / settings.MA_1_PERIOD))
@@ -368,7 +369,7 @@ def calculate_moving_averages(tickers: list, start_date: Union[date, None] = Non
                         if len(MAs_2) - MAs_2.index(MA) == settings.MA_2_PERIOD - 1:
                             end_flag = True
                             if asset_type == keys.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]:
-                                date_of_MA2 = dater.decrement_date_string_by_business_days(
+                                date_of_MA2 = dater.decrement_date_by_business_days(
                                     this_date, MAs_2.index(MA))
                             elif asset_type == keys.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]:
                                 date_of_MA2 = dater.string_to_date(
@@ -385,7 +386,7 @@ def calculate_moving_averages(tickers: list, start_date: Union[date, None] = Non
 
                 # See NOTE #3
                 if mixed_flag or portfolio_asset_type == keys.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]:
-                    if not(dater.is_date_string_holiday(this_date) or dater.is_date_string_weekend(this_date)):
+                    if dater.is_trading_date(this_date):
                         MAs_2.append((todays_return / settings.MA_2_PERIOD))
                 elif portfolio_asset_type == keys.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]:
                     MAs_2.append((todays_return / settings.MA_2_PERIOD))
@@ -396,7 +397,7 @@ def calculate_moving_averages(tickers: list, start_date: Union[date, None] = Non
                         if len(MAs_3) - MAs_3.index(MA) == settings.MA_3_PERIOD - 1:
                             end_flag = True
                             if asset_type == keys.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]:
-                                date_of_MA3 = dater.decrement_date_string_by_business_days(
+                                date_of_MA3 = dater.decrement_date_by_business_days(
                                     this_date, MAs_3.index(MA))
                             elif asset_type == keys.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]:
                                 date_of_MA3 = dater.string_to_date(
@@ -413,7 +414,7 @@ def calculate_moving_averages(tickers: list, start_date: Union[date, None] = Non
 
                 # See NOTE #3
                 if mixed_flag or portfolio_asset_type == keys.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]:
-                    if not(dater.is_date_string_holiday(this_date) or dater.is_date_string_weekend(this_date)):
+                    if dater.is_trading_date(this_date):
                         MAs_3.append((todays_return / settings.MA_3_PERIOD))
                 elif portfolio_asset_type == keys.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]:
                     MAs_3.append((todays_return / settings))
@@ -792,8 +793,8 @@ def calculate_moment_risk_return(ticker: str, start_date: Union[date, None] = No
             # the time_delta by the number of missed days.
             if asset_type == keys.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;] or \
                     (asset_type == keys.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;] and not dater.consecutive_trading_days(tomorrows_date, this_date)):
-                time_delta = (dater.parse_date_string(
-                    tomorrows_date) - dater.parse_date_string(this_date)).days
+                time_delta = (dater.parse(
+                    tomorrows_date) - dater.parse(this_date)).days
             else:
                 time_delta = 1
 
@@ -1303,8 +1304,8 @@ def calculate_moment_correlation(ticker_1: str, ticker_2: str, asset_type_1: Uni
             # the time_delta by the number of missed days, to offset the weekend and holiday return.
             if asset_type_1 == keys.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;] or \
                     (asset_type_1 == keys.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;] and not dater.consecutive_trading_days(tomorrows_date, this_date)):
-                time_delta = (dater.parse_date_string(
-                    tomorrows_date) - dater.parse_date_string(this_date)).days
+                time_delta = (dater.parse(
+                    tomorrows_date) - dater.parse(this_date)).days
             else:
                 time_delta = 1
 
@@ -1314,8 +1315,8 @@ def calculate_moment_correlation(ticker_1: str, ticker_2: str, asset_type_1: Uni
             # see above note
             if asset_type_2 == keys.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;] or \
                     (asset_type_2 == keys.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;] and not dater.consecutive_trading_days(tomorrows_date, this_date)):
-                time_delta = (dater.parse_date_string(
-                    tomorrows_date) - dater.parse_date_string(this_date)).days
+                time_delta = (dater.parse(
+                    tomorrows_date) - dater.parse(this_date)).days
             else:
                 time_delta = 1
 
@@ -1472,7 +1473,7 @@ def calculate_moment_correlation_series(ticker_1: str, ticker_2: str, start_date
         todays_cor = calculate_moment_correlation(ticker_1=ticker_1,
                                                   ticker_2=ticker_2,
                                                   end_date=calc_date_end)
-        correlation_series[dater.date_to_string(
+        correlation_series[dater.to_string(
             this_date)] = todays_cor[&#39;correlation&#39;]
 
     result = {}
@@ -2112,8 +2113,8 @@ Dictionary containing the correlation of <code>ticker_1</code> and <code>ticker_
             # the time_delta by the number of missed days, to offset the weekend and holiday return.
             if asset_type_1 == keys.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;] or \
                     (asset_type_1 == keys.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;] and not dater.consecutive_trading_days(tomorrows_date, this_date)):
-                time_delta = (dater.parse_date_string(
-                    tomorrows_date) - dater.parse_date_string(this_date)).days
+                time_delta = (dater.parse(
+                    tomorrows_date) - dater.parse(this_date)).days
             else:
                 time_delta = 1
 
@@ -2123,8 +2124,8 @@ Dictionary containing the correlation of <code>ticker_1</code> and <code>ticker_
             # see above note
             if asset_type_2 == keys.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;] or \
                     (asset_type_2 == keys.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;] and not dater.consecutive_trading_days(tomorrows_date, this_date)):
-                time_delta = (dater.parse_date_string(
-                    tomorrows_date) - dater.parse_date_string(this_date)).days
+                time_delta = (dater.parse(
+                    tomorrows_date) - dater.parse(this_date)).days
             else:
                 time_delta = 1
 
@@ -2202,7 +2203,7 @@ Dictionary containing the correlation of <code>ticker_1</code> and <code>ticker_
         todays_cor = calculate_moment_correlation(ticker_1=ticker_1,
                                                   ticker_2=ticker_2,
                                                   end_date=calc_date_end)
-        correlation_series[dater.date_to_string(
+        correlation_series[dater.to_string(
             this_date)] = todays_cor[&#39;correlation&#39;]
 
     result = {}
@@ -2360,8 +2361,8 @@ Dictionary containing the annualized return and volatility. Formatted as <code>{
             # the time_delta by the number of missed days.
             if asset_type == keys.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;] or \
                     (asset_type == keys.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;] and not dater.consecutive_trading_days(tomorrows_date, this_date)):
-                time_delta = (dater.parse_date_string(
-                    tomorrows_date) - dater.parse_date_string(this_date)).days
+                time_delta = (dater.parse(
+                    tomorrows_date) - dater.parse(this_date)).days
             else:
                 time_delta = 1
 
@@ -2476,10 +2477,6 @@ averages is a 3-node list with the following format <code>averages[ticker][perio
                 prices = services.get_daily_price_history(ticker)
             else:
                 prices = sample_prices[ticker]
-
-            if not prices:
-                raise errors.PriceError(
-                    f&#39;Prices could not be retrieved for {ticker}&#39;)
 
             asset_type = files.get_asset_type(ticker)
             trading_period = functions.get_trading_period(asset_type)
@@ -2639,7 +2636,7 @@ averages is a 3-node list with the following format <code>averages[ticker][perio
                         if len(MAs_1) - MAs_1.index(MA) == settings.MA_1_PERIOD - 1:
                             end_flag = True
                             if asset_type == keys.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]:
-                                date_of_MA1 = dater.decrement_date_string_by_business_days(
+                                date_of_MA1 = dater.decrement_date_by_business_days(
                                     this_date, MAs_1.index(MA))
                             elif asset_type == keys.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]:
                                 date_of_MA1 = dater.string_to_date(
@@ -2656,7 +2653,8 @@ averages is a 3-node list with the following format <code>averages[ticker][perio
 
                 # See NOTE #3
                 if mixed_flag or portfolio_asset_type == keys.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]:
-                    if not(dater.is_date_string_holiday(this_date) or dater.is_date_string_weekend(this_date)):
+                    # if dater.is_trading_date(this_date):
+                    if dater.is_trading_date(this_date):
                         MAs_1.append((todays_return / settings.MA_1_PERIOD))
                 elif portfolio_asset_type == keys.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]:
                     MAs_1.append((todays_return / settings.MA_1_PERIOD))
@@ -2667,7 +2665,7 @@ averages is a 3-node list with the following format <code>averages[ticker][perio
                         if len(MAs_2) - MAs_2.index(MA) == settings.MA_2_PERIOD - 1:
                             end_flag = True
                             if asset_type == keys.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]:
-                                date_of_MA2 = dater.decrement_date_string_by_business_days(
+                                date_of_MA2 = dater.decrement_date_by_business_days(
                                     this_date, MAs_2.index(MA))
                             elif asset_type == keys.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]:
                                 date_of_MA2 = dater.string_to_date(
@@ -2684,7 +2682,7 @@ averages is a 3-node list with the following format <code>averages[ticker][perio
 
                 # See NOTE #3
                 if mixed_flag or portfolio_asset_type == keys.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]:
-                    if not(dater.is_date_string_holiday(this_date) or dater.is_date_string_weekend(this_date)):
+                    if dater.is_trading_date(this_date):
                         MAs_2.append((todays_return / settings.MA_2_PERIOD))
                 elif portfolio_asset_type == keys.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]:
                     MAs_2.append((todays_return / settings.MA_2_PERIOD))
@@ -2695,7 +2693,7 @@ averages is a 3-node list with the following format <code>averages[ticker][perio
                         if len(MAs_3) - MAs_3.index(MA) == settings.MA_3_PERIOD - 1:
                             end_flag = True
                             if asset_type == keys.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]:
-                                date_of_MA3 = dater.decrement_date_string_by_business_days(
+                                date_of_MA3 = dater.decrement_date_by_business_days(
                                     this_date, MAs_3.index(MA))
                             elif asset_type == keys.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]:
                                 date_of_MA3 = dater.string_to_date(
@@ -2712,7 +2710,7 @@ averages is a 3-node list with the following format <code>averages[ticker][perio
 
                 # See NOTE #3
                 if mixed_flag or portfolio_asset_type == keys.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]:
-                    if not(dater.is_date_string_holiday(this_date) or dater.is_date_string_weekend(this_date)):
+                    if dater.is_trading_date(this_date):
                         MAs_3.append((todays_return / settings.MA_3_PERIOD))
                 elif portfolio_asset_type == keys.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]:
                     MAs_3.append((todays_return / settings))
@@ -3335,20 +3333,26 @@ correlation matrix of <code>tickers</code>. indices correspond to the Cartesian 
 </details>
 </dd>
 <dt id="scrilla.analysis.models.geometric.statistics.get_sample_of_returns"><code class="name flex">
-<span>def <span class="ident">get_sample_of_returns</span></span>(<span>ticker: str, sample_prices: dict = None, start_date: Optional[datetime.date] = None, end_date: Optional[datetime.date] = None, asset_type: Optional[str] = None, daily: bool = False) ‑> list</span>
+<span>def <span class="ident">get_sample_of_returns</span></span>(<span>ticker: str, sample_prices: Optional[Dict[str, Dict[str, float]]] = None, start_date: Optional[datetime.date] = None, end_date: Optional[datetime.date] = None, asset_type: Optional[str] = None, daily: bool = False) ‑> List[float]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Generates a list of logarithmic returns on the sample <code>prices</code>. Sample return is annualized.</p>
 <h2 id="parameters">Parameters</h2>
 <ol>
-<li><strong>start_date</strong> : <code>datetime.date</code>
-<em>Optional</em>. Start date of the time period over which the risk-return profile is to be calculated. Defaults to <code>None</code>, in which case the calculation proceeds as if <code>start_date</code> were set to 100 trading days prior to <code>end_date</code>. If <code>get_asset_type(ticker)=scrilla.keys.keys['ASSETS']['CRYPTO']</code>, this means 100 days regardless. If <code>get_asset_type(ticker)=scrilla.keys.keys['ASSETS']['EQUITY']</code>, this excludes weekends and holidays and decrements the <code>end_date</code> by 100 trading days.</li>
-<li><strong>end_date</strong> : <code>datetime.date</code>
+<li>
+<p><strong>ticker</strong>: <code>str</code></p>
+</li>
+<li>
+<p><strong>start_date</strong> : <code>Union[date, None]</code>
+<em>Optional</em>. Start date of the time period over which the risk-return profile is to be calculated. Defaults to <code>None</code>, in which case the calculation proceeds as if <code>start_date</code> were set to 100 trading days prior to <code>end_date</code>. If <code>get_asset_type(ticker)=scrilla.keys.keys['ASSETS']['CRYPTO']</code>, this means 100 days regardless. If <code>get_asset_type(ticker)=scrilla.keys.keys['ASSETS']['EQUITY']</code>, this excludes weekends and holidays and decrements the <code>end_date</code> by 100 trading days.</p>
+</li>
+<li><strong>end_date</strong> : <code>Union[date, None]</code>
 <em>Optional</em>. End date of the time period over which the risk-return profile is to be calculated. Defaults to <code>None</code>, in which the calculation proceeds as if <code>end_date</code> were set to today. If the <code>get_asset_type(ticker)==keys.keys['ASSETS']['CRYPTO']</code> this means today regardless. If <code>get_asset_type(ticker)=keys.keys['ASSETS']['EQUITY']</code> this excludes holidays and weekends and sets the end date to the last valid trading date. </li>
-<li><strong>sample_prices</strong> : <code>list</code>
+<li><strong>sample_prices</strong> : <code>Union[Dict[str, Dict[str, float]], None]</code>
 <em>Optional</em>. A list of the asset prices for which the risk profile will be calculated. Overrides calls to service and forces calculation of risk price for sample of prices supplied. Function will disregard <code>start_date</code> and <code>end_date</code> and use the first and last key as the latest and earliest date, respectively. In other words, the <code>sample_prices</code> dictionary must be ordered from latest to earliest. Format: <code>{ 'date_1' : { 'open' : number, 'close' : number}, 'date_2': { 'open': number, 'close': number} ... }</code></li>
-<li><strong>asset_type</strong> : <code>str</code>
+<li><strong>asset_type</strong> : <code>Union[str, None]</code>
 <em>Optional</em>. Specify asset type to prevent overusing redundant calculations. Allowable values: <code>scrilla.keys.keys['ASSETS']['EQUITY']</code>, <code>scrilla.keys.keys['ASSETS']['CRYPTO']</code></li>
+<li><strong>daily</strong>: <code>bool</code></li>
 </ol>
 <div class="admonition notes">
 <p class="admonition-title">Notes</p>
@@ -3360,20 +3364,24 @@ correlation matrix of <code>tickers</code>. indices correspond to the Cartesian 
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def get_sample_of_returns(ticker: str, sample_prices: dict = None, start_date: Union[date, None] = None, end_date: Union[date, None] = None, asset_type: Union[str, None] = None, daily: bool = False) -&gt; list:
+<pre><code class="python">def get_sample_of_returns(ticker: str, sample_prices: Union[Dict[str, Dict[str, float]], None] = None, start_date: Union[date, None] = None, end_date: Union[date, None] = None, asset_type: Union[str, None] = None, daily: bool = False) -&gt; List[float]:
     &#34;&#34;&#34;
     Generates a list of logarithmic returns on the sample `prices`. Sample return is annualized.
 
     Parameters
     ----------
-    2. **start_date** : ``datetime.date``
+    1. **ticker**: ``str``
+
+    2. **start_date** : ``Union[date, None]``
         *Optional*. Start date of the time period over which the risk-return profile is to be calculated. Defaults to `None`, in which case the calculation proceeds as if `start_date` were set to 100 trading days prior to `end_date`. If `get_asset_type(ticker)=scrilla.keys.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]`, this means 100 days regardless. If `get_asset_type(ticker)=scrilla.keys.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]`, this excludes weekends and holidays and decrements the `end_date` by 100 trading days.
-    3. **end_date** : ``datetime.date``
+    3. **end_date** : ``Union[date, None]``
         *Optional*. End date of the time period over which the risk-return profile is to be calculated. Defaults to `None`, in which the calculation proceeds as if `end_date` were set to today. If the `get_asset_type(ticker)==keys.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]` this means today regardless. If `get_asset_type(ticker)=keys.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]` this excludes holidays and weekends and sets the end date to the last valid trading date. 
-    4. **sample_prices** : ``list``
+    4. **sample_prices** : ``Union[Dict[str, Dict[str, float]], None]``
         *Optional*. A list of the asset prices for which the risk profile will be calculated. Overrides calls to service and forces calculation of risk price for sample of prices supplied. Function will disregard `start_date` and `end_date` and use the first and last key as the latest and earliest date, respectively. In other words, the `sample_prices` dictionary must be ordered from latest to earliest. Format: `{ &#39;date_1&#39; : { &#39;open&#39; : number, &#39;close&#39; : number}, &#39;date_2&#39;: { &#39;open&#39;: number, &#39;close&#39;: number} ... }`
-    5. **asset_type** : ``str``
+    5. **asset_type** : ``Union[str, None]``
          *Optional*. Specify asset type to prevent overusing redundant calculations. Allowable values: `scrilla.keys.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]`, `scrilla.keys.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]`
+    6. **daily**: ``bool``
+
 
     .. notes::
         * the `trading_period` for a single asset can be determined from its `asset_type`...should i use a conditional and fork constants.constants[&#39;ONE_TRADING_DAY&#39;] instead of passing it in?
@@ -3407,8 +3415,8 @@ correlation matrix of <code>tickers</code>. indices correspond to the Cartesian 
             # the time_delta by the number of missed days.
             if asset_type == keys.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;] or \
                     (asset_type == keys.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;] and not dater.consecutive_trading_days(tomorrows_date, this_date)):
-                time_delta = (dater.parse_date_string(
-                    tomorrows_date) - dater.parse_date_string(this_date)).days
+                time_delta = (dater.parse(
+                    tomorrows_date) - dater.parse(this_date)).days
             else:
                 time_delta = 1
 

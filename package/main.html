@@ -716,7 +716,7 @@ def do_program() -&gt; None:
             yield_curve = {}
             args[&#39;start_date&#39;] = dater.get_next_business_date(
                 args[&#39;start_date&#39;])
-            start_date_string = dater.date_to_string(args[&#39;start_date&#39;])
+            start_date_string = dater.to_string(args[&#39;start_date&#39;])
             yield_curve[start_date_string] = []
             for maturity in keys.keys[&#39;YIELD_CURVE&#39;]:
                 rate = services.get_daily_interest_history(maturity=maturity,
@@ -1526,7 +1526,7 @@ if __name__ == &#34;__main__&#34;:
             yield_curve = {}
             args[&#39;start_date&#39;] = dater.get_next_business_date(
                 args[&#39;start_date&#39;])
-            start_date_string = dater.date_to_string(args[&#39;start_date&#39;])
+            start_date_string = dater.to_string(args[&#39;start_date&#39;])
             yield_curve[start_date_string] = []
             for maturity in keys.keys[&#39;YIELD_CURVE&#39;]:
                 rate = services.get_daily_interest_history(maturity=maturity,

@@ -225,8 +225,8 @@ SONY = 56<br>
 <span class="kn">from</span> <span class="nn">scrilla.services</span> <span class="kn">import</span> <span class="n">get_daily_price_history</span>
 <span class="kn">from</span> <span class="nn">scrilla.util</span> <span class="kn">import</span> <span class="n">dater</span>
 
-<span class="n">start</span> <span class="o">=</span> <span class="n">dater</span><span class="o">.</span><span class="n">parse_date_string</span><span class="p">(</span><span class="s1">&#39;2021-01-01&#39;</span><span class="p">)</span>
-<span class="n">end</span> <span class="o">=</span> <span class="n">dater</span><span class="o">.</span><span class="n">parse_date_string</span><span class="p">(</span><span class="s1">&#39;2021-04-05&#39;</span><span class="p">)</span>
+<span class="n">start</span> <span class="o">=</span> <span class="n">dater</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="s1">&#39;2021-01-01&#39;</span><span class="p">)</span>
+<span class="n">end</span> <span class="o">=</span> <span class="n">dater</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="s1">&#39;2021-04-05&#39;</span><span class="p">)</span>
 <span class="n">prices</span> <span class="o">=</span> <span class="n">get_daily_price_history</span><span class="p">(</span><span class="n">ticker</span><span class="o">=</span><span class="s1">&#39;ALLY&#39;</span><span class="p">,</span> <span class="n">start_date</span><span class="o">=</span><span class="n">start</span><span class="p">,</span> <span class="n">end_date</span><span class="o">=</span><span class="n">end</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -241,8 +241,8 @@ SONY = 56<br>
 <span class="kn">from</span> <span class="nn">scrilla.analysis.models.geometric.statistics</span> <span class="kn">import</span> <span class="n">calculate_risk_return</span>
 <span class="kn">from</span> <span class="nn">scrilla.util</span> <span class="kn">import</span> <span class="n">dater</span>
 
-<span class="n">start</span> <span class="o">=</span> <span class="n">dater</span><span class="o">.</span><span class="n">parse_date_string</span><span class="p">(</span><span class="s1">&#39;2021-01-01&#39;</span><span class="p">)</span>
-<span class="n">end</span> <span class="o">=</span> <span class="n">dater</span><span class="o">.</span><span class="n">parse_date_string</span><span class="p">(</span><span class="s1">&#39;2021-04-05&#39;</span><span class="p">)</span>
+<span class="n">start</span> <span class="o">=</span> <span class="n">dater</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="s1">&#39;2021-01-01&#39;</span><span class="p">)</span>
+<span class="n">end</span> <span class="o">=</span> <span class="n">dater</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="s1">&#39;2021-04-05&#39;</span><span class="p">)</span>
 <span class="n">prices</span> <span class="o">=</span> <span class="n">calulate_risk_return</span><span class="p">(</span><span class="n">ticker</span><span class="o">=</span><span class="s1">&#39;BTC&#39;</span><span class="p">,</span> <span class="n">start_date</span><span class="o">=</span><span class="n">start</span><span class="p">,</span> <span class="n">end_date</span><span class="o">=</span><span class="n">end</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -258,8 +258,8 @@ SONY = 56<br>
 <span class="kn">from</span> <span class="nn">scrilla.analysis.optimizer</span> <span class="kn">import</span> <span class="n">optimize_portfolio_variance</span><span class="p">,</span> <span class="n">maximize_sharpe_ratio</span>
 <span class="kn">from</span> <span class="nn">scrilla.util</span> <span class="kn">import</span> <span class="n">dater</span>
 
-<span class="n">start</span> <span class="o">=</span> <span class="n">dater</span><span class="o">.</span><span class="n">parse_date_string</span><span class="p">(</span><span class="s1">&#39;2021-01-01&#39;</span><span class="p">)</span>
-<span class="n">end</span> <span class="o">=</span> <span class="n">dater</span><span class="o">.</span><span class="n">parse_date_string</span><span class="p">(</span><span class="s1">&#39;2021-04-05&#39;</span><span class="p">)</span>
+<span class="n">start</span> <span class="o">=</span> <span class="n">dater</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="s1">&#39;2021-01-01&#39;</span><span class="p">)</span>
+<span class="n">end</span> <span class="o">=</span> <span class="n">dater</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="s1">&#39;2021-04-05&#39;</span><span class="p">)</span>
 <span class="n">port</span> <span class="o">=</span> <span class="n">Portfolio</span><span class="p">(</span><span class="n">tickers</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;BTC&#39;</span><span class="p">,</span><span class="s1">&#39;ALLY&#39;</span><span class="p">,</span><span class="s1">&#39;SPY&#39;</span><span class="p">,</span><span class="s1">&#39;GLD&#39;</span><span class="p">],</span> <span class="n">start_date</span><span class="o">=</span><span class="n">start</span><span class="p">,</span> <span class="n">end_date</span><span class="o">=</span><span class="n">end</span><span class="p">)</span>
 
 <span class="c1"># calculate minimum variance portfolio &amp; its risk profile</span>

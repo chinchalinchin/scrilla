@@ -215,8 +215,8 @@ os.environ.setdefault('IEX_KEY', 'key')
 from scrilla.services import get_daily_price_history
 from scrilla.util import dater
 
-start = dater.parse_date_string('2021-01-01')
-end = dater.parse_date_string('2021-04-05')
+start = dater.parse('2021-01-01')
+end = dater.parse('2021-04-05')
 prices = get_daily_price_history(ticker='ALLY', start_date=start, end_date=end)
 ```
 
@@ -231,8 +231,8 @@ os.environ.setdefault('IEX_KEY', 'key')
 from scrilla.analysis.models.geometric.statistics import calculate_risk_return
 from scrilla.util import dater
 
-start = dater.parse_date_string('2021-01-01')
-end = dater.parse_date_string('2021-04-05')
+start = dater.parse('2021-01-01')
+end = dater.parse('2021-04-05')
 prices = calulate_risk_return(ticker='BTC', start_date=start, end_date=end)
 ```
 
@@ -249,8 +249,8 @@ from scrilla.analysis.objects.portfolio import Portfolio
 from scrilla.analysis.optimizer import optimize_portfolio_variance, maximize_sharpe_ratio
 from scrilla.util import dater
 
-start = dater.parse_date_string('2021-01-01')
-end = dater.parse_date_string('2021-04-05')
+start = dater.parse('2021-01-01')
+end = dater.parse('2021-04-05')
 port = Portfolio(tickers=['BTC','ALLY','SPY','GLD'], start_date=start, end_date=end)
 
 # calculate minimum variance portfolio & its risk profile

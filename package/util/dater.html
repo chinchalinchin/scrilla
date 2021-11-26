@@ -28,14 +28,26 @@
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">import datetime
+from datetime import date
+
 import math
+from attr import validate
 import holidays
-from typing import List, Tuple, Union
+from typing import Any, List, Tuple, Union
 
 import dateutil.easter as easter
 
+from scrilla.settings import DATE_FORMAT
 
-def validate_order_of_dates(start_date: datetime.date, end_date: datetime.date) -&gt; Tuple[datetime.date, datetime.date]:
+
+def today() -&gt; datetime.date:
+    &#34;&#34;&#34;
+    Returns today&#39;s date
+    &#34;&#34;&#34;
+    return datetime.date.today()
+
+
+def validate_order_of_dates(start_date: date, end_date: date) -&gt; Tuple[date, date]:
     &#34;&#34;&#34;
     Returns the inputted dates as an tuple ordered from earliest to latest.
     &#34;&#34;&#34;
@@ -44,58 +56,103 @@ def validate_order_of_dates(start_date: datetime.date, end_date: datetime.date) 
         return end_date, start_date
     return start_date, end_date
 
-# YYYY-MM-DD
 
-
-def parse_date_string(date_string: str) -&gt; Union[datetime.date, None]:
+def parse(date_string: str) -&gt; Union[date, None]:
     &#34;&#34;&#34;
     Converts a date string in the &#39;YYYY-MM-DD&#39; format to a Python `datetime.date`.
     &#34;&#34;&#34;
-    return datetime.datetime.strptime(date_string, &#39;%Y-%m-%d&#39;).date()
+    return datetime.datetime.strptime(date_string, DATE_FORMAT).date()
 
 
-def get_today() -&gt; datetime.date:
+def validate_date(this_date):
+    if isinstance(this_date, str):
+        return parse(this_date)
+    elif not isinstance(this_date, date):
+        raise ValueError(f&#39;{this_date} is neither date nor \&#39;{DATE_FORMAT}\&#39;formatted string&#39;)
+    return this_date
+
+
+def validate_date_range(start_date: Any, end_date: Any) -&gt; Tuple[date, date]:
+    if isinstance(start_date, str):
+        start_date = parse(start_date)
+    elif not isinstance(start_date, date):
+        raise ValueError(f&#39;{start_date} is neither date nor \&#39;{DATE_FORMAT}\&#39;formatted string&#39;)
+    if isinstance(end_date, str):
+        end_date = parse(end_date)
+    elif not isinstance(end_date, date):
+        raise ValueError(f&#39;{end_date} is neither date nor \&#39;{DATE_FORMAT}\&#39;formatted string&#39;)
+    return validate_order_of_dates(start_date, end_date)
+
+
+def validate_date_list(dates: Union[List[Union[datetime.date, str]]]) -&gt; Union[List[datetime.date], None]:
     &#34;&#34;&#34;
-    Returns today&#39;s date
+    
+    Raises
+    ------
+    1. **ValueError**
+        If the supplied list of dates contains unexpected data types, this error will be thrown.
+
     &#34;&#34;&#34;
-    return datetime.date.today()
+    verified_dates = []
+    for this_date in dates:
+        if isinstance(this_date, str):
+            verified_dates.append(parse(this_date))
+            continue
+        elif isinstance(this_date, datetime.date):
+            verified_dates.append(this_date)
+            continue
+        raise ValueError(f&#39;{this_date} is neither date nor \&#39;{DATE_FORMAT}\&#39;formatted string&#39;)
+    return verified_dates
 
 
-def date_to_string(date: Union[datetime.date, None] = None) -&gt; str:
+def to_string(this_date: Union[date, None] = None) -&gt; str:
     &#34;&#34;&#34; 
     Returns a datetime formatted as &#39;YYYY-MM-DD&#39;. If no date is provided, function will return today&#39;s formatted date.
     &#34;&#34;&#34;
-    if date is None:
-        return date_to_string(get_today())
-    return datetime.datetime.strftime(date, &#39;%Y-%m-%d&#39;)
+    if this_date is None:
+        return to_string(today())
+    return datetime.datetime.strftime(this_date, DATE_FORMAT)
 
 
-def is_date_today(date: datetime.date) -&gt; bool:
-    return (date == datetime.date.today())
+def is_date_today(this_date: Union[date, str]) -&gt; bool:
+    return (validate_date(this_date) == datetime.date.today())
 
 
-def is_future_date(date: datetime.date) -&gt; bool:
-    return (date - get_today()).days &gt; 0
+def is_future_date(this_date: Union[date, str]) -&gt; bool:
+    return (validate_date(this_date) - today()).days &gt; 0
 
 
-def truncate_future_from_date(date: datetime.date) -&gt; datetime.date:
-    if is_future_date(date):
-        return get_today()
-    return date
+def truncate_future_from_date(this_date: Union[date, str]) -&gt; datetime.date:
+    this_date = validate_date(this_date)
+    if is_future_date(this_date):
+        return today()
+    return this_date
 
 
 def last_close_date():
-    today = datetime.datetime.now()
-    trading_close_today = today.replace(hour=14)
-    if today &gt; trading_close_today:
-        return today.date()
-    return get_previous_business_date(today.date())
+    right_now = datetime.datetime.now()
+    trading_close_today = right_now.replace(hour=14)
+    if right_now &gt; trading_close_today:
+        return right_now.date()
+    return get_previous_business_date(right_now.date())
 
 
-def get_time_to_next_period(starting_date: datetime.date, period: float) -&gt; float:
+def get_time_to_next_period(starting_date: Union[date, str], period: float) -&gt; float:
+    &#34;&#34;&#34;
+    Divides the year into segments of equal length &#39;period&#39; and then calculates the time from today until 
+    the next period. 
+
+    Parameters
+    ---------- 
+    1. **starting_date**: ``Union[date, str]``
+
+    2. **period**: float
+        Length of one period, measured in years. 
+    &#34;&#34;&#34;
     if period is None:
         return 0
 
+    starting_date = validate_date(starting_date)
     today = datetime.date.today()
     floored_days = math.floor(365*period)
 
@@ -105,33 +162,26 @@ def get_time_to_next_period(starting_date: datetime.date, period: float) -&gt; f
     return float((today - starting_date).days / 365)
 
 
-def is_date_weekend(date: datetime.date) -&gt; bool:
-    return date.weekday() in [5, 6]
-
-# YYYY-MM-DD
+def is_date_weekend(this_date: Union[date, str]) -&gt; bool:
+    return validate_date(this_date).weekday() in [5, 6]
 
 
-def is_date_string_weekend(date_string: str) -&gt; bool:
-    return is_date_weekend(parse_date_string(date_string))
-
-# YYYY-MM-DD
-
-
-def is_date_holiday(date: datetime.date) -&gt; bool:
-    us_holidays = holidays.UnitedStates(years=date.year)
+def is_date_holiday(this_date: Union[date, str]) -&gt; bool:
+    this_date = validate_date(this_date)
+    us_holidays = holidays.UnitedStates(years=this_date.year)
     # generate list without columbus day and veterans day since markets are open on those days
     trading_holidays = [
         &#34;Columbus Day&#34;, &#34;Columbus Day (Observed)&#34;, &#34;Veterans Day&#34;, &#34;Veterans Day (Observed)&#34;]
-    custom_holidays = [date for date in list(
-        us_holidays) if us_holidays[date] not in trading_holidays]
+    custom_holidays = [that_date for that_date in list(
+        us_holidays) if us_holidays[that_date] not in trading_holidays]
     # add good friday to list since markets are closed on good friday
     custom_holidays.append(easter.easter(
-        year=date.year) - datetime.timedelta(days=2))
+        year=this_date.year) - datetime.timedelta(days=2))
 
-    return (date in custom_holidays)
+    return (this_date in custom_holidays)
 
 
-def get_last_trading_date() -&gt; datetime.date:
+def get_last_trading_date() -&gt; date:
     &#34;&#34;&#34;
     Returns
     -------
@@ -143,62 +193,48 @@ def get_last_trading_date() -&gt; datetime.date:
     return last_close_date()
 
 
-def this_date_or_last_trading_date(date: Union[datetime.date, None] = None) -&gt; datetime.date:
-    if date is None:
+def this_date_or_last_trading_date(this_date: Union[date, str, None] = None) -&gt; date:
+    if this_date is None:
         return get_last_trading_date()
-    if is_date_holiday(date) or is_date_weekend(date):
-        return get_previous_business_date(date)
-    if is_date_today(date):
+    this_date = validate_date(this_date)
+    if is_date_holiday(this_date) or is_date_weekend(this_date):
+        return get_previous_business_date(this_date)
+    if is_date_today(this_date):
         return last_close_date()
-    return date
+    return this_date
 
-
-def verify_date_types(dates: Union[List[datetime.date], List[str]]) -&gt; Union[List[datetime.date], None]:
-    verified_dates = []
-    for date in dates:
-        if isinstance(date, str):
-            verified_dates.append(parse_date_string(date))
-        elif isinstance(date, datetime.date):
-            verified_dates.append(date)
-        else:
-            return None
-    return verified_dates
-
-
-def format_date_range(start_date: datetime.date, end_date: datetime.date) -&gt; str:
+def format_date_range(start_date: date, end_date: date) -&gt; str:
     result = &#34;&#34;
     if start_date is not None:
-        start_string = date_to_string(start_date)
+        start_string = to_string(start_date)
         result += f&#39;From {start_string}&#39;
     if end_date is not None:
-        end_string = date_to_string(end_date)
+        end_string = to_string(end_date)
         result += f&#39; Until {end_string}&#39;
     return result
 
 
-def is_date_string_holiday(date_string: str) -&gt; bool:
-    return is_date_holiday(parse_date_string(date_string))
-
-
-def is_trading_date(date: datetime.date) -&gt; bool:
-    return not is_date_weekend(date) and not is_date_holiday(date)
+def is_trading_date(this_date: Union[date, str]) -&gt; bool:
+    this_date = validate_date(this_date)
+    return not is_date_weekend(this_date) and not is_date_holiday(this_date)
 
 
 def intersect_with_trading_dates(date_key_dict: dict) -&gt; dict:
-    return {date: date_key_dict[date] for date in date_key_dict if is_trading_date(parse_date_string(date))}
+    return {this_date: date_key_dict[this_date] for this_date in date_key_dict if is_trading_date(this_date)}
 
 
-# YYYY-MM-DD
-
-
-def get_holidays_between(start_date_string: str, end_date_string: str) -&gt; int:
+def get_holidays_between(start_date: Union[date, str], end_date: Union[date, str]) -&gt; int:
+    if isinstance(start_date, date):
+        start_date = to_string(start_date)
+    if isinstance(end_date, date):
+        end_date = to_string(end_date)
     us_holidays = holidays.UnitedStates()
-    return len(us_holidays[start_date_string: end_date_string])
+    return len(us_holidays[start_date: end_date])
 
 # YYYY-MM-DD
 
 
-def consecutive_trading_days(start_date_string: str, end_date_string: str) -&gt; bool:
+def consecutive_trading_days(start_date: Union[date, str], end_date: Union[date, str]) -&gt; bool:
     &#34;&#34;&#34;
     Parameters
     ----------
@@ -215,27 +251,26 @@ def consecutive_trading_days(start_date_string: str, end_date_string: str) -&gt;
     False
         if start_date_string and end_date_string are NOT consecutive trading days.
     &#34;&#34;&#34;
-    if is_date_string_weekend(start_date_string) or is_date_string_weekend(end_date_string):
+    start_date, end_date = validate_date_range(start_date, end_date)
+
+    if is_date_weekend(start_date) or is_date_weekend(end_date):
         return False
 
-    start_date = parse_date_string(start_date_string)
-    end_date = parse_date_string(end_date_string)
-    delta = end_date - start_date
+    delta = (end_date - start_date).days
 
-    if delta.days &lt; 0:
+    if delta &lt; 0:
         start_date, end_date = end_date, start_date
         delta = end_date - start_date
 
-    holiday_count = get_holidays_between(
-        start_date_string=start_date_string, end_date_string=end_date_string)
+    holiday_count = get_holidays_between(start_date=start_date, end_date=end_date)
 
-    if (delta.days - holiday_count) == 0:
+    if (delta - holiday_count) == 0:
         return False
 
-    if (delta.days - holiday_count) == 1:
+    if (delta  - holiday_count) == 1:
         return True
 
-    if ((delta.days - holiday_count) &gt; 1 and (delta.days - holiday_count) &lt; 4):
+    if ((delta - holiday_count) &gt; 1 and (delta - holiday_count) &lt; 4):
         start_week, end_week = start_date.isocalendar()[
             1], end_date.isocalendar()[1]
 
@@ -247,7 +282,7 @@ def consecutive_trading_days(start_date_string: str, end_date_string: str) -&gt;
     return False
 
 
-def dates_between(start_date: datetime.date, end_date: datetime.date) -&gt; List[datetime.date]:
+def dates_between(start_date: Union[date, str], end_date: Union[date, str]) -&gt; List[date]:
     &#34;&#34;&#34;
     Returns a list of dates between the inputted dates. &#34;Between&#34; is used in the inclusive sense, i.e. the list includes `start_date` and `end_date`.
 
@@ -258,16 +293,18 @@ def dates_between(start_date: datetime.date, end_date: datetime.date) -&gt; List
     2. **end_date**: ``datetime.date``
         End date of the date range. 
     &#34;&#34;&#34;
+    start_date, end_date = validate_date_range(start_date, end_date)
     return [start_date + datetime.timedelta(x) for x in range((end_date - start_date).days+1)]
 
 
-def days_between(start_date: datetime.date, end_date: datetime.date) -&gt; int:
+def days_between(start_date: Union[date, str], end_date: Union[date, str]) -&gt; int:
+    start_date, end_date = validate_date_range(start_date, end_date)
     return int((end_date - start_date).days) + 1
 
 # excludes start_date
 
 
-def business_dates_between(start_date: datetime.date, end_date: datetime.date) -&gt; List[datetime.date]:
+def business_dates_between(start_date: Union[date, str], end_date: Union[date, str]) -&gt; List[date]:
     &#34;&#34;&#34;
     Returns a list of business dates between the inputted dates. &#34;Between&#34; is used in the inclusive sense, i.e. the list includes `start_date` and `dates`
 
@@ -278,123 +315,132 @@ def business_dates_between(start_date: datetime.date, end_date: datetime.date) -
     2. **end_date**: ``datetime.date``
         End date of the date range. 
     &#34;&#34;&#34;
-    new_start, new_end = validate_order_of_dates(start_date, end_date)
+    start_date, end_date = validate_date_range(start_date, end_date)
     dates = []
-    for x in range((new_end - new_start).days+1):
-        this_date = new_start + datetime.timedelta(x)
-        if not (is_date_weekend(this_date) or is_date_holiday(this_date)):
+    for x in range((end_date - start_date).days+1):
+        this_date = start_date + datetime.timedelta(x)
+        if is_trading_date(this_date):
             dates.append(this_date)
     return dates
 
 
-def business_days_between(start_date: datetime.date, end_date: datetime.date) -&gt; List[int]:
-    new_start, new_end = validate_order_of_dates(start_date, end_date)
-    dates = dates_between(new_start, new_end)
-    return len([1 for date in dates if not (is_date_weekend(date) or is_date_holiday(date))])
+def business_days_between(start_date: Union[date, str], end_date: Union[date, str]) -&gt; List[int]:
+    start_date, end_date = validate_date_range(start_date, end_date)
+    dates = dates_between(start_date, end_date)
+    return len([1 for this_date in dates if is_trading_date(this_date)])
 
 
-def weekends_between(start_date: datetime.date, end_date: datetime.date) -&gt; List[int]:
-    start_date, end_date = verify_date_types(dates=[start_date, end_date])
-    new_start, new_end = validate_order_of_dates(start_date, end_date)
-    dates = dates_between(new_start, new_end)
+def weekends_between(start_date: Union[date, str], end_date: Union[date, str]) -&gt; List[int]:
+    start_date, end_date = validate_date_range(start_date, end_date)
+    dates = dates_between(start_date, end_date)
     return len([1 for day in dates if day.weekday() &gt; 4])
 
 
-def decrement_date_by_days(start_date: datetime.date, days: int):
+def decrement_date_by_days(start_date: Union[date, str], days: int):
+    start_date = validate_date(start_date)
     while days &gt; 0:
         days -= 1
         start_date -= datetime.timedelta(days=1)
     return start_date
 
 
-def decrement_date_by_business_days(start_date: datetime.date, business_days: int) -&gt; datetime.date:
-    days_to_subtract = business_days
+def decrement_date_by_business_days(start_date: Union[date, str], business_days: int) -&gt; date:
+    &#34;&#34;&#34;
+    Subtracts `business_days`, ignoring weekends and trading holidays, from `start_date`
+    &#34;&#34;&#34;
+    start_date = validate_date(start_date)
     first_pass = True
-    while days_to_subtract &gt; 0:
-        if not (is_date_weekend(start_date) or is_date_holiday(start_date)):
+    while business_days &gt; 0:
+        if is_trading_date(start_date):
             if first_pass:
                 first_pass = False
             else:
-                days_to_subtract -= 1
+                business_days -= 1
 
-        if days_to_subtract &gt; 0:
+        if business_days &gt; 0:
             start_date -= datetime.timedelta(days=1)
 
     return start_date
 
-
-def decrement_date_string_by_business_days(start_date_string: datetime.date, business_days: int):
-    start_date = parse_date_string(start_date_string)
-    return date_to_string(decrement_date_by_business_days(start_date, business_days))
-
-
-def increment_date_by_business_days(start_date: datetime.date, business_days: int):
-    days_to_add = business_days
-    while days_to_add &gt; 0:
-        if not (is_date_weekend(start_date) or is_date_holiday(start_date)):
-            days_to_add -= 1
+def increment_date_by_business_days(start_date: Union[date, str], business_days: int) -&gt; date:
+    start_date = validate_date(start_date)
+    while business_days&gt; 0:
+        if is_trading_date(start_date):
+            business_days -= 1
         start_date += datetime.timedelta(days=1)
     return start_date
 
-
-def increment_date_string_by_business_days(start_date_string: str, business_days: int) -&gt; str:
-    start_date = parse_date_string(start_date_string)
-    return date_to_string(increment_date_by_business_days(start_date, business_days))
-
-
-def get_next_business_date(date: datetime.date) -&gt; datetime.date:
-    while is_date_weekend(date) or is_date_holiday(date):
-        date += datetime.timedelta(days=1)
-    return date
+def get_next_business_date(this_date: Union[date, str]) -&gt; date:
+    this_date = validate_date(this_date)
+    while not is_trading_date(this_date):
+        this_date += datetime.timedelta(days=1)
+    return this_date
 
 
-def get_previous_business_date(date: datetime.date) -&gt; datetime.date:
-    date = decrement_date_by_days(start_date=date, days=1)
-    while is_date_weekend(date) or is_date_holiday(date):
-        date -= datetime.timedelta(days=1)
-    return date
+def get_previous_business_date(this_date: Union[date, str]) -&gt; date:
+    this_date = decrement_date_by_days(start_date=this_date, days=1)
+    while not is_trading_date(this_date):
+        this_date -= datetime.timedelta(days=1)
+    return this_date
 
 # in years
 
 
-def get_time_to_next_month() -&gt; float:
+def get_time_to_next_month(todays_date : date = today(), trading_days: int = 252) -&gt; float:
+    &#34;&#34;&#34;
+    Parameters
+    ----------
+    1. **todays_date**: ``date``
+        *Optional*. Reference date for calculation.
+    2. **trading_days**: ``int``
+        *Optional*. Number of trading days in a year. Defaults to 252.
+
+    &#34;&#34;&#34;
+    # TODO: what if first day of the month falls on non-trading days?
     today = datetime.date.today()
     next_month = datetime.date(year=today.year, month=(today.month+1), day=1)
-    return ((next_month - today).days / 365)
+    return ((next_month - today).days / trading_days)
 
 
-def get_time_to_next_year() -&gt; float:
-    today = datetime.date.today()
-    next_year = datetime.datetime(year=today.year+1, day=1, month=1)
-    return ((next_year - today).days / 365)
-# in years
-# 365 or 252?
+def get_time_to_next_year(todays_date : date = today(), trading_days: int = 252) -&gt; float:
+    &#34;&#34;&#34;
+    Parameters
+    ----------
+    1. **todays_date**: ``date``
+        *Optional*. Reference date for calculation.
+    2. **trading_days**: ``int``
+        *Optional*. Number of trading days in a year. Defaults to 252.
+    &#34;&#34;&#34;
+    # TODO: what if first day of year falls on non-trading day?
+    #       which it will, by definition. fuckwit.
+    next_year = datetime.datetime(year=todays_date.year+1, day=1, month=1)
+    return ((next_year - todays_date).days / trading_days)
 
 
-def get_time_to_next_quarter() -&gt; float:
-    today = datetime.date.today()
+def get_time_to_next_quarter(todays_date : date = today(), trading_days: int = 252) -&gt; float:
+    &#34;&#34;&#34;
+    Parameters
+    ----------
+    1. **todays_date**: ``date``
+        *Optional*. Reference date for calculation.
+    2. **trading_days**: ``int``
+        *Optional*. Number of trading days in a year. Defaults to 252.
+    &#34;&#34;&#34;
+    # TODO: what if first day of quarter falls on non-trading days?
 
-    first_q = datetime.date(year=today.year, month=1, day=1)
-    second_q = datetime.date(year=today.year, month=4, day=1)
-    third_q = datetime.date(year=today.year, month=7, day=1)
-    fourth_q = datetime.date(year=today.year, month=10, day=1)
-    next_first_q = datetime.date(year=(today.year+1), month=1, day=1)
+    first_q = datetime.date(year=todays_date.year, month=1, day=1)
+    second_q = datetime.date(year=todays_date.year, month=4, day=1)
+    third_q = datetime.date(year=todays_date.year, month=7, day=1)
+    fourth_q = datetime.date(year=todays_date.year, month=10, day=1)
+    next_first_q = datetime.date(year=(todays_date.year+1), month=1, day=1)
 
-    first_delta = (first_q - today).days / 365
-    second_delta = (second_q - today).days / 365
-    third_delta = (third_q - today).days / 365
-    fourth_delta = (fourth_q - today).days / 365
-    next_delta = (next_first_q - today).days / 365
+    first_delta = (first_q - todays_date).days / trading_days
+    second_delta = (second_q - todays_date).days / trading_days
+    third_delta = (third_q - todays_date).days / trading_days
+    fourth_delta = (fourth_q - todays_date).days / trading_days
+    next_delta = (next_first_q - todays_date).days / trading_days
 
-    return min(i for i in [first_delta, second_delta, third_delta, fourth_delta, next_delta] if i &gt; 0)
-
-# in years
-
-
-def get_time_to_year() -&gt; float:
-    today = datetime.date.today()
-    next_year = datetime.date(year=(today.year+1), month=1, day=1)
-    return ((next_year - today).days / 365)</code></pre>
+    return min(i for i in [first_delta, second_delta, third_delta, fourth_delta, next_delta] if i &gt; 0)</code></pre>
 </details>
 </section>
 <section>
@@ -405,7 +451,7 @@ def get_time_to_year() -&gt; float:
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
 <dt id="scrilla.util.dater.business_dates_between"><code class="name flex">
-<span>def <span class="ident">business_dates_between</span></span>(<span>start_date: datetime.date, end_date: datetime.date) ‑> List[datetime.date]</span>
+<span>def <span class="ident">business_dates_between</span></span>(<span>start_date: Union[datetime.date, str], end_date: Union[datetime.date, str]) ‑> List[datetime.date]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Returns a list of business dates between the inputted dates. "Between" is used in the inclusive sense, i.e. the list includes <code>start_date</code> and <code>dates</code></p>
@@ -420,7 +466,7 @@ End date of the date range.</li>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def business_dates_between(start_date: datetime.date, end_date: datetime.date) -&gt; List[datetime.date]:
+<pre><code class="python">def business_dates_between(start_date: Union[date, str], end_date: Union[date, str]) -&gt; List[date]:
     &#34;&#34;&#34;
     Returns a list of business dates between the inputted dates. &#34;Between&#34; is used in the inclusive sense, i.e. the list includes `start_date` and `dates`
 
@@ -431,17 +477,17 @@ End date of the date range.</li>
     2. **end_date**: ``datetime.date``
         End date of the date range. 
     &#34;&#34;&#34;
-    new_start, new_end = validate_order_of_dates(start_date, end_date)
+    start_date, end_date = validate_date_range(start_date, end_date)
     dates = []
-    for x in range((new_end - new_start).days+1):
-        this_date = new_start + datetime.timedelta(x)
-        if not (is_date_weekend(this_date) or is_date_holiday(this_date)):
+    for x in range((end_date - start_date).days+1):
+        this_date = start_date + datetime.timedelta(x)
+        if is_trading_date(this_date):
             dates.append(this_date)
     return dates</code></pre>
 </details>
 </dd>
 <dt id="scrilla.util.dater.business_days_between"><code class="name flex">
-<span>def <span class="ident">business_days_between</span></span>(<span>start_date: datetime.date, end_date: datetime.date) ‑> List[int]</span>
+<span>def <span class="ident">business_days_between</span></span>(<span>start_date: Union[datetime.date, str], end_date: Union[datetime.date, str]) ‑> List[int]</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -449,14 +495,14 @@ End date of the date range.</li>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def business_days_between(start_date: datetime.date, end_date: datetime.date) -&gt; List[int]:
-    new_start, new_end = validate_order_of_dates(start_date, end_date)
-    dates = dates_between(new_start, new_end)
-    return len([1 for date in dates if not (is_date_weekend(date) or is_date_holiday(date))])</code></pre>
+<pre><code class="python">def business_days_between(start_date: Union[date, str], end_date: Union[date, str]) -&gt; List[int]:
+    start_date, end_date = validate_date_range(start_date, end_date)
+    dates = dates_between(start_date, end_date)
+    return len([1 for this_date in dates if is_trading_date(this_date)])</code></pre>
 </details>
 </dd>
 <dt id="scrilla.util.dater.consecutive_trading_days"><code class="name flex">
-<span>def <span class="ident">consecutive_trading_days</span></span>(<span>start_date_string: str, end_date_string: str) ‑> bool</span>
+<span>def <span class="ident">consecutive_trading_days</span></span>(<span>start_date: Union[datetime.date, str], end_date: Union[datetime.date, str]) ‑> bool</span>
 </code></dt>
 <dd>
 <div class="desc"><h2 id="parameters">Parameters</h2>
@@ -476,7 +522,7 @@ if start_date_string and end_date_string are NOT consecutive trading days.</p></
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def consecutive_trading_days(start_date_string: str, end_date_string: str) -&gt; bool:
+<pre><code class="python">def consecutive_trading_days(start_date: Union[date, str], end_date: Union[date, str]) -&gt; bool:
     &#34;&#34;&#34;
     Parameters
     ----------
@@ -493,27 +539,26 @@ if start_date_string and end_date_string are NOT consecutive trading days.</p></
     False
         if start_date_string and end_date_string are NOT consecutive trading days.
     &#34;&#34;&#34;
-    if is_date_string_weekend(start_date_string) or is_date_string_weekend(end_date_string):
+    start_date, end_date = validate_date_range(start_date, end_date)
+
+    if is_date_weekend(start_date) or is_date_weekend(end_date):
         return False
 
-    start_date = parse_date_string(start_date_string)
-    end_date = parse_date_string(end_date_string)
-    delta = end_date - start_date
+    delta = (end_date - start_date).days
 
-    if delta.days &lt; 0:
+    if delta &lt; 0:
         start_date, end_date = end_date, start_date
         delta = end_date - start_date
 
-    holiday_count = get_holidays_between(
-        start_date_string=start_date_string, end_date_string=end_date_string)
+    holiday_count = get_holidays_between(start_date=start_date, end_date=end_date)
 
-    if (delta.days - holiday_count) == 0:
+    if (delta - holiday_count) == 0:
         return False
 
-    if (delta.days - holiday_count) == 1:
+    if (delta  - holiday_count) == 1:
         return True
 
-    if ((delta.days - holiday_count) &gt; 1 and (delta.days - holiday_count) &lt; 4):
+    if ((delta - holiday_count) &gt; 1 and (delta - holiday_count) &lt; 4):
         start_week, end_week = start_date.isocalendar()[
             1], end_date.isocalendar()[1]
 
@@ -525,26 +570,8 @@ if start_date_string and end_date_string are NOT consecutive trading days.</p></
     return False</code></pre>
 </details>
 </dd>
-<dt id="scrilla.util.dater.date_to_string"><code class="name flex">
-<span>def <span class="ident">date_to_string</span></span>(<span>date: Optional[datetime.date] = None) ‑> str</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Returns a datetime formatted as 'YYYY-MM-DD'. If no date is provided, function will return today's formatted date.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def date_to_string(date: Union[datetime.date, None] = None) -&gt; str:
-    &#34;&#34;&#34; 
-    Returns a datetime formatted as &#39;YYYY-MM-DD&#39;. If no date is provided, function will return today&#39;s formatted date.
-    &#34;&#34;&#34;
-    if date is None:
-        return date_to_string(get_today())
-    return datetime.datetime.strftime(date, &#39;%Y-%m-%d&#39;)</code></pre>
-</details>
-</dd>
 <dt id="scrilla.util.dater.dates_between"><code class="name flex">
-<span>def <span class="ident">dates_between</span></span>(<span>start_date: datetime.date, end_date: datetime.date) ‑> List[datetime.date]</span>
+<span>def <span class="ident">dates_between</span></span>(<span>start_date: Union[datetime.date, str], end_date: Union[datetime.date, str]) ‑> List[datetime.date]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Returns a list of dates between the inputted dates. "Between" is used in the inclusive sense, i.e. the list includes <code>start_date</code> and <code>end_date</code>.</p>
@@ -559,7 +586,7 @@ End date of the date range.</li>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def dates_between(start_date: datetime.date, end_date: datetime.date) -&gt; List[datetime.date]:
+<pre><code class="python">def dates_between(start_date: Union[date, str], end_date: Union[date, str]) -&gt; List[date]:
     &#34;&#34;&#34;
     Returns a list of dates between the inputted dates. &#34;Between&#34; is used in the inclusive sense, i.e. the list includes `start_date` and `end_date`.
 
@@ -570,11 +597,12 @@ End date of the date range.</li>
     2. **end_date**: ``datetime.date``
         End date of the date range. 
     &#34;&#34;&#34;
+    start_date, end_date = validate_date_range(start_date, end_date)
     return [start_date + datetime.timedelta(x) for x in range((end_date - start_date).days+1)]</code></pre>
 </details>
 </dd>
 <dt id="scrilla.util.dater.days_between"><code class="name flex">
-<span>def <span class="ident">days_between</span></span>(<span>start_date: datetime.date, end_date: datetime.date) ‑> int</span>
+<span>def <span class="ident">days_between</span></span>(<span>start_date: Union[datetime.date, str], end_date: Union[datetime.date, str]) ‑> int</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -582,37 +610,41 @@ End date of the date range.</li>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def days_between(start_date: datetime.date, end_date: datetime.date) -&gt; int:
+<pre><code class="python">def days_between(start_date: Union[date, str], end_date: Union[date, str]) -&gt; int:
+    start_date, end_date = validate_date_range(start_date, end_date)
     return int((end_date - start_date).days) + 1</code></pre>
 </details>
 </dd>
 <dt id="scrilla.util.dater.decrement_date_by_business_days"><code class="name flex">
-<span>def <span class="ident">decrement_date_by_business_days</span></span>(<span>start_date: datetime.date, business_days: int) ‑> datetime.date</span>
+<span>def <span class="ident">decrement_date_by_business_days</span></span>(<span>start_date: Union[datetime.date, str], business_days: int) ‑> datetime.date</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Subtracts <code>business_days</code>, ignoring weekends and trading holidays, from <code>start_date</code></p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def decrement_date_by_business_days(start_date: datetime.date, business_days: int) -&gt; datetime.date:
-    days_to_subtract = business_days
+<pre><code class="python">def decrement_date_by_business_days(start_date: Union[date, str], business_days: int) -&gt; date:
+    &#34;&#34;&#34;
+    Subtracts `business_days`, ignoring weekends and trading holidays, from `start_date`
+    &#34;&#34;&#34;
+    start_date = validate_date(start_date)
     first_pass = True
-    while days_to_subtract &gt; 0:
-        if not (is_date_weekend(start_date) or is_date_holiday(start_date)):
+    while business_days &gt; 0:
+        if is_trading_date(start_date):
             if first_pass:
                 first_pass = False
             else:
-                days_to_subtract -= 1
+                business_days -= 1
 
-        if days_to_subtract &gt; 0:
+        if business_days &gt; 0:
             start_date -= datetime.timedelta(days=1)
 
     return start_date</code></pre>
 </details>
 </dd>
 <dt id="scrilla.util.dater.decrement_date_by_days"><code class="name flex">
-<span>def <span class="ident">decrement_date_by_days</span></span>(<span>start_date: datetime.date, days: int)</span>
+<span>def <span class="ident">decrement_date_by_days</span></span>(<span>start_date: Union[datetime.date, str], days: int)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -620,25 +652,12 @@ End date of the date range.</li>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def decrement_date_by_days(start_date: datetime.date, days: int):
+<pre><code class="python">def decrement_date_by_days(start_date: Union[date, str], days: int):
+    start_date = validate_date(start_date)
     while days &gt; 0:
         days -= 1
         start_date -= datetime.timedelta(days=1)
     return start_date</code></pre>
-</details>
-</dd>
-<dt id="scrilla.util.dater.decrement_date_string_by_business_days"><code class="name flex">
-<span>def <span class="ident">decrement_date_string_by_business_days</span></span>(<span>start_date_string: datetime.date, business_days: int)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def decrement_date_string_by_business_days(start_date_string: datetime.date, business_days: int):
-    start_date = parse_date_string(start_date_string)
-    return date_to_string(decrement_date_by_business_days(start_date, business_days))</code></pre>
 </details>
 </dd>
 <dt id="scrilla.util.dater.format_date_range"><code class="name flex">
@@ -650,19 +669,19 @@ End date of the date range.</li>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def format_date_range(start_date: datetime.date, end_date: datetime.date) -&gt; str:
+<pre><code class="python">def format_date_range(start_date: date, end_date: date) -&gt; str:
     result = &#34;&#34;
     if start_date is not None:
-        start_string = date_to_string(start_date)
+        start_string = to_string(start_date)
         result += f&#39;From {start_string}&#39;
     if end_date is not None:
-        end_string = date_to_string(end_date)
+        end_string = to_string(end_date)
         result += f&#39; Until {end_string}&#39;
     return result</code></pre>
 </details>
 </dd>
 <dt id="scrilla.util.dater.get_holidays_between"><code class="name flex">
-<span>def <span class="ident">get_holidays_between</span></span>(<span>start_date_string: str, end_date_string: str) ‑> int</span>
+<span>def <span class="ident">get_holidays_between</span></span>(<span>start_date: Union[datetime.date, str], end_date: Union[datetime.date, str]) ‑> int</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -670,9 +689,13 @@ End date of the date range.</li>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def get_holidays_between(start_date_string: str, end_date_string: str) -&gt; int:
+<pre><code class="python">def get_holidays_between(start_date: Union[date, str], end_date: Union[date, str]) -&gt; int:
+    if isinstance(start_date, date):
+        start_date = to_string(start_date)
+    if isinstance(end_date, date):
+        end_date = to_string(end_date)
     us_holidays = holidays.UnitedStates()
-    return len(us_holidays[start_date_string: end_date_string])</code></pre>
+    return len(us_holidays[start_date: end_date])</code></pre>
 </details>
 </dd>
 <dt id="scrilla.util.dater.get_last_trading_date"><code class="name flex">
@@ -685,7 +708,7 @@ End date of the date range.</li>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def get_last_trading_date() -&gt; datetime.date:
+<pre><code class="python">def get_last_trading_date() -&gt; date:
     &#34;&#34;&#34;
     Returns
     -------
@@ -698,7 +721,7 @@ End date of the date range.</li>
 </details>
 </dd>
 <dt id="scrilla.util.dater.get_next_business_date"><code class="name flex">
-<span>def <span class="ident">get_next_business_date</span></span>(<span>date: datetime.date) ‑> datetime.date</span>
+<span>def <span class="ident">get_next_business_date</span></span>(<span>this_date: Union[datetime.date, str]) ‑> datetime.date</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -706,14 +729,15 @@ End date of the date range.</li>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def get_next_business_date(date: datetime.date) -&gt; datetime.date:
-    while is_date_weekend(date) or is_date_holiday(date):
-        date += datetime.timedelta(days=1)
-    return date</code></pre>
+<pre><code class="python">def get_next_business_date(this_date: Union[date, str]) -&gt; date:
+    this_date = validate_date(this_date)
+    while not is_trading_date(this_date):
+        this_date += datetime.timedelta(days=1)
+    return this_date</code></pre>
 </details>
 </dd>
 <dt id="scrilla.util.dater.get_previous_business_date"><code class="name flex">
-<span>def <span class="ident">get_previous_business_date</span></span>(<span>date: datetime.date) ‑> datetime.date</span>
+<span>def <span class="ident">get_previous_business_date</span></span>(<span>this_date: Union[datetime.date, str]) ‑> datetime.date</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -721,41 +745,80 @@ End date of the date range.</li>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def get_previous_business_date(date: datetime.date) -&gt; datetime.date:
-    date = decrement_date_by_days(start_date=date, days=1)
-    while is_date_weekend(date) or is_date_holiday(date):
-        date -= datetime.timedelta(days=1)
-    return date</code></pre>
+<pre><code class="python">def get_previous_business_date(this_date: Union[date, str]) -&gt; date:
+    this_date = decrement_date_by_days(start_date=this_date, days=1)
+    while not is_trading_date(this_date):
+        this_date -= datetime.timedelta(days=1)
+    return this_date</code></pre>
 </details>
 </dd>
 <dt id="scrilla.util.dater.get_time_to_next_month"><code class="name flex">
-<span>def <span class="ident">get_time_to_next_month</span></span>(<span>) ‑> float</span>
+<span>def <span class="ident">get_time_to_next_month</span></span>(<span>todays_date: datetime.date = datetime.date(2021, 11, 26), trading_days: int = 252) ‑> float</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><h2 id="parameters">Parameters</h2>
+<ol>
+<li><strong>todays_date</strong>: <code>date</code>
+<em>Optional</em>. Reference date for calculation.</li>
+<li><strong>trading_days</strong>: <code>int</code>
+<em>Optional</em>. Number of trading days in a year. Defaults to 252.</li>
+</ol></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def get_time_to_next_month() -&gt; float:
+<pre><code class="python">def get_time_to_next_month(todays_date : date = today(), trading_days: int = 252) -&gt; float:
+    &#34;&#34;&#34;
+    Parameters
+    ----------
+    1. **todays_date**: ``date``
+        *Optional*. Reference date for calculation.
+    2. **trading_days**: ``int``
+        *Optional*. Number of trading days in a year. Defaults to 252.
+
+    &#34;&#34;&#34;
+    # TODO: what if first day of the month falls on non-trading days?
     today = datetime.date.today()
     next_month = datetime.date(year=today.year, month=(today.month+1), day=1)
-    return ((next_month - today).days / 365)</code></pre>
+    return ((next_month - today).days / trading_days)</code></pre>
 </details>
 </dd>
 <dt id="scrilla.util.dater.get_time_to_next_period"><code class="name flex">
-<span>def <span class="ident">get_time_to_next_period</span></span>(<span>starting_date: datetime.date, period: float) ‑> float</span>
+<span>def <span class="ident">get_time_to_next_period</span></span>(<span>starting_date: Union[datetime.date, str], period: float) ‑> float</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Divides the year into segments of equal length 'period' and then calculates the time from today until
+the next period. </p>
+<h2 id="parameters">Parameters</h2>
+<ol>
+<li>
+<p><strong>starting_date</strong>: <code>Union[date, str]</code></p>
+</li>
+<li>
+<p><strong>period</strong>: float
+Length of one period, measured in years.</p>
+</li>
+</ol></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def get_time_to_next_period(starting_date: datetime.date, period: float) -&gt; float:
+<pre><code class="python">def get_time_to_next_period(starting_date: Union[date, str], period: float) -&gt; float:
+    &#34;&#34;&#34;
+    Divides the year into segments of equal length &#39;period&#39; and then calculates the time from today until 
+    the next period. 
+
+    Parameters
+    ---------- 
+    1. **starting_date**: ``Union[date, str]``
+
+    2. **period**: float
+        Length of one period, measured in years. 
+    &#34;&#34;&#34;
     if period is None:
         return 0
 
+    starting_date = validate_date(starting_date)
     today = datetime.date.today()
     floored_days = math.floor(365*period)
 
@@ -766,80 +829,78 @@ End date of the date range.</li>
 </details>
 </dd>
 <dt id="scrilla.util.dater.get_time_to_next_quarter"><code class="name flex">
-<span>def <span class="ident">get_time_to_next_quarter</span></span>(<span>) ‑> float</span>
+<span>def <span class="ident">get_time_to_next_quarter</span></span>(<span>todays_date: datetime.date = datetime.date(2021, 11, 26), trading_days: int = 252) ‑> float</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><h2 id="parameters">Parameters</h2>
+<ol>
+<li><strong>todays_date</strong>: <code>date</code>
+<em>Optional</em>. Reference date for calculation.</li>
+<li><strong>trading_days</strong>: <code>int</code>
+<em>Optional</em>. Number of trading days in a year. Defaults to 252.</li>
+</ol></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def get_time_to_next_quarter() -&gt; float:
-    today = datetime.date.today()
+<pre><code class="python">def get_time_to_next_quarter(todays_date : date = today(), trading_days: int = 252) -&gt; float:
+    &#34;&#34;&#34;
+    Parameters
+    ----------
+    1. **todays_date**: ``date``
+        *Optional*. Reference date for calculation.
+    2. **trading_days**: ``int``
+        *Optional*. Number of trading days in a year. Defaults to 252.
+    &#34;&#34;&#34;
+    # TODO: what if first day of quarter falls on non-trading days?
 
-    first_q = datetime.date(year=today.year, month=1, day=1)
-    second_q = datetime.date(year=today.year, month=4, day=1)
-    third_q = datetime.date(year=today.year, month=7, day=1)
-    fourth_q = datetime.date(year=today.year, month=10, day=1)
-    next_first_q = datetime.date(year=(today.year+1), month=1, day=1)
+    first_q = datetime.date(year=todays_date.year, month=1, day=1)
+    second_q = datetime.date(year=todays_date.year, month=4, day=1)
+    third_q = datetime.date(year=todays_date.year, month=7, day=1)
+    fourth_q = datetime.date(year=todays_date.year, month=10, day=1)
+    next_first_q = datetime.date(year=(todays_date.year+1), month=1, day=1)
 
-    first_delta = (first_q - today).days / 365
-    second_delta = (second_q - today).days / 365
-    third_delta = (third_q - today).days / 365
-    fourth_delta = (fourth_q - today).days / 365
-    next_delta = (next_first_q - today).days / 365
+    first_delta = (first_q - todays_date).days / trading_days
+    second_delta = (second_q - todays_date).days / trading_days
+    third_delta = (third_q - todays_date).days / trading_days
+    fourth_delta = (fourth_q - todays_date).days / trading_days
+    next_delta = (next_first_q - todays_date).days / trading_days
 
     return min(i for i in [first_delta, second_delta, third_delta, fourth_delta, next_delta] if i &gt; 0)</code></pre>
 </details>
 </dd>
 <dt id="scrilla.util.dater.get_time_to_next_year"><code class="name flex">
-<span>def <span class="ident">get_time_to_next_year</span></span>(<span>) ‑> float</span>
+<span>def <span class="ident">get_time_to_next_year</span></span>(<span>todays_date: datetime.date = datetime.date(2021, 11, 26), trading_days: int = 252) ‑> float</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><h2 id="parameters">Parameters</h2>
+<ol>
+<li><strong>todays_date</strong>: <code>date</code>
+<em>Optional</em>. Reference date for calculation.</li>
+<li><strong>trading_days</strong>: <code>int</code>
+<em>Optional</em>. Number of trading days in a year. Defaults to 252.</li>
+</ol></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def get_time_to_next_year() -&gt; float:
-    today = datetime.date.today()
-    next_year = datetime.datetime(year=today.year+1, day=1, month=1)
-    return ((next_year - today).days / 365)</code></pre>
-</details>
-</dd>
-<dt id="scrilla.util.dater.get_time_to_year"><code class="name flex">
-<span>def <span class="ident">get_time_to_year</span></span>(<span>) ‑> float</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def get_time_to_year() -&gt; float:
-    today = datetime.date.today()
-    next_year = datetime.date(year=(today.year+1), month=1, day=1)
-    return ((next_year - today).days / 365)</code></pre>
-</details>
-</dd>
-<dt id="scrilla.util.dater.get_today"><code class="name flex">
-<span>def <span class="ident">get_today</span></span>(<span>) ‑> datetime.date</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Returns today's date</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def get_today() -&gt; datetime.date:
+<pre><code class="python">def get_time_to_next_year(todays_date : date = today(), trading_days: int = 252) -&gt; float:
     &#34;&#34;&#34;
-    Returns today&#39;s date
+    Parameters
+    ----------
+    1. **todays_date**: ``date``
+        *Optional*. Reference date for calculation.
+    2. **trading_days**: ``int``
+        *Optional*. Number of trading days in a year. Defaults to 252.
     &#34;&#34;&#34;
-    return datetime.date.today()</code></pre>
+    # TODO: what if first day of year falls on non-trading day?
+    #       which it will, by definition. fuckwit.
+    next_year = datetime.datetime(year=todays_date.year+1, day=1, month=1)
+    return ((next_year - todays_date).days / trading_days)</code></pre>
 </details>
 </dd>
 <dt id="scrilla.util.dater.increment_date_by_business_days"><code class="name flex">
-<span>def <span class="ident">increment_date_by_business_days</span></span>(<span>start_date: datetime.date, business_days: int)</span>
+<span>def <span class="ident">increment_date_by_business_days</span></span>(<span>start_date: Union[datetime.date, str], business_days: int) ‑> datetime.date</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -847,27 +908,13 @@ End date of the date range.</li>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def increment_date_by_business_days(start_date: datetime.date, business_days: int):
-    days_to_add = business_days
-    while days_to_add &gt; 0:
-        if not (is_date_weekend(start_date) or is_date_holiday(start_date)):
-            days_to_add -= 1
+<pre><code class="python">def increment_date_by_business_days(start_date: Union[date, str], business_days: int) -&gt; date:
+    start_date = validate_date(start_date)
+    while business_days&gt; 0:
+        if is_trading_date(start_date):
+            business_days -= 1
         start_date += datetime.timedelta(days=1)
     return start_date</code></pre>
-</details>
-</dd>
-<dt id="scrilla.util.dater.increment_date_string_by_business_days"><code class="name flex">
-<span>def <span class="ident">increment_date_string_by_business_days</span></span>(<span>start_date_string: str, business_days: int) ‑> str</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def increment_date_string_by_business_days(start_date_string: str, business_days: int) -&gt; str:
-    start_date = parse_date_string(start_date_string)
-    return date_to_string(increment_date_by_business_days(start_date, business_days))</code></pre>
 </details>
 </dd>
 <dt id="scrilla.util.dater.intersect_with_trading_dates"><code class="name flex">
@@ -880,11 +927,11 @@ End date of the date range.</li>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def intersect_with_trading_dates(date_key_dict: dict) -&gt; dict:
-    return {date: date_key_dict[date] for date in date_key_dict if is_trading_date(parse_date_string(date))}</code></pre>
+    return {this_date: date_key_dict[this_date] for this_date in date_key_dict if is_trading_date(this_date)}</code></pre>
 </details>
 </dd>
 <dt id="scrilla.util.dater.is_date_holiday"><code class="name flex">
-<span>def <span class="ident">is_date_holiday</span></span>(<span>date: datetime.date) ‑> bool</span>
+<span>def <span class="ident">is_date_holiday</span></span>(<span>this_date: Union[datetime.date, str]) ‑> bool</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -892,48 +939,23 @@ End date of the date range.</li>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def is_date_holiday(date: datetime.date) -&gt; bool:
-    us_holidays = holidays.UnitedStates(years=date.year)
+<pre><code class="python">def is_date_holiday(this_date: Union[date, str]) -&gt; bool:
+    this_date = validate_date(this_date)
+    us_holidays = holidays.UnitedStates(years=this_date.year)
     # generate list without columbus day and veterans day since markets are open on those days
     trading_holidays = [
         &#34;Columbus Day&#34;, &#34;Columbus Day (Observed)&#34;, &#34;Veterans Day&#34;, &#34;Veterans Day (Observed)&#34;]
-    custom_holidays = [date for date in list(
-        us_holidays) if us_holidays[date] not in trading_holidays]
+    custom_holidays = [that_date for that_date in list(
+        us_holidays) if us_holidays[that_date] not in trading_holidays]
     # add good friday to list since markets are closed on good friday
     custom_holidays.append(easter.easter(
-        year=date.year) - datetime.timedelta(days=2))
+        year=this_date.year) - datetime.timedelta(days=2))
 
-    return (date in custom_holidays)</code></pre>
-</details>
-</dd>
-<dt id="scrilla.util.dater.is_date_string_holiday"><code class="name flex">
-<span>def <span class="ident">is_date_string_holiday</span></span>(<span>date_string: str) ‑> bool</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def is_date_string_holiday(date_string: str) -&gt; bool:
-    return is_date_holiday(parse_date_string(date_string))</code></pre>
-</details>
-</dd>
-<dt id="scrilla.util.dater.is_date_string_weekend"><code class="name flex">
-<span>def <span class="ident">is_date_string_weekend</span></span>(<span>date_string: str) ‑> bool</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def is_date_string_weekend(date_string: str) -&gt; bool:
-    return is_date_weekend(parse_date_string(date_string))</code></pre>
+    return (this_date in custom_holidays)</code></pre>
 </details>
 </dd>
 <dt id="scrilla.util.dater.is_date_today"><code class="name flex">
-<span>def <span class="ident">is_date_today</span></span>(<span>date: datetime.date) ‑> bool</span>
+<span>def <span class="ident">is_date_today</span></span>(<span>this_date: Union[datetime.date, str]) ‑> bool</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -941,12 +963,12 @@ End date of the date range.</li>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def is_date_today(date: datetime.date) -&gt; bool:
-    return (date == datetime.date.today())</code></pre>
+<pre><code class="python">def is_date_today(this_date: Union[date, str]) -&gt; bool:
+    return (validate_date(this_date) == datetime.date.today())</code></pre>
 </details>
 </dd>
 <dt id="scrilla.util.dater.is_date_weekend"><code class="name flex">
-<span>def <span class="ident">is_date_weekend</span></span>(<span>date: datetime.date) ‑> bool</span>
+<span>def <span class="ident">is_date_weekend</span></span>(<span>this_date: Union[datetime.date, str]) ‑> bool</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -954,12 +976,12 @@ End date of the date range.</li>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def is_date_weekend(date: datetime.date) -&gt; bool:
-    return date.weekday() in [5, 6]</code></pre>
+<pre><code class="python">def is_date_weekend(this_date: Union[date, str]) -&gt; bool:
+    return validate_date(this_date).weekday() in [5, 6]</code></pre>
 </details>
 </dd>
 <dt id="scrilla.util.dater.is_future_date"><code class="name flex">
-<span>def <span class="ident">is_future_date</span></span>(<span>date: datetime.date) ‑> bool</span>
+<span>def <span class="ident">is_future_date</span></span>(<span>this_date: Union[datetime.date, str]) ‑> bool</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -967,12 +989,12 @@ End date of the date range.</li>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def is_future_date(date: datetime.date) -&gt; bool:
-    return (date - get_today()).days &gt; 0</code></pre>
+<pre><code class="python">def is_future_date(this_date: Union[date, str]) -&gt; bool:
+    return (validate_date(this_date) - today()).days &gt; 0</code></pre>
 </details>
 </dd>
 <dt id="scrilla.util.dater.is_trading_date"><code class="name flex">
-<span>def <span class="ident">is_trading_date</span></span>(<span>date: datetime.date) ‑> bool</span>
+<span>def <span class="ident">is_trading_date</span></span>(<span>this_date: Union[datetime.date, str]) ‑> bool</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -980,8 +1002,9 @@ End date of the date range.</li>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def is_trading_date(date: datetime.date) -&gt; bool:
-    return not is_date_weekend(date) and not is_date_holiday(date)</code></pre>
+<pre><code class="python">def is_trading_date(this_date: Union[date, str]) -&gt; bool:
+    this_date = validate_date(this_date)
+    return not is_date_weekend(this_date) and not is_date_holiday(this_date)</code></pre>
 </details>
 </dd>
 <dt id="scrilla.util.dater.last_close_date"><code class="name flex">
@@ -994,15 +1017,15 @@ End date of the date range.</li>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def last_close_date():
-    today = datetime.datetime.now()
-    trading_close_today = today.replace(hour=14)
-    if today &gt; trading_close_today:
-        return today.date()
-    return get_previous_business_date(today.date())</code></pre>
+    right_now = datetime.datetime.now()
+    trading_close_today = right_now.replace(hour=14)
+    if right_now &gt; trading_close_today:
+        return right_now.date()
+    return get_previous_business_date(right_now.date())</code></pre>
 </details>
 </dd>
-<dt id="scrilla.util.dater.parse_date_string"><code class="name flex">
-<span>def <span class="ident">parse_date_string</span></span>(<span>date_string: str) ‑> Optional[datetime.date]</span>
+<dt id="scrilla.util.dater.parse"><code class="name flex">
+<span>def <span class="ident">parse</span></span>(<span>date_string: str) ‑> Optional[datetime.date]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Converts a date string in the 'YYYY-MM-DD' format to a Python <code>datetime.date</code>.</p></div>
@@ -1010,15 +1033,15 @@ End date of the date range.</li>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def parse_date_string(date_string: str) -&gt; Union[datetime.date, None]:
+<pre><code class="python">def parse(date_string: str) -&gt; Union[date, None]:
     &#34;&#34;&#34;
     Converts a date string in the &#39;YYYY-MM-DD&#39; format to a Python `datetime.date`.
     &#34;&#34;&#34;
-    return datetime.datetime.strptime(date_string, &#39;%Y-%m-%d&#39;).date()</code></pre>
+    return datetime.datetime.strptime(date_string, DATE_FORMAT).date()</code></pre>
 </details>
 </dd>
 <dt id="scrilla.util.dater.this_date_or_last_trading_date"><code class="name flex">
-<span>def <span class="ident">this_date_or_last_trading_date</span></span>(<span>date: Optional[datetime.date] = None) ‑> datetime.date</span>
+<span>def <span class="ident">this_date_or_last_trading_date</span></span>(<span>this_date: Union[datetime.date, str, ForwardRef(None)] = None) ‑> datetime.date</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -1026,18 +1049,53 @@ End date of the date range.</li>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def this_date_or_last_trading_date(date: Union[datetime.date, None] = None) -&gt; datetime.date:
-    if date is None:
+<pre><code class="python">def this_date_or_last_trading_date(this_date: Union[date, str, None] = None) -&gt; date:
+    if this_date is None:
         return get_last_trading_date()
-    if is_date_holiday(date) or is_date_weekend(date):
-        return get_previous_business_date(date)
-    if is_date_today(date):
+    this_date = validate_date(this_date)
+    if is_date_holiday(this_date) or is_date_weekend(this_date):
+        return get_previous_business_date(this_date)
+    if is_date_today(this_date):
         return last_close_date()
-    return date</code></pre>
+    return this_date</code></pre>
+</details>
+</dd>
+<dt id="scrilla.util.dater.to_string"><code class="name flex">
+<span>def <span class="ident">to_string</span></span>(<span>this_date: Optional[datetime.date] = None) ‑> str</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Returns a datetime formatted as 'YYYY-MM-DD'. If no date is provided, function will return today's formatted date.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def to_string(this_date: Union[date, None] = None) -&gt; str:
+    &#34;&#34;&#34; 
+    Returns a datetime formatted as &#39;YYYY-MM-DD&#39;. If no date is provided, function will return today&#39;s formatted date.
+    &#34;&#34;&#34;
+    if this_date is None:
+        return to_string(today())
+    return datetime.datetime.strftime(this_date, DATE_FORMAT)</code></pre>
+</details>
+</dd>
+<dt id="scrilla.util.dater.today"><code class="name flex">
+<span>def <span class="ident">today</span></span>(<span>) ‑> datetime.date</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Returns today's date</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def today() -&gt; datetime.date:
+    &#34;&#34;&#34;
+    Returns today&#39;s date
+    &#34;&#34;&#34;
+    return datetime.date.today()</code></pre>
 </details>
 </dd>
 <dt id="scrilla.util.dater.truncate_future_from_date"><code class="name flex">
-<span>def <span class="ident">truncate_future_from_date</span></span>(<span>date: datetime.date) ‑> datetime.date</span>
+<span>def <span class="ident">truncate_future_from_date</span></span>(<span>this_date: Union[datetime.date, str]) ‑> datetime.date</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -1045,10 +1103,83 @@ End date of the date range.</li>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def truncate_future_from_date(date: datetime.date) -&gt; datetime.date:
-    if is_future_date(date):
-        return get_today()
-    return date</code></pre>
+<pre><code class="python">def truncate_future_from_date(this_date: Union[date, str]) -&gt; datetime.date:
+    this_date = validate_date(this_date)
+    if is_future_date(this_date):
+        return today()
+    return this_date</code></pre>
+</details>
+</dd>
+<dt id="scrilla.util.dater.validate_date"><code class="name flex">
+<span>def <span class="ident">validate_date</span></span>(<span>this_date)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def validate_date(this_date):
+    if isinstance(this_date, str):
+        return parse(this_date)
+    elif not isinstance(this_date, date):
+        raise ValueError(f&#39;{this_date} is neither date nor \&#39;{DATE_FORMAT}\&#39;formatted string&#39;)
+    return this_date</code></pre>
+</details>
+</dd>
+<dt id="scrilla.util.dater.validate_date_list"><code class="name flex">
+<span>def <span class="ident">validate_date_list</span></span>(<span>dates: List[Union[datetime.date, str]]) ‑> Optional[List[datetime.date]]</span>
+</code></dt>
+<dd>
+<div class="desc"><h2 id="raises">Raises</h2>
+<ol>
+<li><strong>ValueError</strong>
+If the supplied list of dates contains unexpected data types, this error will be thrown.</li>
+</ol></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def validate_date_list(dates: Union[List[Union[datetime.date, str]]]) -&gt; Union[List[datetime.date], None]:
+    &#34;&#34;&#34;
+    
+    Raises
+    ------
+    1. **ValueError**
+        If the supplied list of dates contains unexpected data types, this error will be thrown.
+
+    &#34;&#34;&#34;
+    verified_dates = []
+    for this_date in dates:
+        if isinstance(this_date, str):
+            verified_dates.append(parse(this_date))
+            continue
+        elif isinstance(this_date, datetime.date):
+            verified_dates.append(this_date)
+            continue
+        raise ValueError(f&#39;{this_date} is neither date nor \&#39;{DATE_FORMAT}\&#39;formatted string&#39;)
+    return verified_dates</code></pre>
+</details>
+</dd>
+<dt id="scrilla.util.dater.validate_date_range"><code class="name flex">
+<span>def <span class="ident">validate_date_range</span></span>(<span>start_date: Any, end_date: Any) ‑> Tuple[datetime.date, datetime.date]</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def validate_date_range(start_date: Any, end_date: Any) -&gt; Tuple[date, date]:
+    if isinstance(start_date, str):
+        start_date = parse(start_date)
+    elif not isinstance(start_date, date):
+        raise ValueError(f&#39;{start_date} is neither date nor \&#39;{DATE_FORMAT}\&#39;formatted string&#39;)
+    if isinstance(end_date, str):
+        end_date = parse(end_date)
+    elif not isinstance(end_date, date):
+        raise ValueError(f&#39;{end_date} is neither date nor \&#39;{DATE_FORMAT}\&#39;formatted string&#39;)
+    return validate_order_of_dates(start_date, end_date)</code></pre>
 </details>
 </dd>
 <dt id="scrilla.util.dater.validate_order_of_dates"><code class="name flex">
@@ -1060,7 +1191,7 @@ End date of the date range.</li>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def validate_order_of_dates(start_date: datetime.date, end_date: datetime.date) -&gt; Tuple[datetime.date, datetime.date]:
+<pre><code class="python">def validate_order_of_dates(start_date: date, end_date: date) -&gt; Tuple[date, date]:
     &#34;&#34;&#34;
     Returns the inputted dates as an tuple ordered from earliest to latest.
     &#34;&#34;&#34;
@@ -1070,29 +1201,8 @@ End date of the date range.</li>
     return start_date, end_date</code></pre>
 </details>
 </dd>
-<dt id="scrilla.util.dater.verify_date_types"><code class="name flex">
-<span>def <span class="ident">verify_date_types</span></span>(<span>dates: Union[List[datetime.date], List[str]]) ‑> Optional[List[datetime.date]]</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def verify_date_types(dates: Union[List[datetime.date], List[str]]) -&gt; Union[List[datetime.date], None]:
-    verified_dates = []
-    for date in dates:
-        if isinstance(date, str):
-            verified_dates.append(parse_date_string(date))
-        elif isinstance(date, datetime.date):
-            verified_dates.append(date)
-        else:
-            return None
-    return verified_dates</code></pre>
-</details>
-</dd>
 <dt id="scrilla.util.dater.weekends_between"><code class="name flex">
-<span>def <span class="ident">weekends_between</span></span>(<span>start_date: datetime.date, end_date: datetime.date) ‑> List[int]</span>
+<span>def <span class="ident">weekends_between</span></span>(<span>start_date: Union[datetime.date, str], end_date: Union[datetime.date, str]) ‑> List[int]</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -1100,10 +1210,9 @@ End date of the date range.</li>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def weekends_between(start_date: datetime.date, end_date: datetime.date) -&gt; List[int]:
-    start_date, end_date = verify_date_types(dates=[start_date, end_date])
-    new_start, new_end = validate_order_of_dates(start_date, end_date)
-    dates = dates_between(new_start, new_end)
+<pre><code class="python">def weekends_between(start_date: Union[date, str], end_date: Union[date, str]) -&gt; List[int]:
+    start_date, end_date = validate_date_range(start_date, end_date)
+    dates = dates_between(start_date, end_date)
     return len([1 for day in dates if day.weekday() &gt; 4])</code></pre>
 </details>
 </dd>
@@ -1128,12 +1237,10 @@ End date of the date range.</li>
 <li><code><a title="scrilla.util.dater.business_dates_between" href="#scrilla.util.dater.business_dates_between">business_dates_between</a></code></li>
 <li><code><a title="scrilla.util.dater.business_days_between" href="#scrilla.util.dater.business_days_between">business_days_between</a></code></li>
 <li><code><a title="scrilla.util.dater.consecutive_trading_days" href="#scrilla.util.dater.consecutive_trading_days">consecutive_trading_days</a></code></li>
-<li><code><a title="scrilla.util.dater.date_to_string" href="#scrilla.util.dater.date_to_string">date_to_string</a></code></li>
 <li><code><a title="scrilla.util.dater.dates_between" href="#scrilla.util.dater.dates_between">dates_between</a></code></li>
 <li><code><a title="scrilla.util.dater.days_between" href="#scrilla.util.dater.days_between">days_between</a></code></li>
 <li><code><a title="scrilla.util.dater.decrement_date_by_business_days" href="#scrilla.util.dater.decrement_date_by_business_days">decrement_date_by_business_days</a></code></li>
 <li><code><a title="scrilla.util.dater.decrement_date_by_days" href="#scrilla.util.dater.decrement_date_by_days">decrement_date_by_days</a></code></li>
-<li><code><a title="scrilla.util.dater.decrement_date_string_by_business_days" href="#scrilla.util.dater.decrement_date_string_by_business_days">decrement_date_string_by_business_days</a></code></li>
 <li><code><a title="scrilla.util.dater.format_date_range" href="#scrilla.util.dater.format_date_range">format_date_range</a></code></li>
 <li><code><a title="scrilla.util.dater.get_holidays_between" href="#scrilla.util.dater.get_holidays_between">get_holidays_between</a></code></li>
 <li><code><a title="scrilla.util.dater.get_last_trading_date" href="#scrilla.util.dater.get_last_trading_date">get_last_trading_date</a></code></li>
@@ -1143,24 +1250,23 @@ End date of the date range.</li>
 <li><code><a title="scrilla.util.dater.get_time_to_next_period" href="#scrilla.util.dater.get_time_to_next_period">get_time_to_next_period</a></code></li>
 <li><code><a title="scrilla.util.dater.get_time_to_next_quarter" href="#scrilla.util.dater.get_time_to_next_quarter">get_time_to_next_quarter</a></code></li>
 <li><code><a title="scrilla.util.dater.get_time_to_next_year" href="#scrilla.util.dater.get_time_to_next_year">get_time_to_next_year</a></code></li>
-<li><code><a title="scrilla.util.dater.get_time_to_year" href="#scrilla.util.dater.get_time_to_year">get_time_to_year</a></code></li>
-<li><code><a title="scrilla.util.dater.get_today" href="#scrilla.util.dater.get_today">get_today</a></code></li>
 <li><code><a title="scrilla.util.dater.increment_date_by_business_days" href="#scrilla.util.dater.increment_date_by_business_days">increment_date_by_business_days</a></code></li>
-<li><code><a title="scrilla.util.dater.increment_date_string_by_business_days" href="#scrilla.util.dater.increment_date_string_by_business_days">increment_date_string_by_business_days</a></code></li>
 <li><code><a title="scrilla.util.dater.intersect_with_trading_dates" href="#scrilla.util.dater.intersect_with_trading_dates">intersect_with_trading_dates</a></code></li>
 <li><code><a title="scrilla.util.dater.is_date_holiday" href="#scrilla.util.dater.is_date_holiday">is_date_holiday</a></code></li>
-<li><code><a title="scrilla.util.dater.is_date_string_holiday" href="#scrilla.util.dater.is_date_string_holiday">is_date_string_holiday</a></code></li>
-<li><code><a title="scrilla.util.dater.is_date_string_weekend" href="#scrilla.util.dater.is_date_string_weekend">is_date_string_weekend</a></code></li>
 <li><code><a title="scrilla.util.dater.is_date_today" href="#scrilla.util.dater.is_date_today">is_date_today</a></code></li>
 <li><code><a title="scrilla.util.dater.is_date_weekend" href="#scrilla.util.dater.is_date_weekend">is_date_weekend</a></code></li>
 <li><code><a title="scrilla.util.dater.is_future_date" href="#scrilla.util.dater.is_future_date">is_future_date</a></code></li>
 <li><code><a title="scrilla.util.dater.is_trading_date" href="#scrilla.util.dater.is_trading_date">is_trading_date</a></code></li>
 <li><code><a title="scrilla.util.dater.last_close_date" href="#scrilla.util.dater.last_close_date">last_close_date</a></code></li>
-<li><code><a title="scrilla.util.dater.parse_date_string" href="#scrilla.util.dater.parse_date_string">parse_date_string</a></code></li>
+<li><code><a title="scrilla.util.dater.parse" href="#scrilla.util.dater.parse">parse</a></code></li>
 <li><code><a title="scrilla.util.dater.this_date_or_last_trading_date" href="#scrilla.util.dater.this_date_or_last_trading_date">this_date_or_last_trading_date</a></code></li>
+<li><code><a title="scrilla.util.dater.to_string" href="#scrilla.util.dater.to_string">to_string</a></code></li>
+<li><code><a title="scrilla.util.dater.today" href="#scrilla.util.dater.today">today</a></code></li>
 <li><code><a title="scrilla.util.dater.truncate_future_from_date" href="#scrilla.util.dater.truncate_future_from_date">truncate_future_from_date</a></code></li>
+<li><code><a title="scrilla.util.dater.validate_date" href="#scrilla.util.dater.validate_date">validate_date</a></code></li>
+<li><code><a title="scrilla.util.dater.validate_date_list" href="#scrilla.util.dater.validate_date_list">validate_date_list</a></code></li>
+<li><code><a title="scrilla.util.dater.validate_date_range" href="#scrilla.util.dater.validate_date_range">validate_date_range</a></code></li>
 <li><code><a title="scrilla.util.dater.validate_order_of_dates" href="#scrilla.util.dater.validate_order_of_dates">validate_order_of_dates</a></code></li>
-<li><code><a title="scrilla.util.dater.verify_date_types" href="#scrilla.util.dater.verify_date_types">verify_date_types</a></code></li>
 <li><code><a title="scrilla.util.dater.weekends_between" href="#scrilla.util.dater.weekends_between">weekends_between</a></code></li>
 </ul>
 </li>
