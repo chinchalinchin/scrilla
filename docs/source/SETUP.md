@@ -1,40 +1,6 @@
 # Setup
 
-## Dependencies
-
-You will need Python3.8 or greater. If you are building from source, you will need to install the libraries in the following sections. The versions have been frozen in the `requirements.txt` file, so they can be installed via,
-
-```shell
-pip install -r requirements.txtss
-```
-
-### Required
-- [dateutil](https://dateutil.readthedocs.io/en/stable/index.html)
-- [holidays](https://pypi.org/project/holidays/)
-- [matplotlib](https://pypi.org/project/matplotlib/)
-- [numpy](https://pypi.org/project/numpy/)>
-- [python-dotenv](https://pypi.org/project/python-dotenv/)
-- [requests](https://pypi.org/project/requests/)>
-- [scipy](https://pypi.org/project/scipy/)
-
-### Optional
-- [PySide6](https://pypi.org/project/PySide6/)
-
-### Development
-
-**Testing**
-- [pytest](https://pypi.org/project/pytest/)
-- [coverage](https://pypi.org/project/coverage/)
-- [httmock](https://pypi.org/project/httmock/)
-
-**Documentation**
-- [sphinx](https://pypi.org/project/Sphinx/)
-- [pdoc3](https://pypi.org/project/pdoc3/)
-
-**Build**
-- [setuptools](https://pypi.org/project/setuptools/)
-- [twine](https://pypi.org/project/twine/)
-- [build](https://pypi.org/project/build/)
+This application was built and tested on Python 3.9. 
 
 ## Installation
 
@@ -51,17 +17,15 @@ This will install a command line interface on your path under the name `scrilla`
 ```shell
 scrilla version
 ```
+If you are on Windows, you may need to add your Python scripts bin to the **$PATH**.
 
-.. warning::
-    If you are on Windows, you may need to add your Python scripts bin to the **$PATH**.
-
-To keep the installation as minimal as possible, the base package does not include the GUI libraries. You can install the optional GUI dependency with,
+To keep the installation as minimal as possible, the base package does not include the GUI libraries. You can install the optional GUI with,
 
 ```shell
 pip install scrilla[gui]
 ```
 
-Note, the GUI has a different CLI entrypoint, namely,
+The GUI has a different CLI entrypoint, namely,
 
 ```shell
 scrilla-gui

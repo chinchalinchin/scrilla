@@ -4,8 +4,8 @@
 
 Documentation
 ---
-- [Source](https://chinchalinchin.github.io/scrilla/)
-- [Package](https://chinchalinchin.github.io/scrilla/package/index.html)
+- [Overview](https://chinchalinchin.github.io/scrilla/)
+- [Packages](https://chinchalinchin.github.io/scrilla/package/index.html)
 
 Coverage
 ---
