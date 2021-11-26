@@ -489,7 +489,7 @@ price_cache = cache.PriceCache()
 interest_cache = cache.InterestCache()
 
 
-def get_daily_price_history(ticker: str, start_date: Union[None, date] = None,end_date: Union[None, date] = None, asset_type: Union[None, str] = None) -> Dict[str, Dict[str, float]]:
+def get_daily_price_history(ticker: str, start_date: Union[None, date] = None, end_date: Union[None, date] = None, asset_type: Union[None, str] = None) -> Dict[str, Dict[str, float]]:
     """
     Wrapper around external service request for price data. Relies on an instance of `PriceManager` configured by `settings.PRICE_MANAGER` value, which in turn is configured by the `PRICE_MANAGER` environment variable, to hydrate with data. 
 
@@ -639,7 +639,7 @@ def get_daily_fred_history(symbol: str, start_date: Union[date, None] = None, en
 
     stats = stat_manager.get_stats(
         symbol=symbol, start_date=start_date, end_date=end_date)
-    
+
     if not stats:
         raise errors.PriceError(
             f'Prices could not be retrieved for {symbol}')
