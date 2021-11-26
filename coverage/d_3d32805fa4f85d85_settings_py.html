@@ -181,7 +181,7 @@
     <p class="pln"><span class="n"><a id="t122" href="#t122">122</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t123" href="#t123">123</a></span><span class="t"><span class="key">try</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t124" href="#t124">124</a></span><span class="t">    <span class="nam">DATE_FORMAT</span> <span class="op">=</span> <span class="nam">str</span><span class="op">(</span><span class="nam">os</span><span class="op">.</span><span class="nam">environ</span><span class="op">.</span><span class="nam">setdefault</span><span class="op">(</span><span class="str">'DATE_FORMAT'</span><span class="op">,</span> <span class="str">'%Y-%m-%d'</span><span class="op">)</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t125" href="#t125">125</a></span><span class="t"><span class="key">except</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t125" href="#t125">125</a></span><span class="t"><span class="key">except</span> <span class="op">(</span><span class="nam">ValueError</span><span class="op">,</span> <span class="nam">TypeError</span><span class="op">)</span> <span class="key">as</span> <span class="nam">ParseError</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t126" href="#t126">126</a></span><span class="t">    <span class="nam">logger</span><span class="op">.</span><span class="nam">debug</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t127" href="#t127">127</a></span><span class="t">        <span class="str">'Failed to parse DATE_FORMAT from environment. Setting to default value of 1024.'</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t128" href="#t128">128</a></span><span class="t">    <span class="nam">DATE_FORMAT</span> <span class="op">=</span> <span class="str">'%Y-%m-%d'</span>&nbsp;</span><span class="r"></span></p>
@@ -379,7 +379,7 @@
     <div class="content">
         <p>
             <a class="nav" href="index.html">&#xab; index</a> &nbsp; &nbsp; <a class="nav" href="https://coverage.readthedocs.io">coverage.py v6.1.2</a>,
-            created at 2021-11-26 22:12 +0000
+            created at 2021-11-26 22:24 +0000
         </p>
     </div>
 </footer>
