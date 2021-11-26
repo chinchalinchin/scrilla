@@ -122,7 +122,7 @@ DEFAULT_ANALYSIS_PERIOD = None
 
 try:
     DATE_FORMAT = str(os.environ.setdefault('DATE_FORMAT', '%Y-%m-%d'))
-except:
+except (ValueError, TypeError) as ParseError:
     logger.debug(
         'Failed to parse DATE_FORMAT from environment. Setting to default value of 1024.')
     DATE_FORMAT = '%Y-%m-%d'

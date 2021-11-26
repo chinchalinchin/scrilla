@@ -108,31 +108,6 @@ def last_close_date():
     return get_previous_business_date(right_now.date())
 
 
-def get_time_to_next_period(starting_date: Union[date, str], period: float) -> float:
-    """
-    Divides the year into segments of equal length 'period' and then calculates the time from today until 
-    the next period. 
-
-    Parameters
-    ---------- 
-    1. **starting_date**: ``Union[date, str]``
-
-    2. **period**: float
-        Length of one period, measured in years. 
-    """
-    if period is None:
-        return 0
-
-    starting_date = validate_date(starting_date)
-    today = datetime.date.today()
-    floored_days = math.floor(365*period)
-
-    while ((starting_date - today).days < 0):
-        starting_date += datetime.timedelta(days=floored_days)
-
-    return float((today - starting_date).days / 365)
-
-
 def is_date_weekend(this_date: Union[date, str]) -> bool:
     return validate_date(this_date).weekday() in [5, 6]
 
@@ -158,9 +133,9 @@ def get_last_trading_date() -> date:
     -------
     The last full trading day. If today is a trading day and the time is past market close, today's date will be returned. Otherwise, the previous business day's date will be returned. 
     """
-    today = datetime.datetime.now()
-    if is_date_holiday(today) or is_date_weekend(today):
-        return get_previous_business_date(today.date())
+    todays_date = datetime.datetime.now()
+    if is_date_holiday(todays_date) or is_date_weekend(todays_date):
+        return get_previous_business_date(todays_date.date())
     return last_close_date()
 
 
@@ -368,9 +343,9 @@ def get_time_to_next_month(todays_date : date = today(), trading_days: int = 252
 
     """
     # TODO: what if first day of the month falls on non-trading days?
-    today = datetime.date.today()
-    next_month = datetime.date(year=today.year, month=(today.month+1), day=1)
-    return ((next_month - today).days / trading_days)
+    todays_date = datetime.date.today()
+    next_month = datetime.date(year=todays_date.year, month=(todays_date.month+1), day=1)
+    return ((next_month - todays_date).days / trading_days)
 
 
 def get_time_to_next_year(todays_date : date = today(), trading_days: int = 252) -> float:
@@ -412,3 +387,27 @@ def get_time_to_next_quarter(todays_date : date = today(), trading_days: int = 2
     next_delta = (next_first_q - todays_date).days / trading_days
 
     return min(i for i in [first_delta, second_delta, third_delta, fourth_delta, next_delta] if i > 0)
+
+def get_time_to_next_period(starting_date: Union[date, str], period: float) -> float:
+    """
+    Divides the year into segments of equal length 'period' and then calculates the time from today until 
+    the next period. 
+
+    Parameters
+    ---------- 
+    1. **starting_date**: ``Union[date, str]``
+        Starting day of the period. Not to be confused with today. This is the point in time when the recurring event started. 
+    2. **period**: float
+        Length of one period, measured in years. 
+    """
+    if period is None:
+        return 0
+
+    starting_date = validate_date(starting_date)
+    todays_date = datetime.date.today()
+    floored_days = math.floor(365*period)
+
+    while ((starting_date - todays_date).days < 0):
+        starting_date += datetime.timedelta(days=floored_days)
+
+    return float((todays_date - starting_date).days / 365)
