@@ -38,7 +38,7 @@ def parse(date_string: str) -> Union[date, None]:
 def validate_date(this_date):
     if isinstance(this_date, str):
         return parse(this_date)
-    elif not isinstance(this_date, date):
+    if not isinstance(this_date, date):
         raise ValueError(f'{this_date} is neither date nor \'{DATE_FORMAT}\'formatted string')
     return this_date
 
