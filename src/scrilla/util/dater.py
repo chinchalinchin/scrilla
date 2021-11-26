@@ -38,8 +38,9 @@ def parse(date_string: str) -> Union[date, None]:
 def validate_date(this_date):
     if isinstance(this_date, str):
         return parse(this_date)
-    elif not isinstance(this_date, date):
-        raise ValueError(f'{this_date} is neither date nor \'{DATE_FORMAT}\'formatted string')
+    if not isinstance(this_date, date):
+        raise ValueError(
+            f'{this_date} is neither date nor \'{DATE_FORMAT}\'formatted string')
     return this_date
 
 
@@ -47,17 +48,19 @@ def validate_date_range(start_date: Any, end_date: Any) -> Tuple[date, date]:
     if isinstance(start_date, str):
         start_date = parse(start_date)
     elif not isinstance(start_date, date):
-        raise ValueError(f'{start_date} is neither date nor \'{DATE_FORMAT}\'formatted string')
+        raise ValueError(
+            f'{start_date} is neither date nor \'{DATE_FORMAT}\'formatted string')
     if isinstance(end_date, str):
         end_date = parse(end_date)
     elif not isinstance(end_date, date):
-        raise ValueError(f'{end_date} is neither date nor \'{DATE_FORMAT}\'formatted string')
+        raise ValueError(
+            f'{end_date} is neither date nor \'{DATE_FORMAT}\'formatted string')
     return validate_order_of_dates(start_date, end_date)
 
 
 def validate_date_list(dates: Union[List[Union[datetime.date, str]]]) -> Union[List[datetime.date], None]:
     """
-    
+
     Raises
     ------
     1. **ValueError**
@@ -69,10 +72,11 @@ def validate_date_list(dates: Union[List[Union[datetime.date, str]]]) -> Union[L
         if isinstance(this_date, str):
             verified_dates.append(parse(this_date))
             continue
-        elif isinstance(this_date, datetime.date):
+        if isinstance(this_date, datetime.date):
             verified_dates.append(this_date)
             continue
-        raise ValueError(f'{this_date} is neither date nor \'{DATE_FORMAT}\'formatted string')
+        raise ValueError(
+            f'{this_date} is neither date nor \'{DATE_FORMAT}\'formatted string')
     return verified_dates
 
 
@@ -149,6 +153,7 @@ def this_date_or_last_trading_date(this_date: Union[date, str, None] = None) -> 
         return last_close_date()
     return this_date
 
+
 def format_date_range(start_date: date, end_date: date) -> str:
     result = ""
     if start_date is not None:
@@ -208,12 +213,13 @@ def consecutive_trading_days(start_date: Union[date, str], end_date: Union[date,
         start_date, end_date = end_date, start_date
         delta = end_date - start_date
 
-    holiday_count = get_holidays_between(start_date=start_date, end_date=end_date)
+    holiday_count = get_holidays_between(
+        start_date=start_date, end_date=end_date)
 
     if (delta - holiday_count) == 0:
         return False
 
-    if (delta  - holiday_count) == 1:
+    if (delta - holiday_count) == 1:
         return True
 
     if ((delta - holiday_count) > 1 and (delta - holiday_count) < 4):
@@ -308,13 +314,15 @@ def decrement_date_by_business_days(start_date: Union[date, str], business_days:
 
     return start_date
 
+
 def increment_date_by_business_days(start_date: Union[date, str], business_days: int) -> date:
     start_date = validate_date(start_date)
-    while business_days> 0:
+    while business_days > 0:
         if is_trading_date(start_date):
             business_days -= 1
         start_date += datetime.timedelta(days=1)
     return start_date
+
 
 def get_next_business_date(this_date: Union[date, str]) -> date:
     this_date = validate_date(this_date)
@@ -332,7 +340,7 @@ def get_previous_business_date(this_date: Union[date, str]) -> date:
 # in years
 
 
-def get_time_to_next_month(todays_date : date = today(), trading_days: int = 252) -> float:
+def get_time_to_next_month(todays_date: date = today(), trading_days: int = 252) -> float:
     """
     Parameters
     ----------
@@ -348,7 +356,7 @@ def get_time_to_next_month(todays_date : date = today(), trading_days: int = 252
     return ((next_month - todays_date).days / trading_days)
 
 
-def get_time_to_next_year(todays_date : date = today(), trading_days: int = 252) -> float:
+def get_time_to_next_year(todays_date: date = today(), trading_days: int = 252) -> float:
     """
     Parameters
     ----------
@@ -363,7 +371,7 @@ def get_time_to_next_year(todays_date : date = today(), trading_days: int = 252)
     return ((next_year - todays_date).days / trading_days)
 
 
-def get_time_to_next_quarter(todays_date : date = today(), trading_days: int = 252) -> float:
+def get_time_to_next_quarter(todays_date: date = today(), trading_days: int = 252) -> float:
     """
     Parameters
     ----------
