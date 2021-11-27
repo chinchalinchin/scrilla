@@ -377,11 +377,15 @@ def _calculate_percentile_moving_averages(ticker: str, start_date: Union[date, N
         for ma_period in [settings.MA_1_PERIOD, settings.MA_2_PERIOD, settings.MA_3_PERIOD]:
             ma_range = dict(itertools.islice(
                 sample_prices.items(), this_date_index, this_date_index+ma_period+1))
-            sample_of_returns = get_sample_of_returns(ticker=ticker, sample_prices=ma_range)
+            sample_of_returns = get_sample_of_returns(
+                ticker=ticker, sample_prices=ma_range)
 
-            first_quartile = estimators.sample_percentile(data=sample_of_returns, percentile=0.25)
-            median = estimators.sample_percentile(data=sample_of_returns, percentile=0.50)
-            third_quartile = estimators.sample_percentile(data=sample_of_returns, percentile=0.75)
+            first_quartile = estimators.sample_percentile(
+                data=sample_of_returns, percentile=0.25)
+            median = estimators.sample_percentile(
+                data=sample_of_returns, percentile=0.50)
+            third_quartile = estimators.sample_percentile(
+                data=sample_of_returns, percentile=0.75)
             guess = (median, (third_quartile-first_quartile)/2)
 
             def objective(params):
