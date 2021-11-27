@@ -12,17 +12,6 @@
 # You should have received a copy of the GNU General Public License
 # along with scrilla.  If not, see <https://www.gnu.org/licenses/>
 # or <https://github.com/chinchalinchin/scrilla/blob/develop/main/LICENSE>.
-
-import datetime
-from typing import Callable, Dict, List, Union
-from PySide6 import QtCore, QtWidgets, QtGui
-
-from scrilla import settings
-from scrilla.util import helper
-from scrilla.gui import utilities
-from scrilla.static import definitions
-from scrilla.gui.widgets import factories
-
 """
 A series of classes that all inherit from ``PySide6.QtWidgets.QWidget` and build up in sequence the necessary functionality to grab and validate user input, calculate and display results, etc. These widgets are not directly displayed on the GUI; rather, they are used as building blocks by the `scrilla.gui.functions` module, to create widgets specifically for application functions.
 
@@ -38,6 +27,15 @@ The idea behind the module is to hide as much widget initialization and styling 
 
 Widgets have styles applied to them through the `scrilla.styles.app.qss` stylesheet. Widgets are layered over one another in a hierarchy described by: `root` -> `child` -> `grand-child` -> `great-grand-child` -> etc. Each layers has a theme that descends down the material color scheme hex codes in sequence with its place in the layer hierarchy. See `scrilla.gui.formats` for more information. 
 """
+import datetime
+from typing import Callable, Dict, List, Union
+from PySide6 import QtCore, QtWidgets, QtGui
+
+from scrilla import settings
+from scrilla.util import helper
+from scrilla.gui import utilities
+from scrilla.static import definitions
+from scrilla.gui.widgets import factories
 
 SYMBOLS_LIST = "list"
 """Constant passed into `scrilla.gui.widgets.components.ArgumentWidget` to initialize an input control allowing user to input list of ticker symbols"""
