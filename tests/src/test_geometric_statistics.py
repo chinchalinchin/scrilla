@@ -15,7 +15,7 @@ from .. import mock
 ])
 def test_moving_average_return(ticker, start_date, end_date):
     with HTTMock(mock.mock_prices):
-        moving_average = statistics.calculate_moving_averages_v2(ticker=ticker, start_date=start_date, end_date=end_date)
+        moving_average = statistics.calculate_moving_averages(ticker=ticker, start_date=start_date, end_date=end_date)
 
     assert(isinstance(moving_average, dict))
     assert(len(list(moving_average.keys())) == dater.business_days_between(start_date, end_date))
