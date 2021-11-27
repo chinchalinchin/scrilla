@@ -184,7 +184,7 @@ def plot_profiles(symbols: List[str], profiles: Dict[str, Dict[str, float]], sho
     # TODO: figure out date formatting for x-axis
 
 
-def plot_moving_averages(ticker: str, averages: Dict[str, Dict[str,float]], show:bool = False, savefile: str = None):
+def plot_moving_averages(ticker: str, averages: Dict[str, Dict[str, float]], show: bool = False, savefile: str = None):
     canvas = FigureCanvas(Figure())
     axes = canvas.figure.subplots()
 
@@ -206,7 +206,8 @@ def plot_moving_averages(ticker: str, averages: Dict[str, Dict[str,float]], show
         if len(averages) == 1:
             date_range.append(this_date)
         else:
-            date_range.append(datetime.datetime.strptime(this_date, '%Y-%m-%d').toordinal())
+            date_range.append(datetime.datetime.strptime(
+                this_date, '%Y-%m-%d').toordinal())
 
     if len(averages) == 1:
         width = formats.formats['BAR_WIDTH']
@@ -220,11 +221,11 @@ def plot_moving_averages(ticker: str, averages: Dict[str, Dict[str,float]], show
     else:
         x = date_range
         axes.plot(x, ma1s, linestyle="solid",
-                      color="darkgreen", label=ma1_label)
+                  color="darkgreen", label=ma1_label)
         axes.plot(x, ma2s, linestyle="dotted",
-                    color="gold", label=ma2_label)
+                  color="gold", label=ma2_label)
         axes.plot(x, ma3s, linestyle="dashdot",
-                    color="orangered", label=ma3_label)
+                  color="orangered", label=ma3_label)
         axes.set_xticks(x)
         date_locator = matplotlib.dates.WeekdayLocator(
             byweekday=(matplotlib.dates.WE))
@@ -234,10 +235,10 @@ def plot_moving_averages(ticker: str, averages: Dict[str, Dict[str,float]], show
     axes.set_ylabel('Annualized Logarthmic Return %')
     axes.set_xlabel('Dates')
     axes.set_title(
-            f'{ticker} Annualized Return Moving Averages')
+        f'{ticker} Annualized Return Moving Averages')
     axes.legend()
     return _show_or_save(canvas=canvas, show=show, savefile=savefile)
-    
+
 
 def plot_cashflow(ticker: str, cashflow: Cashflow, show: bool = True, savefile: str = None) -> Union[FigureCanvas, None]:
     if not cashflow.beta or not cashflow.alpha or len(cashflow.sample) < 3:

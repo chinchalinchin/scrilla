@@ -10,6 +10,7 @@ formats = {
     'BINS': 20
 }
 
+
 def format_allocation(allocation, portfolio, investment=None, latest_prices=None):
     allocation_format = []
 
