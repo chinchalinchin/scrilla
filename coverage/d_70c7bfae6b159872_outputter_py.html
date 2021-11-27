@@ -385,8 +385,8 @@
     <p class="mis show_mis"><span class="n"><a id="t326" href="#t326">326</a></span><span class="t">        <span class="key">if</span> <span class="nam">i</span> <span class="op">==</span> <span class="num">0</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t327" href="#t327">327</a></span><span class="t">            <span class="nam">line_length</span> <span class="op">=</span> <span class="nam">len</span><span class="op">(</span><span class="nam">new_line</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t328" href="#t328">328</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t329" href="#t329">329</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t330" href="#t330">330</a></span><span class="t">    <span class="nam">formatted_subtitle</span> <span class="op">+=</span> <span class="str">' '</span><span class="op">*</span><span class="op">(</span><span class="nam">formats</span><span class="op">.</span><span class="nam">formats</span><span class="op">[</span><span class="str">'INDENT'</span><span class="op">]</span> <span class="op">+</span> <span class="nam">first_symbol_length</span><span class="op">+</span><span class="num">1</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t329" href="#t329">329</a></span><span class="t">    <span class="nam">formatted_subtitle</span> <span class="op">+=</span> <span class="str">' '</span> <span class="op">*</span> <span class="xx">\</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t330" href="#t330">330</a></span><span class="t">        <span class="op">(</span><span class="nam">formats</span><span class="op">.</span><span class="nam">formats</span><span class="op">[</span><span class="str">'INDENT'</span><span class="op">]</span> <span class="op">+</span> <span class="nam">first_symbol_length</span><span class="op">+</span><span class="num">1</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t331" href="#t331">331</a></span><span class="t">    <span class="key">for</span> <span class="nam">i</span><span class="op">,</span> <span class="nam">ticker</span> <span class="key">in</span> <span class="nam">enumerate</span><span class="op">(</span><span class="nam">tickers</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t332" href="#t332">332</a></span><span class="t">        <span class="nam">sym_len</span> <span class="op">=</span> <span class="nam">len</span><span class="op">(</span><span class="nam">ticker</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t333" href="#t333">333</a></span><span class="t">        <span class="nam">formatted_subtitle</span> <span class="op">+=</span> <span class="str">f' {ticker}'</span> <span class="op">+</span> <span class="str">' '</span><span class="op">*</span><span class="op">(</span><span class="num">7</span><span class="op">-</span><span class="nam">sym_len</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
@@ -441,7 +441,7 @@
     <div class="content">
         <p>
             <a class="nav" href="index.html">&#xab; index</a> &nbsp; &nbsp; <a class="nav" href="https://coverage.readthedocs.io">coverage.py v6.1.2</a>,
-            created at 2021-11-27 16:43 +0000
+            created at 2021-11-27 16:54 +0000
         </p>
     </div>
 </footer>
