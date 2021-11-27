@@ -416,9 +416,9 @@ def do_program(cli_args: List[str]) -> None:
                                                          start_date=args['start_date'],
                                                          end_date=args['end_date'])
             if print_format_to_screen(args):
-                for date in result:
-                    scalar_result(calculation=f'{date}_{ticker_1}_{ticker_2}_correlation',
-                                  result=float(result[date]), currency=False)
+                for this_date in result:
+                    scalar_result(calculation=f'{this_date}_{ticker_1}_{ticker_2}_correlation',
+                                  result=float(result[this_date]), currency=False)
             elif print_json_to_screen(args):
                 from json import dumps
                 print(dumps(result))
@@ -472,9 +472,9 @@ def do_program(cli_args: List[str]) -> None:
                 all_dividends[arg] = dividends
 
                 if print_format_to_screen(args):
-                    for date in dividends:
+                    for this_date in dividends:
                         scalar_result(
-                            calculation=f'{arg}_dividend({date})', result=dividends[date])
+                            calculation=f'{arg}_dividend({this_date})', result=dividends[this_date])
 
             if print_json_to_screen(args):
                 from json import dumps
@@ -860,13 +860,13 @@ def do_program(cli_args: List[str]) -> None:
                                                  start_date=args['start_date'],
                                                  end_date=args['end_date'])
                 all_prices[arg] = {}
-                for date in prices:
-                    price = prices[date][keys['PRICES']['CLOSE']]
-                    all_prices[arg][date] = price
+                for this_date in prices:
+                    price = prices[this_date][keys['PRICES']['CLOSE']]
+                    all_prices[arg][this_date] = price
 
                     if print_format_to_screen(args):
                         scalar_result(
-                            calculation=f'{arg}({date})', result=float(price))
+                            calculation=f'{arg}({this_date})', result=float(price))
 
             if print_json_to_screen(args):
                 from json import dumps
@@ -889,13 +889,13 @@ def do_program(cli_args: List[str]) -> None:
                 all_rates[arg] = get_daily_interest_history(maturity=arg,
                                                             start_date=args['start_date'],
                                                             end_date=args['end_date'])
-                for date in all_rates[arg]:
-                    all_rates[arg][date] = all_rates[arg][date]
+                for this_date in all_rates[arg]:
+                    all_rates[arg][this_date] = all_rates[arg][this_date]
 
                 if print_format_to_screen(args):
-                    for date in all_rates[arg]:
-                        scalar_result(calculation=f'{arg}_YIELD({date})', result=float(
-                            all_rates[arg][date])/100, currency=False)
+                    for this_date in all_rates[arg]:
+                        scalar_result(calculation=f'{arg}_YIELD({this_date})', result=float(
+                            all_rates[arg][this_date])/100, currency=False)
 
             if print_json_to_screen(args):
                 from json import dumps
@@ -1055,9 +1055,9 @@ def do_program(cli_args: List[str]) -> None:
                                                end_date=args['end_date'])
                 all_stats[arg] = stats
                 if print_format_to_screen(args):
-                    for date in stats:
-                        scalar_result(calculation=f'{arg}({date})',
-                                      result=stats[date],
+                    for this_date in stats:
+                        scalar_result(calculation=f'{arg}({this_date})',
+                                      result=stats[this_date],
                                       currency=False)
 
             if print_json_to_screen(args):
