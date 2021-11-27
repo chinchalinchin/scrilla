@@ -31,7 +31,6 @@
 from datetime import date
 
 import math
-from attr import validate
 import holidays
 from typing import Any, List, Tuple, Union
 
@@ -69,7 +68,7 @@ def validate_date(this_date):
         return parse(this_date)
     if not isinstance(this_date, date):
         raise ValueError(
-            f&#39;{this_date} is neither date nor \&#39;{DATE_FORMAT}\&#39;formatted string&#39;)
+            f&#39;{this_date} is neither date nor \&#39;{DATE_FORMAT}\&#39; formatted string&#39;)
     return this_date
 
 
@@ -78,12 +77,12 @@ def validate_date_range(start_date: Any, end_date: Any) -&gt; Tuple[date, date]:
         start_date = parse(start_date)
     elif not isinstance(start_date, date):
         raise ValueError(
-            f&#39;{start_date} is neither date nor \&#39;{DATE_FORMAT}\&#39;formatted string&#39;)
+            f&#39;{start_date} is neither date nor \&#39;{DATE_FORMAT}\&#39; formatted string&#39;)
     if isinstance(end_date, str):
         end_date = parse(end_date)
     elif not isinstance(end_date, date):
         raise ValueError(
-            f&#39;{end_date} is neither date nor \&#39;{DATE_FORMAT}\&#39;formatted string&#39;)
+            f&#39;{end_date} is neither date nor \&#39;{DATE_FORMAT}\&#39; formatted string&#39;)
     return validate_order_of_dates(start_date, end_date)
 
 
@@ -763,7 +762,7 @@ End date of the date range.</li>
 </details>
 </dd>
 <dt id="scrilla.util.dater.get_time_to_next_month"><code class="name flex">
-<span>def <span class="ident">get_time_to_next_month</span></span>(<span>todays_date: datetime.date = datetime.date(2021, 11, 26), trading_days: int = 252) ‑> float</span>
+<span>def <span class="ident">get_time_to_next_month</span></span>(<span>todays_date: datetime.date = datetime.date(2021, 11, 27), trading_days: int = 252) ‑> float</span>
 </code></dt>
 <dd>
 <div class="desc"><h2 id="parameters">Parameters</h2>
@@ -837,7 +836,7 @@ Length of one period, measured in years.</li>
 </details>
 </dd>
 <dt id="scrilla.util.dater.get_time_to_next_quarter"><code class="name flex">
-<span>def <span class="ident">get_time_to_next_quarter</span></span>(<span>todays_date: datetime.date = datetime.date(2021, 11, 26), trading_days: int = 252) ‑> float</span>
+<span>def <span class="ident">get_time_to_next_quarter</span></span>(<span>todays_date: datetime.date = datetime.date(2021, 11, 27), trading_days: int = 252) ‑> float</span>
 </code></dt>
 <dd>
 <div class="desc"><h2 id="parameters">Parameters</h2>
@@ -878,7 +877,7 @@ Length of one period, measured in years.</li>
 </details>
 </dd>
 <dt id="scrilla.util.dater.get_time_to_next_year"><code class="name flex">
-<span>def <span class="ident">get_time_to_next_year</span></span>(<span>todays_date: datetime.date = datetime.date(2021, 11, 26), trading_days: int = 252) ‑> float</span>
+<span>def <span class="ident">get_time_to_next_year</span></span>(<span>todays_date: datetime.date = datetime.date(2021, 11, 27), trading_days: int = 252) ‑> float</span>
 </code></dt>
 <dd>
 <div class="desc"><h2 id="parameters">Parameters</h2>
@@ -1132,7 +1131,7 @@ Length of one period, measured in years.</li>
         return parse(this_date)
     if not isinstance(this_date, date):
         raise ValueError(
-            f&#39;{this_date} is neither date nor \&#39;{DATE_FORMAT}\&#39;formatted string&#39;)
+            f&#39;{this_date} is neither date nor \&#39;{DATE_FORMAT}\&#39; formatted string&#39;)
     return this_date</code></pre>
 </details>
 </dd>
@@ -1185,12 +1184,12 @@ If the supplied list of dates contains unexpected data types, this error will be
         start_date = parse(start_date)
     elif not isinstance(start_date, date):
         raise ValueError(
-            f&#39;{start_date} is neither date nor \&#39;{DATE_FORMAT}\&#39;formatted string&#39;)
+            f&#39;{start_date} is neither date nor \&#39;{DATE_FORMAT}\&#39; formatted string&#39;)
     if isinstance(end_date, str):
         end_date = parse(end_date)
     elif not isinstance(end_date, date):
         raise ValueError(
-            f&#39;{end_date} is neither date nor \&#39;{DATE_FORMAT}\&#39;formatted string&#39;)
+            f&#39;{end_date} is neither date nor \&#39;{DATE_FORMAT}\&#39; formatted string&#39;)
     return validate_order_of_dates(start_date, end_date)</code></pre>
 </details>
 </dd>
