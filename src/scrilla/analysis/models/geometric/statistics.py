@@ -1238,13 +1238,13 @@ def _calculate_moment_correlation(ticker_1: str, ticker_2: str, asset_type_1: Un
     logger.debug(
         f'Preparing calculation dependencies for ({ticker_1},{ticker_2}) correlation')
 
-    stats_1 = calculate_moment_risk_return(ticker=ticker_1,
+    stats_1 = _calculate_moment_risk_return(ticker=ticker_1,
                                            start_date=start_date,
                                            end_date=end_date,
                                            asset_type=asset_type_1,
                                            weekends=weekends)
 
-    stats_2 = calculate_moment_risk_return(ticker=ticker_2,
+    stats_2 = _calculate_moment_risk_return(ticker=ticker_2,
                                            start_date=start_date,
                                            end_date=end_date,
                                            asset_type=asset_type_2,
@@ -1448,9 +1448,9 @@ def calculate_moment_correlation_series(ticker_1: str, ticker_2: str, start_date
 
     for this_date in date_range:
         calc_date_end = this_date
-        todays_cor = calculate_moment_correlation(ticker_1=ticker_1,
-                                                  ticker_2=ticker_2,
-                                                  end_date=calc_date_end)
+        todays_cor = _calculate_moment_correlation(ticker_1=ticker_1,
+                                                   ticker_2=ticker_2,
+                                                   end_date=calc_date_end)
         correlation_series[dater.to_string(
             this_date)] = todays_cor['correlation']
 
