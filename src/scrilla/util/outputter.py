@@ -185,6 +185,23 @@ def risk_profile(profiles: Dict[str, Dict[str, float]]) -> None:
             scalar_result(f'{subkey}', f'{subvalue}', currency=False)
 
 
+def moving_average_result_v2(ticker: str, averages: Dict[str, Dict[str, float]]) -> None:
+    """
+    Prints the results of `scrilla.analysis.models.geometric.statistics.calculate_moving_averages` or `scrilla.analysis.models.reversion.statistics.calculate_moving_averages` to *stdout*.
+
+    Parameters
+    ----------
+    1. **averages**: ``Dict[str, Dict[str,float]]``
+        The dictionary returned from a call to `scrilla.analysis.models.geometric.statistics.calculate_moving_averages` or `scrilla.analysis.models.reversion.statistics.calculate_moving_averages`.
+    """
+    title_line(f'{ticker} Moving Averages')
+    for this_date, average_dict in averages:
+        center(this_date)
+        for avg_key, average in average_dict.items():
+            scalar_result(calculation=avg_key, result=average, currency=False)
+
+
+
 def moving_average_result(tickers: List[str], averages_output: Tuple[List[List[float]], List[str]], periods: List[int], start_date: Union[str, None] = None, end_date: Union[str, None] = None) -> None:
     averages, dates = averages_output
     MA1_prefix, MA2_prefix, MA3_prefix = f'MA({periods[0]})', f'MA({periods[1]})', f'MA({periods[2]})'

@@ -20,12 +20,12 @@ from PySide6 import QtGui, QtCore, QtWidgets
 from scrilla import settings, services
 from scrilla.static import keys, definitions
 # TODO: conditional import based on ANALYSIS_MODE
-from scrilla.analysis import estimators, markets, optimizer
+from scrilla.analysis import estimators, markets, optimizer, plotter
 from scrilla.analysis.models.geometric import statistics
 from scrilla.analysis.objects.portfolio import Portfolio
 from scrilla.analysis.objects.cashflow import Cashflow
 
-from scrilla.util import dater, outputter, helper, plotter
+from scrilla.util import dater, outputter, helper
 
 from scrilla.gui import formats, utilities
 from scrilla.gui.widgets import factories, components

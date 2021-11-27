@@ -146,10 +146,9 @@ def calculate_moving_averages_v2(ticker: str, start_date:Union[date, None] = Non
 
     if start_date is None:
         if asset_type == keys.keys['ASSETS']['EQUITY']:
-            sample_start = dater.this_date_or_last_trading_date()
+            start_date = dater.this_date_or_last_trading_date()
         elif asset_type == keys.keys['ASSETS']['CRYPTO']:
-            sample_start = dater.today()
-        start_date = sample_start
+            start_date = dater.today()
     if end_date is None:
         end_date = start_date
 
@@ -160,8 +159,8 @@ def calculate_moving_averages_v2(ticker: str, start_date:Union[date, None] = Non
         ma_date_range = dater.dates_between(start_date, end_date)
         sample_start = dater.decrement_date_by_days(start_date, settings.MA_3_PERIOD)
 
-
-    sample_prices = services.get_daily_price_history(ticker=ticker,start_date=sample_start, end_date=end_date)
+    sample_prices = services.get_daily_price_history(ticker=ticker,start_date=sample_start, 
+                                                        end_date=end_date, asset_type=asset_type)
     
     moving_averages = {}
     for this_date in ma_date_range:
@@ -170,6 +169,7 @@ def calculate_moving_averages_v2(ticker: str, start_date:Union[date, None] = Non
         for ma_period in [settings.MA_1_PERIOD, settings.MA_2_PERIOD, settings.MA_3_PERIOD]:
             ma_range = dict(itertools.islice(
                         sample_prices.items(), this_date_index, this_date_index+ma_period+1))
+            print(ma_range)
             last_date, first_date = list(ma_range)[0], list(ma_range)[-1]
             last_price = ma_range[last_date][keys.keys['PRICES']['CLOSE']]
             first_price = ma_range[first_date][keys.keys['PRICES']['CLOSE']]

@@ -1,6 +1,6 @@
 import os
 import datetime
-from typing import List, Union
+from typing import Dict, List, Union
 import numpy
 import matplotlib
 from PIL import Image
@@ -8,6 +8,7 @@ from PIL import Image
 from matplotlib.figure import Figure
 from matplotlib import dates as mdates
 from matplotlib.ticker import PercentFormatter
+from numpy.lib.function_base import average
 
 from scrilla import settings
 from scrilla.static import formats, keys
@@ -16,12 +17,10 @@ from scrilla.analysis.objects.cashflow import Cashflow
 from scrilla.errors import InputValidationError
 from scrilla.util import dater
 
-APP_ENV = os.environ.setdefault('APP_ENV', 'local')
-
-if APP_ENV == 'local':
+if settings.APP_ENV == 'local':
     from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
     matplotlib.use("Qt5Agg")
-elif APP_ENV == 'container':
+elif settings.APP_ENV == 'container':
     from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
     matplotlib.use("agg")
 
@@ -117,7 +116,7 @@ def plot_frontier(portfolio: Portfolio, frontier: list, show: bool = True, savef
     return _show_or_save(canvas=canvas, show=show, savefile=savefile)
 
 
-def plot_yield_curve(yield_curve: dict, show: bool = True, savefile: str = None) -> Union[FigureCanvas, None]:
+def plot_yield_curve(yield_curve: Dict[str, List[float]], show: bool = True, savefile: str = None) -> Union[FigureCanvas, None]:
     title = f'US Treasury Yield Curve On {list(yield_curve.keys())[0]}'
 
     canvas = FigureCanvas(Figure())
@@ -138,7 +137,7 @@ def plot_yield_curve(yield_curve: dict, show: bool = True, savefile: str = None)
     return _show_or_save(canvas=canvas, show=show, savefile=savefile)
 
 
-def plot_return_histogram(ticker: str, sample: list, show: bool = True, savefile: str = None) -> Union[FigureCanvas, None]:
+def plot_return_histogram(ticker: str, sample: List[float], show: bool = True, savefile: str = None) -> Union[FigureCanvas, None]:
     canvas = FigureCanvas(Figure())
     axes = canvas.figure.subplots()
 
@@ -150,7 +149,7 @@ def plot_return_histogram(ticker: str, sample: list, show: bool = True, savefile
     return _show_or_save(canvas=canvas, show=show, savefile=savefile)
 
 
-def plot_profiles(symbols: list, profiles: dict, show: bool = True, savefile: str = None, subtitle: str = None) -> Union[FigureCanvas, None]:
+def plot_profiles(symbols: List[str], profiles: Dict[str, Dict[str, float]], show: bool = True, savefile: str = None, subtitle: str = None) -> Union[FigureCanvas, None]:
     canvas = FigureCanvas(Figure())
 
     no_symbols = len(symbols)
@@ -184,6 +183,56 @@ def plot_profiles(symbols: list, profiles: dict, show: bool = True, savefile: st
 
     # TODO: figure out date formatting for x-axis
 
+
+def plot_moving_averages_v2(ticker: str, averages: Dict[str, Dict[str,float]], show:bool = False, savefile: str = None):
+    canvas = FigureCanvas(Figure())
+    axes = canvas.figure.subplots()
+
+    ma1s, ma2s, ma3s, date_range = [], [], [], [], []
+    ma1_label, ma2_label, ma3_label = None, None, None
+
+    for this_date, these_averages in averages.items():
+        if ma1_label is None:
+            ma1_label = list(these_averages.keys())[0]
+        if ma2_label is None:
+            ma2_label = list(these_averages.keys())[1]
+        if ma3_label is None:
+            ma3_label = list(these_averages.keys())[2]
+        ma1s.append(list(these_averages.values())[0])
+        ma2s.append(list(these_averages.values())[1])
+        ma3s.append(list(these_averages.values())[2])
+        date_range.append(datetime.datetime.strptime(dater.to_string(this_date), '%Y-%m-%d').toordinal())
+
+    if len(averages) == 1:
+        width = formats.formats['BAR_WIDTH']
+        x = numpy.arrange(1)
+        axes.bar(x + width, ma1s, width, label=ma1_label)
+        axes.bar(x, ma2s, width, label=ma2_label)
+        axes.bar(x - width, ma3s, width, label=ma3_label)
+        axes.set_xticks(x)
+        axes.set_xticklabels(str(date_range[0]))
+
+    else:
+        date_locator = matplotlib.dates.WeekdayLocator(
+            byweekday=(matplotlib.dates.WE))
+        date_format = matplotlib.dates.DateFormatter('%m-%d')
+        x = date_range
+        axes.plot(x, ma1s, linestyle="solid",
+                      color="darkgreen", label=ma1_label)
+        axes.plot(x, ma2s, linestyle="dotted",
+                    color="gold", label=ma2_label)
+        axes.plot(x, ma3s, linestyle="dashdot",
+                    color="orangered", label=ma3_label)
+        axes.xaxis.set_major_locator(date_locator)
+        axes.xaxis.set_major_formatter(date_format)
+
+    axes.set_xticks(x)
+    axes.set_ylabel('Annualized Logarthmic Return %')
+    axes.set_xlabel('Dates')
+    axes.set_title(
+            f'{ticker} Annualized Return Moving Averages')
+    axes.legend()
+    return _show_or_save(canvas=canvas, show=show, savefile=savefile)
 
 def plot_moving_averages(symbols: List[str], averages_output: List[List[float]], periods: List[int], show: bool = True, savefile: str = None) -> Union[FigureCanvas, None]:
     averages, dates = averages_output

@@ -26,7 +26,7 @@ from typing import Any, Dict
 import requests
 
 from scrilla import settings, errors
-from scrilla.static import functions, keys, constants
+from scrilla.static import functions, keys, constants, formats
 from scrilla.util import outputter, helper
 
 logger = outputter.Logger("scrilla.files", settings.LOG_LEVEL)
@@ -357,37 +357,28 @@ def add_watchlist(new_tickers: list) -> None:
         # TODO: implement other file extensions
 
 
-def save_profiles(profiles: dict, file_name: str):
-    save_format = functions.format_profiles(profiles)
-    save_file(file_to_save=save_format, file_name=file_name)
-
-
 def save_allocation(allocation, portfolio, file_name, investment=None, latest_prices=None):
-    save_format = functions.format_allocation(
+    save_format = formats.format_allocation(
         allocation=allocation, portfolio=portfolio, investment=investment, latest_prices=latest_prices)
     save_file(file_to_save=save_format, file_name=file_name)
 
 
 def save_frontier(portfolio, frontier, file_name, investment=None, latest_prices=None):
-    save_format = functions.format_frontier(
+    save_format = formats.format_frontier(
         portfolio=portfolio, frontier=frontier, investment=investment, latest_prices=latest_prices)
     save_file(file_to_save=save_format, file_name=file_name)
 
 
 def save_moving_averages(tickers, averages_output, file_name):
-    save_format = functions.format_moving_averages(
+    save_format = formats.format_moving_averages(
         tickers=tickers, averages_output=averages_output)
     save_file(file_to_save=save_format, file_name=file_name)
 
 
 def save_correlation_matrix(tickers, correlation_matrix, file_name):
-    save_format = functions.format_correlation_matrix(
+    save_format = formats.format_correlation_matrix(
         tickers=tickers, correlation_matrix=correlation_matrix)
     save_file(file_to_save=save_format, file_name=file_name)
-
-################################################
-# FILE MANAGEMENT FUNCTIONS
-
 
 def clear_directory(directory, retain=True):
     """

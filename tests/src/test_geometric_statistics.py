@@ -10,7 +10,8 @@ from .. import mock
 
 @pytest.mark.parametrize("ticker,start_date,end_date", [
     ('ALLY', '2021-11-12', '2021-11-12'),
-    ('BX', '2021-10-29', '2021-11-05')
+    ('BX', '2021-10-29', '2021-11-05'),
+    ('ALLY', '2021-08-04','2021-09-10')
 ])
 def test_moving_average_return(ticker, start_date, end_date):
     with HTTMock(mock.mock_prices):
