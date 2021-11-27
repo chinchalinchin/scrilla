@@ -406,6 +406,9 @@ def do_program(cli_args: List[str]) -> None:
     elif args['function_arg'] in definitions.FUNC_DICT['correlation_time_series']['values']:
         def cli_correlation_series():
             from scrilla.analysis.models.geometric.statistics import calculate_moment_correlation_series
+            if print_format_to_screen(args):
+                from scrilla.util.outputter import scalar_result
+                
             logger.comment('This calculation takes a while, strap in...')
             ticker_1, ticker_2 = args['tickers'][0], args['tickers'][1]
             result = calculate_moment_correlation_series(ticker_1=ticker_1,
@@ -414,7 +417,6 @@ def do_program(cli_args: List[str]) -> None:
                                                          end_date=args['end_date'])
             if print_format_to_screen(args):
                 for date in result:
-                    from scrilla.util.outputter import scalar_result
                     scalar_result(calculation=f'{date}_{ticker_1}_{ticker_2}_correlation',
                                   result=float(result[date]), currency=False)
             elif print_json_to_screen(args):
@@ -461,6 +463,8 @@ def do_program(cli_args: List[str]) -> None:
     elif args['function_arg'] in definitions.FUNC_DICT['dividends']['values']:
         def cli_dividends():
             from scrilla.services import get_dividend_history
+            if print_format_to_screen(args):
+                from scrilla.util.outputter import scalar_result
 
             all_dividends = {}
             for arg in args['tickers']:
@@ -468,7 +472,6 @@ def do_program(cli_args: List[str]) -> None:
                 all_dividends[arg] = dividends
 
                 if print_format_to_screen(args):
-                    from scrilla.util.outputter import scalar_result
                     for date in dividends:
                         scalar_result(
                             calculation=f'{arg}_dividend({date})', result=dividends[date])
@@ -848,6 +851,8 @@ def do_program(cli_args: List[str]) -> None:
         def cli_price_history():
             from scrilla.services import get_daily_price_history
             from scrilla.static.keys import keys
+            if print_format_to_screen(args):
+                from scrilla.util.outputter import scalar_result
 
             all_prices = {}
             for arg in args['tickers']:
@@ -860,7 +865,6 @@ def do_program(cli_args: List[str]) -> None:
                     all_prices[arg][date] = price
 
                     if print_format_to_screen(args):
-                        from scrilla.util.outputter import scalar_result
                         scalar_result(
                             calculation=f'{arg}({date})', result=float(price))
 
@@ -877,6 +881,8 @@ def do_program(cli_args: List[str]) -> None:
     elif args['function_arg'] in definitions.FUNC_DICT['interest_history']['values']:
         def cli_interest_history():
             from scrilla.services import get_daily_interest_history
+            if print_format_to_screen(args):
+                from scrilla.util.outputter import scalar_result
 
             all_rates = {}
             for arg in args['tickers']:
@@ -887,8 +893,6 @@ def do_program(cli_args: List[str]) -> None:
                     all_rates[arg][date] = all_rates[arg][date]
 
                 if print_format_to_screen(args):
-                    from scrilla.util.outputter import scalar_result
-
                     for date in all_rates[arg]:
                         scalar_result(calculation=f'{arg}_YIELD({date})', result=float(
                             all_rates[arg][date])/100, currency=False)
@@ -1041,7 +1045,9 @@ def do_program(cli_args: List[str]) -> None:
     elif args['function_arg'] in definitions.FUNC_DICT['statistic_history']['values']:
         def cli_statistic_history():
             from scrilla.services import get_daily_fred_history
-
+            if print_format_to_screen(args):
+                from scrilla.util.outputter import scalar_result
+            
             all_stats = {}
             for arg in args['tickers']:
                 stats = get_daily_fred_history(symbol=arg,
@@ -1050,7 +1056,6 @@ def do_program(cli_args: List[str]) -> None:
                 all_stats[arg] = stats
                 if print_format_to_screen(args):
                     for date in stats:
-                        from scrilla.util.outputter import scalar_result
                         scalar_result(calculation=f'{arg}({date})',
                                       result=stats[date],
                                       currency=False)
@@ -1061,7 +1066,7 @@ def do_program(cli_args: List[str]) -> None:
 
             if args['save_file'] is not None:
                 from scrilla.files import save_file
-                save_file(file_to_save=all_stats, sfile_name=args['save_file'])
+                save_file(file_to_save=all_stats, file_name=args['save_file'])
         selected_function, required_length = cli_statistic_history, 1
 
     # FUNCTION: Set Watchlist
