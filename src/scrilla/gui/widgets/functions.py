@@ -521,7 +521,8 @@ class MovingAverageWidget(components.SkeletonWidget):
         self.arg_widget = components.ArgumentWidget(calculate_function=self.calculate,
                                                     clear_function=self.clear,
                                                     controls=self.controls,
-                                                    layer=utilities.get_next_layer(self.objectName()),
+                                                    layer=utilities.get_next_layer(
+                                                        self.objectName()),
                                                     mode=components.SYMBOLS_SINGLE)
         self.setLayout(QtWidgets.QHBoxLayout())
 
