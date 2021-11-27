@@ -600,7 +600,8 @@ def do_program(cli_args: List[str]) -&gt; None:
 
             moving_averages = calculate_moving_averages(ticker=args[&#39;tickers&#39;][0],
                                                         start_date=args[&#39;start_date&#39;],
-                                                        end_date=args[&#39;end_date&#39;])
+                                                        end_date=args[&#39;end_date&#39;],
+                                                        method=args[&#39;estimation_method&#39;])
 
             if print_format_to_screen(args):
                 from scrilla.util.outputter import moving_average_result
@@ -778,7 +779,8 @@ def do_program(cli_args: List[str]) -&gt; None:
             # TODO: estimation techniques with moving averages
             moving_averages = calculate_moving_averages(ticker=args[&#39;tickers&#39;][0],
                                                         start_date=args[&#39;start_date&#39;],
-                                                        end_date=args[&#39;end_date&#39;])
+                                                        end_date=args[&#39;end_date&#39;],
+                                                        method=args[&#39;estimation_method&#39;])
 
             plot_moving_averages(ticker=args[&#39;tickers&#39;][0],
                                     averages=moving_averages,
@@ -1108,7 +1110,7 @@ def do_program(cli_args: List[str]) -&gt; None:
 
 def scrilla():
     import sys
-    
+
     do_program(sys.argv[1:])
 
 if __name__ == &#34;__main__&#34;:
@@ -1605,7 +1607,8 @@ if __name__ == &#34;__main__&#34;:
 
             moving_averages = calculate_moving_averages(ticker=args[&#39;tickers&#39;][0],
                                                         start_date=args[&#39;start_date&#39;],
-                                                        end_date=args[&#39;end_date&#39;])
+                                                        end_date=args[&#39;end_date&#39;],
+                                                        method=args[&#39;estimation_method&#39;])
 
             if print_format_to_screen(args):
                 from scrilla.util.outputter import moving_average_result
@@ -1783,7 +1786,8 @@ if __name__ == &#34;__main__&#34;:
             # TODO: estimation techniques with moving averages
             moving_averages = calculate_moving_averages(ticker=args[&#39;tickers&#39;][0],
                                                         start_date=args[&#39;start_date&#39;],
-                                                        end_date=args[&#39;end_date&#39;])
+                                                        end_date=args[&#39;end_date&#39;],
+                                                        method=args[&#39;estimation_method&#39;])
 
             plot_moving_averages(ticker=args[&#39;tickers&#39;][0],
                                     averages=moving_averages,
@@ -2186,7 +2190,7 @@ Formatted dictionary containing optional arguments. Result of a call to <code>he
 </summary>
 <pre><code class="python">def scrilla():
     import sys
-    
+
     do_program(sys.argv[1:])</code></pre>
 </details>
 </dd>
