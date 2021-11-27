@@ -154,14 +154,16 @@ def calculate_moving_averages(ticker: str, start_date:Union[date, None] = None, 
 
     if asset_type == keys.keys['ASSETS']['EQUITY']:
         ma_date_range = dater.business_dates_between(start_date, end_date)
-        sample_start = dater.decrement_date_by_business_days(start_date, settings.MA_3_PERIOD)
+        sample_start = dater.decrement_date_by_business_days(
+            start_date, settings.MA_3_PERIOD)
     elif asset_type == keys.keys['ASSETS']['CRYPTO']:
         ma_date_range = dater.dates_between(start_date, end_date)
-        sample_start = dater.decrement_date_by_days(start_date, settings.MA_3_PERIOD)
+        sample_start = dater.decrement_date_by_days(
+            start_date, settings.MA_3_PERIOD)
 
-    sample_prices = services.get_daily_price_history(ticker=ticker,start_date=sample_start, 
-                                                        end_date=end_date, asset_type=asset_type)
-    
+    sample_prices = services.get_daily_price_history(
+        ticker=ticker, start_date=sample_start, end_date=end_date, asset_type=asset_type)
+
     moving_averages = {}
     for this_date in ma_date_range:
         logger.debug(f'Calculating {ticker} moving averages on {dater.to_string(this_date)}')
@@ -169,19 +171,19 @@ def calculate_moving_averages(ticker: str, start_date:Union[date, None] = None, 
         mas = []
         for ma_period in [settings.MA_1_PERIOD, settings.MA_2_PERIOD, settings.MA_3_PERIOD]:
             ma_range = dict(itertools.islice(
-                        sample_prices.items(), this_date_index, this_date_index+ma_period+1))
+                sample_prices.items(), this_date_index, this_date_index+ma_period+1))
             last_date, first_date = list(ma_range)[0], list(ma_range)[-1]
             last_price = ma_range[last_date][keys.keys['PRICES']['CLOSE']]
             first_price = ma_range[first_date][keys.keys['PRICES']['CLOSE']]
-            mas.append(log(float(last_price)/float(first_price)) / \
-                        (trading_period*ma_period))
+            mas.append(log(float(last_price)/float(first_price)) /
+                       (trading_period*ma_period))
 
-        moving_averages[dater.to_string(this_date)]= {
-            f'MA_{settings.MA_1_PERIOD}': mas[0], 
-            f'MA_{settings.MA_2_PERIOD}': mas[1], 
+        moving_averages[dater.to_string(this_date)] = {
+            f'MA_{settings.MA_1_PERIOD}': mas[0],
+            f'MA_{settings.MA_2_PERIOD}': mas[1],
             f'MA_{settings.MA_3_PERIOD}': mas[2]
         }
-    
+
     return moving_averages
 
 
