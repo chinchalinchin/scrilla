@@ -104,15 +104,17 @@ def get_sample_of_returns(ticker: str, sample_prices: Union[Dict[str, Dict[str, 
 
     return sample_of_returns
 
-def calculate_moving_averages(ticker: str, start_date: Union[date, None] = None, end_date: Union[date, None]=None, method: str = settings.ESTIMATION_METHOD)-> Dict[str, Dict[str, float]]:
+
+def calculate_moving_averages(ticker: str, start_date: Union[date, None] = None, end_date: Union[date, None] = None, method: str = settings.ESTIMATION_METHOD) -> Dict[str, Dict[str, float]]:
     if method == keys.keys['ESTIMATION']['MOMENT']:
-        return calculate_moment_moving_averages(ticker=ticker, 
-                                                 start_date=start_date,
-                                                 end_date=end_date)
+        return calculate_moment_moving_averages(ticker=ticker,
+                                                start_date=start_date,
+                                                end_date=end_date)
     if method == keys.keys['ESTIMATION']['PERCENT']:
         return calculate_percentile_moving_averages(ticker=ticker,
                                                     start_date=start_date,
                                                     end_date=end_date)
+
 
 def calculate_moment_moving_averages(ticker: str, start_date: Union[date, None] = None, end_date: Union[date, None] = None) -> Dict[str, Dict[str, float]]:
     """
@@ -265,11 +267,15 @@ def calculate_percentile_moving_averages(ticker: str, start_date: Union[date, No
         for ma_period in [settings.MA_1_PERIOD, settings.MA_2_PERIOD, settings.MA_3_PERIOD]:
             ma_range = dict(itertools.islice(
                 sample_prices.items(), this_date_index, this_date_index+ma_period+1))
-            sample_of_returns = get_sample_of_returns(ticker=ticker, sample_prices=ma_range)
+            sample_of_returns = get_sample_of_returns(
+                ticker=ticker, sample_prices=ma_range)
 
-            first_quartile = estimators.sample_percentile(data=sample_of_returns, percentile=0.25)
-            median = estimators.sample_percentile(data=sample_of_returns, percentile=0.50)
-            third_quartile = estimators.sample_percentile(data=sample_of_returns, percentile=0.75)
+            first_quartile = estimators.sample_percentile(
+                data=sample_of_returns, percentile=0.25)
+            median = estimators.sample_percentile(
+                data=sample_of_returns, percentile=0.50)
+            third_quartile = estimators.sample_percentile(
+                data=sample_of_returns, percentile=0.75)
             guess = (median, (third_quartile-first_quartile)/2)
 
             def objective(params):
