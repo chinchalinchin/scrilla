@@ -521,7 +521,8 @@ class MovingAverageWidget(components.SkeletonWidget):
         self.arg_widget = components.ArgumentWidget(calculate_function=self.calculate,
                                                     clear_function=self.clear,
                                                     controls=self.controls,
-                                                    layer=utilities.get_next_layer(self.objectName()))
+                                                    layer=utilities.get_next_layer(self.objectName()),
+                                                    mode=components.SYMBOLS_SINGLE)
         self.setLayout(QtWidgets.QHBoxLayout())
 
     def _arrange_widgets(self):
@@ -541,17 +542,13 @@ class MovingAverageWidget(components.SkeletonWidget):
         if self.graph_widget.figure.isVisible():
             self.graph_widget.figure.hide()
 
-        symbols = self.arg_widget.get_symbol_input()
-
-        moving_averages = statistics.calculate_moving_averages(tickers=self.arg_widget.get_symbol_input(),
+        moving_averages = statistics.calculate_moving_averages(ticker=self.arg_widget.get_symbol_input()[0],
                                                                start_date=self.arg_widget.get_control_input(
                                                                    'start_date'),
                                                                end_date=self.arg_widget.get_control_input('end_date'))
-        periods = [settings.MA_1_PERIOD,
-                   settings.MA_2_PERIOD, settings.MA_3_PERIOD]
-        plotter.plot_moving_averages(symbols=symbols,
-                                     averages_output=moving_averages,
-                                     periods=periods,
+
+        plotter.plot_moving_averages(ticker=self.arg_widget.get_symbol_input()[0],
+                                     averages=moving_averages,
                                      show=False,
                                      savefile=f'{settings.TEMP_DIR}/{keys.keys["GUI"]["TEMP"]["AVERAGES"]}')
         self.graph_widget.set_pixmap()
