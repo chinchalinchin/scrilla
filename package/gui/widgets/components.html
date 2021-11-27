@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.10.0" />
 <title>scrilla.gui.widgets.components API documentation</title>
-<meta name="description" content="" />
+<meta name="description" content="A series of classes that all inherit from ``PySide6.QtWidgets.QWidget` and build up in sequence the necessary functionality to grab and validate user …" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
 <link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
@@ -23,6 +23,16 @@
 <h1 class="title">Module <code>scrilla.gui.widgets.components</code></h1>
 </header>
 <section id="section-intro">
+<p>A series of classes that all inherit from <code>`PySide6.QtWidgets.QWidget</code> and build up in sequence the necessary functionality to grab and validate user input, calculate and display results, etc. These widgets are not directly displayed on the GUI; rather, they are used as building blocks by the <code>scrilla.gui.functions</code> module, to create widgets specifically for application functions.</p>
+<p>All widgets have a similar structure in that they call a series of methods tailored to their specific class:
+1. <strong>_init</strong>
+Child widgets are constructed. Layouts are created.
+2. <strong>_arrange</strong>
+Child widgets are arranged. Layouts are applied.
+3. <strong>_stage</strong>
+Child widgets are prepped for display.</p>
+<p>The idea behind the module is to hide as much widget initialization and styling as possible behind its functions, so the <code>scrilla.gui.functions</code> module can focus on application-level logic and isn't cluttered with ugly declarative configuration.</p>
+<p>Widgets have styles applied to them through the <code>scrilla.styles.app.qss</code> stylesheet. Widgets are layered over one another in a hierarchy described by: <code>root</code> -&gt; <code>child</code> -&gt; <code>grand-child</code> -&gt; <code>great-grand-child</code> -&gt; etc. Each layers has a theme that descends down the material color scheme hex codes in sequence with its place in the layer hierarchy. See <code><a title="scrilla.gui.formats" href="../formats.html">scrilla.gui.formats</a></code> for more information.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -41,17 +51,6 @@
 # You should have received a copy of the GNU General Public License
 # along with scrilla.  If not, see &lt;https://www.gnu.org/licenses/&gt;
 # or &lt;https://github.com/chinchalinchin/scrilla/blob/develop/main/LICENSE&gt;.
-
-import datetime
-from typing import Callable, Dict, List, Union
-from PySide6 import QtCore, QtWidgets, QtGui
-
-from scrilla import settings
-from scrilla.util import helper
-from scrilla.gui import utilities
-from scrilla.static import definitions
-from scrilla.gui.widgets import factories
-
 &#34;&#34;&#34;
 A series of classes that all inherit from ``PySide6.QtWidgets.QWidget` and build up in sequence the necessary functionality to grab and validate user input, calculate and display results, etc. These widgets are not directly displayed on the GUI; rather, they are used as building blocks by the `scrilla.gui.functions` module, to create widgets specifically for application functions.
 
@@ -67,6 +66,15 @@ The idea behind the module is to hide as much widget initialization and styling 
 
 Widgets have styles applied to them through the `scrilla.styles.app.qss` stylesheet. Widgets are layered over one another in a hierarchy described by: `root` -&gt; `child` -&gt; `grand-child` -&gt; `great-grand-child` -&gt; etc. Each layers has a theme that descends down the material color scheme hex codes in sequence with its place in the layer hierarchy. See `scrilla.gui.formats` for more information. 
 &#34;&#34;&#34;
+import datetime
+from typing import Callable, Dict, List, Union
+from PySide6 import QtCore, QtWidgets, QtGui
+
+from scrilla import settings
+from scrilla.util import helper
+from scrilla.gui import utilities
+from scrilla.static import definitions
+from scrilla.gui.widgets import factories
 
 SYMBOLS_LIST = &#34;list&#34;
 &#34;&#34;&#34;Constant passed into `scrilla.gui.widgets.components.ArgumentWidget` to initialize an input control allowing user to input list of ticker symbols&#34;&#34;&#34;
