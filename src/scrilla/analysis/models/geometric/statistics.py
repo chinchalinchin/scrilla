@@ -105,19 +105,19 @@ def get_sample_of_returns(ticker: str, sample_prices: Union[Dict[str, Dict[str, 
     return sample_of_returns
 
 
-def calculate_moving_averages(ticker: str, start_date: Union[date, None] = None, end_date: Union[date, None]=None, method: str = settings.ESTIMATION_METHOD)-> Dict[str, Dict[str, float]]:
+def calculate_moving_averages(ticker: str, start_date: Union[date, None] = None, end_date: Union[date, None] = None, method: str = settings.ESTIMATION_METHOD) -> Dict[str, Dict[str, float]]:
     if method == keys.keys['ESTIMATION']['MOMENT']:
-        return _calculate_moment_moving_averages(ticker=ticker, 
+        return _calculate_moment_moving_averages(ticker=ticker,
                                                  start_date=start_date,
                                                  end_date=end_date)
     if method == keys.keys['ESTIMATION']['PERCENT']:
         return _calculate_percentile_moving_averages(ticker=ticker,
-                                                    start_date=start_date,
-                                                    end_date=end_date)
+                                                     start_date=start_date,
+                                                     end_date=end_date)
     if method == keys.keys['ESTIMATION']['LIKE']:
-        return _calculate_likelihood_moving_averages(ticker=ticker, 
-                                                    start_date=start_date,
-                                                    end_date=end_date)
+        return _calculate_likelihood_moving_averages(ticker=ticker,
+                                                     start_date=start_date,
+                                                     end_date=end_date)
     raise errors.ConfigurationError('Statistical estimation method not found')
 
 
@@ -162,6 +162,7 @@ def calculate_correlation(ticker_1: str, ticker_2: str, asset_type_1: Union[str,
         return _calculate_percentile_correlation(ticker_1, ticker_2, asset_type_1, asset_type_2, start_date, end_date, sample_prices, weekends)
     raise KeyError('Estimation method not found')
 
+
 def calculate_risk_return(ticker: str, start_date: Union[date, None] = None, end_date: Union[date, None] = None, sample_prices: Union[Dict[str, Dict[str, float]], None] = None, asset_type: Union[str, None] = None, weekends: Union[int, None] = None, method: str = settings.ESTIMATION_METHOD) -> Dict[str, float]:
     """
     Estimates the mean rate of return and volatility for a sample of asset prices as if the asset price followed a Geometric Brownian Motion process, i.e. the mean rate of return and volatility are constant and not functions of time or the asset price. Uses the method passed in through `method` to estimate the model parameters.
@@ -205,26 +206,27 @@ def calculate_risk_return(ticker: str, start_date: Union[date, None] = None, end
     """
     if method == keys.keys['ESTIMATION']['MOMENT']:
         return _calculate_moment_risk_return(ticker=ticker,
-                                            start_date=start_date,
-                                            end_date=end_date,
-                                            sample_prices=sample_prices,
-                                            asset_type=asset_type,
-                                            weekends=weekends)
+                                             start_date=start_date,
+                                             end_date=end_date,
+                                             sample_prices=sample_prices,
+                                             asset_type=asset_type,
+                                             weekends=weekends)
     if method == keys.keys['ESTIMATION']['PERCENT']:
         return _calculate_percentile_risk_return(ticker=ticker,
-                                                start_date=start_date,
-                                                end_date=end_date,
-                                                sample_prices=sample_prices,
-                                                asset_type=asset_type,
-                                                weekends=weekends)
+                                                 start_date=start_date,
+                                                 end_date=end_date,
+                                                 sample_prices=sample_prices,
+                                                 asset_type=asset_type,
+                                                 weekends=weekends)
     if method == keys.keys['ESTIMATION']['LIKE']:
         return _calculate_likelihood_risk_return(ticker=ticker,
-                                                start_date=start_date,
-                                                end_date=end_date,
-                                                sample_prices=sample_prices,
-                                                asset_type=asset_type,
-                                                weekends=weekends)
+                                                 start_date=start_date,
+                                                 end_date=end_date,
+                                                 sample_prices=sample_prices,
+                                                 asset_type=asset_type,
+                                                 weekends=weekends)
     raise errors.ConfigurationError('Statistical estimation method not found')
+
 
 def _calculate_moment_moving_averages(ticker: str, start_date: Union[date, None] = None, end_date: Union[date, None] = None) -> Dict[str, Dict[str, float]]:
     """
@@ -479,9 +481,11 @@ def _calculate_likelihood_moving_averages(ticker: str, start_date: Union[date, N
         for ma_period in [settings.MA_1_PERIOD, settings.MA_2_PERIOD, settings.MA_3_PERIOD]:
             ma_range = dict(itertools.islice(
                 sample_prices.items(), this_date_index, this_date_index+ma_period+1))
-            sample_of_returns = get_sample_of_returns(ticker=ticker, sample_prices=ma_range)
+            sample_of_returns = get_sample_of_returns(
+                ticker=ticker, sample_prices=ma_range)
 
-            likelihood_estimates = maximize_univariate_normal_likelihood(data=sample_of_returns)
+            likelihood_estimates = maximize_univariate_normal_likelihood(
+                data=sample_of_returns)
             # See NOTE in docstring
             # NOTE: E(dln(S)/delta_t) = (mu - 0.5 * sigma ** 2) * delta_t / delta_t = mu - 0.5 * sigma ** 2
             # TODO: add :math to docstring with this
@@ -573,7 +577,8 @@ def _calculate_likelihood_risk_return(ticker, start_date: Union[date, None] = No
     sample_of_returns = get_sample_of_returns(
         ticker=ticker, sample_prices=prices, asset_type=asset_type)
 
-    likelihood_estimates = maximize_univariate_normal_likelihood(data=sample_of_returns)
+    likelihood_estimates = maximize_univariate_normal_likelihood(
+        data=sample_of_returns)
     # See NOTE in docstring
     # NOTE: E(dln(S)/delta_t) = (mu - 0.5 * sigma ** 2) * delta_t / delta_t = mu - 0.5 * sigma ** 2
     # TODO: add :math to docstring with this
