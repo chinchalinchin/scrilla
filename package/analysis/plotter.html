@@ -213,7 +213,7 @@ def plot_profiles(symbols: List[str], profiles: Dict[str, Dict[str, float]], sho
     # TODO: figure out date formatting for x-axis
 
 
-def plot_moving_averages(ticker: str, averages: Dict[str, Dict[str,float]], show:bool = False, savefile: str = None):
+def plot_moving_averages(ticker: str, averages: Dict[str, Dict[str, float]], show: bool = False, savefile: str = None):
     canvas = FigureCanvas(Figure())
     axes = canvas.figure.subplots()
 
@@ -235,7 +235,8 @@ def plot_moving_averages(ticker: str, averages: Dict[str, Dict[str,float]], show
         if len(averages) == 1:
             date_range.append(this_date)
         else:
-            date_range.append(datetime.datetime.strptime(this_date, &#39;%Y-%m-%d&#39;).toordinal())
+            date_range.append(datetime.datetime.strptime(
+                this_date, &#39;%Y-%m-%d&#39;).toordinal())
 
     if len(averages) == 1:
         width = formats.formats[&#39;BAR_WIDTH&#39;]
@@ -249,11 +250,11 @@ def plot_moving_averages(ticker: str, averages: Dict[str, Dict[str,float]], show
     else:
         x = date_range
         axes.plot(x, ma1s, linestyle=&#34;solid&#34;,
-                      color=&#34;darkgreen&#34;, label=ma1_label)
+                  color=&#34;darkgreen&#34;, label=ma1_label)
         axes.plot(x, ma2s, linestyle=&#34;dotted&#34;,
-                    color=&#34;gold&#34;, label=ma2_label)
+                  color=&#34;gold&#34;, label=ma2_label)
         axes.plot(x, ma3s, linestyle=&#34;dashdot&#34;,
-                    color=&#34;orangered&#34;, label=ma3_label)
+                  color=&#34;orangered&#34;, label=ma3_label)
         axes.set_xticks(x)
         date_locator = matplotlib.dates.WeekdayLocator(
             byweekday=(matplotlib.dates.WE))
@@ -263,10 +264,10 @@ def plot_moving_averages(ticker: str, averages: Dict[str, Dict[str,float]], show
     axes.set_ylabel(&#39;Annualized Logarthmic Return %&#39;)
     axes.set_xlabel(&#39;Dates&#39;)
     axes.set_title(
-            f&#39;{ticker} Annualized Return Moving Averages&#39;)
+        f&#39;{ticker} Annualized Return Moving Averages&#39;)
     axes.legend()
     return _show_or_save(canvas=canvas, show=show, savefile=savefile)
-    
+
 
 def plot_cashflow(ticker: str, cashflow: Cashflow, show: bool = True, savefile: str = None) -&gt; Union[FigureCanvas, None]:
     if not cashflow.beta or not cashflow.alpha or len(cashflow.sample) &lt; 3:
@@ -442,7 +443,7 @@ def plot_cashflow(ticker: str, cashflow: Cashflow, show: bool = True, savefile: 
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def plot_moving_averages(ticker: str, averages: Dict[str, Dict[str,float]], show:bool = False, savefile: str = None):
+<pre><code class="python">def plot_moving_averages(ticker: str, averages: Dict[str, Dict[str, float]], show: bool = False, savefile: str = None):
     canvas = FigureCanvas(Figure())
     axes = canvas.figure.subplots()
 
@@ -464,7 +465,8 @@ def plot_cashflow(ticker: str, cashflow: Cashflow, show: bool = True, savefile: 
         if len(averages) == 1:
             date_range.append(this_date)
         else:
-            date_range.append(datetime.datetime.strptime(this_date, &#39;%Y-%m-%d&#39;).toordinal())
+            date_range.append(datetime.datetime.strptime(
+                this_date, &#39;%Y-%m-%d&#39;).toordinal())
 
     if len(averages) == 1:
         width = formats.formats[&#39;BAR_WIDTH&#39;]
@@ -478,11 +480,11 @@ def plot_cashflow(ticker: str, cashflow: Cashflow, show: bool = True, savefile: 
     else:
         x = date_range
         axes.plot(x, ma1s, linestyle=&#34;solid&#34;,
-                      color=&#34;darkgreen&#34;, label=ma1_label)
+                  color=&#34;darkgreen&#34;, label=ma1_label)
         axes.plot(x, ma2s, linestyle=&#34;dotted&#34;,
-                    color=&#34;gold&#34;, label=ma2_label)
+                  color=&#34;gold&#34;, label=ma2_label)
         axes.plot(x, ma3s, linestyle=&#34;dashdot&#34;,
-                    color=&#34;orangered&#34;, label=ma3_label)
+                  color=&#34;orangered&#34;, label=ma3_label)
         axes.set_xticks(x)
         date_locator = matplotlib.dates.WeekdayLocator(
             byweekday=(matplotlib.dates.WE))
@@ -492,7 +494,7 @@ def plot_cashflow(ticker: str, cashflow: Cashflow, show: bool = True, savefile: 
     axes.set_ylabel(&#39;Annualized Logarthmic Return %&#39;)
     axes.set_xlabel(&#39;Dates&#39;)
     axes.set_title(
-            f&#39;{ticker} Annualized Return Moving Averages&#39;)
+        f&#39;{ticker} Annualized Return Moving Averages&#39;)
     axes.legend()
     return _show_or_save(canvas=canvas, show=show, savefile=savefile)</code></pre>
 </details>
