@@ -390,10 +390,10 @@ def _calculate_percentile_moving_averages(ticker: str, start_date: Union[date, N
                 data=sample_of_returns, percentile=0.75)
             guess = (median, (third_quartile-first_quartile)/2)
 
-            mean, vol = fsolve(lambda params, first=first_quartile, third=third_quartile: 
-                                        [norm.cdf(x=first, loc=params[0], scale=params[1]) - 0.25,
-                                         norm.cdf(x=third, loc=params[0], scale=params[1]) - 0.75],
-                                guess)
+            mean, vol = fsolve(lambda params, first=first_quartile, third=third_quartile:
+                               [norm.cdf(x=first, loc=params[0], scale=params[1]) - 0.25,
+                                norm.cdf(x=third, loc=params[0], scale=params[1]) - 0.75],
+                               guess)
 
             # NOTE: Var(dln(S)/delta_t) = (1/delta_t^2)*Var(dlnS) = sigma^2*delta_t / delta_t^2 = sigma^2 / delta_t
             #       so need to multiply volatiliy by sqrt(delta_t) to get correct scale.
