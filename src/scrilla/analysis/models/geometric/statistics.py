@@ -13,7 +13,7 @@
 # along with scrilla.  If not, see <https://www.gnu.org/licenses/>
 # or <https://github.com/chinchalinchin/scrilla/blob/develop/main/LICENSE>.
 
-from datetime import timedelta, date
+from datetime import date
 from itertools import groupby
 import datetime
 import itertools
