@@ -1047,7 +1047,7 @@ def do_program(cli_args: List[str]) -> None:
             from scrilla.services import get_daily_fred_history
             if print_format_to_screen(args):
                 from scrilla.util.outputter import scalar_result
-            
+
             all_stats = {}
             for arg in args['tickers']:
                 stats = get_daily_fred_history(symbol=arg,
