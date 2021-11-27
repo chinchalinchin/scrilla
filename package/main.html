@@ -449,9 +449,9 @@ def do_program(cli_args: List[str]) -&gt; None:
                                                          start_date=args[&#39;start_date&#39;],
                                                          end_date=args[&#39;end_date&#39;])
             if print_format_to_screen(args):
-                for date in result:
-                    scalar_result(calculation=f&#39;{date}_{ticker_1}_{ticker_2}_correlation&#39;,
-                                  result=float(result[date]), currency=False)
+                for this_date in result:
+                    scalar_result(calculation=f&#39;{this_date}_{ticker_1}_{ticker_2}_correlation&#39;,
+                                  result=float(result[this_date]), currency=False)
             elif print_json_to_screen(args):
                 from json import dumps
                 print(dumps(result))
@@ -505,9 +505,9 @@ def do_program(cli_args: List[str]) -&gt; None:
                 all_dividends[arg] = dividends
 
                 if print_format_to_screen(args):
-                    for date in dividends:
+                    for this_date in dividends:
                         scalar_result(
-                            calculation=f&#39;{arg}_dividend({date})&#39;, result=dividends[date])
+                            calculation=f&#39;{arg}_dividend({this_date})&#39;, result=dividends[this_date])
 
             if print_json_to_screen(args):
                 from json import dumps
@@ -893,13 +893,13 @@ def do_program(cli_args: List[str]) -&gt; None:
                                                  start_date=args[&#39;start_date&#39;],
                                                  end_date=args[&#39;end_date&#39;])
                 all_prices[arg] = {}
-                for date in prices:
-                    price = prices[date][keys[&#39;PRICES&#39;][&#39;CLOSE&#39;]]
-                    all_prices[arg][date] = price
+                for this_date in prices:
+                    price = prices[this_date][keys[&#39;PRICES&#39;][&#39;CLOSE&#39;]]
+                    all_prices[arg][this_date] = price
 
                     if print_format_to_screen(args):
                         scalar_result(
-                            calculation=f&#39;{arg}({date})&#39;, result=float(price))
+                            calculation=f&#39;{arg}({this_date})&#39;, result=float(price))
 
             if print_json_to_screen(args):
                 from json import dumps
@@ -922,13 +922,13 @@ def do_program(cli_args: List[str]) -&gt; None:
                 all_rates[arg] = get_daily_interest_history(maturity=arg,
                                                             start_date=args[&#39;start_date&#39;],
                                                             end_date=args[&#39;end_date&#39;])
-                for date in all_rates[arg]:
-                    all_rates[arg][date] = all_rates[arg][date]
+                for this_date in all_rates[arg]:
+                    all_rates[arg][this_date] = all_rates[arg][this_date]
 
                 if print_format_to_screen(args):
-                    for date in all_rates[arg]:
-                        scalar_result(calculation=f&#39;{arg}_YIELD({date})&#39;, result=float(
-                            all_rates[arg][date])/100, currency=False)
+                    for this_date in all_rates[arg]:
+                        scalar_result(calculation=f&#39;{arg}_YIELD({this_date})&#39;, result=float(
+                            all_rates[arg][this_date])/100, currency=False)
 
             if print_json_to_screen(args):
                 from json import dumps
@@ -1088,9 +1088,9 @@ def do_program(cli_args: List[str]) -&gt; None:
                                                end_date=args[&#39;end_date&#39;])
                 all_stats[arg] = stats
                 if print_format_to_screen(args):
-                    for date in stats:
-                        scalar_result(calculation=f&#39;{arg}({date})&#39;,
-                                      result=stats[date],
+                    for this_date in stats:
+                        scalar_result(calculation=f&#39;{arg}({this_date})&#39;,
+                                      result=stats[this_date],
                                       currency=False)
 
             if print_json_to_screen(args):
@@ -1476,9 +1476,9 @@ if __name__ == &#34;__main__&#34;:
                                                          start_date=args[&#39;start_date&#39;],
                                                          end_date=args[&#39;end_date&#39;])
             if print_format_to_screen(args):
-                for date in result:
-                    scalar_result(calculation=f&#39;{date}_{ticker_1}_{ticker_2}_correlation&#39;,
-                                  result=float(result[date]), currency=False)
+                for this_date in result:
+                    scalar_result(calculation=f&#39;{this_date}_{ticker_1}_{ticker_2}_correlation&#39;,
+                                  result=float(result[this_date]), currency=False)
             elif print_json_to_screen(args):
                 from json import dumps
                 print(dumps(result))
@@ -1532,9 +1532,9 @@ if __name__ == &#34;__main__&#34;:
                 all_dividends[arg] = dividends
 
                 if print_format_to_screen(args):
-                    for date in dividends:
+                    for this_date in dividends:
                         scalar_result(
-                            calculation=f&#39;{arg}_dividend({date})&#39;, result=dividends[date])
+                            calculation=f&#39;{arg}_dividend({this_date})&#39;, result=dividends[this_date])
 
             if print_json_to_screen(args):
                 from json import dumps
@@ -1920,13 +1920,13 @@ if __name__ == &#34;__main__&#34;:
                                                  start_date=args[&#39;start_date&#39;],
                                                  end_date=args[&#39;end_date&#39;])
                 all_prices[arg] = {}
-                for date in prices:
-                    price = prices[date][keys[&#39;PRICES&#39;][&#39;CLOSE&#39;]]
-                    all_prices[arg][date] = price
+                for this_date in prices:
+                    price = prices[this_date][keys[&#39;PRICES&#39;][&#39;CLOSE&#39;]]
+                    all_prices[arg][this_date] = price
 
                     if print_format_to_screen(args):
                         scalar_result(
-                            calculation=f&#39;{arg}({date})&#39;, result=float(price))
+                            calculation=f&#39;{arg}({this_date})&#39;, result=float(price))
 
             if print_json_to_screen(args):
                 from json import dumps
@@ -1949,13 +1949,13 @@ if __name__ == &#34;__main__&#34;:
                 all_rates[arg] = get_daily_interest_history(maturity=arg,
                                                             start_date=args[&#39;start_date&#39;],
                                                             end_date=args[&#39;end_date&#39;])
-                for date in all_rates[arg]:
-                    all_rates[arg][date] = all_rates[arg][date]
+                for this_date in all_rates[arg]:
+                    all_rates[arg][this_date] = all_rates[arg][this_date]
 
                 if print_format_to_screen(args):
-                    for date in all_rates[arg]:
-                        scalar_result(calculation=f&#39;{arg}_YIELD({date})&#39;, result=float(
-                            all_rates[arg][date])/100, currency=False)
+                    for this_date in all_rates[arg]:
+                        scalar_result(calculation=f&#39;{arg}_YIELD({this_date})&#39;, result=float(
+                            all_rates[arg][this_date])/100, currency=False)
 
             if print_json_to_screen(args):
                 from json import dumps
@@ -2115,9 +2115,9 @@ if __name__ == &#34;__main__&#34;:
                                                end_date=args[&#39;end_date&#39;])
                 all_stats[arg] = stats
                 if print_format_to_screen(args):
-                    for date in stats:
-                        scalar_result(calculation=f&#39;{arg}({date})&#39;,
-                                      result=stats[date],
+                    for this_date in stats:
+                        scalar_result(calculation=f&#39;{arg}({this_date})&#39;,
+                                      result=stats[this_date],
                                       currency=False)
 
             if print_json_to_screen(args):
