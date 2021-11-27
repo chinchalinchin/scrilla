@@ -291,7 +291,7 @@ def correlation_matrix(tickers: List[str], correl_matrix: List[List[float]], dis
     ------
     A correlation matrix string formatted with new lines and spaces.
     """
-    entire_formatted_result, formatted_title = "", ""
+    entire_formatted_result, formatted_subtitle, formatted_title = "", "", ""
 
     line_length, first_symbol_length = 0, 0
     new_line = ""
@@ -326,16 +326,25 @@ def correlation_matrix(tickers: List[str], correl_matrix: List[List[float]], dis
         if i == 0:
             line_length = len(new_line)
 
-    formatted_title += ' '*(formats.formats['INDENT'] + first_symbol_length+1)
-    for symbol in tickers:
-        sym_len = len(symbol)
-        formatted_title += f' {symbol}' + ' '*(7-sym_len)
-        # NOTE: seven is number of chars in ' 100.0%'
-    formatted_title += '\n'
 
-    whole_thing = formatted_title + entire_formatted_result
+    formatted_subtitle += ' '*(formats.formats['INDENT'] + first_symbol_length+1)
+    for i, ticker in enumerate(tickers):
+        sym_len = len(ticker)
+        formatted_subtitle += f' {ticker}' + ' '*(7-sym_len)
+        # NOTE: seven is number of chars in ' 100.0%'
+        if i == 0:
+            formatted_title += f'({ticker},'
+        elif i < len(tickers)-1:
+            formatted_title += f'{ticker},'
+        else: 
+            formatted_title += f'{ticker}) correlation matrix'
+
+    formatted_subtitle += '\n'
+
+    whole_thing = formatted_subtitle + entire_formatted_result
 
     if display:
+        title_line(formatted_title)
         print(f'\n{whole_thing}')
         return
 
