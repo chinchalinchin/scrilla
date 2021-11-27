@@ -164,12 +164,12 @@ def calculate_moving_averages_v2(ticker: str, start_date:Union[date, None] = Non
     
     moving_averages = {}
     for this_date in ma_date_range:
+        logger.debug(f'Calculating {ticker} moving averages on {dater.to_string(this_date)}')
         this_date_index = list(sample_prices).index(dater.to_string(this_date))
         mas = []
         for ma_period in [settings.MA_1_PERIOD, settings.MA_2_PERIOD, settings.MA_3_PERIOD]:
             ma_range = dict(itertools.islice(
                         sample_prices.items(), this_date_index, this_date_index+ma_period+1))
-            print(ma_range)
             last_date, first_date = list(ma_range)[0], list(ma_range)[-1]
             last_price = ma_range[last_date][keys.keys['PRICES']['CLOSE']]
             first_price = ma_range[first_date][keys.keys['PRICES']['CLOSE']]

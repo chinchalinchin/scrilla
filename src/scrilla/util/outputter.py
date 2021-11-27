@@ -195,7 +195,7 @@ def moving_average_result_v2(ticker: str, averages: Dict[str, Dict[str, float]])
         The dictionary returned from a call to `scrilla.analysis.models.geometric.statistics.calculate_moving_averages` or `scrilla.analysis.models.reversion.statistics.calculate_moving_averages`.
     """
     title_line(f'{ticker} Moving Averages')
-    for this_date, average_dict in averages:
+    for this_date, average_dict in averages.items():
         center(this_date)
         for avg_key, average in average_dict.items():
             scalar_result(calculation=avg_key, result=average, currency=False)

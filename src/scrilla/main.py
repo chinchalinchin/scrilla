@@ -65,9 +65,7 @@ def validate_function_usage(selection: str, args: list, wrapper_function: Callab
             'Graphics functionality disabled when application is containerized.')
 
     start_time = time.time()
-    if(not exact and (len(args) > (required_length-1))):
-        wrapper_function()
-    elif(exact and (len(args) == required_length)):
+    if(not exact and (len(args) > (required_length-1))) or (exact and (len(args) == required_length)):
         wrapper_function()
     elif exact:
         raise InputValidationError(
@@ -508,7 +506,7 @@ def do_program() -> None:
                                                                    end_date=args['end_date'])
 
             if print_format_to_screen(args):
-                outputter.moving_average_result_v2(averages_output=moving_averages)
+                outputter.moving_average_result_v2(ticker=args['tickers'][0], averages=moving_averages)
             
             if print_json_to_screen(args):
                 print(json.dumps(moving_averages))
@@ -633,9 +631,9 @@ def do_program() -> None:
                                                                       start_date=args['start_date'],
                                                                       end_date=args['end_date'])
 
-            plotter.plot_moving_averages(symbol=args['tickers'][0],
-                                         averages_output=moving_averages,
-                                         show=True, savefile=args['save_file'])
+            plotter.plot_moving_averages_v2(ticker=args['tickers'][0],
+                                            averages=moving_averages,
+                                            show=True, savefile=args['save_file'])
 
         selected_function, required_length, exact = cli_plot_moving_averages, 1, True
 

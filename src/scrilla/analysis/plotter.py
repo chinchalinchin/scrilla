@@ -188,7 +188,9 @@ def plot_moving_averages_v2(ticker: str, averages: Dict[str, Dict[str,float]], s
     canvas = FigureCanvas(Figure())
     axes = canvas.figure.subplots()
 
-    ma1s, ma2s, ma3s, date_range = [], [], [], [], []
+    date_format = matplotlib.dates.DateFormatter('%m-%d')
+
+    ma1s, ma2s, ma3s, date_range = [], [], [], []
     ma1_label, ma2_label, ma3_label = None, None, None
 
     for this_date, these_averages in averages.items():
@@ -201,21 +203,21 @@ def plot_moving_averages_v2(ticker: str, averages: Dict[str, Dict[str,float]], s
         ma1s.append(list(these_averages.values())[0])
         ma2s.append(list(these_averages.values())[1])
         ma3s.append(list(these_averages.values())[2])
-        date_range.append(datetime.datetime.strptime(dater.to_string(this_date), '%Y-%m-%d').toordinal())
+        if len(averages) == 1:
+            date_range.append(this_date)
+        else:
+            date_range.append(datetime.datetime.strptime(this_date, '%Y-%m-%d').toordinal())
 
     if len(averages) == 1:
         width = formats.formats['BAR_WIDTH']
-        x = numpy.arrange(1)
-        axes.bar(x + width, ma1s, width, label=ma1_label)
-        axes.bar(x, ma2s, width, label=ma2_label)
-        axes.bar(x - width, ma3s, width, label=ma3_label)
+        x = numpy.arange(1)
+        axes.bar(x + width, ma1s, width, color="darkgreen", label=ma1_label)
+        axes.bar(x, ma2s, width, color="gold", label=ma2_label)
+        axes.bar(x - width, ma3s, width, color="orangered", label=ma3_label)
         axes.set_xticks(x)
-        axes.set_xticklabels(str(date_range[0]))
+        axes.set_xticklabels([str(date_range[0])])
 
     else:
-        date_locator = matplotlib.dates.WeekdayLocator(
-            byweekday=(matplotlib.dates.WE))
-        date_format = matplotlib.dates.DateFormatter('%m-%d')
         x = date_range
         axes.plot(x, ma1s, linestyle="solid",
                       color="darkgreen", label=ma1_label)
@@ -223,10 +225,12 @@ def plot_moving_averages_v2(ticker: str, averages: Dict[str, Dict[str,float]], s
                     color="gold", label=ma2_label)
         axes.plot(x, ma3s, linestyle="dashdot",
                     color="orangered", label=ma3_label)
+        axes.set_xticks(x)
+        date_locator = matplotlib.dates.WeekdayLocator(
+            byweekday=(matplotlib.dates.WE))
         axes.xaxis.set_major_locator(date_locator)
         axes.xaxis.set_major_formatter(date_format)
 
-    axes.set_xticks(x)
     axes.set_ylabel('Annualized Logarthmic Return %')
     axes.set_xlabel('Dates')
     axes.set_title(
