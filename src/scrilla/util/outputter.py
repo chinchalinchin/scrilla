@@ -326,8 +326,8 @@ def correlation_matrix(tickers: List[str], correl_matrix: List[List[float]], dis
         if i == 0:
             line_length = len(new_line)
 
-
-    formatted_subtitle += ' '*(formats.formats['INDENT'] + first_symbol_length+1)
+    formatted_subtitle += ' ' * \
+        (formats.formats['INDENT'] + first_symbol_length+1)
     for i, ticker in enumerate(tickers):
         sym_len = len(ticker)
         formatted_subtitle += f' {ticker}' + ' '*(7-sym_len)
@@ -336,7 +336,7 @@ def correlation_matrix(tickers: List[str], correl_matrix: List[List[float]], dis
             formatted_title += f'({ticker},'
         elif i < len(tickers)-1:
             formatted_title += f'{ticker},'
-        else: 
+        else:
             formatted_title += f'{ticker}) correlation matrix'
 
     formatted_subtitle += '\n'
