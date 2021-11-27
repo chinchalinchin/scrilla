@@ -27,7 +27,9 @@
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">formats = {
+<pre><code class="python">from scrilla.static.constants import constants
+
+formats = {
     &#39;separator&#39;: &#39;-&#39;,
     &#39;TAB&#39;: &#39;     &#39;,
     &#39;LINE_LENGTH&#39;: 100,
@@ -35,7 +37,61 @@
     &#39;INDENT&#39;: 10,
     &#39;RISK_FREE_TITLE&#39;: &#34;{} US Treasury&#34;,
     &#39;BINS&#39;: 20
-}</code></pre>
+}
+
+def format_allocation(allocation, portfolio, investment=None, latest_prices=None):
+    allocation_format = []
+
+    if investment is not None:
+        shares = portfolio.calculate_approximate_shares(
+            x=allocation, total=investment, latest_prices=latest_prices)
+        total = portfolio.calculate_actual_total(
+            x=allocation, total=investment, latest_prices=latest_prices)
+
+    annual_volatility = portfolio.volatility_function(x=allocation)
+    annual_return = portfolio.return_function(x=allocation)
+
+    for j, item in enumerate(portfolio.tickers):
+        holding = {}
+        holding[&#39;ticker&#39;] = item
+        holding[&#39;allocation&#39;] = round(allocation[j], constants[&#39;ACCURACY&#39;])
+        if investment is not None:
+            holding[&#39;shares&#39;] = float(shares[j])
+        holding[&#39;annual_return&#39;] = round(
+            portfolio.mean_return[j], constants[&#39;ACCURACY&#39;])
+        holding[&#39;annual_volatility&#39;] = round(
+            portfolio.sample_vol[j], constants[&#39;ACCURACY&#39;])
+        allocation_format.append(holding)
+
+    json_format = {}
+    json_format[&#39;holdings&#39;] = allocation_format
+
+    if investment is not None:
+        json_format[&#39;total&#39;] = float(total)
+
+    json_format[&#39;portfolio_return&#39;] = annual_return
+    json_format[&#39;portfolio_volatility&#39;] = annual_volatility
+
+    return json_format
+
+
+def format_frontier(portfolio, frontier, investment=None, latest_prices=None):
+    json_format = []
+    for item in frontier:
+        json_format.append(format_allocation(allocation=item, portfolio=portfolio,
+                                             investment=investment, latest_prices=latest_prices))
+    return json_format
+
+
+def format_correlation_matrix(tickers, correlation_matrix):
+    response = []
+    for i, item in enumerate(tickers):
+        # correlation_matrix[i][i]
+        for j in range(i+1, len(tickers)):
+            subresponse = {}
+            subresponse[f&#39;{item}_{tickers[j]}_correlation&#39;] = correlation_matrix[j][i]
+            response.append(subresponse)
+    return response</code></pre>
 </details>
 </section>
 <section>
@@ -43,6 +99,91 @@
 <section>
 </section>
 <section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="scrilla.static.formats.format_allocation"><code class="name flex">
+<span>def <span class="ident">format_allocation</span></span>(<span>allocation, portfolio, investment=None, latest_prices=None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def format_allocation(allocation, portfolio, investment=None, latest_prices=None):
+    allocation_format = []
+
+    if investment is not None:
+        shares = portfolio.calculate_approximate_shares(
+            x=allocation, total=investment, latest_prices=latest_prices)
+        total = portfolio.calculate_actual_total(
+            x=allocation, total=investment, latest_prices=latest_prices)
+
+    annual_volatility = portfolio.volatility_function(x=allocation)
+    annual_return = portfolio.return_function(x=allocation)
+
+    for j, item in enumerate(portfolio.tickers):
+        holding = {}
+        holding[&#39;ticker&#39;] = item
+        holding[&#39;allocation&#39;] = round(allocation[j], constants[&#39;ACCURACY&#39;])
+        if investment is not None:
+            holding[&#39;shares&#39;] = float(shares[j])
+        holding[&#39;annual_return&#39;] = round(
+            portfolio.mean_return[j], constants[&#39;ACCURACY&#39;])
+        holding[&#39;annual_volatility&#39;] = round(
+            portfolio.sample_vol[j], constants[&#39;ACCURACY&#39;])
+        allocation_format.append(holding)
+
+    json_format = {}
+    json_format[&#39;holdings&#39;] = allocation_format
+
+    if investment is not None:
+        json_format[&#39;total&#39;] = float(total)
+
+    json_format[&#39;portfolio_return&#39;] = annual_return
+    json_format[&#39;portfolio_volatility&#39;] = annual_volatility
+
+    return json_format</code></pre>
+</details>
+</dd>
+<dt id="scrilla.static.formats.format_correlation_matrix"><code class="name flex">
+<span>def <span class="ident">format_correlation_matrix</span></span>(<span>tickers, correlation_matrix)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def format_correlation_matrix(tickers, correlation_matrix):
+    response = []
+    for i, item in enumerate(tickers):
+        # correlation_matrix[i][i]
+        for j in range(i+1, len(tickers)):
+            subresponse = {}
+            subresponse[f&#39;{item}_{tickers[j]}_correlation&#39;] = correlation_matrix[j][i]
+            response.append(subresponse)
+    return response</code></pre>
+</details>
+</dd>
+<dt id="scrilla.static.formats.format_frontier"><code class="name flex">
+<span>def <span class="ident">format_frontier</span></span>(<span>portfolio, frontier, investment=None, latest_prices=None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def format_frontier(portfolio, frontier, investment=None, latest_prices=None):
+    json_format = []
+    for item in frontier:
+        json_format.append(format_allocation(allocation=item, portfolio=portfolio,
+                                             investment=investment, latest_prices=latest_prices))
+    return json_format</code></pre>
+</details>
+</dd>
+</dl>
 </section>
 <section>
 </section>
@@ -56,6 +197,13 @@
 <li><h3>Super-module</h3>
 <ul>
 <li><code><a title="scrilla.static" href="index.html">scrilla.static</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="scrilla.static.formats.format_allocation" href="#scrilla.static.formats.format_allocation">format_allocation</a></code></li>
+<li><code><a title="scrilla.static.formats.format_correlation_matrix" href="#scrilla.static.formats.format_correlation_matrix">format_correlation_matrix</a></code></li>
+<li><code><a title="scrilla.static.formats.format_frontier" href="#scrilla.static.formats.format_frontier">format_frontier</a></code></li>
 </ul>
 </li>
 </ul>

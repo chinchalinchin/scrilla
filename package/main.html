@@ -72,7 +72,7 @@ from scrilla.analysis.objects.portfolio import Portfolio
 from scrilla.analysis.objects.cashflow import Cashflow
 
 if settings.APP_ENV != &#34;container&#34;:
-    import scrilla.util.plotter as plotter
+    import scrilla.analysis.plotter as plotter
 
 logger = outputter.Logger(&#39;main&#39;, settings.LOG_LEVEL)
 
@@ -98,13 +98,14 @@ def validate_function_usage(selection: str, args: list, wrapper_function: Callab
             &#39;Graphics functionality disabled when application is containerized.&#39;)
 
     start_time = time.time()
-    if(not exact and (len(args) &gt; (required_length-1))):
+    if(not exact and (len(args) &gt; (required_length-1))) or (exact and (len(args) == required_length)):
         wrapper_function()
-    elif(exact and (len(args) == required_length)):
-        wrapper_function()
+    elif exact:
+        raise InputValidationError(
+            f&#39;Invalid number of arguments for \&#39;{selection}\&#39; function. Function requires {required_length} arguments.&#39;)
     else:
         raise InputValidationError(
-            f&#39;Invalid number of arguments for \&#39;{selection}\&#39; function.&#39;)
+            f&#39;Invalid number of arguments for \&#39;{selection}\&#39; function. Function requires more than {required_length} arguments.&#39;)
     end_time = time.time()
     logger.info(f&#39;Total execution time: {end_time - start_time}s&#39;)
 
@@ -480,7 +481,7 @@ def do_program() -&gt; None:
                                              investment=args[&#39;investment&#39;],
                                              latest_prices=prices)
             if print_json_to_screen(args):
-                print(json.dumps(functions.format_frontier(portfolio=portfolio,
+                print(json.dumps(formats.format_frontier(portfolio=portfolio,
                                                            frontier=frontier,
                                                            investment=args[&#39;investment&#39;],
                                                            latest_prices=prices)))
@@ -516,7 +517,7 @@ def do_program() -&gt; None:
                                          latest_prices=prices)
 
             if print_json_to_screen(args):
-                print(json.dumps(functions.format_allocation(allocation=allocation,
+                print(json.dumps(formats.format_allocation(allocation=allocation,
                                                              portfolio=portfolio,
                                                              investment=args[&#39;investment&#39;],
                                                              latest_prices=prices)))
@@ -533,16 +534,19 @@ def do_program() -&gt; None:
     elif args[&#39;function_arg&#39;] in definitions.FUNC_DICT[&#39;moving_averages&#39;][&#39;values&#39;]:
         def cli_moving_averages():
             # TODO: moving averages with estimation techniques
-            # TODO: print results as json to screen and ability to save results
-            moving_averages = statistics.calculate_moving_averages(tickers=args[&#39;tickers&#39;],
+            moving_averages = statistics.calculate_moving_averages(ticker=args[&#39;tickers&#39;][0],
                                                                    start_date=args[&#39;start_date&#39;],
                                                                    end_date=args[&#39;end_date&#39;])
-            periods = [settings.MA_1_PERIOD,
-                       settings.MA_2_PERIOD, settings.MA_3_PERIOD]
 
-            outputter.moving_average_result(tickers=args[&#39;tickers&#39;], averages_output=moving_averages,
-                                            periods=periods, start_date=args[&#39;start_date&#39;],
-                                            end_date=args[&#39;end_date&#39;])
+            if print_format_to_screen(args):
+                outputter.moving_average_result(ticker=args[&#39;tickers&#39;][0], averages=moving_averages)
+            
+            if print_json_to_screen(args):
+                print(json.dumps(moving_averages))
+
+            if args[&#39;save_file&#39;] is not None:
+                files.save_file(file_to_save=moving_averages, file_name=args[&#39;save_file&#39;])
+
         selected_function, required_length = cli_moving_averages, 1
 
     # FUNCTION: Optimize Portfolio Variance/Volatility
@@ -571,7 +575,7 @@ def do_program() -&gt; None:
                     portfolio=portfolio, allocation=allocation, investment=args[&#39;investment&#39;])
 
             if print_json_to_screen(args):
-                print(json.dumps(functions.format_allocation(
+                print(json.dumps(formats.format_allocation(
                     allocation=allocation, portfolio=portfolio, investment=args[&#39;investment&#39;],
                     latest_prices=prices)))
 
@@ -656,16 +660,15 @@ def do_program() -&gt; None:
     elif args[&#39;function_arg&#39;] in definitions.FUNC_DICT[&#39;plot_moving_averages&#39;][&#39;values&#39;]:
         def cli_plot_moving_averages():
             # TODO: estimation techniques with moving averages
-            moving_averages = statistics.calculate_moving_averages(tickers=args[&#39;tickers&#39;],
-                                                                   start_date=args[&#39;start_date&#39;],
-                                                                   end_date=args[&#39;end_date&#39;])
-            periods = [settings.MA_1_PERIOD,
-                       settings.MA_2_PERIOD, settings.MA_3_PERIOD]
-            plotter.plot_moving_averages(symbols=args[&#39;tickers&#39;],
-                                         averages_output=moving_averages,
-                                         periods=periods,
-                                         show=True, savefile=args[&#39;save_file&#39;])
-        selected_function, required_length = cli_plot_moving_averages, 1
+            moving_averages = statistics.calculate_moving_averages(ticker=args[&#39;tickers&#39;][0],
+                                                                      start_date=args[&#39;start_date&#39;],
+                                                                      end_date=args[&#39;end_date&#39;])
+
+            plotter.plot_moving_averages(ticker=args[&#39;tickers&#39;][0],
+                                            averages=moving_averages,
+                                            show=True, savefile=args[&#39;save_file&#39;])
+
+        selected_function, required_length, exact = cli_plot_moving_averages, 1, True
 
     # FUNCTION: Plot Return QQ Series
     elif args[&#39;function_arg&#39;] in definitions.FUNC_DICT[&#39;plot_return_qq&#39;][&#39;values&#39;]:
@@ -824,8 +827,8 @@ def do_program() -&gt; None:
                 print(json.dumps(profiles))
 
             if args[&#39;save_file&#39;] is not None:
-                files.save_profiles(profiles=profiles,
-                                    file_name=args[&#39;save_file&#39;])
+                files.save_file(file_to_save=profiles, file_name=args[&#39;save_file&#39;])
+
         selected_function, required_length = cli_risk_return, 1
 
     # FUNCTION: Model Discount Screener
@@ -1290,7 +1293,7 @@ if __name__ == &#34;__main__&#34;:
                                              investment=args[&#39;investment&#39;],
                                              latest_prices=prices)
             if print_json_to_screen(args):
-                print(json.dumps(functions.format_frontier(portfolio=portfolio,
+                print(json.dumps(formats.format_frontier(portfolio=portfolio,
                                                            frontier=frontier,
                                                            investment=args[&#39;investment&#39;],
                                                            latest_prices=prices)))
@@ -1326,7 +1329,7 @@ if __name__ == &#34;__main__&#34;:
                                          latest_prices=prices)
 
             if print_json_to_screen(args):
-                print(json.dumps(functions.format_allocation(allocation=allocation,
+                print(json.dumps(formats.format_allocation(allocation=allocation,
                                                              portfolio=portfolio,
                                                              investment=args[&#39;investment&#39;],
                                                              latest_prices=prices)))
@@ -1343,16 +1346,19 @@ if __name__ == &#34;__main__&#34;:
     elif args[&#39;function_arg&#39;] in definitions.FUNC_DICT[&#39;moving_averages&#39;][&#39;values&#39;]:
         def cli_moving_averages():
             # TODO: moving averages with estimation techniques
-            # TODO: print results as json to screen and ability to save results
-            moving_averages = statistics.calculate_moving_averages(tickers=args[&#39;tickers&#39;],
+            moving_averages = statistics.calculate_moving_averages(ticker=args[&#39;tickers&#39;][0],
                                                                    start_date=args[&#39;start_date&#39;],
                                                                    end_date=args[&#39;end_date&#39;])
-            periods = [settings.MA_1_PERIOD,
-                       settings.MA_2_PERIOD, settings.MA_3_PERIOD]
 
-            outputter.moving_average_result(tickers=args[&#39;tickers&#39;], averages_output=moving_averages,
-                                            periods=periods, start_date=args[&#39;start_date&#39;],
-                                            end_date=args[&#39;end_date&#39;])
+            if print_format_to_screen(args):
+                outputter.moving_average_result(ticker=args[&#39;tickers&#39;][0], averages=moving_averages)
+            
+            if print_json_to_screen(args):
+                print(json.dumps(moving_averages))
+
+            if args[&#39;save_file&#39;] is not None:
+                files.save_file(file_to_save=moving_averages, file_name=args[&#39;save_file&#39;])
+
         selected_function, required_length = cli_moving_averages, 1
 
     # FUNCTION: Optimize Portfolio Variance/Volatility
@@ -1381,7 +1387,7 @@ if __name__ == &#34;__main__&#34;:
                     portfolio=portfolio, allocation=allocation, investment=args[&#39;investment&#39;])
 
             if print_json_to_screen(args):
-                print(json.dumps(functions.format_allocation(
+                print(json.dumps(formats.format_allocation(
                     allocation=allocation, portfolio=portfolio, investment=args[&#39;investment&#39;],
                     latest_prices=prices)))
 
@@ -1466,16 +1472,15 @@ if __name__ == &#34;__main__&#34;:
     elif args[&#39;function_arg&#39;] in definitions.FUNC_DICT[&#39;plot_moving_averages&#39;][&#39;values&#39;]:
         def cli_plot_moving_averages():
             # TODO: estimation techniques with moving averages
-            moving_averages = statistics.calculate_moving_averages(tickers=args[&#39;tickers&#39;],
-                                                                   start_date=args[&#39;start_date&#39;],
-                                                                   end_date=args[&#39;end_date&#39;])
-            periods = [settings.MA_1_PERIOD,
-                       settings.MA_2_PERIOD, settings.MA_3_PERIOD]
-            plotter.plot_moving_averages(symbols=args[&#39;tickers&#39;],
-                                         averages_output=moving_averages,
-                                         periods=periods,
-                                         show=True, savefile=args[&#39;save_file&#39;])
-        selected_function, required_length = cli_plot_moving_averages, 1
+            moving_averages = statistics.calculate_moving_averages(ticker=args[&#39;tickers&#39;][0],
+                                                                      start_date=args[&#39;start_date&#39;],
+                                                                      end_date=args[&#39;end_date&#39;])
+
+            plotter.plot_moving_averages(ticker=args[&#39;tickers&#39;][0],
+                                            averages=moving_averages,
+                                            show=True, savefile=args[&#39;save_file&#39;])
+
+        selected_function, required_length, exact = cli_plot_moving_averages, 1, True
 
     # FUNCTION: Plot Return QQ Series
     elif args[&#39;function_arg&#39;] in definitions.FUNC_DICT[&#39;plot_return_qq&#39;][&#39;values&#39;]:
@@ -1634,8 +1639,8 @@ if __name__ == &#34;__main__&#34;:
                 print(json.dumps(profiles))
 
             if args[&#39;save_file&#39;] is not None:
-                files.save_profiles(profiles=profiles,
-                                    file_name=args[&#39;save_file&#39;])
+                files.save_file(file_to_save=profiles, file_name=args[&#39;save_file&#39;])
+
         selected_function, required_length = cli_risk_return, 1
 
     # FUNCTION: Model Discount Screener
@@ -1842,13 +1847,14 @@ The number of tickers required for the function.</li>
             &#39;Graphics functionality disabled when application is containerized.&#39;)
 
     start_time = time.time()
-    if(not exact and (len(args) &gt; (required_length-1))):
+    if(not exact and (len(args) &gt; (required_length-1))) or (exact and (len(args) == required_length)):
         wrapper_function()
-    elif(exact and (len(args) == required_length)):
-        wrapper_function()
+    elif exact:
+        raise InputValidationError(
+            f&#39;Invalid number of arguments for \&#39;{selection}\&#39; function. Function requires {required_length} arguments.&#39;)
     else:
         raise InputValidationError(
-            f&#39;Invalid number of arguments for \&#39;{selection}\&#39; function.&#39;)
+            f&#39;Invalid number of arguments for \&#39;{selection}\&#39; function. Function requires more than {required_length} arguments.&#39;)
     end_time = time.time()
     logger.info(f&#39;Total execution time: {end_time - start_time}s&#39;)</code></pre>
 </details>

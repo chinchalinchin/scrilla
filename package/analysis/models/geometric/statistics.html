@@ -134,7 +134,7 @@ def get_sample_of_returns(ticker: str, sample_prices: Union[Dict[str, Dict[str, 
     return sample_of_returns
 
 
-def calculate_moving_averages_v2(ticker: str, start_date:Union[date, None] = None, end_date: Union[date, None]= None,sample_prices: Union[Dict[str,Dict[str,float]]] = None)-&gt; Dict[str, Dict[str, float]]:
+def calculate_moving_averages(ticker: str, start_date:Union[date, None] = None, end_date: Union[date, None]= None,sample_prices: Union[Dict[str,Dict[str,float]]] = None)-&gt; Dict[str, Dict[str, float]]:
     &#34;&#34;&#34;
     Returns the moving averages for the specified `ticker`. Each function call returns a group of three moving averages, calculated over different periods. The length of the periods is defined by the variables: `scrilla.settings.MA_1_PERIOD`, `scrilla.settings.MA_2_PERIOD` and `scrilla.settings.MA_3_PERIOD`. These variables are in turn configured by the values of the environment variables *MA_1*, *MA_2* and *MA_3*. If these environment variables are not found, they will default to 20, 60, 100 days, respectively. 
 
@@ -175,10 +175,9 @@ def calculate_moving_averages_v2(ticker: str, start_date:Union[date, None] = Non
 
     if start_date is None:
         if asset_type == keys.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]:
-            sample_start = dater.this_date_or_last_trading_date()
+            start_date = dater.this_date_or_last_trading_date()
         elif asset_type == keys.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]:
-            sample_start = dater.today()
-        start_date = sample_start
+            start_date = dater.today()
     if end_date is None:
         end_date = start_date
 
@@ -189,11 +188,12 @@ def calculate_moving_averages_v2(ticker: str, start_date:Union[date, None] = Non
         ma_date_range = dater.dates_between(start_date, end_date)
         sample_start = dater.decrement_date_by_days(start_date, settings.MA_3_PERIOD)
 
-
-    sample_prices = services.get_daily_price_history(ticker=ticker,start_date=sample_start, end_date=end_date)
+    sample_prices = services.get_daily_price_history(ticker=ticker,start_date=sample_start, 
+                                                        end_date=end_date, asset_type=asset_type)
     
     moving_averages = {}
     for this_date in ma_date_range:
+        logger.debug(f&#39;Calculating {ticker} moving averages on {dater.to_string(this_date)}&#39;)
         this_date_index = list(sample_prices).index(dater.to_string(this_date))
         mas = []
         for ma_period in [settings.MA_1_PERIOD, settings.MA_2_PERIOD, settings.MA_3_PERIOD]:
@@ -212,332 +212,6 @@ def calculate_moving_averages_v2(ticker: str, start_date:Union[date, None] = Non
         }
     
     return moving_averages
-
-    
-def calculate_moving_averages(tickers: list, start_date: Union[date, None] = None, end_date: Union[date, None] = None, sample_prices: Union[Dict[str, Dict[str, float]], None] = None) -&gt; list:
-    # TODO: i need to redo this. this is needlessly inefficient. mean telescopes when
-    #       calculating with moments. don&#39;t need to sum everything.
-    # TODO: calculate moving averages with different estimation techniques.
-    # TODO: simple moving averages vs exponential moving averages, etc.
-    &#34;&#34;&#34;
-    Parameters
-    ----------
-    1. **tickers** : ``list``.
-        array of ticker symbols correspond to the moving averages to be calculated. 
-    2. **start_date** : ``datetime.date``
-        *Optional*. Defaults to `None`. Start date of the time period over which the moving averages will be calculated.
-    3. **end_date**: ``datetime.date``
-        *Optional*. Defaults to `None`. End date of the time period over which the moving averages will be calculated. 
-    4. **sample_prices** : ``dict``
-        *Optional*. Defaults to `None`. A list of the asset prices for which moving_averages will be calculated. Overrides calls to service for sample prices. Function will disregard `start_date` and `end_date` if `sample_price` is specified. Must be of the format: `{&#39;ticker_1&#39;: { &#39;date_1&#39; : &#39;price_1&#39;, &#39;date_2&#39;: &#39;price_2&#39;... }, &#39;ticker_2&#39;: { &#39;date_1&#39; : &#39;price_1:, ... } }` and ordered from latest date to earliest date.
-
-    Output
-    ------
-    ``(averages : dict, dates : list)``
-    averages is a 3-node list with the following format `averages[ticker][period][date]` and dates is a list of dates between the `start_date` and `end_date`, inclusive.
-
-    .. notes::
-        * assumes `sample_prices` is ordered from latest to earliest date. 
-        * If no start_date and end_date passed in, static snapshot of moving averages, i.e. the moving averages as of today (or last close), are calculated and returned.
-        * If asset types are mixed, then the sample from which the average is calculated only consists of prices on business days. In other words, since crypto trades on weekends, to compare the moving average of equities and crypto, the moving average is only returned for business days. The moving average of crypto is still calculated using weekend price data, i.e. the moving average on Monday contains information about the moving average on Sunday, but the moving average on Sunday is discarded from the returned data, due to the fact equities are not traded on weekends. 
-    &#34;&#34;&#34;
-    # MOVING AVERAGE OVER DATE RANGE LOOP CALCULATION PSEUDO-CODE
-    #       1. for start date to end date:
-    #            2. get today&#39;s price
-    #            3. calculate today&#39;s return
-    #            4. for all elements of MAs_n
-    #                5. if today&#39;s date is less than a MA_n period away from the date of this MAs_n element
-    #                    6. add today&#39;s return / MA_n_PERIOD to this element of MAs_n
-    #                    7. create today&#39;s MAs_n element
-
-    moving_averages = []
-
-    ##########################################
-    # Moving Average Snapshot On Single Date
-    if start_date is None and end_date is None:
-        for ticker in tickers:
-            logger.debug(f&#39;Calculating Moving Average for {ticker}&#39;)
-
-            if sample_prices is None:
-                prices = services.get_daily_price_history(ticker)
-            else:
-                prices = sample_prices[ticker]
-
-            asset_type = files.get_asset_type(ticker)
-            trading_period = functions.get_trading_period(asset_type)
-
-            today = False
-            count, tomorrows_price, MA_1, MA_2, MA_3 = 1, 0, 0, 0, 0
-
-            for this_date in prices:
-                todays_price = prices[this_date][keys.keys[&#39;PRICES&#39;][&#39;CLOSE&#39;]]
-                if today:
-                    todays_return = log(
-                        float(tomorrows_price) / float(todays_price))/trading_period
-                    logger.verbose(
-                        f&#39;todays_return == {tomorrows_price}/({todays_price}*{round(trading_period,2)}) = {todays_return}&#39;)
-
-                    if count &lt; settings.MA_1_PERIOD:
-                        MA_1 += todays_return / settings.MA_1_PERIOD
-
-                    if count &lt; settings.MA_2_PERIOD:
-                        MA_2 += todays_return / settings.MA_2_PERIOD
-
-                    if count &lt; settings.MA_3_PERIOD:
-                        MA_3 += todays_return / settings.MA_3_PERIOD
-                        count += 1
-
-                else:
-                    today = True
-
-                tomorrows_price = prices[this_date][keys.keys[&#39;PRICES&#39;][&#39;CLOSE&#39;]]
-
-            logger.verbose(
-                f&#39;(MA_1, MA_2, MA_3)_{ticker} = ({MA_1}, {MA_2}, {MA_3}&#39;)
-            moving_averages.append([MA_1, MA_2, MA_3])
-
-        return moving_averages, None
-
-    ################################################
-    # Moving Average Scatter Plot Over Date Range
-
-    # TODO: this needs work. needs the intersect_dict_keys method like correlation did.
-
-    previous_asset_type, portfolio_asset_type = None, None
-    mixed_flag = False
-    original_day_count = 0
-
-    ### START ARGUMENT VALIDATION ###
-    logger.debug(&#39;Checking provided tickers for mixed asset types.&#39;)
-    for ticker in tickers:
-        asset_type = files.get_asset_type(ticker)
-        portfolio_asset_type = asset_type
-        if (
-            previous_asset_type is not None
-            and previous_asset_type != asset_type
-        ):
-            logger.debug(
-                &#39;Tickers include mixed asset types, flagging calculation.&#39;)
-            portfolio_asset_type = None
-            mixed_flag = True
-            break
-        previous_asset_type = asset_type
-
-    if not mixed_flag:
-        logger.debug(
-            f&#39;Tickers provided all of {portfolio_asset_type} asset type.&#39;)
-
-    logger.debug(&#39;Calculating length of date range in trading days.&#39;)
-    if mixed_flag:
-        original_day_count = dater.business_days_between(start_date, end_date)
-    elif portfolio_asset_type == keys.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]:
-        original_day_count = dater.business_days_between(start_date, end_date)
-    elif portfolio_asset_type == keys.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]:
-        original_day_count = (end_date - start_date).days
-    else:
-        original_day_count = dater.business_days_between(start_date, end_date)
-
-    logger.debug(
-        f&#39;{end_date} - {start_date} = {original_day_count} trading days&#39;)
-
-    for ticker in tickers:
-        logger.debug(f&#39;Calculating Moving Average for {ticker}.&#39;)
-
-        asset_type = files.get_asset_type(ticker)
-        trading_period = functions.get_trading_period(asset_type)
-
-        logger.debug(
-            &#39;Offsetting start date to account for longest Moving Average period.&#39;)
-        if asset_type == keys.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]:
-            logger.debug(f&#39;{ticker}_asset_type = Crypto&#39;)
-
-            logger.debug(
-                &#39;Configuring date variables to account for all dates.&#39;)
-            new_start_date = start_date - timedelta(days=settings.MA_3_PERIOD)
-            new_day_count = (end_date - new_start_date).days
-
-            # amend equity trading dates to take account of weekends
-        elif asset_type == keys.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]:
-            logger.debug(f&#39;{ticker}_asset_type = Equity&#39;)
-
-            logger.debug(
-                &#39;Configuring date variables to account for weekends and holidays.&#39;)
-            new_start_date = dater.decrement_date_by_business_days(start_date=start_date,
-                                                                   business_days=settings.MA_3_PERIOD)
-            new_day_count = dater.business_days_between(
-                new_start_date, end_date)
-
-        else:
-            logger.debug(
-                f&#39;{ticker}_asset_type = Unknown; Defaulting to business dates&#39;)
-
-            logger.debug(
-                &#39;Configuring date variables to account for weekends and holidays.&#39;)
-            new_start_date = dater.decrement_date_by_business_days(start_date=start_date,
-                                                                   business_days=settings.MA_3_PERIOD)
-            new_day_count = dater.business_days_between(
-                new_start_date, end_date)
-
-        logger.debug(
-            f&#39;start_date -&gt; new_start_date == {start_date} -&gt; {new_start_date}&#39;)
-        logger.debug(f&#39;{end_date} - {new_start_date} == {new_day_count}&#39;)
-
-        if sample_prices is None:
-            logger.debug(
-                f&#39;No {ticker} sample prices provided, calling service.&#39;)
-            prices = services.get_daily_price_history(
-                ticker, new_start_date, end_date)
-        else:
-            logger.debug(
-                f&#39;{ticker} sample prices provided, skipping service call.&#39;)
-            prices = sample_prices[ticker]
-
-        if not prices:
-            raise errors.PriceError(
-                f&#39;Prices could not be retrieved for {ticker}&#39;)
-    ### END ARGUMENT VALIDATION ###
-
-    ### START MOVING AVERAGE CALCULATION ###
-        today = False
-        count = 1
-        tomorrows_price = 0
-        MAs_1, MAs_2, MAs_3 = [], [], []
-
-        # See NOTE #4
-        for this_date in prices:
-            logger.verbose(f&#39;date: {this_date}&#39;)
-            # todays_price = services.price_manager.parse_price_from_date(prices, date, asset_type)
-            todays_price = prices[this_date][keys.keys[&#39;PRICES&#39;][&#39;CLOSE&#39;]]
-
-            if today:
-                todays_return = log(float(tomorrows_price) /
-                                    float(todays_price))/trading_period
-                logger.verbose(
-                    f&#39;todays_return == ln({tomorrows_price}/{todays_price})/{round(trading_period,4)}) = {round(todays_return,4)}&#39;)
-
-                for MA in MAs_1:
-                    end_flag = False
-                    if len(MAs_1) - MAs_1.index(MA) &lt; settings.MA_1_PERIOD:
-                        if len(MAs_1) - MAs_1.index(MA) == settings.MA_1_PERIOD - 1:
-                            end_flag = True
-                            if asset_type == keys.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]:
-                                date_of_MA1 = dater.decrement_date_by_business_days(
-                                    this_date, MAs_1.index(MA))
-                            elif asset_type == keys.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]:
-                                date_of_MA1 = dater.string_to_date(
-                                    this_date) - timedelta(days=MAs_1.index(MA))
-                            else:
-                                date_of_MA1 = dater.string_to_date(
-                                    this_date) - timedelta(days=MAs_1.index(MA))
-
-                        MA += todays_return / settings.MA_1_PERIOD
-
-                        if end_flag:
-                            logger.verbose(
-                                f&#39;{ticker}_MA_1({date_of_MA1}) = {MA}&#39;)
-
-                # See NOTE #3
-                if mixed_flag or portfolio_asset_type == keys.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]:
-                    # if dater.is_trading_date(this_date):
-                    if dater.is_trading_date(this_date):
-                        MAs_1.append((todays_return / settings.MA_1_PERIOD))
-                elif portfolio_asset_type == keys.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]:
-                    MAs_1.append((todays_return / settings.MA_1_PERIOD))
-
-                for MA in MAs_2:
-                    end_flag = False
-                    if len(MAs_2) - MAs_2.index(MA) &lt; settings.MA_2_PERIOD:
-                        if len(MAs_2) - MAs_2.index(MA) == settings.MA_2_PERIOD - 1:
-                            end_flag = True
-                            if asset_type == keys.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]:
-                                date_of_MA2 = dater.decrement_date_by_business_days(
-                                    this_date, MAs_2.index(MA))
-                            elif asset_type == keys.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]:
-                                date_of_MA2 = dater.string_to_date(
-                                    this_date) + timedelta(days=MAs_2.index(MA))
-                            else:
-                                date_of_MA2 = dater.string_to_date(
-                                    this_date) + timedelta(days=MAs_2.index(MA))
-
-                        MA += todays_return / settings.MA_2_PERIOD
-
-                        if end_flag:
-                            logger.verbose(
-                                f&#39;{ticker}_MA_2({date_of_MA2}) = {MA}&#39;)
-
-                # See NOTE #3
-                if mixed_flag or portfolio_asset_type == keys.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]:
-                    if dater.is_trading_date(this_date):
-                        MAs_2.append((todays_return / settings.MA_2_PERIOD))
-                elif portfolio_asset_type == keys.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]:
-                    MAs_2.append((todays_return / settings.MA_2_PERIOD))
-
-                for MA in MAs_3:
-                    end_flag = False
-                    if len(MAs_3) - MAs_3.index(MA) &lt; settings.MA_3_PERIOD:
-                        if len(MAs_3) - MAs_3.index(MA) == settings.MA_3_PERIOD - 1:
-                            end_flag = True
-                            if asset_type == keys.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]:
-                                date_of_MA3 = dater.decrement_date_by_business_days(
-                                    this_date, MAs_3.index(MA))
-                            elif asset_type == keys.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]:
-                                date_of_MA3 = dater.string_to_date(
-                                    this_date) + timedelta(days=MAs_3.index(MA))
-                            else:
-                                date_of_MA3 = dater.string_to_date(
-                                    this_date) + timedelta(days=MAs_3.index(MA))
-
-                        MA += todays_return / settings.MA_3_PERIOD
-
-                        if end_flag:
-                            logger.verbose(
-                                f&#39;{ticker}_MA_3({date_of_MA3}) = {MA}&#39;)
-
-                # See NOTE #3
-                if mixed_flag or portfolio_asset_type == keys.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]:
-                    if dater.is_trading_date(this_date):
-                        MAs_3.append((todays_return / settings.MA_3_PERIOD))
-                elif portfolio_asset_type == keys.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]:
-                    MAs_3.append((todays_return / settings))
-
-            else:
-                today = True
-
-            # tomorrows_price = services.price_manager.parse_price_from_date(prices, date, asset_type)
-            tomorrows_price = prices[this_date][keys.keys[&#39;PRICES&#39;][&#39;CLOSE&#39;]]
-
-        MAs_1 = MAs_1[:original_day_count]
-        MAs_2 = MAs_2[:original_day_count]
-        MAs_3 = MAs_3[:original_day_count]
-
-        moving_averages.append([MAs_1, MAs_2, MAs_3])
-
-    ### END MOVING AVERAGE CALCULATION ###
-
-    ### START RESPONSE FORMATTING ###
-    if not mixed_flag:
-        if portfolio_asset_type == keys.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]:
-            dates_between = dater.business_dates_between(start_date, end_date)
-        elif portfolio_asset_type == keys.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]:
-            dates_between = dater.dates_between(start_date, end_date)
-        else:
-            dates_between = dater.business_dates_between(start_date, end_date)
-    else:
-        dates_between = dater.business_dates_between(start_date, end_date)
-
-    logger.debug(
-        &#39;If everything is correct, then len(moving_averages[0][1]) == len(dates_between)&#39;)
-    if len(moving_averages[0][1]) == len(dates_between):
-        logger.debug(&#34;Your program rules.&#34;)
-        logger.debug(&#39;{} = {}&#39;.format(
-            len(moving_averages[0][1]), len(dates_between)))
-    else:
-        logger.debug(&#34;Your program sucks.&#34;)
-        logger.debug(&#39;{} != {}&#39;.format(
-            len(moving_averages[0][1]), len(dates_between)))
-
-    ### END RESPONSE FORMATTING ###
-    return moving_averages, dates_between
 
 
 def calculate_risk_return(ticker: str, start_date: Union[date, None] = None, end_date: Union[date, None] = None, sample_prices: Union[Dict[str, Dict[str, float]], None] = None, asset_type: Union[str, None] = None, weekends: Union[int, None] = None, method: str = settings.ESTIMATION_METHOD) -&gt; Dict[str, float]:
@@ -2481,363 +2155,7 @@ Dictionary containing the annualized return and volatility. Formatted as <code>{
 </details>
 </dd>
 <dt id="scrilla.analysis.models.geometric.statistics.calculate_moving_averages"><code class="name flex">
-<span>def <span class="ident">calculate_moving_averages</span></span>(<span>tickers: list, start_date: Optional[datetime.date] = None, end_date: Optional[datetime.date] = None, sample_prices: Optional[Dict[str, Dict[str, float]]] = None) ‑> list</span>
-</code></dt>
-<dd>
-<div class="desc"><h2 id="parameters">Parameters</h2>
-<ol>
-<li><strong>tickers</strong> : <code>list</code>.
-array of ticker symbols correspond to the moving averages to be calculated. </li>
-<li><strong>start_date</strong> : <code>datetime.date</code>
-<em>Optional</em>. Defaults to <code>None</code>. Start date of the time period over which the moving averages will be calculated.</li>
-<li><strong>end_date</strong>: <code>datetime.date</code>
-<em>Optional</em>. Defaults to <code>None</code>. End date of the time period over which the moving averages will be calculated. </li>
-<li><strong>sample_prices</strong> : <code>dict</code>
-<em>Optional</em>. Defaults to <code>None</code>. A list of the asset prices for which moving_averages will be calculated. Overrides calls to service for sample prices. Function will disregard <code>start_date</code> and <code>end_date</code> if <code>sample_price</code> is specified. Must be of the format: <code>{'ticker_1': { 'date_1' : 'price_1', 'date_2': 'price_2'... }, 'ticker_2': { 'date_1' : 'price_1:, ... } }</code> and ordered from latest date to earliest date.</li>
-</ol>
-<h2 id="output">Output</h2>
-<p><code>(averages : dict, dates : list)</code>
-averages is a 3-node list with the following format <code>averages[ticker][period][date]</code> and dates is a list of dates between the <code>start_date</code> and <code>end_date</code>, inclusive.</p>
-<div class="admonition notes">
-<p class="admonition-title">Notes</p>
-<ul>
-<li>assumes <code>sample_prices</code> is ordered from latest to earliest date. </li>
-<li>If no start_date and end_date passed in, static snapshot of moving averages, i.e. the moving averages as of today (or last close), are calculated and returned.</li>
-<li>If asset types are mixed, then the sample from which the average is calculated only consists of prices on business days. In other words, since crypto trades on weekends, to compare the moving average of equities and crypto, the moving average is only returned for business days. The moving average of crypto is still calculated using weekend price data, i.e. the moving average on Monday contains information about the moving average on Sunday, but the moving average on Sunday is discarded from the returned data, due to the fact equities are not traded on weekends.</li>
-</ul>
-</div></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def calculate_moving_averages(tickers: list, start_date: Union[date, None] = None, end_date: Union[date, None] = None, sample_prices: Union[Dict[str, Dict[str, float]], None] = None) -&gt; list:
-    # TODO: i need to redo this. this is needlessly inefficient. mean telescopes when
-    #       calculating with moments. don&#39;t need to sum everything.
-    # TODO: calculate moving averages with different estimation techniques.
-    # TODO: simple moving averages vs exponential moving averages, etc.
-    &#34;&#34;&#34;
-    Parameters
-    ----------
-    1. **tickers** : ``list``.
-        array of ticker symbols correspond to the moving averages to be calculated. 
-    2. **start_date** : ``datetime.date``
-        *Optional*. Defaults to `None`. Start date of the time period over which the moving averages will be calculated.
-    3. **end_date**: ``datetime.date``
-        *Optional*. Defaults to `None`. End date of the time period over which the moving averages will be calculated. 
-    4. **sample_prices** : ``dict``
-        *Optional*. Defaults to `None`. A list of the asset prices for which moving_averages will be calculated. Overrides calls to service for sample prices. Function will disregard `start_date` and `end_date` if `sample_price` is specified. Must be of the format: `{&#39;ticker_1&#39;: { &#39;date_1&#39; : &#39;price_1&#39;, &#39;date_2&#39;: &#39;price_2&#39;... }, &#39;ticker_2&#39;: { &#39;date_1&#39; : &#39;price_1:, ... } }` and ordered from latest date to earliest date.
-
-    Output
-    ------
-    ``(averages : dict, dates : list)``
-    averages is a 3-node list with the following format `averages[ticker][period][date]` and dates is a list of dates between the `start_date` and `end_date`, inclusive.
-
-    .. notes::
-        * assumes `sample_prices` is ordered from latest to earliest date. 
-        * If no start_date and end_date passed in, static snapshot of moving averages, i.e. the moving averages as of today (or last close), are calculated and returned.
-        * If asset types are mixed, then the sample from which the average is calculated only consists of prices on business days. In other words, since crypto trades on weekends, to compare the moving average of equities and crypto, the moving average is only returned for business days. The moving average of crypto is still calculated using weekend price data, i.e. the moving average on Monday contains information about the moving average on Sunday, but the moving average on Sunday is discarded from the returned data, due to the fact equities are not traded on weekends. 
-    &#34;&#34;&#34;
-    # MOVING AVERAGE OVER DATE RANGE LOOP CALCULATION PSEUDO-CODE
-    #       1. for start date to end date:
-    #            2. get today&#39;s price
-    #            3. calculate today&#39;s return
-    #            4. for all elements of MAs_n
-    #                5. if today&#39;s date is less than a MA_n period away from the date of this MAs_n element
-    #                    6. add today&#39;s return / MA_n_PERIOD to this element of MAs_n
-    #                    7. create today&#39;s MAs_n element
-
-    moving_averages = []
-
-    ##########################################
-    # Moving Average Snapshot On Single Date
-    if start_date is None and end_date is None:
-        for ticker in tickers:
-            logger.debug(f&#39;Calculating Moving Average for {ticker}&#39;)
-
-            if sample_prices is None:
-                prices = services.get_daily_price_history(ticker)
-            else:
-                prices = sample_prices[ticker]
-
-            asset_type = files.get_asset_type(ticker)
-            trading_period = functions.get_trading_period(asset_type)
-
-            today = False
-            count, tomorrows_price, MA_1, MA_2, MA_3 = 1, 0, 0, 0, 0
-
-            for this_date in prices:
-                todays_price = prices[this_date][keys.keys[&#39;PRICES&#39;][&#39;CLOSE&#39;]]
-                if today:
-                    todays_return = log(
-                        float(tomorrows_price) / float(todays_price))/trading_period
-                    logger.verbose(
-                        f&#39;todays_return == {tomorrows_price}/({todays_price}*{round(trading_period,2)}) = {todays_return}&#39;)
-
-                    if count &lt; settings.MA_1_PERIOD:
-                        MA_1 += todays_return / settings.MA_1_PERIOD
-
-                    if count &lt; settings.MA_2_PERIOD:
-                        MA_2 += todays_return / settings.MA_2_PERIOD
-
-                    if count &lt; settings.MA_3_PERIOD:
-                        MA_3 += todays_return / settings.MA_3_PERIOD
-                        count += 1
-
-                else:
-                    today = True
-
-                tomorrows_price = prices[this_date][keys.keys[&#39;PRICES&#39;][&#39;CLOSE&#39;]]
-
-            logger.verbose(
-                f&#39;(MA_1, MA_2, MA_3)_{ticker} = ({MA_1}, {MA_2}, {MA_3}&#39;)
-            moving_averages.append([MA_1, MA_2, MA_3])
-
-        return moving_averages, None
-
-    ################################################
-    # Moving Average Scatter Plot Over Date Range
-
-    # TODO: this needs work. needs the intersect_dict_keys method like correlation did.
-
-    previous_asset_type, portfolio_asset_type = None, None
-    mixed_flag = False
-    original_day_count = 0
-
-    ### START ARGUMENT VALIDATION ###
-    logger.debug(&#39;Checking provided tickers for mixed asset types.&#39;)
-    for ticker in tickers:
-        asset_type = files.get_asset_type(ticker)
-        portfolio_asset_type = asset_type
-        if (
-            previous_asset_type is not None
-            and previous_asset_type != asset_type
-        ):
-            logger.debug(
-                &#39;Tickers include mixed asset types, flagging calculation.&#39;)
-            portfolio_asset_type = None
-            mixed_flag = True
-            break
-        previous_asset_type = asset_type
-
-    if not mixed_flag:
-        logger.debug(
-            f&#39;Tickers provided all of {portfolio_asset_type} asset type.&#39;)
-
-    logger.debug(&#39;Calculating length of date range in trading days.&#39;)
-    if mixed_flag:
-        original_day_count = dater.business_days_between(start_date, end_date)
-    elif portfolio_asset_type == keys.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]:
-        original_day_count = dater.business_days_between(start_date, end_date)
-    elif portfolio_asset_type == keys.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]:
-        original_day_count = (end_date - start_date).days
-    else:
-        original_day_count = dater.business_days_between(start_date, end_date)
-
-    logger.debug(
-        f&#39;{end_date} - {start_date} = {original_day_count} trading days&#39;)
-
-    for ticker in tickers:
-        logger.debug(f&#39;Calculating Moving Average for {ticker}.&#39;)
-
-        asset_type = files.get_asset_type(ticker)
-        trading_period = functions.get_trading_period(asset_type)
-
-        logger.debug(
-            &#39;Offsetting start date to account for longest Moving Average period.&#39;)
-        if asset_type == keys.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]:
-            logger.debug(f&#39;{ticker}_asset_type = Crypto&#39;)
-
-            logger.debug(
-                &#39;Configuring date variables to account for all dates.&#39;)
-            new_start_date = start_date - timedelta(days=settings.MA_3_PERIOD)
-            new_day_count = (end_date - new_start_date).days
-
-            # amend equity trading dates to take account of weekends
-        elif asset_type == keys.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]:
-            logger.debug(f&#39;{ticker}_asset_type = Equity&#39;)
-
-            logger.debug(
-                &#39;Configuring date variables to account for weekends and holidays.&#39;)
-            new_start_date = dater.decrement_date_by_business_days(start_date=start_date,
-                                                                   business_days=settings.MA_3_PERIOD)
-            new_day_count = dater.business_days_between(
-                new_start_date, end_date)
-
-        else:
-            logger.debug(
-                f&#39;{ticker}_asset_type = Unknown; Defaulting to business dates&#39;)
-
-            logger.debug(
-                &#39;Configuring date variables to account for weekends and holidays.&#39;)
-            new_start_date = dater.decrement_date_by_business_days(start_date=start_date,
-                                                                   business_days=settings.MA_3_PERIOD)
-            new_day_count = dater.business_days_between(
-                new_start_date, end_date)
-
-        logger.debug(
-            f&#39;start_date -&gt; new_start_date == {start_date} -&gt; {new_start_date}&#39;)
-        logger.debug(f&#39;{end_date} - {new_start_date} == {new_day_count}&#39;)
-
-        if sample_prices is None:
-            logger.debug(
-                f&#39;No {ticker} sample prices provided, calling service.&#39;)
-            prices = services.get_daily_price_history(
-                ticker, new_start_date, end_date)
-        else:
-            logger.debug(
-                f&#39;{ticker} sample prices provided, skipping service call.&#39;)
-            prices = sample_prices[ticker]
-
-        if not prices:
-            raise errors.PriceError(
-                f&#39;Prices could not be retrieved for {ticker}&#39;)
-    ### END ARGUMENT VALIDATION ###
-
-    ### START MOVING AVERAGE CALCULATION ###
-        today = False
-        count = 1
-        tomorrows_price = 0
-        MAs_1, MAs_2, MAs_3 = [], [], []
-
-        # See NOTE #4
-        for this_date in prices:
-            logger.verbose(f&#39;date: {this_date}&#39;)
-            # todays_price = services.price_manager.parse_price_from_date(prices, date, asset_type)
-            todays_price = prices[this_date][keys.keys[&#39;PRICES&#39;][&#39;CLOSE&#39;]]
-
-            if today:
-                todays_return = log(float(tomorrows_price) /
-                                    float(todays_price))/trading_period
-                logger.verbose(
-                    f&#39;todays_return == ln({tomorrows_price}/{todays_price})/{round(trading_period,4)}) = {round(todays_return,4)}&#39;)
-
-                for MA in MAs_1:
-                    end_flag = False
-                    if len(MAs_1) - MAs_1.index(MA) &lt; settings.MA_1_PERIOD:
-                        if len(MAs_1) - MAs_1.index(MA) == settings.MA_1_PERIOD - 1:
-                            end_flag = True
-                            if asset_type == keys.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]:
-                                date_of_MA1 = dater.decrement_date_by_business_days(
-                                    this_date, MAs_1.index(MA))
-                            elif asset_type == keys.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]:
-                                date_of_MA1 = dater.string_to_date(
-                                    this_date) - timedelta(days=MAs_1.index(MA))
-                            else:
-                                date_of_MA1 = dater.string_to_date(
-                                    this_date) - timedelta(days=MAs_1.index(MA))
-
-                        MA += todays_return / settings.MA_1_PERIOD
-
-                        if end_flag:
-                            logger.verbose(
-                                f&#39;{ticker}_MA_1({date_of_MA1}) = {MA}&#39;)
-
-                # See NOTE #3
-                if mixed_flag or portfolio_asset_type == keys.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]:
-                    # if dater.is_trading_date(this_date):
-                    if dater.is_trading_date(this_date):
-                        MAs_1.append((todays_return / settings.MA_1_PERIOD))
-                elif portfolio_asset_type == keys.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]:
-                    MAs_1.append((todays_return / settings.MA_1_PERIOD))
-
-                for MA in MAs_2:
-                    end_flag = False
-                    if len(MAs_2) - MAs_2.index(MA) &lt; settings.MA_2_PERIOD:
-                        if len(MAs_2) - MAs_2.index(MA) == settings.MA_2_PERIOD - 1:
-                            end_flag = True
-                            if asset_type == keys.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]:
-                                date_of_MA2 = dater.decrement_date_by_business_days(
-                                    this_date, MAs_2.index(MA))
-                            elif asset_type == keys.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]:
-                                date_of_MA2 = dater.string_to_date(
-                                    this_date) + timedelta(days=MAs_2.index(MA))
-                            else:
-                                date_of_MA2 = dater.string_to_date(
-                                    this_date) + timedelta(days=MAs_2.index(MA))
-
-                        MA += todays_return / settings.MA_2_PERIOD
-
-                        if end_flag:
-                            logger.verbose(
-                                f&#39;{ticker}_MA_2({date_of_MA2}) = {MA}&#39;)
-
-                # See NOTE #3
-                if mixed_flag or portfolio_asset_type == keys.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]:
-                    if dater.is_trading_date(this_date):
-                        MAs_2.append((todays_return / settings.MA_2_PERIOD))
-                elif portfolio_asset_type == keys.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]:
-                    MAs_2.append((todays_return / settings.MA_2_PERIOD))
-
-                for MA in MAs_3:
-                    end_flag = False
-                    if len(MAs_3) - MAs_3.index(MA) &lt; settings.MA_3_PERIOD:
-                        if len(MAs_3) - MAs_3.index(MA) == settings.MA_3_PERIOD - 1:
-                            end_flag = True
-                            if asset_type == keys.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]:
-                                date_of_MA3 = dater.decrement_date_by_business_days(
-                                    this_date, MAs_3.index(MA))
-                            elif asset_type == keys.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]:
-                                date_of_MA3 = dater.string_to_date(
-                                    this_date) + timedelta(days=MAs_3.index(MA))
-                            else:
-                                date_of_MA3 = dater.string_to_date(
-                                    this_date) + timedelta(days=MAs_3.index(MA))
-
-                        MA += todays_return / settings.MA_3_PERIOD
-
-                        if end_flag:
-                            logger.verbose(
-                                f&#39;{ticker}_MA_3({date_of_MA3}) = {MA}&#39;)
-
-                # See NOTE #3
-                if mixed_flag or portfolio_asset_type == keys.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]:
-                    if dater.is_trading_date(this_date):
-                        MAs_3.append((todays_return / settings.MA_3_PERIOD))
-                elif portfolio_asset_type == keys.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]:
-                    MAs_3.append((todays_return / settings))
-
-            else:
-                today = True
-
-            # tomorrows_price = services.price_manager.parse_price_from_date(prices, date, asset_type)
-            tomorrows_price = prices[this_date][keys.keys[&#39;PRICES&#39;][&#39;CLOSE&#39;]]
-
-        MAs_1 = MAs_1[:original_day_count]
-        MAs_2 = MAs_2[:original_day_count]
-        MAs_3 = MAs_3[:original_day_count]
-
-        moving_averages.append([MAs_1, MAs_2, MAs_3])
-
-    ### END MOVING AVERAGE CALCULATION ###
-
-    ### START RESPONSE FORMATTING ###
-    if not mixed_flag:
-        if portfolio_asset_type == keys.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]:
-            dates_between = dater.business_dates_between(start_date, end_date)
-        elif portfolio_asset_type == keys.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]:
-            dates_between = dater.dates_between(start_date, end_date)
-        else:
-            dates_between = dater.business_dates_between(start_date, end_date)
-    else:
-        dates_between = dater.business_dates_between(start_date, end_date)
-
-    logger.debug(
-        &#39;If everything is correct, then len(moving_averages[0][1]) == len(dates_between)&#39;)
-    if len(moving_averages[0][1]) == len(dates_between):
-        logger.debug(&#34;Your program rules.&#34;)
-        logger.debug(&#39;{} = {}&#39;.format(
-            len(moving_averages[0][1]), len(dates_between)))
-    else:
-        logger.debug(&#34;Your program sucks.&#34;)
-        logger.debug(&#39;{} != {}&#39;.format(
-            len(moving_averages[0][1]), len(dates_between)))
-
-    ### END RESPONSE FORMATTING ###
-    return moving_averages, dates_between</code></pre>
-</details>
-</dd>
-<dt id="scrilla.analysis.models.geometric.statistics.calculate_moving_averages_v2"><code class="name flex">
-<span>def <span class="ident">calculate_moving_averages_v2</span></span>(<span>ticker: str, start_date: Optional[datetime.date] = None, end_date: Optional[datetime.date] = None, sample_prices: Dict[str, Dict[str, float]] = None) ‑> Dict[str, Dict[str, float]]</span>
+<span>def <span class="ident">calculate_moving_averages</span></span>(<span>ticker: str, start_date: Optional[datetime.date] = None, end_date: Optional[datetime.date] = None, sample_prices: Dict[str, Dict[str, float]] = None) ‑> Dict[str, Dict[str, float]]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Returns the moving averages for the specified <code>ticker</code>. Each function call returns a group of three moving averages, calculated over different periods. The length of the periods is defined by the variables: <code><a title="scrilla.settings.MA_1_PERIOD" href="../../../settings.html#scrilla.settings.MA_1_PERIOD">MA_1_PERIOD</a></code>, <code><a title="scrilla.settings.MA_2_PERIOD" href="../../../settings.html#scrilla.settings.MA_2_PERIOD">MA_2_PERIOD</a></code> and <code><a title="scrilla.settings.MA_3_PERIOD" href="../../../settings.html#scrilla.settings.MA_3_PERIOD">MA_3_PERIOD</a></code>. These variables are in turn configured by the values of the environment variables <em>MA_1</em>, <em>MA_2</em> and <em>MA_3</em>. If these environment variables are not found, they will default to 20, 60, 100 days, respectively. </p>
@@ -2876,7 +2194,7 @@ Dictionary with the date as the key and a nested dictionary containing the movin
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def calculate_moving_averages_v2(ticker: str, start_date:Union[date, None] = None, end_date: Union[date, None]= None,sample_prices: Union[Dict[str,Dict[str,float]]] = None)-&gt; Dict[str, Dict[str, float]]:
+<pre><code class="python">def calculate_moving_averages(ticker: str, start_date:Union[date, None] = None, end_date: Union[date, None]= None,sample_prices: Union[Dict[str,Dict[str,float]]] = None)-&gt; Dict[str, Dict[str, float]]:
     &#34;&#34;&#34;
     Returns the moving averages for the specified `ticker`. Each function call returns a group of three moving averages, calculated over different periods. The length of the periods is defined by the variables: `scrilla.settings.MA_1_PERIOD`, `scrilla.settings.MA_2_PERIOD` and `scrilla.settings.MA_3_PERIOD`. These variables are in turn configured by the values of the environment variables *MA_1*, *MA_2* and *MA_3*. If these environment variables are not found, they will default to 20, 60, 100 days, respectively. 
 
@@ -2917,10 +2235,9 @@ Dictionary with the date as the key and a nested dictionary containing the movin
 
     if start_date is None:
         if asset_type == keys.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;]:
-            sample_start = dater.this_date_or_last_trading_date()
+            start_date = dater.this_date_or_last_trading_date()
         elif asset_type == keys.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]:
-            sample_start = dater.today()
-        start_date = sample_start
+            start_date = dater.today()
     if end_date is None:
         end_date = start_date
 
@@ -2931,11 +2248,12 @@ Dictionary with the date as the key and a nested dictionary containing the movin
         ma_date_range = dater.dates_between(start_date, end_date)
         sample_start = dater.decrement_date_by_days(start_date, settings.MA_3_PERIOD)
 
-
-    sample_prices = services.get_daily_price_history(ticker=ticker,start_date=sample_start, end_date=end_date)
+    sample_prices = services.get_daily_price_history(ticker=ticker,start_date=sample_start, 
+                                                        end_date=end_date, asset_type=asset_type)
     
     moving_averages = {}
     for this_date in ma_date_range:
+        logger.debug(f&#39;Calculating {ticker} moving averages on {dater.to_string(this_date)}&#39;)
         this_date_index = list(sample_prices).index(dater.to_string(this_date))
         mas = []
         for ma_period in [settings.MA_1_PERIOD, settings.MA_2_PERIOD, settings.MA_3_PERIOD]:
@@ -3662,7 +2980,6 @@ correlation matrix of <code>tickers</code>. indices correspond to the Cartesian 
 <li><code><a title="scrilla.analysis.models.geometric.statistics.calculate_moment_correlation_series" href="#scrilla.analysis.models.geometric.statistics.calculate_moment_correlation_series">calculate_moment_correlation_series</a></code></li>
 <li><code><a title="scrilla.analysis.models.geometric.statistics.calculate_moment_risk_return" href="#scrilla.analysis.models.geometric.statistics.calculate_moment_risk_return">calculate_moment_risk_return</a></code></li>
 <li><code><a title="scrilla.analysis.models.geometric.statistics.calculate_moving_averages" href="#scrilla.analysis.models.geometric.statistics.calculate_moving_averages">calculate_moving_averages</a></code></li>
-<li><code><a title="scrilla.analysis.models.geometric.statistics.calculate_moving_averages_v2" href="#scrilla.analysis.models.geometric.statistics.calculate_moving_averages_v2">calculate_moving_averages_v2</a></code></li>
 <li><code><a title="scrilla.analysis.models.geometric.statistics.calculate_percentile_correlation" href="#scrilla.analysis.models.geometric.statistics.calculate_percentile_correlation">calculate_percentile_correlation</a></code></li>
 <li><code><a title="scrilla.analysis.models.geometric.statistics.calculate_percentile_risk_return" href="#scrilla.analysis.models.geometric.statistics.calculate_percentile_risk_return">calculate_percentile_risk_return</a></code></li>
 <li><code><a title="scrilla.analysis.models.geometric.statistics.calculate_return_covariance" href="#scrilla.analysis.models.geometric.statistics.calculate_return_covariance">calculate_return_covariance</a></code></li>

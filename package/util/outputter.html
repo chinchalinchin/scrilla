@@ -214,34 +214,21 @@ def risk_profile(profiles: Dict[str, Dict[str, float]]) -&gt; None:
             scalar_result(f&#39;{subkey}&#39;, f&#39;{subvalue}&#39;, currency=False)
 
 
-def moving_average_result(tickers: List[str], averages_output: Tuple[List[List[float]], List[str]], periods: List[int], start_date: Union[str, None] = None, end_date: Union[str, None] = None) -&gt; None:
-    averages, dates = averages_output
-    MA1_prefix, MA2_prefix, MA3_prefix = f&#39;MA({periods[0]})&#39;, f&#39;MA({periods[1]})&#39;, f&#39;MA({periods[2]})&#39;
-    if start_date is None and end_date is None:
-        for i, ticker in enumerate(tickers):
-            title = f&#39;{ticker} Moving Average of Daily Return for {periods[0]}, {periods[1]} &amp; {periods[0]} Days&#39;
-            title_line(title)
+def moving_average_result(ticker: str, averages: Dict[str, Dict[str, float]]) -&gt; None:
+    &#34;&#34;&#34;
+    Prints the results of `scrilla.analysis.models.geometric.statistics.calculate_moving_averages` or `scrilla.analysis.models.reversion.statistics.calculate_moving_averages` to *stdout*.
 
-            MA1_title, MA2_title, MA3_title = f&#39;{MA1_prefix}_{ticker}&#39;, f&#39;{MA2_prefix}_{ticker}&#39;, f&#39;{MA3_prefix}_{ticker}&#39;
-            scalar_result(MA1_title, round(averages[i][0], 2))
-            scalar_result(MA2_title, round(averages[i][1], 2))
-            scalar_result(MA3_title, round(averages[i][2], 2))
-    else:
-        for i, ticker in enumerate(tickers):
+    Parameters
+    ----------
+    1. **averages**: ``Dict[str, Dict[str,float]]``
+        The dictionary returned from a call to `scrilla.analysis.models.geometric.statistics.calculate_moving_averages` or `scrilla.analysis.models.reversion.statistics.calculate_moving_averages`.
+    &#34;&#34;&#34;
+    title_line(f&#39;{ticker} Moving Averages&#39;)
+    for this_date, average_dict in averages.items():
+        center(this_date)
+        for avg_key, average in average_dict.items():
+            scalar_result(calculation=avg_key, result=average, currency=False)
 
-            title = f&#39;{ticker} Moving Average of Daily Return for {periods[0]}, {periods[1]} &amp; {periods[0]} Days&#39;
-            title_line(title)
-
-            MA1_title, MA2_title, MA3_title = f&#39;{MA1_prefix}_{ticker}&#39;, f&#39;{MA2_prefix}_{ticker}&#39;, f&#39;{MA3_prefix}_{ticker}&#39;
-            for j, this_date in enumerate(dates):
-                msg_1 = f&#39;{this_date} : {MA1_title}&#39;
-                scalar_result(msg_1, round(averages[i][0][j], 2))
-            for j, this_date in enumerate(dates):
-                msg_2 = f&#39;{this_date} : {MA2_title}&#39;
-                scalar_result(msg_2, round(averages[i][1][j], 2))
-            for j, this_date in enumerate(dates):
-                msg_3 = f&#39;{this_date} : {MA3_title}&#39;
-                scalar_result(msg_3, round(averages[i][2][j], 2))
 
 
 def screen_results(info, model):
@@ -740,42 +727,33 @@ End date of the time period over which correlation was calculated. </li>
 </details>
 </dd>
 <dt id="scrilla.util.outputter.moving_average_result"><code class="name flex">
-<span>def <span class="ident">moving_average_result</span></span>(<span>tickers: List[str], averages_output: Tuple[List[List[float]], List[str]], periods: List[int], start_date: Optional[str] = None, end_date: Optional[str] = None) ‑> None</span>
+<span>def <span class="ident">moving_average_result</span></span>(<span>ticker: str, averages: Dict[str, Dict[str, float]]) ‑> None</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Prints the results of <code><a title="scrilla.analysis.models.geometric.statistics.calculate_moving_averages" href="../analysis/models/geometric/statistics.html#scrilla.analysis.models.geometric.statistics.calculate_moving_averages">calculate_moving_averages()</a></code> or <code>scrilla.analysis.models.reversion.statistics.calculate_moving_averages</code> to <em>stdout</em>.</p>
+<h2 id="parameters">Parameters</h2>
+<ol>
+<li><strong>averages</strong>: <code>Dict[str, Dict[str,float]]</code>
+The dictionary returned from a call to <code><a title="scrilla.analysis.models.geometric.statistics.calculate_moving_averages" href="../analysis/models/geometric/statistics.html#scrilla.analysis.models.geometric.statistics.calculate_moving_averages">calculate_moving_averages()</a></code> or <code>scrilla.analysis.models.reversion.statistics.calculate_moving_averages</code>.</li>
+</ol></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def moving_average_result(tickers: List[str], averages_output: Tuple[List[List[float]], List[str]], periods: List[int], start_date: Union[str, None] = None, end_date: Union[str, None] = None) -&gt; None:
-    averages, dates = averages_output
-    MA1_prefix, MA2_prefix, MA3_prefix = f&#39;MA({periods[0]})&#39;, f&#39;MA({periods[1]})&#39;, f&#39;MA({periods[2]})&#39;
-    if start_date is None and end_date is None:
-        for i, ticker in enumerate(tickers):
-            title = f&#39;{ticker} Moving Average of Daily Return for {periods[0]}, {periods[1]} &amp; {periods[0]} Days&#39;
-            title_line(title)
+<pre><code class="python">def moving_average_result(ticker: str, averages: Dict[str, Dict[str, float]]) -&gt; None:
+    &#34;&#34;&#34;
+    Prints the results of `scrilla.analysis.models.geometric.statistics.calculate_moving_averages` or `scrilla.analysis.models.reversion.statistics.calculate_moving_averages` to *stdout*.
 
-            MA1_title, MA2_title, MA3_title = f&#39;{MA1_prefix}_{ticker}&#39;, f&#39;{MA2_prefix}_{ticker}&#39;, f&#39;{MA3_prefix}_{ticker}&#39;
-            scalar_result(MA1_title, round(averages[i][0], 2))
-            scalar_result(MA2_title, round(averages[i][1], 2))
-            scalar_result(MA3_title, round(averages[i][2], 2))
-    else:
-        for i, ticker in enumerate(tickers):
-
-            title = f&#39;{ticker} Moving Average of Daily Return for {periods[0]}, {periods[1]} &amp; {periods[0]} Days&#39;
-            title_line(title)
-
-            MA1_title, MA2_title, MA3_title = f&#39;{MA1_prefix}_{ticker}&#39;, f&#39;{MA2_prefix}_{ticker}&#39;, f&#39;{MA3_prefix}_{ticker}&#39;
-            for j, this_date in enumerate(dates):
-                msg_1 = f&#39;{this_date} : {MA1_title}&#39;
-                scalar_result(msg_1, round(averages[i][0][j], 2))
-            for j, this_date in enumerate(dates):
-                msg_2 = f&#39;{this_date} : {MA2_title}&#39;
-                scalar_result(msg_2, round(averages[i][1][j], 2))
-            for j, this_date in enumerate(dates):
-                msg_3 = f&#39;{this_date} : {MA3_title}&#39;
-                scalar_result(msg_3, round(averages[i][2][j], 2))</code></pre>
+    Parameters
+    ----------
+    1. **averages**: ``Dict[str, Dict[str,float]]``
+        The dictionary returned from a call to `scrilla.analysis.models.geometric.statistics.calculate_moving_averages` or `scrilla.analysis.models.reversion.statistics.calculate_moving_averages`.
+    &#34;&#34;&#34;
+    title_line(f&#39;{ticker} Moving Averages&#39;)
+    for this_date, average_dict in averages.items():
+        center(this_date)
+        for avg_key, average in average_dict.items():
+            scalar_result(calculation=avg_key, result=average, currency=False)</code></pre>
 </details>
 </dd>
 <dt id="scrilla.util.outputter.optimal_result"><code class="name flex">
