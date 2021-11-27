@@ -391,8 +391,8 @@ def _calculate_percentile_moving_averages(ticker: str, start_date: Union[date, N
             guess = (median, (third_quartile-first_quartile)/2)
 
             mean, vol = fsolve(lambda params: [norm.cdf(x=first_quartile, loc=params[0], scale=params[1]) - 0.25,
-                                               norm.cdf(x=third_quartile, loc=params[0], scale=params[1]) - 0.75], 
-                                guess)
+                                               norm.cdf(x=third_quartile, loc=params[0], scale=params[1]) - 0.75],
+                               guess)
 
             # NOTE: Var(dln(S)/delta_t) = (1/delta_t^2)*Var(dlnS) = sigma^2*delta_t / delta_t^2 = sigma^2 / delta_t
             #       so need to multiply volatiliy by sqrt(delta_t) to get correct scale.
@@ -1237,16 +1237,16 @@ def _calculate_moment_correlation(ticker_1: str, ticker_2: str, asset_type_1: Un
         f'Preparing calculation dependencies for ({ticker_1},{ticker_2}) correlation')
 
     stats_1 = _calculate_moment_risk_return(ticker=ticker_1,
-                                           start_date=start_date,
-                                           end_date=end_date,
-                                           asset_type=asset_type_1,
-                                           weekends=weekends)
+                                            start_date=start_date,
+                                            end_date=end_date,
+                                            asset_type=asset_type_1,
+                                            weekends=weekends)
 
     stats_2 = _calculate_moment_risk_return(ticker=ticker_2,
-                                           start_date=start_date,
-                                           end_date=end_date,
-                                           asset_type=asset_type_2,
-                                           weekends=weekends)
+                                            start_date=start_date,
+                                            end_date=end_date,
+                                            asset_type=asset_type_2,
+                                            weekends=weekends)
 
     # ito's lemma
     mod_mean_1 = (stats_1['annual_return'] - 0.5*(stats_1['annual_volatility'])
