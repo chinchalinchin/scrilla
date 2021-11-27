@@ -44,7 +44,7 @@ def get_sample_of_returns(ticker: str, sample_prices: Union[Dict[str, Dict[str, 
     2. **start_date** : ``Union[date, None]``
         *Optional*. Start date of the time period over which the risk-return profile is to be calculated. Defaults to `None`, in which case the calculation proceeds as if `start_date` were set to 100 trading days prior to `end_date`. If `get_asset_type(ticker)=scrilla.keys.keys['ASSETS']['CRYPTO']`, this means 100 days regardless. If `get_asset_type(ticker)=scrilla.keys.keys['ASSETS']['EQUITY']`, this excludes weekends and holidays and decrements the `end_date` by 100 trading days.
     3. **end_date** : ``Union[date, None]``
-        *Optional*. End date of the time period over which the risk-return profile is to be calculated. Defaults to `None`, in which the calculation proceeds as if `end_date` were set to today. If the `get_asset_type(ticker)==keys.keys['ASSETS']['CRYPTO']` this means today regardless. If `get_asset_type(ticker)=keys.keys['ASSETS']['EQUITY']` this excludes holidays and weekends and sets the end date to the last valid trading date. 
+        *Optional*. End date of the time period over which the risk-return profile is to be calculated. Defaults to `None`, in which the calculation proceeds as if `end_date` were set to today. If the `get_asset_type(ticker)==keys.keys['ASSETS']['CRYPTO']` this means today regardless. If `get_asset_type(ticker)=keys.keys['ASSETS']['EQUITY']` this excludes holidays and weekends and sets the end date to the last valid trading date.
     4. **sample_prices** : ``Union[Dict[str, Dict[str, float]], None]``
         *Optional*. A list of the asset prices for which the risk profile will be calculated. Overrides calls to service and forces calculation of risk price for sample of prices supplied. Function will disregard `start_date` and `end_date` and use the first and last key as the latest and earliest date, respectively. In other words, the `sample_prices` dictionary must be ordered from latest to earliest. Format: `{ 'date_1' : { 'open' : number, 'close' : number}, 'date_2': { 'open': number, 'close': number} ... }`
     5. **asset_type** : ``Union[str, None]``
@@ -137,17 +137,17 @@ def calculate_correlation(ticker_1: str, ticker_2: str, asset_type_1: Union[str,
         *Optional*. Specify asset type to prevent redundant calculations down the stack. Allowable values can be found in `scrilla.keys.keys['ASSETS]' dictionary.
     5. *start_date* : ``datetime.date``
         *Optional*. Start date of the time period over which correlation will be calculated. If `None`, defaults to 100 trading days ago.
-    6. **end_date** : ``datetime.date`` 
+    6. **end_date** : ``datetime.date``
         *Optional*. End date of the time period over which correlation will be calculated. If `None`, defaults to last trading day.
     7. **sample_prices** : ``dict``
-        *Optional*. A list of the asset prices for which correlation will be calculated. Overrides calls to service and calculates correlation for sample of prices supplied. Will disregard start_date and end_date. Must be of the format: `{'ticker_1': { 'date_1' : 'price_1', 'date_2': 'price_2' ...}, 'ticker_2': { 'date_1' : 'price_1:, ... } }` and ordered from latest date to earliest date. 
+        *Optional*. A list of the asset prices for which correlation will be calculated. Overrides calls to service and calculates correlation for sample of prices supplied. Will disregard start_date and end_date. Must be of the format: `{'ticker_1': { 'date_1' : 'price_1', 'date_2': 'price_2' ...}, 'ticker_2': { 'date_1' : 'price_1:, ... } }` and ordered from latest date to earliest date.
     8. **method** : ``str``
         *Optional*. Defaults to the value set by `scrilla.settings.ESTIMATION_METHOD`, which in turn is configured by the **DEFAULT_ESTIMATION_METHOD** environment variable. Determines the estimation method used during the calculation of sample statistics. Allowable values can be accessed through `scrilla.keys.keys['ESTIMATION']`.
 
     Raises
     ------
     1. **KeyError**
-        If the `method` passed in doesn't map to one of the allowable estimation method values, this error will be thrown. 
+        If the `method` passed in doesn't map to one of the allowable estimation method values, this error will be thrown.
 
     Returns
     ------
@@ -174,15 +174,15 @@ def calculate_risk_return(ticker: str, start_date: Union[date, None] = None, end
     2. **start_date** : ``datetime.date``
         Optional. Start date of the time period over which the risk-return profile is to be calculated. Defaults to `None`, in which case the calculation proceeds as if `start_date` were set to 100 trading days prior to `end_date`. If `get_asset_type(ticker)=scrilla.keys.keys['ASSETS']['CRYPTO']`, this means 100 days regardless. If `get_asset_type(ticker)=scrilla.keys.keys['ASSETS']['EQUITY']`, this excludes weekends and holidays and decrements the `end_date` by 100 trading days.
     3. **end_date** : ``datetime.date``
-        *Optional*. End date of the time period over which the risk-return profile is to be calculated. Defaults to `None`, in which the calculation proceeds as if `end_date` were set to today. If the `get_asset_type(ticker)==keys.keys['ASSETS']['CRYPTO']` this means today regardless. If `get_asset_type(ticker)=keys.keys['ASSETS']['EQUITY']` this excludes holidays and weekends and sets the end date to the last valid trading date. 
+        *Optional*. End date of the time period over which the risk-return profile is to be calculated. Defaults to `None`, in which the calculation proceeds as if `end_date` were set to today. If the `get_asset_type(ticker)==keys.keys['ASSETS']['CRYPTO']` this means today regardless. If `get_asset_type(ticker)=keys.keys['ASSETS']['EQUITY']` this excludes holidays and weekends and sets the end date to the last valid trading date.
     4. **sample_prices** : ``list``
         *Optional*. A list of the asset prices for which the risk profile will be calculated. Overrides calls to service and forces calculation of risk price for sample of prices supplied. Function will disregard `start_date` and `end_date` and use the first and last key as the latest and earliest date, respectively. In other words, the `sample_prices` dictionary must be ordered from latest to earliest. Format: `{ 'date_1' : { 'open' : number, 'close' : number}, 'date_2': { 'open': number, 'close': number} ... }`
     5. **asset_type** : ``str``
          *Optional*. Specify asset type to prevent overusing redundant calculations. Allowable values: `scrilla.keys.keys['ASSETS']['EQUITY']`, `scrilla.keys.keys['ASSETS']['CRYPTO']`
     6. **method**: ``str``
-        *Optional*. The calculation method to be used in estimating model parameters, i.e. the mean and volatility. Allowable values are accessible through `scrilla.static.keys.keys['ESTIMATION']`. Defaults to the method set in `scrilla.settings.ESTIMATION_METHOD`, which in turn is configured by the environment variable, **DEFAULT_ESTIMATION_METHOD**. If this variable is not found, the value will default to `scrilla.static.keys.keys['ESTIMATION']['MOMENT']`. 
+        *Optional*. The calculation method to be used in estimating model parameters, i.e. the mean and volatility. Allowable values are accessible through `scrilla.static.keys.keys['ESTIMATION']`. Defaults to the method set in `scrilla.settings.ESTIMATION_METHOD`, which in turn is configured by the environment variable, **DEFAULT_ESTIMATION_METHOD**. If this variable is not found, the value will default to `scrilla.static.keys.keys['ESTIMATION']['MOMENT']`.
 
-    Raises 
+    Raises
     ------
     1. **scrilla.errors.ConfigurationError**
         If the inputted `method` does not map to one of the allowable values in the `scrilla.static.keys.keys` dictionary, then this error will be thrown.
@@ -230,23 +230,23 @@ def calculate_risk_return(ticker: str, start_date: Union[date, None] = None, end
 
 def _calculate_moment_moving_averages(ticker: str, start_date: Union[date, None] = None, end_date: Union[date, None] = None) -> Dict[str, Dict[str, float]]:
     """
-    Returns the moving averages for the specified `ticker`. Each function call returns a group of three moving averages, calculated over different periods. The length of the periods is defined by the variables: `scrilla.settings.MA_1_PERIOD`, `scrilla.settings.MA_2_PERIOD` and `scrilla.settings.MA_3_PERIOD`. These variables are in turn configured by the values of the environment variables *MA_1*, *MA_2* and *MA_3*. If these environment variables are not found, they will default to 20, 60, 100 days, respectively. 
+    Returns the moving averages for the specified `ticker`. Each function call returns a group of three moving averages, calculated over different periods. The length of the periods is defined by the variables: `scrilla.settings.MA_1_PERIOD`, `scrilla.settings.MA_2_PERIOD` and `scrilla.settings.MA_3_PERIOD`. These variables are in turn configured by the values of the environment variables *MA_1*, *MA_2* and *MA_3*. If these environment variables are not found, they will default to 20, 60, 100 days, respectively.
 
     Parameters
     ----------
     1. **tickers** : ``list``.
-        array of ticker symbols correspond to the moving averages to be calculated. 
+        array of ticker symbols correspond to the moving averages to be calculated.
     2. **start_date** : ``datetime.date``
         *Optional*. Defaults to `None`. Start date of the time period over which the moving averages will be calculated.
     3. **end_date**: ``datetime.date``
-        *Optional*. Defaults to `None`. End date of the time period over which the moving averages will be calculated. 
+        *Optional*. Defaults to `None`. End date of the time period over which the moving averages will be calculated.
     4. **sample_prices** : ``dict``
         *Optional*. Defaults to `None`. A list of the asset prices for which moving_averages will be calculated. Overrides calls to service for sample prices. Function will disregard `start_date` and `end_date` if `sample_price` is specified. Must be of the format: `{'ticker_1': { 'date_1' : 'price_1', 'date_2': 'price_2'... }, 'ticker_2': { 'date_1' : 'price_1:, ... } }` and ordered from latest date to earliest date.
 
     Output
     ------
-    ``Dict[str, Dict[str,float]]`` 
-        Dictionary with the date as the key and a nested dictionary containing the moving averages as the value. 
+    ``Dict[str, Dict[str,float]]``
+        Dictionary with the date as the key and a nested dictionary containing the moving averages as the value.
 
     ```
     {
@@ -260,9 +260,9 @@ def _calculate_moment_moving_averages(ticker: str, start_date: Union[date, None]
     ```
 
     .. notes::
-        * assumes `sample_prices` is ordered from latest to earliest date. 
+        * assumes `sample_prices` is ordered from latest to earliest date.
         * If no start_date and end_date passed in, static snapshot of moving averages, i.e. the moving averages as of today (or last close), are calculated and returned.
-        * there are two different sets of dates. `(start_date, end_date)` refer to the endpoints of the date range for which the moving averages will be calculated. `(sample_start, sample_end)` refer to the endpoints of the sample necessary to calculate the previously define calculation. Note, `sample_end == end_date`, but `sample_start == start_date - max(MA_1_PERIOD, MA_2_PERIOD, MA_3_PERIOD)`, in order for the sample to contain enough data points to estimate the moving average. 
+        * there are two different sets of dates. `(start_date, end_date)` refer to the endpoints of the date range for which the moving averages will be calculated. `(sample_start, sample_end)` refer to the endpoints of the sample necessary to calculate the previously define calculation. Note, `sample_end == end_date`, but `sample_start == start_date - max(MA_1_PERIOD, MA_2_PERIOD, MA_3_PERIOD)`, in order for the sample to contain enough data points to estimate the moving average.
     """
     asset_type = files.get_asset_type(ticker)
     trading_period = functions.get_trading_period(asset_type)
@@ -313,23 +313,23 @@ def _calculate_moment_moving_averages(ticker: str, start_date: Union[date, None]
 
 def _calculate_percentile_moving_averages(ticker: str, start_date: Union[date, None] = None, end_date: Union[date, None] = None) -> Dict[str, Dict[str, float]]:
     """
-    Returns the moving averages for the specified `ticker`. Each function call returns a group of three moving averages, calculated over different periods. The length of the periods is defined by the variables: `scrilla.settings.MA_1_PERIOD`, `scrilla.settings.MA_2_PERIOD` and `scrilla.settings.MA_3_PERIOD`. These variables are in turn configured by the values of the environment variables *MA_1*, *MA_2* and *MA_3*. If these environment variables are not found, they will default to 20, 60, 100 days, respectively. 
+    Returns the moving averages for the specified `ticker`. Each function call returns a group of three moving averages, calculated over different periods. The length of the periods is defined by the variables: `scrilla.settings.MA_1_PERIOD`, `scrilla.settings.MA_2_PERIOD` and `scrilla.settings.MA_3_PERIOD`. These variables are in turn configured by the values of the environment variables *MA_1*, *MA_2* and *MA_3*. If these environment variables are not found, they will default to 20, 60, 100 days, respectively.
 
     Parameters
     ----------
     1. **tickers** : ``list``.
-        array of ticker symbols correspond to the moving averages to be calculated. 
+        array of ticker symbols correspond to the moving averages to be calculated.
     2. **start_date** : ``datetime.date``
         *Optional*. Defaults to `None`. Start date of the time period over which the moving averages will be calculated.
     3. **end_date**: ``datetime.date``
-        *Optional*. Defaults to `None`. End date of the time period over which the moving averages will be calculated. 
+        *Optional*. Defaults to `None`. End date of the time period over which the moving averages will be calculated.
     4. **sample_prices** : ``dict``
         *Optional*. Defaults to `None`. A list of the asset prices for which moving_averages will be calculated. Overrides calls to service for sample prices. Function will disregard `start_date` and `end_date` if `sample_price` is specified. Must be of the format: `{'ticker_1': { 'date_1' : 'price_1', 'date_2': 'price_2'... }, 'ticker_2': { 'date_1' : 'price_1:, ... } }` and ordered from latest date to earliest date.
 
     Output
     ------
-    ``Dict[str, Dict[str,float]]`` 
-        Dictionary with the date as the key and a nested dictionary containing the moving averages as the value. 
+    ``Dict[str, Dict[str,float]]``
+        Dictionary with the date as the key and a nested dictionary containing the moving averages as the value.
 
     ```
     {
@@ -343,9 +343,9 @@ def _calculate_percentile_moving_averages(ticker: str, start_date: Union[date, N
     ```
 
     .. notes::
-        * assumes `sample_prices` is ordered from latest to earliest date. 
+        * assumes `sample_prices` is ordered from latest to earliest date.
         * If no start_date and end_date passed in, static snapshot of moving averages, i.e. the moving averages as of today (or last close), are calculated and returned.
-        * there are two different sets of dates. `(start_date, end_date)` refer to the endpoints of the date range for which the moving averages will be calculated. `(sample_start, sample_end)` refer to the endpoints of the sample necessary to calculate the previously define calculation. Note, `sample_end == end_date`, but `sample_start == start_date - max(MA_1_PERIOD, MA_2_PERIOD, MA_3_PERIOD)`, in order for the sample to contain enough data points to estimate the moving average. 
+        * there are two different sets of dates. `(start_date, end_date)` refer to the endpoints of the date range for which the moving averages will be calculated. `(sample_start, sample_end)` refer to the endpoints of the sample necessary to calculate the previously define calculation. Note, `sample_end == end_date`, but `sample_start == start_date - max(MA_1_PERIOD, MA_2_PERIOD, MA_3_PERIOD)`, in order for the sample to contain enough data points to estimate the moving average.
     """
     asset_type = files.get_asset_type(ticker)
     trading_period = functions.get_trading_period(asset_type)
@@ -390,16 +390,17 @@ def _calculate_percentile_moving_averages(ticker: str, start_date: Union[date, N
                 data=sample_of_returns, percentile=0.75)
             guess = (median, (third_quartile-first_quartile)/2)
 
-<<<<<<< HEAD
-            mean, vol = fsolve(lambda params, first=first_quartile, third=third_quartile: 
+
+<< << << < HEAD
+            mean, vol = fsolve(lambda params, first=first_quartile, third=third_quartile:
                                         [norm.cdf(x=first, loc=params[0], scale=params[1]) - 0.25,
-                                         norm.cdf(x=third, loc=params[0], scale=params[1]) - 0.75], 
+                                         norm.cdf(x=third, loc=params[0], scale=params[1]) - 0.75],
                                 guess)
-=======
+== == == =
             mean, vol = fsolve(lambda params: [norm.cdf(x=first_quartile, loc=params[0], scale=params[1]) - 0.25,
                                                norm.cdf(x=third_quartile, loc=params[0], scale=params[1]) - 0.75],
                                guess)
->>>>>>> 1d9a3f40ef1fe984f48eaffcca213d30f94224c4
+>>>>>> > 1d9a3f40ef1fe984f48eaffcca213d30f94224c4
 
             # NOTE: Var(dln(S)/delta_t) = (1/delta_t^2)*Var(dlnS) = sigma^2*delta_t / delta_t^2 = sigma^2 / delta_t
             #       so need to multiply volatiliy by sqrt(delta_t) to get correct scale.
