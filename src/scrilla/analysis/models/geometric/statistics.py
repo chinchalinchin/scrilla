@@ -16,8 +16,9 @@
 from datetime import timedelta, date
 from itertools import groupby
 import datetime
+import itertools
 from typing import Dict, List, Union
-from numpy import log, sqrt, inf
+from math import log, sqrt
 from scipy.stats import norm, multivariate_normal
 from scipy.optimize import fsolve, least_squares
 
@@ -104,10 +105,40 @@ def get_sample_of_returns(ticker: str, sample_prices: Union[Dict[str, Dict[str, 
     return sample_of_returns
 
 
-def calculate_moving_averages_v2(ticker: str, start_date:Union[date, None] = None, end_date: Union[date, None]= None,sample_prices: Union[Dict[str,Dict[str,float]]] = None):
+def calculate_moving_averages_v2(ticker: str, start_date:Union[date, None] = None, end_date: Union[date, None]= None,sample_prices: Union[Dict[str,Dict[str,float]]] = None)-> Dict[str, Dict[str, float]]:
     """
-    
+    Returns the moving averages for the specified `ticker`. Each function call returns a group of three moving averages, calculated over different periods. The length of the periods is defined by the variables: `scrilla.settings.MA_1_PERIOD`, `scrilla.settings.MA_2_PERIOD` and `scrilla.settings.MA_3_PERIOD`. These variables are in turn configured by the values of the environment variables *MA_1*, *MA_2* and *MA_3*. If these environment variables are not found, they will default to 20, 60, 100 days, respectively. 
+
+    Parameters
+    ----------
+    1. **tickers** : ``list``.
+        array of ticker symbols correspond to the moving averages to be calculated. 
+    2. **start_date** : ``datetime.date``
+        *Optional*. Defaults to `None`. Start date of the time period over which the moving averages will be calculated.
+    3. **end_date**: ``datetime.date``
+        *Optional*. Defaults to `None`. End date of the time period over which the moving averages will be calculated. 
+    4. **sample_prices** : ``dict``
+        *Optional*. Defaults to `None`. A list of the asset prices for which moving_averages will be calculated. Overrides calls to service for sample prices. Function will disregard `start_date` and `end_date` if `sample_price` is specified. Must be of the format: `{'ticker_1': { 'date_1' : 'price_1', 'date_2': 'price_2'... }, 'ticker_2': { 'date_1' : 'price_1:, ... } }` and ordered from latest date to earliest date.
+
+    Output
+    ------
+    ``Dict[str, Dict[str,float]]`` 
+        Dictionary with the date as the key and a nested dictionary containing the moving averages as the value. 
+
+    ```
+    {
+        'date': {
+            'MA_1': value,
+            'MA_2': value,
+            'MA_3': value
+        },
+        ...
+    }
+    ```
+
     .. notes::
+        * assumes `sample_prices` is ordered from latest to earliest date. 
+        * If no start_date and end_date passed in, static snapshot of moving averages, i.e. the moving averages as of today (or last close), are calculated and returned.
         * there are two different sets of dates. `(start_date, end_date)` refer to the endpoints of the date range for which the moving averages will be calculated. `(sample_start, sample_end)` refer to the endpoints of the sample necessary to calculate the previously define calculation. Note, `sample_end == end_date`, but `sample_start == start_date - max(MA_1_PERIOD, MA_2_PERIOD, MA_3_PERIOD)`, in order for the sample to contain enough data points to estimate the moving average. 
     """
     asset_type = files.get_asset_type(ticker)
@@ -120,16 +151,13 @@ def calculate_moving_averages_v2(ticker: str, start_date:Union[date, None] = Non
             sample_start = dater.today()
         start_date = sample_start
     if end_date is None:
-        if asset_type == keys.keys['ASSETS']['EQUITY']:
-            end_date = dater.this_date_or_last_trading_date()
-        elif asset_type == keys.key['ASSETS']['CRYPTO']:
-            end_date = dater.today()
-
-    ma_date_range = dater.dates_between(start_date, end_date)
+        end_date = start_date
 
     if asset_type == keys.keys['ASSETS']['EQUITY']:
+        ma_date_range = dater.business_dates_between(start_date, end_date)
         sample_start = dater.decrement_date_by_business_days(start_date, settings.MA_3_PERIOD)
     elif asset_type == keys.keys['ASSETS']['CRYPTO']:
+        ma_date_range = dater.dates_between(start_date, end_date)
         sample_start = dater.decrement_date_by_days(start_date, settings.MA_3_PERIOD)
 
 
@@ -137,13 +165,24 @@ def calculate_moving_averages_v2(ticker: str, start_date:Union[date, None] = Non
     
     moving_averages = {}
     for this_date in ma_date_range:
-        pass
+        this_date_index = list(sample_prices).index(dater.to_string(this_date))
+        mas = []
+        for ma_period in [settings.MA_1_PERIOD, settings.MA_2_PERIOD, settings.MA_3_PERIOD]:
+            ma_range = dict(itertools.islice(
+                        sample_prices.items(), this_date_index, this_date_index+ma_period+1))
+            last_date, first_date = list(ma_range)[0], list(ma_range)[-1]
+            last_price = ma_range[last_date][keys.keys['PRICES']['CLOSE']]
+            first_price = ma_range[first_date][keys.keys['PRICES']['CLOSE']]
+            mas.append(log(float(last_price)/float(first_price)) / \
+                        (trading_period*ma_period))
 
-        moving_averages[list(sample_prices.keys())[0]]= {
-            f'MA_{settings.MA_1_PERIOD}': 0, 
-            f'MA_{settings.MA_2_PERIOD}': 0, 
-            f'MA_{settings.MA_3_PERIOD}': 0
+        moving_averages[dater.to_string(this_date)]= {
+            f'MA_{settings.MA_1_PERIOD}': mas[0], 
+            f'MA_{settings.MA_2_PERIOD}': mas[1], 
+            f'MA_{settings.MA_3_PERIOD}': mas[2]
         }
+    
+    return moving_averages
 
     
 def calculate_moving_averages(tickers: list, start_date: Union[date, None] = None, end_date: Union[date, None] = None, sample_prices: Union[Dict[str, Dict[str, float]], None] = None) -> list:
