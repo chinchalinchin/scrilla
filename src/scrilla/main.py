@@ -408,7 +408,7 @@ def do_program(cli_args: List[str]) -> None:
             from scrilla.analysis.models.geometric.statistics import calculate_moment_correlation_series
             if print_format_to_screen(args):
                 from scrilla.util.outputter import scalar_result
-                
+
             logger.comment('This calculation takes a while, strap in...')
             ticker_1, ticker_2 = args['tickers'][0], args['tickers'][1]
             result = calculate_moment_correlation_series(ticker_1=ticker_1,
@@ -1047,7 +1047,7 @@ def do_program(cli_args: List[str]) -> None:
             from scrilla.services import get_daily_fred_history
             if print_format_to_screen(args):
                 from scrilla.util.outputter import scalar_result
-            
+
             all_stats = {}
             for arg in args['tickers']:
                 stats = get_daily_fred_history(symbol=arg,
