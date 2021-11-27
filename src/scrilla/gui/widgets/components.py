@@ -182,7 +182,7 @@ class ArgumentWidget(QtWidgets.QWidget):
                 else:
                     groups[group_name].append(definition)
 
-            for group_name, group in groups:
+            for group_name, group in groups.items():
                 self.group_control_widgets[group_name] = factories.group_widget_factory(
                     group, group_name)
 
@@ -258,7 +258,7 @@ class ArgumentWidget(QtWidgets.QWidget):
             return None
 
         if type(widget) is QtWidgets.QDateEdit:
-            return widget.date().toPython().date()
+            return widget.date().toPython()
         if type(widget) is QtWidgets.QLineEdit:
             if type(widget.validator()) is QtGui.QIntValidator:
                 return int(widget.text())
@@ -374,11 +374,11 @@ class TableWidget(QtWidgets.QWidget):
         self.table.setColumnCount(len(columns))
         self.table.setHorizontalHeaderLabels(columns)
         self.table.setVerticalHeaderLabels(rows)
-        self.download_button.show()
 
     def show_table(self):
         self.table.resizeColumnsToContents()
         self.table.show()
+        self.download_button.show()
 
     @QtCore.Slot()
     def show_file_dialog(self) -> None:

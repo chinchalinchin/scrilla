@@ -367,6 +367,7 @@ class CorrelationWidget(components.SkeletonWidget):
         self.arg_widget.prime()
         self.table_widget.table.clear()
         self.table_widget.table.hide()
+        self.table_widget.download_button.hide()
 
 
 class OptimizerWidget(components.SkeletonWidget):
@@ -558,4 +559,4 @@ class MovingAverageWidget(components.SkeletonWidget):
     @QtCore.Slot()
     def clear(self):
         self.arg_widget.prime()
-        self.graph_widget.figure.hide()
+        self.graph_widget.clear()
