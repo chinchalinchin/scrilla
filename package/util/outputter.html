@@ -355,8 +355,8 @@ def correlation_matrix(tickers: List[str], correl_matrix: List[List[float]], dis
         if i == 0:
             line_length = len(new_line)
 
-
-    formatted_subtitle += &#39; &#39;*(formats.formats[&#39;INDENT&#39;] + first_symbol_length+1)
+    formatted_subtitle += &#39; &#39; * \
+        (formats.formats[&#39;INDENT&#39;] + first_symbol_length+1)
     for i, ticker in enumerate(tickers):
         sym_len = len(ticker)
         formatted_subtitle += f&#39; {ticker}&#39; + &#39; &#39;*(7-sym_len)
@@ -365,7 +365,7 @@ def correlation_matrix(tickers: List[str], correl_matrix: List[List[float]], dis
             formatted_title += f&#39;({ticker},&#39;
         elif i &lt; len(tickers)-1:
             formatted_title += f&#39;{ticker},&#39;
-        else: 
+        else:
             formatted_title += f&#39;{ticker}) correlation matrix&#39;
 
     formatted_subtitle += &#39;\n&#39;
@@ -591,8 +591,8 @@ End date of the time period over which correlation was calculated. </li>
         if i == 0:
             line_length = len(new_line)
 
-
-    formatted_subtitle += &#39; &#39;*(formats.formats[&#39;INDENT&#39;] + first_symbol_length+1)
+    formatted_subtitle += &#39; &#39; * \
+        (formats.formats[&#39;INDENT&#39;] + first_symbol_length+1)
     for i, ticker in enumerate(tickers):
         sym_len = len(ticker)
         formatted_subtitle += f&#39; {ticker}&#39; + &#39; &#39;*(7-sym_len)
@@ -601,7 +601,7 @@ End date of the time period over which correlation was calculated. </li>
             formatted_title += f&#39;({ticker},&#39;
         elif i &lt; len(tickers)-1:
             formatted_title += f&#39;{ticker},&#39;
-        else: 
+        else:
             formatted_title += f&#39;{ticker}) correlation matrix&#39;
 
     formatted_subtitle += &#39;\n&#39;

@@ -219,7 +219,8 @@ def do_program(cli_args: List[str]) -&gt; None:
 
                 if print_format_to_screen(args):
                     from scrilla.util.outputter import scalar_result
-                    scalar_result(calculation=maturity, result=yield_curve[maturity], currency=False)
+                    scalar_result(calculation=maturity,
+                                  result=yield_curve[maturity], currency=False)
 
             if print_json_to_screen(args):
                 from json import dumps
@@ -227,7 +228,8 @@ def do_program(cli_args: List[str]) -&gt; None:
 
             if args[&#39;save_file&#39;] is not None:
                 from scrilla.files import save_file
-                save_file(file_to_save=yield_curve,file_name=args[&#39;save_file&#39;])
+                save_file(file_to_save=yield_curve,
+                          file_name=args[&#39;save_file&#39;])
         selected_function, required_length = cli_yield_curve, 0
 
     # ARGUMENT FUNCTIONS
@@ -254,17 +256,18 @@ def do_program(cli_args: List[str]) -&gt; None:
             all_vars = {}
             for arg in args[&#39;tickers&#39;][&#39;values&#39;]:
                 prices = get_daily_price_history(ticker=arg,
-                                                          start_date=args[&#39;start_date&#39;],
-                                                          end_date=args[&#39;end_date&#39;])
-                latest_price = prices[get_first_json_key(prices)][keys[&#39;PRICES&#39;][&#39;CLOSE&#39;]]
+                                                 start_date=args[&#39;start_date&#39;],
+                                                 end_date=args[&#39;end_date&#39;])
+                latest_price = prices[get_first_json_key(
+                    prices)][keys[&#39;PRICES&#39;][&#39;CLOSE&#39;]]
                 profile = calculate_risk_return(ticker=arg,
                                                 sample_prices=prices,
                                                 method=args[&#39;estimation_method&#39;])
                 valueatrisk = percentile(S0=latest_price,
-                                            vol=profile[&#39;annual_volatility&#39;],
-                                            ret=profile[&#39;annual_return&#39;],
-                                            expiry=args[&#39;expiry&#39;],
-                                            prob=args[&#39;probability&#39;])
+                                         vol=profile[&#39;annual_volatility&#39;],
+                                         ret=profile[&#39;annual_return&#39;],
+                                         expiry=args[&#39;expiry&#39;],
+                                         prob=args[&#39;probability&#39;])
 
                 all_vars[arg] = valueatrisk
 
@@ -293,27 +296,29 @@ def do_program(cli_args: List[str]) -&gt; None:
             all_cvars = {}
             for arg in args[&#39;tickers&#39;]:
                 prices = get_daily_price_history(ticker=arg,
-                                                    start_date=args[&#39;start_date&#39;],
-                                                    end_date=args[&#39;end_date&#39;])
-                latest_price = prices[get_first_json_key(prices)][keys[&#39;PRICES&#39;][&#39;CLOSE&#39;]]
+                                                 start_date=args[&#39;start_date&#39;],
+                                                 end_date=args[&#39;end_date&#39;])
+                latest_price = prices[get_first_json_key(
+                    prices)][keys[&#39;PRICES&#39;][&#39;CLOSE&#39;]]
                 profile = calculate_risk_return(ticker=arg,
                                                 sample_prices=prices,
                                                 method=args[&#39;estimation_method&#39;])
                 valueatrisk = percentile(S0=latest_price,
-                                                     vol=profile[&#39;annual_volatility&#39;],
-                                                     ret=profile[&#39;annual_return&#39;],
-                                                     expiry=args[&#39;expiry&#39;],
-                                                     prob=args[&#39;probability&#39;])
+                                         vol=profile[&#39;annual_volatility&#39;],
+                                         ret=profile[&#39;annual_return&#39;],
+                                         expiry=args[&#39;expiry&#39;],
+                                         prob=args[&#39;probability&#39;])
                 cvar = conditional_expected_value(S0=latest_price,
-                                                    vol=profile[&#39;annual_volatility&#39;],
-                                                    ret=profile[&#39;annual_return&#39;],
-                                                    expiry=args[&#39;expiry&#39;],
-                                                    conditional_value=valueatrisk)
+                                                  vol=profile[&#39;annual_volatility&#39;],
+                                                  ret=profile[&#39;annual_return&#39;],
+                                                  expiry=args[&#39;expiry&#39;],
+                                                  conditional_value=valueatrisk)
                 all_cvars[arg] = cvar
 
                 if print_format_to_screen(args):
                     from scrilla.util.outputter import scalar_result
-                    scalar_result(f&#39;{arg}_conditional_value_at_risk&#39;, valueatrisk)
+                    scalar_result(
+                        f&#39;{arg}_conditional_value_at_risk&#39;, valueatrisk)
 
             if print_json_to_screen(args):
                 from json import dumps
@@ -331,15 +336,16 @@ def do_program(cli_args: List[str]) -&gt; None:
             from scrilla.analysis.markets import cost_of_equity
             all_costs = {}
             for arg in args[&#39;tickers&#39;]:
-                equity_cost = cost_of_equity(ticker=arg, 
-                                                start_date=args[&#39;start_date&#39;],
-                                                end_date=args[&#39;end_date&#39;],
-                                                method=args[&#39;estimation_method&#39;])
+                equity_cost = cost_of_equity(ticker=arg,
+                                             start_date=args[&#39;start_date&#39;],
+                                             end_date=args[&#39;end_date&#39;],
+                                             method=args[&#39;estimation_method&#39;])
                 all_costs[arg] = equity_cost
 
                 if print_format_to_screen(args):
                     from scrilla.util.outputter import scalar_result
-                    scalar_result(f&#39;{arg}_equity_cost&#39;, equity_cost, currency=False)
+                    scalar_result(f&#39;{arg}_equity_cost&#39;,
+                                  equity_cost, currency=False)
 
             if print_json_to_screen(args):
                 from json import dumps
@@ -358,9 +364,9 @@ def do_program(cli_args: List[str]) -&gt; None:
             all_betas = {}
             for arg in args[&#39;tickers&#39;]:
                 beta = market_beta(ticker=arg,
-                                    start_date=args[&#39;start_date&#39;],
-                                    end_date=args[&#39;end_date&#39;],
-                                    method=args[&#39;estimation_method&#39;])
+                                   start_date=args[&#39;start_date&#39;],
+                                   end_date=args[&#39;end_date&#39;],
+                                   method=args[&#39;estimation_method&#39;])
                 all_betas[arg] = beta
 
                 if print_format_to_screen(args):
@@ -416,7 +422,8 @@ def do_program(cli_args: List[str]) -&gt; None:
 
             if print_format_to_screen(args):
                 from scrilla.util.outputter import correlation_matrix as correlation_output
-                correlation_output(tickers=args[&#39;tickers&#39;], correl_matrix=matrix)
+                correlation_output(
+                    tickers=args[&#39;tickers&#39;], correl_matrix=matrix)
 
             elif print_json_to_screen(args):
                 from json import dumps
@@ -434,15 +441,15 @@ def do_program(cli_args: List[str]) -&gt; None:
             from scrilla.analysis.models.geometric.statistics import calculate_moment_correlation_series
             logger.comment(&#39;This calculation takes a while, strap in...&#39;)
             ticker_1, ticker_2 = args[&#39;tickers&#39;][0], args[&#39;tickers&#39;][1]
-            result = calculate_moment_correlation_series(ticker_1=ticker_1, 
-                                                            ticker_2=ticker_2,
-                                                            start_date=args[&#39;start_date&#39;],
-                                                            end_date=args[&#39;end_date&#39;])
+            result = calculate_moment_correlation_series(ticker_1=ticker_1,
+                                                         ticker_2=ticker_2,
+                                                         start_date=args[&#39;start_date&#39;],
+                                                         end_date=args[&#39;end_date&#39;])
             if print_format_to_screen(args):
                 for date in result:
                     from scrilla.util.outputter import scalar_result
                     scalar_result(calculation=f&#39;{date}_{ticker_1}_{ticker_2}_correlation&#39;,
-                                    result=float(result[date]), currency=False)
+                                  result=float(result[date]), currency=False)
             elif print_json_to_screen(args):
                 from json import dumps
                 print(dumps(result))
@@ -472,7 +479,7 @@ def do_program(cli_args: List[str]) -&gt; None:
                 if print_format_to_screen(args):
                     from scrilla.util.outputter import scalar_result
                     scalar_result(f&#39;Net Present Value ({arg} dividends)&#39;,
-                                    model_results[f&#39;{arg}_discount_dividend&#39;])
+                                  model_results[f&#39;{arg}_discount_dividend&#39;])
 
             if print_json_to_screen(args):
                 from json import dumps
@@ -480,7 +487,8 @@ def do_program(cli_args: List[str]) -&gt; None:
 
             if args[&#39;save_file&#39;] is not None:
                 from scrilla.files import save_file
-                save_file(file_to_save=model_results,file_name=args[&#39;save_file&#39;])
+                save_file(file_to_save=model_results,
+                          file_name=args[&#39;save_file&#39;])
         selected_function, required_length = cli_discount_dividend, 1
 
     elif args[&#39;function_arg&#39;] in definitions.FUNC_DICT[&#39;dividends&#39;][&#39;values&#39;]:
@@ -515,7 +523,7 @@ def do_program(cli_args: List[str]) -&gt; None:
                                   end_date=args[&#39;end_date&#39;],
                                   method=args[&#39;estimation_method&#39;])
             frontier = calculate_efficient_frontier(portfolio=portfolio,
-                                                              steps=args[&#39;steps&#39;])
+                                                    steps=args[&#39;steps&#39;])
 
             if args[&#39;investment&#39;] is not None:
                 from scrilla.services import get_daily_prices_latest
@@ -541,10 +549,10 @@ def do_program(cli_args: List[str]) -&gt; None:
             if args[&#39;save_file&#39;] is not None:
                 from scrilla.files import save_frontier
                 save_frontier(portfolio=portfolio,
-                                frontier=frontier,
-                                investment=args[&#39;investment&#39;],
-                                file_name=args[&#39;save_file&#39;],
-                                latest_prices=prices)
+                              frontier=frontier,
+                              investment=args[&#39;investment&#39;],
+                              file_name=args[&#39;save_file&#39;],
+                              latest_prices=prices)
         selected_function, required_length = cli_efficient_frontier, 2
 
     # FUNCTION: Maximize Portfolio Return
@@ -571,17 +579,17 @@ def do_program(cli_args: List[str]) -&gt; None:
             if print_format_to_screen(args):
                 from scrilla.util.outputter import optimal_result
                 optimal_result(portfolio=portfolio,
-                                allocation=allocation,
-                                investment=args[&#39;investment&#39;],
-                                latest_prices=prices)
+                               allocation=allocation,
+                               investment=args[&#39;investment&#39;],
+                               latest_prices=prices)
 
             if print_json_to_screen(args):
                 from json import dumps
                 from scrilla.static.formats import format_allocation
                 print(dumps(format_allocation(allocation=allocation,
-                                                portfolio=portfolio,
-                                                investment=args[&#39;investment&#39;],
-                                                latest_prices=prices)))
+                                              portfolio=portfolio,
+                                              investment=args[&#39;investment&#39;],
+                                              latest_prices=prices)))
 
             if args[&#39;save_file&#39;] is not None:
                 from scrilla.files import save_allocation
@@ -605,7 +613,8 @@ def do_program(cli_args: List[str]) -&gt; None:
 
             if print_format_to_screen(args):
                 from scrilla.util.outputter import moving_average_result
-                moving_average_result(ticker=args[&#39;tickers&#39;][0], averages=moving_averages)
+                moving_average_result(
+                    ticker=args[&#39;tickers&#39;][0], averages=moving_averages)
 
             if print_json_to_screen(args):
                 from json import dumps
@@ -613,7 +622,8 @@ def do_program(cli_args: List[str]) -&gt; None:
 
             if args[&#39;save_file&#39;] is not None:
                 from scrilla.files import save_file
-                save_file(file_to_save=moving_averages, file_name=args[&#39;save_file&#39;])
+                save_file(file_to_save=moving_averages,
+                          file_name=args[&#39;save_file&#39;])
 
         selected_function, required_length = cli_moving_averages, 1
 
@@ -651,17 +661,17 @@ def do_program(cli_args: List[str]) -&gt; None:
             if print_json_to_screen(args):
                 from scrilla.static.formats import format_allocation
                 from json import dumps
-                print(dumps(format_allocation(allocation=allocation, 
-                                                portfolio=portfolio, 
-                                                investment=args[&#39;investment&#39;],
-                                                latest_prices=prices)))
+                print(dumps(format_allocation(allocation=allocation,
+                                              portfolio=portfolio,
+                                              investment=args[&#39;investment&#39;],
+                                              latest_prices=prices)))
 
             if args[&#39;save_file&#39;] is not None:
                 from scrilla.files import save_allocation
-                save_allocation(allocation=allocation, 
-                                portfolio=portfolio, 
+                save_allocation(allocation=allocation,
+                                portfolio=portfolio,
                                 file_name=args[&#39;save_file&#39;],
-                                investment=args[&#39;investment&#39;], 
+                                investment=args[&#39;investment&#39;],
                                 latest_prices=prices)
 
         selected_function, required_length = cli_optimize_portfolio_variance, 2
@@ -689,25 +699,25 @@ def do_program(cli_args: List[str]) -&gt; None:
 
             if print_format_to_screen(args):
                 from scrilla.util.outputter import optimal_result
-                optimal_result(portfolio=portfolio, 
-                                allocation=allocation, 
-                                investment=args[&#39;investment&#39;], 
-                                latest_prices=prices)
+                optimal_result(portfolio=portfolio,
+                               allocation=allocation,
+                               investment=args[&#39;investment&#39;],
+                               latest_prices=prices)
 
             if print_json_to_screen(args):
                 from scrilla.static.formats import format_allocation
                 from json import dumps
-                print(dumps(format_allocation(allocation=allocation, 
-                                                portfolio=portfolio, 
-                                                investment=args[&#39;investment&#39;], 
-                                                latest_prices=prices)))
+                print(dumps(format_allocation(allocation=allocation,
+                                              portfolio=portfolio,
+                                              investment=args[&#39;investment&#39;],
+                                              latest_prices=prices)))
 
             if args[&#39;save_file&#39;] is not None:
                 from scrilla.files import save_allocation
-                save_allocation(allocation=allocation, 
-                                portfolio=portfolio, 
+                save_allocation(allocation=allocation,
+                                portfolio=portfolio,
                                 file_name=args[&#39;save_file&#39;],
-                                investment=args[&#39;investment&#39;], 
+                                investment=args[&#39;investment&#39;],
                                 latest_prices=prices)
         selected_function, required_length = cli_optimize_conditional_value_at_risk, 2
 
@@ -720,11 +730,11 @@ def do_program(cli_args: List[str]) -&gt; None:
             logger.comment(&#39;This calculation takes a while, strap in...&#39;)
 
             correlation_history = calculate_moment_correlation_series(ticker_1=args[&#39;tickers&#39;][0],
-                                                                        ticker_2=args[&#39;tickers&#39;][1],
-                                                                        start_date=args[&#39;start_date&#39;],
-                                                                        end_date=args[&#39;end_date&#39;])
-            plot_correlation_series(tickers=args[&#39;tickers&#39;], 
-                                    series=correlation_history, 
+                                                                      ticker_2=args[&#39;tickers&#39;][1],
+                                                                      start_date=args[&#39;start_date&#39;],
+                                                                      end_date=args[&#39;end_date&#39;])
+            plot_correlation_series(tickers=args[&#39;tickers&#39;],
+                                    series=correlation_history,
                                     savefile=args[&#39;save_file&#39;])
 
         selected_function, required_length, exact = cli_plot_correlation, 2, True
@@ -740,12 +750,12 @@ def do_program(cli_args: List[str]) -&gt; None:
             if args[&#39;discount&#39;] is None:
                 from scrilla.analysis.markets import cost_of_equity
                 args[&#39;discount&#39;] = cost_of_equity(ticker=args[&#39;tickers&#39;][0],
-                                                    method=args[&#39;estimation_method&#39;])
+                                                  method=args[&#39;estimation_method&#39;])
             div_cashflow = Cashflow(sample=dividends,
                                     discount_rate=args[&#39;discount&#39;])
             plot_cashflow(ticker=args[&#39;tickers&#39;][0],
-                                  cashflow=div_cashflow, show=True,
-                                  savefile=args[&#39;save_file&#39;])
+                          cashflow=div_cashflow, show=True,
+                          savefile=args[&#39;save_file&#39;])
 
         selected_function, required_length, exact = cli_plot_dividends, 1, True
 
@@ -765,9 +775,9 @@ def do_program(cli_args: List[str]) -&gt; None:
                                                     steps=args[&#39;steps&#39;])
 
             plot_frontier(portfolio=portfolio,
-                            frontier=frontier,
-                            show=True,
-                            savefile=args[&#39;save_file&#39;])
+                          frontier=frontier,
+                          show=True,
+                          savefile=args[&#39;save_file&#39;])
 
         selected_function, required_length = cli_plot_frontier, 2
 
@@ -783,8 +793,8 @@ def do_program(cli_args: List[str]) -&gt; None:
                                                         method=args[&#39;estimation_method&#39;])
 
             plot_moving_averages(ticker=args[&#39;tickers&#39;][0],
-                                    averages=moving_averages,
-                                    show=True, savefile=args[&#39;save_file&#39;])
+                                 averages=moving_averages,
+                                 show=True, savefile=args[&#39;save_file&#39;])
 
         selected_function, required_length, exact = cli_plot_moving_averages, 1, True
 
@@ -803,10 +813,10 @@ def do_program(cli_args: List[str]) -&gt; None:
             qq_series = qq_series_for_sample(sample=returns)
 
             plot_qq_series(ticker=args[&#39;tickers&#39;][0],
-                            qq_series=qq_series,
-                            show=True,
-                            savefile=args[&#39;save_file&#39;])
-        
+                           qq_series=qq_series,
+                           show=True,
+                           savefile=args[&#39;save_file&#39;])
+
         selected_function, required_length, exact = cli_plot_qq_returns, 1, True
 
     # FUNCTION: Plot Histogram of Returns
@@ -820,9 +830,9 @@ def do_program(cli_args: List[str]) -&gt; None:
                                             end_date=args[&#39;end_date&#39;],
                                             daily=True)
             plot_return_histogram(ticker=args[&#39;tickers&#39;][0],
-                                    sample=returns,
-                                    show=True,
-                                    savefile=args[&#39;save_file&#39;])
+                                  sample=returns,
+                                  show=True,
+                                  savefile=args[&#39;save_file&#39;])
         selected_function, required_length, exact = cli_plot_dist_returns, 1, True
 
     # FUNCTION: Plot Risk-Return Profile
@@ -834,16 +844,16 @@ def do_program(cli_args: List[str]) -&gt; None:
             profiles = {}
             for arg in args[&#39;tickers&#39;]:
                 profiles[arg] = calculate_risk_return(ticker=arg,
-                                                        start_date=args[&#39;start_date&#39;],
-                                                        end_date=args[&#39;end_date&#39;],
-                                                        method=args[&#39;estimation_method&#39;])
+                                                      start_date=args[&#39;start_date&#39;],
+                                                      end_date=args[&#39;end_date&#39;],
+                                                      method=args[&#39;estimation_method&#39;])
 
             plot_profiles(symbols=args[&#39;tickers&#39;],
-                            show=True,
-                            profiles=profiles,
-                            savefile=args[&#39;save_file&#39;],
-                            subtitle=format_date_range(start_date=args[&#39;start_date&#39;],
-                                                                   end_date=args[&#39;end_date&#39;]))
+                          show=True,
+                          profiles=profiles,
+                          savefile=args[&#39;save_file&#39;],
+                          subtitle=format_date_range(start_date=args[&#39;start_date&#39;],
+                                                     end_date=args[&#39;end_date&#39;]))
         selected_function, required_length = cli_plot_risk_profile, 1
 
     elif args[&#39;function_arg&#39;] in definitions.FUNC_DICT[&#39;plot_yield_curve&#39;][&#39;values&#39;]:
@@ -858,13 +868,13 @@ def do_program(cli_args: List[str]) -&gt; None:
             yield_curve[start_date_string] = []
             for maturity in keys[&#39;YIELD_CURVE&#39;]:
                 rate = get_daily_interest_history(maturity=maturity,
-                                                    start_date=args[&#39;start_date&#39;],
-                                                    end_date=args[&#39;start_date&#39;])
+                                                  start_date=args[&#39;start_date&#39;],
+                                                  end_date=args[&#39;start_date&#39;])
                 yield_curve[start_date_string].append(rate[start_date_string])
 
-            plot_yield_curve(yield_curve=yield_curve, 
-                                show=True,
-                                savefile=args[&#39;save_file&#39;])
+            plot_yield_curve(yield_curve=yield_curve,
+                             show=True,
+                             savefile=args[&#39;save_file&#39;])
         selected_function, required_length, exact = cli_plot_yield_curve, 0, True
     # FUNCTION: Price History
     elif args[&#39;function_arg&#39;] in definitions.FUNC_DICT[&#39;price_history&#39;][&#39;values&#39;]:
@@ -875,8 +885,8 @@ def do_program(cli_args: List[str]) -&gt; None:
             all_prices = {}
             for arg in args[&#39;tickers&#39;]:
                 prices = get_daily_price_history(ticker=arg,
-                                                    start_date=args[&#39;start_date&#39;],
-                                                    end_date=args[&#39;end_date&#39;])
+                                                 start_date=args[&#39;start_date&#39;],
+                                                 end_date=args[&#39;end_date&#39;])
                 all_prices[arg] = {}
                 for date in prices:
                     price = prices[date][keys[&#39;PRICES&#39;][&#39;CLOSE&#39;]]
@@ -884,7 +894,8 @@ def do_program(cli_args: List[str]) -&gt; None:
 
                     if print_format_to_screen(args):
                         from scrilla.util.outputter import scalar_result
-                        scalar_result(calculation=f&#39;{arg}({date})&#39;, result=float(price))
+                        scalar_result(
+                            calculation=f&#39;{arg}({date})&#39;, result=float(price))
 
             if print_json_to_screen(args):
                 from json import dumps
@@ -922,7 +933,7 @@ def do_program(cli_args: List[str]) -&gt; None:
             if args[&#39;save_file&#39;] is not None:
                 from scrilla.files import save_file
                 save_file(file_to_save=all_rates,
-                            file_name=args[&#39;save_file&#39;])
+                          file_name=args[&#39;save_file&#39;])
         selected_function, required_length = cli_interest_history, 1
 
     # FUNCTION: Risk Free Rate
@@ -938,7 +949,7 @@ def do_program(cli_args: List[str]) -&gt; None:
                 from scrilla.static.formats import formats
                 title_line(&#34;Risk Free Rate&#34;)
                 scalar_result(calculation=formats[&#39;RISK_FREE_TITLE&#39;].format(RISK_FREE_RATE),
-                                        result=rate[RISK_FREE_RATE], currency=False)
+                              result=rate[RISK_FREE_RATE], currency=False)
             if print_json_to_screen(args):
                 from json import dumps
                 print(dumps(rate))
@@ -956,23 +967,23 @@ def do_program(cli_args: List[str]) -&gt; None:
             profiles = {}
             for arg in args[&#39;tickers&#39;]:
                 profiles[arg] = calculate_risk_return(ticker=arg,
-                                                        method=args[&#39;estimation_method&#39;],
-                                                        start_date=args[&#39;start_date&#39;],
-                                                        end_date=args[&#39;end_date&#39;])
+                                                      method=args[&#39;estimation_method&#39;],
+                                                      start_date=args[&#39;start_date&#39;],
+                                                      end_date=args[&#39;end_date&#39;])
                 profiles[arg][&#39;sharpe_ratio&#39;] = sharpe_ratio(ticker=arg,
-                                                                start_date=args[&#39;start_date&#39;],
-                                                                end_date=args[&#39;end_date&#39;],
-                                                                ticker_profile=profiles[arg],
-                                                                method=args[&#39;estimation_method&#39;])
+                                                             start_date=args[&#39;start_date&#39;],
+                                                             end_date=args[&#39;end_date&#39;],
+                                                             ticker_profile=profiles[arg],
+                                                             method=args[&#39;estimation_method&#39;])
                 profiles[arg][&#39;asset_beta&#39;] = market_beta(ticker=arg,
-                                                            start_date=args[&#39;start_date&#39;],
-                                                            end_date=args[&#39;end_date&#39;],
-                                                            ticker_profile=profiles[arg],
-                                                            method=args[&#39;estimation_method&#39;])
+                                                          start_date=args[&#39;start_date&#39;],
+                                                          end_date=args[&#39;end_date&#39;],
+                                                          ticker_profile=profiles[arg],
+                                                          method=args[&#39;estimation_method&#39;])
                 profiles[arg][&#39;equity_cost&#39;] = cost_of_equity(ticker=arg,
-                                                                start_date=args[&#39;start_date&#39;],
-                                                                end_date=args[&#39;end_date&#39;],
-                                                                method=args[&#39;estimation_method&#39;])
+                                                              start_date=args[&#39;start_date&#39;],
+                                                              end_date=args[&#39;end_date&#39;],
+                                                              method=args[&#39;estimation_method&#39;])
 
             if print_format_to_screen(args):
                 from scrilla.util.outputter import risk_profile
@@ -984,7 +995,7 @@ def do_program(cli_args: List[str]) -&gt; None:
 
             if args[&#39;save_file&#39;] is not None:
                 from scrilla.files import save_file
-                save_file(file_to_save=profiles,file_name=args[&#39;save_file&#39;])
+                save_file(file_to_save=profiles, file_name=args[&#39;save_file&#39;])
 
         selected_function, required_length = cli_risk_return, 1
 
@@ -1008,15 +1019,15 @@ def do_program(cli_args: List[str]) -&gt; None:
             all_results = {}
             for arg in args[&#39;tickers&#39;]:
                 result = sharpe_ratio(ticker=arg,
-                                        start_date=args[&#39;start_date&#39;],
-                                        end_date=args[&#39;end_date&#39;],
-                                        method=args[&#39;estimation_method&#39;])
+                                      start_date=args[&#39;start_date&#39;],
+                                      end_date=args[&#39;end_date&#39;],
+                                      method=args[&#39;estimation_method&#39;])
                 all_results[arg] = result
 
                 if print_format_to_screen(args):
                     from scrilla.util.outputter import scalar_result
                     scalar_result(calculation=f&#39;{arg}_sharpe_ratio&#39;, result=result,
-                                            currency=False)
+                                  currency=False)
 
             if print_json_to_screen(args):
                 from json import dumps
@@ -1024,7 +1035,8 @@ def do_program(cli_args: List[str]) -&gt; None:
 
             if args[&#39;save_file&#39;] is not None:
                 from scrilla.files import save_file
-                save_file(file_to_save=all_results, file_name=args[&#39;save_file&#39;])
+                save_file(file_to_save=all_results,
+                          file_name=args[&#39;save_file&#39;])
         selected_function, required_length = cli_sharpe_ratio, 1
 
    # FUNCTION: Store Key
@@ -1045,7 +1057,8 @@ def do_program(cli_args: List[str]) -&gt; None:
 
                 if print_format_to_screen(args):
                     from scrilla.util.outputter import scalar_result
-                    scalar_result(calculation=stat, result=result, currency=False)
+                    scalar_result(calculation=stat,
+                                  result=result, currency=False)
 
             if print_json_to_screen(args):
                 from json import dumps
@@ -1065,15 +1078,15 @@ def do_program(cli_args: List[str]) -&gt; None:
             all_stats = {}
             for arg in args[&#39;tickers&#39;]:
                 stats = get_daily_fred_history(symbol=arg,
-                                                        start_date=args[&#39;start_date&#39;],
-                                                        end_date=args[&#39;end_date&#39;])
+                                               start_date=args[&#39;start_date&#39;],
+                                               end_date=args[&#39;end_date&#39;])
                 all_stats[arg] = stats
                 if print_format_to_screen(args):
                     for date in stats:
                         from scrilla.util.outputter import scalar_result
                         scalar_result(calculation=f&#39;{arg}({date})&#39;,
-                                        result=stats[date],
-                                        currency=False)
+                                      result=stats[date],
+                                      currency=False)
 
             if print_json_to_screen(args):
                 from json import dumps
@@ -1089,7 +1102,8 @@ def do_program(cli_args: List[str]) -&gt; None:
         def cli_watchlist():
             from scrilla.files import add_watchlist
             add_watchlist(new_tickers=args[&#39;tickers&#39;])
-            logger.comment(&#34;Watchlist saved. Use -ls option to print watchlist.&#34;)
+            logger.comment(
+                &#34;Watchlist saved. Use -ls option to print watchlist.&#34;)
         selected_function, required_length = cli_watchlist, 1
 
     else:
@@ -1112,6 +1126,7 @@ def scrilla():
     import sys
 
     do_program(sys.argv[1:])
+
 
 if __name__ == &#34;__main__&#34;:
     import sys
@@ -1226,7 +1241,8 @@ if __name__ == &#34;__main__&#34;:
 
                 if print_format_to_screen(args):
                     from scrilla.util.outputter import scalar_result
-                    scalar_result(calculation=maturity, result=yield_curve[maturity], currency=False)
+                    scalar_result(calculation=maturity,
+                                  result=yield_curve[maturity], currency=False)
 
             if print_json_to_screen(args):
                 from json import dumps
@@ -1234,7 +1250,8 @@ if __name__ == &#34;__main__&#34;:
 
             if args[&#39;save_file&#39;] is not None:
                 from scrilla.files import save_file
-                save_file(file_to_save=yield_curve,file_name=args[&#39;save_file&#39;])
+                save_file(file_to_save=yield_curve,
+                          file_name=args[&#39;save_file&#39;])
         selected_function, required_length = cli_yield_curve, 0
 
     # ARGUMENT FUNCTIONS
@@ -1261,17 +1278,18 @@ if __name__ == &#34;__main__&#34;:
             all_vars = {}
             for arg in args[&#39;tickers&#39;][&#39;values&#39;]:
                 prices = get_daily_price_history(ticker=arg,
-                                                          start_date=args[&#39;start_date&#39;],
-                                                          end_date=args[&#39;end_date&#39;])
-                latest_price = prices[get_first_json_key(prices)][keys[&#39;PRICES&#39;][&#39;CLOSE&#39;]]
+                                                 start_date=args[&#39;start_date&#39;],
+                                                 end_date=args[&#39;end_date&#39;])
+                latest_price = prices[get_first_json_key(
+                    prices)][keys[&#39;PRICES&#39;][&#39;CLOSE&#39;]]
                 profile = calculate_risk_return(ticker=arg,
                                                 sample_prices=prices,
                                                 method=args[&#39;estimation_method&#39;])
                 valueatrisk = percentile(S0=latest_price,
-                                            vol=profile[&#39;annual_volatility&#39;],
-                                            ret=profile[&#39;annual_return&#39;],
-                                            expiry=args[&#39;expiry&#39;],
-                                            prob=args[&#39;probability&#39;])
+                                         vol=profile[&#39;annual_volatility&#39;],
+                                         ret=profile[&#39;annual_return&#39;],
+                                         expiry=args[&#39;expiry&#39;],
+                                         prob=args[&#39;probability&#39;])
 
                 all_vars[arg] = valueatrisk
 
@@ -1300,27 +1318,29 @@ if __name__ == &#34;__main__&#34;:
             all_cvars = {}
             for arg in args[&#39;tickers&#39;]:
                 prices = get_daily_price_history(ticker=arg,
-                                                    start_date=args[&#39;start_date&#39;],
-                                                    end_date=args[&#39;end_date&#39;])
-                latest_price = prices[get_first_json_key(prices)][keys[&#39;PRICES&#39;][&#39;CLOSE&#39;]]
+                                                 start_date=args[&#39;start_date&#39;],
+                                                 end_date=args[&#39;end_date&#39;])
+                latest_price = prices[get_first_json_key(
+                    prices)][keys[&#39;PRICES&#39;][&#39;CLOSE&#39;]]
                 profile = calculate_risk_return(ticker=arg,
                                                 sample_prices=prices,
                                                 method=args[&#39;estimation_method&#39;])
                 valueatrisk = percentile(S0=latest_price,
-                                                     vol=profile[&#39;annual_volatility&#39;],
-                                                     ret=profile[&#39;annual_return&#39;],
-                                                     expiry=args[&#39;expiry&#39;],
-                                                     prob=args[&#39;probability&#39;])
+                                         vol=profile[&#39;annual_volatility&#39;],
+                                         ret=profile[&#39;annual_return&#39;],
+                                         expiry=args[&#39;expiry&#39;],
+                                         prob=args[&#39;probability&#39;])
                 cvar = conditional_expected_value(S0=latest_price,
-                                                    vol=profile[&#39;annual_volatility&#39;],
-                                                    ret=profile[&#39;annual_return&#39;],
-                                                    expiry=args[&#39;expiry&#39;],
-                                                    conditional_value=valueatrisk)
+                                                  vol=profile[&#39;annual_volatility&#39;],
+                                                  ret=profile[&#39;annual_return&#39;],
+                                                  expiry=args[&#39;expiry&#39;],
+                                                  conditional_value=valueatrisk)
                 all_cvars[arg] = cvar
 
                 if print_format_to_screen(args):
                     from scrilla.util.outputter import scalar_result
-                    scalar_result(f&#39;{arg}_conditional_value_at_risk&#39;, valueatrisk)
+                    scalar_result(
+                        f&#39;{arg}_conditional_value_at_risk&#39;, valueatrisk)
 
             if print_json_to_screen(args):
                 from json import dumps
@@ -1338,15 +1358,16 @@ if __name__ == &#34;__main__&#34;:
             from scrilla.analysis.markets import cost_of_equity
             all_costs = {}
             for arg in args[&#39;tickers&#39;]:
-                equity_cost = cost_of_equity(ticker=arg, 
-                                                start_date=args[&#39;start_date&#39;],
-                                                end_date=args[&#39;end_date&#39;],
-                                                method=args[&#39;estimation_method&#39;])
+                equity_cost = cost_of_equity(ticker=arg,
+                                             start_date=args[&#39;start_date&#39;],
+                                             end_date=args[&#39;end_date&#39;],
+                                             method=args[&#39;estimation_method&#39;])
                 all_costs[arg] = equity_cost
 
                 if print_format_to_screen(args):
                     from scrilla.util.outputter import scalar_result
-                    scalar_result(f&#39;{arg}_equity_cost&#39;, equity_cost, currency=False)
+                    scalar_result(f&#39;{arg}_equity_cost&#39;,
+                                  equity_cost, currency=False)
 
             if print_json_to_screen(args):
                 from json import dumps
@@ -1365,9 +1386,9 @@ if __name__ == &#34;__main__&#34;:
             all_betas = {}
             for arg in args[&#39;tickers&#39;]:
                 beta = market_beta(ticker=arg,
-                                    start_date=args[&#39;start_date&#39;],
-                                    end_date=args[&#39;end_date&#39;],
-                                    method=args[&#39;estimation_method&#39;])
+                                   start_date=args[&#39;start_date&#39;],
+                                   end_date=args[&#39;end_date&#39;],
+                                   method=args[&#39;estimation_method&#39;])
                 all_betas[arg] = beta
 
                 if print_format_to_screen(args):
@@ -1423,7 +1444,8 @@ if __name__ == &#34;__main__&#34;:
 
             if print_format_to_screen(args):
                 from scrilla.util.outputter import correlation_matrix as correlation_output
-                correlation_output(tickers=args[&#39;tickers&#39;], correl_matrix=matrix)
+                correlation_output(
+                    tickers=args[&#39;tickers&#39;], correl_matrix=matrix)
 
             elif print_json_to_screen(args):
                 from json import dumps
@@ -1441,15 +1463,15 @@ if __name__ == &#34;__main__&#34;:
             from scrilla.analysis.models.geometric.statistics import calculate_moment_correlation_series
             logger.comment(&#39;This calculation takes a while, strap in...&#39;)
             ticker_1, ticker_2 = args[&#39;tickers&#39;][0], args[&#39;tickers&#39;][1]
-            result = calculate_moment_correlation_series(ticker_1=ticker_1, 
-                                                            ticker_2=ticker_2,
-                                                            start_date=args[&#39;start_date&#39;],
-                                                            end_date=args[&#39;end_date&#39;])
+            result = calculate_moment_correlation_series(ticker_1=ticker_1,
+                                                         ticker_2=ticker_2,
+                                                         start_date=args[&#39;start_date&#39;],
+                                                         end_date=args[&#39;end_date&#39;])
             if print_format_to_screen(args):
                 for date in result:
                     from scrilla.util.outputter import scalar_result
                     scalar_result(calculation=f&#39;{date}_{ticker_1}_{ticker_2}_correlation&#39;,
-                                    result=float(result[date]), currency=False)
+                                  result=float(result[date]), currency=False)
             elif print_json_to_screen(args):
                 from json import dumps
                 print(dumps(result))
@@ -1479,7 +1501,7 @@ if __name__ == &#34;__main__&#34;:
                 if print_format_to_screen(args):
                     from scrilla.util.outputter import scalar_result
                     scalar_result(f&#39;Net Present Value ({arg} dividends)&#39;,
-                                    model_results[f&#39;{arg}_discount_dividend&#39;])
+                                  model_results[f&#39;{arg}_discount_dividend&#39;])
 
             if print_json_to_screen(args):
                 from json import dumps
@@ -1487,7 +1509,8 @@ if __name__ == &#34;__main__&#34;:
 
             if args[&#39;save_file&#39;] is not None:
                 from scrilla.files import save_file
-                save_file(file_to_save=model_results,file_name=args[&#39;save_file&#39;])
+                save_file(file_to_save=model_results,
+                          file_name=args[&#39;save_file&#39;])
         selected_function, required_length = cli_discount_dividend, 1
 
     elif args[&#39;function_arg&#39;] in definitions.FUNC_DICT[&#39;dividends&#39;][&#39;values&#39;]:
@@ -1522,7 +1545,7 @@ if __name__ == &#34;__main__&#34;:
                                   end_date=args[&#39;end_date&#39;],
                                   method=args[&#39;estimation_method&#39;])
             frontier = calculate_efficient_frontier(portfolio=portfolio,
-                                                              steps=args[&#39;steps&#39;])
+                                                    steps=args[&#39;steps&#39;])
 
             if args[&#39;investment&#39;] is not None:
                 from scrilla.services import get_daily_prices_latest
@@ -1548,10 +1571,10 @@ if __name__ == &#34;__main__&#34;:
             if args[&#39;save_file&#39;] is not None:
                 from scrilla.files import save_frontier
                 save_frontier(portfolio=portfolio,
-                                frontier=frontier,
-                                investment=args[&#39;investment&#39;],
-                                file_name=args[&#39;save_file&#39;],
-                                latest_prices=prices)
+                              frontier=frontier,
+                              investment=args[&#39;investment&#39;],
+                              file_name=args[&#39;save_file&#39;],
+                              latest_prices=prices)
         selected_function, required_length = cli_efficient_frontier, 2
 
     # FUNCTION: Maximize Portfolio Return
@@ -1578,17 +1601,17 @@ if __name__ == &#34;__main__&#34;:
             if print_format_to_screen(args):
                 from scrilla.util.outputter import optimal_result
                 optimal_result(portfolio=portfolio,
-                                allocation=allocation,
-                                investment=args[&#39;investment&#39;],
-                                latest_prices=prices)
+                               allocation=allocation,
+                               investment=args[&#39;investment&#39;],
+                               latest_prices=prices)
 
             if print_json_to_screen(args):
                 from json import dumps
                 from scrilla.static.formats import format_allocation
                 print(dumps(format_allocation(allocation=allocation,
-                                                portfolio=portfolio,
-                                                investment=args[&#39;investment&#39;],
-                                                latest_prices=prices)))
+                                              portfolio=portfolio,
+                                              investment=args[&#39;investment&#39;],
+                                              latest_prices=prices)))
 
             if args[&#39;save_file&#39;] is not None:
                 from scrilla.files import save_allocation
@@ -1612,7 +1635,8 @@ if __name__ == &#34;__main__&#34;:
 
             if print_format_to_screen(args):
                 from scrilla.util.outputter import moving_average_result
-                moving_average_result(ticker=args[&#39;tickers&#39;][0], averages=moving_averages)
+                moving_average_result(
+                    ticker=args[&#39;tickers&#39;][0], averages=moving_averages)
 
             if print_json_to_screen(args):
                 from json import dumps
@@ -1620,7 +1644,8 @@ if __name__ == &#34;__main__&#34;:
 
             if args[&#39;save_file&#39;] is not None:
                 from scrilla.files import save_file
-                save_file(file_to_save=moving_averages, file_name=args[&#39;save_file&#39;])
+                save_file(file_to_save=moving_averages,
+                          file_name=args[&#39;save_file&#39;])
 
         selected_function, required_length = cli_moving_averages, 1
 
@@ -1658,17 +1683,17 @@ if __name__ == &#34;__main__&#34;:
             if print_json_to_screen(args):
                 from scrilla.static.formats import format_allocation
                 from json import dumps
-                print(dumps(format_allocation(allocation=allocation, 
-                                                portfolio=portfolio, 
-                                                investment=args[&#39;investment&#39;],
-                                                latest_prices=prices)))
+                print(dumps(format_allocation(allocation=allocation,
+                                              portfolio=portfolio,
+                                              investment=args[&#39;investment&#39;],
+                                              latest_prices=prices)))
 
             if args[&#39;save_file&#39;] is not None:
                 from scrilla.files import save_allocation
-                save_allocation(allocation=allocation, 
-                                portfolio=portfolio, 
+                save_allocation(allocation=allocation,
+                                portfolio=portfolio,
                                 file_name=args[&#39;save_file&#39;],
-                                investment=args[&#39;investment&#39;], 
+                                investment=args[&#39;investment&#39;],
                                 latest_prices=prices)
 
         selected_function, required_length = cli_optimize_portfolio_variance, 2
@@ -1696,25 +1721,25 @@ if __name__ == &#34;__main__&#34;:
 
             if print_format_to_screen(args):
                 from scrilla.util.outputter import optimal_result
-                optimal_result(portfolio=portfolio, 
-                                allocation=allocation, 
-                                investment=args[&#39;investment&#39;], 
-                                latest_prices=prices)
+                optimal_result(portfolio=portfolio,
+                               allocation=allocation,
+                               investment=args[&#39;investment&#39;],
+                               latest_prices=prices)
 
             if print_json_to_screen(args):
                 from scrilla.static.formats import format_allocation
                 from json import dumps
-                print(dumps(format_allocation(allocation=allocation, 
-                                                portfolio=portfolio, 
-                                                investment=args[&#39;investment&#39;], 
-                                                latest_prices=prices)))
+                print(dumps(format_allocation(allocation=allocation,
+                                              portfolio=portfolio,
+                                              investment=args[&#39;investment&#39;],
+                                              latest_prices=prices)))
 
             if args[&#39;save_file&#39;] is not None:
                 from scrilla.files import save_allocation
-                save_allocation(allocation=allocation, 
-                                portfolio=portfolio, 
+                save_allocation(allocation=allocation,
+                                portfolio=portfolio,
                                 file_name=args[&#39;save_file&#39;],
-                                investment=args[&#39;investment&#39;], 
+                                investment=args[&#39;investment&#39;],
                                 latest_prices=prices)
         selected_function, required_length = cli_optimize_conditional_value_at_risk, 2
 
@@ -1727,11 +1752,11 @@ if __name__ == &#34;__main__&#34;:
             logger.comment(&#39;This calculation takes a while, strap in...&#39;)
 
             correlation_history = calculate_moment_correlation_series(ticker_1=args[&#39;tickers&#39;][0],
-                                                                        ticker_2=args[&#39;tickers&#39;][1],
-                                                                        start_date=args[&#39;start_date&#39;],
-                                                                        end_date=args[&#39;end_date&#39;])
-            plot_correlation_series(tickers=args[&#39;tickers&#39;], 
-                                    series=correlation_history, 
+                                                                      ticker_2=args[&#39;tickers&#39;][1],
+                                                                      start_date=args[&#39;start_date&#39;],
+                                                                      end_date=args[&#39;end_date&#39;])
+            plot_correlation_series(tickers=args[&#39;tickers&#39;],
+                                    series=correlation_history,
                                     savefile=args[&#39;save_file&#39;])
 
         selected_function, required_length, exact = cli_plot_correlation, 2, True
@@ -1747,12 +1772,12 @@ if __name__ == &#34;__main__&#34;:
             if args[&#39;discount&#39;] is None:
                 from scrilla.analysis.markets import cost_of_equity
                 args[&#39;discount&#39;] = cost_of_equity(ticker=args[&#39;tickers&#39;][0],
-                                                    method=args[&#39;estimation_method&#39;])
+                                                  method=args[&#39;estimation_method&#39;])
             div_cashflow = Cashflow(sample=dividends,
                                     discount_rate=args[&#39;discount&#39;])
             plot_cashflow(ticker=args[&#39;tickers&#39;][0],
-                                  cashflow=div_cashflow, show=True,
-                                  savefile=args[&#39;save_file&#39;])
+                          cashflow=div_cashflow, show=True,
+                          savefile=args[&#39;save_file&#39;])
 
         selected_function, required_length, exact = cli_plot_dividends, 1, True
 
@@ -1772,9 +1797,9 @@ if __name__ == &#34;__main__&#34;:
                                                     steps=args[&#39;steps&#39;])
 
             plot_frontier(portfolio=portfolio,
-                            frontier=frontier,
-                            show=True,
-                            savefile=args[&#39;save_file&#39;])
+                          frontier=frontier,
+                          show=True,
+                          savefile=args[&#39;save_file&#39;])
 
         selected_function, required_length = cli_plot_frontier, 2
 
@@ -1790,8 +1815,8 @@ if __name__ == &#34;__main__&#34;:
                                                         method=args[&#39;estimation_method&#39;])
 
             plot_moving_averages(ticker=args[&#39;tickers&#39;][0],
-                                    averages=moving_averages,
-                                    show=True, savefile=args[&#39;save_file&#39;])
+                                 averages=moving_averages,
+                                 show=True, savefile=args[&#39;save_file&#39;])
 
         selected_function, required_length, exact = cli_plot_moving_averages, 1, True
 
@@ -1810,10 +1835,10 @@ if __name__ == &#34;__main__&#34;:
             qq_series = qq_series_for_sample(sample=returns)
 
             plot_qq_series(ticker=args[&#39;tickers&#39;][0],
-                            qq_series=qq_series,
-                            show=True,
-                            savefile=args[&#39;save_file&#39;])
-        
+                           qq_series=qq_series,
+                           show=True,
+                           savefile=args[&#39;save_file&#39;])
+
         selected_function, required_length, exact = cli_plot_qq_returns, 1, True
 
     # FUNCTION: Plot Histogram of Returns
@@ -1827,9 +1852,9 @@ if __name__ == &#34;__main__&#34;:
                                             end_date=args[&#39;end_date&#39;],
                                             daily=True)
             plot_return_histogram(ticker=args[&#39;tickers&#39;][0],
-                                    sample=returns,
-                                    show=True,
-                                    savefile=args[&#39;save_file&#39;])
+                                  sample=returns,
+                                  show=True,
+                                  savefile=args[&#39;save_file&#39;])
         selected_function, required_length, exact = cli_plot_dist_returns, 1, True
 
     # FUNCTION: Plot Risk-Return Profile
@@ -1841,16 +1866,16 @@ if __name__ == &#34;__main__&#34;:
             profiles = {}
             for arg in args[&#39;tickers&#39;]:
                 profiles[arg] = calculate_risk_return(ticker=arg,
-                                                        start_date=args[&#39;start_date&#39;],
-                                                        end_date=args[&#39;end_date&#39;],
-                                                        method=args[&#39;estimation_method&#39;])
+                                                      start_date=args[&#39;start_date&#39;],
+                                                      end_date=args[&#39;end_date&#39;],
+                                                      method=args[&#39;estimation_method&#39;])
 
             plot_profiles(symbols=args[&#39;tickers&#39;],
-                            show=True,
-                            profiles=profiles,
-                            savefile=args[&#39;save_file&#39;],
-                            subtitle=format_date_range(start_date=args[&#39;start_date&#39;],
-                                                                   end_date=args[&#39;end_date&#39;]))
+                          show=True,
+                          profiles=profiles,
+                          savefile=args[&#39;save_file&#39;],
+                          subtitle=format_date_range(start_date=args[&#39;start_date&#39;],
+                                                     end_date=args[&#39;end_date&#39;]))
         selected_function, required_length = cli_plot_risk_profile, 1
 
     elif args[&#39;function_arg&#39;] in definitions.FUNC_DICT[&#39;plot_yield_curve&#39;][&#39;values&#39;]:
@@ -1865,13 +1890,13 @@ if __name__ == &#34;__main__&#34;:
             yield_curve[start_date_string] = []
             for maturity in keys[&#39;YIELD_CURVE&#39;]:
                 rate = get_daily_interest_history(maturity=maturity,
-                                                    start_date=args[&#39;start_date&#39;],
-                                                    end_date=args[&#39;start_date&#39;])
+                                                  start_date=args[&#39;start_date&#39;],
+                                                  end_date=args[&#39;start_date&#39;])
                 yield_curve[start_date_string].append(rate[start_date_string])
 
-            plot_yield_curve(yield_curve=yield_curve, 
-                                show=True,
-                                savefile=args[&#39;save_file&#39;])
+            plot_yield_curve(yield_curve=yield_curve,
+                             show=True,
+                             savefile=args[&#39;save_file&#39;])
         selected_function, required_length, exact = cli_plot_yield_curve, 0, True
     # FUNCTION: Price History
     elif args[&#39;function_arg&#39;] in definitions.FUNC_DICT[&#39;price_history&#39;][&#39;values&#39;]:
@@ -1882,8 +1907,8 @@ if __name__ == &#34;__main__&#34;:
             all_prices = {}
             for arg in args[&#39;tickers&#39;]:
                 prices = get_daily_price_history(ticker=arg,
-                                                    start_date=args[&#39;start_date&#39;],
-                                                    end_date=args[&#39;end_date&#39;])
+                                                 start_date=args[&#39;start_date&#39;],
+                                                 end_date=args[&#39;end_date&#39;])
                 all_prices[arg] = {}
                 for date in prices:
                     price = prices[date][keys[&#39;PRICES&#39;][&#39;CLOSE&#39;]]
@@ -1891,7 +1916,8 @@ if __name__ == &#34;__main__&#34;:
 
                     if print_format_to_screen(args):
                         from scrilla.util.outputter import scalar_result
-                        scalar_result(calculation=f&#39;{arg}({date})&#39;, result=float(price))
+                        scalar_result(
+                            calculation=f&#39;{arg}({date})&#39;, result=float(price))
 
             if print_json_to_screen(args):
                 from json import dumps
@@ -1929,7 +1955,7 @@ if __name__ == &#34;__main__&#34;:
             if args[&#39;save_file&#39;] is not None:
                 from scrilla.files import save_file
                 save_file(file_to_save=all_rates,
-                            file_name=args[&#39;save_file&#39;])
+                          file_name=args[&#39;save_file&#39;])
         selected_function, required_length = cli_interest_history, 1
 
     # FUNCTION: Risk Free Rate
@@ -1945,7 +1971,7 @@ if __name__ == &#34;__main__&#34;:
                 from scrilla.static.formats import formats
                 title_line(&#34;Risk Free Rate&#34;)
                 scalar_result(calculation=formats[&#39;RISK_FREE_TITLE&#39;].format(RISK_FREE_RATE),
-                                        result=rate[RISK_FREE_RATE], currency=False)
+                              result=rate[RISK_FREE_RATE], currency=False)
             if print_json_to_screen(args):
                 from json import dumps
                 print(dumps(rate))
@@ -1963,23 +1989,23 @@ if __name__ == &#34;__main__&#34;:
             profiles = {}
             for arg in args[&#39;tickers&#39;]:
                 profiles[arg] = calculate_risk_return(ticker=arg,
-                                                        method=args[&#39;estimation_method&#39;],
-                                                        start_date=args[&#39;start_date&#39;],
-                                                        end_date=args[&#39;end_date&#39;])
+                                                      method=args[&#39;estimation_method&#39;],
+                                                      start_date=args[&#39;start_date&#39;],
+                                                      end_date=args[&#39;end_date&#39;])
                 profiles[arg][&#39;sharpe_ratio&#39;] = sharpe_ratio(ticker=arg,
-                                                                start_date=args[&#39;start_date&#39;],
-                                                                end_date=args[&#39;end_date&#39;],
-                                                                ticker_profile=profiles[arg],
-                                                                method=args[&#39;estimation_method&#39;])
+                                                             start_date=args[&#39;start_date&#39;],
+                                                             end_date=args[&#39;end_date&#39;],
+                                                             ticker_profile=profiles[arg],
+                                                             method=args[&#39;estimation_method&#39;])
                 profiles[arg][&#39;asset_beta&#39;] = market_beta(ticker=arg,
-                                                            start_date=args[&#39;start_date&#39;],
-                                                            end_date=args[&#39;end_date&#39;],
-                                                            ticker_profile=profiles[arg],
-                                                            method=args[&#39;estimation_method&#39;])
+                                                          start_date=args[&#39;start_date&#39;],
+                                                          end_date=args[&#39;end_date&#39;],
+                                                          ticker_profile=profiles[arg],
+                                                          method=args[&#39;estimation_method&#39;])
                 profiles[arg][&#39;equity_cost&#39;] = cost_of_equity(ticker=arg,
-                                                                start_date=args[&#39;start_date&#39;],
-                                                                end_date=args[&#39;end_date&#39;],
-                                                                method=args[&#39;estimation_method&#39;])
+                                                              start_date=args[&#39;start_date&#39;],
+                                                              end_date=args[&#39;end_date&#39;],
+                                                              method=args[&#39;estimation_method&#39;])
 
             if print_format_to_screen(args):
                 from scrilla.util.outputter import risk_profile
@@ -1991,7 +2017,7 @@ if __name__ == &#34;__main__&#34;:
 
             if args[&#39;save_file&#39;] is not None:
                 from scrilla.files import save_file
-                save_file(file_to_save=profiles,file_name=args[&#39;save_file&#39;])
+                save_file(file_to_save=profiles, file_name=args[&#39;save_file&#39;])
 
         selected_function, required_length = cli_risk_return, 1
 
@@ -2015,15 +2041,15 @@ if __name__ == &#34;__main__&#34;:
             all_results = {}
             for arg in args[&#39;tickers&#39;]:
                 result = sharpe_ratio(ticker=arg,
-                                        start_date=args[&#39;start_date&#39;],
-                                        end_date=args[&#39;end_date&#39;],
-                                        method=args[&#39;estimation_method&#39;])
+                                      start_date=args[&#39;start_date&#39;],
+                                      end_date=args[&#39;end_date&#39;],
+                                      method=args[&#39;estimation_method&#39;])
                 all_results[arg] = result
 
                 if print_format_to_screen(args):
                     from scrilla.util.outputter import scalar_result
                     scalar_result(calculation=f&#39;{arg}_sharpe_ratio&#39;, result=result,
-                                            currency=False)
+                                  currency=False)
 
             if print_json_to_screen(args):
                 from json import dumps
@@ -2031,7 +2057,8 @@ if __name__ == &#34;__main__&#34;:
 
             if args[&#39;save_file&#39;] is not None:
                 from scrilla.files import save_file
-                save_file(file_to_save=all_results, file_name=args[&#39;save_file&#39;])
+                save_file(file_to_save=all_results,
+                          file_name=args[&#39;save_file&#39;])
         selected_function, required_length = cli_sharpe_ratio, 1
 
    # FUNCTION: Store Key
@@ -2052,7 +2079,8 @@ if __name__ == &#34;__main__&#34;:
 
                 if print_format_to_screen(args):
                     from scrilla.util.outputter import scalar_result
-                    scalar_result(calculation=stat, result=result, currency=False)
+                    scalar_result(calculation=stat,
+                                  result=result, currency=False)
 
             if print_json_to_screen(args):
                 from json import dumps
@@ -2072,15 +2100,15 @@ if __name__ == &#34;__main__&#34;:
             all_stats = {}
             for arg in args[&#39;tickers&#39;]:
                 stats = get_daily_fred_history(symbol=arg,
-                                                        start_date=args[&#39;start_date&#39;],
-                                                        end_date=args[&#39;end_date&#39;])
+                                               start_date=args[&#39;start_date&#39;],
+                                               end_date=args[&#39;end_date&#39;])
                 all_stats[arg] = stats
                 if print_format_to_screen(args):
                     for date in stats:
                         from scrilla.util.outputter import scalar_result
                         scalar_result(calculation=f&#39;{arg}({date})&#39;,
-                                        result=stats[date],
-                                        currency=False)
+                                      result=stats[date],
+                                      currency=False)
 
             if print_json_to_screen(args):
                 from json import dumps
@@ -2096,7 +2124,8 @@ if __name__ == &#34;__main__&#34;:
         def cli_watchlist():
             from scrilla.files import add_watchlist
             add_watchlist(new_tickers=args[&#39;tickers&#39;])
-            logger.comment(&#34;Watchlist saved. Use -ls option to print watchlist.&#34;)
+            logger.comment(
+                &#34;Watchlist saved. Use -ls option to print watchlist.&#34;)
         selected_function, required_length = cli_watchlist, 1
 
     else:
