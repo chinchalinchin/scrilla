@@ -221,7 +221,7 @@ class ArgumentWidget(QtWidgets.QWidget):
                 else:
                     groups[group_name].append(definition)
 
-            for group_name, group in groups:
+            for group_name, group in groups.items():
                 self.group_control_widgets[group_name] = factories.group_widget_factory(
                     group, group_name)
 
@@ -297,7 +297,7 @@ class ArgumentWidget(QtWidgets.QWidget):
             return None
 
         if type(widget) is QtWidgets.QDateEdit:
-            return widget.date().toPython().date()
+            return widget.date().toPython()
         if type(widget) is QtWidgets.QLineEdit:
             if type(widget.validator()) is QtGui.QIntValidator:
                 return int(widget.text())
@@ -413,11 +413,11 @@ class TableWidget(QtWidgets.QWidget):
         self.table.setColumnCount(len(columns))
         self.table.setHorizontalHeaderLabels(columns)
         self.table.setVerticalHeaderLabels(rows)
-        self.download_button.show()
 
     def show_table(self):
         self.table.resizeColumnsToContents()
         self.table.show()
+        self.download_button.show()
 
     @QtCore.Slot()
     def show_file_dialog(self) -&gt; None:
@@ -759,7 +759,7 @@ See help(type(self)) for accurate signature.</p></div>
                 else:
                     groups[group_name].append(definition)
 
-            for group_name, group in groups:
+            for group_name, group in groups.items():
                 self.group_control_widgets[group_name] = factories.group_widget_factory(
                     group, group_name)
 
@@ -835,7 +835,7 @@ See help(type(self)) for accurate signature.</p></div>
             return None
 
         if type(widget) is QtWidgets.QDateEdit:
-            return widget.date().toPython().date()
+            return widget.date().toPython()
         if type(widget) is QtWidgets.QLineEdit:
             if type(widget.validator()) is QtGui.QIntValidator:
                 return int(widget.text())
@@ -951,7 +951,7 @@ See help(type(self)) for accurate signature.</p></div>
         return None
 
     if type(widget) is QtWidgets.QDateEdit:
-        return widget.date().toPython().date()
+        return widget.date().toPython()
     if type(widget) is QtWidgets.QLineEdit:
         if type(widget.validator()) is QtGui.QIntValidator:
             return int(widget.text())
@@ -1425,11 +1425,11 @@ See help(type(self)) for accurate signature.</p></div>
         self.table.setColumnCount(len(columns))
         self.table.setHorizontalHeaderLabels(columns)
         self.table.setVerticalHeaderLabels(rows)
-        self.download_button.show()
 
     def show_table(self):
         self.table.resizeColumnsToContents()
         self.table.show()
+        self.download_button.show()
 
     @QtCore.Slot()
     def show_file_dialog(self) -&gt; None:
@@ -1489,8 +1489,7 @@ List containing the column headers.</li>
     self.table.setRowCount(len(rows))
     self.table.setColumnCount(len(columns))
     self.table.setHorizontalHeaderLabels(columns)
-    self.table.setVerticalHeaderLabels(rows)
-    self.download_button.show()</code></pre>
+    self.table.setVerticalHeaderLabels(rows)</code></pre>
 </details>
 </dd>
 <dt id="scrilla.gui.widgets.components.TableWidget.show_file_dialog"><code class="name flex">
@@ -1526,7 +1525,8 @@ def show_file_dialog(self) -&gt; None:
 </summary>
 <pre><code class="python">def show_table(self):
     self.table.resizeColumnsToContents()
-    self.table.show()</code></pre>
+    self.table.show()
+    self.download_button.show()</code></pre>
 </details>
 </dd>
 </dl>

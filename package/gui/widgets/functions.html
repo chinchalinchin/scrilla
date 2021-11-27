@@ -396,6 +396,7 @@ class CorrelationWidget(components.SkeletonWidget):
         self.arg_widget.prime()
         self.table_widget.table.clear()
         self.table_widget.table.hide()
+        self.table_widget.download_button.hide()
 
 
 class OptimizerWidget(components.SkeletonWidget):
@@ -587,7 +588,7 @@ class MovingAverageWidget(components.SkeletonWidget):
     @QtCore.Slot()
     def clear(self):
         self.arg_widget.prime()
-        self.graph_widget.figure.hide()</code></pre>
+        self.graph_widget.clear()</code></pre>
 </details>
 </section>
 <section>
@@ -669,7 +670,8 @@ See help(type(self)) for accurate signature.</p></div>
     def clear(self):
         self.arg_widget.prime()
         self.table_widget.table.clear()
-        self.table_widget.table.hide()</code></pre>
+        self.table_widget.table.hide()
+        self.table_widget.download_button.hide()</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -740,7 +742,8 @@ def calculate(self):
 def clear(self):
     self.arg_widget.prime()
     self.table_widget.table.clear()
-    self.table_widget.table.hide()</code></pre>
+    self.table_widget.table.hide()
+    self.table_widget.download_button.hide()</code></pre>
 </details>
 </dd>
 </dl>
@@ -1295,7 +1298,7 @@ See help(type(self)) for accurate signature.</p></div>
     @QtCore.Slot()
     def clear(self):
         self.arg_widget.prime()
-        self.graph_widget.figure.hide()</code></pre>
+        self.graph_widget.clear()</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -1353,7 +1356,7 @@ def calculate(self):
 <pre><code class="python">@QtCore.Slot()
 def clear(self):
     self.arg_widget.prime()
-    self.graph_widget.figure.hide()</code></pre>
+    self.graph_widget.clear()</code></pre>
 </details>
 </dd>
 <dt id="scrilla.gui.widgets.functions.MovingAverageWidget.resizeEvent"><code class="name flex">
