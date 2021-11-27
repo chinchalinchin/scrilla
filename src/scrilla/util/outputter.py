@@ -185,7 +185,7 @@ def risk_profile(profiles: Dict[str, Dict[str, float]]) -> None:
             scalar_result(f'{subkey}', f'{subvalue}', currency=False)
 
 
-def moving_average_result_v2(ticker: str, averages: Dict[str, Dict[str, float]]) -> None:
+def moving_average_result(ticker: str, averages: Dict[str, Dict[str, float]]) -> None:
     """
     Prints the results of `scrilla.analysis.models.geometric.statistics.calculate_moving_averages` or `scrilla.analysis.models.reversion.statistics.calculate_moving_averages` to *stdout*.
 
@@ -200,36 +200,6 @@ def moving_average_result_v2(ticker: str, averages: Dict[str, Dict[str, float]])
         for avg_key, average in average_dict.items():
             scalar_result(calculation=avg_key, result=average, currency=False)
 
-
-
-def moving_average_result(tickers: List[str], averages_output: Tuple[List[List[float]], List[str]], periods: List[int], start_date: Union[str, None] = None, end_date: Union[str, None] = None) -> None:
-    averages, dates = averages_output
-    MA1_prefix, MA2_prefix, MA3_prefix = f'MA({periods[0]})', f'MA({periods[1]})', f'MA({periods[2]})'
-    if start_date is None and end_date is None:
-        for i, ticker in enumerate(tickers):
-            title = f'{ticker} Moving Average of Daily Return for {periods[0]}, {periods[1]} & {periods[0]} Days'
-            title_line(title)
-
-            MA1_title, MA2_title, MA3_title = f'{MA1_prefix}_{ticker}', f'{MA2_prefix}_{ticker}', f'{MA3_prefix}_{ticker}'
-            scalar_result(MA1_title, round(averages[i][0], 2))
-            scalar_result(MA2_title, round(averages[i][1], 2))
-            scalar_result(MA3_title, round(averages[i][2], 2))
-    else:
-        for i, ticker in enumerate(tickers):
-
-            title = f'{ticker} Moving Average of Daily Return for {periods[0]}, {periods[1]} & {periods[0]} Days'
-            title_line(title)
-
-            MA1_title, MA2_title, MA3_title = f'{MA1_prefix}_{ticker}', f'{MA2_prefix}_{ticker}', f'{MA3_prefix}_{ticker}'
-            for j, this_date in enumerate(dates):
-                msg_1 = f'{this_date} : {MA1_title}'
-                scalar_result(msg_1, round(averages[i][0][j], 2))
-            for j, this_date in enumerate(dates):
-                msg_2 = f'{this_date} : {MA2_title}'
-                scalar_result(msg_2, round(averages[i][1][j], 2))
-            for j, this_date in enumerate(dates):
-                msg_3 = f'{this_date} : {MA3_title}'
-                scalar_result(msg_3, round(averages[i][2][j], 2))
 
 
 def screen_results(info, model):

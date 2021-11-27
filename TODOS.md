@@ -2,8 +2,6 @@
 
 5. Copy IV algorithm and option greek algorithms from old python cli program. 
 
-6. TEST MOVING AVERAGE ALGORITHM FOR MIX OF ASSET TYPES. I think there may be some mismatch of types in date comparisons.
-
 16. If an option prices API is found, then IV can be calculated for a specific equity. The optimization algorithm can be expanded to optimize over IV of a portfolio, instead of the Historical Volatility. Allow user to specify what type of volatility the portfolio will use in its optimization, historical or implied. Will need to account for skew, somehow. 
 
 17. Test moving averages plot generation.

@@ -184,7 +184,7 @@ def plot_profiles(symbols: List[str], profiles: Dict[str, Dict[str, float]], sho
     # TODO: figure out date formatting for x-axis
 
 
-def plot_moving_averages_v2(ticker: str, averages: Dict[str, Dict[str,float]], show:bool = False, savefile: str = None):
+def plot_moving_averages(ticker: str, averages: Dict[str, Dict[str,float]], show:bool = False, savefile: str = None):
     canvas = FigureCanvas(Figure())
     axes = canvas.figure.subplots()
 
@@ -237,76 +237,7 @@ def plot_moving_averages_v2(ticker: str, averages: Dict[str, Dict[str,float]], s
             f'{ticker} Annualized Return Moving Averages')
     axes.legend()
     return _show_or_save(canvas=canvas, show=show, savefile=savefile)
-
-def plot_moving_averages(symbols: List[str], averages_output: List[List[float]], periods: List[int], show: bool = True, savefile: str = None) -> Union[FigureCanvas, None]:
-    averages, dates = averages_output
-    canvas = FigureCanvas(Figure())
-    axes = canvas.figure.subplots()
-    ma1_label, ma2_label, ma3_label = f'MA({periods[0]})', f'MA({periods[1]})', f'MA({periods[2]})'
-
-    if dates is None:
-        ma1s, ma2s, ma3s = [], [], []
-        for i in range(len(symbols)):
-            ma1s.append(averages[i][0])
-            ma2s.append(averages[i][1])
-            ma3s.append(averages[i][2])
-
-        width = formats.formats['BAR_WIDTH']
-        x = numpy.arange(len(symbols))
-
-        axes.bar(x + width, ma1s, width, label=ma1_label)
-        axes.bar(x, ma2s, width, label=ma2_label)
-        axes.bar(x - width, ma3s, width, label=ma3_label)
-
-        axes.set_ylabel('Annual Logarithmic Return')
-        axes.set_title(
-            'Moving Averages of Annualized Daily Return Grouped By Equity')
-        axes.set_xticks(x)
-        axes.set_xticklabels(symbols)
-        axes.legend()
-
-    else:
-
-        # TODO: generate different locators based on length of period
-        x = [datetime.datetime.strptime(dater.to_string(
-            date), '%Y-%m-%d').toordinal() for date in dates]
-        date_locator = matplotlib.dates.WeekdayLocator(
-            byweekday=(matplotlib.dates.WE))
-        date_format = matplotlib.dates.DateFormatter('%m-%d')
-
-        for i, item in enumerate(symbols):
-            ma1s, ma2s, ma3s = [], [], []
-            ma1_label, ma2_label, ma3_label = f'{item}_{ma1_label}', f'{item}_{ma2_label}', f'{item}_{ma3_label}'
-            for j in range(len(dates)):
-                MA_1 = averages[i][0][j]
-                ma1s.append(MA_1)
-
-                MA_2 = averages[i][1][j]
-                ma2s.append(MA_2)
-
-                MA_3 = averages[i][2][j]
-                ma3s.append(MA_3)
-
-            start_date, end_date = dates[0], dates[-1]
-            title_str = f'Moving Averages of Annualized Return From {start_date} to {end_date}'
-
-            axes.plot(x, ma1s, linestyle="solid",
-                      color="darkgreen", label=ma1_label)
-            axes.plot(x, ma2s, linestyle="dotted",
-                      color="gold", label=ma2_label)
-            axes.plot(x, ma3s, linestyle="dashdot",
-                      color="orangered", label=ma3_label)
-
-        axes.set_title(title_str)
-        axes.set_ylabel('Annualized Logarthmic Return')
-        axes.set_xlabel('Dates')
-        axes.xaxis.set_major_locator(date_locator)
-        axes.xaxis.set_major_formatter(date_format)
-
-        axes.legend()
-
-    return _show_or_save(canvas=canvas, show=show, savefile=savefile)
-
+    
 
 def plot_cashflow(ticker: str, cashflow: Cashflow, show: bool = True, savefile: str = None) -> Union[FigureCanvas, None]:
     if not cashflow.beta or not cashflow.alpha or len(cashflow.sample) < 3:

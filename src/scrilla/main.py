@@ -501,12 +501,12 @@ def do_program() -> None:
     elif args['function_arg'] in definitions.FUNC_DICT['moving_averages']['values']:
         def cli_moving_averages():
             # TODO: moving averages with estimation techniques
-            moving_averages = statistics.calculate_moving_averages_v2(ticker=args['tickers'][0],
+            moving_averages = statistics.calculate_moving_averages(ticker=args['tickers'][0],
                                                                    start_date=args['start_date'],
                                                                    end_date=args['end_date'])
 
             if print_format_to_screen(args):
-                outputter.moving_average_result_v2(ticker=args['tickers'][0], averages=moving_averages)
+                outputter.moving_average_result(ticker=args['tickers'][0], averages=moving_averages)
             
             if print_json_to_screen(args):
                 print(json.dumps(moving_averages))
@@ -627,11 +627,11 @@ def do_program() -> None:
     elif args['function_arg'] in definitions.FUNC_DICT['plot_moving_averages']['values']:
         def cli_plot_moving_averages():
             # TODO: estimation techniques with moving averages
-            moving_averages = statistics.calculate_moving_averages_v2(ticker=args['tickers'][0],
+            moving_averages = statistics.calculate_moving_averages(ticker=args['tickers'][0],
                                                                       start_date=args['start_date'],
                                                                       end_date=args['end_date'])
 
-            plotter.plot_moving_averages_v2(ticker=args['tickers'][0],
+            plotter.plot_moving_averages(ticker=args['tickers'][0],
                                             averages=moving_averages,
                                             show=True, savefile=args['save_file'])
 
