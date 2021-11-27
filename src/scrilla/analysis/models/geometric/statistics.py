@@ -105,7 +105,7 @@ def get_sample_of_returns(ticker: str, sample_prices: Union[Dict[str, Dict[str, 
     return sample_of_returns
 
 
-def calculate_moving_averages(ticker: str, start_date:Union[date, None] = None, end_date: Union[date, None]= None,sample_prices: Union[Dict[str,Dict[str,float]]] = None)-> Dict[str, Dict[str, float]]:
+def calculate_moving_averages(ticker: str, start_date: Union[date, None] = None, end_date: Union[date, None] = None, sample_prices: Union[Dict[str, Dict[str, float]]] = None) -> Dict[str, Dict[str, float]]:
     """
     Returns the moving averages for the specified `ticker`. Each function call returns a group of three moving averages, calculated over different periods. The length of the periods is defined by the variables: `scrilla.settings.MA_1_PERIOD`, `scrilla.settings.MA_2_PERIOD` and `scrilla.settings.MA_3_PERIOD`. These variables are in turn configured by the values of the environment variables *MA_1*, *MA_2* and *MA_3*. If these environment variables are not found, they will default to 20, 60, 100 days, respectively. 
 
@@ -161,12 +161,13 @@ def calculate_moving_averages(ticker: str, start_date:Union[date, None] = None, 
         sample_start = dater.decrement_date_by_days(
             start_date, settings.MA_3_PERIOD)
 
-    sample_prices = services.get_daily_price_history(
-        ticker=ticker, start_date=sample_start, end_date=end_date, asset_type=asset_type)
+    sample_prices = services.get_daily_price_history(ticker=ticker, start_date=sample_start,
+                                                     end_date=end_date, asset_type=asset_type)
 
     moving_averages = {}
     for this_date in ma_date_range:
-        logger.debug(f'Calculating {ticker} moving averages on {dater.to_string(this_date)}')
+        logger.debug(
+            f'Calculating {ticker} moving averages on {dater.to_string(this_date)}')
         this_date_index = list(sample_prices).index(dater.to_string(this_date))
         mas = []
         for ma_period in [settings.MA_1_PERIOD, settings.MA_2_PERIOD, settings.MA_3_PERIOD]:

@@ -201,7 +201,6 @@ def moving_average_result(ticker: str, averages: Dict[str, Dict[str, float]]) ->
             scalar_result(calculation=avg_key, result=average, currency=False)
 
 
-
 def screen_results(info, model):
     for ticker in info:
         title_line(f'{ticker} {str(model).upper()} Model vs. Spot Price ')

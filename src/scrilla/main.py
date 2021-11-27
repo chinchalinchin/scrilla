@@ -449,9 +449,9 @@ def do_program() -> None:
                                              latest_prices=prices)
             if print_json_to_screen(args):
                 print(json.dumps(formats.format_frontier(portfolio=portfolio,
-                                                           frontier=frontier,
-                                                           investment=args['investment'],
-                                                           latest_prices=prices)))
+                                                         frontier=frontier,
+                                                         investment=args['investment'],
+                                                         latest_prices=prices)))
 
             if args['save_file'] is not None:
                 files.save_frontier(portfolio=portfolio,
@@ -485,9 +485,9 @@ def do_program() -> None:
 
             if print_json_to_screen(args):
                 print(json.dumps(formats.format_allocation(allocation=allocation,
-                                                             portfolio=portfolio,
-                                                             investment=args['investment'],
-                                                             latest_prices=prices)))
+                                                           portfolio=portfolio,
+                                                           investment=args['investment'],
+                                                           latest_prices=prices)))
 
             if args['save_file'] is not None:
                 files.save_allocation(allocation=allocation,
@@ -506,13 +506,15 @@ def do_program() -> None:
                                                                    end_date=args['end_date'])
 
             if print_format_to_screen(args):
-                outputter.moving_average_result(ticker=args['tickers'][0], averages=moving_averages)
-            
+                outputter.moving_average_result(
+                    ticker=args['tickers'][0], averages=moving_averages)
+
             if print_json_to_screen(args):
                 print(json.dumps(moving_averages))
 
             if args['save_file'] is not None:
-                files.save_file(file_to_save=moving_averages, file_name=args['save_file'])
+                files.save_file(file_to_save=moving_averages,
+                                file_name=args['save_file'])
 
         selected_function, required_length = cli_moving_averages, 1
 
@@ -628,12 +630,12 @@ def do_program() -> None:
         def cli_plot_moving_averages():
             # TODO: estimation techniques with moving averages
             moving_averages = statistics.calculate_moving_averages(ticker=args['tickers'][0],
-                                                                      start_date=args['start_date'],
-                                                                      end_date=args['end_date'])
+                                                                   start_date=args['start_date'],
+                                                                   end_date=args['end_date'])
 
             plotter.plot_moving_averages(ticker=args['tickers'][0],
-                                            averages=moving_averages,
-                                            show=True, savefile=args['save_file'])
+                                         averages=moving_averages,
+                                         show=True, savefile=args['save_file'])
 
         selected_function, required_length, exact = cli_plot_moving_averages, 1, True
 
@@ -794,7 +796,8 @@ def do_program() -> None:
                 print(json.dumps(profiles))
 
             if args['save_file'] is not None:
-                files.save_file(file_to_save=profiles, file_name=args['save_file'])
+                files.save_file(file_to_save=profiles,
+                                file_name=args['save_file'])
 
         selected_function, required_length = cli_risk_return, 1
 

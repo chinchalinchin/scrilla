@@ -380,6 +380,7 @@ def save_correlation_matrix(tickers, correlation_matrix, file_name):
         tickers=tickers, correlation_matrix=correlation_matrix)
     save_file(file_to_save=save_format, file_name=file_name)
 
+
 def clear_directory(directory, retain=True):
     """
     Wipes a directory of files without deleting the directory itself.
