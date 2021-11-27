@@ -139,7 +139,7 @@ FUNC_DICT = {
     "moving_averages": {
         'name': 'Moving Averages Series',
         'values': ["mov-averages", "mas"],
-        'args': ['start_date', 'end_date'],
+        'args': ['start_date', 'end_date', keys.keys['ESTIMATION']['MOMENT'], keys.keys['ESTIMATION']['PERCENT'], keys.keys['ESTIMATION']['LIKE']],
         'description': "Calculate the current moving averages. If no start or end dates are specified, calculations default to the last 100 days of prices.",
         'tickers': True,
     },
@@ -181,7 +181,7 @@ FUNC_DICT = {
     "plot_moving_averages": {
         'name': 'Plot Moving Averages Series',
         'values': ["plot-moving-averages", "plot-mas"],
-        'args': ['start_date', 'end_date', 'save_file'],
+        'args': ['start_date', 'end_date', 'save_file', keys.keys['ESTIMATION']['MOMENT'], keys.keys['ESTIMATION']['PERCENT'], keys.keys['ESTIMATION']['LIKE']],
         'description': "Generates a grouped bar chart of the moving averages for each equity in the supplied list of ticker symbols. If no start or end dates are specified, calculations default to the last 100 days of prices.",
         'tickers': True,
     },
