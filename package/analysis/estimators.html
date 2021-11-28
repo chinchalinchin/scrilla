@@ -227,7 +227,7 @@ def sample_mean(x: List[Union[float, int]]) -&gt; float:
     &#34;&#34;&#34;
     xbar, n = 0, len(x)
 
-    if not all(this_x is not None and (isinstance(this_x, float) or isinstance(this_x, int)) for this_x in x):
+    if not all(this_x is not None and isinstance(this_x, (float, int)) for this_x in x):
         raise ValueError(
             &#39;Sample contains null values&#39;)
 
@@ -263,7 +263,7 @@ def sample_variance(x: list):
 
     mu, sigma, n = sample_mean(x=x), 0, len(x)
 
-    if not all(this_x is not None and (isinstance(this_x, float) or isinstance(this_x, int)) for this_x in x):
+    if not all(this_x is not None and isinstance(this_x, (float, int)) for this_x in x):
         raise ValueError(
             &#39;Sample contains null values&#39;)
 
@@ -748,7 +748,7 @@ If the sample contains null or non-numerical data, this error will be thrown.</l
     &#34;&#34;&#34;
     xbar, n = 0, len(x)
 
-    if not all(this_x is not None and (isinstance(this_x, float) or isinstance(this_x, int)) for this_x in x):
+    if not all(this_x is not None and isinstance(this_x, (float, int)) for this_x in x):
         raise ValueError(
             &#39;Sample contains null values&#39;)
 
@@ -846,7 +846,7 @@ List containing a sample of numerical data.</li>
 
     mu, sigma, n = sample_mean(x=x), 0, len(x)
 
-    if not all(this_x is not None and (isinstance(this_x, float) or isinstance(this_x, int)) for this_x in x):
+    if not all(this_x is not None and isinstance(this_x, (float, int)) for this_x in x):
         raise ValueError(
             &#39;Sample contains null values&#39;)
 
