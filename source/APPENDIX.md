@@ -43,5 +43,20 @@ If the above problem is to be solved, the cache needs modified to separate price
 - [twine](https://pypi.org/project/twine/)
 - [build](https://pypi.org/project/build/)
 
+
+## References
+### Stack Exchanges
+- [What Makes A Covariance Matrix Singular](https://stats.stackexchange.com/questions/70899/what-correlation-makes-a-matrix-singular-and-what-are-implications-of-singularit)
+- [How to Determine Quantile Isolines of A Multivariate Normal](https://stats.stackexchange.com/questions/64680/how-to-determine-quantiles-isolines-of-a-multivariate-normal-distribution)
+
+### Academic Papers
+- [An Introduction to Copulas](http://www.columbia.edu/~mh2078/QRM/Copulas.pdf)
+- [Optimization of Conditional Value At Risk](https://www.ise.ufl.edu/uryasev/files/2011/11/CVaR1_JOR.pdf)
+- [Parameter Estimation in Mean Reversion Processes with Deterministic Long-Term Trend](https://www.hindawi.com/journals/jps/2016/5191583/)
+
+### Wikis
+- [Slyvester Criterion](https://en.wikipedia.org/wiki/Sylvester%27s_criterion)
+- [Cauchy-Schwarz Inequality](https://en.wikipedia.org/wiki/Cauchy%E2%80%93Schwarz_inequality#Probability_theory)
+
 ## Assets
 - [Ionicons](https://ionic.io/ionicons)
