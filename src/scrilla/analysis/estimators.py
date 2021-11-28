@@ -234,7 +234,7 @@ def sample_variance(x: list):
     if not all([this_x is not None and (isinstance(this_x, float) or isinstance(this_x, int)) for this_x in x]):
         raise ValueError(
             'Sample contains null values')
-            
+
     if n in [0, 1]:
         raise errors.SampleSizeError(
             'Sample variance cannot be computed for a sample size less than or equal to 1.')
