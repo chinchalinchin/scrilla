@@ -421,11 +421,11 @@
     <p class="pln"><span class="n"><a id="t362" href="#t362">362</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t363" href="#t363">363</a></span><span class="t">        <span class="key">while</span> <span class="nam">first_element</span> <span class="op">==</span> <span class="nam">self</span><span class="op">.</span><span class="nam">service_map</span><span class="op">[</span><span class="str">'ERRORS'</span><span class="op">]</span><span class="op">[</span><span class="str">'RATE_THROTTLE'</span><span class="op">]</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t364" href="#t364">364</a></span><span class="t">            <span class="key">if</span> <span class="nam">first_pass</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t365" href="#t365">365</a></span><span class="t">                <span class="nam">logger</span><span class="op">.</span><span class="nam">comment</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t365" href="#t365">365</a></span><span class="t">                <span class="nam">logger</span><span class="op">.</span><span class="nam">info</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t366" href="#t366">366</a></span><span class="t">                    <span class="str">f'{self.genre} API rate limit per minute exceeded. Waiting...'</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t367" href="#t367">367</a></span><span class="t">                <span class="nam">first_pass</span> <span class="op">=</span> <span class="key">False</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t368" href="#t368">368</a></span><span class="t">            <span class="key">else</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t369" href="#t369">369</a></span><span class="t">                <span class="nam">logger</span><span class="op">.</span><span class="nam">comment</span><span class="op">(</span><span class="str">'Waiting...'</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t369" href="#t369">369</a></span><span class="t">                <span class="nam">logger</span><span class="op">.</span><span class="nam">info</span><span class="op">(</span><span class="str">'Waiting...'</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t370" href="#t370">370</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t371" href="#t371">371</a></span><span class="t">            <span class="nam">time</span><span class="op">.</span><span class="nam">sleep</span><span class="op">(</span><span class="nam">constants</span><span class="op">.</span><span class="nam">constants</span><span class="op">[</span><span class="str">'BACKOFF_PERIOD'</span><span class="op">]</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t372" href="#t372">372</a></span><span class="t">            <span class="nam">response</span> <span class="op">=</span> <span class="nam">requests</span><span class="op">.</span><span class="nam">get</span><span class="op">(</span><span class="nam">url</span><span class="op">)</span><span class="op">.</span><span class="nam">json</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
@@ -821,7 +821,7 @@
     <div class="content">
         <p>
             <a class="nav" href="index.html">&#xab; index</a> &nbsp; &nbsp; <a class="nav" href="https://coverage.readthedocs.io">coverage.py v6.1.2</a>,
-            created at 2021-11-27 23:17 +0000
+            created at 2021-11-28 01:44 +0000
         </p>
     </div>
 </footer>
