@@ -110,7 +110,7 @@ def sample_percentile(data: list, percentile: float):
     return (1-weight)*data[first_index] + weight*data[second_index]
 
 
-def sample_correlation(x: list, y: list):
+def sample_correlation(x: List[float], y: List[float]):
     """
     Returns the sample correlation calculated using the Pearson correlation coefficient estimator,
 
@@ -177,7 +177,7 @@ def recursive_rolling_correlation(correl_previous, new_x_observation, lost_x_obs
     pass
 
 
-def sample_mean(x: List[Union[float, int]]) -> float:
+def sample_mean(x: List[float]) -> float:
     r"""
     Returns the sample mean from a sample of data \\(\{x_1 , x_2, ... , x_n \}\\),
 
@@ -215,7 +215,7 @@ def recursive_rolling_mean(xbar_previous, new_obs, lost_obs, n=settings.DEFAULT_
     return xbar_next
 
 
-def sample_variance(x: list):
+def sample_variance(x: List[float]):
     r"""
     Returns the sample variance from a sample of data \\(\{x_1 , x_2, ... , x_n \}\\),
 
@@ -286,8 +286,7 @@ def sample_covariance(x: list, y: list):
     return covariance
 
 
-def recursive_rolling_covariance(covar_previous, new_x_obs, lost_x_obs, previous_x_bar,
-                                 new_y_obs, lost_y_obs, previous_y_bar, n=settings.DEFAULT_ANALYSIS_PERIOD):
+def recursive_rolling_covariance(covar_previous: float, new_x_obs: float, lost_x_obs: float, previous_x_bar: float, new_y_obs: float, lost_y_obs: float, previous_y_bar: float, n: int=settings.DEFAULT_ANALYSIS_PERIOD):
     new_sum_term = new_x_obs*new_y_obs - lost_x_obs*lost_y_obs
     xy_cross_term = previous_x_bar*(new_y_obs-lost_y_obs)
     yx_cross_term = previous_y_bar*(new_x_obs-lost_x_obs)
@@ -297,7 +296,7 @@ def recursive_rolling_covariance(covar_previous, new_x_obs, lost_x_obs, previous
     return covar_new
 
 
-def simple_regression_beta(x: list, y: list):
+def simple_regression_beta(x: List[float], y: List[float]):
     """
     Parameters
     ----------
@@ -326,7 +325,7 @@ def simple_regression_beta(x: list, y: list):
     return beta
 
 
-def simple_regression_alpha(x: list, y: list):
+def simple_regression_alpha(x: List[float], y: List[float]):
     """
     Parameters
     ----------
@@ -355,7 +354,7 @@ def simple_regression_alpha(x: list, y: list):
     return alpha
 
 
-def qq_series_for_sample(sample: list) -> List[list]:
+def qq_series_for_sample(sample: List[float]) -> List[list]:
     """
     Calculates the QQ series for a sample of data, i.e. the set defined by the ordered pair of sample percentiles and theoretical normal percentiles. A sample's normality can be assessed by how linear the result graph is.
 
@@ -374,3 +373,9 @@ def qq_series_for_sample(sample: list) -> List[list]:
         qq_series += [[percentile_norm, percentile_sample]]
 
     return qq_series
+
+
+def standardize(x: List[float]):
+    mu = sample_mean(x)
+    sigma = sqrt(sample_variance(x))
+    return [(this_x - mu)/sigma for this_x in x]

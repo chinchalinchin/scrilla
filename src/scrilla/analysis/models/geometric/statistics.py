@@ -893,6 +893,7 @@ def _calculate_percentile_correlation(ticker_1: str, ticker_2: str, asset_type_1
 
     .. references::
         - [How To Determine Quantile Isolines Of A Multivariate Normal Distribution](https://stats.stackexchange.com/questions/64680/how-to-determine-quantiles-isolines-of-a-multivariate-normal-distribution)
+        - [An Introduction To Copulas](http://www.columbia.edu/~mh2078/QRM/Copulas.pdf)
     """
     ### START ARGUMENT PARSING ###
     asset_type_1 = errors.validate_asset_type(
@@ -955,10 +956,10 @@ def _calculate_percentile_correlation(ticker_1: str, ticker_2: str, asset_type_1
     # else:
     #     trading_period = constants.constants['ONE_TRADING_DAY']['EQUITY']
 
-    sample_of_returns_1 = get_sample_of_returns(
-        ticker=ticker_1, sample_prices=sample_prices[ticker_1], asset_type=asset_type_1)
-    sample_of_returns_2 = get_sample_of_returns(
-        ticker=ticker_2, sample_prices=sample_prices[ticker_2], asset_type=asset_type_2)
+    sample_of_returns_1 = estimators.standardize(get_sample_of_returns(
+        ticker=ticker_1, sample_prices=sample_prices[ticker_1], asset_type=asset_type_1))
+    sample_of_returns_2 = estimators.standardize(get_sample_of_returns(
+        ticker=ticker_2, sample_prices=sample_prices[ticker_2], asset_type=asset_type_2))
 
     # combined_sample = [[el, sample_of_returns_2[i]]
     #                    for i, el in enumerate(sample_of_returns_1)]
@@ -966,81 +967,49 @@ def _calculate_percentile_correlation(ticker_1: str, ticker_2: str, asset_type_1
     percentiles = [0.1, 0.16, 0.5, 0.84, 0.9]
     sample_percentiles_1, sample_percentiles_2 = [], []
 
-
     for percentile in percentiles:
         sample_percentiles_1.append(estimators.sample_percentile(
             data=sample_of_returns_1, percentile=percentile))
         sample_percentiles_2.append(estimators.sample_percentile(
             data=sample_of_returns_2, percentile=percentile))
-
+    
+    logger.debug(f'Standardized sample percentiles for {ticker_1}: \n{sample_percentiles_1}')
+    logger.debug(f'Standardized sample percentiles for {ticker_2}: \n{sample_percentiles_2}')
 
     def copula_matrix(params):
-        print('calling copula matrix with params', params)
         determinant = 1 - params[0]**2
         if determinant == 0 or determinant < 0 or determinant < (10**(-constants.constants['ACCURACY'])):
-            print('returning inf')
+            logger.verbose('Solution is non-positive semi-definite')
             return inf
-        print('copula matrix', [[1, params[0]], [params[0], 1]])
+        logger.verbose(f'Instantiating Copula Matrix: \n{[[1, params[0]], [params[0], 1]]}')
         return [[1, params[0]], [params[0], 1]]
 
-    # def residuals(params):
-    #     # (x - mu_x, y - mu_y)
-    #     return [ [ordered_pair[0] - params[0], ordered_pair[1] - params[1]] for ordered_pair in combined_sample]
-
-    # def standardized_residuals(params):
-    #     covariance = cov_matrix(params[2:5])
-    #     res = residuals(params[:2])
-    #     return numpy.transpose(res).dot(numpy.linalg.inv(covariance)).dot(res)
-
-    print(sample_percentiles_1)
-    print(sample_percentiles_2)
     # TODO: need to take into account normal copula, and i think this method will work...
+    # TODO: the problem is this: the percentiles of the separate distribution are not necessarily
+    #       equal to the percentiles of the joint distribution/copula. 
+    #       if i set constraint == percentile*percentile, then algorithm correctly searches for 
+    #       correlation = 0, i.e. percentile*percentile = overall percentile iff independence.
+    #       So, the issue is, how to constrain copula?
     def residuals(params):
-        print('calling objective with guess', params)
-        point = [sample_percentiles_1[3], sample_percentiles_2[3]]
-        print('point', point)
-        norm_cdf = multivariate_normal.cdf(x=point,
-                                            mean=[0,0],
-                                            cov=copula_matrix(params))
-        print(norm_cdf)
-        obj = [
+        res = [
             
-                (multivariate_normal.cdf(x=point,
+                (multivariate_normal.cdf(x=[sample_percentiles_1[i], sample_percentiles_2[i]],
                                         mean=[0,0],
-                                        cov=copula_matrix(params)) - percentile)
+                                        cov=copula_matrix(params)) - percentile*percentile)
              for i, percentile in enumerate(percentiles)
         ]
-        print(obj)
-        return obj
-
-    # vol_1_guess = (sample_percentiles_1[3]-sample_percentiles_1[1])/2
-    # vol_2_guess = (sample_percentiles_2[3]-sample_percentiles_2[1])/2
-    # vol_1_bounds = max(sample_of_returns_1) - min(sample_of_returns_1)
-    # vol_2_bounds = max(sample_of_returns_2) - min(sample_of_returns_2)
-    # cov_bounds = (-1*sqrt(vol_1_bounds*vol_2_bounds),
-    #               sqrt(vol_1_bounds*vol_2_bounds))
-    # guess = (
-    #     sample_percentiles_1[2], sample_percentiles_2[2], vol_1_guess, vol_2_guess, 0)
-
-    # lower_bound = (
-    #     sample_percentiles_1[0], sample_percentiles_2[0], 0, 0, cov_bounds[0])
-    # upper_bound = (sample_percentiles_1[4], sample_percentiles_2[4],
-    #                vol_1_bounds, vol_2_bounds, cov_bounds[1])
-    # print('guess', guess)
-    # print('lower bound', lower_bound)
-    # print('upper bound', upper_bound)
+        logger.verbose(f'Residuals for {params}: \n{res}')
+        return res
 
     parameters = least_squares(residuals, (0), bounds=((-0.99999), (0.99999)))
 
-    # vol_x_solution = sqrt(parameters.x[2])
-    # vol_y_solution = sqrt(parameters.x[3])
-    # correl = parameters.x[4]/(vol_x_solution*vol_y_solution)
-    # result = {keys.keys['STATISTICS']['CORRELATION']:  correl }
+    correl = parameters.x[0]
+    result = {keys.keys['STATISTICS']['CORRELATION']:  correl }
 
     # correlation_cache.save_row(ticker_1=ticker_1, ticker_2=ticker_2,
     #                         start_date=start_date, end_date=end_date,
     #                        correlation=correlation, method=keys.keys['ESTIMATION']['PERCENT'])
-    # return result
+    return result
 
 
 def _calculate_likelihood_correlation(ticker_1: str, ticker_2: str, asset_type_1: Union[str, None] = None, asset_type_2: Union[str, None] = None, start_date: Union[datetime.date, None] = None, end_date: Union[datetime.date, None] = None, sample_prices: Union[Dict[str, Dict[str, float]], None] = None, weekends: Union[int, None] = None) -> Dict[str, float]:
