@@ -143,3 +143,12 @@ def mock_prices(url, request):
 def mock_interest(url, request):
     logger.info('Returning mock Quandl data')
     return json.dumps(load_file(os.path.join(test_settings.MOCK_DIR, 'yield_response.json')))
+
+@urlmatch(netloc=r'(.*\.)?cloud\.iexapis\.com*$')
+def mock_dividends(url, request):
+    if 'ALLY' in request.url:
+        return json.dumps(load_file(os.path.join(test_settings.MOCK_DIR, 'ally_div_response.json')))
+    elif 'BX' in request.url:
+        return json.dumps(load_file(os.path.join(test_settings.MOCK_DIR, 'bx_div_response.json')))
+    elif 'DIS' in request.url:
+        return json.dumps(load_file(os.path.join(test_settings.MOCK_DIR, 'dis_div_response.json')))

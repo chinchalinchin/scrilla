@@ -118,7 +118,7 @@ def do_program(cli_args: List[str]) -> None:
         def cli_clear_cache():
             from scrilla.files import clear_directory
             from scrilla.settings import CACHE_DIR
-            logger.comment(f'Clearing {CACHE_DIR}')
+            logger.info(f'Clearing {CACHE_DIR}')
             clear_directory(directory=CACHE_DIR, retain=True)
         selected_function, required_length = cli_clear_cache, 0
 
@@ -127,7 +127,7 @@ def do_program(cli_args: List[str]) -> None:
         def cli_clear_static():
             from scrilla.files import clear_directory
             from scrilla.settings import STATIC_DIR
-            logger.comment(f'Clearing {STATIC_DIR}')
+            logger.info(f'Clearing {STATIC_DIR}')
             clear_directory(directory=STATIC_DIR, retain=True)
         selected_function, required_length = cli_clear_static, 0
 
@@ -136,7 +136,7 @@ def do_program(cli_args: List[str]) -> None:
         def cli_clear_common():
             from scrilla.files import clear_directory
             from scrilla.settings import COMMON_DIR
-            logger.comment(f'Clearing {COMMON_DIR}')
+            logger.info(f'Clearing {COMMON_DIR}')
             clear_directory(directory=COMMON_DIR, retain=True)
         selected_function, required_length = cli_clear_common, 0
 
@@ -154,7 +154,7 @@ def do_program(cli_args: List[str]) -> None:
         def cli_purge():
             from scrilla.files import clear_directory
             from scrilla.settings import CACHE_DIR, STATIC_DIR, COMMON_DIR
-            logger.comment(
+            logger.info(
                 f'Clearing {STATIC_DIR}, {CACHE_DIR} and {COMMON_DIR}')
             clear_directory(directory=STATIC_DIR, retain=True)
             clear_directory(directory=CACHE_DIR, retain=True)
@@ -380,7 +380,7 @@ def do_program(cli_args: List[str]) -> None:
             from scrilla.analysis.models.geometric.statistics import correlation_matrix
 
             if args['estimation_method'] == keys['ESTIMATION']['LIKE']:
-                logger.comment('This calculation takes a while, strap in...')
+                logger.info('This calculation takes a while, strap in...')
 
             matrix = correlation_matrix(tickers=args['tickers'],
                                         start_date=args['start_date'],
@@ -409,7 +409,7 @@ def do_program(cli_args: List[str]) -> None:
             if print_format_to_screen(args):
                 from scrilla.util.outputter import scalar_result
 
-            logger.comment('This calculation takes a while, strap in...')
+            logger.info('This calculation takes a while, strap in...')
             ticker_1, ticker_2 = args['tickers'][0], args['tickers'][1]
             result = calculate_moment_correlation_series(ticker_1=ticker_1,
                                                          ticker_2=ticker_2,
@@ -697,7 +697,7 @@ def do_program(cli_args: List[str]) -> None:
             from scrilla.analysis.models.geometric.statistics import calculate_moment_correlation_series
             from scrilla.analysis.plotter import plot_correlation_series
 
-            logger.comment('This calculation takes a while, strap in...')
+            logger.info('This calculation takes a while, strap in...')
 
             correlation_history = calculate_moment_correlation_series(ticker_1=args['tickers'][0],
                                                                       ticker_2=args['tickers'][1],
@@ -1074,7 +1074,7 @@ def do_program(cli_args: List[str]) -> None:
         def cli_watchlist():
             from scrilla.files import add_watchlist
             add_watchlist(new_tickers=args['tickers'])
-            logger.comment(
+            logger.info(
                 "Watchlist saved. Use -ls option to print watchlist.")
         selected_function, required_length = cli_watchlist, 1
 

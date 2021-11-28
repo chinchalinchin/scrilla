@@ -19,7 +19,7 @@ A module of statistical point estimators and likelihood functions.
 
 from os import path
 from sys import path as sys_path
-from typing import List
+from typing import List, Union
 from numpy import log, sqrt, exp, inf
 from scipy.stats import norm, multivariate_normal
 
@@ -175,7 +175,7 @@ def recursive_rolling_correlation(correl_previous, new_x_observation, lost_x_obs
     pass
 
 
-def sample_mean(x: list) -> float:
+def sample_mean(x: List[Union[float, int]]) -> float:
     r"""
     Returns the sample mean from a sample of data \\(\{x_1 , x_2, ... , x_n \}\\),
 
@@ -183,15 +183,21 @@ def sample_mean(x: list) -> float:
 
     Parameters
     ----------
-    1. **x**: ``list``
+    1. **x**: ``List[Union[float,int]]``
         List containing a sample of numerical data.
 
     Raises 
     ------
-    1. `scrilla.errors.SampleSizeError`
+    1. **scrilla.errors.SampleSizeError**
         If ``len(x)==0``, this error will be thrown.
+    2. **ValueError**
+        If the sample contains null or non-numerical data, this error will be thrown.
     """
     xbar, n = 0, len(x)
+
+    if not all([this_x is not None and (isinstance(this_x, float) or isinstance(this_x, int)) for this_x in x]):
+        raise ValueError(
+            'Sample contains null values')
 
     if n == 0:
         raise errors.SampleSizeError(
@@ -225,6 +231,10 @@ def sample_variance(x: list):
 
     mu, sigma, n = sample_mean(x=x), 0, len(x)
 
+    if not all([this_x is not None and (isinstance(this_x, float) or isinstance(this_x, int)) for this_x in x]):
+        raise ValueError(
+            'Sample contains null values')
+            
     if n in [0, 1]:
         raise errors.SampleSizeError(
             'Sample variance cannot be computed for a sample size less than or equal to 1.')

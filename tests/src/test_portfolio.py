@@ -16,18 +16,6 @@ def reset_cache():
     return
 
 @pytest.fixture()
-def price_cache():
-    return PriceCache()
-
-@pytest.fixture()
-def interest_cache():
-    return InterestCache()
-
-@pytest.fixture()
-def profile_cache():
-    return ProfileCache()
-
-@pytest.fixture()
 def portfolios():
     with HTTMock(mock.mock_prices):
         with HTTMock(mock.mock_interest):
@@ -60,7 +48,7 @@ def test_portfolio_initialization(portfolios):
     vol_init = all([len(portfolio.sample_vol) == len(
         portfolio.tickers) for portfolio in portfolios])
     correl_init = all(
-        [portfolio.correlation_matrix is not None for portfolio in portfolios])
+        [portfolio.correl_matrix is not None for portfolio in portfolios])
     rf_init = all(
         [portfolio.risk_free_rate is not None for portfolio in portfolios])
     assert(start_date_init and end_date_init)

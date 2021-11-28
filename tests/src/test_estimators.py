@@ -3,10 +3,11 @@ import math
 import random
 
 from scrilla.analysis import estimators
+from scrilla.errors import SampleSizeError
 
 from .. import mock
 from .. import settings
-
+    
 @pytest.mark.parametrize("x", [(mock.univariate_data[datum]) for datum in mock.univariate_data])
 def test_univariate_normal_likelihood_probability_bounds(x):
     sample_mean = estimators.sample_mean(x)
@@ -88,6 +89,21 @@ def test_mean(x, mu):
     assert(settings.is_within_tolerance(lambda: mean - mu))
 
 
+@pytest.mark.parametrize("x", [([])])
+def test_mean_null_sample(x):
+    with pytest.raises(Exception) as sample_error:
+        estimators.sample_mean(x=x)
+    assert sample_error.type == SampleSizeError
+
+@pytest.mark.parametrize("x", [
+                                ([None]), 
+                                ([1, 2, None]),
+])
+def test_mean_missing_samples(x):
+    with pytest.raises(Exception) as sample_error:
+        estimators.sample_mean(x=x)
+    assert sample_error.type == ValueError
+
 @pytest.mark.parametrize("first_x,second_x", mock.recursive_univariate_data)
 def test_rolling_recursive_mean(first_x, second_x):
     lost_obs, new_obs = first_x[0], second_x[-1]
@@ -103,6 +119,20 @@ def test_rolling_recursive_mean(first_x, second_x):
 def test_variance(x, var):
     variance = estimators.sample_variance(x)
     assert(settings.is_within_tolerance(lambda: variance - var))
+
+
+@pytest.mark.parametrize("x", [([]), ([1]), ([2])])
+def test_variance_small_sample(x):
+    with pytest.raises(Exception) as sample_error:
+        estimators.sample_variance(x)
+    assert sample_error.type == SampleSizeError
+
+
+@pytest.mark.parametrize("x", [([None])])
+def test_variance_null_sample(x):
+    with pytest.raises(Exception) as sample_error:
+        estimators.sample_variance(x)
+    assert sample_error.type == ValueError
 
 
 @pytest.mark.parametrize("first_x,second_x", mock.recursive_univariate_data)

@@ -1,12 +1,19 @@
 import pytest
 from httmock import HTTMock
 
+from scrilla import settings as scrilla_settings
 from scrilla.util import dater
-
 from scrilla.analysis.models.geometric import statistics
+from scrilla.cache import PriceCache, ProfileCache, InterestCache, CorrelationCache
+from scrilla.files import clear_directory
 
 from .. import mock
 
+@pytest.fixture(autouse=True)
+def reset_cache():
+    clear_directory(scrilla_settings.CACHE_DIR)
+    PriceCache(), ProfileCache(), InterestCache(), CorrelationCache()
+    return
 
 @pytest.mark.parametrize("ticker,start_date,end_date", [
     ('ALLY', '2021-11-12', '2021-11-12'),

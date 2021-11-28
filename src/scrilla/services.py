@@ -362,11 +362,11 @@ class PriceManager():
 
         while first_element == self.service_map['ERRORS']['RATE_THROTTLE']:
             if first_pass:
-                logger.comment(
+                logger.info(
                     f'{self.genre} API rate limit per minute exceeded. Waiting...')
                 first_pass = False
             else:
-                logger.comment('Waiting...')
+                logger.info('Waiting...')
 
             time.sleep(constants.constants['BACKOFF_PERIOD'])
             response = requests.get(url).json()

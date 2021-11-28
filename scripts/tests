@@ -19,7 +19,7 @@ cd $PROJECT_DIR
 
 scrilla clear-cache
 
-coverage run -m pytest
+coverage run -m pytest --capture=sys
 
 coverage html
 
