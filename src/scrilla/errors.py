@@ -64,13 +64,14 @@ def validate_asset_type(ticker: str, asset_type: Union[str, None] = None) -> str
         f'{ticker} cannot be mapped to (crypto, equity) asset classes')
 
 
-def validate_dates(start_date: date, end_date: date, asset_type: str) -> Tuple[date, date]:
+def validate_dates(start_date: Union[date, str, None], end_date: Union[date, str, None], asset_type: str) -> Tuple[date, date]:
     """
 
     """
-
+    
     # if end date exists, make sure it is valid
     if end_date is not None:
+        end_date = dater.validate_date(end_date)
         end_date = dater.truncate_future_from_date(end_date)
         if asset_type == keys.keys['ASSETS']['EQUITY']:
             end_date = dater.this_date_or_last_trading_date(end_date)
@@ -82,7 +83,8 @@ def validate_dates(start_date: date, end_date: date, asset_type: str) -> Tuple[d
             end_date = dater.get_last_trading_date()
 
     # if start date exists, make sure it is valide
-    if start_date is not None:
+    if start_date is not None:    
+        start_date = dater.validate_date(start_date)
         if dater.is_future_date(start_date):
             # only invalid user input is if start date doesn't exist yet
             raise InputValidationError(

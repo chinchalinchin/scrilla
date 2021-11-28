@@ -20,7 +20,8 @@ A module of statistical point estimators and likelihood functions.
 from os import path
 from sys import path as sys_path
 from typing import List, Union
-from numpy import log, sqrt, exp, inf
+from numpy import inf
+from math import log, sqrt, exp
 from scipy.stats import norm, multivariate_normal
 
 if __name__ == "__main__":
@@ -28,6 +29,7 @@ if __name__ == "__main__":
     sys_path.append(APP_DIR)
 
 from scrilla import settings, errors, cache
+from scrilla.static.constants import constants
 import scrilla.util.outputter as outputter
 
 logger = outputter.Logger('scrilla.analysis.estimators', settings.LOG_LEVEL)
@@ -71,7 +73,7 @@ def bivariate_normal_likelihood_function(params: list, data: list) -> float:
     cov = [[params[2], params[4]], [params[4], params[3]]]
 
     determinant = params[2]*params[3] - params[4]**2
-    if determinant == 0 or determinant < 0 or determinant < 0.00000001:
+    if determinant == 0 or determinant < 0 or determinant < (10**(-constants['ACCURACY'])):
         return inf
 
     likelihood = 0

@@ -119,6 +119,16 @@ bs_percentile_cases = [
     (155, 0.08, 0.03, 1.46825396825397, 0.15,145.810137542904)
 ]
 
+service_price_cases = [
+    ('ALLY', '2021-11-12', '2021-11-12'),
+    ('BX', '2021-10-29', '2021-11-05'),
+    ('ALLY', '2021-08-04','2021-09-10'),
+    ('BTC', '2021-03-10', '2021-04-12'),
+    ('SPY', '2020-01-03', '2020-03-15'),
+    ('ALGO', '2019-11-15', '2020-05-15'),
+    ('DIS', '2020-01-02', '2020-12-31')
+]
+
 @urlmatch(netloc=r'(.*\.)?alphavantage\.co*$')
 def mock_prices(url, request):
     logger.info('Returning mock AlphaVantage data')

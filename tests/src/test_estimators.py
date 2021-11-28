@@ -160,14 +160,14 @@ def test_correlation(x, y, correl):
 
 
 @pytest.mark.parametrize("x,y", [
-    ([random.randint(0, 100) for x in range(99)],
-     [random.randint(0, 100) for x in range(99)]),
-    ([random.randint(0, 100) for x in range(99)], 
-     [random.randint(0, 100) for x in range(99)]),
-    ([random.randint(0, 100) for x in range(99)], 
-     [random.randint(0, 100) for x in range(99)]),
-    ([random.randint(0, 100) for x in range(99)], 
-     [random.randint(0, 100) for x in range(99)])
+    ([random.randint(0, 100) for _ in range(99)],
+     [random.randint(0, 100) for _ in range(99)]),
+    ([random.randint(0, 100) for _ in range(99)], 
+     [random.randint(0, 100) for _ in range(99)]),
+    ([random.randint(0, 100) for _ in range(99)], 
+     [random.randint(0, 100) for _ in range(99)]),
+    ([random.randint(0, 100) for _ in range(99)], 
+     [random.randint(0, 100) for _ in range(99)])
 ]
 )
 def test_correlation_bounds(x, y):

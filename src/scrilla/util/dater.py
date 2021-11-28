@@ -34,7 +34,7 @@ def parse(date_string: str) -> Union[date, None]:
     return datetime.datetime.strptime(date_string, DATE_FORMAT).date()
 
 
-def validate_date(this_date):
+def validate_date(this_date: Any) -> date:
     if isinstance(this_date, str):
         return parse(this_date)
     if not isinstance(this_date, date):
