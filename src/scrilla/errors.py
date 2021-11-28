@@ -68,7 +68,7 @@ def validate_dates(start_date: Union[date, str, None], end_date: Union[date, str
     """
 
     """
-    
+
     # if end date exists, make sure it is valid
     if end_date is not None:
         end_date = dater.validate_date(end_date)
@@ -83,7 +83,7 @@ def validate_dates(start_date: Union[date, str, None], end_date: Union[date, str
             end_date = dater.get_last_trading_date()
 
     # if start date exists, make sure it is valide
-    if start_date is not None:    
+    if start_date is not None:
         start_date = dater.validate_date(start_date)
         if dater.is_future_date(start_date):
             # only invalid user input is if start date doesn't exist yet
