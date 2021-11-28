@@ -399,11 +399,11 @@ class PriceManager():
 
         while first_element == self.service_map[&#39;ERRORS&#39;][&#39;RATE_THROTTLE&#39;]:
             if first_pass:
-                logger.comment(
+                logger.info(
                     f&#39;{self.genre} API rate limit per minute exceeded. Waiting...&#39;)
                 first_pass = False
             else:
-                logger.comment(&#39;Waiting...&#39;)
+                logger.info(&#39;Waiting...&#39;)
 
             time.sleep(constants.constants[&#39;BACKOFF_PERIOD&#39;])
             response = requests.get(url).json()
@@ -1503,11 +1503,11 @@ A dictionary containing keys unique to the service defined by <code>genre</code>
 
         while first_element == self.service_map[&#39;ERRORS&#39;][&#39;RATE_THROTTLE&#39;]:
             if first_pass:
-                logger.comment(
+                logger.info(
                     f&#39;{self.genre} API rate limit per minute exceeded. Waiting...&#39;)
                 first_pass = False
             else:
-                logger.comment(&#39;Waiting...&#39;)
+                logger.info(&#39;Waiting...&#39;)
 
             time.sleep(constants.constants[&#39;BACKOFF_PERIOD&#39;])
             response = requests.get(url).json()
@@ -1720,11 +1720,11 @@ If the service from which data is being retrieved is down, the request has been 
 
     while first_element == self.service_map[&#39;ERRORS&#39;][&#39;RATE_THROTTLE&#39;]:
         if first_pass:
-            logger.comment(
+            logger.info(
                 f&#39;{self.genre} API rate limit per minute exceeded. Waiting...&#39;)
             first_pass = False
         else:
-            logger.comment(&#39;Waiting...&#39;)
+            logger.info(&#39;Waiting...&#39;)
 
         time.sleep(constants.constants[&#39;BACKOFF_PERIOD&#39;])
         response = requests.get(url).json()
