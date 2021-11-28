@@ -22,7 +22,7 @@ from math import log, sqrt
 from scipy.stats import norm, multivariate_normal
 from scipy.optimize import fsolve, least_squares
 
-import numpy 
+import numpy
 
 from numpy import inf
 
@@ -966,13 +966,11 @@ def _calculate_percentile_correlation(ticker_1: str, ticker_2: str, asset_type_1
     percentiles = [0.1, 0.16, 0.5, 0.84, 0.9]
     sample_percentiles_1, sample_percentiles_2 = [], []
 
-
     for percentile in percentiles:
         sample_percentiles_1.append(estimators.sample_percentile(
             data=sample_of_returns_1, percentile=percentile))
         sample_percentiles_2.append(estimators.sample_percentile(
             data=sample_of_returns_2, percentile=percentile))
-
 
     def copula_matrix(params):
         print('calling copula matrix with params', params)
@@ -995,20 +993,21 @@ def _calculate_percentile_correlation(ticker_1: str, ticker_2: str, asset_type_1
     print(sample_percentiles_1)
     print(sample_percentiles_2)
     # TODO: need to take into account normal copula, and i think this method will work...
+
     def residuals(params):
         print('calling objective with guess', params)
         point = [sample_percentiles_1[3], sample_percentiles_2[3]]
         print('point', point)
         norm_cdf = multivariate_normal.cdf(x=point,
-                                            mean=[0,0],
-                                            cov=copula_matrix(params))
+                                           mean=[0, 0],
+                                           cov=copula_matrix(params))
         print(norm_cdf)
         obj = [
-            
-                (multivariate_normal.cdf(x=point,
-                                        mean=[0,0],
-                                        cov=copula_matrix(params)) - percentile)
-             for i, percentile in enumerate(percentiles)
+
+            (multivariate_normal.cdf(x=point,
+                                     mean=[0, 0],
+                                     cov=copula_matrix(params)) - percentile)
+            for i, percentile in enumerate(percentiles)
         ]
         print(obj)
         return obj
