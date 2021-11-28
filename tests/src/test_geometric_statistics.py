@@ -28,4 +28,4 @@ def test_moving_average_return(ticker, start_date, end_date):
     assert(len(list(moving_average.keys())) == dater.business_days_between(start_date, end_date))
     assert(start_date in list(moving_average.keys()))
     assert(all(isinstance(averages,dict) for averages in moving_average.values()))
-    assert(all([all([isinstance(average,float) for average in average_dict.values()]) for average_dict in moving_average.values()]))
+    assert(all(all(isinstance(average,float) for average in average_dict.values()) for average_dict in moving_average.values()))
