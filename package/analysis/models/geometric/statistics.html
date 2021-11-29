@@ -42,6 +42,12 @@
 # along with scrilla.  If not, see &lt;https://www.gnu.org/licenses/&gt;
 # or &lt;https://github.com/chinchalinchin/scrilla/blob/develop/main/LICENSE&gt;.
 
+from scrilla.util import outputter, helper, dater
+from scrilla.analysis import estimators
+from scrilla.static import keys, functions, constants
+from scrilla import services, files, settings, errors, cache
+from numpy import inf
+import numpy
 from datetime import date
 from itertools import groupby
 import datetime
@@ -53,10 +59,6 @@ from scipy.optimize import fsolve, least_squares
 
 from numpy import inf
 
-from scrilla import services, files, settings, errors, cache
-from scrilla.static import keys, functions, constants
-from scrilla.analysis import estimators
-from scrilla.util import outputter, helper, dater
 
 logger = outputter.Logger(
     &#39;scrilla.analysis.models.geometric.statistics&#39;, settings.LOG_LEVEL)
@@ -929,8 +931,12 @@ def _calculate_percentile_correlation(ticker_1: str, ticker_2: str, asset_type_1
         }
     ```
 
+    .. notes ::
+        * Method uses the theory of copulas for multivariate distributions to break the joint distribution into component distributions in order to find the cumulative probability of the individual distribution&#39;s order statistics. See *references* for more information.
+
     .. references::
         - [How To Determine Quantile Isolines Of A Multivariate Normal Distribution](https://stats.stackexchange.com/questions/64680/how-to-determine-quantiles-isolines-of-a-multivariate-normal-distribution)
+        - [Copula (Probability Theory)](https://en.wikipedia.org/wiki/Copula_(probability_theory))
         - [An Introduction To Copulas](http://www.columbia.edu/~mh2078/QRM/Copulas.pdf)
     &#34;&#34;&#34;
     ### START ARGUMENT PARSING ###
@@ -1010,16 +1016,19 @@ def _calculate_percentile_correlation(ticker_1: str, ticker_2: str, asset_type_1
             data=sample_of_returns_1, percentile=percentile))
         sample_percentiles_2.append(estimators.sample_percentile(
             data=sample_of_returns_2, percentile=percentile))
-    
-    logger.debug(f&#39;Standardized sample percentiles for {ticker_1}: \n{sample_percentiles_1}&#39;)
-    logger.debug(f&#39;Standardized sample percentiles for {ticker_2}: \n{sample_percentiles_2}&#39;)
-    
+
+    logger.debug(
+        f&#39;Standardized sample percentiles for {ticker_1}: \n{sample_percentiles_1}&#39;)
+    logger.debug(
+        f&#39;Standardized sample percentiles for {ticker_2}: \n{sample_percentiles_2}&#39;)
+
     def copula_matrix(params):
         determinant = 1 - params[0]**2
         if determinant == 0 or determinant &lt; 0 or determinant &lt; (10**(-constants.constants[&#39;ACCURACY&#39;])):
             logger.verbose(&#39;Solution is non-positive semi-definite&#39;)
             return inf
-        logger.verbose(f&#39;Instantiating Copula Matrix: \n{[[1, params[0]], [params[0], 1]]}&#39;)
+        logger.verbose(
+            f&#39;Instantiating Copula Matrix: \n{[[1, params[0]], [params[0], 1]]}&#39;)
         return [[1, params[0]], [params[0], 1]]
 
     # TODO: need to take into account normal copula, and i think this method will work...
@@ -1035,7 +1044,7 @@ def _calculate_percentile_correlation(ticker_1: str, ticker_2: str, asset_type_1
                                         mean=[0,0], cov=copula_matrix(params)) 
                  - estimators.empirical_copula(sample=combined_sample, x_order=sample_percentiles_1[i],
                                                 y_order=sample_percentiles_2[i]))
-             for i, percentile in enumerate(percentiles)
+             for i in enumerate(percentiles)
         ]
         logger.verbose(f&#39;Residuals for {params}: \n{res}&#39;)
         return res
@@ -1043,11 +1052,11 @@ def _calculate_percentile_correlation(ticker_1: str, ticker_2: str, asset_type_1
     parameters = least_squares(residuals, (0), bounds=((-0.99999), (0.99999)))
 
     correl = parameters.x[0]
-    result = {keys.keys[&#39;STATISTICS&#39;][&#39;CORRELATION&#39;]:  correl }
+    result = {keys.keys[&#39;STATISTICS&#39;][&#39;CORRELATION&#39;]:  correl}
 
-    # correlation_cache.save_row(ticker_1=ticker_1, ticker_2=ticker_2,
-    #                         start_date=start_date, end_date=end_date,
-    #                        correlation=correlation, method=keys.keys[&#39;ESTIMATION&#39;][&#39;PERCENT&#39;])
+    correlation_cache.save_row(ticker_1=ticker_1, ticker_2=ticker_2,
+                               start_date=start_date, end_date=end_date,
+                               correlation=correlation, method=keys.keys[&#39;ESTIMATION&#39;][&#39;PERCENT&#39;])
     return result
 
 
