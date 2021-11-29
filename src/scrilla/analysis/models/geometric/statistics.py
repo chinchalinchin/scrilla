@@ -18,7 +18,6 @@ from scrilla.analysis import estimators
 from scrilla.static import keys, functions, constants
 from scrilla import services, files, settings, errors, cache
 from numpy import inf
-import numpy
 from datetime import date
 from itertools import groupby
 import datetime
