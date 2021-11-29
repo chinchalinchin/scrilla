@@ -28,14 +28,7 @@ from math import log, sqrt
 from scipy.stats import norm, multivariate_normal
 from scipy.optimize import fsolve, least_squares
 
-<<<<<<< HEAD
 from numpy import inf
-=======
-<< << << < HEAD
-== == == =
-
->>>>>> > 6f16dbe75647f8609b47fe80709f3f1075e02a50
->>>>>>> origin/deepsource-transform-7c6bd520
 
 
 logger = outputter.Logger(

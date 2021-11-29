@@ -56,8 +56,10 @@ If the above problem is to be solved, the cache needs modified to separate price
 
 ### Wikis
 - [Empirical Copulas](https://en.wikipedia.org/wiki/Copula_(probability_theory)#Empirical_copulas)
-- [Slyvester Criterion](https://en.wikipedia.org/wiki/Sylvester%27s_criterion)
+- [Probability Integral Transform](https://en.wikipedia.org/wiki/Probability_integral_transform)
 - [Cauchy-Schwarz Inequality](https://en.wikipedia.org/wiki/Cauchy%E2%80%93Schwarz_inequality#Probability_theory)
+- [Slyvester Criterion](https://en.wikipedia.org/wiki/Sylvester%27s_criterion)
+
 
 ## Assets
 - [Ionicons](https://ionic.io/ionicons)
