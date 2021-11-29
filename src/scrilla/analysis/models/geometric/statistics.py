@@ -22,6 +22,11 @@ from math import log, sqrt
 from scipy.stats import norm, multivariate_normal
 from scipy.optimize import fsolve, least_squares
 
+<<<<<<< HEAD
+=======
+import numpy
+
+>>>>>>> 6f16dbe75647f8609b47fe80709f3f1075e02a50
 from numpy import inf
 
 from scrilla import services, files, settings, errors, cache
@@ -977,7 +982,7 @@ def _calculate_percentile_correlation(ticker_1: str, ticker_2: str, asset_type_1
     
     logger.debug(f'Standardized sample percentiles for {ticker_1}: \n{sample_percentiles_1}')
     logger.debug(f'Standardized sample percentiles for {ticker_2}: \n{sample_percentiles_2}')
-
+    
     def copula_matrix(params):
         determinant = 1 - params[0]**2
         if determinant == 0 or determinant < 0 or determinant < (10**(-constants.constants['ACCURACY'])):
