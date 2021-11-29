@@ -141,7 +141,15 @@ def sample_percentile(data: List[float], percentile: float):
 
 def empirical_copula(sample: List[List[float]], x_order: float, y_order: float):
     &#34;&#34;&#34;
-    Computes an empirical estimate of the copula distribution for a bivariate sample.
+    Computes an empirical estimate of the copula distribution for a bivariate sample, i.e.
+
+    $$ C(u_{1}, u_{2}) = F_{c} (\textbf{X_{1}}&lt;F_x^{-1}(u_{1}),\textbf{X_{2}}&lt;F_x^{-1}(u_{2})) $$
+
+    Using the empirical estimate defined by,
+
+    $$ C_{n} = \frac{\{ (x,y) \vert x \leq x_{p} &amp; y \leq y_{p} \}}{n}$$ 
+
+    where \\(x_p\\) and \\(y_p\\) are the *p*-th percentiles of their respective univariate samples.
     &#34;&#34;&#34;
     n = len(sample)
 
@@ -486,14 +494,34 @@ A list of data that has been drawn from a bivariate normal population. Must be f
 <span>def <span class="ident">empirical_copula</span></span>(<span>sample: List[List[float]], x_order: float, y_order: float)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Computes an empirical estimate of the copula distribution for a bivariate sample.</p></div>
+<div class="desc"><p>Computes an empirical estimate of the copula distribution for a bivariate sample, i.e.</p>
+<p><span><span class="MathJax_Preview"> C(u_{1}, u_{2}) = F_{c} (
+extbf{X_{1}}&lt;F_x^{-1}(u_{1}),
+extbf{X_{2}}&lt;F_x^{-1}(u_{2})) </span><script type="math/tex; mode=display"> C(u_{1}, u_{2}) = F_{c} (
+extbf{X_{1}}<F_x^{-1}(u_{1}),
+extbf{X_{2}}<F_x^{-1}(u_{2})) </script></span></p>
+<p>Using the empirical estimate defined by,</p>
+<p><span><span class="MathJax_Preview"> C_{n} =
+rac{\{ (x,y)
+ert x \leq x_{p} &amp; y \leq y_{p} \}}{n}</span><script type="math/tex; mode=display"> C_{n} =
+rac{\{ (x,y)
+ert x \leq x_{p} & y \leq y_{p} \}}{n}</script></span> </p>
+<p>where <span><span class="MathJax_Preview">x_p</span><script type="math/tex">x_p</script></span> and <span><span class="MathJax_Preview">y_p</span><script type="math/tex">y_p</script></span> are the <em>p</em>-th percentiles of their respective univariate samples.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def empirical_copula(sample: List[List[float]], x_order: float, y_order: float):
     &#34;&#34;&#34;
-    Computes an empirical estimate of the copula distribution for a bivariate sample.
+    Computes an empirical estimate of the copula distribution for a bivariate sample, i.e.
+
+    $$ C(u_{1}, u_{2}) = F_{c} (\textbf{X_{1}}&lt;F_x^{-1}(u_{1}),\textbf{X_{2}}&lt;F_x^{-1}(u_{2})) $$
+
+    Using the empirical estimate defined by,
+
+    $$ C_{n} = \frac{\{ (x,y) \vert x \leq x_{p} &amp; y \leq y_{p} \}}{n}$$ 
+
+    where \\(x_p\\) and \\(y_p\\) are the *p*-th percentiles of their respective univariate samples.
     &#34;&#34;&#34;
     n = len(sample)
 
