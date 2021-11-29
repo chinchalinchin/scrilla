@@ -66,10 +66,12 @@ def get_sample_of_returns(ticker: str, sample_prices: Union[Dict[str, Dict[str, 
 
     if sample_prices is None:
         if (asset_type == keys.keys['ASSETS']['CRYPTO'] and dater.days_between(start_date, end_date) == 1) \
-            or (asset_type == keys.keys['ASSETS']['EQUITY'] and dater.business_days_between(start_date, end_date) == 1):
-            raise errors.SampleSizeError('Not enough price data to compute returns')
-    elif len(sample_prices) < 1: 
-        raise errors.SampleSizeError('Not enough price data to compute returns')
+                or (asset_type == keys.keys['ASSETS']['EQUITY'] and dater.business_days_between(start_date, end_date) == 1):
+            raise errors.SampleSizeError(
+                'Not enough price data to compute returns')
+    elif len(sample_prices) < 1:
+        raise errors.SampleSizeError(
+            'Not enough price data to compute returns')
 
     if sample_prices is None:
         logger.debug('No sample prices provided, calling service.')
@@ -971,7 +973,7 @@ def _calculate_percentile_correlation(ticker_1: str, ticker_2: str, asset_type_1
         ticker=ticker_2, sample_prices=sample_prices[ticker_2], asset_type=asset_type_2))
 
     combined_sample = [[el, sample_of_returns_2[i]]
-                        for i, el in enumerate(sample_of_returns_1)]
+                       for i, el in enumerate(sample_of_returns_1)]
 
     percentiles = [0.1, 0.16, 0.5, 0.84, 0.9]
     sample_percentiles_1, sample_percentiles_2 = [], []
@@ -981,32 +983,35 @@ def _calculate_percentile_correlation(ticker_1: str, ticker_2: str, asset_type_1
             data=sample_of_returns_1, percentile=percentile))
         sample_percentiles_2.append(estimators.sample_percentile(
             data=sample_of_returns_2, percentile=percentile))
-    
-    logger.debug(f'Standardized sample percentiles for {ticker_1}: \n{sample_percentiles_1}')
-    logger.debug(f'Standardized sample percentiles for {ticker_2}: \n{sample_percentiles_2}')
-    
+
+    logger.debug(
+        f'Standardized sample percentiles for {ticker_1}: \n{sample_percentiles_1}')
+    logger.debug(
+        f'Standardized sample percentiles for {ticker_2}: \n{sample_percentiles_2}')
+
     def copula_matrix(params):
         determinant = 1 - params[0]**2
         if determinant == 0 or determinant < 0 or determinant < (10**(-constants.constants['ACCURACY'])):
             logger.verbose('Solution is non-positive semi-definite')
             return inf
-        logger.verbose(f'Instantiating Copula Matrix: \n{[[1, params[0]], [params[0], 1]]}')
+        logger.verbose(
+            f'Instantiating Copula Matrix: \n{[[1, params[0]], [params[0], 1]]}')
         return [[1, params[0]], [params[0], 1]]
 
     # TODO: need to take into account normal copula, and i think this method will work...
     # TODO: the problem is this: the percentiles of the separate distributions are not necessarily
-    #       equal to the percentiles of the joint distribution/copula. 
-    #       if i set constraint == percentile*percentile, then algorithm correctly searches for 
+    #       equal to the percentiles of the joint distribution/copula.
+    #       if i set constraint == percentile*percentile, then algorithm correctly searches for
     #       correlation = 0, i.e. percentile*percentile = overall percentile iff independence.
     #       So, the issue is, how to constrain copula?
     def residuals(params):
         res = [
-            
-                (multivariate_normal.cdf(x=[sample_percentiles_1[i], sample_percentiles_2[i]],
-                                        mean=[0,0], cov=copula_matrix(params)) 
-                 - estimators.empirical_copula(sample=combined_sample, x_order=sample_percentiles_1[i],
-                                                y_order=sample_percentiles_2[i]))
-             for i, percentile in enumerate(percentiles)
+
+            (multivariate_normal.cdf(x=[sample_percentiles_1[i], sample_percentiles_2[i]],
+                                     mean=[0, 0], cov=copula_matrix(params))
+             - estimators.empirical_copula(sample=combined_sample, x_order=sample_percentiles_1[i],
+                                           y_order=sample_percentiles_2[i]))
+            for i, percentile in enumerate(percentiles)
         ]
         logger.verbose(f'Residuals for {params}: \n{res}')
         return res
@@ -1014,7 +1019,7 @@ def _calculate_percentile_correlation(ticker_1: str, ticker_2: str, asset_type_1
     parameters = least_squares(residuals, (0), bounds=((-0.99999), (0.99999)))
 
     correl = parameters.x[0]
-    result = {keys.keys['STATISTICS']['CORRELATION']:  correl }
+    result = {keys.keys['STATISTICS']['CORRELATION']:  correl}
 
     # correlation_cache.save_row(ticker_1=ticker_1, ticker_2=ticker_2,
     #                         start_date=start_date, end_date=end_date,
