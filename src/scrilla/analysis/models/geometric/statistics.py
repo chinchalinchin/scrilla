@@ -22,11 +22,6 @@ from math import log, sqrt
 from scipy.stats import norm, multivariate_normal
 from scipy.optimize import fsolve, least_squares
 
-<<<<<<< HEAD
-=======
-import numpy
-
->>>>>>> 6f16dbe75647f8609b47fe80709f3f1075e02a50
 from numpy import inf
 
 from scrilla import services, files, settings, errors, cache
