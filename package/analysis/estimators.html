@@ -140,7 +140,7 @@ def sample_percentile(data: list, percentile: float):
     return (1-weight)*data[first_index] + weight*data[second_index]
 
 
-def sample_correlation(x: list, y: list):
+def sample_correlation(x: List[float], y: List[float]):
     &#34;&#34;&#34;
     Returns the sample correlation calculated using the Pearson correlation coefficient estimator,
 
@@ -207,7 +207,7 @@ def recursive_rolling_correlation(correl_previous, new_x_observation, lost_x_obs
     pass
 
 
-def sample_mean(x: List[Union[float, int]]) -&gt; float:
+def sample_mean(x: List[float]) -&gt; float:
     r&#34;&#34;&#34;
     Returns the sample mean from a sample of data \\(\{x_1 , x_2, ... , x_n \}\\),
 
@@ -245,7 +245,7 @@ def recursive_rolling_mean(xbar_previous, new_obs, lost_obs, n=settings.DEFAULT_
     return xbar_next
 
 
-def sample_variance(x: list):
+def sample_variance(x: List[float]):
     r&#34;&#34;&#34;
     Returns the sample variance from a sample of data \\(\{x_1 , x_2, ... , x_n \}\\),
 
@@ -316,8 +316,7 @@ def sample_covariance(x: list, y: list):
     return covariance
 
 
-def recursive_rolling_covariance(covar_previous, new_x_obs, lost_x_obs, previous_x_bar,
-                                 new_y_obs, lost_y_obs, previous_y_bar, n=settings.DEFAULT_ANALYSIS_PERIOD):
+def recursive_rolling_covariance(covar_previous: float, new_x_obs: float, lost_x_obs: float, previous_x_bar: float, new_y_obs: float, lost_y_obs: float, previous_y_bar: float, n: int=settings.DEFAULT_ANALYSIS_PERIOD):
     new_sum_term = new_x_obs*new_y_obs - lost_x_obs*lost_y_obs
     xy_cross_term = previous_x_bar*(new_y_obs-lost_y_obs)
     yx_cross_term = previous_y_bar*(new_x_obs-lost_x_obs)
@@ -327,7 +326,7 @@ def recursive_rolling_covariance(covar_previous, new_x_obs, lost_x_obs, previous
     return covar_new
 
 
-def simple_regression_beta(x: list, y: list):
+def simple_regression_beta(x: List[float], y: List[float]):
     &#34;&#34;&#34;
     Parameters
     ----------
@@ -356,7 +355,7 @@ def simple_regression_beta(x: list, y: list):
     return beta
 
 
-def simple_regression_alpha(x: list, y: list):
+def simple_regression_alpha(x: List[float], y: List[float]):
     &#34;&#34;&#34;
     Parameters
     ----------
@@ -385,7 +384,7 @@ def simple_regression_alpha(x: list, y: list):
     return alpha
 
 
-def qq_series_for_sample(sample: list) -&gt; List[list]:
+def qq_series_for_sample(sample: List[float]) -&gt; List[list]:
     &#34;&#34;&#34;
     Calculates the QQ series for a sample of data, i.e. the set defined by the ordered pair of sample percentiles and theoretical normal percentiles. A sample&#39;s normality can be assessed by how linear the result graph is.
 
@@ -403,7 +402,13 @@ def qq_series_for_sample(sample: list) -&gt; List[list]:
         percentile_norm = norm.ppf(q=percentile)
         qq_series += [[percentile_norm, percentile_sample]]
 
-    return qq_series</code></pre>
+    return qq_series
+
+
+def standardize(x: List[float]):
+    mu = sample_mean(x)
+    sigma = sqrt(sample_variance(x))
+    return [(this_x - mu)/sigma for this_x in x]</code></pre>
 </details>
 </section>
 <section>
@@ -464,7 +469,7 @@ A list of data that has been drawn from a bivariate normal population. Must be f
 </details>
 </dd>
 <dt id="scrilla.analysis.estimators.qq_series_for_sample"><code class="name flex">
-<span>def <span class="ident">qq_series_for_sample</span></span>(<span>sample: list) ‑> List[list]</span>
+<span>def <span class="ident">qq_series_for_sample</span></span>(<span>sample: List[float]) ‑> List[list]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Calculates the QQ series for a sample of data, i.e. the set defined by the ordered pair of sample percentiles and theoretical normal percentiles. A sample's normality can be assessed by how linear the result graph is.</p>
@@ -477,7 +482,7 @@ A sample of numerical data.</li>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def qq_series_for_sample(sample: list) -&gt; List[list]:
+<pre><code class="python">def qq_series_for_sample(sample: List[float]) -&gt; List[list]:
     &#34;&#34;&#34;
     Calculates the QQ series for a sample of data, i.e. the set defined by the ordered pair of sample percentiles and theoretical normal percentiles. A sample&#39;s normality can be assessed by how linear the result graph is.
 
@@ -514,7 +519,7 @@ A sample of numerical data.</li>
 </details>
 </dd>
 <dt id="scrilla.analysis.estimators.recursive_rolling_covariance"><code class="name flex">
-<span>def <span class="ident">recursive_rolling_covariance</span></span>(<span>covar_previous, new_x_obs, lost_x_obs, previous_x_bar, new_y_obs, lost_y_obs, previous_y_bar, n=100)</span>
+<span>def <span class="ident">recursive_rolling_covariance</span></span>(<span>covar_previous: float, new_x_obs: float, lost_x_obs: float, previous_x_bar: float, new_y_obs: float, lost_y_obs: float, previous_y_bar: float, n: int = 100)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -522,8 +527,7 @@ A sample of numerical data.</li>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def recursive_rolling_covariance(covar_previous, new_x_obs, lost_x_obs, previous_x_bar,
-                                 new_y_obs, lost_y_obs, previous_y_bar, n=settings.DEFAULT_ANALYSIS_PERIOD):
+<pre><code class="python">def recursive_rolling_covariance(covar_previous: float, new_x_obs: float, lost_x_obs: float, previous_x_bar: float, new_y_obs: float, lost_y_obs: float, previous_y_bar: float, n: int=settings.DEFAULT_ANALYSIS_PERIOD):
     new_sum_term = new_x_obs*new_y_obs - lost_x_obs*lost_y_obs
     xy_cross_term = previous_x_bar*(new_y_obs-lost_y_obs)
     yx_cross_term = previous_y_bar*(new_x_obs-lost_x_obs)
@@ -565,7 +569,7 @@ A sample of numerical data.</li>
 </details>
 </dd>
 <dt id="scrilla.analysis.estimators.sample_correlation"><code class="name flex">
-<span>def <span class="ident">sample_correlation</span></span>(<span>x: list, y: list)</span>
+<span>def <span class="ident">sample_correlation</span></span>(<span>x: List[float], y: List[float])</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Returns the sample correlation calculated using the Pearson correlation coefficient estimator,</p>
@@ -593,7 +597,7 @@ If the denominator of the correlation coefficient becomes too small for floating
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def sample_correlation(x: list, y: list):
+<pre><code class="python">def sample_correlation(x: List[float], y: List[float]):
     &#34;&#34;&#34;
     Returns the sample correlation calculated using the Pearson correlation coefficient estimator,
 
@@ -707,7 +711,7 @@ If <code>len(x) != len(y)</code> (samples of incomparable length) or <code>len(x
 </details>
 </dd>
 <dt id="scrilla.analysis.estimators.sample_mean"><code class="name flex">
-<span>def <span class="ident">sample_mean</span></span>(<span>x: List[Union[float, int]]) ‑> float</span>
+<span>def <span class="ident">sample_mean</span></span>(<span>x: List[float]) ‑> float</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Returns the sample mean from a sample of data \({x_1 , x_2, &hellip; , x_n }\),</p>
@@ -728,7 +732,7 @@ If the sample contains null or non-numerical data, this error will be thrown.</l
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def sample_mean(x: List[Union[float, int]]) -&gt; float:
+<pre><code class="python">def sample_mean(x: List[float]) -&gt; float:
     r&#34;&#34;&#34;
     Returns the sample mean from a sample of data \\(\{x_1 , x_2, ... , x_n \}\\),
 
@@ -810,7 +814,7 @@ The percentile corresponding to the desired observation.</li>
 </details>
 </dd>
 <dt id="scrilla.analysis.estimators.sample_variance"><code class="name flex">
-<span>def <span class="ident">sample_variance</span></span>(<span>x: list)</span>
+<span>def <span class="ident">sample_variance</span></span>(<span>x: List[float])</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Returns the sample variance from a sample of data \({x_1 , x_2, &hellip; , x_n }\),</p>
@@ -828,7 +832,7 @@ List containing a sample of numerical data.</li>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def sample_variance(x: list):
+<pre><code class="python">def sample_variance(x: List[float]):
     r&#34;&#34;&#34;
     Returns the sample variance from a sample of data \\(\{x_1 , x_2, ... , x_n \}\\),
 
@@ -860,7 +864,7 @@ List containing a sample of numerical data.</li>
 </details>
 </dd>
 <dt id="scrilla.analysis.estimators.simple_regression_alpha"><code class="name flex">
-<span>def <span class="ident">simple_regression_alpha</span></span>(<span>x: list, y: list)</span>
+<span>def <span class="ident">simple_regression_alpha</span></span>(<span>x: List[float], y: List[float])</span>
 </code></dt>
 <dd>
 <div class="desc"><h2 id="parameters">Parameters</h2>
@@ -879,7 +883,7 @@ If <code>len(x) != len(y)</code> (samples of incomparable length) or <code>len(x
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def simple_regression_alpha(x: list, y: list):
+<pre><code class="python">def simple_regression_alpha(x: List[float], y: List[float]):
     &#34;&#34;&#34;
     Parameters
     ----------
@@ -909,7 +913,7 @@ If <code>len(x) != len(y)</code> (samples of incomparable length) or <code>len(x
 </details>
 </dd>
 <dt id="scrilla.analysis.estimators.simple_regression_beta"><code class="name flex">
-<span>def <span class="ident">simple_regression_beta</span></span>(<span>x: list, y: list)</span>
+<span>def <span class="ident">simple_regression_beta</span></span>(<span>x: List[float], y: List[float])</span>
 </code></dt>
 <dd>
 <div class="desc"><h2 id="parameters">Parameters</h2>
@@ -928,7 +932,7 @@ If <code>len(x) != len(y)</code> (samples of incomparable length) or <code>len(x
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def simple_regression_beta(x: list, y: list):
+<pre><code class="python">def simple_regression_beta(x: List[float], y: List[float]):
     &#34;&#34;&#34;
     Parameters
     ----------
@@ -955,6 +959,21 @@ If <code>len(x) != len(y)</code> (samples of incomparable length) or <code>len(x
 
     beta = correl * vol_y / vol_x
     return beta</code></pre>
+</details>
+</dd>
+<dt id="scrilla.analysis.estimators.standardize"><code class="name flex">
+<span>def <span class="ident">standardize</span></span>(<span>x: List[float])</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def standardize(x: List[float]):
+    mu = sample_mean(x)
+    sigma = sqrt(sample_variance(x))
+    return [(this_x - mu)/sigma for this_x in x]</code></pre>
 </details>
 </dd>
 <dt id="scrilla.analysis.estimators.univariate_normal_likelihood_function"><code class="name flex">
@@ -1021,6 +1040,7 @@ A list of data that has been drawn from a univariate normal population.</li>
 <li><code><a title="scrilla.analysis.estimators.sample_variance" href="#scrilla.analysis.estimators.sample_variance">sample_variance</a></code></li>
 <li><code><a title="scrilla.analysis.estimators.simple_regression_alpha" href="#scrilla.analysis.estimators.simple_regression_alpha">simple_regression_alpha</a></code></li>
 <li><code><a title="scrilla.analysis.estimators.simple_regression_beta" href="#scrilla.analysis.estimators.simple_regression_beta">simple_regression_beta</a></code></li>
+<li><code><a title="scrilla.analysis.estimators.standardize" href="#scrilla.analysis.estimators.standardize">standardize</a></code></li>
 <li><code><a title="scrilla.analysis.estimators.univariate_normal_likelihood_function" href="#scrilla.analysis.estimators.univariate_normal_likelihood_function">univariate_normal_likelihood_function</a></code></li>
 </ul>
 </li>
