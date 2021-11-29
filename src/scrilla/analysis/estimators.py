@@ -109,6 +109,7 @@ def sample_percentile(data: List[float], percentile: float):
     weight = obs_number - int(obs_number)
     return (1-weight)*data[first_index] + weight*data[second_index]
 
+
 def empirical_copula(sample: List[List[float]], x_order: float, y_order: float):
     """
     Computes an empirical estimate of the copula distribution for a bivariate sample.
@@ -117,12 +118,14 @@ def empirical_copula(sample: List[List[float]], x_order: float, y_order: float):
 
     def x_order_bounds(test_point):
         return test_point < x_order or test_point == x_order
-    
+
     def y_order_bounds(test_point):
         return test_point < y_order or test_point == y_order
 
-    copula = [ 1 for point in sample if x_order_bounds(point[0]) and y_order_bounds(point[1])]
+    copula = [1 for point in sample if x_order_bounds(
+        point[0]) and y_order_bounds(point[1])]
     return len(copula) / n
+
 
 def sample_correlation(x: List[float], y: List[float]):
     """
