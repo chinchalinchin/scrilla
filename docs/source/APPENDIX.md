@@ -55,6 +55,7 @@ If the above problem is to be solved, the cache needs modified to separate price
 - [Parameter Estimation in Mean Reversion Processes with Deterministic Long-Term Trend](https://www.hindawi.com/journals/jps/2016/5191583/)
 
 ### Wikis
+- [Empirical Copulas](https://en.wikipedia.org/wiki/Copula_(probability_theory)#Empirical_copulas)
 - [Slyvester Criterion](https://en.wikipedia.org/wiki/Sylvester%27s_criterion)
 - [Cauchy-Schwarz Inequality](https://en.wikipedia.org/wiki/Cauchy%E2%80%93Schwarz_inequality#Probability_theory)
 
