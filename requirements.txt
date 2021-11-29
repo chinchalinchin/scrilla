@@ -1,19 +1,23 @@
-# Application Configuration Dependencies
-python-dotenv>=0.17.0
-
 # Build Dependencies
 setuptools>=51.1.1
 build>=0.6.0
 twine>=3.4.2
 
-# Service Configuration Dependencies
-requests>=2.25.0
+# Dev Dependencies
+pdoc3>=0.10.0
+sphinx==4.3.0
+myst-parser==0.15.2
+pytest==6.2.5
+coverage==6.1.2
+httmock==1.4.0
 
-# Application Functional Dependencies
+# Application Dependencies
 numpy>=1.19.3
-scipy>=1.5.4
+scipy>=1.7.1
 matplotlib>=3.3.3
+requests>=2.25.0
 holidays>=0.10.4
+python-dateutil>=2.8.2
 
 # GUI Dependencies
-PyQt5>=5.14
+PySide6==6.2.0

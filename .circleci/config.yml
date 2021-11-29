@@ -1,75 +1,202 @@
 version: 2.1
 
 commands:
-  install:
-    description: install build dependencies
+  install_python_deps:
+    description: install python dependencies
     steps:
+      - restore_cache:  # ensure this step occurs *before* installing dependencies
+          key: python-deps-{{ checksum "requirements.txt"}}
       - run:
-          name: dependency installation
-          command: pip install twine setuptools build
-  build:
+          name: python dependencies
+          command: pip3 install -r requirements.txt
+      - save_cache:
+          key: python-deps-{{ checksum "requirements.txt"}}
+          paths:
+            - ".venv"
+            - "/usr/local/lib/python3.9/site-packages"
+
+  build_wheel:
     description: compress and build python package
     steps:
       - run:
           name: artifact build
-          command: python -m build
-  upload:
+          environment:
+            APP_ENV: container
+          command: |
+            touch ./src/scrilla/data/cache/scrilla.db
+            bash ./scripts/install
+            scrilla version
+
+  upload_artifacts:
     description: upload package artifacts to PyPi
     steps:
       - run:
           name: artifact upload
           command: twine upload -u $PYPI_USERNAME -p $PYPI_PASSWORD dist/*
-  push:
-    description: push new version number to GitHub
-    steps:
-        - run: 
-            name: push version
-            command: |
-              echo "TODO"
 
+  commit_version:
+    description: commit new version to git
+    steps:
+      - run:
+          name: commit version
+          command: |
+            git config user.email "chinchalinchin@gmail.com"
+            git config user.name "CircleCi Bot"
+            git stash
+            git checkout develop/main
+            git stash pop
+            git add . 
+            git commit -m "Pipeline Build Version $(cat ./src/scrilla/version.txt)" || true
+            git push --set-upstream origin develop/main || true
+
+  install_doc_deps:
+    description: install documentation dependencies
+    steps:
+      - run:
+          name: install virtual server & gui libraries
+          command: sudo apt-get update -y && sudo apt-get install -y xvfb libopengl0 libegl1-mesa libxkbcommon-dev
+
+  generate_package_docs:
+    description: generate documentation html from docstrings
+    steps:
+      - attach_workspace:
+          at: docs
+      - run:
+          name: generate docs
+          command: bash ./scripts/package-docs circle-ci
+      - persist_to_workspace:
+          root: docs
+          paths: 
+            - package
   
+  generate_source_docs:
+    description: generate documentation html from markdown
+    steps:
+      - attach_workspace:
+          at: docs
+      - run:
+          name: generate docs
+          command: |
+            cd docs
+            make html
+            cp -ap ./build/html/. ./
+      - persist_to_workspace:
+          root: docs
+          paths:
+            - ./*
+
+  install_test_deps:
+    description: install testing libraries
+    steps:
+      - run:
+          name: dependency installation
+          command: curl https://deepsource.io/cli | sh
+  
+  run_unit_tests: 
+    description: run unit tests against installed wheel
+    steps:
+      - attach_workspace:
+          at: docs
+      - run: 
+          name: unit tests
+          environment:
+            APP_ENV: container
+            PYTHON_LIB: /home/circleci/.pyenv/versions/3.9.6/lib/python3.9/site-packages/scrilla/
+          command: |
+            bash ./scripts/tests circleci
+            coverage xml
+            ./bin/deepsource report --analyzer test-coverage --key python --value-file ./coverage.xml
+            rm -rf ./bin/
+      - persist_to_workspace:
+          root: docs
+          paths: 
+            - coverage
+
+  commit_coverage:
+    description: push coverage back to git
+    steps:
+      - attach_workspace:
+          at: docs
+      - run:
+          name: coverage
+          command: |
+            mkdir /tmp/docs/
+            rm -rf ./docs/make.bat
+            rm -rf ./docs/Makefile
+            cp -ap ./docs/. /tmp/docs/
+            git checkout gh-pages
+            git pull
+            cp -ap /tmp/docs/. ./
+            git config user.email "chinchalinchin@gmail.com"
+            git config user.name "CircleCi Bot"
+            git add .
+            git commit -m "Pipeline Unit Tests & Documentation $(echo $(date))" || true
+            git push --set-upstream origin gh-pages || true
+
 jobs:
   pypi_micro_update:
     docker:
       - image: cimg/python:3.9.6
     steps:
       - checkout
-      - install
+      - install_python_deps
       - run:
           name: iterate micro version
           command: |
             python ./scripts/circleci/iterate_version.py micro
-      - build
-      - upload
-      - push
+      - build_wheel
+      - upload_artifacts
+      - commit_version
 
   pypi_minor_update:
     docker: 
       - image: cimg/python:3.9.6
     steps:
       - checkout
-      - install
+      - install_python_deps
       - run:
           name: iterate minor version
           command: | 
             python ./scripts/circleci/iterate_version.py minor
-      - build
-      - upload
-      - push
+      - build_wheel
+      - upload_artifacts
+      - commit_version
 
   pypi_major_update:
     docker: 
       - image: cimg/python:3.9.6
     steps:
       - checkout 
-      - install
+      - install_python_deps
       - run:
           name: iterate major version
           command: |
             python ./scripts/circleci/iterate_version.py major
-      - build
-      - upload
-      - push
+      - build_wheel
+      - upload_artifacts
+      - commit_version
+  
+  unit_tests:
+    docker:
+      - image: cimg/python:3.9.6
+    steps:
+      - checkout
+      - install_python_deps
+      - build_wheel
+      - install_test_deps
+      - run_unit_tests
+      - commit_coverage
+
+  documentation:
+    docker: 
+      - image: cimg/python:3.9.6
+    steps:
+      - checkout
+      - install_python_deps
+      - install_doc_deps
+      - generate_package_docs
+      - generate_source_docs
+      - commit_coverage
 
 workflows:
   version: 2
@@ -90,3 +217,18 @@ workflows:
             branches:
               only:
                 - pypi/major-update
+
+  github_pages:
+    jobs:
+      - unit_tests:
+          filters:
+            branches:
+              only:
+                - develop/main
+      - documentation:
+          filters:
+            branches:
+              only:
+                - develop/main
+          requires:
+            - unit_tests

@@ -1,0 +1,19 @@
+#!/bin/bash
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+PROJECT_DIR=$SCRIPT_DIR/..
+DOCS_DIR=$PROJECT_DIR/docs
+APP_DIR=$PROJECT_DIR/src/scrilla
+
+if [ -d $DOCS_DIR/build ]
+then
+    rm -r $DOCS_DIR/build/
+fi
+
+cd $DOCS_DIR
+
+make html
+
+cd build/html
+
+sed -i 's/_static/scrilla\/_static/g' index.html

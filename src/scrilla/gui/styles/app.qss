@@ -1,0 +1,258 @@
+/**
+ */
+#debug {
+    border-style: inset;
+    border-color: $warn-800;
+    border-radius: 1px;
+    border-width: 1px;
+}
+
+/**
+ */
+#title {
+    font-family: Times;
+    font-size: 20px;
+    font-weight: 800;
+    border-style: inset;
+    border-radius: 2px;
+    border-width: 0.5px;
+    border-color: $primary-900;
+    background-color: $primary-500;
+}
+#menu-bar {
+    background-color: $primary-500;
+}
+#function-menu {
+    color: $primary-900;
+    text-align: center;
+}
+#subtitle {
+    font-family: Times;
+    font-size: 16px;
+    font-weight: 600;
+}
+#heading {
+    font-family: Times;
+    font-size: 14px;
+    font-weight: 600;
+}
+#input-label {
+    color: $primary-900;
+    font-size: 10px;
+    font-style: italic;
+}
+#label {
+    color: $primary-900;
+    font-size: 14px;
+    font-weight: 600;
+}
+#text {
+    font-family: Times;
+    font-size: 12px;
+    font-weight: 500;
+}
+#error {
+    font-family: Helvetica;
+    font-size: 12px;
+    font-weight: 600;
+}
+#group-box {
+    color: $primary-900;
+    font-size: 10px;
+    font-style: italic;
+}
+#group-toggle {
+    font-size: 8px;
+}
+#flag {
+    min-width: 25px;
+    max-width: 25px;
+}
+#root {
+    border-style: inset;
+    border-radius: 2px;
+    border-width: 0.5px;
+    border-color: $primary-900;
+    background-color: $primary-800;
+}
+#child {
+    border-style: inset;
+    border-radius: 2px;
+    border-width: 0.5px;
+    border-color: $primary-900;
+    background-color: $primary-700;
+}
+#grand-child {
+    border-style: inset;
+    border-radius: 2px;
+    border-width: 0.5px;
+    border-color: $primary-900;
+    background-color: $primary-600;
+}
+#great-grand-child {
+    border-style: inset;
+    border-radius: 2px;
+    border-width: 0.5px;
+    border-color: $primary-900;
+    background-color: $primary-500;
+}
+#great-great-grand-child {
+    border-style: inset;
+    border-radius: 2px;
+    border-width: 0.5px;
+    border-color: $primary-900;
+    background-color: $primary-400;
+}
+
+/**
+ */
+QAbstractButton {
+     qproperty-icon: theme_url("/button_action/add");
+}
+QLineEdit#line-edit {
+    background-color: $primary-200;
+}
+QPushButton {
+    padding: 2px;
+    border-style: inset;
+    border-radius: 2px;
+    border-width: 0.5px;
+}
+QPushButton#button {
+    border-color: $primary-900;
+    background-color: $primary-400;
+}
+QPushButton#button:hover {
+    border-color: $primary-900;
+    background-color: $primary-100;
+}
+QPushButton#button:pressed {;
+    border-color: $primary-900;
+    background-color: $primary-700;
+}
+QPushButton#clear-button {
+    border-style: outset;
+    border-color: $warn-900;
+    background-color: $warn-400;
+    qproperty-icon: url($clear-unpressed);
+}
+QPushButton#clear-button:hover {
+    border-style: outset;
+    border-color: $warn-900;
+    background-color: $warn-100;
+    qproperty-icon: url($clear-unpressed);
+}
+QPushButton#clear-button:pressed {
+    border-style: inset;
+    border-color: $warn-900;
+    background-color: $warn-700;
+    qproperty-icon: url($clear-pressed);
+}
+QPushButton#calculate-button {
+    border-style: outset;
+    border-color: $accent-900;
+    background-color: $accent-400;
+    qproperty-icon: url($calculate-unpressed);
+}
+QPushButton#calculate-button:hover {
+    border-style: outset;
+    border-color: $accent-900;
+    background-color: $accent-100;
+    qproperty-icon: url($calculate-unpressed);
+
+}
+QPushButton#calculate-button:pressed {
+    border-style: inset;
+    border-color: $accent-900;
+    background-color: $accent-700;
+    qproperty-icon: url($calculate-pressed);
+}
+QPushButton#hide-button {
+    border-style: outset;
+    border-color: $primary-900;
+    background-color: $primary-500;
+    qproperty-icon: url($hide-unpressed);
+}
+QPushButton#hide-button:hover {
+    border-style: outset;
+    border-color: $primary-900;
+    background-color: $primary-300;
+    qproperty-icon: url($hide-unpressed);
+}
+QPushButton#hide-button:pressed {
+    border-style: inset;
+    border-color: $primary-900;
+    background-color: $primary-700;
+    qproperty-icon: url($hide-pressed);
+}
+QPushButton#download-button {
+    border-style: outset;
+    border-color: $primary-900;
+    background-color: $primary-500;
+    qproperty-icon: url($download-unpressed);
+}
+QPushButton#download-button:hover {
+    border-style: outset;
+    border-color: $primary-900;
+    background-color: $primary-300;
+    qproperty-icon: url($download-unpressed);
+}
+QPushButton#download-button:pressed {
+    border-style: inset;
+    border-color: $primary-900;
+    background-color: $primary-700;
+    qproperty-icon: url($download-pressed);
+}
+QPushButton#source-button {
+    border-color: $primary-900;
+    background-color: $primary-500;
+    qproperty-icon: url($source-unpressed);
+}
+QPushButton#source-button:hover {
+    border-style: outset;
+    border-color: $primary-900;
+    background-color: $primary-300;
+    qproperty-icon: url($source-unpressed);
+}
+QPushButton#source-button:pressed {
+    border-style: inset;
+    border-color: $primary-900;
+    background-color: $primary-700;
+    qproperty-icon: url($source-pressed);
+}
+QPushButton#package-button {
+    border-style: outset;
+    border-color: $primary-900;
+    background-color: $primary-500;
+    qproperty-icon: url($package-unpressed);
+}
+QPushButton#package-button:hover {
+    border-style: outset;
+    border-color: $primary-900;
+    background-color: $primary-300;
+    qproperty-icon: url($package-unpressed);
+}
+QPushButton#package-button:pressed {
+    border-style: inset;
+    border-color: $primary-900;
+    background-color: $primary-700;
+    qproperty-icon: url($package-pressed);
+}
+QPushButton#documentation-button {
+    border-style: outset;
+    border-color: $primary-900;
+    background-color: $primary-500;
+    qproperty-icon: url($documentation-unpressed);
+}
+QPushButton#documentation-button:hover {
+    border-style: outset;
+    border-color: $primary-900;
+    background-color: $primary-300;
+    qproperty-icon: url($documentation-unpressed);
+}
+QPushButton#documentation-button:pressed {
+    border-style: inset;
+    border-color: $primary-900;
+    background-color: $primary-700;
+    qproperty-icon: url($documentation-pressed);
+}

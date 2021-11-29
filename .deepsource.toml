@@ -1,22 +1,33 @@
 version = 1
 
 exclude_patterns = [
-    "src/scrilla/data/cache/**",
-    "src/scrilla/data/common/**",
-    "src/scrilla/data/sql/**",
-    "src/scrilla/data/static/**",
-    "env/**",
-    "*.env",
-    "*.pyc",
-    ".gitignore",
-    ".dockerignore"
+  "src/scrilla/data/cache/**",
+  "src/scrilla/data/common/**",
+  "src/scrilla/data/sql/**",
+  "src/scrilla/data/static/**",
+  "env/**",
+  "*.env",
+  "*.pyc",
+  ".gitignore",
+  ".dockerignore",
+  "tests/**"
 ]
 
 [[analyzers]]
 name = "python"
 enabled = true
-dependency_file_paths = [
-  "requirements.txt",
-]
-    [analyzers.meta]
-    runtime_version = "3.x.x"
+
+  [analyzers.meta]
+  runtime_version = "3.x.x"
+
+[[analyzers]]
+name = "shell"
+enabled = true
+
+[[analyzers]]
+name = "test-coverage"
+enabled = true
+
+[[transformers]]
+name = "autopep8"
+enabled = true

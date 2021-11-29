@@ -1,0 +1,8 @@
+[run]
+source = ${PYTHON_LIB}
+omit = 
+    */__init__.py
+
+[html]
+title = "Scrilla Unit Test Coverage"
+directory = docs/coverage

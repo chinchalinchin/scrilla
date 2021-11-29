@@ -1,0 +1,28 @@
+#!/bin/bash
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+PROJECT_DIR=$SCRIPT_DIR/..
+DOCS_DIR=$PROJECT_DIR/docs
+APP_DIR=$PROJECT_DIR/src/scrilla
+
+if [ -d $DOCS_DIR/coverage/ ]
+then
+    rm -r $DOCS_DIR/coverage/
+fi
+
+if [ "$1" != "circleci" ]
+then
+    export PYTHON_LIB=/home/chinchalinchin/.local/lib/python3.8/site-packages/scrilla/
+fi
+
+cd $PROJECT_DIR
+
+scrilla clear-cache
+
+coverage run -m pytest --capture=sys
+
+coverage html
+
+rm $DOCS_DIR/coverage/.gitignore
+
+

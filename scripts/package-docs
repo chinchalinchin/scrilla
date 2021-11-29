@@ -1,0 +1,29 @@
+#!/bin/bash
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+PROJECT_DIR=$SCRIPT_DIR/..
+DOCS_DIR=$PROJECT_DIR/docs
+APP_DIR=$PROJECT_DIR/src/scrilla
+
+if [ -d $DOCS_DIR ]
+then
+    rm -r $DOCS_DIR/package/*
+fi
+
+mkdir $PROJECT_DIR/tmp
+
+if [ "$1" == "circleci" ]
+then
+    xvfb-run pdoc --html -c latex_math=True -o $PROJECT_DIR/tmp $APP_DIR
+else
+    pdoc --html -c latex_math=True -o $PROJECT_DIR/tmp $APP_DIR
+fi
+
+if [ ! -d $DOCS_DIR/package/ ]
+then
+    mkdir $DOCS_DIR/package/
+fi
+
+cp -r $PROJECT_DIR/tmp/scrilla/* $DOCS_DIR/package/
+
+rm -r $PROJECT_DIR/tmp

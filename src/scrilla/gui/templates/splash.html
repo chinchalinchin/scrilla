@@ -1,0 +1,33 @@
+<h2>Welcome to the Graphical User Interface</h2>
+
+<p>
+    Select a function widget from the <strong>Function Menu</strong> on the left over there or check out some of the resources below to get started.
+</p>
+
+<h3>Information</h3>
+
+<p>
+    <i>scrilla</i> is a financial analysis application. Its inputs are: equity or crypto tickers, date ranges, investments and target rates of return. From this information, it can calculate a variety of statistics and generate graphical summaries of historical data. Tabular summaries can be saved to your local file system in <i>json</i> or <i>csv</i> format, while graphical summaries can be saved in <i>jpeg</i> format.
+</p>
+
+<p>
+    Data for these calculations is retrieved from several external sources, namely <strong>AlphaVantage</strong>, <strong>Quandl</strong> and <strong>IEX</strong>. You will need to register for an API key with these services and give them to <i>scrilla</i> before it will be able to pull data and perform calculations. 
+</p>
+
+<p>
+    Statistical calculations require a historical sample; All estimations within this application occur over a date range, implied or otherwise. If you do not specify a date range when using a function, <i>scrilla</i> will default to the last 100 trading days.  
+</p>
+
+<h3>Configuration</h3>
+
+<p>
+    Register for API keys using the following links
+
+    <ul>
+        <li style="padding: 5px; margin: 5px;"><a style="color:midnightblue;" href="https://www.alphavantage.co/support/#api-key">AlphaVantage</a></li>
+        <li style="padding: 5px; margin: 5px;"><a style="color: midnightblue;" href="https://www.quandl.com/account/api">Quandl</a></li>
+        <li style="padding: 5px; margin: 5px;"><a style="color: midnightblue;" href="https://iexcloud.io/">IEX</a></li>
+    </ul>
+
+    Once you have your keys, add them to <i>scrilla</i> through the menu bar option <strong>Account > Add API Key</strong>. Keep in mind, if you are using the free tier keys, the API rate limits can affect the speed of the application. Typically, on the free tier, inputting more than five ticker symbols into a function at a time will cause the rate limit to be hit; when this happens, the program will pause until the rate limit has refreshed. <i>scrilla</i> caches prices in a local <strong>SQLite</strong> database file, so that repeated calculations on the same equity will not overtax the rate limit. 
+</p>
