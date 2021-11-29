@@ -1016,7 +1016,8 @@ def _calculate_percentile_correlation(ticker_1: str, ticker_2: str, asset_type_1
 
     correlation_cache.save_row(ticker_1=ticker_1, ticker_2=ticker_2,
                                start_date=start_date, end_date=end_date,
-                               correlation=correlation, method=keys.keys['ESTIMATION']['PERCENT'])
+                               correlation=correlation, method=keys.keys['ESTIMATION']['PERCENT'],
+                               weekends=weekends)
     return result
 
 
