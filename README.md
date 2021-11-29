@@ -62,7 +62,7 @@ scrilla-gui
 If you prefer, you can build from source. `git clone` the [repository](https://github.com/chinchalinchin/scrilla) and then from the root directory install the project dependencies and build the library,
 
 ```shell
-pip3 install -r requirements
+pip3 install -r requirements.txt
 python3 -m build
 ```
 

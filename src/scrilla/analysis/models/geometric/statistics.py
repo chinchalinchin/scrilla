@@ -22,8 +22,6 @@ from math import log, sqrt
 from scipy.stats import norm, multivariate_normal
 from scipy.optimize import fsolve, least_squares
 
-import numpy 
-
 from numpy import inf
 
 from scrilla import services, files, settings, errors, cache
@@ -61,6 +59,10 @@ def get_sample_of_returns(ticker: str, sample_prices: Union[Dict[str, Dict[str, 
     """
     asset_type = errors.validate_asset_type(ticker, asset_type)
     trading_period = functions.get_trading_period(asset_type)
+
+    if (asset_type == keys.keys['ASSETS']['CRYPTO'] and dater.days_between(start_date, end_date) == 1) \
+        or (asset_type == keys.keys['ASSETS']['EQUITY'] and dater.business_days_between(start_date, end_date) == 1):
+            raise errors.SampleSizeError('Not enough price data to compute returns')
 
     if sample_prices is None:
         logger.debug('No sample prices provided, calling service.')
