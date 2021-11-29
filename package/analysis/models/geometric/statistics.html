@@ -56,8 +56,6 @@ from math import log, sqrt
 from scipy.stats import norm, multivariate_normal
 from scipy.optimize import fsolve, least_squares
 
-from numpy import inf
-
 
 logger = outputter.Logger(
     &#39;scrilla.analysis.models.geometric.statistics&#39;, settings.LOG_LEVEL)
@@ -96,10 +94,12 @@ def get_sample_of_returns(ticker: str, sample_prices: Union[Dict[str, Dict[str, 
 
     if sample_prices is None:
         if (asset_type == keys.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;] and dater.days_between(start_date, end_date) == 1) \
-            or (asset_type == keys.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;] and dater.business_days_between(start_date, end_date) == 1):
-            raise errors.SampleSizeError(&#39;Not enough price data to compute returns&#39;)
-    elif len(sample_prices) &lt; 1: 
-        raise errors.SampleSizeError(&#39;Not enough price data to compute returns&#39;)
+                or (asset_type == keys.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;] and dater.business_days_between(start_date, end_date) == 1):
+            raise errors.SampleSizeError(
+                &#39;Not enough price data to compute returns&#39;)
+    elif len(sample_prices) &lt; 1:
+        raise errors.SampleSizeError(
+            &#39;Not enough price data to compute returns&#39;)
 
     if sample_prices is None:
         logger.debug(&#39;No sample prices provided, calling service.&#39;)
@@ -994,18 +994,13 @@ def _calculate_percentile_correlation(ticker_1: str, ticker_2: str, asset_type_1
         raise errors.PriceError(
             &#34;Prices cannot be retrieved for correlation calculation&#34;)
 
-    # if asset_type_1 == asset_type_2 and asset_type_1 == keys.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;]:
-    #     trading_period = constants.constants[&#39;ONE_TRADING_DAY&#39;][&#39;CRYPTO&#39;]
-    # else:
-    #     trading_period = constants.constants[&#39;ONE_TRADING_DAY&#39;][&#39;EQUITY&#39;]
-
     sample_of_returns_1 = estimators.standardize(get_sample_of_returns(
         ticker=ticker_1, sample_prices=sample_prices[ticker_1], asset_type=asset_type_1))
     sample_of_returns_2 = estimators.standardize(get_sample_of_returns(
         ticker=ticker_2, sample_prices=sample_prices[ticker_2], asset_type=asset_type_2))
 
     combined_sample = [[el, sample_of_returns_2[i]]
-                        for i, el in enumerate(sample_of_returns_1)]
+                       for i, el in enumerate(sample_of_returns_1)]
 
     percentiles = [0.1, 0.16, 0.5, 0.84, 0.9]
     sample_percentiles_1, sample_percentiles_2 = [], []
@@ -1030,20 +1025,15 @@ def _calculate_percentile_correlation(ticker_1: str, ticker_2: str, asset_type_1
             f&#39;Instantiating Copula Matrix: \n{[[1, params[0]], [params[0], 1]]}&#39;)
         return [[1, params[0]], [params[0], 1]]
 
-    # TODO: need to take into account normal copula, and i think this method will work...
-    # TODO: the problem is this: the percentiles of the separate distributions are not necessarily
-    #       equal to the percentiles of the joint distribution/copula. 
-    #       if i set constraint == percentile*percentile, then algorithm correctly searches for 
-    #       correlation = 0, i.e. percentile*percentile = overall percentile iff independence.
-    #       So, the issue is, how to constrain copula?
+    # Calculate copula distribution of order statistics and constrain it against the empirical estimate
     def residuals(params):
         res = [
-            
-                (multivariate_normal.cdf(x=[sample_percentiles_1[i], sample_percentiles_2[i]],
-                                        mean=[0,0], cov=copula_matrix(params)) 
-                 - estimators.empirical_copula(sample=combined_sample, x_order=sample_percentiles_1[i],
-                                                y_order=sample_percentiles_2[i]))
-             for i in enumerate(percentiles)
+
+            (multivariate_normal.cdf(x=[sample_percentiles_1[i], sample_percentiles_2[i]],
+                                     mean=[0, 0], cov=copula_matrix(params))
+             - estimators.empirical_copula(sample=combined_sample, x_order=sample_percentiles_1[i],
+                                           y_order=sample_percentiles_2[i]))
+            for i in enumerate(percentiles)
         ]
         logger.verbose(f&#39;Residuals for {params}: \n{res}&#39;)
         return res
@@ -2125,10 +2115,12 @@ If the date range passed in does not have enough dates to compute the logarithmi
 
     if sample_prices is None:
         if (asset_type == keys.keys[&#39;ASSETS&#39;][&#39;CRYPTO&#39;] and dater.days_between(start_date, end_date) == 1) \
-            or (asset_type == keys.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;] and dater.business_days_between(start_date, end_date) == 1):
-            raise errors.SampleSizeError(&#39;Not enough price data to compute returns&#39;)
-    elif len(sample_prices) &lt; 1: 
-        raise errors.SampleSizeError(&#39;Not enough price data to compute returns&#39;)
+                or (asset_type == keys.keys[&#39;ASSETS&#39;][&#39;EQUITY&#39;] and dater.business_days_between(start_date, end_date) == 1):
+            raise errors.SampleSizeError(
+                &#39;Not enough price data to compute returns&#39;)
+    elif len(sample_prices) &lt; 1:
+        raise errors.SampleSizeError(
+            &#39;Not enough price data to compute returns&#39;)
 
     if sample_prices is None:
         logger.debug(&#39;No sample prices provided, calling service.&#39;)
