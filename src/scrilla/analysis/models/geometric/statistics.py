@@ -68,10 +68,12 @@ def get_sample_of_returns(ticker: str, sample_prices: Union[Dict[str, Dict[str, 
 
     if sample_prices is None:
         if (asset_type == keys.keys['ASSETS']['CRYPTO'] and dater.days_between(start_date, end_date) == 1) \
-            or (asset_type == keys.keys['ASSETS']['EQUITY'] and dater.business_days_between(start_date, end_date) == 1):
-            raise errors.SampleSizeError('Not enough price data to compute returns')
-    elif len(sample_prices) < 1: 
-        raise errors.SampleSizeError('Not enough price data to compute returns')
+                or (asset_type == keys.keys['ASSETS']['EQUITY'] and dater.business_days_between(start_date, end_date) == 1):
+            raise errors.SampleSizeError(
+                'Not enough price data to compute returns')
+    elif len(sample_prices) < 1:
+        raise errors.SampleSizeError(
+            'Not enough price data to compute returns')
 
     if sample_prices is None:
         logger.debug('No sample prices provided, calling service.')
@@ -977,7 +979,7 @@ def _calculate_percentile_correlation(ticker_1: str, ticker_2: str, asset_type_1
         ticker=ticker_2, sample_prices=sample_prices[ticker_2], asset_type=asset_type_2))
 
     combined_sample = [[el, sample_of_returns_2[i]]
-                        for i, el in enumerate(sample_of_returns_1)]
+                       for i, el in enumerate(sample_of_returns_1)]
 
     percentiles = [0.1, 0.16, 0.5, 0.84, 0.9]
     sample_percentiles_1, sample_percentiles_2 = [], []
@@ -1004,18 +1006,18 @@ def _calculate_percentile_correlation(ticker_1: str, ticker_2: str, asset_type_1
 
     # TODO: need to take into account normal copula, and i think this method will work...
     # TODO: the problem is this: the percentiles of the separate distributions are not necessarily
-    #       equal to the percentiles of the joint distribution/copula. 
-    #       if i set constraint == percentile*percentile, then algorithm correctly searches for 
+    #       equal to the percentiles of the joint distribution/copula.
+    #       if i set constraint == percentile*percentile, then algorithm correctly searches for
     #       correlation = 0, i.e. percentile*percentile = overall percentile iff independence.
     #       So, the issue is, how to constrain copula?
     def residuals(params):
         res = [
-            
-                (multivariate_normal.cdf(x=[sample_percentiles_1[i], sample_percentiles_2[i]],
-                                        mean=[0,0], cov=copula_matrix(params)) 
-                 - estimators.empirical_copula(sample=combined_sample, x_order=sample_percentiles_1[i],
-                                                y_order=sample_percentiles_2[i]))
-             for i in enumerate(percentiles)
+
+            (multivariate_normal.cdf(x=[sample_percentiles_1[i], sample_percentiles_2[i]],
+                                     mean=[0, 0], cov=copula_matrix(params))
+             - estimators.empirical_copula(sample=combined_sample, x_order=sample_percentiles_1[i],
+                                           y_order=sample_percentiles_2[i]))
+            for i in enumerate(percentiles)
         ]
         logger.verbose(f'Residuals for {params}: \n{res}')
         return res
