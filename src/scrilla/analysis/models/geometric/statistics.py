@@ -27,8 +27,6 @@ from math import log, sqrt
 from scipy.stats import norm, multivariate_normal
 from scipy.optimize import fsolve, least_squares
 
-from numpy import inf
-
 
 logger = outputter.Logger(
     'scrilla.analysis.models.geometric.statistics', settings.LOG_LEVEL)
@@ -965,11 +963,6 @@ def _calculate_percentile_correlation(ticker_1: str, ticker_2: str, asset_type_1
         raise errors.PriceError(
             "Prices cannot be retrieved for correlation calculation")
 
-    # if asset_type_1 == asset_type_2 and asset_type_1 == keys.keys['ASSETS']['CRYPTO']:
-    #     trading_period = constants.constants['ONE_TRADING_DAY']['CRYPTO']
-    # else:
-    #     trading_period = constants.constants['ONE_TRADING_DAY']['EQUITY']
-
     sample_of_returns_1 = estimators.standardize(get_sample_of_returns(
         ticker=ticker_1, sample_prices=sample_prices[ticker_1], asset_type=asset_type_1))
     sample_of_returns_2 = estimators.standardize(get_sample_of_returns(
@@ -1001,12 +994,7 @@ def _calculate_percentile_correlation(ticker_1: str, ticker_2: str, asset_type_1
             f'Instantiating Copula Matrix: \n{[[1, params[0]], [params[0], 1]]}')
         return [[1, params[0]], [params[0], 1]]
 
-    # TODO: need to take into account normal copula, and i think this method will work...
-    # TODO: the problem is this: the percentiles of the separate distributions are not necessarily
-    #       equal to the percentiles of the joint distribution/copula. 
-    #       if i set constraint == percentile*percentile, then algorithm correctly searches for 
-    #       correlation = 0, i.e. percentile*percentile = overall percentile iff independence.
-    #       So, the issue is, how to constrain copula?
+    # Calculate copula distribution of order statistics and constrain it against the empirical estimate
     def residuals(params):
         res = [
             
