@@ -84,12 +84,13 @@ def market_premium(start_date: Union[date, None] = None, end_date: Union[date, N
     Parameters
     ----------
     1. **start_date**: ``datetime.date``
-        Start date of the time period for which the market premium will be computed.
+        *Optional*. Start date of the time period for which the market premium will be computed. Defaults to 100 days ago.
     2. **end_date**: ``datetime.date``
-        End_date of the time period for which the market premium will be computed.
+        *Optional*. End_date of the time period for which the market premium will be computed. Defaults to today.
     3. **market_profile**: ``dict``
+        *Optional*. Manually inputted market risk profile. Will override call to `scrilla.analysis.models.geometric.statistics.calculate_risk_return`.
     4. **method** : ``str``
-        Estimation method used to calculate financial statistics. Defaults to the value set by `scrilla.settings.ESTIMATION_METHOD`. Allowable value are accessible through the `scrilla.keys.keys` dictionary.
+        *Optional*. Estimation method used to calculate financial statistics. Defaults to the value set by `scrilla.settings.ESTIMATION_METHOD`. Allowable value are accessible through the `scrilla.keys.keys` dictionary.
 
     """
     start_date, end_date = errors.validate_dates(start_date=start_date, end_date=end_date,

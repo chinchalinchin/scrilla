@@ -105,7 +105,7 @@ def truncate_future_from_date(this_date: Union[date, str]) -> datetime.date:
 
 def last_close_date():
     right_now = datetime.datetime.now()
-    trading_close_today = right_now.replace(hour=14)
+    trading_close_today = right_now.replace(hour=16)
     if right_now > trading_close_today:
         return right_now.date()
     return get_previous_business_date(right_now.date())
@@ -121,8 +121,15 @@ def is_date_holiday(this_date: Union[date, str]) -> bool:
     # generate list without columbus day and veterans day since markets are open on those days
     trading_holidays = [
         "Columbus Day", "Columbus Day (Observed)", "Veterans Day", "Veterans Day (Observed)"]
+    
+    # markets are open 
+    # see here: https://www.barrons.com/articles/stock-market-open-close-new-years-eve-monday-hours-51640891577
+    if datetime.datetime(year=this_date.year+1, month=1, day=1).weekday() in [5,6]:
+        trading_holidays += ["New Year's Day (Observed)"]
+
     custom_holidays = [that_date for that_date in list(
         us_holidays) if us_holidays[that_date] not in trading_holidays]
+
     # add good friday to list since markets are closed on good friday
     custom_holidays.append(easter.easter(
         year=this_date.year) - datetime.timedelta(days=2))

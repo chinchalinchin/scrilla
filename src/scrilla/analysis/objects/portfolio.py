@@ -112,7 +112,6 @@ class Portfolio:
         for ticker in self.tickers:
             self.asset_types.append(errors.validate_asset_type(ticker))
 
-        self.mixed_assets = False
         self.asset_groups = 0
         for _ in groupby(sorted(self.asset_types)):
             self.asset_groups += 1
