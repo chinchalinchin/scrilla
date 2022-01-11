@@ -134,7 +134,7 @@ def truncate_future_from_date(this_date: Union[date, str]) -&gt; datetime.date:
 
 def last_close_date():
     right_now = datetime.datetime.now()
-    trading_close_today = right_now.replace(hour=14)
+    trading_close_today = right_now.replace(hour=16)
     if right_now &gt; trading_close_today:
         return right_now.date()
     return get_previous_business_date(right_now.date())
@@ -150,8 +150,15 @@ def is_date_holiday(this_date: Union[date, str]) -&gt; bool:
     # generate list without columbus day and veterans day since markets are open on those days
     trading_holidays = [
         &#34;Columbus Day&#34;, &#34;Columbus Day (Observed)&#34;, &#34;Veterans Day&#34;, &#34;Veterans Day (Observed)&#34;]
+    
+    # markets are open 
+    # see here: https://www.barrons.com/articles/stock-market-open-close-new-years-eve-monday-hours-51640891577
+    if datetime.datetime(year=this_date.year+1, month=1, day=1).weekday() in [5,6]:
+        trading_holidays += [&#34;New Year&#39;s Day (Observed)&#34;]
+
     custom_holidays = [that_date for that_date in list(
         us_holidays) if us_holidays[that_date] not in trading_holidays]
+
     # add good friday to list since markets are closed on good friday
     custom_holidays.append(easter.easter(
         year=this_date.year) - datetime.timedelta(days=2))
@@ -762,7 +769,7 @@ End date of the date range.</li>
 </details>
 </dd>
 <dt id="scrilla.util.dater.get_time_to_next_month"><code class="name flex">
-<span>def <span class="ident">get_time_to_next_month</span></span>(<span>todays_date: datetime.date = datetime.date(2021, 11, 29), trading_days: int = 252) ‑> float</span>
+<span>def <span class="ident">get_time_to_next_month</span></span>(<span>todays_date: datetime.date = datetime.date(2022, 1, 11), trading_days: int = 252) ‑> float</span>
 </code></dt>
 <dd>
 <div class="desc"><h2 id="parameters">Parameters</h2>
@@ -836,7 +843,7 @@ Length of one period, measured in years.</li>
 </details>
 </dd>
 <dt id="scrilla.util.dater.get_time_to_next_quarter"><code class="name flex">
-<span>def <span class="ident">get_time_to_next_quarter</span></span>(<span>todays_date: datetime.date = datetime.date(2021, 11, 29), trading_days: int = 252) ‑> float</span>
+<span>def <span class="ident">get_time_to_next_quarter</span></span>(<span>todays_date: datetime.date = datetime.date(2022, 1, 11), trading_days: int = 252) ‑> float</span>
 </code></dt>
 <dd>
 <div class="desc"><h2 id="parameters">Parameters</h2>
@@ -877,7 +884,7 @@ Length of one period, measured in years.</li>
 </details>
 </dd>
 <dt id="scrilla.util.dater.get_time_to_next_year"><code class="name flex">
-<span>def <span class="ident">get_time_to_next_year</span></span>(<span>todays_date: datetime.date = datetime.date(2021, 11, 29), trading_days: int = 252) ‑> float</span>
+<span>def <span class="ident">get_time_to_next_year</span></span>(<span>todays_date: datetime.date = datetime.date(2022, 1, 11), trading_days: int = 252) ‑> float</span>
 </code></dt>
 <dd>
 <div class="desc"><h2 id="parameters">Parameters</h2>
@@ -952,8 +959,15 @@ Length of one period, measured in years.</li>
     # generate list without columbus day and veterans day since markets are open on those days
     trading_holidays = [
         &#34;Columbus Day&#34;, &#34;Columbus Day (Observed)&#34;, &#34;Veterans Day&#34;, &#34;Veterans Day (Observed)&#34;]
+    
+    # markets are open 
+    # see here: https://www.barrons.com/articles/stock-market-open-close-new-years-eve-monday-hours-51640891577
+    if datetime.datetime(year=this_date.year+1, month=1, day=1).weekday() in [5,6]:
+        trading_holidays += [&#34;New Year&#39;s Day (Observed)&#34;]
+
     custom_holidays = [that_date for that_date in list(
         us_holidays) if us_holidays[that_date] not in trading_holidays]
+
     # add good friday to list since markets are closed on good friday
     custom_holidays.append(easter.easter(
         year=this_date.year) - datetime.timedelta(days=2))
@@ -1025,7 +1039,7 @@ Length of one period, measured in years.</li>
 </summary>
 <pre><code class="python">def last_close_date():
     right_now = datetime.datetime.now()
-    trading_close_today = right_now.replace(hour=14)
+    trading_close_today = right_now.replace(hour=16)
     if right_now &gt; trading_close_today:
         return right_now.date()
     return get_previous_business_date(right_now.date())</code></pre>
