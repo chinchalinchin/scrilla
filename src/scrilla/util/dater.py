@@ -121,10 +121,10 @@ def is_date_holiday(this_date: Union[date, str]) -> bool:
     # generate list without columbus day and veterans day since markets are open on those days
     trading_holidays = [
         "Columbus Day", "Columbus Day (Observed)", "Veterans Day", "Veterans Day (Observed)"]
-    
-    # markets are open 
+
+    # markets are open
     # see here: https://www.barrons.com/articles/stock-market-open-close-new-years-eve-monday-hours-51640891577
-    if datetime.datetime(year=this_date.year+1, month=1, day=1).weekday() in [5,6]:
+    if datetime.datetime(year=this_date.year+1, month=1, day=1).weekday() in [5, 6]:
         trading_holidays += ["New Year's Day (Observed)"]
 
     custom_holidays = [that_date for that_date in list(
