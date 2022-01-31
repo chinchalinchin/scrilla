@@ -295,7 +295,7 @@ class Portfolio:
     @staticmethod
     def calculate_approximate_shares(x, total, latest_prices: Dict[str, float]):
         """
-        
+
         Parameters
         ----------
         1. **x**: 
