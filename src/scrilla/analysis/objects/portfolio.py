@@ -293,13 +293,21 @@ class Portfolio:
         return None
 
     @staticmethod
-    def calculate_approximate_shares(x, total, latest_prices):
+    def calculate_approximate_shares(x, total, latest_prices: Dict[str, float]):
+        """
+        
+        Parameters
+        ----------
+        1. **x**: 
+        2. **total**:
+        3. **latest_prices**: ``Dict[str, float]``. 
+            Dictionary of latest asset prices. Must preserve order with the allocation **x**, i.e. the *i*-th element of **x** must correspond to the same asset as the *i*-th element of the **latest_prices**.
+        """
         shares = []
         for i, item in enumerate(x):
-            price = latest_prices[i]
+            price = list(latest_prices.values())[i]
             share = Decimal(item) * Decimal(total) / Decimal(price)
             shares.append(trunc(share))
-
         return shares
 
     @staticmethod
@@ -308,7 +316,7 @@ class Portfolio:
         shares = Portfolio.calculate_approximate_shares(
             x=x, total=total, latest_prices=latest_prices)
         for i, item in enumerate(shares):
-            price = latest_prices[i]
+            price = list(latest_prices.values())[i]
             portion = Decimal(item) * Decimal(price)
             actual_total = actual_total + portion
         return actual_total
