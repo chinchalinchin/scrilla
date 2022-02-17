@@ -609,7 +609,7 @@ def get_daily_price_latest(ticker: str, asset_type: Union[None, str] = None) -> 
 
 def get_daily_prices_latest(tickers: List[str], asset_types: Union[None, List[str]] = None):
     if asset_types is None:
-        asset_types = [ None for _ in tickers ]
+        asset_types = [None for _ in tickers]
     return {ticker: get_daily_price_latest(ticker, asset_types[i]) for i, ticker in enumerate(tickers)}
 
 
