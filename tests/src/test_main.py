@@ -25,7 +25,6 @@ def test_cli_correlation_json_format(args, length,capsys):
     with HTTMock(mock.mock_prices):
         do_program(args)
     correl_matrix = json.loads(capsys.readouterr().out)
-    print(correl_matrix)
     # assert dimensions are correct length
     assert(len(correl_matrix) == length )
     # assert all entries satisfy correlation bounds

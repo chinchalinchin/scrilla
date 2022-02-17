@@ -27,5 +27,4 @@ def test_prob_d2(S0,ST,vol,ret,expiry,prob):
 @pytest.mark.parametrize("S0,vol,ret,expiry,prob,percentile", mock.bs_percentile_cases)
 def test_prob_d2(S0,vol,ret,expiry,prob, percentile):
     this_percentile = probability.percentile(S0, vol, ret, expiry,prob)
-    print('this percentile', this_percentile)
     assert(settings.is_within_tolerance(lambda: this_percentile - percentile))
