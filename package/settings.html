@@ -272,9 +272,9 @@ Q_KEY = None
 # QUANDL CONFIGURAITON
 if STAT_MANAGER == &#34;quandl&#34;:
     Q_URL = os.environ.setdefault(
-        &#39;QUANDL_URL&#39;, &#39;https://www.quandl.com/api/v3/datasets&#39;).strip(&#34;\&#34;&#34;).strip(&#34;&#39;&#34;)
+        &#39;QUANDL_URL&#39;, &#39;https://data.nasdaq.com/api/v3/datasets&#39;).strip(&#34;\&#34;&#34;).strip(&#34;&#39;&#34;)
     Q_META_URL = os.environ.setdefault(
-        &#39;QUANDL_META_URL&#39;, &#39;https://www.quandl.com/api/v3/databases&#39;)
+        &#39;QUANDL_META_URL&#39;, &#39;https://data.nasdaq.com/api/v3/databases&#39;)
 
     Q_KEY = os.environ.setdefault(&#39;QUANDL_KEY&#39;, None)
 
