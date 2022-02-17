@@ -33,3 +33,8 @@
 50. refactor to use math.sqrt from standard library and create dot, multiply and transpose methods for matrices.
 
 51. don't round crypto shares in portfolio.
+
+52. update references to quandl to nasdaq (they got acquired)
+
+53. Quandl doesn't update USTREASURY/YIELD often enough. causes problems with application. get interest information directly from source:
+https://home.treasury.gov/resource-center/data-chart-center/interest-rates/pages/xml?data=daily_treasury_yield_curve&field_tdr_date_value=2022

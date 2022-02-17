@@ -95,7 +95,7 @@ keys = {
                 'MAP': {
                     'PATHS': {
                         'FRED': 'FRED',
-                        'YIELD': 'USTREASURY/YIELD'
+                        'YIELD': 'USTREASURY/YIELD.json'
                     },
                     'KEYS': {
                         'FIRST_LAYER': 'dataset',

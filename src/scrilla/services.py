@@ -162,6 +162,7 @@ class StatManager():
         """
         url = f'{self.url}/{self.service_map["PATHS"]["YIELD"]}?'
         url += self._construct_query(start_date=start_date, end_date=end_date)
+        print(url)
         return url
 
     def get_stats(self, symbol, start_date, end_date):
@@ -181,11 +182,14 @@ class StatManager():
             start_date=start_date, end_date=end_date)
         response = requests.get(url).json()
 
+        print(response)
         raw_interest = response[self.service_map["KEYS"]
                                 ["FIRST_LAYER"]][self.service_map["KEYS"]["SECOND_LAYER"]]
+        print(raw_interest)
         formatted_interest = {}
         for rate in raw_interest:
             formatted_interest[rate[0]] = rate[1:]
+        print(formatted_interest)
         return formatted_interest
 
     @staticmethod
@@ -199,6 +203,7 @@ class StatManager():
         formatted_interest = {}
         for result in results:
             formatted_interest[result] = results[result][maturity_key]
+        print(formatted_interest)
         return formatted_interest
 
 
@@ -711,7 +716,11 @@ def get_daily_interest_history(maturity: str, start_date: Union[date, None] = No
     for this_date in rates:
         interest_cache.save_row(date=this_date, value=rates[this_date])
 
+    print(rates)
+
     rates = stat_manager.format_for_maturity(maturity=maturity, results=rates)
+
+    print(rates)
 
     return rates
 
@@ -729,6 +738,7 @@ def get_daily_interest_latest(maturity: str) -> float:
     start_date = dater.decrement_date_by_business_days(end_date, 1)
     interest_history = get_daily_interest_history(
         maturity=maturity, start_date=start_date, end_date=end_date)
+    print(interest_history)
     first_element = helper.get_first_json_key(interest_history)
     return interest_history[first_element]
 
