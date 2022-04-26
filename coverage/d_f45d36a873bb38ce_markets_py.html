@@ -43,9 +43,9 @@
             </div>
         </div>
         <h2>
-            <span class="text">78 statements &nbsp;</span>
+            <span class="text">75 statements &nbsp;</span>
             <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">0<span class="text"> run</span></button>
-            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">78<span class="text"> missing</span></button>
+            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">75<span class="text"> missing</span></button>
             <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">0<span class="text"> excluded</span></button>
         </h2>
         <div style="display: none;">
@@ -299,20 +299,18 @@
     <p class="mis show_mis"><span class="n"><a id="t240" href="#t240">240</a></span><span class="t">            <span class="nam">discount</span> <span class="op">=</span> <span class="nam">float</span><span class="op">(</span><span class="nam">model_price</span><span class="op">)</span> <span class="op">-</span> <span class="nam">float</span><span class="op">(</span><span class="nam">spot_price</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t241" href="#t241">241</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t242" href="#t242">242</a></span><span class="t">            <span class="key">if</span> <span class="nam">discount</span> <span class="op">></span> <span class="num">0</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t243" href="#t243">243</a></span><span class="t">                <span class="nam">discount_result</span> <span class="op">=</span> <span class="op">{</span><span class="op">}</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t244" href="#t244">244</a></span><span class="t">                <span class="nam">discount_result</span><span class="op">[</span><span class="str">'spot_price'</span><span class="op">]</span> <span class="op">=</span> <span class="nam">spot_price</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t245" href="#t245">245</a></span><span class="t">                <span class="nam">discount_result</span><span class="op">[</span><span class="str">'model_price'</span><span class="op">]</span> <span class="op">=</span> <span class="nam">model_price</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t246" href="#t246">246</a></span><span class="t">                <span class="nam">discount_result</span><span class="op">[</span><span class="str">'discount'</span><span class="op">]</span> <span class="op">=</span> <span class="nam">discount</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t247" href="#t247">247</a></span><span class="t">                <span class="nam">discounts</span><span class="op">[</span><span class="nam">equity</span><span class="op">]</span> <span class="op">=</span> <span class="nam">discount_result</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t248" href="#t248">248</a></span><span class="t">                <span class="nam">logger</span><span class="op">.</span><span class="nam">debug</span><span class="op">(</span><span class="str">f'Discount of {discount} found for {equity}'</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t249" href="#t249">249</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t250" href="#t250">250</a></span><span class="t">    <span class="key">return</span> <span class="nam">discounts</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t243" href="#t243">243</a></span><span class="t">                <span class="nam">discount_result</span> <span class="op">=</span> <span class="op">{</span><span class="str">'spot_price'</span><span class="op">:</span> <span class="nam">spot_price</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t244" href="#t244">244</a></span><span class="t">                                   <span class="str">'model_price'</span><span class="op">:</span> <span class="nam">model_price</span><span class="op">,</span> <span class="str">'discount'</span><span class="op">:</span> <span class="nam">discount</span><span class="op">}</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t245" href="#t245">245</a></span><span class="t">                <span class="nam">discounts</span><span class="op">[</span><span class="nam">equity</span><span class="op">]</span> <span class="op">=</span> <span class="nam">discount_result</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t246" href="#t246">246</a></span><span class="t">                <span class="nam">logger</span><span class="op">.</span><span class="nam">debug</span><span class="op">(</span><span class="str">f'Discount of {discount} found for {equity}'</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t247" href="#t247">247</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t248" href="#t248">248</a></span><span class="t">    <span class="key">return</span> <span class="nam">discounts</span>&nbsp;</span><span class="r"></span></p>
 </main>
 <footer>
     <div class="content">
         <p>
             <a class="nav" href="index.html">&#xab; index</a> &nbsp; &nbsp; <a class="nav" href="https://coverage.readthedocs.io">coverage.py v6.1.2</a>,
-            created at 2022-02-17 00:54 +0000
+            created at 2022-04-26 17:21 +0000
         </p>
     </div>
 </footer>
