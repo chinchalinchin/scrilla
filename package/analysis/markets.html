@@ -270,10 +270,8 @@ def screen_for_discount(model: str = keys.keys[&#39;MODELS&#39;][&#39;DDM&#39;],
             discount = float(model_price) - float(spot_price)
 
             if discount &gt; 0:
-                discount_result = {}
-                discount_result[&#39;spot_price&#39;] = spot_price
-                discount_result[&#39;model_price&#39;] = model_price
-                discount_result[&#39;discount&#39;] = discount
+                discount_result = {&#39;spot_price&#39;: spot_price,
+                                   &#39;model_price&#39;: model_price, &#39;discount&#39;: discount}
                 discounts[equity] = discount_result
                 logger.debug(f&#39;Discount of {discount} found for {equity}&#39;)
 
@@ -539,10 +537,8 @@ A list of tickers that trade at a discount relative to the model price, formatte
             discount = float(model_price) - float(spot_price)
 
             if discount &gt; 0:
-                discount_result = {}
-                discount_result[&#39;spot_price&#39;] = spot_price
-                discount_result[&#39;model_price&#39;] = model_price
-                discount_result[&#39;discount&#39;] = discount
+                discount_result = {&#39;spot_price&#39;: spot_price,
+                                   &#39;model_price&#39;: model_price, &#39;discount&#39;: discount}
                 discounts[equity] = discount_result
                 logger.debug(f&#39;Discount of {discount} found for {equity}&#39;)
 
