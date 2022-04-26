@@ -534,7 +534,7 @@ def do_program(cli_args: List[str]) -&gt; None:
                     tickers=args[&#39;tickers&#39;])
             else:
                 prices = None
-            
+
             print(prices)
 
             if print_format_to_screen(args):
@@ -661,8 +661,8 @@ def do_program(cli_args: List[str]) -&gt; None:
             if print_format_to_screen(args):
                 from scrilla.util.outputter import optimal_result
                 optimal_result(
-                    portfolio=portfolio, 
-                    allocation=allocation, 
+                    portfolio=portfolio,
+                    allocation=allocation,
                     investment=args[&#39;investment&#39;],
                     latest_prices=prices)
 
@@ -1566,7 +1566,7 @@ if __name__ == &#34;__main__&#34;:
                     tickers=args[&#39;tickers&#39;])
             else:
                 prices = None
-            
+
             print(prices)
 
             if print_format_to_screen(args):
@@ -1693,8 +1693,8 @@ if __name__ == &#34;__main__&#34;:
             if print_format_to_screen(args):
                 from scrilla.util.outputter import optimal_result
                 optimal_result(
-                    portfolio=portfolio, 
-                    allocation=allocation, 
+                    portfolio=portfolio,
+                    allocation=allocation,
                     investment=args[&#39;investment&#39;],
                     latest_prices=prices)
 
