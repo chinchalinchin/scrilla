@@ -646,7 +646,7 @@ def get_daily_price_latest(ticker: str, asset_type: Union[None, str] = None) -&g
 
 def get_daily_prices_latest(tickers: List[str], asset_types: Union[None, List[str]] = None):
     if asset_types is None:
-        asset_types = [ None for _ in tickers ]
+        asset_types = [None for _ in tickers]
     return {ticker: get_daily_price_latest(ticker, asset_types[i]) for i, ticker in enumerate(tickers)}
 
 
@@ -1232,7 +1232,7 @@ ticker symbol whose latest closing price is to be retrieved. </p>
 </summary>
 <pre><code class="python">def get_daily_prices_latest(tickers: List[str], asset_types: Union[None, List[str]] = None):
     if asset_types is None:
-        asset_types = [ None for _ in tickers ]
+        asset_types = [None for _ in tickers]
     return {ticker: get_daily_price_latest(ticker, asset_types[i]) for i, ticker in enumerate(tickers)}</code></pre>
 </details>
 </dd>
