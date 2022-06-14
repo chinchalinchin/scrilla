@@ -255,6 +255,9 @@ if STAT_MANAGER == "quandl":
                 if FILE_EXT == "json":
                     Q_KEY = json.load(infile)['QUANDL_KEY']
                     os.environ['QUANDL_KEY'] = str(Q_KEY)
+elif STAT_MANAGER == 'treasury':
+    TR_URL = os.environ.setdefault(
+        'TREASURY_URL', 'https://home.treasury.gov/resource-center/data-chart-center').strip("\"").strip("'")
 
 # DIVIDEND_MANAGER CONFIGURATION
 DIV_MANAGER = os.environ.setdefault("DIV_MANAGER", 'iex')

@@ -67,6 +67,10 @@ class StatManager():
             self.service_map = keys.keys["SERVICES"]["STATISTICS"]["QUANDL"]["MAP"]
             self.key = settings.Q_KEY
             self.url = settings.Q_URL
+        elif self._is_treasury():
+            self.service_map = keys.keys["SERVICES"]["STATISTICS"]["TREASURY"]["MAP"]
+            self.url = settings.TR_URL
+            self.key = None
         if self.service_map is None:
             raise errors.ConfigurationError(
                 'No STAT_MANAGER found in the parsed environment settings')
@@ -83,6 +87,21 @@ class StatManager():
 
         """
         if self.genre == keys.keys['SERVICES']['STATISTICS']['QUANDL']['MANAGER']:
+            return True
+        return False
+
+    def _is_treasury(self):
+        """
+        Returns
+        -------
+        `bool`
+            `True` if this instace of `StatManager` is a Quandl interface. `False` otherwise.
+
+        .. notes::
+            * This is for use within the class and probably won't need to be accessed outside of it. `StatManager` is intended to hide the data implementation from the rest of the library, i.e. it is ultimately agnostic about where the data comes where. It should never need to know `StatManger` is a Quandl interface. Just in case the library ever needs to populate its data from another source.
+
+        """
+        if self.genre == keys.keys['SERVICES']['STATISTICS']['TREASURY']['MANAGER']:
             return True
         return False
 

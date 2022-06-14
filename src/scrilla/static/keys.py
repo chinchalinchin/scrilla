@@ -124,6 +124,35 @@ keys = {
                         'THIRTY_YEAR': '30 YR'
                     }
                 },
+            },
+            'TREASURY':{
+                'MANAGER': 'treasury',
+                'MAP': {
+                    'PATHS': {
+                        'YIELD':'interest-rates/pages/xmlview'
+                    }
+                },
+                'KEYS':{
+
+                },
+                'PARAMS':{
+                    'DATA': 'data',
+                    'END': 'field_tdr_date_value_month'
+                },
+                'YIELD_CURVE':{
+                    'ONE_MONTH': 'BC_1MONTH',
+                    'TWO_MONTH': 'BC_2MONTH',
+                    'THREE_MONTH': 'BC_3MONTH',
+                    'SIX_MONTH': 'BC_6MONTH',
+                    'ONE_YEAR': 'BC_1YEAR',
+                    'TWO_YEAR': 'BC_2YEAR',
+                    'THREE_YEAR': 'BC_3YEAR',
+                    'FIVE_YEAR': 'BC_5YEAR',
+                    'SEVEN_YEAR': 'BC_7YEAR',
+                    'TEN_YEAR': 'BC_10YEAR',
+                    'TWENTY_YEAR': 'BC_20YEAR',
+                    'THIRTY_YEAR': 'BC_30YEAR'
+                }
             }
         },
         'DIVIDENDS': {
