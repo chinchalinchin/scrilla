@@ -1,3 +1,7 @@
+**NOTE**: Quandl was acquired by Nasdaq and their APIs wERE incorporated into the existing data.nasdaq api. Some of the support for some of the feeds has dropped. In particular, the free feed for the yield curve (USTREASURY/YIELD) is no longer refreshed daily and, in fact, hasn't been refreshed since February of this year. This was the feed this application used to determine the latest interest rate. As a result, any calculations involving interest rate since approximately 02-01-2022 (which is virtually every calculation...) will fail, since there is no interest rate to retrieve. 
+
+Currently working on directly parsing the treasury.gov's XML feed for the yield curve instead of Nasdaq/Quandl's Rest API. 
+
 # scrilla: A Financial Optimization Application
 
 ![](https://github.com/chinchalinchin/chinchalinchin/blob/main/assets/scrilla_gui_ii.png)
