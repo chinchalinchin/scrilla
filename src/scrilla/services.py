@@ -30,6 +30,7 @@ import itertools
 import time
 import requests
 from typing import Dict, List, Union
+import xml.etree.ElementTree as ET
 
 from datetime import date
 
@@ -73,7 +74,7 @@ class StatManager():
             self.key = None
         if self.service_map is None:
             raise errors.ConfigurationError(
-                'No STAT_MANAGER found in the parsed environment settings')
+                'No STAT_MANAGER found in the environment settings')
 
     def _is_quandl(self):
         """
@@ -123,6 +124,7 @@ class StatManager():
 
         """
         query = ""
+
         if end_date is not None:
             if self._is_treasury():
                 end_string = dater.bureaucratize_date(end_date)
@@ -184,8 +186,9 @@ class StatManager():
             * The URL returned by this method will always contain a query for a historical range of US Treasury Yields, i.e. this method is specifically for queries involving the "Risk-Free" (right? right? *crickets*) Yield Curve. 
         """
         url = f'{self.url}/{self.service_map["PATHS"]["YIELD"]}?'
+        if self._is_treasury:
+            url += f'{self.service_map["PARAMS"]["DATA"]}={self.service_map["ARGUMENTS"]["DAILY"]}'
         url += self._construct_query(start_date=start_date, end_date=end_date)
-        print(url)
         return url
 
     def get_stats(self, symbol, start_date, end_date):
@@ -203,16 +206,25 @@ class StatManager():
     def get_interest_rates(self, start_date, end_date):
         url = self._construct_interest_url(
             start_date=start_date, end_date=end_date)
-        response = requests.get(url).json()
+        response = requests.get(url)
 
-        print(response)
-        raw_interest = response[self.service_map["KEYS"]
+        if self._is_quandl():
+            response = response.json()
+            raw_interest = response[self.service_map["KEYS"]
                                 ["FIRST_LAYER"]][self.service_map["KEYS"]["SECOND_LAYER"]]
-        print(raw_interest)
-        formatted_interest = {}
-        for rate in raw_interest:
-            formatted_interest[rate[0]] = rate[1:]
-        print(formatted_interest)
+            formatted_interest = {}
+            for rate in raw_interest:
+                formatted_interest[rate[0]] = rate[1:]
+
+        elif self._is_treasury():
+            # TODO: the treasury sucks. they have basically no filtering on their API.
+            # will need to implement my own filtering. ugh.
+            response = ET.fromstring(response.text)
+            for child in response.findall(self.service_map["KEYS"]["FIRST_LAYER"]):
+                for maturity, node in self.service_map["YIELD_CURVE"].items():
+                    print(child.find(f'{self.service_map["KEYS"]["RATE_XPATH"]}{node}').text)
+                    print(child.find(f'{self.service_map["KEYS"]["RATE_XPATH"]}NEW_DATE').text)
+
         return formatted_interest
 
     @staticmethod

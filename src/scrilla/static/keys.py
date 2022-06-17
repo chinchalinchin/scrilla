@@ -130,30 +130,34 @@ keys = {
                 'MAP': {
                     'PATHS': {
                         'YIELD':'interest-rates/pages/xmlview'
+                    },
+                    'KEYS':{
+                        'FIRST_LAYER': '{http://www.w3.org/2005/Atom}entry',
+                        'RATE_XPATH': './{http://www.w3.org/2005/Atom}content/{http://schemas.microsoft.com/ado/2007/08/dataservices/metadata}properties/{http://schemas.microsoft.com/ado/2007/08/dataservices}'
+                    },
+                    'PARAMS':{
+                        'DATA': 'data',
+                        'END': 'field_tdr_date_value_month',
+                        'YEAR': 'field_tdr_date_value'
+                    },
+                    'ARGUMENTS': {
+                        'DAILY': 'daily_treasury_yield_curve',
+                    },
+                    'YIELD_CURVE':{
+                        'ONE_MONTH': 'BC_1MONTH',
+                        'TWO_MONTH': 'BC_2MONTH',
+                        'THREE_MONTH': 'BC_3MONTH',
+                        'SIX_MONTH': 'BC_6MONTH',
+                        'ONE_YEAR': 'BC_1YEAR',
+                        'TWO_YEAR': 'BC_2YEAR',
+                        'THREE_YEAR': 'BC_3YEAR',
+                        'FIVE_YEAR': 'BC_5YEAR',
+                        'SEVEN_YEAR': 'BC_7YEAR',
+                        'TEN_YEAR': 'BC_10YEAR',
+                        'TWENTY_YEAR': 'BC_20YEAR',
+                        'THIRTY_YEAR': 'BC_30YEAR'
                     }
                 },
-                'KEYS':{
-
-                },
-                'PARAMS':{
-                    'DATA': 'data',
-                    'END': 'field_tdr_date_value_month',
-                    'YEAR': 'field_tdr_date_value'
-                },
-                'YIELD_CURVE':{
-                    'ONE_MONTH': 'BC_1MONTH',
-                    'TWO_MONTH': 'BC_2MONTH',
-                    'THREE_MONTH': 'BC_3MONTH',
-                    'SIX_MONTH': 'BC_6MONTH',
-                    'ONE_YEAR': 'BC_1YEAR',
-                    'TWO_YEAR': 'BC_2YEAR',
-                    'THREE_YEAR': 'BC_3YEAR',
-                    'FIVE_YEAR': 'BC_5YEAR',
-                    'SEVEN_YEAR': 'BC_7YEAR',
-                    'TEN_YEAR': 'BC_10YEAR',
-                    'TWENTY_YEAR': 'BC_20YEAR',
-                    'THIRTY_YEAR': 'BC_30YEAR'
-                }
             }
         },
         'DIVIDENDS': {
