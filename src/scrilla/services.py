@@ -124,18 +124,22 @@ class StatManager():
         """
         query = ""
         if end_date is not None:
-            end_string = dater.to_string(end_date)
+            if self._is_treasury():
+                end_string = dater.bureaucratize_date(end_date)
+            else:
+                end_string = dater.to_string(end_date)
             query += f'&{self.service_map["PARAMS"]["END"]}={end_string}'
 
-        if start_date is not None:
+        if start_date is not None and not self._is_treasury():
             start_string = dater.to_string(start_date)
             query += f'&{self.service_map["PARAMS"]["START"]}={start_string}'
 
-        if query:
-            logger.debug(f'StatManager Query (w/o key) = {query}')
-            return f'{query}&{self.service_map["PARAMS"]["KEY"]}={self.key}'
-
-        return f'{self.service_map["PARAMS"]["KEY"]}={self.key}'
+        if self.service_map["PARAMS"].get("KEY", None) is not None:
+            if query:
+                logger.debug(f'StatManager Query (w/o key) = {query}')
+                return f'{query}&{self.service_map["PARAMS"]["KEY"]}={self.key}'
+            return f'{self.service_map["PARAMS"]["KEY"]}={self.key}'
+        return query
 
     def _construct_stat_url(self, symbol: str, start_date: date, end_date: date):
         """

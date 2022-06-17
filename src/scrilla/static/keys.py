@@ -137,7 +137,8 @@ keys = {
                 },
                 'PARAMS':{
                     'DATA': 'data',
-                    'END': 'field_tdr_date_value_month'
+                    'END': 'field_tdr_date_value_month',
+                    'YEAR': 'field_tdr_date_value'
                 },
                 'YIELD_CURVE':{
                     'ONE_MONTH': 'BC_1MONTH',
