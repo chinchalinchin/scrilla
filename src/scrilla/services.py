@@ -30,6 +30,7 @@ import itertools
 import time
 import requests
 from typing import Dict, List, Union
+import xml.etree.ElementTree as ET
 
 from datetime import date
 
@@ -67,9 +68,13 @@ class StatManager():
             self.service_map = keys.keys["SERVICES"]["STATISTICS"]["QUANDL"]["MAP"]
             self.key = settings.Q_KEY
             self.url = settings.Q_URL
+        elif self._is_treasury():
+            self.service_map = keys.keys["SERVICES"]["STATISTICS"]["TREASURY"]["MAP"]
+            self.url = settings.TR_URL
+            self.key = None
         if self.service_map is None:
             raise errors.ConfigurationError(
-                'No STAT_MANAGER found in the parsed environment settings')
+                'No STAT_MANAGER found in the environment settings')
 
     def _is_quandl(self):
         """
@@ -83,6 +88,21 @@ class StatManager():
 
         """
         if self.genre == keys.keys['SERVICES']['STATISTICS']['QUANDL']['MANAGER']:
+            return True
+        return False
+
+    def _is_treasury(self):
+        """
+        Returns
+        -------
+        `bool`
+            `True` if this instace of `StatManager` is a Quandl interface. `False` otherwise.
+
+        .. notes::
+            * This is for use within the class and probably won't need to be accessed outside of it. `StatManager` is intended to hide the data implementation from the rest of the library, i.e. it is ultimately agnostic about where the data comes where. It should never need to know `StatManger` is a Quandl interface. Just in case the library ever needs to populate its data from another source.
+
+        """
+        if self.genre == keys.keys['SERVICES']['STATISTICS']['TREASURY']['MANAGER']:
             return True
         return False
 
@@ -104,19 +124,25 @@ class StatManager():
 
         """
         query = ""
+
         if end_date is not None:
-            end_string = dater.to_string(end_date)
+            if self._is_treasury():
+                end_string = "all"
+            else:
+                end_string = dater.to_string(end_date)
             query += f'&{self.service_map["PARAMS"]["END"]}={end_string}'
 
-        if start_date is not None:
+        if start_date is not None and not self._is_treasury():
             start_string = dater.to_string(start_date)
             query += f'&{self.service_map["PARAMS"]["START"]}={start_string}'
 
-        if query:
-            logger.debug(f'StatManager Query (w/o key) = {query}')
-            return f'{query}&{self.service_map["PARAMS"]["KEY"]}={self.key}'
+        logger.debug(f'StatManager Query (w/o key) = {query}')
 
-        return f'{self.service_map["PARAMS"]["KEY"]}={self.key}'
+        if self.service_map["PARAMS"].get("KEY", None) is not None:
+            if query:
+                return f'{query}&{self.service_map["PARAMS"]["KEY"]}={self.key}'
+            return f'{self.service_map["PARAMS"]["KEY"]}={self.key}'
+        return query
 
     def _construct_stat_url(self, symbol: str, start_date: date, end_date: date):
         """
@@ -161,8 +187,9 @@ class StatManager():
             * The URL returned by this method will always contain a query for a historical range of US Treasury Yields, i.e. this method is specifically for queries involving the "Risk-Free" (right? right? *crickets*) Yield Curve. 
         """
         url = f'{self.url}/{self.service_map["PATHS"]["YIELD"]}?'
+        if self._is_treasury():
+            url += f'{self.service_map["PARAMS"]["DATA"]}={self.service_map["ARGUMENTS"]["DAILY"]}'
         url += self._construct_query(start_date=start_date, end_date=end_date)
-        print(url)
         return url
 
     def get_stats(self, symbol, start_date, end_date):
@@ -180,16 +207,45 @@ class StatManager():
     def get_interest_rates(self, start_date, end_date):
         url = self._construct_interest_url(
             start_date=start_date, end_date=end_date)
-        response = requests.get(url).json()
-
-        print(response)
-        raw_interest = response[self.service_map["KEYS"]
-                                ["FIRST_LAYER"]][self.service_map["KEYS"]["SECOND_LAYER"]]
-        print(raw_interest)
         formatted_interest = {}
-        for rate in raw_interest:
-            formatted_interest[rate[0]] = rate[1:]
-        print(formatted_interest)
+
+        if self._is_quandl():
+            response = requests.get(url)
+
+            response = response.json()
+            raw_interest = response[self.service_map["KEYS"]
+                                    ["FIRST_LAYER"]][self.service_map["KEYS"]["SECOND_LAYER"]]
+            for rate in raw_interest:
+                formatted_interest[rate[0]] = rate[1:]
+
+        elif self._is_treasury():
+            # this is ugly, but it's the government's fault for not supporting an API
+            # from this century.
+
+            page = 0
+
+            def _paginate(page_no, page_url):
+                page_url = f'{page_url}&{self.service_map["PARAMS"]["PAGE"]}={page_no}'
+                page_response = ET.fromstring(requests.get(page_url).text)
+                return page_no + 1, page_response
+
+            while True:
+                page, response = _paginate(page, url)
+                if len(response.findall(self.service_map["KEYS"]["FIRST_LAYER"])) != 0:
+                    for child in response.findall(self.service_map["KEYS"]["FIRST_LAYER"]):
+                        this_date = dater.parse(child.find(
+                            f'{self.service_map["KEYS"]["RATE_XPATH"]}NEW_DATE').text)
+                        if start_date <= this_date <= end_date:
+                            formatted_interest[this_date] = []
+                            for maturity in self.service_map["YIELD_CURVE"].values():
+                                interest = child.find(
+                                    f'{self.service_map["KEYS"]["RATE_XPATH"]}{maturity}').text
+                                date_string = dater.to_string(this_date)
+                                formatted_interest[date_string].append(
+                                    float(interest))
+                else:
+                    break
+
         return formatted_interest
 
     @staticmethod
@@ -203,7 +259,6 @@ class StatManager():
         formatted_interest = {}
         for result in results:
             formatted_interest[result] = results[result][maturity_key]
-        print(formatted_interest)
         return formatted_interest
 
 
@@ -716,11 +771,7 @@ def get_daily_interest_history(maturity: str, start_date: Union[date, None] = No
     for this_date in rates:
         interest_cache.save_row(date=this_date, value=rates[this_date])
 
-    print(rates)
-
     rates = stat_manager.format_for_maturity(maturity=maturity, results=rates)
-
-    print(rates)
 
     return rates
 

@@ -10,6 +10,18 @@ import dateutil.easter as easter
 from scrilla.settings import DATE_FORMAT
 
 
+def bureaucratize_date(this_date: date):
+    """
+    Returns the format expected by the US Treasury API. Because why in God's name would the US Treasury serialize a date in a universal format when it could just make one up?
+
+    Returns
+    -------
+    ``str`` - formatted _YYYYMM_
+    """
+    month_text = f'{this_date.month}' if this_date.month > 9 else f'0{this_date.month}'
+    return f'{this_date.year}{month_text}'
+
+
 def today() -> datetime.date:
     """
     Returns today's date
@@ -31,7 +43,10 @@ def parse(date_string: str) -> Union[date, None]:
     """
     Converts a date string in the 'YYYY-MM-DD' format to a Python `datetime.date`.
     """
-    return datetime.datetime.strptime(date_string, DATE_FORMAT).date()
+    if len(date_string) < 10:
+        raise ValueError(
+            'Date string does not represent a valid date in YYYY-MM-DD format')
+    return datetime.datetime.strptime(date_string[0:10], DATE_FORMAT).date()
 
 
 def validate_date(this_date: Any) -> date:
