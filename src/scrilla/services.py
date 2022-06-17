@@ -30,7 +30,7 @@ import itertools
 import time
 import requests
 from typing import Dict, List, Union
-import xml.etree.ElementTree as ET
+import defusedxml.ElementTree as ET
 
 from datetime import date
 
@@ -222,27 +222,42 @@ class StatManager():
             # this is ugly, but it's the government's fault for not supporting an API
             # from this century.
 
-            page = 0
-
             def _paginate(page_no, page_url):
                 page_url = f'{page_url}&{self.service_map["PARAMS"]["PAGE"]}={page_no}'
                 page_response = ET.fromstring(requests.get(page_url).text)
-                return page_no + 1, page_response
+                return page_no - 1, page_response
+
+            record_time = dater.business_days_between(constants.constants['YIELD_START_DATE'], end_date)
+            pages = record_time // self.service_map["KEYS"]["PAGE_LENGTH"] - 1 # subtract to reindex to 0
+            pages += 1 if record_time % self.service_map["KEYS"]["PAGE_LENGTH"] > 0 else 0
+            page = pages
 
             while True:
                 page, response = _paginate(page, url)
-                if len(response.findall(self.service_map["KEYS"]["FIRST_LAYER"])) != 0:
-                    for child in response.findall(self.service_map["KEYS"]["FIRST_LAYER"]):
-                        this_date = dater.parse(child.find(
-                            f'{self.service_map["KEYS"]["RATE_XPATH"]}NEW_DATE').text)
+                first_layer = response.findall(self.service_map["KEYS"]["FIRST_LAYER"])
+
+                if len(first_layer) != 0:
+                    done = False
+                    for child in first_layer:
+                        xpath = f'{self.service_map["KEYS"]["RATE_XPATH"]}{self.service_map["KEYS"]["DATE"]}'
+                        this_date = dater.parse(child.find(xpath).text)
+
                         if start_date <= this_date <= end_date:
-                            formatted_interest[this_date] = []
+                            date_string = dater.to_string(this_date)
+                            formatted_interest[date_string] = []
+
                             for maturity in self.service_map["YIELD_CURVE"].values():
                                 interest = child.find(
                                     f'{self.service_map["KEYS"]["RATE_XPATH"]}{maturity}').text
-                                date_string = dater.to_string(this_date)
                                 formatted_interest[date_string].append(
                                     float(interest))
+                            
+                        if len(formatted_interest) >= dater.business_days_between(start_date, end_date):
+                            done = True
+                            break
+
+                    if done:
+                        break
                 else:
                     break
 

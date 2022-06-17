@@ -133,7 +133,9 @@ keys = {
                     },
                     'KEYS': {
                         'FIRST_LAYER': '{http://www.w3.org/2005/Atom}entry',
-                        'RATE_XPATH': './{http://www.w3.org/2005/Atom}content/{http://schemas.microsoft.com/ado/2007/08/dataservices/metadata}properties/{http://schemas.microsoft.com/ado/2007/08/dataservices}'
+                        'RATE_XPATH': './{http://www.w3.org/2005/Atom}content/{http://schemas.microsoft.com/ado/2007/08/dataservices/metadata}properties/{http://schemas.microsoft.com/ado/2007/08/dataservices}',
+                        'PAGE_LENGTH': 300,
+                        'DATE': 'NEW_DATE'
                     },
                     'PARAMS': {
                         'DATA': 'data',

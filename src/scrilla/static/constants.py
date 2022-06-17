@@ -1,3 +1,5 @@
+import datetime 
+
 constants = {
     'ONE_TRADING_DAY': {
         'EQUITY': (1/252),
@@ -16,5 +18,6 @@ constants = {
         'INFO': 'info',
         'DEBUG': 'debug',
         'VERBOSE': 'verbose'
-    }
+    },
+    'YIELD_START_DATE': datetime.date(1990,1,2)
 }
