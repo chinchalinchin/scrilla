@@ -227,14 +227,17 @@ class StatManager():
                 page_response = ET.fromstring(requests.get(page_url).text)
                 return page_no - 1, page_response
 
-            record_time = dater.business_days_between(constants.constants['YIELD_START_DATE'], end_date)
-            pages = record_time // self.service_map["KEYS"]["PAGE_LENGTH"] - 1 # subtract to reindex to 0
+            record_time = dater.business_days_between(
+                constants.constants['YIELD_START_DATE'], end_date)
+            # subtract to reindex to 0
+            pages = record_time // self.service_map["KEYS"]["PAGE_LENGTH"] - 1
             pages += 1 if record_time % self.service_map["KEYS"]["PAGE_LENGTH"] > 0 else 0
             page = pages
 
             while True:
                 page, response = _paginate(page, url)
-                first_layer = response.findall(self.service_map["KEYS"]["FIRST_LAYER"])
+                first_layer = response.findall(
+                    self.service_map["KEYS"]["FIRST_LAYER"])
 
                 if len(first_layer) != 0:
                     done = False
@@ -251,7 +254,7 @@ class StatManager():
                                     f'{self.service_map["KEYS"]["RATE_XPATH"]}{maturity}').text
                                 formatted_interest[date_string].append(
                                     float(interest))
-                            
+
                         if len(formatted_interest) >= dater.business_days_between(start_date, end_date):
                             done = True
                             break

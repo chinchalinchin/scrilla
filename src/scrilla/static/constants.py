@@ -1,4 +1,4 @@
-import datetime 
+import datetime
 
 constants = {
     'ONE_TRADING_DAY': {
@@ -19,5 +19,5 @@ constants = {
         'DEBUG': 'debug',
         'VERBOSE': 'verbose'
     },
-    'YIELD_START_DATE': datetime.date(1990,1,2)
+    'YIELD_START_DATE': datetime.date(1990, 1, 2)
 }
