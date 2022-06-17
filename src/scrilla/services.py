@@ -187,7 +187,7 @@ class StatManager():
             * The URL returned by this method will always contain a query for a historical range of US Treasury Yields, i.e. this method is specifically for queries involving the "Risk-Free" (right? right? *crickets*) Yield Curve. 
         """
         url = f'{self.url}/{self.service_map["PATHS"]["YIELD"]}?'
-        if self._is_treasury:
+        if self._is_treasury():
             url += f'{self.service_map["PARAMS"]["DATA"]}={self.service_map["ARGUMENTS"]["DAILY"]}'
         url += self._construct_query(start_date=start_date, end_date=end_date)
         return url
