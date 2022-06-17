@@ -221,7 +221,7 @@ class StatManager():
         elif self._is_treasury():
             # this is ugly, but it's the government's fault for not supporting an API
             # from this century.
-            
+
             page = 0
 
             def _paginate(page_no, page_url):
@@ -233,12 +233,12 @@ class StatManager():
                 page, response = _paginate(page, url)
                 if len(response.findall(self.service_map["KEYS"]["FIRST_LAYER"])) != 0:
                     for child in response.findall(self.service_map["KEYS"]["FIRST_LAYER"]):
-                        date = dater.parse(child.find(f'{self.service_map["KEYS"]["RATE_XPATH"]}NEW_DATE').text)
-                        if start_date <= date <= end_date:
-                            formatted_interest[date] = []
+                        this_date = dater.parse(child.find(f'{self.service_map["KEYS"]["RATE_XPATH"]}NEW_DATE').text)
+                        if start_date <= this_date <= end_date:
+                            formatted_interest[this_date] = []
                             for maturity in self.service_map["YIELD_CURVE"].values():
                                 interest = child.find(f'{self.service_map["KEYS"]["RATE_XPATH"]}{maturity}').text
-                                date_string = dater.to_string(date)
+                                date_string = dater.to_string(this_date)
                                 formatted_interest[date_string].append(float(interest))
                 else:
                     break
