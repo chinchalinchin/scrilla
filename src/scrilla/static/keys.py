@@ -125,17 +125,17 @@ keys = {
                     }
                 },
             },
-            'TREASURY':{
+            'TREASURY': {
                 'MANAGER': 'treasury',
                 'MAP': {
                     'PATHS': {
-                        'YIELD':'interest-rates/pages/xml'
+                        'YIELD': 'interest-rates/pages/xml'
                     },
-                    'KEYS':{
+                    'KEYS': {
                         'FIRST_LAYER': '{http://www.w3.org/2005/Atom}entry',
                         'RATE_XPATH': './{http://www.w3.org/2005/Atom}content/{http://schemas.microsoft.com/ado/2007/08/dataservices/metadata}properties/{http://schemas.microsoft.com/ado/2007/08/dataservices}'
                     },
-                    'PARAMS':{
+                    'PARAMS': {
                         'DATA': 'data',
                         'END': 'field_tdr_date_value',
                         'PAGE': 'page'
@@ -143,7 +143,7 @@ keys = {
                     'ARGUMENTS': {
                         'DAILY': 'daily_treasury_yield_curve',
                     },
-                    'YIELD_CURVE':{
+                    'YIELD_CURVE': {
                         'ONE_MONTH': 'BC_1MONTH',
                         'TWO_MONTH': 'BC_2MONTH',
                         'THREE_MONTH': 'BC_3MONTH',
