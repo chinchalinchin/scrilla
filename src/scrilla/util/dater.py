@@ -42,7 +42,9 @@ def parse(date_string: str) -> Union[date, None]:
     """
     Converts a date string in the 'YYYY-MM-DD' format to a Python `datetime.date`.
     """
-    return datetime.datetime.strptime(date_string, DATE_FORMAT).date()
+    if len(date_string) < 10:
+        raise ValueError('Date string does not represent a valid date in YYYY-MM-DD format')
+    return datetime.datetime.strptime(date_string[0:10], DATE_FORMAT).date()
 
 
 def validate_date(this_date: Any) -> date:

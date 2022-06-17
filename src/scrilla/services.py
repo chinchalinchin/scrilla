@@ -127,7 +127,7 @@ class StatManager():
 
         if end_date is not None:
             if self._is_treasury():
-                end_string = dater.bureaucratize_date(end_date)
+                end_string = "all"
             else:
                 end_string = dater.to_string(end_date)
             query += f'&{self.service_map["PARAMS"]["END"]}={end_string}'
@@ -136,9 +136,10 @@ class StatManager():
             start_string = dater.to_string(start_date)
             query += f'&{self.service_map["PARAMS"]["START"]}={start_string}'
 
+        logger.debug(f'StatManager Query (w/o key) = {query}')
+
         if self.service_map["PARAMS"].get("KEY", None) is not None:
             if query:
-                logger.debug(f'StatManager Query (w/o key) = {query}')
                 return f'{query}&{self.service_map["PARAMS"]["KEY"]}={self.key}'
             return f'{self.service_map["PARAMS"]["KEY"]}={self.key}'
         return query
@@ -206,25 +207,42 @@ class StatManager():
     def get_interest_rates(self, start_date, end_date):
         url = self._construct_interest_url(
             start_date=start_date, end_date=end_date)
-        response = requests.get(url)
+        formatted_interest = {}
 
         if self._is_quandl():
+            response = requests.get(url)
+
             response = response.json()
             raw_interest = response[self.service_map["KEYS"]
                                 ["FIRST_LAYER"]][self.service_map["KEYS"]["SECOND_LAYER"]]
-            formatted_interest = {}
             for rate in raw_interest:
                 formatted_interest[rate[0]] = rate[1:]
 
         elif self._is_treasury():
-            # TODO: the treasury sucks. they have basically no filtering on their API.
-            # will need to implement my own filtering. ugh.
-            response = ET.fromstring(response.text)
-            for child in response.findall(self.service_map["KEYS"]["FIRST_LAYER"]):
-                for maturity, node in self.service_map["YIELD_CURVE"].items():
-                    print(child.find(f'{self.service_map["KEYS"]["RATE_XPATH"]}{node}').text)
-                    print(child.find(f'{self.service_map["KEYS"]["RATE_XPATH"]}NEW_DATE').text)
+            # this is ugly, but it's the government's fault for not supporting an API
+            # from this century.
+            
+            page = 0
 
+            def _paginate(page_no, page_url):
+                page_url = f'{page_url}&{self.service_map["PARAMS"]["PAGE"]}={page_no}'
+                page_response = ET.fromstring(requests.get(page_url).text)
+                return page_no + 1, page_response
+
+            while True:
+                page, response = _paginate(page, url)
+                if len(response.findall(self.service_map["KEYS"]["FIRST_LAYER"])) != 0:
+                    for child in response.findall(self.service_map["KEYS"]["FIRST_LAYER"]):
+                        date = dater.parse(child.find(f'{self.service_map["KEYS"]["RATE_XPATH"]}NEW_DATE').text)
+                        if start_date <= date <= end_date:
+                            formatted_interest[date] = []
+                            for maturity in self.service_map["YIELD_CURVE"].values():
+                                interest = child.find(f'{self.service_map["KEYS"]["RATE_XPATH"]}{maturity}').text
+                                date_string = dater.to_string(date)
+                                formatted_interest[date_string].append(float(interest))
+                else:
+                    break
+                                
         return formatted_interest
 
     @staticmethod
@@ -238,7 +256,6 @@ class StatManager():
         formatted_interest = {}
         for result in results:
             formatted_interest[result] = results[result][maturity_key]
-        print(formatted_interest)
         return formatted_interest
 
 
@@ -751,11 +768,7 @@ def get_daily_interest_history(maturity: str, start_date: Union[date, None] = No
     for this_date in rates:
         interest_cache.save_row(date=this_date, value=rates[this_date])
 
-    print(rates)
-
     rates = stat_manager.format_for_maturity(maturity=maturity, results=rates)
-
-    print(rates)
 
     return rates
 

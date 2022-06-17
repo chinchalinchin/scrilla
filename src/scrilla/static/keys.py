@@ -129,7 +129,7 @@ keys = {
                 'MANAGER': 'treasury',
                 'MAP': {
                     'PATHS': {
-                        'YIELD':'interest-rates/pages/xmlview'
+                        'YIELD':'interest-rates/pages/xml'
                     },
                     'KEYS':{
                         'FIRST_LAYER': '{http://www.w3.org/2005/Atom}entry',
@@ -137,8 +137,8 @@ keys = {
                     },
                     'PARAMS':{
                         'DATA': 'data',
-                        'END': 'field_tdr_date_value_month',
-                        'YEAR': 'field_tdr_date_value'
+                        'END': 'field_tdr_date_value',
+                        'PAGE': 'page'
                     },
                     'ARGUMENTS': {
                         'DAILY': 'daily_treasury_yield_curve',
