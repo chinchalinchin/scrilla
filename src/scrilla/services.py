@@ -236,7 +236,8 @@ class StatManager():
             page = pages
 
             logger.debug(f'Sorting through {pages} pages of Treasury data')
-            logger.debug(f'Days from {dater.to_string(end_date)} to start of Treasury record: {record_time}')
+            logger.debug(
+                f'Days from {dater.to_string(end_date)} to start of Treasury record: {record_time}')
 
             while True:
                 page, response = __paginate(page, url)
@@ -259,7 +260,7 @@ class StatManager():
                                     f'{self.service_map["KEYS"]["RATE_XPATH"]}{maturity}').text
                                 formatted_interest[date_string].append(
                                     float(interest))
-                                    
+
                         if len(formatted_interest) >= dater.business_days_between(start_date, end_date, True):
                             done = True
                             break
