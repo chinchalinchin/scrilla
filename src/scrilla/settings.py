@@ -233,7 +233,7 @@ if PRICE_MANAGER == 'alpha_vantage':
                     os.environ['ALPHA_VANTAGE_KEY'] = str(AV_KEY)
 
 # STAT_MANAGER CONFIGURATION
-STAT_MANAGER = os.environ.setdefault('STAT_MANAGER', 'quandl')
+STAT_MANAGER = os.environ.setdefault('STAT_MANAGER', 'treasury')
 """Determines the service used to retrieve statistics data"""
 
 Q_KEY = None
@@ -242,9 +242,9 @@ Q_KEY = None
 # QUANDL CONFIGURAITON
 if STAT_MANAGER == "quandl":
     Q_URL = os.environ.setdefault(
-        'QUANDL_URL', 'https://www.quandl.com/api/v3/datasets').strip("\"").strip("'")
+        'QUANDL_URL', 'https://data.nasdaq.com/api/v3/datasets').strip("\"").strip("'")
     Q_META_URL = os.environ.setdefault(
-        'QUANDL_META_URL', 'https://www.quandl.com/api/v3/databases')
+        'QUANDL_META_URL', 'https://data.nasdaq.com/api/v3/databases')
 
     Q_KEY = os.environ.setdefault('QUANDL_KEY', None)
 
@@ -255,6 +255,10 @@ if STAT_MANAGER == "quandl":
                 if FILE_EXT == "json":
                     Q_KEY = json.load(infile)['QUANDL_KEY']
                     os.environ['QUANDL_KEY'] = str(Q_KEY)
+
+elif STAT_MANAGER == 'treasury':
+    TR_URL = os.environ.setdefault(
+        'TREASURY_URL', 'https://home.treasury.gov/resource-center/data-chart-center').strip("\"").strip("'")
 
 # DIVIDEND_MANAGER CONFIGURATION
 DIV_MANAGER = os.environ.setdefault("DIV_MANAGER", 'iex')

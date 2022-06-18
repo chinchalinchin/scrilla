@@ -10,6 +10,18 @@ import dateutil.easter as easter
 from scrilla.settings import DATE_FORMAT
 
 
+def bureaucratize_date(this_date: date):
+    """
+    Returns the format expected by the US Treasury API. Because why in God's name would the US Treasury serialize a date in a universal format when it could just make one up?
+
+    Returns
+    -------
+    ``str`` - formatted _YYYYMM_
+    """
+    month_text = f'{this_date.month}' if this_date.month > 9 else f'0{this_date.month}'
+    return f'{this_date.year}{month_text}'
+
+
 def today() -> datetime.date:
     """
     Returns today's date
@@ -31,7 +43,10 @@ def parse(date_string: str) -> Union[date, None]:
     """
     Converts a date string in the 'YYYY-MM-DD' format to a Python `datetime.date`.
     """
-    return datetime.datetime.strptime(date_string, DATE_FORMAT).date()
+    if len(date_string) < 10:
+        raise ValueError(
+            'Date string does not represent a valid date in YYYY-MM-DD format')
+    return datetime.datetime.strptime(date_string[0:10], DATE_FORMAT).date()
 
 
 def validate_date(this_date: Any) -> date:
@@ -105,7 +120,7 @@ def truncate_future_from_date(this_date: Union[date, str]) -> datetime.date:
 
 def last_close_date():
     right_now = datetime.datetime.now()
-    trading_close_today = right_now.replace(hour=14)
+    trading_close_today = right_now.replace(hour=16)
     if right_now > trading_close_today:
         return right_now.date()
     return get_previous_business_date(right_now.date())
@@ -115,14 +130,25 @@ def is_date_weekend(this_date: Union[date, str]) -> bool:
     return validate_date(this_date).weekday() in [5, 6]
 
 
-def is_date_holiday(this_date: Union[date, str]) -> bool:
+def is_date_holiday(this_date: Union[date, str], bond: bool = False) -> bool:
     this_date = validate_date(this_date)
     us_holidays = holidays.UnitedStates(years=this_date.year)
-    # generate list without columbus day and veterans day since markets are open on those days
-    trading_holidays = [
-        "Columbus Day", "Columbus Day (Observed)", "Veterans Day", "Veterans Day (Observed)"]
+    if not bond:
+        # generate list without columbus day and veterans day since markets are open on those day
+        trading_holidays = [
+            "Columbus Day", "Columbus Day (Observed)", "Veterans Day", "Veterans Day (Observed)"]
+    else:
+        # bond markets are closed on the above dates: https://www.aarp.org/money/investing/info-2022/stock-market-holidays.html#:~:text=In%202022%2C%20U.S.%20bond%20markets,by%20federal%20law%20last%20year.
+        trading_holidays = []
+
+    # markets are open
+    # see here: https://www.barrons.com/articles/stock-market-open-close-new-years-eve-monday-hours-51640891577
+    if datetime.datetime(year=this_date.year+1, month=1, day=1).weekday() in [5, 6]:
+        trading_holidays += ["New Year's Day (Observed)"]
+
     custom_holidays = [that_date for that_date in list(
         us_holidays) if us_holidays[that_date] not in trading_holidays]
+
     # add good friday to list since markets are closed on good friday
     custom_holidays.append(easter.easter(
         year=this_date.year) - datetime.timedelta(days=2))
@@ -130,23 +156,23 @@ def is_date_holiday(this_date: Union[date, str]) -> bool:
     return (this_date in custom_holidays)
 
 
-def get_last_trading_date() -> date:
+def get_last_trading_date(bond: bool = False) -> date:
     """
     Returns
     -------
     The last full trading day. If today is a trading day and the time is past market close, today's date will be returned. Otherwise, the previous business day's date will be returned. 
     """
     todays_date = datetime.datetime.now()
-    if is_date_holiday(todays_date) or is_date_weekend(todays_date):
+    if is_date_holiday(todays_date, bond) or is_date_weekend(todays_date):
         return get_previous_business_date(todays_date.date())
     return last_close_date()
 
 
-def this_date_or_last_trading_date(this_date: Union[date, str, None] = None) -> date:
+def this_date_or_last_trading_date(this_date: Union[date, str, None] = None, bond: bool = False) -> date:
     if this_date is None:
         return get_last_trading_date()
     this_date = validate_date(this_date)
-    if is_date_holiday(this_date) or is_date_weekend(this_date):
+    if is_date_holiday(this_date, bond) or is_date_weekend(this_date):
         return get_previous_business_date(this_date)
     if is_date_today(this_date):
         return last_close_date()
@@ -164,9 +190,9 @@ def format_date_range(start_date: date, end_date: date) -> str:
     return result
 
 
-def is_trading_date(this_date: Union[date, str]) -> bool:
+def is_trading_date(this_date: Union[date, str], bond: bool = False) -> bool:
     this_date = validate_date(this_date)
-    return not is_date_weekend(this_date) and not is_date_holiday(this_date)
+    return not is_date_weekend(this_date) and not is_date_holiday(this_date, bond)
 
 
 def intersect_with_trading_dates(date_key_dict: dict) -> dict:
@@ -255,7 +281,7 @@ def days_between(start_date: Union[date, str], end_date: Union[date, str]) -> in
 # excludes start_date
 
 
-def business_dates_between(start_date: Union[date, str], end_date: Union[date, str]) -> List[date]:
+def business_dates_between(start_date: Union[date, str], end_date: Union[date, str], bond: bool = False) -> List[date]:
     """
     Returns a list of business dates between the inputted dates. "Between" is used in the inclusive sense, i.e. the list includes `start_date` and `dates`
 
@@ -270,15 +296,15 @@ def business_dates_between(start_date: Union[date, str], end_date: Union[date, s
     dates = []
     for x in range((end_date - start_date).days+1):
         this_date = start_date + datetime.timedelta(x)
-        if is_trading_date(this_date):
+        if is_trading_date(this_date, bond):
             dates.append(this_date)
     return dates
 
 
-def business_days_between(start_date: Union[date, str], end_date: Union[date, str]) -> List[int]:
+def business_days_between(start_date: Union[date, str], end_date: Union[date, str], bond: bool = False) -> List[int]:
     start_date, end_date = validate_date_range(start_date, end_date)
     dates = dates_between(start_date, end_date)
-    return len([1 for this_date in dates if is_trading_date(this_date)])
+    return len([1 for this_date in dates if is_trading_date(this_date, bond)])
 
 
 def weekends_between(start_date: Union[date, str], end_date: Union[date, str]) -> List[int]:
@@ -295,14 +321,14 @@ def decrement_date_by_days(start_date: Union[date, str], days: int):
     return start_date
 
 
-def decrement_date_by_business_days(start_date: Union[date, str], business_days: int) -> date:
+def decrement_date_by_business_days(start_date: Union[date, str], business_days: int, bond: bool = False) -> date:
     """
     Subtracts `business_days`, ignoring weekends and trading holidays, from `start_date`
     """
     start_date = validate_date(start_date)
     first_pass = True
     while business_days > 0:
-        if is_trading_date(start_date):
+        if is_trading_date(start_date, bond):
             if first_pass:
                 first_pass = False
             else:
@@ -314,25 +340,25 @@ def decrement_date_by_business_days(start_date: Union[date, str], business_days:
     return start_date
 
 
-def increment_date_by_business_days(start_date: Union[date, str], business_days: int) -> date:
+def increment_date_by_business_days(start_date: Union[date, str], business_days: int, bond: bool = False) -> date:
     start_date = validate_date(start_date)
     while business_days > 0:
-        if is_trading_date(start_date):
+        if is_trading_date(start_date, bond):
             business_days -= 1
         start_date += datetime.timedelta(days=1)
     return start_date
 
 
-def get_next_business_date(this_date: Union[date, str]) -> date:
+def get_next_business_date(this_date: Union[date, str], bond: bool = False) -> date:
     this_date = validate_date(this_date)
-    while not is_trading_date(this_date):
+    while not is_trading_date(this_date, bond):
         this_date += datetime.timedelta(days=1)
     return this_date
 
 
-def get_previous_business_date(this_date: Union[date, str]) -> date:
+def get_previous_business_date(this_date: Union[date, str], bond: bool = False) -> date:
     this_date = decrement_date_by_days(start_date=this_date, days=1)
-    while not is_trading_date(this_date):
+    while not is_trading_date(this_date, bond):
         this_date -= datetime.timedelta(days=1)
     return this_date
 

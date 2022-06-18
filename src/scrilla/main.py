@@ -502,6 +502,8 @@ def do_program(cli_args: List[str]) -> None:
             else:
                 prices = None
 
+            print(prices)
+
             if print_format_to_screen(args):
                 from scrilla.util.outputter import efficient_frontier as frontier_output
                 frontier_output(portfolio=portfolio,
@@ -626,7 +628,10 @@ def do_program(cli_args: List[str]) -> None:
             if print_format_to_screen(args):
                 from scrilla.util.outputter import optimal_result
                 optimal_result(
-                    portfolio=portfolio, allocation=allocation, investment=args['investment'])
+                    portfolio=portfolio,
+                    allocation=allocation,
+                    investment=args['investment'],
+                    latest_prices=prices)
 
             if print_json_to_screen(args):
                 from scrilla.static.formats import format_allocation
