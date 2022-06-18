@@ -190,7 +190,7 @@ def format_date_range(start_date: date, end_date: date) -> str:
     return result
 
 
-def is_trading_date(this_date: Union[date, str], bond: bool) -> bool:
+def is_trading_date(this_date: Union[date, str], bond: bool = False) -> bool:
     this_date = validate_date(this_date)
     return not is_date_weekend(this_date) and not is_date_holiday(this_date, bond)
 
