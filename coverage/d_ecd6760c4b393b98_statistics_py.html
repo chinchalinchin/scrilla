@@ -3,7 +3,7 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=emulateIE7" />
-    <title>Coverage for /home/circleci/.pyenv/versions/3.9.6/lib/python3.9/site-packages/scrilla/analysis/models/geometric/statistics.py: 49%</title>
+    <title>Coverage for /home/circleci/.pyenv/versions/3.9.6/lib/python3.9/site-packages/scrilla/analysis/models/geometric/statistics.py: 50%</title>
     <link rel="icon" sizes="32x32" href="favicon_32.png">
     <link rel="stylesheet" href="style.css" type="text/css">
     <script type="text/javascript" src="coverage_html.js" defer></script>
@@ -13,7 +13,7 @@
     <div class="content">
         <h1>
             <span class="text">Coverage for </span><b>/home/circleci/.pyenv/versions/3.9.6/lib/python3.9/site-packages/scrilla/analysis/models/geometric/statistics.py</b>:
-            <span class="pc_cov">49%</span>
+            <span class="pc_cov">50%</span>
         </h1>
         <div id="help_panel_wrapper">
             <input id="help_panel_state" type="checkbox">
@@ -44,8 +44,8 @@
         </div>
         <h2>
             <span class="text">503 statements &nbsp;</span>
-            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">247<span class="text"> run</span></button>
-            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">256<span class="text"> missing</span></button>
+            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">251<span class="text"> run</span></button>
+            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">252<span class="text"> missing</span></button>
             <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">0<span class="text"> excluded</span></button>
         </h2>
         <div style="display: none;">
@@ -1277,7 +1277,7 @@
     <p class="pln"><span class="n"><a id="t1218" href="#t1218">1218</a></span><span class="t">                                                                 <span class="nam">weekends</span><span class="op">=</span><span class="nam">weekends</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t1219" href="#t1219">1219</a></span><span class="t">                                                                 <span class="nam">method</span><span class="op">=</span><span class="nam">keys</span><span class="op">.</span><span class="nam">keys</span><span class="op">[</span><span class="str">'ESTIMATION'</span><span class="op">]</span><span class="op">[</span><span class="str">'MOMENT'</span><span class="op">]</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t1220" href="#t1220">1220</a></span><span class="t">        <span class="key">if</span> <span class="nam">correlation</span> <span class="key">is</span> <span class="key">not</span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t1221" href="#t1221">1221</a></span><span class="t">            <span class="key">return</span> <span class="nam">correlation</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t1221" href="#t1221">1221</a></span><span class="t">            <span class="key">return</span> <span class="nam">correlation</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t1222" href="#t1222">1222</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t1223" href="#t1223">1223</a></span><span class="t">        <span class="nam">sample_prices</span> <span class="op">=</span> <span class="op">{</span><span class="op">}</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t1224" href="#t1224">1224</a></span><span class="t">        <span class="nam">logger</span><span class="op">.</span><span class="nam">debug</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
@@ -1291,10 +1291,10 @@
     <p class="pln"><span class="n"><a id="t1232" href="#t1232">1232</a></span><span class="t">    <span class="com"># TODO: pretty sure something about this is causing the issue.</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t1233" href="#t1233">1233</a></span><span class="t">    <span class="key">if</span> <span class="nam">asset_type_1</span> <span class="op">==</span> <span class="nam">asset_type_2</span> <span class="key">and</span> <span class="nam">asset_type_2</span> <span class="op">==</span> <span class="nam">keys</span><span class="op">.</span><span class="nam">keys</span><span class="op">[</span><span class="str">'ASSETS'</span><span class="op">]</span><span class="op">[</span><span class="str">'CRYPTO'</span><span class="op">]</span> <span class="key">and</span> <span class="nam">weekends</span> <span class="op">==</span> <span class="num">0</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t1234" href="#t1234">1234</a></span><span class="t">        <span class="com"># remove weekends and holidays from sample</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t1235" href="#t1235">1235</a></span><span class="t">        <span class="nam">logger</span><span class="op">.</span><span class="nam">debug</span><span class="op">(</span><span class="str">'Removing weekends from crypto sample'</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t1236" href="#t1236">1236</a></span><span class="t">        <span class="nam">sample_prices</span><span class="op">[</span><span class="nam">ticker_1</span><span class="op">]</span> <span class="op">=</span> <span class="nam">dater</span><span class="op">.</span><span class="nam">intersect_with_trading_dates</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t1235" href="#t1235">1235</a></span><span class="t">        <span class="nam">logger</span><span class="op">.</span><span class="nam">debug</span><span class="op">(</span><span class="str">'Removing weekends from crypto sample'</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t1236" href="#t1236">1236</a></span><span class="t">        <span class="nam">sample_prices</span><span class="op">[</span><span class="nam">ticker_1</span><span class="op">]</span> <span class="op">=</span> <span class="nam">dater</span><span class="op">.</span><span class="nam">intersect_with_trading_dates</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t1237" href="#t1237">1237</a></span><span class="t">            <span class="nam">sample_prices</span><span class="op">[</span><span class="nam">ticker_1</span><span class="op">]</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t1238" href="#t1238">1238</a></span><span class="t">        <span class="nam">sample_prices</span><span class="op">[</span><span class="nam">ticker_2</span><span class="op">]</span> <span class="op">=</span> <span class="nam">dater</span><span class="op">.</span><span class="nam">intersect_with_trading_dates</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t1238" href="#t1238">1238</a></span><span class="t">        <span class="nam">sample_prices</span><span class="op">[</span><span class="nam">ticker_2</span><span class="op">]</span> <span class="op">=</span> <span class="nam">dater</span><span class="op">.</span><span class="nam">intersect_with_trading_dates</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t1239" href="#t1239">1239</a></span><span class="t">            <span class="nam">sample_prices</span><span class="op">[</span><span class="nam">ticker_2</span><span class="op">]</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t1240" href="#t1240">1240</a></span><span class="t">    <span class="key">else</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t1241" href="#t1241">1241</a></span><span class="t">        <span class="com"># intersect with equity keys to get trading days</span>&nbsp;</span><span class="r"></span></p>
@@ -1602,7 +1602,7 @@
     <div class="content">
         <p>
             <a class="nav" href="index.html">&#xab; index</a> &nbsp; &nbsp; <a class="nav" href="https://coverage.readthedocs.io">coverage.py v6.1.2</a>,
-            created at 2022-06-18 00:59 +0000
+            created at 2022-06-18 01:14 +0000
         </p>
     </div>
 </footer>
