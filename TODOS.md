@@ -38,3 +38,5 @@
 
 53. Quandl doesn't update USTREASURY/YIELD often enough. causes problems with application. get interest information directly from source:
 https://home.treasury.gov/resource-center/data-chart-center/interest-rates/pages/xml?data=daily_treasury_yield_curve&field_tdr_date_value=2022
+
+54. juneteenth is getting added to the trading holidays. also, bond markets are closed on columbus day and veterans day. in other words, interest rates are not reported on those days.

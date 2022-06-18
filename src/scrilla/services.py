@@ -43,7 +43,7 @@ logger = outputter.Logger("scrilla.services", settings.LOG_LEVEL)
 
 class StatManager():
     """
-    StatManager is an interface between the application and the external services that hydrate it with financial statistics data. This class gets instantiated on the level of the `scrilla.services` module with the value defined in `scrilla.settings.STAT_MANAGER`. This value is in turn defined by the value of the `STAT_MANAGER` environment variable. This value determines how the url is constructed, which API credentials get appended to the external query and the keys used to parse the response JSON container the statistical data.
+    StatManager is an interface between the application and the external services that hydrate it with financial statistics data. This class gets instantiated on the level of the `scrilla.services` module with the value defined in `scrilla.settings.STAT_MANAGER`. This value is in turn defined by the value of the `STAT_MANAGER` environment variable. This value determines how the url is constructed, which API credentials get appended to the external query and the keys used to parse the response JSON containing the statistical data.
 
     Attributes
     ----------
@@ -96,7 +96,7 @@ class StatManager():
         Returns
         -------
         `bool`
-            `True` if this instace of `StatManager` is a Quandl interface. `False` otherwise.
+            `True` if this instace of `StatManager` is a US Treasury interface. `False` otherwise.
 
         .. notes::
             * This is for use within the class and probably won't need to be accessed outside of it. `StatManager` is intended to hide the data implementation from the rest of the library, i.e. it is ultimately agnostic about where the data comes where. It should never need to know `StatManger` is a Quandl interface. Just in case the library ever needs to populate its data from another source.
@@ -222,25 +222,30 @@ class StatManager():
             # this is ugly, but it's the government's fault for not supporting an API
             # from this century.
 
-            def _paginate(page_no, page_url):
+            def __paginate(page_no, page_url):
                 page_url = f'{page_url}&{self.service_map["PARAMS"]["PAGE"]}={page_no}'
+                logger.debug(f'Paginating: {page_url}')
                 page_response = ET.fromstring(requests.get(page_url).text)
                 return page_no - 1, page_response
 
             record_time = dater.business_days_between(
-                constants.constants['YIELD_START_DATE'], end_date)
+                constants.constants['YIELD_START_DATE'], end_date, True)
             # subtract to reindex to 0
             pages = record_time // self.service_map["KEYS"]["PAGE_LENGTH"] - 1
             pages += 1 if record_time % self.service_map["KEYS"]["PAGE_LENGTH"] > 0 else 0
             page = pages
 
+            logger.debug(f'Sorting through {pages} pages of Treasury data')
+            logger.debug(f'Days from {dater.to_string(end_date)} to start of Treasury record: {record_time}')
+
             while True:
-                page, response = _paginate(page, url)
+                page, response = __paginate(page, url)
                 first_layer = response.findall(
                     self.service_map["KEYS"]["FIRST_LAYER"])
 
-                if len(first_layer) != 0:
+                if page >= 0:
                     done = False
+
                     for child in first_layer:
                         xpath = f'{self.service_map["KEYS"]["RATE_XPATH"]}{self.service_map["KEYS"]["DATE"]}'
                         this_date = dater.parse(child.find(xpath).text)
@@ -254,8 +259,8 @@ class StatManager():
                                     f'{self.service_map["KEYS"]["RATE_XPATH"]}{maturity}').text
                                 formatted_interest[date_string].append(
                                     float(interest))
-
-                        if len(formatted_interest) >= dater.business_days_between(start_date, end_date):
+                                    
+                        if len(formatted_interest) >= dater.business_days_between(start_date, end_date, True):
                             done = True
                             break
 
@@ -494,8 +499,8 @@ class PriceManager():
             If one of the settings is improperly configured or one of the environment variables was unable to be parsed from the environment, this error will be thrown.
         """
 
-        # NOTE: only really needed for `alpha_vantage` responses so far, due to the fact AlphaVantage either returns everything or 100 days or prices.
-        # shouldn't need to verify genre anyway, since using service_map and service_map should abstract the response away.
+        # NOTE: only really needed for `alpha_vantage` responses so far, due to the fact AlphaVantage either returns everything or 100 days of prices.
+        # shouldn't need to verify genre anyway, since using service_map should abstract the response away (hopefully).
         if self.genre == keys.keys['SERVICES']['PRICES']['ALPHA_VANTAGE']['MANAGER']:
 
             # NOTE: Remember AlphaVantage is ordered current to earliest. END_INDEX is
@@ -548,7 +553,7 @@ class PriceManager():
             if which_price == keys.keys['PRICES']['CLOSE']:
                 return prices[this_date][self.service_map['KEYS']['EQUITY']['CLOSE']]
             if which_price == keys.keys['PRICES']['OPEN']:
-                return prices[this_date][self.service_map['KEYS']['EQUITY']['CLOSE']]
+                return prices[this_date][self.service_map['KEYS']['EQUITY']['OPEN']]
 
         elif asset_type == keys.keys['ASSETS']['CRYPTO']:
             if which_price == keys.keys['PRICES']['CLOSE']:
