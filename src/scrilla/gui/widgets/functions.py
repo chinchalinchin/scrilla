@@ -269,17 +269,24 @@ class RiskProfileWidget(components.SkeletonWidget):
                                                       columns=['Return', 'Volatility', 'Sharpe', 'Beta', 'Equity Cost'])
 
         profiles = {}
+        start_date = start_date=self.arg_widget.get_control_input('start_date')
+        end_date = self.arg_widget.get_control_input('end_date')
         for i, symbol in enumerate(symbols):
             profiles[symbol] = statistics.calculate_risk_return(ticker=symbol,
-                                                                start_date=self.arg_widget.get_control_input(
-                                                                    'start_date'),
-                                                                end_date=self.arg_widget.get_control_input('end_date'))
+                                                                start_date=start_date,
+                                                                end_date=end_date)
             profiles[symbol][keys.keys['APP']['PROFILE']
-                             ['SHARPE']] = markets.sharpe_ratio(symbol)
+                             ['SHARPE']] = markets.sharpe_ratio(ticker = symbol,
+                                                                start_date=start_date,
+                                                                end_date=end_date)
             profiles[symbol][keys.keys['APP']['PROFILE']
-                             ['BETA']] = markets.market_beta(symbol)
+                             ['BETA']] = markets.market_beta(ticker = symbol,
+                                                                start_date=start_date,
+                                                                end_date=end_date)
             profiles[symbol][keys.keys['APP']['PROFILE']
-                             ['EQUITY']] = markets.cost_of_equity(symbol)
+                             ['EQUITY']] = markets.cost_of_equity(ticker =symbol,
+                                                                    start_date=start_date,
+                                                                    end_date=end_date)
 
             formatted_profile = formats.format_profile(profiles[symbol])
 
@@ -444,7 +451,7 @@ class OptimizerWidget(components.SkeletonWidget):
             self.arg_widget.fire()
 
         else:
-            print('something went wrong')
+            print('error handling goes here')
 
     @QtCore.Slot()
     def clear(self):

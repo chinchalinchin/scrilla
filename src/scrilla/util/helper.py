@@ -1,5 +1,5 @@
 import argparse
-from math import trunc
+from math import trunc, log10, floor
 from typing import List, Tuple
 
 from scrilla.static import definitions, constants
@@ -42,16 +42,24 @@ def complement_dict_keys(dict1: dict, dict2: dict):
     return {x: dict1[x] for x in dict1.keys() if x not in dict2.keys()}
 
 
+def significant_digits(number: float, digits: int):
+    return number if number == 0 else round(number, -int(floor(log10(abs(number)))) + (digits - 1))
+
+
 def format_float_number(decimal: float):
     if decimal < 10 ** (-constants.constants['ACCURACY']):
-        return 0
-    return str(decimal)[:constants.constants['SIG_FIGS']]
+        return '0'
+    accuracy = f'.{constants.constants["ACCURACY"]}f'
+    sigfigs = format(significant_digits(decimal, constants.constants["SIG_FIGS"]), accuracy)
+    return sigfigs.rstrip('0').rstrip('.')
 
 
 def format_float_percent(decimal: float):
-    if decimal < 10 ** (-constants.constants['ACCURACY']):
+    if decimal == 0 or decimal < 10 ** (-constants.constants['ACCURACY']):
         return "0%"
-    return str(100*float(format_float_number(decimal)))[:constants.constants['SIG_FIGS']]+"%"
+    accuracy = f'.{constants.constants["ACCURACY"]}f'
+    sigfigs = format(100*significant_digits(decimal, constants.constants['SIG_FIGS']), accuracy)
+    return sigfigs.rstrip('0').rstrip('.') + '%'
 
 
 def format_dict_percent(this_dict: dict, which_key: str) -> dict:

@@ -318,7 +318,7 @@ def correlation_matrix(tickers: List[str], correl_matrix: List[List[float]], dis
             else:
                 result = correl_matrix[i][j]
                 formatted_result = str(
-                    100*result)[:constants.constants['SIG_FIGS']]
+                    100*result)[:(constants.constants['SIG_FIGS']+1)]
                 new_line += f' {formatted_result}%'
 
         entire_formatted_result += new_line + '\n'

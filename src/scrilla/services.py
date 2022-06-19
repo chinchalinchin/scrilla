@@ -813,7 +813,6 @@ def get_daily_interest_latest(maturity: str) -> float:
     start_date = dater.decrement_date_by_business_days(end_date, 1)
     interest_history = get_daily_interest_history(
         maturity=maturity, start_date=start_date, end_date=end_date)
-    print(interest_history)
     first_element = helper.get_first_json_key(interest_history)
     return interest_history[first_element]
 
