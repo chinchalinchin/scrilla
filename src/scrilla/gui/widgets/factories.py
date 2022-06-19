@@ -35,14 +35,10 @@ def layout_factory(layout: str):
     return widget
 
 
-def dialog_widget_factory(component: str, options: list, save: Callable, cancel: Callable):
+def dialog_widget_factory(component: str, options: list):
     dialog = QtWidgets.QDialog()
+    dialog.setObjectName(component)
     dialog.setLayout(QtWidgets.QVBoxLayout())
-
-    btn = QtWidgets.QDialogButtonBox.Save | QtWidgets.QDialogButtonBox.Cancel
-    box = QtWidgets.QDialogButtonBox(btn)
-    box.accepted.connect(save)
-    box.rejected.connect(cancel)
 
     user_select = QtWidgets.QComboBox()
     user_select.insertItems(0, options)
@@ -52,6 +48,18 @@ def dialog_widget_factory(component: str, options: list, save: Callable, cancel:
     input.layout().addWidget(user_select)
     input.layout().addWidget(user_text)
 
+    def save(): 
+        dialog.selection =  user_select.currentText()
+        dialog.value = user_text.text()
+        dialog.accept()
+
+    def cancel():
+        dialog.close()
+        
+    btn = QtWidgets.QDialogButtonBox.Save | QtWidgets.QDialogButtonBox.Cancel
+    box = QtWidgets.QDialogButtonBox(btn)
+    box.accepted.connect(save)
+    box.rejected.connect(cancel)
     dialog.layout().addWidget(input)
     dialog.layout().addWidget(box)
 
