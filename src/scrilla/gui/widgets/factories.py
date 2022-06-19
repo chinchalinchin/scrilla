@@ -54,8 +54,9 @@ def dialog_widget_factory(component: str, options: list, save: Callable, cancel:
 
     dialog.layout().addWidget(input)
     dialog.layout().addWidget(box)
-    
+
     return dialog
+
 
 def atomic_widget_factory(component: str, title: str, options: list = None):
     """

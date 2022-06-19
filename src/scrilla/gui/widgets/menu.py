@@ -59,7 +59,7 @@ class MenuWidget(QtWidgets.QWidget):
                 elif menu == 'Account':
                     if action['name'] == 'Add API Key':
                         q_action.trigger.connect(
-                            
+
                         )
                 elif menu == 'View':
                     if action['name'] == 'Function Menu':
