@@ -2,10 +2,9 @@ import pytest
 
 from scrilla.util import helper
 
-
 @pytest.mark.parametrize('number,sigfigs,expected',[
-    (1500,1,2000),
-    (0.03452,2,0.035),
+    (1500, 1, 2000),
+    (0.03452, 2,0.035),
     (15.325, 3, 15.3),
     (-245, 2, -240),
     (-2.34566, 3, -2.35)

@@ -35,27 +35,35 @@ def intersect_dict_keys(dict1: dict, dict2: dict) -> Tuple[dict, dict]:
     return {x: dict1[x] for x in dict1.keys() if x in dict2.keys()}, {x: dict2[x] for x in dict2.keys() if x in dict1.keys()}
 
 
-def complement_dict_keys(dict1: dict, dict2: dict):
+def complement_dict_keys(dict1: dict, dict2: dict) -> dict:
     """
     Returns the a transformed first dictionary whose keys are a complement relative to the second dictionary keys. In other words, this function takes the complement of the first dictionary keys relative to the second dictionary keys. 
     """
     return {x: dict1[x] for x in dict1.keys() if x not in dict2.keys()}
 
+def exceeds_accuracy(decimal: float) -> bool:
+    if decimal == 0:
+        return True
+    decimal = abs(decimal)
+    if (decimal < 10 ** (-constants.constants['ACCURACY']) and decimal>0):
+        return True
+    return False
+    
 
-def significant_digits(number: float, digits: int):
+def significant_digits(number: float, digits: int) -> float:
     return number if number == 0 else round(number, -int(floor(log10(abs(number)))) + (digits - 1))
 
 
-def format_float_number(decimal: float):
-    if decimal < 10 ** (-constants.constants['ACCURACY']):
+def format_float_number(decimal: float) -> str:
+    if exceeds_accuracy(decimal):
         return '0'
     accuracy = f'.{constants.constants["ACCURACY"]}f'
     sigfigs = format(significant_digits(decimal, constants.constants["SIG_FIGS"]), accuracy)
     return sigfigs.rstrip('0').rstrip('.')
 
 
-def format_float_percent(decimal: float):
-    if decimal == 0 or decimal < 10 ** (-constants.constants['ACCURACY']):
+def format_float_percent(decimal: float) -> str:
+    if exceeds_accuracy(decimal):
         return "0%"
     accuracy = f'.{constants.constants["ACCURACY"]}f'
     sigfigs = format(100*significant_digits(decimal, constants.constants['SIG_FIGS']), accuracy)
