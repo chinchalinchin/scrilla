@@ -48,14 +48,14 @@ def dialog_widget_factory(component: str, options: list):
     input.layout().addWidget(user_select)
     input.layout().addWidget(user_text)
 
-    def save(): 
-        dialog.selection =  user_select.currentText()
+    def save():
+        dialog.selection = user_select.currentText()
         dialog.value = user_text.text()
         dialog.accept()
 
     def cancel():
         dialog.close()
-        
+
     btn = QtWidgets.QDialogButtonBox.Save | QtWidgets.QDialogButtonBox.Cancel
     box = QtWidgets.QDialogButtonBox(btn)
     box.accepted.connect(save)
@@ -64,6 +64,7 @@ def dialog_widget_factory(component: str, options: list):
     dialog.layout().addWidget(box)
 
     return dialog
+
 
 def atomic_widget_factory(component: str, title: str, options: list = None):
     """
