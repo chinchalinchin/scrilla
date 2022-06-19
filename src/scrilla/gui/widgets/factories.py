@@ -44,17 +44,17 @@ def dialog_widget_factory(component: str, options: list, save: Callable, cancel:
     box.accepted.connect(save)
     box.rejected.connect(cancel)
 
-    selections = QtWidgets.QComboBox()
-    selections.insertItems(0, options)
-    text = argument_widget_factory('symbols')
+    user_select = QtWidgets.QComboBox()
+    user_select.insertItems(0, options)
+    user_text = argument_widget_factory('symbols')
 
     input = layout_factory('horizontal-box')
-    input.layout().addWidget(selections)
-    input.layout().addWidget(input)
+    input.layout().addWidget(user_select)
+    input.layout().addWidget(user_text)
 
     dialog.layout().addWidget(input)
     dialog.layout().addWidget(box)
-    
+
     return dialog
 
 def atomic_widget_factory(component: str, title: str, options: list = None):
