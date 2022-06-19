@@ -42,7 +42,7 @@ def dialog_widget_factory(component: str, options: list):
 
     user_select = QtWidgets.QComboBox()
     user_select.insertItems(0, options)
-    user_text = argument_widget_factory('symbols')
+    user_text = argument_widget_factory('symbols', 'user-input', False)
 
     input = layout_factory('horizontal-box')
     input.layout().addWidget(user_select)
@@ -243,9 +243,6 @@ def argument_widget_factory(component: str, title: str = None, optional: bool = 
         main_widget.setEnabled(False)
         main_widget.setSizePolicy(QtWidgets.QSizePolicy(
             QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum))
-
-    elif component == 'select':
-        return None
 
     elif component == 'flag':
         main_widget = QtWidgets.QRadioButton(title)

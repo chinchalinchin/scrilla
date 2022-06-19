@@ -31,7 +31,7 @@
         "unpressed": "information-circle-sharp.svg",
         "pressed": "information-circle-sharp.svg"
     },
-    "$ok": {
+    "$okay": {
         "pressed": "okay-sharp.svg",
         "unpresssed": "okay.svg"
     }

@@ -55,10 +55,14 @@ class MenuWidget(QtWidgets.QWidget):
                 q_action.setShortcut(action['shortcut'])
                 if menu == 'Functions':
                     q_action.triggered.connect(
-                        (lambda i: lambda: self._show_widget(i))(i))
+                        (lambda i: lambda: self._show_widget(i))(i)
+                    )
                 elif menu == 'Account':
                     if action['name'] == 'Add API Key':
-                        q_action.triggered.connect(lambda: self._show_api_key_dialog(action['options']))
+                        q_action.triggered.connect(
+                            (lambda action: lambda:
+                                self._show_api_key_dialog(action['options']))(action)
+                        )
                 elif menu == 'View':
                     if action['name'] == 'Function Menu':
                         q_action.triggered.connect(lambda: self.function_menu.setVisible(
@@ -191,10 +195,9 @@ class MenuWidget(QtWidgets.QWidget):
         self.title.setText(list(definitions.FUNC_WIDGETS.values())[
                            widget_index]['name'])
 
-    @QtCore.Slot()
     def _show_api_key_dialog(self, options):
         dialog = factories.dialog_widget_factory('api-key-dialog',options)
-        dialog.exec()
+        dialog.exec_()
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication([])
