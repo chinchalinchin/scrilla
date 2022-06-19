@@ -42,7 +42,7 @@ def dialog_widget_factory(component: str, options: list):
 
     user_select = QtWidgets.QComboBox()
     user_select.insertItems(0, options)
-    user_text = argument_widget_factory('symbols', 'user-input', False)
+    user_text = argument_widget_factory('symbols', None, False)
 
     input = layout_factory('horizontal-box')
     input.layout().addWidget(user_select)

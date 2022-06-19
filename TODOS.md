@@ -6,7 +6,7 @@
 
 17. Test moving averages plot generation.
 
-21. Add watchlist functionality for crypto assets. Differentiate in /data/common/ between watchlist_equity.json and watchlist_crypto.json. Integrate watchlist functionality into GUI and API. Will need to implement API Key authentication functionality before introducing watchlist to API to account for different users's watchlist.
+21. Add watchlist functionality for crypto assets. Differentiate in /data/common/ between watchlist_equity.json and watchlist_crypto.json. Integrate watchlist functionality into GUI and API. 
 
 23. Research annotations for cashflow object's growth function and portfolio's return/volatility functions. Perhaps a way of injecting them into the GUI easier. Not sure.
 
@@ -27,3 +27,10 @@
 52. update references to quandl to nasdaq (they got acquired)
 
 54. juneteenth is getting added to the trading holidays. also, bond markets are closed on columbus day and veterans day. in other words, interest rates are not reported on those days.
+
+55. DYNAMODB CACHE!
+    a. role based acess or access keys
+    b. initialize tables
+    c. figure out optimal indexing strategy
+
+56. save api key in /data/common via gui menu (currently just displays dialog without doing anything when clicked)
