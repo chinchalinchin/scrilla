@@ -1,4 +1,4 @@
-from typing import List
+from typing import Callable, List
 
 from PySide6 import QtWidgets, QtCore, QtGui
 from scrilla.gui import utilities
@@ -35,14 +35,36 @@ def layout_factory(layout: str):
     return widget
 
 
-def atomic_widget_factory(component: str, title: str):
+def dialog_widget_factory(component: str, options: list, save: Callable, cancel: Callable):
+    dialog = QtWidgets.QDialog()
+    dialog.setLayout(QtWidgets.QVBoxLayout())
+
+    btn = QtWidgets.QDialogButtonBox.Save | QtWidgets.QDialogButtonBox.Cancel
+    box = QtWidgets.QDialogButtonBox(btn)
+    box.accepted.connect(save)
+    box.rejected.connect(cancel)
+
+    selections = QtWidgets.QComboBox()
+    selections.insertItems(0, options)
+    text = argument_widget_factory('symbols')
+
+    input = layout_factory('horizontal-box')
+    input.layout().addWidget(selections)
+    input.layout().addWidget(input)
+
+    dialog.layout().addWidget(input)
+    dialog.layout().addWidget(box)
+    
+    return dialog
+
+def atomic_widget_factory(component: str, title: str, options: list = None):
     """
     Factory function for generating various subclasses of `PySide6.QtWidgets.QWidget` pre-configured for application display.
 
     Parameters
     ----------
     1. **component**: ``str``
-        Allowable values: `title`, `subtitle`, `heading`, `label`, `error`, `text`, `splash`, `calculate-button`, `clear-button`, `hide-button`, `download-button`, `source-button`, `package-button`, `documentation-button`, `button`, `save-dialog`, `table`, `table-item`, `figure`, `menu-bar`. If `component=None` is provided, a `PySide6.QtWidgets.QWidget` will be constructed with a `PySide6.QtWidgets.QHBoxLayout` will be returned.
+        Allowable values: `title`, `subtitle`, `heading`, `label`, `error`, `text`, `splash`, `calculate-button`, `clear-button`, `hide-button`, `download-button`, `source-button`, `package-button`, `documentation-button`, `button`, `save-dialog`, `table`, `table-item`, `figure`, `menu-bar`, `combo-box`, `okay-button`. If `component=None` is provided, a `PySide6.QtWidgets.QWidget` will be constructed with a `PySide6.QtWidgets.QHBoxLayout` will be returned.
     """
     if component in ['title', 'subtitle', 'heading', 'label', 'error', 'text']:
         widget = QtWidgets.QLabel(title)
@@ -80,6 +102,8 @@ def atomic_widget_factory(component: str, title: str):
                 QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum))
             if component == 'hide-button':
                 widget.setToolTip('Hide')
+            elif component == 'clear-button':
+                widget.setToolTip('Cancel')
             elif component == 'download-button':
                 widget.setToolTip('Save As')
             elif component == 'source-button':
@@ -88,6 +112,8 @@ def atomic_widget_factory(component: str, title: str):
                 widget.setToolTip('View PyPi Package')
             elif component == 'documentation-button':
                 widget.setToolTip('View Documentation')
+            elif component == 'okay-button':
+                widget.setToolTip('Okay')
 
         widget.setAutoDefault(True)
         widget.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))

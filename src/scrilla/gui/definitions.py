@@ -55,21 +55,27 @@ FUNC_WIDGETS = {
 }
 
 MENUBAR_WIDGET = {
-    'Account': [{
-        'name': 'Add API Key',
-        'shortcut': 'Ctrl+A',
-    }],
-    'View': [{
-        'name': 'Function Menu',
-        'shortcut': 'Ctrl+F'
-    },
+    'Account': [
         {
-        'name': 'Splash Menu',
-        'shortcut': 'Ctrl+S'
-    }],
-    'Functions': [{
-        'name': FUNC_WIDGETS[func_widget]['name'],
-        'shortcut': FUNC_WIDGETS[func_widget]['shortcut']
-    } for func_widget in FUNC_WIDGETS
+            'name': 'Add API Key',
+            'shortcut': 'Ctrl+A',
+            'options': ['AlphaVantage', 'IEX', 'Quandl']
+        }
+    ],
+    'View': [
+        {
+            'name': 'Function Menu',
+            'shortcut': 'Ctrl+F'
+        },
+        {
+            'name': 'Splash Menu',
+            'shortcut': 'Ctrl+S'
+        }
+    ],
+    'Functions': [
+        {
+            'name': FUNC_WIDGETS[func_widget]['name'],
+            'shortcut': FUNC_WIDGETS[func_widget]['shortcut']
+        } for func_widget in FUNC_WIDGETS
     ],
 }
