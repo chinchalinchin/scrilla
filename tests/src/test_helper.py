@@ -37,3 +37,57 @@ def test_format_float_number(decimal, expected):
 def test_format_float_percent(decimal, expected):
     assert isinstance(helper.format_float_percent(decimal), str)
     assert helper.format_float_percent(decimal) == expected
+
+
+@pytest.mark.parametrize('dict1,dict2,expected1,expected2', [
+    (
+        {
+            'a': 1,
+            'b': 2
+        },
+        {
+            'c': 3,
+            'd': 4
+        },
+        {},
+        {}
+    ),
+    (
+        {
+            'a': 1,
+            'b': 2
+        },
+        {
+            'a': 3,
+            'd': 4
+        },
+        { 
+            'a': 1
+        },
+        {
+            'a': 3
+        }
+    ),
+    (
+        {
+            'a': 1,
+            'b': 2,
+            'c': 3
+        },
+        {
+            'b': 4,
+            'c': 5,
+            'd': 6
+        },
+        { 
+            'b': 2,
+            'c': 3
+        },
+        {
+            'b': 4,
+            'c': 5 
+        }
+    ),
+])
+def test_intersect_dict_keys(dict1,dict2,expected1,expected2):
+    assert helper.intersect_dict_keys(dict1,dict2) == (expected1,expected2)
