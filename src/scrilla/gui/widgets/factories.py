@@ -57,6 +57,7 @@ def dialog_widget_factory(component: str, options: list, save: Callable, cancel:
 
     return dialog
 
+
 def atomic_widget_factory(component: str, title: str, options: list = None):
     """
     Factory function for generating various subclasses of `PySide6.QtWidgets.QWidget` pre-configured for application display.
