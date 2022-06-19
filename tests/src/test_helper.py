@@ -30,6 +30,7 @@ def test_format_float_number(decimal, expected):
     (0.03, '3%'),
     (0.15678, '15.678%'),
     (1.123456, '112.35%'),
+    (0.0000000000001, '0%'),
     (-0.05, '-5%'),
     (-0.04324, '-4.324%'),
     (-3.20987591, '-320.99%')
@@ -38,6 +39,12 @@ def test_format_float_percent(decimal, expected):
     assert isinstance(helper.format_float_percent(decimal), str)
     assert helper.format_float_percent(decimal) == expected
 
+
+def test_format_dict_percent(dict,expected):
+    pass
+
+def test_format_dict_number(dict,expected):
+    pass
 
 @pytest.mark.parametrize('dict1,dict2,expected1,expected2', [
     (
