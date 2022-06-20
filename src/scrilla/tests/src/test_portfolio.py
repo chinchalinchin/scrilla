@@ -9,11 +9,13 @@ from .. import mock
 from .. import settings as test_settings
 from httmock import HTTMock
 
+
 @pytest.fixture(autouse=True)
 def reset_cache():
     clear_directory(scrilla_settings.CACHE_DIR)
     PriceCache(), ProfileCache(), InterestCache(), CorrelationCache()
     return
+
 
 @pytest.fixture()
 def portfolios():
@@ -69,9 +71,10 @@ def test_weekend_initialization(tickers, weekends):
                 tickers=tickers, start_date=test_settings.START, end_date=test_settings.END)
     assert(test_portfolio.weekends == weekends)
 
+
 @pytest.mark.parametrize('tickers, groups', [
     (['ALLY', 'BX'], 1),
-    (['BTC', 'ALGO'],1 ),
+    (['BTC', 'ALGO'], 1),
     (['BTC', 'ALLY'], 2),
     (['BTC', 'ALGO', 'SPY'], 2)
 ])
