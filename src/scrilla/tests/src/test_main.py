@@ -33,8 +33,7 @@ def test_cli_correlation_json_format(args, length, capsys):
     # assert dimensions are correct length
     assert(len(correl_matrix) == length)
     # assert all entries satisfy correlation bounds
-    assert(all(all(True if (correl > -1 or correl == -1) and (correl < 1 or correl == 1)
-                   else False for correl in correl_list) for correl_list in correl_matrix))
+    assert(all(all(bool((correl > -1 or correl == -1) and (correl < 1 or correl == 1)) for correl in correl_list) for correl_list in correl_matrix))
 
 
 @pytest.mark.parametrize('args, length', [
@@ -52,7 +51,7 @@ def test_cli_correlation_json_format_with_likelihood(args, length, capsys):
     # assert dimensions are correct length
     assert(len(correl_matrix) == length)
     # assert all entries satisfy correlation bounds
-    assert(all(all(True if (correl > -1 or correl == -1) and (correl < 1 or correl == 1) else False
+    assert(all(all(bool((correl > -1 or correl == -1) and (correl < 1 or correl == 1))
                    for correl in correl_list) for correl_list in correl_matrix))
 
 # TODO: need mock dividend response to test cli
