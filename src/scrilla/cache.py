@@ -129,14 +129,6 @@ class PriceCache():
             {
                 'AttributeName': 'date',
                 'AttributeType': 'S'
-            },
-            {
-                'AttributeName': 'open',
-                'AttributeType': 'N'
-            },
-            {
-                'AttributeName': 'close',
-                'AttributeType': 'N'
             }
         ],
         'TableName': 'prices',
@@ -146,7 +138,8 @@ class PriceCache():
                 'KeyType': 'HASH'
             },
             {
-                'AttributeName': 'date'
+                'AttributeName': 'date',
+                'KeyType': 'RANGE'
             }
         ]
     }
@@ -224,6 +217,30 @@ class InterestCache():
     sqlite_create_table_transaction = "CREATE TABLE IF NOT EXISTS interest(maturity text, date text, value real, UNIQUE(maturity, date))"
     sqlite_insert_row_transaction = "INSERT OR IGNORE INTO interest (maturity, date, value) VALUES (:maturity, :date, :value)"
     sqlite_interest_query = "SELECT date, value FROM interest WHERE maturity=:maturity AND date <=date(:end_date) AND date>=date(:start_date) ORDER BY date(date) DESC"
+
+    dynamodb_table_configuration = {
+        'AttributeDefinitions': [
+            {
+                'AttributeName': 'maturity',
+                'AttributeType': 'S'
+            },
+            {
+                'AttributeName': 'date',
+                'AttributeType': 'S'
+            }
+        ],
+        'TableName': 'interest',
+        'KeySchema': [
+            {
+                'AttributeName': 'maturity',
+                'KeyType': 'HASH'
+            },
+            {
+                'AttributeName': 'date',
+                'KeyType': 'RANGE'
+            }
+        ]
+    }
 
     @staticmethod
     def to_dict(query_results):
@@ -303,6 +320,46 @@ class CorrelationCache():
     sqlite_create_table_transaction = "CREATE TABLE IF NOT EXISTS correlations (ticker_1 TEXT, ticker_2 TEXT, start_date TEXT, end_date TEXT, correlation REAL, method TEXT, weekends INT)"
     sqlite_insert_row_transaction = "INSERT INTO correlations (ticker_1, ticker_2, start_date, end_date, correlation, method, weekends) VALUES (:ticker_1, :ticker_2, :start_date, :end_date, :correlation, :method, :weekends)"
     sqlite_correlation_query = "SELECT correlation FROM correlations WHERE ticker_1=:ticker_1 AND ticker_2=:ticker_2 AND start_date=date(:start_date) AND end_date=date(:end_date) AND method=:method AND weekends=:weekends"
+
+    dynamodb_table_configuration = {
+        'AttributeDefinitions': [
+            {
+                'AttributeName': 'ticker_1',
+                'AttributeType': 'S'
+            },
+            {
+                'AttributeName': 'ticker_2',
+                'AttributeType': 'S'
+            },
+            {
+                'AttributeName': 'start_date',
+                'AttributeType': 'S'
+            },
+            {
+                'AttributeName': 'end_date',
+                'AttributeType': 'S'
+            }
+        ],
+        'TableName': 'correlation',
+        'KeySchema': [
+            {
+                'AttributeName': 'ticker_1',
+                'KeyType': 'HASH'
+            },
+            {
+                'AttributeName': 'ticker_2',
+                'KeyType': 'HASH'
+            },
+            {
+                'AttributeName': 'start_date',
+                'KeyType': 'RANGE'
+            },
+            {
+                'AttributeName': 'end_date',
+                'KeyType': 'RANGE'
+            }
+        ]
+    }
 
     @staticmethod
     def to_dict(query_results):
@@ -404,35 +461,67 @@ class ProfileCache(Cache):
     """
     sqlite_create_table_transaction = "CREATE TABLE IF NOT EXISTS profile (id INTEGER PRIMARY KEY, ticker TEXT, start_date TEXT, end_date TEXT, annual_return REAL, annual_volatility REAL, sharpe_ratio REAL, asset_beta REAL, equity_cost REAL, method TEXT, weekends INT)"
 
-    query_filter = "ticker=:ticker AND start_date=date(:start_date) AND end_date=date(:end_date) AND :method=method AND weekends=:weekends"
+    sqlite_filter = "ticker=:ticker AND start_date=date(:start_date) AND end_date=date(:end_date) AND :method=method AND weekends=:weekends"
     identity_query = "(SELECT id FROM profile WHERE ticker=:ticker AND start_date=:start_date AND end_date=:end_date AND method=:method AND weekends=:weekends)"
     value_args = "(id, ticker, start_date, end_date, annual_return, annual_volatility, sharpe_ratio, asset_beta, equity_cost, method, weekends)"
 
-    return_query = "(SELECT annual_return FROM profile WHERE {query_filter})".format(
-        query_filter=query_filter)
-    vol_query = "(SELECT annual_volatility FROM profile WHERE {query_filter})".format(
-        query_filter=query_filter)
-    sharpe_query = "(SELECT sharpe_ratio FROM profile WHERE {query_filter})".format(
-        query_filter=query_filter)
-    beta_query = "(SELECT asset_beta FROM profile WHERE {query_filter})".format(
-        query_filter=query_filter)
-    equity_query = "(SELECT equity_cost FROM profile WHERE {query_filter})".format(
-        query_filter=query_filter)
+    sqlite_return_query = "(SELECT annual_return FROM profile WHERE {sqlite_filter})".format(
+        sqlite_filter=sqlite_filter)
+    sqlite_vol_query = "(SELECT annual_volatility FROM profile WHERE {sqlite_filter})".format(
+        sqlite_filter=sqlite_filter)
+    sqlite_sharpe_query = "(SELECT sharpe_ratio FROM profile WHERE {sqlite_filter})".format(
+        sqlite_filter=sqlite_filter)
+    sqlite_beta_query = "(SELECT asset_beta FROM profile WHERE {sqlite_filter})".format(
+        sqlite_filter=sqlite_filter)
+    sqlite_equity_query = "(SELECT equity_cost FROM profile WHERE {sqlite_filter})".format(
+        sqlite_filter=sqlite_filter)
 
-    sqlite_update_return_transaction = "INSERT or REPLACE INTO profile {value_args} VALUES ({identity_query}, :ticker, :start_date, :end_date, :annual_return, {vol_query}, {sharpe_query}, {beta_query}, {equity_query}, :method, :weekends)".format(
-        identity_query=identity_query, value_args=value_args, vol_query=vol_query, sharpe_query=sharpe_query, beta_query=beta_query, equity_query=equity_query)
-    sqlite_update_vol_transaction = "INSERT or REPLACE INTO profile {value_args} VALUES ({identity_query}, :ticker, :start_date, :end_date, {return_query}, :annual_volatility, {sharpe_query}, {beta_query}, {equity_query}, :method, :weekends)".format(
-        identity_query=identity_query, value_args=value_args, return_query=return_query, sharpe_query=sharpe_query, beta_query=beta_query, equity_query=equity_query)
-    sqlite_update_sharpe_transaction = "INSERT or REPLACE INTO profile {value_args} VALUES ({identity_query}, :ticker, :start_date, :end_date, {return_query}, {vol_query}, :sharpe_ratio, {beta_query}, {equity_query}, :method, :weekends)".format(
-        identity_query=identity_query, value_args=value_args, return_query=return_query, vol_query=vol_query, beta_query=beta_query, equity_query=equity_query)
-    sqlite_update_beta_transaction = "INSERT or REPLACE INTO profile {value_args} VALUES ({identity_query}, :ticker, :start_date, :end_date, {return_query}, {vol_query}, {sharpe_query}, :asset_beta, {equity_query}, :method, :weekends)".format(
-        identity_query=identity_query, value_args=value_args, return_query=return_query, vol_query=vol_query, sharpe_query=sharpe_query, equity_query=equity_query)
-    sqlite_update_equity_tranasction = "INSERT or REPLACE INTO profile {value_args} VALUES ({identity_query}, :ticker, :start_date, :end_date, {return_query}, {vol_query}, {sharpe_query}, {beta_query}, :equity_cost, :method, :weekends)".format(
-        identity_query=identity_query, value_args=value_args, return_query=return_query, vol_query=vol_query, sharpe_query=sharpe_query, beta_query=beta_query)
+    sqlite_update_return_transaction = "INSERT or REPLACE INTO profile {value_args} VALUES ({identity_query}, :ticker, :start_date, :end_date, :annual_return, {sqlite_vol_query}, {sqlite_sharpe_query}, {sqlite_beta_query}, {sqlite_equity_query}, :method, :weekends)".format(
+        identity_query=identity_query, value_args=value_args, sqlite_vol_query=sqlite_vol_query, sqlite_sharpe_query=sqlite_sharpe_query, sqlite_beta_query=sqlite_beta_query, sqlite_equity_query=sqlite_equity_query)
+    sqlite_update_vol_transaction = "INSERT or REPLACE INTO profile {value_args} VALUES ({identity_query}, :ticker, :start_date, :end_date, {sqlite_return_query}, :annual_volatility, {sqlite_sharpe_query}, {sqlite_beta_query}, {sqlite_equity_query}, :method, :weekends)".format(
+        identity_query=identity_query, value_args=value_args, sqlite_return_query=sqlite_return_query, sqlite_sharpe_query=sqlite_sharpe_query, sqlite_beta_query=sqlite_beta_query, sqlite_equity_query=sqlite_equity_query)
+    sqlite_update_sharpe_transaction = "INSERT or REPLACE INTO profile {value_args} VALUES ({identity_query}, :ticker, :start_date, :end_date, {sqlite_return_query}, {sqlite_vol_query}, :sharpe_ratio, {sqlite_beta_query}, {sqlite_equity_query}, :method, :weekends)".format(
+        identity_query=identity_query, value_args=value_args, sqlite_return_query=sqlite_return_query, sqlite_vol_query=sqlite_vol_query, sqlite_beta_query=sqlite_beta_query, sqlite_equity_query=sqlite_equity_query)
+    sqlite_update_beta_transaction = "INSERT or REPLACE INTO profile {value_args} VALUES ({identity_query}, :ticker, :start_date, :end_date, {sqlite_return_query}, {sqlite_vol_query}, {sqlite_sharpe_query}, :asset_beta, {sqlite_equity_query}, :method, :weekends)".format(
+        identity_query=identity_query, value_args=value_args, sqlite_return_query=sqlite_return_query, sqlite_vol_query=sqlite_vol_query, sqlite_sharpe_query=sqlite_sharpe_query, sqlite_equity_query=sqlite_equity_query)
+    sqlite_update_equity_tranasction = "INSERT or REPLACE INTO profile {value_args} VALUES ({identity_query}, :ticker, :start_date, :end_date, {sqlite_return_query}, {sqlite_vol_query}, {sqlite_sharpe_query}, {sqlite_beta_query}, :equity_cost, :method, :weekends)".format(
+        identity_query=identity_query, value_args=value_args, sqlite_return_query=sqlite_return_query, sqlite_vol_query=sqlite_vol_query, sqlite_sharpe_query=sqlite_sharpe_query, sqlite_beta_query=sqlite_beta_query)
 
-    sqlite_profile_query = "SELECT ifnull(annual_return, 'empty'), ifnull(annual_volatility, 'empty'), ifnull(sharpe_ratio, 'empty'), ifnull(asset_beta, 'empty'), ifnull(equity_cost, 'empty') FROM profile WHERE {query_filter}".format(
-        query_filter=query_filter)
+    sqlite_profile_query = "SELECT ifnull(annual_return, 'empty'), ifnull(annual_volatility, 'empty'), ifnull(sharpe_ratio, 'empty'), ifnull(asset_beta, 'empty'), ifnull(equity_cost, 'empty') FROM profile WHERE {sqlite_filter}".format(
+        sqlite_filter=sqlite_filter)
 
+    dynamodb_table_configuration = {
+        'AttributeDefinitions': [
+            {
+                'AttributeName': 'ticker',
+                'AttributeType': 'S'
+            },
+            {
+                'AttributeName': 'start_date',
+                'AttributeType': 'S'
+            },
+            {
+                'AttributeName': 'end_date',
+                'AttributeType': 'S'
+            }
+        ],
+        'TableName': 'profile',
+        'KeySchema': [
+            {
+                'AttributeName': 'ticker',
+                'KeyType': 'HASH'
+            },
+            {
+                'AttributeName': 'start_date',
+                'KeyType': 'RANGE'
+            },
+            {
+                'AttributeName': 'end_date',
+                'KeyType': 'RANGE'
+            }
+        ]
+    }
+    
     @staticmethod
     def to_dict(query_result):
         """
