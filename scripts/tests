@@ -11,11 +11,6 @@ then
     rm -r $DOCS_DIR/coverage/
 fi
 
-if [ "$1" != "circleci" ]
-then
-    export SRC_LIB=~/.local/lib/python3.8/site-packages/scrilla/
-fi
-
 cd $PROJECT_DIR
 
 scrilla clear-cache
