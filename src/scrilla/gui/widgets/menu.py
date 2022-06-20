@@ -196,9 +196,8 @@ class MenuWidget(QtWidgets.QWidget):
                            widget_index]['name'])
 
     def _show_api_key_dialog(self, options):
-        dialog = factories.dialog_widget_factory('api-key-dialog',options)
+        dialog = factories.dialog_widget_factory('api-key-dialog', options)
         dialog.exec_()
-
 
 
 if __name__ == "__main__":
