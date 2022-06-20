@@ -247,3 +247,58 @@ def test_format_float_number(decimal, expected):
 def test_format_float_percent(decimal, expected):
     assert isinstance(helper.format_float_percent(decimal), str)
     assert helper.format_float_percent(decimal) == expected
+
+@pytest.mark.parametrize('this_dict,which_key,expected',[
+    (
+        {
+            'a': 1.05,
+            'b': 0.067
+        },
+        'b',
+        {
+            'a': 1.05,
+            'b': '6.7%'
+        }
+    ),
+    (
+        {
+            'one': 1.35,
+            'two': 'a word please'
+        },
+        'one',
+        {
+            'one': '135%',
+            'two': 'a word please'
+        }
+    )
+])
+def test_format_dict_percent(this_dict, which_key, expected):
+    assert helper.format_dict_percent(this_dict, which_key) == expected
+
+@pytest.mark.parametrize('this_dict,which_key,expected',[
+    (
+        {
+            'a': 'hi',
+            'b': 1.0237498237589234
+        },
+        'b',
+        {
+            'a': 'hi',
+            'b': '1.0237'
+        }
+    ),
+    (
+        {
+            'one': 473.3456,
+            'two': 55.324980
+        },
+        'one',
+        {
+            'one': '473.35',
+            'two': 55.324980
+        },
+    )
+
+])
+def test_format_dict_number(this_dict, which_key, expected):
+    assert helper.format_dict_number(this_dict, which_key) == expected
