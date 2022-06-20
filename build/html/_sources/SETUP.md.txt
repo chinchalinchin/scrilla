@@ -31,6 +31,13 @@ The GUI has a different CLI entrypoint, namely,
 scrilla-gui
 ```
 
+The GUI uses [Pyside6]() widgets, which is a Python wrapper around Qt. In other words, you will need a [Qt library](https://docs.qt.io/qt-6/linux.html) and a C++ compiler. On Debian based distributions, the following command will install all the necesary dependencies,
+
+```shell
+sudo apt-get install build-essential libgl1-mesa-dev qt6-base-dev
+```
+**NOTE**: The '`qt6-base-dev` is only available through Ubuntu 22.04 as of ths writing (6/20/22). For other distributions or versions, refer to the official Qt documentation.
+
 ### Source
 
 If you prefer, you can build from source. `git clone` the [repository](https://github.com/chinchalinchin/scrilla),

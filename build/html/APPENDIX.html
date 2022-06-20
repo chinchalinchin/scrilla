@@ -36,48 +36,77 @@
 <h1>Appendix<a class="headerlink" href="#appendix" title="Permalink to this headline">¶</a></h1>
 <section id="notes">
 <h2>Notes<a class="headerlink" href="#notes" title="Permalink to this headline">¶</a></h2>
-<ol class="simple">
-<li><p>The following symbols have both equity and crypto assets trading on exchanges:</p></li>
-</ol>
-<p>[‘ABT’, ‘AC’, ‘ADT’, ‘ADX’, ‘AE’, ‘AGI’, ‘AI’, ‘AIR’, ‘AMP’, ‘AVT’, ‘BCC’, ‘BCD’, ‘BCH’, ‘BCX’, ‘BDL’, ‘BFT’, ‘BIS’, ‘BLK’, ‘BQ’, ‘BRX’, ‘BTA’, ‘BTG’, ‘CAT’, ‘CMP’, ‘CMT’, ‘CNX’, ‘CTR’, ‘CURE’, ‘DAR’, ‘DASH’, ‘DBC’, ‘DCT’, ‘DDF’, ‘DFS’, ‘DTB’, ‘DYN’, ‘EBTC’, ‘ECC’, ‘EFL’, ‘ELA’, ‘ELF’,’EMB’, ‘ENG’, ‘ENJ’, ‘EOS’, ‘EOT’, ‘EQT’, ‘ERC’, ‘ETH’, ‘ETN’, ‘EVX’, ‘EXP’, ‘FCT’, ‘FLO’, ‘FLT’, ‘FTC’, ‘FUN’, ‘GAM’, ‘GBX’, ‘GEO’, ‘GLD’, ‘GNT’, ‘GRC’, ‘GTO’, ‘INF’, ‘INS’, ‘INT’, ‘IXC’, ‘KIN’, ‘LBC’, ‘LEND’, ‘LTC’, ‘MAX’, ‘MCO’, ‘MEC’, ‘MED’, ‘MGC’, ‘MINT’, ‘MLN’, ‘MNE’, ‘MOD’, ‘MSP’, ‘MTH’, ‘MTN’, ‘MUE’, ‘NAV’, ‘NEO’, ‘NEOS’, ‘NET’, ‘NMR’, ‘NOBL’, ‘NXC’, ‘OCN’, ‘OPT’, ‘PBT’, ‘PING’, ‘PPC’, ‘PPT’, ‘PRG’, ‘PRO’, ‘PST’, ‘PTC’, ‘QLC’, ‘QTUM’,’R’, ‘RDN’, ‘REC’, ‘RVT’, ‘SALT’, ‘SAN’, ‘SC’, ‘SKY’, ‘SLS’, ‘SPR’, ‘SNX’, ‘STK’, ‘STX’, ‘SUB’, ‘SWT’, ‘THC’, ‘TKR’, ‘TRC’, ‘TRST’, ‘TRUE’, ‘TRX’, ‘TX’, ‘UNB’, ‘VERI’, ‘VIVO’, ‘VOX’, ‘VPN’, ‘VRM’, ‘VRS’, ‘VSL’, ‘VTC’, ‘VTR’, ‘WDC’, ‘WGO’, ‘WTT’, ‘XEL’, ‘NEM’, ‘ZEN’]</p>
-<p>Since there is no way good way to distinguish whether or not the asset is an equity or a cryptocurrency based on the value of the ticker alone, the module functions <code class="docutils literal notranslate"><span class="pre">scrilla.files.get_asset_type</span></code> and <code class="docutils literal notranslate"><span class="pre">scrilla.errors.validate_asset_type</span></code> will always default to the equity ticker for the above symbols.</p>
-<p>This is not the greatest solution, as all the crypto symbols given above are inaccessible to analysis. In particular, <code class="docutils literal notranslate"><span class="pre">ETH</span></code> represents a popular crypto that cannot be analyzed, which represents a major failing of the current application.</p>
-<p>The way the <code class="docutils literal notranslate"><span class="pre">service</span></code> module works, <code class="docutils literal notranslate"><span class="pre">PriceManager</span></code> can be forced to retrieve the crypto asset’s prices instead of the equity asset’s through the <code class="docutils literal notranslate"><span class="pre">services.PriceManager.get_prices</span></code> method by providing the method an argument of <code class="docutils literal notranslate"><span class="pre">asset_type='crypto'</span></code>; However, the <code class="docutils literal notranslate"><span class="pre">service</span></code> module function <code class="docutils literal notranslate"><span class="pre">services.get_daily_price_history</span></code>, which is the point of contact between the <code class="docutils literal notranslate"><span class="pre">PriceManager</span></code> and the rest of the application, wraps calls to the <code class="docutils literal notranslate"><span class="pre">PriceManager.get_prices</span></code> method in a cache persistence layer (meaning, <code class="docutils literal notranslate"><span class="pre">get_daily_price_history</span></code> checks if prices exist in the cache before passing the request off to an external service query). The cache doesn’t distinguish asset types currently. The <code class="docutils literal notranslate"><span class="pre">PriceCache</span></code> stores prices based on the inputs (<i>ticker, date, open close, close price</i>). So, even if the <code class="docutils literal notranslate"><span class="pre">PriceManager</span></code> is forced to get crypto prices on the first call, subsequent calls to the same <code class="docutils literal notranslate"><span class="pre">get_daily_price_history</span></code> function will likely break the application, or at least lead to misleading results, since the cache will contain a set of prices that doesn’t necessarily map one-to-one with its ticker symbol.</p>
-<p>If the above problem is to be solved, the cache needs modified to separate prices based on asset type.</p>
-<ol class="simple">
-<li><p>There is a slight discrepancy between the results of maximum likelihood estimation and moment matching when the underyling distribution of the price process is log-normal. The likelihood algorithm in this library relies on the generalized idea of likelihood estimation; it will compute the log-likelihood function for a given vector of parameters and then optimize that function by varying the vector until the input that produces the maximum output; the usual matter of course is to derive a formula using calculus that can then be analytically solved. Both operations should be equivalent. Moreover, theoretically, it can be shown the maximization operation should be equivalent to the results obtained by the moment matching operation, i.e the maximum likelihood estimator for the mean is the sample mean, etc. However, the results between maximum likelihood estimation and moment matching are off by a few decimal points. It may be due to some vagary of floating point arithmetic, but something else may be going on. See comments in `scrilla.analysis.models.geometric.statistics’</p></li>
-</ol>
+</section>
+<section id="id1">
+<h2>#1<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>The following symbols have both equity and crypto assets trading on exchanges:
+
+[&#39;ABT&#39;, &#39;AC&#39;, &#39;ADT&#39;, &#39;ADX&#39;, &#39;AE&#39;, &#39;AGI&#39;, &#39;AI&#39;, &#39;AIR&#39;, &#39;AMP&#39;, &#39;AVT&#39;, &#39;BCC&#39;, &#39;BCD&#39;, &#39;BCH&#39;, &#39;BCX&#39;, &#39;BDL&#39;, &#39;BFT&#39;, &#39;BIS&#39;, &#39;BLK&#39;, &#39;BQ&#39;, &#39;BRX&#39;, &#39;BTA&#39;, &#39;BTG&#39;, &#39;CAT&#39;, &#39;CMP&#39;, &#39;CMT&#39;, &#39;CNX&#39;, &#39;CTR&#39;, &#39;CURE&#39;, &#39;DAR&#39;, &#39;DASH&#39;, &#39;DBC&#39;, &#39;DCT&#39;, &#39;DDF&#39;, &#39;DFS&#39;, &#39;DTB&#39;, &#39;DYN&#39;, &#39;EBTC&#39;, &#39;ECC&#39;, &#39;EFL&#39;, &#39;ELA&#39;, &#39;ELF&#39;,&#39;EMB&#39;, &#39;ENG&#39;, &#39;ENJ&#39;, &#39;EOS&#39;, &#39;EOT&#39;, &#39;EQT&#39;, &#39;ERC&#39;, &#39;ETH&#39;, &#39;ETN&#39;, &#39;EVX&#39;, &#39;EXP&#39;, &#39;FCT&#39;, &#39;FLO&#39;, &#39;FLT&#39;, &#39;FTC&#39;, &#39;FUN&#39;, &#39;GAM&#39;, &#39;GBX&#39;, &#39;GEO&#39;, &#39;GLD&#39;, &#39;GNT&#39;, &#39;GRC&#39;, &#39;GTO&#39;, &#39;INF&#39;, &#39;INS&#39;, &#39;INT&#39;, &#39;IXC&#39;, &#39;KIN&#39;, &#39;LBC&#39;, &#39;LEND&#39;, &#39;LTC&#39;, &#39;MAX&#39;, &#39;MCO&#39;, &#39;MEC&#39;, &#39;MED&#39;, &#39;MGC&#39;, &#39;MINT&#39;, &#39;MLN&#39;, &#39;MNE&#39;, &#39;MOD&#39;, &#39;MSP&#39;, &#39;MTH&#39;, &#39;MTN&#39;, &#39;MUE&#39;, &#39;NAV&#39;, &#39;NEO&#39;, &#39;NEOS&#39;, &#39;NET&#39;, &#39;NMR&#39;, &#39;NOBL&#39;, &#39;NXC&#39;, &#39;OCN&#39;, &#39;OPT&#39;, &#39;PBT&#39;, &#39;PING&#39;, &#39;PPC&#39;, &#39;PPT&#39;, &#39;PRG&#39;, &#39;PRO&#39;, &#39;PST&#39;, &#39;PTC&#39;, &#39;QLC&#39;, &#39;QTUM&#39;,&#39;R&#39;, &#39;RDN&#39;, &#39;REC&#39;, &#39;RVT&#39;, &#39;SALT&#39;, &#39;SAN&#39;, &#39;SC&#39;, &#39;SKY&#39;, &#39;SLS&#39;, &#39;SPR&#39;, &#39;SNX&#39;, &#39;STK&#39;, &#39;STX&#39;, &#39;SUB&#39;, &#39;SWT&#39;, &#39;THC&#39;, &#39;TKR&#39;, &#39;TRC&#39;, &#39;TRST&#39;, &#39;TRUE&#39;, &#39;TRX&#39;, &#39;TX&#39;, &#39;UNB&#39;, &#39;VERI&#39;, &#39;VIVO&#39;, &#39;VOX&#39;, &#39;VPN&#39;, &#39;VRM&#39;, &#39;VRS&#39;, &#39;VSL&#39;, &#39;VTC&#39;, &#39;VTR&#39;, &#39;WDC&#39;, &#39;WGO&#39;, &#39;WTT&#39;, &#39;XEL&#39;, &#39;NEM&#39;, &#39;ZEN&#39;]
+
+Since there is no way good way to distinguish whether or not the asset is an equity or a cryptocurrency based on the value of the ticker alone, the module functions `scrilla.files.get_asset_type` and `scrilla.errors.validate_asset_type` will always default to the equity ticker for the above symbols. 
+
+This is not the greatest solution, as all the crypto symbols given above are inaccessible to analysis. In particular, `ETH` represents a popular crypto that cannot be analyzed, which represents a major failing of the current application.
+
+The way the `service` module works, `PriceManager` can be forced to retrieve the crypto asset&#39;s prices instead of the equity asset&#39;s through the `services.PriceManager.get_prices` method by providing the method an argument of `asset_type=&#39;crypto&#39;`; However, the `service` module function `services.get_daily_price_history`, which is the point of contact between the `PriceManager` and the rest of the application, wraps calls to the `PriceManager.get_prices` method in a cache persistence layer (meaning, `get_daily_price_history` checks if prices exist in the cache before passing the request off to an external service query). The cache doesn&#39;t distinguish asset types currently. The `PriceCache` stores prices based on the inputs (&lt;i&gt;ticker, date, open close, close price&lt;/i&gt;). So, even if the `PriceManager` is forced to get crypto prices on the first call, subsequent calls to the same `get_daily_price_history` function will likely break the application, or at least lead to misleading results, since the cache will contain a set of prices that doesn&#39;t necessarily map one-to-one with its ticker symbol.
+
+If the above problem is to be solved, the cache needs modified to separate prices based on asset type.
+</pre></div>
+</div>
+</section>
+<section id="id2">
+<h2>#2<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>There is a slight discrepancy between the results of maximum likelihood estimation and moment matching when the underyling distribution of the price process is log-normal. The likelihood algorithm in this library relies on the generalized idea of likelihood estimation; it will compute the log-likelihood function for a given vector of parameters and then optimize that function by varying the vector until the input that produces the maximum output; the usual matter of course is to derive a formula using calculus that can then be analytically solved. Both operations should be equivalent. Moreover, theoretically, it can be shown the maximization operation should be equivalent to the results obtained by the moment matching operation, i.e the maximum likelihood estimator for the mean is the sample mean, etc. However, the results between maximum likelihood estimation and moment matching are off by a few decimal points. It may be due to some vagary of floating point arithmetic, but something else may be going on. See comments in `scrilla.analysis.models.geometric.statistics&#39;
+</pre></div>
+</div>
 </section>
 <section id="documentation">
 <h2>Documentation<a class="headerlink" href="#documentation" title="Permalink to this headline">¶</a></h2>
 <section id="dependencies">
 <h3>Dependencies<a class="headerlink" href="#dependencies" title="Permalink to this headline">¶</a></h3>
-<p><strong>Application</strong></p>
+</section>
+</section>
+<section id="application">
+<h2><strong>Application</strong><a class="headerlink" href="#application" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><p><a class="reference external" href="https://dateutil.readthedocs.io/en/stable/index.html">dateutil</a></p></li>
+<li><p><span class="xref myst">defusedxml</span></p></li>
 <li><p><a class="reference external" href="https://pypi.org/project/holidays/">holidays</a></p></li>
 <li><p><a class="reference external" href="https://pypi.org/project/matplotlib/">matplotlib</a></p></li>
 <li><p><a class="reference external" href="https://pypi.org/project/numpy/">numpy</a></p></li>
 <li><p><a class="reference external" href="https://pypi.org/project/python-dotenv/">python-dotenv</a></p></li>
 <li><p><a class="reference external" href="https://pypi.org/project/requests/">requests</a></p></li>
-<li><p><a class="reference external" href="https://pypi.org/project/scipy/">scipy</a>
-<strong>GUI</strong></p></li>
-<li><p><a class="reference external" href="https://pypi.org/project/PySide6/">PySide6</a>
-<strong>Testing</strong></p></li>
+<li><p><a class="reference external" href="https://pypi.org/project/scipy/">scipy</a></p></li>
+</ul>
+</section>
+<section id="gui">
+<h2><strong>GUI</strong><a class="headerlink" href="#gui" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://pypi.org/project/PySide6/">PySide6</a></p></li>
+</ul>
+</section>
+<section id="testing">
+<h2><strong>Testing</strong><a class="headerlink" href="#testing" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
 <li><p><a class="reference external" href="https://pypi.org/project/pytest/">pytest</a></p></li>
 <li><p><a class="reference external" href="https://pypi.org/project/coverage/">coverage</a></p></li>
-<li><p><a class="reference external" href="https://pypi.org/project/httmock/">httmock</a>
-<strong>Documentation</strong></p></li>
+<li><p><a class="reference external" href="https://pypi.org/project/httmock/">httmock</a></p></li>
+</ul>
+</section>
+<section id="id3">
+<h2><strong>Documentation</strong><a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
 <li><p><a class="reference external" href="https://pypi.org/project/Sphinx/">sphinx</a></p></li>
 <li><p><a class="reference external" href="https://pypi.org/project/pdoc3/">pdoc3</a></p></li>
+<li><p><span class="xref myst">myst-parser</span></p></li>
 </ul>
-<p><strong>Build</strong></p>
+</section>
+<section id="build">
+<h2><strong>Build</strong><a class="headerlink" href="#build" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><p><a class="reference external" href="https://pypi.org/project/setuptools/">setuptools</a></p></li>
 <li><p><a class="reference external" href="https://pypi.org/project/twine/">twine</a></p></li>
 <li><p><a class="reference external" href="https://pypi.org/project/build/">build</a></p></li>
 </ul>
-</section>
 </section>
 <section id="references">
 <h2>References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h2>
@@ -139,7 +168,14 @@
 <li class="toctree-l1"><a class="reference internal" href="USAGE.html">Usage</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Appendix</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#notes">Notes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id1">#1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id2">#2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#documentation">Documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#application"><strong>Application</strong></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#gui"><strong>GUI</strong></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#testing"><strong>Testing</strong></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id3"><strong>Documentation</strong></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#build"><strong>Build</strong></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#references">References</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#assets">Assets</a></li>
 </ul>

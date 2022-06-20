@@ -57,6 +57,11 @@
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>scrilla-gui
 </pre></div>
 </div>
+<p>The GUI uses <span class="xref myst">Pyside6</span> widgets, which is a Python wrapper around Qt. In other words, you will need a <a class="reference external" href="https://docs.qt.io/qt-6/linux.html">Qt library</a> and a C++ compiler. On Debian based distributions, the following command will install all the necesary dependencies,</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>sudo apt-get install build-essential libgl1-mesa-dev qt6-base-dev
+</pre></div>
+</div>
+<p><strong>NOTE</strong>: The ‘<code class="docutils literal notranslate"><span class="pre">qt6-base-dev</span></code> is only available through Ubuntu 22.04 as of ths writing (6/20/22). For other distributions or versions, refer to the official Qt documentation.</p>
 </section>
 <section id="source">
 <h3>Source<a class="headerlink" href="#source" title="Permalink to this headline">¶</a></h3>
