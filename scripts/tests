@@ -15,7 +15,7 @@ then
     export PYTHON_LIB=/home/chinchalinchin/.local/lib/python3.8/site-packages/scrilla/
 fi
 
-cd $PROJECT_DIR
+cd $APP_DIR
 
 scrilla clear-cache
 

@@ -24,8 +24,7 @@ def split_and_strip(string: str, upper: bool = True, delimiter=",") -> List[str]
 
 
 def round_array(array: List[float], decimals: int) -> List[float]:
-    cutoff = (1/10**decimals)
-    return [0 if element < cutoff else truncate(element, decimals) for element in array]
+    return [round(element, decimals) for element in array]
 
 
 def intersect_dict_keys(dict1: dict, dict2: dict) -> Tuple[dict, dict]:
@@ -37,9 +36,9 @@ def intersect_dict_keys(dict1: dict, dict2: dict) -> Tuple[dict, dict]:
 
 def complement_dict_keys(dict1: dict, dict2: dict) -> dict:
     """
-    Returns the a transformed first dictionary whose keys are a complement relative to the second dictionary keys. In other words, this function takes the complement of the first dictionary keys relative to the second dictionary keys. 
+    Returns the transformed dictionaries whose keys are a complement relative to the second dictionary keys. In other words, this function takes the complement of the first dictionary keys relative to the second dictionary keys and visa versa,
     """
-    return {x: dict1[x] for x in dict1.keys() if x not in dict2.keys()}
+    return {x: dict1[x] for x in dict1.keys() if x not in dict2.keys()}, {x:dict2[x] for x in dict2.keys() if x not in dict1.keys()}
 
 
 def exceeds_accuracy(decimal: float) -> bool:
