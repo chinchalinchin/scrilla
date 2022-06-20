@@ -64,7 +64,8 @@ def format_allocation(allocation, portfolio, investment=None, latest_prices=None
             holding['shares'] = float(shares[j])
         allocation_format.append(holding)
 
-    json_format = {'holdings': allocation_format, 'portfolio_return': annual_return, 'portfolio_volatility': annual_volatility}
+    json_format = {'holdings': allocation_format,
+                   'portfolio_return': annual_return, 'portfolio_volatility': annual_volatility}
 
     if investment is not None:
         json_format['total'] = float(total)
