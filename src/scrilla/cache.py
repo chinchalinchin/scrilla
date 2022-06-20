@@ -521,7 +521,7 @@ class ProfileCache(Cache):
             }
         ]
     }
-    
+
     @staticmethod
     def to_dict(query_result):
         """
@@ -564,7 +564,7 @@ class ProfileCache(Cache):
             pass
             # TODO
 
-    def _query(self, type):
+    def _query(self):
         if settings.CACHE_MODE == 'sqlite':
             return self.sqlite_profile_query
         elif settings.CACHE_MODE == 'dynamodb':

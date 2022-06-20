@@ -44,9 +44,9 @@ def dialog_widget_factory(component: str, options: list):
     user_select.insertItems(0, options)
     user_text = argument_widget_factory('symbols', None, False)
 
-    input = layout_factory('horizontal-box')
-    input.layout().addWidget(user_select)
-    input.layout().addWidget(user_text)
+    input_widget = layout_factory('horizontal-box')
+    input_widget.layout().addWidget(user_select)
+    input_widget.layout().addWidget(user_text)
 
     def save():
         dialog.selection = user_select.currentText()
@@ -60,13 +60,13 @@ def dialog_widget_factory(component: str, options: list):
     box = QtWidgets.QDialogButtonBox(btn)
     box.accepted.connect(save)
     box.rejected.connect(cancel)
-    dialog.layout().addWidget(input)
+    dialog.layout().addWidget(input_widget)
     dialog.layout().addWidget(box)
 
     return dialog
 
 
-def atomic_widget_factory(component: str, title: str, options: list = None):
+def atomic_widget_factory(component: str, title: str):
     """
     Factory function for generating various subclasses of `PySide6.QtWidgets.QWidget` pre-configured for application display.
 

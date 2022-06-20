@@ -1106,6 +1106,4 @@ def scrilla():
 
 
 if __name__ == "__main__":
-    import sys
-
-    do_program(sys.argv[1:])
+    scrilla()
