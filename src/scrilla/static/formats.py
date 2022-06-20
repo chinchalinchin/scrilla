@@ -13,6 +13,7 @@ formats = {
     'BINS': 20
 }
 
+
 def format_float_number(decimal: float) -> str:
     if exceeds_accuracy(decimal):
         return '0'
@@ -41,6 +42,7 @@ def format_dict_number(this_dict: dict, which_key: str) -> dict:
     buffer_dict = this_dict.copy()
     buffer_dict[which_key] = format_float_number(this_dict[which_key])
     return buffer_dict
+
 
 def format_allocation(allocation, portfolio, investment=None, latest_prices=None):
     allocation_format = []

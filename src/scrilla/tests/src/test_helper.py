@@ -4,7 +4,8 @@ import pytest
 
 from ...util import helper
 
-@pytest.mark.parametrize('number,digits,expected',[
+
+@pytest.mark.parametrize('number,digits,expected', [
     (12.234, 2, 12.23),
     (0.056789, 3, 0.056),
     (-1.8750213, 4, -1.8750)
@@ -12,75 +13,79 @@ from ...util import helper
 def test_truncate(number, digits, expected):
     assert helper.truncate(number, digits) == expected
 
-@pytest.mark.parametrize('array,expected',[
-    ([' hi', ' ho '], ['hi','ho']),
+
+@pytest.mark.parametrize('array,expected', [
+    ([' hi', ' ho '], ['hi', 'ho']),
     ([' that     ', '     was', 'easy  '], ['that', 'was', 'easy']),
     (['hi  ho'], ['hi  ho'])
 ])
 def test_strip_string_array(array, expected):
     assert helper.strip_string_array(array) == expected
 
-@pytest.mark.parametrize('string,upper,delimiter,expected',[ 
-    (   
+
+@pytest.mark.parametrize('string,upper,delimiter,expected', [
+    (
         'a.b.c.d',
         True,
-        '.', 
-        ['A','B', 'C', 'D']
+        '.',
+        ['A', 'B', 'C', 'D']
     ),
     (
         'a . b.c  .  d',
         True,
-        '.', 
-        ['A','B', 'C', 'D']
+        '.',
+        ['A', 'B', 'C', 'D']
     ),
     (
         'a . b.c  .  d',
         False,
-        '.', 
-        ['a','b', 'c', 'd']
+        '.',
+        ['a', 'b', 'c', 'd']
     ),
     (
-        'a.b.c.d', 
-        False, 
-        '.', 
-        ['a','b','c','d']
+        'a.b.c.d',
+        False,
+        '.',
+        ['a', 'b', 'c', 'd']
     ),
     (
-        'a.b.c.d', 
-        False, 
-        ',', 
+        'a.b.c.d',
+        False,
+        ',',
         ['a.b.c.d']
     ),
     (
-        'a.b.c.d', 
-        True, 
-        ',', 
+        'a.b.c.d',
+        True,
+        ',',
         ['A.B.C.D']
     ),
     (
         'a,b,c,d',
         True,
-        ',', 
-        ['A','B','C','D']
+        ',',
+        ['A', 'B', 'C', 'D']
     )
 ])
-def test_split_and_strip(string,upper,delimiter,expected):
-    assert helper.split_and_strip(string,upper,delimiter) == expected
+def test_split_and_strip(string, upper, delimiter, expected):
+    assert helper.split_and_strip(string, upper, delimiter) == expected
 
-@pytest.mark.parametrize('array,decimals,expected',[
+
+@pytest.mark.parametrize('array,decimals,expected', [
     (
         [.005, .2367, 1.56808],
         2,
         [.01, .24, 1.57]
     )
 ])
-def test_round_array(array,decimals,expected):
+def test_round_array(array, decimals, expected):
     assert helper.round_array(array, decimals) == expected
 
-@pytest.mark.parametrize('dict1,dict2,expected1,expected2',[
+
+@pytest.mark.parametrize('dict1,dict2,expected1,expected2', [
     (
         {
-            'a': 1, 
+            'a': 1,
             'b': 2
         },
         {
@@ -124,14 +129,14 @@ def test_round_array(array,decimals,expected):
         },
         {
             'a': 3,
-            'b': 4, 
+            'b': 4,
             'c': 5
         },
         {
             'd': 4,
             'e': 5
         },
-        { }
+        {}
     ),
 ])
 def test_complement_dict_keys(dict1, dict2, expected1, expected2):
@@ -160,7 +165,7 @@ def test_complement_dict_keys(dict1, dict2, expected1, expected2):
             'a': 3,
             'd': 4
         },
-        { 
+        {
             'a': 1
         },
         {
@@ -178,20 +183,21 @@ def test_complement_dict_keys(dict1, dict2, expected1, expected2):
             'c': 5,
             'd': 6
         },
-        { 
+        {
             'b': 2,
             'c': 3
         },
         {
             'b': 4,
-            'c': 5 
+            'c': 5
         }
     ),
 ])
-def test_intersect_dict_keys(dict1,dict2,expected1,expected2):
-    assert helper.intersect_dict_keys(dict1,dict2) == (expected1,expected2)
+def test_intersect_dict_keys(dict1, dict2, expected1, expected2):
+    assert helper.intersect_dict_keys(dict1, dict2) == (expected1, expected2)
 
-@pytest.mark.parametrize('decimal,expected',[
+
+@pytest.mark.parametrize('decimal,expected', [
     (0.01, False),
     (0.001, False),
     (0.0001, False),
@@ -211,9 +217,10 @@ def test_intersect_dict_keys(dict1,dict2,expected1,expected2):
 def test_exceeds_accurary(decimal, expected):
     assert helper.exceeds_accuracy(decimal) == expected
 
-@pytest.mark.parametrize('number,sigfigs,expected',[
+
+@pytest.mark.parametrize('number,sigfigs,expected', [
     (1500, 1, 2000),
-    (0.03452, 2,0.035),
+    (0.03452, 2, 0.035),
     (15.325, 3, 15.3),
     (-245, 2, -240),
     (-2.34566, 3, -2.35)
