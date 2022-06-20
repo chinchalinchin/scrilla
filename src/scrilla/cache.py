@@ -474,7 +474,7 @@ class ProfileCache(Cache):
         elif settings.CACHE_MODE == 'dynamodb':
             pass
             # TODO
-    
+
     def _query(self, type):
         if settings.CACHE_MODE == 'sqlite':
             return self.sqlite_profile_query
