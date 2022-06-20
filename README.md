@@ -92,11 +92,13 @@ where `<key>` is one of the values: **ALPHA_VANTAGE_KEY**, **QUANDL_KEY** or **I
 
 Keep in mind if using this method to store the API keys, the keys will be stored unencrypted in the local installation's <i>/data/common/</i> directory. The recommended method is storing the credentials in the environment. 
 
-If no API keys are found through either of these methods, the application will not function properly.
+If no API keys are found through either of these methods, the application will raise an exception.
 
 ## Usage
 
-The following command will optimize a portfolio of consisting of *ALLY*, *BX*, *GLD*, *BTC* and *ETH* over the specified date range and save the result to a JSON file.
+### Portfolio Optimization
+
+The following command will optimize a portfolio of consisting of *ALLY*, *BX*, *GLD*, *BTC* and *ETH* over the specified date range and save the result to a JSON file,
 
 ```shell
 scrilla optimize-portfolio ALLY BX GLD BTC ETH \
@@ -105,4 +107,29 @@ scrilla optimize-portfolio ALLY BX GLD BTC ETH \
     -save <absolute path to json file> 
 ```
 
+### Efficient Frontier
+
+The following command will calculaate the efficient frontier for a portfolio consisting of *SPY*, *GLD* and *USO* over the specified date range and save the result to a JSON file,
+
+```shell
+scrilla efficient-frontier SPY GLD USO \
+    --start <YYYY-MM-DD> \
+    --end <YYYY-MM-DD> \
+    --save <absolute path to json file>
+```
+
+The following command will generate a plot of this frontier in the return-volatility plane,
+
+```shell
+scrilla plot-ef SPY GLD USO \
+    --start <YYYY-MM-DD> \ 
+    --end <YYYY-MM-DD> 
+```
 See [usage](https://chinchalinchin.github.io/scrilla/USAGE.html) for more information.
+
+
+## Cloud
+
+TODO
+
+currently working on a DynamoDB-based cache and Dockerfiles for lambda functions wrapped around scrilla's main features. will update this section once everything is completed.
