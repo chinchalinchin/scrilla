@@ -70,6 +70,7 @@
 - [How to Determine Quantile Isolines of A Multivariate Normal](https://stats.stackexchange.com/questions/64680/how-to-determine-quantiles-isolines-of-a-multivariate-normal-distribution)
 
 ### Academic Papers
+- [Algorithms for computing sample variance](http://cpsc.yale.edu/sites/default/files/files/tr222.pdf)
 - [An Introduction to Copulas](http://www.columbia.edu/~mh2078/QRM/Copulas.pdf)
 - [Optimization of Conditional Value At Risk](https://www.ise.ufl.edu/uryasev/files/2011/11/CVaR1_JOR.pdf)
 - [Parameter Estimation in Mean Reversion Processes with Deterministic Long-Term Trend](https://www.hindawi.com/journals/jps/2016/5191583/)

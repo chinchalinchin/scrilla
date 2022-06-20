@@ -6,6 +6,7 @@ omit =
     **/static/constants.py
     **/static/definitions.py
     **/static/keys.py
+    **/tests/**
 
 [html]
 title = "Scrilla Unit Test Coverage"

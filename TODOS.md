@@ -45,3 +45,5 @@
 56. save api key in /data/common via gui menu (currently just displays dialog without doing anything when clicked)
 
 57. SHould incorporate inflation in the calculations. (1+Real)(1+Inflation) = (1+Nominal)
+
+58. Implement Welford's recursive algorithm for variance and covariance: https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance
