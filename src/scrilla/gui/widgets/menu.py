@@ -125,7 +125,6 @@ class MenuWidget(QtWidgets.QWidget):
     def _arrange_menu_widgets(self):
         """Arranges child widget within their layouts."""
         self.title.setAlignment(QtCore.Qt.AlignHCenter)
-        # self.splash.setAlignment(QtCore.Qt.AlignCenter)
 
         self.container_pane.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding,
                                                                 QtWidgets.QSizePolicy.Expanding))

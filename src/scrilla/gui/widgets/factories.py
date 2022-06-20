@@ -144,7 +144,6 @@ def atomic_widget_factory(component: str, title: str, options: list = None):
             QtWidgets.QAbstractScrollArea.AdjustToContents)
         widget.setSizePolicy(QtWidgets.QSizePolicy(
             QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum))
-        # widget.verticalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Stretch)
         widget.setObjectName(component)
 
     elif component == 'table-item':
