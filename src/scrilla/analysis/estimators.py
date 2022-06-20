@@ -198,7 +198,7 @@ def sample_correlation(x: List[float], y: List[float]):
 
 def recursive_rolling_correlation(correl_previous, new_x_observation, lost_x_obs,
                                   new_y_obs, lost_y_obs, n=settings.DEFAULT_ANALYSIS_PERIOD):
-
+    # TODO: after other rolling functions work...
     pass
 
 
@@ -255,6 +255,7 @@ def sample_variance(x: List[float]):
     ------
     1. `scrilla.errors.SampleSizeError`
     """
+    # TODO: this is a 'naive' estimation of variance: https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance
 
     mu, sigma, n = sample_mean(x=x), 0, len(x)
 
@@ -272,6 +273,7 @@ def sample_variance(x: List[float]):
 
 
 def recursive_rolling_variance(var_previous, xbar_previous, new_obs, lost_obs, n=settings.DEFAULT_ANALYSIS_PERIOD):
+    # TODO: slightly off for some reason...Formula not correct? Rework it out.
     xbar_new = recursive_rolling_mean(xbar_previous=xbar_previous, new_obs=new_obs,
                                       lost_obs=lost_obs, n=n)
     var_new = var_previous + \
@@ -312,6 +314,7 @@ def sample_covariance(x: list, y: list):
 
 
 def recursive_rolling_covariance(covar_previous: float, new_x_obs: float, lost_x_obs: float, previous_x_bar: float, new_y_obs: float, lost_y_obs: float, previous_y_bar: float, n: int = settings.DEFAULT_ANALYSIS_PERIOD):
+    # TODO: no work.
     new_sum_term = new_x_obs*new_y_obs - lost_x_obs*lost_y_obs
     xy_cross_term = previous_x_bar*(new_y_obs-lost_y_obs)
     yx_cross_term = previous_y_bar*(new_x_obs-lost_x_obs)

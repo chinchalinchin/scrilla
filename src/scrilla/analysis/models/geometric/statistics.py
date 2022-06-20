@@ -808,6 +808,7 @@ def _calculate_moment_risk_return(ticker: str, start_date: Union[date, None] = N
         (trading_period*sample)
 
     # VOLATILITY CALCULATION
+    # NOTE / TODO : this is a 'naive' variance algorithm: https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance
     today, variance, tomorrows_price, tomorrows_date = False, 0, 0, None
     # adjust the random variable being measured so expectation is easier to calculate.
     mean_mod_return = mean_return*sqrt(trading_period)
