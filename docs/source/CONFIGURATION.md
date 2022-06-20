@@ -54,6 +54,10 @@ The asset price model assumed during the estimation of statistics. A value of`ge
 
 Note, it is highly recommended that if you change this value, you should clear the cache, as the cache stores frequent statistical calculations to speed up the program. The previous values of the statistics calculated under the prior model will be referenced and result in incorrect calculations.
 
+- CACHE_MODE
+
+By default, **CACHE_MODE** is set equal to `sqlite`. In this mode, the cache uses a SQLite flat file to store price histories and statistical calculations on the local filesystem. The **CACHE_MODE** can also be set to `dynamodb` to store these quantities in a cloud-based DynamoDB table. In order for the`dynamodb` mode to work, the user/service using `scrilla` must have a role with read/write privileges on the tables: `prices`, `interest`, `profile` and `correlation`. These tables will be created if they do not exist, assuming the role grants the correct privileges to the process executing `scrilla`. Refer to the [AWS Documentation on DynamoDB permissions for more information on configuring your IAM role for scrilla](). (NOTE, `dynamodb` is still in development, but should be done shortly as this is currently the priority).
+
 - DEFAULT_ESTIMATION_METHOD
 
 Determines the method used to calculate risk-return profiles. If set to `moments`, the return and volatility will be estimated by setting them equal to the first and second sample moments. If set to `percents`, the return and volatilty will be estimated by setting the 25th percentile and 75th percentile of the assumed distribution (see above **ANALYSIS_MODE**) equal to the 25th and 75th percentile from the sample of data. If set to `likely`, the likelihood function calculated from the assumed distribution (see **ANALYSIS_MODE** again) will be maximized with respect to the return and volatility; the values which maximize will be used as the estimates. 
