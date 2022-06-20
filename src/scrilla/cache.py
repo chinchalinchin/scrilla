@@ -521,7 +521,7 @@ class ProfileCache(Cache):
             }
         ]
     }
-    
+
     @staticmethod
     def to_dict(query_result):
         """
