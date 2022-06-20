@@ -8,4 +8,4 @@ include src/scrilla/gui/styles/*
 include src/scrilla/gui/templates/*
 include src/scrilla/version.txt
 
-exclude src/scrilla/tests/*
+exclude src/scrilla/tests/**
