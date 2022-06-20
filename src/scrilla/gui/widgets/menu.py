@@ -59,10 +59,8 @@ class MenuWidget(QtWidgets.QWidget):
                     )
                 elif menu == 'Account':
                     if action['name'] == 'Add API Key':
-                        q_action.triggered.connect(
-                            (lambda action: lambda:
-                                self._show_api_key_dialog(action['options']))(action)
-                        )
+                        q_action.trigger.connect(
+                            lambda: self._show_api_key_dialog())
                 elif menu == 'View':
                     if action['name'] == 'Function Menu':
                         q_action.triggered.connect(lambda: self.function_menu.setVisible(
@@ -198,6 +196,7 @@ class MenuWidget(QtWidgets.QWidget):
     def _show_api_key_dialog(self, options):
         dialog = factories.dialog_widget_factory('api-key-dialog',options)
         dialog.exec_()
+
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication([])
