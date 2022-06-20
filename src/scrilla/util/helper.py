@@ -41,14 +41,15 @@ def complement_dict_keys(dict1: dict, dict2: dict) -> dict:
     """
     return {x: dict1[x] for x in dict1.keys() if x not in dict2.keys()}
 
+
 def exceeds_accuracy(decimal: float) -> bool:
     if decimal == 0:
         return True
     decimal = abs(decimal)
-    if (decimal < 10 ** (-constants.constants['ACCURACY']) and decimal>0):
+    if (decimal < 10 ** (-constants.constants['ACCURACY']) and decimal > 0):
         return True
     return False
-    
+
 
 def significant_digits(number: float, digits: int) -> float:
     return number if number == 0 else round(number, -int(floor(log10(abs(number)))) + (digits - 1))
@@ -58,7 +59,8 @@ def format_float_number(decimal: float) -> str:
     if exceeds_accuracy(decimal):
         return '0'
     accuracy = f'.{constants.constants["ACCURACY"]}f'
-    sigfigs = format(significant_digits(decimal, constants.constants["SIG_FIGS"]), accuracy)
+    sigfigs = format(significant_digits(
+        decimal, constants.constants["SIG_FIGS"]), accuracy)
     return sigfigs.rstrip('0').rstrip('.')
 
 
@@ -66,7 +68,8 @@ def format_float_percent(decimal: float) -> str:
     if exceeds_accuracy(decimal):
         return "0%"
     accuracy = f'.{constants.constants["ACCURACY"]}f'
-    sigfigs = format(100*significant_digits(decimal, constants.constants['SIG_FIGS']), accuracy)
+    sigfigs = format(100*significant_digits(decimal,
+                     constants.constants['SIG_FIGS']), accuracy)
     return sigfigs.rstrip('0').rstrip('.') + '%'
 
 
