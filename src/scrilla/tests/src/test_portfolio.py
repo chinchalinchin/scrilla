@@ -39,19 +39,19 @@ def portfolios():
 
 def test_portfolio_initialization(portfolios):
     start_date_init = all(
-        [portfolio.start_date is not None for portfolio in portfolios])
+        portfolio.start_date is not None for portfolio in portfolios)
     end_date_init = all(
-        [portfolio.end_date is not None for portfolio in portfolios])
-    asset_type_init = all([len(portfolio.asset_types) == len(
-        portfolio.tickers) for portfolio in portfolios])
-    return_init = all([len(portfolio.mean_return) == len(
-        portfolio.tickers) for portfolio in portfolios])
-    vol_init = all([len(portfolio.sample_vol) == len(
-        portfolio.tickers) for portfolio in portfolios])
+        portfolio.end_date is not None for portfolio in portfolios)
+    asset_type_init = all(len(portfolio.asset_types) == len(
+        portfolio.tickers) for portfolio in portfolios)
+    return_init = all(len(portfolio.mean_return) == len(
+        portfolio.tickers) for portfolio in portfolios)
+    vol_init = all(len(portfolio.sample_vol) == len(
+        portfolio.tickers) for portfolio in portfolios)
     correl_init = all(
-        [portfolio.correl_matrix is not None for portfolio in portfolios])
+        portfolio.correl_matrix is not None for portfolio in portfolios)
     rf_init = all(
-        [portfolio.risk_free_rate is not None for portfolio in portfolios])
+        portfolio.risk_free_rate is not None for portfolio in portfolios)
     assert(start_date_init and end_date_init)
     assert(asset_type_init and rf_init)
     assert(return_init and vol_init and correl_init)
