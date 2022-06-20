@@ -18,7 +18,7 @@ from PySide6 import QtGui, QtCore, QtWidgets
 
 
 from scrilla import settings, services
-from scrilla.static import keys, definitions
+from scrilla.static import keys
 # TODO: conditional import based on ANALYSIS_MODE
 from scrilla.analysis import estimators, markets, optimizer, plotter
 from scrilla.analysis.models.geometric import statistics

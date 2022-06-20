@@ -25,8 +25,8 @@ import zipfile
 from typing import Any, Dict
 import requests
 
-from scrilla import settings, errors
-from scrilla.static import functions, keys, constants, formats
+from scrilla import settings
+from scrilla.static import keys, constants, formats
 from scrilla.util import outputter, helper
 
 logger = outputter.Logger("scrilla.files", settings.LOG_LEVEL)

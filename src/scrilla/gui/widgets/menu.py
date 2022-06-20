@@ -19,7 +19,7 @@ from PySide6 import QtCore, QtWidgets, QtGui
 
 from scrilla import settings
 
-from scrilla.gui import formats, utilities, definitions
+from scrilla.gui import utilities, definitions
 from scrilla.gui.widgets import factories
 
 # NOTE: widget_buttons and function_widgets must preserve order.
@@ -195,7 +195,8 @@ class MenuWidget(QtWidgets.QWidget):
         self.title.setText(list(definitions.FUNC_WIDGETS.values())[
                            widget_index]['name'])
 
-    def _show_api_key_dialog(self, options):
+    @staticmethod
+    def _show_api_key_dialog(options):
         dialog = factories.dialog_widget_factory('api-key-dialog', options)
         dialog.exec_()
 
