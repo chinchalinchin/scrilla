@@ -55,6 +55,52 @@ def test_format_float_percent(decimal, expected):
 def test_strip_string_array(array, expected):
     assert helper.strip_string_array(array) == expected
 
+@pytest.mark.parametrize('string,upper,delimiter,expected',[ 
+    (   
+        'a.b.c.d',
+        True,
+        '.', 
+        ['A','B', 'C', 'D']
+    ),
+    (
+        'a . b.c  .  d',
+        True,
+        '.', 
+        ['A','B', 'C', 'D']
+    ),
+    (
+        'a . b.c  .  d',
+        False,
+        '.', 
+        ['a','b', 'c', 'd']
+    ),
+    (
+        'a.b.c.d', 
+        False, 
+        '.', 
+        ['a','b','c','d']
+    ),
+    (
+        'a.b.c.d', 
+        False, 
+        ',', 
+        ['a.b.c.d']
+    ),
+    (
+        'a.b.c.d', 
+        True, 
+        ',', 
+        ['A.B.C.D']
+    ),
+    (
+        'a,b,c,d',
+        True,
+        ',', 
+        ['A','B','C','D']
+    )
+])
+def test_split_and_strip(string,upper,delimiter,expected):
+    assert helper.split_and_strip(string,upper,delimiter) == expected
 # def test_format_dict_percent(dict,expected):
 #     pass
 
