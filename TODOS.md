@@ -41,4 +41,7 @@
     D. Interest. Parition: Maturity. Sort: start+end
 
     Execute raw partiql: https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb.html#DynamoDB.Client.execute_transaction
+
 56. save api key in /data/common via gui menu (currently just displays dialog without doing anything when clicked)
+
+57. SHould incorporate inflation in the calculations. (1+Real)(1+Inflation) = (1+Nominal)

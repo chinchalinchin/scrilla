@@ -6,11 +6,15 @@
 [Quandl API Key Registration](https://www.quandl.com/account/api)<br>
 [IEX API Key Registration](https://iexcloud.io/)<br>
 
-In order to use this application, you will need to register for API keys for each of the above services. The program will need to be made aware of these keys somehow. The best option is storing these credentials in environment variables.
+In order to use this application, you will need to register for API keys for each of the above services. The program will need to be made aware of these keys somehow. The best option is storing these credentials in environment variables. Other methods of storage are detailed in the next section.
+
+**NOTE**: Technically, you do not need a **Quandl** key for this application to function since the release of version 1.5. As of 1.5, interest rates are no longer retrieved from **Quandl**'s *USTREASURY/YIELD* endpoint, due its support being dropped. Instead, interest rates are retrieved directly from the US Treasury's RSS feed. However, the author still recommends registering for a **Quandl** key, as other statistical information from **Quandl** will be incorporated into the application in future releases. (In particular, I have my eyes on the GDP and inflation feeds)
+
+**NOTE**: **Quandl** was acquired by **Nasdaq**, so all **Quandl** links will now redirect to [data.nasdaq.com](https://data.nasdaq.com). 
 
 ## Environment
 
-**scrilla** scans the environment in its *settings.py* file for shell variables. Various properties of the application can be configured through these environment variables. A sample environment file is located [here](https://github.com/chinchalinchin/scrilla/blob/develop/main/env/.sample.env), along with comments describing the purpose of each variable. The application sets sensible defaults for most of these environment variables, but there are several required environment variables you will need to set yourself. 
+**scrilla** scans the environment in its *settings.py* file for shell environment variables. Various properties of the application can be configured through these environment variables. A sample environment file is located [here](https://github.com/chinchalinchin/scrilla/blob/develop/main/env/.sample.env), along with comments describing the purpose of each variable. The application sets sensible defaults for most of these environment variables, but there are several required environment variables you will need to set yourself. 
 
 ## Required Configuration
 
