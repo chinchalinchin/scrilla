@@ -16,19 +16,17 @@ then
     export PYTHON_LIB=/home/chinchalinchin/.local/lib/python3.8/site-packages/scrilla/
 fi
 
-cd $APP_DIR
+cd $PROJECT_DIR
 
 scrilla clear-cache
 
 coverage run \
     -m pytest \
+    ./src/* \
     --capture=sys \
     --ignore=$APP_DIR/static/constants.py \
     --ignore=$APP_DIR/static/definitions.py \
     --ignore=$APP_DIR/static/keys.py
 
 coverage html
-
-rm $DOCS_DIR/coverage/.gitignore
-
 
