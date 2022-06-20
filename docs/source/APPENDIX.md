@@ -21,6 +21,11 @@
 ---
     There is a slight discrepancy between the results of maximum likelihood estimation and moment matching when the underyling distribution of the price process is log-normal. The likelihood algorithm in this library relies on the generalized idea of likelihood estimation; it will compute the log-likelihood function for a given vector of parameters and then optimize that function by varying the vector until the input that produces the maximum output; the usual matter of course is to derive a formula using calculus that can then be analytically solved. Both operations should be equivalent. Moreover, theoretically, it can be shown the maximization operation should be equivalent to the results obtained by the moment matching operation, i.e the maximum likelihood estimator for the mean is the sample mean, etc. However, the results between maximum likelihood estimation and moment matching are off by a few decimal points. It may be due to some vagary of floating point arithmetic, but something else may be going on. See comments in `scrilla.analysis.models.geometric.statistics'
 
+#3
+---
+
+    **matplotlib**'s rendering backend does not yet (if it will ever) support the newer **PyQt6**/**PySide6** GUI toolkit and thus requires an older **PyQt5**/**PySide2** dependency. However, the GUI was written in **PySide6** to take advantage of the latest release. Therefore, the application dependencies contain a redundancy. If you examine the [requirements.txt](https://github.com/chinchalinchin/scrilla/blob/develop/main/requirements.txt) dependency file, you will note _both_ **PySide2** and **PySide6** are installed. Until **matplotlib** suports **PySide6**, this unfortunate state of affairs must remain. 
+
 
 ## Documentation
 
