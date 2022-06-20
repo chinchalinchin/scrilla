@@ -1,7 +1,10 @@
 [run]
 source = ${PYTHON_LIB}
 omit = 
-    */__init__.py
+    **/__init__.py
+    **/static/constants.py
+    **/static/definitions.py
+    **/static/keys.py
 
 [html]
 title = "Scrilla Unit Test Coverage"

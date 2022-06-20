@@ -4,6 +4,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 PROJECT_DIR=$SCRIPT_DIR/..
 DOCS_DIR=$PROJECT_DIR/docs
 APP_DIR=$PROJECT_DIR/src/scrilla
+TEST_DIR=$APP_DIR/tests/src/
 
 if [ -d $DOCS_DIR/coverage/ ]
 then
@@ -19,7 +20,12 @@ cd $APP_DIR
 
 scrilla clear-cache
 
-coverage run -m pytest --capture=sys
+coverage run \
+    -m pytest \
+    --capture=sys \
+    --ignore=$APP_DIR/static/constants.py \
+    --ignore=$APP_DIR/static/definitions.py \
+    --ignore=$APP_DIR/static/keys.py
 
 coverage html
 
