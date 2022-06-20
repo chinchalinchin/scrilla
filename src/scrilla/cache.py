@@ -259,7 +259,7 @@ class InterestCache():
 
     def _table(self):
         if settings.CACHE_MODE == 'sqlite':
-            Cache.execute_transaction(self.sql_create_table_transaction)
+            Cache.execute_transaction(self.sqlite_create_table_transaction)
         elif settings.CACHE_MODE == 'dynamodb':
             pass
             # TODO
@@ -283,7 +283,7 @@ class InterestCache():
             logger.verbose(f'Saving {maturity} yield on {date} to cache')
             formatter = {'maturity': maturity,
                          'date': date, 'value': value[index]}
-            self.execute_transaction(
+            Cache.execute_transaction(
                 transaction=self._insert(), formatter=formatter)
 
     def filter_interest_cache(self, maturity, start_date, end_date):
@@ -291,7 +291,7 @@ class InterestCache():
             f'Querying {settings.CACHE_MODE} cache \n\t{InterestCache.int_query}\n\t\t with :maturity={maturity}, :start_date={start_date}, :end_date={end_date}')
         formatter = {'maturity': maturity,
                      'start_date': start_date, 'end_date': end_date}
-        results = self.execute_query(
+        results = Cache.execute_query(
             query=self._query(), formatter=formatter)
 
         if len(results) > 0:
@@ -579,31 +579,31 @@ class ProfileCache(Cache):
             logger.verbose(
                 f'Updating {settings.CACHE_MODE} cache... \n\t{self._update("return")}\n\t\t with :ticker={ticker}, :start_date={start_date}, :end_date={end_date}, :annual_return={annual_return}')
             formatter['annual_return'] = annual_return
-            self.execute_transaction(
+            Cache.execute_transaction(
                 transaction=self._update('return'), formatter=formatter)
         if annual_volatility is not None:
             logger.verbose(
                 f'Updating {settings.CACHE_MODE} cache... \n\t{self._update("volatility")}\n\t\t with :ticker={ticker}, :start_date={start_date}, :end_date={end_date}, :annual_volatility={annual_volatility}')
             formatter['annual_volatility'] = annual_volatility
-            self.execute_transaction(
+            Cache.execute_transaction(
                 transaction=self._update('volatility'), formatter=formatter)
         if sharpe_ratio is not None:
             logger.verbose(
                 f'Updating {settings.CACHE_MODE} cache... \n\t{self._update("sharpe")}\n\t\t with :ticker={ticker}, :start_date={start_date}, :end_date={end_date}, :sharpe_ratio={sharpe_ratio}')
             formatter['sharpe_ratio'] = sharpe_ratio
-            self.execute_transaction(
+            Cache.execute_transaction(
                 transaction=self._update("sharpe"), formatter=formatter)
         if asset_beta is not None:
             logger.verbose(
                 f'Updating {settings.CACHE_MODE} cache \n\t{self._update("beta")}\n\t\t with :ticker={ticker}, :start_date={start_date}, :end_date={end_date}, :asset_beta={asset_beta}')
             formatter['asset_beta'] = asset_beta
-            self.execute_transaction(
+            Cache.execute_transaction(
                 transaction=self._update('beta'), formatter=formatter)
         if equity_cost is not None:
             logger.verbose(
                 f'Updating {settings.CACHE_MODE} cache \n\t{self._update("return")}\n\t\t with :ticker={ticker}, :start_date={start_date}, :end_date={end_date}, :equity_cost={equity_cost}')
             formatter['equity_cost'] = equity_cost
-            self.execute_transaction(
+            Cache.execute_transaction(
                 transaction=self._update('return'), formatter=formatter)
 
     def filter_profile_cache(self, ticker: str, start_date: datetime.date, end_date: datetime.date, weekends: int = 0, method=settings.ESTIMATION_METHOD):
