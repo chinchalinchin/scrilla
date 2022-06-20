@@ -34,7 +34,7 @@ def test_format_float_number(decimal, expected):
     assert isinstance(helper.format_float_number(decimal), str)
     assert helper.format_float_number(decimal) == expected
 
-@pytest.mark.parametrize('decimal, expected', [
+@pytest.mark.parametrize('decimal,expected', [
     (0.03, '3%'),
     (0.15678, '15.678%'),
     (1.123456, '112.35%'),
@@ -47,6 +47,13 @@ def test_format_float_percent(decimal, expected):
     assert isinstance(helper.format_float_percent(decimal), str)
     assert helper.format_float_percent(decimal) == expected
 
+@pytest.mark.parametrize('array,expected',[
+    ([' hi', ' ho '], ['hi','ho']),
+    ([' that     ', '     was', 'easy  '], ['that', 'was', 'easy']),
+    (['hi  ho'], ['hi  ho'])
+])
+def test_strip_string_array(array, expected):
+    assert helper.strip_string_array(array) == expected
 
 # def test_format_dict_percent(dict,expected):
 #     pass
