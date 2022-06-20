@@ -1,8 +1,7 @@
-import argparse
 from math import trunc, log10, floor
 from typing import List, Tuple
 
-from scrilla.static import definitions, constants
+from scrilla.static import constants
 
 
 def truncate(number: float, digits: int) -> float:

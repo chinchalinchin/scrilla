@@ -1,4 +1,3 @@
-from calendar import formatstring
 import pytest
 
 #from scrilla.static import formats
