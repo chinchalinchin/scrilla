@@ -40,4 +40,5 @@
     C. Correlation. Partiion: ticker1+ticker2. Sort: start+end. Filters: method, weekends.
     D. Interest. Parition: Maturity. Sort: start+end
 
+    Execute raw partiql: https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb.html#DynamoDB.Client.execute_transaction
 56. save api key in /data/common via gui menu (currently just displays dialog without doing anything when clicked)
