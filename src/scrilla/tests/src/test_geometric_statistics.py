@@ -17,7 +17,6 @@ from .. import mock
 def reset_cache():
     clear_directory(scrilla_settings.CACHE_DIR)
     PriceCache(), ProfileCache(), InterestCache(), CorrelationCache()
-    return
 
 
 @pytest.mark.parametrize("ticker,start_date,end_date", mock.service_price_cases)
