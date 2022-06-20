@@ -54,59 +54,6 @@ def significant_digits(number: float, digits: int) -> float:
     return number if number == 0 else round(number, -int(floor(log10(abs(number)))) + (digits - 1))
 
 
-################################################
-# PARSING FUNCTIONS
-
-# CLI PARSING
-
-
-def format_args(args, default_estimation_method) -> argparse.Namespace:
-    parser = argparse.ArgumentParser()
-
-    choices = []
-    for func in definitions.FUNC_DICT:
-        choices.append(definitions.FUNC_DICT[func]['values'][0])
-        choices.append(definitions.FUNC_DICT[func]['values'][1])
-
-    parser.add_argument('function_arg', choices=choices)
-
-    groups = [parser.add_mutually_exclusive_group()
-              for arg_group in definitions.ARG_META_DICT['groups']]
-
-    for arg in definitions.ARG_DICT:
-        if definitions.ARG_DICT[arg]['format'] not in ('group', bool):
-            parser.add_argument(definitions.ARG_DICT[arg]['values'][0],
-                                definitions.ARG_DICT[arg]['values'][1],
-                                definitions.ARG_DICT[arg]['values'][2],
-                                definitions.ARG_DICT[arg]['values'][3],
-                                default=None,
-                                type=definitions.ARG_DICT[arg]['format'],
-                                dest=arg)
-        elif definitions.ARG_DICT[arg]['format'] == 'group':
-            group_index = definitions.ARG_META_DICT['groups'].index(
-                definitions.ARG_DICT[arg]['group'])
-            groups[group_index].add_argument(definitions.ARG_DICT[arg]['values'][0],
-                                             definitions.ARG_DICT[arg]['values'][1],
-                                             definitions.ARG_DICT[arg]['values'][2],
-                                             definitions.ARG_DICT[arg]['values'][3],
-                                             action='store_const',
-                                             dest=definitions.ARG_DICT[arg]['group'],
-                                             const=arg)
-        # NOTE: 'format' == group AND 'format' == bool => Empty Set, so only other alternative is
-        # 'format' == bool
-        else:
-            parser.add_argument(definitions.ARG_DICT[arg]['values'][0],
-                                definitions.ARG_DICT[arg]['values'][1],
-                                definitions.ARG_DICT[arg]['values'][2],
-                                definitions.ARG_DICT[arg]['values'][3],
-                                action='store_true',
-                                dest=arg)
-
-    parser.set_defaults(estimation_method=default_estimation_method)
-    parser.add_argument('tickers', nargs='*', type=str)
-    return vars(parser.parse_args(args))
-
-
 def get_first_json_key(this_json: dict) -> str:
     return list(this_json.keys())[0]
 

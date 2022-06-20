@@ -28,7 +28,7 @@ from scrilla.settings import LOG_LEVEL, ESTIMATION_METHOD
 from scrilla.static import definitions
 from scrilla.errors import InputValidationError
 from scrilla.files import init_static_data
-from scrilla.util.helper import format_args
+from scrilla.static.formats import format_args
 from scrilla.util.outputter import Logger
 
 # TODO: conditional imports based on value of ANALYSIS_MODE

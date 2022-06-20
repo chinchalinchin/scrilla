@@ -86,3 +86,48 @@ def test_format_dict_percent(this_dict, which_key, expected):
 ])
 def test_format_dict_number(this_dict, which_key, expected):
     assert formats.format_dict_number(this_dict, which_key) == expected
+
+@pytest.mark.parametrize('tickers,correlation_matrix,expected',[
+    (
+        ['ALLY','BX','SONY'],
+        [ 
+            [1,    0.05, 0.4 ],
+            [0.05, 1,    0.33],
+            [0.4,  0.33, 1   ]
+        ],
+        [
+            {
+                'ALLY_BX_correlation': 0.05,
+                'ALLY_SONY_correlation': 0.4,
+            },
+            {
+                'BX_SONY_correlation': 0.33
+            }
+        ]
+    ),
+    (
+        ['SPY','GLD','EFA', 'SLV'],
+        [ 
+            [1,   0.2, 0.3, 0.4],
+            [0.2, 1,   0.5, 0.6],
+            [0.3, 0.5, 1,   0.7],
+            [0.4, 0.6, 0.7, 1  ]
+        ],
+        [
+            {
+                'SPY_GLD_correlation': 0.2,
+                'SPY_EFA_correlation': 0.3,
+                'SPY_SLV_correlation': 0.4
+            },
+            {
+                'GLD_EFA_correlation': 0.5,
+                'GLD_SLV_correlation': 0.6
+            },
+            {
+                'EFA_SLV_correlation': 0.7
+            }
+        ]
+    )
+])
+def test_format_correlation_matrix(tickers,correlation_matrix,expected):
+    assert formats.format_correlation_matrix(tickers,correlation_matrix) == expected

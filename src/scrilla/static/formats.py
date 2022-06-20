@@ -1,4 +1,6 @@
-from scrilla.static import constants
+import argparse
+
+from scrilla.static import constants, definitions
 from scrilla.util.helper import significant_digits, exceeds_accuracy
 
 formats = {
@@ -10,7 +12,6 @@ formats = {
     'RISK_FREE_TITLE': "{} US Treasury",
     'BINS': 20
 }
-
 
 def format_float_number(decimal: float) -> str:
     if exceeds_accuracy(decimal):
@@ -87,10 +88,56 @@ def format_frontier(portfolio, frontier, investment=None, latest_prices=None):
 
 def format_correlation_matrix(tickers, correlation_matrix):
     response = []
-    for i, item in enumerate(tickers):
-        # correlation_matrix[i][i]
+    for i in range(0, len(tickers)-1):
+        subresponse = {}
         for j in range(i+1, len(tickers)):
-            subresponse = {}
-            subresponse[f'{item}_{tickers[j]}_correlation'] = correlation_matrix[j][i]
-            response.append(subresponse)
+            subresponse[f'{tickers[i]}_{tickers[j]}_correlation'] = correlation_matrix[j][i]
+        response.append(subresponse)
     return response
+
+
+def format_args(args, default_estimation_method) -> argparse.Namespace:
+    parser = argparse.ArgumentParser()
+
+    choices = []
+    for func in definitions.FUNC_DICT:
+        choices.append(definitions.FUNC_DICT[func]['values'][0])
+        choices.append(definitions.FUNC_DICT[func]['values'][1])
+
+    parser.add_argument('function_arg', choices=choices)
+
+    groups = [parser.add_mutually_exclusive_group()
+              for _ in definitions.ARG_META_DICT['groups']]
+
+    for arg in definitions.ARG_DICT:
+        if definitions.ARG_DICT[arg]['format'] not in ('group', bool):
+            parser.add_argument(definitions.ARG_DICT[arg]['values'][0],
+                                definitions.ARG_DICT[arg]['values'][1],
+                                definitions.ARG_DICT[arg]['values'][2],
+                                definitions.ARG_DICT[arg]['values'][3],
+                                default=None,
+                                type=definitions.ARG_DICT[arg]['format'],
+                                dest=arg)
+        elif definitions.ARG_DICT[arg]['format'] == 'group':
+            group_index = definitions.ARG_META_DICT['groups'].index(
+                definitions.ARG_DICT[arg]['group'])
+            groups[group_index].add_argument(definitions.ARG_DICT[arg]['values'][0],
+                                             definitions.ARG_DICT[arg]['values'][1],
+                                             definitions.ARG_DICT[arg]['values'][2],
+                                             definitions.ARG_DICT[arg]['values'][3],
+                                             action='store_const',
+                                             dest=definitions.ARG_DICT[arg]['group'],
+                                             const=arg)
+        # NOTE: 'format' == group AND 'format' == bool => Empty Set, so only other alternative is
+        # 'format' == bool
+        else:
+            parser.add_argument(definitions.ARG_DICT[arg]['values'][0],
+                                definitions.ARG_DICT[arg]['values'][1],
+                                definitions.ARG_DICT[arg]['values'][2],
+                                definitions.ARG_DICT[arg]['values'][3],
+                                action='store_true',
+                                dest=arg)
+
+    parser.set_defaults(estimation_method=default_estimation_method)
+    parser.add_argument('tickers', nargs='*', type=str)
+    return vars(parser.parse_args(args))

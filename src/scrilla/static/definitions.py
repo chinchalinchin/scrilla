@@ -299,7 +299,7 @@ FUNC_DICT = {
     }
 }
 """
-A dictionary containing configuration information for function arguments. This dictionary is used at various points in the library, such as `scrilla.gui.widgets.functions` and `scrilla.util.helper.format_args`, to generate function interfaces. 
+A dictionary containing configuration information for function arguments. This dictionary is used at various points in the library, such as `scrilla.gui.widgets.functions` and `scrilla.static.formats.format_args`, to generate function interfaces. 
 """
 
 GROUP_DICT = {
