@@ -13,7 +13,6 @@ from httmock import HTTMock
 @pytest.fixture(autouse=True)
 def reset_cache():
     clear_directory(scrilla_settings.CACHE_DIR)
-    return
 
 
 @pytest.fixture()

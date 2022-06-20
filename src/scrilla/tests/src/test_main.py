@@ -15,7 +15,6 @@ from .. import mock, settings
 def reset_cache():
     clear_directory(scrilla_settings.CACHE_DIR)
     PriceCache(), ProfileCache(), InterestCache(), CorrelationCache()
-    return
 
 
 @pytest.mark.parametrize('args, length', [

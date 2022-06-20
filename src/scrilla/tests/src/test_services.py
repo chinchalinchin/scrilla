@@ -17,7 +17,6 @@ from httmock import HTTMock
 def reset_cache():
     clear_directory(scrilla_settings.CACHE_DIR)
     PriceCache(), InterestCache(), ProfileCache()
-    return
 
 
 @pytest.fixture()
