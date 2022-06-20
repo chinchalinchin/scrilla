@@ -6,11 +6,15 @@
 [Quandl API Key Registration](https://www.quandl.com/account/api)<br>
 [IEX API Key Registration](https://iexcloud.io/)<br>
 
-In order to use this application, you will need to register for API keys for each of the above services. The program will need to be made aware of these keys somehow. The best option is storing these credentials in environment variables.
+In order to use this application, you will need to register for API keys for each of the above services. The program will need to be made aware of these keys somehow. The best option is storing these credentials in environment variables. Other methods of storage are detailed in the next section.
+
+**NOTE**: Technically, you do not need a **Quandl** key for this application to function since the release of version 1.5. As of 1.5, interest rates are no longer retrieved from **Quandl**'s *USTREASURY/YIELD* endpoint, due its support being dropped. Instead, interest rates are retrieved directly from the US Treasury's RSS feed. However, the author still recommends registering for a **Quandl** key, as other statistical information from **Quandl** will be incorporated into the application in future releases. (In particular, I have my eyes on the GDP and inflation feeds)
+
+**NOTE**: **Quandl** was acquired by **Nasdaq**, so all **Quandl** links will now redirect to [data.nasdaq.com](https://data.nasdaq.com). 
 
 ## Environment
 
-**scrilla** scans the environment in its *settings.py* file for shell variables. Various properties of the application can be configured through these environment variables. A sample environment file is located [here](https://github.com/chinchalinchin/scrilla/blob/develop/main/env/.sample.env), along with comments describing the purpose of each variable. The application sets sensible defaults for most of these environment variables, but there are several required environment variables you will need to set yourself. 
+**scrilla** scans the environment in its *settings.py* file for shell environment variables. Various properties of the application can be configured through these environment variables. A sample environment file is located [here](https://github.com/chinchalinchin/scrilla/blob/develop/main/env/.sample.env), along with comments describing the purpose of each variable. The application sets sensible defaults for most of these environment variables, but there are several required environment variables you will need to set yourself. 
 
 ## Required Configuration
 
@@ -53,6 +57,10 @@ scrilla risk-free # returns three year risk free rate
 The asset price model assumed during the estimation of statistics. A value of`geometric` corresponds geometric brownian motion model where the return is proportional to the asset price. The constant of proportionality is a random variable with a constant mean and volatility. A value of `reversion` refers to a mean reverting model where the return is proportional to the difference between the asset price and a stationary mean. The unit of proportionality is a random variable with constant mean and volatility.
 
 Note, it is highly recommended that if you change this value, you should clear the cache, as the cache stores frequent statistical calculations to speed up the program. The previous values of the statistics calculated under the prior model will be referenced and result in incorrect calculations.
+
+- CACHE_MODE
+
+By default, **CACHE_MODE** is set equal to `sqlite`. In this mode, the cache uses a SQLite flat file to store price histories and statistical calculations on the local filesystem. The **CACHE_MODE** can also be set to `dynamodb` to store these quantities in a cloud-based DynamoDB table. In order for the`dynamodb` mode to work, the user/service using `scrilla` must have a role with read/write privileges on the tables: `prices`, `interest`, `profile` and `correlation`. These tables will be created if they do not exist, assuming the role grants the correct privileges to the process executing `scrilla`. Refer to the [AWS Documentation on DynamoDB permissions for more information on configuring your IAM role for scrilla](). (NOTE, `dynamodb` is still in development, but should be done shortly as this is currently the priority).
 
 - DEFAULT_ESTIMATION_METHOD
 
