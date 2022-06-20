@@ -1,4 +1,5 @@
-from scrilla.static.constants import constants
+from scrilla.static import constants
+from scrilla.util.helper import significant_digits, exceeds_accuracy
 
 formats = {
     'separator': '-',
@@ -10,6 +11,35 @@ formats = {
     'BINS': 20
 }
 
+
+def format_float_number(decimal: float) -> str:
+    if exceeds_accuracy(decimal):
+        return '0'
+    accuracy = f'.{constants.constants["ACCURACY"]}f'
+    sigfigs = format(significant_digits(
+        decimal, constants.constants["SIG_FIGS"]), accuracy)
+    return sigfigs.rstrip('0').rstrip('.')
+
+
+def format_float_percent(decimal: float) -> str:
+    if exceeds_accuracy(decimal):
+        return "0%"
+    accuracy = f'.{constants.constants["ACCURACY"]}f'
+    sigfigs = format(100*significant_digits(decimal,
+                     constants.constants['SIG_FIGS']), accuracy)
+    return sigfigs.rstrip('0').rstrip('.') + '%'
+
+
+def format_dict_percent(this_dict: dict, which_key: str) -> dict:
+    buffer_dict = this_dict.copy()
+    buffer_dict[which_key] = format_float_percent(this_dict[which_key])
+    return buffer_dict
+
+
+def format_dict_number(this_dict: dict, which_key: str) -> dict:
+    buffer_dict = this_dict.copy()
+    buffer_dict[which_key] = format_float_number(this_dict[which_key])
+    return buffer_dict
 
 def format_allocation(allocation, portfolio, investment=None, latest_prices=None):
     allocation_format = []
