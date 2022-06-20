@@ -68,7 +68,8 @@ class Cache():
             pass
             # TODO
         else:
-            raise errors.ConfigurationError('CACHE_MODE has not been set in "settings.py"')
+            raise errors.ConfigurationError(
+                'CACHE_MODE has not been set in "settings.py"')
 
     @staticmethod
     def execute_query(query, formatter=None):
@@ -98,7 +99,8 @@ class Cache():
             pass
             # TODO
         else:
-            raise errors.ConfigurationError('CACHE_MODE has not been set in "settings.py"')
+            raise errors.ConfigurationError(
+                'CACHE_MODE has not been set in "settings.py"')
 
 
 class PriceCache():
@@ -118,7 +120,7 @@ class PriceCache():
     sqlite_insert_row_transaction = "INSERT OR IGNORE INTO prices (ticker, date, open, close) VALUES (:ticker, :date, :open, :close)"
     sqlite_price_query = "SELECT date, open, close from prices WHERE ticker = :ticker AND date <= date(:end_date) AND date >= date(:start_date) ORDER BY date(date) DESC"
 
-    dynamodb_table_configuration= {
+    dynamodb_table_configuration = {
         'AttributeDefinitions': [
             {
                 'AttributeName': 'ticker',
@@ -138,7 +140,7 @@ class PriceCache():
             }
         ],
         'TableName': 'prices',
-        'KeySchema':[
+        'KeySchema': [
             {
                 'AttributeName': 'ticker',
                 'KeyType': 'HASH'
@@ -251,7 +253,7 @@ class InterestCache():
         elif settings.CACHE_MODE == 'dynamodb':
             pass
             # TODO
-    
+
     def _query(self):
         if settings.CACHE_MODE == 'sqlite':
             return self.sqlite_interest_query
@@ -330,7 +332,7 @@ class CorrelationCache():
         elif settings.CACHE_MODE == 'dynamodb':
             pass
             # TODO
-    
+
     def _query(self):
         if settings.CACHE_MODE == 'sqlite':
             return self.sqlite_correlation_query
@@ -472,7 +474,7 @@ class ProfileCache(Cache):
         elif settings.CACHE_MODE == 'dynamodb':
             pass
             # TODO
-    
+
     def _query(self, type):
         if settings.CACHE_MODE == 'sqlite':
             return self.sqlite_profile_query
