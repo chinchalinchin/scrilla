@@ -207,6 +207,10 @@ ESTIMATION_METHOD = os.environ.setdefault(
     'DEFAULT_ESTIMATION_METHOD', 'moments')
 """Determines the default estimation method using in statistical estimations"""
 
+CACHE_MODE = os.environ.setdefault(
+    'CACHE_MODE', 'sqlite')
+"""Determines how caching is handled"""
+
 # SERVICE CONFIGURATION
 # PRICE_MANAGER CONFIGRUATION
 PRICE_MANAGER = os.environ.setdefault('PRICE_MANAGER', 'alpha_vantage')

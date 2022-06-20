@@ -32,5 +32,12 @@
     a. role based acess or access keys
     b. initialize tables
     c. figure out optimal indexing strategy
+        i. can filter by non-key attributes: https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb.html#DynamoDB.Client.query
+    
+    Indexing:
+    A. Price. Partition: ticker. Sort: date. Filters: method, weekends
+    B. Profile. Partition: ticker. Sort: start + end. Filters: method, weekends
+    C. Correlation. Partiion: ticker1+ticker2. Sort: start+end. Filters: method, weekends.
+    D. Interest. Parition: Maturity. Sort: start+end
 
 56. save api key in /data/common via gui menu (currently just displays dialog without doing anything when clicked)
