@@ -1,7 +1,7 @@
-from calendar import formatstring
 import pytest
 
 from scrilla.static import formats
+
 
 @pytest.mark.parametrize('decimal, expected', [
     (0.03, '0.03'),
@@ -17,6 +17,7 @@ def test_format_float_number(decimal, expected):
     assert isinstance(formats.format_float_number(decimal), str)
     assert formats.format_float_number(decimal) == expected
 
+
 @pytest.mark.parametrize('decimal,expected', [
     (0.03, '3%'),
     (0.15678, '15.678%'),
@@ -30,7 +31,8 @@ def test_format_float_percent(decimal, expected):
     assert isinstance(formats.format_float_percent(decimal), str)
     assert formats.format_float_percent(decimal) == expected
 
-@pytest.mark.parametrize('this_dict,which_key,expected',[
+
+@pytest.mark.parametrize('this_dict,which_key,expected', [
     (
         {
             'a': 1.05,
@@ -57,7 +59,8 @@ def test_format_float_percent(decimal, expected):
 def test_format_dict_percent(this_dict, which_key, expected):
     assert formats.format_dict_percent(this_dict, which_key) == expected
 
-@pytest.mark.parametrize('this_dict,which_key,expected',[
+
+@pytest.mark.parametrize('this_dict,which_key,expected', [
     (
         {
             'a': 'hi',
@@ -85,13 +88,14 @@ def test_format_dict_percent(this_dict, which_key, expected):
 def test_format_dict_number(this_dict, which_key, expected):
     assert formats.format_dict_number(this_dict, which_key) == expected
 
-@pytest.mark.parametrize('tickers,correlation_matrix,expected',[
+
+@pytest.mark.parametrize('tickers,correlation_matrix,expected', [
     (
-        ['ALLY','BX','SONY'],
-        [ 
-            [1,    0.05, 0.4 ],
+        ['ALLY', 'BX', 'SONY'],
+        [
+            [1,    0.05, 0.4],
             [0.05, 1,    0.33],
-            [0.4,  0.33, 1   ]
+            [0.4,  0.33, 1]
         ],
         [
             {
@@ -104,12 +108,12 @@ def test_format_dict_number(this_dict, which_key, expected):
         ]
     ),
     (
-        ['SPY','GLD','EFA', 'SLV'],
-        [ 
+        ['SPY', 'GLD', 'EFA', 'SLV'],
+        [
             [1,   0.2, 0.3, 0.4],
             [0.2, 1,   0.5, 0.6],
             [0.3, 0.5, 1,   0.7],
-            [0.4, 0.6, 0.7, 1  ]
+            [0.4, 0.6, 0.7, 1]
         ],
         [
             {
@@ -127,5 +131,6 @@ def test_format_dict_number(this_dict, which_key, expected):
         ]
     )
 ])
-def test_format_correlation_matrix(tickers,correlation_matrix,expected):
-    assert formats.format_correlation_matrix(tickers,correlation_matrix) == expected
+def test_format_correlation_matrix(tickers, correlation_matrix, expected):
+    assert formats.format_correlation_matrix(
+        tickers, correlation_matrix) == expected

@@ -12,19 +12,22 @@ from scrilla.files import clear_directory
 from .. import mock, settings
 from httmock import HTTMock
 
+
 @pytest.fixture(autouse=True)
 def reset_cache():
     clear_directory(scrilla_settings.CACHE_DIR)
     PriceCache(), InterestCache(), ProfileCache()
-    return
+
 
 @pytest.fixture()
 def price_cache():
     return PriceCache()
 
+
 @pytest.fixture()
 def interest_cache():
     return InterestCache()
+
 
 @pytest.fixture()
 def profile_cache():
@@ -55,7 +58,7 @@ def test_service_date_validation(ticker, asset_type):
         response = services.get_daily_price_history(
             ticker=ticker, start_date=settings.START, end_date=settings.END)
     validated_start, validated_end = validate_dates(start_date=settings.START, end_date=settings.END,
-                                                            asset_type=asset_type)
+                                                    asset_type=asset_type)
     assert(dater.to_string(validated_start) in list(response.keys()))
     assert(dater.to_string(validated_end) in list(response.keys()))
 

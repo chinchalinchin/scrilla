@@ -13,6 +13,7 @@ formats = {
     'BINS': 20
 }
 
+
 def format_float_number(decimal: float) -> str:
     if exceeds_accuracy(decimal):
         return '0'
@@ -42,6 +43,7 @@ def format_dict_number(this_dict: dict, which_key: str) -> dict:
     buffer_dict[which_key] = format_float_number(this_dict[which_key])
     return buffer_dict
 
+
 def format_allocation(allocation, portfolio, investment=None, latest_prices=None):
     allocation_format = []
 
@@ -55,25 +57,18 @@ def format_allocation(allocation, portfolio, investment=None, latest_prices=None
     annual_return = portfolio.return_function(x=allocation)
 
     for j, item in enumerate(portfolio.tickers):
-        holding = {}
-        holding['ticker'] = item
-        holding['allocation'] = round(allocation[j], constants['ACCURACY'])
+        holding = {'ticker': item, 'allocation': round(allocation[j], constants['ACCURACY']), 'annual_return': round(
+            portfolio.mean_return[j], constants['ACCURACY']), 'annual_volatility': round(
+            portfolio.sample_vol[j], constants['ACCURACY'])}
         if investment is not None:
             holding['shares'] = float(shares[j])
-        holding['annual_return'] = round(
-            portfolio.mean_return[j], constants['ACCURACY'])
-        holding['annual_volatility'] = round(
-            portfolio.sample_vol[j], constants['ACCURACY'])
         allocation_format.append(holding)
 
-    json_format = {}
-    json_format['holdings'] = allocation_format
+    json_format = {'holdings': allocation_format,
+                   'portfolio_return': annual_return, 'portfolio_volatility': annual_volatility}
 
     if investment is not None:
         json_format['total'] = float(total)
-
-    json_format['portfolio_return'] = annual_return
-    json_format['portfolio_volatility'] = annual_volatility
 
     return json_format
 
