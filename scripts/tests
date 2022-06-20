@@ -13,7 +13,7 @@ fi
 
 if [ "$1" != "circleci" ]
 then
-    export PYTHON_LIB=/home/chinchalinchin/.local/lib/python3.8/site-packages/scrilla/
+    export SRC_LIB=~/.local/lib/python3.8/site-packages/scrilla/
 fi
 
 cd $PROJECT_DIR
@@ -22,11 +22,7 @@ scrilla clear-cache
 
 coverage run \
     -m pytest \
-    ./src/* \
-    --capture=sys \
-    --ignore=$APP_DIR/static/constants.py \
-    --ignore=$APP_DIR/static/definitions.py \
-    --ignore=$APP_DIR/static/keys.py
+    --capture=sys 
 
 coverage html
 
