@@ -388,9 +388,12 @@ class TableWidget(QtWidgets.QWidget):
         filename = None
         if file_path.exec_() == QtWidgets.QDialog.Accepted:
             filename = file_path.selectedFiles()
-        if filename is not None and len(filename) > 0:
-            if settings.FILE_EXT == 'json':
-                utilities.download_table_to_json(self.table, filename[0])
+        if (
+            filename is not None
+            and len(filename) > 0
+            and settings.FILE_EXT == 'json'
+        ):
+            utilities.download_table_to_json(self.table, filename[0])
 
 
 class GraphWidget(QtWidgets.QWidget):
