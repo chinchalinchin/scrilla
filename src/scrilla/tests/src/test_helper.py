@@ -1,8 +1,6 @@
 import pytest
 
-# from scrilla.util import helper
-
-from ...util import helper
+from scrilla.util import helper
 
 @pytest.mark.parametrize('number,digits,expected',[
     (12.234, 2, 12.23),

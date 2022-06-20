@@ -1,9 +1,7 @@
 from calendar import formatstring
 import pytest
 
-#from scrilla.static import formats
-
-from ...static import formats
+from scrilla.static import formats
 
 @pytest.mark.parametrize('decimal, expected', [
     (0.03, '0.03'),
