@@ -2,6 +2,14 @@ import pytest
 
 from scrilla.util import helper
 
+@pytest.mark.parametrize('number,digits,expected',[
+    (12.234, 2, 12.23),
+    (0.056789, 3, 0.056),
+    (-1.8750213, 4, -1.8750)
+])
+def test_truncate(number, digits, expected):
+    assert helper.truncate(number, digits) == expected
+
 @pytest.mark.parametrize('number,sigfigs,expected',[
     (1500, 1, 2000),
     (0.03452, 2,0.035),
@@ -40,11 +48,11 @@ def test_format_float_percent(decimal, expected):
     assert helper.format_float_percent(decimal) == expected
 
 
-def test_format_dict_percent(dict,expected):
-    pass
+# def test_format_dict_percent(dict,expected):
+#     pass
 
-def test_format_dict_number(dict,expected):
-    pass
+# def test_format_dict_number(dict,expected):
+#     pass
 
 @pytest.mark.parametrize('dict1,dict2,expected1,expected2', [
     (
