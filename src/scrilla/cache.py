@@ -400,7 +400,7 @@ class ProfileCache(Cache):
     1. **create_table_transaction**: ``str``
         *SQLite* transaction passed to the super class used to create correlation cache table if it does not already exist.
     """
-    create_table_transaction = "CREATE TABLE IF NOT EXISTS profile (id INTEGER PRIMARY KEY, ticker TEXT, start_date TEXT, end_date TEXT, annual_return REAL, annual_volatility REAL, sharpe_ratio REAL, asset_beta REAL, equity_cost REAL, method TEXT, weekends INT)"
+    sqlite_create_table_transaction = "CREATE TABLE IF NOT EXISTS profile (id INTEGER PRIMARY KEY, ticker TEXT, start_date TEXT, end_date TEXT, annual_return REAL, annual_volatility REAL, sharpe_ratio REAL, asset_beta REAL, equity_cost REAL, method TEXT, weekends INT)"
 
     query_filter = "ticker=:ticker AND start_date=date(:start_date) AND end_date=date(:end_date) AND :method=method AND weekends=:weekends"
     identity_query = "(SELECT id FROM profile WHERE ticker=:ticker AND start_date=:start_date AND end_date=:end_date AND method=:method AND weekends=:weekends)"
@@ -417,22 +417,19 @@ class ProfileCache(Cache):
     equity_query = "(SELECT equity_cost FROM profile WHERE {query_filter})".format(
         query_filter=query_filter)
 
-    update_return_transaction = "INSERT or REPLACE INTO profile {value_args} VALUES ({identity_query}, :ticker, :start_date, :end_date, :annual_return, {vol_query}, {sharpe_query}, {beta_query}, {equity_query}, :method, :weekends)".format(
+    sqlite_update_return_transaction = "INSERT or REPLACE INTO profile {value_args} VALUES ({identity_query}, :ticker, :start_date, :end_date, :annual_return, {vol_query}, {sharpe_query}, {beta_query}, {equity_query}, :method, :weekends)".format(
         identity_query=identity_query, value_args=value_args, vol_query=vol_query, sharpe_query=sharpe_query, beta_query=beta_query, equity_query=equity_query)
-    update_vol_transaction = "INSERT or REPLACE INTO profile {value_args} VALUES ({identity_query}, :ticker, :start_date, :end_date, {return_query}, :annual_volatility, {sharpe_query}, {beta_query}, {equity_query}, :method, :weekends)".format(
+    sqlite_update_vol_transaction = "INSERT or REPLACE INTO profile {value_args} VALUES ({identity_query}, :ticker, :start_date, :end_date, {return_query}, :annual_volatility, {sharpe_query}, {beta_query}, {equity_query}, :method, :weekends)".format(
         identity_query=identity_query, value_args=value_args, return_query=return_query, sharpe_query=sharpe_query, beta_query=beta_query, equity_query=equity_query)
-    update_sharpe_transaction = "INSERT or REPLACE INTO profile {value_args} VALUES ({identity_query}, :ticker, :start_date, :end_date, {return_query}, {vol_query}, :sharpe_ratio, {beta_query}, {equity_query}, :method, :weekends)".format(
+    sqlite_update_sharpe_transaction = "INSERT or REPLACE INTO profile {value_args} VALUES ({identity_query}, :ticker, :start_date, :end_date, {return_query}, {vol_query}, :sharpe_ratio, {beta_query}, {equity_query}, :method, :weekends)".format(
         identity_query=identity_query, value_args=value_args, return_query=return_query, vol_query=vol_query, beta_query=beta_query, equity_query=equity_query)
-    update_beta_transaction = "INSERT or REPLACE INTO profile {value_args} VALUES ({identity_query}, :ticker, :start_date, :end_date, {return_query}, {vol_query}, {sharpe_query}, :asset_beta, {equity_query}, :method, :weekends)".format(
+    sqlite_update_beta_transaction = "INSERT or REPLACE INTO profile {value_args} VALUES ({identity_query}, :ticker, :start_date, :end_date, {return_query}, {vol_query}, {sharpe_query}, :asset_beta, {equity_query}, :method, :weekends)".format(
         identity_query=identity_query, value_args=value_args, return_query=return_query, vol_query=vol_query, sharpe_query=sharpe_query, equity_query=equity_query)
-    update_equity_tranasction = "INSERT or REPLACE INTO profile {value_args} VALUES ({identity_query}, :ticker, :start_date, :end_date, {return_query}, {vol_query}, {sharpe_query}, {beta_query}, :equity_cost, :method, :weekends)".format(
+    sqlite_update_equity_tranasction = "INSERT or REPLACE INTO profile {value_args} VALUES ({identity_query}, :ticker, :start_date, :end_date, {return_query}, {vol_query}, {sharpe_query}, {beta_query}, :equity_cost, :method, :weekends)".format(
         identity_query=identity_query, value_args=value_args, return_query=return_query, vol_query=vol_query, sharpe_query=sharpe_query, beta_query=beta_query)
 
-    profile_query = "SELECT ifnull(annual_return, 'empty'), ifnull(annual_volatility, 'empty'), ifnull(sharpe_ratio, 'empty'), ifnull(asset_beta, 'empty'), ifnull(equity_cost, 'empty') FROM profile WHERE {query_filter}".format(
+    sqlite_profile_query = "SELECT ifnull(annual_return, 'empty'), ifnull(annual_volatility, 'empty'), ifnull(sharpe_ratio, 'empty'), ifnull(asset_beta, 'empty'), ifnull(equity_cost, 'empty') FROM profile WHERE {query_filter}".format(
         query_filter=query_filter)
-
-    def __init__(self):
-        super().__init__(ProfileCache.create_table_transaction)
 
     @staticmethod
     def to_dict(query_result):
@@ -450,48 +447,81 @@ class ProfileCache(Cache):
                 keys.keys['STATISTICS']['BETA']: query_result[0][3] if query_result[0][3] != 'empty' else None,
                 keys.keys['STATISTICS']['EQUITY']: query_result[0][4] if query_result[0][4] != 'empty' else None}
 
+    def __init__(self):
+        self._table()
+
+    def _table(self):
+        if settings.CACHE_MODE == 'sqlite':
+            Cache.execute_transaction(self.sqlite_create_table_transaction)
+        elif settings.CACHE_MODE == 'dynamodb':
+            pass
+            # TODO
+
+    def _update(self, query_type):
+        if settings.CACHE_MODE == 'sqlite':
+            if query_type == 'return':
+                return self.sqlite_update_return_transaction
+            elif query_type == 'volatility':
+                return self.sqlite_update_vol_transaction
+            elif query_type == 'sharpe':
+                return self.sqlite_update_sharpe_transaction
+            elif query_type == 'beta':
+                return self.sqlite_update_beta_transaction
+            elif query_type == 'equity':
+                return self.sqlite_update_equity_tranasction
+        elif settings.CACHE_MODE == 'dynamodb':
+            pass
+            # TODO
+    
+    def _query(self, type):
+        if settings.CACHE_MODE == 'sqlite':
+            return self.sqlite_profile_query
+        elif settings.CACHE_MODE == 'dynamodb':
+            pass
+            # TODO
+
     def save_or_update_row(self, ticker: str, start_date: datetime.date, end_date: datetime.date, annual_return: Union[float, None] = None, annual_volatility: Union[float, None] = None, sharpe_ratio: Union[float, None] = None, asset_beta: Union[float, None] = None, equity_cost: Union[float, None] = None, weekends: int = 0, method: str = settings.ESTIMATION_METHOD):
         formatter = {'ticker': ticker, 'start_date': start_date,
                      'end_date': end_date, 'method': method, 'weekends': weekends}
 
         if annual_return is not None:
             logger.verbose(
-                f'Updating {settings.CACHE_MODE} cache... \n\t{ProfileCache.update_return_transaction}\n\t\t with :ticker={ticker}, :start_date={start_date}, :end_date={end_date}, :annual_return={annual_return}')
+                f'Updating {settings.CACHE_MODE} cache... \n\t{self._update("return")}\n\t\t with :ticker={ticker}, :start_date={start_date}, :end_date={end_date}, :annual_return={annual_return}')
             formatter['annual_return'] = annual_return
             self.execute_transaction(
-                transaction=ProfileCache.update_return_transaction, formatter=formatter)
+                transaction=self._update('return'), formatter=formatter)
         if annual_volatility is not None:
             logger.verbose(
-                f'Updating {settings.CACHE_MODE} cache... \n\t{ProfileCache.update_vol_transaction}\n\t\t with :ticker={ticker}, :start_date={start_date}, :end_date={end_date}, :annual_volatility={annual_volatility}')
+                f'Updating {settings.CACHE_MODE} cache... \n\t{self._update("volatility")}\n\t\t with :ticker={ticker}, :start_date={start_date}, :end_date={end_date}, :annual_volatility={annual_volatility}')
             formatter['annual_volatility'] = annual_volatility
             self.execute_transaction(
-                transaction=ProfileCache.update_vol_transaction, formatter=formatter)
+                transaction=self._update('volatility'), formatter=formatter)
         if sharpe_ratio is not None:
             logger.verbose(
-                f'Updating {settings.CACHE_MODE} cache... \n\t{ProfileCache.update_sharpe_transaction}\n\t\t with :ticker={ticker}, :start_date={start_date}, :end_date={end_date}, :sharpe_ratio={sharpe_ratio}')
+                f'Updating {settings.CACHE_MODE} cache... \n\t{self._update("sharpe")}\n\t\t with :ticker={ticker}, :start_date={start_date}, :end_date={end_date}, :sharpe_ratio={sharpe_ratio}')
             formatter['sharpe_ratio'] = sharpe_ratio
             self.execute_transaction(
-                transaction=ProfileCache.update_sharpe_transaction, formatter=formatter)
+                transaction=self._update("sharpe"), formatter=formatter)
         if asset_beta is not None:
             logger.verbose(
-                f'Updating {settings.CACHE_MODE} cache \n\t{ProfileCache.update_beta_transaction}\n\t\t with :ticker={ticker}, :start_date={start_date}, :end_date={end_date}, :asset_beta={asset_beta}')
+                f'Updating {settings.CACHE_MODE} cache \n\t{self._update("beta")}\n\t\t with :ticker={ticker}, :start_date={start_date}, :end_date={end_date}, :asset_beta={asset_beta}')
             formatter['asset_beta'] = asset_beta
             self.execute_transaction(
-                transaction=ProfileCache.update_beta_transaction, formatter=formatter)
+                transaction=self._update('beta'), formatter=formatter)
         if equity_cost is not None:
             logger.verbose(
-                f'Updating {settings.CACHE_MODE} cache \n\t{ProfileCache.update_return_transaction}\n\t\t with :ticker={ticker}, :start_date={start_date}, :end_date={end_date}, :equity_cost={equity_cost}')
+                f'Updating {settings.CACHE_MODE} cache \n\t{self._update("return")}\n\t\t with :ticker={ticker}, :start_date={start_date}, :end_date={end_date}, :equity_cost={equity_cost}')
             formatter['equity_cost'] = equity_cost
             self.execute_transaction(
-                transaction=ProfileCache.update_equity_tranasction, formatter=formatter)
+                transaction=self._update('return'), formatter=formatter)
 
     def filter_profile_cache(self, ticker: str, start_date: datetime.date, end_date: datetime.date, weekends: int = 0, method=settings.ESTIMATION_METHOD):
         logger.debug(
-            f'Querying {settings.CACHE_MODE} cache: \n\t{ProfileCache.profile_query}\n\t\t with :ticker={ticker}, :start_date={start_date}, :end_date={end_date}')
+            f'Querying {settings.CACHE_MODE} cache: \n\t{self._query()}\n\t\t with :ticker={ticker}, :start_date={start_date}, :end_date={end_date}')
         formatter = {'ticker': ticker, 'start_date': start_date,
                      'end_date': end_date, 'method': method, 'weekends': weekends}
         result = self.execute_query(
-            query=ProfileCache.profile_query, formatter=formatter)
+            query=self._query(), formatter=formatter)
 
         if len(result) > 0:
             logger.debug(f'{ticker} profile found in cache')
