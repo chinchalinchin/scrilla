@@ -200,6 +200,7 @@ class MenuWidget(QtWidgets.QWidget):
         dialog.exec_()
 
 
+
 if __name__ == "__main__":
     app = QtWidgets.QApplication([])
 
