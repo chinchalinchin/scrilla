@@ -46,7 +46,7 @@ def exceeds_accuracy(decimal: float) -> bool:
     if decimal == 0:
         return True
     decimal = abs(decimal)
-    if (decimal < 10 ** (-constants.constants['ACCURACY']) and decimal > 0):
+    if (0 < decimal < 10 ** (-constants.constants['ACCURACY'])):
         return True
     return False
 
