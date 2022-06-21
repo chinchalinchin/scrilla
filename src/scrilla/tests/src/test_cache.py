@@ -8,7 +8,7 @@ from scrilla.services import get_daily_price_history, get_daily_interest_history
 
 from .. import mock, settings as test_settings
 from httmock import HTTMock
-
+from moto import mock_dynamodb
 
 @pytest.fixture(autouse=True)
 def reset_cache():
@@ -29,6 +29,14 @@ def interest_cache():
 def profile_cache():
     return ProfileCache()
 
+@mock_dynamodb
+def test_dynamo_transaction():
+    # TODO
+    pass
+
+def test_sqlite_transaction():
+    # TODO
+    pass
 
 @pytest.mark.parametrize("ticker,date,price", [
     ('ALLY', '2021-10-22', 50.70),

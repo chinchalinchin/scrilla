@@ -8,6 +8,7 @@ from scrilla.static import keys
 
 MARGINS = 5
 
+
 def format_stylesheet(sheet):
     theme = get_mode_theme()
     for element in theme:
