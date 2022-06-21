@@ -211,16 +211,15 @@ CACHE_MODE = os.environ.setdefault(
     'CACHE_MODE', 'sqlite')
 """Determines how caching is handled"""
 
-if CACHE_MODE == 'dynamodb':
-    DYNAMO_CONF = {
-        'BillingMode': 'PAY_PER_REQUEST'  # PAY_PER_REQUEST | PROVISIONED
-        # If PROVISIONED, the following lines need uncommented and configured:
-        #
-        # 'ProvisionedThroughput' : {
-        #       'ReadCapacityUnits': 123,
-        #       'WriteCapacityUnits': 123
-        #  },
-    }
+DYNAMO_CONF = {
+    'BillingMode': 'PAY_PER_REQUEST'  # PAY_PER_REQUEST | PROVISIONED
+    # If PROVISIONED, the following lines need uncommented and configured:
+    #
+    # 'ProvisionedThroughput' : {
+    #       'ReadCapacityUnits': 123,
+    #       'WriteCapacityUnits': 123
+    #  },
+}
 
 # SERVICE CONFIGURATION
 # PRICE_MANAGER CONFIGRUATION
@@ -254,7 +253,7 @@ STAT_MANAGER = os.environ.setdefault('STAT_MANAGER', 'treasury')
 Q_KEY = None
 """API Key used to query *Quandl/Nasdaq* service"""
 
-# QUANDL CONFIGURAITON
+# QUANDL CONFIGURAITON / technically NASDAQ now. perhaps one day i will update the names...
 if STAT_MANAGER == "quandl":
     Q_URL = os.environ.setdefault(
         'QUANDL_URL', 'https://data.nasdaq.com/api/v3/datasets').strip("\"").strip("'")
