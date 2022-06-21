@@ -169,8 +169,10 @@ def init_static_data():
                                                            firstRowHeader=service_map['KEYS']['CRYPTO']['HEADER'])
 
         # grab econominc indicator symbols and store in STATIC_DIR
-        if settings.STAT_MANAGER == "quandl":
-            if not os.path.isfile(settings.STATIC_ECON_FILE):
+        if (
+            not os.path.isfile(settings.STATIC_ECON_FILE) and
+            settings.STAT_MANAGER == "quandl"
+        ):
                 service_map = keys.keys["SERVICES"]["STATISTICS"]["QUANDL"]["MAP"]
 
                 logger.debug(
@@ -182,12 +184,12 @@ def init_static_data():
                                                              firstRowHeader=service_map["KEYS"]["HEADER"],
                                                              zipped=service_map["KEYS"]["ZIPFILE"])
 
-        elif settings.STAT_MANAGER == "treasury":
-            # TODO: initialize interest rate data??? yes, even if it will quickly fall out of date.
-            # scrapping the XML feed into the Cache is massively inefficient and takes too long when doing its 
-            # in the middle of the program. better to do it here.
-            # I don't like import services here...should think of another way to do this...
-            services.get_daily_interest_latest(settings.RISK_FREE_RATE)
+    if settings.STAT_MANAGER == "treasury":
+        # TODO: initialize interest rate data??? yes, even if it will quickly fall out of date.
+        # scrapping the XML feed into the Cache is massively inefficient and takes too long when doing its 
+        # in the middle of the program. better to do it here.
+        # I don't like import services here...should think of another way to do this...
+        services.get_daily_interest_latest(settings.RISK_FREE_RATE)
 
     else:
         logger.debug('Static data already initialized!')
