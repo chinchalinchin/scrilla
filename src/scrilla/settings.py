@@ -213,7 +213,7 @@ CACHE_MODE = os.environ.setdefault(
 
 if CACHE_MODE == 'dynamodb':
     DYNAMO_CONF = {
-        'BillingMode': 'PAY_PER_REQUEST' # PAY_PER_REQUEST | PROVISIONED
+        'BillingMode': 'PAY_PER_REQUEST'  # PAY_PER_REQUEST | PROVISIONED
         # If PROVISIONED, the following lines need uncommented and configured:
         #
         # 'ProvisionedThroughput' : {
