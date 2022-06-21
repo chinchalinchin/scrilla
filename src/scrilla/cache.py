@@ -60,14 +60,15 @@ class Cache():
             con = sqlite3.connect(settings.CACHE_SQLITE_FILE)
             executor = con.cursor()
             if formatter is not None:
-                response =executor.execute(transaction, formatter)
+                response = executor.execute(transaction, formatter)
             else:
                 response = executor.execute(transaction)
             con.commit()
             con.close()
         elif settings.CACHE_MODE == 'dynamodb':
             response = aws.dynamo_client().execute_transaction(
-                TransactionStatements=aws.dynamo_statement_args(transaction, formatter)
+                TransactionStatements=aws.dynamo_statement_args(
+                    transaction, formatter)
             )
         else:
             raise errors.ConfigurationError(
@@ -268,7 +269,6 @@ class InterestCache():
         elif settings.CACHE_MODE == 'dynamodb':
             Cache.provision(self.dynamodb_table_configuration)
 
-
     def _insert(self):
         if settings.CACHE_MODE == 'sqlite':
             return self.sqlite_insert_row_transaction
@@ -387,7 +387,6 @@ class CorrelationCache():
             Cache.execute_transaction(self.sqlite_create_table_transaction)
         elif settings.CACHE_MODE == 'dynamodb':
             Cache.provision(self.dynamodb_table_configuration)
-
 
     def _insert(self):
         if settings.CACHE_MODE == 'sqlite':
@@ -553,7 +552,6 @@ class ProfileCache(Cache):
             Cache.execute_transaction(self.sqlite_create_table_transaction)
         elif settings.CACHE_MODE == 'dynamodb':
             Cache.provision(self.dynamodb_table_configuration)
-
 
     def _update(self, query_type):
         if settings.CACHE_MODE == 'sqlite':
