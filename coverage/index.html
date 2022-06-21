@@ -11,29 +11,42 @@
 <header>
     <div class="content">
         <h1>"Scrilla Unit Test Coverage":
-            <span class="pc_cov">39%</span>
+            <span class="pc_cov">38%</span>
         </h1>
-        <div id="help_panel_wrapper">
+        <aside id="help_panel_wrapper">
             <input id="help_panel_state" type="checkbox">
             <label for="help_panel_state">
                 <img id="keyboard_icon" src="keybd_closed.png" alt="Show/hide keyboard shortcuts" />
             </label>
             <div id="help_panel">
                 <p class="legend">Shortcuts on this page</p>
-                <div>
-                    <p class="keyhelp">
+                <div class="keyhelp">
+                    <p>
                         <kbd>n</kbd>
                         <kbd>s</kbd>
                         <kbd>m</kbd>
                         <kbd>x</kbd>
-                        <kbd>c</kbd> &nbsp; change column sorting
+                        <kbd>c</kbd>
+                        &nbsp; change column sorting
+                    </p>
+                    <p>
+                        <kbd>[</kbd>
+                        <kbd>]</kbd>
+                        &nbsp; prev/next file
+                    </p>
+                    <p>
+                        <kbd>?</kbd> &nbsp; show/hide this help
                     </p>
                 </div>
             </div>
-        </div>
+        </aside>
         <form id="filter_container">
             <input id="filter" type="text" value="" placeholder="filter..." />
         </form>
+        <p class="text">
+            <a class="nav" href="https://coverage.readthedocs.io">coverage.py v6.4.1</a>,
+            created at 2022-06-21 12:05 +0000
+        </p>
     </div>
 </header>
 <main id="index">
@@ -79,9 +92,9 @@
             <tr class="file">
                 <td class="name left"><a href="d_fde3f4b87813083a_statistics_py.html">src/scrilla/analysis/models/geometric/statistics.py</a></td>
                 <td>502</td>
-                <td>251</td>
+                <td>274</td>
                 <td>0</td>
-                <td class="right" data-ratio="251 502">50%</td>
+                <td class="right" data-ratio="228 502">45%</td>
             </tr>
             <tr class="file">
                 <td class="name left"><a href="d_d14a2b64dd32c368_probability_py.html">src/scrilla/analysis/models/reversion/probability.py</a></td>
@@ -134,10 +147,10 @@
             </tr>
             <tr class="file">
                 <td class="name left"><a href="d_02c299ab21d894bf_aws_py.html">src/scrilla/cloud/aws.py</a></td>
-                <td>5</td>
-                <td>5</td>
+                <td>16</td>
+                <td>6</td>
                 <td>0</td>
-                <td class="right" data-ratio="0 5">0%</td>
+                <td class="right" data-ratio="10 16">62%</td>
             </tr>
             <tr class="file">
                 <td class="name left"><a href="d_c6b2127e3970c002_errors_py.html">src/scrilla/errors.py</a></td>
@@ -259,18 +272,46 @@
                 <td class="right" data-ratio="11 11">100%</td>
             </tr>
             <tr class="file">
-                <td class="name left"><a href="d_f86ad3602cee158c_test_cache_py.html">src/scrilla/tests/src/test_cache.py</a></td>
-                <td>32</td>
-                <td>3</td>
+                <td class="name left"><a href="d_f86ad3602cee158c_test_analysis_estimators_py.html">src/scrilla/tests/src/test_analysis_estimators.py</a></td>
+                <td>104</td>
                 <td>0</td>
-                <td class="right" data-ratio="29 32">91%</td>
+                <td>0</td>
+                <td class="right" data-ratio="104 104">100%</td>
             </tr>
             <tr class="file">
-                <td class="name left"><a href="d_f86ad3602cee158c_test_dater_py.html">src/scrilla/tests/src/test_dater.py</a></td>
-                <td>12</td>
+                <td class="name left"><a href="d_f86ad3602cee158c_test_analysis_models_geometric_probability_py.html">src/scrilla/tests/src/test_analysis_models_geometric_probability.py</a></td>
+                <td>23</td>
+                <td>2</td>
+                <td>0</td>
+                <td class="right" data-ratio="21 23">91%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="d_f86ad3602cee158c_test_analysis_models_geometric_statistics_py.html">src/scrilla/tests/src/test_analysis_models_geometric_statistics.py</a></td>
+                <td>51</td>
+                <td>13</td>
+                <td>0</td>
+                <td class="right" data-ratio="38 51">75%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="d_f86ad3602cee158c_test_analysis_objects_portfolio_py.html">src/scrilla/tests/src/test_analysis_objects_portfolio.py</a></td>
+                <td>41</td>
                 <td>0</td>
                 <td>0</td>
-                <td class="right" data-ratio="12 12">100%</td>
+                <td class="right" data-ratio="41 41">100%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="d_f86ad3602cee158c_test_cache_py.html">src/scrilla/tests/src/test_cache.py</a></td>
+                <td>32</td>
+                <td>1</td>
+                <td>0</td>
+                <td class="right" data-ratio="31 32">97%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="d_f86ad3602cee158c_test_cloud_aws_py.html">src/scrilla/tests/src/test_cloud_aws.py</a></td>
+                <td>24</td>
+                <td>10</td>
+                <td>0</td>
+                <td class="right" data-ratio="14 24">58%</td>
             </tr>
             <tr class="file">
                 <td class="name left"><a href="d_f86ad3602cee158c_test_errors_py.html">src/scrilla/tests/src/test_errors.py</a></td>
@@ -280,53 +321,11 @@
                 <td class="right" data-ratio="13 13">100%</td>
             </tr>
             <tr class="file">
-                <td class="name left"><a href="d_f86ad3602cee158c_test_estimators_py.html">src/scrilla/tests/src/test_estimators.py</a></td>
-                <td>104</td>
-                <td>0</td>
-                <td>0</td>
-                <td class="right" data-ratio="104 104">100%</td>
-            </tr>
-            <tr class="file">
-                <td class="name left"><a href="d_f86ad3602cee158c_test_formats_py.html">src/scrilla/tests/src/test_formats.py</a></td>
-                <td>19</td>
-                <td>0</td>
-                <td>0</td>
-                <td class="right" data-ratio="19 19">100%</td>
-            </tr>
-            <tr class="file">
-                <td class="name left"><a href="d_f86ad3602cee158c_test_geometric_probability_py.html">src/scrilla/tests/src/test_geometric_probability.py</a></td>
-                <td>23</td>
-                <td>2</td>
-                <td>0</td>
-                <td class="right" data-ratio="21 23">91%</td>
-            </tr>
-            <tr class="file">
-                <td class="name left"><a href="d_f86ad3602cee158c_test_geometric_statistics_py.html">src/scrilla/tests/src/test_geometric_statistics.py</a></td>
-                <td>51</td>
-                <td>0</td>
-                <td>0</td>
-                <td class="right" data-ratio="51 51">100%</td>
-            </tr>
-            <tr class="file">
-                <td class="name left"><a href="d_f86ad3602cee158c_test_helper_py.html">src/scrilla/tests/src/test_helper.py</a></td>
-                <td>26</td>
-                <td>0</td>
-                <td>0</td>
-                <td class="right" data-ratio="26 26">100%</td>
-            </tr>
-            <tr class="file">
                 <td class="name left"><a href="d_f86ad3602cee158c_test_main_py.html">src/scrilla/tests/src/test_main.py</a></td>
                 <td>26</td>
                 <td>4</td>
                 <td>0</td>
                 <td class="right" data-ratio="22 26">85%</td>
-            </tr>
-            <tr class="file">
-                <td class="name left"><a href="d_f86ad3602cee158c_test_portfolio_py.html">src/scrilla/tests/src/test_portfolio.py</a></td>
-                <td>41</td>
-                <td>0</td>
-                <td>0</td>
-                <td class="right" data-ratio="41 41">100%</td>
             </tr>
             <tr class="file">
                 <td class="name left"><a href="d_f86ad3602cee158c_test_services_py.html">src/scrilla/tests/src/test_services.py</a></td>
@@ -336,11 +335,32 @@
                 <td class="right" data-ratio="38 41">93%</td>
             </tr>
             <tr class="file">
+                <td class="name left"><a href="d_f86ad3602cee158c_test_static_formats_py.html">src/scrilla/tests/src/test_static_formats.py</a></td>
+                <td>19</td>
+                <td>0</td>
+                <td>0</td>
+                <td class="right" data-ratio="19 19">100%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="d_f86ad3602cee158c_test_util_dater_py.html">src/scrilla/tests/src/test_util_dater.py</a></td>
+                <td>12</td>
+                <td>0</td>
+                <td>0</td>
+                <td class="right" data-ratio="12 12">100%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="d_f86ad3602cee158c_test_util_helper_py.html">src/scrilla/tests/src/test_util_helper.py</a></td>
+                <td>26</td>
+                <td>0</td>
+                <td>0</td>
+                <td class="right" data-ratio="26 26">100%</td>
+            </tr>
+            <tr class="file">
                 <td class="name left"><a href="d_4a25ed309e7bc612_dater_py.html">src/scrilla/util/dater.py</a></td>
                 <td>218</td>
-                <td>78</td>
+                <td>85</td>
                 <td>0</td>
-                <td class="right" data-ratio="140 218">64%</td>
+                <td class="right" data-ratio="133 218">61%</td>
             </tr>
             <tr class="file">
                 <td class="name left"><a href="d_4a25ed309e7bc612_helper_py.html">src/scrilla/util/helper.py</a></td>
@@ -351,19 +371,19 @@
             </tr>
             <tr class="file">
                 <td class="name left"><a href="d_4a25ed309e7bc612_outputter_py.html">src/scrilla/util/outputter.py</a></td>
-                <td>194</td>
-                <td>155</td>
+                <td>198</td>
+                <td>158</td>
                 <td>0</td>
-                <td class="right" data-ratio="39 194">20%</td>
+                <td class="right" data-ratio="40 198">20%</td>
             </tr>
         </tbody>
         <tfoot>
             <tr class="total">
                 <td class="name left">Total</td>
-                <td>4863</td>
-                <td>2979</td>
+                <td>4902</td>
+                <td>3034</td>
                 <td>0</td>
-                <td class="right" data-ratio="1884 4863">39%</td>
+                <td class="right" data-ratio="1868 4902">38%</td>
             </tr>
         </tfoot>
     </table>
@@ -374,10 +394,17 @@
 <footer>
     <div class="content">
         <p>
-            <a class="nav" href="https://coverage.readthedocs.io">coverage.py v6.1.2</a>,
-            created at 2022-06-20 19:31 +0000
+            <a class="nav" href="https://coverage.readthedocs.io">coverage.py v6.4.1</a>,
+            created at 2022-06-21 12:05 +0000
         </p>
     </div>
+    <aside class="hidden">
+        <a id="prevFileLink" class="nav" href="d_4a25ed309e7bc612_outputter_py.html"/>
+        <a id="nextFileLink" class="nav" href="d_5485127f26531aab_estimators_py.html"/>
+        <button type="button" class="button_prev_file" data-shortcut="["/>
+        <button type="button" class="button_next_file" data-shortcut="]"/>
+        <button type="button" class="button_show_hide_help" data-shortcut="?"/>
+    </aside>
 </footer>
 </body>
 </html>
