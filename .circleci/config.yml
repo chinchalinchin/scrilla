@@ -101,9 +101,9 @@ commands:
           name: unit tests
           environment:
             APP_ENV: container
-            PYTHON_LIB: /home/circleci/.pyenv/versions/3.9.6/lib/python3.9/site-packages/scrilla/
           command: |
-            bash ./scripts/tests circleci
+            export LOG_LEVEL=none
+            ./scripts/tests
             coverage xml
             ./bin/deepsource report --analyzer test-coverage --key python --value-file ./coverage.xml
             rm -rf ./bin/
