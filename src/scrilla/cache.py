@@ -124,7 +124,7 @@ class PriceCache():
     """
     sqlite_create_table_transaction = "CREATE TABLE IF NOT EXISTS prices (ticker text, date text, open real, close real, UNIQUE(ticker, date))"
     sqlite_insert_row_transaction = "INSERT OR IGNORE INTO prices (ticker, date, open, close) VALUES (:ticker, :date, :open, :close)"
-    sqlite_price_query = "SELECT date, open, close from prices WHERE ticker = :ticker AND date <= date(:end_date) AND date >= date(:start_date) ORDER BY date(date) DESC"
+    sqlite_price_query = "SELECT date, open, close FROM prices WHERE ticker = :ticker AND date <= date(:end_date) AND date >= date(:start_date) ORDER BY date(date) DESC"
 
     dynamodb_table_configuration = {
         'AttributeDefinitions': [
@@ -149,6 +149,9 @@ class PriceCache():
             }
         ],
     }
+    dynamodb_insert_transaction = "INSERT INTO \"prices\" VALUE {'ticker': '?', 'date': '?', 'open': '?', 'close': '?' }"
+    dynamodb_price_query = "SELECT date, open, close FROM \"prices\" WHERE ticker=? AND date<=? AND date>=? ORDER BY date DESC"
+    dynamodb_identity_query = "EXISTS(SELECT ticker FROM \"prices\" WHERE ticker=? and date= ?)"
 
     @staticmethod
     def to_dict(query_results):
@@ -178,13 +181,13 @@ class PriceCache():
         if settings.CACHE_MODE == 'sqlite':
             return self.sqlite_insert_row_transaction
         elif settings.CACHE_MODE == 'dynamodb':
-            pass
+            return self.dynamodb_insert_transaction
 
     def _query(self):
         if settings.CACHE_MODE == 'sqlite':
             return self.sqlite_price_query
         elif settings.CACHE_MODE == 'dynamodb':
-            pass
+            return self.dynamodb_price_query
 
     def save_row(self, ticker, date, open_price, close_price):
         logger.verbose(
@@ -249,6 +252,10 @@ class InterestCache():
             }
         ],
     }
+    dynamodb_insert_transaction = "INSERT INTO \"interest\" VALUE {'maturity': '?', 'date': '?', 'value': '?' }"
+    dynamodb_query= "SELECT date, value FROM \"interest\" WHERE maturity=? AND date<=? AND date>=? ORDER BY date DESC"
+    dynamodb_identity_query = "EXISTS(SELECT maturity FROM \"interest\" WHERE maturity=? and date= ?)"
+
 
     @staticmethod
     def to_dict(query_results):
@@ -277,15 +284,13 @@ class InterestCache():
         if settings.CACHE_MODE == 'sqlite':
             return self.sqlite_insert_row_transaction
         elif settings.CACHE_MODE == 'dynamodb':
-            pass
-            # TODO
+            return self.dynamodb_insert_transaction
 
     def _query(self):
         if settings.CACHE_MODE == 'sqlite':
             return self.sqlite_interest_query
         elif settings.CACHE_MODE == 'dynamodb':
-            pass
-            # TODO
+            return self.dynamodb_query
 
     def save_row(self, date, value):
         for index, maturity in enumerate(keys.keys['YIELD_CURVE']):
@@ -347,9 +352,18 @@ class CorrelationCache():
             {
                 'AttributeName': 'end_date',
                 'AttributeType': 'S'
+            },
+            {
+                'AttributeName': 'method',
+                'AttributeType': 'S'
+
+            },
+            {
+                'AttributeName': 'weekends',
+                'AttributeType': 'S'
             }
         ],
-        'TableName': 'correlation',
+        'TableName': 'correlations',
         'KeySchema': [
             {
                 'AttributeName': 'ticker_1',
@@ -366,10 +380,22 @@ class CorrelationCache():
             {
                 'AttributeName': 'end_date',
                 'KeyType': 'RANGE'
+            }, 
+            {
+                'AttributeName': 'method',
+                'KeyType': 'HASH'
+            },
+            {
+                'AttributeName': 'weekends',
+                'KeyType': 'HASH'
             }
         ],
         'BillingMode': 'PAY_PER_REQUEST'
     }
+    # be careful with the dates here. order matters.
+    dynamodb_insert_transaction = "INSERT INTO \"correlations\" VALUE {'ticker_1': '?', 'ticker_2': '?', 'end_date': '?', 'start_date': '?', 'correlation': '?', 'method': '?', 'weekends': '?' }"
+    dynamodb_query= "SELECT correlation FROM \"correlations\" WHERE ticker_1=? AND ticker_2=? AND start_date=? AND end_date=? AND method=? AND weekends=?"
+    dynamodb_identity_query = "EXISTS(SELECT correlation FROM \"correlations\" WHERE ticker_1=? AND ticker_2=? AND start_date=? AND end_date=? AND method=? AND weekends=?)"
 
     @staticmethod
     def to_dict(query_results):
@@ -533,6 +559,9 @@ class ProfileCache(Cache):
         ],
         'BillingMode': 'PAY_PER_REQUEST'
     }
+    dynamodb_insert_transaction = "INSERT INTO \"profile\" VALUE {'ticker': '?', 'end_date': '?', 'start_date': '?', 'correlation': '?', 'annual_return': '?', 'annual_volatility': '?', 'sharpe_ratio': '?', 'asset_beta': '?', 'equity_cost': '?', method': '?', 'weekends': '?' }"  
+    dynamodb_query= "SELECT annual_return, annual_volatility,sharpe_ratio,asset_beta,equity_cost FROM \"correlations\" WHERE ticker_1=? AND ticker_2=? AND start_date=? AND end_date=? AND method=? AND weekends=?"
+    dynamodb_return_identity_query = "EXISTS(SELECT annual_return FROM \"profile\" WHERE ticker_1=? AND ticker_2=? AND start_date=? AND end_date=? AND method=? AND weekends=?)"
 
     @staticmethod
     def to_dict(query_result):
@@ -585,6 +614,7 @@ class ProfileCache(Cache):
             # TODO
 
     def save_or_update_row(self, ticker: str, start_date: datetime.date, end_date: datetime.date, annual_return: Union[float, None] = None, annual_volatility: Union[float, None] = None, sharpe_ratio: Union[float, None] = None, asset_beta: Union[float, None] = None, equity_cost: Union[float, None] = None, weekends: int = 0, method: str = settings.ESTIMATION_METHOD):
+        # THIS NEEDS REFACTORED. IT'S SUPER INEFFICIENT
         formatter = {'ticker': ticker, 'start_date': start_date,
                      'end_date': end_date, 'method': method, 'weekends': weekends}
 
