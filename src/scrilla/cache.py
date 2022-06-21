@@ -566,10 +566,10 @@ class ProfileCache(Cache):
         insert_query = 'INSERT INTO profile (ticker,start_date,end_date,'
         for param in params.keys():
             insert_query += f'{param},'
-        insert_query+='method,weekends) VALUES (:ticker,:start_date,:end_date,'
+        insert_query += 'method,weekends) VALUES (:ticker,:start_date,:end_date,'
         for param in params.keys():
             insert_query += f':{param},'
-        insert_query+=":method,:weekends)"
+        insert_query += ":method,:weekends)"
         return insert_query
 
     def __init__(self):
