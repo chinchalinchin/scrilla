@@ -569,7 +569,7 @@ class ProfileCache(Cache):
             insert_query += param
             if list(params.keys()).index(param) != len(params) - 1:
                 insert_query += ','
-        insert_query+='method,weekends) VALUES(:ticker,:start_date,:end_date'
+        insert_query+='method,weekends) VALUES (:ticker,:start_date,:end_date'
         for param in param.keys():
             insert_query += f':{param}'
             if list(params.keys()).index(param) != len(params) - 1:
