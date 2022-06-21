@@ -497,33 +497,32 @@ class ProfileCache(Cache):
     sqlite_create_table_transaction = "CREATE TABLE IF NOT EXISTS profile (id INTEGER PRIMARY KEY, ticker TEXT, start_date TEXT, end_date TEXT, annual_return REAL, annual_volatility REAL, sharpe_ratio REAL, asset_beta REAL, equity_cost REAL, method TEXT, weekends INT)"
 
     sqlite_filter = "ticker=:ticker AND start_date=date(:start_date) AND end_date=date(:end_date) AND :method=method AND weekends=:weekends"
-    sqlite_identity_query = "(SELECT id FROM profile WHERE ticker=:ticker AND start_date=:start_date AND end_date=:end_date AND method=:method AND weekends=:weekends)"
-    value_args = "(id, ticker, start_date, end_date, annual_return, annual_volatility, sharpe_ratio, asset_beta, equity_cost, method, weekends)"
+    sqlite_identity_query = "SELECT id FROM profile WHERE ticker=:ticker AND start_date=:start_date AND end_date=:end_date AND method=:method AND weekends=:weekends"
+    
+    # value_args = "(id, ticker, start_date, end_date, annual_return, annual_volatility, sharpe_ratio, asset_beta, equity_cost, method, weekends)"
 
-    sqlite_return_query = "(SELECT annual_return FROM profile WHERE {sqlite_filter})".format(
-        sqlite_filter=sqlite_filter)
-    sqlite_vol_query = "(SELECT annual_volatility FROM profile WHERE {sqlite_filter})".format(
-        sqlite_filter=sqlite_filter)
-    sqlite_sharpe_query = "(SELECT sharpe_ratio FROM profile WHERE {sqlite_filter})".format(
-        sqlite_filter=sqlite_filter)
-    sqlite_beta_query = "(SELECT asset_beta FROM profile WHERE {sqlite_filter})".format(
-        sqlite_filter=sqlite_filter)
-    sqlite_equity_query = "(SELECT equity_cost FROM profile WHERE {sqlite_filter})".format(
-        sqlite_filter=sqlite_filter)
+    # sqlite_return_query = "(SELECT annual_return FROM profile WHERE {sqlite_filter})".format(
+    #     sqlite_filter=sqlite_filter)
+    # sqlite_vol_query = "(SELECT annual_volatility FROM profile WHERE {sqlite_filter})".format(
+    #     sqlite_filter=sqlite_filter)
+    # sqlite_sharpe_query = "(SELECT sharpe_ratio FROM profile WHERE {sqlite_filter})".format(
+    #     sqlite_filter=sqlite_filter)
+    # sqlite_beta_query = "(SELECT asset_beta FROM profile WHERE {sqlite_filter})".format(
+    #     sqlite_filter=sqlite_filter)
+    # sqlite_equity_query = "(SELECT equity_cost FROM profile WHERE {sqlite_filter})".format(
+    #     sqlite_filter=sqlite_filter)
+    # sqlite_update_return_transaction = "INSERT or REPLACE INTO profile {value_args} VALUES ({identity_query}, :ticker, :start_date, :end_date, :annual_return, {sqlite_vol_query}, {sqlite_sharpe_query}, {sqlite_beta_query}, {sqlite_equity_query}, :method, :weekends)".format(
+    #     identity_query=sqlite_identity_query, value_args=value_args, sqlite_vol_query=sqlite_vol_query, sqlite_sharpe_query=sqlite_sharpe_query, sqlite_beta_query=sqlite_beta_query, sqlite_equity_query=sqlite_equity_query)
+    # sqlite_update_vol_transaction = "INSERT or REPLACE INTO profile {value_args} VALUES ({identity_query}, :ticker, :start_date, :end_date, {sqlite_return_query}, :annual_volatility, {sqlite_sharpe_query}, {sqlite_beta_query}, {sqlite_equity_query}, :method, :weekends)".format(
+    #     identity_query=sqlite_identity_query, value_args=value_args, sqlite_return_query=sqlite_return_query, sqlite_sharpe_query=sqlite_sharpe_query, sqlite_beta_query=sqlite_beta_query, sqlite_equity_query=sqlite_equity_query)
+    # sqlite_update_sharpe_transaction = "INSERT or REPLACE INTO profile {value_args} VALUES ({identity_query}, :ticker, :start_date, :end_date, {sqlite_return_query}, {sqlite_vol_query}, :sharpe_ratio, {sqlite_beta_query}, {sqlite_equity_query}, :method, :weekends)".format(
+    #     identity_query=sqlite_identity_query, value_args=value_args, sqlite_return_query=sqlite_return_query, sqlite_vol_query=sqlite_vol_query, sqlite_beta_query=sqlite_beta_query, sqlite_equity_query=sqlite_equity_query)
+    # sqlite_update_beta_transaction = "INSERT or REPLACE INTO profile {value_args} VALUES ({identity_query}, :ticker, :start_date, :end_date, {sqlite_return_query}, {sqlite_vol_query}, {sqlite_sharpe_query}, :asset_beta, {sqlite_equity_query}, :method, :weekends)".format(
+    #     identity_query=sqlite_identity_query, value_args=value_args, sqlite_return_query=sqlite_return_query, sqlite_vol_query=sqlite_vol_query, sqlite_sharpe_query=sqlite_sharpe_query, sqlite_equity_query=sqlite_equity_query)
+    # sqlite_update_equity_tranasction = "INSERT or REPLACE INTO profile {value_args} VALUES ({identity_query}, :ticker, :start_date, :end_date, {sqlite_return_query}, {sqlite_vol_query}, {sqlite_sharpe_query}, {sqlite_beta_query}, :equity_cost, :method, :weekends)".format(
+    #     identity_query=sqlite_identity_query, value_args=value_args, sqlite_return_query=sqlite_return_query, sqlite_vol_query=sqlite_vol_query, sqlite_sharpe_query=sqlite_sharpe_query, sqlite_beta_query=sqlite_beta_query)
 
-    sqlite_update_return_transaction = "INSERT or REPLACE INTO profile {value_args} VALUES ({identity_query}, :ticker, :start_date, :end_date, :annual_return, {sqlite_vol_query}, {sqlite_sharpe_query}, {sqlite_beta_query}, {sqlite_equity_query}, :method, :weekends)".format(
-        identity_query=sqlite_identity_query, value_args=value_args, sqlite_vol_query=sqlite_vol_query, sqlite_sharpe_query=sqlite_sharpe_query, sqlite_beta_query=sqlite_beta_query, sqlite_equity_query=sqlite_equity_query)
-    sqlite_update_vol_transaction = "INSERT or REPLACE INTO profile {value_args} VALUES ({identity_query}, :ticker, :start_date, :end_date, {sqlite_return_query}, :annual_volatility, {sqlite_sharpe_query}, {sqlite_beta_query}, {sqlite_equity_query}, :method, :weekends)".format(
-        identity_query=sqlite_identity_query, value_args=value_args, sqlite_return_query=sqlite_return_query, sqlite_sharpe_query=sqlite_sharpe_query, sqlite_beta_query=sqlite_beta_query, sqlite_equity_query=sqlite_equity_query)
-    sqlite_update_sharpe_transaction = "INSERT or REPLACE INTO profile {value_args} VALUES ({identity_query}, :ticker, :start_date, :end_date, {sqlite_return_query}, {sqlite_vol_query}, :sharpe_ratio, {sqlite_beta_query}, {sqlite_equity_query}, :method, :weekends)".format(
-        identity_query=sqlite_identity_query, value_args=value_args, sqlite_return_query=sqlite_return_query, sqlite_vol_query=sqlite_vol_query, sqlite_beta_query=sqlite_beta_query, sqlite_equity_query=sqlite_equity_query)
-    sqlite_update_beta_transaction = "INSERT or REPLACE INTO profile {value_args} VALUES ({identity_query}, :ticker, :start_date, :end_date, {sqlite_return_query}, {sqlite_vol_query}, {sqlite_sharpe_query}, :asset_beta, {sqlite_equity_query}, :method, :weekends)".format(
-        identity_query=sqlite_identity_query, value_args=value_args, sqlite_return_query=sqlite_return_query, sqlite_vol_query=sqlite_vol_query, sqlite_sharpe_query=sqlite_sharpe_query, sqlite_equity_query=sqlite_equity_query)
-    sqlite_update_equity_tranasction = "INSERT or REPLACE INTO profile {value_args} VALUES ({identity_query}, :ticker, :start_date, :end_date, {sqlite_return_query}, {sqlite_vol_query}, {sqlite_sharpe_query}, {sqlite_beta_query}, :equity_cost, :method, :weekends)".format(
-        identity_query=sqlite_identity_query, value_args=value_args, sqlite_return_query=sqlite_return_query, sqlite_vol_query=sqlite_vol_query, sqlite_sharpe_query=sqlite_sharpe_query, sqlite_beta_query=sqlite_beta_query)
-
-    sqlite_insert_transaction="INSERT INTO profile (ticker,start_date,end_date) VALUES(:ticker, :start_date, :end_date"
-
+    sqlite_insert_transaction="INSERT INTO profile (ticker,start_date,end_date,method,weekends) VALUES(:ticker, :start_date, :end_date, :method, :weekends)"
     sqlite_profile_query = "SELECT ifnull(annual_return, 'empty'), ifnull(annual_volatility, 'empty'), ifnull(sharpe_ratio, 'empty'), ifnull(asset_beta, 'empty'), ifnull(equity_cost, 'empty') FROM profile WHERE {sqlite_filter}".format(
         sqlite_filter=sqlite_filter)
 
@@ -581,7 +580,7 @@ class ProfileCache(Cache):
 
     @staticmethod
     def _construct_update(params):
-        update_query = 'UPDATE TABLE profile SET '
+        update_query = 'UPDATE profile SET '
         for param in params.keys():
             update_query += f'{param}=:{param}'
             if list(params.keys()).index(param) != len(params)-1:
@@ -638,22 +637,26 @@ class ProfileCache(Cache):
         # determine which inputs are not None
         # use inputs to construct UPDATE SET query
 
-        identity = Cache.execute_statement(self.sqlite_identity_query)
+        identity = Cache.execute_query(self.sqlite_identity_query, formatter)
         print(identity)
-        params = {}
+
         if len(identity) == 0:
-          if annual_return is not None:
-              params['annual_return'] = annual_return
-          if annual_volatility is not None:
-              params['annual_volatility'] = annual_volatility
-          if sharpe_ratio is not None:
-              params['sharpe_ratio'] = sharpe_ratio
-          if asset_beta is not None:
-              params['asset_beta'] = asset_beta
-          if equity_cost is not None:
-              params['equity_cost'] = equity_cost
-        Cache.execute_transaction(transaction=self._construct_update(params),
-                                    formatter=params)
+            Cache.execute_transaction(self.sqlite_insert_transaction, formatter)
+
+        if annual_return is not None:
+            formatter['annual_return'] = annual_return
+        if annual_volatility is not None:
+            formatter['annual_volatility'] = annual_volatility
+        if sharpe_ratio is not None:
+            formatter['sharpe_ratio'] = sharpe_ratio
+        if asset_beta is not None:
+            formatter['asset_beta'] = asset_beta
+        if equity_cost is not None:
+            formatter['equity_cost'] = equity_cost
+        if len(formatter) > 0:
+            formatter.update(formatter)
+        Cache.execute_transaction(transaction=self._construct_update(formatter),
+                                    formatter=formatter)
 
         # if annual_return is not None:
         #     logger.verbose(
