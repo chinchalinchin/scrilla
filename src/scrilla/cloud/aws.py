@@ -5,12 +5,14 @@ from scrilla import settings
 from scrilla.util import outputter
 logger = outputter.Logger("scrilla.cloud.aws", settings.LOG_LEVEL)
 
+
 def dynamo_client():
     return boto3.client('dynamodb')
 
 
 def dynamo_resource():
     return boto3.resource('dynamodb')
+
 
 def dynamo_table(table_configuration: dict):
     client = dynamo_client()
