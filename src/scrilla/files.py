@@ -33,6 +33,7 @@ logger = outputter.Logger("scrilla.files", settings.LOG_LEVEL)
 
 static_tickers_blob, static_econ_blob, static_crypto_blob = None, None, None
 
+
 def load_file(file_name: str) -> Any:
     """
     Infers the file extensions from the provided `file_name` and parses the file appropriately. 
@@ -135,7 +136,7 @@ def init_static_data():
     # grab ticker symbols and store in STATIC_DIR
     if (
         settings.PRICE_MANAGER == "alpha_vantage" and
-        not os.path.isfile(settings.STATIC_TICKERS_FILE) 
+        not os.path.isfile(settings.STATIC_TICKERS_FILE)
     ):
         service_map = keys.keys["SERVICES"]["PRICES"]["ALPHA_VANTAGE"]["MAP"]
         logger.debug(
@@ -158,29 +159,29 @@ def init_static_data():
             f'Missing {settings.STATIC_CRYPTO_FILE}, querying \'{settings.PRICE_MANAGER}\'.')
         url = settings.AV_CRYPTO_LIST
         static_crypto_blob = parse_csv_response_column(column=0, url=url, savefile=settings.STATIC_CRYPTO_FILE,
-                                                        firstRowHeader=service_map['KEYS']['CRYPTO']['HEADER'])
+                                                       firstRowHeader=service_map['KEYS']['CRYPTO']['HEADER'])
 
     # grab econominc indicator symbols and store in STATIC_DIR
     if (
         settings.STAT_MANAGER == "quandl" and
         not os.path.isfile(settings.STATIC_ECON_FILE)
     ):
-            service_map = keys.keys["SERVICES"]["STATISTICS"]["QUANDL"]["MAP"]
+        service_map = keys.keys["SERVICES"]["STATISTICS"]["QUANDL"]["MAP"]
 
-            logger.debug(
-                f'Missing {settings.STATIC_ECON_FILE}, querying \'{settings.STAT_MANAGER}\'.')
+        logger.debug(
+            f'Missing {settings.STATIC_ECON_FILE}, querying \'{settings.STAT_MANAGER}\'.')
 
-            query = f'{service_map["PATHS"]["FRED"]}/{service_map["PARAMS"]["METADATA"]}'
-            url = f'{settings.Q_META_URL}/{query}?{service_map["PARAMS"]["KEY"]}={settings.Q_KEY}'
-            static_econ_blob = parse_csv_response_column(column=0, url=url, savefile=settings.STATIC_ECON_FILE,
-                                                            firstRowHeader=service_map["KEYS"]["HEADER"],
-                                                            zipped=service_map["KEYS"]["ZIPFILE"])
+        query = f'{service_map["PATHS"]["FRED"]}/{service_map["PARAMS"]["METADATA"]}'
+        url = f'{settings.Q_META_URL}/{query}?{service_map["PARAMS"]["KEY"]}={settings.Q_KEY}'
+        static_econ_blob = parse_csv_response_column(column=0, url=url, savefile=settings.STATIC_ECON_FILE,
+                                                     firstRowHeader=service_map["KEYS"]["HEADER"],
+                                                     zipped=service_map["KEYS"]["ZIPFILE"])
 
     if settings.STAT_MANAGER == "treasury":
-        # TODO: need some way to only do this once. don't want to query cache and add another query to the queue. 
+        # TODO: need some way to only do this once. don't want to query cache and add another query to the queue.
         # HOW CAN I ENSURE THIS ONLY GETS CALLED THE FIRST TIME USER INVOKES SCRILLA?
         # the trick here is the presence of the file tells the program to circumvent these lines. therefore, i should
-        # output a file into the data/static folder for treasury_static and use that as a persistence flag for this 
+        # output a file into the data/static folder for treasury_static and use that as a persistence flag for this
         # conditional.
         services.get_daily_interest_latest(settings.RISK_FREE_RATE)
 
