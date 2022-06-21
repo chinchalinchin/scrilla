@@ -91,4 +91,4 @@ def test_profile_cache_construct_update_query(params, expected):
     )
 ])
 def test_profile_cache_construct_insert_query(params, expected):
-    pass
+    assert ProfileCache._construct_insert(params) == expected

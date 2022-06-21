@@ -564,16 +564,12 @@ class ProfileCache(Cache):
 
     @staticmethod
     def _construct_insert(params):
-        insert_query = 'INSERT INTO profile (ticker,start_date,end_date'
+        insert_query = 'INSERT INTO profile (ticker,start_date,end_date,'
         for param in params.keys():
-            insert_query += param
-            if list(params.keys()).index(param) != len(params) - 1:
-                insert_query += ','
-        insert_query+='method,weekends) VALUES (:ticker,:start_date,:end_date'
-        for param in param.keys():
-            insert_query += f':{param}'
-            if list(params.keys()).index(param) != len(params) - 1:
-                insert_query+=","
+            insert_query += f'{param},'
+        insert_query+='method,weekends) VALUES (:ticker,:start_date,:end_date,'
+        for param in params.keys():
+            insert_query += f':{param},'
         insert_query+=":method,:weekends)"
         return insert_query
 
