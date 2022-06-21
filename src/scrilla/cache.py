@@ -101,7 +101,8 @@ class Cache():
             return executor.execute(query).fetchall()
         elif settings.CACHE_MODE == 'dynamodb':
             return aws.dynamo_client().execute_statement(
-                TransactionStatements=aws.dynamo_statement_args(query, formatter)
+                TransactionStatements=aws.dynamo_statement_args(
+                    query, formatter)
             )
         else:
             raise errors.ConfigurationError(
@@ -170,7 +171,7 @@ class PriceCache():
             Cache.execute_transaction(self.sqlite_create_table_transaction)
         elif settings.CACHE_MODE == 'dynamodb':
             self.dynamodb_table_configuration = aws.specify_dynamo_table_conf(
-                                                    self.dynamodb_table_configuration)
+                self.dynamodb_table_configuration)
             Cache.provision(self.dynamodb_table_configuration)
 
     def _insert(self):
@@ -269,7 +270,7 @@ class InterestCache():
             Cache.execute_transaction(self.sqlite_create_table_transaction)
         elif settings.CACHE_MODE == 'dynamodb':
             self.dynamodb_table_configuration = aws.specify_dynamo_table_conf(
-                                                    self.dynamodb_table_configuration)
+                self.dynamodb_table_configuration)
             Cache.provision(self.dynamodb_table_configuration)
 
     def _insert(self):
@@ -390,7 +391,7 @@ class CorrelationCache():
             Cache.execute_transaction(self.sqlite_create_table_transaction)
         elif settings.CACHE_MODE == 'dynamodb':
             self.dynamodb_table_configuration = aws.specify_dynamo_table_conf(
-                                                    self.dynamodb_table_configuration)
+                self.dynamodb_table_configuration)
             Cache.provision(self.dynamodb_table_configuration)
 
     def _insert(self):
@@ -557,7 +558,7 @@ class ProfileCache(Cache):
             Cache.execute_transaction(self.sqlite_create_table_transaction)
         elif settings.CACHE_MODE == 'dynamodb':
             self.dynamodb_table_configuration = aws.specify_dynamo_table_conf(
-                                                    self.dynamodb_table_configuration)
+                self.dynamodb_table_configuration)
             Cache.provision(self.dynamodb_table_configuration)
 
     def _update(self, query_type):
