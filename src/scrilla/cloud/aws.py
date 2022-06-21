@@ -28,10 +28,12 @@ def _dynamo_params(document: dict):
             dynamo_json.append({'NULL': True})
     return dynamo_json
 
+
 def specify_dynamo_table_conf(table_configuration):
     return table_configuration.update(settings.DYNAMO_CONF)
 
-def dynamo_statement_args(statement, params = None):
+
+def dynamo_statement_args(statement, params=None):
     if params is None:
         return {
             'Statement': statement
