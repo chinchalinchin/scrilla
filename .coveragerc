@@ -1,5 +1,6 @@
 [run]
-source = ${PYTHON_LIB}
+source =
+    src
 omit = 
     **/__init__.py
     **/static/constants.py

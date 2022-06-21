@@ -7,7 +7,8 @@ from scrilla.errors import SampleSizeError
 
 from .. import mock
 from .. import settings
-    
+
+
 @pytest.mark.parametrize("x", [(mock.univariate_data[datum]) for datum in mock.univariate_data])
 def test_univariate_normal_likelihood_probability_bounds(x):
     sample_mean = estimators.sample_mean(x)
@@ -95,14 +96,16 @@ def test_mean_null_sample(x):
         estimators.sample_mean(x=x)
     assert sample_error.type == SampleSizeError
 
+
 @pytest.mark.parametrize("x", [
-                                ([None]), 
-                                ([1, 2, None]),
+    ([None]),
+    ([1, 2, None]),
 ])
 def test_mean_missing_samples(x):
     with pytest.raises(Exception) as sample_error:
         estimators.sample_mean(x=x)
     assert sample_error.type == ValueError
+
 
 @pytest.mark.parametrize("first_x,second_x", mock.recursive_univariate_data)
 def test_rolling_recursive_mean(first_x, second_x):
@@ -112,7 +115,8 @@ def test_rolling_recursive_mean(first_x, second_x):
     actual_next_mean = estimators.sample_mean(second_x)
     recursive_mean = estimators.recursive_rolling_mean(
         actual_previous_mean, new_obs, lost_obs, n)
-    assert(settings.is_within_tolerance(lambda: recursive_mean - actual_next_mean))
+    assert(settings.is_within_tolerance(
+        lambda: recursive_mean - actual_next_mean))
 
 
 @pytest.mark.parametrize("x,var", mock.variance_cases)
@@ -144,7 +148,8 @@ def test_rolling_recursive_variance(first_x, second_x):
     actual_next_variance = estimators.sample_variance(second_x)
     recursive_variance = estimators.recursive_rolling_variance(
         actual_previous_variance, actual_previous_mean, new_obs, lost_obs, n)
-    assert(settings.is_within_tolerance(lambda: recursive_variance - actual_next_variance))
+    assert(settings.is_within_tolerance(
+        lambda: recursive_variance - actual_next_variance))
 
 
 @pytest.mark.parametrize("x,y,cov", mock.covariance_cases)
@@ -162,11 +167,11 @@ def test_correlation(x, y, correl):
 @pytest.mark.parametrize("x,y", [
     ([random.randint(0, 100) for _ in range(99)],
      [random.randint(0, 100) for _ in range(99)]),
-    ([random.randint(0, 100) for _ in range(99)], 
+    ([random.randint(0, 100) for _ in range(99)],
      [random.randint(0, 100) for _ in range(99)]),
-    ([random.randint(0, 100) for _ in range(99)], 
+    ([random.randint(0, 100) for _ in range(99)],
      [random.randint(0, 100) for _ in range(99)]),
-    ([random.randint(0, 100) for _ in range(99)], 
+    ([random.randint(0, 100) for _ in range(99)],
      [random.randint(0, 100) for _ in range(99)])
 ]
 )

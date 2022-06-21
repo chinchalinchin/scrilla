@@ -109,11 +109,11 @@ class PriceCache():
 
     Attributes
     ----------
-    1. **create_table_transaction**: ``str``
+    1. **sqlite_create_table_transaction**: ``str``
         *SQLite* transaction passed to the super class used to create price cache table if it does not already exist.
-    2. **insert_row_transaction**: ``str``
+    2. **sqlite_insert_row_transaction**: ``str``
         *SQLite* transaction used to insert row into price cache table.
-    3. **price_query**: ``str```
+    3. **sqlite_price_query**: ``str```
         *SQLite* query to retrieve prices from cache.
     """
     sqlite_create_table_transaction = "CREATE TABLE IF NOT EXISTS prices (ticker text, date text, open real, close real, UNIQUE(ticker, date))"
@@ -188,7 +188,7 @@ class PriceCache():
 
     def filter_price_cache(self, ticker, start_date, end_date):
         logger.debug(
-            f'Querying {settings.CACHE_MODE} cache \n\t{self.price_query}\n\t\t with :ticker={ticker}, :start_date={start_date}, :end_date={end_date}')
+            f'Querying {settings.CACHE_MODE} cache \n\t{self._query()}\n\t\t with :ticker={ticker}, :start_date={start_date}, :end_date={end_date}')
         formatter = {'ticker': ticker,
                      'start_date': start_date, 'end_date': end_date}
         results = Cache.execute_query(
@@ -196,7 +196,7 @@ class PriceCache():
 
         if len(results) > 0:
             logger.debug(f'Found {ticker} prices in the cache')
-            return Cache.to_dict(results)
+            return self.to_dict(results)
         logger.debug(f'No results found for {ticker} prices in the cache')
         return None
 
@@ -288,7 +288,7 @@ class InterestCache():
 
     def filter_interest_cache(self, maturity, start_date, end_date):
         logger.debug(
-            f'Querying {settings.CACHE_MODE} cache \n\t{InterestCache.int_query}\n\t\t with :maturity={maturity}, :start_date={start_date}, :end_date={end_date}')
+            f'Querying {settings.CACHE_MODE} cache \n\t{self._query()}\n\t\t with :maturity={maturity}, :start_date={start_date}, :end_date={end_date}')
         formatter = {'maturity': maturity,
                      'start_date': start_date, 'end_date': end_date}
         results = Cache.execute_query(

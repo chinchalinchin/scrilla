@@ -1,8 +1,7 @@
-import argparse
 from math import trunc, log10, floor
 from typing import List, Tuple
 
-from scrilla.static import definitions, constants
+from scrilla.static import constants
 
 
 def truncate(number: float, digits: int) -> float:
@@ -38,7 +37,7 @@ def complement_dict_keys(dict1: dict, dict2: dict) -> dict:
     """
     Returns the transformed dictionaries whose keys are a complement relative to the second dictionary keys. In other words, this function takes the complement of the first dictionary keys relative to the second dictionary keys and visa versa,
     """
-    return {x: dict1[x] for x in dict1.keys() if x not in dict2.keys()}, {x:dict2[x] for x in dict2.keys() if x not in dict1.keys()}
+    return {x: dict1[x] for x in dict1.keys() if x not in dict2.keys()}, {x: dict2[x] for x in dict2.keys() if x not in dict1.keys()}
 
 
 def exceeds_accuracy(decimal: float) -> bool:

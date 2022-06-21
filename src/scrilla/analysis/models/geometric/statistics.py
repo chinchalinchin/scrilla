@@ -1477,8 +1477,7 @@ def calculate_moment_correlation_series(ticker_1: str, ticker_2: str, start_date
         correlation_series[dater.to_string(
             this_date)] = todays_cor['correlation']
 
-    result = {}
-    result[f'{ticker_1}_{ticker_2}_correlation_time_series'] = correlation_series
+    result = {f'{ticker_1}_{ticker_2}_correlation_time_series': correlation_series}
     return correlation_series
 
 

@@ -17,12 +17,7 @@
 /docs/coverage/*
 /docs/build/*
 .vscode
-/scrilla/static/*
-/tests/.pytest_cache
-/tests/*/.pytest_cache
-/tests/*/*/.pytest_cache
-/tests/*/*/*/.pytest_cache
-/tests/*/*/*/*/.pytest_cache
+/tests/**/.pytest_cache
 .coverage
 coverage.xml
 /bin/*

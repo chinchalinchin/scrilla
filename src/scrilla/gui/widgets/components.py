@@ -177,7 +177,7 @@ class ArgumentWidget(QtWidgets.QWidget):
                 group_key = self.group_definitions[definition]['group']
                 group_name = definitions.GROUP_DICT[group_key]
 
-                if group_name not in groups.keys():
+                if group_name not in groups:
                     groups[group_name] = [definition]
                 else:
                     groups[group_name].append(definition)
