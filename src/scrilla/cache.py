@@ -253,9 +253,8 @@ class InterestCache():
         ],
     }
     dynamodb_insert_transaction = "INSERT INTO \"interest\" VALUE {'maturity': '?', 'date': '?', 'value': '?' }"
-    dynamodb_query= "SELECT date, value FROM \"interest\" WHERE maturity=? AND date<=? AND date>=? ORDER BY date DESC"
+    dynamodb_query = "SELECT date, value FROM \"interest\" WHERE maturity=? AND date<=? AND date>=? ORDER BY date DESC"
     dynamodb_identity_query = "EXISTS(SELECT maturity FROM \"interest\" WHERE maturity=? and date= ?)"
-
 
     @staticmethod
     def to_dict(query_results):
@@ -380,7 +379,7 @@ class CorrelationCache():
             {
                 'AttributeName': 'end_date',
                 'KeyType': 'RANGE'
-            }, 
+            },
             {
                 'AttributeName': 'method',
                 'KeyType': 'HASH'
@@ -394,7 +393,7 @@ class CorrelationCache():
     }
     # be careful with the dates here. order matters.
     dynamodb_insert_transaction = "INSERT INTO \"correlations\" VALUE {'ticker_1': '?', 'ticker_2': '?', 'end_date': '?', 'start_date': '?', 'correlation': '?', 'method': '?', 'weekends': '?' }"
-    dynamodb_query= "SELECT correlation FROM \"correlations\" WHERE ticker_1=? AND ticker_2=? AND start_date=? AND end_date=? AND method=? AND weekends=?"
+    dynamodb_query = "SELECT correlation FROM \"correlations\" WHERE ticker_1=? AND ticker_2=? AND start_date=? AND end_date=? AND method=? AND weekends=?"
     dynamodb_identity_query = "EXISTS(SELECT correlation FROM \"correlations\" WHERE ticker_1=? AND ticker_2=? AND start_date=? AND end_date=? AND method=? AND weekends=?)"
 
     @staticmethod
@@ -559,8 +558,8 @@ class ProfileCache(Cache):
         ],
         'BillingMode': 'PAY_PER_REQUEST'
     }
-    dynamodb_insert_transaction = "INSERT INTO \"profile\" VALUE {'ticker': '?', 'end_date': '?', 'start_date': '?', 'correlation': '?', 'annual_return': '?', 'annual_volatility': '?', 'sharpe_ratio': '?', 'asset_beta': '?', 'equity_cost': '?', method': '?', 'weekends': '?' }"  
-    dynamodb_query= "SELECT annual_return, annual_volatility,sharpe_ratio,asset_beta,equity_cost FROM \"correlations\" WHERE ticker_1=? AND ticker_2=? AND start_date=? AND end_date=? AND method=? AND weekends=?"
+    dynamodb_insert_transaction = "INSERT INTO \"profile\" VALUE {'ticker': '?', 'end_date': '?', 'start_date': '?', 'correlation': '?', 'annual_return': '?', 'annual_volatility': '?', 'sharpe_ratio': '?', 'asset_beta': '?', 'equity_cost': '?', method': '?', 'weekends': '?' }"
+    dynamodb_query = "SELECT annual_return, annual_volatility,sharpe_ratio,asset_beta,equity_cost FROM \"correlations\" WHERE ticker_1=? AND ticker_2=? AND start_date=? AND end_date=? AND method=? AND weekends=?"
     dynamodb_return_identity_query = "EXISTS(SELECT annual_return FROM \"profile\" WHERE ticker_1=? AND ticker_2=? AND start_date=? AND end_date=? AND method=? AND weekends=?)"
 
     @staticmethod
