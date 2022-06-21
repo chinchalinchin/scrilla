@@ -48,7 +48,6 @@ def dynamo_resource():
     return boto3.resource('dynamodb')
 
 
-
 def dynamo_table(table_configuration: dict):
     try:
         return dynamo_client().create_table(**table_configuration)
