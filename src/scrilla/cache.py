@@ -253,9 +253,8 @@ class InterestCache():
         ],
     }
     dynamodb_insert_transaction = "INSERT INTO \"interest\" VALUE {'maturity': '?', 'date': '?', 'value': '?' }"
-    dynamodb_query= "SELECT date, value FROM \"interest\" WHERE maturity=? AND date<=? AND date>=? ORDER BY date DESC"
+    dynamodb_query = "SELECT date, value FROM \"interest\" WHERE maturity=? AND date<=? AND date>=? ORDER BY date DESC"
     dynamodb_identity_query = "EXISTS(SELECT maturity FROM \"interest\" WHERE maturity=? and date= ?)"
-
 
     @staticmethod
     def to_dict(query_results):
@@ -380,7 +379,7 @@ class CorrelationCache():
             {
                 'AttributeName': 'end_date',
                 'KeyType': 'RANGE'
-            }, 
+            },
             {
                 'AttributeName': 'method',
                 'KeyType': 'HASH'
@@ -394,7 +393,7 @@ class CorrelationCache():
     }
     # be careful with the dates here. order matters.
     dynamodb_insert_transaction = "INSERT INTO \"correlations\" VALUE {'ticker_1': '?', 'ticker_2': '?', 'end_date': '?', 'start_date': '?', 'correlation': '?', 'method': '?', 'weekends': '?' }"
-    dynamodb_query= "SELECT correlation FROM \"correlations\" WHERE ticker_1=? AND ticker_2=? AND start_date=? AND end_date=? AND method=? AND weekends=?"
+    dynamodb_query = "SELECT correlation FROM \"correlations\" WHERE ticker_1=? AND ticker_2=? AND start_date=? AND end_date=? AND method=? AND weekends=?"
     dynamodb_identity_query = "EXISTS(SELECT correlation FROM \"correlations\" WHERE ticker_1=? AND ticker_2=? AND start_date=? AND end_date=? AND method=? AND weekends=?)"
 
     @staticmethod
@@ -498,7 +497,7 @@ class ProfileCache(Cache):
 
     sqlite_filter = "ticker=:ticker AND start_date=date(:start_date) AND end_date=date(:end_date) AND :method=method AND weekends=:weekends"
     sqlite_identity_query = "SELECT id FROM profile WHERE ticker=:ticker AND start_date=:start_date AND end_date=:end_date AND method=:method AND weekends=:weekends"
-    
+
     # value_args = "(id, ticker, start_date, end_date, annual_return, annual_volatility, sharpe_ratio, asset_beta, equity_cost, method, weekends)"
 
     # sqlite_return_query = "(SELECT annual_return FROM profile WHERE {sqlite_filter})".format(
@@ -522,7 +521,7 @@ class ProfileCache(Cache):
     # sqlite_update_equity_tranasction = "INSERT or REPLACE INTO profile {value_args} VALUES ({identity_query}, :ticker, :start_date, :end_date, {sqlite_return_query}, {sqlite_vol_query}, {sqlite_sharpe_query}, {sqlite_beta_query}, :equity_cost, :method, :weekends)".format(
     #     identity_query=sqlite_identity_query, value_args=value_args, sqlite_return_query=sqlite_return_query, sqlite_vol_query=sqlite_vol_query, sqlite_sharpe_query=sqlite_sharpe_query, sqlite_beta_query=sqlite_beta_query)
 
-    sqlite_insert_transaction="INSERT INTO profile (ticker,start_date,end_date,method,weekends) VALUES(:ticker, :start_date, :end_date, :method, :weekends)"
+    sqlite_insert_transaction = "INSERT INTO profile (ticker,start_date,end_date,method,weekends) VALUES(:ticker, :start_date, :end_date, :method, :weekends)"
     sqlite_profile_query = "SELECT ifnull(annual_return, 'empty'), ifnull(annual_volatility, 'empty'), ifnull(sharpe_ratio, 'empty'), ifnull(asset_beta, 'empty'), ifnull(equity_cost, 'empty') FROM profile WHERE {sqlite_filter}".format(
         sqlite_filter=sqlite_filter)
 
@@ -558,8 +557,8 @@ class ProfileCache(Cache):
         ],
         'BillingMode': 'PAY_PER_REQUEST'
     }
-    dynamodb_insert_transaction = "INSERT INTO \"profile\" VALUE {'ticker': '?', 'end_date': '?', 'start_date': '?', 'correlation': '?', 'annual_return': '?', 'annual_volatility': '?', 'sharpe_ratio': '?', 'asset_beta': '?', 'equity_cost': '?', method': '?', 'weekends': '?' }"  
-    dynamodb_profile_query= "SELECT annual_return, annual_volatility,sharpe_ratio,asset_beta,equity_cost FROM \"correlations\" WHERE ticker_1=? AND ticker_2=? AND start_date=? AND end_date=? AND method=? AND weekends=?"
+    dynamodb_insert_transaction = "INSERT INTO \"profile\" VALUE {'ticker': '?', 'end_date': '?', 'start_date': '?', 'correlation': '?', 'annual_return': '?', 'annual_volatility': '?', 'sharpe_ratio': '?', 'asset_beta': '?', 'equity_cost': '?', method': '?', 'weekends': '?' }"
+    dynamodb_profile_query = "SELECT annual_return, annual_volatility,sharpe_ratio,asset_beta,equity_cost FROM \"correlations\" WHERE ticker_1=? AND ticker_2=? AND start_date=? AND end_date=? AND method=? AND weekends=?"
     dynamodb_identity_query = "EXISTS(SELECT * FROM \"profile\" WHERE ticker_1=? AND ticker_2=? AND start_date=? AND end_date=? AND method=? AND weekends=?)"
 
     @staticmethod
@@ -584,7 +583,7 @@ class ProfileCache(Cache):
         for param in params.keys():
             update_query += f'{param}=:{param}'
             if list(params.keys()).index(param) != len(params)-1:
-                update_query += ',' 
+                update_query += ','
         update_query += " WHERE ticker=:ticker AND start_date=:start_date AND end_date=:end_date AND method=:method AND weekends=:weekends"
         return update_query
 
@@ -620,7 +619,7 @@ class ProfileCache(Cache):
             return self.sqlite_profile_query
         elif settings.CACHE_MODE == 'dynamodb':
             return self.dynamodb_profile_query
-    
+
     def _identity(self):
         if settings.CACHE_MODE == 'sqlite':
             return self.sqlite_identity_query
@@ -633,7 +632,7 @@ class ProfileCache(Cache):
                      'end_date': end_date, 'method': method, 'weekends': weekends}
 
         # if identity query doesnt exist
-            # create record with id, ticker, start, end and rest of columns null
+        # create record with id, ticker, start, end and rest of columns null
         # determine which inputs are not None
         # use inputs to construct UPDATE SET query
 
@@ -641,7 +640,8 @@ class ProfileCache(Cache):
         print(identity)
 
         if len(identity) == 0:
-            Cache.execute_transaction(self.sqlite_insert_transaction, formatter)
+            Cache.execute_transaction(
+                self.sqlite_insert_transaction, formatter)
 
         if annual_return is not None:
             formatter['annual_return'] = annual_return
@@ -656,7 +656,7 @@ class ProfileCache(Cache):
         if len(formatter) > 0:
             formatter.update(formatter)
         Cache.execute_transaction(transaction=self._construct_update(formatter),
-                                    formatter=formatter)
+                                  formatter=formatter)
 
         # if annual_return is not None:
         #     logger.verbose(
