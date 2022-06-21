@@ -40,8 +40,9 @@ class Cache():
     """
 
     @staticmethod
-    def provision_table(table_configuration):
-        pass
+    def provision(table_configuration):
+        if settings.CACHE_MODE == 'dynamodb':
+            return aws.dynamo_table(table_configuration)
 
     @staticmethod
     def execute_transaction(transaction, formatter=None):
@@ -59,17 +60,19 @@ class Cache():
             con = sqlite3.connect(settings.CACHE_SQLITE_FILE)
             executor = con.cursor()
             if formatter is not None:
-                executor.execute(transaction, formatter)
+                response =executor.execute(transaction, formatter)
             else:
-                executor.execute(transaction)
+                response = executor.execute(transaction)
             con.commit()
             con.close()
         elif settings.CACHE_MODE == 'dynamodb':
-            pass
-            # TODO
+            response = aws.dynamo_client().execute_transaction(
+                TransactionStatements=aws.dynamo_statement_args(transaction, formatter)
+            )
         else:
             raise errors.ConfigurationError(
                 'CACHE_MODE has not been set in "settings.py"')
+        return response
 
     @staticmethod
     def execute_query(query, formatter=None):
@@ -165,7 +168,7 @@ class PriceCache():
         if settings.CACHE_MODE == 'sqlite':
             Cache.execute_transaction(self.sqlite_create_table_transaction)
         elif settings.CACHE_MODE == 'dynamodb':
-            Cache.provision_table(self.dynamodb_table_configuration)
+            Cache.provision(self.dynamodb_table_configuration)
 
     def _insert(self):
         if settings.CACHE_MODE == 'sqlite':
@@ -263,8 +266,8 @@ class InterestCache():
         if settings.CACHE_MODE == 'sqlite':
             Cache.execute_transaction(self.sqlite_create_table_transaction)
         elif settings.CACHE_MODE == 'dynamodb':
-            pass
-            # TODO
+            Cache.provision(self.dynamodb_table_configuration)
+
 
     def _insert(self):
         if settings.CACHE_MODE == 'sqlite':
@@ -383,8 +386,8 @@ class CorrelationCache():
         if settings.CACHE_MODE == 'sqlite':
             Cache.execute_transaction(self.sqlite_create_table_transaction)
         elif settings.CACHE_MODE == 'dynamodb':
-            pass
-            # TODO
+            Cache.provision(self.dynamodb_table_configuration)
+
 
     def _insert(self):
         if settings.CACHE_MODE == 'sqlite':
@@ -549,8 +552,8 @@ class ProfileCache(Cache):
         if settings.CACHE_MODE == 'sqlite':
             Cache.execute_transaction(self.sqlite_create_table_transaction)
         elif settings.CACHE_MODE == 'dynamodb':
-            pass
-            # TODO
+            Cache.provision(self.dynamodb_table_configuration)
+
 
     def _update(self, query_type):
         if settings.CACHE_MODE == 'sqlite':
