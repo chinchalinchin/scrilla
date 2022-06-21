@@ -30,7 +30,8 @@ def _dynamo_params(document: dict):
 
 
 def specify_dynamo_table_conf(table_configuration):
-    return table_configuration.update(settings.DYNAMO_CONF)
+    table_configuration.update(settings.DYNAMO_CONF)
+    return table_configuration
 
 
 def dynamo_statement_args(statement, params=None):

@@ -1,14 +1,41 @@
-import pytest
 import os
-from moto import mock_dynamodb
+from numpy import single
+os.environ['CACHE_MODE'] = 'dynamodb'
 
-from scrilla.cloud import aws
+import pytest
+from moto import mock_dynamodb
 from botocore.exceptions import ClientError, ParamValidationError
 
-@pytest.fixture(autouse=True)
-def cache_env():
-    os.environ.setdefault('CACHE_MODE', 'dynamodb')
-    
+
+from scrilla import settings
+from scrilla.cloud import aws
+
+@pytest.fixture()
+def singleton_table_conf():
+    return {
+        'AttributeDefinitions': [
+            {
+                'AttributeName': 'ticker',
+                'AttributeType': 'S'
+            },
+            {
+                'AttributeName': 'date',
+                'AttributeType': 'S'
+            }
+        ],
+        'TableName': 'prices',
+        'KeySchema': [
+            {
+                'AttributeName': 'ticker',
+                'KeyType': 'HASH'
+            },
+            {
+                'AttributeName': 'date',
+                'KeyType': 'RANGE'
+            }
+        ],
+    }
+
 @pytest.mark.parametrize('params,expected',[
     (
         {
@@ -42,38 +69,15 @@ def cache_env():
 def test__dynamo_params(params, expected):
     assert aws._dynamo_params(params) == expected
 
-def test_specify_dynamo_configuration(table_conf, expected):
-    pass
 
-@pytest.mark.parametrize('table_conf',[
-    {
-        'AttributeDefinitions': [
-            {
-                'AttributeName': 'ticker',
-                'AttributeType': 'S'
-            },
-            {
-                'AttributeName': 'date',
-                'AttributeType': 'S'
-            }
-        ],
-        'TableName': 'prices',
-        'KeySchema': [
-            {
-                'AttributeName': 'ticker',
-                'KeyType': 'HASH'
-            },
-            {
-                'AttributeName': 'date',
-                'KeyType': 'RANGE'
-            }
-        ],
-        'BillingMode': 'PAY_PER_REQUEST'
-    }
-])
+def test_specify_dynamo_configuration(singleton_table_conf):
+    assert aws.specify_dynamo_table_conf(singleton_table_conf)['BillingMode'] == settings.DYNAMO_CONF['BillingMode']
+
+
 @mock_dynamodb
-def test_dynamo_table(table_conf):
-    response = aws.dynamo_table(table_conf)
+def test_dynamo_table(singleton_table_conf):
+    singleton_table_conf = table_conf = aws.specify_dynamo_table_conf(singleton_table_conf)
+    response = aws.dynamo_table(singleton_table_conf)
     assert response is not None
     assert isinstance(response, dict)
     assert response.get('TableDescription', None) is not None
