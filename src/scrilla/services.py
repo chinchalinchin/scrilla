@@ -34,9 +34,9 @@ import defusedxml.ElementTree as ET
 
 from datetime import date
 
-from scrilla import settings, errors, cache
+from scrilla import settings, cache
 from scrilla.static import keys, constants
-from scrilla.util import outputter, helper, dater
+from scrilla.util import errors, outputter, helper, dater
 
 logger = outputter.Logger("scrilla.services", settings.LOG_LEVEL)
 
@@ -773,7 +773,6 @@ def get_daily_interest_history(maturity: str, start_date: Union[date, None] = No
     start_date, end_date = errors.validate_dates(
         start_date=start_date, end_date=end_date, asset_type=keys.keys['ASSETS']['EQUITY'])
 
-    rates = None
     rates = interest_cache.filter_interest_cache(
         maturity, start_date=start_date, end_date=end_date)
 

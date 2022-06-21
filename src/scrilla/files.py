@@ -25,7 +25,7 @@ import zipfile
 from typing import Any, Dict
 import requests
 
-from scrilla import settings
+from scrilla import settings, services
 from scrilla.static import keys, constants, formats
 from scrilla.util import outputter, helper
 
@@ -169,8 +169,8 @@ def init_static_data():
                                                            firstRowHeader=service_map['KEYS']['CRYPTO']['HEADER'])
 
         # grab econominc indicator symbols and store in STATIC_DIR
-        if not os.path.isfile(settings.STATIC_ECON_FILE):
-            if settings.STAT_MANAGER == "quandl":
+        if settings.STAT_MANAGER == "quandl":
+            if not os.path.isfile(settings.STATIC_ECON_FILE):
                 service_map = keys.keys["SERVICES"]["STATISTICS"]["QUANDL"]["MAP"]
 
                 logger.debug(
@@ -182,9 +182,12 @@ def init_static_data():
                                                              firstRowHeader=service_map["KEYS"]["HEADER"],
                                                              zipped=service_map["KEYS"]["ZIPFILE"])
 
-            elif settings.STAT_MANAGER == "treasury":
-                # TODO: initialize interest rate data???
-                pass
+        elif settings.STAT_MANAGER == "treasury":
+            # TODO: initialize interest rate data??? yes, even if it will quickly fall out of date.
+            # scrapping the XML feed into the Cache is massively inefficient and takes too long when doing its 
+            # in the middle of the program. better to do it here.
+            # I don't like import services here...should think of another way to do this...
+            services.get_daily_interest_latest(settings.RISK_FREE_RATE)
 
     else:
         logger.debug('Static data already initialized!')

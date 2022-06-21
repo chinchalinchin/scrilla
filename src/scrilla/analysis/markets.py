@@ -18,10 +18,11 @@ A module of functions that calculate financial statistics.
 import datetime
 from typing import Dict, Union
 from datetime import date
-from scrilla import settings, services, files, cache, errors
+from scrilla import settings, services, files, cache
 from scrilla.static import keys
 from scrilla.analysis.objects.cashflow import Cashflow
 import scrilla.analysis.models.geometric.statistics as statistics
+from scrilla.util import errors
 import scrilla.util.outputter as outputter
 
 logger = outputter.Logger('scrilla.analysis.markets', settings.LOG_LEVEL)

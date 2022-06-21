@@ -2,7 +2,7 @@ import pytest
 from httmock import HTTMock
 
 from scrilla import settings as scrilla_settings
-from scrilla.errors import SampleSizeError
+from scrilla.util.errors import SampleSizeError
 from scrilla.util import dater
 from scrilla.analysis.models.geometric import statistics
 from scrilla.analysis.estimators import standardize

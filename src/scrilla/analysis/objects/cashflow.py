@@ -15,9 +15,9 @@
 
 import datetime
 
-from scrilla import services, settings, errors
+from scrilla import services, settings
 from scrilla.static import constants
-from scrilla.util import dater, outputter
+from scrilla.util import dater, errors, outputter
 import scrilla.analysis.estimators as estimators
 
 logger = outputter.Logger(

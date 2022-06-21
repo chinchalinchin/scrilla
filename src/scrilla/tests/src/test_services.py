@@ -1,7 +1,7 @@
 import pytest
 
 from scrilla import services
-from scrilla.errors import validate_dates
+from scrilla.util.errors import validate_dates
 from scrilla.util import dater
 from scrilla.static.keys import keys
 

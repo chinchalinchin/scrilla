@@ -12,7 +12,7 @@ from scrilla import settings
 from scrilla.static import formats, keys
 from scrilla.analysis.objects.portfolio import Portfolio
 from scrilla.analysis.objects.cashflow import Cashflow
-from scrilla.errors import InputValidationError
+from scrilla.util.errors import InputValidationError
 from scrilla.util import dater
 
 if settings.APP_ENV == 'local':

@@ -24,11 +24,13 @@ from numpy import inf
 from math import log, sqrt, exp
 from scipy.stats import norm, multivariate_normal
 
+from scrilla.util import errors
+
 if __name__ == "__main__":
     APP_DIR = path.dirname(path.dirname(path.abspath(__file__)))
     sys_path.append(APP_DIR)
 
-from scrilla import settings, errors, cache
+from scrilla import settings, cache
 from scrilla.static.constants import constants
 import scrilla.util.outputter as outputter
 

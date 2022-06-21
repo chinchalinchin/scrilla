@@ -27,9 +27,9 @@ elif settings.CACHE_MODE == 'dynamodb':
 
 import datetime
 from typing import Union
-from scrilla import errors, settings
+from scrilla import settings
 from scrilla.static import keys
-from scrilla.util import outputter
+from scrilla.util import errors, outputter
 
 logger = outputter.Logger("scrilla.cache", settings.LOG_LEVEL)
 

@@ -13,10 +13,10 @@
 # along with scrilla.  If not, see <https://www.gnu.org/licenses/>
 # or <https://github.com/chinchalinchin/scrilla/blob/develop/main/LICENSE>.
 
-from scrilla.util import outputter, helper, dater
+from scrilla.util import errors, outputter, helper, dater
 from scrilla.analysis import estimators
 from scrilla.static import keys, functions, constants
-from scrilla import services, files, settings, errors, cache
+from scrilla import services, files, settings, cache
 from numpy import inf
 from datetime import date
 from itertools import groupby

@@ -358,15 +358,13 @@ class Logger():
         self.log_level = log_level
 
     # LOGGING FUNCTIONS
-    def comment(self, msg):
+    def comment(self, msg, level = "INFO"):
         now = datetime.datetime.now()
         dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
-        print(dt_string, ' :', self.location, ' : ', msg)
+        print(dt_string, ' : ', level, ':', self.location, ' : ', msg)
 
     def error(self, msg):
-        now = datetime.datetime.now()
-        dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
-        print('>> ', dt_string, ' :', self.location, ' : ', msg)
+        self.comment(msg, 'ERROR')
 
     def info(self, msg):
         if self.log_level in [constants.constants['LOG_LEVEL']['INFO'],

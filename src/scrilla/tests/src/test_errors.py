@@ -1,6 +1,6 @@
 import pytest
 
-from scrilla import errors
+from scrilla.util import errors
 from scrilla.util import dater
 from scrilla.static.keys import keys
 

@@ -24,9 +24,9 @@ from typing import Callable, Dict, List, Union
 #       and it removes a big dependency from the package...
 from numpy import dot, multiply, transpose
 
-from scrilla import settings, errors
+from scrilla import settings
 from scrilla.static import keys
-from scrilla.util import outputter
+from scrilla.util import errors, outputter
 # TODO: conditional import module based on analysis_mode, i.e. geometric versus mean reverting.
 from scrilla.analysis.models.geometric.statistics import calculate_risk_return, correlation_matrix
 from scrilla.analysis.models.geometric.probability import percentile, conditional_expected_value

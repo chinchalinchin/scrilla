@@ -3,7 +3,7 @@ import math
 import random
 
 from scrilla.analysis import estimators
-from scrilla.errors import SampleSizeError
+from scrilla.util.errors import SampleSizeError
 
 from .. import mock
 from .. import settings
