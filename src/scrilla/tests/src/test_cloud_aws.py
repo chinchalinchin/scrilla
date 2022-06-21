@@ -1,9 +1,14 @@
 import pytest
+import os
 from moto import mock_dynamodb
 
 from scrilla.cloud import aws
 from botocore.exceptions import ClientError, ParamValidationError
 
+@pytest.fixture(autouse=True)
+def cache_env():
+    os.environ.setdefault('CACHE_MODE', 'dynamodb')
+    
 @pytest.mark.parametrize('params,expected',[
     (
         {
@@ -34,8 +39,11 @@ from botocore.exceptions import ClientError, ParamValidationError
         None
     )
 ])
-def test_param_dict_to_dynamo_params(params, expected):
-    assert aws.param_dict_to_dynamo_params(params) == expected
+def test__dynamo_params(params, expected):
+    assert aws._dynamo_params(params) == expected
+
+def test_specify_dynamo_configuration(table_conf, expected):
+    pass
 
 @pytest.mark.parametrize('table_conf',[
     {

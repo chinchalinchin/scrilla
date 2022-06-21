@@ -27,7 +27,7 @@ elif settings.CACHE_MODE == 'dynamodb':
 
 import datetime
 from typing import Union
-from scrilla import errors
+from scrilla import errors, settings
 from scrilla.static import keys
 from scrilla.util import outputter
 
@@ -99,8 +99,9 @@ class Cache():
                 return executor.execute(query, formatter).fetchall()
             return executor.execute(query).fetchall()
         elif settings.CACHE_MODE == 'dynamodb':
-            pass
-            # TODO
+            return aws.dynamo_client().execute_statement(
+                TransactionStatements=aws.dynamo_statement_args(query, formatter)
+            )
         else:
             raise errors.ConfigurationError(
                 'CACHE_MODE has not been set in "settings.py"')
@@ -145,7 +146,6 @@ class PriceCache():
                 'KeyType': 'RANGE'
             }
         ],
-        'BillingMode': 'PAY_PER_REQUEST'
     }
 
     @staticmethod
@@ -168,6 +168,8 @@ class PriceCache():
         if settings.CACHE_MODE == 'sqlite':
             Cache.execute_transaction(self.sqlite_create_table_transaction)
         elif settings.CACHE_MODE == 'dynamodb':
+            self.dynamodb_table_configuration = aws.specify_dynamo_table_conf(
+                                                    self.dynamodb_table_configuration)
             Cache.provision(self.dynamodb_table_configuration)
 
     def _insert(self):
@@ -244,7 +246,6 @@ class InterestCache():
                 'KeyType': 'RANGE'
             }
         ],
-        'BillingMode': 'PAY_PER_REQUEST'
     }
 
     @staticmethod
@@ -266,6 +267,8 @@ class InterestCache():
         if settings.CACHE_MODE == 'sqlite':
             Cache.execute_transaction(self.sqlite_create_table_transaction)
         elif settings.CACHE_MODE == 'dynamodb':
+            self.dynamodb_table_configuration = aws.specify_dynamo_table_conf(
+                                                    self.dynamodb_table_configuration)
             Cache.provision(self.dynamodb_table_configuration)
 
 
@@ -386,6 +389,8 @@ class CorrelationCache():
         if settings.CACHE_MODE == 'sqlite':
             Cache.execute_transaction(self.sqlite_create_table_transaction)
         elif settings.CACHE_MODE == 'dynamodb':
+            self.dynamodb_table_configuration = aws.specify_dynamo_table_conf(
+                                                    self.dynamodb_table_configuration)
             Cache.provision(self.dynamodb_table_configuration)
 
 
@@ -552,6 +557,8 @@ class ProfileCache(Cache):
         if settings.CACHE_MODE == 'sqlite':
             Cache.execute_transaction(self.sqlite_create_table_transaction)
         elif settings.CACHE_MODE == 'dynamodb':
+            self.dynamodb_table_configuration = aws.specify_dynamo_table_conf(
+                                                    self.dynamodb_table_configuration)
             Cache.provision(self.dynamodb_table_configuration)
 
 

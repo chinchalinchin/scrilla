@@ -27,15 +27,18 @@ def _dynamo_params(document: dict):
             dynamo_json.append( { 'NULL': True })
     return dynamo_json
 
+def specify_dynamo_table_conf(table_configuration):
+    return table_configuration.update(settings.DYNAMO_CONF)
+
 def dynamo_statement_args(statement, params = None):
     if params is None:
-        return [{
+        return {
             'Statement': statement
-        }]
-    return [{
+        }
+    return {
         'Statement': statement,
         'Params': _dynamo_params(params)
-    }]
+    }
 
 def dynamo_client():
     return boto3.client('dynamodb')
