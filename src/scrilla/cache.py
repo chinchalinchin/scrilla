@@ -253,9 +253,8 @@ class InterestCache():
         ],
     }
     dynamodb_insert_transaction = "INSERT INTO \"interest\" VALUE {'maturity': '?', 'date': '?', 'value': '?' }"
-    dynamodb_query= "SELECT date, value FROM \"interest\" WHERE maturity=? AND date<=? AND date>=? ORDER BY date DESC"
+    dynamodb_query = "SELECT date, value FROM \"interest\" WHERE maturity=? AND date<=? AND date>=? ORDER BY date DESC"
     dynamodb_identity_query = "EXISTS(SELECT maturity FROM \"interest\" WHERE maturity=? and date= ?)"
-
 
     @staticmethod
     def to_dict(query_results):
@@ -380,7 +379,7 @@ class CorrelationCache():
             {
                 'AttributeName': 'end_date',
                 'KeyType': 'RANGE'
-            }, 
+            },
             {
                 'AttributeName': 'method',
                 'KeyType': 'HASH'
@@ -394,7 +393,7 @@ class CorrelationCache():
     }
     # be careful with the dates here. order matters.
     dynamodb_insert_transaction = "INSERT INTO \"correlations\" VALUE {'ticker_1': '?', 'ticker_2': '?', 'end_date': '?', 'start_date': '?', 'correlation': '?', 'method': '?', 'weekends': '?' }"
-    dynamodb_query= "SELECT correlation FROM \"correlations\" WHERE ticker_1=? AND ticker_2=? AND start_date=? AND end_date=? AND method=? AND weekends=?"
+    dynamodb_query = "SELECT correlation FROM \"correlations\" WHERE ticker_1=? AND ticker_2=? AND start_date=? AND end_date=? AND method=? AND weekends=?"
     dynamodb_identity_query = "EXISTS(SELECT correlation FROM \"correlations\" WHERE ticker_1=? AND ticker_2=? AND start_date=? AND end_date=? AND method=? AND weekends=?)"
 
     @staticmethod
@@ -558,7 +557,7 @@ class ProfileCache(Cache):
         for param in params.keys():
             update_query += f'{param}=:{param}'
             if list(params.keys()).index(param) != len(params)-1:
-                update_query += ',' 
+                update_query += ','
         update_query += " WHERE ticker=:ticker AND start_date=:start_date AND end_date=:end_date AND method=:method AND weekends=:weekends"
         return update_query
 
@@ -589,7 +588,7 @@ class ProfileCache(Cache):
             return self.sqlite_profile_query
         elif settings.CACHE_MODE == 'dynamodb':
             return self.dynamodb_profile_query
-    
+
     def _identity(self):
         if settings.CACHE_MODE == 'sqlite':
             return self.sqlite_identity_query
