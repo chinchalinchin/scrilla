@@ -2,6 +2,7 @@ import pytest
 from moto import mock_dynamodb
 
 from scrilla.cloud import aws
+from botocore.exceptions import ClientError, ParamValidationError
 
 @pytest.mark.parametrize('table_conf',[
     {
@@ -43,5 +44,22 @@ def test_dynamo_table(table_conf):
     assert response['ResponseMetadata'].get('HTTPStatusCode', None) is not None
     assert response['ResponseMetadata']['HTTPStatusCode'] == 200 
 
-def test_dynamo_table_exceptions():
-    pass
+@pytest.mark.parametrize('table_conf',[
+    {
+        'AttributeDefinitions': [
+            {
+                'AttributeName': 'ticker',
+                'AttributeType': 'S'
+            },
+            {
+                'AttributeName': 'date',
+                'AttributeType': 'S'
+            }
+        ],
+    }
+])
+@mock_dynamodb
+def test_dynamo_table_exceptions(table_conf):
+    with pytest.raises(Exception) as e:
+        aws.dynamo_table(table_conf)
+    assert e.errisinstance(ParamValidationError)
