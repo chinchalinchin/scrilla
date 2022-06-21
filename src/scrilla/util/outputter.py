@@ -370,13 +370,13 @@ class Logger():
         if self.log_level in [constants.constants['LOG_LEVEL']['INFO'],
                               constants.constants['LOG_LEVEL']['DEBUG'],
                               constants.constants['LOG_LEVEL']['VERBOSE']]:
-            self.comment(msg)
+            self.comment(msg, 'INFO')
 
     def debug(self, msg):
         if self.log_level in [constants.constants['LOG_LEVEL']['DEBUG'],
                               constants.constants['LOG_LEVEL']['VERBOSE']]:
-            self.comment(msg)
+            self.comment(msg, 'DEBUG')
 
     def verbose(self, msg):
         if self.log_level == constants.constants['LOG_LEVEL']['VERBOSE']:
-            self.comment(msg)
+            self.comment(msg, 'VERBOSE')

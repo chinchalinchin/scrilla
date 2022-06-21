@@ -133,56 +133,49 @@ def init_static_data():
     global static_econ_blob
     global static_crypto_blob
 
-    if ((not os.path.isfile(settings.STATIC_ECON_FILE)) or
-            (not os.path.isfile(settings.STATIC_TICKERS_FILE)) or
-            (not os.path.isfile(settings.STATIC_CRYPTO_FILE))):
+    # grab ticker symbols and store in STATIC_DIR
+    if (
+        settings.PRICE_MANAGER == "alpha_vantage" and
+        not os.path.isfile(settings.STATIC_TICKERS_FILE) 
+    ):
+        service_map = keys.keys["SERVICES"]["PRICES"]["ALPHA_VANTAGE"]["MAP"]
+        logger.debug(
+            f'Missing {settings.STATIC_TICKERS_FILE}, querying \'{settings.PRICE_MANAGER}\'')
 
-        logger.info(
-            'Initializing static data. Please wait. This may take a moment...')
+        # TODO: services calls should be in services.py! need to put this and the helper method
+        #       into services.py in the future.
+        query = f'{service_map["PARAMS"]["FUNCTION"]}={service_map["ARGUMENTS"]["EQUITY_LISTING"]}'
+        url = f'{settings.AV_URL}?{query}&{service_map["PARAMS"]["KEY"]}={settings.av_key()}'
+        static_tickers_blob = parse_csv_response_column(column=0, url=url, savefile=settings.STATIC_TICKERS_FILE,
+                                                        firstRowHeader=service_map['KEYS']['EQUITY']['HEADER'])
 
-        # grab ticker symbols and store in STATIC_DIR
-        if (
-            not os.path.isfile(settings.STATIC_TICKERS_FILE)
-            and settings.PRICE_MANAGER == "alpha_vantage"
-        ):
-            service_map = keys.keys["SERVICES"]["PRICES"]["ALPHA_VANTAGE"]["MAP"]
+    # grab crypto symbols and store in STATIC_DIR
+    if (
+        settings.PRICE_MANAGER == "alpha_vantage" and
+        not os.path.isfile(settings.STATIC_CRYPTO_FILE)
+    ):
+        service_map = keys.keys["SERVICES"]["PRICES"]["ALPHA_VANTAGE"]["MAP"]
+        logger.debug(
+            f'Missing {settings.STATIC_CRYPTO_FILE}, querying \'{settings.PRICE_MANAGER}\'.')
+        url = settings.AV_CRYPTO_LIST
+        static_crypto_blob = parse_csv_response_column(column=0, url=url, savefile=settings.STATIC_CRYPTO_FILE,
+                                                        firstRowHeader=service_map['KEYS']['CRYPTO']['HEADER'])
+
+    # grab econominc indicator symbols and store in STATIC_DIR
+    if (
+        settings.STAT_MANAGER == "quandl" and
+        not os.path.isfile(settings.STATIC_ECON_FILE)
+    ):
+            service_map = keys.keys["SERVICES"]["STATISTICS"]["QUANDL"]["MAP"]
+
             logger.debug(
-                f'Missing {settings.STATIC_TICKERS_FILE}, querying \'{settings.PRICE_MANAGER}\'')
+                f'Missing {settings.STATIC_ECON_FILE}, querying \'{settings.STAT_MANAGER}\'.')
 
-            # TODO: services calls should be in services.py! need to put this and the helper method
-            #       into services.py in the future.
-            query = f'{service_map["PARAMS"]["FUNCTION"]}={service_map["ARGUMENTS"]["EQUITY_LISTING"]}'
-            url = f'{settings.AV_URL}?{query}&{service_map["PARAMS"]["KEY"]}={settings.av_key()}'
-            static_tickers_blob = parse_csv_response_column(column=0, url=url, savefile=settings.STATIC_TICKERS_FILE,
-                                                            firstRowHeader=service_map['KEYS']['EQUITY']['HEADER'])
-
-        # grab crypto symbols and store in STATIC_DIR
-        if (
-            not os.path.isfile(settings.STATIC_CRYPTO_FILE)
-            and settings.PRICE_MANAGER == "alpha_vantage"
-        ):
-            service_map = keys.keys["SERVICES"]["PRICES"]["ALPHA_VANTAGE"]["MAP"]
-            logger.debug(
-                f'Missing {settings.STATIC_CRYPTO_FILE}, querying \'{settings.PRICE_MANAGER}\'.')
-            url = settings.AV_CRYPTO_LIST
-            static_crypto_blob = parse_csv_response_column(column=0, url=url, savefile=settings.STATIC_CRYPTO_FILE,
-                                                           firstRowHeader=service_map['KEYS']['CRYPTO']['HEADER'])
-
-        # grab econominc indicator symbols and store in STATIC_DIR
-        if (
-            not os.path.isfile(settings.STATIC_ECON_FILE) and
-            settings.STAT_MANAGER == "quandl"
-        ):
-                service_map = keys.keys["SERVICES"]["STATISTICS"]["QUANDL"]["MAP"]
-
-                logger.debug(
-                    f'Missing {settings.STATIC_ECON_FILE}, querying \'{settings.STAT_MANAGER}\'.')
-
-                query = f'{service_map["PATHS"]["FRED"]}/{service_map["PARAMS"]["METADATA"]}'
-                url = f'{settings.Q_META_URL}/{query}?{service_map["PARAMS"]["KEY"]}={settings.Q_KEY}'
-                static_econ_blob = parse_csv_response_column(column=0, url=url, savefile=settings.STATIC_ECON_FILE,
-                                                             firstRowHeader=service_map["KEYS"]["HEADER"],
-                                                             zipped=service_map["KEYS"]["ZIPFILE"])
+            query = f'{service_map["PATHS"]["FRED"]}/{service_map["PARAMS"]["METADATA"]}'
+            url = f'{settings.Q_META_URL}/{query}?{service_map["PARAMS"]["KEY"]}={settings.Q_KEY}'
+            static_econ_blob = parse_csv_response_column(column=0, url=url, savefile=settings.STATIC_ECON_FILE,
+                                                            firstRowHeader=service_map["KEYS"]["HEADER"],
+                                                            zipped=service_map["KEYS"]["ZIPFILE"])
 
     if settings.STAT_MANAGER == "treasury":
         # TODO: initialize interest rate data??? yes, even if it will quickly fall out of date.
