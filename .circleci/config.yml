@@ -101,6 +101,7 @@ commands:
           name: unit tests
           environment:
             APP_ENV: container
+            AWS_DEFAULT_REGION: us-east-1
           command: |
             export LOG_LEVEL=none
             ./scripts/tests

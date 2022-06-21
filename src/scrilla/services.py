@@ -651,7 +651,7 @@ def get_daily_price_history(ticker: str, start_date: Union[None, date] = None, e
         ticker=ticker, start_date=start_date, end_date=end_date, asset_type=asset_type)
 
     if cached_prices is not None:
-        new_prices = helper.complement_dict_keys(prices, cached_prices)
+        new_prices = helper.complement_dict_keys(prices, cached_prices)[0]
     else:
         new_prices = prices
 
