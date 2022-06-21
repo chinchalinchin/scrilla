@@ -531,8 +531,8 @@ class ProfileCache(Cache):
         ],
         'BillingMode': 'PAY_PER_REQUEST'
     }
-    dynamodb_insert_transaction = "INSERT INTO \"profile\" VALUE {'ticker': '?', 'end_date': '?', 'start_date': '?', 'correlation': '?', 'annual_return': '?', 'annual_volatility': '?', 'sharpe_ratio': '?', 'asset_beta': '?', 'equity_cost': '?', method': '?', 'weekends': '?' }"  
-    dynamodb_profile_query= "SELECT annual_return,annual_volatility,sharpe_ratio,asset_beta,equity_cost FROM \"correlations\" WHERE ticker_1=? AND ticker_2=? AND start_date=? AND end_date=? AND method=? AND weekends=?"
+    dynamodb_insert_transaction = "INSERT INTO \"profile\" VALUE {'ticker': '?', 'end_date': '?', 'start_date': '?', 'correlation': '?', 'annual_return': '?', 'annual_volatility': '?', 'sharpe_ratio': '?', 'asset_beta': '?', 'equity_cost': '?', method': '?', 'weekends': '?' }"
+    dynamodb_profile_query = "SELECT annual_return,annual_volatility,sharpe_ratio,asset_beta,equity_cost FROM \"correlations\" WHERE ticker_1=? AND ticker_2=? AND start_date=? AND end_date=? AND method=? AND weekends=?"
     dynamodb_identity_query = "EXISTS(SELECT * FROM \"profile\" WHERE ticker_1=? AND ticker_2=? AND start_date=? AND end_date=? AND method=? AND weekends=?)"
 
     @staticmethod
@@ -616,11 +616,11 @@ class ProfileCache(Cache):
             formatter.update(formatter)
 
         if len(identity) == 0:
-            Cache.execute_transaction(self._construct_insert(formatter), 
-                                        formatter)
+            Cache.execute_transaction(self._construct_insert(formatter),
+                                      formatter)
         else:
             Cache.execute_transaction(self._construct_update(formatter),
-                                        formatter)
+                                      formatter)
 
     def filter_profile_cache(self, ticker: str, start_date: datetime.date, end_date: datetime.date, weekends: int = 0, method=settings.ESTIMATION_METHOD):
         logger.debug(
