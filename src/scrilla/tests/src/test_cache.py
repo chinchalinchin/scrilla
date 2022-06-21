@@ -78,5 +78,17 @@ def test_past_interest(maturity, date, yield_rate, interest_cache):
         "UPDATE TABLE profile SET a=:a,b=:b WHERE ticker=:ticker AND start_date=:start_date AND end_date=:end_date AND method=:method AND weekends=:weekends"
     )
 ])
-def test_profile_cache_update_query(params, expected):
+def test_profile_cache_construct_update_query(params, expected):
     assert ProfileCache._construct_update(params) == expected
+
+@pytest.mark.parametrize('params,expected',[
+    (
+        {
+            'a': 1,
+            'b': 2
+        },
+        "INSERT INTO profile (ticker,start_date,end_date,a,b,method,weekends) VALUES (:ticker,:start_date,:end_date,:a,:b,:method,:weekends)"
+    )
+])
+def test_profile_cache_construct_insert_query(params, expected):
+    pass
