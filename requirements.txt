@@ -5,13 +5,14 @@ twine>=3.4.2
 
 # Dev Dependencies
 pdoc3>=0.10.0
-sphinx==4.3.0
-myst-parser==0.15.2
-pytest==6.2.5
-coverage==6.1.2
-httmock==1.4.0
+sphinx>=4.3.0
+myst-parser>=0.15.2
+pytest>=6.2.5
+coverage>=6.1.2
+httmock>=1.4.0
 
 # Application Dependencies
+boto3>=1.24.13
 numpy>=1.19.3
 scipy>=1.7.1
 matplotlib>=3.3.3
@@ -21,4 +22,4 @@ python-dateutil>=2.8.2
 defusedxml>=0.7.1
 
 # GUI Dependencies
-PySide6==6.2.0
+PySide6>=6.2.0
