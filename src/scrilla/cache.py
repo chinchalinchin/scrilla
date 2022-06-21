@@ -141,7 +141,8 @@ class PriceCache():
                 'AttributeName': 'date',
                 'KeyType': 'RANGE'
             }
-        ]
+        ],
+        'BillingMode': 'PAY_PER_REQUEST'
     }
 
     @staticmethod
@@ -239,7 +240,8 @@ class InterestCache():
                 'AttributeName': 'date',
                 'KeyType': 'RANGE'
             }
-        ]
+        ],
+        'BillingMode': 'PAY_PER_REQUEST'
     }
 
     @staticmethod
@@ -358,7 +360,8 @@ class CorrelationCache():
                 'AttributeName': 'end_date',
                 'KeyType': 'RANGE'
             }
-        ]
+        ],
+        'BillingMode': 'PAY_PER_REQUEST'
     }
 
     @staticmethod
@@ -519,7 +522,8 @@ class ProfileCache(Cache):
                 'AttributeName': 'end_date',
                 'KeyType': 'RANGE'
             }
-        ]
+        ],
+        'BillingMode': 'PAY_PER_REQUEST'
     }
 
     @staticmethod

@@ -1,5 +1,5 @@
 import datetime
-from typing import Dict, List, Tuple, Union
+from typing import Dict, List, Union
 
 from scrilla.static import constants, formats, definitions
 
@@ -362,6 +362,11 @@ class Logger():
         now = datetime.datetime.now()
         dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
         print(dt_string, ' :', self.location, ' : ', msg)
+
+    def error(self, msg):
+        now = datetime.datetime.now()
+        dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
+        print('>> ', dt_string, ' :', self.location, ' : ', msg)
 
     def info(self, msg):
         if self.log_level in [constants.constants['LOG_LEVEL']['INFO'],
