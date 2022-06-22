@@ -247,7 +247,7 @@ class Cashflow:
         if self.discount_rate < 0:
             raise errors.ModelError(
                 f'Model assumptions violated: Cannot a future value with a discount rate of {self.discount_rate}')
-                
+
         if self.period is None:
             raise errors.InputValidationError(
                 "No period detected for cashflows. Not enough information to calculate net present value.")
