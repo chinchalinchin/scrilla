@@ -233,7 +233,8 @@ class Cashflow:
     # TODO: use trading days or actual days?
     def calculate_net_present_value(self):
         if self.discount_rate < 0:
-            raise errors.ModelError(f'Model assumptions violated: Cannot a future value with a discount rate of {self.discount_rate}')
+            raise errors.ModelError(
+                f'Model assumptions violated: Cannot a future value with a discount rate of {self.discount_rate}')
         """
         Returns the net present value of the cash flow by using the `get_growth_function` method to project future cash flows and then discounting those projections back to the present by the value of the `discount_rate`. Call this method after constructing/initializing a `Cashflow` object to retrieve its NPV.
 
