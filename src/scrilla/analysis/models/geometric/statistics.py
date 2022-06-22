@@ -953,7 +953,8 @@ def _calculate_percentile_correlation(ticker_1: str, ticker_2: str, asset_type_1
         sample_prices = {}
         logger.debug(
             f'No sample prices provided or cached ({ticker_1}, {ticker_2}) correlation found.', '_calculate_percentile_correlation')
-        logger.debug('Retrieving price histories for calculation.', '_calculate_percentile_calculation')
+        logger.debug('Retrieving price histories for calculation.',
+                     '_calculate_percentile_calculation')
         sample_prices[ticker_1] = services.get_daily_price_history(ticker=ticker_1, start_date=start_date,
                                                                    end_date=end_date, asset_type=asset_type_1)
         sample_prices[ticker_2] = services.get_daily_price_history(ticker=ticker_2, start_date=start_date,

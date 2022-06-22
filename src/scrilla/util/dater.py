@@ -361,6 +361,7 @@ def get_previous_business_date(this_date: Union[date, str], bond: bool = False) 
         this_date -= datetime.timedelta(days=1)
     return this_date
 
+
 def get_time_to_next_month(todays_date: date = today(), trading_days: int = 252) -> float:
     """
     Returns the time (measured in years) from `todays_date` to first of the next month.
