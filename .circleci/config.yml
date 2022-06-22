@@ -5,14 +5,18 @@ commands:
     description: install python dependencies
     steps:
       - restore_cache:  # ensure this step occurs *before* installing dependencies
-          key: python-deps-v2-{{ checksum "requirements.txt"}}
+          key: python-deps-v3-{{ checksum "requirements.txt"}}
       - run:
           name: python dependencies
-          command: pip3 install -r requirements.txt
+          command: |
+            python3 -m venv ./venv/
+            ./venv/bin/activate
+            pip3 install -r requirements.txt
       - save_cache:
-          key: python-deps-v2-{{ checksum "requirements.txt"}}
+          key: python-deps-v3-{{ checksum "requirements.txt"}}
           paths:
             - ".venv"
+            - "./venv/"
             - "/usr/local/lib/python3.9/site-packages"
 
   build_wheel:

@@ -22,3 +22,4 @@
 coverage.xml
 /bin/*
 /tests/reports
+/venv/
