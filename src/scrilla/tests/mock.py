@@ -129,8 +129,6 @@ service_price_cases = [
 
 @urlmatch(netloc=r'(.*\.)?alphavantage\.co*$')
 def mock_prices(url, request):
-    print(url)
-    print(vars(request))
     if 'ALLY' in request.url:
         return json.dumps(load_file(os.path.join(test_settings.MOCK_DIR, 'ally_response.json')))
     elif 'BX' in request.url:
@@ -150,15 +148,11 @@ def mock_prices(url, request):
 
 @urlmatch(netloc=r'(.*\.)?quandl\.com*$')
 def mock_interest(url, request):
-    print(url)
-    print(vars(request))
     return json.dumps(load_file(os.path.join(test_settings.MOCK_DIR, 'yield_response.json')))
 
 
 @urlmatch(netloc=r'(.*\.)?cloud\.iexapis\.com*$')
 def mock_dividends(url, request):
-    print(url)
-    print(vars(request))
     if 'ALLY' in request.url:
         return json.dumps(load_file(os.path.join(test_settings.MOCK_DIR, 'ally_div_response.json')))
     elif 'BX' in request.url:
