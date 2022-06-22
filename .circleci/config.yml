@@ -104,6 +104,7 @@ commands:
             AWS_DEFAULT_REGION: us-east-1
           command: |
             export LOG_LEVEL=none
+            ls -al ./src/scrilla/tests/src/
             ./scripts/tests
             coverage xml
             ./bin/deepsource report --analyzer test-coverage --key python --value-file ./coverage.xml
