@@ -264,6 +264,7 @@ class StatManager():
                                 formatted_interest[date_string].append(
                                     float(interest))
 
+                        print(len(formatted_interest))
                         if len(formatted_interest) >= dater.business_days_between(start_date, end_date, True):
                             done = True
                             break
@@ -783,7 +784,7 @@ def get_daily_interest_history(maturity: str, start_date: Union[date, None] = No
 
     if rates is not None:
         logger.debug(
-            f'Comparing {len(rates)} = {dater.business_days_between(start_date, end_date)}', 'get_daily_interest_history')
+            f'Comparing {len(rates)} = {dater.business_days_between(start_date, end_date, True)}', 'get_daily_interest_history')
 
     # TODO: this only works when stats are reported daily and that the latest date in the dataset is actually end_date.
     if rates is not None and \
@@ -813,6 +814,8 @@ def get_daily_interest_latest(maturity: str) -> float:
     1. **maturity**: ``str``
         Maturity of the US Treasury security whose interest rate is to be retrieved. Allowable values accessible through `keys.keys['YIELD_CURVE']
     """
+    end_date = dater.get_last_trading_date(True)
+    start_date = dater.decrement_date_by_business_days(end_date, 1, True)
     interest_history = get_daily_interest_history(maturity=maturity)
     first_element = helper.get_first_json_key(interest_history)
     return interest_history[first_element]

@@ -177,13 +177,13 @@ def init_static_data():
                                                      firstRowHeader=service_map["KEYS"]["HEADER"],
                                                      zipped=service_map["KEYS"]["ZIPFILE"])
 
-    if (
-        settings.STAT_MANAGER == "treasury" and
-        not os.path.isfile(settings.STATIC_ECON_FILE)
-    ):
-        rate = services.get_daily_interest_latest(settings.RISK_FREE_RATE)
-        with open(settings.STATIC_ECON_FILE, 'w') as outfile:
-            json.dump(rate, outfile)
+    # if (
+    #     settings.STAT_MANAGER == "treasury" and
+    #     not os.path.isfile(settings.STATIC_ECON_FILE)
+    # ):
+    #     rate = services.get_daily_interest_latest(settings.RISK_FREE_RATE)
+    #     with open(settings.STATIC_ECON_FILE, 'w') as outfile:
+    #         json.dump(rate, outfile)
 
     else:
         logger.debug('Static data already initialized!', 'init_static_data')
