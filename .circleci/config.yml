@@ -184,7 +184,6 @@ jobs:
     steps:
       - checkout
       - install_python_deps
-      - build_wheel
       - install_test_deps
       - run_unit_tests
       - commit_coverage
