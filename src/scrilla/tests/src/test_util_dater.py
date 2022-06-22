@@ -20,7 +20,9 @@ def test_is_trading_date(this_date, expected):
     ('2021-09-13', 7, False, '2021-09-01'),  # includes labor day
     ('2021-11-24', 10, False, '2021-11-10'),
     ('2021-06-01', 2, False, '2021-05-27'),  # includes memorial day,
-    ('2022-06-21', 1, False, '2022-06-17') # includes first observance of Juneteenth
+    ('2022-06-21', 1, False, '2022-06-17'),  # includes first observance of Juneteenth
+    ('2022-06-06', 2, False, '2022-06-02'),
+    ('2022-01-17', 7, False, '2022-01-05'),  # includes MLK Jr. day
 ])
 def test_decrement_date_by_business_days(start_date, days, bond, result):
     test_date = dater.decrement_date_by_business_days(start_date, days, bond)

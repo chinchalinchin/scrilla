@@ -72,7 +72,7 @@ def validate_date_range(start_date: Any, end_date: Any) -> Tuple[date, date]:
     return validate_order_of_dates(start_date, end_date)
 
 
-def validate_date_list(dates: Union[List[Union[datetime.date, str]]]) -> Union[List[datetime.date], None]:
+def validate_date_list(dates: List[Union[datetime.date, str]]) -> Union[List[datetime.date], None]:
     """
 
     Raises
@@ -326,12 +326,16 @@ def decrement_date_by_business_days(start_date: Union[date, str], business_days:
     Subtracts `business_days`, ignoring weekends and trading holidays, from `start_date`
     """
     start_date = validate_date(start_date)
+    added = False
     while business_days > 0:
         if is_trading_date(start_date, bond):
             business_days -= 1
         start_date -= datetime.timedelta(days=1)
         if business_days == 0 and not is_trading_date(start_date):
             business_days += 1
+            added = True
+        if added and is_trading_date(start_date):
+            business_days -= 1
     return start_date
 
 
