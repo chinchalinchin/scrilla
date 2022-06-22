@@ -187,7 +187,8 @@ class Cashflow:
                 self.alpha = list(self.sample.items())[0][1]
                 logger.debug(
                     'Error calculating regression coefficients; Defaulting to Markovian process E(X2|X1) = X1.', 'Cashflow.regress_growth_function')
-                logger.debug(f'Estimation model : y = {self.alpha}', 'regress_growth_function')
+                logger.debug(
+                    f'Estimation model : y = {self.alpha}', 'regress_growth_function')
             else:
                 raise errors.SampleSizeError(
                     'Not enough information to formulate estimation model.')
