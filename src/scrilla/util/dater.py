@@ -326,18 +326,12 @@ def decrement_date_by_business_days(start_date: Union[date, str], business_days:
     Subtracts `business_days`, ignoring weekends and trading holidays, from `start_date`
     """
     start_date = validate_date(start_date)
-    first_pass = True
     while business_days > 0:
         if is_trading_date(start_date, bond):
-            print('is trading date')
-            if first_pass:
-                first_pass = False
-            else:
-                business_days -= 1
-
+            business_days -= 1
         start_date -= datetime.timedelta(days=1)
-
-
+        if business_days == 0 and not is_trading_date(start_date):
+            business_days += 1
     return start_date
 
 
