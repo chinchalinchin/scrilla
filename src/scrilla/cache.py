@@ -205,7 +205,6 @@ class PriceCache():
         results = Cache.execute_query(
             query=self._query(), formatter=formatter)
 
-        print(results)
 
         if len(results) > 0:
             logger.debug(
@@ -312,7 +311,6 @@ class InterestCache():
         results = Cache.execute_query(
             query=self._query(), formatter=formatter)
 
-        print(results)
 
         if len(results) > 0:
             logger.debug(
@@ -485,8 +483,6 @@ class CorrelationCache():
         results = Cache.execute_query(
             query=self._query(), formatter=formatter_2)
 
-        print(results)
-
         if len(results) > 0:
             logger.debug(
                 f'Found ({ticker_1},{ticker_2}) correlation in the cache', 'filter_correlation_cache')
@@ -641,8 +637,6 @@ class ProfileCache(Cache):
                      'end_date': end_date, 'method': method, 'weekends': weekends}
         result = self.execute_query(
             query=self._query(), formatter=formatter)
-
-        print(result)
 
         if len(result) > 0:
             logger.debug(f'{ticker} profile found in cache',

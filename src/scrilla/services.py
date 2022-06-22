@@ -248,8 +248,6 @@ class StatManager():
                     self.service_map["KEYS"]["FIRST_LAYER"])
 
                 if page >= 0:
-                    done = False
-
                     for child in first_layer:
                         xpath = f'{self.service_map["KEYS"]["RATE_XPATH"]}{self.service_map["KEYS"]["DATE"]}'
                         this_date = dater.parse(child.find(xpath).text)
@@ -264,13 +262,9 @@ class StatManager():
                                 formatted_interest[date_string].append(
                                     float(interest))
 
-                        print(len(formatted_interest))
+                        print(len(formatted_interest), ' ?=? ', dater.business_days_between(start_date, end_date, True))
                         if len(formatted_interest) >= dater.business_days_between(start_date, end_date, True):
-                            done = True
-                            break
-
-                    if done:
-                        break
+                            return formatted_interest
                 else:
                     break
 
@@ -837,7 +831,7 @@ def get_dividend_history(ticker: str) -> dict:
     ``list`` : `{ 'date' (str) :  amount (str),  'date' (str):  amount (str), ... }`
         Dictionary with date strings formatted `YYYY-MM-DD` as keys and the dividend payment amount on that date as the corresponding value.
     """
-    logger.debug(f'Retrieving {ticker} dividends from service')
+    logger.debug(f'Retrieving {ticker} dividends from service', 'get_dividend_history')
     divs = div_manager.get_dividends(ticker=ticker)
     return divs
 
