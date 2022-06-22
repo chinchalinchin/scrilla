@@ -6,10 +6,11 @@ from httmock import HTTMock
 from scrilla import settings as scrilla_settings
 from scrilla.main import do_program
 from scrilla.cache import PriceCache, ProfileCache, InterestCache, CorrelationCache
-from scrilla.files import clear_directory
+from scrilla.files import clear_directory, init_static_data
 
 from .. import mock, settings
 
+init_static_data()
 
 @pytest.fixture(autouse=True)
 def reset_cache():
