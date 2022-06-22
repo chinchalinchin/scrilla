@@ -813,10 +813,7 @@ def get_daily_interest_latest(maturity: str) -> float:
     1. **maturity**: ``str``
         Maturity of the US Treasury security whose interest rate is to be retrieved. Allowable values accessible through `keys.keys['YIELD_CURVE']
     """
-    end_date = dater.get_last_trading_date()
-    start_date = dater.decrement_date_by_business_days(end_date, 1)
-    interest_history = get_daily_interest_history(
-        maturity=maturity, start_date=start_date, end_date=end_date)
+    interest_history = get_daily_interest_history(maturity=maturity)
     first_element = helper.get_first_json_key(interest_history)
     return interest_history[first_element]
 

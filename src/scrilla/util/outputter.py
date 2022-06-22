@@ -365,19 +365,19 @@ class Logger():
               f'{self.location}.{method}', ' : ', msg)
 
     def error(self, msg, method):
-        self.comment(msg, 'ERROR', method)
+        self.comment(msg, method, 'ERROR',)
 
     def info(self, msg, method):
         if self.log_level in [constants.constants['LOG_LEVEL']['INFO'],
                               constants.constants['LOG_LEVEL']['DEBUG'],
                               constants.constants['LOG_LEVEL']['VERBOSE']]:
-            self.comment(msg, 'INFO', method)
+            self.comment(msg, method, 'INFO')
 
     def debug(self, msg, method):
         if self.log_level in [constants.constants['LOG_LEVEL']['DEBUG'],
                               constants.constants['LOG_LEVEL']['VERBOSE']]:
-            self.comment(msg, 'DEBUG', method)
+            self.comment(msg, method, 'DEBUG')
 
     def verbose(self, msg, method):
         if self.log_level == constants.constants['LOG_LEVEL']['VERBOSE']:
-            self.comment(msg, 'VERBOSE', method)
+            self.comment(msg, method, 'VERBOSE')
