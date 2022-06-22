@@ -444,4 +444,4 @@ def get_time_to_next_period(starting_date: Union[date, str], period: float) -> f
     while ((starting_date - todays_date).days < 0):
         starting_date += datetime.timedelta(days=floored_days)
 
-    return float((todays_date - starting_date).days / 365)
+    return float((starting_date - todays_date).days / 365)

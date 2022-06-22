@@ -43,6 +43,8 @@ class SampleSizeError(Exception):
 class PriceError(Exception):
     pass
 
+class ModelError(Exception):
+    pass
 
 class UnboundedIntegral(Exception):
     pass
