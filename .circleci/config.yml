@@ -10,7 +10,7 @@ commands:
           name: python dependencies
           command: pip3 install -r requirements.txt
       - save_cache:
-          key: python-deps-{{ checksum "requirements.txt"}}
+          key: python-deps-v2-{{ checksum "requirements.txt"}}
           paths:
             - ".venv"
             - "/usr/local/lib/python3.9/site-packages"
@@ -93,7 +93,7 @@ commands:
           command: curl https://deepsource.io/cli | sh
   
   run_unit_tests: 
-    description: run unit tests against installed wheel
+    description: run unit tests
     steps:
       - attach_workspace:
           at: docs
@@ -104,7 +104,7 @@ commands:
             AWS_DEFAULT_REGION: us-east-1
           command: |
             export LOG_LEVEL=none
-            ls -al ./src/scrilla/tests/src/data/
+            ls -al ./src/scrilla/tests/data/
             ./scripts/tests
             coverage xml
             ./bin/deepsource report --analyzer test-coverage --key python --value-file ./coverage.xml
