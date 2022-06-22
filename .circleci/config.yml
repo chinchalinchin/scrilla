@@ -5,7 +5,7 @@ commands:
     description: install python dependencies
     steps:
       - restore_cache:  # ensure this step occurs *before* installing dependencies
-          key: python-deps-{{ checksum "requirements.txt"}}
+          key: python-deps-v2-{{ checksum "requirements.txt"}}
       - run:
           name: python dependencies
           command: pip3 install -r requirements.txt
