@@ -1308,7 +1308,8 @@ def _calculate_moment_correlation(ticker_1: str, ticker_2: str, asset_type_1: Un
         todays_price_2 = sample_prices[ticker_2][this_date][keys.keys['PRICES']['CLOSE']]
 
         if today:
-            logger.verbose(f'today = {this_date}', '_calculate_moment_correlation')
+            logger.verbose(f'today = {this_date}',
+                           '_calculate_moment_correlation')
             logger.verbose(
                 f'(todays_price, tomorrows_price)_{ticker_1} = ({todays_price_1}, {tomorrows_price_1})', '_calculate_moment_correlation')
             logger.verbose(

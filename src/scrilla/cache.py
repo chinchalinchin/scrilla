@@ -205,7 +205,6 @@ class PriceCache():
         results = Cache.execute_query(
             query=self._query(), formatter=formatter)
 
-
         if len(results) > 0:
             logger.debug(
                 f'Found {ticker} prices in the cache', 'filter_price_cache')
@@ -310,7 +309,6 @@ class InterestCache():
                      'start_date': start_date, 'end_date': end_date}
         results = Cache.execute_query(
             query=self._query(), formatter=formatter)
-
 
         if len(results) > 0:
             logger.debug(
