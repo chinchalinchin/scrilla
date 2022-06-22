@@ -15,18 +15,20 @@ commands:
       - save_cache:
           key: python-deps-v3-{{ checksum "requirements.txt"}}
           paths:
-            - ".venv"
             - "./venv/"
-            - "/usr/local/lib/python3.9/site-packages"
+
 
   build_wheel:
     description: compress and build python package
     steps:
+      - restore_cache:  # ensure this step occurs *before* installing dependencies
+          key: python-deps-v3-{{ checksum "requirements.txt"}}
       - run:
           name: artifact build
           environment:
             APP_ENV: container
           command: |
+            source ./venv/bin/activate
             touch ./src/scrilla/data/cache/scrilla.db
             ./scripts/install
             scrilla version
@@ -63,11 +65,15 @@ commands:
   generate_package_docs:
     description: generate documentation html from docstrings
     steps:
+      - restore_cache:  # ensure this step occurs *before* installing dependencies
+          key: python-deps-v3-{{ checksum "requirements.txt"}}
       - attach_workspace:
           at: docs
       - run:
           name: generate docs
-          command: bash ./scripts/package-docs circle-ci
+          command: |
+            source ./venv/bin/activate
+            ./scripts/package-docs circle-ci
       - persist_to_workspace:
           root: docs
           paths: 
@@ -76,11 +82,14 @@ commands:
   generate_source_docs:
     description: generate documentation html from markdown
     steps:
+      - restore_cache:  # ensure this step occurs *before* installing dependencies
+          key: python-deps-v3-{{ checksum "requirements.txt"}}
       - attach_workspace:
           at: docs
       - run:
           name: generate docs
           command: |
+            source ./venv/bin/activate
             cd docs
             make html
             cp -ap ./build/html/. ./
@@ -99,6 +108,8 @@ commands:
   run_unit_tests: 
     description: run unit tests
     steps:
+      - restore_cache:  # ensure this step occurs *before* installing dependencies
+          key: python-deps-v3-{{ checksum "requirements.txt"}}
       - attach_workspace:
           at: docs
       - run: 
@@ -108,6 +119,7 @@ commands:
             AWS_DEFAULT_REGION: us-east-1
           command: |
             export LOG_LEVEL=none
+            source ./venv/bin/activate
             ./scripts/tests
             coverage xml
             ./bin/deepsource report --analyzer test-coverage --key python --value-file ./coverage.xml
