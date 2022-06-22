@@ -136,7 +136,8 @@ class StatManager():
             start_string = dater.to_string(start_date)
             query += f'&{self.service_map["PARAMS"]["START"]}={start_string}'
 
-        logger.debug(f'StatManager Query (w/o key) = {query}', 'StatManager._construct_query')
+        logger.debug(
+            f'StatManager Query (w/o key) = {query}', 'StatManager._construct_query')
 
         if self.service_map["PARAMS"].get("KEY", None) is not None:
             if query:
@@ -224,7 +225,8 @@ class StatManager():
 
             def __paginate(page_no, page_url):
                 page_url = f'{page_url}&{self.service_map["PARAMS"]["PAGE"]}={page_no}'
-                logger.verbose(f'Paginating: {page_url}', 'StatManager.get_interest_rates.__paginate')
+                logger.verbose(
+                    f'Paginating: {page_url}', 'StatManager.get_interest_rates.__paginate')
                 page_response = ET.fromstring(requests.get(page_url).text)
                 return page_no - 1, page_response
 
@@ -235,7 +237,8 @@ class StatManager():
             pages += 1 if record_time % self.service_map["KEYS"]["PAGE_LENGTH"] > 0 else 0
             page = pages
 
-            logger.debug(f'Sorting through {pages} pages of Treasury data', 'StatManager.get_interest_rates')
+            logger.debug(
+                f'Sorting through {pages} pages of Treasury data', 'StatManager.get_interest_rates')
             logger.debug(
                 f'Days from {dater.to_string(end_date)} to start of Treasury record: {record_time}', 'StatManager.get_interest_rates')
 
@@ -310,7 +313,8 @@ class DividendManager():
     def _construct_url(self, ticker):
         query = f'{ticker}/{self.service_map["PATHS"]["DIV"]}/{self.service_map["PARAMS"]["FULL"]}'
         url = f'{self.url}/{query}?{self.service_map["PARAMS"]["KEY"]}={self.key}'
-        logger.debug(f'DivManager Query (w/o key) = {query}', 'DividendManager._construct_url')
+        logger.debug(
+            f'DivManager Query (w/o key) = {query}', 'DividendManager._construct_url')
         return url
 
     def get_dividends(self, ticker):
@@ -387,7 +391,8 @@ class PriceManager():
 
         auth_query = query + f'&{self.service_map["PARAMS"]["KEY"]}={self.key}'
         url = f'{self.url}?{auth_query}'
-        logger.debug(f'PriceManager query (w/o key) = {query}', 'PriceManager._construct_url')
+        logger.debug(
+            f'PriceManager query (w/o key) = {query}', 'PriceManager._construct_url')
         return url
 
     def get_prices(self, ticker: str, start_date: date, end_date: date, asset_type: str):

@@ -150,7 +150,8 @@ def optimize_portfolio_variance(portfolio: Portfolio, target_return: float = Non
         }
         portfolio_constraints = [equity_constraint, return_constraint]
     else:
-        logger.debug(f'Minimizing {tickers} Portfolio Volatility', 'optimize_portfolio_variance')
+        logger.debug(
+            f'Minimizing {tickers} Portfolio Volatility', 'optimize_portfolio_variance')
         portfolio_constraints = equity_constraint
 
     allocation = optimize.minimize(fun=portfolio.volatility_function, x0=init_guess,
@@ -244,7 +245,8 @@ def maximize_sharpe_ratio(portfolio: Portfolio, target_return: float = None) -> 
         }
         portfolio_constraints = [equity_constraint, return_constraint]
     else:
-        logger.debug(f'Maximizing {tickers} Portfolio Sharpe Ratio', 'maximize_sharpe_ratio', 'maximize_sharpe_ratio')
+        logger.debug(f'Maximizing {tickers} Portfolio Sharpe Ratio',
+                     'maximize_sharpe_ratio', 'maximize_sharpe_ratio')
         portfolio_constraints = equity_constraint
 
     allocation = optimize.minimize(fun=lambda x: (-1)*portfolio.sharpe_ratio_function(x),

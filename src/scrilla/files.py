@@ -178,7 +178,7 @@ def init_static_data():
                                                      zipped=service_map["KEYS"]["ZIPFILE"])
 
     if (
-        settings.STAT_MANAGER == "treasury" and 
+        settings.STAT_MANAGER == "treasury" and
         not os.path.isfile(settings.STATIC_ECON_FILE)
     ):
         rate = services.get_daily_interest_latest(settings.RISK_FREE_RATE)
@@ -225,13 +225,15 @@ def get_static_data(static_type):
         return None
 
     if blob is not None:
-        logger.verbose(f'Found in-memory {static_type} symbols.', 'get_static_data')
+        logger.verbose(
+            f'Found in-memory {static_type} symbols.', 'get_static_data')
         return blob
 
     if path is not None:
         if not os.path.isfile(path):
             init_static_data()
-        logger.verbose(f'Loading in cached {static_type} symbols.', 'get_static_data')
+        logger.verbose(
+            f'Loading in cached {static_type} symbols.', 'get_static_data')
 
         ext = path.split('.')[-1]
 
@@ -319,7 +321,8 @@ def get_watchlist() -> list:
         with open(settings.COMMON_WATCHLIST_FILE, 'r') as infile:
             if ext == "json":
                 watchlist = json.load(infile)
-                logger.verbose('Watchlist loaded in JSON format.', 'get_watchlist')
+                logger.verbose(
+                    'Watchlist loaded in JSON format.', 'get_watchlist')
 
             # TODO: implement other file loading exts
     else:
@@ -342,7 +345,8 @@ def add_watchlist(new_tickers: list) -> None:
 
     for ticker in new_tickers:
         if ticker not in current_tickers and ticker in all_tickers:
-            logger.debug(f'New ticker being added to Watchlist: {ticker}', 'add_watchlist')
+            logger.debug(
+                f'New ticker being added to Watchlist: {ticker}', 'add_watchlist')
             current_tickers.append(ticker)
 
     current_tickers = sorted(current_tickers)
