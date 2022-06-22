@@ -57,5 +57,5 @@ def dynamo_table(table_configuration: dict):
     try:
         return dynamo_client().create_table(**table_configuration)
     except (ClientError, ParamValidationError) as e:
-        logger.error(e)
+        logger.error(e, 'dynamo_table')
         return e
