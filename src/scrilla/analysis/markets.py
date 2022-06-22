@@ -244,6 +244,7 @@ def screen_for_discount(model: str = keys.keys['MODELS']['DDM'], discount_rate: 
                 discount_result = {'spot_price': spot_price,
                                    'model_price': model_price, 'discount': discount}
                 discounts[equity] = discount_result
-                logger.debug(f'Discount of {discount} found for {equity}', 'screen_for_discount')
+                logger.debug(
+                    f'Discount of {discount} found for {equity}', 'screen_for_discount')
 
     return discounts

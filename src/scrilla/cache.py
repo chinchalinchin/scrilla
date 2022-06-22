@@ -191,7 +191,7 @@ class PriceCache():
 
     def save_row(self, ticker, date, open_price, close_price):
         logger.verbose(
-            F'Attempting to insert {ticker} prices on {date} to cache','save_row')
+            F'Attempting to insert {ticker} prices on {date} to cache', 'save_row')
         formatter = {'ticker': ticker, 'date': date,
                      'open': open_price, 'close': close_price}
         Cache.execute_transaction(
@@ -208,9 +208,11 @@ class PriceCache():
         print(results)
 
         if len(results) > 0:
-            logger.debug(f'Found {ticker} prices in the cache', 'filter_price_cache')
+            logger.debug(
+                f'Found {ticker} prices in the cache', 'filter_price_cache')
             return self.to_dict(results)
-        logger.debug(f'No results found for {ticker} prices in the cache', 'filter_price_cache')
+        logger.debug(
+            f'No results found for {ticker} prices in the cache', 'filter_price_cache')
         return None
 
 
@@ -295,7 +297,8 @@ class InterestCache():
 
     def save_row(self, date, value):
         for index, maturity in enumerate(keys.keys['YIELD_CURVE']):
-            logger.verbose(f'Saving {maturity} yield on {date} to cache', 'save_row')
+            logger.verbose(
+                f'Saving {maturity} yield on {date} to cache', 'save_row')
             formatter = {'maturity': maturity,
                          'date': date, 'value': value[index]}
             Cache.execute_transaction(
@@ -310,11 +313,13 @@ class InterestCache():
             query=self._query(), formatter=formatter)
 
         print(results)
-        
+
         if len(results) > 0:
-            logger.debug(f'Found {maturity} yield on in the cache', 'filter_interest_cache')
+            logger.debug(
+                f'Found {maturity} yield on in the cache', 'filter_interest_cache')
             return self.to_dict(results)
-        logger.debug(f'No results found for {maturity} yield in cache', 'filter_interest_cache')
+        logger.debug(
+            f'No results found for {maturity} yield in cache', 'filter_interest_cache')
         return None
 
 
@@ -640,7 +645,9 @@ class ProfileCache(Cache):
         print(result)
 
         if len(result) > 0:
-            logger.debug(f'{ticker} profile found in cache', 'filter_profile_cache')
+            logger.debug(f'{ticker} profile found in cache',
+                         'filter_profile_cache')
             return self.to_dict(result)
-        logger.debug(f'No results found for {ticker} profile in the cache', 'filter_profile_cache')
+        logger.debug(
+            f'No results found for {ticker} profile in the cache', 'filter_profile_cache')
         return None

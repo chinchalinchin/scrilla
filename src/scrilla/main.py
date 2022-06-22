@@ -60,7 +60,8 @@ def validate_function_usage(selection: str, args: List[str], wrapper_function: C
         raise InputValidationError(
             f'Invalid number of arguments for \'{selection}\' function. Function requires more than {required_length} arguments.')
     end_time = time.time()
-    logger.info(f'Total execution time: {end_time - start_time}s', 'validate_function_usage')
+    logger.info(
+        f'Total execution time: {end_time - start_time}s', 'validate_function_usage')
 
 
 def print_format_to_screen(args: Dict[str, Union[str, date, float, None, bool]]) -> bool:
@@ -380,7 +381,8 @@ def do_program(cli_args: List[str]) -> None:
             from scrilla.analysis.models.geometric.statistics import correlation_matrix
 
             if args['estimation_method'] == keys['ESTIMATION']['LIKE']:
-                logger.info('This calculation takes a while, strap in...', 'do_program')
+                logger.info(
+                    'This calculation takes a while, strap in...', 'do_program')
 
             matrix = correlation_matrix(tickers=args['tickers'],
                                         start_date=args['start_date'],
@@ -409,7 +411,8 @@ def do_program(cli_args: List[str]) -> None:
             if print_format_to_screen(args):
                 from scrilla.util.outputter import scalar_result
 
-            logger.info('This calculation takes a while, strap in...', 'do_program')
+            logger.info(
+                'This calculation takes a while, strap in...', 'do_program')
             ticker_1, ticker_2 = args['tickers'][0], args['tickers'][1]
             result = calculate_moment_correlation_series(ticker_1=ticker_1,
                                                          ticker_2=ticker_2,
@@ -702,7 +705,8 @@ def do_program(cli_args: List[str]) -> None:
             from scrilla.analysis.models.geometric.statistics import calculate_moment_correlation_series
             from scrilla.analysis.plotter import plot_correlation_series
 
-            logger.info('This calculation takes a while, strap in...', 'do_program')
+            logger.info(
+                'This calculation takes a while, strap in...', 'do_program')
 
             correlation_history = calculate_moment_correlation_series(ticker_1=args['tickers'][0],
                                                                       ticker_2=args['tickers'][1],

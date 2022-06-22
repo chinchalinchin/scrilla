@@ -33,6 +33,7 @@ logger = outputter.Logger("scrilla.files", settings.LOG_LEVEL)
 
 static_tickers_blob, static_econ_blob, static_crypto_blob = None, None, None
 
+
 def load_file(file_name: str) -> Any:
     """
     Infers the file extensions from the provided `file_name` and parses the file appropriately. 
@@ -135,7 +136,7 @@ def init_static_data():
     # grab ticker symbols and store in STATIC_DIR
     if (
         settings.PRICE_MANAGER == "alpha_vantage" and
-        not os.path.isfile(settings.STATIC_TICKERS_FILE) 
+        not os.path.isfile(settings.STATIC_TICKERS_FILE)
     ):
         service_map = keys.keys["SERVICES"]["PRICES"]["ALPHA_VANTAGE"]["MAP"]
         logger.debug(
@@ -158,32 +159,32 @@ def init_static_data():
             f'Missing {settings.STATIC_CRYPTO_FILE}, querying \'{settings.PRICE_MANAGER}\'.', 'init_static_data')
         url = settings.AV_CRYPTO_LIST
         static_crypto_blob = parse_csv_response_column(column=0, url=url, savefile=settings.STATIC_CRYPTO_FILE,
-                                                        firstRowHeader=service_map['KEYS']['CRYPTO']['HEADER'])
+                                                       firstRowHeader=service_map['KEYS']['CRYPTO']['HEADER'])
 
     # grab econominc indicator symbols and store in STATIC_DIR
     if (
         settings.STAT_MANAGER == "quandl" and
         not os.path.isfile(settings.STATIC_ECON_FILE)
     ):
-            service_map = keys.keys["SERVICES"]["STATISTICS"]["QUANDL"]["MAP"]
+        service_map = keys.keys["SERVICES"]["STATISTICS"]["QUANDL"]["MAP"]
 
-            logger.debug(
-                f'Missing {settings.STATIC_ECON_FILE}, querying \'{settings.STAT_MANAGER}\'.', 'init_static_data')
+        logger.debug(
+            f'Missing {settings.STATIC_ECON_FILE}, querying \'{settings.STAT_MANAGER}\'.', 'init_static_data')
 
-            query = f'{service_map["PATHS"]["FRED"]}/{service_map["PARAMS"]["METADATA"]}'
-            url = f'{settings.Q_META_URL}/{query}?{service_map["PARAMS"]["KEY"]}={settings.Q_KEY}'
-            static_econ_blob = parse_csv_response_column(column=0, url=url, savefile=settings.STATIC_ECON_FILE,
-                                                            firstRowHeader=service_map["KEYS"]["HEADER"],
-                                                            zipped=service_map["KEYS"]["ZIPFILE"])
+        query = f'{service_map["PATHS"]["FRED"]}/{service_map["PARAMS"]["METADATA"]}'
+        url = f'{settings.Q_META_URL}/{query}?{service_map["PARAMS"]["KEY"]}={settings.Q_KEY}'
+        static_econ_blob = parse_csv_response_column(column=0, url=url, savefile=settings.STATIC_ECON_FILE,
+                                                     firstRowHeader=service_map["KEYS"]["HEADER"],
+                                                     zipped=service_map["KEYS"]["ZIPFILE"])
 
     if (
-        settings.STAT_MANAGER == "treasury" and 
+        settings.STAT_MANAGER == "treasury" and
         not os.path.isfile(settings.STATIC_ECON_FILE)
     ):
-        # TODO: need some way to only do this once. don't want to query cache and add another query to the queue. 
+        # TODO: need some way to only do this once. don't want to query cache and add another query to the queue.
         # HOW CAN I ENSURE THIS ONLY GETS CALLED THE FIRST TIME USER INVOKES SCRILLA?
         # the trick here is the presence of the file tells the program to circumvent these lines. therefore, i should
-        # output a file into the data/static folder for treasury_static and use that as a persistence flag for this 
+        # output a file into the data/static folder for treasury_static and use that as a persistence flag for this
         # conditional.
         rate = services.get_daily_interest_latest(settings.RISK_FREE_RATE)
         with open(settings.STATIC_ECON_FILE, 'w') as outfile:
@@ -229,13 +230,15 @@ def get_static_data(static_type):
         return None
 
     if blob is not None:
-        logger.verbose(f'Found in-memory {static_type} symbols.', 'get_static_data')
+        logger.verbose(
+            f'Found in-memory {static_type} symbols.', 'get_static_data')
         return blob
 
     if path is not None:
         if not os.path.isfile(path):
             init_static_data()
-        logger.verbose(f'Loading in cached {static_type} symbols.', 'get_static_data')
+        logger.verbose(
+            f'Loading in cached {static_type} symbols.', 'get_static_data')
 
         ext = path.split('.')[-1]
 
@@ -323,7 +326,8 @@ def get_watchlist() -> list:
         with open(settings.COMMON_WATCHLIST_FILE, 'r') as infile:
             if ext == "json":
                 watchlist = json.load(infile)
-                logger.verbose('Watchlist loaded in JSON format.', 'get_watchlist')
+                logger.verbose(
+                    'Watchlist loaded in JSON format.', 'get_watchlist')
 
             # TODO: implement other file loading exts
     else:
@@ -346,7 +350,8 @@ def add_watchlist(new_tickers: list) -> None:
 
     for ticker in new_tickers:
         if ticker not in current_tickers and ticker in all_tickers:
-            logger.debug(f'New ticker being added to Watchlist: {ticker}', 'add_watchlist')
+            logger.debug(
+                f'New ticker being added to Watchlist: {ticker}', 'add_watchlist')
             current_tickers.append(ticker)
 
     current_tickers = sorted(current_tickers)

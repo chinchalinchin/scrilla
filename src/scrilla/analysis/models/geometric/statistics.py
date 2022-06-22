@@ -73,7 +73,8 @@ def get_sample_of_returns(ticker: str, sample_prices: Union[Dict[str, Dict[str, 
             'Not enough price data to compute returns')
 
     if sample_prices is None:
-        logger.debug('No sample prices provided, calling service.', 'get_sample_of_returns')
+        logger.debug('No sample prices provided, calling service.',
+                     'get_sample_of_returns')
         start_date, end_date = errors.validate_dates(
             start_date, end_date, asset_type)
         prices = services.get_daily_price_history(
@@ -571,12 +572,14 @@ def _calculate_likelihood_risk_return(ticker, start_date: Union[date, None] = No
                 and results[keys.keys['STATISTICS']['VOLATILITY']] is not None:
             return results
 
-        logger.debug('No sample prices provided, calling service.', '_calculate_likelihood_risk_return')
+        logger.debug('No sample prices provided, calling service.',
+                     '_calculate_likelihood_risk_return')
         prices = services.get_daily_price_history(
             ticker=ticker, start_date=start_date, end_date=end_date, asset_type=asset_type)
 
         if asset_type == keys.keys['ASSETS']['CRYPTO'] and weekends == 0:
-            logger.debug('Removing weekends from crypto sample', '_calculate_likelihood_risk_return')
+            logger.debug('Removing weekends from crypto sample',
+                         '_calculate_likelihood_risk_return')
             prices = dater.intersect_with_trading_dates(prices)
 
     else:
@@ -670,12 +673,14 @@ def _calculate_percentile_risk_return(ticker: str, start_date: Union[date, None]
                 and results[keys.keys['STATISTICS']['VOLATILITY']] is not None:
             return results
 
-        logger.debug('No sample prices provided, calling service.', '_calculate_percentile_risk_return')
+        logger.debug('No sample prices provided, calling service.',
+                     '_calculate_percentile_risk_return')
         prices = services.get_daily_price_history(
             ticker=ticker, start_date=start_date, end_date=end_date, asset_type=asset_type)
 
         if asset_type == keys.keys['ASSETS']['CRYPTO'] and weekends == 0:
-            logger.debug('Removing weekends from crypto sample', '_calculate_percentile_risk_return')
+            logger.debug('Removing weekends from crypto sample',
+                         '_calculate_percentile_risk_return')
             prices = dater.intersect_with_trading_dates(prices)
     else:
         logger.debug(
@@ -776,12 +781,14 @@ def _calculate_moment_risk_return(ticker: str, start_date: Union[date, None] = N
                 and results[keys.keys['STATISTICS']['VOLATILITY']] is not None:
             return results
 
-        logger.debug('No sample prices provided, calling service.', '_calculate_moment_risk_return')
+        logger.debug('No sample prices provided, calling service.',
+                     '_calculate_moment_risk_return')
         prices = services.get_daily_price_history(
             ticker=ticker, start_date=start_date, end_date=end_date, asset_type=asset_type)
 
         if asset_type == keys.keys['ASSETS']['CRYPTO'] and weekends == 0:
-            logger.debug('Removing weekends from crypto sample', '_calculate_moment_risk_return')
+            logger.debug('Removing weekends from crypto sample',
+                         '_calculate_moment_risk_return')
             prices = dater.intersect_with_trading_dates(prices)
 
     else:
@@ -838,7 +845,7 @@ def _calculate_moment_risk_return(ticker: str, start_date: Union[date, None] = N
             variance = variance + daily
 
             logger.verbose(
-                f'{this_date}: (daily_variance, sample_variance) = ({round(daily, 4)}, {round(variance, 4)})','_calculate_moment_risk_return')
+                f'{this_date}: (daily_variance, sample_variance) = ({round(daily, 4)}, {round(variance, 4)})', '_calculate_moment_risk_return')
 
         else:
             today = True
@@ -991,7 +998,8 @@ def _calculate_percentile_correlation(ticker_1: str, ticker_2: str, asset_type_1
     def copula_matrix(params):
         determinant = 1 - params[0]**2
         if determinant == 0 or determinant < 0 or determinant < (10**(-constants.constants['ACCURACY'])):
-            logger.verbose('Solution is non-positive semi-definite', '_calculate_percentile_correlation')
+            logger.verbose('Solution is non-positive semi-definite',
+                           '_calculate_percentile_correlation')
             return inf
         logger.verbose(
             f'Instantiating Copula Matrix: \n{[[1, params[0]], [params[0], 1]]}', '_calculate_percentile_correlation')
@@ -1007,7 +1015,8 @@ def _calculate_percentile_correlation(ticker_1: str, ticker_2: str, asset_type_1
                                            y_order=sample_percentiles_2[i]))
             for i in enumerate(percentiles)
         ]
-        logger.verbose(f'Residuals for {params}: \n{res}', '_calculate_percentile_correlation.residuals')
+        logger.verbose(f'Residuals for {params}: \n{res}',
+                       '_calculate_percentile_correlation.residuals')
         return res
 
     parameters = least_squares(residuals, (0), bounds=((-0.99999), (0.99999)))
@@ -1095,7 +1104,8 @@ def _calculate_likelihood_correlation(ticker_1: str, ticker_2: str, asset_type_1
         sample_prices = {}
         logger.debug(
             f'No sample prices provided or cached ({ticker_1}, {ticker_2}) correlation found.', '_calculate_likelihood_correlation')
-        logger.debug('Retrieving price histories for calculation.', '_calculate_likelihood_correlation')
+        logger.debug('Retrieving price histories for calculation.',
+                     '_calculate_likelihood_correlation')
         sample_prices[ticker_1] = services.get_daily_price_history(ticker=ticker_1,
                                                                    start_date=start_date,
                                                                    end_date=end_date,
@@ -1224,7 +1234,8 @@ def _calculate_moment_correlation(ticker_1: str, ticker_2: str, asset_type_1: Un
         sample_prices = {}
         logger.debug(
             f'No sample prices provided or cached ({ticker_1}, {ticker_2}) correlation found.', '_calculate_moment_correlation')
-        logger.debug('Retrieving price histories for calculation.',  '_calculate_moment_correlation')
+        logger.debug('Retrieving price histories for calculation.',
+                     '_calculate_moment_correlation')
         sample_prices[ticker_1] = services.get_daily_price_history(ticker=ticker_1, start_date=start_date,
                                                                    end_date=end_date, asset_type=asset_type_1)
         sample_prices[ticker_2] = services.get_daily_price_history(ticker=ticker_2, start_date=start_date,
@@ -1233,7 +1244,8 @@ def _calculate_moment_correlation(ticker_1: str, ticker_2: str, asset_type_1: Un
     # TODO: pretty sure something about this is causing the issue.
     if asset_type_1 == asset_type_2 and asset_type_2 == keys.keys['ASSETS']['CRYPTO'] and weekends == 0:
         # remove weekends and holidays from sample
-        logger.debug('Removing weekends from crypto sample',  '_calculate_moment_correlation')
+        logger.debug('Removing weekends from crypto sample',
+                     '_calculate_moment_correlation')
         sample_prices[ticker_1] = dater.intersect_with_trading_dates(
             sample_prices[ticker_1])
         sample_prices[ticker_2] = dater.intersect_with_trading_dates(
@@ -1281,7 +1293,8 @@ def _calculate_moment_correlation(ticker_1: str, ticker_2: str, asset_type_1: Un
     mod_mean_2 = (stats_2['annual_return'] - 0.5*(stats_2['annual_volatility'])
                   ** 2)*sqrt(trading_period_2)
 
-    logger.debug(f'Calculating ({ticker_1}, {ticker_2}) correlation.', '_calculate_moment_correlation')
+    logger.debug(
+        f'Calculating ({ticker_1}, {ticker_2}) correlation.', '_calculate_moment_correlation')
     # END SAMPLE STATISTICS CALCULATION DEPENDENCIES
 
     # Initialize loop variables
@@ -1297,9 +1310,9 @@ def _calculate_moment_correlation(ticker_1: str, ticker_2: str, asset_type_1: Un
         if today:
             logger.verbose(f'today = {this_date}')
             logger.verbose(
-                f'(todays_price, tomorrows_price)_{ticker_1} = ({todays_price_1}, {tomorrows_price_1})','_calculate_moment_correlation')
+                f'(todays_price, tomorrows_price)_{ticker_1} = ({todays_price_1}, {tomorrows_price_1})', '_calculate_moment_correlation')
             logger.verbose(
-                f'(todays_price, tomorrows_price)_{ticker_2} = ({todays_price_2}, {tomorrows_price_2})','_calculate_moment_correlation')
+                f'(todays_price, tomorrows_price)_{ticker_2} = ({todays_price_2}, {tomorrows_price_2})', '_calculate_moment_correlation')
 
             # NOTE: crypto prices may have weekends and holidays removed during correlation algorithm
             # so samples can be compared to equities, need to account for these dates by increasing
@@ -1330,9 +1343,9 @@ def _calculate_moment_correlation(ticker_1: str, ticker_2: str, asset_type_1: Un
             covariance = covariance + current_sample_covariance
 
             logger.verbose(
-                f'(return_{ticker_1}, return_{ticker_2}) = ({round(current_mod_return_1, 2)}, {round(current_mod_return_2, 2)})','_calculate_moment_correlation')
+                f'(return_{ticker_1}, return_{ticker_2}) = ({round(current_mod_return_1, 2)}, {round(current_mod_return_2, 2)})', '_calculate_moment_correlation')
             logger.verbose(
-                f'(current_sample_covariance, covariance) = ({round(current_sample_covariance, 2)}, {round(covariance, 2)})','_calculate_moment_correlation')
+                f'(current_sample_covariance, covariance) = ({round(current_sample_covariance, 2)}, {round(covariance, 2)})', '_calculate_moment_correlation')
 
         else:
             today = True
@@ -1344,7 +1357,8 @@ def _calculate_moment_correlation(ticker_1: str, ticker_2: str, asset_type_1: Un
     correlation = covariance / \
         (stats_1['annual_volatility']*stats_2['annual_volatility'])
 
-    logger.debug(f'correlation = ({round(correlation, 2)})', '_calculate_moment_correlation')
+    logger.debug(
+        f'correlation = ({round(correlation, 2)})', '_calculate_moment_correlation')
 
     result = {'correlation': correlation}
 
@@ -1409,11 +1423,13 @@ def correlation_matrix(tickers, asset_types=None, start_date=None, end_date=None
 
     # if all assets of the same type, include weekends only if asset type is crypto
     if asset_groups == 1 and asset_types[0] == keys.keys['ASSETS']['CRYPTO']:
-        logger.debug('Assets of same type, which is crypto, keeping weekends', 'correlation_matrix')
+        logger.debug(
+            'Assets of same type, which is crypto, keeping weekends', 'correlation_matrix')
         weekends = 1
     else:
         if asset_groups > 1:
-            logger.debug('Assets of different type, removing weekends', 'correlation_matrix')
+            logger.debug(
+                'Assets of different type, removing weekends', 'correlation_matrix')
         else:
             logger.debug(
                 'Assets of same type, which is equity, excluding weekends', 'correlation_matrix')
