@@ -337,7 +337,6 @@ def decrement_date_by_business_days(start_date: Union[date, str], business_days:
 
         start_date -= datetime.timedelta(days=1)
 
-
     return start_date
 
 
