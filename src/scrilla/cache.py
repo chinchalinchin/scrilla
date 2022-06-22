@@ -101,8 +101,8 @@ class Cache():
             return executor.execute(query).fetchall()
         elif settings.CACHE_MODE == 'dynamodb':
             return aws.dynamo_client().execute_statement(
-                TransactionStatements=aws.dynamo_statement_args(
-                    query, formatter)
+                TransactionStatements=[aws.dynamo_statement_args(
+                    query, formatter)]
             )
         else:
             raise errors.ConfigurationError(
@@ -204,6 +204,8 @@ class PriceCache():
                      'start_date': start_date, 'end_date': end_date}
         results = Cache.execute_query(
             query=self._query(), formatter=formatter)
+
+        print(results)
 
         if len(results) > 0:
             logger.debug(f'Found {ticker} prices in the cache')
@@ -307,6 +309,8 @@ class InterestCache():
         results = Cache.execute_query(
             query=self._query(), formatter=formatter)
 
+        print(results)
+        
         if len(results) > 0:
             logger.debug(f'Found {maturity} yield on in the cache')
             return self.to_dict(results)
@@ -475,6 +479,9 @@ class CorrelationCache():
             return self.to_dict(results)
         results = Cache.execute_query(
             query=self._query(), formatter=formatter_2)
+
+        print(results)
+
         if len(results) > 0:
             logger.debug(
                 f'Found ({ticker_1},{ticker_2}) correlation in the cache')
@@ -630,6 +637,8 @@ class ProfileCache(Cache):
         result = self.execute_query(
             query=self._query(), formatter=formatter)
 
+        print(result)
+        
         if len(result) > 0:
             logger.debug(f'{ticker} profile found in cache')
             return self.to_dict(result)

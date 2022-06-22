@@ -97,6 +97,17 @@ Keep in mind if using this method to store the API keys, the keys will be stored
 
 If no API keys are found through either of these methods, the application will raise an exception.
 
+### Environment File
+
+A sample environment file has been included in _/env/.sample.env_. To configure the application environment, copy this file into a new environment, adjust the values and load it into your session,
+
+```shell
+cp ./env/.sample.env ./env/.env
+# adjust .env values
+source ./env/.env
+# the values loaded into your session will now configure scrilla's execution environment
+scrilla risk-profile GD LMT 
+```
 ## Usage
 
 ### Portfolio Optimization

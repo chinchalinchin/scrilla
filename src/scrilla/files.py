@@ -176,13 +176,18 @@ def init_static_data():
                                                             firstRowHeader=service_map["KEYS"]["HEADER"],
                                                             zipped=service_map["KEYS"]["ZIPFILE"])
 
-    if settings.STAT_MANAGER == "treasury":
+    if (
+        settings.STAT_MANAGER == "treasury" and 
+        not os.path.isfile(settings.STATIC_ECON_FILE)
+    ):
         # TODO: need some way to only do this once. don't want to query cache and add another query to the queue. 
         # HOW CAN I ENSURE THIS ONLY GETS CALLED THE FIRST TIME USER INVOKES SCRILLA?
         # the trick here is the presence of the file tells the program to circumvent these lines. therefore, i should
         # output a file into the data/static folder for treasury_static and use that as a persistence flag for this 
         # conditional.
-        services.get_daily_interest_latest(settings.RISK_FREE_RATE)
+        rate = services.get_daily_interest_latest(settings.RISK_FREE_RATE)
+        with open(settings.STATIC_ECON_FILE, 'w') as outfile:
+            json.dump(rate, outfile)
 
     else:
         logger.debug('Static data already initialized!')
