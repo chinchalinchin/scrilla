@@ -811,7 +811,8 @@ def get_daily_interest_latest(maturity: str) -> float:
     """
     end_date = dater.get_last_trading_date(True)
     start_date = dater.decrement_date_by_business_days(end_date, 1, True)
-    interest_history = get_daily_interest_history(maturity,start_date,end_date)
+    interest_history = get_daily_interest_history(
+        maturity, start_date, end_date)
     first_element = helper.get_first_json_key(interest_history)
     return interest_history[first_element]
 
