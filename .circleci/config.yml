@@ -24,7 +24,7 @@ commands:
             APP_ENV: container
           command: |
             touch ./src/scrilla/data/cache/scrilla.db
-            bash ./scripts/install
+            ./scripts/install
             scrilla version
 
   upload_artifacts:
@@ -104,7 +104,7 @@ commands:
             AWS_DEFAULT_REGION: us-east-1
           command: |
             export LOG_LEVEL=none
-            ls -al ./src/scrilla/tests/src/
+            ls -al ./src/scrilla/tests/src/data/
             ./scripts/tests
             coverage xml
             ./bin/deepsource report --analyzer test-coverage --key python --value-file ./coverage.xml

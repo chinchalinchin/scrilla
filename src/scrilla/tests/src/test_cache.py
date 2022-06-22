@@ -75,7 +75,7 @@ def test_past_interest(maturity, date, yield_rate, interest_cache):
             'a': 1,
             'b': 2
         },
-        "UPDATE TABLE profile SET a=:a,b=:b WHERE ticker=:ticker AND start_date=:start_date AND end_date=:end_date AND method=:method AND weekends=:weekends"
+        "UPDATE profile SET a=:a,b=:b WHERE ticker=:ticker AND start_date=:start_date AND end_date=:end_date AND method=:method AND weekends=:weekends"
     )
 ])
 def test_profile_cache_construct_update_query(params, expected):
