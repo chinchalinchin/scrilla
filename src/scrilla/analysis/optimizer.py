@@ -142,7 +142,7 @@ def optimize_portfolio_variance(portfolio: Portfolio, target_return: float = Non
 
     if target_return is not None:
         logger.debug(
-            f'Optimizing {tickers} Portfolio Volatility Subject To Return = {target_return}')
+            f'Optimizing {tickers} Portfolio Volatility Subject To Return = {target_return}', 'optimize_portfolio_variance')
 
         return_constraint = {
             'type': 'eq',
@@ -150,7 +150,7 @@ def optimize_portfolio_variance(portfolio: Portfolio, target_return: float = Non
         }
         portfolio_constraints = [equity_constraint, return_constraint]
     else:
-        logger.debug(f'Minimizing {tickers} Portfolio Volatility')
+        logger.debug(f'Minimizing {tickers} Portfolio Volatility', 'optimize_portfolio_variance')
         portfolio_constraints = equity_constraint
 
     allocation = optimize.minimize(fun=portfolio.volatility_function, x0=init_guess,
@@ -190,7 +190,7 @@ def optimize_conditional_value_at_risk(portfolio: Portfolio, prob: float, expiry
 
     if target_return is not None:
         logger.debug(
-            f'Optimizing {tickers} Portfolio Conditional Value at Risk Subject To Return = {target_return}')
+            f'Optimizing {tickers} Portfolio Conditional Value at Risk Subject To Return = {target_return}', 'optimize_conditional_value_at_risk')
 
         return_constraint = {
             'type': 'eq',
@@ -199,7 +199,7 @@ def optimize_conditional_value_at_risk(portfolio: Portfolio, prob: float, expiry
         portfolio_constraints = [equity_constraint, return_constraint]
     else:
         logger.debug(
-            f'Minimizing {tickers} Portfolio Conditional Value at Risk')
+            f'Minimizing {tickers} Portfolio Conditional Value at Risk', 'optimize_conditional_value_at_risk')
         portfolio_constraints = equity_constraint
 
     allocation = optimize.minimize(fun=lambda x: portfolio.conditional_value_at_risk_function(x, expiry, prob),
@@ -236,7 +236,7 @@ def maximize_sharpe_ratio(portfolio: Portfolio, target_return: float = None) -> 
 
     if target_return is not None:
         logger.debug(
-            f'Optimizing {tickers} Portfolio Sharpe Ratio Subject To Return = {target_return}')
+            f'Optimizing {tickers} Portfolio Sharpe Ratio Subject To Return = {target_return}', 'maximize_sharpe_ratio')
 
         return_constraint = {
             'type': 'eq',
@@ -244,7 +244,7 @@ def maximize_sharpe_ratio(portfolio: Portfolio, target_return: float = None) -> 
         }
         portfolio_constraints = [equity_constraint, return_constraint]
     else:
-        logger.debug(f'Maximizing {tickers} Portfolio Sharpe Ratio')
+        logger.debug(f'Maximizing {tickers} Portfolio Sharpe Ratio', 'maximize_sharpe_ratio', 'maximize_sharpe_ratio')
         portfolio_constraints = equity_constraint
 
     allocation = optimize.minimize(fun=lambda x: (-1)*portfolio.sharpe_ratio_function(x),

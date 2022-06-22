@@ -136,7 +136,7 @@ class StatManager():
             start_string = dater.to_string(start_date)
             query += f'&{self.service_map["PARAMS"]["START"]}={start_string}'
 
-        logger.debug(f'StatManager Query (w/o key) = {query}')
+        logger.debug(f'StatManager Query (w/o key) = {query}', 'StatManager._construct_query')
 
         if self.service_map["PARAMS"].get("KEY", None) is not None:
             if query:
@@ -224,7 +224,7 @@ class StatManager():
 
             def __paginate(page_no, page_url):
                 page_url = f'{page_url}&{self.service_map["PARAMS"]["PAGE"]}={page_no}'
-                logger.debug(f'Paginating: {page_url}')
+                logger.verbose(f'Paginating: {page_url}', 'StatManager.get_interest_rates.__paginate')
                 page_response = ET.fromstring(requests.get(page_url).text)
                 return page_no - 1, page_response
 
@@ -235,9 +235,9 @@ class StatManager():
             pages += 1 if record_time % self.service_map["KEYS"]["PAGE_LENGTH"] > 0 else 0
             page = pages
 
-            logger.debug(f'Sorting through {pages} pages of Treasury data')
+            logger.debug(f'Sorting through {pages} pages of Treasury data', 'StatManager.get_interest_rates')
             logger.debug(
-                f'Days from {dater.to_string(end_date)} to start of Treasury record: {record_time}')
+                f'Days from {dater.to_string(end_date)} to start of Treasury record: {record_time}', 'StatManager.get_interest_rates')
 
             while True:
                 page, response = __paginate(page, url)
@@ -310,7 +310,7 @@ class DividendManager():
     def _construct_url(self, ticker):
         query = f'{ticker}/{self.service_map["PATHS"]["DIV"]}/{self.service_map["PARAMS"]["FULL"]}'
         url = f'{self.url}/{query}?{self.service_map["PARAMS"]["KEY"]}={self.key}'
-        logger.debug(f'DivManager Query (w/o key) = {query}')
+        logger.debug(f'DivManager Query (w/o key) = {query}', 'DividendManager._construct_url')
         return url
 
     def get_dividends(self, ticker):
@@ -387,7 +387,7 @@ class PriceManager():
 
         auth_query = query + f'&{self.service_map["PARAMS"]["KEY"]}={self.key}'
         url = f'{self.url}?{auth_query}'
-        logger.debug(f'PriceManager query (w/o key) = {query}')
+        logger.debug(f'PriceManager query (w/o key) = {query}', 'PriceManager._construct_url')
         return url
 
     def get_prices(self, ticker: str, start_date: date, end_date: date, asset_type: str):
@@ -447,10 +447,10 @@ class PriceManager():
         while first_element == self.service_map['ERRORS']['RATE_THROTTLE']:
             if first_pass:
                 logger.info(
-                    f'{self.genre} API rate limit per minute exceeded. Waiting...')
+                    f'{self.genre} API rate limit per minute exceeded. Waiting...', 'PriceManager.get_prices')
                 first_pass = False
             else:
-                logger.info('Waiting...')
+                logger.info('Waiting...', 'PriceManager.get_prices')
 
             time.sleep(constants.constants['BACKOFF_PERIOD'])
             response = requests.get(url).json()
@@ -627,10 +627,10 @@ def get_daily_price_history(ticker: str, start_date: Union[None, date] = None, e
     if cached_prices is not None:
         if asset_type == keys.keys['ASSETS']['EQUITY']:
             logger.debug(
-                f'Comparing {len(cached_prices)} = {dater.business_days_between(start_date, end_date)}')
+                f'Comparing {len(cached_prices)} = {dater.business_days_between(start_date, end_date)}', 'get_daily_price_history')
         elif asset_type == keys.keys['ASSETS']['CRYPTO']:
             logger.debug(
-                f'Comparing {len(cached_prices)} = {dater.days_between(start_date, end_date)}')
+                f'Comparing {len(cached_prices)} = {dater.days_between(start_date, end_date)}', 'get_daily_price_history')
 
     # make sure the length of cache is equal to the length of the requested sample
     if cached_prices is not None and dater.to_string(end_date) in cached_prices.keys() and (
@@ -645,7 +645,7 @@ def get_daily_price_history(ticker: str, start_date: Union[None, date] = None, e
 
     if cached_prices is not None:
         logger.debug(
-            f'Cached {ticker} prices are out of date, passing request off to external service')
+            f'Cached {ticker} prices are out of date, passing request off to external service', 'get_daily_price_history')
 
     prices = price_manager.get_prices(
         ticker=ticker, start_date=start_date, end_date=end_date, asset_type=asset_type)
@@ -778,7 +778,7 @@ def get_daily_interest_history(maturity: str, start_date: Union[date, None] = No
 
     if rates is not None:
         logger.debug(
-            f'Comparing {len(rates)} = {dater.business_days_between(start_date, end_date)}')
+            f'Comparing {len(rates)} = {dater.business_days_between(start_date, end_date)}', 'get_daily_interest_history')
 
     # TODO: this only works when stats are reported daily and that the latest date in the dataset is actually end_date.
     if rates is not None and \
@@ -787,7 +787,7 @@ def get_daily_interest_history(maturity: str, start_date: Union[date, None] = No
         return rates
 
     logger.debug(
-        f'Cached {maturity} data is out of date, passing request to external service')
+        f'Cached {maturity} data is out of date, passing request to external service', 'get_daily_interest_history')
     rates = stat_manager.get_interest_rates(
         start_date=start_date, end_date=end_date)
 

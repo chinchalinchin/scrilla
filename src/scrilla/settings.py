@@ -132,7 +132,7 @@ try:
     GUI_WIDTH = int(os.environ.setdefault('GUI_WIDTH', '1024'))
 except (ValueError, TypeError) as ParseError:
     logger.debug(
-        'Failed to parse GUI_WIDTH from environment. Setting to default value of 1024.')
+        'Failed to parse GUI_WIDTH from environment. Setting to default value of 1024.', 'line_135')
     GUI_WIDTH = 1024
     os.environ['GUI_WIDTH'] = '1024'
 
@@ -140,7 +140,7 @@ try:
     GUI_HEIGHT = int(os.environ.setdefault('GUI_HEIGHT', '768'))
 except (ValueError, TypeError) as ParseError:
     logger.debug(
-        'Failed to parse GUI_HEIGHT from enviroment. Setting to default value of 768.')
+        'Failed to parse GUI_HEIGHT from enviroment. Setting to default value of 768.', 'line_143')
     GUI_HEIGHT = 768
     os.environ['GUI_HEIGHT'] = '768'
 
@@ -149,7 +149,7 @@ try:
     FRONTIER_STEPS = int(os.environ.setdefault('FRONTIER_STEPS', '5'))
 except (ValueError, TypeError) as ParseError:
     logger.debug(
-        'Failed to parse FRONTIER_STEPS from enviroment. Setting to default value of 5.')
+        'Failed to parse FRONTIER_STEPS from enviroment. Setting to default value of 5.', 'line_152')
     FRONTIER_STEPS = 5
     os.environ['FRONTIER_STEPS'] = '5'
 
@@ -157,7 +157,7 @@ try:
     MA_1_PERIOD = int(os.environ.setdefault('MA_1', '20'))
 except (ValueError, TypeError) as ParseError:
     logger.debug(
-        'Failed to parse MA_1 from environment. Setting to default value of 20.')
+        'Failed to parse MA_1 from environment. Setting to default value of 20.', 'line_160')
     MA_1_PERIOD = 20
     os.environ['MA_1'] = '20'
 
@@ -165,7 +165,7 @@ try:
     MA_2_PERIOD = int(os.environ.setdefault('MA_2', '60'))
 except (ValueError, TypeError) as ParseError:
     logger.debug(
-        'Failed to parse MA_2 from environment. Setting to default value of 60.')
+        'Failed to parse MA_2 from environment. Setting to default value of 60.', 'line_168')
     MA_2_PERIOD = 60
     os.environ['MA_2'] = '60'
 
@@ -173,7 +173,7 @@ try:
     MA_3_PERIOD = int(os.environ.setdefault('MA_3', '100'))
 except (ValueError, TypeError) as ParseError:
     logger.debug(
-        'Failed to parse MA_3 from environment. Setting to default value of 100.')
+        'Failed to parse MA_3 from environment. Setting to default value of 100.', 'line_176')
     MA_3_PERIOD = 100
     os.environ['MA_3'] = '100'
 
@@ -181,7 +181,7 @@ try:
     ITO_STEPS = int(os.environ.setdefault('ITO_STEPS', '10000'))
 except (ValueError, TypeError) as ParseError:
     logger.debug(
-        'Failed to parse ITO_STEPS from environment. Setting to default of 10000.')
+        'Failed to parse ITO_STEPS from environment. Setting to default of 10000.', 'line_184')
     ITO_STEPS = 10000
     os.environ['ITO_STEPS'] = '10000'
 
@@ -190,7 +190,7 @@ try:
         os.environ.setdefault('DEFAULT_ANALYSIS_PERIOD', '100'))
 except (ValueError, TypeError) as ParseError:
     logger.debug(
-        'Failed to parse DEFAULT_ANALYSIS_PERIOD from environment. Setting to default of 100.')
+        'Failed to parse DEFAULT_ANALYSIS_PERIOD from environment. Setting to default of 100.', 'line_194')
     DEFAULT_ANALYSIS_PERIOD = 100
     os.environ['DEFAULT_ANALYSIS_PERIOD'] = 100
 

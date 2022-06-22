@@ -47,7 +47,7 @@ def do_gui():
         _style = formats.format_stylesheet(f.read())
         app.setStyleSheet(_style)
 
-    logger.verbose(f'Initializing GUI with style sheet: {_style}')
+    logger.verbose(f'Initializing GUI with style sheet: {_style}', 'do_gui')
 
     if not dimensions['full_screen']:
         widget.resize(dimensions['width'], dimensions['height'])

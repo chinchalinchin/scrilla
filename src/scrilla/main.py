@@ -60,7 +60,7 @@ def validate_function_usage(selection: str, args: List[str], wrapper_function: C
         raise InputValidationError(
             f'Invalid number of arguments for \'{selection}\' function. Function requires more than {required_length} arguments.')
     end_time = time.time()
-    logger.info(f'Total execution time: {end_time - start_time}s')
+    logger.info(f'Total execution time: {end_time - start_time}s', 'validate_function_usage')
 
 
 def print_format_to_screen(args: Dict[str, Union[str, date, float, None, bool]]) -> bool:
@@ -118,7 +118,7 @@ def do_program(cli_args: List[str]) -> None:
         def cli_clear_cache():
             from scrilla.files import clear_directory
             from scrilla.settings import CACHE_DIR
-            logger.info(f'Clearing {CACHE_DIR}')
+            logger.info(f'Clearing {CACHE_DIR}', 'do_program')
             clear_directory(directory=CACHE_DIR, retain=True)
         selected_function, required_length = cli_clear_cache, 0
 
@@ -127,7 +127,7 @@ def do_program(cli_args: List[str]) -> None:
         def cli_clear_static():
             from scrilla.files import clear_directory
             from scrilla.settings import STATIC_DIR
-            logger.info(f'Clearing {STATIC_DIR}')
+            logger.info(f'Clearing {STATIC_DIR}', 'do_program')
             clear_directory(directory=STATIC_DIR, retain=True)
         selected_function, required_length = cli_clear_static, 0
 
@@ -136,7 +136,7 @@ def do_program(cli_args: List[str]) -> None:
         def cli_clear_common():
             from scrilla.files import clear_directory
             from scrilla.settings import COMMON_DIR
-            logger.info(f'Clearing {COMMON_DIR}')
+            logger.info(f'Clearing {COMMON_DIR}', 'do_program')
             clear_directory(directory=COMMON_DIR, retain=True)
         selected_function, required_length = cli_clear_common, 0
 
@@ -155,7 +155,7 @@ def do_program(cli_args: List[str]) -> None:
             from scrilla.files import clear_directory
             from scrilla.settings import CACHE_DIR, STATIC_DIR, COMMON_DIR
             logger.info(
-                f'Clearing {STATIC_DIR}, {CACHE_DIR} and {COMMON_DIR}')
+                f'Clearing {STATIC_DIR}, {CACHE_DIR} and {COMMON_DIR}', 'do_program')
             clear_directory(directory=STATIC_DIR, retain=True)
             clear_directory(directory=CACHE_DIR, retain=True)
             clear_directory(directory=COMMON_DIR, retain=True)
@@ -380,7 +380,7 @@ def do_program(cli_args: List[str]) -> None:
             from scrilla.analysis.models.geometric.statistics import correlation_matrix
 
             if args['estimation_method'] == keys['ESTIMATION']['LIKE']:
-                logger.info('This calculation takes a while, strap in...')
+                logger.info('This calculation takes a while, strap in...', 'do_program')
 
             matrix = correlation_matrix(tickers=args['tickers'],
                                         start_date=args['start_date'],
@@ -409,7 +409,7 @@ def do_program(cli_args: List[str]) -> None:
             if print_format_to_screen(args):
                 from scrilla.util.outputter import scalar_result
 
-            logger.info('This calculation takes a while, strap in...')
+            logger.info('This calculation takes a while, strap in...', 'do_program')
             ticker_1, ticker_2 = args['tickers'][0], args['tickers'][1]
             result = calculate_moment_correlation_series(ticker_1=ticker_1,
                                                          ticker_2=ticker_2,
@@ -702,7 +702,7 @@ def do_program(cli_args: List[str]) -> None:
             from scrilla.analysis.models.geometric.statistics import calculate_moment_correlation_series
             from scrilla.analysis.plotter import plot_correlation_series
 
-            logger.info('This calculation takes a while, strap in...')
+            logger.info('This calculation takes a while, strap in...', 'do_program')
 
             correlation_history = calculate_moment_correlation_series(ticker_1=args['tickers'][0],
                                                                       ticker_2=args['tickers'][1],
@@ -1080,7 +1080,7 @@ def do_program(cli_args: List[str]) -> None:
             from scrilla.files import add_watchlist
             add_watchlist(new_tickers=args['tickers'])
             logger.info(
-                "Watchlist saved. Use -ls option to print watchlist.")
+                "Watchlist saved. Use -ls option to print watchlist.", 'do_program')
         selected_function, required_length = cli_watchlist, 1
 
     else:

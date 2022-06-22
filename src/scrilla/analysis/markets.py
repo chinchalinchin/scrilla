@@ -234,7 +234,7 @@ def screen_for_discount(model: str = keys.keys['MODELS']['DDM'], discount_rate: 
 
         if model == keys.keys['MODELS']['DDM']:
             logger.debug(
-                'Using Discount Dividend Model to screen watchlisted equities for discounts.')
+                'Using Discount Dividend Model to screen watchlisted equities for discounts.', 'screen_for_discount')
             dividends = services.get_dividend_history(equity)
             model_price = Cashflow(
                 sample=dividends, discount_rate=discount_rate).calculate_net_present_value()
@@ -244,6 +244,6 @@ def screen_for_discount(model: str = keys.keys['MODELS']['DDM'], discount_rate: 
                 discount_result = {'spot_price': spot_price,
                                    'model_price': model_price, 'discount': discount}
                 discounts[equity] = discount_result
-                logger.debug(f'Discount of {discount} found for {equity}')
+                logger.debug(f'Discount of {discount} found for {equity}', 'screen_for_discount')
 
     return discounts

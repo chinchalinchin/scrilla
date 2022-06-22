@@ -358,25 +358,25 @@ class Logger():
         self.log_level = log_level
 
     # LOGGING FUNCTIONS
-    def comment(self, msg, level = "INFO"):
+    def comment(self, msg, method, level = "INFO"):
         now = datetime.datetime.now()
         dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
-        print(dt_string, ' : ', level, ':', self.location, ' : ', msg)
+        print(dt_string, ' : ', level, ':', f'{self.location}.{method}', ' : ', msg)
 
-    def error(self, msg):
-        self.comment(msg, 'ERROR')
+    def error(self, msg, method):
+        self.comment(msg, 'ERROR', method)
 
-    def info(self, msg):
+    def info(self, msg, method):
         if self.log_level in [constants.constants['LOG_LEVEL']['INFO'],
                               constants.constants['LOG_LEVEL']['DEBUG'],
                               constants.constants['LOG_LEVEL']['VERBOSE']]:
-            self.comment(msg, 'INFO')
+            self.comment(msg, 'INFO', method)
 
-    def debug(self, msg):
+    def debug(self, msg, method):
         if self.log_level in [constants.constants['LOG_LEVEL']['DEBUG'],
                               constants.constants['LOG_LEVEL']['VERBOSE']]:
-            self.comment(msg, 'DEBUG')
+            self.comment(msg, 'DEBUG', method)
 
-    def verbose(self, msg):
+    def verbose(self, msg, method):
         if self.log_level == constants.constants['LOG_LEVEL']['VERBOSE']:
-            self.comment(msg, 'VERBOSE')
+            self.comment(msg, 'VERBOSE', method)

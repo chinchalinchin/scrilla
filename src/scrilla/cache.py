@@ -191,7 +191,7 @@ class PriceCache():
 
     def save_row(self, ticker, date, open_price, close_price):
         logger.verbose(
-            F'Attempting to insert {ticker} prices on {date} to cache')
+            F'Attempting to insert {ticker} prices on {date} to cache','save_row')
         formatter = {'ticker': ticker, 'date': date,
                      'open': open_price, 'close': close_price}
         Cache.execute_transaction(
@@ -199,7 +199,7 @@ class PriceCache():
 
     def filter_price_cache(self, ticker, start_date, end_date):
         logger.debug(
-            f'Querying {settings.CACHE_MODE} cache \n\t{self._query()}\n\t\t with :ticker={ticker}, :start_date={start_date}, :end_date={end_date}')
+            f'Querying {settings.CACHE_MODE} cache \n\t{self._query()}\n\t\t with :ticker={ticker}, :start_date={start_date}, :end_date={end_date}', 'filter_price_cache')
         formatter = {'ticker': ticker,
                      'start_date': start_date, 'end_date': end_date}
         results = Cache.execute_query(
@@ -208,9 +208,9 @@ class PriceCache():
         print(results)
 
         if len(results) > 0:
-            logger.debug(f'Found {ticker} prices in the cache')
+            logger.debug(f'Found {ticker} prices in the cache', 'filter_price_cache')
             return self.to_dict(results)
-        logger.debug(f'No results found for {ticker} prices in the cache')
+        logger.debug(f'No results found for {ticker} prices in the cache', 'filter_price_cache')
         return None
 
 
@@ -295,7 +295,7 @@ class InterestCache():
 
     def save_row(self, date, value):
         for index, maturity in enumerate(keys.keys['YIELD_CURVE']):
-            logger.verbose(f'Saving {maturity} yield on {date} to cache')
+            logger.verbose(f'Saving {maturity} yield on {date} to cache', 'save_row')
             formatter = {'maturity': maturity,
                          'date': date, 'value': value[index]}
             Cache.execute_transaction(
@@ -303,7 +303,7 @@ class InterestCache():
 
     def filter_interest_cache(self, maturity, start_date, end_date):
         logger.debug(
-            f'Querying {settings.CACHE_MODE} cache \n\t{self._query()}\n\t\t with :maturity={maturity}, :start_date={start_date}, :end_date={end_date}')
+            f'Querying {settings.CACHE_MODE} cache \n\t{self._query()}\n\t\t with :maturity={maturity}, :start_date={start_date}, :end_date={end_date}', 'filter_interest_cache')
         formatter = {'maturity': maturity,
                      'start_date': start_date, 'end_date': end_date}
         results = Cache.execute_query(
@@ -312,9 +312,9 @@ class InterestCache():
         print(results)
         
         if len(results) > 0:
-            logger.debug(f'Found {maturity} yield on in the cache')
+            logger.debug(f'Found {maturity} yield on in the cache', 'filter_interest_cache')
             return self.to_dict(results)
-        logger.debug(f'No results found for {maturity} yield in cache')
+        logger.debug(f'No results found for {maturity} yield in cache', 'filter_interest_cache')
         return None
 
 
@@ -451,7 +451,7 @@ class CorrelationCache():
             *Optional*. Method used to calculate the correlation. Defaults to `scrilla.settings.ESTIMATION_METHOD`, which in turn is configured by the environment variable, *DEFAULT_ESTIMATION_METHOD*.
         """
         logger.verbose(
-            f'Saving ({ticker_1}, {ticker_2}) correlation from {start_date} to {end_date} to the cacche')
+            f'Saving ({ticker_1}, {ticker_2}) correlation from {start_date} to {end_date} to the cache', 'save_row')
         formatter_1 = {'ticker_1': ticker_1, 'ticker_2': ticker_2, 'method': method,
                        'start_date': start_date, 'end_date': end_date, 'correlation': correlation,
                        'weekends': weekends}
@@ -470,12 +470,12 @@ class CorrelationCache():
                        'start_date': start_date, 'end_date': end_date, 'weekends': weekends}
 
         logger.debug(
-            f'Querying {settings.CACHE_MODE} cache \n\t{self._query()}\n\t\t with :ticker_1={ticker_1}, :ticker_2={ticker_2},:start_date={start_date}, :end_date={end_date}')
+            f'Querying {settings.CACHE_MODE} cache \n\t{self._query()}\n\t\t with :ticker_1={ticker_1}, :ticker_2={ticker_2},:start_date={start_date}, :end_date={end_date}', 'filter_correlation_cache')
         results = Cache.execute_query(
             query=self._query(), formatter=formatter_1)
         if len(results) > 0:
             logger.debug(
-                f'Found ({ticker_1},{ticker_2}) correlation in the cache')
+                f'Found ({ticker_1},{ticker_2}) correlation in the cache', 'filter_correlation_cache')
             return self.to_dict(results)
         results = Cache.execute_query(
             query=self._query(), formatter=formatter_2)
@@ -484,10 +484,10 @@ class CorrelationCache():
 
         if len(results) > 0:
             logger.debug(
-                f'Found ({ticker_1},{ticker_2}) correlation in the cache')
+                f'Found ({ticker_1},{ticker_2}) correlation in the cache', 'filter_correlation_cache')
             return self.to_dict(results)
         logger.debug(
-            f'No results found for ({ticker_1}, {ticker_2}) correlation in the cache')
+            f'No results found for ({ticker_1}, {ticker_2}) correlation in the cache', 'filter_correlation_cache')
         return None
 
 
@@ -631,16 +631,16 @@ class ProfileCache(Cache):
 
     def filter_profile_cache(self, ticker: str, start_date: datetime.date, end_date: datetime.date, weekends: int = 0, method=settings.ESTIMATION_METHOD):
         logger.debug(
-            f'Querying {settings.CACHE_MODE} cache: \n\t{self._query()}\n\t\t with :ticker={ticker}, :start_date={start_date}, :end_date={end_date}')
+            f'Querying {settings.CACHE_MODE} cache: \n\t{self._query()}\n\t\t with :ticker={ticker}, :start_date={start_date}, :end_date={end_date}', 'filter_profile_cache')
         formatter = {'ticker': ticker, 'start_date': start_date,
                      'end_date': end_date, 'method': method, 'weekends': weekends}
         result = self.execute_query(
             query=self._query(), formatter=formatter)
 
         print(result)
-        
+
         if len(result) > 0:
-            logger.debug(f'{ticker} profile found in cache')
+            logger.debug(f'{ticker} profile found in cache', 'filter_profile_cache')
             return self.to_dict(result)
-        logger.debug(f'No results found for {ticker} profile in the cache')
+        logger.debug(f'No results found for {ticker} profile in the cache', 'filter_profile_cache')
         return None

@@ -139,7 +139,7 @@ def init_static_data():
     ):
         service_map = keys.keys["SERVICES"]["PRICES"]["ALPHA_VANTAGE"]["MAP"]
         logger.debug(
-            f'Missing {settings.STATIC_TICKERS_FILE}, querying \'{settings.PRICE_MANAGER}\'')
+            f'Missing {settings.STATIC_TICKERS_FILE}, querying \'{settings.PRICE_MANAGER}\'', 'init_static_data')
 
         # TODO: services calls should be in services.py! need to put this and the helper method
         #       into services.py in the future.
@@ -155,7 +155,7 @@ def init_static_data():
     ):
         service_map = keys.keys["SERVICES"]["PRICES"]["ALPHA_VANTAGE"]["MAP"]
         logger.debug(
-            f'Missing {settings.STATIC_CRYPTO_FILE}, querying \'{settings.PRICE_MANAGER}\'.')
+            f'Missing {settings.STATIC_CRYPTO_FILE}, querying \'{settings.PRICE_MANAGER}\'.', 'init_static_data')
         url = settings.AV_CRYPTO_LIST
         static_crypto_blob = parse_csv_response_column(column=0, url=url, savefile=settings.STATIC_CRYPTO_FILE,
                                                         firstRowHeader=service_map['KEYS']['CRYPTO']['HEADER'])
@@ -168,7 +168,7 @@ def init_static_data():
             service_map = keys.keys["SERVICES"]["STATISTICS"]["QUANDL"]["MAP"]
 
             logger.debug(
-                f'Missing {settings.STATIC_ECON_FILE}, querying \'{settings.STAT_MANAGER}\'.')
+                f'Missing {settings.STATIC_ECON_FILE}, querying \'{settings.STAT_MANAGER}\'.', 'init_static_data')
 
             query = f'{service_map["PATHS"]["FRED"]}/{service_map["PARAMS"]["METADATA"]}'
             url = f'{settings.Q_META_URL}/{query}?{service_map["PARAMS"]["KEY"]}={settings.Q_KEY}'
@@ -190,7 +190,7 @@ def init_static_data():
             json.dump(rate, outfile)
 
     else:
-        logger.debug('Static data already initialized!')
+        logger.debug('Static data already initialized!', 'init_static_data')
 
 
 def get_static_data(static_type):
@@ -229,13 +229,13 @@ def get_static_data(static_type):
         return None
 
     if blob is not None:
-        logger.debug(f'Found in-memory {static_type} symbols.')
+        logger.verbose(f'Found in-memory {static_type} symbols.', 'get_static_data')
         return blob
 
     if path is not None:
         if not os.path.isfile(path):
             init_static_data()
-        logger.debug(f'Loading in cached {static_type} symbols.')
+        logger.verbose(f'Loading in cached {static_type} symbols.', 'get_static_data')
 
         ext = path.split('.')[-1]
 
@@ -318,16 +318,16 @@ def get_watchlist() -> list:
     logger.debug('Loading in Watchlist symbols.')
 
     if os.path.isfile(settings.COMMON_WATCHLIST_FILE):
-        logger.debug('Watchlist found.')
+        logger.debug('Watchlist found.', 'get_watchlist')
         ext = settings.COMMON_WATCHLIST_FILE.split('.')[-1]
         with open(settings.COMMON_WATCHLIST_FILE, 'r') as infile:
             if ext == "json":
                 watchlist = json.load(infile)
-                logger.debug('Watchlist loaded in JSON format.')
+                logger.verbose('Watchlist loaded in JSON format.', 'get_watchlist')
 
             # TODO: implement other file loading exts
     else:
-        logger.info('Watchlist not found.')
+        logger.error('Watchlist not found.', 'get_watchlist')
         watchlist = []
 
     return watchlist
@@ -339,14 +339,14 @@ def add_watchlist(new_tickers: list) -> None:
     -----------
     Retrieves the list of watchlisted equity ticker symbols saved in /data/common/watchlist.json and then appends to it the list of tickers supplied as arguments. After appending, the list is sorted in alphabetical order. The tickers to add must exist in the /data/static/tickers.json file in order to be added to the watchlist, i.e. the tickers must have price histories that can be retrieved (the static file tickers.json contains a list of all equities with retrievable price histories.) \n \n 
     """
-    logger.debug('Saving tickers to Watchlist')
+    logger.debug('Saving tickers to Watchlist', 'add_watchlist')
 
     current_tickers = get_watchlist()
     all_tickers = get_static_data(keys.keys['ASSETS']['EQUITY'])
 
     for ticker in new_tickers:
         if ticker not in current_tickers and ticker in all_tickers:
-            logger.debug(f'New ticker being added to Watchlist: {ticker}')
+            logger.debug(f'New ticker being added to Watchlist: {ticker}', 'add_watchlist')
             current_tickers.append(ticker)
 
     current_tickers = sorted(current_tickers)

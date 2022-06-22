@@ -9,8 +9,6 @@ from scrilla.util.outputter import Logger
 
 from . import settings as test_settings
 
-logger = Logger("tests.mock", settings.LOG_LEVEL)
-
 univariate_data = {
     'case_1': [16, -12, -17, 1, -3, -4, 17, 0, -14, 16],
     'case_2':  [53, 73, 49, 3, 2, 24, 29, 69, 24, 96],
@@ -131,7 +129,6 @@ service_price_cases = [
 
 @urlmatch(netloc=r'(.*\.)?alphavantage\.co*$')
 def mock_prices(url, request):
-    logger.info('Returning mock AlphaVantage data')
     if 'ALLY' in request.url:
         return json.dumps(load_file(os.path.join(test_settings.MOCK_DIR, 'ally_response.json')))
     elif 'BX' in request.url:
@@ -151,7 +148,6 @@ def mock_prices(url, request):
 
 @urlmatch(netloc=r'(.*\.)?quandl\.com*$')
 def mock_interest(url, request):
-    logger.info('Returning mock Quandl data')
     return json.dumps(load_file(os.path.join(test_settings.MOCK_DIR, 'yield_response.json')))
 
 

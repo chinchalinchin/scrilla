@@ -83,8 +83,8 @@ class Cashflow:
 
         # if constant is specified, override sample and growth_function
         if constant is not None:
-            logger.debug(f'constant = $ {constant}; period MUST NOT be null!')
-            logger.debug(f'period = {self.period}')
+            logger.debug(f'constant = $ {constant}; period MUST NOT be null!', 'Cashflow.__init__')
+            logger.debug(f'period = {self.period}', 'Cashflow.__init__')
             self.constant = constant
             self.sample = None
             self.growth_function = None
@@ -101,7 +101,7 @@ class Cashflow:
         else:
             self.discount_rate = discount_rate
 
-        logger.debug(f'Using discount_rate = {self.discount_rate}')
+        logger.debug(f'Using discount_rate = {self.discount_rate}', 'Cashflow.__init__')
 
         # If no frequency is specified, infer frequency from sample
         if self.sample is not None and self.period is None:
@@ -111,7 +111,7 @@ class Cashflow:
             self.time_to_today = self.calculate_time_to_today()
 
     def infer_period(self):
-        logger.debug('Attempting to infer period/frequency of cashflows.')
+        logger.debug('Attempting to infer period/frequency of cashflows.', 'Cashflow.infer_period')
 
         # no_of_dates = len - 1 because delta is being computed, i.e.
         #   lose one date.
@@ -121,7 +121,7 @@ class Cashflow:
 
         if no_of_dates < 2:
             logger.debug(
-                'Cannot infer period from sample size less than or equal to 1')
+                'Cannot infer period from sample size less than or equal to 1', 'Cashflow.infer_period')
             self.period = None
             self.frequency = None
 
@@ -133,14 +133,15 @@ class Cashflow:
 
                 else:
                     todays_date = dater.parse(date)
+                    # TODO: 365 or 252?
                     delta = (tomorrows_date - todays_date).days / 365
                     mean_delta += delta / no_of_dates
                     tomorrows_date = todays_date
 
             self.period = mean_delta
             self.frequency = 1 / self.period
-            logger.debug(f'Inferred period = {self.period} yrs')
-            logger.debug(f'Inferred frequency = {self.frequency}')
+            logger.debug(f'Inferred period = {self.period} yrs', 'Cashflow.infer_period')
+            logger.debug(f'Inferred frequency = {self.frequency}', 'Cashflow.infer_period')
 
     # TODO: trading days or actual days?
     def generate_time_series_for_sample(self):
@@ -150,7 +151,7 @@ class Cashflow:
 
         if no_of_dates == 0:
             logger.debug(
-                'Cannot generate a time series for a sample size of 0.')
+                'Cannot generate a time series for a sample size of 0.', 'Cashflow.generate_time_series_for_sample')
             self.time_series = None
         else:
             first_date = dater.parse(list(dates)[-1])
@@ -179,7 +180,7 @@ class Cashflow:
             if len(self.sample) > 0:
                 self.alpha = list(self.sample.items())[0][1]
                 logger.debug(
-                    'Error calculating regression coefficients; Defaulting to Markovian process E(X2|X1) = X1.')
+                    'Error calculating regression coefficients; Defaulting to Markovian process E(X2|X1) = X1.', 'Cashflow.regress_growth_function')
                 logger.debug(f'Estimation model : y = {self.alpha}')
             else:
                 raise errors.SampleSizeError(
@@ -187,7 +188,7 @@ class Cashflow:
 
         else:
             logger.debug(
-                f'Linear regression model : y = {self.beta} * x + {self.alpha}')
+                f'Linear regression model : y = {self.beta} * x + {self.alpha}', 'Cashflow.regress_growth_function')
 
     def generate_model_series(self):
         return [self.alpha + self.beta*time for time in self.time_series]
