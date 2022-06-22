@@ -15,7 +15,8 @@ cd $PROJECT_DIR
 
 coverage run \
     -m pytest \
-    --capture=sys 
+    --capture=sys \
+    -s
 
 coverage html
 
