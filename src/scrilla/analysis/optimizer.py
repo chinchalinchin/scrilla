@@ -246,7 +246,7 @@ def maximize_sharpe_ratio(portfolio: Portfolio, target_return: float = None) -> 
         portfolio_constraints = [equity_constraint, return_constraint]
     else:
         logger.debug(f'Maximizing {tickers} Portfolio Sharpe Ratio',
-                     'maximize_sharpe_ratio', 'maximize_sharpe_ratio')
+                     'maximize_sharpe_ratio')
         portfolio_constraints = equity_constraint
 
     allocation = optimize.minimize(fun=lambda x: (-1)*portfolio.sharpe_ratio_function(x),
