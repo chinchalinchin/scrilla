@@ -17,12 +17,12 @@ def _dynamo_params(document: dict):
             # NOTE: bool evaluation has to come before int/float evaluation
             # because False/True also evaluate to a ints in python
             dynamo_json.append({'BOOL': entry})
-        elif isinstance(entry, int) or isinstance(entry, float):
+        elif isinstance(entry, (int, float)):
             dynamo_json.append({'N': entry})
         elif isinstance(entry, list):
             if all(isinstance(el, str) for el in entry):
                 dynamo_json.append({'SS': entry})
-            if all(isinstance(el, int) or isinstance(el, float) for el in entry):
+            if all(isinstance(el, (int, float)) for el in entry):
                 dynamo_json.append({'NS': entry})
         elif entry is None:
             dynamo_json.append({'NULL': True})
