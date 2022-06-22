@@ -36,9 +36,13 @@ commands:
   upload_artifacts:
     description: upload package artifacts to PyPi
     steps:
+      - restore_cache:  # ensure this step occurs *before* installing dependencies
+          key: python-deps-v3-{{ checksum "requirements.txt"}}
       - run:
           name: artifact upload
-          command: twine upload -u $PYPI_USERNAME -p $PYPI_PASSWORD dist/*
+          command: |
+            source ./venv/bin/activate
+            twine upload -u $PYPI_USERNAME -p $PYPI_PASSWORD dist/*
 
   commit_version:
     description: commit new version to git
