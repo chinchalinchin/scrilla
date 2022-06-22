@@ -12,10 +12,9 @@ from scrilla.files import clear_directory, init_static_data
 from .. import mock, settings
 from httmock import HTTMock
 
-@pytest.fixture(scope="session", autouse=True)
-def static_data():
-    init_static_data()
-    
+
+init_static_data()
+
 @pytest.fixture(autouse=True)
 def reset_cache():
     clear_directory(scrilla_settings.CACHE_DIR)

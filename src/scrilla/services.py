@@ -262,7 +262,6 @@ class StatManager():
                                 formatted_interest[date_string].append(
                                     float(interest))
 
-                        print(len(formatted_interest), ' ?=? ', dater.business_days_between(
                             start_date, end_date, True))
                         if len(formatted_interest) >= dater.business_days_between(start_date, end_date, True):
                             return formatted_interest
