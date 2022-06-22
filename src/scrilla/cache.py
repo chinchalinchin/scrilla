@@ -27,7 +27,6 @@ elif settings.CACHE_MODE == 'dynamodb':
 
 import datetime
 from typing import Union
-from scrilla import settings
 from scrilla.static import keys
 from scrilla.util import errors, outputter
 

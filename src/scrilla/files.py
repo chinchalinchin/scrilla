@@ -313,7 +313,7 @@ def get_watchlist() -> list:
     -----------
     Retrieves the list of watchlisted equity ticker symbols saved in /data/common/watchlist.json.
     """
-    logger.debug('Loading in Watchlist symbols.')
+    logger.debug('Loading in Watchlist symbols.', 'get_watchlist')
 
     if os.path.isfile(settings.COMMON_WATCHLIST_FILE):
         logger.debug('Watchlist found.', 'get_watchlist')

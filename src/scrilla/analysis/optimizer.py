@@ -268,6 +268,10 @@ def maximize_portfolio_return(portfolio: Portfolio) -> List[float]:
     ------
     ``List[float]``
         An array of floats that represents the proportion of the portfolio that should be allocated to the corresponding ticker symbols given as a parameter within the portfolio object to achieve the maximum return. Note, this function is often uninteresting because if the rate of return for equity A is 50% and the rate of return of equity B is 25%, the portfolio with a maximized return will always allocated 100% of its value to equity A. However, this function is useful for determining whether or not the optimization algorithm is actually working, so it has been left in the program for debugging purposes. 
+    
+    Notes
+    -----
+    This should always return a portfolio with 100% allocated to the asset with the highest rate of return. If assets had negative correlation and shorting were allowed into the application, this would not necessarily be true.
     """
     tickers = portfolio.tickers
     init_guess = portfolio.get_init_guess()
@@ -277,7 +281,7 @@ def maximize_portfolio_return(portfolio: Portfolio) -> List[float]:
         'fun': portfolio.get_constraint
     }
 
-    logger.debug(f'Maximizing {tickers} Portfolio Return')
+    logger.debug(f'Maximizing {tickers} Portfolio Return', 'maximize_portfolio_retrun')
     allocation = optimize.minimize(fun=lambda x: (-1)*portfolio.return_function(x),
                                    x0=init_guess, method=constants.constants['OPTIMIZATION_METHOD'],
                                    bounds=equity_bounds, constraints=equity_constraint,

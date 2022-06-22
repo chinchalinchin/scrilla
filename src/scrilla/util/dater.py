@@ -361,11 +361,10 @@ def get_previous_business_date(this_date: Union[date, str], bond: bool = False) 
         this_date -= datetime.timedelta(days=1)
     return this_date
 
-# in years
-
-
 def get_time_to_next_month(todays_date: date = today(), trading_days: int = 252) -> float:
     """
+    Returns the time (measured in years) from `todays_date` to first of the next month.
+
     Parameters
     ----------
     1. **todays_date**: ``date``
@@ -383,6 +382,8 @@ def get_time_to_next_month(todays_date: date = today(), trading_days: int = 252)
 
 def get_time_to_next_year(todays_date: date = today(), trading_days: int = 252) -> float:
     """
+    Returns the time (measured in years) from `todays_date` to first of the next year.
+
     Parameters
     ----------
     1. **todays_date**: ``date``
@@ -398,6 +399,8 @@ def get_time_to_next_year(todays_date: date = today(), trading_days: int = 252) 
 
 def get_time_to_next_quarter(todays_date: date = today(), trading_days: int = 252) -> float:
     """
+    Returns the time (measured in years) from `todays_date` to first of the next quarter.
+
     Parameters
     ----------
     1. **todays_date**: ``date``
@@ -424,7 +427,7 @@ def get_time_to_next_quarter(todays_date: date = today(), trading_days: int = 25
 
 def get_time_to_next_period(starting_date: Union[date, str], period: float) -> float:
     """
-    Divides the year into segments of equal length 'period' and then calculates the time from today until 
+    Divides the year into segments of equal length 'period' and then calculates the time from todays_date until 
     the next period. 
 
     Parameters

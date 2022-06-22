@@ -124,7 +124,7 @@ try:
     DATE_FORMAT = str(os.environ.setdefault('DATE_FORMAT', '%Y-%m-%d'))
 except (ValueError, TypeError) as ParseError:
     logger.debug(
-        'Failed to parse DATE_FORMAT from environment. Setting to default value of 1024.')
+        'Failed to parse DATE_FORMAT from environment. Setting to default value of 1024.', 'line_127')
     DATE_FORMAT = '%Y-%m-%d'
     os.environ['GUI_WIDTH'] = '%Y-%m-%d'
 
