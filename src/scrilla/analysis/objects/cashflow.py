@@ -14,7 +14,6 @@
 # or <https://github.com/chinchalinchin/scrilla/blob/develop/main/LICENSE>.
 
 import datetime
-from pprint import pprint
 
 from scrilla import services, settings
 from scrilla.static import constants
