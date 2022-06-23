@@ -126,6 +126,76 @@ def test_profile_cache_construct_insert_query(params, expected):
 def test_price_cache_to_params(ticker, prices, expected):
     assert PriceCache()._to_params(ticker, prices) == expected
 
-
+@pytest.mark.parametrize('rates,expected',[
+    (
+        {
+            '2020-01-01': [0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.10, 0.11, 0.12]
+            # '2020-01-01':{
+            #     "ONE_MONTH": 0.01, 
+            #     "TWO_MONTH": 0.02, 
+            #     "THREE_MONTH": 0.03, 
+            #     "SIX_MONTH": 0.04, 
+            #     "ONE_YEAR": 0.05, 
+            #     "TWO_YEAR": 0.06, 
+            #     "THREE_YEAR": 0.07, 
+            #     "FIVE_YEAR": 0.08, 
+            #     "SEVEN_YEAR": 0.09, 
+            #     "TEN_YEAR": 0.10, 
+            #     "TWENTY_YEAR": 0.11, 
+            #     "THIRTY_YEAR": 0.12
+            # },
+        },
+        [
+            {
+                'date': '2020-01-01',
+                "ONE_MONTH": 0.01
+            },
+            {
+                'date': '2020-01-01',
+                "TWO_MONTH": 0.02,
+            },
+            {
+                'date': '2020-01-01', 
+                "THREE_MONTH": 0.03, 
+            },
+            {
+                'date': '2020-01-01',
+                "SIX_MONTH": 0.04, 
+            },
+            {
+                'date': '2020-01-01',
+                "ONE_YEAR": 0.05, 
+            },
+            {
+                'date': '2020-01-01',
+                "TWO_YEAR": 0.06, 
+            },
+            {
+                'date': '2020-01-01',
+                "THREE_YEAR": 0.07, 
+            },
+            {
+                'date': '2020-01-01',
+                "FIVE_YEAR": 0.08, 
+            },
+            {
+                'date': '2020-01-01',
+                "SEVEN_YEAR": 0.09, 
+            },
+            {
+                'date': '2020-01-01',
+                "TEN_YEAR": 0.10, 
+            },
+            {
+                'date': '2020-01-01',
+                "TWENTY_YEAR": 0.11, 
+            },
+            {
+                'date': '2020-01-01',
+                "THIRTY_YEAR": 0.12
+            }
+        ]
+    )
+])
 def test_interest_cache_to_params(rates, expected):
     assert InterestCache()._to_params(rates) == expected

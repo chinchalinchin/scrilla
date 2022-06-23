@@ -314,10 +314,10 @@ class InterestCache():
     def _to_params(self, rates):
         params = []
         for date in rates:
-            entry = { 'date': date }
             for index, maturity in enumerate(keys.keys['YIELD_CURVE']):
+                entry = { 'date': date }
                 entry[maturity]=rates[date][index]
-            params.append(entry)
+                params.append(entry)
         return params
 
     def save_rows(self, rates):
