@@ -28,6 +28,7 @@ from scrilla.settings import LOG_LEVEL, ESTIMATION_METHOD
 from scrilla.static import definitions
 from scrilla.util.errors import InputValidationError
 from scrilla.files import init_static_data
+from scrilla.cache import init_cache
 from scrilla.static.formats import format_args
 from scrilla.util.outputter import Logger
 
@@ -101,6 +102,8 @@ def do_program(cli_args: List[str]) -> None:
     Parses command line arguments and passes the formatted arguments to appropriate function from the library.
     """
     init_static_data()
+    init_cache()
+    
     args = format_args(cli_args, ESTIMATION_METHOD)
     exact, selected_function = False, None
 
@@ -178,6 +181,9 @@ def do_program(cli_args: List[str]) -> None:
             from scrilla.static.keys import keys
             from scrilla.services import get_daily_interest_history
             yield_curve = {}
+            # TODO: this is inefficient. get_daily_interest_history should be modified
+            # to return all maturities if no maturity is specified. otherwise, this is
+            # duplicating a ton of operations
             for maturity in keys['YIELD_CURVE']:
                 curve_rate = get_daily_interest_history(maturity=maturity,
                                                         start_date=args['start_date'],
