@@ -74,10 +74,12 @@ def dynamo_table(table_configuration: dict):
         logger.error(e, 'dynamo_table')
         return e
 
+
 def dynamo_transaction(transaction, formatter):
     try:
         if isinstance(formatter, list):
-            statements = [dynamo_statement_args(transaction, params) for params in formatter]
+            statements = [dynamo_statement_args(
+                transaction, params) for params in formatter]
             if len(statements)>DYNAMO_STATEMENT_LIMIT:
                 loops = len(statements) // DYNAMO_STATEMENT_LIMIT + \
                     (1 if len(statements) % DYNAMO_STATEMENT_LIMIT != 0 else 0)
@@ -88,7 +90,7 @@ def dynamo_transaction(transaction, formatter):
                     ) for i in range(0, loops)
                 ] 
             return dynamo_client().execute_transaction(
-                TransactStatements = statements
+                TransactStatements=statements
             )
         return dynamo_client().execute_transaction(
             TransactStatements=[
