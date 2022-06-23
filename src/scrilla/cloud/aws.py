@@ -24,10 +24,10 @@ def _dynamo_params(document: dict):
             if all(isinstance(el, str) for el in entry):
                 dynamo_json.append({'SS': entry})
             if all(isinstance(el, (int, float)) for el in entry):
-                dynamo_json.append({'NS': [ str(el) for el in entry]})
+                dynamo_json.append({'NS': [str(el) for el in entry]})
         elif isinstance(entry, date):
-            dynamo_json.append({ 'S':dater.to_string(entry) })
-        
+            dynamo_json.append({'S': dater.to_string(entry)})
+
         elif entry is None:
             dynamo_json.append({'NULL': 'True'})
     return dynamo_json
@@ -59,11 +59,12 @@ def dynamo_resource():
 
 def dynamo_table(table_configuration: dict):
     try:
-        logger.debug(f'Provisioning DynamoDB {table_configuration["TableName"]} table', 'dynamo_table')
+        logger.debug(
+            f'Provisioning DynamoDB {table_configuration["TableName"]} table', 'dynamo_table')
         return dynamo_client().create_table(**table_configuration)
     except (ClientError, ParamValidationError) as e:
         if not (
-            'Table already exists' in e.response['Error']['Message'] or 
+            'Table already exists' in e.response['Error']['Message'] or
             'Table is being created' in e.response['Error']['Message']
         ):
             logger.error(e, 'dynamo_table')
