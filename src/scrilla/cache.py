@@ -379,7 +379,7 @@ class CorrelationCache():
         'GlobalSecondaryIndexes': [
             {
                 'IndexName': 'AssetTelescoping',
-                'KeySchema':[
+                'KeySchema': [
                     {
                         'AttributeName': 'ticker_2',
                         'KeyType': 'HASH'
@@ -562,7 +562,7 @@ class ProfileCache(Cache):
                 'KeyType': 'RANGE'
             }
         ],
-        'GlobalSecondaryIndexes':[
+        'GlobalSecondaryIndexes': [
             {
                 'IndexName': 'DateTelescoping',
                 'KeySchema': [
