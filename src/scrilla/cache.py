@@ -207,6 +207,9 @@ class PriceCache():
         results = Cache.execute_query(
             query=self._query(), formatter=formatter)
 
+        if settings.CACHE_MODE=='dynamodb':
+            results = results['Items']
+
         if len(results) > 0:
             logger.debug(
                 f'Found {ticker} prices in the cache', 'filter_price_cache')
@@ -312,10 +315,14 @@ class InterestCache():
         results = Cache.execute_query(
             query=self._query(), formatter=formatter)
 
+        if settings.CACHE_MODE=='dynamodb':
+            results = results['Items']
+
         if len(results) > 0:
             logger.debug(
                 f'Found {maturity} yield on in the cache', 'filter_interest_cache')
             return self.to_dict(results)
+
         logger.debug(
             f'No results found for {maturity} yield in cache', 'filter_interest_cache')
         return None
@@ -500,6 +507,10 @@ class CorrelationCache():
             f'Querying {settings.CACHE_MODE} cache \n\t{self._query()}\n\t\t with :ticker_1={ticker_1}, :ticker_2={ticker_2},:start_date={start_date}, :end_date={end_date}', 'filter_correlation_cache')
         results = Cache.execute_query(
             query=self._query(), formatter=formatter_1)
+
+        if settings.CACHE_MODE=='dynamodb':
+            results = results['Items']
+    
         if len(results) > 0:
             logger.debug(
                 f'Found ({ticker_1},{ticker_2}) correlation in the cache', 'filter_correlation_cache')
@@ -693,6 +704,9 @@ class ProfileCache(Cache):
                      'end_date': end_date, 'method': method, 'weekends': weekends}
         result = self.execute_query(
             query=self._query(), formatter=formatter)
+
+        if settings.CACHE_MODE=='dynamodb':
+            result = result['Items']
 
         if len(result) > 0:
             logger.debug(f'{ticker} profile found in cache',
