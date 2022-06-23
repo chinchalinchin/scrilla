@@ -32,7 +32,6 @@ from scrilla.util import errors, outputter
 
 logger = outputter.Logger("scrilla.cache", settings.LOG_LEVEL)
 
-
 class Cache():
     """
     Class with static methods all other Caches employ. This class tries to hide as much implementation detail as possible behind its methods, i.e. this class is concerned with executing commits and transactions, whereas the other cache classes are concerned with the data structure that is created with these methods.
@@ -135,14 +134,6 @@ class PriceCache():
                 'AttributeName': 'date',
                 'AttributeType': 'S'
             },
-            {
-                'AttributeName': 'open',
-                'AttributeType': 'N'
-            },
-            {
-                'AttributeName': 'close',
-                'AttributeType': 'N'
-            }
         ],
         'TableName': 'prices',
         'KeySchema': [
@@ -249,10 +240,6 @@ class InterestCache():
                 'AttributeName': 'date',
                 'AttributeType': 'S'
             },
-            {
-                'AttributeName': 'value',
-                'AttributeType': 'N'
-            }
         ],
         'TableName': 'interest',
         'KeySchema': [
@@ -377,10 +364,6 @@ class CorrelationCache():
                 'AttributeName': 'weekends',
                 'AttributeType': 'N'
             },
-            {
-                'AttributeName': 'correlation',
-                'AttributeType': 'N'
-            }
         ],
         'TableName': 'correlations',
         'KeySchema': [
@@ -411,22 +394,27 @@ class CorrelationCache():
                 }
             },
             {
-                'IndexName': 'EstimationTelescoping',
+                'IndexName': 'WeekendTelescoping',
                 'KeySchema': [
-                    {
-                        'AttributeName': 'method',
-                        'KeyType': 'HASH'
-                    },
                     {
                         'AttributeName': 'weekends',
                         'KeyType': 'HASH'
                     }
                 ],
                 'Projection': {
-                    'ProjectionType': 'INCLUDE',
-                    'NonKeyAttributes': [
-                        'correlation',
-                    ]
+                    'ProjectionType': 'KEYS_ONLY'
+                }
+            },
+            {
+                'IndexName': 'EstimationTelescoping',
+                'KeySchema': [
+                    {
+                        'AttributeName': 'method',
+                        'KeyType': 'HASH'
+                    },
+                ],
+                'Projection': {
+                    'ProjectionType': 'ALL',
                 }
             },
         ]
@@ -555,26 +543,6 @@ class ProfileCache(Cache):
                 'AttributeType': 'S'
             },
             {
-                'AttributeName': 'annual_return',
-                'AttributeType': 'N'
-            },
-            {
-                'AttributeName': 'annual_volatility',
-                'AttributeType': 'N'
-            },
-            {
-                'AttributeName': 'sharpe_ratio',
-                'AttributeType': 'N'
-            },
-            {
-                'AttributeName': 'asset_beta',
-                'AttributeType': 'N'
-            },
-            {
-                'AttributeName': 'equity_cost',
-                'AttributeType': 'N'
-            },
-            {
                 'AttributeName': 'method',
                 'AttributeType': 'S'
             },
@@ -599,9 +567,13 @@ class ProfileCache(Cache):
                 'IndexName': 'DateTelescoping',
                 'KeySchema': [
                     {
+                        'AttributeName': 'weekends',
+                        'KeyType': 'HASH'
+                    },
+                    {
                         'AttributeName': 'end_date',
                         'KeyType': 'RANGE'
-                    }
+                    },
                 ],
                 'Projection': {
                     'ProjectionType': 'KEYS_ONLY'
@@ -614,20 +586,9 @@ class ProfileCache(Cache):
                         'AttributeName': 'method',
                         'KeyType': 'HASH'
                     },
-                    {
-                        'AttributeName': 'weekends',
-                        'KeyType': 'HASH'
-                    }
                 ],
                 'Projection': {
-                    'ProjectionType': 'INCLUDE',
-                    'NonKeyAttributes': [
-                        'annual_return',
-                        'annual_volatility',
-                        'sharpe_ratio',
-                        'asset_beta',
-                        'equity_cost'
-                    ]
+                    'ProjectionType': 'ALL',
                 }
             }
         ]
@@ -738,3 +699,7 @@ class ProfileCache(Cache):
         logger.debug(
             f'No results found for {ticker} profile in the cache', 'filter_profile_cache')
         return None
+
+
+def init_cache():
+    PriceCache(), InterestCache(), ProfileCache(), CorrelationCache()
