@@ -592,13 +592,45 @@ class ProfileCache(Cache):
             {
                 'AttributeName': 'start_date',
                 'KeyType': 'RANGE'
-            },
-            {
-                'AttributeName': 'end_date',
-                'KeyType': 'RANGE'
             }
         ],
-        'BillingMode': 'PAY_PER_REQUEST'
+        'GlobalSecondaryIndexes':[
+            {
+                'IndexName': 'DateTelescoping',
+                'KeySchema': [
+                    {
+                        'AttributeName': 'end_date',
+                        'KeyType': 'RANGE'
+                    }
+                ],
+                'Projection': {
+                    'ProjectionType': 'KEYS_ONLY'
+                }
+            },
+            {
+                'IndexName': 'EstimationTelescoping',
+                'KeySchema': [
+                    {
+                        'AttributeName': 'method',
+                        'KeyType': 'HASH'
+                    },
+                    {
+                        'AttributeName': 'weekends',
+                        'KeyType': 'HASH'
+                    }
+                ],
+                'Projection': {
+                    'ProjectionType': 'INCLUDE',
+                    'NonKeyAttributes': [
+                        'annual_return',
+                        'annual_volatility',
+                        'sharpe_ratio',
+                        'asset_beta',
+                        'equity_cost'
+                    ]
+                }
+            }
+        ]
     }
     dynamodb_insert_transaction = "INSERT INTO \"profile\" VALUE {'ticker': '?', 'end_date': '?', 'start_date': '?', 'correlation': '?', 'annual_return': '?', 'annual_volatility': '?', 'sharpe_ratio': '?', 'asset_beta': '?', 'equity_cost': '?', method': '?', 'weekends': '?' }"
     dynamodb_profile_query = "SELECT annual_return,annual_volatility,sharpe_ratio,asset_beta,equity_cost FROM \"correlations\" WHERE ticker_1=? AND ticker_2=? AND start_date=? AND end_date=? AND method=? AND weekends=?"
