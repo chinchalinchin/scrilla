@@ -32,6 +32,7 @@ from scrilla.util import errors, outputter
 
 logger = outputter.Logger("scrilla.cache", settings.LOG_LEVEL)
 
+
 class Cache():
     """
     Class with static methods all other Caches employ. This class tries to hide as much implementation detail as possible behind its methods, i.e. this class is concerned with executing commits and transactions, whereas the other cache classes are concerned with the data structure that is created with these methods.
@@ -703,7 +704,7 @@ class ProfileCache(Cache):
 
 def init_cache():
     import os
-    
+
     if not os.path.isfile(settings.CACHE_FLAG_FILE):
         PriceCache(), InterestCache(), ProfileCache(), CorrelationCache()
         with open(settings.CACHE_FLAG_FILE, 'w'):
