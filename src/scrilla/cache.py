@@ -65,7 +65,7 @@ class Cache():
                 else:
                     response = executor.execute(transaction, formatter)
             else:
-                if isinstance(formatter,list):
+                if isinstance(formatter, list):
                     response = executor.executemany(transaction)
                 else:
                     response = executor.execute(transaction)
@@ -99,7 +99,7 @@ class Cache():
             con.row_factory = sqlite3.Row
             executor = con.cursor()
             if formatter is not None:
-                if isinstance(formatter,list):
+                if isinstance(formatter, list):
                     return executor.executemany(query, formatter).fetchall()
                 return executor.execute(query, formatter).fetchall()
             return executor.execute(query).fetchall()
@@ -153,8 +153,8 @@ class PriceCache():
         ],
     }
     dynamodb_insert_transaction = "INSERT INTO \"prices\" VALUE {'ticker': ?, 'date': ?, 'open': ?, 'close': ? }"
-    dynamodb_price_query = "SELECT \"date\", \"open\", \"close\" FROM \"prices\" WHERE \"ticker\"=? AND \"date\"<=? AND \"date\">=?" 
-        # CANT ADD  'ORDER BY \"date\" DESC' FOR SOME REASON
+    dynamodb_price_query = "SELECT \"date\", \"open\", \"close\" FROM \"prices\" WHERE \"ticker\"=? AND \"date\"<=? AND \"date\">=?"
+    # CANT ADD  'ORDER BY \"date\" DESC' FOR SOME REASON
     dynamodb_identity_query = "EXISTS(SELECT ticker FROM \"prices\" WHERE ticker=? and date= ?)"
 
     @staticmethod
@@ -208,7 +208,7 @@ class PriceCache():
         logger.verbose(
             F'Attempting to insert {ticker} prices to cache', 'save_rows')
         Cache.execute_transaction(
-            transaction=self._insert(), 
+            transaction=self._insert(),
             formatter=self._to_params(ticker, prices)
         )
 
@@ -315,8 +315,8 @@ class InterestCache():
         params = []
         for date in rates:
             for index, maturity in enumerate(keys.keys['YIELD_CURVE']):
-                entry = { 'date': date }
-                entry[maturity]=rates[date][index]
+                entry = {'date': date}
+                entry[maturity] = rates[date][index]
                 params.append(entry)
         return params
 
@@ -324,7 +324,7 @@ class InterestCache():
         logger.verbose(
             F'Attempting to insert interest rates into cache', 'save_rows')
         Cache.execute_transaction(
-            transaction=self._insert(), 
+            transaction=self._insert(),
             formatter=self._to_params(rates)
         )
 

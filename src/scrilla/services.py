@@ -787,7 +787,7 @@ def get_daily_interest_history(maturity: str, start_date: Union[date, None] = No
         start_date=start_date, end_date=end_date)
 
     interest_cache.save_rows(rates)
-    
+
     rates = stat_manager.format_for_maturity(maturity=maturity, results=rates)
 
     return rates
