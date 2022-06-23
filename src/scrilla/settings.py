@@ -24,6 +24,7 @@ import scrilla.util.outputter as outputter
 class APIKeyError(Exception):
     pass
 
+
 APP_DIR = os.path.dirname(os.path.abspath(__file__))
 """Folder containing the root module of the project"""
 
