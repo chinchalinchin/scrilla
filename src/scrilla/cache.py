@@ -207,7 +207,7 @@ class PriceCache():
         results = Cache.execute_query(
             query=self._query(), formatter=formatter)
 
-        if settings.CACHE_MODE=='dynamodb':
+        if settings.CACHE_MODE == 'dynamodb':
             results = results['Items']
 
         if len(results) > 0:
@@ -315,7 +315,7 @@ class InterestCache():
         results = Cache.execute_query(
             query=self._query(), formatter=formatter)
 
-        if settings.CACHE_MODE=='dynamodb':
+        if settings.CACHE_MODE == 'dynamodb':
             results = results['Items']
 
         if len(results) > 0:
@@ -508,9 +508,9 @@ class CorrelationCache():
         results = Cache.execute_query(
             query=self._query(), formatter=formatter_1)
 
-        if settings.CACHE_MODE=='dynamodb':
+        if settings.CACHE_MODE == 'dynamodb':
             results = results['Items']
-    
+
         if len(results) > 0:
             logger.debug(
                 f'Found ({ticker_1},{ticker_2}) correlation in the cache', 'filter_correlation_cache')
@@ -705,7 +705,7 @@ class ProfileCache(Cache):
         result = self.execute_query(
             query=self._query(), formatter=formatter)
 
-        if settings.CACHE_MODE=='dynamodb':
+        if settings.CACHE_MODE == 'dynamodb':
             result = result['Items']
 
         if len(result) > 0:
