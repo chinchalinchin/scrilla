@@ -28,7 +28,6 @@ def dynamo_params(document: dict):
                 dynamo_json.append({'NS': [str(el) for el in entry]})
         elif isinstance(entry, date):
             dynamo_json.append({'S': dater.to_string(entry)})
-
         elif entry is None:
             dynamo_json.append({'NULL': 'True'})
     return dynamo_json
