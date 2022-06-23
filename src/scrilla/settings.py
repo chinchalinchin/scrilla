@@ -75,6 +75,8 @@ STATIC_ECON_FILE = os.path.join(STATIC_DIR, f'economics.{FILE_EXT}')
 STATIC_CRYPTO_FILE = os.path.join(STATIC_DIR, f'crypto.{FILE_EXT}')
 """Location of file used to store crypto ticker symbols"""
 
+CACHE_FLAG_FILE = os.path.join(CACHE_DIR, 'init.txt')
+"""Location of file used to indiciate whether or not cache has been initialized"""
 COMMON_DIR = os.path.join(APP_DIR, 'data', 'common')
 """Directory used to store common files, such as API keys, watchlist, etc.
 

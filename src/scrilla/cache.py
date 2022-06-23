@@ -702,4 +702,9 @@ class ProfileCache(Cache):
 
 
 def init_cache():
-    PriceCache(), InterestCache(), ProfileCache(), CorrelationCache()
+    import os
+    
+    if not os.path.isfile(settings.CACHE_FLAG_FILE):
+        PriceCache(), InterestCache(), ProfileCache(), CorrelationCache()
+        with open(settings.CACHE_FLAG_FILE, 'w'):
+            pass
