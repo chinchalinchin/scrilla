@@ -629,7 +629,9 @@ class ProfileCache(Cache):
         ]
     }
     dynamodb_profile_query = "SELECT annual_return,annual_volatility,sharpe_ratio,asset_beta,equity_cost FROM \"profile\" WHERE ticker=? AND start_date=? AND end_date=? AND method=? AND weekends=?"
-    dynamodb_identity_query = "EXISTS(SELECT * FROM \"profile\" WHERE ticker=? AND start_date=? AND end_date=? AND method=? AND weekends=?)"
+    # TODO: exists() needs to be inside of a transaction, not query. however, the following transaction does not work for some reason...
+    # dynamodb_identity_query = "EXISTS(SELECT * FROM \"profile\" WHERE ticker=? AND start_date=? AND end_date=? AND method=? AND weekends=?)"
+    dynamodb_identity_query = "SELECT * FROM \"profile\" WHERE ticker =? AND start_date=? AND end_date=? AND method=? AND weekends=?"
 
     @staticmethod
     def to_dict(query_result):
@@ -697,11 +699,11 @@ class ProfileCache(Cache):
         formatter = {'ticker': ticker, 'start_date': start_date,
                      'end_date': end_date, 'method': method, 'weekends': weekends}
 
-        if settings.CACHE_MODE == 'sqlite':
-            identity = Cache.execute_query(self._identity(), formatter)
-        elif settings.CACHE_MODE == 'dynamodb':
-            identity = Cache.execute_transaction(self._identity(), formatter)
-            
+        identity = Cache.execute_query(self._identity(), formatter)
+
+        if settings.CACHE_MODE == 'dynamodb':
+            identity = identity['Items']
+
         if annual_return is not None:
             formatter['annual_return'] = annual_return
         if annual_volatility is not None:
