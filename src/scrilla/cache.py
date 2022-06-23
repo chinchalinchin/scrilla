@@ -701,7 +701,7 @@ class ProfileCache(Cache):
             identity = Cache.execute_query(self._identity(), formatter)
         elif settings.CACHE_MODE == 'dynamodb':
             identity = Cache.execute_transaction(self._identity(), formatter)
-            
+
         if annual_return is not None:
             formatter['annual_return'] = annual_return
         if annual_volatility is not None:
