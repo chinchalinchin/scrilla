@@ -1,8 +1,8 @@
 import os
-from numpy import single
 os.environ['CACHE_MODE'] = 'dynamodb'
 
 import pytest
+import datetime
 from moto import mock_dynamodb
 from botocore.exceptions import ClientError, ParamValidationError
 
@@ -45,7 +45,8 @@ def singleton_table_conf():
             'param4': None,
             'param5': [1, 2, 3, 4],
             'param6': ['a', 'b', 'c'],
-            'param7': 54.53
+            'param7': 54.53,
+            'param8': datetime.date(year=2020, month=2, day=1)
         },
         [
             { 'S': 'test' },
@@ -54,7 +55,8 @@ def singleton_table_conf():
             { 'NULL': True },
             { 'NS': [1, 2, 3, 4] },
             { 'SS': ['a', 'b', 'c'] },
-            { 'N': 54.53 }
+            { 'N': 54.53 },
+            { 'S': '2020-02-01' }
         ]
     ),
     (
