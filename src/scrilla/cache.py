@@ -629,7 +629,7 @@ class ProfileCache(Cache):
         ]
     }
     dynamodb_profile_query = "SELECT annual_return,annual_volatility,sharpe_ratio,asset_beta,equity_cost FROM \"profile\" WHERE ticker=? AND start_date=? AND end_date=? AND method=? AND weekends=?"
-    dynamodb_identity_query = "EXISTS(SELECT * FROM \"profile\" WHERE ticker_1=? AND ticker_2=? AND start_date=? AND end_date=? AND method=? AND weekends=?)"
+    dynamodb_identity_query = "EXISTS(SELECT * FROM \"profile\" WHERE ticker=? AND start_date=? AND end_date=? AND method=? AND weekends=?)"
 
     @staticmethod
     def to_dict(query_result):
@@ -697,7 +697,7 @@ class ProfileCache(Cache):
         formatter = {'ticker': ticker, 'start_date': start_date,
                      'end_date': end_date, 'method': method, 'weekends': weekends}
 
-        identity = Cache.execute_query(self.sqlite_identity_query, formatter)
+        identity = Cache.execute_query(self._identity(), formatter)
 
         if annual_return is not None:
             formatter['annual_return'] = annual_return

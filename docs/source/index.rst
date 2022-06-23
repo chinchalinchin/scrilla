@@ -9,6 +9,8 @@ Welcome to scrilla's documentation!
    SETUP
    CONFIGURATION
    USAGE
+   DEVELOPMENT
+   DEPLOYMENT
    APPENDIX
 
 
