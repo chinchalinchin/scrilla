@@ -74,12 +74,14 @@ def dynamo_table(table_configuration: dict):
         logger.error(e, 'dynamo_table')
         return e
 
+
 def dynamo_transaction(transaction, formatter):
     try:
         if isinstance(formatter, list):
-            statements = [dynamo_statement_args(transaction, params) for params in formatter]
+            statements = [dynamo_statement_args(
+                transaction, params) for params in formatter]
             return dynamo_client().execute_transaction(
-                TransactStatements = statements
+                TransactStatements=statements
             )
         return dynamo_client().execute_transaction(
             TransactStatements=[

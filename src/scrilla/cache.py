@@ -65,7 +65,7 @@ class Cache():
                 else:
                     response = executor.execute(transaction, formatter)
             else:
-                if isinstance(formatter,list):
+                if isinstance(formatter, list):
                     response = executor.executemany(transaction)
                 else:
                     response = executor.execute(transaction)
@@ -99,7 +99,7 @@ class Cache():
             con.row_factory = sqlite3.Row
             executor = con.cursor()
             if formatter is not None:
-                if isinstance(formatter,list):
+                if isinstance(formatter, list):
                     return executor.executemany(query, formatter).fetchall()
                 return executor.execute(query, formatter).fetchall()
             return executor.execute(query).fetchall()
@@ -153,8 +153,8 @@ class PriceCache():
         ],
     }
     dynamodb_insert_transaction = "INSERT INTO \"prices\" VALUE {'ticker': ?, 'date': ?, 'open': ?, 'close': ? }"
-    dynamodb_price_query = "SELECT \"date\", \"open\", \"close\" FROM \"prices\" WHERE \"ticker\"=? AND \"date\"<=? AND \"date\">=?" 
-        # CANT ADD  'ORDER BY \"date\" DESC' FOR SOME REASON
+    dynamodb_price_query = "SELECT \"date\", \"open\", \"close\" FROM \"prices\" WHERE \"ticker\"=? AND \"date\"<=? AND \"date\">=?"
+    # CANT ADD  'ORDER BY \"date\" DESC' FOR SOME REASON
     dynamodb_identity_query = "EXISTS(SELECT ticker FROM \"prices\" WHERE ticker=? and date= ?)"
 
     @staticmethod
