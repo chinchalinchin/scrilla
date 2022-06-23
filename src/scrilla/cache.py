@@ -151,7 +151,7 @@ class PriceCache():
         ],
     }
     dynamodb_insert_transaction = "INSERT INTO \"prices\" VALUE {'ticker': '?', 'date': '?', 'open': '?', 'close': '?' }"
-    dynamodb_price_query = "SELECT date, open, close FROM \"prices\" WHERE ticker=? AND date<=? AND date>=? ORDER BY date DESC"
+    dynamodb_price_query = "SELECT \"date\", \"open\", \"close\" FROM \"prices\" WHERE \"ticker\"=? AND \"date\"<=? AND \"date\">=? ORDER BY \"date\" DESC"
     dynamodb_identity_query = "EXISTS(SELECT ticker FROM \"prices\" WHERE ticker=? and date= ?)"
 
     @staticmethod
