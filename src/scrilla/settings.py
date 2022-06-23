@@ -24,7 +24,7 @@ import scrilla.util.outputter as outputter
 class APIKeyError(Exception):
     pass
 
-
+print(os.environ)
 APP_DIR = os.path.dirname(os.path.abspath(__file__))
 """Folder containing the root module of the project"""
 
@@ -53,6 +53,8 @@ METADATA_FILE = os.path.join(APP_DIR, 'data', 'meta', 'data.json')
 
 CACHE_DIR = os.path.join(APP_DIR, 'data', 'cache')
 """Directory containing cached prices, statistics and calculations"""
+
+print(os.getenv('SQLITE_FILE'))
 CACHE_SQLITE_FILE = os.environ.setdefault(
     'SQLITE_FILE', os.path.join(CACHE_DIR, 'scrilla.db'))
 """Location of the SQLite database flat file; Configured by environment variable **SQLITE_FILE***"""

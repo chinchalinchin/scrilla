@@ -56,6 +56,8 @@ class Cache():
             Dictionary of parameters used to format statement. Statements are formatted with DB-API's name substitution. See [sqlite3 documentation](https://docs.python.org/3/library/sqlite3.html) for more information.
         """
         if settings.CACHE_MODE == 'sqlite':
+            print(settings.CACHE_SQLITE_FILE)
+
             con = sqlite3.connect(settings.CACHE_SQLITE_FILE)
             executor = con.cursor()
             if formatter is not None:
@@ -92,6 +94,7 @@ class Cache():
             A list containing the results of the query.
         """
         if settings.CACHE_MODE == 'sqlite':
+            print(settings.CACHE_SQLITE_FILE)
             con = sqlite3.connect(settings.CACHE_SQLITE_FILE)
             con.row_factory = sqlite3.Row
             executor = con.cursor()
