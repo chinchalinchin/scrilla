@@ -99,6 +99,7 @@ def dynamo_transaction(transaction, formatter):
         )
     except (ClientError, ParamValidationError) as e:
         logger.error(e, 'dynamo_transaction')
+        print(vars(e))
         logger.verbose(f'\n\t\t{transaction}', 'dynamo_transaction')
 
 

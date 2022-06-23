@@ -697,8 +697,11 @@ class ProfileCache(Cache):
         formatter = {'ticker': ticker, 'start_date': start_date,
                      'end_date': end_date, 'method': method, 'weekends': weekends}
 
-        identity = Cache.execute_query(self._identity(), formatter)
-
+        if settings.CACHE_MODE == 'sqlite':
+            identity = Cache.execute_query(self._identity(), formatter)
+        elif settings.CACHE_MODE == 'dynamodb':
+            identity = Cache.execute_transaction(self._identity(), formatter)
+            
         if annual_return is not None:
             formatter['annual_return'] = annual_return
         if annual_volatility is not None:
