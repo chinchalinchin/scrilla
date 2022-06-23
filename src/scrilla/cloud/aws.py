@@ -59,7 +59,9 @@ def dynamo_resource():
 
 def dynamo_table(table_configuration: dict):
     try:
-        logger.debug(f'Provisioning DynamoDB {table_configuration["TableName"]} table', 'dynamo_table')
+        logger.debug(
+            f'Provisioning DynamoDB {table_configuration["TableName"]} table',
+            'dynamo_table')
         return dynamo_client().create_table(**table_configuration)
     except (ClientError, ParamValidationError) as e:
         if not (
