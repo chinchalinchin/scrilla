@@ -103,7 +103,7 @@ def do_program(cli_args: List[str]) -> None:
     """
     init_static_data()
     init_cache()
-    
+
     args = format_args(cli_args, ESTIMATION_METHOD)
     exact, selected_function = False, None
 
