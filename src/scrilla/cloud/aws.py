@@ -1,9 +1,9 @@
 from pprint import pprint
 import boto3
 from botocore.exceptions import ClientError, ParamValidationError
-
+from datetime import date
 from scrilla import settings
-from scrilla.util import outputter
+from scrilla.util import outputter, dater
 logger = outputter.Logger("scrilla.cloud.aws", settings.LOG_LEVEL)
 
 
@@ -13,20 +13,23 @@ def _dynamo_params(document: dict):
     dynamo_json = []
     for entry in document.values():
         if isinstance(entry, str):
-            dynamo_json.append({'S': entry})
+            dynamo_json.append({'S': str(entry)})
         elif isinstance(entry, bool):
             # NOTE: bool evaluation has to come before int/float evaluation
             # because False/True also evaluate to ints in python
-            dynamo_json.append({'BOOL': entry})
+            dynamo_json.append({'BOOL': str(entry)})
         elif isinstance(entry, (int, float)):
-            dynamo_json.append({'N': entry})
+            dynamo_json.append({'N': str(entry)})
         elif isinstance(entry, list):
             if all(isinstance(el, str) for el in entry):
                 dynamo_json.append({'SS': entry})
             if all(isinstance(el, (int, float)) for el in entry):
-                dynamo_json.append({'NS': entry})
+                dynamo_json.append({'NS': [ str(el) for el in entry]})
+        elif isinstance(entry, date):
+            dynamo_json.append({ 'S':dater.to_string(entry) })
+        
         elif entry is None:
-            dynamo_json.append({'NULL': True})
+            dynamo_json.append({'NULL': 'True'})
     return dynamo_json
 
 
@@ -42,7 +45,7 @@ def dynamo_statement_args(statement, params=None):
         }
     return {
         'Statement': statement,
-        'Params': _dynamo_params(params)
+        'Parameters': _dynamo_params(params)
     }
 
 
@@ -56,11 +59,15 @@ def dynamo_resource():
 
 def dynamo_table(table_configuration: dict):
     try:
-        logger.debug(f'Provisioning DynamoDB {table_configuration["TableName"]} table')
+        logger.debug(f'Provisioning DynamoDB {table_configuration["TableName"]} table', 'dynamo_table')
         return dynamo_client().create_table(**table_configuration)
     except (ClientError, ParamValidationError) as e:
-        logger.error(e, 'dynamo_table')
-        logger.verbose(table_configuration, 'dynamo_table')
+        if not (
+            'Table already exists' in e.response['Error']['Message'] or 
+            'Table is being created' in e.response['Error']['Message']
+        ):
+            logger.error(e, 'dynamo_table')
+            logger.verbose(table_configuration, 'dynamo_table')
         return e
     except KeyError as e:
         logger.error(e, 'dynamo_table')

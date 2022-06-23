@@ -18,6 +18,7 @@ This module provides a data access layer for a SQLite database maintained on the
 
 In addition to preventing excessive API calls, the cache prevents redundant calculations. For example, calculating the market beta for a series of assets requires the variance of the market proxy for each calculation. Rather than recalculate this quantity each time, the program will defer to the values stored in the cache.
 """
+from pprint import pprint
 from scrilla import settings
 
 if settings.CACHE_MODE == 'sqlite':
@@ -66,8 +67,8 @@ class Cache():
             con.close()
         elif settings.CACHE_MODE == 'dynamodb':
             response = aws.dynamo_client().execute_transaction(
-                TransactionStatements=aws.dynamo_statement_args(
-                    transaction, formatter)
+                TransactStatements=[
+                    aws.dynamo_statement_args(transaction, formatter)]
             )
         else:
             raise errors.ConfigurationError(
@@ -99,9 +100,10 @@ class Cache():
                 return executor.execute(query, formatter).fetchall()
             return executor.execute(query).fetchall()
         elif settings.CACHE_MODE == 'dynamodb':
+            print(query)
+            pprint(formatter)
             return aws.dynamo_client().execute_statement(
-                TransactionStatements=[aws.dynamo_statement_args(
-                    query, formatter)]
+                **aws.dynamo_statement_args(query, formatter)
             )
         else:
             raise errors.ConfigurationError(
@@ -594,8 +596,7 @@ class ProfileCache(Cache):
             }
         ]
     }
-    dynamodb_insert_transaction = "INSERT INTO \"profile\" VALUE {'ticker': '?', 'end_date': '?', 'start_date': '?', 'correlation': '?', 'annual_return': '?', 'annual_volatility': '?', 'sharpe_ratio': '?', 'asset_beta': '?', 'equity_cost': '?', method': '?', 'weekends': '?' }"
-    dynamodb_profile_query = "SELECT annual_return,annual_volatility,sharpe_ratio,asset_beta,equity_cost FROM \"correlations\" WHERE ticker_1=? AND ticker_2=? AND start_date=? AND end_date=? AND method=? AND weekends=?"
+    dynamodb_profile_query = "SELECT annual_return,annual_volatility,sharpe_ratio,asset_beta,equity_cost FROM \"profile\" WHERE ticker=? AND start_date=? AND end_date=? AND method=? AND weekends=?"
     dynamodb_identity_query = "EXISTS(SELECT * FROM \"profile\" WHERE ticker_1=? AND ticker_2=? AND start_date=? AND end_date=? AND method=? AND weekends=?)"
 
     @staticmethod
