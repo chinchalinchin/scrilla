@@ -56,8 +56,6 @@ class Cache():
             Dictionary of parameters used to format statement. Statements are formatted with DB-API's name substitution. See [sqlite3 documentation](https://docs.python.org/3/library/sqlite3.html) for more information.
         """
         if settings.CACHE_MODE == 'sqlite':
-            print(settings.CACHE_SQLITE_FILE)
-
             con = sqlite3.connect(settings.CACHE_SQLITE_FILE)
             executor = con.cursor()
             if formatter is not None:
@@ -94,7 +92,6 @@ class Cache():
             A list containing the results of the query.
         """
         if settings.CACHE_MODE == 'sqlite':
-            print(settings.CACHE_SQLITE_FILE)
             con = sqlite3.connect(settings.CACHE_SQLITE_FILE)
             con.row_factory = sqlite3.Row
             executor = con.cursor()
@@ -137,6 +134,14 @@ class PriceCache():
             {
                 'AttributeName': 'date',
                 'AttributeType': 'S'
+            },
+            {
+                'AttributeName': 'open',
+                'AttributeType': 'N'
+            },
+            {
+                'AttributeName': 'close',
+                'AttributeType': 'N'
             }
         ],
         'TableName': 'prices',
@@ -172,6 +177,7 @@ class PriceCache():
         self._table()
 
     def _table(self):
+
         if settings.CACHE_MODE == 'sqlite':
             Cache.execute_transaction(self.sqlite_create_table_transaction)
         elif settings.CACHE_MODE == 'dynamodb':
@@ -242,6 +248,10 @@ class InterestCache():
             {
                 'AttributeName': 'date',
                 'AttributeType': 'S'
+            },
+            {
+                'AttributeName': 'value',
+                'AttributeType': 'N'
             }
         ],
         'TableName': 'interest',
@@ -362,11 +372,14 @@ class CorrelationCache():
             {
                 'AttributeName': 'method',
                 'AttributeType': 'S'
-
             },
             {
                 'AttributeName': 'weekends',
-                'AttributeType': 'S'
+                'AttributeType': 'N'
+            },
+            {
+                'AttributeName': 'correlation',
+                'AttributeType': 'N'
             }
         ],
         'TableName': 'correlations',
@@ -376,27 +389,47 @@ class CorrelationCache():
                 'KeyType': 'HASH'
             },
             {
-                'AttributeName': 'ticker_2',
-                'KeyType': 'HASH'
-            },
-            {
                 'AttributeName': 'start_date',
                 'KeyType': 'RANGE'
-            },
-            {
-                'AttributeName': 'end_date',
-                'KeyType': 'RANGE'
-            },
-            {
-                'AttributeName': 'method',
-                'KeyType': 'HASH'
-            },
-            {
-                'AttributeName': 'weekends',
-                'KeyType': 'HASH'
             }
         ],
-        'BillingMode': 'PAY_PER_REQUEST'
+        'GlobalSecondaryIndexes': [
+            {
+                'IndexName': 'AssetTelescoping',
+                'KeySchema':[
+                    {
+                        'AttributeName': 'ticker_2',
+                        'KeyType': 'HASH'
+                    },
+                    {
+                        'AttributeName': 'end_date',
+                        'KeyType': 'RANGE'
+                    },
+                ],
+                'Projection': {
+                    'ProjectionType': 'KEYS_ONLY'
+                }
+            },
+            {
+                'IndexName': 'EstimationTelescoping',
+                'KeySchema': [
+                    {
+                        'AttributeName': 'method',
+                        'KeyType': 'HASH'
+                    },
+                    {
+                        'AttributeName': 'weekends',
+                        'KeyType': 'HASH'
+                    }
+                ],
+                'Projection': {
+                    'ProjectionType': 'INCLUDE',
+                    'NonKeyAttributes': [
+                        'correlation',
+                    ]
+                }
+            },
+        ]
     }
     # be careful with the dates here. order matters.
     dynamodb_insert_transaction = "INSERT INTO \"correlations\" VALUE {'ticker_1': '?', 'ticker_2': '?', 'end_date': '?', 'start_date': '?', 'correlation': '?', 'method': '?', 'weekends': '?' }"
@@ -520,6 +553,34 @@ class ProfileCache(Cache):
             {
                 'AttributeName': 'end_date',
                 'AttributeType': 'S'
+            },
+            {
+                'AttributeName': 'annual_return',
+                'AttributeType': 'N'
+            },
+            {
+                'AttributeName': 'annual_volatility',
+                'AttributeType': 'N'
+            },
+            {
+                'AttributeName': 'sharpe_ratio',
+                'AttributeType': 'N'
+            },
+            {
+                'AttributeName': 'asset_beta',
+                'AttributeType': 'N'
+            },
+            {
+                'AttributeName': 'equity_cost',
+                'AttributeType': 'N'
+            },
+            {
+                'AttributeName': 'method',
+                'AttributeType': 'S'
+            },
+            {
+                'AttributeName': 'weekends',
+                'AttributeType': 'N'
             }
         ],
         'TableName': 'profile',
