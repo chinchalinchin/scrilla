@@ -53,23 +53,25 @@ class Cache():
         ----------
         1. **transaction**: ``str``
             Statement to be executed and committed.
-        2. formatter: ``dict``
-            Dictionary of parameters used to format statement. Statements are formatted with DB-API's name substitution. See [sqlite3 documentation](https://docs.python.org/3/library/sqlite3.html) for more information.
+        2. formatter: `Union[dict, List[dict]]``
+            Dictionary of parameters used to format statement. Statements are formatted with DB-API's name substitution. See [sqlite3 documentation](https://docs.python.org/3/library/sqlite3.html) for more information. A list of dictionaries can be passed in to perform a batch execute transaction.
         """
         if settings.CACHE_MODE == 'sqlite':
             con = sqlite3.connect(settings.CACHE_SQLITE_FILE)
             executor = con.cursor()
             if formatter is not None:
-                response = executor.execute(transaction, formatter)
+                if isinstance(formatter, list):
+                    response = executor.executemany(transaction, formatter)
+                else:
+                    response = executor.execute(transaction, formatter)
             else:
-                response = executor.execute(transaction)
-            con.commit()
-            con.close()
+                if isinstance(formatter,list):
+                    response = executor.executemany(transaction)
+                else:
+                    response = executor.execute(transaction)
+            con.commit(), con.close()
         elif settings.CACHE_MODE == 'dynamodb':
-            response = aws.dynamo_client().execute_transaction(
-                TransactStatements=[
-                    aws.dynamo_statement_args(transaction, formatter)]
-            )
+            response = aws.dynamo_transaction(transaction, formatter)
         else:
             raise errors.ConfigurationError(
                 'CACHE_MODE has not been set in "settings.py"')
@@ -84,8 +86,8 @@ class Cache():
         ----------
         1. **query**: ``str``
             Query to be exectued.
-        2. **formatter**: ``dict``
-            Dictionary of parameters used to format statement. Statements are formatted with DB-API's name substitution. See [sqlite3 documentation](https://docs.python.org/3/library/sqlite3.html) for more information. 
+        2. **formatter**: ``Union[dict, List[dict]]``
+            Dictionary of parameters used to format statement. Statements are formatted with DB-API's name substitution. See [sqlite3 documentation](https://docs.python.org/3/library/sqlite3.html) for more information. A list of dictionaries can be passed in to perform a batch execute query.
 
         Returns
         -------
@@ -97,11 +99,11 @@ class Cache():
             con.row_factory = sqlite3.Row
             executor = con.cursor()
             if formatter is not None:
+                if isinstance(formatter,list):
+                    return executor.executemany(query, formatter).fetchall()
                 return executor.execute(query, formatter).fetchall()
             return executor.execute(query).fetchall()
         elif settings.CACHE_MODE == 'dynamodb':
-            print(query)
-            pprint(formatter)
             return aws.dynamo_client().execute_statement(
                 **aws.dynamo_statement_args(query, formatter)
             )
@@ -150,8 +152,9 @@ class PriceCache():
             }
         ],
     }
-    dynamodb_insert_transaction = "INSERT INTO \"prices\" VALUE {'ticker': '?', 'date': '?', 'open': '?', 'close': '?' }"
-    dynamodb_price_query = "SELECT \"date\", \"open\", \"close\" FROM \"prices\" WHERE \"ticker\"=? AND \"date\"<=? AND \"date\">=? ORDER BY \"date\" DESC"
+    dynamodb_insert_transaction = "INSERT INTO \"prices\" VALUE {'ticker': ?, 'date': ?, 'open': ?, 'close': ? }"
+    dynamodb_price_query = "SELECT \"date\", \"open\", \"close\" FROM \"prices\" WHERE \"ticker\"=? AND \"date\"<=? AND \"date\">=?" 
+        # CANT ADD  'ORDER BY \"date\" DESC' FOR SOME REASON
     dynamodb_identity_query = "EXISTS(SELECT ticker FROM \"prices\" WHERE ticker=? and date= ?)"
 
     @staticmethod
@@ -191,6 +194,9 @@ class PriceCache():
         elif settings.CACHE_MODE == 'dynamodb':
             return self.dynamodb_price_query
 
+    # TODO: one transaction at a time is hugely inefficient. dynamodb allows multiple transactions in a single API call.
+    # need to refactor...I wonder if sqlite has a similar API...IT DOES! executemany! need to implement `save_rows`!
+    # exciting! this will speed up the program considerably!
     def save_row(self, ticker, date, open_price, close_price):
         logger.verbose(
             F'Attempting to insert {ticker} prices on {date} to cache', 'save_row')
@@ -259,7 +265,7 @@ class InterestCache():
             }
         ],
     }
-    dynamodb_insert_transaction = "INSERT INTO \"interest\" VALUE {'maturity': '?', 'date': '?', 'value': '?' }"
+    dynamodb_insert_transaction = "INSERT INTO \"interest\" VALUE {'maturity': ?, 'date': ?, 'value': ? }"
     dynamodb_query = "SELECT date, value FROM \"interest\" WHERE maturity=? AND date<=? AND date>=? ORDER BY date DESC"
     dynamodb_identity_query = "EXISTS(SELECT maturity FROM \"interest\" WHERE maturity=? and date= ?)"
 
@@ -430,7 +436,7 @@ class CorrelationCache():
         ]
     }
     # be careful with the dates here. order matters.
-    dynamodb_insert_transaction = "INSERT INTO \"correlations\" VALUE {'ticker_1': '?', 'ticker_2': '?', 'end_date': '?', 'start_date': '?', 'correlation': '?', 'method': '?', 'weekends': '?' }"
+    dynamodb_insert_transaction = "INSERT INTO \"correlations\" VALUE {'ticker_1': ?, 'ticker_2': ?, 'end_date': ?, 'start_date': ?, 'correlation': ?, 'method': ?, 'weekends': ? }"
     dynamodb_query = "SELECT correlation FROM \"correlations\" WHERE ticker_1=? AND ticker_2=? AND start_date=? AND end_date=? AND method=? AND weekends=?"
     dynamodb_identity_query = "EXISTS(SELECT correlation FROM \"correlations\" WHERE ticker_1=? AND ticker_2=? AND start_date=? AND end_date=? AND method=? AND weekends=?)"
 
@@ -628,6 +634,7 @@ class ProfileCache(Cache):
 
     @staticmethod
     def _construct_update(params):
+        # TODO: construct DYNAMO UPDATE
         update_query = 'UPDATE profile SET '
         for param in params.keys():
             update_query += f'{param}=:{param}'
@@ -638,6 +645,7 @@ class ProfileCache(Cache):
 
     @staticmethod
     def _construct_insert(params):
+        # TODO: construct DYNAMO insert
         insert_query = 'INSERT INTO profile (ticker,start_date,end_date,'
         for param in params.keys():
             insert_query += f'{param},'

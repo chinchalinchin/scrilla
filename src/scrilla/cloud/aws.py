@@ -68,8 +68,24 @@ def dynamo_table(table_configuration: dict):
             'Table is being created' in e.response['Error']['Message']
         ):
             logger.error(e, 'dynamo_table')
-            logger.verbose(table_configuration, 'dynamo_table')
+            logger.verbose(f'\n\t\t{table_configuration}', 'dynamo_table')
         return e
     except KeyError as e:
         logger.error(e, 'dynamo_table')
         return e
+
+def dynamo_transaction(transaction, formatter):
+    try:
+        if isinstance(formatter, list):
+            statements = [dynamo_statement_args(transaction, params) for params in formatter]
+            return dynamo_client().execute_transaction(
+                TransactStatements = statements
+            )
+        return dynamo_client().execute_transaction(
+            TransactStatements=[
+                dynamo_statement_args(transaction, formatter)]
+        )
+    except (ClientError, ParamValidationError) as e:
+        logger.error(e, 'dynamo_table')
+        logger.verbose(f'\n\t\t{transaction}')
+        logger.verbose(f'\n\t\t{formatter}')
