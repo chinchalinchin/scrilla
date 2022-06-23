@@ -32,6 +32,7 @@ from scrilla.util import errors, outputter
 
 logger = outputter.Logger("scrilla.cache", settings.LOG_LEVEL)
 
+
 class Cache():
     """
     Class with static methods all other Caches employ. This class tries to hide as much implementation detail as possible behind its methods, i.e. this class is concerned with executing commits and transactions, whereas the other cache classes are concerned with the data structure that is created with these methods.
@@ -379,7 +380,7 @@ class CorrelationCache():
         'GlobalSecondaryIndexes': [
             {
                 'IndexName': 'AssetTelescoping',
-                'KeySchema':[
+                'KeySchema': [
                     {
                         'AttributeName': 'ticker_2',
                         'KeyType': 'HASH'
@@ -562,7 +563,7 @@ class ProfileCache(Cache):
                 'KeyType': 'RANGE'
             }
         ],
-        'GlobalSecondaryIndexes':[
+        'GlobalSecondaryIndexes': [
             {
                 'IndexName': 'DateTelescoping',
                 'KeySchema': [
