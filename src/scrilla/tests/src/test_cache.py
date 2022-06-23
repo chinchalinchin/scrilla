@@ -92,3 +92,40 @@ def test_profile_cache_construct_update_query(params, expected):
 ])
 def test_profile_cache_construct_insert_query(params, expected):
     assert ProfileCache._construct_insert(params) == expected
+
+
+@pytest.mark.parametrize('ticker,prices,expected',[
+    (
+        'ALLY',
+        {
+            '2020-01-01': {
+                'open': 51,
+                'close': 53
+            },
+            '2020-01-02': {
+                'open': 52,
+                'close': 12
+            }
+        },
+        [
+            {
+                'ticker': 'ALLY',
+                'date': '2020-01-01',
+                'open': 51,
+                'close': 53,
+            },
+            {
+                'ticker': 'ALLY',
+                'date': '2020-01-02',
+                'open': 52,
+                'close': 12,
+            }
+        ]
+    )
+])
+def test_price_cache_to_params(ticker, prices, expected):
+    assert PriceCache()._to_params(ticker, prices) == expected
+
+
+def test_interest_cache_to_params(rates, expected):
+    assert InterestCache()._to_params(rates) == expected

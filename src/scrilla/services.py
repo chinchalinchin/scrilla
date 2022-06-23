@@ -654,11 +654,7 @@ def get_daily_price_history(ticker: str, start_date: Union[None, date] = None, e
     else:
         new_prices = prices
 
-    for this_date in new_prices:
-        open_price = new_prices[this_date][keys.keys['PRICES']['OPEN']]
-        close_price = new_prices[this_date][keys.keys['PRICES']['CLOSE']]
-        price_cache.save_row(ticker=ticker, date=this_date,
-                             open_price=open_price, close_price=close_price)
+    price_cache.save_rows(ticker, new_prices)
 
     if not prices:
         raise errors.PriceError(
@@ -790,9 +786,8 @@ def get_daily_interest_history(maturity: str, start_date: Union[date, None] = No
     rates = stat_manager.get_interest_rates(
         start_date=start_date, end_date=end_date)
 
-    for this_date in rates:
-        interest_cache.save_row(date=this_date, value=rates[this_date])
-
+    interest_cache.save_rows(rates)
+    
     rates = stat_manager.format_for_maturity(maturity=maturity, results=rates)
 
     return rates

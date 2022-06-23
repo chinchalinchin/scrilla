@@ -194,16 +194,23 @@ class PriceCache():
         elif settings.CACHE_MODE == 'dynamodb':
             return self.dynamodb_price_query
 
-    # TODO: one transaction at a time is hugely inefficient. dynamodb allows multiple transactions in a single API call.
-    # need to refactor...I wonder if sqlite has a similar API...IT DOES! executemany! need to implement `save_rows`!
-    # exciting! this will speed up the program considerably!
-    def save_row(self, ticker, date, open_price, close_price):
+    def _to_params(self, ticker, prices):
+        return [
+            {
+                'ticker': ticker,
+                'date': date,
+                'open': prices[date][keys.keys['PRICES']['OPEN']],
+                'close': prices[date][keys.keys['PRICES']['CLOSE']]
+            } for date in prices
+        ]
+
+    def save_rows(self, ticker, prices):
         logger.verbose(
-            F'Attempting to insert {ticker} prices on {date} to cache', 'save_row')
-        formatter = {'ticker': ticker, 'date': date,
-                     'open': open_price, 'close': close_price}
+            F'Attempting to insert {ticker} prices to cache', 'save_rows')
         Cache.execute_transaction(
-            transaction=self._insert(), formatter=formatter)
+            transaction=self._insert(), 
+            formatter=self._to_params(ticker, prices)
+        )
 
     def filter_price_cache(self, ticker, start_date, end_date):
         logger.debug(
@@ -303,6 +310,23 @@ class InterestCache():
             return self.sqlite_interest_query
         elif settings.CACHE_MODE == 'dynamodb':
             return self.dynamodb_query
+
+    def _to_params(self, rates):
+        params = []
+        for date in rates:
+            entry = { 'date': date }
+            for index, maturity in enumerate(keys.keys['YIELD_CURVE']):
+                entry[maturity]=rates[date][index]
+            params.append(entry)
+        return params
+
+    def save_rows(self, rates):
+        logger.verbose(
+            F'Attempting to insert interest rates into cache', 'save_rows')
+        Cache.execute_transaction(
+            transaction=self._insert(), 
+            formatter=self._to_params(rates)
+        )
 
     def save_row(self, date, value):
         for index, maturity in enumerate(keys.keys['YIELD_CURVE']):
