@@ -6,8 +6,9 @@ from scrilla import settings
 from scrilla.util import outputter, dater
 logger = outputter.Logger("scrilla.cloud.aws", settings.LOG_LEVEL)
 
+DYNAMO_STATEMENT_LIMIT=25
 
-def _dynamo_params(document: dict):
+def dynamo_params(document: dict):
     if document is None or len(document) == 0:
         return None
     dynamo_json = []
@@ -33,7 +34,7 @@ def _dynamo_params(document: dict):
     return dynamo_json
 
 
-def specify_dynamo_table_conf(table_configuration):
+def dynamo_table_conf(table_configuration):
     table_configuration.update(settings.DYNAMO_CONF)
     return table_configuration
 
@@ -45,7 +46,7 @@ def dynamo_statement_args(statement, params=None):
         }
     return {
         'Statement': statement,
-        'Parameters': _dynamo_params(params)
+        'Parameters': dynamo_params(params)
     }
 
 
@@ -78,6 +79,15 @@ def dynamo_transaction(transaction, formatter):
     try:
         if isinstance(formatter, list):
             statements = [dynamo_statement_args(transaction, params) for params in formatter]
+            if len(statements)>DYNAMO_STATEMENT_LIMIT:
+                loops = len(statements) // DYNAMO_STATEMENT_LIMIT + \
+                    (1 if len(statements) % DYNAMO_STATEMENT_LIMIT != 0 else 0)
+                return [
+                    dynamo_client().execute_transaction(
+                        TransactStatements = statements[i*DYNAMO_STATEMENT_LIMIT:
+                                                        (i+1)*DYNAMO_STATEMENT_LIMIT]
+                    ) for i in range(0, loops)
+                ] 
             return dynamo_client().execute_transaction(
                 TransactStatements = statements
             )
@@ -88,4 +98,27 @@ def dynamo_transaction(transaction, formatter):
     except (ClientError, ParamValidationError) as e:
         logger.error(e, 'dynamo_transaction')
         logger.verbose(f'\n\t\t{transaction}', 'dynamo_transaction')
-        logger.verbose(f'\n\t\t{formatter}', 'dynamo_transaction')
+
+def dynamo_statement(query, formatter):
+    try:
+        if isinstance(formatter, list):
+            statements = [dynamo_statement_args(query, params) for params in formatter]
+            if len(statements)>DYNAMO_STATEMENT_LIMIT:
+                loops = len(statements) // DYNAMO_STATEMENT_LIMIT + \
+                    (1 if len(statements) % DYNAMO_STATEMENT_LIMIT != 0 else 0)
+                return [
+                    dynamo_client().batch_execute_statements(
+                        Statements = statements[i*DYNAMO_STATEMENT_LIMIT:
+                                                (i+1)*DYNAMO_STATEMENT_LIMIT]
+                    ) for i in range(0, loops)
+                ]
+            return dynamo_client().batch_execute_statements(
+                Statements = statements
+            )
+        return dynamo_client().execute_statement(
+                **dynamo_statement_args(query, formatter)
+        )
+    except (ClientError, ParamValidationError) as e:
+        logger.error(e, 'dynamo_statement')
+        logger.verbose(f'\n\t\t{query}', 'dynamo_statement')
+        return e

@@ -68,17 +68,17 @@ def singleton_table_conf():
         None
     )
 ])
-def test__dynamo_params(params, expected):
-    assert aws._dynamo_params(params) == expected
+def test_dynamo_params(params, expected):
+    assert aws.dynamo_params(params) == expected
 
 
 def test_specify_dynamo_configuration(singleton_table_conf):
-    assert aws.specify_dynamo_table_conf(singleton_table_conf)['BillingMode'] == settings.DYNAMO_CONF['BillingMode']
+    assert aws.dynamo_table_conf(singleton_table_conf)['BillingMode'] == settings.DYNAMO_CONF['BillingMode']
 
 
 @mock_dynamodb
 def test_dynamo_table(singleton_table_conf):
-    singleton_table_conf = table_conf = aws.specify_dynamo_table_conf(singleton_table_conf)
+    singleton_table_conf = table_conf = aws.dynamo_table_conf(singleton_table_conf)
     response = aws.dynamo_table(singleton_table_conf)
     assert response is not None
     assert isinstance(response, dict)

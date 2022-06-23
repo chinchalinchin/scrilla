@@ -178,7 +178,7 @@ class PriceCache():
         if settings.CACHE_MODE == 'sqlite':
             Cache.execute_transaction(self.sqlite_create_table_transaction)
         elif settings.CACHE_MODE == 'dynamodb':
-            self.dynamodb_table_configuration = aws.specify_dynamo_table_conf(
+            self.dynamodb_table_configuration = aws.dynamo_table_conf(
                 self.dynamodb_table_configuration)
             Cache.provision(self.dynamodb_table_configuration)
 
@@ -295,7 +295,7 @@ class InterestCache():
         if settings.CACHE_MODE == 'sqlite':
             Cache.execute_transaction(self.sqlite_create_table_transaction)
         elif settings.CACHE_MODE == 'dynamodb':
-            self.dynamodb_table_configuration = aws.specify_dynamo_table_conf(
+            self.dynamodb_table_configuration = aws.dynamo_table_conf(
                 self.dynamodb_table_configuration)
             Cache.provision(self.dynamodb_table_configuration)
 
@@ -327,15 +327,6 @@ class InterestCache():
             transaction=self._insert(), 
             formatter=self._to_params(rates)
         )
-
-    def save_row(self, date, value):
-        for index, maturity in enumerate(keys.keys['YIELD_CURVE']):
-            logger.verbose(
-                f'Saving {maturity} yield on {date} to cache', 'save_row')
-            formatter = {'maturity': maturity,
-                         'date': date, 'value': value[index]}
-            Cache.execute_transaction(
-                transaction=self._insert(), formatter=formatter)
 
     def filter_interest_cache(self, maturity, start_date, end_date):
         logger.debug(
@@ -483,7 +474,7 @@ class CorrelationCache():
         if settings.CACHE_MODE == 'sqlite':
             Cache.execute_transaction(self.sqlite_create_table_transaction)
         elif settings.CACHE_MODE == 'dynamodb':
-            self.dynamodb_table_configuration = aws.specify_dynamo_table_conf(
+            self.dynamodb_table_configuration = aws.dynamo_table_conf(
                 self.dynamodb_table_configuration)
             Cache.provision(self.dynamodb_table_configuration)
 
@@ -686,7 +677,7 @@ class ProfileCache(Cache):
         if settings.CACHE_MODE == 'sqlite':
             Cache.execute_transaction(self.sqlite_create_table_transaction)
         elif settings.CACHE_MODE == 'dynamodb':
-            self.dynamodb_table_configuration = aws.specify_dynamo_table_conf(
+            self.dynamodb_table_configuration = aws.dynamo_table_conf(
                 self.dynamodb_table_configuration)
             Cache.provision(self.dynamodb_table_configuration)
 
