@@ -1,3 +1,4 @@
+from pprint import pprint
 import boto3
 from botocore.exceptions import ClientError, ParamValidationError
 
@@ -58,4 +59,5 @@ def dynamo_table(table_configuration: dict):
         return dynamo_client().create_table(**table_configuration)
     except (ClientError, ParamValidationError) as e:
         logger.error(e, 'dynamo_table')
+        pprint(table_configuration)
         return e
