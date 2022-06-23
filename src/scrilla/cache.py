@@ -652,25 +652,37 @@ class ProfileCache(Cache):
     @staticmethod
     def _construct_update(params):
         # TODO: construct DYNAMO UPDATE
-        update_query = 'UPDATE profile SET '
-        for param in params.keys():
-            update_query += f'{param}=:{param}'
-            if list(params.keys()).index(param) != len(params)-1:
-                update_query += ','
-        update_query += " WHERE ticker=:ticker AND start_date=:start_date AND end_date=:end_date AND method=:method AND weekends=:weekends"
-        return update_query
+        if settings.CACHE_MODE == 'sqlite':
+            update_query = 'UPDATE profile SET '
+            for param in params.keys():
+                update_query += f'{param}=:{param}'
+                if list(params.keys()).index(param) != len(params)-1:
+                    update_query += ','
+            update_query += " WHERE ticker=:ticker AND start_date=:start_date AND end_date=:end_date AND method=:method AND weekends=:weekends"
+            return update_query
+        elif settings.CACHE_MODE == 'dynamodb':
+            update_query = 'UPDATE profile SET ticker=? SET start_date=? SET end_date=? SET method=? SET weekends=?'
+            for param in params.keys():
+                pass
+                # TODO
 
     @staticmethod
     def _construct_insert(params):
-        # TODO: construct DYNAMO insert
-        insert_query = 'INSERT INTO profile (ticker,start_date,end_date,'
-        for param in params.keys():
-            insert_query += f'{param},'
-        insert_query += 'method,weekends) VALUES (:ticker,:start_date,:end_date,'
-        for param in params.keys():
-            insert_query += f':{param},'
-        insert_query += ":method,:weekends)"
-        return insert_query
+        if settings.CACHE_MODE == 'sqlite':
+            # TODO: construct DYNAMO insert
+            insert_query = 'INSERT INTO profile (ticker,start_date,end_date,'
+            for param in params.keys():
+                insert_query += f'{param},'
+            insert_query += 'method,weekends) VALUES (:ticker,:start_date,:end_date,'
+            for param in params.keys():
+                insert_query += f':{param},'
+            insert_query += ":method,:weekends)"
+            return insert_query
+        elif settings.CACHE_MODE == 'dynamodb':
+            insert_query = "INSERT INTO \"profile\" VALUES {'ticker': ?, 'start_date': ?, 'end_date': ?, 'method': ?, 'weekends': ?"
+            for param in params.keys():
+                pass
+                # TODO
 
     def __init__(self):
         self._table()
