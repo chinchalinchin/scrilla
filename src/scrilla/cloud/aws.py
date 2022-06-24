@@ -32,6 +32,7 @@ def dynamo_params(document: dict):
             dynamo_json.append({'NULL': 'True'})
     return dynamo_json
 
+
 def to_json(document: dict):
     json_dict = {}
     for entry_key, entry in document.items():
@@ -46,7 +47,7 @@ def to_json(document: dict):
         elif type_key == 'SS':
             json_dict[entry] = type_value
         elif type_key == 'NS':
-            json_dict[entry] = [float(el) for el in type_value ]
+            json_dict[entry] = [float(el) for el in type_value]
         elif type_key == 'NULL':
             json_dict[entry] = None
     return json_dict
