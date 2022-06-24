@@ -664,7 +664,7 @@ class ProfileCache(Cache):
             for param in params.keys():
                 update_query +=f'SET {param}=? '
 
-            update_query+= "WHERE ticker=?, "
+            update_query+= "WHERE ticker=? AND start_date=? AND end_date=? AND method=? AND weekends=?"
                 # TODO
 
     @staticmethod
