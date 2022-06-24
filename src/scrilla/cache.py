@@ -14,7 +14,7 @@
 # or <https://github.com/chinchalinchin/scrilla/blob/develop/main/LICENSE>.
 
 """
-This module provides a data access layer for a SQLite database maintained on the local file system at the location set by the environment variable **SQLITE_FILE**. If this environment variable is not set, the file location defaults to the *installation_directory*/data/cache/scrilla.db. The database caches asset prices, statistical calculations and interest rates. This allows the program to avoid excessive API calls to external services for calculations that involve the same quantity. For instance, to calculate correlation, the mean and variance of the individual assets must be calculated over the price history of each before the correlation is calculated over their combined price history; this involves four references to a sample of prices, at different points in the program which do not necessarily share scope with the location of the other calculations, so they can not share the in-memory version of the prices. 
+This module provides a data access layer for a SQLite database maintained on the local file system at the location set by the environment variable **SQLITE_FILE**. If this environment variable is not set, the file location defaults to the *installation_directory*/data/cache/scrilla.db. The database caches asset prices, statistical calculations and interest rates. This allows the program to avoid excessive API calls to external services for calculations that involve the same quantity. For instance, to calculate correlation, the mean and variance of the individual assets must be calculated over the price history of each before the correlation is calculated over their combined price history; this involves four references to a sample of prices, at different points in the program which do not necessarily share scope with the location of the other calculations, so they can not share the in-memory version of the prices.
 
 In addition to preventing excessive API calls, the cache prevents redundant calculations. For example, calculating the market beta for a series of assets requires the variance of the market proxy for each calculation. Rather than recalculate this quantity each time, the program will defer to the values stored in the cache.
 """
@@ -80,7 +80,7 @@ class Cache():
     @staticmethod
     def execute_query(query, formatter=None):
         """
-        Executes a read-write SQLite query. 
+        Executes a read-write SQLite query.
 
         Parameters
         ----------
@@ -100,9 +100,9 @@ class Cache():
             executor = con.cursor()
             if formatter is not None:
                 if isinstance(formatter, list):
-                    results= executor.executemany(query, formatter).fetchall()
+                    results = executor.executemany(query, formatter).fetchall()
                 else:
-                    results= executor.execute(query, formatter).fetchall()
+                    results = executor.execute(query, formatter).fetchall()
             else:
                 results = executor.execute(query).fetchall()
             con.close()
@@ -296,7 +296,7 @@ class InterestCache():
         if settings.CACHE_MODE == 'sqlite':
             return {result[0]: result[1] for result in query_results}
         elif settings.CACHE_MODE == 'dynamodb':
-            return { result['date']: result['value'] for result in query_results}
+            return {result['date']: result['value'] for result in query_results}
 
     def __init__(self):
         self._table()
@@ -770,18 +770,19 @@ class ProfileCache():
         if settings.CACHE_MODE == 'dynamodb':
             pprint.pprint(result)
 
-<<<<<<< HEAD
-=======
-        pprint.pprint(result)
 
->>>>>>> 801e0a06e6ffdb554e10e006ed138263d87736a0
-        if len(result) > 0:
-            logger.debug(f'{ticker} profile found in cache',
-                         'filter_profile_cache')
-            return self.to_dict(result)
-        logger.debug(
-            f'No results found for {ticker} profile in the cache', 'filter_profile_cache')
-        return None
+<< << << < HEAD
+== == == =
+   pprint.pprint(result)
+
+>>>>>> > 801e0a06e6ffdb554e10e006ed138263d87736a0
+   if len(result) > 0:
+        logger.debug(f'{ticker} profile found in cache',
+                     'filter_profile_cache')
+        return self.to_dict(result)
+    logger.debug(
+        f'No results found for {ticker} profile in the cache', 'filter_profile_cache')
+    return None
 
 
 def init_cache():
