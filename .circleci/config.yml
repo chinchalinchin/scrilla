@@ -146,8 +146,10 @@ commands:
             rm -rf ./docs/Makefile
             cp -ap ./docs/. /tmp/docs/
             git checkout gh-pages
+            ls -al 
             git pull
             cp -ap /tmp/docs/. ./
+            ls -al
             git config user.email "chinchalinchin@gmail.com"
             git config user.name "CircleCi Bot"
             git add .
