@@ -32,6 +32,25 @@ def dynamo_params(document: dict):
             dynamo_json.append({'NULL': 'True'})
     return dynamo_json
 
+def to_json(document: dict):
+    json_dict = {}
+    for entry_key, entry in document.items():
+        type_key = list(entry.keys())[0]
+        type_value = list(entry.values())[0]
+        if type_key == 'N':
+            json_dict[entry_key] = float(type_value)
+        elif type_key == 'S':
+            json_dict[entry_key] = type_value
+        elif type_key == 'BOOL':
+            json_dict[entry] = True if type_value.lower() == 'true' else False
+        elif type_key == 'SS':
+            json_dict[entry] = type_value
+        elif type_key == 'NS':
+            json_dict[entry] = [float(el) for el in type_value ]
+        elif type_key == 'NULL':
+            json_dict[entry] = None
+    return json_dict
+
 
 def dynamo_table_conf(table_configuration):
     table_configuration.update(settings.DYNAMO_CONF)

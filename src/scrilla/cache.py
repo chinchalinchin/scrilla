@@ -18,6 +18,7 @@ This module provides a data access layer for a SQLite database maintained on the
 
 In addition to preventing excessive API calls, the cache prevents redundant calculations. For example, calculating the market beta for a series of assets requires the variance of the market proxy for each calculation. Rather than recalculate this quantity each time, the program will defer to the values stored in the cache.
 """
+import pprint
 from scrilla import settings
 
 if settings.CACHE_MODE == 'sqlite':
@@ -532,6 +533,8 @@ class CorrelationCache():
         if settings.CACHE_MODE == 'dynamodb':
             results = results['Items']
 
+        pprint.pprint(results)
+
         if len(results) > 0:
             logger.debug(
                 f'Found ({ticker_1},{ticker_2}) correlation in the cache', 'filter_correlation_cache')
@@ -754,6 +757,8 @@ class ProfileCache(Cache):
         if settings.CACHE_MODE == 'dynamodb':
             result = result['Items']
 
+        pprint.pprint(result)
+        
         if len(result) > 0:
             logger.debug(f'{ticker} profile found in cache',
                          'filter_profile_cache')
