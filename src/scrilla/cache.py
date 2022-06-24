@@ -662,9 +662,9 @@ class ProfileCache(Cache):
         elif settings.CACHE_MODE == 'dynamodb':
             update_query = 'UPDATE profile '
             for param in params.keys():
-                update_query +=f'SET {param}=? '
+                update_query += f'SET {param}=? '
 
-            update_query+= "WHERE ticker=? AND start_date=? AND end_date=? AND method=? AND weekends=?"
+            update_query += "WHERE ticker=? AND start_date=? AND end_date=? AND method=? AND weekends=?"
                 # TODO
 
     @staticmethod
@@ -683,8 +683,8 @@ class ProfileCache(Cache):
             for param in params.keys():
                 insert_query += f'\'{param}\': ?'
                 if list(params.key()).index(param) != len(params)-1:
-                    insert_query +=", "
-            insert_query+="'ticker': ?, 'start_date': ?, 'end_date': ?, 'method': ?, 'weekends': ?}"
+                    insert_query += ", "
+            insert_query += "'ticker': ?, 'start_date': ?, 'end_date': ?, 'method': ?, 'weekends': ?}"
             return insert_query
 
     def __init__(self):
@@ -729,16 +729,16 @@ class ProfileCache(Cache):
 
         if settings.CACHE_MODE == 'dynamodb':
             identity = identity['Items']
-            query_param_order =  ["annual_return", "annual_volatility", "sharpe_ratio", 
-                                    "asset_beta", "equity_cost", "ticker", "start_date", "end_date",
-                                    "method", "weekends"]
+            query_param_order = ["annual_return", "annual_volatility", "sharpe_ratio",
+                                 "asset_beta", "equity_cost", "ticker", "start_date", "end_date",
+                                 "method", "weekends"]
             formatter = helper.reorder_dict(formatter, query_param_order)
 
         if len(identity) == 0:
             return Cache.execute_transaction(self._construct_insert(formatter),
-                                      formatter)
+                                             formatter)
         return Cache.execute_transaction(self._construct_update(formatter),
-                                      formatter)
+                                         formatter)
 
     def filter_profile_cache(self, ticker: str, start_date: datetime.date, end_date: datetime.date, weekends: int = 0, method=settings.ESTIMATION_METHOD):
         logger.debug(
