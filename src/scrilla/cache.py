@@ -689,7 +689,7 @@ class ProfileCache(Cache):
                 if list(params_and_filter.keys()).index(param) != len(params_and_filter)-1:
                     insert_query += ", "
                 else:
-                    insert_query +="}"
+                    insert_query += "}"
             return insert_query
 
     def __init__(self):
@@ -717,7 +717,7 @@ class ProfileCache(Cache):
 
     def save_or_update_row(self, ticker: str, start_date: datetime.date, end_date: datetime.date, annual_return: Union[float, None] = None, annual_volatility: Union[float, None] = None, sharpe_ratio: Union[float, None] = None, asset_beta: Union[float, None] = None, equity_cost: Union[float, None] = None, weekends: int = 0, method: str = settings.ESTIMATION_METHOD):
         filter = {'ticker': ticker, 'start_date': start_date,
-                     'end_date': end_date, 'method': method, 'weekends': weekends}
+                  'end_date': end_date, 'method': method, 'weekends': weekends}
         params = {}
 
         if annual_return is not None:
