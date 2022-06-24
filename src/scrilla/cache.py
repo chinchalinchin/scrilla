@@ -47,7 +47,7 @@ class Cache():
     @staticmethod
     def execute_transaction(transaction, formatter=None):
         """
-        Executes and commits a SQLite transaction.
+        Executes and commits a cache transaction. A transaction differs from a query in that all statements are executed, or none are.
 
         Parameters
         ----------
@@ -100,9 +100,13 @@ class Cache():
             executor = con.cursor()
             if formatter is not None:
                 if isinstance(formatter, list):
-                    return executor.executemany(query, formatter).fetchall()
-                return executor.execute(query, formatter).fetchall()
-            return executor.execute(query).fetchall()
+                    results= executor.executemany(query, formatter).fetchall()
+                else:
+                    results= executor.execute(query, formatter).fetchall()
+            else:
+                results = executor.execute(query).fetchall()
+            con.close()
+            return results
         elif settings.CACHE_MODE == 'dynamodb':
             return aws.dynamo_statement(query, formatter)
         else:
@@ -289,7 +293,10 @@ class InterestCache():
         """
         print('interest')
         print(query_results)
-        return {result[0]: result[1] for result in query_results}
+        if settings.CACHE_MODE == 'sqlite':
+            return {result[0]: result[1] for result in query_results}
+        elif settings.CACHE_MODE == 'dynamodb':
+            return { result['date']: result['value'] for result in query_results}
 
     def __init__(self):
         self._table()
