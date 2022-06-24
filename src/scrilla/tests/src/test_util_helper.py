@@ -225,3 +225,25 @@ def test_exceeds_accurary(decimal, expected):
 ])
 def test_significant_digits(number, sigfigs, expected):
     assert helper.significant_digits(number, sigfigs) == expected
+
+@pytest.mark.parametrize('this_dict,desired_order,expected',[
+    (
+        {
+            'a': 1,
+            'b': 2,
+            'c': 3,
+            'd': 4,
+            'e': 5
+        },
+        ['e','c','a','b', 'd'],
+        {
+            'e': 5,
+            'c': 3,
+            'a': 1,
+            'b': 2,
+            'd': 4
+        }
+    )
+])
+def test_reorder_dict(this_dict,desired_order,expected):
+    assert helper.reorder_dict(this_dict,desired_order) == expected

@@ -28,7 +28,7 @@ elif settings.CACHE_MODE == 'dynamodb':
 import datetime
 from typing import Union
 from scrilla.static import keys
-from scrilla.util import errors, outputter
+from scrilla.util import errors, outputter, helper
 
 logger = outputter.Logger("scrilla.cache", settings.LOG_LEVEL)
 
@@ -687,14 +687,6 @@ class ProfileCache(Cache):
             insert_query+="'ticker': ?, 'start_date': ?, 'end_date': ?, 'method': ?, 'weekends': ?}"
             return insert_query
 
-    @staticmethod
-    def _reorder_params(self, params):
-        #  NOTE: order does not matter for SQLite queries since parameters are named.
-        query_order = ["annual_return", "annual_volatility", "sharpe_ratio", 
-                        "asset_beta", "equity_cost", "ticker", "start_date", "end_date",
-                        "method", "weekends"]        
-        return { order: params[order] for order in query_order }
-
     def __init__(self):
         self._table()
 
@@ -737,7 +729,10 @@ class ProfileCache(Cache):
 
         if settings.CACHE_MODE == 'dynamodb':
             identity = identity['Items']
-            formatter = self._reorder_params(formatter)
+            query_param_order =  ["annual_return", "annual_volatility", "sharpe_ratio", 
+                                    "asset_beta", "equity_cost", "ticker", "start_date", "end_date",
+                                    "method", "weekends"]
+            formatter = helper.reorder_dict(formatter, query_param_order)
 
         if len(identity) == 0:
             return Cache.execute_transaction(self._construct_insert(formatter),
