@@ -772,7 +772,7 @@ class ProfileCache():
 
         if len(result) > 0:
             logger.debug(f'{ticker} profile found in cache',
-                        'filter_profile_cache')
+                         'filter_profile_cache')
             return self.to_dict(result)
         logger.debug(
             f'No results found for {ticker} profile in the cache', 'filter_profile_cache')
