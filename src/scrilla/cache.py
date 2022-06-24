@@ -680,7 +680,7 @@ class ProfileCache(Cache):
             insert_query = "INSERT INTO \"profile\" VALUES {"
             for param in params.keys():
                 insert_query += f'\'{param}\': ?'
-                if list(params.keyS()).index(param) != len(params)-1:
+                if list(params.keys()).index(param) != len(params)-1:
                     insert_query += ", "
             insert_query += "'ticker': ?, 'start_date': ?, 'end_date': ?, 'method': ?, 'weekends': ?}"
             return insert_query
