@@ -99,7 +99,7 @@ commands:
       - persist_to_workspace:
           root: docs
           paths:
-            - ./*
+            - build/html
 
   install_test_deps:
     description: install testing libraries
