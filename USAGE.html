@@ -1,10 +1,10 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
     <title>Usage &#8212; scrilla  documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
@@ -12,10 +12,11 @@
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Appendix" href="APPENDIX.html" />
+    <link rel="next" title="Development" href="DEVELOPMENT.html" />
     <link rel="prev" title="Configuration" href="CONFIGURATION.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
@@ -33,10 +34,10 @@
 
           <div class="body" role="main">
             
-  <section class="tex2jax_ignore mathjax_ignore" id="usage">
-<h1>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h1>
+  <section id="usage">
+<h1>Usage<a class="headerlink" href="#usage" title="Permalink to this heading">¶</a></h1>
 <section id="command-line">
-<h2>Command Line<a class="headerlink" href="#command-line" title="Permalink to this headline">¶</a></h2>
+<h2>Command Line<a class="headerlink" href="#command-line" title="Permalink to this heading">¶</a></h2>
 <p>Most functions have been wired into command line arguments. For a full list of <b>scrilla</b>’s functionality,</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>scrilla <span class="nb">help</span>
 </pre></div>
@@ -44,7 +45,7 @@
 <p>The main usage of <b>scrilla</b> is detailed below.</p>
 </section>
 <section id="syntax">
-<h2>Syntax<a class="headerlink" href="#syntax" title="Permalink to this headline">¶</a></h2>
+<h2>Syntax<a class="headerlink" href="#syntax" title="Permalink to this heading">¶</a></h2>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>scrilla <span class="o">[</span>COMMAND<span class="o">]</span> <span class="o">[</span>TICKERS<span class="o">]</span> <span class="o">[</span>OPTIONS<span class="o">]</span>
 </pre></div>
 </div>
@@ -52,8 +53,8 @@
 <p><strong>Tickers</strong>: space-separated list of asset tickers/statistic symbols/interest maturities (depending on the command)</p>
 <p><strong>Options</strong>: command-specific flags and configuration.</p>
 <section id="portfolio-optimization">
-<h3>Portfolio Optimization<a class="headerlink" href="#portfolio-optimization" title="Permalink to this headline">¶</a></h3>
-<ol class="simple">
+<h3>Portfolio Optimization<a class="headerlink" href="#portfolio-optimization" title="Permalink to this heading">¶</a></h3>
+<ol class="arabic simple">
 <li><p>Volatility Minimization &amp; Sharpe-Ratio Maximization</p></li>
 </ol>
 <p>A portfolio of consisting of the equities <i>ALLY</i>, <i>BX</i> and <i>SONY</i> can be optimized with the following command,</p>
@@ -104,7 +105,7 @@ SONY = 56<br>
 —————————————————————————————————-<br></p>
 </div></blockquote>
 <p>Note the optimal share allocation does not allow fractional shares. <b>scrilla</b> will attempt to get as close to the total investment inputted without going over using only whole shares. Also note the return of this portfolio is 25%, as this was inputted into the target return constraint.</p>
-<ol class="simple">
+<ol class="arabic simple" start="2">
 <li><p>Conditional Value at Risk Minimization</p></li>
 </ol>
 <p>The portfolio optimization can also be done by minimizing its conditional value at risk. Because the underlying calculations are a bit different, this function is accessed through a different command and requires different arguments.</p>
@@ -117,17 +118,17 @@ SONY = 56<br>
 <p>The command given above will optimize the portfolio’s value at risk consisting of <b>ALLY</b>, <b>BX</b> and <b>SONY</b> over the next half year (<code class="docutils literal notranslate"><span class="pre">expiry</span></code> = 0.5) conditioned the value at risk being in the 5th percentile.</p>
 </section>
 <section id="other-notable-features">
-<h3>Other Notable Features<a class="headerlink" href="#other-notable-features" title="Permalink to this headline">¶</a></h3>
-<ol class="simple">
+<h3>Other Notable Features<a class="headerlink" href="#other-notable-features" title="Permalink to this heading">¶</a></h3>
+<ol class="arabic simple">
 <li><p>Distribution Modes</p></li>
 </ol>
 <p><b>scrilla</b> will assume an asset price process and therefore a probability distribution for the population of asset returns. The model <b>scrilla</b> assumes is determined by the environment variable <b>ANALYSIS_MODE</b>. Currently, only one model is available: <code class="docutils literal notranslate"><span class="pre">geometric</span></code>, which corresponds to an assume price process that follows <a class="reference external" href="https://en.wikipedia.org/wiki/Geometric_Brownian_motion">geometric brownian motion</a> and thus a probability distribution for the asset returns that is log-normal.</p>
 <p>In the near future, a mean reversion model will implemented.</p>
-<ol class="simple">
+<ol class="arabic simple" start="2">
 <li><p>Estimation Modes</p></li>
 </ol>
 <p><b>scrilla</b> can estimate model parameters in a number of ways. The default estimation method is defined by the environment variable <b>DEFAULT_ESTIMATION_METHOD</b>, but all statistical functions can have their estimation overridden with a flag. <b>scrilla</b> supports three estimation modes: <code class="docutils literal notranslate"><span class="pre">moments</span></code>, <code class="docutils literal notranslate"><span class="pre">percents</span></code> and <code class="docutils literal notranslate"><span class="pre">likely</span></code>.</p>
-<p><code class="docutils literal notranslate"><span class="pre">moments</span></code> will use the <a class="reference external" href="https://en.wikipedia.org/wiki/Method_of_moments_(statistics)">method of moment matching</a>, where the moments of a sample of data are equated to the moments of the assumed distribution in order to determine the distribution parameters. <code class="docutils literal notranslate"><span class="pre">percents</span></code> will use the method of percentile matching, where the first and third quartile of the sample are equated to the theoretical distribution percentiles to determine the distribution parameters. <code class="docutils literal notranslate"><span class="pre">likely</span></code> will use <a class="reference external" href="https://en.wikipedia.org/wiki/Maximum_likelihood_estimation">maximum likelihood estimation</a>, where the probability of each observation given the assumed distribution is calculated and then the intersection of the probabilities is minimized with respect to the distribution parameters. (Note: the underlying distribution can be configured through the <b>ANALYSIS_MODE</b> environment variable; see <a class="reference external" href="#environment">Environment</a> for more information)</p>
+<p><code class="docutils literal notranslate"><span class="pre">moments</span></code> will use the <a class="reference external" href="https://en.wikipedia.org/wiki/Method_of_moments_(statistics)">method of moment matching</a>, where the moments of a sample of data are equated to the moments of the assumed distribution in order to determine the distribution parameters. <code class="docutils literal notranslate"><span class="pre">percents</span></code> will use the method of percentile matching, where the first and third quartile of the sample are equated to the theoretical distribution percentiles to determine the distribution parameters. <code class="docutils literal notranslate"><span class="pre">likely</span></code> will use <a class="reference external" href="https://en.wikipedia.org/wiki/Maximum_likelihood_estimation">maximum likelihood estimation</a>, where the probability of each observation given the assumed distribution is calculated and then the intersection of the probabilities is minimized with respect to the distribution parameters. (Note: the underlying distribution can be configured through the <b>ANALYSIS_MODE</b> environment variable; see <span class="xref myst">Environment</span> for more information)</p>
 <p>For example, the following command will return the risk profile of <b>ACI</b> using the method of moment matching,</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>scrilla risk-profile ACI -moments
 </pre></div>
@@ -145,7 +146,7 @@ SONY = 56<br>
 </pre></div>
 </div>
 <p>will return the risk profile of <b>ACI</b> using the method set in the <b>DEFAULT_ESTIMATION_METHOD</b> environment variable. If this variable is not set, it will default to a value of <code class="docutils literal notranslate"><span class="pre">moments</span></code>.</p>
-<ol class="simple">
+<ol class="arabic simple" start="2">
 <li><p>Discount Dividend Model</p></li>
 </ol>
 <p><b>scrilla</b> will pull an equity’s dividend payment history, regress the payment amount against its date and infer a <a class="reference external" href="https://en.wikipedia.org/wiki/Simple_linear_regression">simple linear regression model</a> from this time series. It will use this model to project future dividend payments and then calculate the current cost of equity and use that to discount the sum of dividend payments back to the present. The following command will perform this action,</p>
@@ -156,7 +157,7 @@ SONY = 56<br>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>scrilla plot-divs ALLY
 </pre></div>
 </div>
-<ol class="simple">
+<ol class="arabic simple" start="3">
 <li><p>Financial Statistics</p>
 <ul class="simple">
 <li><p>Beta: <code class="docutils literal notranslate"><span class="pre">scrilla</span> <span class="pre">capm-beta</span> <span class="pre">[TICKERS]</span> <span class="pre">[OPTIONS]</span></code></p></li>
@@ -178,7 +179,7 @@ SONY = 56<br>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>scrilla screen -criteria DDM
 </pre></div>
 </div>
-<ol class="simple">
+<ol class="arabic simple" start="5">
 <li><p>Visualizations</p>
 <ul class="simple">
 <li><p>Discount Dividend Model: <code class="docutils literal notranslate"><span class="pre">scrilla</span> <span class="pre">plot-divs</span> <span class="pre">[TICKER]</span> <span class="pre">[OPTIONS]</span></code></p>
@@ -206,7 +207,7 @@ SONY = 56<br>
 </section>
 </section>
 <section id="programmatic">
-<h2>Programmatic<a class="headerlink" href="#programmatic" title="Permalink to this headline">¶</a></h2>
+<h2>Programmatic<a class="headerlink" href="#programmatic" title="Permalink to this heading">¶</a></h2>
 <p>You can import and use <strong>scrilla</strong>’s function in a Python script. You must ensure the API keys have been set. See <a class="reference internal" href="CONFIGURATION.html"><span class="doc std std-doc">Configuration</span></a> for more information. If the keys have not been configured through environment variables or set through the CLI, you must set the keys through Python’s <code class="docutils literal notranslate"><span class="pre">os</span></code> library before importing any functions or modules from <strong>scrilla</strong>,</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
 <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;ALPHA_VANTAGE_KEY&#39;</span><span class="p">,</span> <span class="s1">&#39;key&#39;</span><span class="p">)</span>
@@ -216,7 +217,7 @@ SONY = 56<br>
 </div>
 <p>Replace <code class="docutils literal notranslate"><span class="pre">key</span></code> with the appropriate API key. Append this to the top of the script before <strong>scrilla</strong>’s modules are imported.</p>
 <section id="retrieve-price-data">
-<h3>Retrieve Price Data<a class="headerlink" href="#retrieve-price-data" title="Permalink to this headline">¶</a></h3>
+<h3>Retrieve Price Data<a class="headerlink" href="#retrieve-price-data" title="Permalink to this heading">¶</a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
 <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;ALPHA_VANTAGE_KEY&#39;</span><span class="p">,</span> <span class="s1">&#39;key&#39;</span><span class="p">)</span>
 <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;QUANDL_KEY&#39;</span><span class="p">,</span> <span class="s1">&#39;key&#39;</span><span class="p">)</span>
@@ -232,7 +233,7 @@ SONY = 56<br>
 </div>
 </section>
 <section id="risk-return">
-<h3>Risk Return<a class="headerlink" href="#risk-return" title="Permalink to this headline">¶</a></h3>
+<h3>Risk Return<a class="headerlink" href="#risk-return" title="Permalink to this heading">¶</a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
 <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;ALPHA_VANTAGE_KEY&#39;</span><span class="p">,</span> <span class="s1">&#39;key&#39;</span><span class="p">)</span>
 <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;QUANDL_KEY&#39;</span><span class="p">,</span> <span class="s1">&#39;key&#39;</span><span class="p">)</span>
@@ -248,7 +249,7 @@ SONY = 56<br>
 </div>
 </section>
 <section id="id1">
-<h3>Portfolio Optimization<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<h3>Portfolio Optimization<a class="headerlink" href="#id1" title="Permalink to this heading">¶</a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
 <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;ALPHA_VANTAGE_KEY&#39;</span><span class="p">,</span> <span class="s1">&#39;key&#39;</span><span class="p">)</span>
 <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;QUANDL_KEY&#39;</span><span class="p">,</span> <span class="s1">&#39;key&#39;</span><span class="p">)</span>
@@ -305,6 +306,8 @@ SONY = 56<br>
 <li class="toctree-l2"><a class="reference internal" href="#programmatic">Programmatic</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="DEVELOPMENT.html">Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="DEPLOYMENT.html">Deployment</a></li>
 <li class="toctree-l1"><a class="reference internal" href="APPENDIX.html">Appendix</a></li>
 </ul>
 
@@ -313,7 +316,7 @@ SONY = 56<br>
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
       <li>Previous: <a href="CONFIGURATION.html" title="previous chapter">Configuration</a></li>
-      <li>Next: <a href="APPENDIX.html" title="next chapter">Appendix</a></li>
+      <li>Next: <a href="DEVELOPMENT.html" title="next chapter">Development</a></li>
   </ul></li>
 </ul>
 </div>
@@ -326,7 +329,7 @@ SONY = 56<br>
     </form>
     </div>
 </div>
-<script>$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
 
 
 
@@ -343,7 +346,7 @@ SONY = 56<br>
       &copy;2021, Grant Moore.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.3.0</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.0.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

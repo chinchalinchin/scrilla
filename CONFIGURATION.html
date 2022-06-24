@@ -1,10 +1,10 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
     <title>Configuration &#8212; scrilla  documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
@@ -12,6 +12,7 @@
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -33,10 +34,10 @@
 
           <div class="body" role="main">
             
-  <section class="tex2jax_ignore mathjax_ignore" id="configuration">
-<h1>Configuration<a class="headerlink" href="#configuration" title="Permalink to this headline">¶</a></h1>
+  <section id="configuration">
+<h1>Configuration<a class="headerlink" href="#configuration" title="Permalink to this heading">¶</a></h1>
 <section id="api-key-links">
-<h2>API Key Links<a class="headerlink" href="#api-key-links" title="Permalink to this headline">¶</a></h2>
+<h2>API Key Links<a class="headerlink" href="#api-key-links" title="Permalink to this heading">¶</a></h2>
 <p><a class="reference external" href="https://www.alphavantage.co/support/#api-key">AlphaVantage API Key Registration</a><br>
 <a class="reference external" href="https://www.quandl.com/account/api">Quandl API Key Registration</a><br>
 <a class="reference external" href="https://iexcloud.io/">IEX API Key Registration</a><br></p>
@@ -45,14 +46,14 @@
 <p><strong>NOTE</strong>: <strong>Quandl</strong> was acquired by <strong>Nasdaq</strong>, so all <strong>Quandl</strong> links will now redirect to <a class="reference external" href="https://data.nasdaq.com">data.nasdaq.com</a>.</p>
 </section>
 <section id="environment">
-<h2>Environment<a class="headerlink" href="#environment" title="Permalink to this headline">¶</a></h2>
+<h2>Environment<a class="headerlink" href="#environment" title="Permalink to this heading">¶</a></h2>
 <p><strong>scrilla</strong> scans the environment in its <em>settings.py</em> file for shell environment variables. Various properties of the application can be configured through these environment variables. A sample environment file is located <a class="reference external" href="https://github.com/chinchalinchin/scrilla/blob/develop/main/env/.sample.env">here</a>, along with comments describing the purpose of each variable. The application sets sensible defaults for most of these environment variables, but there are several required environment variables you will need to set yourself.</p>
 </section>
 <section id="required-configuration">
-<h2>Required Configuration<a class="headerlink" href="#required-configuration" title="Permalink to this headline">¶</a></h2>
+<h2>Required Configuration<a class="headerlink" href="#required-configuration" title="Permalink to this heading">¶</a></h2>
 <p><em>NOTE</em>: If no API keys are found through either of the following methods, the application will not function properly.</p>
 <section id="environment-variables">
-<h3>Environment Variables<a class="headerlink" href="#environment-variables" title="Permalink to this headline">¶</a></h3>
+<h3>Environment Variables<a class="headerlink" href="#environment-variables" title="Permalink to this heading">¶</a></h3>
 <p>You will need to register for API keys at <strong>AlphaVantage</strong>, <strong>IEX</strong> and <strong>Quandl</strong> in order to retrieve financial data. One way of passing API keys to the program is by storing these in your session’s environment. <strong>scrilla</strong> will search for environment variables named <strong>ALPHA_VANTAGE_KEY</strong>, <strong>QUANDL_KEY</strong> and <strong>IEX_KEY</strong>. You can add the following lines to your <em>.bashrc</em> profile or corresponding configuration file for whatever shell you are using, or simply execute these lines before invoking <strong>scrilla</strong></p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span> <span class="nv">ALPHA_VANTAGE_KEY</span><span class="o">=</span>&lt;key goes here&gt;
 <span class="nb">export</span> <span class="nv">QUANDL_KEY</span><span class="o">=</span>&lt;key goes here&gt;
@@ -62,7 +63,7 @@
 <p>The next invocation of <em>scrilla</em> will detect these variables and automatically append the credentials to services calls.</p>
 </section>
 <section id="local-storage">
-<h3>Local Storage<a class="headerlink" href="#local-storage" title="Permalink to this headline">¶</a></h3>
+<h3>Local Storage<a class="headerlink" href="#local-storage" title="Permalink to this heading">¶</a></h3>
 <p>You can also invoke the CLI function <code class="docutils literal notranslate"><span class="pre">store</span></code> to store the credentials in the local installation’s <i>/data/common/</i> directory. To do so,</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>scrilla store -key &lt;key&gt; -value &lt;value&gt;
 </pre></div>
@@ -71,7 +72,7 @@
 </section>
 </section>
 <section id="optional-configuration">
-<h2>Optional Configuration<a class="headerlink" href="#optional-configuration" title="Permalink to this headline">¶</a></h2>
+<h2>Optional Configuration<a class="headerlink" href="#optional-configuration" title="Permalink to this heading">¶</a></h2>
 <p><em>scrilla</em> can be configured with the following optional environment variables. Each variable in this list has a suitable default set and so does not need changed unless the user prefers a different setting. Set these values in your shell profile or export them directly from your current session, i.e.</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span> <span class="nv">RISK_FREE</span><span class="o">=</span>ONE_YEAR
 scrilla risk-free <span class="c1"># returns one year risk free rate</span>
@@ -148,6 +149,8 @@ scrilla risk-free <span class="c1"># returns three year risk free rate</span>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="USAGE.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="DEVELOPMENT.html">Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="DEPLOYMENT.html">Deployment</a></li>
 <li class="toctree-l1"><a class="reference internal" href="APPENDIX.html">Appendix</a></li>
 </ul>
 
@@ -169,7 +172,7 @@ scrilla risk-free <span class="c1"># returns three year risk free rate</span>
     </form>
     </div>
 </div>
-<script>$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
 
 
 
@@ -186,7 +189,7 @@ scrilla risk-free <span class="c1"># returns three year risk free rate</span>
       &copy;2021, Grant Moore.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.3.0</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.0.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

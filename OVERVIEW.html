@@ -1,10 +1,10 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
     <title>Overview &#8212; scrilla  documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
@@ -12,6 +12,7 @@
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -33,8 +34,8 @@
 
           <div class="body" role="main">
             
-  <section class="tex2jax_ignore mathjax_ignore" id="overview">
-<h1>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h1>
+  <section id="overview">
+<h1>Overview<a class="headerlink" href="#overview" title="Permalink to this heading">¶</a></h1>
 <p><img alt="" src="https://chinchalinchin.github.io/scrilla/assets/scrilla_gui_2.png" /></p>
 <p><em>scrilla</em> is a financial analysis application. It can calculate asset correlations, generate statistical summaries and produce various graphical visualizations to help with analysis. It was originally designed to optimize portfolio allocations using data it retrieves from external services (currently: <a class="reference external" href="https://www.alphavantage.co">AlphaVantage</a>, <a class="reference external" href="https://iexcloud.io/">IEX</a> and <a class="reference external" href="https://www.quandl.com/">Quandl</a>), but has since taken on a life of its own as a way for <a class="reference external" href="https://github.com/chinchalinchin">me</a> to explore the intersection of Python, application development, finance, statistics and mathematics.</p>
 <p>Statistical calculations are informed using the results of <a class="reference external" href="https://en.wikipedia.org/wiki/It%C3%B4_calculus">Ito Calculus</a>. In other words, the sampling distributions for returns on assets are modeled through stochastic differential equations. The parameters of these models are estimated with statistical techniques. <em>scrilla</em> can estimate financial statistics in a variety of ways; it can be configured to estimate using the <a class="reference external" href="https://en.wikipedia.org/wiki/Method_of_moments_(statistics)">method of moment matching</a>, <a class="reference external" href="https://openacttexts.github.io/Loss-Data-Analytics/C-ModelSelection.html">method of percentile matching</a>(<sup><sub>section 4.1.3.2</sub></sup>) or <a class="reference external" href="https://en.wikipedia.org/wiki/Maximum_likelihood_estimation">maximum likelihood estimation</a>. The estimation method can be configured by an environment variable to set a default for calculations, or explicitly passed into statistical functions. See <a class="reference internal" href="CONFIGURATION.html"><span class="doc std std-doc">Configuration</span></a> and <a class="reference internal" href="USAGE.html"><span class="doc std std-doc">Usage</span></a> for more information.</p>
@@ -42,23 +43,23 @@
 <p>This application optimizes across asset classes; the theoretical portfolio being constructed can be composed of equities, cryptocurrencies or both. In a future release, I would like to include fixed income assets, volatility assets (<em>VIX</em> futures, options, etc.) and other derivatives, but for now, only those two asset types are supported. I am looking for a good API that provides historical data on the other types of financial instruments before I bring them into the optimization algorithm, so if you know of one, <a class="reference external" href="mailto:chinchalinchin&#37;&#52;&#48;gmail&#46;com">contact me</a>.</p>
 <p>The program’s functions are wrapped in <a class="reference external" href="https://doc.qt.io/qt.html">PySide6</a> widgets to provide a graphical user interface (this feature is still in development and may explode). Visualizations are created through <a class="reference external" href="https://matplotlib.org/3.3.3/contents.html">matplotlib</a>.</p>
 <section id="documentation">
-<h2>Documentation<a class="headerlink" href="#documentation" title="Permalink to this headline">¶</a></h2>
+<h2>Documentation<a class="headerlink" href="#documentation" title="Permalink to this heading">¶</a></h2>
 <ul class="simple">
 <li><p><a class="reference external" href="https://chinchalinchin.github.io/scrilla/package/index.html">Package</a></p></li>
 </ul>
 </section>
 <section id="test-coverage">
-<h2>Test Coverage<a class="headerlink" href="#test-coverage" title="Permalink to this headline">¶</a></h2>
+<h2>Test Coverage<a class="headerlink" href="#test-coverage" title="Permalink to this heading">¶</a></h2>
 <ul class="simple">
 <li><p><a class="reference external" href="https://chinchalinchin.github.io/scrilla/coverage/index.html">Unit Tests</a></p></li>
 </ul>
 </section>
 <section id="code-analysis">
-<h2>Code Analysis<a class="headerlink" href="#code-analysis" title="Permalink to this headline">¶</a></h2>
+<h2>Code Analysis<a class="headerlink" href="#code-analysis" title="Permalink to this heading">¶</a></h2>
 <ul class="simple">
 <li><p><a class="reference external" href="https://deepsource.io/gh/chinchalinchin/scrilla">Dashboard</a></p></li>
 </ul>
-<table class="colwidths-auto docutils align-default">
+<table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Badge</p></th>
 </tr>
@@ -72,11 +73,11 @@
 </table>
 </section>
 <section id="ci-cd-pipelines">
-<h2>CI/CD Pipelines<a class="headerlink" href="#ci-cd-pipelines" title="Permalink to this headline">¶</a></h2>
+<h2>CI/CD Pipelines<a class="headerlink" href="#ci-cd-pipelines" title="Permalink to this heading">¶</a></h2>
 <ul class="simple">
 <li><p><a class="reference external" href="https://app.circleci.com/pipelines/github/chinchalinchin/scrilla">Dashboard</a></p></li>
 </ul>
-<table class="colwidths-auto docutils align-default">
+<table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>Branch</p></th>
 <th class="head"><p>Status</p></th>
@@ -126,6 +127,8 @@
 <li class="toctree-l1"><a class="reference internal" href="SETUP.html">Setup</a></li>
 <li class="toctree-l1"><a class="reference internal" href="CONFIGURATION.html">Configuration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="USAGE.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="DEVELOPMENT.html">Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="DEPLOYMENT.html">Deployment</a></li>
 <li class="toctree-l1"><a class="reference internal" href="APPENDIX.html">Appendix</a></li>
 </ul>
 
@@ -147,7 +150,7 @@
     </form>
     </div>
 </div>
-<script>$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
 
 
 
@@ -164,7 +167,7 @@
       &copy;2021, Grant Moore.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.3.0</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.0.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
