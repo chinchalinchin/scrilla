@@ -98,7 +98,7 @@ def dynamo_transaction(transaction, formatter=None):
         )
     except (ClientError, ParamValidationError) as e:
         logger.error(e, 'dynamo_transaction')
-        logger.verbose(f'\n\t\t{transaction}', 'dynamo_transaction')
+        logger.debug(f'\n\t\t{transaction}', 'dynamo_transaction')
 
 
 def dynamo_statement(query, formatter=None):
@@ -123,5 +123,5 @@ def dynamo_statement(query, formatter=None):
         )
     except (ClientError, ParamValidationError) as e:
         logger.error(e, 'dynamo_statement')
-        logger.verbose(f'\n\t\t{query}', 'dynamo_statement')
+        logger.debug(f'\n\t\t{query}', 'dynamo_statement')
         return e

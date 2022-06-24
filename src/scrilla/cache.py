@@ -666,23 +666,30 @@ class ProfileCache(Cache):
             return update_query
 
     @staticmethod
-    def _construct_insert(params):
+    def _construct_insert(params_and_filter):
         if settings.CACHE_MODE == 'sqlite':
-            insert_query = 'INSERT INTO profile (ticker,start_date,end_date,'
-            for param in params.keys():
-                insert_query += f'{param},'
-            insert_query += 'method,weekends) VALUES (:ticker,:start_date,:end_date,'
-            for param in params.keys():
-                insert_query += f':{param},'
-            insert_query += ":method,:weekends)"
+            insert_query = 'INSERT INTO profile ('
+            for param in params_and_filter.keys():
+                insert_query += f'{param}'
+                if list(params_and_filter.keys()).index(param) != len(params_and_filter) - 1:
+                    insert_query += ","
+                else:
+                    insert_query += ") VALUES ("
+            for param in params_and_filter.keys():
+                insert_query += f':{param}'
+                if list(params_and_filter.keys()).index(param) != len(params_and_filter) - 1:
+                    insert_query += ","
+                else:
+                    insert_query += ")"
             return insert_query
         elif settings.CACHE_MODE == 'dynamodb':
-            insert_query = "INSERT INTO \"profile\" VALUES {"
-            for param in params.keys():
+            insert_query = "INSERT INTO \"profile\" VALUE {"
+            for param in params_and_filter.keys():
                 insert_query += f'\'{param}\': ?'
-                if list(params.keys()).index(param) != len(params)-1:
+                if list(params_and_filter.keys()).index(param) != len(params_and_filter)-1:
                     insert_query += ", "
-            insert_query += "'ticker': ?, 'start_date': ?, 'end_date': ?, 'method': ?, 'weekends': ?}"
+                else:
+                    insert_query +="}"
             return insert_query
 
     def __init__(self):
@@ -709,34 +716,31 @@ class ProfileCache(Cache):
             return self.dynamodb_identity_query
 
     def save_or_update_row(self, ticker: str, start_date: datetime.date, end_date: datetime.date, annual_return: Union[float, None] = None, annual_volatility: Union[float, None] = None, sharpe_ratio: Union[float, None] = None, asset_beta: Union[float, None] = None, equity_cost: Union[float, None] = None, weekends: int = 0, method: str = settings.ESTIMATION_METHOD):
-        formatter = {'ticker': ticker, 'start_date': start_date,
+        filter = {'ticker': ticker, 'start_date': start_date,
                      'end_date': end_date, 'method': method, 'weekends': weekends}
+        params = {}
 
         if annual_return is not None:
-            formatter['annual_return'] = annual_return
+            params['annual_return'] = annual_return
         if annual_volatility is not None:
-            formatter['annual_volatility'] = annual_volatility
+            params['annual_volatility'] = annual_volatility
         if sharpe_ratio is not None:
-            formatter['sharpe_ratio'] = sharpe_ratio
+            params['sharpe_ratio'] = sharpe_ratio
         if asset_beta is not None:
-            formatter['asset_beta'] = asset_beta
+            params['asset_beta'] = asset_beta
         if equity_cost is not None:
-            formatter['equity_cost'] = equity_cost
+            params['equity_cost'] = equity_cost
 
-        identity = Cache.execute_query(self._identity(), formatter)
+        identity = Cache.execute_query(self._identity(), filter)
 
         if settings.CACHE_MODE == 'dynamodb':
             identity = identity['Items']
-            query_param_order = ["annual_return", "annual_volatility", "sharpe_ratio",
-                                 "asset_beta", "equity_cost", "ticker", "start_date", "end_date",
-                                 "method", "weekends"]
-            formatter = helper.reorder_dict(formatter, query_param_order)
 
         if len(identity) == 0:
-            return Cache.execute_transaction(self._construct_insert(formatter),
-                                             formatter)
-        return Cache.execute_transaction(self._construct_update(formatter),
-                                         formatter)
+            return Cache.execute_transaction(self._construct_insert({**params, **filter}),
+                                             {**params, **filter})
+        return Cache.execute_transaction(self._construct_update(params),
+                                         {**params, **filter})
 
     def filter_profile_cache(self, ticker: str, start_date: datetime.date, end_date: datetime.date, weekends: int = 0, method=settings.ESTIMATION_METHOD):
         logger.debug(
