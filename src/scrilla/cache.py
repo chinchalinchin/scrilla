@@ -314,7 +314,8 @@ class InterestCache():
         params = []
         for date in rates:
             for index, maturity in enumerate(keys.keys['YIELD_CURVE']):
-                entry = {'date': date, 'value': rates[date][index], 'maturity': maturity}
+                entry = {'date': date,
+                         'value': rates[date][index], 'maturity': maturity}
                 params.append(entry)
         return params
 
