@@ -221,7 +221,7 @@ class PriceCache():
             query=self._query(), formatter=formatter)
 
         if settings.CACHE_MODE == 'dynamodb':
-            results = results['Items']
+            pprint.pprint(results)
 
         if len(results) > 0:
             logger.debug(
@@ -338,7 +338,7 @@ class InterestCache():
             query=self._query(), formatter=formatter)
 
         if settings.CACHE_MODE == 'dynamodb':
-            results = results['Items']
+            pprint.pprint(results)
 
         if len(results) > 0:
             logger.debug(
@@ -531,9 +531,7 @@ class CorrelationCache():
             query=self._query(), formatter=formatter_1)
 
         if settings.CACHE_MODE == 'dynamodb':
-            results = results['Items']
-
-        pprint.pprint(results)
+            pprint.pprint(results)
 
         if len(results) > 0:
             logger.debug(
@@ -755,10 +753,8 @@ class ProfileCache(Cache):
             query=self._query(), formatter=formatter)
 
         if settings.CACHE_MODE == 'dynamodb':
-            result = result['Items']
+            pprint.pprint(result)
 
-        pprint.pprint(result)
-        
         if len(result) > 0:
             logger.debug(f'{ticker} profile found in cache',
                          'filter_profile_cache')

@@ -68,9 +68,79 @@ def singleton_table_conf():
         None
     )
 ])
-def test_dynamo_params(params, expected):
-    assert aws.dynamo_params(params) == expected
+def test_dynamo_json_to_params(params, expected):
+    assert aws.dynamo_json_to_params(params) == expected
 
+
+@pytest.mark.parametrize('params,expected',[
+    (
+        [
+            {
+                'annual_return': {
+                    'N': '0.1223' 
+                },
+                'annual_volatility': {
+                    'N': '0.0432'
+                }
+            },
+        ],
+        [
+            {
+                'annual_return': 0.1223,
+                'annual_volalitity': 0.0432
+            },
+        ]
+    ),
+    (
+        [
+            {
+                'ticker': {
+                    'S': 'ALLY'
+                },
+                'date': {
+                    'S': '2020-01-01'
+                },
+                'open': {
+                    'N': 10
+                },
+                'close': {
+                    'N': 11
+                }
+            },
+            {
+                'ticker': {
+                    'S': 'ALLY'
+                },
+                'date': {
+                    'S': '2020-01-02'
+                },
+                'open': {
+                    'N': 12
+                },
+                'close': {
+                    'N': 13
+                }
+            }
+        ],
+        [
+            {
+                'ticker': 'ALLY',
+                'date': '2020-01-01',
+                'open': 10,
+                'close': 11
+            },
+            {
+                'ticker': 'ALLY',
+                'date': '2020-01-02',
+                'open': 12,
+                'close': 13
+            }
+        ]
+
+    )
+])
+def test_dynamo_params_to_json(params,expected):
+    assert aws.dynamo_params_to_json(params) == expected
 
 def test_specify_dynamo_configuration(singleton_table_conf):
     assert aws.dynamo_table_conf(singleton_table_conf)['BillingMode'] == settings.DYNAMO_CONF['BillingMode']
