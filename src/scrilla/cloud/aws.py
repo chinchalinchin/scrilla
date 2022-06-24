@@ -111,7 +111,6 @@ def dynamo_transaction(transaction, formatter=None):
                     dynamo_params_to_json(
                         dynamo_client().execute_transaction(
                             TransactStatements=statements[i*DYNAMO_STATEMENT_LIMIT:
-<<<<<<< HEAD
                                                         (i+1)*DYNAMO_STATEMENT_LIMIT]
                     )['Responses'])
                     for i in range(0, loops)
@@ -123,19 +122,6 @@ def dynamo_transaction(transaction, formatter=None):
                 dynamo_client().execute_transaction(TransactStatements=[
                     dynamo_statement_args(transaction, formatter)]
             )['Responses'])
-=======
-                                                          (i+1)*DYNAMO_STATEMENT_LIMIT]
-                        )['Items'])
-                    for i in range(0, loops)
-                ]
-            return dynamo_params_to_json(
-                dynamo_client().execute_transaction(TransactStatements=statements
-                                                    )['Items'])
-        return dynamo_params_to_json(
-            dynamo_client().execute_transaction(TransactStatements=[
-                dynamo_statement_args(transaction, formatter)]
-            )['Items'])
->>>>>>> 3f2ed4a83f0f91a0b26c5da3047138a5ca000ecd
     except (ClientError, ParamValidationError) as e:
         logger.error(e, 'dynamo_transaction')
         logger.debug(f'\n\t\t{transaction}', 'dynamo_transaction')
