@@ -17,7 +17,6 @@ commands:
           paths:
             - "./venv/"
 
-
   build_wheel:
     description: compress and build python package
     steps:
@@ -104,13 +103,21 @@ commands:
   install_test_deps:
     description: install testing libraries
     steps:
+      - restore_cache:  # ensure this step occurs *before* installing dependencies
+          key: deepsource-v1
       - run:
           name: install deepsource cli
           command: curl https://deepsource.io/cli | sh
+      - save_cache:
+          key: deepsource-v1
+          paths:
+            - "./bin/"
   
   run_unit_tests: 
     description: run unit tests
     steps:
+      - restore_cache:
+          key: deepsource-v1
       - restore_cache: 
           key: python-deps-v4-{{ checksum "requirements.txt"}}
       - attach_workspace:
