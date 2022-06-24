@@ -104,9 +104,7 @@ class Cache():
                 return executor.execute(query, formatter).fetchall()
             return executor.execute(query).fetchall()
         elif settings.CACHE_MODE == 'dynamodb':
-            return aws.dynamo_client().execute_statement(
-                **aws.dynamo_statement_args(query, formatter)
-            )
+            return aws.dynamo_statement(query, formatter)
         else:
             raise errors.ConfigurationError(
                 'CACHE_MODE has not been set in "settings.py"')
@@ -549,7 +547,7 @@ class CorrelationCache():
         return None
 
 
-class ProfileCache(Cache):
+class ProfileCache():
     """
     Statically assesses the *SQLite* functionality from `scrilla.cache.Cache`. Extends basic functionality to cache risk profile calculations in a table with columns `(ticker, start_date, end_date, annual_return, annual_volatility, sharpe_ration, asset_beta, equity_cost, estimation_method)`.
 
@@ -749,7 +747,7 @@ class ProfileCache(Cache):
             f'Querying {settings.CACHE_MODE} cache: \n\t{self._query()}\n\t\t with :ticker={ticker}, :start_date={start_date}, :end_date={end_date}', 'filter_profile_cache')
         formatter = {'ticker': ticker, 'start_date': start_date,
                      'end_date': end_date, 'method': method, 'weekends': weekends}
-        result = self.execute_query(
+        result = Cache.execute_query(
             query=self._query(), formatter=formatter)
 
         if settings.CACHE_MODE == 'dynamodb':
