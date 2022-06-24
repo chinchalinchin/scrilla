@@ -23,7 +23,8 @@ def split_and_strip(string: str, upper: bool = True, delimiter=",") -> List[str]
 
 
 def reorder_dict(this_dict: Dict[str, str], desired_order: List[str]):
-    ordered_keys = [ order for order in desired_order if order in list(this_dict.keys())]
+    ordered_keys = [
+        order for order in desired_order if order in list(this_dict.keys())]
     return {order: this_dict[order] for order in ordered_keys}
 
 
