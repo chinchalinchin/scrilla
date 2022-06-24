@@ -165,6 +165,8 @@ class PriceCache():
         1. **query_results**: ``list``
             Raw SQLite query results.
         """
+        print('prices')
+        print(query_results)
         return {result[0]: {keys.keys['PRICES']['OPEN']: result[1],
                             keys.keys['PRICES']['CLOSE']: result[2]} for result in query_results}
 
@@ -285,6 +287,8 @@ class InterestCache():
         1. **query_results**: ``list``
             Raw SQLite query results.
         """
+        print('interest')
+        print(query_results)
         return {result[0]: result[1] for result in query_results}
 
     def __init__(self):
@@ -642,11 +646,16 @@ class ProfileCache():
         1. **query_results**: ``list``
             Raw SQLite query results.
         """
-        return {keys.keys['STATISTICS']['RETURN']: query_result[0][0] if query_result[0][0] != 'empty' else None,
+        if settings.CACHE_MODE == 'sqlite':
+            return {
+                keys.keys['STATISTICS']['RETURN']: query_result[0][0] if query_result[0][0] != 'empty' else None,
                 keys.keys['STATISTICS']['VOLATILITY']: query_result[0][1] if query_result[0][1] != 'empty' else None,
                 keys.keys['STATISTICS']['SHARPE']: query_result[0][2] if query_result[0][2] != 'empty' else None,
                 keys.keys['STATISTICS']['BETA']: query_result[0][3] if query_result[0][3] != 'empty' else None,
-                keys.keys['STATISTICS']['EQUITY']: query_result[0][4] if query_result[0][4] != 'empty' else None}
+                keys.keys['STATISTICS']['EQUITY']: query_result[0][4] if query_result[0][4] != 'empty' else None
+            }
+        elif settings.CACHE_MODE == 'dynamodb':
+            return query_result[0]
 
     @staticmethod
     def _construct_update(params):
@@ -751,6 +760,7 @@ class ProfileCache():
             query=self._query(), formatter=formatter)
 
         if settings.CACHE_MODE == 'dynamodb':
+            result = result[0]
             pprint.pprint(result)
 
         if len(result) > 0:
