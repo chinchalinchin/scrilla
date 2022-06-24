@@ -105,14 +105,14 @@ commands:
     description: install testing libraries
     steps:
       - run:
-          name: dependency installation
+          name: install deepsource cli
           command: curl https://deepsource.io/cli | sh
   
   run_unit_tests: 
     description: run unit tests
     steps:
-      - restore_cache:  # ensure this step occurs *before* installing dependencies
-          key: python-deps-v3-{{ checksum "requirements.txt"}}
+      - restore_cache: 
+          key: python-deps-v4-{{ checksum "requirements.txt"}}
       - attach_workspace:
           at: docs
       - run: 
@@ -196,24 +196,28 @@ jobs:
       - build_wheel
       - upload_artifacts
       - commit_version
-  
-  unit_tests:
+
+  dependencies: 
     docker:
       - image: cimg/python:3.9.6
     steps:
       - checkout
       - install_python_deps
       - install_test_deps
+      - install_doc_deps
+
+  unit_tests:
+    docker:
+      - image: cimg/python:3.9.6
+    steps:
+      - checkout
       - run_unit_tests
-      - commit_coverage
 
   documentation:
     docker: 
       - image: cimg/python:3.9.6
     steps:
       - checkout
-      - install_python_deps
-      - install_doc_deps
       - generate_package_docs
       - generate_source_docs
       - commit_coverage
@@ -240,11 +244,18 @@ workflows:
 
   github_pages:
     jobs:
+      - dependencies:
+          filters: 
+            branches:
+              only:
+                - develop/main
       - unit_tests:
           filters:
             branches:
               only:
                 - develop/main
+          requires: 
+            - dependencies
       - documentation:
           filters:
             branches:
@@ -252,3 +263,4 @@ workflows:
                 - develop/main
           requires:
             - unit_tests
+            - dependencies

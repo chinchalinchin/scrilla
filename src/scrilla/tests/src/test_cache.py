@@ -148,51 +148,63 @@ def test_price_cache_to_params(ticker, prices, expected):
         [
             {
                 'date': '2020-01-01',
-                "ONE_MONTH": 0.01
+                'value': 0.01,
+                'maturity': 'ONE_MONTH'
             },
             {
                 'date': '2020-01-01',
-                "TWO_MONTH": 0.02,
+                'value': 0.02,
+                'maturity': 'TWO_MONTH'
             },
             {
                 'date': '2020-01-01', 
-                "THREE_MONTH": 0.03, 
+                'value': 0.03,
+                'maturity': 'THREE_MONTH' 
             },
             {
                 'date': '2020-01-01',
-                "SIX_MONTH": 0.04, 
+                'value': 0.04,
+                'maturity': 'SIX_MONTH' 
             },
             {
                 'date': '2020-01-01',
-                "ONE_YEAR": 0.05, 
+                'value': 0.05,
+                'maturity': 'ONE_YEAR' 
             },
             {
                 'date': '2020-01-01',
-                "TWO_YEAR": 0.06, 
+                'value': 0.06,
+                'maturity': 'TWO_YEAR' 
             },
             {
                 'date': '2020-01-01',
-                "THREE_YEAR": 0.07, 
+                'value': 0.07,
+                'maturity': 'THREE_YEAR' 
             },
             {
                 'date': '2020-01-01',
-                "FIVE_YEAR": 0.08, 
+                'value': 0.08,
+                'maturity': 'FIVE_YEAR' 
             },
             {
                 'date': '2020-01-01',
-                "SEVEN_YEAR": 0.09, 
+                'value': 0.09,
+                'maturity': 'SEVEN_YEAR' 
             },
             {
                 'date': '2020-01-01',
-                "TEN_YEAR": 0.10, 
+                'value': 0.10, 
+                'maturity': 'TEN_YEAR'
             },
             {
                 'date': '2020-01-01',
-                "TWENTY_YEAR": 0.11, 
+                'value': 0.11, 
+                'maturity': 'TWENTY_YEAR'
             },
             {
                 'date': '2020-01-01',
-                "THIRTY_YEAR": 0.12
+                'value': 0.12,
+                'maturity': 'THIRTY_YEAR'
             }
         ]
     )
