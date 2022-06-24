@@ -770,6 +770,11 @@ class ProfileCache():
         if settings.CACHE_MODE == 'dynamodb':
             pprint.pprint(result)
 
+<<<<<<< HEAD
+=======
+        pprint.pprint(result)
+
+>>>>>>> 801e0a06e6ffdb554e10e006ed138263d87736a0
         if len(result) > 0:
             logger.debug(f'{ticker} profile found in cache',
                          'filter_profile_cache')
