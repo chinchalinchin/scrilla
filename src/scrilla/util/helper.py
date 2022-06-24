@@ -1,5 +1,5 @@
 from math import trunc, log10, floor
-from typing import List, Tuple
+from typing import Dict, List, Tuple
 
 from scrilla.static import constants
 
@@ -20,6 +20,11 @@ def split_and_strip(string: str, upper: bool = True, delimiter=",") -> List[str]
     if upper:
         return strip_string_array(string.upper().split(delimiter))
     return strip_string_array(string.lower().split(delimiter))
+
+
+def reorder_dict(this_dict: Dict[str, str], desired_order: List[str]):
+    ordered_keys = [ order for order in desired_order if order in list(this_dict.keys())]
+    return {order: this_dict[order] for order in ordered_keys}
 
 
 def round_array(array: List[float], decimals: int) -> List[float]:

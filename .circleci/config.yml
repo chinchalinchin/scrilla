@@ -5,7 +5,7 @@ commands:
     description: install python dependencies
     steps:
       - restore_cache:  # ensure this step occurs *before* installing dependencies
-          key: python-deps-v3-{{ checksum "requirements.txt"}}
+          key: python-deps-v4-{{ checksum "requirements.txt"}}
       - run:
           name: python dependencies
           command: |
@@ -13,16 +13,15 @@ commands:
             source ./venv/bin/activate
             pip3 install -r requirements.txt
       - save_cache:
-          key: python-deps-v3-{{ checksum "requirements.txt"}}
+          key: python-deps-v4-{{ checksum "requirements.txt"}}
           paths:
             - "./venv/"
-
 
   build_wheel:
     description: compress and build python package
     steps:
       - restore_cache:  # ensure this step occurs *before* installing dependencies
-          key: python-deps-v3-{{ checksum "requirements.txt"}}
+          key: python-deps-v4-{{ checksum "requirements.txt"}}
       - run:
           name: artifact build
           environment:
@@ -37,7 +36,7 @@ commands:
     description: upload package artifacts to PyPi
     steps:
       - restore_cache:  # ensure this step occurs *before* installing dependencies
-          key: python-deps-v3-{{ checksum "requirements.txt"}}
+          key: python-deps-v4-{{ checksum "requirements.txt"}}
       - run:
           name: artifact upload
           command: |
@@ -70,7 +69,7 @@ commands:
     description: generate documentation html from docstrings
     steps:
       - restore_cache:  # ensure this step occurs *before* installing dependencies
-          key: python-deps-v3-{{ checksum "requirements.txt"}}
+          key: python-deps-v4-{{ checksum "requirements.txt"}}
       - attach_workspace:
           at: docs
       - run:
@@ -87,7 +86,7 @@ commands:
     description: generate documentation html from markdown
     steps:
       - restore_cache:  # ensure this step occurs *before* installing dependencies
-          key: python-deps-v3-{{ checksum "requirements.txt"}}
+          key: python-deps-v4-{{ checksum "requirements.txt"}}
       - attach_workspace:
           at: docs
       - run:
@@ -96,24 +95,31 @@ commands:
             source ./venv/bin/activate
             cd docs
             make html
-            cp -ap ./build/html/. ./
       - persist_to_workspace:
           root: docs
           paths:
-            - ./*
+            - build/html
 
   install_test_deps:
     description: install testing libraries
     steps:
+      - restore_cache:  # ensure this step occurs *before* installing dependencies
+          key: deepsource-v1
       - run:
-          name: dependency installation
+          name: install deepsource cli
           command: curl https://deepsource.io/cli | sh
+      - save_cache:
+          key: deepsource-v1
+          paths:
+            - "./bin/"
   
   run_unit_tests: 
     description: run unit tests
     steps:
-      - restore_cache:  # ensure this step occurs *before* installing dependencies
-          key: python-deps-v3-{{ checksum "requirements.txt"}}
+      - restore_cache:
+          key: deepsource-v1
+      - restore_cache: 
+          key: python-deps-v4-{{ checksum "requirements.txt"}}
       - attach_workspace:
           at: docs
       - run: 
@@ -121,13 +127,12 @@ commands:
           environment:
             APP_ENV: container
             AWS_DEFAULT_REGION: us-east-1
+            LOG_LEVEL: none
           command: |
-            export LOG_LEVEL=none
             source ./venv/bin/activate
             ./scripts/tests
             coverage xml
             ./bin/deepsource report --analyzer test-coverage --key python --value-file ./coverage.xml
-            rm -rf ./bin/
       - persist_to_workspace:
           root: docs
           paths: 
@@ -142,18 +147,19 @@ commands:
           name: coverage
           command: |
             mkdir /tmp/docs/
-            rm -rf ./docs/make.bat
-            rm -rf ./docs/Makefile
-            cp -ap ./docs/. /tmp/docs/
+            cp -ap ./docs/build/html/. /tmp/docs/
             git checkout gh-pages
             git pull
             cp -ap /tmp/docs/. ./
+            find -type f -name '*!home!circleci!.pyenv!versions!*' -delete
             git config user.email "chinchalinchin@gmail.com"
             git config user.name "CircleCi Bot"
             git add .
             git commit -m "Pipeline Unit Tests & Documentation $(echo $(date))" || true
             git push --set-upstream origin gh-pages || true
-
+        # No idea what the file *!home!circleci!.pyenv!versions!* is, but it's huge
+        # and screws up the job. manually delete it until i figure out what is going on.
+        # I think it probably has something to do with the cache?
 jobs:
   pypi_micro_update:
     docker:
@@ -196,24 +202,28 @@ jobs:
       - build_wheel
       - upload_artifacts
       - commit_version
-  
-  unit_tests:
+
+  dependencies: 
     docker:
       - image: cimg/python:3.9.6
     steps:
       - checkout
       - install_python_deps
       - install_test_deps
+      - install_doc_deps
+
+  unit_tests:
+    docker:
+      - image: cimg/python:3.9.6
+    steps:
+      - checkout
       - run_unit_tests
-      - commit_coverage
 
   documentation:
     docker: 
       - image: cimg/python:3.9.6
     steps:
       - checkout
-      - install_python_deps
-      - install_doc_deps
       - generate_package_docs
       - generate_source_docs
       - commit_coverage
@@ -240,11 +250,18 @@ workflows:
 
   github_pages:
     jobs:
+      - dependencies:
+          filters: 
+            branches:
+              only:
+                - develop/main
       - unit_tests:
           filters:
             branches:
               only:
                 - develop/main
+          requires: 
+            - dependencies
       - documentation:
           filters:
             branches:
@@ -252,3 +269,4 @@ workflows:
                 - develop/main
           requires:
             - unit_tests
+            - dependencies

@@ -18,7 +18,6 @@ This module provides a data access layer for a SQLite database maintained on the
 
 In addition to preventing excessive API calls, the cache prevents redundant calculations. For example, calculating the market beta for a series of assets requires the variance of the market proxy for each calculation. Rather than recalculate this quantity each time, the program will defer to the values stored in the cache.
 """
-from pprint import pprint
 from scrilla import settings
 
 if settings.CACHE_MODE == 'sqlite':
@@ -29,7 +28,7 @@ elif settings.CACHE_MODE == 'dynamodb':
 import datetime
 from typing import Union
 from scrilla.static import keys
-from scrilla.util import errors, outputter
+from scrilla.util import errors, outputter, helper
 
 logger = outputter.Logger("scrilla.cache", settings.LOG_LEVEL)
 
@@ -315,8 +314,8 @@ class InterestCache():
         params = []
         for date in rates:
             for index, maturity in enumerate(keys.keys['YIELD_CURVE']):
-                entry = {'date': date}
-                entry[maturity] = rates[date][index]
+                entry = {'date': date,
+                         'value': rates[date][index], 'maturity': maturity}
                 params.append(entry)
         return params
 
@@ -651,7 +650,6 @@ class ProfileCache(Cache):
 
     @staticmethod
     def _construct_update(params):
-        # TODO: construct DYNAMO UPDATE
         if settings.CACHE_MODE == 'sqlite':
             update_query = 'UPDATE profile SET '
             for param in params.keys():
@@ -661,15 +659,15 @@ class ProfileCache(Cache):
             update_query += " WHERE ticker=:ticker AND start_date=:start_date AND end_date=:end_date AND method=:method AND weekends=:weekends"
             return update_query
         elif settings.CACHE_MODE == 'dynamodb':
-            update_query = 'UPDATE profile SET ticker=? SET start_date=? SET end_date=? SET method=? SET weekends=?'
+            update_query = 'UPDATE profile '
             for param in params.keys():
-                pass
-                # TODO
+                update_query += f'SET {param}=? '
+            update_query += "WHERE ticker=? AND start_date=? AND end_date=? AND method=? AND weekends=?"
+            return update_query
 
     @staticmethod
     def _construct_insert(params):
         if settings.CACHE_MODE == 'sqlite':
-            # TODO: construct DYNAMO insert
             insert_query = 'INSERT INTO profile (ticker,start_date,end_date,'
             for param in params.keys():
                 insert_query += f'{param},'
@@ -679,10 +677,13 @@ class ProfileCache(Cache):
             insert_query += ":method,:weekends)"
             return insert_query
         elif settings.CACHE_MODE == 'dynamodb':
-            insert_query = "INSERT INTO \"profile\" VALUES {'ticker': ?, 'start_date': ?, 'end_date': ?, 'method': ?, 'weekends': ?"
+            insert_query = "INSERT INTO \"profile\" VALUES {"
             for param in params.keys():
-                pass
-                # TODO
+                insert_query += f'\'{param}\': ?'
+                if list(params.key()).index(param) != len(params)-1:
+                    insert_query += ", "
+            insert_query += "'ticker': ?, 'start_date': ?, 'end_date': ?, 'method': ?, 'weekends': ?}"
+            return insert_query
 
     def __init__(self):
         self._table()
@@ -711,11 +712,6 @@ class ProfileCache(Cache):
         formatter = {'ticker': ticker, 'start_date': start_date,
                      'end_date': end_date, 'method': method, 'weekends': weekends}
 
-        identity = Cache.execute_query(self._identity(), formatter)
-
-        if settings.CACHE_MODE == 'dynamodb':
-            identity = identity['Items']
-
         if annual_return is not None:
             formatter['annual_return'] = annual_return
         if annual_volatility is not None:
@@ -727,15 +723,20 @@ class ProfileCache(Cache):
         if equity_cost is not None:
             formatter['equity_cost'] = equity_cost
 
-        if len(formatter) > 0:
-            formatter.update(formatter)
+        identity = Cache.execute_query(self._identity(), formatter)
+
+        if settings.CACHE_MODE == 'dynamodb':
+            identity = identity['Items']
+            query_param_order = ["annual_return", "annual_volatility", "sharpe_ratio",
+                                 "asset_beta", "equity_cost", "ticker", "start_date", "end_date",
+                                 "method", "weekends"]
+            formatter = helper.reorder_dict(formatter, query_param_order)
 
         if len(identity) == 0:
-            Cache.execute_transaction(self._construct_insert(formatter),
-                                      formatter)
-        else:
-            Cache.execute_transaction(self._construct_update(formatter),
-                                      formatter)
+            return Cache.execute_transaction(self._construct_insert(formatter),
+                                             formatter)
+        return Cache.execute_transaction(self._construct_update(formatter),
+                                         formatter)
 
     def filter_profile_cache(self, ticker: str, start_date: datetime.date, end_date: datetime.date, weekends: int = 0, method=settings.ESTIMATION_METHOD):
         logger.debug(
