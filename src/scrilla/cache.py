@@ -272,7 +272,7 @@ class InterestCache():
         ],
     }
     dynamodb_insert_transaction = "INSERT INTO \"interest\" VALUE {'maturity': ?, 'date': ?, 'value': ? }"
-    dynamodb_query = "SELECT date, value FROM \"interest\" WHERE maturity=? AND date<=? AND date>=?"
+    dynamodb_query = "SELECT date, value FROM \"interest\" WHERE maturity=? AND date<=?"
             # No PartiQL ORDER BY clause yet: https://github.com/partiql/partiql-lang-kotlin/issues/47
     dynamodb_identity_query = "EXISTS(SELECT maturity FROM \"interest\" WHERE maturity=? and date= ?)"
 
