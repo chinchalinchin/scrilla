@@ -650,7 +650,6 @@ class ProfileCache(Cache):
 
     @staticmethod
     def _construct_update(params):
-        # TODO: construct DYNAMO UPDATE
         if settings.CACHE_MODE == 'sqlite':
             update_query = 'UPDATE profile SET '
             for param in params.keys():
@@ -663,9 +662,8 @@ class ProfileCache(Cache):
             update_query = 'UPDATE profile '
             for param in params.keys():
                 update_query += f'SET {param}=? '
-
             update_query += "WHERE ticker=? AND start_date=? AND end_date=? AND method=? AND weekends=?"
-                # TODO
+            return update_query
 
     @staticmethod
     def _construct_insert(params):
