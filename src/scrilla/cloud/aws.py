@@ -1,4 +1,3 @@
-from pprint import pprint
 import boto3
 from botocore.exceptions import ClientError, ParamValidationError
 from datetime import date
@@ -76,7 +75,7 @@ def dynamo_table(table_configuration: dict):
         return e
 
 
-def dynamo_transaction(transaction, formatter):
+def dynamo_transaction(transaction, formatter=None):
     try:
         if isinstance(formatter, list):
             statements = [dynamo_statement_args(
@@ -99,11 +98,10 @@ def dynamo_transaction(transaction, formatter):
         )
     except (ClientError, ParamValidationError) as e:
         logger.error(e, 'dynamo_transaction')
-        print(vars(e))
         logger.verbose(f'\n\t\t{transaction}', 'dynamo_transaction')
 
 
-def dynamo_statement(query, formatter):
+def dynamo_statement(query, formatter=None):
     try:
         if isinstance(formatter, list):
             statements = [dynamo_statement_args(

@@ -18,7 +18,6 @@ This module provides a data access layer for a SQLite database maintained on the
 
 In addition to preventing excessive API calls, the cache prevents redundant calculations. For example, calculating the market beta for a series of assets requires the variance of the market proxy for each calculation. Rather than recalculate this quantity each time, the program will defer to the values stored in the cache.
 """
-from pprint import pprint
 from scrilla import settings
 
 if settings.CACHE_MODE == 'sqlite':
@@ -315,8 +314,7 @@ class InterestCache():
         params = []
         for date in rates:
             for index, maturity in enumerate(keys.keys['YIELD_CURVE']):
-                entry = {'date': date}
-                entry[maturity] = rates[date][index]
+                entry = {'date': date, maturity: rates[date][index]}
                 params.append(entry)
         return params
 
@@ -629,7 +627,9 @@ class ProfileCache(Cache):
         ]
     }
     dynamodb_profile_query = "SELECT annual_return,annual_volatility,sharpe_ratio,asset_beta,equity_cost FROM \"profile\" WHERE ticker=? AND start_date=? AND end_date=? AND method=? AND weekends=?"
-    dynamodb_identity_query = "EXISTS(SELECT * FROM \"profile\" WHERE ticker=? AND start_date=? AND end_date=? AND method=? AND weekends=?)"
+    # TODO: exists() needs to be inside of a transaction, not query. however, the following transaction does not work for some reason...
+    # dynamodb_identity_query = "EXISTS(SELECT * FROM \"profile\" WHERE ticker=? AND start_date=? AND end_date=? AND method=? AND weekends=?)"
+    dynamodb_identity_query = "SELECT * FROM \"profile\" WHERE ticker =? AND start_date=? AND end_date=? AND method=? AND weekends=?"
 
     @staticmethod
     def to_dict(query_result):
@@ -650,25 +650,37 @@ class ProfileCache(Cache):
     @staticmethod
     def _construct_update(params):
         # TODO: construct DYNAMO UPDATE
-        update_query = 'UPDATE profile SET '
-        for param in params.keys():
-            update_query += f'{param}=:{param}'
-            if list(params.keys()).index(param) != len(params)-1:
-                update_query += ','
-        update_query += " WHERE ticker=:ticker AND start_date=:start_date AND end_date=:end_date AND method=:method AND weekends=:weekends"
-        return update_query
+        if settings.CACHE_MODE == 'sqlite':
+            update_query = 'UPDATE profile SET '
+            for param in params.keys():
+                update_query += f'{param}=:{param}'
+                if list(params.keys()).index(param) != len(params)-1:
+                    update_query += ','
+            update_query += " WHERE ticker=:ticker AND start_date=:start_date AND end_date=:end_date AND method=:method AND weekends=:weekends"
+            return update_query
+        elif settings.CACHE_MODE == 'dynamodb':
+            update_query = 'UPDATE profile SET ticker=? SET start_date=? SET end_date=? SET method=? SET weekends=?'
+            for param in params.keys():
+                pass
+                # TODO
 
     @staticmethod
     def _construct_insert(params):
-        # TODO: construct DYNAMO insert
-        insert_query = 'INSERT INTO profile (ticker,start_date,end_date,'
-        for param in params.keys():
-            insert_query += f'{param},'
-        insert_query += 'method,weekends) VALUES (:ticker,:start_date,:end_date,'
-        for param in params.keys():
-            insert_query += f':{param},'
-        insert_query += ":method,:weekends)"
-        return insert_query
+        if settings.CACHE_MODE == 'sqlite':
+            # TODO: construct DYNAMO insert
+            insert_query = 'INSERT INTO profile (ticker,start_date,end_date,'
+            for param in params.keys():
+                insert_query += f'{param},'
+            insert_query += 'method,weekends) VALUES (:ticker,:start_date,:end_date,'
+            for param in params.keys():
+                insert_query += f':{param},'
+            insert_query += ":method,:weekends)"
+            return insert_query
+        elif settings.CACHE_MODE == 'dynamodb':
+            insert_query = "INSERT INTO \"profile\" VALUES {'ticker': ?, 'start_date': ?, 'end_date': ?, 'method': ?, 'weekends': ?"
+            for param in params.keys():
+                pass
+                # TODO
 
     def __init__(self):
         self._table()
@@ -697,10 +709,10 @@ class ProfileCache(Cache):
         formatter = {'ticker': ticker, 'start_date': start_date,
                      'end_date': end_date, 'method': method, 'weekends': weekends}
 
-        if settings.CACHE_MODE == 'sqlite':
-            identity = Cache.execute_query(self._identity(), formatter)
-        elif settings.CACHE_MODE == 'dynamodb':
-            identity = Cache.execute_transaction(self._identity(), formatter)
+        identity = Cache.execute_query(self._identity(), formatter)
+
+        if settings.CACHE_MODE == 'dynamodb':
+            identity = identity['Items']
 
         if annual_return is not None:
             formatter['annual_return'] = annual_return
