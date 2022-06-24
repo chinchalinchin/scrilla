@@ -18,7 +18,6 @@ This module provides a data access layer for a SQLite database maintained on the
 
 In addition to preventing excessive API calls, the cache prevents redundant calculations. For example, calculating the market beta for a series of assets requires the variance of the market proxy for each calculation. Rather than recalculate this quantity each time, the program will defer to the values stored in the cache.
 """
-from pprint import pprint
 from scrilla import settings
 
 if settings.CACHE_MODE == 'sqlite':
