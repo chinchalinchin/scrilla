@@ -207,7 +207,7 @@ class PriceCache():
     def save_rows(self, ticker, prices):
         logger.verbose(
             F'Attempting to insert {ticker} prices to cache', 'save_rows')
-        Cache.execute_transaction(
+        Cache.execute_query(
             transaction=self._insert(),
             formatter=self._to_params(ticker, prices)
         )
@@ -273,9 +273,9 @@ class InterestCache():
         ],
     }
     dynamodb_insert_transaction = "INSERT INTO \"interest\" VALUE {'maturity': ?, 'date': ?, 'value': ? }"
-    dynamodb_query = "SELECT date, value FROM \"interest\" WHERE maturity=? AND date<=?"
+    dynamodb_query = "SELECT \"date\", \"value\" FROM \"interest\" WHERE \"maturity\"=? AND \"date\"<=?"
             # No PartiQL ORDER BY clause yet: https://github.com/partiql/partiql-lang-kotlin/issues/47
-    dynamodb_identity_query = "EXISTS(SELECT maturity FROM \"interest\" WHERE maturity=? and date= ?)"
+    dynamodb_identity_query = "EXISTS(SELECT 'maturity' FROM \"interest\" WHERE 'maturity'=? and 'date'= ?)"
 
     @staticmethod
     def to_dict(query_results):
@@ -318,15 +318,18 @@ class InterestCache():
         params = []
         for date in rates:
             for index, maturity in enumerate(keys.keys['YIELD_CURVE']):
-                entry = {'date': date,
-                         'value': rates[date][index], 'maturity': maturity}
+                entry = {
+                    'maturity': maturity,
+                    'date': date,
+                    'value': rates[date][index]
+                }
                 params.append(entry)
         return params
 
     def save_rows(self, rates):
         logger.verbose(
             F'Attempting to insert interest rates into cache', 'save_rows')
-        Cache.execute_transaction(
+        Cache.execute_query(
             transaction=self._insert(),
             formatter=self._to_params(rates)
         )
@@ -468,6 +471,7 @@ class CorrelationCache():
         1. **query_results**: ``list``
             Raw SQLite query results.
         """
+        print(query_results)
         return {keys.keys['STATISTICS']['CORRELATION']: query_results[0][0]}
 
     def __init__(self):
@@ -742,9 +746,6 @@ class ProfileCache():
 
         identity = Cache.execute_query(self._identity(), filter)
 
-        if settings.CACHE_MODE == 'dynamodb':
-            identity = identity['Items']
-
         if len(identity) == 0:
             return Cache.execute_transaction(self._construct_insert({**params, **filter}),
                                              {**params, **filter})
@@ -760,7 +761,6 @@ class ProfileCache():
             query=self._query(), formatter=formatter)
 
         if settings.CACHE_MODE == 'dynamodb':
-            result = result[0]
             pprint.pprint(result)
 
         if len(result) > 0:

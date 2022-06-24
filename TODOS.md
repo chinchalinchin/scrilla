@@ -44,6 +44,11 @@
 
     -> be careful with method and weekends field. if you want to index on them, will need to convert them to strings in dynamo.
 
+    todo: it seems like batch inserts fail when the majority of records already exist...
+
+    first two records dont exist, but entire batch fails.
+        24/06/2022 17:38:56  :  ERROR : scrilla.cloud.aws.dynamo_transaction  :  An error occurred (TransactionCanceledException) when calling the ExecuteTransaction operation: Transaction cancelled, please refer cancellation reasons for specific reasons [None, None, DuplicateItem, DuplicateItem, DuplicateItem, DuplicateItem, DuplicateItem, DuplicateItem, DuplicateItem, DuplicateItem, DuplicateItem, DuplicateItem, DuplicateItem, DuplicateItem, DuplicateItem, DuplicateItem, DuplicateItem, DuplicateItem, DuplicateItem, DuplicateItem, DuplicateItem, DuplicateItem, DuplicateItem, DuplicateItem, DuplicateItem]
+
 56. save api key in /data/common via gui menu (currently just displays dialog without doing anything when clicked)
 
 57. SHould incorporate inflation in the calculations. (1+Real)(1+Inflation) = (1+Nominal)

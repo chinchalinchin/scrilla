@@ -58,7 +58,8 @@ def sharpe_ratio(ticker: str, start_date: Union[date, None] = None, end_date: Un
         result = profile_cache.filter_profile_cache(
             ticker=ticker, start_date=start_date, end_date=end_date, method=method)
 
-        if result is not None and result[keys.keys['STATISTICS']['SHARPE']] is not None:
+        if result is not None and keys.keys['STATISTICS']['SHARPE'] in list(result.keys()) and \
+            result[keys.keys['STATISTICS']['SHARPE']] is not None:
             return result[keys.keys['STATISTICS']['SHARPE']]
 
         ticker_profile = statistics.calculate_risk_return(
@@ -130,7 +131,8 @@ def market_beta(ticker: str, start_date: Union[date, None] = None, end_date: Uni
     result = profile_cache.filter_profile_cache(
         ticker=ticker, start_date=start_date, end_date=end_date, method=method)
 
-    if result is not None and result[keys.keys['STATISTICS']['BETA']] is not None:
+    if result is not None and keys.keys['STATISTICS']['BETA'] in list(result.keys()) and \
+        result[keys.keys['STATISTICS']['BETA']] is not None:
         return result[keys.keys['STATISTICS']['BETA']]
 
     if market_profile is None:
@@ -187,7 +189,8 @@ def cost_of_equity(ticker: str, start_date: Union[datetime.date, None] = None, e
     result = profile_cache.filter_profile_cache(
         ticker=ticker, start_date=start_date, end_date=end_date, method=method)
 
-    if result is not None and result[keys.keys['STATISTICS']['EQUITY']] is not None:
+    if result is not None and keys.keys['STATISTICS']['EQUITY'] in list(result.keys()) and\
+        result[keys.keys['STATISTICS']['EQUITY']] is not None:
         return result[keys.keys['STATISTICS']['EQUITY']]
 
     beta = market_beta(ticker=ticker, start_date=start_date, end_date=end_date,
