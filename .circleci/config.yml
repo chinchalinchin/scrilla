@@ -127,13 +127,12 @@ commands:
           environment:
             APP_ENV: container
             AWS_DEFAULT_REGION: us-east-1
+            LOG_LEVEL: none
           command: |
-            export LOG_LEVEL=none
             source ./venv/bin/activate
             ./scripts/tests
             coverage xml
             ./bin/deepsource report --analyzer test-coverage --key python --value-file ./coverage.xml
-            rm -rf ./bin/
       - persist_to_workspace:
           root: docs
           paths: 

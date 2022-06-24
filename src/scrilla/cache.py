@@ -660,15 +660,16 @@ class ProfileCache(Cache):
             update_query += " WHERE ticker=:ticker AND start_date=:start_date AND end_date=:end_date AND method=:method AND weekends=:weekends"
             return update_query
         elif settings.CACHE_MODE == 'dynamodb':
-            update_query = 'UPDATE profile SET ticker=? SET start_date=? SET end_date=? SET method=? SET weekends=?'
+            update_query = 'UPDATE profile '
             for param in params.keys():
-                pass
+                update_query +=f'SET {param}=? '
+
+            update_query+= "WHERE ticker=?, "
                 # TODO
 
     @staticmethod
     def _construct_insert(params):
         if settings.CACHE_MODE == 'sqlite':
-            # TODO: construct DYNAMO insert
             insert_query = 'INSERT INTO profile (ticker,start_date,end_date,'
             for param in params.keys():
                 insert_query += f'{param},'
@@ -678,10 +679,21 @@ class ProfileCache(Cache):
             insert_query += ":method,:weekends)"
             return insert_query
         elif settings.CACHE_MODE == 'dynamodb':
-            insert_query = "INSERT INTO \"profile\" VALUES {'ticker': ?, 'start_date': ?, 'end_date': ?, 'method': ?, 'weekends': ?"
+            insert_query = "INSERT INTO \"profile\" VALUES {"
             for param in params.keys():
-                pass
-                # TODO
+                insert_query += f'\'{param}\': ?'
+                if list(params.key()).index(param) != len(params)-1:
+                    insert_query +=", "
+            insert_query+="'ticker': ?, 'start_date': ?, 'end_date': ?, 'method': ?, 'weekends': ?}"
+            return insert_query
+
+    @staticmethod
+    def _reorder_params(self, params):
+        #  NOTE: order does not matter for SQLite queries since parameters are named.
+        query_order = ["annual_return", "annual_volatility", "sharpe_ratio", 
+                        "asset_beta", "equity_cost", "ticker", "start_date", "end_date",
+                        "method", "weekends"]        
+        return { order: params[order] for order in query_order }
 
     def __init__(self):
         self._table()
@@ -710,11 +722,6 @@ class ProfileCache(Cache):
         formatter = {'ticker': ticker, 'start_date': start_date,
                      'end_date': end_date, 'method': method, 'weekends': weekends}
 
-        identity = Cache.execute_query(self._identity(), formatter)
-
-        if settings.CACHE_MODE == 'dynamodb':
-            identity = identity['Items']
-
         if annual_return is not None:
             formatter['annual_return'] = annual_return
         if annual_volatility is not None:
@@ -726,14 +733,16 @@ class ProfileCache(Cache):
         if equity_cost is not None:
             formatter['equity_cost'] = equity_cost
 
-        if len(formatter) > 0:
-            formatter.update(formatter)
+        identity = Cache.execute_query(self._identity(), formatter)
+
+        if settings.CACHE_MODE == 'dynamodb':
+            identity = identity['Items']
+            formatter = self._reorder_params(formatter)
 
         if len(identity) == 0:
-            Cache.execute_transaction(self._construct_insert(formatter),
+            return Cache.execute_transaction(self._construct_insert(formatter),
                                       formatter)
-        else:
-            Cache.execute_transaction(self._construct_update(formatter),
+        return Cache.execute_transaction(self._construct_update(formatter),
                                       formatter)
 
     def filter_profile_cache(self, ticker: str, start_date: datetime.date, end_date: datetime.date, weekends: int = 0, method=settings.ESTIMATION_METHOD):

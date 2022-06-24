@@ -51,8 +51,8 @@ def singleton_table_conf():
         [
             { 'S': 'test' },
             { 'N': '45' },
-            { 'BOOL': False },
-            { 'NULL': True },
+            { 'BOOL': 'False' },
+            { 'NULL': 'True' },
             { 'NS': [ '1', '2', '3', '4'] },
             { 'SS': ['a', 'b', 'c'] },
             { 'N': '54.53' },
