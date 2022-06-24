@@ -770,19 +770,13 @@ class ProfileCache():
         if settings.CACHE_MODE == 'dynamodb':
             pprint.pprint(result)
 
-
-<< << << < HEAD
-== == == =
-   pprint.pprint(result)
-
->>>>>> > 801e0a06e6ffdb554e10e006ed138263d87736a0
-   if len(result) > 0:
-        logger.debug(f'{ticker} profile found in cache',
-                     'filter_profile_cache')
-        return self.to_dict(result)
-    logger.debug(
-        f'No results found for {ticker} profile in the cache', 'filter_profile_cache')
-    return None
+        if len(result) > 0:
+            logger.debug(f'{ticker} profile found in cache',
+                        'filter_profile_cache')
+            return self.to_dict(result)
+        logger.debug(
+            f'No results found for {ticker} profile in the cache', 'filter_profile_cache')
+        return None
 
 
 def init_cache():
