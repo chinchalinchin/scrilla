@@ -177,13 +177,15 @@ class PriceCache():
                 } for result in query_results
             }
         elif mode == 'dynamodb':
-            # TODO: need to order by date!
-            return {
+            dates = [ result['date'] for result in query_results]
+            dates.sort(key=lambda x: dater.parse(x))
+            formatted_results =  {
                 result['date']: {
                     keys.keys['PRICES']['OPEN']: result[keys.keys['PRICES']['OPEN']],
                     keys.keys['PRICES']['CLOSE']: result[keys.keys['PRICES']['CLOSE']]
                 } for result in query_results
             }
+            return { key: formatted_results[key] for key in dates}
 
     def __init__(self, mode = settings.CACHE_MODE):
         self.mode = mode

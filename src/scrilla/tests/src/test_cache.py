@@ -243,3 +243,54 @@ def test_interest_cache_to_params(rates, expected):
 ])
 def test_interest_cache_to_dict_dynamodb(results, expected):
     assert InterestCache().to_dict(results, 'dynamodb') == expected
+
+@pytest.mark.parametrize('results,expected',[
+    (
+        [
+            {
+                'ticker': 'ALLY',
+                'date': '2020-01-10',
+                'open': 51,
+                'close': 53,
+            },
+            {
+                'ticker': 'ALLY',
+                'date': '2020-01-02',
+                'open': 52,
+                'close': 12,
+            },
+            {
+                'ticker': 'ALLY',
+                'date': '2020-01-09',
+                'open': 50,
+                'close': 11,
+            },{
+                'ticker': 'ALLY',
+                'date': '2020-01-04',
+                'open': 49,
+                'close': 12.4,
+            }
+        ],
+        {
+            '2020-01-10': {
+                'open': 51,
+                'close':53
+            },
+            '2020-01-09':{
+                'open': 50,
+                'close': 11
+            },
+            '2020-01-04': {
+                'open': 49,
+                'close': 12.4
+            },
+            '2020-01-02': {
+                'open': 52,
+                'close': 12
+            },
+
+        }
+    )
+])
+def test_price_cache_to_dict_dynamodb(results, expected):
+    assert PriceCache().to_dict(results, 'dynamodb') == expected
