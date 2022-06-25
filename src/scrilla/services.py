@@ -40,6 +40,7 @@ from scrilla.util import errors, outputter, helper, dater
 
 logger = outputter.Logger("scrilla.services", settings.LOG_LEVEL)
 
+
 class StatManager():
     """
     StatManager is an interface between the application and the external services that hydrate it with financial statistics data. This class gets instantiated on the level of the `scrilla.services` module with the value defined in `scrilla.settings.STAT_MANAGER`. This value is in turn defined by the value of the `STAT_MANAGER` environment variable. This value determines how the url is constructed, which API credentials get appended to the external query and the keys used to parse the response JSON containing the statistical data.
@@ -829,6 +830,7 @@ def get_risk_free_rate() -> float:
     Returns the risk free rate, defined as the annualized yield on a specific US Treasury duration, as a decimal. The US Treasury yield used as a proxy for the risk free rate is defined in the `settings.py` file and is configured through the RISK_FREE environment variable.
     """
     return get_daily_interest_latest(maturity=settings.RISK_FREE_RATE)/100
+
 
 price_manager = PriceManager(settings.PRICE_MANAGER)
 stat_manager = StatManager(settings.STAT_MANAGER)
