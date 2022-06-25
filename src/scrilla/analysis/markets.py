@@ -106,8 +106,8 @@ def market_premium(start_date: Union[date, None] = None, end_date: Union[date, N
     if market_profile is None:
         market_profile = profile_cache.filter_profile_cache(
             # TODO: may not want to save right here...should abstract into market_info or something, so all
-            ticker=settings.MARKET_PROXY, start_date=start_date, end_date
-            #       market information is calculated at once and saved at once, to reduce the number of writes.            =end_date, method=method)
+            ticker=settings.MARKET_PROXY, start_date=start_date, end_date=end_date, method=method)
+            #       market information is calculated at once and saved at once, to reduce the number of writes.            
 
     if market_profile is None:
         market_profile=statistics.calculate_risk_return(
