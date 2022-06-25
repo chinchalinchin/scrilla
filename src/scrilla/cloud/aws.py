@@ -1,4 +1,3 @@
-from pprint import pprint
 import boto3
 from botocore.exceptions import ClientError, ParamValidationError
 from datetime import date
@@ -12,6 +11,7 @@ DYNAMO_STATEMENT_LIMIT = 25
 def dynamo_json_to_params(document: dict) -> list:
     if document is None or len(document) == 0:
         return None
+
     dynamo_json = []
     for entry in document.values():
         if isinstance(entry, str):
@@ -56,13 +56,10 @@ def dynamo_params_to_json(document: dict) -> list:
                 elif type_key == 'NULL':
                     json_dict[entry_key] = None
             json_list.append(json_dict)
-        
-        print('params to json, itmes in key')
-        pprint(json_list)
         return json_list
     elif 'Responses' in list(document.keys()):
-        print('params to json, responses in key')
-        pprint(document)
+        # TODO: Error handling?
+        pass
 
 
 def dynamo_table_conf(table_configuration) -> dict:

@@ -76,8 +76,6 @@ STATIC_ECON_FILE = os.path.join(STATIC_DIR, f'economics.{FILE_EXT}')
 STATIC_CRYPTO_FILE = os.path.join(STATIC_DIR, f'crypto.{FILE_EXT}')
 """Location of file used to store crypto ticker symbols"""
 
-CACHE_FLAG_FILE = os.path.join(CACHE_DIR, 'init.txt')
-"""Location of file used to indiciate whether or not cache has been initialized"""
 COMMON_DIR = os.path.join(APP_DIR, 'data', 'common')
 """Directory used to store common files, such as API keys, watchlist, etc.
 
@@ -87,6 +85,9 @@ COMMON_DIR = os.path.join(APP_DIR, 'data', 'common')
 
 COMMON_WATCHLIST_FILE = os.path.join(COMMON_DIR, f'watchlist.{FILE_EXT}')
 """Location of file used to store watchlisted ticker symbols"""
+
+MEMORY_FILE = os.path.join(COMMON_DIR, f'memory.{FILE_EXT}')
+"""Location to file used to persist flags that inform the application it has already initialized data"""
 
 GUI_STYLESHEET_FILE = os.path.join(APP_DIR, 'gui', 'styles', 'app.qss')
 """Location of the stylesheet applied to the GUI"""

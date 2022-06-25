@@ -28,29 +28,18 @@
 
 54. juneteenth is getting added to the trading holidays. also, bond markets are closed on columbus day and veterans day. in other words, interest rates are not reported on those days.
 
-55. DYNAMODB CACHE!
-    a. role based acess or access keys
-    b. initialize tables
-    c. figure out optimal indexing strategy
-        i. can filter by non-key attributes: https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb.html#DynamoDB.Client.query
-    
-    Indexing:
-    A. Price. Partition: ticker. Sort: date. Filters: method, weekends
-    B. Profile. Partition: ticker. Sort: start + end. Filters: method, weekends
-    C. Correlation. Partiion: ticker1+ticker2. Sort: start+end. Filters: method, weekends.
-    D. Interest. Parition: Maturity. Sort: start+end
-
-    Execute raw partiql: https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/dynamodb.html#DynamoDB.Client.execute_transaction
-
-    -> be careful with method and weekends field. if you want to index on them, will need to convert them to strings in dynamo.
-
-    todo: it seems like batch inserts fail when the majority of records already exist...
-
-    first two records dont exist, but entire batch fails.
-        24/06/2022 17:38:56  :  ERROR : scrilla.cloud.aws.dynamo_transaction  :  An error occurred (TransactionCanceledException) when calling the ExecuteTransaction operation: Transaction cancelled, please refer cancellation reasons for specific reasons [None, None, DuplicateItem, DuplicateItem, DuplicateItem, DuplicateItem, DuplicateItem, DuplicateItem, DuplicateItem, DuplicateItem, DuplicateItem, DuplicateItem, DuplicateItem, DuplicateItem, DuplicateItem, DuplicateItem, DuplicateItem, DuplicateItem, DuplicateItem, DuplicateItem, DuplicateItem, DuplicateItem, DuplicateItem, DuplicateItem, DuplicateItem]
-
 56. save api key in /data/common via gui menu (currently just displays dialog without doing anything when clicked)
 
 57. SHould incorporate inflation in the calculations. (1+Real)(1+Inflation) = (1+Nominal)
 
 58. Implement Welford's recursive algorithm for variance and covariance: https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance (turns out someone already figured it out)
+
+59. memory.json in common:
+
+    holds piece of information across execution to prevent the program from calling the same methods. for instance, once the dynamodb/sqlite tables are created, they do not need created again. the only way ot inform the program across executions is either: query the cache to ensure the tables exist (which in the case of sqlite isn't a problem, but can get quite expensive when querying over api for dynamodb), or persist something locally.
+    {
+        'static': True,
+        'cache': True,
+    }
+
+    will need to ensure memory.json is updated when static or cache are cleared.

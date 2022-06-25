@@ -33,7 +33,25 @@ logger = outputter.Logger("scrilla.files", settings.LOG_LEVEL)
 
 static_tickers_blob, static_econ_blob, static_crypto_blob = None, None, None
 
+def memory_json_skeleton() -> dict:
+    return {
+        'static': False,
+        'cache': {
+            'prices': False,
+            'interest': False,
+            'correlations': False,
+            'profile': False
+        }
+    }
 
+def save_memory_json(persist: dict = memory_json_skeleton()):
+    save_file(persist, settings.MEMORY_FILE)
+
+def get_memory_json():
+    if os.path.isfile(settings.MEMORY_FILE):
+        return load_file(settings.MEMORY_FILE)
+    return memory_json_skeleton()
+    
 def load_file(file_name: str) -> Any:
     """
     Infers the file extensions from the provided `file_name` and parses the file appropriately. 
@@ -48,15 +66,18 @@ def load_file(file_name: str) -> Any:
 
 def save_file(file_to_save: Dict[str, Any], file_name: str) -> bool:
     ext = file_name.split('.')[-1]
-    with open(file_name, 'w') as outfile:
-        if ext == "json":
-            json.dump(file_to_save, outfile)
-        elif ext == "csv":
-            # TODO: assume input is dict since ll functions in library return dict.
-            writer = csv.DictWriter(outfile, file_to_save.keys())
-            writer.writeheader()
-        # TODO: implement other file saving extensions.
-
+    try:
+        with open(file_name, 'w') as outfile:
+            if ext == "json":
+                json.dump(file_to_save, outfile)
+            elif ext == "csv":
+                # TODO: assume input is dict since ll functions in library return dict.
+                writer = csv.DictWriter(outfile, file_to_save.keys())
+                writer.writeheader()
+            # TODO: implement other file saving extensions.
+        return True
+    except Exception as e:
+        return False
 
 def set_credentials(value: str, which_key: str) -> bool:
     file_name = os.path.join(
@@ -129,61 +150,60 @@ def init_static_data():
     1. `scrilla.errors.ConfigurationError` :
         If `scrilla.settings.PRICE_MANAGER` and `scrilla.settings.STAT_MANAGER` are not configured or are incorrectly configured through the environment variables `scrilla.settings.PRICE_MANAGER` and `scrilla.settings.STAT_MANAGER`, the function will throw this error.
     """
-    global static_tickers_blob
-    global static_econ_blob
-    global static_crypto_blob
 
-    # grab ticker symbols and store in STATIC_DIR
-    if (
-        settings.PRICE_MANAGER == "alpha_vantage" and
-        not os.path.isfile(settings.STATIC_TICKERS_FILE)
-    ):
-        service_map = keys.keys["SERVICES"]["PRICES"]["ALPHA_VANTAGE"]["MAP"]
-        logger.debug(
-            f'Missing {settings.STATIC_TICKERS_FILE}, querying \'{settings.PRICE_MANAGER}\'', 'init_static_data')
+    memory = get_memory_json()
 
-        # TODO: services calls should be in services.py! need to put this and the helper method
-        #       into services.py in the future.
-        query = f'{service_map["PARAMS"]["FUNCTION"]}={service_map["ARGUMENTS"]["EQUITY_LISTING"]}'
-        url = f'{settings.AV_URL}?{query}&{service_map["PARAMS"]["KEY"]}={settings.av_key()}'
-        static_tickers_blob = parse_csv_response_column(column=0, url=url, savefile=settings.STATIC_TICKERS_FILE,
-                                                        firstRowHeader=service_map['KEYS']['EQUITY']['HEADER'])
+    if not memory['static']:
+        global static_tickers_blob
+        global static_econ_blob
+        global static_crypto_blob
 
-    # grab crypto symbols and store in STATIC_DIR
-    if (
-        settings.PRICE_MANAGER == "alpha_vantage" and
-        not os.path.isfile(settings.STATIC_CRYPTO_FILE)
-    ):
-        service_map = keys.keys["SERVICES"]["PRICES"]["ALPHA_VANTAGE"]["MAP"]
-        logger.debug(
-            f'Missing {settings.STATIC_CRYPTO_FILE}, querying \'{settings.PRICE_MANAGER}\'.', 'init_static_data')
-        url = settings.AV_CRYPTO_LIST
-        static_crypto_blob = parse_csv_response_column(column=0, url=url, savefile=settings.STATIC_CRYPTO_FILE,
-                                                       firstRowHeader=service_map['KEYS']['CRYPTO']['HEADER'])
+        # grab ticker symbols and store in STATIC_DIR
+        if (
+            settings.PRICE_MANAGER == "alpha_vantage" and
+            not os.path.isfile(settings.STATIC_TICKERS_FILE)
+        ):
+            service_map = keys.keys["SERVICES"]["PRICES"]["ALPHA_VANTAGE"]["MAP"]
+            logger.debug(
+                f'Missing {settings.STATIC_TICKERS_FILE}, querying \'{settings.PRICE_MANAGER}\'', 'init_static_data')
 
-    # grab econominc indicator symbols and store in STATIC_DIR
-    if (
-        settings.STAT_MANAGER == "quandl" and
-        not os.path.isfile(settings.STATIC_ECON_FILE)
-    ):
-        service_map = keys.keys["SERVICES"]["STATISTICS"]["QUANDL"]["MAP"]
+            # TODO: services calls should be in services.py! need to put this and the helper method
+            #       into services.py in the future.
+            query = f'{service_map["PARAMS"]["FUNCTION"]}={service_map["ARGUMENTS"]["EQUITY_LISTING"]}'
+            url = f'{settings.AV_URL}?{query}&{service_map["PARAMS"]["KEY"]}={settings.av_key()}'
+            static_tickers_blob = parse_csv_response_column(column=0, url=url, savefile=settings.STATIC_TICKERS_FILE,
+                                                            firstRowHeader=service_map['KEYS']['EQUITY']['HEADER'])
 
-        logger.debug(
-            f'Missing {settings.STATIC_ECON_FILE}, querying \'{settings.STAT_MANAGER}\'.', 'init_static_data')
+        # grab crypto symbols and store in STATIC_DIR
+        if (
+            settings.PRICE_MANAGER == "alpha_vantage" and
+            not os.path.isfile(settings.STATIC_CRYPTO_FILE)
+        ):
+            service_map = keys.keys["SERVICES"]["PRICES"]["ALPHA_VANTAGE"]["MAP"]
+            logger.debug(
+                f'Missing {settings.STATIC_CRYPTO_FILE}, querying \'{settings.PRICE_MANAGER}\'.', 'init_static_data')
+            url = settings.AV_CRYPTO_LIST
+            static_crypto_blob = parse_csv_response_column(column=0, url=url, savefile=settings.STATIC_CRYPTO_FILE,
+                                                        firstRowHeader=service_map['KEYS']['CRYPTO']['HEADER'])
 
-        query = f'{service_map["PATHS"]["FRED"]}/{service_map["PARAMS"]["METADATA"]}'
-        url = f'{settings.Q_META_URL}/{query}?{service_map["PARAMS"]["KEY"]}={settings.Q_KEY}'
-        static_econ_blob = parse_csv_response_column(column=0, url=url, savefile=settings.STATIC_ECON_FILE,
-                                                     firstRowHeader=service_map["KEYS"]["HEADER"],
-                                                     zipped=service_map["KEYS"]["ZIPFILE"])
+        # grab econominc indicator symbols and store in STATIC_DIR
+        if (
+            settings.STAT_MANAGER == "quandl" and
+            not os.path.isfile(settings.STATIC_ECON_FILE)
+        ):
+            service_map = keys.keys["SERVICES"]["STATISTICS"]["QUANDL"]["MAP"]
 
-    # if (
-    #     settings.STAT_MANAGER == "treasury" and
-    #     not os.path.isfile(settings.STATIC_ECON_FILE)
-    # ):
-    #     rate = services.get_daily_interest_latest(settings.RISK_FREE_RATE)
-    #     with open(settings.STATIC_ECON_FILE, 'w') as outfile:
-    #         json.dump(rate, outfile)
+            logger.debug(
+                f'Missing {settings.STATIC_ECON_FILE}, querying \'{settings.STAT_MANAGER}\'.', 'init_static_data')
+
+            query = f'{service_map["PATHS"]["FRED"]}/{service_map["PARAMS"]["METADATA"]}'
+            url = f'{settings.Q_META_URL}/{query}?{service_map["PARAMS"]["KEY"]}={settings.Q_KEY}'
+            static_econ_blob = parse_csv_response_column(column=0, url=url, savefile=settings.STATIC_ECON_FILE,
+                                                        firstRowHeader=service_map["KEYS"]["HEADER"],
+                                                        zipped=service_map["KEYS"]["ZIPFILE"])
+
+        memory['static'] = True
+        save_memory_json(memory)
 
     else:
         logger.debug('Static data already initialized!', 'init_static_data')

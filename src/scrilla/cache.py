@@ -18,7 +18,6 @@ This module provides a data access layer for a SQLite database maintained on the
 
 In addition to preventing excessive API calls, the cache prevents redundant calculations. For example, calculating the market beta for a series of assets requires the variance of the market proxy for each calculation. Rather than recalculate this quantity each time, the program will defer to the values stored in the cache.
 """
-import pprint
 from scrilla import settings
 
 if settings.CACHE_MODE == 'sqlite':
@@ -29,7 +28,8 @@ elif settings.CACHE_MODE == 'dynamodb':
 import datetime
 from typing import Union
 from scrilla.static import keys
-from scrilla.util import errors, outputter, helper
+from scrilla.util import errors, outputter
+from scrilla.files import get_memory_json, save_memory_json
 
 logger = outputter.Logger("scrilla.cache", settings.LOG_LEVEL)
 
@@ -169,8 +169,6 @@ class PriceCache():
         1. **query_results**: ``list``
             Raw SQLite query results.
         """
-        print('prices')
-        print(query_results)
         if settings.CACHE_MODE == 'sqlite':
             return {
                 result[0]: {
@@ -187,7 +185,8 @@ class PriceCache():
             }
 
     def __init__(self):
-        self._table()
+        if not get_memory_json()['cache']['prices']:
+            self._table()
 
     def _table(self):
 
@@ -235,10 +234,6 @@ class PriceCache():
                      'start_date': start_date, 'end_date': end_date}
         results = Cache.execute_query(
             query=self._query(), formatter=formatter)
-
-        if settings.CACHE_MODE == 'dynamodb':
-            print('prices')
-            pprint.pprint(results)
 
         if len(results) > 0:
             logger.debug(
@@ -304,15 +299,14 @@ class InterestCache():
         1. **query_results**: ``list``
             Raw SQLite query results.
         """
-        print('interest to_dict')
-        print(query_results)
         if settings.CACHE_MODE == 'sqlite':
             return {result[0]: result[1] for result in query_results}
         elif settings.CACHE_MODE == 'dynamodb':
             return {result['date']: result['value'] for result in query_results}
 
     def __init__(self):
-        self._table()
+        if not get_memory_json()['cache']['interest']:
+            self._table()
 
     def _table(self):
         if settings.CACHE_MODE == 'sqlite':
@@ -361,10 +355,6 @@ class InterestCache():
                      'start_date': start_date, 'end_date': end_date}
         results = Cache.execute_query(
             query=self._query(), formatter=formatter)
-
-        if settings.CACHE_MODE == 'dynamodb':
-            print('interest')
-            pprint.pprint(results)
 
         if len(results) > 0:
             logger.debug(
@@ -492,12 +482,12 @@ class CorrelationCache():
         1. **query_results**: ``list``
             Raw SQLite query results.
         """
-        print('correlation to_dict')
-        print(query_results)
         return {keys.keys['STATISTICS']['CORRELATION']: query_results[0][0]}
 
     def __init__(self):
-        self._table()
+        if not get_memory_json()['cache']['correlations']:
+            self._table()
+            
 
     def _table(self):
         if settings.CACHE_MODE == 'sqlite':
@@ -557,10 +547,6 @@ class CorrelationCache():
             f'Querying {settings.CACHE_MODE} cache \n\t{self._query()}\n\t\t with :ticker_1={ticker_1}, :ticker_2={ticker_2},:start_date={start_date}, :end_date={end_date}', 'filter_correlation_cache')
         results = Cache.execute_query(
             query=self._query(), formatter=formatter_1)
-
-        if settings.CACHE_MODE == 'dynamodb':
-            print('correlation')
-            pprint.pprint(results)
 
         if len(results) > 0:
             logger.debug(
@@ -673,8 +659,6 @@ class ProfileCache():
         1. **query_results**: ``list``
             Raw SQLite query results.
         """
-        print('profile to_dict')
-        pprint.pprint(query_result)
         if settings.CACHE_MODE == 'sqlite':
             return {
                 keys.keys['STATISTICS']['RETURN']: query_result[0][0] if query_result[0][0] != 'empty' else None,
@@ -731,7 +715,8 @@ class ProfileCache():
             return insert_query
 
     def __init__(self):
-        self._table()
+        if not get_memory_json()['cache']['profile']:
+            self._table()
 
     def _table(self):
         if settings.CACHE_MODE == 'sqlite':
@@ -785,10 +770,6 @@ class ProfileCache():
         result = Cache.execute_query(
             query=self._query(), formatter=formatter)
 
-        if settings.CACHE_MODE == 'dynamodb':
-            print('profile')
-            pprint.pprint(result)
-
         if len(result) > 0:
             logger.debug(f'{ticker} profile found in cache',
                          'filter_profile_cache')
@@ -799,9 +780,17 @@ class ProfileCache():
 
 
 def init_cache():
-    import os
-
-    if not os.path.isfile(settings.CACHE_FLAG_FILE):
-        PriceCache(), InterestCache(), ProfileCache(), CorrelationCache()
-        with open(settings.CACHE_FLAG_FILE, 'w'):
-            pass
+    memory = get_memory_json
+    if not memory['cache']['prices']:
+        PriceCache()
+        memory['cache']['prices'] = True
+    if not memory['cache']['interest']:
+        InterestCache()
+        memory['cache']['interest'] = True
+    if not memory['cache']['profile']:
+        ProfileCache()
+        memory['cache']['profile'] = True
+    if not memory['cache']['correlations']:
+        CorrelationCache()
+        memory['cache']['correlations'] = True
+    save_memory_json(memory)
