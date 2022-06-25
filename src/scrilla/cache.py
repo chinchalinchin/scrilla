@@ -180,6 +180,7 @@ class PriceCache():
         elif mode == 'dynamodb':
             dates = [result['date'] for result in query_results]
             dates.sort(key=lambda x: dater.parse(x))
+            dates.reverse()
             formatted_results = {
                 result['date']: {
                     keys.keys['PRICES']['OPEN']: result[keys.keys['PRICES']['OPEN']],
@@ -309,6 +310,7 @@ class InterestCache():
             # TODO: need to order by date!
             dates = [result['date'] for result in query_results]
             dates.sort(key=lambda x: dater.parse(x))
+            dates.reverse()
             formatted_results = {result['date']: result['value']
                                  for result in query_results}
             return {key: formatted_results[key] for key in dates}
