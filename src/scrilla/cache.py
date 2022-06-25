@@ -155,7 +155,7 @@ class PriceCache():
         ],
     }
     dynamodb_insert_transaction = "INSERT INTO \"prices\" VALUE {'ticker': ?, 'date': ?, 'open': ?, 'close': ? }"
-    dynamodb_price_query = "SELECT \"date\", \"open\", \"close\" FROM \"prices\" WHERE \"ticker\"=? AND \"date\"<=? AND \"date\">=?"
+    dynamodb_price_query = "SELECT \"date\", \"open\", \"close\" FROM \"prices\" WHERE \"ticker\"=? AND \"date\">=? AND \"date\"<=?"
     # No PartiQL ORDER BY clause yet: https://github.com/partiql/partiql-lang-kotlin/issues/47
     dynamodb_identity_query = "EXISTS(SELECT ticker FROM \"prices\" WHERE ticker=? and date= ?)"
 
@@ -171,8 +171,20 @@ class PriceCache():
         """
         print('prices')
         print(query_results)
-        return {result[0]: {keys.keys['PRICES']['OPEN']: result[1],
-                            keys.keys['PRICES']['CLOSE']: result[2]} for result in query_results}
+        if settings.CACHE_MODE == 'sqlite':
+            return {
+                result[0]: {
+                    keys.keys['PRICES']['OPEN']: result[1],
+                    keys.keys['PRICES']['CLOSE']: result[2]
+                } for result in query_results
+            }
+        elif settings.CACHE_MODE == 'dynamodb':
+            return {
+                result['date']: {
+                    keys.keys['PRICES']['OPEN']: result[keys.keys['PRICES']['OPEN']],
+                    keys.keys['PRICES']['CLOSE']: result[keys.keys['PRICES']['CLOSE']]
+                } for result in query_results
+            }
 
     def __init__(self):
         self._table()
