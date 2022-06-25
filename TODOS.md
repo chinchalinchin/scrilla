@@ -18,15 +18,12 @@
 
 42. review monte carlo simulation. allow value at risk function to specify SDE. look into MLE for parameters.
 
-44. conditional imports based on ANALYSIS_MODE
+44. conditional imports based on ANALYSIS_MODE once reversion mode is implemented
+    -> implement reversion mode
 
 46. redo statistic operations with vector and matrix operations for greater generalization.
 
 51. don't round crypto shares in portfolio.
-
-52. update references to quandl to nasdaq (they got acquired)
-
-54. juneteenth is getting added to the trading holidays. also, bond markets are closed on columbus day and veterans day. in other words, interest rates are not reported on those days.
 
 56. save api key in /data/common via gui menu (currently just displays dialog without doing anything when clicked)
 
@@ -34,15 +31,8 @@
 
 58. Implement Welford's recursive algorithm for variance and covariance: https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance (turns out someone already figured it out)
 
-59. memory.json in common:
+59. clear memory.json when static, common and cache are cleared.
 
-    holds piece of information across execution to prevent the program from calling the same methods. for instance, once the dynamodb/sqlite tables are created, they do not need created again. the only way ot inform the program across executions is either: query the cache to ensure the tables exist (which in the case of sqlite isn't a problem, but can get quite expensive when querying over api for dynamodb), or persist something locally.
-    {
-        'static': True,
-        'cache': True,
-    }
+61. pretty sure services and caches should be singletons: https://stackoverflow.com/questions/6760685/creating-a-singleton-in-python
 
-    will need to ensure memory.json is updated when static or cache are cleared.
-
-60. Dynamodb responses are not ordered!
-    -> will need to delete cache and restart it
+62. 

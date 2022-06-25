@@ -969,6 +969,7 @@ def do_program(cli_args: List[str]) -> None:
                 profiles[arg]['equity_cost'] = cost_of_equity(ticker=arg,
                                                               start_date=args['start_date'],
                                                               end_date=args['end_date'],
+                                                              ticker_profile=profiles[arg],
                                                               method=args['estimation_method'])
 
             if print_format_to_screen(args):

@@ -29,7 +29,7 @@ logger = outputter.Logger('scrilla.analysis.markets', settings.LOG_LEVEL)
 profile_cache = cache.ProfileCache()
 
 
-def sharpe_ratio(ticker: str, start_date: Union[date, None] = None, end_date: Union[date, None] = None, risk_free_rate: Union[float, None] = None, ticker_profile: Union[dict, None] = None, method: str = settings.ESTIMATION_METHOD) -> float:
+def sharpe_ratio(ticker: str, start_date: Union[date, None] = None, end_date: Union[date, None] = None, risk_free_rate: Union[float, None] = None, ticker_profile: Union[dict, None] = None, method: str = settings.ESTIMATION_METHOD, cache_in: bool = True, cache_out: bool=True) -> float:
     """
     Calculates the sharpe ratio for the supplied ticker over the specified time range. If no start and end date are supplied, calculation will default to the last 100 days of prices. The risk free rate and ticker risk profile can be passed in to force calculations without historical data.
 
@@ -47,6 +47,10 @@ def sharpe_ratio(ticker: str, start_date: Union[date, None] = None, end_date: Un
         Risk-return profile for the supplied ticker. Formatted as follows: `{ 'annual_return': float, 'annual_volatility': float } `
     6. **method** : ``str``
         Estimation method used to calculate financial statistics. Defaults to the value set by `scrilla.settings.ESTIMATION_METHOD`. Allowable value are accessible through the `scrilla.keys.keys` dictionary.
+    7. **cache_in**: ``bool``
+        Flag to tell function to search cache defined by `scrilla.settings.CACHE_MODE` before computing sharpe ratio. Defaults to `True`.
+    8. **cache_out**: ``bool``
+        Flag to tell function to save sharpe ratio to the cache defined by `scrilla.settings.CACHE_MODE`. Defaults to `True`.
 
     .. notes:: 
         * if ``ticker_profile`` is provided, this function will skip both an external data service call and the calculation of the ticker's risk profile. The calculation will proceed as if the supplied profile were the true profile. If ``ticker_profile`` is not provided, all statistics will be estimated from historical data.
@@ -54,7 +58,7 @@ def sharpe_ratio(ticker: str, start_date: Union[date, None] = None, end_date: Un
     start_date, end_date = errors.validate_dates(start_date=start_date, end_date=end_date,
                                                  asset_type=keys.keys['ASSETS']['EQUITY'])
 
-    if ticker_profile is None:
+    if cache_in and ticker_profile is None:
         result = profile_cache.filter_profile_cache(
             ticker=ticker, start_date=start_date, end_date=end_date, method=method)
 
@@ -71,7 +75,8 @@ def sharpe_ratio(ticker: str, start_date: Union[date, None] = None, end_date: Un
     sh_ratio = (ticker_profile['annual_return'] -
                 risk_free_rate)/ticker_profile['annual_volatility']
 
-    profile_cache.save_or_update_row(ticker=ticker, start_date=start_date,
+    if cache_out: 
+        profile_cache.save_or_update_row(ticker=ticker, start_date=start_date,
                                      end_date=end_date, sharpe_ratio=sh_ratio, method=method)
 
     return sh_ratio
@@ -99,6 +104,12 @@ def market_premium(start_date: Union[date, None] = None, end_date: Union[date, N
                                                  asset_type=keys.keys['ASSETS']['EQUITY'])
 
     if market_profile is None:
+        market_profile = profile_cache.filter_profile_cache(
+            ticker=settings.MARKET_PROXY, start_date=start_date, end_date# TODO: may not want to save right here...should abstract into market_info or something, so all 
+    #       market information is calculated at once and saved at once, to reduce the number of writes.
+=end_date, method=method)
+
+    if market_profile is None:
         market_profile = statistics.calculate_risk_return(
             ticker=settings.MARKET_PROXY, start_date=start_date, end_date=end_date, method=method)
 
@@ -107,7 +118,7 @@ def market_premium(start_date: Union[date, None] = None, end_date: Union[date, N
     return market_prem
 
 
-def market_beta(ticker: str, start_date: Union[date, None] = None, end_date: Union[date, None] = None, market_profile: Union[dict, None] = None, market_correlation: Union[dict, None] = None, ticker_profile: Union[dict, None] = None, sample_prices: Union[dict, None] = None, method: str = settings.ESTIMATION_METHOD) -> float:
+def market_beta(ticker: str, start_date: Union[date, None] = None, end_date: Union[date, None] = None, market_profile: Union[dict, None] = None, market_correlation: Union[dict, None] = None, ticker_profile: Union[dict, None] = None, sample_prices: Union[dict, None] = None, method: str = settings.ESTIMATION_METHOD, cache_in: bool=True, cache_out: bool=True) -> float:
     """
     Returns the beta of an asset against the market return defined by the ticker symbol set `scrilla.settings.MARKET_PROXY`, which in turn is configured through the environment variable of the same name, `MARKET_PROXY`. 
 
@@ -121,19 +132,23 @@ def market_beta(ticker: str, start_date: Union[date, None] = None, end_date: Uni
         End_date of the time period for which the asset beta will be computed.
     4. **method** : ``str``
         Estimation method used to calculate financial statistics. Defaults to the value set by `scrilla.settings.ESTIMATION_METHOD`. Allowable value are accessible through the `scrilla.keys.keys` dictionary.
+    7. **cache_in**: ``bool``
+        Flag to tell function to search cache defined by `scrilla.settings.CACHE_MODE` before computing sharpe ratio. Defaults to `True`.
+    8. **cache_out**: ``bool``
+        Flag to tell function to save sharpe ratio to the cache defined by `scrilla.settings.CACHE_MODE`. Defaults to `True`.
 
     .. notes::
         * If not configured by an environment variable, `scrilla.settings.MARKET_PROXY` defaults to ``SPY``, the ETF tracking the *S&P500*.
     """
     start_date, end_date = errors.validate_dates(start_date=start_date, end_date=end_date,
                                                  asset_type=keys.keys['ASSETS']['EQUITY'])
+    if cache_in and ticker_profile is None:
+        ticker_profile = profile_cache.filter_profile_cache(
+            ticker=ticker, start_date=start_date, end_date=end_date, method=method)
 
-    result = profile_cache.filter_profile_cache(
-        ticker=ticker, start_date=start_date, end_date=end_date, method=method)
-
-    if result is not None and keys.keys['STATISTICS']['BETA'] in list(result.keys()) and \
-            result[keys.keys['STATISTICS']['BETA']] is not None:
-        return result[keys.keys['STATISTICS']['BETA']]
+    if ticker_profile is not None and keys.keys['STATISTICS']['BETA'] in list(ticker_profile.keys()) and \
+            ticker_profile[keys.keys['STATISTICS']['BETA']] is not None:
+        return ticker_profile[keys.keys['STATISTICS']['BETA']]
 
     if market_profile is None:
         if sample_prices is None:
@@ -158,13 +173,16 @@ def market_beta(ticker: str, start_date: Union[date, None] = None, end_date: Uni
 
     beta = market_covariance / (market_profile['annual_volatility']**2)
 
-    profile_cache.save_or_update_row(
-        ticker=ticker, start_date=start_date, end_date=end_date, asset_beta=beta, method=method)
+    # TODO: may not want to save right here...should abstract into market_info or something, so all 
+    #       market information is calculated at once and saved at once, to reduce the number of writes.
+    if cache_out:
+        profile_cache.save_or_update_row(
+            ticker=ticker, start_date=start_date, end_date=end_date, asset_beta=beta, method=method)
 
     return beta
 
 
-def cost_of_equity(ticker: str, start_date: Union[datetime.date, None] = None, end_date: Union[datetime.date, None] = None, market_profile: Union[Dict[str, float], None] = None, market_correlation: Union[Dict[str, float], None] = None, method=settings.ESTIMATION_METHOD) -> float:
+def cost_of_equity(ticker: str, start_date: Union[datetime.date, None] = None, end_date: Union[datetime.date, None] = None, market_profile: Union[Dict[str, float], None] = None, ticker_profile: Union[dict, None] = None, market_correlation: Union[Dict[str, float], None] = None, method=settings.ESTIMATION_METHOD, cache_in: bool=True, cache_out:bool=True) -> float:
     """
     Returns the cost of equity of an asset as estimated by the Capital Asset Pricing Model, i.e. the product of the market premium and asset beta increased by the risk free rate.
 
@@ -182,27 +200,36 @@ def cost_of_equity(ticker: str, start_date: Union[datetime.date, None] = None, e
         *Optional*. Dictionary containing the assumed correlation for the calculation. Overrides calls to services and statistical methods, forcing the calculation of the cost of equity with the inputted correlation. Format: ``{ 'correlation' : value }``
     6. **method** : ``str``
         *Optional*. Estimation method used to calculate financial statistics. Defaults to the value set by `scrilla.settings.ESTIMATION_METHOD`. Allowable value are accessible through the `scrilla.keys.keys` dictionary.
+    7. **cache_in**: ``bool``
+        Flag to tell function to search cache defined by `scrilla.settings.CACHE_MODE` before computing sharpe ratio. Defaults to `True`.
+    8. **cache_out**: ``bool``
+        Flag to tell function to save sharpe ratio to the cache defined by `scrilla.settings.CACHE_MODE`. Defaults to `True`.
     """
     start_date, end_date = errors.validate_dates(start_date=start_date, end_date=end_date,
                                                  asset_type=keys.keys['ASSETS']['EQUITY'])
 
-    result = profile_cache.filter_profile_cache(
-        ticker=ticker, start_date=start_date, end_date=end_date, method=method)
+    if cache_in and ticker_profile is None:
+        ticker_profile = profile_cache.filter_profile_cache(
+            ticker=ticker, start_date=start_date, end_date=end_date, method=method)
 
-    if result is not None and keys.keys['STATISTICS']['EQUITY'] in list(result.keys()) and\
-            result[keys.keys['STATISTICS']['EQUITY']] is not None:
-        return result[keys.keys['STATISTICS']['EQUITY']]
+    if ticker_profile is not None and keys.keys['STATISTICS']['EQUITY'] in list(ticker_profile.keys()) and\
+            ticker_profile[keys.keys['STATISTICS']['EQUITY']] is not None:
+        return ticker_profile[keys.keys['STATISTICS']['EQUITY']]
 
     beta = market_beta(ticker=ticker, start_date=start_date, end_date=end_date,
-                       market_profile=market_profile, market_correlation=market_correlation,
-                       method=method)
+                       market_profile=market_profile, ticker_profile=ticker_profile,
+                       market_correlation=market_correlation,method=method)
     premium = market_premium(start_date=start_date, end_date=end_date,
                              market_profile=market_profile, method=method)
 
     equity_cost = (premium*beta + services.get_risk_free_rate())
 
-    profile_cache.save_or_update_row(
-        ticker=ticker, start_date=start_date, end_date=end_date, equity_cost=equity_cost, method=method)
+    # TODO: only update a single column here...
+
+    if cache_out:
+        profile_cache.save_or_update_row(
+            ticker=ticker, start_date=start_date, end_date=end_date, equity_cost=equity_cost, method=method)
+
     return equity_cost
 
 

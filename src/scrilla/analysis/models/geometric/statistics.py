@@ -766,6 +766,7 @@ def _calculate_moment_risk_return(ticker: str, start_date: Union[date, None] = N
             weekends = 0
 
     if sample_prices is None:
+        # NOTE: Cache is bypassed when sample_prices are not null.
         if weekends == 1:
             start_date, end_date = errors.validate_dates(
                 start_date, end_date, keys.keys['ASSETS']['CRYPTO'])
