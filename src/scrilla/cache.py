@@ -212,7 +212,7 @@ class PriceCache():
         logger.verbose(
             F'Attempting to insert {ticker} prices to cache', 'save_rows')
         Cache.execute_query(
-            transaction=self._insert(),
+            query=self._insert(),
             formatter=self._to_params(ticker, prices)
         )
 
@@ -225,6 +225,7 @@ class PriceCache():
             query=self._query(), formatter=formatter)
 
         if settings.CACHE_MODE == 'dynamodb':
+            print('prices')
             pprint.pprint(results)
 
         if len(results) > 0:
@@ -277,9 +278,9 @@ class InterestCache():
         ],
     }
     dynamodb_insert_transaction = "INSERT INTO \"interest\" VALUE {'maturity': ?, 'date': ?, 'value': ? }"
-    dynamodb_query = "SELECT \"date\", \"value\" FROM \"interest\" WHERE \"maturity\"=? AND \"date\"<=?"
+    dynamodb_query = "SELECT \"date\", \"value\" FROM \"interest\" WHERE \"maturity\"=? AND \"date\">=? AND \"date\"<=?"
     # No PartiQL ORDER BY clause yet: https://github.com/partiql/partiql-lang-kotlin/issues/47
-    dynamodb_identity_query = "EXISTS(SELECT 'maturity' FROM \"interest\" WHERE 'maturity'=? and 'date'= ?)"
+    dynamodb_identity_query = "EXISTS(SELECT 'maturity' FROM \"interest\" WHERE 'maturity'=? AND 'date'<= ?)"
 
     @staticmethod
     def to_dict(query_results):
@@ -291,7 +292,7 @@ class InterestCache():
         1. **query_results**: ``list``
             Raw SQLite query results.
         """
-        print('interest')
+        print('interest to_dict')
         print(query_results)
         if settings.CACHE_MODE == 'sqlite':
             return {result[0]: result[1] for result in query_results}
@@ -337,7 +338,7 @@ class InterestCache():
         logger.verbose(
             F'Attempting to insert interest rates into cache', 'save_rows')
         Cache.execute_query(
-            transaction=self._insert(),
+            query=self._insert(),
             formatter=self._to_params(rates)
         )
 
@@ -350,6 +351,7 @@ class InterestCache():
             query=self._query(), formatter=formatter)
 
         if settings.CACHE_MODE == 'dynamodb':
+            print('interest')
             pprint.pprint(results)
 
         if len(results) > 0:
@@ -478,6 +480,7 @@ class CorrelationCache():
         1. **query_results**: ``list``
             Raw SQLite query results.
         """
+        print('correlation to_dict')
         print(query_results)
         return {keys.keys['STATISTICS']['CORRELATION']: query_results[0][0]}
 
@@ -544,6 +547,7 @@ class CorrelationCache():
             query=self._query(), formatter=formatter_1)
 
         if settings.CACHE_MODE == 'dynamodb':
+            print('correlation')
             pprint.pprint(results)
 
         if len(results) > 0:
@@ -657,6 +661,8 @@ class ProfileCache():
         1. **query_results**: ``list``
             Raw SQLite query results.
         """
+        print('profile to_dict')
+        pprint.pprint(query_result)
         if settings.CACHE_MODE == 'sqlite':
             return {
                 keys.keys['STATISTICS']['RETURN']: query_result[0][0] if query_result[0][0] != 'empty' else None,
@@ -768,6 +774,7 @@ class ProfileCache():
             query=self._query(), formatter=formatter)
 
         if settings.CACHE_MODE == 'dynamodb':
+            print('profile')
             pprint.pprint(result)
 
         if len(result) > 0:

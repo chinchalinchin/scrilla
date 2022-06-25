@@ -1,3 +1,4 @@
+from pprint import pprint
 import boto3
 from botocore.exceptions import ClientError, ParamValidationError
 from datetime import date
@@ -33,28 +34,35 @@ def dynamo_json_to_params(document: dict) -> list:
     return dynamo_json
 
 
-def dynamo_params_to_json(document: list) -> list:
-    json_list = []
-    for doc in document:
-        json_dict = {}
-        for entry_key, entry_value in doc.items():
-            type_key = list(entry_value.keys())[0]
-            type_value = list(entry_value.values())[0]
-            if type_key == 'N':
-                json_dict[entry_key] = float(type_value)
-            elif type_key == 'S':
-                json_dict[entry_key] = type_value
-            elif type_key == 'BOOL':
-                json_dict[entry_key] = True if type_value.lower(
-                ) == 'true' else False
-            elif type_key == 'SS':
-                json_dict[entry_key] = type_value
-            elif type_key == 'NS':
-                json_dict[entry_key] = [float(el) for el in type_value]
-            elif type_key == 'NULL':
-                json_dict[entry_key] = None
-        json_list.append(json_dict)
-    return json_list
+def dynamo_params_to_json(document: dict) -> list:
+    if 'Items' in list(document.keys()):
+        json_list = []
+        for doc in document['Items']:
+            json_dict = {}
+            for entry_key, entry_value in doc.items():
+                type_key = list(entry_value.keys())[0]
+                type_value = list(entry_value.values())[0]
+                if type_key == 'N':
+                    json_dict[entry_key] = float(type_value)
+                elif type_key == 'S':
+                    json_dict[entry_key] = type_value
+                elif type_key == 'BOOL':
+                    json_dict[entry_key] = True if type_value.lower(
+                    ) == 'true' else False
+                elif type_key == 'SS':
+                    json_dict[entry_key] = type_value
+                elif type_key == 'NS':
+                    json_dict[entry_key] = [float(el) for el in type_value]
+                elif type_key == 'NULL':
+                    json_dict[entry_key] = None
+            json_list.append(json_dict)
+        
+        print('params to json, itmes in key')
+        pprint(json_list)
+        return json_list
+    elif 'Responses' in list(document.keys()):
+        print('params to json, responses in key')
+        pprint(document)
 
 
 def dynamo_table_conf(table_configuration) -> dict:
@@ -112,16 +120,16 @@ def dynamo_transaction(transaction, formatter=None):
                         dynamo_client().execute_transaction(
                             TransactStatements=statements[i*DYNAMO_STATEMENT_LIMIT:
                                                           (i+1)*DYNAMO_STATEMENT_LIMIT]
-                        )['Responses'])
+                        ))
                     for i in range(0, loops)
                 ]
             return dynamo_params_to_json(
                 dynamo_client().execute_transaction(TransactStatements=statements
-                                                    )['Responses'])
+                                                    ))
         return dynamo_params_to_json(
             dynamo_client().execute_transaction(TransactStatements=[
                 dynamo_statement_args(transaction, formatter)]
-            )['Responses'])
+            ))
     except (ClientError, ParamValidationError) as e:
         logger.error(e, 'dynamo_transaction')
         logger.debug(f'\n\t\t{transaction}', 'dynamo_transaction')
@@ -132,22 +140,26 @@ def dynamo_statement(query, formatter=None):
         if isinstance(formatter, list):
             statements = [dynamo_statement_args(
                 query, params) for params in formatter]
+            
             if len(statements) > DYNAMO_STATEMENT_LIMIT:
+                
                 loops = len(statements) // DYNAMO_STATEMENT_LIMIT + \
                     (1 if len(statements) % DYNAMO_STATEMENT_LIMIT != 0 else 0)
+
+
                 return [
                     dynamo_params_to_json(
-                        dynamo_client().batch_execute_statements(
+                        dynamo_client().batch_execute_statement(
                             Statements=statements[i*DYNAMO_STATEMENT_LIMIT:
                                                   (i+1)*DYNAMO_STATEMENT_LIMIT]
-                        )['Items']) for i in range(0, loops)
+                        )) for i in range(0, loops)
                 ]
             return dynamo_params_to_json(
-                dynamo_client().batch_execute_statements(Statements=statements
-                                                         )['Items'])
+                dynamo_client().batch_execute_statement(Statements=statements)
+            )
         return dynamo_params_to_json(
             dynamo_client().execute_statement(**dynamo_statement_args(query, formatter)
-                                              )['Items'])
+                                              ))
     except (ClientError, ParamValidationError) as e:
         logger.error(e, 'dynamo_statement')
         logger.debug(f'\n\t\t{query}', 'dynamo_statement')
