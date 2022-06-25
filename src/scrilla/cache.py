@@ -780,7 +780,7 @@ class ProfileCache():
 
 
 def init_cache():
-    memory = get_memory_json
+    memory = get_memory_json()
     if not memory['cache']['prices']:
         PriceCache()
         memory['cache']['prices'] = True
