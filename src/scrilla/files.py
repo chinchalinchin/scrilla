@@ -44,7 +44,7 @@ def memory_json_skeleton() -> dict:
                 'correlations': False,
                 'profile': False
             },
-            'dynamodb':{
+            'dynamodb': {
                 'prices': False,
                 'interest': False,
                 'correlations': False,

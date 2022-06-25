@@ -179,7 +179,7 @@ class PriceCache():
             }
         elif mode == 'dynamodb':
             dates = [ result['date'] for result in query_results]
-            dates.sort(key=lambda x: dater.parse(x))
+            dates.sort(key=lambda x: dater.parse(x)).reverse()
             print(dates)
             formatted_results =  {
                 result['date']: {
@@ -309,7 +309,7 @@ class InterestCache():
         elif mode == 'dynamodb':
             # TODO: need to order by date!
             dates = [ result['date'] for result in query_results ]
-            dates.sort(key=lambda x: dater.parse(x))
+            dates.sort(key=lambda x: dater.parse(x)).reverse()
             formatted_results = {result['date']: result['value'] for result in query_results}
             return {key: formatted_results[key] for key in dates }
 
@@ -773,7 +773,7 @@ class ProfileCache():
         return Cache.execute_transaction(self._construct_update(params),
                                          {**params, **filter})
 
-    def filter_profile_cache(self, ticker: str, start_date: datetime.date, end_date: datetime.date, weekends: int = 0, method=settings.ESTIMATION_METHOD):
+    def filter_profile_cache(self, ticker: str, start_date: datetime.date, end_date: datetime.date, weekends: int = 0, method = settings.ESTIMATION_METHOD):
         logger.debug(
             f'Querying {self.mode} cache: \n\t{self._query()}\n\t\t with :ticker={ticker}, :start_date={start_date}, :end_date={end_date}', 'filter_profile_cache')
         formatter = {'ticker': ticker, 'start_date': start_date,
