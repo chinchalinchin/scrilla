@@ -48,10 +48,216 @@
 <h2>Tables<a class="headerlink" href="#tables" title="Permalink to this heading">¶</a></h2>
 <ol class="arabic simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">prices</span></code></p></li>
+</ol>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span>{
+    &#39;AttributeDefinitions&#39;: [
+        {
+            &#39;AttributeName&#39;: &#39;ticker&#39;,
+            &#39;AttributeType&#39;: &#39;S&#39;
+        },
+        {
+            &#39;AttributeName&#39;: &#39;date&#39;,
+            &#39;AttributeType&#39;: &#39;S&#39;
+        },
+    ],
+    &#39;TableName&#39;: &#39;prices&#39;,
+    &#39;KeySchema&#39;: [
+        {
+            &#39;AttributeName&#39;: &#39;ticker&#39;,
+            &#39;KeyType&#39;: &#39;HASH&#39;
+        },
+        {
+            &#39;AttributeName&#39;: &#39;date&#39;,
+            &#39;KeyType&#39;: &#39;RANGE&#39;
+        }
+    ],
+}
+</pre></div>
+</div>
+<ol class="arabic simple" start="2">
 <li><p><code class="docutils literal notranslate"><span class="pre">interest</span></code></p></li>
+</ol>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span>{
+    &#39;AttributeDefinitions&#39;: [
+        {
+            &#39;AttributeName&#39;: &#39;maturity&#39;,
+            &#39;AttributeType&#39;: &#39;S&#39;
+        },
+        {
+            &#39;AttributeName&#39;: &#39;date&#39;,
+            &#39;AttributeType&#39;: &#39;S&#39;
+        },
+    ],
+    &#39;TableName&#39;: &#39;interest&#39;,
+    &#39;KeySchema&#39;: [
+        {
+            &#39;AttributeName&#39;: &#39;maturity&#39;,
+            &#39;KeyType&#39;: &#39;HASH&#39;
+        },
+        {
+            &#39;AttributeName&#39;: &#39;date&#39;,
+            &#39;KeyType&#39;: &#39;RANGE&#39;
+        }
+    ],
+}
+</pre></div>
+</div>
+<ol class="arabic simple" start="3">
 <li><p><code class="docutils literal notranslate"><span class="pre">profile</span></code></p></li>
+</ol>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span>{
+    &#39;AttributeDefinitions&#39;: [
+        {
+            &#39;AttributeName&#39;: &#39;ticker&#39;,
+            &#39;AttributeType&#39;: &#39;S&#39;
+        },
+        {
+            &#39;AttributeName&#39;: &#39;start_date&#39;,
+            &#39;AttributeType&#39;: &#39;S&#39;
+        },
+        {
+            &#39;AttributeName&#39;: &#39;end_date&#39;,
+            &#39;AttributeType&#39;: &#39;S&#39;
+        },
+        {
+            &#39;AttributeName&#39;: &#39;method&#39;,
+            &#39;AttributeType&#39;: &#39;S&#39;
+        },
+        {
+            &#39;AttributeName&#39;: &#39;weekends&#39;,
+            &#39;AttributeType&#39;: &#39;N&#39;
+        }
+    ],
+    &#39;TableName&#39;: &#39;profile&#39;,
+    &#39;KeySchema&#39;: [
+        {
+            &#39;AttributeName&#39;: &#39;ticker&#39;,
+            &#39;KeyType&#39;: &#39;HASH&#39;
+        },
+        {
+            &#39;AttributeName&#39;: &#39;start_date&#39;,
+            &#39;KeyType&#39;: &#39;RANGE&#39;
+        }
+    ],
+    &#39;GlobalSecondaryIndexes&#39;: [
+        {
+            &#39;IndexName&#39;: &#39;DateTelescoping&#39;,
+            &#39;KeySchema&#39;: [
+                {
+                    &#39;AttributeName&#39;: &#39;weekends&#39;,
+                    &#39;KeyType&#39;: &#39;HASH&#39;
+                },
+                {
+                    &#39;AttributeName&#39;: &#39;end_date&#39;,
+                    &#39;KeyType&#39;: &#39;RANGE&#39;
+                },
+            ],
+            &#39;Projection&#39;: {
+                &#39;ProjectionType&#39;: &#39;KEYS_ONLY&#39;
+            }
+        },
+        {
+            &#39;IndexName&#39;: &#39;EstimationTelescoping&#39;,
+            &#39;KeySchema&#39;: [
+                {
+                    &#39;AttributeName&#39;: &#39;method&#39;,
+                    &#39;KeyType&#39;: &#39;HASH&#39;
+                },
+            ],
+            &#39;Projection&#39;: {
+                &#39;ProjectionType&#39;: &#39;ALL&#39;,
+            }
+        }
+    ]
+}
+</pre></div>
+</div>
+<ol class="arabic simple" start="4">
 <li><p><code class="docutils literal notranslate"><span class="pre">correlation</span></code></p></li>
 </ol>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span>{
+    &#39;AttributeDefinitions&#39;: [
+        {
+            &#39;AttributeName&#39;: &#39;ticker_1&#39;,
+            &#39;AttributeType&#39;: &#39;S&#39;
+        },
+        {
+            &#39;AttributeName&#39;: &#39;ticker_2&#39;,
+            &#39;AttributeType&#39;: &#39;S&#39;
+        },
+        {
+            &#39;AttributeName&#39;: &#39;start_date&#39;,
+            &#39;AttributeType&#39;: &#39;S&#39;
+        },
+        {
+            &#39;AttributeName&#39;: &#39;end_date&#39;,
+            &#39;AttributeType&#39;: &#39;S&#39;
+        },
+        {
+            &#39;AttributeName&#39;: &#39;method&#39;,
+            &#39;AttributeType&#39;: &#39;S&#39;
+        },
+        {
+            &#39;AttributeName&#39;: &#39;weekends&#39;,
+            &#39;AttributeType&#39;: &#39;N&#39;
+        },
+    ],
+    &#39;TableName&#39;: &#39;correlations&#39;,
+    &#39;KeySchema&#39;: [
+        {
+            &#39;AttributeName&#39;: &#39;ticker_1&#39;,
+            &#39;KeyType&#39;: &#39;HASH&#39;
+        },
+        {
+            &#39;AttributeName&#39;: &#39;start_date&#39;,
+            &#39;KeyType&#39;: &#39;RANGE&#39;
+        }
+    ],
+    &#39;GlobalSecondaryIndexes&#39;: [
+        {
+            &#39;IndexName&#39;: &#39;AssetTelescoping&#39;,
+            &#39;KeySchema&#39;: [
+                {
+                    &#39;AttributeName&#39;: &#39;ticker_2&#39;,
+                    &#39;KeyType&#39;: &#39;HASH&#39;
+                },
+                {
+                    &#39;AttributeName&#39;: &#39;end_date&#39;,
+                    &#39;KeyType&#39;: &#39;RANGE&#39;
+                },
+            ],
+            &#39;Projection&#39;: {
+                &#39;ProjectionType&#39;: &#39;KEYS_ONLY&#39;
+            }
+        },
+        {
+            &#39;IndexName&#39;: &#39;WeekendTelescoping&#39;,
+            &#39;KeySchema&#39;: [
+                {
+                    &#39;AttributeName&#39;: &#39;weekends&#39;,
+                    &#39;KeyType&#39;: &#39;HASH&#39;
+                }
+            ],
+            &#39;Projection&#39;: {
+                &#39;ProjectionType&#39;: &#39;KEYS_ONLY&#39;
+            }
+        },
+        {
+            &#39;IndexName&#39;: &#39;EstimationTelescoping&#39;,
+            &#39;KeySchema&#39;: [
+                {
+                    &#39;AttributeName&#39;: &#39;method&#39;,
+                    &#39;KeyType&#39;: &#39;HASH&#39;
+                },
+            ],
+            &#39;Projection&#39;: {
+                &#39;ProjectionType&#39;: &#39;ALL&#39;,
+            }
+        },
+    ]
+}
+</pre></div>
+</div>
 </section>
 <section id="prices">
 <h2>Prices<a class="headerlink" href="#prices" title="Permalink to this heading">¶</a></h2>
