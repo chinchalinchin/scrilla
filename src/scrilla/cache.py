@@ -189,7 +189,7 @@ class PriceCache():
 
     def __init__(self, mode = settings.CACHE_MODE):
         self.mode = mode
-        if not get_memory_json()['cache']['prices']:
+        if not get_memory_json()['cache'][mode]['prices']:
             self._table()
 
     def _table(self):
@@ -313,7 +313,7 @@ class InterestCache():
 
     def __init__(self, mode = settings.CACHE_MODE):
         self.mode = mode
-        if not get_memory_json()['cache']['interest']:
+        if not get_memory_json()['cache'][mode]['interest']:
             self._table()
 
     def _table(self):
@@ -494,7 +494,7 @@ class CorrelationCache():
 
     def __init__(self, mode = settings.CACHE_MODE):
         self.mode = mode
-        if not get_memory_json()['cache']['correlations']:
+        if not get_memory_json()['cache'][mode]['correlations']:
             self._table()
 
     def _table(self):
@@ -724,7 +724,7 @@ class ProfileCache():
 
     def __init__(self, mode = settings.CACHE_MODE):
         self.mode = mode
-        if not get_memory_json()['cache']['profile']:
+        if not get_memory_json()['cache'][mode]['profile']:
             self._table()
 
     def _table(self):
@@ -790,16 +790,16 @@ class ProfileCache():
 
 def init_cache():
     memory = get_memory_json()
-    if not memory['cache']['prices']:
+    if not memory['cache'][settings.CACHE_MODE]['prices']:
         PriceCache()
-        memory['cache']['prices'] = True
-    if not memory['cache']['interest']:
+        memory['cache'][settings.CACHE_MODE]['prices'] = True
+    if not memory['cache'][settings.CACHE_MODE]['interest']:
         InterestCache()
-        memory['cache']['interest'] = True
-    if not memory['cache']['profile']:
+        memory['cache'][settings.CACHE_MODE]['interest'] = True
+    if not memory['cache'][settings.CACHE_MODE]['profile']:
         ProfileCache()
-        memory['cache']['profile'] = True
-    if not memory['cache']['correlations']:
+        memory['cache'][settings.CACHE_MODE]['profile'] = True
+    if not memory['cache'][settings.CACHE_MODE]['correlations']:
         CorrelationCache()
-        memory['cache']['correlations'] = True
+        memory['cache'][settings.CACHE_MODE]['correlations'] = True
     save_memory_json(memory)

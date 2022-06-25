@@ -38,10 +38,18 @@ def memory_json_skeleton() -> dict:
     return {
         'static': False,
         'cache': {
-            'prices': False,
-            'interest': False,
-            'correlations': False,
-            'profile': False
+            'sqlite': {
+                'prices': False,
+                'interest': False,
+                'correlations': False,
+                'profile': False
+            },
+            'dynamodb':{
+                'prices': False,
+                'interest': False,
+                'correlations': False,
+                'profile': False
+            }
         }
     }
 
