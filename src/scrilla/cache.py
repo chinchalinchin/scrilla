@@ -18,6 +18,7 @@ This module provides a data access layer for a SQLite database maintained on the
 
 In addition to preventing excessive API calls, the cache prevents redundant calculations. For example, calculating the market beta for a series of assets requires the variance of the market proxy for each calculation. Rather than recalculate this quantity each time, the program will defer to the values stored in the cache.
 """
+import pprint
 from scrilla import settings
 
 if settings.CACHE_MODE == 'sqlite':
@@ -179,6 +180,7 @@ class PriceCache():
         elif mode == 'dynamodb':
             dates = [ result['date'] for result in query_results]
             dates.sort(key=lambda x: dater.parse(x))
+            print(dates)
             formatted_results =  {
                 result['date']: {
                     keys.keys['PRICES']['OPEN']: result[keys.keys['PRICES']['OPEN']],

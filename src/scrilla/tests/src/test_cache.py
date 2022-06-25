@@ -5,6 +5,7 @@ from scrilla.static import keys
 from scrilla.cache import PriceCache, InterestCache, ProfileCache
 from scrilla.files import clear_directory
 from scrilla.services import get_daily_price_history, get_daily_interest_history
+from scrilla.util import dater
 
 from .. import mock, settings as test_settings
 from httmock import HTTMock
@@ -242,8 +243,12 @@ def test_interest_cache_to_params(rates, expected):
     ),
 ])
 def test_interest_cache_to_dict_dynamodb(results, expected):
+    actual = InterestCache().to_dict(results, 'dynamodb')
+    actual_keys = list(actual.keys())
     assert InterestCache().to_dict(results, 'dynamodb') == expected
-
+    assert all( dater.parse(actual_keys[i]) > dater.parse(actual_keys[i-1])
+                    for i in range(1,len(actual_keys)))
+                    
 @pytest.mark.parametrize('results,expected',[
     (
         [
@@ -293,4 +298,9 @@ def test_interest_cache_to_dict_dynamodb(results, expected):
     )
 ])
 def test_price_cache_to_dict_dynamodb(results, expected):
-    assert PriceCache().to_dict(results, 'dynamodb') == expected
+    actual = PriceCache().to_dict(results, 'dynamodb')
+    actual_keys = list(actual.keys())
+
+    assert actual == expected
+    assert all( dater.parse(actual_keys[i]) > dater.parse(actual_keys[i-1])
+                    for i in range(1,len(actual_keys)))
