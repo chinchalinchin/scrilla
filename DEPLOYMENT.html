@@ -40,12 +40,33 @@
 <section id="aws-deployments">
 <h2>AWS Deployments<a class="headerlink" href="#aws-deployments" title="Permalink to this heading">¶</a></h2>
 <p>TODO</p>
+<section id="iam-role">
+<h3>IAM Role<a class="headerlink" href="#iam-role" title="Permalink to this heading">¶</a></h3>
+<p>TODO: list policy here.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="w">    </span><span class="c1"># policy here</span><span class="w"></span>
+</pre></div>
+</div>
+</section>
 <section id="dynamodb-cache">
 <h3>DynamoDB Cache<a class="headerlink" href="#dynamodb-cache" title="Permalink to this heading">¶</a></h3>
+<p>Set the environment variable <strong>CACHE_MODE</strong> to <code class="docutils literal notranslate"><span class="pre">dynamodb</span></code>. Instead of using a <strong>SQLite</strong> backend, <em>scrilla</em> will then attempt to provision four tables within <strong>DynamoDB</strong>: <code class="docutils literal notranslate"><span class="pre">prices</span></code>, <code class="docutils literal notranslate"><span class="pre">interest</span></code>, <code class="docutils literal notranslate"><span class="pre">correlations</span></code> and <code class="docutils literal notranslate"><span class="pre">profile</span></code>. The configuration for each table is given below.</p>
+<p><strong>NOTE</strong>: The variable <strong>DYNAMO_CONF</strong> gets appended to each table configuration before it is posted to the <strong>AWS</strong> API. This variable collectively controls the billing and provisioning modes for the <strong>DynamoDB</strong> tables,</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">DYNAMO_CONF</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;BillingMode&#39;</span><span class="p">:</span> <span class="s1">&#39;PAY_PER_REQUEST&#39;</span>  <span class="c1"># PAY_PER_REQUEST | PROVISIONED</span>
+    <span class="c1"># If PROVISIONED, the following lines need uncommented and configured:</span>
+    <span class="c1">#</span>
+    <span class="c1"># &#39;ProvisionedThroughput&#39; : {</span>
+    <span class="c1">#       &#39;ReadCapacityUnits&#39;: 123,</span>
+    <span class="c1">#       &#39;WriteCapacityUnits&#39;: 123</span>
+    <span class="c1">#  },</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>If you want finer-grained control over the pricing and speed of each table, you will need to edit this variable in the source code, rebuild and then re-install the wheel . See <span class="xref myst">SETUP</span> for more information on building <em>scrilla</em> from source.</p>
 </section>
 </section>
-<section id="tables">
-<h2>Tables<a class="headerlink" href="#tables" title="Permalink to this heading">¶</a></h2>
+<section id="table-configurations">
+<h2>Table Configurations<a class="headerlink" href="#table-configurations" title="Permalink to this heading">¶</a></h2>
 <ol class="arabic simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">prices</span></code></p></li>
 </ol>
@@ -258,22 +279,6 @@
 }
 </pre></div>
 </div>
-</section>
-<section id="prices">
-<h2>Prices<a class="headerlink" href="#prices" title="Permalink to this heading">¶</a></h2>
-<p>TODO: Key schemas goes here</p>
-</section>
-<section id="interest">
-<h2>Interest<a class="headerlink" href="#interest" title="Permalink to this heading">¶</a></h2>
-<p>TODO: Key schema goes here</p>
-</section>
-<section id="profile">
-<h2>Profile<a class="headerlink" href="#profile" title="Permalink to this heading">¶</a></h2>
-<p>TODO: Key schema goes here</p>
-</section>
-<section id="correlation">
-<h2>Correlation<a class="headerlink" href="#correlation" title="Permalink to this heading">¶</a></h2>
-<p>TODO: Key schema goes here</p>
 <section id="lambda-function">
 <h3>Lambda Function<a class="headerlink" href="#lambda-function" title="Permalink to this heading">¶</a></h3>
 <p>TODO</p>
@@ -309,11 +314,7 @@
 <li class="toctree-l1"><a class="reference internal" href="DEVELOPMENT.html">Development</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Deployment</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#aws-deployments">AWS Deployments</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#tables">Tables</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#prices">Prices</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#interest">Interest</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#profile">Profile</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#correlation">Correlation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#table-configurations">Table Configurations</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="APPENDIX.html">Appendix</a></li>
