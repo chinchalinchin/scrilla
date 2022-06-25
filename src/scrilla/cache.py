@@ -177,6 +177,7 @@ class PriceCache():
                 } for result in query_results
             }
         elif settings.CACHE_MODE == 'dynamodb':
+            # TODO: need to order by date!
             return {
                 result['date']: {
                     keys.keys['PRICES']['OPEN']: result[keys.keys['PRICES']['OPEN']],
@@ -302,6 +303,7 @@ class InterestCache():
         if settings.CACHE_MODE == 'sqlite':
             return {result[0]: result[1] for result in query_results}
         elif settings.CACHE_MODE == 'dynamodb':
+            # TODO: need to order by date!
             return {result['date']: result['value'] for result in query_results}
 
     def __init__(self):

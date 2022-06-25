@@ -1325,7 +1325,6 @@ def _calculate_moment_correlation(ticker_1: str, ticker_2: str, asset_type_1: Un
                     tomorrows_date) - dater.parse(this_date)).days
             else:
                 time_delta = 1
-
             current_mod_return_1 = log(
                 float(tomorrows_price_1)/float(todays_price_1))/sqrt(time_delta*trading_period_1)
 

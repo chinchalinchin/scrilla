@@ -43,3 +43,6 @@
     }
 
     will need to ensure memory.json is updated when static or cache are cleared.
+
+60. Dynamodb responses are not ordered!
+    -> will need to delete cache and restart it
