@@ -161,7 +161,7 @@ class PriceCache():
     dynamodb_identity_query = "EXISTS(SELECT ticker FROM \"prices\" WHERE ticker=? and date= ?)"
 
     @staticmethod
-    def to_dict(query_results, mode = settings.CACHE_MODE):
+    def to_dict(query_results, mode=settings.CACHE_MODE):
         """
         Returns the SQLite query results formatted for the application.
 
@@ -178,18 +178,18 @@ class PriceCache():
                 } for result in query_results
             }
         elif mode == 'dynamodb':
-            dates = [ result['date'] for result in query_results]
+            dates = [result['date'] for result in query_results]
             dates.sort(key=lambda x: dater.parse(x))
             print(dates)
-            formatted_results =  {
+            formatted_results = {
                 result['date']: {
                     keys.keys['PRICES']['OPEN']: result[keys.keys['PRICES']['OPEN']],
                     keys.keys['PRICES']['CLOSE']: result[keys.keys['PRICES']['CLOSE']]
                 } for result in query_results
             }
-            return { key: formatted_results[key] for key in dates}
+            return {key: formatted_results[key] for key in dates}
 
-    def __init__(self, mode = settings.CACHE_MODE):
+    def __init__(self, mode=settings.CACHE_MODE):
         self.mode = mode
         if not get_memory_json()['cache'][mode]['prices']:
             self._table()
@@ -295,7 +295,7 @@ class InterestCache():
     dynamodb_identity_query = "EXISTS(SELECT 'maturity' FROM \"interest\" WHERE 'maturity'=? AND 'date'<= ?)"
 
     @staticmethod
-    def to_dict(query_results, mode = settings.CACHE_MODE):
+    def to_dict(query_results, mode=settings.CACHE_MODE):
         """
         Returns the SQLite query results formatted for the application.
 
@@ -308,12 +308,13 @@ class InterestCache():
             return {result[0]: result[1] for result in query_results}
         elif mode == 'dynamodb':
             # TODO: need to order by date!
-            dates = [ result['date'] for result in query_results ]
+            dates = [result['date'] for result in query_results]
             dates.sort(key=lambda x: dater.parse(x))
-            formatted_results = {result['date']: result['value'] for result in query_results}
-            return {key: formatted_results[key] for key in dates }
+            formatted_results = {result['date']: result['value']
+                                 for result in query_results}
+            return {key: formatted_results[key] for key in dates}
 
-    def __init__(self, mode = settings.CACHE_MODE):
+    def __init__(self, mode=settings.CACHE_MODE):
         self.mode = mode
         if not get_memory_json()['cache'][mode]['interest']:
             self._table()
@@ -494,7 +495,7 @@ class CorrelationCache():
         """
         return {keys.keys['STATISTICS']['CORRELATION']: query_results[0][0]}
 
-    def __init__(self, mode = settings.CACHE_MODE):
+    def __init__(self, mode=settings.CACHE_MODE):
         self.mode = mode
         if not get_memory_json()['cache'][mode]['correlations']:
             self._table()
@@ -660,7 +661,7 @@ class ProfileCache():
     dynamodb_identity_query = "SELECT * FROM \"profile\" WHERE ticker =? AND start_date=? AND end_date=? AND method=? AND weekends=?"
 
     @staticmethod
-    def to_dict(query_result, mode = settings.CACHE_MODE):
+    def to_dict(query_result, mode=settings.CACHE_MODE):
         """
         Returns the SQLite query results formatted for the application.
 
@@ -681,7 +682,7 @@ class ProfileCache():
             return query_result[0]
 
     @staticmethod
-    def _construct_update(params, mode = settings.CACHE_MODE):
+    def _construct_update(params, mode=settings.CACHE_MODE):
         if mode == 'sqlite':
             update_query = 'UPDATE profile SET '
             for param in params.keys():
@@ -698,7 +699,7 @@ class ProfileCache():
             return update_query
 
     @staticmethod
-    def _construct_insert(params_and_filter, mode = settings.CACHE_MODE):
+    def _construct_insert(params_and_filter, mode=settings.CACHE_MODE):
         if mode == 'sqlite':
             insert_query = 'INSERT INTO profile ('
             for param in params_and_filter.keys():
@@ -724,7 +725,7 @@ class ProfileCache():
                     insert_query += "}"
             return insert_query
 
-    def __init__(self, mode = settings.CACHE_MODE):
+    def __init__(self, mode=settings.CACHE_MODE):
         self.mode = mode
         if not get_memory_json()['cache'][mode]['profile']:
             self._table()
