@@ -1,6 +1,8 @@
 # scrilla: A Financial Optimization Application
 
-_scrilla_ is a financial analysis application written in **Python**. It can optimize portfolios, calculate statistics using a variety of methods and algorithms, generate graphical plots and much more. It uses historical data retrieved from various sources, such as the US Treasury RSS Feed, AlphaVantage, IEX and Quandl, to calibrate models.
+_scrilla_ is an open-source financial analysis application written in **Python**. It can optimize portfolios, calculate statistics using a variety of methods and algorithms, generate graphical plots and much more. It uses historical data retrieved from various sources, such as the US Treasury RSS Feed, AlphaVantage, IEX and Quandl, to calibrate models. 
+
+**NOTE**: None of the results of _scrilla_ should be interpretted as financial advice. All results assume past trends will continue indefinitely into the future, which is usually never the case in reality.
 
 ![](https://github.com/chinchalinchin/chinchalinchin/blob/main/assets/scrilla_gui_ii.png)
 
