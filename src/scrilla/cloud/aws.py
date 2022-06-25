@@ -137,12 +137,11 @@ def dynamo_statement(query, formatter=None):
         if isinstance(formatter, list):
             statements = [dynamo_statement_args(
                 query, params) for params in formatter]
-            
+
             if len(statements) > DYNAMO_STATEMENT_LIMIT:
-                
+
                 loops = len(statements) // DYNAMO_STATEMENT_LIMIT + \
                     (1 if len(statements) % DYNAMO_STATEMENT_LIMIT != 0 else 0)
-
 
                 return [
                     dynamo_params_to_json(

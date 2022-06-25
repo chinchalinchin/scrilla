@@ -33,6 +33,7 @@ logger = outputter.Logger("scrilla.files", settings.LOG_LEVEL)
 
 static_tickers_blob, static_econ_blob, static_crypto_blob = None, None, None
 
+
 def memory_json_skeleton() -> dict:
     return {
         'static': False,
@@ -44,14 +45,17 @@ def memory_json_skeleton() -> dict:
         }
     }
 
+
 def save_memory_json(persist: dict = memory_json_skeleton()):
     save_file(persist, settings.MEMORY_FILE)
+
 
 def get_memory_json():
     if os.path.isfile(settings.MEMORY_FILE):
         return load_file(settings.MEMORY_FILE)
     return memory_json_skeleton()
-    
+
+
 def load_file(file_name: str) -> Any:
     """
     Infers the file extensions from the provided `file_name` and parses the file appropriately. 
@@ -78,6 +82,7 @@ def save_file(file_to_save: Dict[str, Any], file_name: str) -> bool:
         return True
     except Exception as e:
         return False
+
 
 def set_credentials(value: str, which_key: str) -> bool:
     file_name = os.path.join(
@@ -184,7 +189,7 @@ def init_static_data():
                 f'Missing {settings.STATIC_CRYPTO_FILE}, querying \'{settings.PRICE_MANAGER}\'.', 'init_static_data')
             url = settings.AV_CRYPTO_LIST
             static_crypto_blob = parse_csv_response_column(column=0, url=url, savefile=settings.STATIC_CRYPTO_FILE,
-                                                        firstRowHeader=service_map['KEYS']['CRYPTO']['HEADER'])
+                                                           firstRowHeader=service_map['KEYS']['CRYPTO']['HEADER'])
 
         # grab econominc indicator symbols and store in STATIC_DIR
         if (
@@ -199,8 +204,8 @@ def init_static_data():
             query = f'{service_map["PATHS"]["FRED"]}/{service_map["PARAMS"]["METADATA"]}'
             url = f'{settings.Q_META_URL}/{query}?{service_map["PARAMS"]["KEY"]}={settings.Q_KEY}'
             static_econ_blob = parse_csv_response_column(column=0, url=url, savefile=settings.STATIC_ECON_FILE,
-                                                        firstRowHeader=service_map["KEYS"]["HEADER"],
-                                                        zipped=service_map["KEYS"]["ZIPFILE"])
+                                                         firstRowHeader=service_map["KEYS"]["HEADER"],
+                                                         zipped=service_map["KEYS"]["ZIPFILE"])
 
         memory['static'] = True
         save_memory_json(memory)

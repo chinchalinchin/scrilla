@@ -489,7 +489,6 @@ class CorrelationCache():
     def __init__(self):
         if not get_memory_json()['cache']['correlations']:
             self._table()
-            
 
     def _table(self):
         if settings.CACHE_MODE == 'sqlite':
