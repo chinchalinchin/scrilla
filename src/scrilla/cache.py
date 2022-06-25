@@ -773,7 +773,7 @@ class ProfileCache():
         return Cache.execute_transaction(self._construct_update(params),
                                          {**params, **filter})
 
-    def filter_profile_cache(self, ticker: str, start_date: datetime.date, end_date: datetime.date, weekends: int = 0, method = settings.ESTIMATION_METHOD):
+    def filter_profile_cache(self, ticker: str, start_date: datetime.date, end_date: datetime.date, weekends: int = 0, method=settings.ESTIMATION_METHOD):
         logger.debug(
             f'Querying {self.mode} cache: \n\t{self._query()}\n\t\t with :ticker={ticker}, :start_date={start_date}, :end_date={end_date}', 'filter_profile_cache')
         formatter = {'ticker': ticker, 'start_date': start_date,
