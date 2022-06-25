@@ -54,7 +54,7 @@ def memory_json_skeleton() -> dict:
     }
 
 
-def save_memory_json(persist: Union[dict,None] = None):
+def save_memory_json(persist: Union[dict, None] = None):
     if persist is None:
         persist = get_memory_json()
     save_file(persist, settings.MEMORY_FILE)
