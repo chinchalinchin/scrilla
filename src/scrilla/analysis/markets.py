@@ -107,18 +107,18 @@ def market_premium(start_date: Union[date, None] = None, end_date: Union[date, N
         market_profile = profile_cache.filter_profile_cache(
             # TODO: may not want to save right here...should abstract into market_info or something, so all
             ticker=settings.MARKET_PROXY, start_date=start_date, end_date=end_date, method=method)
-            #       market information is calculated at once and saved at once, to reduce the number of writes.            
+        #       market information is calculated at once and saved at once, to reduce the number of writes.
 
     if market_profile is None:
-        market_profile=statistics.calculate_risk_return(
+        market_profile = statistics.calculate_risk_return(
             ticker=settings.MARKET_PROXY, start_date=start_date, end_date=end_date, method=method)
 
-    market_prem=(
+    market_prem = (
         market_profile['annual_return'] - services.get_risk_free_rate())
     return market_prem
 
 
-def market_beta(ticker: str, start_date: Union[date, None]=None, end_date: Union[date, None]=None, market_profile: Union[dict, None]=None, market_correlation: Union[dict, None]=None, ticker_profile: Union[dict, None]=None, sample_prices: Union[dict, None]=None, method: str=settings.ESTIMATION_METHOD, cache_in: bool=True, cache_out: bool=True) -> float:
+def market_beta(ticker: str, start_date: Union[date, None] = None, end_date: Union[date, None] = None, market_profile: Union[dict, None] = None, market_correlation: Union[dict, None] = None, ticker_profile: Union[dict, None] = None, sample_prices: Union[dict, None] = None, method: str = settings.ESTIMATION_METHOD, cache_in: bool = True, cache_out: bool = True) -> float:
     """
     Returns the beta of an asset against the market return defined by the ticker symbol set `scrilla.settings.MARKET_PROXY`, which in turn is configured through the environment variable of the same name, `MARKET_PROXY`.
 
@@ -140,10 +140,10 @@ def market_beta(ticker: str, start_date: Union[date, None]=None, end_date: Union
     .. notes::
         * If not configured by an environment variable, `scrilla.settings.MARKET_PROXY` defaults to ``SPY``, the ETF tracking the *S&P500*.
     """
-    start_date, end_date=errors.validate_dates(start_date=start_date, end_date=end_date,
+    start_date, end_date = errors.validate_dates(start_date=start_date, end_date=end_date,
                                                  asset_type=keys.keys['ASSETS']['EQUITY'])
     if cache_in and ticker_profile is None:
-        ticker_profile=profile_cache.filter_profile_cache(
+        ticker_profile = profile_cache.filter_profile_cache(
             ticker=ticker, start_date=start_date, end_date=end_date, method=method)
 
     if ticker_profile is not None and keys.keys['STATISTICS']['BETA'] in list(ticker_profile.keys()) and \
@@ -152,26 +152,26 @@ def market_beta(ticker: str, start_date: Union[date, None]=None, end_date: Union
 
     if market_profile is None:
         if sample_prices is None:
-            market_profile=statistics.calculate_risk_return(ticker=settings.MARKET_PROXY, start_date=start_date,
+            market_profile = statistics.calculate_risk_return(ticker=settings.MARKET_PROXY, start_date=start_date,
                                                               end_date=end_date, method=method)
         else:
-            market_profile=statistics.calculate_risk_return(ticker=settings.MARKET_PROXY, method=method,
+            market_profile = statistics.calculate_risk_return(ticker=settings.MARKET_PROXY, method=method,
                                                               sample_prices=sample_prices[settings.MARKET_PROXY])
     if ticker_profile is None:
         if sample_prices is None:
-            ticker_profile=statistics.calculate_risk_return(ticker=ticker, start_date=start_date,
+            ticker_profile = statistics.calculate_risk_return(ticker=ticker, start_date=start_date,
                                                               end_date=end_date, method=method)
         else:
-            ticker_profile=statistics.calculate_risk_return(ticker=ticker, method=method,
+            ticker_profile = statistics.calculate_risk_return(ticker=ticker, method=method,
                                                               sample_prices=sample_prices[ticker])
 
-    market_covariance=statistics.calculate_return_covariance(ticker_1=ticker, ticker_2=settings.MARKET_PROXY,
+    market_covariance = statistics.calculate_return_covariance(ticker_1=ticker, ticker_2=settings.MARKET_PROXY,
                                                                profile_1=ticker_profile, profile_2=market_profile,
                                                                correlation=market_correlation,
                                                                sample_prices=sample_prices,
                                                                start_date=start_date, end_date=end_date)
 
-    beta=market_covariance / (market_profile['annual_volatility']**2)
+    beta = market_covariance / (market_profile['annual_volatility']**2)
 
     # TODO: may not want to save right here...should abstract into market_info or something, so all
     #       market information is calculated at once and saved at once, to reduce the number of writes.
@@ -182,7 +182,7 @@ def market_beta(ticker: str, start_date: Union[date, None]=None, end_date: Union
     return beta
 
 
-def cost_of_equity(ticker: str, start_date: Union[datetime.date, None]=None, end_date: Union[datetime.date, None]=None, market_profile: Union[Dict[str, float], None]=None, ticker_profile: Union[dict, None]=None, market_correlation: Union[Dict[str, float], None]=None, method=settings.ESTIMATION_METHOD, cache_in: bool=True, cache_out: bool=True) -> float:
+def cost_of_equity(ticker: str, start_date: Union[datetime.date, None] = None, end_date: Union[datetime.date, None] = None, market_profile: Union[Dict[str, float], None] = None, ticker_profile: Union[dict, None] = None, market_correlation: Union[Dict[str, float], None] = None, method=settings.ESTIMATION_METHOD, cache_in: bool = True, cache_out: bool = True) -> float:
     """
     Returns the cost of equity of an asset as estimated by the Capital Asset Pricing Model, i.e. the product of the market premium and asset beta increased by the risk free rate.
 
@@ -205,24 +205,24 @@ def cost_of_equity(ticker: str, start_date: Union[datetime.date, None]=None, end
     8. **cache_out**: ``bool``
         Flag to tell function to save sharpe ratio to the cache defined by `scrilla.settings.CACHE_MODE`. Defaults to `True`.
     """
-    start_date, end_date=errors.validate_dates(start_date=start_date, end_date=end_date,
+    start_date, end_date = errors.validate_dates(start_date=start_date, end_date=end_date,
                                                  asset_type=keys.keys['ASSETS']['EQUITY'])
 
     if cache_in and ticker_profile is None:
-        ticker_profile=profile_cache.filter_profile_cache(
+        ticker_profile = profile_cache.filter_profile_cache(
             ticker=ticker, start_date=start_date, end_date=end_date, method=method)
 
     if ticker_profile is not None and keys.keys['STATISTICS']['EQUITY'] in list(ticker_profile.keys()) and\
             ticker_profile[keys.keys['STATISTICS']['EQUITY']] is not None:
         return ticker_profile[keys.keys['STATISTICS']['EQUITY']]
 
-    beta=market_beta(ticker=ticker, start_date=start_date, end_date=end_date,
+    beta = market_beta(ticker=ticker, start_date=start_date, end_date=end_date,
                        market_profile=market_profile, ticker_profile=ticker_profile,
                        market_correlation=market_correlation, method=method)
-    premium=market_premium(start_date=start_date, end_date=end_date,
+    premium = market_premium(start_date=start_date, end_date=end_date,
                              market_profile=market_profile, method=method)
 
-    equity_cost=(premium*beta + services.get_risk_free_rate())
+    equity_cost = (premium*beta + services.get_risk_free_rate())
 
     # TODO: only update a single column here...
 
@@ -233,7 +233,7 @@ def cost_of_equity(ticker: str, start_date: Union[datetime.date, None]=None, end
     return equity_cost
 
 
-def screen_for_discount(model: str=keys.keys['MODELS']['DDM'], discount_rate: float=None) -> Dict[str, Dict[str, float]]:
+def screen_for_discount(model: str = keys.keys['MODELS']['DDM'], discount_rate: float = None) -> Dict[str, Dict[str, float]]:
     """
     Screens the stocks saved under the user watchlist in the `scrilla.settings.COMMON_DIR` directory for discounts relative to the model inputted into the function.
 
@@ -250,30 +250,30 @@ def screen_for_discount(model: str=keys.keys['MODELS']['DDM'], discount_rate: fl
         A list of tickers that trade at a discount relative to the model price, formatted as follows: `{ 'ticker' : { 'spot_price': value, 'model_price': value,'discount': value }, ... }`
     """
 
-    equities=list(files.get_watchlist())
-    discounts={}
-    user_discount_rate=discount_rate
+    equities = list(files.get_watchlist())
+    discounts = {}
+    user_discount_rate = discount_rate
 
     for equity in equities:
-        spot_price=services.get_daily_price_latest(ticker=equity)
+        spot_price = services.get_daily_price_latest(ticker=equity)
 
         if user_discount_rate is None:
-            discount_rate=cost_of_equity(ticker=equity)
+            discount_rate = cost_of_equity(ticker=equity)
         else:
-            discount_rate=user_discount_rate
+            discount_rate = user_discount_rate
 
         if model == keys.keys['MODELS']['DDM']:
             logger.debug(
                 'Using Discount Dividend Model to screen watchlisted equities for discounts.', 'screen_for_discount')
-            dividends=services.get_dividend_history(equity)
-            model_price=Cashflow(
+            dividends = services.get_dividend_history(equity)
+            model_price = Cashflow(
                 sample=dividends, discount_rate=discount_rate).calculate_net_present_value()
-            discount=float(model_price) - float(spot_price)
+            discount = float(model_price) - float(spot_price)
 
             if discount > 0:
-                discount_result={'spot_price': spot_price,
+                discount_result = {'spot_price': spot_price,
                                    'model_price': model_price, 'discount': discount}
-                discounts[equity]=discount_result
+                discounts[equity] = discount_result
                 logger.debug(
                     f'Discount of {discount} found for {equity}', 'screen_for_discount')
 
