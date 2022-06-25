@@ -540,12 +540,14 @@ class CorrelationCache():
         """
         logger.verbose(
             f'Saving ({ticker_1}, {ticker_2}) correlation from {start_date} to {end_date} to the cache', 'save_row')
-        formatter_1 = {'ticker_1': ticker_1, 'ticker_2': ticker_2, 'method': method,
-                       'start_date': start_date, 'end_date': end_date, 'correlation': correlation,
-                       'weekends': weekends}
-        formatter_2 = {'ticker_1': ticker_2, 'ticker_2': ticker_1, 'method': method,
-                       'start_date': start_date, 'end_date': end_date, 'correlation': correlation,
-                       'weekends': weekends}
+        formatter_1 = {'ticker_1': ticker_1, 'ticker_2': ticker_2, 
+                       'start_date': start_date, 'end_date': end_date, 
+                       'correlation': correlation,
+                       'method': method, 'weekends': weekends}
+        formatter_2 = {'ticker_1': ticker_2, 'ticker_2': ticker_1,
+                       'start_date': start_date, 'end_date': end_date, 
+                       'correlation': correlation,
+                       'method': method, 'weekends': weekends}
         Cache.execute_transaction(
             transaction=self._insert(), formatter=formatter_1)
         Cache.execute_transaction(
