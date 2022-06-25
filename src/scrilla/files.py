@@ -22,7 +22,7 @@ import io
 import json
 import csv
 import zipfile
-from typing import Any, Dict
+from typing import Any, Dict, Union
 import requests
 
 from scrilla import settings
@@ -54,7 +54,9 @@ def memory_json_skeleton() -> dict:
     }
 
 
-def save_memory_json(persist: dict = memory_json_skeleton()):
+def save_memory_json(persist: Union[dict,None] = None):
+    if persist is None:
+        persist = get_memory_json()
     save_file(persist, settings.MEMORY_FILE)
 
 
