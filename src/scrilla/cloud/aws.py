@@ -47,8 +47,7 @@ def dynamo_params_to_json(document: dict) -> list:
                 elif type_key == 'S':
                     json_dict[entry_key] = type_value
                 elif type_key == 'BOOL':
-                    json_dict[entry_key] = True if type_value.lower(
-                    ) == 'true' else False
+                    json_dict[entry_key] = type_value.lower() == 'true' 
                 elif type_key == 'SS':
                     json_dict[entry_key] = type_value
                 elif type_key == 'NS':
