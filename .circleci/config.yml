@@ -20,7 +20,7 @@ commands:
   build_wheel:
     description: compress and build python package
     steps:
-      - restore_cache:  # ensure this step occurs *before* installing dependencies
+      - restore_cache: 
           key: python-deps-v4-{{ checksum "requirements.txt"}}
       - run:
           name: artifact build
@@ -35,7 +35,7 @@ commands:
   upload_artifacts:
     description: upload package artifacts to PyPi
     steps:
-      - restore_cache:  # ensure this step occurs *before* installing dependencies
+      - restore_cache: 
           key: python-deps-v4-{{ checksum "requirements.txt"}}
       - run:
           name: artifact upload
@@ -68,7 +68,7 @@ commands:
   generate_package_docs:
     description: generate documentation html from docstrings
     steps:
-      - restore_cache:  # ensure this step occurs *before* installing dependencies
+      - restore_cache:
           key: python-deps-v4-{{ checksum "requirements.txt"}}
       - attach_workspace:
           at: docs
@@ -85,7 +85,7 @@ commands:
   generate_source_docs:
     description: generate documentation html from markdown
     steps:
-      - restore_cache:  # ensure this step occurs *before* installing dependencies
+      - restore_cache:
           key: python-deps-v4-{{ checksum "requirements.txt"}}
       - attach_workspace:
           at: docs
@@ -103,7 +103,7 @@ commands:
   install_test_deps:
     description: install testing libraries
     steps:
-      - restore_cache:  # ensure this step occurs *before* installing dependencies
+      - restore_cache:
           key: deepsource-v1
       - run:
           name: install deepsource cli
