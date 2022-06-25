@@ -28,7 +28,7 @@ elif settings.CACHE_MODE == 'dynamodb':
 import datetime
 from typing import Union
 from scrilla.static import keys
-from scrilla.util import errors, outputter
+from scrilla.util import errors, outputter, dater
 from scrilla.files import get_memory_json, save_memory_json
 
 logger = outputter.Logger("scrilla.cache", settings.LOG_LEVEL)
@@ -160,7 +160,7 @@ class PriceCache():
     dynamodb_identity_query = "EXISTS(SELECT ticker FROM \"prices\" WHERE ticker=? and date= ?)"
 
     @staticmethod
-    def to_dict(query_results):
+    def to_dict(query_results, mode = settings.CACHE_MODE):
         """
         Returns the SQLite query results formatted for the application.
 
@@ -169,14 +169,14 @@ class PriceCache():
         1. **query_results**: ``list``
             Raw SQLite query results.
         """
-        if settings.CACHE_MODE == 'sqlite':
+        if mode == 'sqlite':
             return {
                 result[0]: {
                     keys.keys['PRICES']['OPEN']: result[1],
                     keys.keys['PRICES']['CLOSE']: result[2]
                 } for result in query_results
             }
-        elif settings.CACHE_MODE == 'dynamodb':
+        elif mode == 'dynamodb':
             # TODO: need to order by date!
             return {
                 result['date']: {
@@ -185,29 +185,29 @@ class PriceCache():
                 } for result in query_results
             }
 
-    def __init__(self):
+    def __init__(self, mode = settings.CACHE_MODE):
+        self.mode = mode
         if not get_memory_json()['cache']['prices']:
             self._table()
 
     def _table(self):
-
-        if settings.CACHE_MODE == 'sqlite':
+        if self.mode == 'sqlite':
             Cache.execute_transaction(self.sqlite_create_table_transaction)
-        elif settings.CACHE_MODE == 'dynamodb':
+        elif self.mode == 'dynamodb':
             self.dynamodb_table_configuration = aws.dynamo_table_conf(
                 self.dynamodb_table_configuration)
             Cache.provision(self.dynamodb_table_configuration)
 
     def _insert(self):
-        if settings.CACHE_MODE == 'sqlite':
+        if self.mode == 'sqlite':
             return self.sqlite_insert_row_transaction
-        elif settings.CACHE_MODE == 'dynamodb':
+        elif self.mode == 'dynamodb':
             return self.dynamodb_insert_transaction
 
     def _query(self):
-        if settings.CACHE_MODE == 'sqlite':
+        if self.mode == 'sqlite':
             return self.sqlite_price_query
-        elif settings.CACHE_MODE == 'dynamodb':
+        elif self.mode == 'dynamodb':
             return self.dynamodb_price_query
 
     def _to_params(self, ticker, prices):
@@ -230,7 +230,7 @@ class PriceCache():
 
     def filter_price_cache(self, ticker, start_date, end_date):
         logger.debug(
-            f'Querying {settings.CACHE_MODE} cache \n\t{self._query()}\n\t\t with :ticker={ticker}, :start_date={start_date}, :end_date={end_date}', 'filter_price_cache')
+            f'Querying {self.mode} cache \n\t{self._query()}\n\t\t with :ticker={ticker}, :start_date={start_date}, :end_date={end_date}', 'filter_price_cache')
         formatter = {'ticker': ticker,
                      'start_date': start_date, 'end_date': end_date}
         results = Cache.execute_query(
@@ -291,7 +291,7 @@ class InterestCache():
     dynamodb_identity_query = "EXISTS(SELECT 'maturity' FROM \"interest\" WHERE 'maturity'=? AND 'date'<= ?)"
 
     @staticmethod
-    def to_dict(query_results):
+    def to_dict(query_results, mode = settings.CACHE_MODE):
         """
         Returns the SQLite query results formatted for the application.
 
@@ -300,34 +300,38 @@ class InterestCache():
         1. **query_results**: ``list``
             Raw SQLite query results.
         """
-        if settings.CACHE_MODE == 'sqlite':
+        if mode == 'sqlite':
             return {result[0]: result[1] for result in query_results}
-        elif settings.CACHE_MODE == 'dynamodb':
+        elif mode == 'dynamodb':
             # TODO: need to order by date!
-            return {result['date']: result['value'] for result in query_results}
+            dates = [ result['date'] for result in query_results ]
+            dates.sort(key=lambda x: dater.parse(x))
+            formatted_results = {result['date']: result['value'] for result in query_results}
+            return {key: formatted_results[key] for key in dates }
 
-    def __init__(self):
+    def __init__(self, mode = settings.CACHE_MODE):
+        self.mode = mode
         if not get_memory_json()['cache']['interest']:
             self._table()
 
     def _table(self):
-        if settings.CACHE_MODE == 'sqlite':
+        if self.mode == 'sqlite':
             Cache.execute_transaction(self.sqlite_create_table_transaction)
-        elif settings.CACHE_MODE == 'dynamodb':
+        elif self.mode == 'dynamodb':
             self.dynamodb_table_configuration = aws.dynamo_table_conf(
                 self.dynamodb_table_configuration)
             Cache.provision(self.dynamodb_table_configuration)
 
     def _insert(self):
-        if settings.CACHE_MODE == 'sqlite':
+        if self.mode == 'sqlite':
             return self.sqlite_insert_row_transaction
-        elif settings.CACHE_MODE == 'dynamodb':
+        elif self.mode == 'dynamodb':
             return self.dynamodb_insert_transaction
 
     def _query(self):
-        if settings.CACHE_MODE == 'sqlite':
+        if self.mode == 'sqlite':
             return self.sqlite_interest_query
-        elif settings.CACHE_MODE == 'dynamodb':
+        elif self.mode == 'dynamodb':
             return self.dynamodb_query
 
     def _to_params(self, rates):
@@ -352,7 +356,7 @@ class InterestCache():
 
     def filter_interest_cache(self, maturity, start_date, end_date):
         logger.debug(
-            f'Querying {settings.CACHE_MODE} cache \n\t{self._query()}\n\t\t with :maturity={maturity}, :start_date={start_date}, :end_date={end_date}', 'filter_interest_cache')
+            f'Querying {self.mode} cache \n\t{self._query()}\n\t\t with :maturity={maturity}, :start_date={start_date}, :end_date={end_date}', 'filter_interest_cache')
         formatter = {'maturity': maturity,
                      'start_date': start_date, 'end_date': end_date}
         results = Cache.execute_query(
@@ -486,28 +490,29 @@ class CorrelationCache():
         """
         return {keys.keys['STATISTICS']['CORRELATION']: query_results[0][0]}
 
-    def __init__(self):
+    def __init__(self, mode = settings.CACHE_MODE):
+        self.mode = mode
         if not get_memory_json()['cache']['correlations']:
             self._table()
 
     def _table(self):
-        if settings.CACHE_MODE == 'sqlite':
+        if self.mode == 'sqlite':
             Cache.execute_transaction(self.sqlite_create_table_transaction)
-        elif settings.CACHE_MODE == 'dynamodb':
+        elif self.mode == 'dynamodb':
             self.dynamodb_table_configuration = aws.dynamo_table_conf(
                 self.dynamodb_table_configuration)
             Cache.provision(self.dynamodb_table_configuration)
 
     def _insert(self):
-        if settings.CACHE_MODE == 'sqlite':
+        if self.mode == 'sqlite':
             return self.sqlite_insert_row_transaction
-        elif settings.CACHE_MODE == 'dynamodb':
+        elif self.mode == 'dynamodb':
             return self.dynamodb_insert_transaction
 
     def _query(self):
-        if settings.CACHE_MODE == 'sqlite':
+        if self.mode == 'sqlite':
             return self.sqlite_correlation_query
-        elif settings.CACHE_MODE == 'dynamodb':
+        elif self.mode == 'dynamodb':
             return self.dynamodb_query
 
     def save_row(self, ticker_1: str, ticker_2: str, start_date: datetime.date, end_date: datetime.date, correlation: float, weekends: bool, method: str = settings.ESTIMATION_METHOD):
@@ -545,7 +550,7 @@ class CorrelationCache():
                        'start_date': start_date, 'end_date': end_date, 'weekends': weekends}
 
         logger.debug(
-            f'Querying {settings.CACHE_MODE} cache \n\t{self._query()}\n\t\t with :ticker_1={ticker_1}, :ticker_2={ticker_2},:start_date={start_date}, :end_date={end_date}', 'filter_correlation_cache')
+            f'Querying {self.mode} cache \n\t{self._query()}\n\t\t with :ticker_1={ticker_1}, :ticker_2={ticker_2},:start_date={start_date}, :end_date={end_date}', 'filter_correlation_cache')
         results = Cache.execute_query(
             query=self._query(), formatter=formatter_1)
 
@@ -651,7 +656,7 @@ class ProfileCache():
     dynamodb_identity_query = "SELECT * FROM \"profile\" WHERE ticker =? AND start_date=? AND end_date=? AND method=? AND weekends=?"
 
     @staticmethod
-    def to_dict(query_result):
+    def to_dict(query_result, mode = settings.CACHE_MODE):
         """
         Returns the SQLite query results formatted for the application.
 
@@ -660,7 +665,7 @@ class ProfileCache():
         1. **query_results**: ``list``
             Raw SQLite query results.
         """
-        if settings.CACHE_MODE == 'sqlite':
+        if mode == 'sqlite':
             return {
                 keys.keys['STATISTICS']['RETURN']: query_result[0][0] if query_result[0][0] != 'empty' else None,
                 keys.keys['STATISTICS']['VOLATILITY']: query_result[0][1] if query_result[0][1] != 'empty' else None,
@@ -668,12 +673,12 @@ class ProfileCache():
                 keys.keys['STATISTICS']['BETA']: query_result[0][3] if query_result[0][3] != 'empty' else None,
                 keys.keys['STATISTICS']['EQUITY']: query_result[0][4] if query_result[0][4] != 'empty' else None
             }
-        elif settings.CACHE_MODE == 'dynamodb':
+        elif mode == 'dynamodb':
             return query_result[0]
 
     @staticmethod
-    def _construct_update(params):
-        if settings.CACHE_MODE == 'sqlite':
+    def _construct_update(params, mode = settings.CACHE_MODE):
+        if mode == 'sqlite':
             update_query = 'UPDATE profile SET '
             for param in params.keys():
                 update_query += f'{param}=:{param}'
@@ -681,7 +686,7 @@ class ProfileCache():
                     update_query += ','
             update_query += " WHERE ticker=:ticker AND start_date=:start_date AND end_date=:end_date AND method=:method AND weekends=:weekends"
             return update_query
-        elif settings.CACHE_MODE == 'dynamodb':
+        elif mode == 'dynamodb':
             update_query = 'UPDATE profile '
             for param in params.keys():
                 update_query += f'SET {param}=? '
@@ -689,8 +694,8 @@ class ProfileCache():
             return update_query
 
     @staticmethod
-    def _construct_insert(params_and_filter):
-        if settings.CACHE_MODE == 'sqlite':
+    def _construct_insert(params_and_filter, mode = settings.CACHE_MODE):
+        if mode == 'sqlite':
             insert_query = 'INSERT INTO profile ('
             for param in params_and_filter.keys():
                 insert_query += f'{param}'
@@ -705,7 +710,7 @@ class ProfileCache():
                 else:
                     insert_query += ")"
             return insert_query
-        elif settings.CACHE_MODE == 'dynamodb':
+        elif mode == 'dynamodb':
             insert_query = "INSERT INTO \"profile\" VALUE {"
             for param in params_and_filter.keys():
                 insert_query += f'\'{param}\': ?'
@@ -715,28 +720,29 @@ class ProfileCache():
                     insert_query += "}"
             return insert_query
 
-    def __init__(self):
+    def __init__(self, mode = settings.CACHE_MODE):
+        self.mode = mode
         if not get_memory_json()['cache']['profile']:
             self._table()
 
     def _table(self):
-        if settings.CACHE_MODE == 'sqlite':
+        if self.mode == 'sqlite':
             Cache.execute_transaction(self.sqlite_create_table_transaction)
-        elif settings.CACHE_MODE == 'dynamodb':
+        elif self.mode == 'dynamodb':
             self.dynamodb_table_configuration = aws.dynamo_table_conf(
                 self.dynamodb_table_configuration)
             Cache.provision(self.dynamodb_table_configuration)
 
     def _query(self):
-        if settings.CACHE_MODE == 'sqlite':
+        if self.mode == 'sqlite':
             return self.sqlite_profile_query
         elif settings.CACHE_MODE == 'dynamodb':
             return self.dynamodb_profile_query
 
     def _identity(self):
-        if settings.CACHE_MODE == 'sqlite':
+        if self.mode == 'sqlite':
             return self.sqlite_identity_query
-        elif settings.CACHE_MODE == 'dynamodb':
+        elif self.mode == 'dynamodb':
             return self.dynamodb_identity_query
 
     def save_or_update_row(self, ticker: str, start_date: datetime.date, end_date: datetime.date, annual_return: Union[float, None] = None, annual_volatility: Union[float, None] = None, sharpe_ratio: Union[float, None] = None, asset_beta: Union[float, None] = None, equity_cost: Union[float, None] = None, weekends: int = 0, method: str = settings.ESTIMATION_METHOD):
@@ -765,7 +771,7 @@ class ProfileCache():
 
     def filter_profile_cache(self, ticker: str, start_date: datetime.date, end_date: datetime.date, weekends: int = 0, method=settings.ESTIMATION_METHOD):
         logger.debug(
-            f'Querying {settings.CACHE_MODE} cache: \n\t{self._query()}\n\t\t with :ticker={ticker}, :start_date={start_date}, :end_date={end_date}', 'filter_profile_cache')
+            f'Querying {self.mode} cache: \n\t{self._query()}\n\t\t with :ticker={ticker}, :start_date={start_date}, :end_date={end_date}', 'filter_profile_cache')
         formatter = {'ticker': ticker, 'start_date': start_date,
                      'end_date': end_date, 'method': method, 'weekends': weekends}
         result = Cache.execute_query(

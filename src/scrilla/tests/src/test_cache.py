@@ -211,3 +211,35 @@ def test_price_cache_to_params(ticker, prices, expected):
 ])
 def test_interest_cache_to_params(rates, expected):
     assert InterestCache()._to_params(rates) == expected
+
+@pytest.mark.parametrize('results,expected',[
+    (
+        [ 
+            {
+                'date': '2020-01-04',
+                'value': 0.01,
+            },
+            {
+                'date': '2020-01-01',
+                'value': 0.02,
+            },
+            {
+                'date': '2020-01-02', 
+                'value': 0.03,
+            },
+            {
+                'date': '2020-01-03',
+                'value': 0.04,
+            },
+        ],
+        {
+            '2020-01-04': 0.01,
+            '2020-01-03': 0.04,
+            '2020-01-02': 0.03,
+            '2020-01-01': 0.02
+        }
+
+    ),
+])
+def test_interest_cache_to_dict_dynamodb(results, expected):
+    assert InterestCache().to_dict(results, 'dynamodb') == expected
