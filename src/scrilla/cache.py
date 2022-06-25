@@ -214,7 +214,8 @@ class PriceCache():
         elif self.mode == 'dynamodb':
             return self.dynamodb_price_query
 
-    def _to_params(self, ticker, prices):
+    @staticmethod
+    def _to_params(ticker, prices):
         return [
             {
                 'ticker': ticker,
@@ -340,7 +341,8 @@ class InterestCache():
         elif self.mode == 'dynamodb':
             return self.dynamodb_query
 
-    def _to_params(self, rates):
+    @staticmethod
+    def _to_params(rates):
         params = []
         for date in rates:
             for index, maturity in enumerate(keys.keys['YIELD_CURVE']):
