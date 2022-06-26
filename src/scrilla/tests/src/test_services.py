@@ -18,22 +18,9 @@ init_static_data()
 @pytest.fixture(autouse=True)
 def reset_cache():
     clear_cache(mode='sqlite')
-
-
-@pytest.fixture()
-def price_cache():
-    return PriceCache(mode='sqlite')
-
-
-@pytest.fixture()
-def interest_cache():
-    return InterestCache(mode='sqlite')
-
-
-@pytest.fixture()
-def profile_cache():
-    return ProfileCache(mode='sqlite')
-
+    PriceCache(mode='sqlite')
+    InterestCache(mode='sqlite')
+    
 
 @pytest.mark.parametrize("ticker,date,price", [
     ('ALLY', '2021-10-22', 50.70),

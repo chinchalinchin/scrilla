@@ -74,54 +74,58 @@ def test_dynamo_json_to_params(params, expected):
 
 @pytest.mark.parametrize('params,expected',[
     (
-        [
-            {
-                'annual_return': {
-                    'N': '0.1223' 
+        {
+            'Items': [
+                {
+                    'annual_return': {
+                        'N': '0.1223' 
+                    },
+                    'annual_volatility': {
+                        'N': '0.0432'
+                    }
                 },
-                'annual_volatility': {
-                    'N': '0.0432'
-                }
-            },
-        ],
+            ],
+        },
         [
             {
                 'annual_return': 0.1223,
-                'annual_volalitity': 0.0432
+                'annual_volatility': 0.0432
             },
         ]
     ),
     (
-        [
-            {
-                'ticker': {
-                    'S': 'ALLY'
+        {
+            'Items': [
+                {
+                    'ticker': {
+                        'S': 'ALLY'
+                    },
+                    'date': {
+                        'S': '2020-01-01'
+                    },
+                    'open': {
+                        'N': 10
+                    },
+                    'close': {
+                        'N': 11
+                    }
                 },
-                'date': {
-                    'S': '2020-01-01'
-                },
-                'open': {
-                    'N': 10
-                },
-                'close': {
-                    'N': 11
+                {
+                    'ticker': {
+                        'S': 'ALLY'
+                    },
+                    'date': {
+                        'S': '2020-01-02'
+                    },
+                    'open': {
+                        'N': 12
+                    },
+                    'close': {
+                        'N': 13
+                    }
                 }
-            },
-            {
-                'ticker': {
-                    'S': 'ALLY'
-                },
-                'date': {
-                    'S': '2020-01-02'
-                },
-                'open': {
-                    'N': 12
-                },
-                'close': {
-                    'N': 13
-                }
-            }
-        ],
+            ],
+        },
         [
             {
                 'ticker': 'ALLY',
@@ -176,8 +180,30 @@ def test_dynamo_table(singleton_table_conf):
     }
 ])
 @mock_dynamodb
-def test_dynamo_table_exceptions(table_conf):
+def test_dynamo_table_exceptions_no_table(table_conf):
     response= aws.dynamo_table(table_conf)
+    print(response)
+    print(vars(response))
+    assert isinstance(response, KeyError)
+
+@pytest.mark.parametrize('table_conf',[
+    {
+        'AttributeDefinitions': [
+            {
+                'AttributeName': 'ticker',
+                'AttributeType': 'S'
+            },
+            {
+                'AttributeName': 'date',
+                'AttributeType': 'S'
+            }
+        ],
+        'TableName': 'table'
+    }
+])
+@mock_dynamodb
+def test_dynamo_table_exceptions_bad_params(table_conf):
+    response = aws.dynamo_table(table_conf)
     assert isinstance(response, ParamValidationError)
 
 

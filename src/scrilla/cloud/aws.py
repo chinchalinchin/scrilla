@@ -90,13 +90,16 @@ def dynamo_table(table_configuration: dict):
         logger.debug(
             f'Provisioning DynamoDB {table_configuration["TableName"]} table', 'dynamo_table')
         return dynamo_client().create_table(**table_configuration)
-    except (ClientError, ParamValidationError) as e:
+    except ClientError as e:
         if not (
             'Table already exists' in e.response['Error']['Message'] or
             'Table is being created' in e.response['Error']['Message']
         ):
             logger.error(e, 'dynamo_table')
             logger.verbose(f'\n\t\t{table_configuration}', 'dynamo_table')
+        return e
+    except ParamValidationError as e:
+        logger.error(e, 'dynamo_Table')
         return e
     except KeyError as e:
         logger.error(e, 'dynamo_table')
