@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
-    <title>Development &#8212; scrilla  documentation</title>
+    <title>Architecture &#8212; scrilla  documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
@@ -16,8 +16,8 @@
     <script src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Deployment" href="DEPLOYMENT.html" />
-    <link rel="prev" title="Architecture" href="ARCHITECTURE.html" />
+    <link rel="next" title="Development" href="DEVELOPMENT.html" />
+    <link rel="prev" title="Usage" href="USAGE.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
@@ -34,32 +34,26 @@
 
           <div class="body" role="main">
             
-  <section id="development">
-<h1>Development<a class="headerlink" href="#development" title="Permalink to this heading">¶</a></h1>
-<p>TODO</p>
-<section id="pull-requests">
-<h2>Pull Requests<a class="headerlink" href="#pull-requests" title="Permalink to this heading">¶</a></h2>
+  <section id="architecture">
+<h1>Architecture<a class="headerlink" href="#architecture" title="Permalink to this heading">¶</a></h1>
+<p>TODO: describe architecture</p>
+<section id="memory">
+<h2>“Memory”<a class="headerlink" href="#memory" title="Permalink to this heading">¶</a></h2>
+<p>TODO: explain purpose of memory.json</p>
 </section>
-<section id="continuous-delivery-pipeline">
-<h2>Continuous Delivery Pipeline<a class="headerlink" href="#continuous-delivery-pipeline" title="Permalink to this heading">¶</a></h2>
-<section id="unit-tests">
-<h3>Unit Tests<a class="headerlink" href="#unit-tests" title="Permalink to this heading">¶</a></h3>
-<p>TODO</p>
+<section id="cache">
+<h2>Cache<a class="headerlink" href="#cache" title="Permalink to this heading">¶</a></h2>
+<p>TODO: explain</p>
+<p>main -&gt; statistics -&gt; correlationcache,profilecache -&gt; services -&gt; pricecache,interestcache -&gt; api call</p>
+<p>TODO: diagram of this</p>
+<section id="memory-json">
+<h3>memory.json<a class="headerlink" href="#memory-json" title="Permalink to this heading">¶</a></h3>
 </section>
-<section id="deepsource">
-<h3>DeepSource<a class="headerlink" href="#deepsource" title="Permalink to this heading">¶</a></h3>
-<p>TODO</p>
 </section>
-<section id="branches">
-<h3>Branches<a class="headerlink" href="#branches" title="Permalink to this heading">¶</a></h3>
-<p>TODO</p>
-<ol class="arabic simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">develop/main</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">gh-pages</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">pypi/micro-update</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">pypi/minor-update</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">pypi/major-update</span></code></p></li>
-</ol>
+<section id="static">
+<h2>Static<a class="headerlink" href="#static" title="Permalink to this heading">¶</a></h2>
+<section id="id1">
+<h3>memory.json<a class="headerlink" href="#id1" title="Permalink to this heading">¶</a></h3>
 </section>
 </section>
 </section>
@@ -87,12 +81,13 @@
 <li class="toctree-l1"><a class="reference internal" href="SETUP.html">Setup</a></li>
 <li class="toctree-l1"><a class="reference internal" href="CONFIGURATION.html">Configuration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="USAGE.html">Usage</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ARCHITECTURE.html">Architecture</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Development</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#pull-requests">Pull Requests</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#continuous-delivery-pipeline">Continuous Delivery Pipeline</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Architecture</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#memory">“Memory”</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#cache">Cache</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#static">Static</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="DEVELOPMENT.html">Development</a></li>
 <li class="toctree-l1"><a class="reference internal" href="DEPLOYMENT.html">Deployment</a></li>
 <li class="toctree-l1"><a class="reference internal" href="APPENDIX.html">Appendix</a></li>
 </ul>
@@ -101,8 +96,8 @@
 <h3>Related Topics</h3>
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
-      <li>Previous: <a href="ARCHITECTURE.html" title="previous chapter">Architecture</a></li>
-      <li>Next: <a href="DEPLOYMENT.html" title="next chapter">Deployment</a></li>
+      <li>Previous: <a href="USAGE.html" title="previous chapter">Usage</a></li>
+      <li>Next: <a href="DEVELOPMENT.html" title="next chapter">Development</a></li>
   </ul></li>
 </ul>
 </div>
@@ -136,7 +131,7 @@
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
-      <a href="_sources/DEVELOPMENT.md.txt"
+      <a href="_sources/ARCHITECTURE.md.txt"
           rel="nofollow">Page source</a>
     </div>
 
