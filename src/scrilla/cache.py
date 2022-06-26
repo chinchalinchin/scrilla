@@ -46,7 +46,7 @@ class Cache():
             return aws.dynamo_table(table_configuration)
 
     @staticmethod
-    def execute_transaction(transaction, formatter=None):
+    def execute_transaction(transaction, formatter=None, mode = settings.CACHE_MODE):
         """
         Executes and commits a cache transaction. A transaction differs from a query in that all statements are executed, or none are.
 
@@ -57,7 +57,7 @@ class Cache():
         2. formatter: `Union[dict, List[dict]]``
             Dictionary of parameters used to format statement. Statements are formatted with DB-API's name substitution. See [sqlite3 documentation](https://docs.python.org/3/library/sqlite3.html) for more information. A list of dictionaries can be passed in to perform a batch execute transaction.
         """
-        if settings.CACHE_MODE == 'sqlite':
+        if mode == 'sqlite':
             con = sqlite3.connect(settings.CACHE_SQLITE_FILE)
             executor = con.cursor()
             if formatter is not None:
@@ -71,7 +71,7 @@ class Cache():
                 else:
                     response = executor.execute(transaction)
             con.commit(), con.close()
-        elif settings.CACHE_MODE == 'dynamodb':
+        elif mode == 'dynamodb':
             response = aws.dynamo_transaction(transaction, formatter)
         else:
             raise errors.ConfigurationError(
@@ -79,7 +79,7 @@ class Cache():
         return response
 
     @staticmethod
-    def execute_query(query, formatter=None):
+    def execute_query(query, formatter=None, mode = settings.CACHE_MODE):
         """
         Executes a read-write SQLite query.
 
@@ -95,7 +95,7 @@ class Cache():
         ``list``
             A list containing the results of the query.
         """
-        if settings.CACHE_MODE == 'sqlite':
+        if mode == 'sqlite':
             con = sqlite3.connect(settings.CACHE_SQLITE_FILE)
             con.row_factory = sqlite3.Row
             executor = con.cursor()
@@ -108,7 +108,7 @@ class Cache():
                 results = executor.execute(query).fetchall()
             con.close()
             return results
-        elif settings.CACHE_MODE == 'dynamodb':
+        elif mode == 'dynamodb':
             return aws.dynamo_statement(query, formatter)
         else:
             raise errors.ConfigurationError(
@@ -191,12 +191,17 @@ class PriceCache():
 
     def __init__(self, mode=settings.CACHE_MODE):
         self.mode = mode
+        print('here')
+        print(files.get_memory_json())
         if not files.get_memory_json()['cache'][mode]['prices']:
+            print('creating table')
             self._table()
 
     def _table(self):
         if self.mode == 'sqlite':
-            Cache.execute_transaction(self.sqlite_create_table_transaction)
+            print('executing')
+            Cache.execute_transaction(transaction = self.sqlite_create_table_transaction, 
+                                        mode=self.mode)
         elif self.mode == 'dynamodb':
             self.dynamodb_table_configuration = aws.dynamo_table_conf(
                 self.dynamodb_table_configuration)
@@ -230,16 +235,20 @@ class PriceCache():
             F'Attempting to insert {ticker} prices to cache', 'save_rows')
         Cache.execute_query(
             query=self._insert(),
-            formatter=self._to_params(ticker, prices)
+            formatter=self._to_params(ticker, prices),
+            mode=self.mode
         )
 
     def filter_price_cache(self, ticker, start_date, end_date):
+        print('filtering')
         logger.debug(
             f'Querying {self.mode} cache \n\t{self._query()}\n\t\t with :ticker={ticker}, :start_date={start_date}, :end_date={end_date}', 'filter_price_cache')
         formatter = {'ticker': ticker,
                      'start_date': start_date, 'end_date': end_date}
         results = Cache.execute_query(
-            query=self._query(), formatter=formatter)
+            query=self._query(), 
+            formatter=formatter,
+            mode=self.mode)
 
         if len(results) > 0:
             logger.debug(
@@ -323,7 +332,8 @@ class InterestCache():
 
     def _table(self):
         if self.mode == 'sqlite':
-            Cache.execute_transaction(self.sqlite_create_table_transaction)
+            Cache.execute_transaction(transaction=self.sqlite_create_table_transaction,
+                                        mode=self.mode)
         elif self.mode == 'dynamodb':
             self.dynamodb_table_configuration = aws.dynamo_table_conf(
                 self.dynamodb_table_configuration)
@@ -368,7 +378,7 @@ class InterestCache():
         formatter = {'maturity': maturity,
                      'start_date': start_date, 'end_date': end_date}
         results = Cache.execute_query(
-            query=self._query(), formatter=formatter)
+            query=self._query(), formatter=formatter, mode=self.mode)
 
         if len(results) > 0:
             logger.debug(
@@ -505,7 +515,8 @@ class CorrelationCache():
 
     def _table(self):
         if self.mode == 'sqlite':
-            Cache.execute_transaction(self.sqlite_create_table_transaction)
+            Cache.execute_transaction(transaction=self.sqlite_create_table_transaction, 
+                                        mode=self.mode)
         elif self.mode == 'dynamodb':
             self.dynamodb_table_configuration = aws.dynamo_table_conf(
                 self.dynamodb_table_configuration)
@@ -549,9 +560,9 @@ class CorrelationCache():
                        'correlation': correlation,
                        'method': method, 'weekends': weekends}
         Cache.execute_transaction(
-            transaction=self._insert(), formatter=formatter_1)
+            transaction=self._insert(), formatter=formatter_1, mode=self.mode)
         Cache.execute_transaction(
-            transaction=self._insert(), formatter=formatter_2)
+            transaction=self._insert(), formatter=formatter_2, mode=self.mode)
 
     def filter_correlation_cache(self, ticker_1, ticker_2, start_date, end_date, weekends, method=settings.ESTIMATION_METHOD):
         formatter_1 = {'ticker_1': ticker_1, 'ticker_2': ticker_2, 'method': method,
@@ -562,14 +573,14 @@ class CorrelationCache():
         logger.debug(
             f'Querying {self.mode} cache \n\t{self._query()}\n\t\t with :ticker_1={ticker_1}, :ticker_2={ticker_2},:start_date={start_date}, :end_date={end_date}', 'filter_correlation_cache')
         results = Cache.execute_query(
-            query=self._query(), formatter=formatter_1)
+            query=self._query(), formatter=formatter_1, mode=self.mode)
 
         if len(results) > 0:
             logger.debug(
                 f'Found ({ticker_1},{ticker_2}) correlation in the cache', 'filter_correlation_cache')
             return self.to_dict(results)
         results = Cache.execute_query(
-            query=self._query(), formatter=formatter_2)
+            query=self._query(), formatter=formatter_2, mode=self.mode)
 
         if len(results) > 0:
             logger.debug(
@@ -737,7 +748,8 @@ class ProfileCache():
 
     def _table(self):
         if self.mode == 'sqlite':
-            Cache.execute_transaction(self.sqlite_create_table_transaction)
+            Cache.execute_transaction(transaction=self.sqlite_create_table_transaction, 
+                                        mode=self.mode)
         elif self.mode == 'dynamodb':
             self.dynamodb_table_configuration = aws.dynamo_table_conf(
                 self.dynamodb_table_configuration)
@@ -771,13 +783,13 @@ class ProfileCache():
         if equity_cost is not None:
             params['equity_cost'] = equity_cost
 
-        identity = Cache.execute_query(self._identity(), filter)
+        identity = Cache.execute_query(self._identity(), filter, self.mode)
 
         if len(identity) == 0:
             return Cache.execute_transaction(self._construct_insert({**params, **filter}),
-                                             {**params, **filter})
+                                             {**params, **filter}, self.mode)
         return Cache.execute_transaction(self._construct_update(params),
-                                         {**params, **filter})
+                                         {**params, **filter}, self.mode)
 
     def filter_profile_cache(self, ticker: str, start_date: datetime.date, end_date: datetime.date, weekends: int = 0, method=settings.ESTIMATION_METHOD):
         logger.debug(
@@ -785,7 +797,7 @@ class ProfileCache():
         formatter = {'ticker': ticker, 'start_date': start_date,
                      'end_date': end_date, 'method': method, 'weekends': weekends}
         result = Cache.execute_query(
-            query=self._query(), formatter=formatter)
+            query=self._query(), formatter=formatter, mode=self.mode)
 
         if len(result) > 0:
             logger.debug(f'{ticker} profile found in cache',

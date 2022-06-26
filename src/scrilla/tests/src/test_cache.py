@@ -12,8 +12,7 @@ from moto import mock_dynamodb
 
 # NOTE: moto hasn't implemented a mock backend for `execute_statement`, `execute_transaction` or `execute_batch_statements`,
 #       and the dynamodb cache functionality is implemented entirely (with the exception of creating and dropping tables)
-#       through PartiQL statements and transactions.
-
+#       through PartiQL statements and transactions. Until moto supports needed operations will need to find another way to 
 @pytest.fixture(autouse=True)
 def mock_aws():
     dynamo = mock_dynamodb()
@@ -21,8 +20,10 @@ def mock_aws():
     yield
     dynamo.stop()
 
+
 @pytest.fixture(autouse=True)
 def reset_cache():
+    print('clearing')
     clear_cache()
 
 
@@ -65,6 +66,7 @@ def test_sqlite_price_cache(ticker, date, price, sqlite_price_cache):
     with HTTMock(mock.mock_prices):
         get_daily_price_history(
             ticker=ticker, start_date=test_settings.START, end_date=test_settings.END)
+    print('filtering')
     cache_results = sqlite_price_cache.filter_price_cache(
         ticker=ticker, start_date=date, end_date=date)
     assert(len(cache_results) ==
@@ -105,7 +107,7 @@ def test_profile_cache_construct_update_query(params, expected):
             'a': 1,
             'b': 2
         },
-        "INSERT INTO profile (ticker,start_date,end_date,a,b,method,weekends) VALUES (:ticker,:start_date,:end_date,:a,:b,:method,:weekends)"
+        "INSERT INTO profile (a,b) VALUES (:a,:b)"
     )
 ])
 def test_profile_cache_construct_insert_query(params, expected):

@@ -453,8 +453,12 @@ def clear_cache(mode: str = settings.CACHE_MODE) -> bool:
     save_memory_json(memory)
 
     if mode == 'sqlite':
-        return clear_directory(directory=settings.CACHE_DIR, retain=True)
-
+        # THERE IS AN ISSUE HERE. SHOULDN'T CLEAR THE DIRECTORY. SHOULD DELETE THE SQLITE FILE!!!!
+        try:
+            os.remove(settings.CACHE_SQLITE_FILE)
+            return True
+        except:
+            return False
     elif mode == 'dynamodb':
         return aws.dynamo_drop_table(tables)
 
