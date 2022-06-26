@@ -93,6 +93,7 @@ def save_file(file_to_save: Dict[str, Any], file_name: str) -> bool:
             # TODO: implement other file saving extensions.
         return True
     except Exception as e:
+        logger.error(e, 'save_file')
         return False
 
 
