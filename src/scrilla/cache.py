@@ -18,6 +18,7 @@ This module provides a data access layer for a SQLite database maintained on the
 
 In addition to preventing excessive API calls, the cache prevents redundant calculations. For example, calculating the market beta for a series of assets requires the variance of the market proxy for each calculation. Rather than recalculate this quantity each time, the program will defer to the values stored in the cache.
 """
+import itertools
 from scrilla import settings
 
 if settings.CACHE_MODE == 'sqlite':
@@ -34,6 +35,14 @@ from scrilla.util import dater, errors, outputter
 
 logger = outputter.Logger("scrilla.cache", settings.LOG_LEVEL)
 
+class Singleton(type):
+
+    _instances = {}
+    
+    def __call__(cls, *args, **kwargs):
+        if cls not in cls._instances:
+            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
+        return cls._instances[cls]
 
 class Cache():
     """
@@ -93,6 +102,8 @@ class PriceCache():
     3. **sqlite_price_query**: ``str```
         *SQLite* query to retrieve prices from cache.
     """
+    __metaclass__ = Singleton
+
     sqlite_create_table_transaction = "CREATE TABLE IF NOT EXISTS prices (ticker text, date text, open real, close real, UNIQUE(ticker, date))"
     sqlite_insert_row_transaction = "INSERT OR IGNORE INTO prices (ticker, date, open, close) VALUES (:ticker, :date, :open, :close)"
     sqlite_price_query = "SELECT date, open, close FROM prices WHERE ticker = :ticker AND date <= date(:end_date) AND date >= date(:start_date) ORDER BY date(date) DESC"
@@ -156,6 +167,7 @@ class PriceCache():
 
     def __init__(self, mode=settings.CACHE_MODE):
         self.mode = mode
+        self.internal_cache = {}
         if not files.get_memory_json()['cache'][mode]['prices']:
             self._table()
 
@@ -181,7 +193,7 @@ class PriceCache():
             return self.dynamodb_price_query
 
     @staticmethod
-    def _to_params(ticker, prices, mode=settings.CACHE_MODE):
+    def _to_params(ticker, prices):
         return [
             {
                 'ticker': ticker,
@@ -192,6 +204,12 @@ class PriceCache():
         ]
 
     def save_rows(self, ticker, prices):
+        # update class level cache
+        if ticker not in list(self.internal_cache.keys()):
+            self.internal_cache[ticker] = prices
+        else:
+            self.internal_cache[ticker].update(prices)
+
         logger.verbose(
             F'Attempting to insert {ticker} prices to cache', 'save_rows')
         Cache.execute(
@@ -201,6 +219,15 @@ class PriceCache():
         )
 
     def filter_price_cache(self, ticker, start_date, end_date):
+        if ticker in list(self.internal_cache.keys()):
+            dates = list(self.internal_cache[ticker].keys())
+            start_string, end_string = dater.to_string(start_date), dater.to_string(end_date)
+            if start_string in dates and end_string in dates:
+                start_index = dates.index(start_string)
+                end_index = dates.index(end_string)
+                prices = dict(itertools.islice(self.internal_cache[ticker].items(),end_index, start_index+1))
+                return prices
+
         logger.debug(
             f'Querying {self.mode} cache \n\t{self._query()}\n\t\t with :ticker={ticker}, :start_date={start_date}, :end_date={end_date}', 'filter_price_cache')
         formatter = {'ticker': ticker,
