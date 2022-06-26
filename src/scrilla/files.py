@@ -462,5 +462,4 @@ def clear_cache(mode: str = settings.CACHE_MODE) -> bool:
     elif mode == 'dynamodb':
         return aws.dynamo_drop_table(tables)
 
-    else:
-        raise errors.ConfigurationError('`CACHE_MODE` not set!')
+    raise errors.ConfigurationError('`CACHE_MODE` not set!')
