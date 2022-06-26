@@ -35,4 +35,4 @@
 
 61. pretty sure services and caches should be singletons: https://stackoverflow.com/questions/6760685/creating-a-singleton-in-python
 
-62. 
+62. pipeline will need service role if it is going to test dynamodb.

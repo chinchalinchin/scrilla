@@ -1,9 +1,8 @@
 import pytest
 
-from scrilla import settings as scrilla_settings
 from scrilla.static import keys
 from scrilla.cache import PriceCache, InterestCache, ProfileCache
-from scrilla.files import clear_directory
+from scrilla.files import clear_cache
 from scrilla.services import get_daily_price_history, get_daily_interest_history
 from scrilla.util import dater
 
@@ -11,44 +10,62 @@ from .. import mock, settings as test_settings
 from httmock import HTTMock
 from moto import mock_dynamodb
 
+# NOTE: moto hasn't implemented a mock backend for `execute_statement`, `execute_transaction` or `execute_batch_statements`,
+#       and the dynamodb cache functionality is implemented entirely (with the exception of creating and dropping tables)
+#       through PartiQL statements and transactions.
+
+@pytest.fixture(autouse=True)
+def mock_aws():
+    dynamo = mock_dynamodb()
+    dynamo.start()
+    yield
+    dynamo.stop()
+
 @pytest.fixture(autouse=True)
 def reset_cache():
-    clear_directory(scrilla_settings.CACHE_DIR)
+    clear_cache()
 
 
 @pytest.fixture()
-def price_cache():
-    return PriceCache()
+def sqlite_price_cache():
+    return PriceCache(mode='sqlite')
 
 
 @pytest.fixture()
-def interest_cache():
-    return InterestCache()
+def sqlite_interest_cache():
+    return InterestCache(mode='sqlite')
 
 
 @pytest.fixture()
-def profile_cache():
-    return ProfileCache()
+def sqlite_profile_cache():
+    return ProfileCache(mode='sqlite')
 
-@mock_dynamodb
-def test_dynamo_transaction():
-    # TODO
-    pass
 
-def test_sqlite_transaction():
-    # TODO
-    pass
+@pytest.fixture()
+def dynamodb_price_cache():
+    return PriceCache(mode='dynamodb')
+
+
+@pytest.fixture()
+def dynamodb_interest_cache():
+    return InterestCache(mode='dynamodb')
+
+
+@pytest.fixture()
+def dynamodb_profile_cache():
+    return ProfileCache(mode='dynamodb')
+
 
 @pytest.mark.parametrize("ticker,date,price", [
     ('ALLY', '2021-10-22', 50.70),
     ('BX', '2021-09-08', 128.31),
     ('DIS', '2021-10-04', 173.46)
 ])
-def test_cache(ticker, date, price, price_cache):
+def test_sqlite_price_cache(ticker, date, price, sqlite_price_cache):
     with HTTMock(mock.mock_prices):
         get_daily_price_history(
             ticker=ticker, start_date=test_settings.START, end_date=test_settings.END)
-    cache_results = price_cache.filter_price_cache(
+    cache_results = sqlite_price_cache.filter_price_cache(
         ticker=ticker, start_date=date, end_date=date)
     assert(len(cache_results) ==
            1 and cache_results[date][keys.keys['PRICES']['CLOSE']] == price)
@@ -61,11 +78,11 @@ def test_cache(ticker, date, price, price_cache):
     ('ONE_YEAR',
      "2021-10-14", 0.1)
 ])
-def test_past_interest(maturity, date, yield_rate, interest_cache):
+def test_sqlite_interest_cache(maturity, date, yield_rate, sqlite_interest_cache):
     with HTTMock(mock.mock_interest):
         get_daily_interest_history(
             maturity=maturity, start_date=test_settings.START, end_date=test_settings.END)
-    cache_results = interest_cache.filter_interest_cache(
+    cache_results = sqlite_interest_cache.filter_interest_cache(
         maturity=maturity, start_date=date, end_date=date)
     assert(len(cache_results) == 1 and cache_results[date] == yield_rate)
 
@@ -131,20 +148,6 @@ def test_price_cache_to_params(ticker, prices, expected):
     (
         {
             '2020-01-01': [0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.10, 0.11, 0.12]
-            # '2020-01-01':{
-            #     "ONE_MONTH": 0.01, 
-            #     "TWO_MONTH": 0.02, 
-            #     "THREE_MONTH": 0.03, 
-            #     "SIX_MONTH": 0.04, 
-            #     "ONE_YEAR": 0.05, 
-            #     "TWO_YEAR": 0.06, 
-            #     "THREE_YEAR": 0.07, 
-            #     "FIVE_YEAR": 0.08, 
-            #     "SEVEN_YEAR": 0.09, 
-            #     "TEN_YEAR": 0.10, 
-            #     "TWENTY_YEAR": 0.11, 
-            #     "THIRTY_YEAR": 0.12
-            # },
         },
         [
             {

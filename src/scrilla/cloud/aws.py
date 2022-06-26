@@ -1,3 +1,4 @@
+from typing import List, Union
 import boto3
 from botocore.exceptions import ClientError, ParamValidationError
 from datetime import date
@@ -83,6 +84,7 @@ def dynamo_statement_args(statement: str, params=None) -> dict:
         'Parameters': dynamo_json_to_params(params)
     }
 
+
 def dynamo_table(table_configuration: dict):
     try:
         logger.debug(
@@ -159,9 +161,19 @@ def dynamo_statement(query, formatter=None):
         return e
 
 
-def dynamo_drop_table(table):
+def dynamo_drop_table(tables: Union[str, List[str]]) -> bool:
     try:
-        table = dynamo_resource().Table(table)
-        table.delete()
+        if isinstance(tables, list):
+            for tbl in tables:
+                db_table = dynamo_resource().Table(tbl)
+                db_table.delete()
+                return True
+        elif isinstance(tables, str):      
+            db_table = dynamo_resource().Table(tables)
+            db_table.delete()
+            return True
+        else:
+            raise ValueError('`table` must be instance of `str` or `list`!')
     except (ClientError, ParamValidationError) as e:
         logger.error(e, 'dynamo_drop_table')
+        return False

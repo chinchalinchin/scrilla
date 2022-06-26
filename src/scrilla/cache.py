@@ -23,19 +23,16 @@ from scrilla import settings
 if settings.CACHE_MODE == 'sqlite':
     import sqlite3
 elif settings.CACHE_MODE == 'dynamodb':
-    from scrilla.cloud.aws import dynamo_statement, dynamo_transaction, \
-                                    dynamo_table, dynamo_table_conf
+    from scrilla.cloud import aws
 
 import datetime
 from typing import Union
 
-from scrilla.files import get_memory_json, save_memory_json
-from scrilla.static.keys import keys
-from scrilla.util.dater import parse
-from scrilla.util.errors import ConfigurationError
-from scrilla.util.outputter import Logger
+from scrilla import files
+from scrilla.static import keys
+from scrilla.util import dater, errors, outputter
 
-logger = Logger("scrilla.cache", settings.LOG_LEVEL)
+logger = outputter.Logger("scrilla.cache", settings.LOG_LEVEL)
 
 
 class Cache():
@@ -46,7 +43,7 @@ class Cache():
     @staticmethod
     def provision(table_configuration):
         if settings.CACHE_MODE == 'dynamodb':
-            return dynamo_table(table_configuration)
+            return aws.dynamo_table(table_configuration)
 
     @staticmethod
     def execute_transaction(transaction, formatter=None):
@@ -75,9 +72,9 @@ class Cache():
                     response = executor.execute(transaction)
             con.commit(), con.close()
         elif settings.CACHE_MODE == 'dynamodb':
-            response = dynamo_transaction(transaction, formatter)
+            response = aws.dynamo_transaction(transaction, formatter)
         else:
-            raise ConfigurationError(
+            raise errors.ConfigurationError(
                 'CACHE_MODE has not been set in "settings.py"')
         return response
 
@@ -112,9 +109,9 @@ class Cache():
             con.close()
             return results
         elif settings.CACHE_MODE == 'dynamodb':
-            return dynamo_statement(query, formatter)
+            return aws.dynamo_statement(query, formatter)
         else:
-            raise ConfigurationError(
+            raise errors.ConfigurationError(
                 'CACHE_MODE has not been set in "settings.py"')
 
 
@@ -182,26 +179,26 @@ class PriceCache():
             }
         elif mode == 'dynamodb':
             dates = [result['date'] for result in query_results]
-            dates.sort(key=parse)
+            dates.sort(key=dater.parse)
             dates.reverse()
             formatted_results = {
                 result['date']: {
-                    keys.keys['PRICES']['OPEN']: result[keys['PRICES']['OPEN']],
-                    keys.keys['PRICES']['CLOSE']: result[keys['PRICES']['CLOSE']]
+                    keys.keys['PRICES']['OPEN']: result[keys.keys['PRICES']['OPEN']],
+                    keys.keys['PRICES']['CLOSE']: result[keys.keys['PRICES']['CLOSE']]
                 } for result in query_results
             }
             return {key: formatted_results[key] for key in dates}
 
     def __init__(self, mode=settings.CACHE_MODE):
         self.mode = mode
-        if not get_memory_json()['cache'][mode]['prices']:
+        if not files.get_memory_json()['cache'][mode]['prices']:
             self._table()
 
     def _table(self):
         if self.mode == 'sqlite':
             Cache.execute_transaction(self.sqlite_create_table_transaction)
         elif self.mode == 'dynamodb':
-            self.dynamodb_table_configuration = dynamo_table_conf(
+            self.dynamodb_table_configuration = aws.dynamo_table_conf(
                 self.dynamodb_table_configuration)
             Cache.provision(self.dynamodb_table_configuration)
 
@@ -223,8 +220,8 @@ class PriceCache():
             {
                 'ticker': ticker,
                 'date': date,
-                'open': prices[date][keys['PRICES']['OPEN']],
-                'close': prices[date][keys['PRICES']['CLOSE']]
+                'open': prices[date][keys.keys['PRICES']['OPEN']],
+                'close': prices[date][keys.keys['PRICES']['CLOSE']]
             } for date in prices
         ]
 
@@ -313,7 +310,7 @@ class InterestCache():
         elif mode == 'dynamodb':
             # TODO: need to order by date!
             dates = [result['date'] for result in query_results]
-            dates.sort(key=parse)
+            dates.sort(key=dater.parse)
             dates.reverse()
             formatted_results = {result['date']: result['value']
                                  for result in query_results}
@@ -321,14 +318,14 @@ class InterestCache():
 
     def __init__(self, mode=settings.CACHE_MODE):
         self.mode = mode
-        if not get_memory_json()['cache'][mode]['interest']:
+        if not files.get_memory_json()['cache'][mode]['interest']:
             self._table()
 
     def _table(self):
         if self.mode == 'sqlite':
             Cache.execute_transaction(self.sqlite_create_table_transaction)
         elif self.mode == 'dynamodb':
-            self.dynamodb_table_configuration = dynamo_table_conf(
+            self.dynamodb_table_configuration = aws.dynamo_table_conf(
                 self.dynamodb_table_configuration)
             Cache.provision(self.dynamodb_table_configuration)
 
@@ -348,7 +345,7 @@ class InterestCache():
     def _to_params(rates):
         params = []
         for date in rates:
-            for index, maturity in enumerate(keys['YIELD_CURVE']):
+            for index, maturity in enumerate(keys.keys['YIELD_CURVE']):
                 entry = {
                     'maturity': maturity,
                     'date': date,
@@ -499,18 +496,18 @@ class CorrelationCache():
         1. **query_results**: ``list``
             Raw SQLite query results.
         """
-        return {keys['STATISTICS']['CORRELATION']: query_results[0][0]}
+        return {keys.keys['STATISTICS']['CORRELATION']: query_results[0][0]}
 
     def __init__(self, mode=settings.CACHE_MODE):
         self.mode = mode
-        if not get_memory_json()['cache'][mode]['correlations']:
+        if not files.get_memory_json()['cache'][mode]['correlations']:
             self._table()
 
     def _table(self):
         if self.mode == 'sqlite':
             Cache.execute_transaction(self.sqlite_create_table_transaction)
         elif self.mode == 'dynamodb':
-            self.dynamodb_table_configuration = dynamo_table_conf(
+            self.dynamodb_table_configuration = aws.dynamo_table_conf(
                 self.dynamodb_table_configuration)
             Cache.provision(self.dynamodb_table_configuration)
 
@@ -680,11 +677,11 @@ class ProfileCache():
         """
         if mode == 'sqlite':
             return {
-                keys['STATISTICS']['RETURN']: query_result[0][0] if query_result[0][0] != 'empty' else None,
-                keys['STATISTICS']['VOLATILITY']: query_result[0][1] if query_result[0][1] != 'empty' else None,
-                keys['STATISTICS']['SHARPE']: query_result[0][2] if query_result[0][2] != 'empty' else None,
-                keys['STATISTICS']['BETA']: query_result[0][3] if query_result[0][3] != 'empty' else None,
-                keys['STATISTICS']['EQUITY']: query_result[0][4] if query_result[0][4] != 'empty' else None
+                keys.keys['STATISTICS']['RETURN']: query_result[0][0] if query_result[0][0] != 'empty' else None,
+                keys.keys['STATISTICS']['VOLATILITY']: query_result[0][1] if query_result[0][1] != 'empty' else None,
+                keys.keys['STATISTICS']['SHARPE']: query_result[0][2] if query_result[0][2] != 'empty' else None,
+                keys.keys['STATISTICS']['BETA']: query_result[0][3] if query_result[0][3] != 'empty' else None,
+                keys.keys['STATISTICS']['EQUITY']: query_result[0][4] if query_result[0][4] != 'empty' else None
             }
         elif mode == 'dynamodb':
             return query_result[0]
@@ -735,14 +732,14 @@ class ProfileCache():
 
     def __init__(self, mode=settings.CACHE_MODE):
         self.mode = mode
-        if not get_memory_json()['cache'][mode]['profile']:
+        if not files.get_memory_json()['cache'][mode]['profile']:
             self._table()
 
     def _table(self):
         if self.mode == 'sqlite':
             Cache.execute_transaction(self.sqlite_create_table_transaction)
         elif self.mode == 'dynamodb':
-            self.dynamodb_table_configuration = dynamo_table_conf(
+            self.dynamodb_table_configuration = aws.dynamo_table_conf(
                 self.dynamodb_table_configuration)
             Cache.provision(self.dynamodb_table_configuration)
 
@@ -800,7 +797,7 @@ class ProfileCache():
 
 
 def init_cache():
-    memory = get_memory_json()
+    memory = files.get_memory_json()
     if not memory['cache'][settings.CACHE_MODE]['prices']:
         PriceCache()
         memory['cache'][settings.CACHE_MODE]['prices'] = True
@@ -813,4 +810,4 @@ def init_cache():
     if not memory['cache'][settings.CACHE_MODE]['correlations']:
         CorrelationCache()
         memory['cache'][settings.CACHE_MODE]['correlations'] = True
-    save_memory_json(memory)
+    files.save_memory_json(memory)

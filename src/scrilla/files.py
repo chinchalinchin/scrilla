@@ -26,8 +26,10 @@ from typing import Any, Dict, Union
 import requests
 
 from scrilla import settings
+from scrilla.cloud import aws
 from scrilla.static import keys, constants, formats
-from scrilla.util import outputter, helper
+from scrilla.util import outputter, helper, errors
+
 
 logger = outputter.Logger("scrilla.files", settings.LOG_LEVEL)
 
@@ -161,11 +163,6 @@ def parse_csv_response_column(column: int, url: str, firstRowHeader: str = None,
 def init_static_data():
     """
     Initializes the three static files defined in  settings: `scrilla.settings.STATIC_TICKERS_FILE`, `scrilla.settings.STATIC_CRYPTO_FILE` and `scrilla.settings.STATIC_ECON_FILE`. The data for these files is retrieved from the service managers. While this function blurs the lines between file management and service management, the function has been included in the `files.py` module rather than the `services.py` module due the unique response types of static metadata. All metadata is returned as a csv or zipped csvs. These responses require specialized functions. Moreover, these files should only be initialized the first time the application executes. Subsequent executions will refer to their cached versions residing in the local filesytems. 
-
-    Raises
-    ------
-    1. `scrilla.errors.ConfigurationError` :
-        If `scrilla.settings.PRICE_MANAGER` and `scrilla.settings.STAT_MANAGER` are not configured or are incorrectly configured through the environment variables `scrilla.settings.PRICE_MANAGER` and `scrilla.settings.STAT_MANAGER`, the function will throw this error.
     """
 
     memory = get_memory_json()
@@ -419,7 +416,7 @@ def save_correlation_matrix(tickers, correlation_matrix, file_name):
     save_file(file_to_save=save_format, file_name=file_name)
 
 
-def clear_directory(directory, retain=True):
+def clear_directory(directory: str, retain: bool=True) -> bool:
     """
     Wipes a directory of files without deleting the directory itself.
 
@@ -431,26 +428,35 @@ def clear_directory(directory, retain=True):
     2. **retain** : ``bool``
         If set to True, the method will skip files named '.gitkeep' within the directory, i.e. version control configuration files, and keep the directory structure in tact.
     """
-    filelist = list(os.listdir(directory))
+    try:
+        filelist = list(os.listdir(directory))
+        for f in filelist:
+            filename = os.path.basename(f)
+            if retain and filename == constants.constants['KEEP_FILE']:
+                continue
+            os.remove(os.path.join(directory, f))
+        return True
+    except Exception as e:
+        logger.error(e)
+        return False
 
-    for f in filelist:
-        filename = os.path.basename(f)
-        if retain and filename == constants.constants['KEEP_FILE']:
-            continue
-        os.remove(os.path.join(directory, f))
 
-
-def is_non_zero_file(fpath):
+def is_non_zero_file(fpath: str) -> bool:
     return os.path.isfile(fpath) and os.path.getsize(fpath) > 0
 
-def clear_cache():
+def clear_cache(mode: str = settings.CACHE_MODE) -> bool:
+    tables = ['prices', 'interest', 'correlations', 'profile']
     memory = get_memory_json()
-    memory['cache'][settings.CACHE_MODE]['prices'] = False
-    memory['cache'][settings.CACHE_MODE]['interest'] = False
-    memory['cache'][settings.CACHE_MODE]['correlations'] = False
-    memory['cache'][settings.CACHE_MODE]['profile'] = False
-    if settings.CACHE_MODE == 'sqlite':
-        clear_directory(directory=settings.CACHE_DIR, retain=True)
 
-    elif settings.CACHE_MODE == 'dynamodb':
-        pass
+    for table in tables:
+        memory['cache'][mode][table] = False
+    save_memory_json(memory)
+
+    if mode == 'sqlite':
+        return clear_directory(directory=settings.CACHE_DIR, retain=True)
+
+    elif mode == 'dynamodb':
+        return aws.dynamo_drop_table(tables)
+
+    else:
+        raise errors.ConfigurationError('`CACHE_MODE` not set!')
