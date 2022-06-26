@@ -165,6 +165,17 @@ class PriceCache():
             }
             return {key: formatted_results[key] for key in dates}
 
+    @staticmethod
+    def _to_params(ticker, prices):
+        return [
+            {
+                'ticker': ticker,
+                'date': date,
+                'open': prices[date][keys.keys['PRICES']['OPEN']],
+                'close': prices[date][keys.keys['PRICES']['CLOSE']]
+            } for date in prices
+        ]
+
     def __init__(self, mode=settings.CACHE_MODE):
         self.mode = mode
         self.internal_cache = {}
@@ -199,16 +210,18 @@ class PriceCache():
         else:
             self.internal_cache[ticker].update(prices)
 
-    @staticmethod
-    def _to_params(ticker, prices):
-        return [
-            {
-                'ticker': ticker,
-                'date': date,
-                'open': prices[date][keys.keys['PRICES']['OPEN']],
-                'close': prices[date][keys.keys['PRICES']['CLOSE']]
-            } for date in prices
-        ]
+    def _retrieve_from_internal_cache(self, ticker, start_date, end_date):
+        dates = list(self.internal_cache[ticker].keys())
+        start_string = dater.to_string(start_date)
+        end_string = dater.to_string(end_date)
+
+        if start_string in dates and end_string in dates:
+            start_index = dates.index(start_string)
+            end_index = dates.index(end_string)
+            prices = dict(itertools.islice(self.internal_cache[ticker].items(),end_index, start_index+1))
+            logger.debug(f'Found {ticker} prices in memory', 'filter_price_cache')
+            return prices
+        return None
 
     def save_rows(self, ticker, prices):
         self._update_internal_cache(ticker, prices)
@@ -224,15 +237,8 @@ class PriceCache():
 
     def filter_price_cache(self, ticker, start_date, end_date):
         if ticker in list(self.internal_cache.keys()):
-            dates = list(self.internal_cache[ticker].keys())
-            start_string = dater.to_string(start_date)
-            end_string = dater.to_string(end_date)
-
-            if start_string in dates and end_string in dates:
-                start_index = dates.index(start_string)
-                end_index = dates.index(end_string)
-                prices = dict(itertools.islice(self.internal_cache[ticker].items(),end_index, start_index+1))
-                logger.debug(f'Found {ticker} prices in memory', 'filter_price_cache')
+            prices = self._retrieve_from_internal_cache(ticker, start_date, end_date)
+            if prices is not None:
                 return prices
 
         logger.debug(
@@ -268,6 +274,8 @@ class InterestCache():
     3. **int_query**: ``str```
         *SQLite* query to retrieve an interest from cache.
     """
+    __metaclass__ = Singleton
+
     sqlite_create_table_transaction = "CREATE TABLE IF NOT EXISTS interest(maturity text, date text, value real, UNIQUE(maturity, date))"
     sqlite_insert_row_transaction = "INSERT OR IGNORE INTO interest (maturity, date, value) VALUES (:maturity, :date, :value)"
     sqlite_interest_query = "SELECT date, value FROM interest WHERE maturity=:maturity AND date <=date(:end_date) AND date>=date(:start_date) ORDER BY date(date) DESC"
@@ -321,7 +329,21 @@ class InterestCache():
                                  for result in query_results}
             return {key: formatted_results[key] for key in dates}
 
+    @staticmethod
+    def _to_params(rates):
+        params = []
+        for date in rates:
+            for index, maturity in enumerate(keys.keys['YIELD_CURVE']):
+                entry = {
+                    'maturity': maturity,
+                    'date': date,
+                    'value': rates[date][index]
+                }
+                params.append(entry)
+        return params
+    
     def __init__(self, mode=settings.CACHE_MODE):
+        self.internal_cache = {}
         self.mode = mode
         if not files.get_memory_json()['cache'][mode]['interest']:
             self._table()
@@ -347,20 +369,25 @@ class InterestCache():
         elif self.mode == 'dynamodb':
             return self.dynamodb_query
 
-    @staticmethod
-    def _to_params(rates):
-        params = []
-        for date in rates:
-            for index, maturity in enumerate(keys.keys['YIELD_CURVE']):
-                entry = {
-                    'maturity': maturity,
-                    'date': date,
-                    'value': rates[date][index]
-                }
-                params.append(entry)
-        return params
+    def _update_internal_cache(self, rates):
+        # update class level cache
+        self.internal_cache.update(rates)
+
+    def _retrieve_from_internal_cache(self, maturity, start_date, end_date):
+        dates = list(self.internal_cache.keys())
+        start_string = dater.to_string(start_date)
+        end_string = dater.to_string(end_date)
+        if start_string in dates and end_string in dates:
+            start_index = dates.index(start_string)
+            end_index = dates.index(end_string)
+            rates = dict(itertools.islice(self.internal_cache.items(),end_index, start_index+1))
+            rates = { key: rates[key][keys.keys['YIELD_CURVE'].index(key)] for key in rates}
+            logger.debug(f'Found interest in memory', 'filter_interest_cache')
+            return rates
 
     def save_rows(self, rates):
+        self._update_internal_cache(rates)
+        # TODO: save to internal cache
         logger.verbose(
             F'Attempting to insert interest rates into cache', 'save_rows')
         Cache.execute(
@@ -369,6 +396,11 @@ class InterestCache():
         )
 
     def filter_interest_cache(self, maturity, start_date, end_date):
+        # TODO: check internal cache
+        rates = self._retrieve_from_internal_cache(maturity, start_date, end_date)
+        if rates is not None:
+            return rates
+
         logger.debug(
             f'Querying {self.mode} cache \n\t{self._query()}\n\t\t with :maturity={maturity}, :start_date={start_date}, :end_date={end_date}', 'filter_interest_cache')
         formatter = {'maturity': maturity,
@@ -379,7 +411,9 @@ class InterestCache():
         if len(results) > 0:
             logger.debug(
                 f'Found {maturity} yield on in the cache', 'filter_interest_cache')
-            return self.to_dict(results)
+            rates = self.to_dict(results)
+            self._update_internal_cache(results)
+            return rates
 
         logger.debug(
             f'No results found for {maturity} yield in cache', 'filter_interest_cache')
