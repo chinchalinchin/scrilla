@@ -728,7 +728,7 @@ class ProfileCache():
             return self.dynamodb_identity_query
 
     def save_or_update_row(self, ticker: str, start_date: datetime.date, end_date: datetime.date, annual_return: Union[float, None] = None, annual_volatility: Union[float, None] = None, sharpe_ratio: Union[float, None] = None, asset_beta: Union[float, None] = None, equity_cost: Union[float, None] = None, weekends: int = 0, method: str = settings.ESTIMATION_METHOD):
-        filter = {'ticker': ticker, 'start_date': start_date,
+        filters = {'ticker': ticker, 'start_date': start_date,
                   'end_date': end_date, 'method': method, 'weekends': weekends}
         params = {}
 
@@ -743,13 +743,13 @@ class ProfileCache():
         if equity_cost is not None:
             params['equity_cost'] = equity_cost
 
-        identity = Cache.execute(self._identity(), filter, self.mode)
+        identity = Cache.execute(self._identity(), filters, self.mode)
 
         if len(identity) == 0:
-            return Cache.execute(self._construct_insert({**params, **filter}),
-                                 {**params, **filter}, self.mode)
+            return Cache.execute(self._construct_insert({**params, **filters}),
+                                 {**params, **filters}, self.mode)
         return Cache.execute(self._construct_update(params),
-                             {**params, **filter}, self.mode)
+                             {**params, **filters}, self.mode)
 
     def filter_profile_cache(self, ticker: str, start_date: datetime.date, end_date: datetime.date, weekends: int = 0, method=settings.ESTIMATION_METHOD):
         logger.debug(
