@@ -7,6 +7,7 @@ logger = outputter.Logger("scrilla.cloud.aws", settings.LOG_LEVEL)
 
 DYNAMO_STATEMENT_LIMIT = 25
 
+
 def dynamo_client():
     return boto3.client('dynamodb')
 
@@ -82,6 +83,7 @@ def dynamo_statement_args(statement: str, params=None) -> dict:
         'Statement': statement,
         'Parameters': dynamo_json_to_params(params)
     }
+
 
 def dynamo_table(table_configuration: dict):
     try:

@@ -24,7 +24,7 @@ if settings.CACHE_MODE == 'sqlite':
     import sqlite3
 elif settings.CACHE_MODE == 'dynamodb':
     from scrilla.cloud.aws import dynamo_statement, dynamo_transaction, \
-                                    dynamo_table, dynamo_table_conf
+        dynamo_table, dynamo_table_conf
 
 import datetime
 from typing import Union
