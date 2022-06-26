@@ -192,6 +192,13 @@ class PriceCache():
         elif self.mode == 'dynamodb':
             return self.dynamodb_price_query
 
+    def _update_internal_cache(self, ticker, prices):
+        # update class level cache
+        if ticker not in list(self.internal_cache.keys()):
+            self.internal_cache[ticker] = prices
+        else:
+            self.internal_cache[ticker].update(prices)
+
     @staticmethod
     def _to_params(ticker, prices):
         return [
@@ -204,11 +211,7 @@ class PriceCache():
         ]
 
     def save_rows(self, ticker, prices):
-        # update class level cache
-        if ticker not in list(self.internal_cache.keys()):
-            self.internal_cache[ticker] = prices
-        else:
-            self.internal_cache[ticker].update(prices)
+        self._update_internal_cache(ticker, prices)
 
         logger.verbose(
             F'Attempting to insert {ticker} prices to cache', 'save_rows')
@@ -245,8 +248,7 @@ class PriceCache():
             logger.debug(
                 f'Found {ticker} prices in the cache', 'filter_price_cache')
             prices = self.to_dict(results)
-            if ticker not in list(self.internal_cache.keys()):
-                self.internal_cache[ticker] = prices
+            self._update_internal_cache(ticker, prices)
             return prices
         logger.debug(
             f'No results found for {ticker} prices in the cache', 'filter_price_cache')
