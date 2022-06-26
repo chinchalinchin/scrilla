@@ -35,14 +35,17 @@ from scrilla.util import dater, errors, outputter
 
 logger = outputter.Logger("scrilla.cache", settings.LOG_LEVEL)
 
+
 class Singleton(type):
 
     _instances = {}
-    
+
     def __call__(cls, *args, **kwargs):
         if cls not in cls._instances:
-            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
+            cls._instances[cls] = super(
+                Singleton, cls).__call__(*args, **kwargs)
         return cls._instances[cls]
+
 
 class Cache():
     """
@@ -218,8 +221,10 @@ class PriceCache():
         if start_string in dates and end_string in dates:
             start_index = dates.index(start_string)
             end_index = dates.index(end_string)
-            prices = dict(itertools.islice(self.internal_cache[ticker].items(),end_index, start_index+1))
-            logger.debug(f'Found {ticker} prices in memory', 'filter_price_cache')
+            prices = dict(itertools.islice(
+                self.internal_cache[ticker].items(), end_index, start_index+1))
+            logger.debug(f'Found {ticker} prices in memory',
+                         'filter_price_cache')
             return prices
         return None
 
@@ -234,10 +239,10 @@ class PriceCache():
             mode=self.mode
         )
 
-
     def filter_price_cache(self, ticker, start_date, end_date):
         if ticker in list(self.internal_cache.keys()):
-            prices = self._retrieve_from_internal_cache(ticker, start_date, end_date)
+            prices = self._retrieve_from_internal_cache(
+                ticker, start_date, end_date)
             if prices is not None:
                 return prices
 
@@ -341,7 +346,7 @@ class InterestCache():
                 }
                 params.append(entry)
         return params
-    
+
     def __init__(self, mode=settings.CACHE_MODE):
         self.internal_cache = {}
         self.mode = mode
@@ -380,8 +385,10 @@ class InterestCache():
         if start_string in dates and end_string in dates:
             start_index = dates.index(start_string)
             end_index = dates.index(end_string)
-            rates = dict(itertools.islice(self.internal_cache.items(),end_index, start_index+1))
-            rates = { key: rates[key][keys.keys['YIELD_CURVE'].index(key)] for key in rates}
+            rates = dict(itertools.islice(
+                self.internal_cache.items(), end_index, start_index+1))
+            rates = {
+                key: rates[key][keys.keys['YIELD_CURVE'].index(key)] for key in rates}
             logger.debug(f'Found interest in memory', 'filter_interest_cache')
             return rates
 
@@ -397,7 +404,8 @@ class InterestCache():
 
     def filter_interest_cache(self, maturity, start_date, end_date):
         # TODO: check internal cache
-        rates = self._retrieve_from_internal_cache(maturity, start_date, end_date)
+        rates = self._retrieve_from_internal_cache(
+            maturity, start_date, end_date)
         if rates is not None:
             return rates
 
