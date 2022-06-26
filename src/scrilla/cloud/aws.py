@@ -8,6 +8,7 @@ logger = outputter.Logger("scrilla.cloud.aws", settings.LOG_LEVEL)
 
 DYNAMO_STATEMENT_LIMIT = 25
 
+
 def dynamo_client():
     return boto3.client('dynamodb')
 
@@ -171,7 +172,7 @@ def dynamo_drop_table(tables: Union[str, List[str]]) -> bool:
                 db_table = dynamo_resource().Table(tbl)
                 db_table.delete()
                 return True
-        elif isinstance(tables, str):      
+        elif isinstance(tables, str):
             db_table = dynamo_resource().Table(tables)
             db_table.delete()
             return True

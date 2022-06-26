@@ -100,7 +100,7 @@ def set_credentials(value: str, which_key: str) -> bool:
     file_name = os.path.join(
         settings.COMMON_DIR, f'{which_key}.{settings.FILE_EXT}')
     if settings.FILE_EXT == 'json':
-        key_dict = { which_key: value }
+        key_dict = {which_key: value}
     return save_file(file_to_save=key_dict, file_name=file_name)
 
 
@@ -416,7 +416,7 @@ def save_correlation_matrix(tickers, correlation_matrix, file_name):
     save_file(file_to_save=save_format, file_name=file_name)
 
 
-def clear_directory(directory: str, retain: bool=True) -> bool:
+def clear_directory(directory: str, retain: bool = True) -> bool:
     """
     Wipes a directory of files without deleting the directory itself.
 
@@ -443,6 +443,7 @@ def clear_directory(directory: str, retain: bool=True) -> bool:
 
 def is_non_zero_file(fpath: str) -> bool:
     return os.path.isfile(fpath) and os.path.getsize(fpath) > 0
+
 
 def clear_cache(mode: str = settings.CACHE_MODE) -> bool:
     tables = ['prices', 'interest', 'correlations', 'profile']

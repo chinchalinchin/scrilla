@@ -41,12 +41,12 @@ class Cache():
     """
 
     @staticmethod
-    def provision(table_configuration, mode = settings.CACHE_MODE):
+    def provision(table_configuration, mode=settings.CACHE_MODE):
         if mode == 'dynamodb':
             return aws.dynamo_table(table_configuration)
 
     @staticmethod
-    def execute(query, formatter=None, mode = settings.CACHE_MODE):
+    def execute(query, formatter=None, mode=settings.CACHE_MODE):
         """
         Executes and commits a transaction against the cache.
 
@@ -62,7 +62,8 @@ class Cache():
             executor = con.cursor()
             if formatter is not None:
                 if isinstance(formatter, list):
-                    response = executor.executemany(query, formatter).fetchall()
+                    response = executor.executemany(
+                        query, formatter).fetchall()
                 else:
                     response = executor.execute(query, formatter).fetchall()
             else:
@@ -77,6 +78,7 @@ class Cache():
             raise errors.ConfigurationError(
                 'CACHE_MODE has not been set in "settings.py"')
         return response
+
 
 class PriceCache():
     """
@@ -159,8 +161,8 @@ class PriceCache():
 
     def _table(self):
         if self.mode == 'sqlite':
-            Cache.execute(query = self.sqlite_create_table_transaction, 
-                            mode=self.mode)
+            Cache.execute(query=self.sqlite_create_table_transaction,
+                          mode=self.mode)
         elif self.mode == 'dynamodb':
             self.dynamodb_table_configuration = aws.dynamo_table_conf(
                 self.dynamodb_table_configuration)
@@ -204,7 +206,7 @@ class PriceCache():
         formatter = {'ticker': ticker,
                      'start_date': start_date, 'end_date': end_date}
         results = Cache.execute(
-            query=self._query(), 
+            query=self._query(),
             formatter=formatter,
             mode=self.mode)
 
@@ -291,7 +293,7 @@ class InterestCache():
     def _table(self):
         if self.mode == 'sqlite':
             Cache.execute(query=self.sqlite_create_table_transaction,
-                            mode=self.mode)
+                          mode=self.mode)
         elif self.mode == 'dynamodb':
             self.dynamodb_table_configuration = aws.dynamo_table_conf(
                 self.dynamodb_table_configuration)
@@ -473,8 +475,8 @@ class CorrelationCache():
 
     def _table(self):
         if self.mode == 'sqlite':
-            Cache.execute(query=self.sqlite_create_table_transaction, 
-                            mode=self.mode)
+            Cache.execute(query=self.sqlite_create_table_transaction,
+                          mode=self.mode)
         elif self.mode == 'dynamodb':
             self.dynamodb_table_configuration = aws.dynamo_table_conf(
                 self.dynamodb_table_configuration)
@@ -706,8 +708,8 @@ class ProfileCache():
 
     def _table(self):
         if self.mode == 'sqlite':
-            Cache.execute(query=self.sqlite_create_table_transaction, 
-                                        mode=self.mode)
+            Cache.execute(query=self.sqlite_create_table_transaction,
+                          mode=self.mode)
         elif self.mode == 'dynamodb':
             self.dynamodb_table_configuration = aws.dynamo_table_conf(
                 self.dynamodb_table_configuration)
@@ -745,9 +747,9 @@ class ProfileCache():
 
         if len(identity) == 0:
             return Cache.execute(self._construct_insert({**params, **filter}),
-                                             {**params, **filter}, self.mode)
+                                 {**params, **filter}, self.mode)
         return Cache.execute(self._construct_update(params),
-                                         {**params, **filter}, self.mode)
+                             {**params, **filter}, self.mode)
 
     def filter_profile_cache(self, ticker: str, start_date: datetime.date, end_date: datetime.date, weekends: int = 0, method=settings.ESTIMATION_METHOD):
         logger.debug(
