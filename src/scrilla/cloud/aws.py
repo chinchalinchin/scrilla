@@ -7,6 +7,13 @@ logger = outputter.Logger("scrilla.cloud.aws", settings.LOG_LEVEL)
 
 DYNAMO_STATEMENT_LIMIT = 25
 
+def dynamo_client():
+    return boto3.client('dynamodb')
+
+
+def dynamo_resource():
+    return boto3.resource('dynamodb')
+
 
 def dynamo_json_to_params(document: dict) -> list:
     if document is None or len(document) == 0:
@@ -75,15 +82,6 @@ def dynamo_statement_args(statement: str, params=None) -> dict:
         'Statement': statement,
         'Parameters': dynamo_json_to_params(params)
     }
-
-
-def dynamo_client():
-    return boto3.client('dynamodb')
-
-
-def dynamo_resource():
-    return boto3.resource('dynamodb')
-
 
 def dynamo_table(table_configuration: dict):
     try:
@@ -159,3 +157,11 @@ def dynamo_statement(query, formatter=None):
         logger.error(e, 'dynamo_statement')
         logger.debug(f'\n\t\t{query}', 'dynamo_statement')
         return e
+
+
+def dynamo_drop_table(table):
+    try:
+        table = dynamo_resource().Table(table)
+        table.delete()
+    except (ClientError, ParamValidationError) as e:
+        logger.error(e, 'dynamo_drop_table')

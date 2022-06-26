@@ -97,7 +97,9 @@ def save_file(file_to_save: Dict[str, Any], file_name: str) -> bool:
 def set_credentials(value: str, which_key: str) -> bool:
     file_name = os.path.join(
         settings.COMMON_DIR, f'{which_key}.{settings.FILE_EXT}')
-    return save_file(file_to_save=value, file_name=file_name)
+    if settings.FILE_EXT == 'json':
+        key_dict = { which_key: value }
+    return save_file(file_to_save=key_dict, file_name=file_name)
 
 
 def get_credentials(which_key: str) -> str:
@@ -440,3 +442,15 @@ def clear_directory(directory, retain=True):
 
 def is_non_zero_file(fpath):
     return os.path.isfile(fpath) and os.path.getsize(fpath) > 0
+
+def clear_cache():
+    memory = get_memory_json()
+    memory['cache'][settings.CACHE_MODE]['prices'] = False
+    memory['cache'][settings.CACHE_MODE]['interest'] = False
+    memory['cache'][settings.CACHE_MODE]['correlations'] = False
+    memory['cache'][settings.CACHE_MODE]['profile'] = False
+    if settings.CACHE_MODE == 'sqlite':
+        clear_directory(directory=settings.CACHE_DIR, retain=True)
+
+    elif settings.CACHE_MODE == 'dynamodb':
+        pass
