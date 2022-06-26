@@ -453,7 +453,6 @@ def clear_cache(mode: str = settings.CACHE_MODE) -> bool:
     save_memory_json(memory)
 
     if mode == 'sqlite':
-        # THERE IS AN ISSUE HERE. SHOULDN'T CLEAR THE DIRECTORY. SHOULD DELETE THE SQLITE FILE!!!!
         try:
             os.remove(settings.CACHE_SQLITE_FILE)
             return True

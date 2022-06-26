@@ -2,7 +2,7 @@ import pytest
 
 from scrilla import settings as scrilla_settings
 from scrilla.cache import PriceCache, ProfileCache, InterestCache, CorrelationCache
-from scrilla.files import clear_directory
+from scrilla.files import clear_cache
 from scrilla.analysis.objects.portfolio import Portfolio
 
 from .. import mock
@@ -12,8 +12,9 @@ from httmock import HTTMock
 
 @pytest.fixture(autouse=True)
 def reset_cache():
-    clear_directory(scrilla_settings.CACHE_DIR)
-    PriceCache(), ProfileCache(), InterestCache(), CorrelationCache()
+    clear_cache(mode='sqlite')
+    PriceCache(mode='sqlite'), ProfileCache(mode='sqlite'), \
+        InterestCache(mode='sqlite'), CorrelationCache(mode='sqlite')
 
 
 @pytest.fixture()

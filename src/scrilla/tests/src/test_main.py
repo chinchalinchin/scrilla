@@ -3,10 +3,9 @@ import json
 
 from httmock import HTTMock
 
-from scrilla import settings as scrilla_settings
 from scrilla.main import do_program
 from scrilla.cache import PriceCache, ProfileCache, InterestCache, CorrelationCache
-from scrilla.files import clear_directory, init_static_data
+from scrilla.files import clear_cache, init_static_data
 
 from .. import mock, settings
 
@@ -14,8 +13,9 @@ init_static_data()
 
 @pytest.fixture(autouse=True)
 def reset_cache():
-    clear_directory(scrilla_settings.CACHE_DIR)
-    PriceCache(), ProfileCache(), InterestCache(), CorrelationCache()
+    clear_cache(mode='sqlite')
+    PriceCache(mode='sqlite'), ProfileCache(mode='sqlite'), \
+        InterestCache(mode='sqlite'), CorrelationCache(mode='sqlite')
 
 
 @pytest.mark.parametrize('args, length', [

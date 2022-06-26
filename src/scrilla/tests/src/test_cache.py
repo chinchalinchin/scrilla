@@ -13,6 +13,7 @@ from moto import mock_dynamodb
 # NOTE: moto hasn't implemented a mock backend for `execute_statement`, `execute_transaction` or `execute_batch_statements`,
 #       and the dynamodb cache functionality is implemented entirely (with the exception of creating and dropping tables)
 #       through PartiQL statements and transactions. Until moto supports needed operations will need to find another way to 
+
 @pytest.fixture(autouse=True)
 def mock_aws():
     dynamo = mock_dynamodb()
@@ -23,8 +24,7 @@ def mock_aws():
 
 @pytest.fixture(autouse=True)
 def reset_cache():
-    print('clearing')
-    clear_cache()
+    clear_cache(mode='sqlite')
 
 
 @pytest.fixture()
@@ -66,7 +66,6 @@ def test_sqlite_price_cache(ticker, date, price, sqlite_price_cache):
     with HTTMock(mock.mock_prices):
         get_daily_price_history(
             ticker=ticker, start_date=test_settings.START, end_date=test_settings.END)
-    print('filtering')
     cache_results = sqlite_price_cache.filter_price_cache(
         ticker=ticker, start_date=date, end_date=date)
     assert(len(cache_results) ==
@@ -251,7 +250,7 @@ def test_interest_cache_to_dict_dynamodb(results, expected):
     actual = InterestCache().to_dict(results, 'dynamodb')
     actual_keys = list(actual.keys())
     assert InterestCache().to_dict(results, 'dynamodb') == expected
-    assert all( dater.parse(actual_keys[i]) > dater.parse(actual_keys[i-1])
+    assert all( dater.parse(actual_keys[i]) < dater.parse(actual_keys[i-1])
                     for i in range(1,len(actual_keys)))
                     
 @pytest.mark.parametrize('results,expected',[
@@ -307,5 +306,5 @@ def test_price_cache_to_dict_dynamodb(results, expected):
     actual_keys = list(actual.keys())
 
     assert actual == expected
-    assert all( dater.parse(actual_keys[i]) > dater.parse(actual_keys[i-1])
+    assert all( dater.parse(actual_keys[i]) < dater.parse(actual_keys[i-1])
                     for i in range(1,len(actual_keys)))

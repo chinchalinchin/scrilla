@@ -1,12 +1,19 @@
 # Deployment
 
-TODO 
+_scrilla_ has been designed to interface with data services on the cloud. 
 
 ## AWS Deployments
 
-TODO
+_scrilla_ can be deployed relatively easily to **AWS** in a few different ways. 
+
+The main thing to consider when deploying onto **AWS** is the cache. The cache can be pointed towards **DynamoDB**, instead of the default `sqlite` cache system, by configuring the **CACHE_MODE** environment variable (see [Configuration](./CONFIGURATION.md#environment-variables) for more information) so that all prices, interest and statistics are stored in tables on the cloud. 
+
+A `lamdba_handler` included with the distribution can be deployed to **AWS Lambda**, given a role with **DynamoDB** and then configured via environment variables to execute a particular function from `scrilla`'s library. 
+
 
 ### IAM Role
+
+The process executing `scrilla` must be given a role that gives it permission to access **DynamoDB**. The policy below can be adapted for your specific account,
 
 TODO: list policy here.
 
@@ -34,8 +41,7 @@ DYNAMO_CONF = {
 
 If you want finer-grained control over the pricing and speed of each table, you will need to edit this variable in the source code, rebuild and then re-install the wheel . See [SETUP](./SETUP.md#source) for more information on building _scrilla_ from source.
 
-Table Configurations
---------------------
+**Table Configurations**
 
 1. `prices`
 
@@ -255,4 +261,14 @@ TODO
 
 docker image
 
-environment variable for type of function
+example of lambda handler
+
+```python
+from scrilla.cloud.aws.handlers import *_handler
+```
+
+TODO: specific handler for each function?
+
+OR 
+
+environment variable for type of function?

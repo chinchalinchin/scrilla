@@ -7,7 +7,7 @@ from scrilla.static.keys import keys
 
 from scrilla import settings as scrilla_settings
 from scrilla.cache import PriceCache, InterestCache, ProfileCache
-from scrilla.files import clear_directory, init_static_data
+from scrilla.files import clear_cache, init_static_data
 
 from .. import mock, settings
 from httmock import HTTMock
@@ -17,8 +17,7 @@ init_static_data()
 
 @pytest.fixture(autouse=True)
 def reset_cache():
-    clear_directory(scrilla_settings.CACHE_DIR)
-    PriceCache(), InterestCache(), ProfileCache()
+    clear_cache(mode='sqlite')
 
 
 @pytest.fixture()
