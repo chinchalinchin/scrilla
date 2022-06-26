@@ -82,7 +82,7 @@ class Cache():
                     response = executor.execute(query).fetchall()
             con.commit(), con.close()
         elif mode == 'dynamodb':
-            response = aws.dynamo_transaction(query, formatter)
+            response = aws.dynamo_statement(query, formatter)
         else:
             raise errors.ConfigurationError(
                 'CACHE_MODE has not been set in "settings.py"')
@@ -218,14 +218,18 @@ class PriceCache():
             mode=self.mode
         )
 
+
     def filter_price_cache(self, ticker, start_date, end_date):
         if ticker in list(self.internal_cache.keys()):
             dates = list(self.internal_cache[ticker].keys())
-            start_string, end_string = dater.to_string(start_date), dater.to_string(end_date)
+            start_string = dater.to_string(start_date)
+            end_string = dater.to_string(end_date)
+
             if start_string in dates and end_string in dates:
                 start_index = dates.index(start_string)
                 end_index = dates.index(end_string)
                 prices = dict(itertools.islice(self.internal_cache[ticker].items(),end_index, start_index+1))
+                logger.debug(f'Found {ticker} prices in memory', 'filter_price_cache')
                 return prices
 
         logger.debug(
@@ -240,7 +244,10 @@ class PriceCache():
         if len(results) > 0:
             logger.debug(
                 f'Found {ticker} prices in the cache', 'filter_price_cache')
-            return self.to_dict(results)
+            prices = self.to_dict(results)
+            if ticker not in list(self.internal_cache.keys()):
+                self.internal_cache[ticker] = prices
+            return prices
         logger.debug(
             f'No results found for {ticker} prices in the cache', 'filter_price_cache')
         return None
