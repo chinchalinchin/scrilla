@@ -60,7 +60,7 @@ Note, it is highly recommended that if you change this value, you should clear t
 
 - CACHE_MODE
 
-By default, **CACHE_MODE** is set equal to `sqlite`. In this mode, the cache uses a SQLite flat file to store price histories and statistical calculations on the local filesystem. The **CACHE_MODE** can also be set to `dynamodb` to store these quantities in a cloud-based DynamoDB table. In order for the`dynamodb` mode to work, the user/service using `scrilla` must have a role with read/write privileges on the tables: `prices`, `interest`, `profile` and `correlation`. These tables will be created if they do not exist, assuming the role grants the correct privileges to the process executing `scrilla`. Refer to the [AWS Documentation on DynamoDB permissions for more information on configuring your IAM role for scrilla](). (NOTE, `dynamodb` is still in development, but should be done shortly as this is currently the priority).
+By default, **CACHE_MODE** is set equal to `sqlite`. In this mode, the cache uses a SQLite flat file to store price histories and statistical calculations on the local filesystem. The **CACHE_MODE** can also be set to `dynamodb` to store these quantities in a cloud-based DynamoDB table. In order for the`dynamodb` mode to work, the user/service using `scrilla` must have a role with read/write privileges on the tables: `prices`, `interest`, `profile` and `correlation`. These tables will be created if they do not exist, assuming the role grants the correct privileges to the process executing `scrilla`. Refer to the [Deployment](./DEPLOYMENT.md#iam-role) for more information on configuring your IAM role for scrilla.
 
 - DEFAULT_ESTIMATION_METHOD
 

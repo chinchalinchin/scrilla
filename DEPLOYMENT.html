@@ -36,12 +36,15 @@
             
   <section id="deployment">
 <h1>Deployment<a class="headerlink" href="#deployment" title="Permalink to this heading">¶</a></h1>
-<p>TODO</p>
+<p><em>scrilla</em> has been designed to interface with data services on the cloud.</p>
 <section id="aws-deployments">
 <h2>AWS Deployments<a class="headerlink" href="#aws-deployments" title="Permalink to this heading">¶</a></h2>
-<p>TODO</p>
+<p><em>scrilla</em> can be deployed relatively easily to <strong>AWS</strong> in a few different ways.</p>
+<p>The main thing to consider when deploying onto <strong>AWS</strong> is the cache. The cache can be pointed towards <strong>DynamoDB</strong>, instead of the default <code class="docutils literal notranslate"><span class="pre">sqlite</span></code> cache system, by configuring the <strong>CACHE_MODE</strong> environment variable (see <span class="xref myst">Configuration</span> for more information) so that all prices, interest and statistics are stored in tables on the cloud.</p>
+<p>A <code class="docutils literal notranslate"><span class="pre">lamdba_handler</span></code> included with the distribution can be deployed to <strong>AWS Lambda</strong>, given a role with <strong>DynamoDB</strong> and then configured via environment variables to execute a particular function from <code class="docutils literal notranslate"><span class="pre">scrilla</span></code>’s library.</p>
 <section id="iam-role">
 <h3>IAM Role<a class="headerlink" href="#iam-role" title="Permalink to this heading">¶</a></h3>
+<p>The process executing <code class="docutils literal notranslate"><span class="pre">scrilla</span></code> must be given a role that gives it permission to access <strong>DynamoDB</strong>. The policy below can be adapted for your specific account,</p>
 <p>TODO: list policy here.</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="w">    </span><span class="c1"># policy here</span><span class="w"></span>
 </pre></div>
@@ -63,10 +66,7 @@
 </pre></div>
 </div>
 <p>If you want finer-grained control over the pricing and speed of each table, you will need to edit this variable in the source code, rebuild and then re-install the wheel . See <span class="xref myst">SETUP</span> for more information on building <em>scrilla</em> from source.</p>
-</section>
-</section>
-<section id="table-configurations">
-<h2>Table Configurations<a class="headerlink" href="#table-configurations" title="Permalink to this heading">¶</a></h2>
+<p><strong>Table Configurations</strong></p>
 <ol class="arabic simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">prices</span></code></p></li>
 </ol>
@@ -279,11 +279,18 @@
 }
 </pre></div>
 </div>
+</section>
 <section id="lambda-function">
 <h3>Lambda Function<a class="headerlink" href="#lambda-function" title="Permalink to this heading">¶</a></h3>
 <p>TODO</p>
 <p>docker image</p>
-<p>environment variable for type of function</p>
+<p>example of lambda handler</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">scrilla.cloud.aws.handlers</span> <span class="kn">import</span> <span class="o">*</span><span class="n">_handler</span>
+</pre></div>
+</div>
+<p>TODO: specific handler for each function?</p>
+<p>OR</p>
+<p>environment variable for type of function?</p>
 </section>
 </section>
 </section>
@@ -315,7 +322,6 @@
 <li class="toctree-l1"><a class="reference internal" href="DEVELOPMENT.html">Development</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Deployment</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#aws-deployments">AWS Deployments</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#table-configurations">Table Configurations</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="APPENDIX.html">Appendix</a></li>
