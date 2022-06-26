@@ -35,14 +35,17 @@ from scrilla.util import dater, errors, outputter
 
 logger = outputter.Logger("scrilla.cache", settings.LOG_LEVEL)
 
+
 class Singleton(type):
 
     _instances = {}
-    
+
     def __call__(cls, *args, **kwargs):
         if cls not in cls._instances:
-            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
+            cls._instances[cls] = super(
+                Singleton, cls).__call__(*args, **kwargs)
         return cls._instances[cls]
+
 
 class Cache():
     """
@@ -221,7 +224,6 @@ class PriceCache():
             mode=self.mode
         )
 
-
     def filter_price_cache(self, ticker, start_date, end_date):
         if ticker in list(self.internal_cache.keys()):
             dates = list(self.internal_cache[ticker].keys())
@@ -231,8 +233,10 @@ class PriceCache():
             if start_string in dates and end_string in dates:
                 start_index = dates.index(start_string)
                 end_index = dates.index(end_string)
-                prices = dict(itertools.islice(self.internal_cache[ticker].items(),end_index, start_index+1))
-                logger.debug(f'Found {ticker} prices in memory', 'filter_price_cache')
+                prices = dict(itertools.islice(
+                    self.internal_cache[ticker].items(), end_index, start_index+1))
+                logger.debug(
+                    f'Found {ticker} prices in memory', 'filter_price_cache')
                 return prices
 
         logger.debug(
