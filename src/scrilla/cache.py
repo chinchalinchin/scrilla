@@ -216,9 +216,13 @@ class PriceCache():
         end_string = dater.to_string(end_date)
 
         if start_string in dates and end_string in dates:
-            start_index = dates.index(start_string)
-            end_index = dates.index(end_string)
-            prices = dict(itertools.islice(self.internal_cache[ticker].items(),end_index, start_index+1))
+            end_index = dates.index(start_string)
+            start_index = dates.index(end_string)
+            if start_index>end_index:
+                # NOTE: DynamoDB respones are not necessarily ordered
+                # `to_dict` will take care of ordering
+                start_index, end_index = end_index, start_index
+            prices = dict(itertools.islice(self.internal_cache[ticker].items(),start_index, end_index+1))
             logger.debug(f'Found {ticker} prices in memory', 'filter_price_cache')
             return prices
         return None
@@ -370,9 +374,11 @@ class InterestCache():
             return self.dynamodb_query
 
     def _update_internal_cache(self, rates):
-        # update class level cache
         self.internal_cache.update(rates)
 
+    # TODO: something is amiss with the internal cache. the root of the problem lies in how the cache is formatted. i think
+    # the format changes at some point (cant quite pin down where), and then the call to update_internal_cache messes it up.
+    # MAYBE?
     def _retrieve_from_internal_cache(self, maturity, start_date, end_date):
         dates = list(self.internal_cache.keys())
         start_string = dater.to_string(start_date)
@@ -380,14 +386,17 @@ class InterestCache():
         if start_string in dates and end_string in dates:
             start_index = dates.index(start_string)
             end_index = dates.index(end_string)
-            rates = dict(itertools.islice(self.internal_cache.items(),end_index, start_index+1))
-            rates = { key: rates[key][keys.keys['YIELD_CURVE'].index(key)] for key in rates}
+            if start_index>end_index:
+                # NOTE: DynamoDB respones are not necessarily ordered
+                # `to_dict` will take care of ordering
+                start_index, end_index = end_index, start_index
+            rates = dict(itertools.islice(self.internal_cache.items(),start_index, end_index+1))
+            rates = { key: rates[key][keys.keys['YIELD_CURVE'].index(maturity)] for key in rates}
             logger.debug(f'Found interest in memory', 'filter_interest_cache')
             return rates
 
     def save_rows(self, rates):
         self._update_internal_cache(rates)
-        # TODO: save to internal cache
         logger.verbose(
             F'Attempting to insert interest rates into cache', 'save_rows')
         Cache.execute(
@@ -396,7 +405,6 @@ class InterestCache():
         )
 
     def filter_interest_cache(self, maturity, start_date, end_date):
-        # TODO: check internal cache
         rates = self._retrieve_from_internal_cache(maturity, start_date, end_date)
         if rates is not None:
             return rates
