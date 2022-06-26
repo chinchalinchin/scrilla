@@ -14,8 +14,8 @@ init_static_data()
 @pytest.fixture(autouse=True)
 def reset_cache():
     clear_cache(mode='sqlite')
-    PriceCache(mode='sqlite'), ProfileCache(mode='sqlite'), \
-        InterestCache(mode='sqlite'), CorrelationCache(mode='sqlite')
+    PriceCache(mode='sqlite'), ProfileCache(mode='sqlite')
+    InterestCache(mode='sqlite'), CorrelationCache(mode='sqlite')
 
 
 @pytest.mark.parametrize('args, length', [

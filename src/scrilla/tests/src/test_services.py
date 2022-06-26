@@ -22,17 +22,17 @@ def reset_cache():
 
 @pytest.fixture()
 def price_cache():
-    return PriceCache()
+    return PriceCache(mode='sqlite')
 
 
 @pytest.fixture()
 def interest_cache():
-    return InterestCache()
+    return InterestCache(mode='sqlite')
 
 
 @pytest.fixture()
 def profile_cache():
-    return ProfileCache()
+    return ProfileCache(mode='sqlite')
 
 
 @pytest.mark.parametrize("ticker,date,price", [

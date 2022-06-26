@@ -1,13 +1,12 @@
 import pytest
 from httmock import HTTMock
 
-from scrilla import settings as scrilla_settings
 from scrilla.util.errors import SampleSizeError
 from scrilla.util import dater
 from scrilla.analysis.models.geometric import statistics
 from scrilla.analysis.estimators import standardize
 from scrilla.cache import PriceCache, ProfileCache, InterestCache, CorrelationCache
-from scrilla.files import clear_directory, get_asset_type
+from scrilla.files import clear_cache, get_asset_type
 from scrilla.static.keys import keys
 
 from .. import mock
@@ -15,8 +14,9 @@ from .. import mock
 
 @pytest.fixture(autouse=True)
 def reset_cache():
-    clear_directory(scrilla_settings.CACHE_DIR)
-    PriceCache(), ProfileCache(), InterestCache(), CorrelationCache()
+    clear_cache(mode='sqlite')
+    PriceCache(mode='sqlite'), ProfileCache(mode='sqlite') 
+    InterestCache(mode='sqlite'), CorrelationCache(mode='sqlite')
 
 
 @pytest.mark.parametrize("ticker,start_date,end_date", mock.service_price_cases)
