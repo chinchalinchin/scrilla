@@ -437,7 +437,7 @@ def clear_directory(directory: str, retain: bool = True) -> bool:
             os.remove(os.path.join(directory, f))
         return True
     except Exception as e:
-        logger.error(e)
+        logger.error(e, 'clear_directory')
         return False
 
 
@@ -457,7 +457,7 @@ def clear_cache(mode: str = settings.CACHE_MODE) -> bool:
         try:
             os.remove(settings.CACHE_SQLITE_FILE)
             return True
-        except:
+        except OSError:
             return False
     elif mode == 'dynamodb':
         return aws.dynamo_drop_table(tables)
