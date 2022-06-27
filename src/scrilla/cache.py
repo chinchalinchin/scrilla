@@ -616,8 +616,9 @@ class ProfileCache():
 
     dynamodb_table_configuration = config.dynamo_profile_table_conf
     dynamodb_profile_query = "SELECT annual_return,annual_volatility,sharpe_ratio,asset_beta,equity_cost FROM \"profile\" WHERE ticker=? AND start_date=? AND end_date=? AND method=? AND weekends=?"
-    dynamodb_identity_query = "EXISTS(SELECT * FROM \"profile\" WHERE ticker=? AND start_date=? AND end_date=? AND method=? AND weekends=?)"
-
+    # dynamodb_identity_query = "EXISTS(SELECT * FROM \"profile\" WHERE ticker=? AND start_date=? AND end_date=? AND method=? AND weekends=?)"
+    # See NOTE in save_or_update_row
+    dynamodb_identity_query ="SELECT * FROM \"profile\" WHERE ticker=? AND start_date=? AND end_date=? AND method=? AND weekends=?"
     @staticmethod
     def to_dict(query_result, mode=settings.CACHE_MODE):
         """
@@ -751,6 +752,11 @@ class ProfileCache():
         self._update_internal_cache(params, filters)
 
         identity = Cache.execute(self._identity(), filters, self.mode)
+        # NOTE: in order to uses EXISTS function, need to execute identity query as transaction.
+        # will need to differentiate between sqlite and dynamodb mode here since all executes
+        # are passed through statement, not transaction...
+        # could add a flag to execute method to explicitly perform a transaction.
+        # not wild about that idea, though.
 
         logger.verbose(
             'Attempting to insert/update risk profile into cache', 'ProfileCache.save_or_update_rows')
