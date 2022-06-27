@@ -448,7 +448,7 @@ class CorrelationCache():
 
     @staticmethod
     def generate_id(params):
-        hashish_key=''
+        hashish_key = ''
         for param in params.values():
             if isinstance(param, str):
                 hashish_key += param
