@@ -816,7 +816,7 @@ class ProfileCache():
             return insert_query
 
     @staticmethod
-    def _create_cache_key(self, keys):
+    def _create_cache_key(keys):
         hashish_key = ''
         for key in keys.values():
             if isinstance(key, str):
