@@ -589,7 +589,7 @@ class CorrelationCache():
 
     @staticmethod
     def generate_id(params):
-        hashish_key=''
+        hashish_key = ''
         for param in params.values():
             if isinstance(param, str):
                 hashish_key += param
@@ -642,7 +642,7 @@ class CorrelationCache():
         """
         logger.verbose(
             f'Saving ({ticker_1}, {ticker_2}) correlation from {start_date} to {end_date} to the cache', 'save_row')
-        formatter_1 = { 'ticker_1': ticker_1, 'ticker_2': ticker_2,
+        formatter_1 = {'ticker_1': ticker_1, 'ticker_2': ticker_2,
                        'start_date': start_date, 'end_date': end_date,
                        'correlation': correlation,
                        'method': method, 'weekends': weekends}
