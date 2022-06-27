@@ -310,7 +310,6 @@ class InterestCache():
                 params.append(entry)
         return params
 
-
     def __init__(self, mode=settings.CACHE_MODE):
         self.internal_cache = {}
         self.mode = mode
@@ -387,7 +386,7 @@ class InterestCache():
             return rates
 
         logger.debug(
-            f'Querying {self.mode} cache \n\t{self._query()}\n\t\t with :maturity={maturity}, :start_date={start_date}, :end_date={end_date}', 
+            f'Querying {self.mode} cache \n\t{self._query()}\n\t\t with :maturity={maturity}, :start_date={start_date}, :end_date={end_date}',
             'InterestCache.filter')
         formatter = {'maturity': maturity,
                      'start_date': start_date, 'end_date': end_date}
@@ -448,7 +447,7 @@ class CorrelationCache():
 
     @staticmethod
     def generate_id(params):
-        hashish_key=''
+        hashish_key = ''
         for param in params.values():
             if isinstance(param, str):
                 hashish_key += param
@@ -488,8 +487,8 @@ class CorrelationCache():
     def _update_internal_cache(self, params, permuted_params, correlation):
         correl_id = self.generate_id(params)
         permuted_id = self.generate_id(permuted_params)
-        self.internal_cache[correl_id] = { 'correlation': correlation }
-        self.internal_cache[permuted_id] = { 'correlation': correlation }
+        self.internal_cache[correl_id] = {'correlation': correlation}
+        self.internal_cache[permuted_id] = {'correlation': correlation}
         pass
 
     def _retrieve_from_internal_cache(self, params, permuted_params):
@@ -518,16 +517,16 @@ class CorrelationCache():
         """
         # TODO: it would probably make more sense passing in **kwargs...
         logger.verbose(
-            f'Saving ({ticker_1}, {ticker_2}) correlation from {start_date} to {end_date} to the cache', 
+            f'Saving ({ticker_1}, {ticker_2}) correlation from {start_date} to {end_date} to the cache',
             'CorrelationCache.save_row')
-        formatter_1 = { 'ticker_1': ticker_1, 'ticker_2': ticker_2,
-                       'end_date': end_date, 'start_date': start_date, 
+        formatter_1 = {'ticker_1': ticker_1, 'ticker_2': ticker_2,
+                       'end_date': end_date, 'start_date': start_date,
                        'method': method, 'weekends': weekends}
         formatter_2 = {'ticker_1': ticker_2, 'ticker_2': ticker_1,
                        'end_date': end_date, 'start_date': start_date,
                        'method': method, 'weekends': weekends}
 
-        # NOTE: if correlation or id are in the dictionary, it screws up this call, so 
+        # NOTE: if correlation or id are in the dictionary, it screws up this call, so
         # add them after this call. Either that, or add a conditional to the following
         # method.
         self._update_internal_cache(formatter_1, formatter_2, correlation)
@@ -535,8 +534,8 @@ class CorrelationCache():
         key_1 = self.generate_id(formatter_1)
         key_2 = self.generate_id(formatter_2)
 
-        formatter_1.update({ 'id': key_1, 'correlation': correlation })
-        formatter_2.update({ 'id': key_2, 'correlation': correlation })
+        formatter_1.update({'id': key_1, 'correlation': correlation})
+        formatter_2.update({'id': key_2, 'correlation': correlation})
 
         Cache.execute(
             query=self._insert(), formatter=[formatter_1, formatter_2], mode=self.mode)
@@ -544,12 +543,12 @@ class CorrelationCache():
             query=self._insert(), formatter=formatter_2, mode=self.mode)
 
     def filter(self, ticker_1, ticker_2, start_date, end_date, weekends, method=settings.ESTIMATION_METHOD):
-        formatter_1 = {'ticker_1': ticker_1, 'ticker_2': ticker_2, 
-                        'end_date': end_date, 'start_date': start_date,
-                        'method': method, 'weekends': weekends}
-        formatter_2 = {'ticker_1': ticker_2, 'ticker_2': ticker_1, 
-                        'end_date': end_date, 'start_date': start_date,
-                        'method': method, 'weekends': weekends}
+        formatter_1 = {'ticker_1': ticker_1, 'ticker_2': ticker_2,
+                       'end_date': end_date, 'start_date': start_date,
+                       'method': method, 'weekends': weekends}
+        formatter_2 = {'ticker_1': ticker_2, 'ticker_2': ticker_1,
+                       'end_date': end_date, 'start_date': start_date,
+                       'method': method, 'weekends': weekends}
 
         memory = self._retrieve_from_internal_cache(formatter_1, formatter_2)
         if memory is not None:
@@ -566,7 +565,7 @@ class CorrelationCache():
             correl = self.to_dict(results)
             self._update_internal_cache(formatter_1, formatter_2, correl)
             return correl
-        
+
         results = Cache.execute(
             query=self._query(), formatter=formatter_2, mode=self.mode)
 
