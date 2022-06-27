@@ -245,7 +245,7 @@ class PriceCache():
                 ticker, start_date, end_date)
             if prices is not None:
                 logger.debug(f'{ticker} prices found in memory',
-                         'ProfileCachce.filter_profile_cache')
+                             'ProfileCachce.filter_profile_cache')
                 return prices
 
         logger.debug(
@@ -316,7 +316,7 @@ class InterestCache():
     }
     dynamodb_insert_transaction = "INSERT INTO \"interest\" VALUE {'maturity': ?, 'date': ?, 'value': ? }"
     dynamodb_query = "SELECT \"date\", \"value\" FROM \"interest\" WHERE \"maturity\"=? AND \"date\">=? AND \"date\"<=?"
-        # NOTE: No PartiQL ORDER BY clause yet: https://github.com/partiql/partiql-lang-kotlin/issues/47
+    # NOTE: No PartiQL ORDER BY clause yet: https://github.com/partiql/partiql-lang-kotlin/issues/47
     dynamodb_identity_query = "EXISTS(SELECT 'maturity' FROM \"interest\" WHERE 'maturity'=? AND 'date'<= ?)"
 
     @staticmethod
@@ -357,7 +357,6 @@ class InterestCache():
     def _from_cache(rates, maturity):
         pass
 
-
     def __init__(self, mode=settings.CACHE_MODE):
         self.internal_cache = {}
         self.mode = mode
@@ -391,8 +390,10 @@ class InterestCache():
     def _update_internal_cache(self, values, maturity):
         for date in values.keys():
             if self.internal_cache.get(date, None) is None:
-                self.internal_cache[date] = [ None for _ in keys.keys['YIELD_CURVE']]
-            self.internal_cache[date][keys.keys['YIELD_CURVE'].index(maturity)] = values[date]
+                self.internal_cache[date] = [
+                    None for _ in keys.keys['YIELD_CURVE']]
+            self.internal_cache[date][keys.keys['YIELD_CURVE'].index(
+                maturity)] = values[date]
 
     def _retrieve_from_internal_cache(self, maturity, start_date, end_date):
         dates = list(self.internal_cache.keys())
@@ -409,8 +410,8 @@ class InterestCache():
                 self.internal_cache.items(), start_index, end_index+1))
             rates = {key: rates[key][keys.keys['YIELD_CURVE'].index(
                 maturity)] for key in rates}
-            logger.debug(f'Found interest in memory', 
-                'InterestCache._retrieve_from_internal_cache')
+            logger.debug(f'Found interest in memory',
+                         'InterestCache._retrieve_from_internal_cache')
             return rates
 
     def save_rows(self, rates):
@@ -470,7 +471,7 @@ class CorrelationCache():
     sqlite_insert_row_transaction = "INSERT INTO correlations (ticker_1, ticker_2, start_date, end_date, correlation, method, weekends) VALUES (:ticker_1, :ticker_2, :start_date, :end_date, :correlation, :method, :weekends)"
     sqlite_correlation_query = "SELECT correlation FROM correlations WHERE ticker_1=:ticker_1 AND ticker_2=:ticker_2 AND start_date=date(:start_date) AND end_date=date(:end_date) AND method=:method AND weekends=:weekends"
 
-    # this dynamodb configuration won't work. the keyschema produces overlap, i.e. it's not unique. 
+    # this dynamodb configuration won't work. the keyschema produces overlap, i.e. it's not unique.
     # will have to concatenate ticker_1 and ticker_2 in dynamodb table.
     dynamodb_table_configuration = {
         'AttributeDefinitions': [
@@ -852,7 +853,7 @@ class ProfileCache():
             return self.sqlite_identity_query
         elif self.mode == 'dynamodb':
             return self.dynamodb_identity_query
-    
+
     def _update_internal_cache(self, profile, keys):
         key = self._create_cache_key(keys)
         self.internal_cache[key] = profile
@@ -894,7 +895,7 @@ class ProfileCache():
 
     def filter_profile_cache(self, ticker: str, start_date: datetime.date, end_date: datetime.date, weekends: int = 0, method=settings.ESTIMATION_METHOD):
         filters = {'ticker': ticker, 'start_date': start_date,
-                     'end_date': end_date, 'method': method, 'weekends': weekends}
+                   'end_date': end_date, 'method': method, 'weekends': weekends}
 
         in_memory = self._retrieve_from_internal_cache(filters)
         if in_memory:
