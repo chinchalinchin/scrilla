@@ -429,9 +429,9 @@ class CorrelationCache():
     sqlite_correlation_query = "SELECT correlation FROM correlations WHERE ticker_1=:ticker_1 AND ticker_2=:ticker_2 AND start_date=date(:start_date) AND end_date=date(:end_date) AND method=:method AND weekends=:weekends"
 
     dynamodb_table_configuration = config.dynamo_correlation_table_conf
-    dynamodb_insert_transaction = "INSERT INTO 'correlations' VALUE { 'ticker_1': ?, 'ticker_2': ?, 'end_date': ?, 'start_date': ?, 'method': ?, 'weekends': ?, 'id': ?, 'correlation': ? }"
-    dynamodb_query = "SELECT correlation FROM 'correlations' WHERE 'ticker_1'=? AND 'ticker_2'=? AND 'end_date'=? AND 'start_date'=? AND 'method'=? AND 'weekends'=?"
-    dynamodb_identity_query = "EXISTS(SELECT 'correlation' FROM 'correlations' WHERE 'ticker_1'=? AND 'ticker_2'=? AND 'end_date'=? AND 'start_date'=? AND 'method'=? AND 'weekends'=?)"
+    dynamodb_insert_transaction = "INSERT INTO \"correlations\" VALUE { 'ticker_1': ?, 'ticker_2': ?, 'end_date': ?, 'start_date': ?, 'method': ?, 'weekends': ?, 'id': ?, 'correlation': ? }"
+    dynamodb_query = "SELECT correlation FROM \"correlations\" WHERE \"ticker_1\"=? AND \"ticker_2\"=? AND \"end_date\"=? AND \"start_date\"=? AND \"method\"=? AND \"weekends\"=?"
+    dynamodb_identity_query = "EXISTS(SELECT correlation FROM \"correlations\" WHERE \"ticker_1\"=? AND \"ticker_2\"=? AND \"end_date\"=? AND \"start_date\"=? AND \"method\"=? AND \"weekends\"=?)"
 
     @staticmethod
     def to_dict(query_results):
@@ -559,10 +559,15 @@ class CorrelationCache():
         results = Cache.execute(
             query=self._query(), formatter=formatter_1, mode=self.mode)
 
+        print(results)
+
         if len(results) > 0:
             logger.debug(
                 f'Found ({ticker_1},{ticker_2}) correlation in the cache', 'CorrelationCache.filter')
-            correl = self.to_dict(results)
+            if self.mode == 'sqlite':
+                correl = self.to_dict(results)
+            elif self.mode == 'dynamodb':
+                correl = results[0]
             self._update_internal_cache(formatter_1, formatter_2, correl)
             return correl
 
@@ -572,7 +577,12 @@ class CorrelationCache():
         if len(results) > 0:
             logger.debug(
                 f'Found ({ticker_1},{ticker_2}) correlation in the cache', 'CorrelationCache.filter')
-            return self.to_dict(results)
+            if self.mode is 'sqlite':
+                correl = self.to_dict(results)
+            elif self.mode == 'dynamodb':
+                correl = results[0]
+            self._update_internal_cache(formatter_1, formatter_2, correl)
+            return correl
         logger.debug(
             f'No results found for ({ticker_1}, {ticker_2}) correlation in the cache', 'CorrelationCache.filter')
         return None
