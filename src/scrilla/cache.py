@@ -207,7 +207,7 @@ class PriceCache():
             return self.dynamodb_price_query
 
     def _update_internal_cache(self, ticker, prices):
-        if ticker not in list(self.internal_cache.keys()):
+        if ticker not in list(self.internal_cache):
             self.internal_cache[ticker] = prices
         else:
             self.internal_cache[ticker].update(prices)
@@ -240,7 +240,7 @@ class PriceCache():
         )
 
     def filter_price_cache(self, ticker, start_date, end_date):
-        if ticker in list(self.internal_cache.keys()):
+        if ticker in list(self.internal_cache):
             prices = self._retrieve_from_internal_cache(
                 ticker, start_date, end_date)
             if prices is not None:
@@ -860,7 +860,7 @@ class ProfileCache():
 
     def _retrieve_from_internal_cache(self, keys):
         key = self._create_cache_key(keys)
-        if key in list(self.internal_cache.keys()):
+        if key in list(self.internal_cache):
             return self.internal_cache[key]
         return None
 
