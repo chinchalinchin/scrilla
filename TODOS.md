@@ -36,3 +36,6 @@
 61. pretty sure services and caches should be singletons: https://stackoverflow.com/questions/6760685/creating-a-singleton-in-python
 
 62. pipeline will need service role if it is going to test dynamodb.
+
+62. dynamodb configuration for correlation table is incorrect. primary key is not unique. it will not persist the items correctly. will need to concatenet ticker_1 and ticker_2.
+    - > as a result, will need to drop profile and correlations table currently up as they contain incorrect information.

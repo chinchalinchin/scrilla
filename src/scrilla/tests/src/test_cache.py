@@ -308,3 +308,6 @@ def test_price_cache_to_dict_dynamodb(results, expected):
     assert actual == expected
     assert all( dater.parse(actual_keys[i]) < dater.parse(actual_keys[i-1])
                     for i in range(1,len(actual_keys)))
+
+
+# test: create caches, save_rows, check the internal cache was updated

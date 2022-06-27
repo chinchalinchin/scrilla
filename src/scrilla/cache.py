@@ -277,7 +277,7 @@ class InterestCache():
     Attributes
     ----------
     1. **sqlite_create_table_transaction**: ``str``
-        *SQLite* transaction passed to the super class used to create correlation cache table if it does not already exist.
+         *SQLite* transaction passed to `scrilla.cache.Cache` used to create interest cache table if it does not already exist.
     2. **sqlite_insert_row_transaction**: ``str``
         *SQLite* transaction used to insert row into correlation cache table.
     3. **sqlite_interest_query**: ``str```
@@ -355,6 +355,10 @@ class InterestCache():
                 params.append(entry)
         return params
 
+    @staticmethod
+    def _from_cache(rates, maturity):
+        pass
+
 
     def __init__(self, mode=settings.CACHE_MODE):
         self.internal_cache = {}
@@ -385,17 +389,12 @@ class InterestCache():
 
     def _save_internal_cache(self, rates):
         self.internal_cache.update(rates)
-        print('saved')
-        print(self.internal_cache)
 
     def _update_internal_cache(self, values, maturity):
         for date in values.keys():
             if self.internal_cache.get(date, None) is None:
                 self.internal_cache[date] = [ None for _ in keys.keys['YIELD_CURVE']]
             self.internal_cache[date][keys.keys['YIELD_CURVE'].index(maturity)] = values[date]
-        
-        print('updated')
-        print(self.internal_cache)
 
     def _retrieve_from_internal_cache(self, maturity, start_date, end_date):
         dates = list(self.internal_cache.keys())
@@ -412,14 +411,14 @@ class InterestCache():
                 self.internal_cache.items(), start_index, end_index+1))
             rates = {key: rates[key][keys.keys['YIELD_CURVE'].index(
                 maturity)] for key in rates}
-            logger.debug(f'Found interest in memory', 'filter_interest_cache')
+            logger.debug(f'Found interest in memory', 'InterestCache._retrieve_from_internal_cache')
             return rates
 
     def save_rows(self, rates):
         # NOTE: at this point, rates should look like { 'date': [rates], 'date': [rates], ...}
         self._save_internal_cache(rates)
         logger.verbose(
-            F'Attempting to insert interest rates into cache', 'save_rows')
+            F'Attempting to insert interest rates into cache', 'InterestCache.save_rows')
         Cache.execute(
             query=self._insert(),
             formatter=self._to_params(rates)
@@ -432,7 +431,7 @@ class InterestCache():
             return rates
 
         logger.debug(
-            f'Querying {self.mode} cache \n\t{self._query()}\n\t\t with :maturity={maturity}, :start_date={start_date}, :end_date={end_date}', 'filter_interest_cache')
+            f'Querying {self.mode} cache \n\t{self._query()}\n\t\t with :maturity={maturity}, :start_date={start_date}, :end_date={end_date}', 'InterestCache.filter_interest_cache')
         formatter = {'maturity': maturity,
                      'start_date': start_date, 'end_date': end_date}
         results = Cache.execute(
@@ -440,13 +439,13 @@ class InterestCache():
 
         if len(results) > 0:
             logger.debug(
-                f'Found {maturity} yield on in the cache', 'filter_interest_cache')
+                f'Found {maturity} yield on in the cache', 'InterestCache.filter_interest_cache')
             rates = self.to_dict(results)
             self._update_internal_cache(rates, maturity)
             return rates
 
         logger.debug(
-            f'No results found for {maturity} yield in cache', 'filter_interest_cache')
+            f'No results found for {maturity} yield in cache', 'InterestCache.filter_interest_cache')
         return None
 
 
@@ -470,6 +469,8 @@ class CorrelationCache():
     sqlite_insert_row_transaction = "INSERT INTO correlations (ticker_1, ticker_2, start_date, end_date, correlation, method, weekends) VALUES (:ticker_1, :ticker_2, :start_date, :end_date, :correlation, :method, :weekends)"
     sqlite_correlation_query = "SELECT correlation FROM correlations WHERE ticker_1=:ticker_1 AND ticker_2=:ticker_2 AND start_date=date(:start_date) AND end_date=date(:end_date) AND method=:method AND weekends=:weekends"
 
+    # this dynamodb configuration won't work. the keyschema produces overlap, i.e. it's not unique. 
+    # will have to concatenate ticker_1 and ticker_2 in dynamodb table.
     dynamodb_table_configuration = {
         'AttributeDefinitions': [
             {
@@ -657,9 +658,20 @@ class ProfileCache():
 
     Attributes
     ----------
-    1. **create_table_transaction**: ``str``
-        *SQLite* transaction passed to Cache. Used to create profile cache table if it does not already exist.
+    1. **sqlite_create_table_transaction**: ``str``
+        *SQLite* transaction passed to `scrilla.cache.Cache` used to create profile cache table if it does not already exist.
+    2. **sqlite_insert_row_transaction**: ``str``
+        *SQLite* transaction used to insert row into correlation cache table.
+    3. **sqlite_interest_query**: ``str```
+        *SQLite* query to retrieve an interest from cache.
+    4. **dynamodb_table_configuration**: ``str``
+    5. **dynamo_insert_transaction**: ``str``
+    6. **dynamo_query**: ``str``
+    7. **dynamo_identity_query**: ``str``
     """
+
+    __metaclass__ = Singleton
+
     sqlite_create_table_transaction = "CREATE TABLE IF NOT EXISTS profile (id INTEGER PRIMARY KEY, ticker TEXT, start_date TEXT, end_date TEXT, annual_return REAL, annual_volatility REAL, sharpe_ratio REAL, asset_beta REAL, equity_cost REAL, method TEXT, weekends INT)"
     sqlite_filter = "ticker=:ticker AND start_date=date(:start_date) AND end_date=date(:end_date) AND :method=method AND weekends=:weekends"
     sqlite_identity_query = "SELECT id FROM profile WHERE ticker=:ticker AND start_date=:start_date AND end_date=:end_date AND method=:method AND weekends=:weekends"
@@ -802,6 +814,7 @@ class ProfileCache():
             return insert_query
 
     def __init__(self, mode=settings.CACHE_MODE):
+        self.internal_cache = {}
         self.mode = mode
         if not files.get_memory_json()['cache'][mode]['profile']:
             self._table()
@@ -826,6 +839,27 @@ class ProfileCache():
             return self.sqlite_identity_query
         elif self.mode == 'dynamodb':
             return self.dynamodb_identity_query
+    
+    def _update_internal_cache(self, profile, keys):
+        key = self._create_cache_key(keys)
+        self.internal_cache[key] = profile
+
+    def _retrieve_from_internal_cache(self, keys):
+        key = self._create_cache_key(keys)
+        if key in list(self.internal_cache.keys()):
+            return self.internal_cache[key]
+        return None
+
+    def _create_cache_key(self, keys):
+        hashish_key = ''
+        for key in keys.values():
+            if isinstance(key, str):
+                hashish_key += key
+            elif isinstance(key, (int, float)):
+                hashish_key += str(key)
+            elif isinstance(key, datetime.date):
+                hashish_key += dater.to_string(key)
+        return hashish_key
 
     def save_or_update_row(self, ticker: str, start_date: datetime.date, end_date: datetime.date, annual_return: Union[float, None] = None, annual_volatility: Union[float, None] = None, sharpe_ratio: Union[float, None] = None, asset_beta: Union[float, None] = None, equity_cost: Union[float, None] = None, weekends: int = 0, method: str = settings.ESTIMATION_METHOD):
         filters = {'ticker': ticker, 'start_date': start_date,
@@ -843,7 +877,12 @@ class ProfileCache():
         if equity_cost is not None:
             params['equity_cost'] = equity_cost
 
+        self._update_internal_cache(params, filters)
+
         identity = Cache.execute(self._identity(), filters, self.mode)
+
+        logger.verbose(
+            F'Attempting to insert/update risk profile into cache', 'ProfileCache.save_or_update_rows')
 
         if len(identity) == 0:
             return Cache.execute(self._construct_insert({**params, **filters}),
@@ -853,18 +892,23 @@ class ProfileCache():
 
     def filter_profile_cache(self, ticker: str, start_date: datetime.date, end_date: datetime.date, weekends: int = 0, method=settings.ESTIMATION_METHOD):
         logger.debug(
-            f'Querying {self.mode} cache: \n\t{self._query()}\n\t\t with :ticker={ticker}, :start_date={start_date}, :end_date={end_date}', 'filter_profile_cache')
-        formatter = {'ticker': ticker, 'start_date': start_date,
+            f'Querying {self.mode} cache: \n\t{self._query()}\n\t\t with :ticker={ticker}, :start_date={start_date}, :end_date={end_date}', 'ProfileCache.filter_profile_cache')
+        filters = {'ticker': ticker, 'start_date': start_date,
                      'end_date': end_date, 'method': method, 'weekends': weekends}
+
+        in_memory = self._retrieve_from_internal_cache(filters)
+        if in_memory:
+            return in_memory
+
         result = Cache.execute(
-            query=self._query(), formatter=formatter, mode=self.mode)
+            query=self._query(), formatter=filters, mode=self.mode)
 
         if len(result) > 0:
             logger.debug(f'{ticker} profile found in cache',
-                         'filter_profile_cache')
+                         'ProfileCachce.filter_profile_cache')
             return self.to_dict(result)
         logger.debug(
-            f'No results found for {ticker} profile in the cache', 'filter_profile_cache')
+            f'No results found for {ticker} profile in the cache', 'ProfileCache.filter_profile_cache')
         return None
 
 
