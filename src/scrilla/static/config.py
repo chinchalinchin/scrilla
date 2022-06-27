@@ -1,4 +1,4 @@
-dynamo_price_table_conf =  {
+dynamo_price_table_conf = {
     'AttributeDefinitions': [
         {
             'AttributeName': 'ticker',
@@ -21,7 +21,7 @@ dynamo_price_table_conf =  {
         }
     ],
 }
-dynamo_interest_table_conf ={
+dynamo_interest_table_conf = {
     'AttributeDefinitions': [
         {
             'AttributeName': 'maturity',
