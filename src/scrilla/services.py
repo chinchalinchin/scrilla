@@ -619,10 +619,10 @@ def get_daily_price_history(ticker: str, start_date: Union[None, date] = None, e
     if cached_prices is not None:
         if asset_type == keys.keys['ASSETS']['EQUITY']:
             logger.debug(
-                f'Comparing {len(cached_prices)} = {dater.business_days_between(start_date, end_date)}', 'get_daily_price_history')
+                f'Comparing cache-size({len(cached_prices)}) = date-length{dater.business_days_between(start_date, end_date)})', 'get_daily_price_history')
         elif asset_type == keys.keys['ASSETS']['CRYPTO']:
             logger.debug(
-                f'Comparing {len(cached_prices)} = {dater.days_between(start_date, end_date)}', 'get_daily_price_history')
+                f'Comparing cache-size({len(cached_prices)}) = date-length({dater.days_between(start_date, end_date)})', 'get_daily_price_history')
 
     # make sure the length of cache is equal to the length of the requested sample
     if cached_prices is not None and dater.to_string(end_date) in cached_prices.keys() and (
@@ -766,7 +766,7 @@ def get_daily_interest_history(maturity: str, start_date: Union[date, None] = No
 
     if rates is not None:
         logger.debug(
-            f'Comparing {len(rates)} = {dater.business_days_between(start_date, end_date, True)}', 'get_daily_interest_history')
+            f'Comparing cache-size({len(rates)}) = date-size({dater.business_days_between(start_date, end_date, True)})', 'get_daily_interest_history')
 
     # TODO: this only works when stats are reported daily and that the latest date in the dataset is actually end_date.
     if rates is not None and \
