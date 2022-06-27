@@ -813,6 +813,18 @@ class ProfileCache():
                     insert_query += "}"
             return insert_query
 
+    @staticmethod
+    def _create_cache_key(self, keys):
+        hashish_key = ''
+        for key in keys.values():
+            if isinstance(key, str):
+                hashish_key += key
+            elif isinstance(key, (int, float)):
+                hashish_key += str(key)
+            elif isinstance(key, datetime.date):
+                hashish_key += dater.to_string(key)
+        return hashish_key
+        
     def __init__(self, mode=settings.CACHE_MODE):
         self.internal_cache = {}
         self.mode = mode
@@ -849,17 +861,6 @@ class ProfileCache():
         if key in list(self.internal_cache.keys()):
             return self.internal_cache[key]
         return None
-
-    def _create_cache_key(self, keys):
-        hashish_key = ''
-        for key in keys.values():
-            if isinstance(key, str):
-                hashish_key += key
-            elif isinstance(key, (int, float)):
-                hashish_key += str(key)
-            elif isinstance(key, datetime.date):
-                hashish_key += dater.to_string(key)
-        return hashish_key
 
     def save_or_update_row(self, ticker: str, start_date: datetime.date, end_date: datetime.date, annual_return: Union[float, None] = None, annual_volatility: Union[float, None] = None, sharpe_ratio: Union[float, None] = None, asset_beta: Union[float, None] = None, equity_cost: Union[float, None] = None, weekends: int = 0, method: str = settings.ESTIMATION_METHOD):
         filters = {'ticker': ticker, 'start_date': start_date,

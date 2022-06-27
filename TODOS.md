@@ -39,3 +39,5 @@
 
 62. dynamodb configuration for correlation table is incorrect. primary key is not unique. it will not persist the items correctly. will need to concatenet ticker_1 and ticker_2.
     - > as a result, will need to drop profile and correlations table currently up as they contain incorrect information.
+
+63. internal correlation cache
