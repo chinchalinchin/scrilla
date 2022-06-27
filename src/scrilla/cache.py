@@ -391,12 +391,6 @@ class InterestCache():
         if start_string in dates and end_string in dates:
             start_index = dates.index(start_string)
             end_index = dates.index(end_string)
-<<<<<<< HEAD
-            rates = dict(itertools.islice(
-                self.internal_cache.items(), end_index, start_index+1))
-            rates = {
-                key: rates[key][keys.keys['YIELD_CURVE'].index(key)] for key in rates}
-=======
             if start_index > end_index:
                 # NOTE: DynamoDB respones are not necessarily ordered
                 # `to_dict` will take care of ordering
@@ -405,7 +399,6 @@ class InterestCache():
                 self.internal_cache.items(), start_index, end_index+1))
             rates = {key: rates[key][keys.keys['YIELD_CURVE'].index(
                 maturity)] for key in rates}
->>>>>>> 5e565d5da61eedf8756aa27e76cd50e632818024
             logger.debug(f'Found interest in memory', 'filter_interest_cache')
             return rates
 
@@ -419,10 +412,6 @@ class InterestCache():
         )
 
     def filter_interest_cache(self, maturity, start_date, end_date):
-<<<<<<< HEAD
-        # TODO: check internal cache
-=======
->>>>>>> 5e565d5da61eedf8756aa27e76cd50e632818024
         rates = self._retrieve_from_internal_cache(
             maturity, start_date, end_date)
         if rates is not None:
