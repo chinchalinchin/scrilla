@@ -207,7 +207,6 @@ class PriceCache():
             return self.dynamodb_price_query
 
     def _update_internal_cache(self, ticker, prices):
-        # update class level cache
         if ticker not in list(self.internal_cache.keys()):
             self.internal_cache[ticker] = prices
         else:
@@ -227,14 +226,11 @@ class PriceCache():
                 start_index, end_index = end_index, start_index
             prices = dict(itertools.islice(
                 self.internal_cache[ticker].items(), start_index, end_index+1))
-            logger.debug(f'Found {ticker} prices in memory',
-                         'filter_price_cache')
             return prices
         return None
 
     def save_rows(self, ticker, prices):
         self._update_internal_cache(ticker, prices)
-
         logger.verbose(
             F'Attempting to insert {ticker} prices to cache', 'save_rows')
         Cache.execute(
@@ -248,6 +244,8 @@ class PriceCache():
             prices = self._retrieve_from_internal_cache(
                 ticker, start_date, end_date)
             if prices is not None:
+                logger.debug(f'{ticker} prices found in memory',
+                         'ProfileCachce.filter_profile_cache')
                 return prices
 
         logger.debug(
@@ -428,6 +426,8 @@ class InterestCache():
         rates = self._retrieve_from_internal_cache(
             maturity, start_date, end_date)
         if rates is not None:
+            logger.debug(f'{maturity} interet found in memory',
+                         'InterestCache.filter_profile_cache')
             return rates
 
         logger.debug(
@@ -843,12 +843,8 @@ class ProfileCache():
     def _update_internal_cache(self, profile, keys):
         key = self._create_cache_key(keys)
         self.internal_cache[key] = profile
-        print('updated')
-        print(self.internal_cache)
 
     def _retrieve_from_internal_cache(self, keys):
-        print('retrieving')
-        print(self.internal_cache)
         key = self._create_cache_key(keys)
         if key in list(self.internal_cache.keys()):
             return self.internal_cache[key]
@@ -895,8 +891,6 @@ class ProfileCache():
                              {**params, **filters}, self.mode)
 
     def filter_profile_cache(self, ticker: str, start_date: datetime.date, end_date: datetime.date, weekends: int = 0, method=settings.ESTIMATION_METHOD):
-        logger.debug(
-            f'Querying {self.mode} cache: \n\t{self._query()}\n\t\t with :ticker={ticker}, :start_date={start_date}, :end_date={end_date}', 'ProfileCache.filter_profile_cache')
         filters = {'ticker': ticker, 'start_date': start_date,
                      'end_date': end_date, 'method': method, 'weekends': weekends}
 
@@ -904,15 +898,17 @@ class ProfileCache():
         if in_memory:
             logger.debug(f'{ticker} profile found in memory',
                          'ProfileCachce.filter_profile_cache')
-            print(in_memory)
             return in_memory
+
+        logger.debug(
+            f'Querying {self.mode} cache: \n\t{self._query()}\n\t\t with :ticker={ticker}, :start_date={start_date}, :end_date={end_date}', 'ProfileCache.filter_profile_cache')
 
         result = Cache.execute(
             query=self._query(), formatter=filters, mode=self.mode)
 
         if len(result) > 0:
             logger.debug(f'{ticker} profile found in cache',
-                         'ProfileCachce.filter_profile_cache')
+                         'ProfileCache.filter_profile_cache')
             self._update_internal_cache(self.to_dict(result), filters)
             return self.to_dict(result)
         logger.debug(
