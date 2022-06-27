@@ -409,7 +409,8 @@ class InterestCache():
                 self.internal_cache.items(), start_index, end_index+1))
             rates = {key: rates[key][keys.keys['YIELD_CURVE'].index(
                 maturity)] for key in rates}
-            logger.debug(f'Found interest in memory', 'InterestCache._retrieve_from_internal_cache')
+            logger.debug(f'Found interest in memory', 
+                'InterestCache._retrieve_from_internal_cache')
             return rates
 
     def save_rows(self, rates):
@@ -824,7 +825,7 @@ class ProfileCache():
             elif isinstance(key, datetime.date):
                 hashish_key += dater.to_string(key)
         return hashish_key
-        
+
     def __init__(self, mode=settings.CACHE_MODE):
         self.internal_cache = {}
         self.mode = mode
