@@ -30,7 +30,7 @@ import datetime
 from typing import Union
 
 from scrilla import files
-from scrilla.static import keys
+from scrilla.static import config, keys
 from scrilla.util import dater, errors, outputter
 
 logger = outputter.Logger("scrilla.cache", settings.LOG_LEVEL)
@@ -111,29 +111,8 @@ class PriceCache():
     sqlite_insert_row_transaction = "INSERT OR IGNORE INTO prices (ticker, date, open, close) VALUES (:ticker, :date, :open, :close)"
     sqlite_price_query = "SELECT date, open, close FROM prices WHERE ticker = :ticker AND date <= date(:end_date) AND date >= date(:start_date) ORDER BY date(date) DESC"
 
-    dynamodb_table_configuration = {
-        'AttributeDefinitions': [
-            {
-                'AttributeName': 'ticker',
-                'AttributeType': 'S'
-            },
-            {
-                'AttributeName': 'date',
-                'AttributeType': 'S'
-            },
-        ],
-        'TableName': 'prices',
-        'KeySchema': [
-            {
-                'AttributeName': 'ticker',
-                'KeyType': 'HASH'
-            },
-            {
-                'AttributeName': 'date',
-                'KeyType': 'RANGE'
-            }
-        ],
-    }
+    dynamodb_table_configuration = config.dynamo_price_table_conf
+
     dynamodb_insert_transaction = "INSERT INTO \"prices\" VALUE {'ticker': ?, 'date': ?, 'open': ?, 'close': ? }"
     dynamodb_price_query = "SELECT \"date\", \"open\", \"close\" FROM \"prices\" WHERE \"ticker\"=? AND \"date\">=? AND \"date\"<=?"
     # No PartiQL ORDER BY clause yet: https://github.com/partiql/partiql-lang-kotlin/issues/47
@@ -232,24 +211,24 @@ class PriceCache():
     def save_rows(self, ticker, prices):
         self._update_internal_cache(ticker, prices)
         logger.verbose(
-            F'Attempting to insert {ticker} prices to cache', 'save_rows')
+            F'Attempting to insert {ticker} prices to cache', 'ProfileCache.save_rows')
         Cache.execute(
             query=self._insert(),
             formatter=self._to_params(ticker, prices),
             mode=self.mode
         )
 
-    def filter_price_cache(self, ticker, start_date, end_date):
+    def filter(self, ticker, start_date, end_date):
         if ticker in list(self.internal_cache):
             prices = self._retrieve_from_internal_cache(
                 ticker, start_date, end_date)
             if prices is not None:
                 logger.debug(f'{ticker} prices found in memory',
-                             'ProfileCachce.filter_profile_cache')
+                             'ProfileCachce.filter')
                 return prices
 
         logger.debug(
-            f'Querying {self.mode} cache \n\t{self._query()}\n\t\t with :ticker={ticker}, :start_date={start_date}, :end_date={end_date}', 'filter_price_cache')
+            f'Querying {self.mode} cache \n\t{self._query()}\n\t\t with :ticker={ticker}, :start_date={start_date}, :end_date={end_date}', 'ProfileCache.filter')
         formatter = {'ticker': ticker,
                      'start_date': start_date, 'end_date': end_date}
         results = Cache.execute(
@@ -259,12 +238,12 @@ class PriceCache():
 
         if len(results) > 0:
             logger.debug(
-                f'Found {ticker} prices in the cache', 'filter_price_cache')
+                f'Found {ticker} prices in the cache', 'ProfileCache.filter')
             prices = self.to_dict(results)
             self._update_internal_cache(ticker, prices)
             return prices
         logger.debug(
-            f'No results found for {ticker} prices in the cache', 'filter_price_cache')
+            f'No results found for {ticker} prices in the cache', 'ProfileCache.filter')
         return None
 
 
@@ -291,29 +270,7 @@ class InterestCache():
     sqlite_insert_row_transaction = "INSERT OR IGNORE INTO interest (maturity, date, value) VALUES (:maturity, :date, :value)"
     sqlite_interest_query = "SELECT date, value FROM interest WHERE maturity=:maturity AND date <=date(:end_date) AND date>=date(:start_date) ORDER BY date(date) DESC"
 
-    dynamodb_table_configuration = {
-        'AttributeDefinitions': [
-            {
-                'AttributeName': 'maturity',
-                'AttributeType': 'S'
-            },
-            {
-                'AttributeName': 'date',
-                'AttributeType': 'S'
-            },
-        ],
-        'TableName': 'interest',
-        'KeySchema': [
-            {
-                'AttributeName': 'maturity',
-                'KeyType': 'HASH'
-            },
-            {
-                'AttributeName': 'date',
-                'KeyType': 'RANGE'
-            }
-        ],
-    }
+    dynamodb_table_configuration = config.dynamo_interest_table_conf
     dynamodb_insert_transaction = "INSERT INTO \"interest\" VALUE {'maturity': ?, 'date': ?, 'value': ? }"
     dynamodb_query = "SELECT \"date\", \"value\" FROM \"interest\" WHERE \"maturity\"=? AND \"date\">=? AND \"date\"<=?"
     # NOTE: No PartiQL ORDER BY clause yet: https://github.com/partiql/partiql-lang-kotlin/issues/47
@@ -353,9 +310,6 @@ class InterestCache():
                 params.append(entry)
         return params
 
-    @staticmethod
-    def _from_cache(rates, maturity):
-        pass
 
     def __init__(self, mode=settings.CACHE_MODE):
         self.internal_cache = {}
@@ -424,16 +378,17 @@ class InterestCache():
             formatter=self._to_params(rates)
         )
 
-    def filter_interest_cache(self, maturity, start_date, end_date):
+    def filter(self, maturity, start_date, end_date):
         rates = self._retrieve_from_internal_cache(
             maturity, start_date, end_date)
         if rates is not None:
             logger.debug(f'{maturity} interet found in memory',
-                         'InterestCache.filter_profile_cache')
+                         'InterestCache.filter')
             return rates
 
         logger.debug(
-            f'Querying {self.mode} cache \n\t{self._query()}\n\t\t with :maturity={maturity}, :start_date={start_date}, :end_date={end_date}', 'InterestCache.filter_interest_cache')
+            f'Querying {self.mode} cache \n\t{self._query()}\n\t\t with :maturity={maturity}, :start_date={start_date}, :end_date={end_date}', 
+            'InterestCache.filter')
         formatter = {'maturity': maturity,
                      'start_date': start_date, 'end_date': end_date}
         results = Cache.execute(
@@ -441,13 +396,13 @@ class InterestCache():
 
         if len(results) > 0:
             logger.debug(
-                f'Found {maturity} yield on in the cache', 'InterestCache.filter_interest_cache')
+                f'Found {maturity} yield on in the cache', 'InterestCache.filter')
             rates = self.to_dict(results)
             self._update_internal_cache(rates, maturity)
             return rates
 
         logger.debug(
-            f'No results found for {maturity} yield in cache', 'InterestCache.filter_interest_cache')
+            f'No results found for {maturity} yield in cache', 'InterestCache.filter')
         return None
 
 
@@ -467,113 +422,17 @@ class CorrelationCache():
     .. notes::
         * do not need to order `correlation_query` and `profile_query` because profiles and correlations are uniquely determined by the (`start_date`, `end_date`, 'ticker_1', 'ticker_2')-tuple. More or less. There is a bit of fuzziness, since the permutation of the previous tuple, ('start_date', 'end_date', 'ticker_2', 'ticker_1'), will also be associated with the same correlation value. No other mappings between a date's correlation value and the correlation's tickers are possible though. In other words, the query, for a given (ticker_1, ticker_2)-permutation will only ever return one result.
     """
+
+    __metaclass__ = Singleton
+
     sqlite_create_table_transaction = "CREATE TABLE IF NOT EXISTS correlations (ticker_1 TEXT, ticker_2 TEXT, start_date TEXT, end_date TEXT, correlation REAL, method TEXT, weekends INT)"
     sqlite_insert_row_transaction = "INSERT INTO correlations (ticker_1, ticker_2, start_date, end_date, correlation, method, weekends) VALUES (:ticker_1, :ticker_2, :start_date, :end_date, :correlation, :method, :weekends)"
     sqlite_correlation_query = "SELECT correlation FROM correlations WHERE ticker_1=:ticker_1 AND ticker_2=:ticker_2 AND start_date=date(:start_date) AND end_date=date(:end_date) AND method=:method AND weekends=:weekends"
 
-    # this dynamodb configuration won't work. the keyschema produces overlap, i.e. it's not unique.
-    # will have to concatenate ticker_1 and ticker_2 in dynamodb table.
-    dynamodb_table_configuration = {
-        'AttributeDefinitions': [
-            {
-                'AttributeName': 'id',
-                'AttributeType': 'S'
-            },
-            {
-                'AttributeName': 'ticker_1',
-                'AttributeType': 'S'
-            },
-            {
-                'AttributeName': 'ticker_2',
-                'AttributeType': 'S'
-            },
-            {
-                'AttributeName': 'start_date',
-                'AttributeType': 'S'
-            },
-            {
-                'AttributeName': 'end_date',
-                'AttributeType': 'S'
-            },
-            {
-                'AttributeName': 'method',
-                'AttributeType': 'S'
-            },
-            {
-                'AttributeName': 'weekends',
-                'AttributeType': 'N'
-            },
-        ],
-        'TableName': 'correlations',
-        'KeySchema': [
-            {
-                'AttributeName': 'id',
-                'KeyType': 'HASH'
-            },
-        ],
-        'GlobalSecondaryIndexes': [
-            {
-                'IndexName': 'AssetTelescoping1',
-                'KeySchema': [
-                    {
-                        'AttributeName': 'ticker_1',
-                        'KeyType': 'HASH'
-                    },
-                    {
-                        'AttributeName': 'start_date',
-                        'KeyType': 'RANGE'
-                    }
-                ],
-                'Projection': {
-                    'ProjectionType': 'KEYS_ONLY'
-                }
-            },
-            {
-                'IndexName': 'AssetTelescoping2',
-                'KeySchema': [
-                    {
-                        'AttributeName': 'ticker_2',
-                        'KeyType': 'HASH'
-                    },
-                    {
-                        'AttributeName': 'end_date',
-                        'KeyType': 'RANGE'
-                    },
-                ],
-                'Projection': {
-                    'ProjectionType': 'KEYS_ONLY'
-                }
-            },
-            {
-                'IndexName': 'WeekendTelescoping',
-                'KeySchema': [
-                    {
-                        'AttributeName': 'weekends',
-                        'KeyType': 'HASH'
-                    }
-                ],
-                'Projection': {
-                    'ProjectionType': 'KEYS_ONLY'
-                }
-            },
-            {
-                'IndexName': 'EstimationTelescoping',
-                'KeySchema': [
-                    {
-                        'AttributeName': 'method',
-                        'KeyType': 'HASH'
-                    },
-                ],
-                'Projection': {
-                    'ProjectionType': 'ALL',
-                }
-            },
-        ]
-    }
-    # be careful with the dates here. order matters.
-    dynamodb_insert_transaction = "INSERT INTO \"correlations\" VALUE { 'ticker_1': ?, 'ticker_2': ?, 'end_date': ?, 'start_date': ?, 'correlation': ?, 'method': ?, 'weekends': ?, 'id': ? }"
-    dynamodb_query = "SELECT correlation FROM \"correlations\" WHERE ticker_1=? AND ticker_2=? AND start_date=? AND end_date=? AND method=? AND weekends=?"
-    dynamodb_identity_query = "EXISTS(SELECT correlation FROM \"correlations\" WHERE ticker_1=? AND ticker_2=? AND start_date=? AND end_date=? AND method=? AND weekends=?)"
+    dynamodb_table_configuration = config.dynamo_correlation_table_conf
+    dynamodb_insert_transaction = "INSERT INTO 'correlations' VALUE { 'ticker_1': ?, 'ticker_2': ?, 'end_date': ?, 'start_date': ?, 'method': ?, 'weekends': ?, 'id': ?, 'correlation': ? }"
+    dynamodb_query = "SELECT correlation FROM 'correlations' WHERE 'ticker_1'=? AND 'ticker_2'=? AND 'end_date'=? AND 'start_date'=? AND 'method'=? AND 'weekends'=?"
+    dynamodb_identity_query = "EXISTS(SELECT 'correlation' FROM 'correlations' WHERE 'ticker_1'=? AND 'ticker_2'=? AND 'end_date'=? AND 'start_date'=? AND 'method'=? AND 'weekends'=?)"
 
     @staticmethod
     def to_dict(query_results):
@@ -600,6 +459,7 @@ class CorrelationCache():
         return hashish_key
 
     def __init__(self, mode=settings.CACHE_MODE):
+        self.internal_cache = {}
         self.mode = mode
         if not files.get_memory_json()['cache'][mode]['correlations']:
             self._table()
@@ -625,6 +485,22 @@ class CorrelationCache():
         elif self.mode == 'dynamodb':
             return self.dynamodb_query
 
+    def _update_internal_cache(self, params, permuted_params, correlation):
+        correl_id = self.generate_id(params)
+        permuted_id = self.generate_id(permuted_params)
+        self.internal_cache[correl_id] = { 'correlation': correlation }
+        self.internal_cache[permuted_id] = { 'correlation': correlation }
+        pass
+
+    def _retrieve_from_internal_cache(self, params, permuted_params):
+        first_id = self.generate_id(params)
+        second_id = self.generate_id(permuted_params)
+        if first_id in list(self.internal_cache.keys()):
+            return self.internal_cache[first_id]
+        if second_id in list(self.internal_cache.keys()):
+            return self.internal_cache[second_id]
+        return None
+
     def save_row(self, ticker_1: str, ticker_2: str, start_date: datetime.date, end_date: datetime.date, correlation: float, weekends: bool, method: str = settings.ESTIMATION_METHOD):
         """
         Uses `self.insert_row_transaction` to save the passed-in information to the SQLite cache.
@@ -640,51 +516,66 @@ class CorrelationCache():
         7. **method**: ``str``
             *Optional*. Method used to calculate the correlation. Defaults to `scrilla.settings.ESTIMATION_METHOD`, which in turn is configured by the environment variable, *DEFAULT_ESTIMATION_METHOD*.
         """
+        # TODO: it would probably make more sense passing in **kwargs...
         logger.verbose(
-            f'Saving ({ticker_1}, {ticker_2}) correlation from {start_date} to {end_date} to the cache', 'save_row')
+            f'Saving ({ticker_1}, {ticker_2}) correlation from {start_date} to {end_date} to the cache', 
+            'CorrelationCache.save_row')
         formatter_1 = { 'ticker_1': ticker_1, 'ticker_2': ticker_2,
-                       'start_date': start_date, 'end_date': end_date,
-                       'correlation': correlation,
+                       'end_date': end_date, 'start_date': start_date, 
                        'method': method, 'weekends': weekends}
-        key_1 = self.generate_id(formatter_1)
-        formatter_1['id'] = key_1
-
         formatter_2 = {'ticker_1': ticker_2, 'ticker_2': ticker_1,
-                       'start_date': start_date, 'end_date': end_date,
-                       'correlation': correlation,
+                       'end_date': end_date, 'start_date': start_date,
                        'method': method, 'weekends': weekends}
+
+        # NOTE: if correlation or id are in the dictionary, it screws up this call, so 
+        # add them after this call. Either that, or add a conditional to the following
+        # method.
+        self._update_internal_cache(formatter_1, formatter_2, correlation)
+
+        key_1 = self.generate_id(formatter_1)
         key_2 = self.generate_id(formatter_2)
-        formatter_2['id'] = key_2
+
+        formatter_1.update({ 'id': key_1, 'correlation': correlation })
+        formatter_2.update({ 'id': key_2, 'correlation': correlation })
 
         Cache.execute(
-            query=self._insert(), formatter=formatter_1, mode=self.mode)
+            query=self._insert(), formatter=[formatter_1, formatter_2], mode=self.mode)
         Cache.execute(
             query=self._insert(), formatter=formatter_2, mode=self.mode)
 
-    def filter_correlation_cache(self, ticker_1, ticker_2, start_date, end_date, weekends, method=settings.ESTIMATION_METHOD):
-        formatter_1 = {'ticker_1': ticker_1, 'ticker_2': ticker_2, 'method': method,
-                       'start_date': start_date, 'end_date': end_date, 'weekends': weekends}
-        formatter_2 = {'ticker_1': ticker_2, 'ticker_2': ticker_1, 'method': method,
-                       'start_date': start_date, 'end_date': end_date, 'weekends': weekends}
+    def filter(self, ticker_1, ticker_2, start_date, end_date, weekends, method=settings.ESTIMATION_METHOD):
+        formatter_1 = {'ticker_1': ticker_1, 'ticker_2': ticker_2, 
+                        'end_date': end_date, 'start_date': start_date,
+                        'method': method, 'weekends': weekends}
+        formatter_2 = {'ticker_1': ticker_2, 'ticker_2': ticker_1, 
+                        'end_date': end_date, 'start_date': start_date,
+                        'method': method, 'weekends': weekends}
+
+        memory = self._retrieve_from_internal_cache(formatter_1, formatter_2)
+        if memory is not None:
+            return memory
 
         logger.debug(
-            f'Querying {self.mode} cache \n\t{self._query()}\n\t\t with :ticker_1={ticker_1}, :ticker_2={ticker_2},:start_date={start_date}, :end_date={end_date}', 'filter_correlation_cache')
+            f'Querying {self.mode} cache \n\t{self._query()}\n\t\t with :ticker_1={ticker_1}, :ticker_2={ticker_2},:start_date={start_date}, :end_date={end_date}', 'CorrelationCache.filter')
         results = Cache.execute(
             query=self._query(), formatter=formatter_1, mode=self.mode)
 
         if len(results) > 0:
             logger.debug(
-                f'Found ({ticker_1},{ticker_2}) correlation in the cache', 'filter_correlation_cache')
-            return self.to_dict(results)
+                f'Found ({ticker_1},{ticker_2}) correlation in the cache', 'CorrelationCache.filter')
+            correl = self.to_dict(results)
+            self._update_internal_cache(formatter_1, formatter_2, correl)
+            return correl
+        
         results = Cache.execute(
             query=self._query(), formatter=formatter_2, mode=self.mode)
 
         if len(results) > 0:
             logger.debug(
-                f'Found ({ticker_1},{ticker_2}) correlation in the cache', 'filter_correlation_cache')
+                f'Found ({ticker_1},{ticker_2}) correlation in the cache', 'CorrelationCache.filter')
             return self.to_dict(results)
         logger.debug(
-            f'No results found for ({ticker_1}, {ticker_2}) correlation in the cache', 'filter_correlation_cache')
+            f'No results found for ({ticker_1}, {ticker_2}) correlation in the cache', 'CorrelationCache.filter')
         return None
 
 
@@ -714,75 +605,9 @@ class ProfileCache():
     sqlite_profile_query = "SELECT ifnull(annual_return, 'empty'), ifnull(annual_volatility, 'empty'), ifnull(sharpe_ratio, 'empty'), ifnull(asset_beta, 'empty'), ifnull(equity_cost, 'empty') FROM profile WHERE {sqlite_filter}".format(
         sqlite_filter=sqlite_filter)
 
-    dynamodb_table_configuration = {
-        'AttributeDefinitions': [
-            {
-                'AttributeName': 'ticker',
-                'AttributeType': 'S'
-            },
-            {
-                'AttributeName': 'start_date',
-                'AttributeType': 'S'
-            },
-            {
-                'AttributeName': 'end_date',
-                'AttributeType': 'S'
-            },
-            {
-                'AttributeName': 'method',
-                'AttributeType': 'S'
-            },
-            {
-                'AttributeName': 'weekends',
-                'AttributeType': 'N'
-            }
-        ],
-        'TableName': 'profile',
-        'KeySchema': [
-            {
-                'AttributeName': 'ticker',
-                'KeyType': 'HASH'
-            },
-            {
-                'AttributeName': 'start_date',
-                'KeyType': 'RANGE'
-            }
-        ],
-        'GlobalSecondaryIndexes': [
-            {
-                'IndexName': 'DateTelescoping',
-                'KeySchema': [
-                    {
-                        'AttributeName': 'weekends',
-                        'KeyType': 'HASH'
-                    },
-                    {
-                        'AttributeName': 'end_date',
-                        'KeyType': 'RANGE'
-                    },
-                ],
-                'Projection': {
-                    'ProjectionType': 'KEYS_ONLY'
-                }
-            },
-            {
-                'IndexName': 'EstimationTelescoping',
-                'KeySchema': [
-                    {
-                        'AttributeName': 'method',
-                        'KeyType': 'HASH'
-                    },
-                ],
-                'Projection': {
-                    'ProjectionType': 'ALL',
-                }
-            }
-        ]
-    }
+    dynamodb_table_configuration = config.dynamo_profile_table_conf
     dynamodb_profile_query = "SELECT annual_return,annual_volatility,sharpe_ratio,asset_beta,equity_cost FROM \"profile\" WHERE ticker=? AND start_date=? AND end_date=? AND method=? AND weekends=?"
-    # TODO: exists() needs to be inside of a transaction, not query. however, the following transaction does not work for some reason...
-    # dynamodb_identity_query = "EXISTS(SELECT * FROM \"profile\" WHERE ticker=? AND start_date=? AND end_date=? AND method=? AND weekends=?)"
-    dynamodb_identity_query = "SELECT * FROM \"profile\" WHERE ticker =? AND start_date=? AND end_date=? AND method=? AND weekends=?"
+    dynamodb_identity_query = "EXISTS(SELECT * FROM \"profile\" WHERE ticker=? AND start_date=? AND end_date=? AND method=? AND weekends=?)"
 
     @staticmethod
     def to_dict(query_result, mode=settings.CACHE_MODE):
@@ -840,9 +665,9 @@ class ProfileCache():
                     insert_query += ")"
             return insert_query
         elif mode == 'dynamodb':
-            insert_query = "INSERT INTO \"profile\" VALUE {"
+            insert_query = "INSERT INTO 'profile' VALUE {"
             for param in params_and_filter.keys():
-                insert_query += f'\'{param}\': ?'
+                insert_query += f"'{param}': ?"
                 if list(params_and_filter.keys()).index(param) != len(params_and_filter)-1:
                     insert_query += ", "
                 else:
@@ -927,29 +752,29 @@ class ProfileCache():
         return Cache.execute(self._construct_update(params),
                              {**params, **filters}, self.mode)
 
-    def filter_profile_cache(self, ticker: str, start_date: datetime.date, end_date: datetime.date, weekends: int = 0, method=settings.ESTIMATION_METHOD):
+    def filter(self, ticker: str, start_date: datetime.date, end_date: datetime.date, weekends: int = 0, method=settings.ESTIMATION_METHOD):
         filters = {'ticker': ticker, 'start_date': start_date,
                    'end_date': end_date, 'method': method, 'weekends': weekends}
 
         in_memory = self._retrieve_from_internal_cache(filters)
         if in_memory:
             logger.debug(f'{ticker} profile found in memory',
-                         'ProfileCachce.filter_profile_cache')
+                         'ProfileCachce.filter')
             return in_memory
 
         logger.debug(
-            f'Querying {self.mode} cache: \n\t{self._query()}\n\t\t with :ticker={ticker}, :start_date={start_date}, :end_date={end_date}', 'ProfileCache.filter_profile_cache')
+            f'Querying {self.mode} cache: \n\t{self._query()}\n\t\t with :ticker={ticker}, :start_date={start_date}, :end_date={end_date}', 'ProfileCache.filter')
 
         result = Cache.execute(
             query=self._query(), formatter=filters, mode=self.mode)
 
         if len(result) > 0:
             logger.debug(f'{ticker} profile found in cache',
-                         'ProfileCache.filter_profile_cache')
+                         'ProfileCache.filter')
             self._update_internal_cache(self.to_dict(result), filters)
             return self.to_dict(result)
         logger.debug(
-            f'No results found for {ticker} profile in the cache', 'ProfileCache.filter_profile_cache')
+            f'No results found for {ticker} profile in the cache', 'ProfileCache.filter')
         return None
 
 

@@ -66,7 +66,7 @@ def test_sqlite_price_cache(ticker, date, price, sqlite_price_cache):
     with HTTMock(mock.mock_prices):
         get_daily_price_history(
             ticker=ticker, start_date=test_settings.START, end_date=test_settings.END)
-    cache_results = sqlite_price_cache.filter_price_cache(
+    cache_results = sqlite_price_cache.filter(
         ticker=ticker, start_date=date, end_date=date)
     assert(len(cache_results) ==
            1 and cache_results[date][keys.keys['PRICES']['CLOSE']] == price)
@@ -83,7 +83,7 @@ def test_sqlite_interest_cache(maturity, date, yield_rate, sqlite_interest_cache
     with HTTMock(mock.mock_interest):
         get_daily_interest_history(
             maturity=maturity, start_date=test_settings.START, end_date=test_settings.END)
-    cache_results = sqlite_interest_cache.filter_interest_cache(
+    cache_results = sqlite_interest_cache.filter(
         maturity=maturity, start_date=date, end_date=date)
     assert(len(cache_results) == 1 and cache_results[date] == yield_rate)
 

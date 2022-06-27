@@ -564,7 +564,7 @@ def _calculate_likelihood_risk_return(ticker, start_date: Union[date, None] = No
     if sample_prices is None:
         start_date, end_date = errors.validate_dates(
             start_date, end_date, asset_type)
-        results = profile_cache.filter_profile_cache(ticker=ticker, start_date=start_date, end_date=end_date,
+        results = profile_cache.filter(ticker=ticker, start_date=start_date, end_date=end_date,
                                                      method=keys.keys['ESTIMATION']['LIKE'])
 
         if results is not None \
@@ -664,7 +664,7 @@ def _calculate_percentile_risk_return(ticker: str, start_date: Union[date, None]
             start_date, end_date = errors.validate_dates(
                 start_date, end_date, keys.keys['ASSETS']['EQUITY'])
 
-        results = profile_cache.filter_profile_cache(ticker=ticker, start_date=start_date, end_date=end_date,
+        results = profile_cache.filter(ticker=ticker, start_date=start_date, end_date=end_date,
                                                      method=keys.keys['ESTIMATION']['PERCENT'],
                                                      weekends=weekends)
 
@@ -774,7 +774,7 @@ def _calculate_moment_risk_return(ticker: str, start_date: Union[date, None] = N
             start_date, end_date = errors.validate_dates(
                 start_date, end_date, keys.keys['ASSETS']['EQUITY'])
 
-        results = profile_cache.filter_profile_cache(ticker=ticker, start_date=start_date, end_date=end_date,
+        results = profile_cache.filter(ticker=ticker, start_date=start_date, end_date=end_date,
                                                      method=keys.keys['ESTIMATION']['MOMENT'], weekends=weekends)
 
         if results is not None \
@@ -944,7 +944,7 @@ def _calculate_percentile_correlation(ticker_1: str, ticker_2: str, asset_type_1
                                                      asset_type=keys.keys['ASSETS']['EQUITY'])
 
     if sample_prices is None:
-        correlation = correlation_cache.filter_correlation_cache(ticker_1=ticker_1, ticker_2=ticker_2,
+        correlation = correlation_cache.filter(ticker_1=ticker_1, ticker_2=ticker_2,
                                                                  start_date=start_date, end_date=end_date,
                                                                  weekends=weekends,
                                                                  method=keys.keys['ESTIMATION']['PERCENT'])
@@ -1096,7 +1096,7 @@ def _calculate_likelihood_correlation(ticker_1: str, ticker_2: str, asset_type_1
                                                      asset_type=keys.keys['ASSETS']['EQUITY'])
 
     if sample_prices is None:
-        correlation = correlation_cache.filter_correlation_cache(ticker_1=ticker_1, ticker_2=ticker_2,
+        correlation = correlation_cache.filter(ticker_1=ticker_1, ticker_2=ticker_2,
                                                                  start_date=start_date, end_date=end_date,
                                                                  weekends=weekends,
                                                                  method=keys.keys['ESTIMATION']['LIKE'])
@@ -1226,7 +1226,7 @@ def _calculate_moment_correlation(ticker_1: str, ticker_2: str, asset_type_1: Un
                                                      asset_type=keys.keys['ASSETS']['EQUITY'])
 
     if sample_prices is None:
-        correlation = correlation_cache.filter_correlation_cache(ticker_1=ticker_1, ticker_2=ticker_2,
+        correlation = correlation_cache.filter(ticker_1=ticker_1, ticker_2=ticker_2,
                                                                  start_date=start_date, end_date=end_date,
                                                                  weekends=weekends,
                                                                  method=keys.keys['ESTIMATION']['MOMENT'])

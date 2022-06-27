@@ -613,7 +613,7 @@ def get_daily_price_history(ticker: str, start_date: Union[None, date] = None, e
     start_date, end_date = errors.validate_dates(
         start_date, end_date, asset_type)
 
-    cached_prices = price_cache.filter_price_cache(
+    cached_prices = price_cache.filter(
         ticker=ticker, start_date=start_date, end_date=end_date)
 
     if cached_prices is not None:
@@ -761,7 +761,7 @@ def get_daily_interest_history(maturity: str, start_date: Union[date, None] = No
     start_date, end_date = errors.validate_dates(
         start_date=start_date, end_date=end_date, asset_type=keys.keys['ASSETS']['EQUITY'])
 
-    rates = interest_cache.filter_interest_cache(
+    rates = interest_cache.filter(
         maturity, start_date=start_date, end_date=end_date)
 
     if rates is not None:

@@ -59,7 +59,7 @@ def sharpe_ratio(ticker: str, start_date: Union[date, None] = None, end_date: Un
                                                  asset_type=keys.keys['ASSETS']['EQUITY'])
 
     if cache_in and ticker_profile is None:
-        result = profile_cache.filter_profile_cache(
+        result = profile_cache.filter(
             ticker=ticker, start_date=start_date, end_date=end_date, method=method)
 
         if result is not None and keys.keys['STATISTICS']['SHARPE'] in list(result.keys()) and \
@@ -104,7 +104,7 @@ def market_premium(start_date: Union[date, None] = None, end_date: Union[date, N
                                                  asset_type=keys.keys['ASSETS']['EQUITY'])
 
     if market_profile is None:
-        market_profile = profile_cache.filter_profile_cache(
+        market_profile = profile_cache.filter(
             # TODO: may not want to save right here...should abstract into market_info or something, so all
             ticker=settings.MARKET_PROXY, start_date=start_date, end_date=end_date, method=method)
         #       market information is calculated at once and saved at once, to reduce the number of writes.
@@ -143,7 +143,7 @@ def market_beta(ticker: str, start_date: Union[date, None] = None, end_date: Uni
     start_date, end_date = errors.validate_dates(start_date=start_date, end_date=end_date,
                                                  asset_type=keys.keys['ASSETS']['EQUITY'])
     if cache_in and ticker_profile is None:
-        ticker_profile = profile_cache.filter_profile_cache(
+        ticker_profile = profile_cache.filter(
             ticker=ticker, start_date=start_date, end_date=end_date, method=method)
 
     if ticker_profile is not None and keys.keys['STATISTICS']['BETA'] in list(ticker_profile.keys()) and \
@@ -209,7 +209,7 @@ def cost_of_equity(ticker: str, start_date: Union[datetime.date, None] = None, e
                                                  asset_type=keys.keys['ASSETS']['EQUITY'])
 
     if cache_in and ticker_profile is None:
-        ticker_profile = profile_cache.filter_profile_cache(
+        ticker_profile = profile_cache.filter(
             ticker=ticker, start_date=start_date, end_date=end_date, method=method)
 
     if ticker_profile is not None and keys.keys['STATISTICS']['EQUITY'] in list(ticker_profile.keys()) and\
