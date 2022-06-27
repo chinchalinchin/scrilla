@@ -389,7 +389,7 @@ class InterestCache():
 
     def _update_internal_cache(self, values, maturity):
         for date in values.keys():
-            if self.internal_cache.get(date, None) is None:
+            if self.internal_cache.get(date) is None:
                 self.internal_cache[date] = [
                     None for _ in keys.keys['YIELD_CURVE']]
             self.internal_cache[date][keys.keys['YIELD_CURVE'].index(
