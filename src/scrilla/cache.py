@@ -843,8 +843,12 @@ class ProfileCache():
     def _update_internal_cache(self, profile, keys):
         key = self._create_cache_key(keys)
         self.internal_cache[key] = profile
+        print('updated')
+        print(self.internal_cache)
 
     def _retrieve_from_internal_cache(self, keys):
+        print('retrieving')
+        print(self.internal_cache)
         key = self._create_cache_key(keys)
         if key in list(self.internal_cache.keys()):
             return self.internal_cache[key]
@@ -898,6 +902,9 @@ class ProfileCache():
 
         in_memory = self._retrieve_from_internal_cache(filters)
         if in_memory:
+            logger.debug(f'{ticker} profile found in memory',
+                         'ProfileCachce.filter_profile_cache')
+            print(in_memory)
             return in_memory
 
         result = Cache.execute(
@@ -906,6 +913,7 @@ class ProfileCache():
         if len(result) > 0:
             logger.debug(f'{ticker} profile found in cache',
                          'ProfileCachce.filter_profile_cache')
+            self._update_internal_cache(self.to_dict(result), filters)
             return self.to_dict(result)
         logger.debug(
             f'No results found for {ticker} profile in the cache', 'ProfileCache.filter_profile_cache')
