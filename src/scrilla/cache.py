@@ -410,7 +410,7 @@ class InterestCache():
                 self.internal_cache.items(), start_index, end_index+1))
             rates = {key: rates[key][keys.keys['YIELD_CURVE'].index(
                 maturity)] for key in rates}
-            logger.debug(f'Found interest in memory',
+            logger.debug('Found interest in memory',
                          'InterestCache._retrieve_from_internal_cache')
             return rates
 
@@ -418,7 +418,7 @@ class InterestCache():
         # NOTE: at this point, rates should look like { 'date': [rates], 'date': [rates], ...}
         self._save_internal_cache(rates)
         logger.verbose(
-            F'Attempting to insert interest rates into cache', 'InterestCache.save_rows')
+            'Attempting to insert interest rates into cache', 'InterestCache.save_rows')
         Cache.execute(
             query=self._insert(),
             formatter=self._to_params(rates)
@@ -885,7 +885,7 @@ class ProfileCache():
         identity = Cache.execute(self._identity(), filters, self.mode)
 
         logger.verbose(
-            F'Attempting to insert/update risk profile into cache', 'ProfileCache.save_or_update_rows')
+            'Attempting to insert/update risk profile into cache', 'ProfileCache.save_or_update_rows')
 
         if len(identity) == 0:
             return Cache.execute(self._construct_insert({**params, **filters}),
