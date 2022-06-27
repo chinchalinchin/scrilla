@@ -476,6 +476,10 @@ class CorrelationCache():
     dynamodb_table_configuration = {
         'AttributeDefinitions': [
             {
+                'AttributeName': 'id',
+                'AttributeType': 'S'
+            },
+            {
                 'AttributeName': 'ticker_1',
                 'AttributeType': 'S'
             },
@@ -503,17 +507,29 @@ class CorrelationCache():
         'TableName': 'correlations',
         'KeySchema': [
             {
-                'AttributeName': 'ticker_1',
+                'AttributeName': 'id',
                 'KeyType': 'HASH'
             },
-            {
-                'AttributeName': 'start_date',
-                'KeyType': 'RANGE'
-            }
         ],
         'GlobalSecondaryIndexes': [
             {
-                'IndexName': 'AssetTelescoping',
+                'IndexName': 'AssetTelescoping1',
+                'KeySchema': [
+                    {
+                        'AttributeName': 'ticker_1',
+                        'KeyType': 'HASH'
+                    },
+                    {
+                        'AttributeName': 'start_date',
+                        'KeyType': 'RANGE'
+                    }
+                ],
+                'Projection': {
+                    'ProjectionType': 'KEYS_ONLY'
+                }
+            },
+            {
+                'IndexName': 'AssetTelescoping2',
                 'KeySchema': [
                     {
                         'AttributeName': 'ticker_2',
@@ -555,7 +571,7 @@ class CorrelationCache():
         ]
     }
     # be careful with the dates here. order matters.
-    dynamodb_insert_transaction = "INSERT INTO \"correlations\" VALUE {'ticker_1': ?, 'ticker_2': ?, 'end_date': ?, 'start_date': ?, 'correlation': ?, 'method': ?, 'weekends': ? }"
+    dynamodb_insert_transaction = "INSERT INTO \"correlations\" VALUE { 'ticker_1': ?, 'ticker_2': ?, 'end_date': ?, 'start_date': ?, 'correlation': ?, 'method': ?, 'weekends': ?, 'id': ? }"
     dynamodb_query = "SELECT correlation FROM \"correlations\" WHERE ticker_1=? AND ticker_2=? AND start_date=? AND end_date=? AND method=? AND weekends=?"
     dynamodb_identity_query = "EXISTS(SELECT correlation FROM \"correlations\" WHERE ticker_1=? AND ticker_2=? AND start_date=? AND end_date=? AND method=? AND weekends=?)"
 
@@ -570,6 +586,18 @@ class CorrelationCache():
             Raw SQLite query results.
         """
         return {keys.keys['STATISTICS']['CORRELATION']: query_results[0][0]}
+
+    @staticmethod
+    def generate_id(params):
+        hashish_key=''
+        for param in params.values():
+            if isinstance(param, str):
+                hashish_key += param
+            elif isinstance(param, (float, int)):
+                hashish_key += str(param)
+            elif isinstance(param, datetime.date):
+                hashish_key += dater.to_string(param)
+        return hashish_key
 
     def __init__(self, mode=settings.CACHE_MODE):
         self.mode = mode
@@ -614,14 +642,20 @@ class CorrelationCache():
         """
         logger.verbose(
             f'Saving ({ticker_1}, {ticker_2}) correlation from {start_date} to {end_date} to the cache', 'save_row')
-        formatter_1 = {'ticker_1': ticker_1, 'ticker_2': ticker_2,
+        formatter_1 = { 'ticker_1': ticker_1, 'ticker_2': ticker_2,
                        'start_date': start_date, 'end_date': end_date,
                        'correlation': correlation,
                        'method': method, 'weekends': weekends}
+        key_1 = self.generate_id(formatter_1)
+        formatter_1['id'] = key_1
+
         formatter_2 = {'ticker_1': ticker_2, 'ticker_2': ticker_1,
                        'start_date': start_date, 'end_date': end_date,
                        'correlation': correlation,
                        'method': method, 'weekends': weekends}
+        key_2 = self.generate_id(formatter_2)
+        formatter_2['id'] = key_2
+
         Cache.execute(
             query=self._insert(), formatter=formatter_1, mode=self.mode)
         Cache.execute(
