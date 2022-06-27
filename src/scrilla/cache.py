@@ -816,15 +816,15 @@ class ProfileCache():
             return insert_query
 
     @staticmethod
-    def _create_cache_key(keys):
+    def _create_cache_key(filters):
         hashish_key = ''
-        for key in keys.values():
-            if isinstance(key, str):
-                hashish_key += key
-            elif isinstance(key, (int, float)):
-                hashish_key += str(key)
-            elif isinstance(key, datetime.date):
-                hashish_key += dater.to_string(key)
+        for filt in filters.values():
+            if isinstance(filt, str):
+                hashish_key += filt
+            elif isinstance(filt, (int, float)):
+                hashish_key += str(filt)
+            elif isinstance(filt, datetime.date):
+                hashish_key += dater.to_string(filt)
         return hashish_key
 
     def __init__(self, mode=settings.CACHE_MODE):
