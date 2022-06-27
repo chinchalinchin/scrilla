@@ -276,12 +276,16 @@ class InterestCache():
 
     Attributes
     ----------
-    1. **create_table_transaction**: ``str``
+    1. **sqlite_create_table_transaction**: ``str``
         *SQLite* transaction passed to the super class used to create correlation cache table if it does not already exist.
-    2. **insert_row_transaction**: ``str``
+    2. **sqlite_insert_row_transaction**: ``str``
         *SQLite* transaction used to insert row into correlation cache table.
-    3. **int_query**: ``str```
+    3. **sqlite_interest_query**: ``str```
         *SQLite* query to retrieve an interest from cache.
+    4. **dynamodb_table_configuration**: ``str``
+    5. **dynamo_insert_transaction**: ``str``
+    6. **dynamo_query**: ``str``
+    7. **dynamo_identity_query**: ``str``
     """
     __metaclass__ = Singleton
 
@@ -314,7 +318,7 @@ class InterestCache():
     }
     dynamodb_insert_transaction = "INSERT INTO \"interest\" VALUE {'maturity': ?, 'date': ?, 'value': ? }"
     dynamodb_query = "SELECT \"date\", \"value\" FROM \"interest\" WHERE \"maturity\"=? AND \"date\">=? AND \"date\"<=?"
-    # No PartiQL ORDER BY clause yet: https://github.com/partiql/partiql-lang-kotlin/issues/47
+        # NOTE: No PartiQL ORDER BY clause yet: https://github.com/partiql/partiql-lang-kotlin/issues/47
     dynamodb_identity_query = "EXISTS(SELECT 'maturity' FROM \"interest\" WHERE 'maturity'=? AND 'date'<= ?)"
 
     @staticmethod
@@ -351,6 +355,7 @@ class InterestCache():
                 params.append(entry)
         return params
 
+
     def __init__(self, mode=settings.CACHE_MODE):
         self.internal_cache = {}
         self.mode = mode
@@ -378,12 +383,20 @@ class InterestCache():
         elif self.mode == 'dynamodb':
             return self.dynamodb_query
 
-    def _update_internal_cache(self, rates):
+    def _save_internal_cache(self, rates):
         self.internal_cache.update(rates)
+        print('saved')
+        print(self.internal_cache)
 
-    # TODO: something is amiss with the internal cache. the root of the problem lies in how the cache is formatted. i think
-    # the format changes at some point (cant quite pin down where), and then the call to update_internal_cache messes it up.
-    # MAYBE?
+    def _update_internal_cache(self, values, maturity):
+        for date in values.keys():
+            if self.internal_cache.get(date, None) is None:
+                self.internal_cache[date] = [ None for _ in keys.keys['YIELD_CURVE']]
+            self.internal_cache[date][keys.keys['YIELD_CURVE'].index(maturity)] = values[date]
+        
+        print('updated')
+        print(self.internal_cache)
+
     def _retrieve_from_internal_cache(self, maturity, start_date, end_date):
         dates = list(self.internal_cache.keys())
         start_string = dater.to_string(start_date)
@@ -403,7 +416,8 @@ class InterestCache():
             return rates
 
     def save_rows(self, rates):
-        self._update_internal_cache(rates)
+        # NOTE: at this point, rates should look like { 'date': [rates], 'date': [rates], ...}
+        self._save_internal_cache(rates)
         logger.verbose(
             F'Attempting to insert interest rates into cache', 'save_rows')
         Cache.execute(
@@ -428,7 +442,7 @@ class InterestCache():
             logger.debug(
                 f'Found {maturity} yield on in the cache', 'filter_interest_cache')
             rates = self.to_dict(results)
-            self._update_internal_cache(results)
+            self._update_internal_cache(rates, maturity)
             return rates
 
         logger.debug(
