@@ -73,6 +73,7 @@ price_internal_cache_case_query_results = (*price_internal_cache_case,
     ]
 )
 
+print(price_internal_cache_case_query_results)
 
 interest_internal_cache_case = (
     {
@@ -178,7 +179,7 @@ def test_sqlite_interest_cache(maturity, date, yield_rate, sqlite_interest_cache
         get_daily_interest_history(
             maturity=maturity, start_date=test_settings.START, end_date=test_settings.END)
     cache_results = sqlite_interest_cache.filter(
-        maturity=maturity, start_date=date, end_date=date)
+        maturity=maturity, start_date=dater.parse(date), end_date=dater.parse(date))
     assert(len(cache_results) == 1 and cache_results[date] == yield_rate)
 
 
@@ -425,7 +426,7 @@ def test_interest_internal_cache_save_hook(rates, expected, sqlite_interest_cach
 # TODO: same for profile, but make sure both insert/update paths are hit
 
 
-@pytest.mark.parametrize('ticker,prices,expected', [price_internal_cache_case_query_results])
+@pytest.mark.parametrize('ticker,prices,expected,query_results', [price_internal_cache_case_query_results])
 def test_price_internal_cache_update_hook(ticker, prices, expected, query_results, sqlite_price_cache):
     with patch('scrilla.cache.sqlite3') as mocksqlite:
         mocksqlite.connect().cursor().fetchall.return_value = query_results
