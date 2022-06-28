@@ -50,7 +50,9 @@ This will install a command line interface on your path under the name `scrilla`
 scrilla version
 ```
 
-If you are on Windows, you may need to add your Python scripts bin to the $PATH. To keep the installation as minimal as possible, the base package does not include the GUI libraries. You can install the optional GUI dependency with,
+You may need to add your Python scripts _/bin/_ to the $PATH if this command is not found. 
+
+To keep the installation as minimal as possible, the base package does not include the GUI libraries. You can install the optional GUI dependency ([PySide6](https://pypi.org/project/PySide6/)) with,
 
 ```shell
 pip install scrilla[gui]
@@ -64,7 +66,7 @@ scrilla-gui
 
 ### Source
 
-If you prefer, you can build from source. `git clone` the [repository](https://github.com/chinchalinchin/scrilla) and then from the root directory install the project dependencies and build the library,
+If you are developing, you can build from source. `git clone` the [repository](https://github.com/chinchalinchin/scrilla) and then from the root directory install the project dependencies and build the library,
 
 ```shell
 pip3 install -r requirements.txt
@@ -141,7 +143,8 @@ scrilla plot-ef SPY GLD USO \
     --start <YYYY-MM-DD> \ 
     --end <YYYY-MM-DD> 
 ```
-See [usage](https://chinchalinchin.github.io/scrilla/USAGE.html) for more information.
+
+_scrilla_ has lots of other functions. See [usage](https://chinchalinchin.github.io/scrilla/USAGE.html) for more information.
 
 
 ## Cloud
