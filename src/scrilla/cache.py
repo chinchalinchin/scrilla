@@ -19,17 +19,10 @@ This module provides a data access layer for a SQLite database maintained on the
 In addition to preventing excessive API calls, the cache prevents redundant calculations. For example, calculating the market beta for a series of assets requires the variance of the market proxy for each calculation. Rather than recalculate this quantity each time, the program will defer to the values stored in the cache.
 """
 import itertools
-from scrilla import settings
-
-if settings.CACHE_MODE == 'sqlite':
-    import sqlite3
-elif settings.CACHE_MODE == 'dynamodb':
-    from scrilla.cloud import aws
-
 import datetime
 from typing import Union
 
-from scrilla import files
+from scrilla import files, settings
 from scrilla.static import config, keys
 from scrilla.util import dater, errors, outputter
 
@@ -55,6 +48,8 @@ class Cache():
     @staticmethod
     def provision(table_configuration, mode=settings.CACHE_MODE):
         if mode == 'dynamodb':
+            from scrilla.cloud import aws
+
             return aws.dynamo_table(table_configuration)
 
     @staticmethod
@@ -70,6 +65,8 @@ class Cache():
             Dictionary of parameters used to format statement. Statements are formatted with DB-API's name substitution. See [sqlite3 documentation](https://docs.python.org/3/library/sqlite3.html) for more information. A list of dictionaries can be passed in to perform a batch execute transaction. If nothing is passed in, method will assume the query is unparameterized.
         """
         if mode == 'sqlite':
+            import sqlite3
+
             con = sqlite3.connect(settings.CACHE_SQLITE_FILE)
             executor = con.cursor()
             if formatter is not None:
@@ -82,6 +79,8 @@ class Cache():
                 response = executor.execute(query).fetchall()
             con.commit(), con.close()
         elif mode == 'dynamodb':
+            from scrilla.cloud import aws
+
             response = aws.dynamo_statement(query, formatter)
         else:
             raise errors.ConfigurationError(
@@ -166,9 +165,11 @@ class PriceCache():
             Cache.execute(query=self.sqlite_create_table_transaction,
                           mode=self.mode)
         elif self.mode == 'dynamodb':
+            from scrilla.cloud import aws
+
             self.dynamodb_table_configuration = aws.dynamo_table_conf(
                 self.dynamodb_table_configuration)
-            Cache.provision(self.dynamodb_table_configuration)
+            Cache.provision(self.dynamodb_table_configuration, self.mode)
 
     def _insert(self):
         if self.mode == 'sqlite':
@@ -318,9 +319,11 @@ class InterestCache():
             Cache.execute(query=self.sqlite_create_table_transaction,
                           mode=self.mode)
         elif self.mode == 'dynamodb':
+            from scrilla.cloud import aws
+
             self.dynamodb_table_configuration = aws.dynamo_table_conf(
                 self.dynamodb_table_configuration)
-            Cache.provision(self.dynamodb_table_configuration)
+            Cache.provision(self.dynamodb_table_configuration, self.mode)
 
     def _insert(self):
         if self.mode == 'sqlite':
@@ -465,9 +468,10 @@ class CorrelationCache():
             Cache.execute(query=self.sqlite_create_table_transaction,
                           mode=self.mode)
         elif self.mode == 'dynamodb':
+            from scrilla.cloud import aws
             self.dynamodb_table_configuration = aws.dynamo_table_conf(
                 self.dynamodb_table_configuration)
-            Cache.provision(self.dynamodb_table_configuration)
+            Cache.provision(self.dynamodb_table_configuration, self.mode)
 
     def _insert(self):
         if self.mode == 'sqlite':
@@ -703,9 +707,11 @@ class ProfileCache():
             Cache.execute(query=self.sqlite_create_table_transaction,
                           mode=self.mode)
         elif self.mode == 'dynamodb':
+            from scrilla.cloud import aws
+
             self.dynamodb_table_configuration = aws.dynamo_table_conf(
                 self.dynamodb_table_configuration)
-            Cache.provision(self.dynamodb_table_configuration)
+            Cache.provision(self.dynamodb_table_configuration, self.mode)
 
     def _query(self):
         if self.mode == 'sqlite':

@@ -1,7 +1,8 @@
 import pytest
 
-from scrilla.static import keys
-from scrilla.cache import PriceCache, InterestCache, ProfileCache
+from scrilla import settings
+from scrilla.static import keys, config
+from scrilla.cache import CorrelationCache, PriceCache, InterestCache, ProfileCache
 from scrilla.files import clear_cache
 from scrilla.services import get_daily_price_history, get_daily_interest_history
 from scrilla.util import dater
@@ -10,6 +11,7 @@ from unittest.mock import patch
 from .. import mock_data, settings as test_settings
 from httmock import HTTMock
 from moto import mock_dynamodb
+import boto3
 
 # NOTE: moto hasn't implemented a mock backend for `execute_statement`, `execute_transaction` or `execute_batch_statements`,
 #       and the dynamodb cache functionality is implemented entirely (with the exception of creating and dropping tables)
@@ -45,11 +47,17 @@ def sqlite_interest_cache():
 def sqlite_profile_cache():
     return ProfileCache(mode='sqlite')
 
+@pytest.fixture()
+def sqlite_correlation_cache():
+    return CorrelationCache(mode='sqlite')
 
 @pytest.fixture()
 def dynamodb_price_cache():
     return PriceCache(mode='dynamodb')
 
+@pytest.fixture()
+def dynamodb_correlation_cache():
+    return CorrelationCache(mode='dynamodb')
 
 @pytest.fixture()
 def dynamodb_interest_cache():
@@ -190,3 +198,14 @@ def test_interest_internal_cache_update_hook(maturity, rates, expected, query_re
             assert internal_cache == expected[index]
 
 # TODO: update and save hook tests for profile and correlation cache
+
+def test_dynamodb_table_creation(dynamodb_price_cache, dynamodb_profile_cache, dynamodb_correlation_cache, dynamodb_interest_cache):
+    dynamo_tables = boto3.client('dynamodb').list_tables()['TableNames']
+    table_names = [
+        config.dynamo_price_table_conf['TableName'],
+        config.dynamo_interest_table_conf['TableName'],
+        config.dynamo_correlation_table_conf['TableName'],
+        config.dynamo_profile_table_conf['TableName']
+    ]
+    for table_name in table_names:
+        assert table_name in dynamo_tables
