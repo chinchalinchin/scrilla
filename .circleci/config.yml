@@ -147,18 +147,17 @@ commands:
       - run:
           name: coverage
           command: |
-            ls -al ./docs/coverage/
             mkdir /tmp/docs/
-            cp -ap ./docs/build/html/. /tmp/docs/
             mkdir /tmp/docs/coverage/
-            rm /tmp/docs/.gitignore
+            cp -ap ./docs/build/html/. /tmp/docs/
+            rm /tmp/docs/coverage/.gitignore
             cp -ap ./docs/coverage/. /tmp/docs/coverage/
             git checkout gh-pages
             git pull
             rm -rf ./coverage/*
             cp -ap /tmp/docs/. ./
-            ls -al coverage
             find -type f -name '*!home!circleci!.pyenv!versions!*' -delete
+            rm -f Makefile make.bat
             git config user.email "chinchalinchin@gmail.com"
             git config user.name "CircleCi Bot"
             git add .
@@ -167,6 +166,7 @@ commands:
         # No idea what the file *!home!circleci!.pyenv!versions!* is, but it's huge
         # and screws up the job. manually delete it until i figure out what is going on.
         # I think it probably has something to do with the cache?
+
 jobs:
   pypi_micro_update:
     docker:
