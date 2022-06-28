@@ -457,3 +457,6 @@ def test_internal_interest_cache(rates, expected, sqlite_interest_cache):
         for yield_index, maturity in enumerate(keys.keys['YIELD_CURVE']):
             sqlite_interest_cache._retrieve_from_internal_cache(maturity, real_date, real_date) ==\
                 expected[date_index*len(keys.keys['YIELD_CURVE'])+yield_index]
+
+# TODO: mock sqlite and filter cache, check to see if internal cache was updated
+# TODO: same for profile, but make sure both insert/update paths are hit
