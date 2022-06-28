@@ -152,11 +152,8 @@ class PriceCache(metaclass=Singleton):
     def __init__(self, mode=settings.CACHE_MODE):
         self.mode = mode
         self.internal_cache = {}
+        self.uuid = uuid.uuid4()
 
-        if not self.inited:
-            self.uuid = uuid.uuid4()
-            self.inited = True
-            
         if not files.get_memory_json()['cache'][mode]['prices']:
             self._table()
 

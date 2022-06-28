@@ -32,6 +32,10 @@ def mock_aws():
 @pytest.fixture(autouse=True)
 def reset_cache():
     clear_cache(mode='sqlite')
+    PriceCache(mode='sqlite')._table()
+    InterestCache(mode='sqlite')._table()
+    CorrelationCache(mode='sqlite')._table()
+    ProfileCache(mode='sqlite')._table()
 
 
 @pytest.fixture()
@@ -54,19 +58,22 @@ def sqlite_correlation_cache():
 
 @pytest.fixture()
 def dynamodb_price_cache():
+    PriceCache(mode='dynamodb')._table()
     return PriceCache(mode='dynamodb')
 
 @pytest.fixture()
 def dynamodb_correlation_cache():
+    CorrelationCache(mode='dynamodb')._table()
     return CorrelationCache(mode='dynamodb')
 
 @pytest.fixture()
 def dynamodb_interest_cache():
+    InterestCache(mode='dynamodb')._table()
     return InterestCache(mode='dynamodb')
-
 
 @pytest.fixture()
 def dynamodb_profile_cache():
+    ProfileCache(mode='dynamodb')._table()
     return ProfileCache(mode='dynamodb')
 
 
@@ -80,7 +87,7 @@ def test_sqlite_price_cache(ticker, date, price, sqlite_price_cache):
         get_daily_price_history(
             ticker=ticker, start_date=test_settings.START, end_date=test_settings.END)
     cache_results = sqlite_price_cache.filter(
-        ticker=ticker, start_date=date, end_date=date)
+        ticker=ticker, start_date=dater.parse(date), end_date=dater.parse(date))
     assert(len(cache_results) ==
            1 and cache_results[date][keys.keys['PRICES']['CLOSE']] == price)
 
