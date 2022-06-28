@@ -310,7 +310,7 @@ def test_price_cache_to_dict_dynamodb(results, expected):
                     for i in range(1,len(actual_keys)))
 
 
-@pytest.mark.parametrize('ticker,prices', [
+@pytest.mark.parametrize('ticker,prices,expected', [
     (
         'ALLY',
         {
@@ -331,16 +331,129 @@ def test_price_cache_to_dict_dynamodb(results, expected):
                 'close': 12
             },
 
-        }
+        },
+        [
+            {
+                '2020-01-10': {
+                    'open': 51,
+                    'close':53
+                }
+            },
+            {
+               '2020-01-09':{
+                    'open': 50,
+                    'close': 11
+                } 
+            },
+            {
+                '2020-01-04': {
+                    'open': 49,
+                    'close': 12.4
+                },
+            },
+            {
+                '2020-01-02': {
+                    'open': 52,
+                    'close': 12
+                },
+            }
+        ]
     )
 ])
-def test_internal_price_cache(prices, ticker, sqlite_price_cache):
+def test_internal_price_cache(prices, ticker, expected, sqlite_price_cache):
     sqlite_price_cache.save_rows(ticker, prices)
-    for date in prices.keys():
+    for index, date in enumerate(prices.keys()):
         real_date = dater.parse(date)
-        truncated_dict = { this_date: prices[this_date] for this_date in prices.keys() if this_date == date}
-        assert sqlite_price_cache._retrieve_from_internal_cache(ticker, real_date, real_date) == truncated_dict
+        assert sqlite_price_cache._retrieve_from_internal_cache(ticker, real_date, real_date) == expected[index]
 # test: create caches, save_rows, check the internal cache was updated
 
-def test_internal_interest_cache():
-    pass
+@pytest.mark.parametrize('rates,expected',[
+    (
+        {
+            '2020-01-01': [0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.10, 0.11, 0.12],
+            '2020-01-02': [0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.10, 0.11, 0.12, 0.13],
+        },
+        [
+            {
+                '2020-01-01': 0.01
+            },
+            {
+                '2020-01-01': 0.02
+            },
+            {
+                '2020-01-01': 0.03
+            },
+            {
+                '2020-01-01': 0.04
+            },
+            {
+                '2020-01-01': 0.05
+            },
+            {
+                '2020-01-01': 0.06
+            },
+            {
+                '2020-01-01': 0.07
+            },
+            {
+                '2020-01-01': 0.08
+            },
+            {
+                '2020-01-01': 0.09
+            },
+            {
+                '2020-01-01': 0.10
+            },
+            {
+                '2020-01-01': 0.11
+            },
+            {
+                '2020-01-01': 0.12
+            },
+            {
+                '2020-01-02': 0.02
+            },
+            {
+                '2020-01-02': 0.03
+            },
+            {
+                '2020-01-02': 0.04
+            },
+            {
+                '2020-01-02': 0.05
+            },
+            {
+                '2020-01-02': 0.06
+            },
+            {
+                '2020-01-02': 0.07
+            },
+            {
+                '2020-01-02': 0.08
+            },
+            {
+                '2020-01-02': 0.09
+            },
+            {
+                '2020-01-02': 0.10
+            },
+            {
+                '2020-01-02': 0.11
+            },
+            {
+                '2020-01-02': 0.12
+            },
+            {
+                '2020-01-02': 0.13
+            },
+            
+        ]
+    )
+])
+def test_internal_interest_cache(rates, expected, sqlite_interest_cache):
+    sqlite_interest_cache.save_rows(rates)
+    for date_index, date in enumerate(rates.keys()):
+        real_date = dater.parse(date)
+        for yield_index, maturity in enumerate(keys.keys['YIELD_CURVE']):
+            sqlite_interest_cache._retrieve_from_internal_cache(maturity, real_date, real_date) ==\
+                expected[date_index*len(keys.keys['YIELD_CURVE'])+yield_index]
