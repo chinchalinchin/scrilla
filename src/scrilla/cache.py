@@ -618,7 +618,8 @@ class ProfileCache():
     dynamodb_profile_query = "SELECT annual_return,annual_volatility,sharpe_ratio,asset_beta,equity_cost FROM \"profile\" WHERE ticker=? AND start_date=? AND end_date=? AND method=? AND weekends=?"
     # dynamodb_identity_query = "EXISTS(SELECT * FROM \"profile\" WHERE ticker=? AND start_date=? AND end_date=? AND method=? AND weekends=?)"
     # See NOTE in save_or_update_row
-    dynamodb_identity_query ="SELECT * FROM \"profile\" WHERE ticker=? AND start_date=? AND end_date=? AND method=? AND weekends=?"
+    dynamodb_identity_query = "SELECT * FROM \"profile\" WHERE ticker=? AND start_date=? AND end_date=? AND method=? AND weekends=?"
+
     @staticmethod
     def to_dict(query_result, mode=settings.CACHE_MODE):
         """
