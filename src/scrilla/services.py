@@ -468,7 +468,7 @@ class PriceManager():
             open_price = self._parse_price_from_date(prices=prices, this_date=this_date, asset_type=asset_type,
                                                      which_price=keys.keys['PRICES']['OPEN'])
             format_prices[this_date] = {
-                keys.keys['PRICES']['OPEN']: open_price, keys.keys['PRICES']['CLOSE']: close_price}
+                keys.keys['PRICES']['OPEN']: float(open_price), keys.keys['PRICES']['CLOSE']: float(close_price)}
         return format_prices
 
     def _slice_prices(self, start_date: date, end_date: date, asset_type: str, prices: dict) -> dict:

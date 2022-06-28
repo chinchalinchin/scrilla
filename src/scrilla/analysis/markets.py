@@ -58,12 +58,12 @@ def sharpe_ratio(ticker: str, start_date: Union[date, None] = None, end_date: Un
     start_date, end_date = errors.validate_dates(start_date=start_date, end_date=end_date,
                                                  asset_type=keys.keys['ASSETS']['EQUITY'])
 
-    if cache_in and ticker_profile is None:
+    if cache_in and (ticker_profile is None or ticker_profile.get(keys.keys['STATISTICS']['RETURN']) is None \
+        or ticker_profile.get(keys.keys['STATISTICS']['VOLATILITY']) is None):
         result = profile_cache.filter(
             ticker=ticker, start_date=start_date, end_date=end_date, method=method)
 
-        if result is not None and keys.keys['STATISTICS']['SHARPE'] in list(result.keys()) and \
-                result[keys.keys['STATISTICS']['SHARPE']] is not None:
+        if result is not None and result.get(keys.keys['STATISTICS']['SHARPE']) is not None:
             return result[keys.keys['STATISTICS']['SHARPE']]
 
         ticker_profile = statistics.calculate_risk_return(
@@ -72,16 +72,14 @@ def sharpe_ratio(ticker: str, start_date: Union[date, None] = None, end_date: Un
     if risk_free_rate is None:
         risk_free_rate = services.get_risk_free_rate()
 
-    sh_ratio = (ticker_profile['annual_return'] -
-                risk_free_rate)/ticker_profile['annual_volatility']
+    sh_ratio = (ticker_profile[keys.keys['STATISTICS']['RETURN']] -
+                risk_free_rate)/ticker_profile[keys.keys['STATISTICS']['VOLATILITY']]
 
     if cache_out:
         profile_cache.save_or_update_row(ticker=ticker, start_date=start_date,
                                          end_date=end_date, sharpe_ratio=sh_ratio, method=method)
 
     return sh_ratio
-
-# if no dates are specified, defaults to last 100 days
 
 
 def market_premium(start_date: Union[date, None] = None, end_date: Union[date, None] = None, market_profile: Union[dict, None] = None, method: str = settings.ESTIMATION_METHOD) -> float:
@@ -105,16 +103,14 @@ def market_premium(start_date: Union[date, None] = None, end_date: Union[date, N
 
     if market_profile is None:
         market_profile = profile_cache.filter(
-            # TODO: may not want to save right here...should abstract into market_info or something, so all
             ticker=settings.MARKET_PROXY, start_date=start_date, end_date=end_date, method=method)
-        #       market information is calculated at once and saved at once, to reduce the number of writes.
 
-    if market_profile is None:
+    if market_profile is None or market_profile.get(keys.keys['STATISTICS']['RETURN']) is None:
         market_profile = statistics.calculate_risk_return(
             ticker=settings.MARKET_PROXY, start_date=start_date, end_date=end_date, method=method)
 
     market_prem = (
-        market_profile['annual_return'] - services.get_risk_free_rate())
+        market_profile[keys.keys['STATISTICS']['RETURN']] - services.get_risk_free_rate())
     return market_prem
 
 
@@ -146,18 +142,19 @@ def market_beta(ticker: str, start_date: Union[date, None] = None, end_date: Uni
         ticker_profile = profile_cache.filter(
             ticker=ticker, start_date=start_date, end_date=end_date, method=method)
 
-    if ticker_profile is not None and keys.keys['STATISTICS']['BETA'] in list(ticker_profile.keys()) and \
-            ticker_profile[keys.keys['STATISTICS']['BETA']] is not None:
+    if ticker_profile is not None and ticker_profile.get(keys.keys['STATISTICS']['BETA']) is not None:
         return ticker_profile[keys.keys['STATISTICS']['BETA']]
 
-    if market_profile is None:
+    if market_profile is None or market_profile.get(keys.keys['STATISTICS']['RETURN']) is None \
+        or market_profile.get(keys.keys['STATISTICS']['VOLATILITY']) is None:
         if sample_prices is None:
             market_profile = statistics.calculate_risk_return(ticker=settings.MARKET_PROXY, start_date=start_date,
                                                               end_date=end_date, method=method)
         else:
             market_profile = statistics.calculate_risk_return(ticker=settings.MARKET_PROXY, method=method,
                                                               sample_prices=sample_prices[settings.MARKET_PROXY])
-    if ticker_profile is None:
+    if ticker_profile is None or ticker_profile.get(keys.keys['STATISTICS']['RETURN']) is None \
+        or ticker_profile.get(keys.keys['STATISTICS']['VOLATILITY']) is None:
         if sample_prices is None:
             ticker_profile = statistics.calculate_risk_return(ticker=ticker, start_date=start_date,
                                                               end_date=end_date, method=method)
@@ -173,8 +170,6 @@ def market_beta(ticker: str, start_date: Union[date, None] = None, end_date: Uni
 
     beta = market_covariance / (market_profile['annual_volatility']**2)
 
-    # TODO: may not want to save right here...should abstract into market_info or something, so all
-    #       market information is calculated at once and saved at once, to reduce the number of writes.
     if cache_out:
         profile_cache.save_or_update_row(
             ticker=ticker, start_date=start_date, end_date=end_date, asset_beta=beta, method=method)
@@ -212,8 +207,7 @@ def cost_of_equity(ticker: str, start_date: Union[datetime.date, None] = None, e
         ticker_profile = profile_cache.filter(
             ticker=ticker, start_date=start_date, end_date=end_date, method=method)
 
-    if ticker_profile is not None and keys.keys['STATISTICS']['EQUITY'] in list(ticker_profile.keys()) and\
-            ticker_profile[keys.keys['STATISTICS']['EQUITY']] is not None:
+    if ticker_profile is not None and ticker_profile.get(keys.keys['STATISTICS']['EQUITY']) is not None:
         return ticker_profile[keys.keys['STATISTICS']['EQUITY']]
 
     beta = market_beta(ticker=ticker, start_date=start_date, end_date=end_date,

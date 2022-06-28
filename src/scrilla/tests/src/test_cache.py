@@ -16,287 +16,6 @@ from moto import mock_dynamodb
 #       through PartiQL statements and transactions. Until moto supports needed operations will need to find another way to 
 
 # (ticker, prices, expected)
-price_internal_cache_case = (
-    'ALLY',
-    {
-        '2020-01-10': {
-            'open': 51,
-            'close':53
-        },
-        '2020-01-09':{
-            'open': 50,
-            'close': 11
-        },
-        '2020-01-04': {
-            'open': 49,
-            'close': 12.4
-        },
-        '2020-01-02': {
-            'open': 52,
-            'close': 12
-        },
-
-    },
-    [
-        {
-            '2020-01-10': {
-                'open': 51,
-                'close':53
-            }
-        },
-        {
-            '2020-01-09':{
-                'open': 50,
-                'close': 11
-            } 
-        },
-        {
-            '2020-01-04': {
-                'open': 49,
-                'close': 12.4
-            },
-        },
-        {
-            '2020-01-02': {
-                'open': 52,
-                'close': 12
-            },
-        }
-    ]
-)
-
-# (ticker, prices, expected, query_results)
-price_internal_cache_case_query_results = (*price_internal_cache_case, 
-    [
-        ['2020-01-10',51,53],
-        ['2020-01-09', 50, 11],
-        ['2020-01-04', 49, 12.4],
-        ['2020-01-02', 52,12]
-    ]
-)
-
-price_cache_to_param_case = (
-    'ALLY',
-    {
-        '2020-01-01': {
-            'open': 51,
-            'close': 53
-        },
-        '2020-01-02': {
-            'open': 52,
-            'close': 12
-        }
-    },
-    [
-        {
-            'ticker': 'ALLY',
-            'date': '2020-01-01',
-            'open': 51,
-            'close': 53,
-        },
-        {
-            'ticker': 'ALLY',
-            'date': '2020-01-02',
-            'open': 52,
-            'close': 12,
-        }
-    ]
-)
-
-price_cache_to_dict_dynamodb_case = (
-    [
-        {
-            'ticker': 'ALLY',
-            'date': '2020-01-10',
-            'open': 51,
-            'close': 53,
-        },
-        {
-            'ticker': 'ALLY',
-            'date': '2020-01-02',
-            'open': 52,
-            'close': 12,
-        },
-        {
-            'ticker': 'ALLY',
-            'date': '2020-01-09',
-            'open': 50,
-            'close': 11,
-        },{
-            'ticker': 'ALLY',
-            'date': '2020-01-04',
-            'open': 49,
-            'close': 12.4,
-        }
-    ],
-    {
-        '2020-01-10': {
-            'open': 51,
-            'close':53
-        },
-        '2020-01-09':{
-            'open': 50,
-            'close': 11
-        },
-        '2020-01-04': {
-            'open': 49,
-            'close': 12.4
-        },
-        '2020-01-02': {
-            'open': 52,
-            'close': 12
-        },
-
-    }
-)
-
-# (rates, expected)
-interest_internal_cache_case = (
-    {
-        '2020-01-01': [0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.10, 0.11, 0.12],
-        '2020-01-02': [0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.10, 0.11, 0.12, 0.13],
-    },
-    [
-        { '2020-01-01': 0.01 },
-        { '2020-01-01': 0.02 },
-        { '2020-01-01': 0.03 },
-        { '2020-01-01': 0.04 },
-        { '2020-01-01': 0.05 },
-        { '2020-01-01': 0.06 },
-        { '2020-01-01': 0.07 },
-        { '2020-01-01': 0.08 },
-        { '2020-01-01': 0.09 },
-        { '2020-01-01': 0.10 },
-        { '2020-01-01': 0.11 },
-        { '2020-01-01': 0.12 },
-        { '2020-01-02': 0.02 },
-        { '2020-01-02': 0.03 },
-        { '2020-01-02': 0.04 },
-        { '2020-01-02': 0.05 },
-        { '2020-01-02': 0.06 },
-        { '2020-01-02': 0.07 },
-        { '2020-01-02': 0.08 },
-        { '2020-01-02': 0.09 },
-        { '2020-01-02': 0.10 },
-        { '2020-01-02': 0.11 },
-        { '2020-01-02': 0.12 },
-        { '2020-01-02': 0.13 },
-    ]
-)
-
-# (maturity, rates, expected, query_results)
-interest_internal_cache_case_query_results=(
-    'ONE_YEAR',
-    interest_internal_cache_case[0],
-    [
-        {
-            '2020-01-01':0.05
-        },
-        {
-            '2020-01-02': 0.06
-        }
-    ],
-    [
-        ['2020-01-01', 0.05],
-        ['2020-01-02', 0.06]
-    ]
-)
-
-# (rates, expected)
-interest_cache_to_param_case = (
-    {
-        '2020-01-01': [0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.10, 0.11, 0.12]
-    },
-    [
-        {
-            'date': '2020-01-01',
-            'value': 0.01,
-            'maturity': 'ONE_MONTH'
-        },
-        {
-            'date': '2020-01-01',
-            'value': 0.02,
-            'maturity': 'TWO_MONTH'
-        },
-        {
-            'date': '2020-01-01', 
-            'value': 0.03,
-            'maturity': 'THREE_MONTH' 
-        },
-        {
-            'date': '2020-01-01',
-            'value': 0.04,
-            'maturity': 'SIX_MONTH' 
-        },
-        {
-            'date': '2020-01-01',
-            'value': 0.05,
-            'maturity': 'ONE_YEAR' 
-        },
-        {
-            'date': '2020-01-01',
-            'value': 0.06,
-            'maturity': 'TWO_YEAR' 
-        },
-        {
-            'date': '2020-01-01',
-            'value': 0.07,
-            'maturity': 'THREE_YEAR' 
-        },
-        {
-            'date': '2020-01-01',
-            'value': 0.08,
-            'maturity': 'FIVE_YEAR' 
-        },
-        {
-            'date': '2020-01-01',
-            'value': 0.09,
-            'maturity': 'SEVEN_YEAR' 
-        },
-        {
-            'date': '2020-01-01',
-            'value': 0.10, 
-            'maturity': 'TEN_YEAR'
-        },
-        {
-            'date': '2020-01-01',
-            'value': 0.11, 
-            'maturity': 'TWENTY_YEAR'
-        },
-        {
-            'date': '2020-01-01',
-            'value': 0.12,
-            'maturity': 'THIRTY_YEAR'
-        }
-    ]
-)
-
-interest_cache_to_dict_dynamodb_case=(
-    [ 
-        {
-            'date': '2020-01-04',
-            'value': 0.01,
-        },
-        {
-            'date': '2020-01-01',
-            'value': 0.02,
-        },
-        {
-            'date': '2020-01-02', 
-            'value': 0.03,
-        },
-        {
-            'date': '2020-01-03',
-            'value': 0.04,
-        },
-    ],
-    {
-        '2020-01-04': 0.01,
-        '2020-01-03': 0.04,
-        '2020-01-02': 0.03,
-        '2020-01-01': 0.02
-    }
-)
 
 
 @pytest.fixture(autouse=True)
@@ -398,15 +117,17 @@ def test_profile_cache_construct_insert_query(params, expected):
     assert ProfileCache._construct_insert(params) == expected
 
 
-@pytest.mark.parametrize('ticker,prices,expected',[price_cache_to_param_case])
+@pytest.mark.parametrize('ticker,prices,expected',
+    [mock_data.price_cache_to_param_case])
 def test_price_cache_to_params(ticker, prices, expected):
     assert PriceCache._to_params(ticker, prices) == expected
 
-@pytest.mark.parametrize('rates,expected',[interest_cache_to_param_case])
+@pytest.mark.parametrize('rates,expected', 
+    [mock_data.interest_cache_to_param_case])
 def test_interest_cache_to_params(rates, expected):
     assert InterestCache._to_params(rates) == expected
 
-@pytest.mark.parametrize('results,expected',[interest_cache_to_dict_dynamodb_case])
+@pytest.mark.parametrize('results,expected',[mock_data.interest_cache_to_dict_dynamodb_case])
 def test_interest_cache_to_dict_dynamodb(results, expected):
     actual = InterestCache.to_dict(results, 'dynamodb')
     actual_keys = list(actual.keys())
@@ -414,9 +135,8 @@ def test_interest_cache_to_dict_dynamodb(results, expected):
     assert all( dater.parse(actual_keys[i]) < dater.parse(actual_keys[i-1])
                     for i in range(1,len(actual_keys)))
                     
-@pytest.mark.parametrize('results,expected',[
-    price_cache_to_dict_dynamodb_case
-])
+@pytest.mark.parametrize('results,expected', 
+    [mock_data.price_cache_to_dict_dynamodb_case])
 def test_price_cache_to_dict_dynamodb(results, expected):
     actual = PriceCache.to_dict(results, 'dynamodb')
     actual_keys = list(actual.keys())
@@ -426,16 +146,17 @@ def test_price_cache_to_dict_dynamodb(results, expected):
                     for i in range(1,len(actual_keys)))
 
 
-@pytest.mark.parametrize('ticker,prices,expected', [price_internal_cache_case])
+@pytest.mark.parametrize('ticker,prices,expected', 
+    [mock_data.price_internal_cache_case])
 def test_price_internal_cache_save_hook(prices, ticker, expected, sqlite_price_cache):
     with patch('scrilla.cache.sqlite3'):
         sqlite_price_cache.save_rows(ticker, prices)
         for index, date in enumerate(prices.keys()):
             real_date = dater.parse(date)
             assert sqlite_price_cache._retrieve_from_internal_cache(ticker, real_date, real_date) == expected[index]
-# test: create caches, save_rows, check the internal cache was updated
 
-@pytest.mark.parametrize('rates,expected', [interest_internal_cache_case])
+@pytest.mark.parametrize('rates,expected', 
+    [mock_data.interest_internal_cache_case])
 def test_interest_internal_cache_save_hook(rates, expected, sqlite_interest_cache):
     with patch('scrilla.cache.sqlite3'):
         sqlite_interest_cache.save_rows(rates)
@@ -446,7 +167,8 @@ def test_interest_internal_cache_save_hook(rates, expected, sqlite_interest_cach
                     expected[date_index*len(keys.keys['YIELD_CURVE'])+yield_index]
 
 
-@pytest.mark.parametrize('ticker,prices,expected,query_results', [price_internal_cache_case_query_results])
+@pytest.mark.parametrize('ticker,prices,expected,query_results', 
+    [mock_data.price_internal_cache_case_query_results])
 def test_price_internal_cache_update_hook(ticker, prices, expected, query_results, sqlite_price_cache):
     with patch('scrilla.cache.sqlite3') as mocksqlite:
         mocksqlite.connect().cursor().execute().fetchall.return_value = query_results
@@ -456,7 +178,8 @@ def test_price_internal_cache_update_hook(ticker, prices, expected, query_result
             internal_cache = sqlite_price_cache._retrieve_from_internal_cache(ticker, start_date, start_date)
             assert internal_cache == expected[index]
 
-@pytest.mark.parametrize('maturity,rates,expected,query_results',[interest_internal_cache_case_query_results])
+@pytest.mark.parametrize('maturity,rates,expected,query_results', 
+    [mock_data.interest_internal_cache_case_query_results])
 def test_interest_internal_cache_update_hook(maturity, rates, expected, query_results, sqlite_interest_cache):
     with patch('scrilla.cache.sqlite3') as mocksqlite:
         mocksqlite.connect().cursor().execute().fetchall.return_value = query_results

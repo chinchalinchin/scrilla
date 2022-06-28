@@ -287,12 +287,12 @@ def do_program(cli_args: List[str]) -> None:
                                                   ret=profile['annual_return'],
                                                   expiry=args['expiry'],
                                                   conditional_value=valueatrisk)
-                all_cvars[arg] = cvar
+                all_cvars[arg][keys.keys['STATISTICS']['BETA']] = cvar
 
                 if print_format_to_screen(args):
                     from scrilla.util.outputter import scalar_result
                     scalar_result(
-                        f'{arg}_conditional_value_at_risk', valueatrisk)
+                        f'{arg}_conditional_value_at_risk', cvar)
 
             if print_json_to_screen(args):
                 from json import dumps
@@ -302,7 +302,7 @@ def do_program(cli_args: List[str]) -> None:
                 from scrilla.files import save_file
                 save_file(file_to_save=all_cvars, file_name=args['save_file'])
 
-        selected_function, required_length = cli_cvar, 2
+        selected_function, required_length = cli_cvar, 1
 
     # FUNCTION: Capital Asset Pricing Model Cost of Equity
     elif args['function_arg'] in definitions.FUNC_DICT['capm_equity_cost']['values']:
@@ -402,7 +402,7 @@ def do_program(cli_args: List[str]) -> None:
 
             elif print_json_to_screen(args):
                 from json import dumps
-                print(dumps(matrix))
+                print(dumps({'correlation_matrix': matrix}))
 
             if args['save_file'] is not None:
                 from scrilla.files import save_file

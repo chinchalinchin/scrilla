@@ -182,8 +182,6 @@ def test_dynamo_table(singleton_table_conf):
 @mock_dynamodb
 def test_dynamo_table_exceptions_no_table(table_conf):
     response= aws.dynamo_table(table_conf)
-    print(response)
-    print(vars(response))
     assert isinstance(response, KeyError)
 
 @pytest.mark.parametrize('table_conf',[

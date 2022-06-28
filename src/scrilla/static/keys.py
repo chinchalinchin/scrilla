@@ -25,7 +25,9 @@ keys = {
         'BETA': 'asset_beta',
         'SHARPE': 'sharpe_ratio',
         'EQUITY': 'equity_cost',
-        'CORRELATION': 'correlation'
+        'CORRELATION': 'correlation',
+        'CVAR': 'conditional_value_at_risk',
+        'VAR': 'value_at_risk'
     },
     'ASSETS': {
         'EQUITY': 'equity',

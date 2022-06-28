@@ -556,8 +556,6 @@ class CorrelationCache():
         results = Cache.execute(
             query=self._query(), formatter=formatter_1, mode=self.mode)
 
-        print(results)
-
         if len(results) > 0:
             logger.debug(
                 f'Found ({ticker_1},{ticker_2}) correlation in the cache', 'CorrelationCache.filter')
