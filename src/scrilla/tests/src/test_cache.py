@@ -6,7 +6,7 @@ from scrilla.files import clear_cache
 from scrilla.services import get_daily_price_history, get_daily_interest_history
 from scrilla.util import dater
 
-from mock import patch
+from unittest.mock import MagicMock, patch
 from .. import mock_data, settings as test_settings
 from httmock import HTTMock
 from moto import mock_dynamodb
@@ -14,6 +14,146 @@ from moto import mock_dynamodb
 # NOTE: moto hasn't implemented a mock backend for `execute_statement`, `execute_transaction` or `execute_batch_statements`,
 #       and the dynamodb cache functionality is implemented entirely (with the exception of creating and dropping tables)
 #       through PartiQL statements and transactions. Until moto supports needed operations will need to find another way to 
+
+price_internal_cache_case = (
+        'ALLY',
+        {
+            '2020-01-10': {
+                'open': 51,
+                'close':53
+            },
+            '2020-01-09':{
+                'open': 50,
+                'close': 11
+            },
+            '2020-01-04': {
+                'open': 49,
+                'close': 12.4
+            },
+            '2020-01-02': {
+                'open': 52,
+                'close': 12
+            },
+
+        },
+        [
+            {
+                '2020-01-10': {
+                    'open': 51,
+                    'close':53
+                }
+            },
+            {
+               '2020-01-09':{
+                    'open': 50,
+                    'close': 11
+                } 
+            },
+            {
+                '2020-01-04': {
+                    'open': 49,
+                    'close': 12.4
+                },
+            },
+            {
+                '2020-01-02': {
+                    'open': 52,
+                    'close': 12
+                },
+            }
+        ]
+    )
+price_internal_cache_case_query_results = (*price_internal_cache_case, [
+    ['2020-01-10',51,53],
+    ['2020-01-09', 50, 11],
+    ['2020-01-04', 49, 12.4],
+    ['2020-01-02', 52,12]
+])
+
+
+interest_internal_cache_case = [
+    (
+        {
+            '2020-01-01': [0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.10, 0.11, 0.12],
+            '2020-01-02': [0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.10, 0.11, 0.12, 0.13],
+        },
+        [
+            {
+                '2020-01-01': 0.01
+            },
+            {
+                '2020-01-01': 0.02
+            },
+            {
+                '2020-01-01': 0.03
+            },
+            {
+                '2020-01-01': 0.04
+            },
+            {
+                '2020-01-01': 0.05
+            },
+            {
+                '2020-01-01': 0.06
+            },
+            {
+                '2020-01-01': 0.07
+            },
+            {
+                '2020-01-01': 0.08
+            },
+            {
+                '2020-01-01': 0.09
+            },
+            {
+                '2020-01-01': 0.10
+            },
+            {
+                '2020-01-01': 0.11
+            },
+            {
+                '2020-01-01': 0.12
+            },
+            {
+                '2020-01-02': 0.02
+            },
+            {
+                '2020-01-02': 0.03
+            },
+            {
+                '2020-01-02': 0.04
+            },
+            {
+                '2020-01-02': 0.05
+            },
+            {
+                '2020-01-02': 0.06
+            },
+            {
+                '2020-01-02': 0.07
+            },
+            {
+                '2020-01-02': 0.08
+            },
+            {
+                '2020-01-02': 0.09
+            },
+            {
+                '2020-01-02': 0.10
+            },
+            {
+                '2020-01-02': 0.11
+            },
+            {
+                '2020-01-02': 0.12
+            },
+            {
+                '2020-01-02': 0.13
+            },
+            
+        ]
+    )
+]
 
 @pytest.fixture(autouse=True)
 def mock_aws():
@@ -64,7 +204,7 @@ def dynamodb_profile_cache():
     ('DIS', '2021-10-04', 173.46)
 ])
 def test_sqlite_price_cache(ticker, date, price, sqlite_price_cache):
-    with HTTMock(mock.mock_prices):
+    with HTTMock(mock_data.mock_prices):
         get_daily_price_history(
             ticker=ticker, start_date=test_settings.START, end_date=test_settings.END)
     cache_results = sqlite_price_cache.filter(
@@ -81,7 +221,7 @@ def test_sqlite_price_cache(ticker, date, price, sqlite_price_cache):
      "2021-10-14", 0.1)
 ])
 def test_sqlite_interest_cache(maturity, date, yield_rate, sqlite_interest_cache):
-    with HTTMock(mock.mock_interest):
+    with HTTMock(mock_data.mock_interest):
         get_daily_interest_history(
             maturity=maturity, start_date=test_settings.START, end_date=test_settings.END)
     cache_results = sqlite_interest_cache.filter(
@@ -311,147 +451,16 @@ def test_price_cache_to_dict_dynamodb(results, expected):
                     for i in range(1,len(actual_keys)))
 
 
-@pytest.mark.parametrize('ticker,prices,expected', [
-    (
-        'ALLY',
-        {
-            '2020-01-10': {
-                'open': 51,
-                'close':53
-            },
-            '2020-01-09':{
-                'open': 50,
-                'close': 11
-            },
-            '2020-01-04': {
-                'open': 49,
-                'close': 12.4
-            },
-            '2020-01-02': {
-                'open': 52,
-                'close': 12
-            },
-
-        },
-        [
-            {
-                '2020-01-10': {
-                    'open': 51,
-                    'close':53
-                }
-            },
-            {
-               '2020-01-09':{
-                    'open': 50,
-                    'close': 11
-                } 
-            },
-            {
-                '2020-01-04': {
-                    'open': 49,
-                    'close': 12.4
-                },
-            },
-            {
-                '2020-01-02': {
-                    'open': 52,
-                    'close': 12
-                },
-            }
-        ]
-    )
-])
-def test_internal_price_cache(prices, ticker, expected, sqlite_price_cache):
+@pytest.mark.parametrize('ticker,prices,expected', [price_internal_cache_case])
+def test_price_internal_cache_save_hook(prices, ticker, expected, sqlite_price_cache):
     sqlite_price_cache.save_rows(ticker, prices)
     for index, date in enumerate(prices.keys()):
         real_date = dater.parse(date)
         assert sqlite_price_cache._retrieve_from_internal_cache(ticker, real_date, real_date) == expected[index]
 # test: create caches, save_rows, check the internal cache was updated
 
-@pytest.mark.parametrize('rates,expected',[
-    (
-        {
-            '2020-01-01': [0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.10, 0.11, 0.12],
-            '2020-01-02': [0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.10, 0.11, 0.12, 0.13],
-        },
-        [
-            {
-                '2020-01-01': 0.01
-            },
-            {
-                '2020-01-01': 0.02
-            },
-            {
-                '2020-01-01': 0.03
-            },
-            {
-                '2020-01-01': 0.04
-            },
-            {
-                '2020-01-01': 0.05
-            },
-            {
-                '2020-01-01': 0.06
-            },
-            {
-                '2020-01-01': 0.07
-            },
-            {
-                '2020-01-01': 0.08
-            },
-            {
-                '2020-01-01': 0.09
-            },
-            {
-                '2020-01-01': 0.10
-            },
-            {
-                '2020-01-01': 0.11
-            },
-            {
-                '2020-01-01': 0.12
-            },
-            {
-                '2020-01-02': 0.02
-            },
-            {
-                '2020-01-02': 0.03
-            },
-            {
-                '2020-01-02': 0.04
-            },
-            {
-                '2020-01-02': 0.05
-            },
-            {
-                '2020-01-02': 0.06
-            },
-            {
-                '2020-01-02': 0.07
-            },
-            {
-                '2020-01-02': 0.08
-            },
-            {
-                '2020-01-02': 0.09
-            },
-            {
-                '2020-01-02': 0.10
-            },
-            {
-                '2020-01-02': 0.11
-            },
-            {
-                '2020-01-02': 0.12
-            },
-            {
-                '2020-01-02': 0.13
-            },
-            
-        ]
-    )
-])
-def test_internal_interest_cache(rates, expected, sqlite_interest_cache):
+@pytest.mark.parametrize('rates,expected', [interest_internal_cache_case])
+def test_interest_internal_cache_save_hook(rates, expected, sqlite_interest_cache):
     sqlite_interest_cache.save_rows(rates)
     for date_index, date in enumerate(rates.keys()):
         real_date = dater.parse(date)
@@ -461,3 +470,14 @@ def test_internal_interest_cache(rates, expected, sqlite_interest_cache):
 
 # TODO: mock sqlite and filter cache, check to see if internal cache was updated
 # TODO: same for profile, but make sure both insert/update paths are hit
+
+
+@pytest.mark.parametrize('ticker,prices,expected', [price_internal_cache_case_query_results])
+def test_price_internal_cache_update_hook(ticker, prices, expected, query_results, sqlite_price_cache):
+    with patch('scrilla.cache.sqlite3') as mocksqlite:
+        mocksqlite.connect().cursor().fetchall.return_value = query_results
+        for index, date in enumerate(prices.keys()):
+            start_date = dater.parse(date)
+            sqlite_price_cache.filter(ticker, start_date, start_date)
+            internal_cache = sqlite_price_cache._retrieve_from_internal_cache(ticker, start_date, start_date)
+            assert internal_cache == expected[index]
