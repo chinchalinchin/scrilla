@@ -137,7 +137,7 @@ commands:
       - persist_to_workspace:
           root: docs
           paths: 
-            - coverage
+            - coverage/*
 
   commit_coverage:
     description: push coverage back to git
@@ -151,6 +151,7 @@ commands:
             mkdir /tmp/docs/
             cp -ap ./docs/build/html/. /tmp/docs/
             mkdir /tmp/docs/coverage/
+            rm /tmp/docs/.gitignore
             cp -ap ./docs/coverage/. /tmp/docs/coverage/
             git checkout gh-pages
             git pull
