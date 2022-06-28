@@ -1,3 +1,4 @@
+import uuid
 import pytest
 
 from scrilla import settings
@@ -209,3 +210,23 @@ def test_dynamodb_table_creation(dynamodb_price_cache, dynamodb_profile_cache, d
     ]
     for table_name in table_names:
         assert table_name in dynamo_tables
+
+def test_price_cache_singularity():
+    cache1 = PriceCache(mode='sqlite')
+    cache2 = PriceCache(mode='sqlite')
+    assert cache1.uuid == cache2.uuid
+
+def test_interest_cache_singularity():
+    cache1 = InterestCache(mode='sqlite')
+    cache2 = InterestCache(mode='sqlite')
+    assert cache1.uuid == cache2.uuid
+
+def test_profile_cache_singularity():
+    cache1 = ProfileCache(mode='sqlite')
+    cache2 = ProfileCache(mode='sqlite')
+    assert cache1.uuid == cache2.uuid
+
+def test_correlation_cache_singularity():
+    cache1 = CorrelationCache(mode='sqlite')
+    cache2 = CorrelationCache(mode='sqlite')
+    assert cache1.uuid == cache2.uuid

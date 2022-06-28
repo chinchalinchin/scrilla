@@ -22,6 +22,7 @@ import itertools
 import datetime
 import sqlite3
 from typing import Union
+import uuid
 
 from scrilla import files, settings
 from scrilla.cloud import aws
@@ -35,11 +36,10 @@ class Singleton(type):
 
     _instances = {}
 
-    def __call__(cls, *args, **kwargs):
-        if cls not in cls._instances:
-            cls._instances[cls] = super(
-                Singleton, cls).__call__(*args, **kwargs)
-        return cls._instances[cls]
+    def __new__(class_, *args, **kwargs):
+        if class_ not in class_._instances:
+            class_._instances[class_] = super(Singleton, class_).__new__(class_, *args, **kwargs)
+        return class_._instances[class_]
 
 
 class Cache():
@@ -154,6 +154,7 @@ class PriceCache():
     def __init__(self, mode=settings.CACHE_MODE):
         self.mode = mode
         self.internal_cache = {}
+        self.uuid = uuid.uuid4()
         if not files.get_memory_json()['cache'][mode]['prices']:
             self._table()
 
@@ -306,6 +307,7 @@ class InterestCache():
     def __init__(self, mode=settings.CACHE_MODE):
         self.internal_cache = {}
         self.mode = mode
+        self.uuid = uuid.uuid4()
         if not files.get_memory_json()['cache'][mode]['interest']:
             self._table()
 
@@ -453,6 +455,7 @@ class CorrelationCache():
     def __init__(self, mode=settings.CACHE_MODE):
         self.internal_cache = {}
         self.mode = mode
+        self.uuid = uuid.uuid4()
         if not files.get_memory_json()['cache'][mode]['correlations']:
             self._table()
 
@@ -691,6 +694,7 @@ class ProfileCache():
     def __init__(self, mode=settings.CACHE_MODE):
         self.internal_cache = {}
         self.mode = mode
+        self.uuid = uuid.uuid4()
         if not files.get_memory_json()['cache'][mode]['profile']:
             self._table()
 
