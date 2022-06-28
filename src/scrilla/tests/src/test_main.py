@@ -99,3 +99,16 @@ def test_cli_cvar_json_format(args, tickers, capsys):
     cvar = json.loads(capsys.readouterr().out)
     for ticker in tickers:
         assert keys.keys['STATISTICS']['CVAR'] in cvar[ticker].keys()
+
+@pytest.mark.parametrize('args,ticker',[
+    (['close', 'ALLY', '-start', settings.START_STR, '-end', settings.END_STR, '-json'], 'ALLY')
+])
+def test_cli_close_price_json_format(args, ticker, capsys):
+    with HTTMock(mock_data.mock_prices):
+        do_program(args)
+    prices = json.loads(capsys.readouterr().out)
+    assert prices.get(ticker) is not None
+    assert prices[ticker].get(settings.START_STR) is not None
+    assert prices[ticker].get(settings.END_STR) is not None
+    assert prices[ticker][settings.START_STR].get(keys.keys['PRICES']['OPEN']) is not None
+    assert prices[ticker][settings.END_STR].get(keys.keys['PRICES']['CLOSE']) is not None

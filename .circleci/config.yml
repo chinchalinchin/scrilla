@@ -148,6 +148,8 @@ commands:
           command: |
             mkdir /tmp/docs/
             cp -ap ./docs/build/html/. /tmp/docs/
+            mkdir /tmp/docs/coverage 
+            cp -ap ./docs/coverage/. /tmp/docs/coverage
             git checkout gh-pages
             git pull
             rm -rf ./coverage/*
