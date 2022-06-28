@@ -58,8 +58,8 @@ def sharpe_ratio(ticker: str, start_date: Union[date, None] = None, end_date: Un
     start_date, end_date = errors.validate_dates(start_date=start_date, end_date=end_date,
                                                  asset_type=keys.keys['ASSETS']['EQUITY'])
 
-    if cache_in and (ticker_profile is None or ticker_profile.get(keys.keys['STATISTICS']['RETURN']) is None \
-        or ticker_profile.get(keys.keys['STATISTICS']['VOLATILITY']) is None):
+    if cache_in and (ticker_profile is None or ticker_profile.get(keys.keys['STATISTICS']['RETURN']) is None
+                     or ticker_profile.get(keys.keys['STATISTICS']['VOLATILITY']) is None):
         result = profile_cache.filter(
             ticker=ticker, start_date=start_date, end_date=end_date, method=method)
 
@@ -146,7 +146,7 @@ def market_beta(ticker: str, start_date: Union[date, None] = None, end_date: Uni
         return ticker_profile[keys.keys['STATISTICS']['BETA']]
 
     if market_profile is None or market_profile.get(keys.keys['STATISTICS']['RETURN']) is None \
-        or market_profile.get(keys.keys['STATISTICS']['VOLATILITY']) is None:
+            or market_profile.get(keys.keys['STATISTICS']['VOLATILITY']) is None:
         if sample_prices is None:
             market_profile = statistics.calculate_risk_return(ticker=settings.MARKET_PROXY, start_date=start_date,
                                                               end_date=end_date, method=method)
@@ -154,7 +154,7 @@ def market_beta(ticker: str, start_date: Union[date, None] = None, end_date: Uni
             market_profile = statistics.calculate_risk_return(ticker=settings.MARKET_PROXY, method=method,
                                                               sample_prices=sample_prices[settings.MARKET_PROXY])
     if ticker_profile is None or ticker_profile.get(keys.keys['STATISTICS']['RETURN']) is None \
-        or ticker_profile.get(keys.keys['STATISTICS']['VOLATILITY']) is None:
+            or ticker_profile.get(keys.keys['STATISTICS']['VOLATILITY']) is None:
         if sample_prices is None:
             ticker_profile = statistics.calculate_risk_return(ticker=ticker, start_date=start_date,
                                                               end_date=end_date, method=method)
