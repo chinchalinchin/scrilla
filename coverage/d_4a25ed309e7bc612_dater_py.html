@@ -55,8 +55,8 @@
         </aside>
         <h2>
             <span class="text">220 statements &nbsp;</span>
-            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">150<span class="text"> run</span></button>
-            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">70<span class="text"> missing</span></button>
+            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">149<span class="text"> run</span></button>
+            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">71<span class="text"> missing</span></button>
             <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">0<span class="text"> excluded</span></button>
         </h2>
         <p class="text">
@@ -65,7 +65,7 @@
             <a id="nextFileLink" class="nav" href="d_4a25ed309e7bc612_errors_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io">coverage.py v6.4.1</a>,
-            created at 2022-06-28 16:13 +0000
+            created at 2022-06-28 17:02 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"/>
@@ -204,8 +204,8 @@
     <p class="run"><span class="n"><a id="t122" href="#t122">122</a></span><span class="t">    <span class="nam">right_now</span> <span class="op">=</span> <span class="nam">datetime</span><span class="op">.</span><span class="nam">datetime</span><span class="op">.</span><span class="nam">now</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t123" href="#t123">123</a></span><span class="t">    <span class="nam">trading_close_today</span> <span class="op">=</span> <span class="nam">right_now</span><span class="op">.</span><span class="nam">replace</span><span class="op">(</span><span class="nam">hour</span><span class="op">=</span><span class="num">16</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t124" href="#t124">124</a></span><span class="t">    <span class="key">if</span> <span class="nam">right_now</span> <span class="op">></span> <span class="nam">trading_close_today</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t125" href="#t125">125</a></span><span class="t">        <span class="key">return</span> <span class="nam">right_now</span><span class="op">.</span><span class="nam">date</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t126" href="#t126">126</a></span><span class="t">    <span class="key">return</span> <span class="nam">get_previous_business_date</span><span class="op">(</span><span class="nam">right_now</span><span class="op">.</span><span class="nam">date</span><span class="op">(</span><span class="op">)</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t125" href="#t125">125</a></span><span class="t">        <span class="key">return</span> <span class="nam">right_now</span><span class="op">.</span><span class="nam">date</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t126" href="#t126">126</a></span><span class="t">    <span class="key">return</span> <span class="nam">get_previous_business_date</span><span class="op">(</span><span class="nam">right_now</span><span class="op">.</span><span class="nam">date</span><span class="op">(</span><span class="op">)</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t127" href="#t127">127</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t128" href="#t128">128</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t129" href="#t129">129</a></span><span class="t"><span class="key">def</span> <span class="nam">is_date_weekend</span><span class="op">(</span><span class="nam">this_date</span><span class="op">:</span> <span class="nam">Union</span><span class="op">[</span><span class="nam">date</span><span class="op">,</span> <span class="nam">str</span><span class="op">]</span><span class="op">)</span> <span class="op">-></span> <span class="nam">bool</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
@@ -257,7 +257,7 @@
     <p class="run"><span class="n"><a id="t175" href="#t175">175</a></span><span class="t">    <span class="key">if</span> <span class="nam">is_date_holiday</span><span class="op">(</span><span class="nam">this_date</span><span class="op">,</span> <span class="nam">bond</span><span class="op">)</span> <span class="key">or</span> <span class="nam">is_date_weekend</span><span class="op">(</span><span class="nam">this_date</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t176" href="#t176">176</a></span><span class="t">        <span class="key">return</span> <span class="nam">get_previous_business_date</span><span class="op">(</span><span class="nam">this_date</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t177" href="#t177">177</a></span><span class="t">    <span class="key">if</span> <span class="nam">is_date_today</span><span class="op">(</span><span class="nam">this_date</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t178" href="#t178">178</a></span><span class="t">        <span class="key">return</span> <span class="nam">last_close_date</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t178" href="#t178">178</a></span><span class="t">        <span class="key">return</span> <span class="nam">last_close_date</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t179" href="#t179">179</a></span><span class="t">    <span class="key">return</span> <span class="nam">this_date</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t180" href="#t180">180</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t181" href="#t181">181</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
@@ -278,7 +278,7 @@
     <p class="pln"><span class="n"><a id="t196" href="#t196">196</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t197" href="#t197">197</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t198" href="#t198">198</a></span><span class="t"><span class="key">def</span> <span class="nam">intersect_with_trading_dates</span><span class="op">(</span><span class="nam">date_key_dict</span><span class="op">:</span> <span class="nam">dict</span><span class="op">)</span> <span class="op">-></span> <span class="nam">dict</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t199" href="#t199">199</a></span><span class="t">    <span class="key">return</span> <span class="op">{</span><span class="nam">this_date</span><span class="op">:</span> <span class="nam">date_key_dict</span><span class="op">[</span><span class="nam">this_date</span><span class="op">]</span> <span class="key">for</span> <span class="nam">this_date</span> <span class="key">in</span> <span class="nam">date_key_dict</span> <span class="key">if</span> <span class="nam">is_trading_date</span><span class="op">(</span><span class="nam">this_date</span><span class="op">)</span><span class="op">}</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t199" href="#t199">199</a></span><span class="t">    <span class="key">return</span> <span class="op">{</span><span class="nam">this_date</span><span class="op">:</span> <span class="nam">date_key_dict</span><span class="op">[</span><span class="nam">this_date</span><span class="op">]</span> <span class="key">for</span> <span class="nam">this_date</span> <span class="key">in</span> <span class="nam">date_key_dict</span> <span class="key">if</span> <span class="nam">is_trading_date</span><span class="op">(</span><span class="nam">this_date</span><span class="op">)</span><span class="op">}</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t200" href="#t200">200</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t201" href="#t201">201</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t202" href="#t202">202</a></span><span class="t"><span class="key">def</span> <span class="nam">get_holidays_between</span><span class="op">(</span><span class="nam">start_date</span><span class="op">:</span> <span class="nam">Union</span><span class="op">[</span><span class="nam">date</span><span class="op">,</span> <span class="nam">str</span><span class="op">]</span><span class="op">,</span> <span class="nam">end_date</span><span class="op">:</span> <span class="nam">Union</span><span class="op">[</span><span class="nam">date</span><span class="op">,</span> <span class="nam">str</span><span class="op">]</span><span class="op">)</span> <span class="op">-></span> <span class="nam">int</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
@@ -338,7 +338,7 @@
     <p class="pln"><span class="n"><a id="t256" href="#t256">256</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t257" href="#t257">257</a></span><span class="t">        <span class="key">return</span> <span class="key">True</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t258" href="#t258">258</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t259" href="#t259">259</a></span><span class="t">    <span class="key">return</span> <span class="key">False</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t259" href="#t259">259</a></span><span class="t">    <span class="key">return</span> <span class="key">False</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t260" href="#t260">260</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t261" href="#t261">261</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t262" href="#t262">262</a></span><span class="t"><span class="key">def</span> <span class="nam">dates_between</span><span class="op">(</span><span class="nam">start_date</span><span class="op">:</span> <span class="nam">Union</span><span class="op">[</span><span class="nam">date</span><span class="op">,</span> <span class="nam">str</span><span class="op">]</span><span class="op">,</span> <span class="nam">end_date</span><span class="op">:</span> <span class="nam">Union</span><span class="op">[</span><span class="nam">date</span><span class="op">,</span> <span class="nam">str</span><span class="op">]</span><span class="op">)</span> <span class="op">-></span> <span class="nam">List</span><span class="op">[</span><span class="nam">date</span><span class="op">]</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
@@ -540,7 +540,7 @@
             <a id="nextFileLink" class="nav" href="d_4a25ed309e7bc612_errors_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io">coverage.py v6.4.1</a>,
-            created at 2022-06-28 16:13 +0000
+            created at 2022-06-28 17:02 +0000
         </p>
     </div>
 </footer>
