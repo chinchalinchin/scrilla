@@ -9,7 +9,7 @@ from scrilla import settings as scrilla_settings
 from scrilla.cache import PriceCache, InterestCache, ProfileCache
 from scrilla.files import clear_cache, init_static_data
 
-from .. import mock, settings
+from .. import mock_data, settings
 from httmock import HTTMock
 
 
@@ -28,7 +28,7 @@ def reset_cache():
     ('DIS', '2021-10-04', 173.46)
 ])
 def test_past_price(ticker, date, price):
-    with HTTMock(mock.mock_prices):
+    with HTTMock(mock_data.mock_prices):
         response = services.get_daily_price_history(
             ticker=ticker, start_date=settings.START, end_date=settings.END)
     response_price = response[date][keys['PRICES']['CLOSE']]
@@ -42,7 +42,7 @@ def test_past_price(ticker, date, price):
     ('SPY', keys['ASSETS']['EQUITY'])
 ])
 def test_service_date_validation(ticker, asset_type):
-    with HTTMock(mock.mock_prices):
+    with HTTMock(mock_data.mock_prices):
         response = services.get_daily_price_history(
             ticker=ticker, start_date=settings.START, end_date=settings.END)
     validated_start, validated_end = validate_dates(start_date=settings.START, end_date=settings.END,
@@ -59,7 +59,7 @@ def test_service_date_validation(ticker, asset_type):
      "2021-10-14", 0.1)
 ])
 def test_past_interest(maturity, date, yield_rate):
-    with HTTMock(mock.mock_interest):
+    with HTTMock(mock_data.mock_interest):
         response = services.get_daily_interest_history(
             maturity=maturity, start_date=settings.START, end_date=settings.END)
     assert(response[date] == yield_rate)

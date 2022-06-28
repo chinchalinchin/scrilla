@@ -5,11 +5,11 @@ import random
 from scrilla.analysis import estimators
 from scrilla.util.errors import SampleSizeError
 
-from .. import mock
+from .. import mock_data
 from .. import settings
 
 
-@pytest.mark.parametrize("x", [(mock.univariate_data[datum]) for datum in mock.univariate_data])
+@pytest.mark.parametrize("x", [(mock_data.univariate_data[datum]) for datum in mock_data.univariate_data])
 def test_univariate_normal_likelihood_probability_bounds(x):
     sample_mean = estimators.sample_mean(x)
     sample_variance = estimators.sample_variance(x)
@@ -18,7 +18,7 @@ def test_univariate_normal_likelihood_probability_bounds(x):
     assert(likelihood > 0 and likelihood < 1)
 
 
-@pytest.mark.parametrize("x", [(mock.univariate_data[datum]) for datum in mock.univariate_data])
+@pytest.mark.parametrize("x", [(mock_data.univariate_data[datum]) for datum in mock_data.univariate_data])
 def test_univariate_normal_likelihood_monotonicity(x):
     """
     Assume the samples are populations, then sample mean is population mean. The sample mean of the 
@@ -56,7 +56,7 @@ def test_univariate_normal_likelihood_monotonicity(x):
     assert(likelihood_truncated > likelihood_whole)
 
 
-@pytest.mark.parametrize("x,y", [(mock.bivariate_data[datum]) for datum in mock.bivariate_data])
+@pytest.mark.parametrize("x,y", [(mock_data.bivariate_data[datum]) for datum in mock_data.bivariate_data])
 def test_bivariate_normal_likelihood_probability_bounds(x, y):
     sample_x_mean_whole = estimators.sample_mean(x)
     sample_x_var_whole = estimators.sample_variance(x)
@@ -84,7 +84,7 @@ def test_bivariate_normal_likelihood_probability_bounds(x, y):
     assert(likelihood_truncated > likelihood_whole)
 
 
-@pytest.mark.parametrize("x,mu", mock.mean_cases)
+@pytest.mark.parametrize("x,mu", mock_data.mean_cases)
 def test_mean(x, mu):
     mean = estimators.sample_mean(x=x)
     assert(settings.is_within_tolerance(lambda: mean - mu))
@@ -107,7 +107,7 @@ def test_mean_missing_samples(x):
     assert sample_error.type == ValueError
 
 
-@pytest.mark.parametrize("first_x,second_x", mock.recursive_univariate_data)
+@pytest.mark.parametrize("first_x,second_x", mock_data.recursive_univariate_data)
 def test_rolling_recursive_mean(first_x, second_x):
     lost_obs, new_obs = first_x[0], second_x[-1]
     n = len(first_x)
@@ -119,7 +119,7 @@ def test_rolling_recursive_mean(first_x, second_x):
         lambda: recursive_mean - actual_next_mean))
 
 
-@pytest.mark.parametrize("x,var", mock.variance_cases)
+@pytest.mark.parametrize("x,var", mock_data.variance_cases)
 def test_variance(x, var):
     variance = estimators.sample_variance(x)
     assert(settings.is_within_tolerance(lambda: variance - var))
@@ -139,7 +139,7 @@ def test_variance_null_sample(x):
     assert sample_error.type == ValueError
 
 
-@pytest.mark.parametrize("first_x,second_x", mock.recursive_univariate_data)
+@pytest.mark.parametrize("first_x,second_x", mock_data.recursive_univariate_data)
 def test_rolling_recursive_variance(first_x, second_x):
     lost_obs, new_obs = first_x[0], second_x[-1]
     n = len(first_x)
@@ -152,13 +152,13 @@ def test_rolling_recursive_variance(first_x, second_x):
         lambda: recursive_variance - actual_next_variance))
 
 
-@pytest.mark.parametrize("x,y,cov", mock.covariance_cases)
+@pytest.mark.parametrize("x,y,cov", mock_data.covariance_cases)
 def test_covariance(x, y, cov):
     covariance = estimators.sample_covariance(x=x, y=y)
     assert(settings.is_within_tolerance(lambda: covariance - cov))
 
 
-@pytest.mark.parametrize("x,y,correl", mock.correlation_cases)
+@pytest.mark.parametrize("x,y,correl", mock_data.correlation_cases)
 def test_correlation(x, y, correl):
     correlation = estimators.sample_correlation(x=x, y=y)
     assert(settings.is_within_tolerance(lambda: correlation - correl))
@@ -180,13 +180,13 @@ def test_correlation_bounds(x, y):
     assert(abs(correlation) > 0 and abs(correlation) < 1)
 
 
-@pytest.mark.parametrize("x,y,beta", [(case[0], case[1], case[3])for case in mock.regression_cases])
+@pytest.mark.parametrize("x,y,beta", [(case[0], case[1], case[3])for case in mock_data.regression_cases])
 def test_simple_regression_slope(x, y, beta):
     slope = estimators.simple_regression_beta(x=x, y=y)
     assert(settings.is_within_tolerance(lambda: slope - beta))
 
 
-@pytest.mark.parametrize("x,y,alpha", [(case[0:3]) for case in mock.regression_cases])
+@pytest.mark.parametrize("x,y,alpha", [(case[0:3]) for case in mock_data.regression_cases])
 def test_simple_regression_intercept(x, y, alpha):
     intercept = estimators.simple_regression_alpha(x=x, y=y)
     assert(settings.is_within_tolerance(lambda: intercept - alpha))

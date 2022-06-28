@@ -5,7 +5,7 @@ from scrilla.cache import PriceCache, ProfileCache, InterestCache, CorrelationCa
 from scrilla.files import clear_cache
 from scrilla.analysis.objects.portfolio import Portfolio
 
-from .. import mock
+from .. import mock_data
 from .. import settings as test_settings
 from httmock import HTTMock
 
@@ -19,8 +19,8 @@ def reset_cache():
 
 @pytest.fixture()
 def portfolios():
-    with HTTMock(mock.mock_prices):
-        with HTTMock(mock.mock_interest):
+    with HTTMock(mock_data.mock_prices):
+        with HTTMock(mock_data.mock_interest):
             portfolios = [
                 Portfolio(
                     tickers=['ALLY', 'BX'], start_date=test_settings.START, end_date=test_settings.END),
@@ -65,8 +65,8 @@ def test_portfolio_initialization(portfolios):
     (['BTC', 'ALGO', 'SPY'], 0)
 ])
 def test_weekend_initialization(tickers, weekends):
-    with HTTMock(mock.mock_prices):
-        with HTTMock(mock.mock_interest):
+    with HTTMock(mock_data.mock_prices):
+        with HTTMock(mock_data.mock_interest):
             test_portfolio = Portfolio(
                 tickers=tickers, start_date=test_settings.START, end_date=test_settings.END)
     assert(test_portfolio.weekends == weekends)
@@ -79,8 +79,8 @@ def test_weekend_initialization(tickers, weekends):
     (['BTC', 'ALGO', 'SPY'], 2)
 ])
 def test_asset_groups(tickers, groups):
-    with HTTMock(mock.mock_prices):
-        with HTTMock(mock.mock_interest):
+    with HTTMock(mock_data.mock_prices):
+        with HTTMock(mock_data.mock_interest):
             test_portfolio = Portfolio(
                 tickers=tickers, start_date=test_settings.START, end_date=test_settings.END)
     assert(test_portfolio.asset_groups == groups)

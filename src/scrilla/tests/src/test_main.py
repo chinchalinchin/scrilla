@@ -7,7 +7,7 @@ from scrilla.main import do_program
 from scrilla.cache import PriceCache, ProfileCache, InterestCache, CorrelationCache
 from scrilla.files import clear_cache, init_static_data
 
-from .. import mock, settings
+from .. import mock_data, settings
 
 init_static_data()
 
@@ -27,7 +27,7 @@ def reset_cache():
      '-start', settings.START_STR, '-end', settings.END_STR], 4)
 ])
 def test_cli_correlation_json_format(args, length, capsys):
-    with HTTMock(mock.mock_prices):
+    with HTTMock(mock_data.mock_prices):
         do_program(args)
     correl_matrix = json.loads(capsys.readouterr().out)
     # assert dimensions are correct length
@@ -46,7 +46,7 @@ def test_cli_correlation_json_format(args, length, capsys):
      '-start', settings.START_STR, '-end', settings.END_STR], 4)
 ])
 def test_cli_correlation_json_format_with_likelihood(args, length, capsys):
-    with HTTMock(mock.mock_prices):
+    with HTTMock(mock_data.mock_prices):
         do_program(args)
     correl_matrix = json.loads(capsys.readouterr().out)
     # assert dimensions are correct length

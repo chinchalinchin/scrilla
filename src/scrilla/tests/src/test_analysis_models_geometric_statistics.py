@@ -9,7 +9,7 @@ from scrilla.cache import PriceCache, ProfileCache, InterestCache, CorrelationCa
 from scrilla.files import clear_cache, get_asset_type
 from scrilla.static.keys import keys
 
-from .. import mock
+from .. import mock_data
 
 
 @pytest.fixture(autouse=True)
@@ -19,9 +19,9 @@ def reset_cache():
     InterestCache(mode='sqlite'), CorrelationCache(mode='sqlite')
 
 
-@pytest.mark.parametrize("ticker,start_date,end_date", mock.service_price_cases)
+@pytest.mark.parametrize("ticker,start_date,end_date", mock_data.service_price_cases)
 def test_moving_average_return(ticker, start_date, end_date):
-    with HTTMock(mock.mock_prices):
+    with HTTMock(mock_data.mock_prices):
         moving_average = statistics.calculate_moving_averages(
             ticker=ticker, start_date=start_date, end_date=end_date)
 
@@ -38,9 +38,9 @@ def test_moving_average_return(ticker, start_date, end_date):
                for average_dict in moving_average.values())
 
 
-@pytest.mark.parametrize("ticker,start_date,end_date", mock.service_price_cases)
+@pytest.mark.parametrize("ticker,start_date,end_date", mock_data.service_price_cases)
 def test_sample_of_returns(ticker, start_date, end_date):
-    with HTTMock(mock.mock_prices):
+    with HTTMock(mock_data.mock_prices):
         these_returns = statistics.get_sample_of_returns(ticker=ticker,
                                                          start_date=dater.parse(
                                                              start_date),
@@ -68,9 +68,9 @@ def test_sample_of_returns_with_no_sample(ticker, start_date, end_date):
     assert sample_error.type == SampleSizeError
 
 
-@pytest.mark.parametrize("ticker,start_date,end_date", mock.service_price_cases)
+@pytest.mark.parametrize("ticker,start_date,end_date", mock_data.service_price_cases)
 def test_standardized_sample_of_returns(ticker, start_date, end_date):
-    with HTTMock(mock.mock_prices):
+    with HTTMock(mock_data.mock_prices):
         these_returns = standardize(statistics.get_sample_of_returns(ticker=ticker,
                                                                      start_date=dater.parse(
                                                                          start_date),

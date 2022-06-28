@@ -6,7 +6,8 @@ from scrilla.files import clear_cache
 from scrilla.services import get_daily_price_history, get_daily_interest_history
 from scrilla.util import dater
 
-from .. import mock, settings as test_settings
+from mock import patch
+from .. import mock_data, settings as test_settings
 from httmock import HTTMock
 from moto import mock_dynamodb
 
