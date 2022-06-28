@@ -577,7 +577,7 @@ class CorrelationCache():
         if len(results) > 0:
             logger.debug(
                 f'Found ({ticker_1},{ticker_2}) correlation in the cache', 'CorrelationCache.filter')
-            if self.mode is 'sqlite':
+            if self.mode == 'sqlite':
                 correl = self.to_dict(results)
             elif self.mode == 'dynamodb':
                 correl = results[0]

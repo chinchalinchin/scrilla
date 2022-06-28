@@ -143,7 +143,7 @@ def test_profile_cache_construct_insert_query(params, expected):
     )
 ])
 def test_price_cache_to_params(ticker, prices, expected):
-    assert PriceCache()._to_params(ticker, prices) == expected
+    assert PriceCache._to_params(ticker, prices) == expected
 
 @pytest.mark.parametrize('rates,expected',[
     (
@@ -215,7 +215,7 @@ def test_price_cache_to_params(ticker, prices, expected):
     )
 ])
 def test_interest_cache_to_params(rates, expected):
-    assert InterestCache()._to_params(rates) == expected
+    assert InterestCache._to_params(rates) == expected
 
 @pytest.mark.parametrize('results,expected',[
     (
@@ -247,7 +247,7 @@ def test_interest_cache_to_params(rates, expected):
     ),
 ])
 def test_interest_cache_to_dict_dynamodb(results, expected):
-    actual = InterestCache().to_dict(results, 'dynamodb')
+    actual = InterestCache.to_dict(results, 'dynamodb')
     actual_keys = list(actual.keys())
     assert InterestCache().to_dict(results, 'dynamodb') == expected
     assert all( dater.parse(actual_keys[i]) < dater.parse(actual_keys[i-1])
@@ -302,7 +302,7 @@ def test_interest_cache_to_dict_dynamodb(results, expected):
     )
 ])
 def test_price_cache_to_dict_dynamodb(results, expected):
-    actual = PriceCache().to_dict(results, 'dynamodb')
+    actual = PriceCache.to_dict(results, 'dynamodb')
     actual_keys = list(actual.keys())
 
     assert actual == expected
@@ -310,4 +310,37 @@ def test_price_cache_to_dict_dynamodb(results, expected):
                     for i in range(1,len(actual_keys)))
 
 
+@pytest.mark.parametrize('ticker,prices', [
+    (
+        'ALLY',
+        {
+            '2020-01-10': {
+                'open': 51,
+                'close':53
+            },
+            '2020-01-09':{
+                'open': 50,
+                'close': 11
+            },
+            '2020-01-04': {
+                'open': 49,
+                'close': 12.4
+            },
+            '2020-01-02': {
+                'open': 52,
+                'close': 12
+            },
+
+        }
+    )
+])
+def test_internal_price_cache(prices, ticker, sqlite_price_cache):
+    sqlite_price_cache.save_rows(ticker, prices)
+    for date in prices.keys():
+        real_date = dater.parse(date)
+        truncated_dict = { this_date: prices[this_date] for this_date in prices.keys() if this_date == date}
+        assert sqlite_price_cache._retrieve_from_internal_cache(ticker, real_date, real_date) == truncated_dict
 # test: create caches, save_rows, check the internal cache was updated
+
+def test_internal_interest_cache():
+    pass
