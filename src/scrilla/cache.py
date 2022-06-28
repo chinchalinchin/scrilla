@@ -35,11 +35,10 @@ logger = outputter.Logger("scrilla.cache", settings.LOG_LEVEL)
 class Singleton(type):
 
     _instances = {}
-
-    def __new__(class_, *args, **kwargs):
-        if class_ not in class_._instances:
-            class_._instances[class_] = super(Singleton, class_).__new__(class_, *args, **kwargs)
-        return class_._instances[class_]
+    def __call__(cls, *args, **kwargs):
+        if cls not in cls._instances:
+            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
+        return cls._instances[cls]
 
 
 class Cache():
@@ -85,7 +84,7 @@ class Cache():
         return response
 
 
-class PriceCache():
+class PriceCache(metaclass=Singleton):
     """
     Statically asseses *SQLite* functionality from `scrilla.cache.Cache`. Extends basic functionality to cache prices in a table with columns `(ticker, date, open, close)`, with a unique constraint on the tuplie `(ticker, date)`, i.e. records in the *PriceCache* are uniquely determined by the the combination of the ticker symbol and the date.
 
@@ -98,7 +97,6 @@ class PriceCache():
     3. **sqlite_price_query**: ``str```
         *SQLite* query to retrieve prices from cache.
     """
-    __metaclass__ = Singleton
 
     sqlite_create_table_transaction = "CREATE TABLE IF NOT EXISTS prices (ticker text, date text, open real, close real, UNIQUE(ticker, date))"
     sqlite_insert_row_transaction = "INSERT OR IGNORE INTO prices (ticker, date, open, close) VALUES (:ticker, :date, :open, :close)"
@@ -154,7 +152,11 @@ class PriceCache():
     def __init__(self, mode=settings.CACHE_MODE):
         self.mode = mode
         self.internal_cache = {}
-        self.uuid = uuid.uuid4()
+
+        if not self.inited:
+            self.uuid = uuid.uuid4()
+            self.inited = True
+            
         if not files.get_memory_json()['cache'][mode]['prices']:
             self._table()
 
@@ -241,7 +243,7 @@ class PriceCache():
         return None
 
 
-class InterestCache():
+class InterestCache(metaclass=Singleton):
     """
     Statically accesses *SQLite* functionality from `scrilla.cache.Cache`. Extends basic functionality to cache interest rate data in a table with columns `(maturity, date, value)`.
 
@@ -258,7 +260,6 @@ class InterestCache():
     6. **dynamo_query**: ``str``
     7. **dynamo_identity_query**: ``str``
     """
-    __metaclass__ = Singleton
 
     sqlite_create_table_transaction = "CREATE TABLE IF NOT EXISTS interest(maturity text, date text, value real, UNIQUE(maturity, date))"
     sqlite_insert_row_transaction = "INSERT OR IGNORE INTO interest (maturity, date, value) VALUES (:maturity, :date, :value)"
@@ -400,7 +401,7 @@ class InterestCache():
         return None
 
 
-class CorrelationCache():
+class CorrelationCache(metaclass=Singleton):
     """
     Inherits *SQLite* functionality from `scrilla.cache.Cache`. Extends basic functionality to cache correlation calculations in a table with columns `(ticker_1, ticker_2, correlation, start_date, end_date, estimation_method, weekends)`.
 
@@ -416,8 +417,6 @@ class CorrelationCache():
     .. notes::
         * do not need to order `correlation_query` and `profile_query` because profiles and correlations are uniquely determined by the (`start_date`, `end_date`, 'ticker_1', 'ticker_2')-tuple. More or less. There is a bit of fuzziness, since the permutation of the previous tuple, ('start_date', 'end_date', 'ticker_2', 'ticker_1'), will also be associated with the same correlation value. No other mappings between a date's correlation value and the correlation's tickers are possible though. In other words, the query, for a given (ticker_1, ticker_2)-permutation will only ever return one result.
     """
-
-    __metaclass__ = Singleton
 
     sqlite_create_table_transaction = "CREATE TABLE IF NOT EXISTS correlations (ticker_1 TEXT, ticker_2 TEXT, start_date TEXT, end_date TEXT, correlation REAL, method TEXT, weekends INT)"
     sqlite_insert_row_transaction = "INSERT INTO correlations (ticker_1, ticker_2, start_date, end_date, correlation, method, weekends) VALUES (:ticker_1, :ticker_2, :start_date, :end_date, :correlation, :method, :weekends)"
@@ -582,7 +581,7 @@ class CorrelationCache():
         return None
 
 
-class ProfileCache():
+class ProfileCache(metaclass=Singleton):
     """
     Statically assesses the *SQLite* functionality from `scrilla.cache.Cache`. Extends basic functionality to cache risk profile calculations in a table with columns `(ticker, start_date, end_date, annual_return, annual_volatility, sharpe_ration, asset_beta, equity_cost, estimation_method)`.
 
@@ -599,8 +598,6 @@ class ProfileCache():
     6. **dynamo_query**: ``str``
     7. **dynamo_identity_query**: ``str``
     """
-
-    __metaclass__ = Singleton
 
     sqlite_create_table_transaction = "CREATE TABLE IF NOT EXISTS profile (id INTEGER PRIMARY KEY, ticker TEXT, start_date TEXT, end_date TEXT, annual_return REAL, annual_volatility REAL, sharpe_ratio REAL, asset_beta REAL, equity_cost REAL, method TEXT, weekends INT)"
     sqlite_filter = "ticker=:ticker AND start_date=date(:start_date) AND end_date=date(:end_date) AND :method=method AND weekends=:weekends"
