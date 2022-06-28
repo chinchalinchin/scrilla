@@ -429,7 +429,7 @@ def test_interest_internal_cache_save_hook(rates, expected, sqlite_interest_cach
 @pytest.mark.parametrize('ticker,prices,expected,query_results', [price_internal_cache_case_query_results])
 def test_price_internal_cache_update_hook(ticker, prices, expected, query_results, sqlite_price_cache):
     with patch('scrilla.cache.sqlite3') as mocksqlite:
-        mocksqlite.connect().cursor().fetchall.return_value = query_results
+        mocksqlite.connect().cursor().execute().fetchall.return_value = query_results
         for index, date in enumerate(prices.keys()):
             start_date = dater.parse(date)
             sqlite_price_cache.filter(ticker, start_date, start_date)

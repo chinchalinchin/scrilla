@@ -79,10 +79,7 @@ class Cache():
                 else:
                     response = executor.execute(query, formatter).fetchall()
             else:
-                if isinstance(formatter, list):
-                    response = executor.executemany(query).fetchall()
-                else:
-                    response = executor.execute(query).fetchall()
+                response = executor.execute(query).fetchall()
             con.commit(), con.close()
         elif mode == 'dynamodb':
             response = aws.dynamo_statement(query, formatter)
