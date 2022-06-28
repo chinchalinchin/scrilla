@@ -150,6 +150,7 @@ commands:
             cp -ap ./docs/build/html/. /tmp/docs/
             git checkout gh-pages
             git pull
+            rm -rf ./coverage/*
             cp -ap /tmp/docs/. ./
             ls -al coverage
             find -type f -name '*!home!circleci!.pyenv!versions!*' -delete
