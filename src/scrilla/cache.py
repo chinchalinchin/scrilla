@@ -38,9 +38,10 @@ class Singleton(type):
 
     def __call__(cls, *args, **kwargs):
         if cls not in cls._instances:
-            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
+            cls._instances[cls] = super(
+                Singleton, cls).__call__(*args, **kwargs)
         else:
-            cls._instances[cls].__init__(*args,**kwargs)
+            cls._instances[cls].__init__(*args, **kwargs)
         return cls._instances[cls]
 
 
@@ -104,8 +105,8 @@ class PriceCache(metaclass=Singleton):
     5. **sqlite_price_query**: ``str```
         *SQLite* query to retrieve prices from cache.
     """
-    internal_cache = {} 
-    inited = False   
+    internal_cache = {}
+    inited = False
     sqlite_create_table_transaction = "CREATE TABLE IF NOT EXISTS prices (ticker text, date text, open real, close real, UNIQUE(ticker, date))"
     sqlite_insert_row_transaction = "INSERT OR IGNORE INTO prices (ticker, date, open, close) VALUES (:ticker, :date, :open, :close)"
     sqlite_price_query = "SELECT date, open, close FROM prices WHERE ticker = :ticker AND date <= date(:end_date) AND date >= date(:start_date) ORDER BY date(date) DESC"
@@ -160,7 +161,7 @@ class PriceCache(metaclass=Singleton):
     def __init__(self, mode=settings.CACHE_MODE):
         """
         Initializes `PriceCache`. A random UUID will be assigned to the `PriceCache` the first time it is created. Since `PriceCache` is a singelton, all subsequent instantiations of `PriceCache` will have the same UUID. 
-        
+
         Parameters
         ----------
         1. **mode**: ``str``
@@ -327,7 +328,7 @@ class InterestCache(metaclass=Singleton):
     def __init__(self, mode=settings.CACHE_MODE):
         """
         Initializes `ProfileCache`. A random UUID will be assigned to the `InteretCache` the first time it is created. Since `InterestCache` is a singelton, all subsequent instantiations of `InterestCache` will have the same UUID. 
-        
+
         Parameters
         ----------
         1. **mode**: ``str``
@@ -487,7 +488,7 @@ class CorrelationCache(metaclass=Singleton):
     def __init__(self, mode=settings.CACHE_MODE):
         """
         Initializes `CorrelationCache`. A random UUID will be assigned to the `CorrelationCache` the first time it is created. Since `CorrelationCache` is a singelton, all subsequent instantiations of `CorrelationCache` will have the same UUID. 
-        
+
         Parameters
         ----------
         1. **mode**: ``str``
