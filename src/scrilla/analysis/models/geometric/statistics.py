@@ -778,8 +778,8 @@ def _calculate_moment_risk_return(ticker: str, start_date: Union[date, None] = N
                                        method=keys.keys['ESTIMATION']['MOMENT'], weekends=weekends)
 
         if results is not None \
-                and results[keys.keys['STATISTICS']['RETURN']] is not None \
-                and results[keys.keys['STATISTICS']['VOLATILITY']] is not None:
+                and results.get(keys.keys['STATISTICS']['RETURN']) is not None \
+                and results.get(keys.keys['STATISTICS']['VOLATILITY']) is not None:
             return results
 
         logger.debug('No sample prices provided, calling service.',

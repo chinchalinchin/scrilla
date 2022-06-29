@@ -1,5 +1,6 @@
 import pytest
 import json
+from unittest.mock import patch
 
 from httmock import HTTMock
 
@@ -67,7 +68,7 @@ def test_cli_correlation_json_format_with_likelihood(args, length, capsys):
     ),
     (
         ['risk-profile', 'BX', 'DIS', '-json', '-start', settings.START_STR, '-end', settings.END_STR],
-        ['BX', 'SONY']
+        ['BX', 'DIS']
     ),
     (
         ['risk-profile', 'SPY', 'BX', 'DIS', '-json', '-start', settings.START_STR, '-end', settings.END_STR],
@@ -75,11 +76,13 @@ def test_cli_correlation_json_format_with_likelihood(args, length, capsys):
     )
 ])
 def test_cli_risk_profile_json_format(args, tickers, capsys):
-    with HTTMock(mock_data.mock_prices):
-        with HTTMock(mock_data.mock_treasury):
-            do_program(args)
+    with patch('scrilla.util.dater.get_last_trading_date') as date_function:
+        date_function.return_value = settings.END
+        with HTTMock(mock_data.mock_prices):
+            with HTTMock(mock_data.mock_treasury):
+                do_program(args)
     profile = json.loads(capsys.readouterr().out)
-    profile_keys = [ key for key in keys.keys['STATISTICS'].values() if key not in ['conditional_value_at_risk', 'value_at_risk']]
+    profile_keys = [ key for key in keys.keys['STATISTICS'].values() if key not in ['conditional_value_at_risk', 'value_at_risk', 'correlation']]
     for ticker in tickers:
         for key in profile_keys:
             assert key in profile[ticker].keys()
@@ -96,7 +99,7 @@ def test_cli_risk_profile_json_format(args, tickers, capsys):
 ])
 def test_cli_cvar_json_format(args, tickers, capsys):
     with HTTMock(mock_data.mock_prices):
-        with HTTMock(mock_data.mock_interest):
+        with HTTMock(mock_data.mock_treasury):
             do_program(args)
     cvar = json.loads(capsys.readouterr().out)
     for ticker in tickers:
@@ -106,9 +109,11 @@ def test_cli_cvar_json_format(args, tickers, capsys):
     (['close', 'ALLY', '-start', settings.START_STR, '-end', settings.END_STR, '-json'], 'ALLY')
 ])
 def test_cli_close_price_json_format(args, ticker, capsys):
-    with HTTMock(mock_data.mock_prices):
-        with HTTMock(mock_data.mock_treasury):
-            do_program(args)
+    with patch('scrilla.util.dater.this_date_or_last_trading_date') as date_function:
+        date_function.return_value = settings.END
+        with HTTMock(mock_data.mock_prices):
+            with HTTMock(mock_data.mock_treasury):
+                do_program(args)
     prices = json.loads(capsys.readouterr().out)
     assert prices.get(ticker) is not None
     assert prices[ticker].get(settings.START_STR) is not None

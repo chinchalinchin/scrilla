@@ -409,7 +409,8 @@ interest_cache_to_dict_dynamodb_case=(
 )
 
 
-def load_test_file(file, extension = 'json'):
+def load_test_file(file):
+    extension = file.split('.')[1]
     if extension == 'json':
         return json.dumps(load_file(os.path.join(test_settings.MOCK_DIR, file)))
     return load_file(os.path.join(test_settings.MOCK_DIR, file))
@@ -439,7 +440,7 @@ def mock_quandl(url, request):
 
 @urlmatch(netloc=r'(.*\.)?home\.treasury\.gov*$')
 def mock_treasury(url, request):
-    return load_test_file('treasury_response', 'xml')
+    return load_test_file('treasury_response.xml')
 
 @urlmatch(netloc=r'(.*\.)?cloud\.iexapis\.com*$')
 def mock_dividends(url, request):
