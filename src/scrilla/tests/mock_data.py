@@ -412,23 +412,23 @@ interest_cache_to_dict_dynamodb_case=(
 def load_test_file(file, extension = 'json'):
     if extension == 'json':
         return json.dumps(load_file(os.path.join(test_settings.MOCK_DIR, file)))
-    return load_file(os.path.join(test_settings.MOCK_DIR), file)
+    return load_file(os.path.join(test_settings.MOCK_DIR, file))
 
 @urlmatch(netloc=r'(.*\.)?alphavantage\.co*$')
 def mock_prices(url, request):
-    if 'ally' in request.url:
+    if 'ALLY' in request.url:
         return load_test_file('ally_response.json')
-    elif 'bx' in request.url:
+    elif 'BX' in request.url:
         return load_test_file('bx_response.json')
-    elif 'dis' in request.url:
+    elif 'DIS' in request.url:
         return load_test_file('dis_response.json')
-    elif 'spy' in request.url:
+    elif 'SPY' in request.url:
         return load_test_file( 'spy_response.json')
-    elif 'gld' in request.url:
+    elif 'GLD' in request.url:
         return load_test_file('gld_response.json')
-    elif 'btc' in request.url:
+    elif 'BTC' in request.url:
         return load_test_file('btc_response.json')
-    elif 'algo' in request.url:
+    elif 'ALGO' in request.url:
         return load_test_file('algo_response.json')
     raise KeyError('No mock data for request!')
 
@@ -448,4 +448,4 @@ def mock_dividends(url, request):
     elif 'BX' in request.url:
         return load_test_file('bx_div_response.json')
     elif 'DIS' in request.url:
-        return load_file('dis_div_response.json')
+        return load_test_file('dis_div_response.json')
