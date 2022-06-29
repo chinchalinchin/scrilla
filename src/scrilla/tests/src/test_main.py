@@ -1,6 +1,6 @@
 import pytest
 import json
-from unittest.mock import patch
+from unittest.mock import patch, ANY
 
 from httmock import HTTMock
 
@@ -61,7 +61,7 @@ def test_cli_correlation_json_format_with_likelihood(args, length, capsys):
 
 # TODO: need mock dividend response to test cli
 
-@pytest.mark.parametrize('args, tickers', [
+@pytest.mark.parametrize('args,tickers', [
     (
         ['risk-profile', 'ALLY', '-json', '-start', settings.START_STR, '-end', settings.END_STR],
         ['ALLY']
@@ -86,6 +86,22 @@ def test_cli_risk_profile_json_format(args, tickers, capsys):
     for ticker in tickers:
         for key in profile_keys:
             assert key in profile[ticker].keys()
+
+@patch('scrilla.files.save_file')
+@patch('scrilla.util.dater.get_last_trading_date')
+@pytest.mark.parametrize('args,filename',[
+    (
+        ['risk-profile', 'ALLY', '-json', '-start', settings.START_STR, '-end', settings.END_STR, '-save', 'test_path'],
+        'test_path'
+    )
+])
+def test_cli_risk_profile_save_file(date_function, save_function, args, filename):
+    date_function.return_value = settings.END
+    with HTTMock(mock_data.mock_prices):
+        with HTTMock(mock_data.mock_treasury):
+            do_program(args)
+    save_function.assert_called()
+    save_function.assert_called_with(file_to_save=ANY, file_name=filename)
 
 @pytest.mark.parametrize('args,tickers', [
     (

@@ -64,7 +64,8 @@ def save_memory_json(persist: Union[dict, None] = None):
 
 def get_memory_json():
     if os.path.isfile(settings.MEMORY_FILE):
-        return load_file(settings.MEMORY_FILE)
+        memory_json = load_file(settings.MEMORY_FILE)
+        return memory_json
     return memory_json_skeleton()
 
 
@@ -452,6 +453,7 @@ def clear_cache(mode: str = settings.CACHE_MODE) -> bool:
 
     for table in tables:
         memory['cache'][mode][table] = False
+
     save_memory_json(memory)
 
     if mode == 'sqlite':
