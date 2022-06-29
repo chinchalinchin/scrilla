@@ -6,3 +6,4 @@
 /venv/
 /.pytest_cache/
 scrilla.db
+**/.env
