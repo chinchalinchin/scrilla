@@ -238,6 +238,7 @@ def sample_mean(x: List[float]) -> float:
 
 
 def recursive_rolling_mean(xbar_previous, new_obs, lost_obs, n=settings.DEFAULT_ANALYSIS_PERIOD):
+    # this should be done in terms of the sample arrays, not the observations themselves, i think.
     xbar_next = xbar_previous + (new_obs - lost_obs)/n
     return xbar_next
 
@@ -256,6 +257,9 @@ def sample_variance(x: List[float]):
     Raises 
     ------
     1. `scrilla.errors.SampleSizeError`
+
+    .. notes::
+        * This a naive two-pass implementation of sample variance. The function does not shift data around the mean, resulting in skewed calculations if the variance is numerically small and the sample is large; if you are concerned about the accuracy of your variance calculation in these instances, a better method is to use `scrilla.analysis.estimators.recursive_sum_of_squares` and then compute the variance by dividing by _(n-1)_, where _n_ is the number of samples.
     """
     # TODO: this is a 'naive' estimation of variance: https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance
 
@@ -265,9 +269,13 @@ def sample_variance(x: List[float]):
         raise ValueError(
             'Sample contains null values')
 
-    if n in [0, 1]:
+    if n == 0:
         raise errors.SampleSizeError(
-            'Sample variance cannot be computed for a sample size less than or equal to 1.')
+            'Sample variance cannot be computed for a sample size of 0.')
+
+    if n == 1:
+        # no variance for a sample of 1. 
+        return 0
 
     for i in x:
         sigma += ((i-mu)**2)/(n-1)
@@ -288,10 +296,6 @@ def recursive_sum_of_squares(x: List[float]):
         return 0
     n = len(x)
     term_variance = (n*x[-1] - sum(x))**2/(n*(n-1))
-    print('x', x)
-    print('n ', n)
-    print('term_variance', term_variance)
-
     return recursive_sum_of_squares(x[:-1]) + term_variance
 
 def sample_covariance(x: list, y: list):

@@ -817,6 +817,8 @@ def _calculate_moment_risk_return(ticker: str, start_date: Union[date, None] = N
 
     # VOLATILITY CALCULATION
     # NOTE / TODO : this is a 'naive' variance algorithm: https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance
+        # although technically, this is only one pass, since the mean telescopes and doesn't require a full traversal of the 
+        # the sample. I should see how this implementation compares to a Young and Cramer Updating algorithm implementation.
     today, variance, tomorrows_price, tomorrows_date = False, 0, 0, None
     # adjust the random variable being measured so expectation is easier to calculate.
     mean_mod_return = mean_return*sqrt(trading_period)
