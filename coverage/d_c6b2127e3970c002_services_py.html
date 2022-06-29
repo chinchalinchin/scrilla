@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Coverage for src/scrilla/services.py: 74%</title>
+    <title>Coverage for src/scrilla/services.py: 79%</title>
     <link rel="icon" sizes="32x32" href="favicon_32.png">
     <link rel="stylesheet" href="style.css" type="text/css">
     <script type="text/javascript" src="coverage_html.js" defer></script>
@@ -12,7 +12,7 @@
     <div class="content">
         <h1>
             <span class="text">Coverage for </span><b>src/scrilla/services.py</b>:
-            <span class="pc_cov">74%</span>
+            <span class="pc_cov">79%</span>
         </h1>
         <aside id="help_panel_wrapper">
             <input id="help_panel_state" type="checkbox">
@@ -55,8 +55,8 @@
         </aside>
         <h2>
             <span class="text">277 statements &nbsp;</span>
-            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">204<span class="text"> run</span></button>
-            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">73<span class="text"> missing</span></button>
+            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">219<span class="text"> run</span></button>
+            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">58<span class="text"> missing</span></button>
             <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">0<span class="text"> excluded</span></button>
         </h2>
         <p class="text">
@@ -65,7 +65,7 @@
             <a id="nextFileLink" class="nav" href="d_c6b2127e3970c002_settings_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io">coverage.py v6.4.1</a>,
-            created at 2022-06-29 16:14 +0000
+            created at 2022-06-29 16:19 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"/>
@@ -387,23 +387,23 @@
     <p class="pln"><span class="n"><a id="t305" href="#t305">305</a></span><span class="t">                <span class="str">'No DIV_MANAGER found in the parsed environment settings'</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t306" href="#t306">306</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t307" href="#t307">307</a></span><span class="t">    <span class="key">def</span> <span class="nam">_construct_url</span><span class="op">(</span><span class="nam">self</span><span class="op">,</span> <span class="nam">ticker</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t308" href="#t308">308</a></span><span class="t">        <span class="nam">query</span> <span class="op">=</span> <span class="str">f'{ticker}/{self.service_map["PATHS"]["DIV"]}/{self.service_map["PARAMS"]["FULL"]}'</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t309" href="#t309">309</a></span><span class="t">        <span class="nam">url</span> <span class="op">=</span> <span class="str">f'{self.url}/{query}?{self.service_map["PARAMS"]["KEY"]}={self.key}'</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t310" href="#t310">310</a></span><span class="t">        <span class="nam">logger</span><span class="op">.</span><span class="nam">debug</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t308" href="#t308">308</a></span><span class="t">        <span class="nam">query</span> <span class="op">=</span> <span class="str">f'{ticker}/{self.service_map["PATHS"]["DIV"]}/{self.service_map["PARAMS"]["FULL"]}'</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t309" href="#t309">309</a></span><span class="t">        <span class="nam">url</span> <span class="op">=</span> <span class="str">f'{self.url}/{query}?{self.service_map["PARAMS"]["KEY"]}={self.key}'</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t310" href="#t310">310</a></span><span class="t">        <span class="nam">logger</span><span class="op">.</span><span class="nam">debug</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t311" href="#t311">311</a></span><span class="t">            <span class="str">f'DivManager Query (w/o key) = {query}'</span><span class="op">,</span> <span class="str">'DividendManager._construct_url'</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t312" href="#t312">312</a></span><span class="t">        <span class="key">return</span> <span class="nam">url</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t312" href="#t312">312</a></span><span class="t">        <span class="key">return</span> <span class="nam">url</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t313" href="#t313">313</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t314" href="#t314">314</a></span><span class="t">    <span class="key">def</span> <span class="nam">get_dividends</span><span class="op">(</span><span class="nam">self</span><span class="op">,</span> <span class="nam">ticker</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t315" href="#t315">315</a></span><span class="t">        <span class="nam">url</span> <span class="op">=</span> <span class="nam">self</span><span class="op">.</span><span class="nam">_construct_url</span><span class="op">(</span><span class="nam">ticker</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t316" href="#t316">316</a></span><span class="t">        <span class="nam">response</span> <span class="op">=</span> <span class="nam">requests</span><span class="op">.</span><span class="nam">get</span><span class="op">(</span><span class="nam">url</span><span class="op">)</span><span class="op">.</span><span class="nam">json</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t317" href="#t317">317</a></span><span class="t">        <span class="nam">formatted_response</span> <span class="op">=</span> <span class="op">{</span><span class="op">}</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t315" href="#t315">315</a></span><span class="t">        <span class="nam">url</span> <span class="op">=</span> <span class="nam">self</span><span class="op">.</span><span class="nam">_construct_url</span><span class="op">(</span><span class="nam">ticker</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t316" href="#t316">316</a></span><span class="t">        <span class="nam">response</span> <span class="op">=</span> <span class="nam">requests</span><span class="op">.</span><span class="nam">get</span><span class="op">(</span><span class="nam">url</span><span class="op">)</span><span class="op">.</span><span class="nam">json</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t317" href="#t317">317</a></span><span class="t">        <span class="nam">formatted_response</span> <span class="op">=</span> <span class="op">{</span><span class="op">}</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t318" href="#t318">318</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t319" href="#t319">319</a></span><span class="t">        <span class="key">for</span> <span class="nam">item</span> <span class="key">in</span> <span class="nam">response</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t320" href="#t320">320</a></span><span class="t">            <span class="nam">this_date</span> <span class="op">=</span> <span class="nam">str</span><span class="op">(</span><span class="nam">item</span><span class="op">[</span><span class="nam">self</span><span class="op">.</span><span class="nam">service_map</span><span class="op">[</span><span class="str">'KEYS'</span><span class="op">]</span><span class="op">[</span><span class="str">'DATE'</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t321" href="#t321">321</a></span><span class="t">            <span class="nam">div</span> <span class="op">=</span> <span class="nam">item</span><span class="op">[</span><span class="nam">self</span><span class="op">.</span><span class="nam">service_map</span><span class="op">[</span><span class="str">'KEYS'</span><span class="op">]</span><span class="op">[</span><span class="str">'AMOUNT'</span><span class="op">]</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t322" href="#t322">322</a></span><span class="t">            <span class="nam">formatted_response</span><span class="op">[</span><span class="nam">this_date</span><span class="op">]</span> <span class="op">=</span> <span class="nam">div</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t319" href="#t319">319</a></span><span class="t">        <span class="key">for</span> <span class="nam">item</span> <span class="key">in</span> <span class="nam">response</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t320" href="#t320">320</a></span><span class="t">            <span class="nam">this_date</span> <span class="op">=</span> <span class="nam">str</span><span class="op">(</span><span class="nam">item</span><span class="op">[</span><span class="nam">self</span><span class="op">.</span><span class="nam">service_map</span><span class="op">[</span><span class="str">'KEYS'</span><span class="op">]</span><span class="op">[</span><span class="str">'DATE'</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t321" href="#t321">321</a></span><span class="t">            <span class="nam">div</span> <span class="op">=</span> <span class="nam">item</span><span class="op">[</span><span class="nam">self</span><span class="op">.</span><span class="nam">service_map</span><span class="op">[</span><span class="str">'KEYS'</span><span class="op">]</span><span class="op">[</span><span class="str">'AMOUNT'</span><span class="op">]</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t322" href="#t322">322</a></span><span class="t">            <span class="nam">formatted_response</span><span class="op">[</span><span class="nam">this_date</span><span class="op">]</span> <span class="op">=</span> <span class="nam">div</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t323" href="#t323">323</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t324" href="#t324">324</a></span><span class="t">        <span class="key">return</span> <span class="nam">formatted_response</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t324" href="#t324">324</a></span><span class="t">        <span class="key">return</span> <span class="nam">formatted_response</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t325" href="#t325">325</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t326" href="#t326">326</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t327" href="#t327">327</a></span><span class="t"><span class="key">class</span> <span class="nam">PriceManager</span><span class="op">(</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
@@ -901,10 +901,10 @@
     <p class="pln"><span class="n"><a id="t819" href="#t819">819</a></span><span class="t"><span class="str">    ``list`` : `{ 'date' (str) :  amount (str),  'date' (str):  amount (str), ... }`</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t820" href="#t820">820</a></span><span class="t"><span class="str">        Dictionary with date strings formatted `YYYY-MM-DD` as keys and the dividend payment amount on that date as the corresponding value.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t821" href="#t821">821</a></span><span class="t"><span class="str">    """</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t822" href="#t822">822</a></span><span class="t">    <span class="nam">logger</span><span class="op">.</span><span class="nam">debug</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t822" href="#t822">822</a></span><span class="t">    <span class="nam">logger</span><span class="op">.</span><span class="nam">debug</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t823" href="#t823">823</a></span><span class="t">        <span class="str">f'Retrieving {ticker} dividends from service'</span><span class="op">,</span> <span class="str">'get_dividend_history'</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t824" href="#t824">824</a></span><span class="t">    <span class="nam">divs</span> <span class="op">=</span> <span class="nam">div_manager</span><span class="op">.</span><span class="nam">get_dividends</span><span class="op">(</span><span class="nam">ticker</span><span class="op">=</span><span class="nam">ticker</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t825" href="#t825">825</a></span><span class="t">    <span class="key">return</span> <span class="nam">divs</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t824" href="#t824">824</a></span><span class="t">    <span class="nam">divs</span> <span class="op">=</span> <span class="nam">div_manager</span><span class="op">.</span><span class="nam">get_dividends</span><span class="op">(</span><span class="nam">ticker</span><span class="op">=</span><span class="nam">ticker</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t825" href="#t825">825</a></span><span class="t">    <span class="key">return</span> <span class="nam">divs</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t826" href="#t826">826</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t827" href="#t827">827</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t828" href="#t828">828</a></span><span class="t"><span class="key">def</span> <span class="nam">get_risk_free_rate</span><span class="op">(</span><span class="op">)</span> <span class="op">-></span> <span class="nam">float</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
@@ -928,7 +928,7 @@
             <a id="nextFileLink" class="nav" href="d_c6b2127e3970c002_settings_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io">coverage.py v6.4.1</a>,
-            created at 2022-06-29 16:14 +0000
+            created at 2022-06-29 16:19 +0000
         </p>
     </div>
 </footer>
