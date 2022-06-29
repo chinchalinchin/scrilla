@@ -283,6 +283,17 @@ def recursive_rolling_variance(var_previous, xbar_previous, new_obs, lost_obs, n
     return var_new
 
 
+def recursive_sum_of_squares(x: List[float]):
+    if len(x) == 1:
+        return 0
+    n = len(x)
+    term_variance = (n*x[-1] - sum(x))**2/(n*(n-1))
+    print('x', x)
+    print('n ', n)
+    print('term_variance', term_variance)
+
+    return recursive_sum_of_squares(x[:-1]) + term_variance
+
 def sample_covariance(x: list, y: list):
     """
     Parameters

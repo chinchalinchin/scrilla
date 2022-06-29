@@ -124,6 +124,10 @@ def test_variance(x, var):
     variance = estimators.sample_variance(x)
     assert(settings.is_within_tolerance(lambda: variance - var))
 
+@pytest.mark.parametrize("x,var", mock_data.variance_cases)
+def test_recursive_sum_of_squares(x, var):
+    variance = estimators.recursive_sum_of_squares(x)/(len(x) -1)
+    assert(settings.is_within_tolerance(lambda:variance - var))
 
 @pytest.mark.parametrize("x", [([]), ([1]), ([2])])
 def test_variance_small_sample(x):
