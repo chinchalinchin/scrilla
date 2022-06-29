@@ -5,3 +5,4 @@
 .coverage
 /venv/
 /.pytest_cache/
+scrilla.db
