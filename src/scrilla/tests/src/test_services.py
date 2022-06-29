@@ -63,3 +63,12 @@ def test_past_interest(maturity, date, yield_rate):
         response = services.get_daily_interest_history(
             maturity=maturity, start_date=settings.START, end_date=settings.END)
     assert(response[date] == yield_rate)
+
+@pytest.mark.parametrize('ticker,date,amount',[
+    ('ALLY', '2021-08-16', 0.25),
+    ('DIS', '2020-01-16', 0.88)
+])
+def test_past_dividend(ticker, date, amount):
+    with HTTMock(mock_data.mock_dividends):
+        response = services.get_dividend_history(ticker)
+    assert response[date] == amount
