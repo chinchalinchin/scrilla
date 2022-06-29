@@ -92,7 +92,7 @@ def format_correlation_matrix(tickers, correlation_matrix):
 
 
 def format_args(args, default_estimation_method) -> argparse.Namespace:
-    formatted_args = [ arg.lower() for arg in args ]
+    formatted_args = [arg.lower() for arg in args]
     parser = argparse.ArgumentParser()
 
     choices = []
