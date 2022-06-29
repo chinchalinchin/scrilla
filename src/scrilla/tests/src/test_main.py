@@ -121,6 +121,19 @@ def test_cli_cvar_json_format(args, tickers, capsys):
     for ticker in tickers:
         assert keys.keys['STATISTICS']['CVAR'] in cvar[ticker].keys()
 
+@pytest.mark.parametrize('args,filename',[
+    (
+        ['cvar', 'ALLY', '-json', '-start', settings.START_STR, '-end', settings.END_STR, '-save', 'test_path'], 
+        'test_path'
+    ),
+])
+def test_cli_cvar_save_file(save_function, args, filename):
+    with HTTMock(mock_data.mock_prices):
+        with HTTMock(mock_data.mock_treasury):
+            do_program(args)
+    save_function.assert_called()
+    save_function.assert_called_with(file_to_save=ANY, file_name=filename)
+
 @pytest.mark.parametrize('args,ticker',[
     (['close', 'ALLY', '-json'], 'ALLY')
 ])
