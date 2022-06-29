@@ -298,6 +298,7 @@ def recursive_sum_of_squares(x: List[float]):
     term_variance = (n*x[-1] - sum(x))**2/(n*(n-1))
     return recursive_sum_of_squares(x[:-1]) + term_variance
 
+
 def sample_covariance(x: list, y: list):
     """
     Parameters
