@@ -203,3 +203,37 @@ def test_cli_conditional_value_at_risk_save_file(save_function, args, filename):
             do_program(args)
     save_function.assert_called()
     save_function.assert_called_with(file_to_save=ANY, file_name=filename)
+
+@pytest.mark.parametrize('args,tickers', [
+    (
+        ['capm-equity', 'ALLY', '-start', settings.START_STR, '-end', settings.END_STR, '-json'],
+        ['ALLY']
+    ),
+    (
+        ['capm-equity', 'ALLY', 'BX', '-start', settings.START_STR, '-end', settings.END_STR, '-json'],
+        ['ALLY', 'BX']
+    ),
+])
+def test_cli_cost_of_equity_json_format(args, tickers, capsys):
+    with HTTMock(mock_data.mock_prices):
+        with HTTMock(mock_data.mock_treasury):
+            do_program(args)
+    costs = json.loads(capsys.readouterr().out)
+    for ticker in tickers:
+        assert costs.get(ticker) is not None
+        assert costs[ticker].get(keys.keys['STATISTICS']['EQUITY']) is not None
+        assert isinstance(costs[ticker][keys.keys['STATISTICS']['EQUITY']], float)
+
+@patch('scrilla.files.save_file')
+@pytest.mark.parametrize('args,filename', [
+    (
+        ['capm-equity', 'ALLY', '-start', settings.START_STR, '-end', settings.END_STR, '-json', '-save', 'test_path'],
+        'test_path'
+    )
+])
+def test_cli_cost_of_equity_save_file(save_function, args, filename):
+    with HTTMock(mock_data.mock_prices):
+        with HTTMock(mock_data.mock_treasury):
+            do_program(args)
+    save_function.assert_called()
+    save_function.assert_called_with(file_to_save=ANY, file_name=filename)
