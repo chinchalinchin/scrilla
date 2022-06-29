@@ -274,7 +274,7 @@ def sample_variance(x: List[float]):
             'Sample variance cannot be computed for a sample size of 0.')
 
     if n == 1:
-        # no variance for a sample of 1. 
+        # no variance for a sample of 1.
         return 0
 
     for i in x:
