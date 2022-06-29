@@ -539,9 +539,9 @@ class CorrelationCache(metaclass=Singleton):
     def _retrieve_from_internal_cache(self, params, permuted_params):
         first_id = self.generate_id(params)
         second_id = self.generate_id(permuted_params)
-        if first_id in list(self.internal_cache.keys()):
+        if first_id in list(self.internal_cache):
             return self.internal_cache[first_id]
-        if second_id in list(self.internal_cache.keys()):
+        if second_id in list(self.internal_cache):
             return self.internal_cache[second_id]
         return None
 
