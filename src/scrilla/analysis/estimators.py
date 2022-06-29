@@ -274,7 +274,7 @@ def sample_variance(x: List[float]):
             'Sample variance cannot be computed for a sample size of 0.')
 
     if n == 1:
-        # no variance for a sample of 1. 
+        # no variance for a sample of 1.
         return 0
 
     for i in x:
@@ -297,6 +297,7 @@ def recursive_sum_of_squares(x: List[float]):
     n = len(x)
     term_variance = (n*x[-1] - sum(x))**2/(n*(n-1))
     return recursive_sum_of_squares(x[:-1]) + term_variance
+
 
 def sample_covariance(x: list, y: list):
     """
