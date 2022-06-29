@@ -2,13 +2,11 @@ import pytest
 import json
 
 from httmock import HTTMock
-import ast
 
 from scrilla.main import do_program
 from scrilla.cache import PriceCache, ProfileCache, InterestCache, CorrelationCache
 from scrilla.files import clear_cache, init_static_data
 from scrilla.static import keys
-from scrilla.util.outputter import risk_profile
 
 from .. import mock_data, settings
 
@@ -112,3 +110,16 @@ def test_cli_close_price_json_format(args, ticker, capsys):
     assert prices[ticker].get(settings.END_STR) is not None
     assert prices[ticker][settings.START_STR].get(keys.keys['PRICES']['OPEN']) is not None
     assert prices[ticker][settings.END_STR].get(keys.keys['PRICES']['CLOSE']) is not None
+
+
+@pytest.mark.parametrize('args,ticker,expected',[
+    (['asset', 'ALLY'], 'ALLY', 'equity'),
+    (['asset', 'BX'],'BX', 'equity'),
+    (['asset', 'BTC'],'BTC', 'crypto'),
+    (['asset', 'ETH'], 'ETH', 'crypto')
+])
+def test_cli_asset_type(args, ticker, expected, capsys):
+    do_program(args)
+    result = capsys.readouterr().out
+    assert ticker in result
+    assert expected in result
