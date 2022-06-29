@@ -35,9 +35,12 @@ logger = outputter.Logger("scrilla.cache", settings.LOG_LEVEL)
 class Singleton(type):
 
     _instances = {}
+
     def __call__(cls, *args, **kwargs):
         if cls not in cls._instances:
             cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
+        else:
+            cls._instances[cls].__init__(*args,**kwargs)
         return cls._instances[cls]
 
 
@@ -86,18 +89,23 @@ class Cache():
 
 class PriceCache(metaclass=Singleton):
     """
-    Statically asseses *SQLite* functionality from `scrilla.cache.Cache`. Extends basic functionality to cache prices in a table with columns `(ticker, date, open, close)`, with a unique constraint on the tuplie `(ticker, date)`, i.e. records in the *PriceCache* are uniquely determined by the the combination of the ticker symbol and the date.
+    `scrilla.cache.PriceCache` statically accesses *SQLite* functionality from `scrilla.cache.Cache`. It extends basic functionality to cache interest rate data in a table with columns ``(ticker, date, open, close)``. `scrilla.cache.PriceCache` has a `scrilla.cache.Singleton` for its `metaclass`, meaning `PriceCache` is a singleton; it can only be created once; any subsequent instantiations will return the same instance of `PriceCache`. This is done so that all instances of `PriceCache` share the same `self.internal_cache`, allowing frequently accessed data to be stored in memory.
 
     Attributes
     ----------
-    1. **sqlite_create_table_transaction**: ``str``
+    1. **internal_cache**: ``dict``
+        Dictionary used by `PriceCache` to store API responses in memory. Used to quickly access data that is requested frequently.
+    2. **inited**: ``bool``
+        Flag used to determine if `InterestCache` has been instantiated prior to current instantiation. 
+    3. **sqlite_create_table_transaction**: ``str``
         *SQLite* transaction passed to the super class used to create price cache table if it does not already exist.
-    2. **sqlite_insert_row_transaction**: ``str``
+    4. **sqlite_insert_row_transaction**: ``str``
         *SQLite* transaction used to insert row into price cache table.
-    3. **sqlite_price_query**: ``str```
+    5. **sqlite_price_query**: ``str```
         *SQLite* query to retrieve prices from cache.
     """
-
+    internal_cache = {} 
+    inited = False   
     sqlite_create_table_transaction = "CREATE TABLE IF NOT EXISTS prices (ticker text, date text, open real, close real, UNIQUE(ticker, date))"
     sqlite_insert_row_transaction = "INSERT OR IGNORE INTO prices (ticker, date, open, close) VALUES (:ticker, :date, :open, :close)"
     sqlite_price_query = "SELECT date, open, close FROM prices WHERE ticker = :ticker AND date <= date(:end_date) AND date >= date(:start_date) ORDER BY date(date) DESC"
@@ -150,9 +158,18 @@ class PriceCache(metaclass=Singleton):
         ]
 
     def __init__(self, mode=settings.CACHE_MODE):
-        self.mode = mode
-        self.internal_cache = {}
-        self.uuid = uuid.uuid4()
+        """
+        Initializes `PriceCache`. A random UUID will be assigned to the `PriceCache` the first time it is created. Since `PriceCache` is a singelton, all subsequent instantiations of `PriceCache` will have the same UUID. 
+        
+        Parameters
+        ----------
+        1. **mode**: ``str``
+            Determines the data source that acts as the cache. Defaults to `scrilla.settings.CACHE_MODE`. Can be set to either `sqlite` or `dynamodb`. 
+        """
+        if not self.inited:
+            self.mode = mode
+            self.uuid = uuid.uuid4()
+            self.inited = True
 
         if not files.get_memory_json()['cache'][mode]['prices']:
             self._table()
@@ -242,22 +259,27 @@ class PriceCache(metaclass=Singleton):
 
 class InterestCache(metaclass=Singleton):
     """
-    Statically accesses *SQLite* functionality from `scrilla.cache.Cache`. Extends basic functionality to cache interest rate data in a table with columns `(maturity, date, value)`.
+    `scrilla.cache.InterestCache` statically accesses *SQLite* functionality from `scrilla.cache.Cache`. It extends basic functionality to cache interest rate data in a table with columns ``(maturity, date, value)``. `scrilla.cache.InterestCache` has a `scrilla.cache.Singleton` for its `metaclass`, meaning `InterestCache` is a singleton; it can only be created once; any subsequent instantiations will return the same instance of `InterestCache`.This is done so that all instances of `InterestCache` share the same `self.internal_cache`, allowing frequently accessed data to be stored in memory.
+
 
     Attributes
     ----------
-    1. **sqlite_create_table_transaction**: ``str``
+    1. **internal_cache**: ``dict``
+        Dictionary used by `InterestCache` to store API responses in memory. Used to quickly access data that is requested frequently.
+    2. **inited**: ``bool``
+        Flag used to determine if `InterestCache` has been instantiated prior to current instantiation. 
+    2. **sqlite_create_table_transaction**: ``str``
          *SQLite* transaction passed to `scrilla.cache.Cache` used to create interest cache table if it does not already exist.
-    2. **sqlite_insert_row_transaction**: ``str``
+    3. **sqlite_insert_row_transaction**: ``str``
         *SQLite* transaction used to insert row into correlation cache table.
-    3. **sqlite_interest_query**: ``str```
+    4. **sqlite_interest_query**: ``str```
         *SQLite* query to retrieve an interest from cache.
-    4. **dynamodb_table_configuration**: ``str``
-    5. **dynamo_insert_transaction**: ``str``
-    6. **dynamo_query**: ``str``
-    7. **dynamo_identity_query**: ``str``
+    5. **dynamodb_table_configuration**: ``str``
+    6. **dynamo_insert_transaction**: ``str``
+    7. **dynamo_query**: ``str``
+    8. **dynamo_identity_query**: ``str``
     """
-
+    internal_cache = {}
     sqlite_create_table_transaction = "CREATE TABLE IF NOT EXISTS interest(maturity text, date text, value real, UNIQUE(maturity, date))"
     sqlite_insert_row_transaction = "INSERT OR IGNORE INTO interest (maturity, date, value) VALUES (:maturity, :date, :value)"
     sqlite_interest_query = "SELECT date, value FROM interest WHERE maturity=:maturity AND date <=date(:end_date) AND date>=date(:start_date) ORDER BY date(date) DESC"
@@ -303,6 +325,14 @@ class InterestCache(metaclass=Singleton):
         return params
 
     def __init__(self, mode=settings.CACHE_MODE):
+        """
+        Initializes `ProfileCache`. A random UUID will be assigned to the `InteretCache` the first time it is created. Since `InterestCache` is a singelton, all subsequent instantiations of `InterestCache` will have the same UUID. 
+        
+        Parameters
+        ----------
+        1. **mode**: ``str``
+            Determines the data source that acts as the cache. Defaults to `scrilla.settings.CACHE_MODE`. Can be set to either `sqlite` or `dynamodb`. 
+        """
         self.internal_cache = {}
         self.mode = mode
         self.uuid = uuid.uuid4()
@@ -400,19 +430,25 @@ class InterestCache(metaclass=Singleton):
 
 class CorrelationCache(metaclass=Singleton):
     """
-    Inherits *SQLite* functionality from `scrilla.cache.Cache`. Extends basic functionality to cache correlation calculations in a table with columns `(ticker_1, ticker_2, correlation, start_date, end_date, estimation_method, weekends)`.
+   `scrilla.cache.CorrelationCache` statically accesses *SQLite* functionality from `scrilla.cache.Cache`. It extends basic functionality to cache correlations in a table with columns ``(ticker_1, ticker_2, start_date, end_date, correlation, method, weekends)``. `scrilla.cache.CorrelationCache` has a `scrilla.cache.Singleton` for its `metaclass`, meaning `CorrelationCache` is a singleton; it can only be created once; any subsequent instantiations will return the same instance of `CorrelationCache`.This is done so that all instances of `CorrelationCache` share the same `self.internal_cache`, allowing frequently accessed data to be stored in memory.
 
     Attributes
     ----------
-    1. **create_table_transaction**: ``str``
+    1. **internal_cache**: ``dict``
+        Dictionary used by `CorrelationCache` to store API responses in memory. Used to quickly access data that is requested frequently.
+    2. **inited**: ``bool``
+        Flag used to determine if `CorrelationCache` has been instantiated prior to current instantiation.
+    3. **sqlite_create_table_transaction**: ``str``
         *SQLite* transaction passed to the super class used to create correlation cache table if it does not already exist.
-    2. **insert_row_transaction**: ``str``
+    4. **sqlite_insert_row_transaction**: ``str``
         *SQLite* transaction used to insert row into correlation cache table.
-    3. **correlation_query**: ``str```
+    5. **sqlite_correlation_query**: ``str```
         *SQLite* query to retrieve correlation from cache.
 
     .. notes::
         * do not need to order `correlation_query` and `profile_query` because profiles and correlations are uniquely determined by the (`start_date`, `end_date`, 'ticker_1', 'ticker_2')-tuple. More or less. There is a bit of fuzziness, since the permutation of the previous tuple, ('start_date', 'end_date', 'ticker_2', 'ticker_1'), will also be associated with the same correlation value. No other mappings between a date's correlation value and the correlation's tickers are possible though. In other words, the query, for a given (ticker_1, ticker_2)-permutation will only ever return one result.
+        * `method` corresponds to the estimation method used by the application to calculate a given statistic. 
+        * `weekends` corresponds to a flag representing whether or not the calculation used weekends. This will always be 0 in the case of equities, but for cryptocurrencies, this flag is important and will affect the calculation.
     """
 
     sqlite_create_table_transaction = "CREATE TABLE IF NOT EXISTS correlations (ticker_1 TEXT, ticker_2 TEXT, start_date TEXT, end_date TEXT, correlation REAL, method TEXT, weekends INT)"
@@ -449,6 +485,15 @@ class CorrelationCache(metaclass=Singleton):
         return hashish_key
 
     def __init__(self, mode=settings.CACHE_MODE):
+        """
+        Initializes `CorrelationCache`. A random UUID will be assigned to the `CorrelationCache` the first time it is created. Since `CorrelationCache` is a singelton, all subsequent instantiations of `CorrelationCache` will have the same UUID. 
+        
+        Parameters
+        ----------
+        1. **mode**: ``str``
+            Determines the data source that acts as the cache. Defaults to `scrilla.settings.CACHE_MODE`. Can be set to either `sqlite` or `dynamodb`. 
+        """
+
         self.internal_cache = {}
         self.mode = mode
         self.uuid = uuid.uuid4()
@@ -580,20 +625,31 @@ class CorrelationCache(metaclass=Singleton):
 
 class ProfileCache(metaclass=Singleton):
     """
-    Statically assesses the *SQLite* functionality from `scrilla.cache.Cache`. Extends basic functionality to cache risk profile calculations in a table with columns `(ticker, start_date, end_date, annual_return, annual_volatility, sharpe_ration, asset_beta, equity_cost, estimation_method)`.
+     `scrilla.cache.ProfileCache` statically accesses *SQLite* functionality from `scrilla.cache.Cache`. It extends basic functionality to cache correlations in a table with columns ``(ticker, start_date, end_date, annual_return, annual_volatility, sharpe_ratio, asset_beta, method, weekends)``. `scrilla.cache.ProfileCache` has a `scrilla.cache.Singleton` for its `metaclass`, meaning `CorrelationCache` is a singleton; it can only be created once; any subsequent instantiations will return the same instance of `CorrelationCache`.This is done so that all instances of `CorrelationCache` share the same `self.internal_cache`, allowing frequently accessed data to be stored in memory.
 
     Attributes
     ----------
-    1. **sqlite_create_table_transaction**: ``str``
+    1. **internal_cache**: ``dict``
+        Dictionary used by `PriceCache` to store API responses in memory. Used to quickly access data that is requested frequently.
+    2. **inited**: ``bool``
+        Flag used to determine if `InterestCache` has been instantiated prior to current instantiation.
+    3. **sqlite_create_table_transaction**: ``str``
         *SQLite* transaction passed to `scrilla.cache.Cache` used to create profile cache table if it does not already exist.
-    2. **sqlite_insert_row_transaction**: ``str``
+    4. **sqlite_insert_row_transaction**: ``str``
         *SQLite* transaction used to insert row into correlation cache table.
-    3. **sqlite_interest_query**: ``str```
+    5. **sqlite_interest_query**: ``str```
         *SQLite* query to retrieve an interest from cache.
-    4. **dynamodb_table_configuration**: ``str``
-    5. **dynamo_insert_transaction**: ``str``
-    6. **dynamo_query**: ``str``
-    7. **dynamo_identity_query**: ``str``
+    6. **dynamodb_table_configuration**: ``str``
+        Configuration posted to **DynamoDB** when provisioning cache tables.
+    7. **dynamo_insert_transaction**: ``str``
+        **PartiQL** statement used to insert new value into the **DynamoDB** tables
+    8. **dynamo_query**: ``str``
+    9. **dynamo_identity_query**: ``str``
+
+    .. notes::
+        * do not need to order `correlation_query` and `profile_query` because profiles and correlations are uniquely determined by the (`start_date`, `end_date`, 'ticker_1', 'ticker_2')-tuple. More or less. There is a bit of fuzziness, since the permutation of the previous tuple, ('start_date', 'end_date', 'ticker_2', 'ticker_1'), will also be associated with the same correlation value. No other mappings between a date's correlation value and the correlation's tickers are possible though. In other words, the query, for a given (ticker_1, ticker_2)-permutation will only ever return one result.
+        * `method` corresponds to the estimation method used by the application to calculate a given statistic. 
+        * `weekends` corresponds to a flag representing whether or not the calculation used weekends. This will always be 0 in the case of equities, but for cryptocurrencies, this flag is important and will affect the calculation.
     """
 
     sqlite_create_table_transaction = "CREATE TABLE IF NOT EXISTS profile (id INTEGER PRIMARY KEY, ticker TEXT, start_date TEXT, end_date TEXT, annual_return REAL, annual_volatility REAL, sharpe_ratio REAL, asset_beta REAL, equity_cost REAL, method TEXT, weekends INT)"
@@ -686,6 +742,14 @@ class ProfileCache(metaclass=Singleton):
         return hashish_key
 
     def __init__(self, mode=settings.CACHE_MODE):
+        """
+        Initializes `ProfileCache`. A random UUID will be assigned to the `ProfileCache` the first time it is created. Since `ProfileCache` is a singelton, all subsequent instantiations of `ProfileCache` will have the same UUID. 
+
+        Parameters
+        ----------
+        1. **mode**: ``str``
+            Determines the data source that acts as the cache. Defaults to `scrilla.settings.CACHE_MODE`. Can be set to either `sqlite` or `dynamodb`. 
+        """
         self.internal_cache = {}
         self.mode = mode
         self.uuid = uuid.uuid4()
