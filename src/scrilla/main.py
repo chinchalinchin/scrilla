@@ -243,7 +243,7 @@ def do_program(cli_args: List[str]) -> None:
                                          expiry=args['expiry'],
                                          prob=args['probability'])
 
-                all_vars[arg] = { keys['STATISTICS']['VAR']: valueatrisk }
+                all_vars[arg] = {keys['STATISTICS']['VAR']: valueatrisk}
 
                 if print_format_to_screen(args):
                     from scrilla.util.outputter import scalar_result
