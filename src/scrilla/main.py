@@ -336,13 +336,14 @@ def do_program(cli_args: List[str]) -> None:
     elif args['function_arg'] in definitions.FUNC_DICT['capm_beta']['values']:
         def cli_capm_beta():
             from scrilla.analysis.markets import market_beta
+            from scrilla.static.keys import keys
             all_betas = {}
             for arg in args['tickers']:
                 beta = market_beta(ticker=arg,
                                    start_date=args['start_date'],
                                    end_date=args['end_date'],
                                    method=args['estimation_method'])
-                all_betas[arg] = beta
+                all_betas[arg] = { keys['STATISTICS']['BETA']: beta }
 
                 if print_format_to_screen(args):
                     from scrilla.util.outputter import scalar_result
