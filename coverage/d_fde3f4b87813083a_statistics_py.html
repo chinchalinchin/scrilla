@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Coverage for src/scrilla/analysis/models/geometric/statistics.py: 52%</title>
+    <title>Coverage for src/scrilla/analysis/models/geometric/statistics.py: 53%</title>
     <link rel="icon" sizes="32x32" href="favicon_32.png">
     <link rel="stylesheet" href="style.css" type="text/css">
     <script type="text/javascript" src="coverage_html.js" defer></script>
@@ -12,7 +12,7 @@
     <div class="content">
         <h1>
             <span class="text">Coverage for </span><b>src/scrilla/analysis/models/geometric/statistics.py</b>:
-            <span class="pc_cov">52%</span>
+            <span class="pc_cov">53%</span>
         </h1>
         <aside id="help_panel_wrapper">
             <input id="help_panel_state" type="checkbox">
@@ -55,8 +55,8 @@
         </aside>
         <h2>
             <span class="text">501 statements &nbsp;</span>
-            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">260<span class="text"> run</span></button>
-            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">241<span class="text"> missing</span></button>
+            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">265<span class="text"> run</span></button>
+            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">236<span class="text"> missing</span></button>
             <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">0<span class="text"> excluded</span></button>
         </h2>
         <p class="text">
@@ -65,7 +65,7 @@
             <a id="nextFileLink" class="nav" href="d_d14a2b64dd32c368_probability_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io">coverage.py v6.4.1</a>,
-            created at 2022-06-29 11:36 +0000
+            created at 2022-06-29 11:57 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"/>
@@ -1183,7 +1183,7 @@
     <p class="pln"><span class="n"><a id="t1101" href="#t1101">1101</a></span><span class="t">                                               <span class="nam">weekends</span><span class="op">=</span><span class="nam">weekends</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t1102" href="#t1102">1102</a></span><span class="t">                                               <span class="nam">method</span><span class="op">=</span><span class="nam">keys</span><span class="op">.</span><span class="nam">keys</span><span class="op">[</span><span class="str">'ESTIMATION'</span><span class="op">]</span><span class="op">[</span><span class="str">'LIKE'</span><span class="op">]</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t1103" href="#t1103">1103</a></span><span class="t">        <span class="key">if</span> <span class="nam">correlation</span> <span class="key">is</span> <span class="key">not</span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t1104" href="#t1104">1104</a></span><span class="t">            <span class="key">return</span> <span class="nam">correlation</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t1104" href="#t1104">1104</a></span><span class="t">            <span class="key">return</span> <span class="nam">correlation</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t1105" href="#t1105">1105</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t1106" href="#t1106">1106</a></span><span class="t">        <span class="nam">sample_prices</span> <span class="op">=</span> <span class="op">{</span><span class="op">}</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t1107" href="#t1107">1107</a></span><span class="t">        <span class="nam">logger</span><span class="op">.</span><span class="nam">debug</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
@@ -1619,7 +1619,7 @@
     <p class="mis show_mis"><span class="n"><a id="t1537" href="#t1537">1537</a></span><span class="t">            <span class="nam">correlation</span> <span class="op">=</span> <span class="nam">calculate_correlation</span><span class="op">(</span><span class="nam">ticker_1</span><span class="op">=</span><span class="nam">ticker_1</span><span class="op">,</span> <span class="nam">ticker_2</span><span class="op">=</span><span class="nam">ticker_2</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t1538" href="#t1538">1538</a></span><span class="t">                                                <span class="nam">sample_prices</span><span class="op">=</span><span class="nam">sample_prices</span><span class="op">,</span> <span class="nam">method</span><span class="op">=</span><span class="nam">method</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t1539" href="#t1539">1539</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t1540" href="#t1540">1540</a></span><span class="t">    <span class="key">if</span> <span class="nam">profile_1</span> <span class="key">is</span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t1540" href="#t1540">1540</a></span><span class="t">    <span class="key">if</span> <span class="nam">profile_1</span> <span class="key">is</span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t1541" href="#t1541">1541</a></span><span class="t">        <span class="key">if</span> <span class="nam">sample_prices</span> <span class="key">is</span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t1542" href="#t1542">1542</a></span><span class="t">            <span class="nam">profile_1</span> <span class="op">=</span> <span class="nam">calculate_risk_return</span><span class="op">(</span><span class="nam">ticker</span><span class="op">=</span><span class="nam">ticker_1</span><span class="op">,</span> <span class="nam">start_date</span><span class="op">=</span><span class="nam">start_date</span><span class="op">,</span> <span class="nam">end_date</span><span class="op">=</span><span class="nam">end_date</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t1543" href="#t1543">1543</a></span><span class="t">                                              <span class="nam">method</span><span class="op">=</span><span class="nam">method</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
@@ -1627,7 +1627,7 @@
     <p class="mis show_mis"><span class="n"><a id="t1545" href="#t1545">1545</a></span><span class="t">            <span class="nam">profile_1</span> <span class="op">=</span> <span class="nam">calculate_risk_return</span><span class="op">(</span><span class="nam">ticker</span><span class="op">=</span><span class="nam">ticker_1</span><span class="op">,</span> <span class="nam">sample_prices</span><span class="op">=</span><span class="nam">sample_prices</span><span class="op">[</span><span class="nam">ticker_1</span><span class="op">]</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t1546" href="#t1546">1546</a></span><span class="t">                                              <span class="nam">method</span><span class="op">=</span><span class="nam">method</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t1547" href="#t1547">1547</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t1548" href="#t1548">1548</a></span><span class="t">    <span class="key">if</span> <span class="nam">profile_2</span> <span class="key">is</span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t1548" href="#t1548">1548</a></span><span class="t">    <span class="key">if</span> <span class="nam">profile_2</span> <span class="key">is</span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t1549" href="#t1549">1549</a></span><span class="t">        <span class="key">if</span> <span class="nam">sample_prices</span> <span class="key">is</span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t1550" href="#t1550">1550</a></span><span class="t">            <span class="nam">profile_2</span> <span class="op">=</span> <span class="nam">calculate_risk_return</span><span class="op">(</span><span class="nam">ticker</span><span class="op">=</span><span class="nam">ticker_2</span><span class="op">,</span> <span class="nam">start_date</span><span class="op">=</span><span class="nam">start_date</span><span class="op">,</span> <span class="nam">end_date</span><span class="op">=</span><span class="nam">end_date</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t1551" href="#t1551">1551</a></span><span class="t">                                              <span class="nam">method</span><span class="op">=</span><span class="nam">method</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
@@ -1635,9 +1635,9 @@
     <p class="mis show_mis"><span class="n"><a id="t1553" href="#t1553">1553</a></span><span class="t">            <span class="nam">profile_2</span> <span class="op">=</span> <span class="nam">calculate_risk_return</span><span class="op">(</span><span class="nam">ticker</span><span class="op">=</span><span class="nam">ticker_2</span><span class="op">,</span> <span class="nam">sample_prices</span><span class="op">=</span><span class="nam">sample_prices</span><span class="op">[</span><span class="nam">ticker_2</span><span class="op">]</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t1554" href="#t1554">1554</a></span><span class="t">                                              <span class="nam">method</span><span class="op">=</span><span class="nam">method</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t1555" href="#t1555">1555</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t1556" href="#t1556">1556</a></span><span class="t">    <span class="nam">covariance</span> <span class="op">=</span> <span class="nam">profile_1</span><span class="op">[</span><span class="str">'annual_volatility'</span><span class="op">]</span> <span class="op">*</span> <span class="xx">\</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t1556" href="#t1556">1556</a></span><span class="t">    <span class="nam">covariance</span> <span class="op">=</span> <span class="nam">profile_1</span><span class="op">[</span><span class="str">'annual_volatility'</span><span class="op">]</span> <span class="op">*</span> <span class="xx">\</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t1557" href="#t1557">1557</a></span><span class="t">        <span class="nam">profile_2</span><span class="op">[</span><span class="str">'annual_volatility'</span><span class="op">]</span><span class="op">*</span><span class="nam">correlation</span><span class="op">[</span><span class="str">'correlation'</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t1558" href="#t1558">1558</a></span><span class="t">    <span class="key">return</span> <span class="nam">covariance</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t1558" href="#t1558">1558</a></span><span class="t">    <span class="key">return</span> <span class="nam">covariance</span>&nbsp;</span><span class="r"></span></p>
 </main>
 <footer>
     <div class="content">
@@ -1647,7 +1647,7 @@
             <a id="nextFileLink" class="nav" href="d_d14a2b64dd32c368_probability_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io">coverage.py v6.4.1</a>,
-            created at 2022-06-29 11:36 +0000
+            created at 2022-06-29 11:57 +0000
         </p>
     </div>
 </footer>

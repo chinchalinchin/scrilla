@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Coverage for src/scrilla/main.py: 17%</title>
+    <title>Coverage for src/scrilla/main.py: 18%</title>
     <link rel="icon" sizes="32x32" href="favicon_32.png">
     <link rel="stylesheet" href="style.css" type="text/css">
     <script type="text/javascript" src="coverage_html.js" defer></script>
@@ -12,7 +12,7 @@
     <div class="content">
         <h1>
             <span class="text">Coverage for </span><b>src/scrilla/main.py</b>:
-            <span class="pc_cov">17%</span>
+            <span class="pc_cov">18%</span>
         </h1>
         <aside id="help_panel_wrapper">
             <input id="help_panel_state" type="checkbox">
@@ -55,8 +55,8 @@
         </aside>
         <h2>
             <span class="text">624 statements &nbsp;</span>
-            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">106<span class="text"> run</span></button>
-            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">518<span class="text"> missing</span></button>
+            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">112<span class="text"> run</span></button>
+            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">512<span class="text"> missing</span></button>
             <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">0<span class="text"> excluded</span></button>
         </h2>
         <p class="text">
@@ -65,7 +65,7 @@
             <a id="nextFileLink" class="nav" href="d_c6b2127e3970c002_services_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io">coverage.py v6.4.1</a>,
-            created at 2022-06-29 11:36 +0000
+            created at 2022-06-29 11:57 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"/>
@@ -1048,21 +1048,21 @@
     <p class="pln"><span class="n"><a id="t966" href="#t966">966</a></span><span class="t">                                                          <span class="nam">end_date</span><span class="op">=</span><span class="nam">args</span><span class="op">[</span><span class="str">'end_date'</span><span class="op">]</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t967" href="#t967">967</a></span><span class="t">                                                          <span class="nam">ticker_profile</span><span class="op">=</span><span class="nam">profiles</span><span class="op">[</span><span class="nam">arg</span><span class="op">]</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t968" href="#t968">968</a></span><span class="t">                                                          <span class="nam">method</span><span class="op">=</span><span class="nam">args</span><span class="op">[</span><span class="str">'estimation_method'</span><span class="op">]</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t969" href="#t969">969</a></span><span class="t">                <span class="nam">profiles</span><span class="op">[</span><span class="nam">arg</span><span class="op">]</span><span class="op">[</span><span class="str">'equity_cost'</span><span class="op">]</span> <span class="op">=</span> <span class="nam">cost_of_equity</span><span class="op">(</span><span class="nam">ticker</span><span class="op">=</span><span class="nam">arg</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t969" href="#t969">969</a></span><span class="t">                <span class="nam">profiles</span><span class="op">[</span><span class="nam">arg</span><span class="op">]</span><span class="op">[</span><span class="str">'equity_cost'</span><span class="op">]</span> <span class="op">=</span> <span class="nam">cost_of_equity</span><span class="op">(</span><span class="nam">ticker</span><span class="op">=</span><span class="nam">arg</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t970" href="#t970">970</a></span><span class="t">                                                              <span class="nam">start_date</span><span class="op">=</span><span class="nam">args</span><span class="op">[</span><span class="str">'start_date'</span><span class="op">]</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t971" href="#t971">971</a></span><span class="t">                                                              <span class="nam">end_date</span><span class="op">=</span><span class="nam">args</span><span class="op">[</span><span class="str">'end_date'</span><span class="op">]</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t972" href="#t972">972</a></span><span class="t">                                                              <span class="nam">ticker_profile</span><span class="op">=</span><span class="nam">profiles</span><span class="op">[</span><span class="nam">arg</span><span class="op">]</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t973" href="#t973">973</a></span><span class="t">                                                              <span class="nam">method</span><span class="op">=</span><span class="nam">args</span><span class="op">[</span><span class="str">'estimation_method'</span><span class="op">]</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t974" href="#t974">974</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t975" href="#t975">975</a></span><span class="t">            <span class="key">if</span> <span class="nam">print_format_to_screen</span><span class="op">(</span><span class="nam">args</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t975" href="#t975">975</a></span><span class="t">            <span class="key">if</span> <span class="nam">print_format_to_screen</span><span class="op">(</span><span class="nam">args</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t976" href="#t976">976</a></span><span class="t">                <span class="key">from</span> <span class="nam">scrilla</span><span class="op">.</span><span class="nam">util</span><span class="op">.</span><span class="nam">outputter</span> <span class="key">import</span> <span class="nam">risk_profile</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t977" href="#t977">977</a></span><span class="t">                <span class="nam">risk_profile</span><span class="op">(</span><span class="nam">profiles</span><span class="op">=</span><span class="nam">profiles</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t978" href="#t978">978</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t979" href="#t979">979</a></span><span class="t">            <span class="key">if</span> <span class="nam">print_json_to_screen</span><span class="op">(</span><span class="nam">args</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t980" href="#t980">980</a></span><span class="t">                <span class="key">from</span> <span class="nam">json</span> <span class="key">import</span> <span class="nam">dumps</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t981" href="#t981">981</a></span><span class="t">                <span class="nam">print</span><span class="op">(</span><span class="nam">dumps</span><span class="op">(</span><span class="nam">profiles</span><span class="op">)</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t979" href="#t979">979</a></span><span class="t">            <span class="key">if</span> <span class="nam">print_json_to_screen</span><span class="op">(</span><span class="nam">args</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t980" href="#t980">980</a></span><span class="t">                <span class="key">from</span> <span class="nam">json</span> <span class="key">import</span> <span class="nam">dumps</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t981" href="#t981">981</a></span><span class="t">                <span class="nam">print</span><span class="op">(</span><span class="nam">dumps</span><span class="op">(</span><span class="nam">profiles</span><span class="op">)</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t982" href="#t982">982</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t983" href="#t983">983</a></span><span class="t">            <span class="key">if</span> <span class="nam">args</span><span class="op">[</span><span class="str">'save_file'</span><span class="op">]</span> <span class="key">is</span> <span class="key">not</span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t983" href="#t983">983</a></span><span class="t">            <span class="key">if</span> <span class="nam">args</span><span class="op">[</span><span class="str">'save_file'</span><span class="op">]</span> <span class="key">is</span> <span class="key">not</span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t984" href="#t984">984</a></span><span class="t">                <span class="key">from</span> <span class="nam">scrilla</span><span class="op">.</span><span class="nam">files</span> <span class="key">import</span> <span class="nam">save_file</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t985" href="#t985">985</a></span><span class="t">                <span class="nam">save_file</span><span class="op">(</span><span class="nam">file_to_save</span><span class="op">=</span><span class="nam">profiles</span><span class="op">,</span> <span class="nam">file_name</span><span class="op">=</span><span class="nam">args</span><span class="op">[</span><span class="str">'save_file'</span><span class="op">]</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t986" href="#t986">986</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
@@ -1209,7 +1209,7 @@
             <a id="nextFileLink" class="nav" href="d_c6b2127e3970c002_services_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io">coverage.py v6.4.1</a>,
-            created at 2022-06-29 11:36 +0000
+            created at 2022-06-29 11:57 +0000
         </p>
     </div>
 </footer>
