@@ -789,12 +789,12 @@ class ProfileCache(metaclass=Singleton):
         elif self.mode == 'dynamodb':
             return self.dynamodb_identity_query
 
-    def _update_internal_cache(self, profile, keys):
-        key = self._create_cache_key(keys)
+    def _update_internal_cache(self, profile, profile_keys):
+        key = self._create_cache_key(profile_keys)
         self.internal_cache[key] = profile
 
-    def _retrieve_from_internal_cache(self, keys):
-        key = self._create_cache_key(keys)
+    def _retrieve_from_internal_cache(self, profile_keys):
+        key = self._create_cache_key(profile_keys)
         if key in list(self.internal_cache):
             return self.internal_cache[key]
         return None
