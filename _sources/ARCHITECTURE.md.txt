@@ -35,6 +35,10 @@ Once the cache is hydrated with data, any subsequent invocations that rely on th
 
 ### memory.json
 
+_memory.json_ is a file kept in the installation's _/data/common/_ directory that contains flags to inform the application it has already executed certain actions, so it does not need to perform them again. With respect to the caches, this file has information about whether or not the cache tables have been initialized. Everytime one of the cache classes is instantiated, the cache will attempt to provision the tables in the persistence layer. This can be a costly operation, in terms of response time, especially since it only needs to be performed the first time the application executes. Therefore, once these tables are provisioned, the _memory.json_ will be updated to reflect this information. Once the flags for the cache tables are set to `True`, the cache classes will skip the table provisioning step any time a new cache class is instantiated. 
+
+**NOTE**: Even though the cache classes are singletons, their `__init__` methods are still invoked whenever they are instantiated, even if a previous instance exists. This is by design due to the fact the cache can be cleared via the `scrilla.files` module, i.e. the tables are dropped. In this case, the cache will need to re-create the tables in the persistence layer.
+
 ## Static
 
 ### memory.json

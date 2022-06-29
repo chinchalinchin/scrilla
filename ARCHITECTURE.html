@@ -60,6 +60,8 @@
 </section>
 <section id="memory-json">
 <h3>memory.json<a class="headerlink" href="#memory-json" title="Permalink to this heading">¶</a></h3>
+<p><em>memory.json</em> is a file kept in the installation’s <em>/data/common/</em> directory that contains flags to inform the application it has already executed certain actions, so it does not need to perform them again. With respect to the caches, this file has information about whether or not the cache tables have been initialized. Everytime one of the cache classes is instantiated, the cache will attempt to provision the tables in the persistence layer. This can be a costly operation, in terms of response time, especially since it only needs to be performed the first time the application executes. Therefore, once these tables are provisioned, the <em>memory.json</em> will be updated to reflect this information. Once the flags for the cache tables are set to <code class="docutils literal notranslate"><span class="pre">True</span></code>, the cache classes will skip the table provisioning step any time a new cache class is instantiated.</p>
+<p><strong>NOTE</strong>: Even though the cache classes are singletons, their <code class="docutils literal notranslate"><span class="pre">__init__</span></code> methods are still invoked whenever they are instantiated, even if a previous instance exists. This is by design due to the fact the cache can be cleared via the <code class="docutils literal notranslate"><span class="pre">scrilla.files</span></code> module, i.e. the tables are dropped. In this case, the cache will need to re-create the tables in the persistence layer.</p>
 </section>
 </section>
 <section id="static">
