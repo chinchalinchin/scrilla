@@ -152,3 +152,27 @@ def test_cli_value_at_risk_json_format(args, tickers, capsys):
         assert ticker in list(results.keys())
         assert keys.keys['STATISTICS']['VAR'] in list(results[ticker].keys())
         assert isinstance(results[ticker][keys.keys['STATISTICS']['VAR']], float)
+
+@pytest.mark.parametrize('args,tickers',[
+    (
+        ['cvar', 'ALLY', '-start', settings.START_STR, '-end', settings.END_STR, '-json', '-prob', '0.05', '-expiry', '0.5'], 
+        ['ALLY']
+    ),
+    (
+        ['cvar', 'GLD', 'SPY', '-start', settings.START_STR, '-end', settings.END_STR, '-json', '-prob', '0.05', '-expiry', '0.5'], 
+        ['GLD', 'SPY']
+    ),
+    (
+        ['cvar', 'DIS', 'BX', 'GLD', 'SPY', '-start', settings.START_STR, '-end', settings.END_STR, '-json', '-prob', '0.05', '-expiry', '0.5'], 
+        ['DIS', 'BX', 'GLD', 'SPY']
+    )
+])
+def test_cli_conditional_value_at_risk_json_format(args, tickers, capsys):
+    with HTTMock(mock_data.mock_prices):
+        with HTTMock(mock_data.mock_treasury):
+            do_program(args)
+    results = json.loads(capsys.readouterr().out)
+    for ticker in tickers:
+        assert ticker in list(results.keys())
+        assert keys.keys['STATISTICS']['CVAR'] in list(results[ticker].keys())
+        assert isinstance(results[ticker][keys.keys['STATISTICS']['CVAR']], float)

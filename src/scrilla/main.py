@@ -287,12 +287,12 @@ def do_program(cli_args: List[str]) -> None:
                                                   ret=profile['annual_return'],
                                                   expiry=args['expiry'],
                                                   conditional_value=valueatrisk)
-                all_cvars[arg][keys.keys['STATISTICS']['BETA']] = cvar
+                all_cvars[arg] = { keys['STATISTICS']['CVAR']: cvar }
 
                 if print_format_to_screen(args):
                     from scrilla.util.outputter import scalar_result
                     scalar_result(
-                        f'{arg}_conditional_value_at_risk', cvar)
+                        f'{arg}_conditional_VaR', cvar)
 
             if print_json_to_screen(args):
                 from json import dumps

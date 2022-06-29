@@ -416,19 +416,19 @@ def load_test_file(file, extension = 'json'):
 
 @urlmatch(netloc=r'(.*\.)?alphavantage\.co*$')
 def mock_prices(url, request):
-    if 'ALLY' in request.url:
+    if 'ally' in request.url:
         return load_test_file('ally_response.json')
-    elif 'BX' in request.url:
+    elif 'bx' in request.url:
         return load_test_file('bx_response.json')
-    elif 'DIS' in request.url:
+    elif 'dis' in request.url:
         return load_test_file('dis_response.json')
-    elif 'SPY' in request.url:
+    elif 'spy' in request.url:
         return load_test_file( 'spy_response.json')
-    elif 'GLD' in request.url:
+    elif 'gld' in request.url:
         return load_test_file('gld_response.json')
-    elif 'BTC' in request.url:
+    elif 'btc' in request.url:
         return load_test_file('btc_response.json')
-    elif 'ALGO' in request.url:
+    elif 'algo' in request.url:
         return load_test_file('algo_response.json')
     raise KeyError('No mock data for request!')
 

@@ -92,6 +92,7 @@ def format_correlation_matrix(tickers, correlation_matrix):
 
 
 def format_args(args, default_estimation_method) -> argparse.Namespace:
+    formatted_args = [ arg.lower() for arg in args ]
     parser = argparse.ArgumentParser()
 
     choices = []
@@ -135,4 +136,4 @@ def format_args(args, default_estimation_method) -> argparse.Namespace:
 
     parser.set_defaults(estimation_method=default_estimation_method)
     parser.add_argument('tickers', nargs='*', type=str)
-    return vars(parser.parse_args(args))
+    return vars(parser.parse_args(formatted_args))
