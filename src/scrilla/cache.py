@@ -52,7 +52,7 @@ class Cache():
     @staticmethod
     def provision(table_configuration, mode=settings.CACHE_MODE):
         if mode == 'dynamodb':
-
+            logger.debug(f'Provisioning {table_configuration["TableName"]} DynamoDB Table', 'Cache.provision')
             return aws.dynamo_table(table_configuration)
 
     @staticmethod
@@ -167,9 +167,10 @@ class PriceCache(metaclass=Singleton):
             Determines the data source that acts as the cache. Defaults to `scrilla.settings.CACHE_MODE`. Can be set to either `sqlite` or `dynamodb`. 
         """
         if not self.inited:
-            self.mode = mode
             self.uuid = uuid.uuid4()
             self.inited = True
+        
+        self.mode = mode
 
         if not files.get_memory_json()['cache'][mode]['prices']:
             self._table()
@@ -280,6 +281,7 @@ class InterestCache(metaclass=Singleton):
     8. **dynamo_identity_query**: ``str``
     """
     internal_cache = {}
+    inited = False
     sqlite_create_table_transaction = "CREATE TABLE IF NOT EXISTS interest(maturity text, date text, value real, UNIQUE(maturity, date))"
     sqlite_insert_row_transaction = "INSERT OR IGNORE INTO interest (maturity, date, value) VALUES (:maturity, :date, :value)"
     sqlite_interest_query = "SELECT date, value FROM interest WHERE maturity=:maturity AND date <=date(:end_date) AND date>=date(:start_date) ORDER BY date(date) DESC"
@@ -333,10 +335,13 @@ class InterestCache(metaclass=Singleton):
         1. **mode**: ``str``
             Determines the data source that acts as the cache. Defaults to `scrilla.settings.CACHE_MODE`. Can be set to either `sqlite` or `dynamodb`. 
         """
-        self.internal_cache = {}
+        if not self.inited:
+            self.uuid = uuid.uuid4()
+            self.inited = True
+      
         self.mode = mode
-        self.uuid = uuid.uuid4()
-        if not files.get_memory_json()['cache'][mode]['interest']:
+
+        if not files.get_memory_json()['cache'][self.mode]['interest']:
             self._table()
 
     def _table(self):
@@ -450,7 +455,8 @@ class CorrelationCache(metaclass=Singleton):
         * `method` corresponds to the estimation method used by the application to calculate a given statistic. 
         * `weekends` corresponds to a flag representing whether or not the calculation used weekends. This will always be 0 in the case of equities, but for cryptocurrencies, this flag is important and will affect the calculation.
     """
-
+    internal_cache = {}
+    inited = False
     sqlite_create_table_transaction = "CREATE TABLE IF NOT EXISTS correlations (ticker_1 TEXT, ticker_2 TEXT, start_date TEXT, end_date TEXT, correlation REAL, method TEXT, weekends INT)"
     sqlite_insert_row_transaction = "INSERT INTO correlations (ticker_1, ticker_2, start_date, end_date, correlation, method, weekends) VALUES (:ticker_1, :ticker_2, :start_date, :end_date, :correlation, :method, :weekends)"
     sqlite_correlation_query = "SELECT correlation FROM correlations WHERE ticker_1=:ticker_1 AND ticker_2=:ticker_2 AND start_date=date(:start_date) AND end_date=date(:end_date) AND method=:method AND weekends=:weekends"
@@ -493,10 +499,10 @@ class CorrelationCache(metaclass=Singleton):
         1. **mode**: ``str``
             Determines the data source that acts as the cache. Defaults to `scrilla.settings.CACHE_MODE`. Can be set to either `sqlite` or `dynamodb`. 
         """
-
-        self.internal_cache = {}
+        if not self.inited:
+            self.uuid = uuid.uuid4()
+            self.inited = True
         self.mode = mode
-        self.uuid = uuid.uuid4()
         if not files.get_memory_json()['cache'][mode]['correlations']:
             self._table()
 
@@ -651,7 +657,8 @@ class ProfileCache(metaclass=Singleton):
         * `method` corresponds to the estimation method used by the application to calculate a given statistic. 
         * `weekends` corresponds to a flag representing whether or not the calculation used weekends. This will always be 0 in the case of equities, but for cryptocurrencies, this flag is important and will affect the calculation.
     """
-
+    internal_cache = {}
+    inited = False
     sqlite_create_table_transaction = "CREATE TABLE IF NOT EXISTS profile (id INTEGER PRIMARY KEY, ticker TEXT, start_date TEXT, end_date TEXT, annual_return REAL, annual_volatility REAL, sharpe_ratio REAL, asset_beta REAL, equity_cost REAL, method TEXT, weekends INT)"
     sqlite_filter = "ticker=:ticker AND start_date=date(:start_date) AND end_date=date(:end_date) AND :method=method AND weekends=:weekends"
     sqlite_identity_query = "SELECT id FROM profile WHERE ticker=:ticker AND start_date=:start_date AND end_date=:end_date AND method=:method AND weekends=:weekends"
@@ -750,9 +757,12 @@ class ProfileCache(metaclass=Singleton):
         1. **mode**: ``str``
             Determines the data source that acts as the cache. Defaults to `scrilla.settings.CACHE_MODE`. Can be set to either `sqlite` or `dynamodb`. 
         """
-        self.internal_cache = {}
+        if not self.inited:
+            self.uuid = uuid.uuid4()
+            self.inited = True
+
         self.mode = mode
-        self.uuid = uuid.uuid4()
+
         if not files.get_memory_json()['cache'][mode]['profile']:
             self._table()
 

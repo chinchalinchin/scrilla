@@ -58,22 +58,18 @@ def sqlite_correlation_cache():
 
 @pytest.fixture()
 def dynamodb_price_cache():
-    PriceCache(mode='dynamodb')._table()
     return PriceCache(mode='dynamodb')
 
 @pytest.fixture()
 def dynamodb_correlation_cache():
-    CorrelationCache(mode='dynamodb')._table()
     return CorrelationCache(mode='dynamodb')
 
 @pytest.fixture()
 def dynamodb_interest_cache():
-    InterestCache(mode='dynamodb')._table()
     return InterestCache(mode='dynamodb')
 
 @pytest.fixture()
 def dynamodb_profile_cache():
-    ProfileCache(mode='dynamodb')._table()
     return ProfileCache(mode='dynamodb')
 
 
