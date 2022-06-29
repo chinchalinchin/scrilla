@@ -106,7 +106,7 @@ def test_cli_cvar_json_format(args, tickers, capsys):
         assert keys.keys['STATISTICS']['CVAR'] in cvar[ticker].keys()
 
 @pytest.mark.parametrize('args,ticker',[
-    (['close', 'ALLY', '-start', settings.START_STR, '-end', settings.END_STR, '-json'], 'ALLY')
+    (['close', 'ALLY', '-json'], 'ALLY')
 ])
 def test_cli_close_price_json_format(args, ticker, capsys):
     with patch('scrilla.util.dater.this_date_or_last_trading_date') as date_function:
@@ -116,10 +116,7 @@ def test_cli_close_price_json_format(args, ticker, capsys):
                 do_program(args)
     prices = json.loads(capsys.readouterr().out)
     assert prices.get(ticker) is not None
-    assert prices[ticker].get(settings.START_STR) is not None
-    assert prices[ticker].get(settings.END_STR) is not None
-    assert prices[ticker][settings.START_STR].get(keys.keys['PRICES']['OPEN']) is not None
-    assert prices[ticker][settings.END_STR].get(keys.keys['PRICES']['CLOSE']) is not None
+    assert isinstance(prices[ticker], float)
 
 
 @pytest.mark.parametrize('args,ticker,expected',[
