@@ -294,6 +294,7 @@ def recursive_sum_of_squares(x: List[float]):
 
     return recursive_sum_of_squares(x[:-1]) + term_variance
 
+
 def sample_covariance(x: list, y: list):
     """
     Parameters
