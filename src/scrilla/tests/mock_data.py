@@ -409,37 +409,43 @@ interest_cache_to_dict_dynamodb_case=(
 )
 
 
+def load_test_file(file, extension = 'json'):
+    if extension == 'json':
+        return json.dumps(load_file(os.path.join(test_settings.MOCK_DIR, file)))
+    return load_file(os.path.join(test_settings.MOCK_DIR), file)
+
 @urlmatch(netloc=r'(.*\.)?alphavantage\.co*$')
 def mock_prices(url, request):
     if 'ALLY' in request.url:
-        return json.dumps(load_file(os.path.join(test_settings.MOCK_DIR, 'ally_response.json')))
+        return load_test_file('ally_response.json')
     elif 'BX' in request.url:
-        return json.dumps(load_file(os.path.join(test_settings.MOCK_DIR, 'bx_response.json')))
+        return load_test_file('bx_response.json')
     elif 'DIS' in request.url:
-        return json.dumps(load_file(os.path.join(test_settings.MOCK_DIR, 'dis_response.json')))
+        return load_test_file('dis_response.json')
     elif 'SPY' in request.url:
-        return json.dumps(load_file(os.path.join(test_settings.MOCK_DIR, 'spy_response.json')))
+        return load_test_file( 'spy_response.json')
     elif 'GLD' in request.url:
-        return json.dumps(load_file(os.path.join(test_settings.MOCK_DIR, 'gld_response.json')))
+        return load_test_file('gld_response.json')
     elif 'BTC' in request.url:
-        return json.dumps(load_file(os.path.join(test_settings.MOCK_DIR, 'btc_response.json')))
+        return load_test_file('btc_response.json')
     elif 'ALGO' in request.url:
-        return json.dumps(load_file(os.path.join(test_settings.MOCK_DIR, 'algo_response.json')))
+        return load_test_file('algo_response.json')
     raise KeyError('No mock data for request!')
 
 
 @urlmatch(netloc=r'(.*\.)?quandl\.com*$')
-def mock_interest(url, request):
-    return json.dumps(load_file(os.path.join(test_settings.MOCK_DIR, 'yield_response.json')))
+def mock_quandl(url, request):
+    return load_test_file('yield_response.json')
 
+@urlmatch(netloc=r'(.*\.)?home\.treasury\.gov*$')
+def mock_treasury(url, request):
+    return load_test_file('treasury_response', 'xml')
 
 @urlmatch(netloc=r'(.*\.)?cloud\.iexapis\.com*$')
 def mock_dividends(url, request):
     if 'ALLY' in request.url:
-        return json.dumps(load_file(os.path.join(test_settings.MOCK_DIR, 'ally_div_response.json')))
+        return load_test_file('ally_div_response.json')
     elif 'BX' in request.url:
-        return json.dumps(load_file(os.path.join(test_settings.MOCK_DIR, 'bx_div_response.json')))
+        return load_test_file('bx_div_response.json')
     elif 'DIS' in request.url:
-        return json.dumps(load_file(os.path.join(test_settings.MOCK_DIR, 'dis_div_response.json')))
-
-# TODO: need mock_interest for us treasury. save sample response and dump into /data/
+        return load_file('dis_div_response.json')

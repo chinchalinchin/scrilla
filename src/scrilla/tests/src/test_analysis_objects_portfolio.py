@@ -20,7 +20,7 @@ def reset_cache():
 @pytest.fixture()
 def portfolios():
     with HTTMock(mock_data.mock_prices):
-        with HTTMock(mock_data.mock_interest):
+        with HTTMock(mock_data.mock_treasury):
             portfolios = [
                 Portfolio(
                     tickers=['ALLY', 'BX'], start_date=test_settings.START, end_date=test_settings.END),
@@ -66,7 +66,7 @@ def test_portfolio_initialization(portfolios):
 ])
 def test_weekend_initialization(tickers, weekends):
     with HTTMock(mock_data.mock_prices):
-        with HTTMock(mock_data.mock_interest):
+        with HTTMock(mock_data.mock_treasury):
             test_portfolio = Portfolio(
                 tickers=tickers, start_date=test_settings.START, end_date=test_settings.END)
     assert(test_portfolio.weekends == weekends)
@@ -80,7 +80,7 @@ def test_weekend_initialization(tickers, weekends):
 ])
 def test_asset_groups(tickers, groups):
     with HTTMock(mock_data.mock_prices):
-        with HTTMock(mock_data.mock_interest):
+        with HTTMock(mock_data.mock_treasury):
             test_portfolio = Portfolio(
                 tickers=tickers, start_date=test_settings.START, end_date=test_settings.END)
     assert(test_portfolio.asset_groups == groups)

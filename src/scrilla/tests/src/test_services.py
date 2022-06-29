@@ -59,7 +59,7 @@ def test_service_date_validation(ticker, asset_type):
      "2021-10-14", 0.1)
 ])
 def test_past_interest(maturity, date, yield_rate):
-    with HTTMock(mock_data.mock_interest):
+    with HTTMock(mock_data.mock_treasury):
         response = services.get_daily_interest_history(
             maturity=maturity, start_date=settings.START, end_date=settings.END)
     assert(response[date] == yield_rate)

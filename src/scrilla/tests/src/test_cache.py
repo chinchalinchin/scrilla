@@ -96,7 +96,7 @@ def test_sqlite_price_cache(ticker, date, price, sqlite_price_cache):
      "2021-10-14", 0.1)
 ])
 def test_sqlite_interest_cache(maturity, date, yield_rate, sqlite_interest_cache):
-    with HTTMock(mock_data.mock_interest):
+    with HTTMock(mock_data.mock_treasury):
         get_daily_interest_history(
             maturity=maturity, start_date=test_settings.START, end_date=test_settings.END)
     cache_results = sqlite_interest_cache.filter(

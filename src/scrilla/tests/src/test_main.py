@@ -29,7 +29,8 @@ def reset_cache():
 ])
 def test_cli_correlation_json_format(args, length, capsys):
     with HTTMock(mock_data.mock_prices):
-        do_program(args)
+        with HTTMock(mock_data.mock_treasury):
+            do_program(args)
     correl_matrix = json.loads(capsys.readouterr().out)
     # assert dimensions are correct length
     assert(len(correl_matrix['correlation_matrix']) == length)
@@ -48,7 +49,8 @@ def test_cli_correlation_json_format(args, length, capsys):
 ])
 def test_cli_correlation_json_format_with_likelihood(args, length, capsys):
     with HTTMock(mock_data.mock_prices):
-        do_program(args)
+        with HTTMock(mock_data.mock_treasury):
+            do_program(args)
     correl_matrix = json.loads(capsys.readouterr().out)
     # assert dimensions are correct length
     assert(len(correl_matrix['correlation_matrix']) == length)
@@ -74,7 +76,8 @@ def test_cli_correlation_json_format_with_likelihood(args, length, capsys):
 ])
 def test_cli_risk_profile_json_format(args, tickers, capsys):
     with HTTMock(mock_data.mock_prices):
-        do_program(args)
+        with HTTMock(mock_data.mock_treasury):
+            do_program(args)
     profile = json.loads(capsys.readouterr().out)
     profile_keys = [ key for key in keys.keys['STATISTICS'].values() if key not in ['conditional_value_at_risk', 'value_at_risk']]
     for ticker in tickers:
@@ -93,7 +96,8 @@ def test_cli_risk_profile_json_format(args, tickers, capsys):
 ])
 def test_cli_cvar_json_format(args, tickers, capsys):
     with HTTMock(mock_data.mock_prices):
-        do_program(args)
+        with HTTMock(mock_data.mock_interest):
+            do_program(args)
     cvar = json.loads(capsys.readouterr().out)
     for ticker in tickers:
         assert keys.keys['STATISTICS']['CVAR'] in cvar[ticker].keys()
@@ -103,7 +107,8 @@ def test_cli_cvar_json_format(args, tickers, capsys):
 ])
 def test_cli_close_price_json_format(args, ticker, capsys):
     with HTTMock(mock_data.mock_prices):
-        do_program(args)
+        with HTTMock(mock_data.mock_treasury):
+            do_program(args)
     prices = json.loads(capsys.readouterr().out)
     assert prices.get(ticker) is not None
     assert prices[ticker].get(settings.START_STR) is not None
@@ -123,3 +128,27 @@ def test_cli_asset_type(args, ticker, expected, capsys):
     result = capsys.readouterr().out
     assert ticker in result
     assert expected in result
+
+@pytest.mark.parametrize('args,tickers',[
+    (
+        ['var', 'ALLY', '-start', settings.START_STR, '-end', settings.END_STR, '-json', '-prob', '0.05', '-expiry', '0.5'], 
+        ['ALLY']
+    ),
+    (
+        ['var', 'GLD', 'SPY', '-start', settings.START_STR, '-end', settings.END_STR, '-json', '-prob', '0.05', '-expiry', '0.5'], 
+        ['GLD', 'SPY']
+    ),
+    (
+        ['var', 'DIS', 'BX', 'GLD', 'SPY', '-start', settings.START_STR, '-end', settings.END_STR, '-json', '-prob', '0.05', '-expiry', '0.5'], 
+        ['DIS', 'BX', 'GLD', 'SPY']
+    )
+])
+def test_cli_value_at_risk_json_format(args, tickers, capsys):
+    with HTTMock(mock_data.mock_prices):
+        with HTTMock(mock_data.mock_treasury):
+            do_program(args)
+    results = json.loads(capsys.readouterr().out)
+    for ticker in tickers:
+        assert ticker in list(results.keys())
+        assert keys.keys['STATISTICS']['VAR'] in list(results[ticker].keys())
+        assert isinstance(results[ticker][keys.keys['STATISTICS']['VAR']], float)

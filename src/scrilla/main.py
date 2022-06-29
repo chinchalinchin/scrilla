@@ -228,7 +228,7 @@ def do_program(cli_args: List[str]) -> None:
             from scrilla.static.keys import keys
 
             all_vars = {}
-            for arg in args['tickers']['values']:
+            for arg in args['tickers']:
                 prices = get_daily_price_history(ticker=arg,
                                                  start_date=args['start_date'],
                                                  end_date=args['end_date'])
@@ -243,7 +243,7 @@ def do_program(cli_args: List[str]) -> None:
                                          expiry=args['expiry'],
                                          prob=args['probability'])
 
-                all_vars[arg] = valueatrisk
+                all_vars[arg] = { keys['STATISTICS']['VAR']: valueatrisk }
 
                 if print_format_to_screen(args):
                     from scrilla.util.outputter import scalar_result
@@ -257,7 +257,7 @@ def do_program(cli_args: List[str]) -> None:
                 from scrilla.files import save_file
                 save_file(file_to_save=all_vars, file_name=args['save_file'])
 
-        selected_function, required_length = cli_var, 2
+        selected_function, required_length = cli_var, 1
 
     # FUNCTION: Black-Scholes Conditional Value At Risk
     elif args['function_arg'] in definitions.FUNC_DICT['cvar']['values']:
