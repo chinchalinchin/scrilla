@@ -3,10 +3,12 @@ setuptools>=51.1.1
 build>=0.6.0
 twine>=3.4.2
 
-# Dev Dependencies
+# Documentation Dependencies
 pdoc3>=0.10.0
 sphinx>=4.3.0
 myst-parser>=0.15.2
+
+# Test Dependencies
 pytest>=6.2.5
 coverage>=6.1.2
 httmock>=1.4.0
