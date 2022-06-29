@@ -343,7 +343,7 @@ def do_program(cli_args: List[str]) -> None:
                                    start_date=args['start_date'],
                                    end_date=args['end_date'],
                                    method=args['estimation_method'])
-                all_betas[arg] = { keys['STATISTICS']['BETA']: beta }
+                all_betas[arg] = {keys['STATISTICS']['BETA']: beta}
 
                 if print_format_to_screen(args):
                     from scrilla.util.outputter import scalar_result
