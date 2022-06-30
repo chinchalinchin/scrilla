@@ -79,8 +79,10 @@ The `ORDER BY` clause has not yet been implemented in **PartiQL** (see [GitHub I
 - [An Introduction to Copulas](http://www.columbia.edu/~mh2078/QRM/Copulas.pdf)
 - [Optimization of Conditional Value At Risk](https://www.ise.ufl.edu/uryasev/files/2011/11/CVaR1_JOR.pdf)
 - [Parameter Estimation in Mean Reversion Processes with Deterministic Long-Term Trend](https://www.hindawi.com/journals/jps/2016/5191583/)
+- [Updating Formulae and a Pairwise Algorithm For Computing Sample Variances](http://i.stanford.edu/pub/cstr/reports/cs/tr/79/773/CS-TR-79-773.pdf)
 
 ### Wikis
+- [Algorithms For Calculating Variance](https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance)
 - [Empirical Copulas](https://en.wikipedia.org/wiki/Copula_(probability_theory)#Empirical_copulas)
 - [Probability Integral Transform](https://en.wikipedia.org/wiki/Probability_integral_transform)
 - [Cauchy-Schwarz Inequality](https://en.wikipedia.org/wiki/Cauchy%E2%80%93Schwarz_inequality#Probability_theory)
@@ -89,3 +91,4 @@ The `ORDER BY` clause has not yet been implemented in **PartiQL** (see [GitHub I
 
 ## Assets
 - [Ionicons](https://ionic.io/ionicons)
+- [SVGRepo](https://www.svgrepo.com/)
