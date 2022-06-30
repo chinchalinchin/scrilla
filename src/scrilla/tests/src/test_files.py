@@ -5,11 +5,12 @@ from scrilla import files, settings
 
 @patch('scrilla.files.json.load')
 def test_get_memory_json(load_function):
-    load_function.return_value = { 'test': 'this is'}
+    test_memory = { 'test': 'this is'}
+    load_function.return_value = test_memory
 
     memory_json = files.get_memory_json()
 
-    assert memory_json == {'test': 'this is'}
+    assert memory_json == test_memory
 
 @patch('scrilla.files.os.path.isfile')
 def test_get_memory_json_when_doesnt_exist(existence_function):
