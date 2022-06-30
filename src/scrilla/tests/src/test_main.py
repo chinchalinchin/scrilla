@@ -347,7 +347,7 @@ def test_cli_cost_of_equity_json_format(date_function, args, tickers, capsys):
         'test_path'
     )
 ])
-def test_cli_cost_of_equity_save_file(date_function, save_function, args, filename):
+def test_cli_cost_of_equity_save_file(save_function, date_function, args, filename):
     date_function.return_value = settings.END
     with HTTMock(mock_data.mock_prices), \
          HTTMock(mock_data.mock_treasury):
@@ -392,13 +392,14 @@ def test_cli_asset_beta_save_file(save_function, args, filename):
     save_function.assert_called()
     save_function.assert_called_with(file_to_save=ANY, file_name=filename)
 
-@patch('scrilla.analysis.markets.cost_of_equity', 0.05)
+@patch('scrilla.analysis.markets.cost_of_equity')
 @pytest.mark.parametrize('args,tickers', [
     (['ddm','ALLY', '-json'], ['ALLY']),
     (['ddm','ALLY','-discount', '0.05', '-json'], ['ALLY']),
     (['ddm', 'ALLY', 'BX', '-json'], ['ALLY', 'BX'])
 ])
-def test_cli_discount_dividend_model_json_format(args, tickers, capsys):
+def test_cli_discount_dividend_model_json_format(equity_function, args, tickers, capsys):
+    equity_function.return_value = 0.05
     with HTTMock(mock_data.mock_prices), \
          HTTMock(mock_data.mock_dividends):
             do_program(args)
