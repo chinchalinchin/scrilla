@@ -57,6 +57,12 @@ def test_clear_cache_sqlite_mode(delete_function):
 #     delete_function.assert_called()
 #     delete_function.asset_called_with(['prices', 'interest', 'correlations', 'profile'])
 
+@patch('scrilla.files.os.remove')
+def test_clear_static(delete_function):
+    do_program(['clear-static'])
+    delete_function.assert_called()
+    delete_function.assert_called_with(ANY)
+
 @pytest.mark.parametrize('args, length', [
     (['correlation', 'ALLY', 'BX', '-json', '-start',
      settings.START_STR, '-end', settings.END_STR], 2),
