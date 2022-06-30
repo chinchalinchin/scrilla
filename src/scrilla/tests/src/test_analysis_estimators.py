@@ -131,12 +131,15 @@ def test_recursive_sum_of_squares(x, var):
     variance = estimators.recursive_sum_of_squares(x)/(len(x) -1)
     assert(settings.is_within_tolerance(lambda:variance - var))
 
-@pytest.mark.parametrize("x", [([]), ([1]), ([2])])
-def test_variance_small_sample(x):
+@pytest.mark.parametrize("x", [([])])
+def test_variance_null_sample(x):
     with pytest.raises(Exception) as sample_error:
         estimators.sample_variance(x)
     assert sample_error.type == SampleSizeError
 
+@pytest.mark.parametrize("x", [([1]), ([2])])
+def test_variance_small_sample(x):
+    assert estimators.sample_variance(x) == 0
 
 @pytest.mark.parametrize("x", [([None])])
 def test_variance_null_sample(x):
