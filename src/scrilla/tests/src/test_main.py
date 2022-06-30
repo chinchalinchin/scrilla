@@ -4,6 +4,7 @@ from unittest.mock import patch, ANY
 
 from httmock import HTTMock
 
+from scrilla import settings as app_settings
 from scrilla.main import do_program
 from scrilla.cache import PriceCache, ProfileCache, InterestCache, CorrelationCache
 from scrilla.files import clear_cache, init_static_data
@@ -41,6 +42,20 @@ def test_specific_help_msg(args, capsys):
             assert definition['name'] in help_message
             assert all(val in help_message for val in definition['values'])
 
+@patch('scrilla.files.os.remove')
+def test_clear_cache_sqlite_mode(delete_function):
+    do_program(['clear-cache'])
+    delete_function.assert_called()
+    delete_function.assert_called_with(app_settings.CACHE_SQLITE_FILE)
+
+# TODO: patching the os.environ dictionary doesn't work
+# @patch('os.environ', { 'CACHE_MODE': 'dynamodb' })
+# @patch('scrilla.cloud.aws.dynamo_drop_table')
+# def test_clear_cache_dynamodb_mode(delete_function, environment):
+#     environment.return_value = 'dynamodb'
+#     do_program(['clear-cache'])
+#     delete_function.assert_called()
+#     delete_function.asset_called_with(['prices', 'interest', 'correlations', 'profile'])
 
 @pytest.mark.parametrize('args, length', [
     (['correlation', 'ALLY', 'BX', '-json', '-start',
@@ -372,7 +387,7 @@ def test_cli_discount_dividend_model_json_format(equity_function, args, ticker, 
 @pytest.mark.parametrize('args', [
     (['ddm','ALLY','-discount', '-0.05'])
 ])
-def test_cli_discount_dividend_model_bad_args(args, capsys):
+def test_cli_discount_dividend_model_bad_args(args):
     with pytest.raises(Exception) as model_error:
         with HTTMock(mock_data.mock_prices):
             with HTTMock(mock_data.mock_dividends):

@@ -24,7 +24,7 @@ import time
 from datetime import date
 from typing import Callable, Dict, List, Union
 
-from scrilla.settings import LOG_LEVEL, ESTIMATION_METHOD
+from scrilla import settings
 from scrilla.static import definitions
 from scrilla.util.errors import InputValidationError
 from scrilla.files import init_static_data
@@ -34,7 +34,7 @@ from scrilla.util.outputter import Logger
 
 # TODO: conditional imports based on value of ANALYSIS_MODE
 
-logger = Logger('main', LOG_LEVEL)
+logger = Logger('main', settings.LOG_LEVEL)
 
 
 def validate_function_usage(selection: str, args: List[str], wrapper_function: Callable, required_length: int = 1, exact: bool = False) -> None:
@@ -104,7 +104,7 @@ def do_program(cli_args: List[str]) -> None:
     init_static_data()
     init_cache()
 
-    args = formats.format_args(cli_args, ESTIMATION_METHOD)
+    args = formats.format_args(cli_args, settings.ESTIMATION_METHOD)
     exact, selected_function = False, None
 
     # START CLI FUNCTION DEFINITIONS
@@ -123,10 +123,9 @@ def do_program(cli_args: List[str]) -> None:
     # FUNCTION: Clear Cache
     elif args['function_arg'] in definitions.FUNC_DICT["clear_cache"]['values']:
         def cli_clear_cache():
-            from scrilla.files import clear_directory
-            from scrilla.settings import CACHE_DIR
-            logger.info(f'Clearing {CACHE_DIR}', 'do_program')
-            clear_directory(directory=CACHE_DIR, retain=True)
+            from scrilla.files import clear_cache
+            logger.info(f'Clearing {settings.CACHE_DIR}', 'do_program')
+            clear_cache()
         selected_function, required_length = cli_clear_cache, 0
 
     # FUNCTION: Clear Static
