@@ -57,9 +57,9 @@ def format_allocation(allocation, portfolio, investment=None, latest_prices=None
     annual_return = portfolio.return_function(x=allocation)
 
     for j, item in enumerate(portfolio.tickers):
-        holding = {'ticker': item, 'allocation': round(allocation[j], constants['ACCURACY']), 'annual_return': round(
-            portfolio.mean_return[j], constants['ACCURACY']), 'annual_volatility': round(
-            portfolio.sample_vol[j], constants['ACCURACY'])}
+        holding = {'ticker': item, 'allocation': round(allocation[j], constants.constants['ACCURACY']), 'annual_return': round(
+            portfolio.mean_return[j], constants.constants['ACCURACY']), 'annual_volatility': round(
+            portfolio.sample_vol[j], constants.constants['ACCURACY'])}
         if investment is not None:
             holding['shares'] = float(shares[j])
         allocation_format.append(holding)

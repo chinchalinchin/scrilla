@@ -329,8 +329,8 @@ def test_cli_conditional_value_at_risk_save_file(save_function, args, filename):
 ])
 def test_cli_cost_of_equity_json_format(date_function, args, tickers, capsys):
     date_function.return_value = settings.END
-    with HTTMock(mock_data.mock_prices):
-        with HTTMock(mock_data.mock_treasury):
+    with HTTMock(mock_data.mock_prices), \
+         HTTMock(mock_data.mock_treasury):
             do_program(args)
     costs = json.loads(capsys.readouterr().out)
     for ticker in tickers:
@@ -423,9 +423,35 @@ def test_cli_discount_dividend_model_bad_args(args):
     (['dividends', 'ALLY', '-json'], ['ALLY']),
     (['dividends', 'ALLY', 'BX', '-json'], ['ALLY', 'BX'])
 ])
-def test_cli_dividend_history(args, tickers, capsys):
+def test_cli_dividend_history_json_format(args, tickers, capsys):
     with HTTMock(mock_data.mock_dividends):
         do_program(args)
     histories = json.loads(capsys.readouterr().out)
     assert all(ticker in list(histories.keys()) for ticker in tickers)
     assert all(isinstance(histories[ticker], dict) for ticker in tickers)
+
+@pytest.mark.parametrize('args,tickers',[
+    (['efficient-frontier', 'ALLY', 'DIS','BX','-start', settings.START_STR, 
+        '-end', settings.END_STR, '-json'], 
+     ['ALLY','BX','DIS']),
+    (['efficient-frontier', 'GLD', 'BTC', 'SPY','-start', settings.START_STR,
+        '-end', settings.END_STR, '-json', '-sh'], 
+     ['GLD', 'BTC', 'SPY']),
+     (['efficient-frontier', 'ALLY', 'DIS','BX', 'GLD', 'BTC', 'SPY','-start', settings.START_STR,
+        '-end', settings.END_STR, '-json', '-sh'], 
+     ['ALLY', 'DIS','BX', 'GLD', 'BTC', 'SPY']),
+])
+def test_cli_efficient_frontier_json_format(args, tickers, capsys):
+    with HTTMock(mock_data.mock_prices), \
+         HTTMock(mock_data.mock_treasury):
+         do_program(args)
+    frontiers = json.loads(capsys.readouterr().out)
+    assert len(frontiers) == app_settings.FRONTIER_STEPS
+    for frontier in frontiers:
+        assert frontier.get('holdings') is not None
+        assert len(frontier['holdings']) == len(tickers)
+        assert frontier.get('portfolio_return') is not None
+        assert isinstance(frontier['portfolio_return'], float)
+        assert frontier.get('portfolio_volatility') is not None
+        assert isinstance(frontier['portfolio_volatility'], float)
+        assert frontier['portfolio_volatility'] > 0

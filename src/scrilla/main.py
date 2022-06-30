@@ -510,8 +510,6 @@ def do_program(cli_args: List[str]) -> None:
             else:
                 prices = None
 
-            print(prices)
-
             if print_format_to_screen(args):
                 from scrilla.util.outputter import efficient_frontier as frontier_output
                 frontier_output(portfolio=portfolio,

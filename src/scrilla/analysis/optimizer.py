@@ -317,7 +317,7 @@ def calculate_efficient_frontier(portfolio: Portfolio, steps=None) -> List[List[
     return_width = (maximum_return - minimum_return)/steps
 
     frontier = []
-    for i in range(steps+1):
+    for i in range(steps):
         target_return = minimum_return + return_width*i
         allocation = optimize_portfolio_variance(
             portfolio=portfolio, target_return=target_return)
