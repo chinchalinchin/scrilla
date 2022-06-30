@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Coverage for src/scrilla/analysis/objects/portfolio.py: 59%</title>
+    <title>Coverage for src/scrilla/analysis/objects/portfolio.py: 70%</title>
     <link rel="icon" sizes="32x32" href="favicon_32.png">
     <link rel="stylesheet" href="style.css" type="text/css">
     <script type="text/javascript" src="coverage_html.js" defer></script>
@@ -12,7 +12,7 @@
     <div class="content">
         <h1>
             <span class="text">Coverage for </span><b>src/scrilla/analysis/objects/portfolio.py</b>:
-            <span class="pc_cov">59%</span>
+            <span class="pc_cov">70%</span>
         </h1>
         <aside id="help_panel_wrapper">
             <input id="help_panel_state" type="checkbox">
@@ -56,10 +56,10 @@
         </aside>
         <h2>
             <span class="text">111 statements &nbsp;</span>
-            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">70<span class="text"> run</span></button>
-            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">41<span class="text"> missing</span></button>
+            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">81<span class="text"> run</span></button>
+            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">30<span class="text"> missing</span></button>
             <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">0<span class="text"> excluded</span></button>
-            <button type="button" class="par run show_par button_toggle_par" value="par" data-shortcut="p" title="Toggle lines partially run">6<span class="text"> partial</span></button>
+            <button type="button" class="par run show_par button_toggle_par" value="par" data-shortcut="p" title="Toggle lines partially run">7<span class="text"> partial</span></button>
         </h2>
         <p class="text">
             <a id="prevFileLink" class="nav" href="d_895a23b0040f44f0_cashflow_py.html">&#xab; prev</a> &nbsp; &nbsp;
@@ -67,7 +67,7 @@
             <a id="nextFileLink" class="nav" href="d_5485127f26531aab_optimizer_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io">coverage.py v6.4.1</a>,
-            created at 2022-06-30 18:24 +0000
+            created at 2022-06-30 19:07 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"/>
@@ -283,7 +283,7 @@
     <p class="pln"><span class="n"><a id="t199" href="#t199">199</a></span><span class="t"><span class="str">        ``float``</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t200" href="#t200">200</a></span><span class="t"><span class="str">            The portfolio return on an annualized basis.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t201" href="#t201">201</a></span><span class="t"><span class="str">        """</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t202" href="#t202">202</a></span><span class="t">        <span class="key">return</span> <span class="nam">dot</span><span class="op">(</span><span class="nam">x</span><span class="op">,</span> <span class="nam">self</span><span class="op">.</span><span class="nam">mean_return</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t202" href="#t202">202</a></span><span class="t">        <span class="key">return</span> <span class="nam">dot</span><span class="op">(</span><span class="nam">x</span><span class="op">,</span> <span class="nam">self</span><span class="op">.</span><span class="nam">mean_return</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t203" href="#t203">203</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t204" href="#t204">204</a></span><span class="t">    <span class="key">def</span> <span class="nam">volatility_function</span><span class="op">(</span><span class="nam">self</span><span class="op">,</span> <span class="nam">x</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t205" href="#t205">205</a></span><span class="t">        <span class="str">"""</span>&nbsp;</span><span class="r"></span></p>
@@ -299,7 +299,7 @@
     <p class="pln"><span class="n"><a id="t215" href="#t215">215</a></span><span class="t"><span class="str">        ``float``</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t216" href="#t216">216</a></span><span class="t"><span class="str">            The portfolio volatility on an annualized basis.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t217" href="#t217">217</a></span><span class="t"><span class="str">        """</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t218" href="#t218">218</a></span><span class="t">        <span class="key">return</span> <span class="nam">sqrt</span><span class="op">(</span><span class="nam">multiply</span><span class="op">(</span><span class="nam">x</span><span class="op">,</span> <span class="nam">self</span><span class="op">.</span><span class="nam">sample_vol</span><span class="op">)</span><span class="op">.</span><span class="nam">dot</span><span class="op">(</span><span class="nam">self</span><span class="op">.</span><span class="nam">correl_matrix</span><span class="op">)</span><span class="op">.</span><span class="nam">dot</span><span class="op">(</span><span class="nam">transpose</span><span class="op">(</span><span class="nam">multiply</span><span class="op">(</span><span class="nam">x</span><span class="op">,</span> <span class="nam">self</span><span class="op">.</span><span class="nam">sample_vol</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t218" href="#t218">218</a></span><span class="t">        <span class="key">return</span> <span class="nam">sqrt</span><span class="op">(</span><span class="nam">multiply</span><span class="op">(</span><span class="nam">x</span><span class="op">,</span> <span class="nam">self</span><span class="op">.</span><span class="nam">sample_vol</span><span class="op">)</span><span class="op">.</span><span class="nam">dot</span><span class="op">(</span><span class="nam">self</span><span class="op">.</span><span class="nam">correl_matrix</span><span class="op">)</span><span class="op">.</span><span class="nam">dot</span><span class="op">(</span><span class="nam">transpose</span><span class="op">(</span><span class="nam">multiply</span><span class="op">(</span><span class="nam">x</span><span class="op">,</span> <span class="nam">self</span><span class="op">.</span><span class="nam">sample_vol</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t219" href="#t219">219</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t220" href="#t220">220</a></span><span class="t">    <span class="key">def</span> <span class="nam">sharpe_ratio_function</span><span class="op">(</span><span class="nam">self</span><span class="op">,</span> <span class="nam">x</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t221" href="#t221">221</a></span><span class="t">        <span class="str">"""</span>&nbsp;</span><span class="r"></span></p>
@@ -356,24 +356,24 @@
     <p class="pln"><span class="n"><a id="t272" href="#t272">272</a></span><span class="t">                                               <span class="nam">expiry</span><span class="op">=</span><span class="nam">time</span><span class="op">,</span> <span class="nam">conditional_value</span><span class="op">=</span><span class="nam">value_at_risk</span><span class="op">)</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t273" href="#t273">273</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t274" href="#t274">274</a></span><span class="t">    <span class="key">def</span> <span class="nam">get_init_guess</span><span class="op">(</span><span class="nam">self</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t275" href="#t275">275</a></span><span class="t">        <span class="nam">length</span> <span class="op">=</span> <span class="nam">len</span><span class="op">(</span><span class="nam">self</span><span class="op">.</span><span class="nam">tickers</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t276" href="#t276">276</a></span><span class="t">        <span class="nam">uniform_guess</span> <span class="op">=</span> <span class="num">1</span><span class="op">/</span><span class="nam">length</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t277" href="#t277">277</a></span><span class="t">        <span class="nam">guess</span> <span class="op">=</span> <span class="op">[</span><span class="nam">uniform_guess</span> <span class="key">for</span> <span class="nam">i</span> <span class="key">in</span> <span class="nam">range</span><span class="op">(</span><span class="nam">length</span><span class="op">)</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t278" href="#t278">278</a></span><span class="t">        <span class="key">return</span> <span class="nam">guess</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t275" href="#t275">275</a></span><span class="t">        <span class="nam">length</span> <span class="op">=</span> <span class="nam">len</span><span class="op">(</span><span class="nam">self</span><span class="op">.</span><span class="nam">tickers</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t276" href="#t276">276</a></span><span class="t">        <span class="nam">uniform_guess</span> <span class="op">=</span> <span class="num">1</span><span class="op">/</span><span class="nam">length</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t277" href="#t277">277</a></span><span class="t">        <span class="nam">guess</span> <span class="op">=</span> <span class="op">[</span><span class="nam">uniform_guess</span> <span class="key">for</span> <span class="nam">i</span> <span class="key">in</span> <span class="nam">range</span><span class="op">(</span><span class="nam">length</span><span class="op">)</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t278" href="#t278">278</a></span><span class="t">        <span class="key">return</span> <span class="nam">guess</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t279" href="#t279">279</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t280" href="#t280">280</a></span><span class="t">    <span class="op">@</span><span class="nam">staticmethod</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t281" href="#t281">281</a></span><span class="t">    <span class="key">def</span> <span class="nam">get_constraint</span><span class="op">(</span><span class="nam">x</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t282" href="#t282">282</a></span><span class="t">        <span class="key">return</span> <span class="nam">sum</span><span class="op">(</span><span class="nam">x</span><span class="op">)</span> <span class="op">-</span> <span class="num">1</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t282" href="#t282">282</a></span><span class="t">        <span class="key">return</span> <span class="nam">sum</span><span class="op">(</span><span class="nam">x</span><span class="op">)</span> <span class="op">-</span> <span class="num">1</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t283" href="#t283">283</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t284" href="#t284">284</a></span><span class="t">    <span class="key">def</span> <span class="nam">get_default_bounds</span><span class="op">(</span><span class="nam">self</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t285" href="#t285">285</a></span><span class="t">        <span class="key">return</span> <span class="op">[</span><span class="op">[</span><span class="num">0</span><span class="op">,</span> <span class="num">1</span><span class="op">]</span> <span class="key">for</span> <span class="nam">y</span> <span class="key">in</span> <span class="nam">range</span><span class="op">(</span><span class="nam">len</span><span class="op">(</span><span class="nam">self</span><span class="op">.</span><span class="nam">tickers</span><span class="op">)</span><span class="op">)</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t285" href="#t285">285</a></span><span class="t">        <span class="key">return</span> <span class="op">[</span><span class="op">[</span><span class="num">0</span><span class="op">,</span> <span class="num">1</span><span class="op">]</span> <span class="key">for</span> <span class="nam">y</span> <span class="key">in</span> <span class="nam">range</span><span class="op">(</span><span class="nam">len</span><span class="op">(</span><span class="nam">self</span><span class="op">.</span><span class="nam">tickers</span><span class="op">)</span><span class="op">)</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t286" href="#t286">286</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t287" href="#t287">287</a></span><span class="t">    <span class="key">def</span> <span class="nam">set_target_return</span><span class="op">(</span><span class="nam">self</span><span class="op">,</span> <span class="nam">target</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t288" href="#t288">288</a></span><span class="t">        <span class="nam">self</span><span class="op">.</span><span class="nam">target_return</span> <span class="op">=</span> <span class="nam">target</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t288" href="#t288">288</a></span><span class="t">        <span class="nam">self</span><span class="op">.</span><span class="nam">target_return</span> <span class="op">=</span> <span class="nam">target</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t289" href="#t289">289</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t290" href="#t290">290</a></span><span class="t">    <span class="key">def</span> <span class="nam">get_target_return_constraint</span><span class="op">(</span><span class="nam">self</span><span class="op">,</span> <span class="nam">x</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t291" href="#t291">291</a></span><span class="t">        <span class="key">if</span> <span class="nam">self</span><span class="op">.</span><span class="nam">target_return</span> <span class="key">is</span> <span class="key">not</span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t292" href="#t292">292</a></span><span class="t">            <span class="key">return</span> <span class="op">(</span><span class="nam">dot</span><span class="op">(</span><span class="nam">x</span><span class="op">,</span> <span class="nam">self</span><span class="op">.</span><span class="nam">mean_return</span><span class="op">)</span> <span class="op">-</span> <span class="nam">self</span><span class="op">.</span><span class="nam">target_return</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="par run show_par"><span class="n"><a id="t291" href="#t291">291</a></span><span class="t">        <span class="key">if</span> <span class="nam">self</span><span class="op">.</span><span class="nam">target_return</span> <span class="key">is</span> <span class="key">not</span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><span class="r"><span class="annotate short">291&#x202F;&#x219B;&#x202F;293</span><span class="annotate long">line 291 didn't jump to line 293, because the condition on line 291 was never false</span></span></p>
+    <p class="run"><span class="n"><a id="t292" href="#t292">292</a></span><span class="t">            <span class="key">return</span> <span class="op">(</span><span class="nam">dot</span><span class="op">(</span><span class="nam">x</span><span class="op">,</span> <span class="nam">self</span><span class="op">.</span><span class="nam">mean_return</span><span class="op">)</span> <span class="op">-</span> <span class="nam">self</span><span class="op">.</span><span class="nam">target_return</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t293" href="#t293">293</a></span><span class="t">        <span class="key">return</span> <span class="key">None</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t294" href="#t294">294</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t295" href="#t295">295</a></span><span class="t">    <span class="op">@</span><span class="nam">staticmethod</span>&nbsp;</span><span class="r"></span></p>
@@ -413,7 +413,7 @@
             <a id="nextFileLink" class="nav" href="d_5485127f26531aab_optimizer_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io">coverage.py v6.4.1</a>,
-            created at 2022-06-30 18:24 +0000
+            created at 2022-06-30 19:07 +0000
         </p>
     </div>
 </footer>
