@@ -65,7 +65,7 @@
             <a id="nextFileLink" class="nav" href="d_dcdd49cf8d5eb2c6_definitions_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io">coverage.py v6.4.1</a>,
-            created at 2022-06-29 23:57 +0000
+            created at 2022-06-29 23:59 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"/>
@@ -175,7 +175,7 @@
     <p class="mis show_mis"><span class="n"><a id="t93" href="#t93">93</a></span><span class="t">                <span class="nam">writer</span><span class="op">.</span><span class="nam">writeheader</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t94" href="#t94">94</a></span><span class="t">            <span class="com"># TODO: implement other file saving extensions.</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t95" href="#t95">95</a></span><span class="t">        <span class="key">return</span> <span class="key">True</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t96" href="#t96">96</a></span><span class="t">    <span class="key">except</span> <span class="nam">Exception</span> <span class="key">as</span> <span class="nam">e</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t96" href="#t96">96</a></span><span class="t">    <span class="key">except</span> <span class="nam">OSError</span> <span class="key">as</span> <span class="nam">e</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t97" href="#t97">97</a></span><span class="t">        <span class="nam">logger</span><span class="op">.</span><span class="nam">error</span><span class="op">(</span><span class="nam">e</span><span class="op">,</span> <span class="str">'save_file'</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t98" href="#t98">98</a></span><span class="t">        <span class="key">return</span> <span class="key">False</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t99" href="#t99">99</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
@@ -520,7 +520,7 @@
     <p class="mis show_mis"><span class="n"><a id="t438" href="#t438">438</a></span><span class="t">                <span class="key">continue</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t439" href="#t439">439</a></span><span class="t">            <span class="nam">os</span><span class="op">.</span><span class="nam">remove</span><span class="op">(</span><span class="nam">os</span><span class="op">.</span><span class="nam">path</span><span class="op">.</span><span class="nam">join</span><span class="op">(</span><span class="nam">directory</span><span class="op">,</span> <span class="nam">f</span><span class="op">)</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t440" href="#t440">440</a></span><span class="t">        <span class="key">return</span> <span class="key">True</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t441" href="#t441">441</a></span><span class="t">    <span class="key">except</span> <span class="nam">Exception</span> <span class="key">as</span> <span class="nam">e</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t441" href="#t441">441</a></span><span class="t">    <span class="key">except</span> <span class="nam">OSError</span> <span class="key">as</span> <span class="nam">e</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t442" href="#t442">442</a></span><span class="t">        <span class="nam">logger</span><span class="op">.</span><span class="nam">error</span><span class="op">(</span><span class="nam">e</span><span class="op">,</span> <span class="str">'clear_directory'</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t443" href="#t443">443</a></span><span class="t">        <span class="key">return</span> <span class="key">False</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t444" href="#t444">444</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
@@ -557,7 +557,7 @@
             <a id="nextFileLink" class="nav" href="d_dcdd49cf8d5eb2c6_definitions_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io">coverage.py v6.4.1</a>,
-            created at 2022-06-29 23:57 +0000
+            created at 2022-06-29 23:59 +0000
         </p>
     </div>
 </footer>
