@@ -274,7 +274,7 @@ def sample_variance(x: List[float]):
             'Sample variance cannot be computed for a sample size of 0.')
 
     if n == 1:
-        # no variance for a sample of 1. 
+        # no variance for a sample of 1.
         return 0
 
     for i in x:
@@ -291,12 +291,24 @@ def recursive_rolling_variance(var_previous, xbar_previous, new_obs, lost_obs, n
     return var_new
 
 
-def recursive_sum_of_squares(x: List[float]):
-    if len(x) == 1:
-        return 0
+def recursive_sum_of_squares(x: List[float], checked: bool = False):
     n = len(x)
+
+    if not checked:
+        if not all(this_x is not None and isinstance(this_x, (float, int)) for this_x in x):
+            raise ValueError(
+                'Sample contains null values')
+
+        if n == 0:
+            raise errors.SampleSizeError(
+                'Sample variance cannot be computed for a sample size of 0.')
+
+    if n == 1:
+        return 0
+
     term_variance = (n*x[-1] - sum(x))**2/(n*(n-1))
-    return recursive_sum_of_squares(x[:-1]) + term_variance
+    return recursive_sum_of_squares(x[:-1], True) + term_variance
+
 
 def sample_covariance(x: list, y: list):
     """
