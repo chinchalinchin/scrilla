@@ -24,11 +24,9 @@ import time
 from datetime import date
 from typing import Callable, Dict, List, Union
 
-from scrilla import settings
+from scrilla import settings, files, cache
 from scrilla.static import definitions
 from scrilla.util.errors import InputValidationError
-from scrilla.files import init_static_data
-from scrilla.cache import init_cache
 from scrilla.static import formats
 from scrilla.util.outputter import Logger
 
@@ -101,8 +99,8 @@ def do_program(cli_args: List[str]) -> None:
     """
     Parses command line arguments and passes the formatted arguments to appropriate function from the library.
     """
-    init_static_data()
-    init_cache()
+    files.init_static_data()
+    cache.init_cache()
 
     args = formats.format_args(cli_args, settings.ESTIMATION_METHOD)
     exact, selected_function = False, None
@@ -123,48 +121,42 @@ def do_program(cli_args: List[str]) -> None:
     # FUNCTION: Clear Cache
     elif args['function_arg'] in definitions.FUNC_DICT["clear_cache"]['values']:
         def cli_clear_cache():
-            from scrilla.files import clear_cache
             logger.info(f'Clearing {settings.CACHE_DIR}', 'do_program')
-            clear_cache()
+            files.clear_cache()
         selected_function, required_length = cli_clear_cache, 0
 
     # FUNCTION: Clear Static
     elif args['function_arg'] in definitions.FUNC_DICT["clear_static"]['values']:
         def cli_clear_static():
-            from scrilla.files import clear_directory
-            from scrilla.settings import STATIC_DIR
-            logger.info(f'Clearing {STATIC_DIR}', 'do_program')
-            clear_directory(directory=STATIC_DIR, retain=True)
+            logger.info(f'Clearing {settings.STATIC_DIR}', 'do_program')
+            files.clear_directory(directory=settings.STATIC_DIR, retain=True)
         selected_function, required_length = cli_clear_static, 0
 
     # FUNCTION: Clear Common
     elif args['function_arg'] in definitions.FUNC_DICT["clear_common"]['values']:
         def cli_clear_common():
-            from scrilla.files import clear_directory
-            from scrilla.settings import COMMON_DIR
-            logger.info(f'Clearing {COMMON_DIR}', 'do_program')
-            clear_directory(directory=COMMON_DIR, retain=True)
+            logger.info(f'Clearing {settings.COMMON_DIR}', 'do_program')
+            files.clear_directory(directory=settings.COMMON_DIR, retain=True)
         selected_function, required_length = cli_clear_common, 0
 
     # FUNCTION: Print Stock Watchlist
     elif args['function_arg'] in definitions.FUNC_DICT['list_watchlist']['values']:
         def cli_watchlist():
-            from scrilla.files import get_watchlist
             from scrilla.util.outputter import title_line, print_list
-            tickers = get_watchlist()
-            title_line("Stock Watchlist")
+            tickers = files.get_watchlist()
+            title_line("Watchlist")
             print_list(tickers)
         selected_function, required_length = cli_watchlist, 0
+    
     # FUNCTION: Purge Data Directories
     elif args['function_arg'] in definitions.FUNC_DICT["purge"]['values']:
         def cli_purge():
-            from scrilla.files import clear_directory
-            from scrilla.settings import CACHE_DIR, STATIC_DIR, COMMON_DIR
+            from scrilla.files import clear_directory, clear_cache
             logger.info(
-                f'Clearing {STATIC_DIR}, {CACHE_DIR} and {COMMON_DIR}', 'do_program')
-            clear_directory(directory=STATIC_DIR, retain=True)
-            clear_directory(directory=CACHE_DIR, retain=True)
-            clear_directory(directory=COMMON_DIR, retain=True)
+                f'Clearing {settings.STATIC_DIR}, {settings.CACHE_DIR} and {settings.COMMON_DIR}', 'do_program')
+            files.clear_directory(directory=settings.STATIC_DIR, retain=True)
+            files.clear_directory(directory=settings.COMMON_DIR, retain=True)
+            files.clear_cache()
         selected_function, required_length = cli_purge, 0
 
     # FUNCTION: Display Version
@@ -1090,8 +1082,7 @@ def do_program(cli_args: List[str]) -> None:
     # FUNCTION: Set Watchlist
     elif args['function_arg'] in definitions.FUNC_DICT["watchlist"]['values']:
         def cli_watchlist():
-            from scrilla.files import add_watchlist
-            add_watchlist(new_tickers=args['tickers'])
+            files.add_watchlist(new_tickers=args['tickers'])
             logger.info(
                 "Watchlist saved. Use -ls option to print watchlist.", 'do_program')
         selected_function, required_length = cli_watchlist, 1

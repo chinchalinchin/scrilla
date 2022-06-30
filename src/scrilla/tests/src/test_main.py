@@ -62,6 +62,20 @@ def test_clear_static(delete_function):
     do_program(['clear-static'])
     delete_function.assert_called()
     delete_function.assert_called_with(ANY)
+    # TODO: expand coverage here once this is answersed:
+    #       https://stackoverflow.com/questions/72818706/python-assert-mock-function-was-called-with-a-string-containing-another-string
+
+@patch('scrilla.files.os.remove')
+def test_clear_common(delete_function):
+    do_program(['clear-common'])
+    delete_function.assert_called()
+    delete_function.assert_called_with(ANY)
+
+@patch('scrilla.files.os.remove')
+def test_purge(delete_function):
+    do_program(['purge'])
+    delete_function.assert_called()
+    delete_function.assert_called_with(ANY)
 
 @pytest.mark.parametrize('args, length', [
     (['correlation', 'ALLY', 'BX', '-json', '-start',
