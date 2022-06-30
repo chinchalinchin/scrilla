@@ -81,7 +81,7 @@ pip install scrilla-<major>.<minor>.<micro>-py3-none-any.whl
 
 ## Configuration
 
-In order to use this application, you will need to register for API keys with [AlphaVantage](https://www.alphavantage.co), [IEX](https://iexcloud.io/) and [Quandl](https://www.quandl.com/). The program will need to be made aware of these keys somehow. The best option is storing these credentials in environment variables. You can add the following lines to your <i>.bashrc</i> profile or corresponding configuration file for whatever shell you are using,
+In order to use this application, you will need to register for API keys with [AlphaVantage](https://www.alphavantage.co), [IEX](https://iexcloud.io/) and [Quandl/Nasdaq](https://www.quandl.com/). The program will need to be made aware of these keys somehow. The best option is storing these credentials in environment variables. You can add the following lines to your <i>.bashrc</i> profile or corresponding configuration file for whatever shell you are using,
 
 ```shell
 export ALPHA_VANTAGE_KEY=<key goes here>
@@ -100,6 +100,8 @@ where `<key>` is one of the values: **ALPHA_VANTAGE_KEY**, **QUANDL_KEY** or **I
 Keep in mind if using this method to store the API keys, the keys will be stored unencrypted in the local installation's <i>/data/common/</i> directory. The recommended method is storing the credentials in the environment. 
 
 If no API keys are found through either of these methods, the application will raise an exception.
+
+**NOTE**: The **Quandl**/**Nasdaq** key is technically no required for the majority of the application to function, as interest rates are now retrieved directly from the **US Treasury** RSS feed. However, it is still recommended that you register for an API key, as **Quandl**/**Nasdaq** is still the only source of economic statistics, like GDP or inflation rates. 
 
 ### Environment File
 

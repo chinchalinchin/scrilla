@@ -112,7 +112,7 @@ FUNC_DICT = {
         'name': 'Help Message',
         'values': ["help", "h"],
         'args': None,
-        'description': "Print this help message.",
+        'description': "Print this help message. Provide a function name(s) to only display the help message for a specific function(s)",
         'tickers': False,
     },
     "interest_history": {

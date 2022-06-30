@@ -29,7 +29,7 @@ from scrilla.static import definitions
 from scrilla.util.errors import InputValidationError
 from scrilla.files import init_static_data
 from scrilla.cache import init_cache
-from scrilla.static.formats import format_args
+from scrilla.static import formats
 from scrilla.util.outputter import Logger
 
 # TODO: conditional imports based on value of ANALYSIS_MODE
@@ -104,7 +104,7 @@ def do_program(cli_args: List[str]) -> None:
     init_static_data()
     init_cache()
 
-    args = format_args(cli_args, ESTIMATION_METHOD)
+    args = formats.format_args(cli_args, ESTIMATION_METHOD)
     exact, selected_function = False, None
 
     # START CLI FUNCTION DEFINITIONS
@@ -114,7 +114,10 @@ def do_program(cli_args: List[str]) -> None:
     if args['function_arg'] in definitions.FUNC_DICT["help"]['values']:
         def cli_help():
             from scrilla.util.outputter import help_msg
-            help_msg()
+            # NOTE: in this case, the arguments are function names, not tickers.
+            #       it may be behoove the application to rejigger the argparse
+            #       just so names are consistent with what is represented.
+            help_msg(function_filter=args['tickers'])
         selected_function, required_length = cli_help, 0
 
     # FUNCTION: Clear Cache

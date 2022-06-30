@@ -7,7 +7,7 @@ from httmock import HTTMock
 from scrilla.main import do_program
 from scrilla.cache import PriceCache, ProfileCache, InterestCache, CorrelationCache
 from scrilla.files import clear_cache, init_static_data
-from scrilla.static import keys
+from scrilla.static import keys, definitions
 
 from .. import mock_data, settings
 
@@ -19,6 +19,12 @@ def reset_cache():
     PriceCache(mode='sqlite'), ProfileCache(mode='sqlite')
     InterestCache(mode='sqlite'), CorrelationCache(mode='sqlite')
 
+
+def test_help_msg(capsys):
+    do_program('help')
+    help_message = capsys.readouterr().out
+    for definition in definitions.FUNC_DICT.values():
+        assert definition['description'] in help_message
 
 @pytest.mark.parametrize('args, length', [
     (['correlation', 'ALLY', 'BX', '-json', '-start',
@@ -59,7 +65,38 @@ def test_cli_correlation_json_format_with_likelihood(args, length, capsys):
     assert(all(all(bool((correl > -1 or correl == -1) and (correl < 1 or correl == 1))
                    for correl in correl_list) for correl_list in correl_matrix['correlation_matrix']))
 
-# TODO: need mock dividend response to test cli
+
+@pytest.mark.parametrize('args,length',[
+    (['correlation', 'ALLY', 'BX', '-json', '-likelihood',
+     '-start', settings.START_STR, '-end', settings.END_STR], 2),
+    (['correlation', 'BTC', 'SPY', 'GLD', '-json', '-likelihood',
+     '-start', settings.START_STR, '-end', settings.END_STR], 3),
+    (['correlation', 'GLD', 'SPY', 'DIS', 'BX', '-json', '-likelihood',
+     '-start', settings.START_STR, '-end', settings.END_STR], 4)
+])
+def test_cli_correlation_json_format_with_percentiles(args, length, capsys):
+    with HTTMock(mock_data.mock_prices):
+        with HTTMock(mock_data.mock_treasury):
+            do_program(args)
+    correl_matrix = json.loads(capsys.readouterr().out)
+    # assert dimensions are correct length
+    assert(len(correl_matrix['correlation_matrix']) == length)
+    # assert all entries satisfy correlation bounds
+    assert(all(all(bool((correl > -1 or correl == -1) and (correl < 1 or correl == 1))
+                   for correl in correl_list) for correl_list in correl_matrix['correlation_matrix']))
+
+@patch('scrilla.files.save_file')
+@pytest.mark.parametrize('args,length',[
+    (['correlation', 'ALLY', 'BX', '-likelihood', '-start', settings.START_STR, '-end', settings.END_STR, 
+        '-save', 'test_path'], 'test_path'),
+])
+def test_cli_correlation_save_file(save_function, args, filename):
+    with HTTMock(mock_data.mock_prices):
+        with HTTMock(mock_data.mock_treasury):
+            do_program(args)
+    save_function.assert_called()
+    save_function.assert_called_with(file_to_save=ANY, file_name=filename)
+
 
 @pytest.mark.parametrize('args,tickers', [
     (

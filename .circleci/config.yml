@@ -133,7 +133,6 @@ commands:
             ./scripts/tests
             coverage xml
             ./bin/deepsource report --analyzer test-coverage --key python --value-file ./coverage.xml
-            ls -al ./docs/coverage
       - persist_to_workspace:
           root: docs
           paths: 

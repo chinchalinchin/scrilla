@@ -110,7 +110,7 @@ def equivalent_result(right_hand, left_hand, value, indent=formats.formats['INDE
     print(' '*indent, f'{right_hand} = {left_hand} = {value}')
 
 
-def help_msg(indent=formats.formats['INDENT']):
+def help_msg(indent: int=formats.formats['INDENT'], function_filter: Union[List[str], None] = None):
     func_dict, arg_dict = definitions.FUNC_DICT, definitions.ARG_DICT
 
     title_line('scrilla')
@@ -126,34 +126,37 @@ def help_msg(indent=formats.formats['INDENT']):
     space(1)
 
     for func_name in func_dict:
-        title_line(func_dict[func_name]['name'])
-        for line in break_lines(func_dict[func_name]['description']):
-            center(line)
-        separator_line()
+        if function_filter is None or \
+            any(filt in func_dict[func_name]['values'] for filt in function_filter):
+            
+            title_line(func_dict[func_name]['name'])
+            for line in break_lines(func_dict[func_name]['description']):
+                center(line)
+            separator_line()
 
-        commands = func_dict[func_name]['values']
-        print(' ', f'COMMAND: {commands[0]}, {commands[1]}')
+            commands = func_dict[func_name]['values']
+            print(' ', f'COMMAND: {commands[0]}, {commands[1]}')
 
-        if func_dict[func_name]['args'] is not None:
-            for arg_name in func_dict[func_name]['args']:
-                aliases = arg_dict[arg_name]['values']
+            if func_dict[func_name]['args'] is not None:
+                for arg_name in func_dict[func_name]['args']:
+                    aliases = arg_dict[arg_name]['values']
 
-                print(
-                    ' '*indent, f'OPTION: {aliases[0]}, {aliases[1]}, {aliases[2]}, {aliases[3]}')
+                    print(
+                        ' '*indent, f'OPTION: {aliases[0]}, {aliases[1]}, {aliases[2]}, {aliases[3]}')
 
-                if arg_dict[arg_name]['required']:
-                    print(' '*2*indent, 'REQUIRED')
+                    if arg_dict[arg_name]['required']:
+                        print(' '*2*indent, 'REQUIRED')
 
-                print(' '*2*indent, f'NAME: {arg_dict[arg_name]["name"]}')
+                    print(' '*2*indent, f'NAME: {arg_dict[arg_name]["name"]}')
 
-                if arg_dict[arg_name]['default'] is not None:
-                    print(' '*2*indent,
-                          f'DEFAULT: {arg_dict[arg_name]["default"]}')
+                    if arg_dict[arg_name]['default'] is not None:
+                        print(' '*2*indent,
+                            f'DEFAULT: {arg_dict[arg_name]["default"]}')
 
-                if arg_dict[arg_name]['syntax'] is not None:
-                    print(' '*2*indent,
-                          f'FORMAT: {arg_dict[arg_name]["syntax"]}')
-        separator_line()
+                    if arg_dict[arg_name]['syntax'] is not None:
+                        print(' '*2*indent,
+                            f'FORMAT: {arg_dict[arg_name]["syntax"]}')
+            separator_line()
 
 # ANALYSIS SPECIFIC OUTPUT FUNCTIONS
 
