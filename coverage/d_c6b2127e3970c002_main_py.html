@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Coverage for src/scrilla/main.py: 35%</title>
+    <title>Coverage for src/scrilla/main.py: 36%</title>
     <link rel="icon" sizes="32x32" href="favicon_32.png">
     <link rel="stylesheet" href="style.css" type="text/css">
     <script type="text/javascript" src="coverage_html.js" defer></script>
@@ -12,7 +12,7 @@
     <div class="content">
         <h1>
             <span class="text">Coverage for </span><b>src/scrilla/main.py</b>:
-            <span class="pc_cov">35%</span>
+            <span class="pc_cov">36%</span>
         </h1>
         <aside id="help_panel_wrapper">
             <input id="help_panel_state" type="checkbox">
@@ -56,10 +56,10 @@
         </aside>
         <h2>
             <span class="text">622 statements &nbsp;</span>
-            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">221<span class="text"> run</span></button>
-            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">401<span class="text"> missing</span></button>
+            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">227<span class="text"> run</span></button>
+            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">395<span class="text"> missing</span></button>
             <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">0<span class="text"> excluded</span></button>
-            <button type="button" class="par run show_par button_toggle_par" value="par" data-shortcut="p" title="Toggle lines partially run">44<span class="text"> partial</span></button>
+            <button type="button" class="par run show_par button_toggle_par" value="par" data-shortcut="p" title="Toggle lines partially run">43<span class="text"> partial</span></button>
         </h2>
         <p class="text">
             <a id="prevFileLink" class="nav" href="d_1f1ebf8b92dc8d59_menu_py.html">&#xab; prev</a> &nbsp; &nbsp;
@@ -67,7 +67,7 @@
             <a id="nextFileLink" class="nav" href="d_c6b2127e3970c002_services_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io">coverage.py v6.4.1</a>,
-            created at 2022-06-30 15:26 +0000
+            created at 2022-06-30 16:01 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"/>
@@ -213,13 +213,13 @@
     <p class="run"><span class="n"><a id="t129" href="#t129">129</a></span><span class="t">        <span class="nam">selected_function</span><span class="op">,</span> <span class="nam">required_length</span> <span class="op">=</span> <span class="nam">cli_clear_cache</span><span class="op">,</span> <span class="num">0</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t130" href="#t130">130</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t131" href="#t131">131</a></span><span class="t">    <span class="com"># FUNCTION: Clear Static</span>&nbsp;</span><span class="r"></span></p>
-    <p class="par run show_par"><span class="n"><a id="t132" href="#t132">132</a></span><span class="t">    <span class="key">elif</span> <span class="nam">args</span><span class="op">[</span><span class="str">'function_arg'</span><span class="op">]</span> <span class="key">in</span> <span class="nam">definitions</span><span class="op">.</span><span class="nam">FUNC_DICT</span><span class="op">[</span><span class="str">"clear_static"</span><span class="op">]</span><span class="op">[</span><span class="str">'values'</span><span class="op">]</span><span class="op">:</span>&nbsp;</span><span class="r"><span class="annotate short">132&#x202F;&#x219B;&#x202F;133</span><span class="annotate long">line 132 didn't jump to line 133, because the condition on line 132 was never true</span></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t133" href="#t133">133</a></span><span class="t">        <span class="key">def</span> <span class="nam">cli_clear_static</span><span class="op">(</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t134" href="#t134">134</a></span><span class="t">            <span class="key">from</span> <span class="nam">scrilla</span><span class="op">.</span><span class="nam">files</span> <span class="key">import</span> <span class="nam">clear_directory</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t135" href="#t135">135</a></span><span class="t">            <span class="key">from</span> <span class="nam">scrilla</span><span class="op">.</span><span class="nam">settings</span> <span class="key">import</span> <span class="nam">STATIC_DIR</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t136" href="#t136">136</a></span><span class="t">            <span class="nam">logger</span><span class="op">.</span><span class="nam">info</span><span class="op">(</span><span class="str">f'Clearing {STATIC_DIR}'</span><span class="op">,</span> <span class="str">'do_program'</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t137" href="#t137">137</a></span><span class="t">            <span class="nam">clear_directory</span><span class="op">(</span><span class="nam">directory</span><span class="op">=</span><span class="nam">STATIC_DIR</span><span class="op">,</span> <span class="nam">retain</span><span class="op">=</span><span class="key">True</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t138" href="#t138">138</a></span><span class="t">        <span class="nam">selected_function</span><span class="op">,</span> <span class="nam">required_length</span> <span class="op">=</span> <span class="nam">cli_clear_static</span><span class="op">,</span> <span class="num">0</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t132" href="#t132">132</a></span><span class="t">    <span class="key">elif</span> <span class="nam">args</span><span class="op">[</span><span class="str">'function_arg'</span><span class="op">]</span> <span class="key">in</span> <span class="nam">definitions</span><span class="op">.</span><span class="nam">FUNC_DICT</span><span class="op">[</span><span class="str">"clear_static"</span><span class="op">]</span><span class="op">[</span><span class="str">'values'</span><span class="op">]</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t133" href="#t133">133</a></span><span class="t">        <span class="key">def</span> <span class="nam">cli_clear_static</span><span class="op">(</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t134" href="#t134">134</a></span><span class="t">            <span class="key">from</span> <span class="nam">scrilla</span><span class="op">.</span><span class="nam">files</span> <span class="key">import</span> <span class="nam">clear_directory</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t135" href="#t135">135</a></span><span class="t">            <span class="key">from</span> <span class="nam">scrilla</span><span class="op">.</span><span class="nam">settings</span> <span class="key">import</span> <span class="nam">STATIC_DIR</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t136" href="#t136">136</a></span><span class="t">            <span class="nam">logger</span><span class="op">.</span><span class="nam">info</span><span class="op">(</span><span class="str">f'Clearing {STATIC_DIR}'</span><span class="op">,</span> <span class="str">'do_program'</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t137" href="#t137">137</a></span><span class="t">            <span class="nam">clear_directory</span><span class="op">(</span><span class="nam">directory</span><span class="op">=</span><span class="nam">STATIC_DIR</span><span class="op">,</span> <span class="nam">retain</span><span class="op">=</span><span class="key">True</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t138" href="#t138">138</a></span><span class="t">        <span class="nam">selected_function</span><span class="op">,</span> <span class="nam">required_length</span> <span class="op">=</span> <span class="nam">cli_clear_static</span><span class="op">,</span> <span class="num">0</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t139" href="#t139">139</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t140" href="#t140">140</a></span><span class="t">    <span class="com"># FUNCTION: Clear Common</span>&nbsp;</span><span class="r"></span></p>
     <p class="par run show_par"><span class="n"><a id="t141" href="#t141">141</a></span><span class="t">    <span class="key">elif</span> <span class="nam">args</span><span class="op">[</span><span class="str">'function_arg'</span><span class="op">]</span> <span class="key">in</span> <span class="nam">definitions</span><span class="op">.</span><span class="nam">FUNC_DICT</span><span class="op">[</span><span class="str">"clear_common"</span><span class="op">]</span><span class="op">[</span><span class="str">'values'</span><span class="op">]</span><span class="op">:</span>&nbsp;</span><span class="r"><span class="annotate short">141&#x202F;&#x219B;&#x202F;142</span><span class="annotate long">line 141 didn't jump to line 142, because the condition on line 141 was never true</span></span></p>
@@ -1213,7 +1213,7 @@
             <a id="nextFileLink" class="nav" href="d_c6b2127e3970c002_services_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io">coverage.py v6.4.1</a>,
-            created at 2022-06-30 15:26 +0000
+            created at 2022-06-30 16:01 +0000
         </p>
     </div>
 </footer>
