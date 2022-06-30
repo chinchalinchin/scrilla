@@ -1,5 +1,5 @@
 import pytest
-from unittest.mock import patch, ANY
+from unittest.mock import patch, ANY, mock_open
 
 from scrilla import files, settings
 
@@ -22,8 +22,9 @@ def test_get_memory_json_when_doesnt_exist(existence_function):
     assert all(not falsehood for falsehood in memory_json['cache']['sqlite'].values())
     assert all(not falsehood for falsehood in memory_json['cache']['dynamodb'].values())
 
+@patch("builtins.open", new_callable=mock_open, read_data="data")
 @patch('scrilla.files.json.dump')
-def test_save_memory_json(save_function):
+def test_save_memory_json(save_function, open_function):
     test_memory = {'a trial': 'by fire'}
 
     files.save_memory_json(test_memory)

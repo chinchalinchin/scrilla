@@ -77,6 +77,7 @@ def load_file(file_name: str) -> Any:
     with open(file_name, 'r') as infile:
         if ext == "json":
             return json.load(infile)
+        print('wtf')
         return infile.read()
         # TODO: implement other file loading extensions
 
