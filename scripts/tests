@@ -14,6 +14,7 @@ fi
 cd $PROJECT_DIR
 
 coverage run \
+    --branch \
     -m pytest \
     --capture=sys 
 
