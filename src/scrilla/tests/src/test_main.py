@@ -8,6 +8,7 @@ from scrilla.main import do_program
 from scrilla.cache import PriceCache, ProfileCache, InterestCache, CorrelationCache
 from scrilla.files import clear_cache, init_static_data
 from scrilla.static import keys, definitions
+from scrilla.util.errors import ModelError
 
 from .. import mock_data, settings
 
@@ -323,3 +324,29 @@ def test_cli_asset_beta_save_file(save_function, args, filename):
             do_program(args)
     save_function.assert_called()
     save_function.assert_called_with(file_to_save=ANY, file_name=filename)
+
+@patch('scrilla.analysis.markets.cost_of_equity')
+@pytest.mark.parametrize('args,ticker', [
+    (['ddm','ALLY', '-json'], 'ALLY'),
+    (['ddm','ALLY','-discount', '0.05', '-json'], 'ALLY')
+
+])
+def test_cli_discount_dividend_model_json_format(equity_function, args, ticker, capsys):
+    equity_function.return_value = 0.05
+    with HTTMock(mock_data.mock_prices):
+        with HTTMock(mock_data.mock_dividends):
+            do_program(args)
+    ddm_price = json.loads(capsys.readouterr().out)
+    assert ddm_price.get(ticker) is not None
+    assert ddm_price[ticker].get(keys.keys['MODELS']['DDM']) is not None
+    assert isinstance(ddm_price[ticker][keys.keys['MODELS']['DDM']], float)
+
+@pytest.mark.parametrize('args', [
+    (['ddm','ALLY','-discount', '-0.05'])
+])
+def test_cli_discount_dividend_model_bad_args(args, capsys):
+    with pytest.raises(Exception) as model_error:
+        with HTTMock(mock_data.mock_prices):
+            with HTTMock(mock_data.mock_dividends):
+                do_program(args)
+    assert model_error.type == ModelError
