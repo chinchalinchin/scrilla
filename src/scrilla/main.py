@@ -459,8 +459,8 @@ def do_program(cli_args: List[str]) -> None:
                 else:
                     discount = args['discount']
                 result = Cashflow(sample=dividends,
-                                    discount_rate=discount).calculate_net_present_value()
-                model_results[arg] = { keys['MODELS']['DDM']: result }
+                                  discount_rate=discount).calculate_net_present_value()
+                model_results[arg] = {keys['MODELS']['DDM']: result}
 
                 if print_format_to_screen(args):
                     from scrilla.util.outputter import scalar_result
@@ -530,9 +530,9 @@ def do_program(cli_args: List[str]) -> None:
             if print_json_to_screen(args):
                 from json import dumps
                 print(dumps(formats.format_frontier(portfolio=portfolio,
-                                            frontier=frontier,
-                                            investment=args['investment'],
-                                            latest_prices=prices)))
+                                                    frontier=frontier,
+                                                    investment=args['investment'],
+                                                    latest_prices=prices)))
 
             if args['save_file'] is not None:
                 from scrilla.files import save_frontier
@@ -574,9 +574,9 @@ def do_program(cli_args: List[str]) -> None:
             if print_json_to_screen(args):
                 from json import dumps
                 print(dumps(formats.format_allocation(allocation=allocation,
-                                              portfolio=portfolio,
-                                              investment=args['investment'],
-                                              latest_prices=prices)))
+                                                      portfolio=portfolio,
+                                                      investment=args['investment'],
+                                                      latest_prices=prices)))
 
             if args['save_file'] is not None:
                 from scrilla.files import save_allocation
@@ -651,9 +651,9 @@ def do_program(cli_args: List[str]) -> None:
             if print_json_to_screen(args):
                 from json import dumps
                 print(dumps(formats.format_allocation(allocation=allocation,
-                                                        portfolio=portfolio,
-                                                        investment=args['investment'],
-                                                        latest_prices=prices)))
+                                                      portfolio=portfolio,
+                                                      investment=args['investment'],
+                                                      latest_prices=prices)))
 
             if args['save_file'] is not None:
                 from scrilla.files import save_allocation
@@ -696,9 +696,9 @@ def do_program(cli_args: List[str]) -> None:
             if print_json_to_screen(args):
                 from json import dumps
                 print(dumps(formats.format_allocation(allocation=allocation,
-                                                        portfolio=portfolio,
-                                                        investment=args['investment'],
-                                                        latest_prices=prices)))
+                                                      portfolio=portfolio,
+                                                      investment=args['investment'],
+                                                      latest_prices=prices)))
 
             if args['save_file'] is not None:
                 from scrilla.files import save_allocation
