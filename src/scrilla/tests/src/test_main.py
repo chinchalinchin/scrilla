@@ -9,7 +9,7 @@ from scrilla.main import do_program
 from scrilla.cache import PriceCache, ProfileCache, InterestCache, CorrelationCache
 from scrilla.files import clear_cache, init_static_data
 from scrilla.static import keys, definitions
-from scrilla.util.errors import ModelError
+from scrilla.util.errors import InputValidationError, ModelError
 
 from .. import mock_data, settings
 
@@ -86,8 +86,8 @@ def test_purge(delete_function):
      '-start', settings.START_STR, '-end', settings.END_STR], 4)
 ])
 def test_cli_correlation_json_format(args, length, capsys):
-    with HTTMock(mock_data.mock_prices):
-        with HTTMock(mock_data.mock_treasury):
+    with HTTMock(mock_data.mock_prices), \
+         HTTMock(mock_data.mock_treasury):
             do_program(args)
     correl_matrix = json.loads(capsys.readouterr().out)
     # assert dimensions are correct length
@@ -106,8 +106,8 @@ def test_cli_correlation_json_format(args, length, capsys):
      '-start', settings.START_STR, '-end', settings.END_STR], 4)
 ])
 def test_cli_correlation_json_format_with_likelihood(args, length, capsys):
-    with HTTMock(mock_data.mock_prices):
-        with HTTMock(mock_data.mock_treasury):
+    with HTTMock(mock_data.mock_prices), \
+         HTTMock(mock_data.mock_treasury):
             do_program(args)
     correl_matrix = json.loads(capsys.readouterr().out)
     # assert dimensions are correct length
@@ -126,8 +126,8 @@ def test_cli_correlation_json_format_with_likelihood(args, length, capsys):
      '-start', settings.START_STR, '-end', settings.END_STR], 4)
 ])
 def test_cli_correlation_json_format_with_percentiles(args, length, capsys):
-    with HTTMock(mock_data.mock_prices):
-        with HTTMock(mock_data.mock_treasury):
+    with HTTMock(mock_data.mock_prices),\
+         HTTMock(mock_data.mock_treasury):
             do_program(args)
     correl_matrix = json.loads(capsys.readouterr().out)
     # assert dimensions are correct length
@@ -142,13 +142,14 @@ def test_cli_correlation_json_format_with_percentiles(args, length, capsys):
         '-save', 'test_path'], 'test_path'),
 ])
 def test_cli_correlation_save_file(save_function, args, filename):
-    with HTTMock(mock_data.mock_prices):
-        with HTTMock(mock_data.mock_treasury):
+    with HTTMock(mock_data.mock_prices),\
+         HTTMock(mock_data.mock_treasury):
             do_program(args)
     save_function.assert_called()
     save_function.assert_called_with(file_to_save=ANY, file_name=filename)
 
 
+@patch('scrilla.util.dater.get_last_trading_date', settings.END)
 @pytest.mark.parametrize('args,tickers', [
     (
         ['risk-profile', 'ALLY', '-json', '-start', settings.START_STR, '-end', settings.END_STR],
@@ -164,11 +165,9 @@ def test_cli_correlation_save_file(save_function, args, filename):
     )
 ])
 def test_cli_risk_profile_json_format(args, tickers, capsys):
-    with patch('scrilla.util.dater.get_last_trading_date') as date_function:
-        date_function.return_value = settings.END
-        with HTTMock(mock_data.mock_prices):
-            with HTTMock(mock_data.mock_treasury):
-                do_program(args)
+    with HTTMock(mock_data.mock_prices), \
+         HTTMock(mock_data.mock_treasury):
+            do_program(args)
     profile = json.loads(capsys.readouterr().out)
     profile_keys = [ key for key in keys.keys['STATISTICS'].values() if key not in ['conditional_value_at_risk', 'value_at_risk', 'correlation']]
     for ticker in tickers:
@@ -176,44 +175,41 @@ def test_cli_risk_profile_json_format(args, tickers, capsys):
             assert key in profile[ticker].keys()
 
 @patch('scrilla.files.save_file')
-@patch('scrilla.util.dater.get_last_trading_date')
+@patch('scrilla.util.dater.get_last_trading_date', settings.END)
 @pytest.mark.parametrize('args,filename',[
     (
         ['risk-profile', 'ALLY', '-json', '-start', settings.START_STR, '-end', settings.END_STR, '-save', 'test_path'],
         'test_path'
     )
 ])
-def test_cli_risk_profile_save_file(date_function, save_function, args, filename):
-    date_function.return_value = settings.END
-    with HTTMock(mock_data.mock_prices):
-        with HTTMock(mock_data.mock_treasury):
+def test_cli_risk_profile_save_file(save_function, args, filename):
+    with HTTMock(mock_data.mock_prices), \
+         HTTMock(mock_data.mock_treasury):
             do_program(args)
     save_function.assert_called()
     save_function.assert_called_with(file_to_save=ANY, file_name=filename)
 
 
-@patch('scrilla.util.dater.this_date_or_last_trading_date')
+@patch('scrilla.util.dater.this_date_or_last_trading_date', settings.END)
 @pytest.mark.parametrize('args,ticker',[
     (['close', 'ALLY', '-json'], 'ALLY')
 ])
-def test_cli_close_price_json_format(date_function, args, ticker, capsys):
-    date_function.return_value = settings.END
-    with HTTMock(mock_data.mock_prices):
-        with HTTMock(mock_data.mock_treasury):
+def test_cli_close_price_json_format(args, ticker, capsys):
+    with HTTMock(mock_data.mock_prices), \
+         HTTMock(mock_data.mock_treasury):
             do_program(args)
     prices = json.loads(capsys.readouterr().out)
     assert prices.get(ticker) is not None
     assert isinstance(prices[ticker], float)
 
 @patch('scrilla.files.save_file')
-@patch('scrilla.util.dater.this_date_or_last_trading_date')
+@patch('scrilla.util.dater.this_date_or_last_trading_date', settings.END)
 @pytest.mark.parametrize('args,filename',[
     (['close', 'ALLY', '-json', '-save', 'test_path'], 'test_path')
 ])
 def test_clise_close_price_save_file(date_function, save_function, args, filename):
-    date_function.return_value = settings.END
-    with HTTMock(mock_data.mock_prices):
-        with HTTMock(mock_data.mock_treasury):
+    with HTTMock(mock_data.mock_prices), \
+         HTTMock(mock_data.mock_treasury):
             do_program(args)
     save_function.assert_called()
     save_function.assert_called_with(file_to_save=ANY, file_name=filename)
@@ -248,8 +244,8 @@ def test_cli_asset_type(args, ticker, expected, capsys):
     )
 ])
 def test_cli_value_at_risk_json_format(args, tickers, capsys):
-    with HTTMock(mock_data.mock_prices):
-        with HTTMock(mock_data.mock_treasury):
+    with HTTMock(mock_data.mock_prices), \
+         HTTMock(mock_data.mock_treasury):
             do_program(args)
     results = json.loads(capsys.readouterr().out)
     for ticker in tickers:
@@ -266,8 +262,8 @@ def test_cli_value_at_risk_json_format(args, tickers, capsys):
     ),
 ])
 def test_cli_value_at_risk_save_file(save_function, args, filename):
-    with HTTMock(mock_data.mock_prices):
-        with HTTMock(mock_data.mock_treasury):
+    with HTTMock(mock_data.mock_prices), \
+         HTTMock(mock_data.mock_treasury):
             do_program(args)
     save_function.assert_called()
     save_function.assert_called_with(file_to_save=ANY, file_name=filename)
@@ -290,8 +286,8 @@ def test_cli_value_at_risk_save_file(save_function, args, filename):
     )
 ])
 def test_cli_conditional_value_at_risk_json_format(args, tickers, capsys):
-    with HTTMock(mock_data.mock_prices):
-        with HTTMock(mock_data.mock_treasury):
+    with HTTMock(mock_data.mock_prices), \
+         HTTMock(mock_data.mock_treasury):
             do_program(args)
     results = json.loads(capsys.readouterr().out)
     for ticker in tickers:
@@ -308,8 +304,8 @@ def test_cli_conditional_value_at_risk_json_format(args, tickers, capsys):
     ),
 ])
 def test_cli_conditional_value_at_risk_save_file(save_function, args, filename):
-    with HTTMock(mock_data.mock_prices):
-        with HTTMock(mock_data.mock_treasury):
+    with HTTMock(mock_data.mock_prices), \
+         HTTMock(mock_data.mock_treasury):
             do_program(args)
     save_function.assert_called()
     save_function.assert_called_with(file_to_save=ANY, file_name=filename)
@@ -327,8 +323,8 @@ def test_cli_conditional_value_at_risk_save_file(save_function, args, filename):
     ),
 ])
 def test_cli_cost_of_equity_json_format(args, tickers, capsys):
-    with HTTMock(mock_data.mock_prices):
-        with HTTMock(mock_data.mock_treasury):
+    with HTTMock(mock_data.mock_prices), \
+         HTTMock(mock_data.mock_treasury):
             do_program(args)
     costs = json.loads(capsys.readouterr().out)
     for ticker in tickers:
@@ -345,8 +341,8 @@ def test_cli_cost_of_equity_json_format(args, tickers, capsys):
     )
 ])
 def test_cli_cost_of_equity_save_file(save_function, args, filename):
-    with HTTMock(mock_data.mock_prices):
-        with HTTMock(mock_data.mock_treasury):
+    with HTTMock(mock_data.mock_prices), \
+         HTTMock(mock_data.mock_treasury):
             do_program(args)
     save_function.assert_called()
     save_function.assert_called_with(file_to_save=ANY, file_name=filename)
@@ -364,8 +360,8 @@ def test_cli_cost_of_equity_save_file(save_function, args, filename):
     ),
 ])
 def test_cli_asset_beta_json_format(args, tickers, capsys):
-    with HTTMock(mock_data.mock_prices):
-        with HTTMock(mock_data.mock_treasury):
+    with HTTMock(mock_data.mock_prices), \
+         HTTMock(mock_data.mock_treasury):
             do_program(args)
     costs = json.loads(capsys.readouterr().out)
     for ticker in tickers:
@@ -382,34 +378,34 @@ def test_cli_asset_beta_json_format(args, tickers, capsys):
     )
 ])
 def test_cli_asset_beta_save_file(save_function, args, filename):
-    with HTTMock(mock_data.mock_prices):
-        with HTTMock(mock_data.mock_treasury):
+    with HTTMock(mock_data.mock_prices),\
+         HTTMock(mock_data.mock_treasury):
             do_program(args)
     save_function.assert_called()
     save_function.assert_called_with(file_to_save=ANY, file_name=filename)
 
-@patch('scrilla.analysis.markets.cost_of_equity')
-@pytest.mark.parametrize('args,ticker', [
-    (['ddm','ALLY', '-json'], 'ALLY'),
-    (['ddm','ALLY','-discount', '0.05', '-json'], 'ALLY')
-
+@patch('scrilla.analysis.markets.cost_of_equity', 0.05)
+@pytest.mark.parametrize('args,tickers', [
+    (['ddm','ALLY', '-json'], ['ALLY']),
+    (['ddm','ALLY','-discount', '0.05', '-json'], ['ALLY']),
+    (['ddm', 'ALLY', 'BX', '-json'], ['ALLY', 'BX'])
 ])
-def test_cli_discount_dividend_model_json_format(equity_function, args, ticker, capsys):
-    equity_function.return_value = 0.05
-    with HTTMock(mock_data.mock_prices):
-        with HTTMock(mock_data.mock_dividends):
+def test_cli_discount_dividend_model_json_format(args, tickers, capsys):
+    with HTTMock(mock_data.mock_prices), \
+         HTTMock(mock_data.mock_dividends):
             do_program(args)
     ddm_price = json.loads(capsys.readouterr().out)
-    assert ddm_price.get(ticker) is not None
-    assert ddm_price[ticker].get(keys.keys['MODELS']['DDM']) is not None
-    assert isinstance(ddm_price[ticker][keys.keys['MODELS']['DDM']], float)
+    for ticker in tickers:
+        assert ddm_price.get(ticker) is not None
+        assert ddm_price[ticker].get(keys.keys['MODELS']['DDM']) is not None
+        assert isinstance(ddm_price[ticker][keys.keys['MODELS']['DDM']], float)
 
 @pytest.mark.parametrize('args', [
     (['ddm','ALLY','-discount', '-0.05'])
 ])
 def test_cli_discount_dividend_model_bad_args(args):
-    with pytest.raises(Exception) as model_error:
-        with HTTMock(mock_data.mock_prices):
-            with HTTMock(mock_data.mock_dividends):
+    with pytest.raises(Exception) as model_error, \
+         HTTMock(mock_data.mock_prices), \
+         HTTMock(mock_data.mock_dividends):
                 do_program(args)
     assert model_error.type == ModelError
