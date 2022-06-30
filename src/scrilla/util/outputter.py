@@ -110,7 +110,7 @@ def equivalent_result(right_hand, left_hand, value, indent=formats.formats['INDE
     print(' '*indent, f'{right_hand} = {left_hand} = {value}')
 
 
-def help_msg(indent: int=formats.formats['INDENT'], function_filter: Union[List[str], None] = None):
+def help_msg(indent: int = formats.formats['INDENT'], function_filter: Union[List[str], None] = None):
     func_dict, arg_dict = definitions.FUNC_DICT, definitions.ARG_DICT
 
     title_line('scrilla')
@@ -127,7 +127,7 @@ def help_msg(indent: int=formats.formats['INDENT'], function_filter: Union[List[
 
     for func_name in func_dict:
         if function_filter is None or len(function_filter) == 0 or \
-            any(filt in func_dict[func_name]['values'] for filt in function_filter):
+                any(filt in func_dict[func_name]['values'] for filt in function_filter):
 
             title_line(func_dict[func_name]['name'])
             for line in break_lines(func_dict[func_name]['description']):
@@ -151,11 +151,11 @@ def help_msg(indent: int=formats.formats['INDENT'], function_filter: Union[List[
 
                     if arg_dict[arg_name]['default'] is not None:
                         print(' '*2*indent,
-                            f'DEFAULT: {arg_dict[arg_name]["default"]}')
+                              f'DEFAULT: {arg_dict[arg_name]["default"]}')
 
                     if arg_dict[arg_name]['syntax'] is not None:
                         print(' '*2*indent,
-                            f'FORMAT: {arg_dict[arg_name]["syntax"]}')
+                              f'FORMAT: {arg_dict[arg_name]["syntax"]}')
             separator_line()
 
 # ANALYSIS SPECIFIC OUTPUT FUNCTIONS
