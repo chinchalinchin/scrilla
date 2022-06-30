@@ -20,11 +20,26 @@ def reset_cache():
     InterestCache(mode='sqlite'), CorrelationCache(mode='sqlite')
 
 
-def test_help_msg(capsys):
-    do_program('help')
+def test_general_help_msg(capsys):
+    do_program(['help'])
     help_message = capsys.readouterr().out
     for definition in definitions.FUNC_DICT.values():
-        assert definition['description'] in help_message
+        assert definition['name'] in help_message
+        assert all(val in help_message for val in definition['values'])
+
+@pytest.mark.parametrize('args', [
+    ['help', 'cor'],
+    ['help', 'risk-profile'],
+    ['help', 'ddm']
+])
+def test_specific_help_msg(args, capsys):
+    do_program(args)
+    help_message = capsys.readouterr().out
+    for definition in definitions.FUNC_DICT.values():
+        if args[1] in definition['values']:
+            assert definition['name'] in help_message
+            assert all(val in help_message for val in definition['values'])
+
 
 @pytest.mark.parametrize('args, length', [
     (['correlation', 'ALLY', 'BX', '-json', '-start',
@@ -86,7 +101,7 @@ def test_cli_correlation_json_format_with_percentiles(args, length, capsys):
                    for correl in correl_list) for correl_list in correl_matrix['correlation_matrix']))
 
 @patch('scrilla.files.save_file')
-@pytest.mark.parametrize('args,length',[
+@pytest.mark.parametrize('args,filename',[
     (['correlation', 'ALLY', 'BX', '-likelihood', '-start', settings.START_STR, '-end', settings.END_STR, 
         '-save', 'test_path'], 'test_path'),
 ])
