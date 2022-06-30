@@ -147,7 +147,7 @@ def do_program(cli_args: List[str]) -> None:
             title_line("Watchlist")
             print_list(tickers)
         selected_function, required_length = cli_watchlist, 0
-    
+
     # FUNCTION: Purge Data Directories
     elif args['function_arg'] in definitions.FUNC_DICT["purge"]['values']:
         def cli_purge():
