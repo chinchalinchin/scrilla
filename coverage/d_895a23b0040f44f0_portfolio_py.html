@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Coverage for src/scrilla/analysis/objects/portfolio.py: 63%</title>
+    <title>Coverage for src/scrilla/analysis/objects/portfolio.py: 59%</title>
     <link rel="icon" sizes="32x32" href="favicon_32.png">
     <link rel="stylesheet" href="style.css" type="text/css">
     <script type="text/javascript" src="coverage_html.js" defer></script>
@@ -12,7 +12,7 @@
     <div class="content">
         <h1>
             <span class="text">Coverage for </span><b>src/scrilla/analysis/objects/portfolio.py</b>:
-            <span class="pc_cov">63%</span>
+            <span class="pc_cov">59%</span>
         </h1>
         <aside id="help_panel_wrapper">
             <input id="help_panel_state" type="checkbox">
@@ -26,6 +26,7 @@
                         <kbd>r</kbd>
                         <kbd>m</kbd>
                         <kbd>x</kbd>
+                        <kbd>p</kbd>
                         &nbsp; toggle line displays
                     </p>
                     <p>
@@ -58,6 +59,7 @@
             <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">70<span class="text"> run</span></button>
             <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">41<span class="text"> missing</span></button>
             <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">0<span class="text"> excluded</span></button>
+            <button type="button" class="par run show_par button_toggle_par" value="par" data-shortcut="p" title="Toggle lines partially run">6<span class="text"> partial</span></button>
         </h2>
         <p class="text">
             <a id="prevFileLink" class="nav" href="d_895a23b0040f44f0_cashflow_py.html">&#xab; prev</a> &nbsp; &nbsp;
@@ -65,7 +67,7 @@
             <a id="nextFileLink" class="nav" href="d_5485127f26531aab_optimizer_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io">coverage.py v6.4.1</a>,
-            created at 2022-06-29 23:59 +0000
+            created at 2022-06-30 00:17 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"/>
@@ -173,14 +175,14 @@
     <p class="run"><span class="n"><a id="t91" href="#t91">91</a></span><span class="t">        <span class="nam">self</span><span class="op">.</span><span class="nam">risk_profiles</span> <span class="op">=</span> <span class="nam">risk_profiles</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t92" href="#t92">92</a></span><span class="t">        <span class="nam">self</span><span class="op">.</span><span class="nam">target_return</span> <span class="op">=</span> <span class="key">None</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t93" href="#t93">93</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t94" href="#t94">94</a></span><span class="t">        <span class="key">if</span> <span class="nam">self</span><span class="op">.</span><span class="nam">sample_prices</span> <span class="key">is</span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="par run show_par"><span class="n"><a id="t94" href="#t94">94</a></span><span class="t">        <span class="key">if</span> <span class="nam">self</span><span class="op">.</span><span class="nam">sample_prices</span> <span class="key">is</span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><span class="r"><span class="annotate short">94&#x202F;&#x219B;&#x202F;98</span><span class="annotate long">line 94 didn't jump to line 98, because the condition on line 94 was never false</span></span></p>
     <p class="run"><span class="n"><a id="t95" href="#t95">95</a></span><span class="t">            <span class="nam">self</span><span class="op">.</span><span class="nam">start_date</span> <span class="op">=</span> <span class="nam">start_date</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t96" href="#t96">96</a></span><span class="t">            <span class="nam">self</span><span class="op">.</span><span class="nam">end_date</span> <span class="op">=</span> <span class="nam">end_date</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t97" href="#t97">97</a></span><span class="t">        <span class="key">else</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t98" href="#t98">98</a></span><span class="t">            <span class="nam">self</span><span class="op">.</span><span class="nam">start_date</span> <span class="op">=</span> <span class="nam">list</span><span class="op">(</span><span class="nam">self</span><span class="op">.</span><span class="nam">sample_prices</span><span class="op">.</span><span class="nam">keys</span><span class="op">(</span><span class="op">)</span><span class="op">)</span><span class="op">[</span><span class="op">-</span><span class="num">1</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t99" href="#t99">99</a></span><span class="t">            <span class="nam">self</span><span class="op">.</span><span class="nam">end_date</span> <span class="op">=</span> <span class="nam">list</span><span class="op">(</span><span class="nam">self</span><span class="op">.</span><span class="nam">sample_prices</span><span class="op">.</span><span class="nam">keys</span><span class="op">(</span><span class="op">)</span><span class="op">)</span><span class="op">[</span><span class="num">0</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t100" href="#t100">100</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t101" href="#t101">101</a></span><span class="t">        <span class="key">if</span> <span class="nam">risk_free_rate</span> <span class="key">is</span> <span class="key">not</span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="par run show_par"><span class="n"><a id="t101" href="#t101">101</a></span><span class="t">        <span class="key">if</span> <span class="nam">risk_free_rate</span> <span class="key">is</span> <span class="key">not</span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><span class="r"><span class="annotate short">101&#x202F;&#x219B;&#x202F;102</span><span class="annotate long">line 101 didn't jump to line 102, because the condition on line 101 was never true</span></span></p>
     <p class="mis show_mis"><span class="n"><a id="t102" href="#t102">102</a></span><span class="t">            <span class="nam">self</span><span class="op">.</span><span class="nam">risk_free_rate</span> <span class="op">=</span> <span class="nam">risk_free_rate</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t103" href="#t103">103</a></span><span class="t">        <span class="key">else</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t104" href="#t104">104</a></span><span class="t">            <span class="nam">self</span><span class="op">.</span><span class="nam">risk_free_rate</span> <span class="op">=</span> <span class="num">0</span>&nbsp;</span><span class="r"></span></p>
@@ -215,7 +217,7 @@
     <p class="run"><span class="n"><a id="t133" href="#t133">133</a></span><span class="t">        <span class="nam">self</span><span class="op">.</span><span class="nam">sample_vol</span> <span class="op">=</span> <span class="op">[</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t134" href="#t134">134</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t135" href="#t135">135</a></span><span class="t">        <span class="com"># priority hierarchy: asset_functions -> risk_profiles -> sample_prices -> statistics.py calls</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t136" href="#t136">136</a></span><span class="t">        <span class="key">if</span> <span class="nam">self</span><span class="op">.</span><span class="nam">asset_volatility_functions</span> <span class="key">is</span> <span class="key">not</span> <span class="key">None</span> <span class="key">and</span> <span class="nam">self</span><span class="op">.</span><span class="nam">asset_return_functions</span> <span class="key">is</span> <span class="key">not</span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="par run show_par"><span class="n"><a id="t136" href="#t136">136</a></span><span class="t">        <span class="key">if</span> <span class="nam">self</span><span class="op">.</span><span class="nam">asset_volatility_functions</span> <span class="key">is</span> <span class="key">not</span> <span class="key">None</span> <span class="key">and</span> <span class="nam">self</span><span class="op">.</span><span class="nam">asset_return_functions</span> <span class="key">is</span> <span class="key">not</span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><span class="r"><span class="annotate short">136&#x202F;&#x219B;&#x202F;143</span><span class="annotate long">line 136 didn't jump to line 143, because the condition on line 136 was never true</span></span></p>
     <p class="pln"><span class="n"><a id="t137" href="#t137">137</a></span><span class="t">            <span class="com"># TODO: implement ito integration and calculate asset return and volatilities!</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t138" href="#t138">138</a></span><span class="t">            <span class="com"># use return and volatility functions to integrate over time period [0, infinity] for each asset. don't forget to</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t139" href="#t139">139</a></span><span class="t">            <span class="com">#   discount! I(x) = discounted expected payoff</span>&nbsp;</span><span class="r"></span></p>
@@ -236,9 +238,9 @@
     <p class="pln"><span class="n"><a id="t154" href="#t154">154</a></span><span class="t">            <span class="com">#       compounded since the correlation method will retrieve the univariate profile to use in its calculation.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t155" href="#t155">155</a></span><span class="t">            <span class="com">#       need a flag in the cache to tell the program the statistic includes/exclude weekend prices.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t156" href="#t156">156</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t157" href="#t157">157</a></span><span class="t">            <span class="key">if</span> <span class="nam">self</span><span class="op">.</span><span class="nam">risk_profiles</span> <span class="key">is</span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="par run show_par"><span class="n"><a id="t157" href="#t157">157</a></span><span class="t">            <span class="key">if</span> <span class="nam">self</span><span class="op">.</span><span class="nam">risk_profiles</span> <span class="key">is</span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><span class="r"><span class="annotate short">157&#x202F;&#x219B;&#x202F;174</span><span class="annotate long">line 157 didn't jump to line 174, because the condition on line 157 was never false</span></span></p>
     <p class="run"><span class="n"><a id="t158" href="#t158">158</a></span><span class="t">                <span class="key">for</span> <span class="nam">ticker</span> <span class="key">in</span> <span class="nam">self</span><span class="op">.</span><span class="nam">tickers</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t159" href="#t159">159</a></span><span class="t">                    <span class="key">if</span> <span class="nam">self</span><span class="op">.</span><span class="nam">sample_prices</span> <span class="key">is</span> <span class="key">not</span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="par run show_par"><span class="n"><a id="t159" href="#t159">159</a></span><span class="t">                    <span class="key">if</span> <span class="nam">self</span><span class="op">.</span><span class="nam">sample_prices</span> <span class="key">is</span> <span class="key">not</span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><span class="r"><span class="annotate short">159&#x202F;&#x219B;&#x202F;160</span><span class="annotate long">line 159 didn't jump to line 160, because the condition on line 159 was never true</span></span></p>
     <p class="mis show_mis"><span class="n"><a id="t160" href="#t160">160</a></span><span class="t">                        <span class="nam">stats</span> <span class="op">=</span> <span class="nam">calculate_risk_return</span><span class="op">(</span><span class="nam">ticker</span><span class="op">=</span><span class="nam">ticker</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t161" href="#t161">161</a></span><span class="t">                                                      <span class="nam">sample_prices</span><span class="op">=</span><span class="nam">self</span><span class="op">.</span><span class="nam">sample_prices</span><span class="op">[</span><span class="nam">ticker</span><span class="op">]</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t162" href="#t162">162</a></span><span class="t">                                                      <span class="nam">method</span><span class="op">=</span><span class="nam">self</span><span class="op">.</span><span class="nam">estimation_method</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
@@ -259,7 +261,7 @@
     <p class="mis show_mis"><span class="n"><a id="t177" href="#t177">177</a></span><span class="t">                    <span class="nam">self</span><span class="op">.</span><span class="nam">sample_vol</span><span class="op">.</span><span class="nam">append</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t178" href="#t178">178</a></span><span class="t">                        <span class="nam">self</span><span class="op">.</span><span class="nam">risk_profiles</span><span class="op">[</span><span class="nam">ticker</span><span class="op">]</span><span class="op">[</span><span class="str">'annual_volatility'</span><span class="op">]</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t179" href="#t179">179</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t180" href="#t180">180</a></span><span class="t">            <span class="key">if</span> <span class="nam">self</span><span class="op">.</span><span class="nam">correl_matrix</span> <span class="key">is</span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="par run show_par"><span class="n"><a id="t180" href="#t180">180</a></span><span class="t">            <span class="key">if</span> <span class="nam">self</span><span class="op">.</span><span class="nam">correl_matrix</span> <span class="key">is</span> <span class="key">None</span><span class="op">:</span>&nbsp;</span><span class="r"><span class="annotate short">180&#x202F;&#x219B;&#x202F;exit</span><span class="annotate long">line 180 didn't return from function '_init_stats', because the condition on line 180 was never false</span></span></p>
     <p class="run"><span class="n"><a id="t181" href="#t181">181</a></span><span class="t">                <span class="nam">self</span><span class="op">.</span><span class="nam">correl_matrix</span> <span class="op">=</span> <span class="nam">correlation_matrix</span><span class="op">(</span><span class="nam">tickers</span><span class="op">=</span><span class="nam">self</span><span class="op">.</span><span class="nam">tickers</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t182" href="#t182">182</a></span><span class="t">                                                        <span class="nam">start_date</span><span class="op">=</span><span class="nam">self</span><span class="op">.</span><span class="nam">start_date</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t183" href="#t183">183</a></span><span class="t">                                                        <span class="nam">end_date</span><span class="op">=</span><span class="nam">self</span><span class="op">.</span><span class="nam">end_date</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
@@ -411,7 +413,7 @@
             <a id="nextFileLink" class="nav" href="d_5485127f26531aab_optimizer_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io">coverage.py v6.4.1</a>,
-            created at 2022-06-29 23:59 +0000
+            created at 2022-06-30 00:17 +0000
         </p>
     </div>
 </footer>
