@@ -197,15 +197,18 @@ def test_cli_asset_type(args, ticker, expected, capsys):
 
 @pytest.mark.parametrize('args,tickers',[
     (
-        ['var', 'ALLY', '-start', settings.START_STR, '-end', settings.END_STR, '-json', '-prob', '0.05', '-expiry', '0.5'], 
+        ['var', 'ALLY', '-start', settings.START_STR, '-end', settings.END_STR, 
+            '-json', '-prob', '0.05', '-expiry', '0.5'], 
         ['ALLY']
     ),
     (
-        ['var', 'GLD', 'SPY', '-start', settings.START_STR, '-end', settings.END_STR, '-json', '-prob', '0.05', '-expiry', '0.5'], 
+        ['var', 'GLD', 'SPY', '-start', settings.START_STR, '-end', settings.END_STR, 
+            '-json', '-prob', '0.05', '-expiry', '0.5'], 
         ['GLD', 'SPY']
     ),
     (
-        ['var', 'DIS', 'BX', 'GLD', 'SPY', '-start', settings.START_STR, '-end', settings.END_STR, '-json', '-prob', '0.05', '-expiry', '0.5'], 
+        ['var', 'DIS', 'BX', 'GLD', 'SPY', '-start', settings.START_STR, '-end', settings.END_STR, 
+            '-json', '-prob', '0.05', '-expiry', '0.5'], 
         ['DIS', 'BX', 'GLD', 'SPY']
     )
 ])
@@ -219,17 +222,35 @@ def test_cli_value_at_risk_json_format(args, tickers, capsys):
         assert keys.keys['STATISTICS']['VAR'] in list(results[ticker].keys())
         assert isinstance(results[ticker][keys.keys['STATISTICS']['VAR']], float)
 
+@patch('scrilla.files.save_file')
+@pytest.mark.parametrize('args,filename',[
+    (
+        ['var', 'ALLY', '-start', settings.START_STR, '-end', settings.END_STR, 
+            '-json', '-prob', '0.05', '-expiry', '0.5', '-save', 'test_path'], 
+        'test_path'
+    ),
+])
+def test_cli_value_at_risk_save_file(save_function, args, filename):
+    with HTTMock(mock_data.mock_prices):
+        with HTTMock(mock_data.mock_treasury):
+            do_program(args)
+    save_function.assert_called()
+    save_function.assert_called_with(file_to_save=ANY, file_name=filename)
+
 @pytest.mark.parametrize('args,tickers',[
     (
-        ['cvar', 'ALLY', '-start', settings.START_STR, '-end', settings.END_STR, '-json', '-prob', '0.05', '-expiry', '0.5'], 
+        ['cvar', 'ALLY', '-start', settings.START_STR, '-end', settings.END_STR, 
+            '-json', '-prob', '0.05', '-expiry', '0.5'], 
         ['ALLY']
     ),
     (
-        ['cvar', 'GLD', 'SPY', '-start', settings.START_STR, '-end', settings.END_STR, '-json', '-prob', '0.05', '-expiry', '0.5'], 
+        ['cvar', 'GLD', 'SPY', '-start', settings.START_STR, '-end', settings.END_STR, 
+            '-json', '-prob', '0.05', '-expiry', '0.5'], 
         ['GLD', 'SPY']
     ),
     (
-        ['cvar', 'DIS', 'BX', 'GLD', 'SPY', '-start', settings.START_STR, '-end', settings.END_STR, '-json', '-prob', '0.05', '-expiry', '0.5'], 
+        ['cvar', 'DIS', 'BX', 'GLD', 'SPY', '-start', settings.START_STR, '-end', settings.END_STR, 
+            '-json', '-prob', '0.05', '-expiry', '0.5'], 
         ['DIS', 'BX', 'GLD', 'SPY']
     )
 ])
@@ -246,7 +267,8 @@ def test_cli_conditional_value_at_risk_json_format(args, tickers, capsys):
 @patch('scrilla.files.save_file')
 @pytest.mark.parametrize('args,filename',[
     (
-        ['cvar', 'ALLY', '-json', '-start', settings.START_STR, '-end', settings.END_STR, '-save', 'test_path', '-prob', '0.05', '-expiry', '0.5'], 
+        ['cvar', 'ALLY', '-json', '-start', settings.START_STR, '-end', settings.END_STR,
+             '-save', 'test_path', '-prob', '0.05', '-expiry', '0.5'], 
         'test_path'
     ),
 ])
@@ -259,11 +281,13 @@ def test_cli_conditional_value_at_risk_save_file(save_function, args, filename):
 
 @pytest.mark.parametrize('args,tickers', [
     (
-        ['capm-equity', 'ALLY', '-start', settings.START_STR, '-end', settings.END_STR, '-json'],
+        ['capm-equity', 'ALLY', '-start', settings.START_STR, '-end', settings.END_STR, 
+            '-json'],
         ['ALLY']
     ),
     (
-        ['capm-equity', 'ALLY', 'BX', '-start', settings.START_STR, '-end', settings.END_STR, '-json'],
+        ['capm-equity', 'ALLY', 'BX', '-start', settings.START_STR, '-end', settings.END_STR, 
+            '-json'],
         ['ALLY', 'BX']
     ),
 ])
@@ -280,7 +304,8 @@ def test_cli_cost_of_equity_json_format(args, tickers, capsys):
 @patch('scrilla.files.save_file')
 @pytest.mark.parametrize('args,filename', [
     (
-        ['capm-equity', 'ALLY', '-start', settings.START_STR, '-end', settings.END_STR, '-json', '-save', 'test_path'],
+        ['capm-equity', 'ALLY', '-start', settings.START_STR, '-end', settings.END_STR, 
+            '-json', '-save', 'test_path'],
         'test_path'
     )
 ])
@@ -293,11 +318,13 @@ def test_cli_cost_of_equity_save_file(save_function, args, filename):
 
 @pytest.mark.parametrize('args,tickers', [
     (
-        ['capm-beta', 'ALLY', '-start', settings.START_STR, '-end', settings.END_STR, '-json'],
+        ['capm-beta', 'ALLY', '-start', settings.START_STR, '-end', settings.END_STR, 
+            '-json'],
         ['ALLY']
     ),
     (
-        ['capm-beta', 'ALLY', 'BX', '-start', settings.START_STR, '-end', settings.END_STR, '-json'],
+        ['capm-beta', 'ALLY', 'BX', '-start', settings.START_STR, '-end', settings.END_STR, 
+            '-json'],
         ['ALLY', 'BX']
     ),
 ])
@@ -314,7 +341,8 @@ def test_cli_asset_beta_json_format(args, tickers, capsys):
 @patch('scrilla.files.save_file')
 @pytest.mark.parametrize('args,filename', [
     (
-        ['capm-beta', 'ALLY', '-start', settings.START_STR, '-end', settings.END_STR, '-json', '-save', 'test_path'],
+        ['capm-beta', 'ALLY', '-start', settings.START_STR, '-end', settings.END_STR, 
+            '-json', '-save', 'test_path'],
         'test_path'
     )
 ])
