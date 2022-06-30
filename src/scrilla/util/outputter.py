@@ -127,7 +127,7 @@ def help_msg(indent: int = formats.formats['INDENT'], function_filter: Union[Lis
 
     for func_name in func_dict:
         if function_filter is None or len(function_filter) == 0 or \
-            any(filt in func_dict[func_name]['values'] for filt in function_filter):
+                any(filt in func_dict[func_name]['values'] for filt in function_filter):
 
             title_line(func_dict[func_name]['name'])
             for line in break_lines(func_dict[func_name]['description']):
