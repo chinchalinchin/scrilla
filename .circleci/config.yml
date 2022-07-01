@@ -63,7 +63,7 @@ commands:
     steps:
       - run:
           name: install virtual server & gui libraries
-          command: sudo apt-get update -y && sudo apt-get install -y xvfb libopengl0 libegl1-mesa libxkbcommon-x11-0
+          command: sudo apt-get update -y && sudo apt-get install -y xvfb libopengl0 libegl1-mesa libxkbcommon-x11-0 ffmpeg libsm6 libxext6
 
   generate_package_docs:
     description: generate documentation html from docstrings
@@ -107,7 +107,9 @@ commands:
           key: deepsource-v1
       - run:
           name: install deepsource cli
-          command: curl https://deepsource.io/cli | sh
+          command: |
+            curl https://deepsource.io/cli | sh
+            sudo apt-get update -y && sudo apt-get install -y libxkbcommon-x11-0 libopengl0 libegl1-mesa
       - save_cache:
           key: deepsource-v1
           paths:
@@ -129,7 +131,6 @@ commands:
             AWS_DEFAULT_REGION: us-east-1
             LOG_LEVEL: none
           command: |
-            sudo apt-get update -y && sudo apt-get install -y libxkbcommon-x11-0 libopengl0 libegl1-mesa
             source ./venv/bin/activate
             ./scripts/tests
             coverage xml
