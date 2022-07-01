@@ -5,7 +5,7 @@ commands:
     description: install python dependencies
     steps:
       - restore_cache:  # ensure this step occurs *before* installing dependencies
-          key: python-deps-v4-{{ checksum "requirements.txt"}}
+          key: python-deps-v5-{{ checksum "requirements.txt"}}
       - run:
           name: python dependencies
           command: |
@@ -13,7 +13,7 @@ commands:
             source ./venv/bin/activate
             pip3 install -r requirements.txt
       - save_cache:
-          key: python-deps-v4-{{ checksum "requirements.txt"}}
+          key: python-deps-v5-{{ checksum "requirements.txt"}}
           paths:
             - "./venv/"
 
@@ -21,7 +21,7 @@ commands:
     description: compress and build python package
     steps:
       - restore_cache: 
-          key: python-deps-v4-{{ checksum "requirements.txt"}}
+          key: python-deps-v5-{{ checksum "requirements.txt"}}
       - run:
           name: artifact build
           environment:
@@ -36,7 +36,7 @@ commands:
     description: upload package artifacts to PyPi
     steps:
       - restore_cache: 
-          key: python-deps-v4-{{ checksum "requirements.txt"}}
+          key: python-deps-v5-{{ checksum "requirements.txt"}}
       - run:
           name: artifact upload
           command: |
@@ -69,7 +69,7 @@ commands:
     description: generate documentation html from docstrings
     steps:
       - restore_cache:
-          key: python-deps-v4-{{ checksum "requirements.txt"}}
+          key: python-deps-v5-{{ checksum "requirements.txt"}}
       - attach_workspace:
           at: docs
       - run:
@@ -86,7 +86,7 @@ commands:
     description: generate documentation html from markdown
     steps:
       - restore_cache:
-          key: python-deps-v4-{{ checksum "requirements.txt"}}
+          key: python-deps-v5-{{ checksum "requirements.txt"}}
       - attach_workspace:
           at: docs
       - run:
@@ -121,7 +121,7 @@ commands:
       - restore_cache:
           key: deepsource-v1
       - restore_cache: 
-          key: python-deps-v4-{{ checksum "requirements.txt"}}
+          key: python-deps-v5-{{ checksum "requirements.txt"}}
       - attach_workspace:
           at: docs
       - run: 
