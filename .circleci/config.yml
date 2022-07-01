@@ -109,7 +109,7 @@ commands:
           name: install deepsource cli
           command: |
             curl https://deepsource.io/cli | sh
-            sudo apt-get update -y && sudo apt-get install -y libxkbcommon-x11-0 libopengl0 libegl1-mesa
+            sudo apt-get update -y && sudo apt-get install -y libxkbcommon-x11-0 libopengl0 libegl1-mesa xvfb
       - save_cache:
           key: deepsource-v1
           paths:
