@@ -410,10 +410,10 @@ class InterestCache(metaclass=Singleton):
     def _update_internal_cache(self, values, maturity):
         self.internal_cache[maturity].update(values)
 
-
     def _retrieve_from_internal_cache(self, maturity, start_date, end_date):
         dates = list(self.internal_cache[maturity].keys())
-        start_string, end_string = dater.to_string(start_date), dater.to_string(end_date)
+        start_string, end_string = dater.to_string(
+            start_date), dater.to_string(end_date)
 
         if start_string in dates and end_string in dates:
             start_index = dates.index(start_string)
@@ -429,7 +429,7 @@ class InterestCache(metaclass=Singleton):
 
             if dater.business_days_between(start_date, end_date) == len(rates):
                 logger.debug('Found interest in memory',
-                            'InterestCache._retrieve_from_internal_cache')
+                             'InterestCache._retrieve_from_internal_cache')
                 return rates
         return None
 
@@ -456,10 +456,10 @@ class InterestCache(metaclass=Singleton):
 
     def filter(self, maturity, start_date, end_date):
         """
-        
+
         .. notes::
             - `scrilla.cache.InterestCache.filter()` is called in `scrilla.services.get_daily_interest_history()` _before_ the API response from the Treasury is saved. 
-            
+
         """
         rates = self._retrieve_from_internal_cache(
             maturity, start_date, end_date)

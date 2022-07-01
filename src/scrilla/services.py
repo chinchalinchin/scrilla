@@ -207,7 +207,7 @@ class StatManager():
 
     def get_interest_rates(self, start_date, end_date):
         """
-        
+
         .. notes::
             - Regardless of the `scrilla.settings.STAT_MANAGER`, the return format for this method is as follows: 
                 ```json
