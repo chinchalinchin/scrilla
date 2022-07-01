@@ -129,7 +129,7 @@ commands:
             AWS_DEFAULT_REGION: us-east-1
             LOG_LEVEL: none
           command: |
-            sudo apt-get update -y && sudo apt-get install -y libxkbcommon-x11-0
+            sudo apt-get update -y && sudo apt-get install -y libxkbcommon-x11-0 libopengl0 libegl1-mesa
             source ./venv/bin/activate
             ./scripts/tests
             coverage xml
