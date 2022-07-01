@@ -105,7 +105,7 @@ def atomic_widget_factory(component: str, title: str = None) -> Union[QtWidgets.
             widget = QtWidgets.QPushButton()
             widget.setSizePolicy(QtWidgets.QSizePolicy(
                 QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum))
-            
+
             # TODO: think about how to parametrize this in `scrilla.gui.definitions`
             if component == 'hide-button':
                 widget.setToolTip('Hide')

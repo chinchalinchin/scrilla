@@ -91,11 +91,11 @@ FACTORIES = {
         }
     },
     'BUTTON': {
-        'TYPES': [ 'calculate-button', 'clear-button', 'hide-button',
-                    'download-button', 'source-button', 'package-button',
-                    'documentation-button', 'okay-button', 'button'],
+        'TYPES': ['calculate-button', 'clear-button', 'hide-button',
+                  'download-button', 'source-button', 'package-button',
+                  'documentation-button', 'okay-button', 'button'],
         'TEXTUAL': ['hide-button', 'download-button', 'source-button']
-        
+
     },
     'DIALOG': {
         'TYPES': ['save-dialog']
