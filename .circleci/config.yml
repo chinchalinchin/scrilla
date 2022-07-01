@@ -4,7 +4,7 @@ commands:
   install_python_deps:
     description: install python dependencies
     steps:
-      - restore_cache:  # ensure this step occurs *before* installing dependencies
+      - restore_cache:
           key: python-deps-v5-{{ checksum "requirements.txt"}}
       - run:
           name: python dependencies
@@ -18,7 +18,7 @@ commands:
             - "./venv/"
 
   build_wheel:
-    description: compress and build python package
+    description: build and package python wheel
     steps:
       - restore_cache: 
           key: python-deps-v5-{{ checksum "requirements.txt"}}
@@ -57,13 +57,6 @@ commands:
             git add . 
             git commit -m "Pipeline Build Version $(cat ./src/scrilla/version.txt)" || true
             git push --set-upstream origin develop/main || true
-
-  install_doc_deps:
-    description: install documentation dependencies
-    steps:
-      - run:
-          name: install virtual server & gui libraries
-          command: sudo apt-get update -y && sudo apt-get install -y xvfb libopengl0 libegl1-mesa libxkbcommon-x11-0 ffmpeg libsm6 libxext6
 
   generate_package_docs:
     description: generate documentation html from docstrings
@@ -104,14 +97,12 @@ commands:
     description: install testing libraries
     steps:
       - restore_cache:
-          key: deepsource-v1
+          key: deepsource-v2
       - run:
           name: install deepsource cli
-          command: |
-            curl https://deepsource.io/cli | sh
-            sudo apt-get update -y && sudo apt-get install -y libxkbcommon-x11-0 libopengl0 libegl1-mesa xvfb
+          command: curl https://deepsource.io/cli | sh
       - save_cache:
-          key: deepsource-v1
+          key: deepsource-v2
           paths:
             - "./bin/"
   
@@ -213,14 +204,14 @@ jobs:
 
   dependencies: 
     docker:
-      - image: cimg/python:3.9.6
+      - image: docker.io/chinchalinchin/scrilla-builder:latest
     steps:
       - checkout
       - install_python_deps
 
   unit_tests:
     docker:
-      - image: cimg/python:3.9.6
+      - image: docker.io/chinchalinchin/scrilla-builder:latest
     steps:
       - checkout
       - install_test_deps
@@ -228,10 +219,9 @@ jobs:
 
   documentation:
     docker: 
-      - image: cimg/python:3.9.6
+      - image: docker.io/chinchalinchin/scrilla-builder:latest
     steps:
       - checkout
-      - install_doc_deps
       - generate_package_docs
       - generate_source_docs
       - commit_coverage
