@@ -71,27 +71,35 @@ def atomic_widget_factory(component: str, title: str = None) -> Union[QtWidgets.
     Parameters
     ----------
     1. **component**: ``str``
-        Allowable values: `title`, `subtitle`, `heading`, `label`, `error`, `text`, `splash`, `calculate-button`, `clear-button`, `hide-button`, `download-button`, `source-button`, `package-button`, `documentation-button`, `button`, `save-dialog`, `table`, `table-item`, `figure`, `menu-bar`, `combo-box`, `okay-button`. If `component=None` is provided, a `PySide6.QtWidgets.QWidget` will be constructed with a `PySide6.QtWidgets.QHBoxLayout` will be returned.
+        Allowable values can be assessed through the `scrilla.gui.definitions.FACTORIES` dictionary, underneath the `TYPES` key. If `component=None` is provided, a `PySide6.QtWidgets.QWidget` will be constructed with a `PySide6.QtWidgets.QHBoxLayout` will be returned.
     """
     if component in gui_definitions.FACTORIES['LABEL']['TYPES']:
-        widget = QtWidgets.QLabel(title)
-        if component in gui_definitions.FACTORIES['BUTTON']['ALIGN']['TOP']:
+        # Template Configuration
+        if component in gui_definitions.FACTORIES['LABEL']['TEMPLATES']:
+            widget = QtWidgets.QLabel(utilities.load_html_template(component))
+            widget.setWordWrap(True)
+            widget.setOpenExternalLinks(True)
+        else:
+            widget = QtWidgets.QLabel(title)
+        # Alignment Configuration
+        if component in gui_definitions.FACTORIES['LABEL']['ALIGN']['TOP']:
             widget.setAlignment(QtCore.Qt.AlignTop)
-        elif component in gui_definitions.FACTORIES['BUTTON']['ALIGN']['LEFT']:
+        elif component in gui_definitions.FACTORIES['LABEL']['ALIGN']['LEFT']:
             widget.setAlignment(QtCore.Qt.AlignLeft)
-        elif component in gui_definitions.FACTORIES['BUTTON']['ALIGN']['HCENTER']:
+        elif component in gui_definitions.FACTORIES['LABEL']['ALIGN']['HCENTER']:
             widget.setAlignment(QtCore.Qt.AlignHCenter)
-        elif component in gui_definitions.FACTORIES['BUTTON']['ALIGN']['BOTTOM']:
+        elif component in gui_definitions.FACTORIES['LABEL']['ALIGN']['BOTTOM']:
             widget.setAlignment(QtCore.Qt.AlignBottom)
+        elif component in gui_definitions.FACTORIES['LABEL']['ALIGN']['CENTER']:
+            widget.setAlignment(QtCore.Qt.AlignCenter)
+        # Sizing Configuration
+        if component in gui_definitions.FACTORIES['LABEL']['SIZING']['EXPAND']:
+            widget.setSizePolicy(QtWidgets.QSizePolicy(
+                QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding))
+        elif component in gui_definitions.FACTORIES['LABEL']['SIZING']['MINMAX']:
+            widget.setSizePolicy(QtWidgets.QSizePolicy(
+                QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Maximum))        
         widget.setObjectName(component)
-
-    elif component in ['splash']:
-        widget = QtWidgets.QLabel(utilities.load_html_template(component))
-        widget.setAlignment(QtCore.Qt.AlignTop)
-        widget.setSizePolicy(QtWidgets.QSizePolicy(
-            QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Maximum))
-        widget.setWordWrap(True)
-        widget.setOpenExternalLinks(True)
 
     elif component in gui_definitions.FACTORIES['BUTTON']['TYPES']:
         # buttons with text
@@ -126,14 +134,14 @@ def atomic_widget_factory(component: str, title: str = None) -> Union[QtWidgets.
         widget.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
         widget.setObjectName(component)
 
-    elif component in ['save-dialog']:
+    elif component in gui_definitions.FACTORIES['DIALOG']['TYPES']:
         widget = QtWidgets.QFileDialog()
         widget.setFileMode(QtWidgets.QFileDialog.AnyFile)
         widget.setViewMode(QtWidgets.QFileDialog.Detail)
         widget.setNameFilter(title)
         widget.setAcceptMode(QtWidgets.QFileDialog.AcceptSave)
 
-    elif component in ['table']:
+    elif component in gui_definitions.FACTORIES['TABLE']['TYPES']:
         widget = QtWidgets.QTableWidget()
         widget.setHorizontalHeader(QtWidgets.QHeaderView(QtCore.Qt.Horizontal))
         widget.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Stretch)
@@ -144,17 +152,9 @@ def atomic_widget_factory(component: str, title: str = None) -> Union[QtWidgets.
             QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum))
         widget.setObjectName(component)
 
-    elif component in ['table-item']:
+    elif component in gui_definitions.FACTORIES['ITEM']['TYPES']:
         widget = QtWidgets.QTableWidgetItem(title)
         widget.setTextAlignment(QtCore.Qt.AlignHCenter)
-
-    # TODO: all labels should go under label factory...
-    elif component in ['figure']:
-        widget = QtWidgets.QLabel()
-        widget.setAlignment(QtCore.Qt.AlignCenter)
-        widget.setSizePolicy(QtWidgets.QSizePolicy(
-            QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding))
-        widget.setObjectName(component)
 
     elif component in ['menu-bar']:
         widget = QtWidgets.QMenuBar()

@@ -82,28 +82,37 @@ MENUBAR_WIDGET = {
 
 FACTORIES = {
     'LABEL': {
-        'TYPES': ['title', 'subtitle', 'heading', 'label', 'error', 'text'],
+        'TYPES': [ 'title', 'subtitle', 'heading', 'label', 'error', 'text', 'splash'],
+        'TEMPLATES': [ 'splash' ],
         'ALIGN': {
-            'TOP': ['title', 'subtitle', 'label'],
-            'LEFT': ['heading'],
-            'HCENTER': ['error'],
-            'BOTTOM': ['text']
-        }
+            'TOP': [ 'title', 'subtitle', 'label' ],
+            'LEFT': [ 'heading' ],
+            'CENTER': [ 'figure' ],
+            'HCENTER': [ 'error' ],
+            'BOTTOM': [ 'text' ]
+        },
+        'SIZING': {
+            'EXPAND':[ 'figure' ],
+            'MINMAX': [ 'splash' ]
+        },
     },
     'BUTTON': {
-        'TYPES': [ 'calculate-button', 'clear-button', 'hide-button',
-                    'download-button', 'source-button', 'package-button',
-                    'documentation-button', 'okay-button', 'button'],
-        'TEXTUAL': ['hide-button', 'download-button', 'source-button']
+        'TYPES': [ 'calculate-button', 'clear-button', 'hide-button', 'download-button', 
+                    'source-button', 'package-button', 'documentation-button', 'okay-button', 
+                    'button'],
+        'TEXTUAL': [ 'hide-button', 'download-button', 'source-button']
         
     },
     'DIALOG': {
-        'TYPES': ['save-dialog']
+        'TYPES': [ 'save-dialog' ]
     },
     'TABLE': {
-        'TYPES': ['table']
+        'TYPES': [ 'table' ]
     },
     'ITEM': {
-        'TYPES': ['table-item']
+        'TYPES': [ 'table-item' ]
+    },
+    'MENU': {
+        'TYPES': [ 'menu-bar' ]
     }
 }

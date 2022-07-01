@@ -150,18 +150,41 @@ class ArgumentWidget(QtWidgets.QWidget):
             self.symbol_widget = None
 
         self.group_definitions = None
+
+        # TODO: yes, yes, very clever...i think. still needs re-factored for clarity.
+        # what exactly is going on here?
+
+
         for control in self.controls:
             if self.controls[control]:
-                if self.controls[control]:
-                    if definitions.ARG_DICT[control]["widget_type"] != "group":
-                        self.control_widgets[control] = factories.argument_widget_factory(definitions.ARG_DICT[control]['widget_type'],
-                                                                                          f'{definitions.ARG_DICT[control]["name"]} :',
-                                                                                          optional=True)
-                    else:
-                        if self.group_definitions is None:
-                            self.group_definitions = {}
-                        self.group_definitions[definitions.ARG_DICT[control]
-                                               ['name']] = definitions.ARG_DICT[control]
+                if definitions.ARG_DICT[control]["widget_type"] != "group":
+                    self.control_widgets[control] = factories.argument_widget_factory(definitions.ARG_DICT[control]['widget_type'],
+                                                                                        f'{definitions.ARG_DICT[control]["name"]} :',
+                                                                                        optional=True)
+                else:
+                    if self.group_definitions is None:
+                        self.group_definitions = {}
+                    self.group_definitions[definitions.ARG_DICT[control]
+                                            ['name']] = definitions.ARG_DICT[control]
+                                            
+                    # NOTE: at this point, the following should hold:
+                    #   ```python
+                    #   assert isinstance(self.group_definitions, dict[str, any]) 
+                    #   assert isinstance(defintions.ARG_DICT[control]['name'], str)
+                    #   assert isinstance(definitions.ARG_DICT[control], dict[str, any])
+                    #   ```
+                    #
+                    # i.e., `self.group_defintions` should look like,
+                    #   ```python`
+                    #    self.group_defintions = {
+                    #       'Moment Matching' : {
+                    #           'values': ['-moments', '--moments', ...],
+                    #           'description': '...',
+                    #           ...
+                    #       }
+                    #   }
+                    #   ```
+
             else:
                 self.control_widgets[control] = None
 
@@ -173,6 +196,7 @@ class ArgumentWidget(QtWidgets.QWidget):
         if self.group_definitions is not None:
             self.group_control_widgets = {}
             groups = {}
+            # create groups from group definitions
             for definition in self.group_definitions:
                 group_key = self.group_definitions[definition]['group']
                 group_name = definitions.GROUP_DICT[group_key]
@@ -182,6 +206,7 @@ class ArgumentWidget(QtWidgets.QWidget):
                 else:
                     groups[group_name].append(definition)
 
+            # str, dict from `scrilla.static.definitions.ARG_DICT`
             for group_name, group in groups.items():
                 self.group_control_widgets[group_name] = factories.group_widget_factory(
                     group, group_name)
