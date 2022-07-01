@@ -77,7 +77,6 @@ def load_file(file_name: str) -> Any:
     with open(file_name, 'r') as infile:
         if ext == "json":
             return json.load(infile)
-        print('wtf')
         return infile.read()
         # TODO: implement other file loading extensions
 
@@ -459,7 +458,6 @@ def clear_cache(mode: str = settings.CACHE_MODE) -> bool:
 
     if mode == 'sqlite':
         try:
-            print(settings.CACHE_SQLITE_FILE)
             os.remove(settings.CACHE_SQLITE_FILE)
             return True
         except OSError as e:

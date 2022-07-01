@@ -182,8 +182,6 @@ def do_program(cli_args: List[str]) -> None:
                 curve_rate = get_daily_interest_history(maturity=maturity,
                                                         start_date=args['start_date'],
                                                         end_date=args['start_date'])
-                print('curve_rate')
-                print(curve_rate)
 
                 yield_curve[maturity] = curve_rate[list(
                     curve_rate.keys())[0]]/100

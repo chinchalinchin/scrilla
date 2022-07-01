@@ -769,17 +769,11 @@ def get_daily_interest_history(maturity: str, start_date: Union[date, None] = No
     .. notes::
         * Yield rates are not reported on weekends or holidays, so the `asset_type` for interest is functionally equivalent to equities, at least as far as date calculations are concerned. The dates inputted into this function are validated as if they were labelled as equity `asset_types` for this reason.
     """
-    print(start_date, end_date)
     start_date, end_date = errors.validate_dates(
         start_date=start_date, end_date=end_date, asset_type=keys.keys['ASSETS']['EQUITY'])
 
-    print('dates')
-    print(start_date, end_date)
     rates = interest_cache.filter(
         maturity, start_date=start_date, end_date=end_date)
-
-    print('here is cache')
-    print(rates)
 
     if rates is not None:
         logger.debug(
@@ -795,9 +789,6 @@ def get_daily_interest_history(maturity: str, start_date: Union[date, None] = No
         f'Cached {maturity} data is out of date, passing request to external service', 'get_daily_interest_history')
     rates = stat_manager.get_interest_rates(
         start_date=start_date, end_date=end_date)
-
-    print('here is response')
-    print(rates)
 
     interest_cache.save_rows(rates)
 
