@@ -1,4 +1,4 @@
-from typing import Callable, List
+from typing import List
 
 from PySide6 import QtWidgets, QtCore, QtGui
 from scrilla.gui import utilities
@@ -28,9 +28,6 @@ def layout_factory(layout: str):
 
     elif layout == 'horizontal-box':
         widget.setLayout(QtWidgets.QHBoxLayout())
-
-    else:
-        widget.setLayout(QtWidgets.QBoxLayout())
 
     return widget
 
