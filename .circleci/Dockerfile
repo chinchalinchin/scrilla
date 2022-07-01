@@ -14,5 +14,3 @@ RUN sudo apt-get update -y && \
                         libxcb*
 
 RUN curl https://deepsource.io/cli | sh
-
-# do not need to install requirements, as it will be quicker to cache them on circleci build servers
