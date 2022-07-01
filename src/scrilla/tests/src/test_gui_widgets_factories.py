@@ -12,3 +12,9 @@ def test_layout_factory(qtbot, layout, expected):
     widget = factories.layout_factory(layout)
     assert isinstance(widget, QtWidgets.QWidget)
     assert isinstance(widget.layout(), expected) 
+
+@pytest.mark.parametrize('component,title,expected_type,expected_conf',
+
+)
+def test_atomic_widget_factory(qtbot, component, title, expected_type, expected_conf):
+    pass

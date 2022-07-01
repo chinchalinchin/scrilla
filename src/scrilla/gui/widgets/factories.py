@@ -96,7 +96,7 @@ def atomic_widget_factory(component: str, title: str):
                        'download-button', 'source-button', 'package-button',
                        'documentation-button', 'button']:
         # buttons with text
-        if format not in ['hide-button', 'download-button', 'source-button']:
+        if component not in ['hide-button', 'download-button', 'source-button']:
             widget = QtWidgets.QPushButton(title)
             widget.setSizePolicy(QtWidgets.QSizePolicy(
                 QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Maximum))

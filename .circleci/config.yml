@@ -129,6 +129,7 @@ commands:
             AWS_DEFAULT_REGION: us-east-1
             LOG_LEVEL: none
           command: |
+            sudo apt-get update -y && sudo apt-get install -y xvfb libopengl0 libegl1-mesa libxkbcommon-dev ffmpeg libsm6 libxext6
             source ./venv/bin/activate
             ./scripts/tests
             coverage xml
