@@ -472,3 +472,9 @@ def test_cli_efficient_frontier_json_format(args, tickers, capsys):
         assert isinstance(frontier['portfolio_volatility'], float)
         assert frontier['portfolio_volatility'] > 0
 
+
+def test_cli_maximize_portfolio_json_format(args, capsys):
+    with HTTMock(mock_data.mock_prices), \
+         HTTMock(mock_data.mock_treasury):
+        do_program(args)
+    portfolio = json.loads(capsys.readouterr().out)

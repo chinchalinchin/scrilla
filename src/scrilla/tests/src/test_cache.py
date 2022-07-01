@@ -1,7 +1,5 @@
-import uuid
 import pytest
 
-from scrilla import settings
 from scrilla.static import keys, config
 from scrilla.cache import CorrelationCache, PriceCache, InterestCache, ProfileCache
 from scrilla.files import clear_cache
