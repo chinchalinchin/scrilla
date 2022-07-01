@@ -13,22 +13,23 @@ def test_layout_factory(qtbot, layout, expected):
     assert isinstance(widget, QtWidgets.QWidget)
     assert isinstance(widget.layout(), expected) 
 
-# @pytest.mark.parametrize('component,title,expected_type,expected_conf',[
-#     ('title', ),
-#     ('subtitle', ),
-#     ('heading', ),
-#     ('label', ),
-#     ('error', ),
-#     ('text', ),
-#     ('splash', ),
-#     ('calculate-button', ),
-#     ('clear-button', ),
-#     ('hide-button', ),
-#     ('download-button', ),
-#     ('source-button', ),
-#     ('package-button', ),
-#     ('documentation-button', ),
-#     ('button')
-# ])
-# def test_atomic_widget_factory(qtbot, component, title, expected_type, expected_conf):
-#     pass
+@pytest.mark.parametrize('component,expected_type',[
+    ( 'title', QtWidgets.QLabel),
+    ('subtitle', QtWidgets.QLabel),
+    ('heading', QtWidgets.QLabel),
+    ('label',  QtWidgets.QLabel),
+    ('error', QtWidgets.QLabel),
+    ('text', QtWidgets.QLabel),
+    ('splash', QtWidgets.QLabel),
+    ('calculate-button', QtWidgets.QPushButton),
+    ('clear-button', QtWidgets.QPushButton),
+    ('hide-button', QtWidgets.QPushButton),
+    ('download-button', QtWidgets.QPushButton),
+    ('source-button', QtWidgets.QPushButton),
+    ('package-button', QtWidgets.QPushButton),
+    ('documentation-button',QtWidgets.QPushButton ),
+    ('button', QtWidgets.QPushButton)
+])
+def test_atomic_widget_factory(qtbot, component, expected_type):
+    widget = factories.atomic_widget_factory(component, 'placehodler')
+    assert isinstance(widget, expected_type)
