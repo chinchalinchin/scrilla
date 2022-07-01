@@ -79,3 +79,31 @@ MENUBAR_WIDGET = {
         } for func_widget in FUNC_WIDGETS
     ],
 }
+
+FACTORIES = {
+    'LABEL': {
+        'TYPES': ['title', 'subtitle', 'heading', 'label', 'error', 'text'],
+        'ALIGN': {
+            'TOP': ['title', 'subtitle', 'label'],
+            'LEFT': ['heading'],
+            'HCENTER': ['error'],
+            'BOTTOM': ['text']
+        }
+    },
+    'BUTTON': {
+        'TYPES': [ 'calculate-button', 'clear-button', 'hide-button',
+                    'download-button', 'source-button', 'package-button',
+                    'documentation-button', 'okay-button', 'button'],
+        'TEXTUAL': ['hide-button', 'download-button', 'source-button']
+        
+    },
+    'DIALOG': {
+        'TYPES': ['save-dialog']
+    },
+    'TABLE': {
+        'TYPES': ['table']
+    },
+    'ITEM': {
+        'TYPES': ['table-item']
+    }
+}
