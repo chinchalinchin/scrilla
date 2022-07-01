@@ -63,7 +63,7 @@ commands:
     steps:
       - run:
           name: install virtual server & gui libraries
-          command: sudo apt-get update -y && sudo apt-get install -y xvfb libopengl0 libegl1-mesa libxkbcommon-dev
+          command: sudo apt-get update -y && sudo apt-get install -y xvfb libopengl0 libegl1-mesa libxkbcommon-x11-0
 
   generate_package_docs:
     description: generate documentation html from docstrings
@@ -129,7 +129,7 @@ commands:
             AWS_DEFAULT_REGION: us-east-1
             LOG_LEVEL: none
           command: |
-            sudo apt-get update -y && sudo apt-get install -y xvfb libopengl0 libegl1-mesa libxkbcommon-dev ffmpeg libsm6 libxext6
+            sudo apt-get update -y && sudo apt-get install -y libxkbcommon-x11-0
             source ./venv/bin/activate
             ./scripts/tests
             coverage xml
