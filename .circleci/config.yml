@@ -217,14 +217,13 @@ jobs:
     steps:
       - checkout
       - install_python_deps
-      - install_test_deps
-      - install_doc_deps
 
   unit_tests:
     docker:
       - image: cimg/python:3.9.6
     steps:
       - checkout
+      - install_test_deps
       - run_unit_tests
 
   documentation:
@@ -232,6 +231,7 @@ jobs:
       - image: cimg/python:3.9.6
     steps:
       - checkout
+      - install_doc_deps
       - generate_package_docs
       - generate_source_docs
       - commit_coverage
