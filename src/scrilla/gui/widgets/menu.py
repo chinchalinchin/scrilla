@@ -45,7 +45,7 @@ class MenuWidget(QtWidgets.QWidget):
 
     def _generate_menu_bar(self):
         self.menu_bar = factories.atomic_widget_factory(
-            component='menu-bar', title=None)
+            component='menu-bar')
         self.menus = []
 
         for j, menu in enumerate(definitions.MENUBAR_WIDGET):

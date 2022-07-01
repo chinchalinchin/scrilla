@@ -27,8 +27,16 @@ def test_layout_factory(qtbot, layout, expected):
     ('download-button', QtWidgets.QPushButton),
     ('source-button', QtWidgets.QPushButton),
     ('package-button', QtWidgets.QPushButton),
+    ('okay-button', QtWidgets.QPushButton),
     ('documentation-button',QtWidgets.QPushButton ),
-    ('button', QtWidgets.QPushButton)
+    ('button', QtWidgets.QPushButton),
+    ('save-dialog', QtWidgets.QFileDialog),
+    ('table', QtWidgets.QTableWidget),
+    ('table-item', QtWidgets.QTableWidgetItem),
+    ('figure', QtWidgets.QLabel),
+    ('menu-bar', QtWidgets.QMenuBar),
+    ('random-string', QtWidgets.QWidget),
+    ('werqklasdaq', QtWidgets.QWidget)
 ])
 def test_atomic_widget_factory(qtbot, component, expected_type):
     widget = factories.atomic_widget_factory(component, 'placehodler')

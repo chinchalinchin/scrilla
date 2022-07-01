@@ -1,18 +1,18 @@
-from typing import List
+from typing import List, Union, Dict
 
 from PySide6 import QtWidgets, QtCore, QtGui
 from scrilla.gui import utilities
 from scrilla.static import definitions, constants
 
 
-def generate_control_skeleton():
+def generate_control_skeleton() -> Dict[str, bool]:
     """
     Generates a control dictionary with all argument controls initialized to `False` using the `scrilla.static.definitions.ARG_DICT`. This dictionary is used to configured the input widgets enabled on `scrilla.gui.widgets.components.ArgumentWidget`. By switching controls in this dictionary on before passing it into the constructor, the widgets for that specific input control will be displayed on `scrilla.gui.widgets.components.ArgumentWidget`.
     """
     return {arg: False for arg in definitions.ARG_DICT if not definitions.ARG_DICT[arg]['cli_only']}
 
 
-def layout_factory(layout: str):
+def layout_factory(layout: str) -> QtWidgets.QWidget:
     """
     Factory function for generating instances of `PySide6.QtWidgets.QLayout`. 
 
@@ -32,7 +32,7 @@ def layout_factory(layout: str):
     return widget
 
 
-def dialog_widget_factory(component: str, options: list):
+def dialog_widget_factory(component: str, options: list) -> QtWidgets.QDialog:
     dialog = QtWidgets.QDialog()
     dialog.setObjectName(component)
     dialog.setLayout(QtWidgets.QVBoxLayout())
@@ -63,7 +63,7 @@ def dialog_widget_factory(component: str, options: list):
     return dialog
 
 
-def atomic_widget_factory(component: str, title: str):
+def atomic_widget_factory(component: str, title: str = None) -> Union[QtWidgets.QWidget, QtWidgets.QLabel, QtWidgets.QPushButton, QtWidgets.QFileDialog, QtWidgets.QTableWidget, QtWidgets.QTableWidgetItem, QtWidgets.QMenuBar]:
     """
     Factory function for generating various subclasses of `PySide6.QtWidgets.QWidget` pre-configured for application display.
 
@@ -94,7 +94,7 @@ def atomic_widget_factory(component: str, title: str):
 
     elif component in ['calculate-button', 'clear-button', 'hide-button',
                        'download-button', 'source-button', 'package-button',
-                       'documentation-button', 'button']:
+                       'documentation-button', 'okay-button', 'button']:
         # buttons with text
         if component not in ['hide-button', 'download-button', 'source-button']:
             widget = QtWidgets.QPushButton(title)
@@ -155,7 +155,7 @@ def atomic_widget_factory(component: str, title: str):
         widget.setObjectName(component)
 
     elif component == 'menu-bar':
-        widget = QtWidgets.QMenuBar(title)
+        widget = QtWidgets.QMenuBar()
 
     else:
         widget = QtWidgets.QWidget()
