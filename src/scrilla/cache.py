@@ -372,16 +372,6 @@ class InterestCache(metaclass=Singleton):
         elif self.mode == 'dynamodb':
             return self.dynamodb_query
 
-    # internal cache is completely fucked here
-
-    # NOTE:
-    #   Internal Cache Data Strucure:
-    #   {
-    #       'maturity': {
-    #            'date': 'value'
-    #       },
-    #       ...
-    #   }
     def _save_internal_cache(self, rates):
         """
         Stores interest rate data in an internal cache, to minimize direct queries to the cache.
@@ -458,7 +448,7 @@ class InterestCache(metaclass=Singleton):
         """
         
         .. notes::
-            - `scrilla.cache.InterestCache.filter()` is called in `scrilla.services.get_daily_interest_history()` _before_ the API response from the Treasury is saved. 
+            - `scrilla.cache.InterestCache.filter()` is called in `scrilla.services.get_daily_interest_history()` _before_ the API response from the Treasury is saved, i.e. before `scrilla.cache.InterestCache.save_rows()` and thus `scrilla.cache.InterestCache._save_internal_cache()` are called. If the application has just been installed and the cache is empty, then nothing unusual happens. If the application has just been installed and the cache is not empty (perhaps the application was re-installed or data has been inserted manually into the cache), then calling `filter` will return results and those results will populate the internal_cache with a `scrilla.InterestCache._update_internal_cache()` call, meaning in this case the internal cache is hydrated by the `update` method instead of the `save` method. In other words, the internal cache has two different entrypoints and care must be taken so both are taken into account when initializing the internal cache.
             
         """
         rates = self._retrieve_from_internal_cache(

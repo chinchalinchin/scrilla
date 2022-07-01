@@ -83,8 +83,15 @@ def test_cli_verison(capsys):
     version_text = capsys.readouterr().out
     version_array = version_text.split('.')
     for part in version_array:
-        assert part.isnumeric()
+        assert part.strip().isnumeric()
     assert len(version_array) == 3
+
+def test_cli_yield_curve_json_format(capsys):
+    with HTTMock(mock_data.mock_treasury):
+        do_program(['yield-curve', '-json', '-start', settings.START_STR])
+    rates = json.loads(capsys.readouterr().out)
+    assert all(rates.get(maturity) is not None for maturity in keys.keys['YIELD_CURVE'])
+
 
 @pytest.mark.parametrize('args, length', [
     (['correlation', 'ALLY', 'BX', '-json', '-start',

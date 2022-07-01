@@ -294,7 +294,7 @@ FUNC_DICT = {
         'name': 'Latest Yield Curve',
         'values': ["yield-curve", "yc"],
         'args': ['start_date'],
-        'description': "Displays the current United States Treasury Yield Curve.",
+        'description': "Displays the United States Treasury Yield Curve for a given day.",
         'tickers': False,
     }
 }
