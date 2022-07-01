@@ -206,6 +206,17 @@ class StatManager():
         return formatted_stat
 
     def get_interest_rates(self, start_date, end_date):
+        """
+        
+        .. notes::
+            - Regardless of the `scrilla.settings.STAT_MANAGER`, the return format for this method is as follows: 
+                ```json
+                {
+                    "date": [ "value", "value", ... , "value" ],
+                    "date": [ "value", "value", ... , "value" ]
+                }
+                ```
+        """
         url = self._construct_interest_url(
             start_date=start_date, end_date=end_date)
         formatted_interest = {}
@@ -220,7 +231,7 @@ class StatManager():
                 formatted_interest[rate[0]] = rate[1:]
 
         elif self._is_treasury():
-            # this is ugly, but it's the government's fault for not supporting an API
+            # NOTE: this is ugly, but it's the government's fault for not supporting an API
             # from this century.
 
             def __paginate(page_no, page_url):
@@ -232,7 +243,7 @@ class StatManager():
 
             record_time = dater.business_days_between(
                 constants.constants['YIELD_START_DATE'], end_date, True)
-            # subtract to reindex to 0
+            # NOTE: subtract to reindex to 0
             pages = record_time // self.service_map["KEYS"]["PAGE_LENGTH"] - 1
             pages += 1 if record_time % self.service_map["KEYS"]["PAGE_LENGTH"] > 0 else 0
             page = pages
@@ -758,11 +769,17 @@ def get_daily_interest_history(maturity: str, start_date: Union[date, None] = No
     .. notes::
         * Yield rates are not reported on weekends or holidays, so the `asset_type` for interest is functionally equivalent to equities, at least as far as date calculations are concerned. The dates inputted into this function are validated as if they were labelled as equity `asset_types` for this reason.
     """
+    print(start_date, end_date)
     start_date, end_date = errors.validate_dates(
         start_date=start_date, end_date=end_date, asset_type=keys.keys['ASSETS']['EQUITY'])
 
+    print('dates')
+    print(start_date, end_date)
     rates = interest_cache.filter(
         maturity, start_date=start_date, end_date=end_date)
+
+    print('here is cache')
+    print(rates)
 
     if rates is not None:
         logger.debug(
@@ -778,6 +795,9 @@ def get_daily_interest_history(maturity: str, start_date: Union[date, None] = No
         f'Cached {maturity} data is out of date, passing request to external service', 'get_daily_interest_history')
     rates = stat_manager.get_interest_rates(
         start_date=start_date, end_date=end_date)
+
+    print('here is response')
+    print(rates)
 
     interest_cache.save_rows(rates)
 

@@ -339,6 +339,7 @@ class InterestCache(metaclass=Singleton):
         """
         if not self.inited:
             self.uuid = uuid.uuid4()
+            self._init_internal_cache()
             self.inited = True
 
         self.mode = mode
@@ -355,6 +356,10 @@ class InterestCache(metaclass=Singleton):
                 self.dynamodb_table_configuration)
             Cache.provision(self.dynamodb_table_configuration, self.mode)
 
+    def _init_internal_cache(self):
+        for maturity in keys.keys['YIELD_CURVE']:
+            self.internal_cache[maturity] = {}
+
     def _insert(self):
         if self.mode == 'sqlite':
             return self.sqlite_insert_row_transaction
@@ -367,38 +372,80 @@ class InterestCache(metaclass=Singleton):
         elif self.mode == 'dynamodb':
             return self.dynamodb_query
 
+    # internal cache is completely fucked here
+
+    # NOTE:
+    #   Internal Cache Data Strucure:
+    #   {
+    #       'maturity': {
+    #            'date': 'value'
+    #       },
+    #       ...
+    #   }
     def _save_internal_cache(self, rates):
-        self.internal_cache.update(rates)
+        """
+        Stores interest rate data in an internal cache, to minimize direct queries to the cache.
+
+        Parameters
+        ----------
+        1. **rates**: ``dict``
+            Dictionary containing interest rate data that needs persisted in-memory.
+
+        .. notes::
+            - The internal cache data structure is as follows,
+                ```json
+                {
+                    "maturity": {
+                        "date": "value"
+                        "date": "value"
+                    },
+
+                }
+                ```
+        """
+        for date in rates:
+            for index, maturity in enumerate(keys.keys['YIELD_CURVE']):
+                self.internal_cache[maturity][date] = rates[date][index]
 
     def _update_internal_cache(self, values, maturity):
-        for date in values.keys():
-            if self.internal_cache.get(date) is None:
-                self.internal_cache[date] = [
-                    None for _ in keys.keys['YIELD_CURVE']]
-            self.internal_cache[date][keys.keys['YIELD_CURVE'].index(
-                maturity)] = values[date]
+        self.internal_cache[maturity].update(values)
+
 
     def _retrieve_from_internal_cache(self, maturity, start_date, end_date):
-        dates = list(self.internal_cache.keys())
-        start_string = dater.to_string(start_date)
-        end_string = dater.to_string(end_date)
+        dates = list(self.internal_cache[maturity].keys())
+        start_string, end_string = dater.to_string(start_date), dater.to_string(end_date)
+
         if start_string in dates and end_string in dates:
             start_index = dates.index(start_string)
             end_index = dates.index(end_string)
+
             if start_index > end_index:
                 # NOTE: DynamoDB respones are not necessarily ordered
                 # `to_dict` will take care of ordering
                 start_index, end_index = end_index, start_index
+
             rates = dict(itertools.islice(
-                self.internal_cache.items(), start_index, end_index+1))
-            rates = {key: rates[key][keys.keys['YIELD_CURVE'].index(
-                maturity)] for key in rates}
-            logger.debug('Found interest in memory',
-                         'InterestCache._retrieve_from_internal_cache')
-            return rates
+                self.internal_cache[maturity].items(), start_index, end_index+1))
+
+            if dater.business_days_between(start_date, end_date) == len(rates):
+                logger.debug('Found interest in memory',
+                            'InterestCache._retrieve_from_internal_cache')
+                return rates
+        return None
 
     def save_rows(self, rates):
-        # NOTE: at this point, rates should look like { 'date': [rates], 'date': [rates], ...}
+        """
+
+        .. notes::
+            - this is called with the response from `scrilla.services.StatManaget.get_interest_rates()`. At this point, the data should be formatted as folows,
+                ```json
+                {
+                    "date" : [ "value", "value", ... , "value" ],
+                    "date" : [ "value", "value", ... , "value" ]
+                }
+                ```
+        """
+
         self._save_internal_cache(rates)
         logger.verbose(
             'Attempting to insert interest rates into cache', 'InterestCache.save_rows')
@@ -408,6 +455,12 @@ class InterestCache(metaclass=Singleton):
         )
 
     def filter(self, maturity, start_date, end_date):
+        """
+        
+        .. notes::
+            - `scrilla.cache.InterestCache.filter()` is called in `scrilla.services.get_daily_interest_history()` _before_ the API response from the Treasury is saved. 
+            
+        """
         rates = self._retrieve_from_internal_cache(
             maturity, start_date, end_date)
         if rates is not None:
@@ -422,11 +475,13 @@ class InterestCache(metaclass=Singleton):
                      'start_date': start_date, 'end_date': end_date}
         results = Cache.execute(
             query=self._query(), formatter=formatter, mode=self.mode)
+        # NOTE: [ [ 'date', 'value ] ] at this point
 
         if len(results) > 0:
             logger.debug(
                 f'Found {maturity} yield on in the cache', 'InterestCache.filter')
             rates = self.to_dict(results)
+            # NOTE: { 'date': 'value' } at this point
             self._update_internal_cache(rates, maturity)
             return rates
 

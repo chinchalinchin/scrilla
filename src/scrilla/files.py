@@ -459,6 +459,7 @@ def clear_cache(mode: str = settings.CACHE_MODE) -> bool:
 
     if mode == 'sqlite':
         try:
+            print(settings.CACHE_SQLITE_FILE)
             os.remove(settings.CACHE_SQLITE_FILE)
             return True
         except OSError as e:

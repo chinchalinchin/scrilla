@@ -22,7 +22,7 @@ def reset_cache():
     InterestCache(mode='sqlite'), CorrelationCache(mode='sqlite')
 
 
-def test_general_help_msg(capsys):
+def test_cli_general_help_msg(capsys):
     do_program(['help'])
     help_message = capsys.readouterr().out
     for definition in definitions.FUNC_DICT.values():
@@ -34,7 +34,7 @@ def test_general_help_msg(capsys):
     ['help', 'risk-profile'],
     ['help', 'ddm']
 ])
-def test_specific_help_msg(args, capsys):
+def test_cli_specific_help_msg(args, capsys):
     do_program(args)
     help_message = capsys.readouterr().out
     for definition in definitions.FUNC_DICT.values():
@@ -43,12 +43,13 @@ def test_specific_help_msg(args, capsys):
             assert all(val in help_message for val in definition['values'])
 
 @patch('scrilla.files.os.remove')
-def test_clear_cache_sqlite_mode(delete_function):
+def test_cli_clear_cache_sqlite_mode(delete_function):
     do_program(['clear-cache'])
     delete_function.assert_called()
     delete_function.assert_called_with(app_settings.CACHE_SQLITE_FILE)
 
 # TODO: patching the os.environ dictionary doesn't work
+#       need some way to override CACHE_MODE to test this...
 # @patch('os.environ', { 'CACHE_MODE': 'dynamodb' })
 # @patch('scrilla.cloud.aws.dynamo_drop_table')
 # def test_clear_cache_dynamodb_mode(delete_function, environment):
@@ -58,7 +59,7 @@ def test_clear_cache_sqlite_mode(delete_function):
 #     delete_function.asset_called_with(['prices', 'interest', 'correlations', 'profile'])
 
 @patch('scrilla.files.os.remove')
-def test_clear_static(delete_function):
+def test_cli_clear_static(delete_function):
     do_program(['clear-static'])
     delete_function.assert_called()
     delete_function.assert_called_with(ANY)
@@ -66,16 +67,24 @@ def test_clear_static(delete_function):
     #       https://stackoverflow.com/questions/72818706/python-assert-mock-function-was-called-with-a-string-containing-another-string
 
 @patch('scrilla.files.os.remove')
-def test_clear_common(delete_function):
+def test_cli_clear_common(delete_function):
     do_program(['clear-common'])
     delete_function.assert_called()
     delete_function.assert_called_with(ANY)
 
 @patch('scrilla.files.os.remove')
-def test_purge(delete_function):
+def test_cli_purge(delete_function):
     do_program(['purge'])
     delete_function.assert_called()
     delete_function.assert_called_with(ANY)
+
+def test_cli_verison(capsys):
+    do_program(['version'])
+    version_text = capsys.readouterr().out
+    version_array = version_text.split('.')
+    for part in version_array:
+        assert part.isnumeric()
+    assert len(version_array) == 3
 
 @pytest.mark.parametrize('args, length', [
     (['correlation', 'ALLY', 'BX', '-json', '-start',
@@ -210,7 +219,7 @@ def test_cli_close_price_json_format(date_function, args, ticker, capsys):
 @pytest.mark.parametrize('args,filename',[
     (['close', 'ALLY', '-json', '-save', 'test_path'], 'test_path')
 ])
-def test_clise_close_price_save_file(date_function, save_function, args, filename):
+def test_cli_close_price_save_file(date_function, save_function, args, filename):
     date_function.return_value = settings.END
     with HTTMock(mock_data.mock_prices), \
          HTTMock(mock_data.mock_treasury):
@@ -455,3 +464,4 @@ def test_cli_efficient_frontier_json_format(args, tickers, capsys):
         assert frontier.get('portfolio_volatility') is not None
         assert isinstance(frontier['portfolio_volatility'], float)
         assert frontier['portfolio_volatility'] > 0
+
