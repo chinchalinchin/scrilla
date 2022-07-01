@@ -41,3 +41,15 @@ def test_layout_factory(qtbot, layout, expected):
 def test_atomic_widget_factory(qtbot, component, expected_type):
     widget = factories.atomic_widget_factory(component, 'placehodler')
     assert isinstance(widget, expected_type)
+
+def test_dialog_widget_factory(qtbot):
+    options = ['list','of','options']
+    widget = factories.dialog_widget_factory('name', options)
+    option_widget = widget.layout().itemAt(0).widget().layout().itemAt(0).widget()
+    button_widget = widget.layout().itemAt(1).widget()
+
+    assert isinstance(widget, QtWidgets.QDialog)
+    assert isinstance(button_widget, QtWidgets.QDialogButtonBox)
+    assert isinstance(option_widget, QtWidgets.QComboBox)
+    for i, opt in enumerate(options):
+        assert option_widget.itemText(i) == opt
