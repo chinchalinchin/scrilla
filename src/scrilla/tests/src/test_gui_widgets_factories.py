@@ -55,4 +55,11 @@ def test_dialog_widget_factory(qtbot):
         assert option_widget.itemText(i) == opt
 
 def test_group_widget_factory(qtbot):
-    pass
+    options = ['a', 'real', 'sophies', 'choice']
+    widget = factories.group_widget_factory(options, 'my group')
+    assert isinstance(widget, QtWidgets.QGroupBox)
+    for i in range(len(options)):
+        radio = widget.layout().itemAt(i).widget()
+        assert isinstance(radio, QtWidgets.QRadioButton)
+        assert radio.text() == options[i]
+
