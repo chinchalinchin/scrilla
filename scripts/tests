@@ -13,6 +13,8 @@ fi
 
 cd $PROJECT_DIR
 
+export LOG_LEVEL=none
+
 coverage run \
     --branch \
     -m pytest \
