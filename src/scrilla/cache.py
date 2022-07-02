@@ -398,22 +398,16 @@ class InterestCache(metaclass=Singleton):
                 self.internal_cache[maturity][date] = rates[date][index]
 
     def _update_internal_cache(self, values, maturity):
-        print('updating maturity '+maturity)
-        print('with values:', values)
         self.internal_cache[maturity].update(values)
 
     def _retrieve_from_internal_cache(self, maturity, start_date, end_date):
-        print('internal cache', self.internal_cache)
         dates = list(self.internal_cache[maturity].keys())
         start_string, end_string = dater.to_string(
             start_date), dater.to_string(end_date)
 
         if start_string in dates and end_string in dates:
-            print('dates in keys')
             start_index = dates.index(start_string)
             end_index = dates.index(end_string)
-
-            print(start_index, end_index)
 
             if start_index > end_index:
                 # NOTE: DynamoDB respones are not necessarily ordered
@@ -423,14 +417,10 @@ class InterestCache(metaclass=Singleton):
             rates = dict(itertools.islice(
                 self.internal_cache[maturity].items(), start_index, end_index+1))
 
-            print(rates)
-
             if dater.business_days_between(start_date, end_date) == len(rates):
                 logger.debug('Found interest in memory',
                              'InterestCache._retrieve_from_internal_cache')
                 return rates
-            else: 
-                print('not equal')
         return None
 
     def save_rows(self, rates):
