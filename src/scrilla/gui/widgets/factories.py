@@ -115,18 +115,17 @@ def atomic_widget_factory(component: str, title: str = None) -> Union[QtWidgets.
     else:
         widget = QtWidgets.QWidget()
         widget.setLayout(QtWidgets.QHBoxLayout())
-        
 
     # Size Configuration
     if component in atomic_map['SIZING']['EXPANDEXPAND']:
         widget.setSizePolicy(QtWidgets.QSizePolicy(
-                QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding))
+            QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding))
     elif component in atomic_map['SIZING']['EXPANDMIN']:
         widget.setSizePolicy(QtWidgets.QSizePolicy(
             QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum))
     elif component in atomic_map['SIZING']['MINMAX']:
         widget.setSizePolicy(QtWidgets.QSizePolicy(
-                QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Maximum)) 
+            QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Maximum))
     elif component in atomic_map['SIZING']['MINMIN']:
         widget.setSizePolicy(QtWidgets.QSizePolicy(
             QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum))
