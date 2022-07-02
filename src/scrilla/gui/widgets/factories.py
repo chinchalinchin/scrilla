@@ -71,101 +71,100 @@ def atomic_widget_factory(component: str, title: str = None) -> Union[QtWidgets.
     Parameters
     ----------
     1. **component**: ``str``
-        Allowable values can be assessed through the `scrilla.gui.definitions.FACTORIES` dictionary, underneath the `TYPES` key. If `component=None` is provided, a `PySide6.QtWidgets.QWidget` will be constructed with a `PySide6.QtWidgets.QHBoxLayout` will be returned.
+        Allowable values can be assessed through the `scrilla.gui.definitions.FACTORIES['ATOMIC']` dictionary, underneath the successive `TYPES` key. If `component=None` is provided, a `PySide6.QtWidgets.QWidget` constructed with a `PySide6.QtWidgets.QHBoxLayout` will be returned.
+    2. **title**: ``str``
+        Name assigned to the widget.
     """
-    if component in gui_definitions.FACTORIES['LABEL']['TYPES']:
+    atomic_map = gui_definitions.FACTORIES['ATOMIC']
+
+    # Type Configuration
+    if component in atomic_map['LABEL']:
         # Template Configuration
-        if component in gui_definitions.FACTORIES['LABEL']['TEMPLATES']:
+        if component in atomic_map['TEMPLATE']:
             widget = QtWidgets.QLabel(utilities.load_html_template(component))
             widget.setWordWrap(True)
             widget.setOpenExternalLinks(True)
         else:
             widget = QtWidgets.QLabel(title)
-        # Alignment Configuration
-        if component in gui_definitions.FACTORIES['LABEL']['ALIGN']['TOP']:
-            widget.setAlignment(QtCore.Qt.AlignTop)
-        elif component in gui_definitions.FACTORIES['LABEL']['ALIGN']['LEFT']:
-            widget.setAlignment(QtCore.Qt.AlignLeft)
-        elif component in gui_definitions.FACTORIES['LABEL']['ALIGN']['HCENTER']:
-            widget.setAlignment(QtCore.Qt.AlignHCenter)
-        elif component in gui_definitions.FACTORIES['LABEL']['ALIGN']['BOTTOM']:
-            widget.setAlignment(QtCore.Qt.AlignBottom)
-        elif component in gui_definitions.FACTORIES['LABEL']['ALIGN']['CENTER']:
-            widget.setAlignment(QtCore.Qt.AlignCenter)
-        # Sizing Configuration
-        if component in gui_definitions.FACTORIES['LABEL']['SIZING']['EXPAND']:
-            widget.setSizePolicy(QtWidgets.QSizePolicy(
-                QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding))
-        elif component in gui_definitions.FACTORIES['LABEL']['SIZING']['MINMAX']:
-            widget.setSizePolicy(QtWidgets.QSizePolicy(
-                QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Maximum))        
-        widget.setObjectName(component)
-
-    elif component in gui_definitions.FACTORIES['BUTTON']['TYPES']:
-        # buttons with text
-        if component not in gui_definitions.FACTORIES['BUTTON']['TEXTUAL']:
+    elif component in atomic_map['BUTTON']:
+        if component in atomic_map['TITLED']:
             widget = QtWidgets.QPushButton(title)
-            widget.setSizePolicy(QtWidgets.QSizePolicy(
-                QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Maximum))
-
-        # icon buttons
         else:
             widget = QtWidgets.QPushButton()
-            widget.setSizePolicy(QtWidgets.QSizePolicy(
-                QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum))
-
-            # TODO: think about how to parametrize this in `scrilla.gui.definitions`
-            if component == 'hide-button':
-                widget.setToolTip('Hide')
-            elif component == 'clear-button':
-                widget.setToolTip('Cancel')
-            elif component == 'download-button':
-                widget.setToolTip('Save As')
-            elif component == 'source-button':
-                widget.setToolTip('View Source')
-            elif component == 'package-button':
-                widget.setToolTip('View PyPi Package')
-            elif component == 'documentation-button':
-                widget.setToolTip('View Documentation')
-            elif component == 'okay-button':
-                widget.setToolTip('Okay')
-
         widget.setAutoDefault(True)
         widget.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
-        widget.setObjectName(component)
-
-    elif component in gui_definitions.FACTORIES['DIALOG']['TYPES']:
+    elif component in atomic_map['DIALOG']:
         widget = QtWidgets.QFileDialog()
+        widget.setNameFilter(title)
         widget.setFileMode(QtWidgets.QFileDialog.AnyFile)
         widget.setViewMode(QtWidgets.QFileDialog.Detail)
-        widget.setNameFilter(title)
         widget.setAcceptMode(QtWidgets.QFileDialog.AcceptSave)
-
-    elif component in gui_definitions.FACTORIES['TABLE']['TYPES']:
+    elif component in atomic_map['TABLE']:
         widget = QtWidgets.QTableWidget()
         widget.setHorizontalHeader(QtWidgets.QHeaderView(QtCore.Qt.Horizontal))
         widget.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Stretch)
         widget.setVerticalHeader(QtWidgets.QHeaderView(QtCore.Qt.Vertical))
         widget.setSizeAdjustPolicy(
             QtWidgets.QAbstractScrollArea.AdjustToContents)
-        widget.setSizePolicy(QtWidgets.QSizePolicy(
-            QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum))
-        widget.setObjectName(component)
-
-    elif component in gui_definitions.FACTORIES['ITEM']['TYPES']:
+    elif component in atomic_map['ITEM']:
         widget = QtWidgets.QTableWidgetItem(title)
         widget.setTextAlignment(QtCore.Qt.AlignHCenter)
-
-    elif component in gui_definitions.FACTORIES['MENU']['TYPES']:
+    elif component in atomic_map['MENU']:
         widget = QtWidgets.QMenuBar()
 
     else:
         widget = QtWidgets.QWidget()
         widget.setLayout(QtWidgets.QHBoxLayout())
+        
+
+    # Size Configuration
+    if component in atomic_map['SIZING']['EXPANDEXPAND']:
+        widget.setSizePolicy(QtWidgets.QSizePolicy(
+                QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding))
+    elif component in atomic_map['SIZING']['EXPANDMIN']:
+        widget.setSizePolicy(QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum))
+    elif component in atomic_map['SIZING']['MINMAX']:
+        widget.setSizePolicy(QtWidgets.QSizePolicy(
+                QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Maximum)) 
+    elif component in atomic_map['SIZING']['MINMIN']:
         widget.setSizePolicy(QtWidgets.QSizePolicy(
             QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum))
-        widget.setObjectName(title)
+    elif component in atomic_map['SIZING']['MAXMAX']:
+        widget.setSizePolicy(QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum))
 
+    # Alignment Configuration
+    if component in atomic_map['ALIGN']['TOP']:
+        widget.setAlignment(QtCore.Qt.AlignTop)
+    elif component in atomic_map['ALIGN']['LEFT']:
+        widget.setAlignment(QtCore.Qt.AlignLeft)
+    elif component in atomic_map['ALIGN']['HCENTER']:
+        widget.setAlignment(QtCore.Qt.AlignHCenter)
+    elif component in atomic_map['ALIGN']['BOTTOM']:
+        widget.setAlignment(QtCore.Qt.AlignBottom)
+    elif component in atomic_map['ALIGN']['CENTER']:
+        widget.setAlignment(QtCore.Qt.AlignCenter)
+
+    # Type Specific Configuration
+    # TODO: think about how to parametrize this in `scrilla.gui.definitions
+    # could add a dictionary for tooltips and then use a generator-filter...`
+    if component == 'hide-button':
+        widget.setToolTip('Hide')
+    elif component == 'clear-button':
+        widget.setToolTip('Cancel')
+    elif component == 'download-button':
+        widget.setToolTip('Save As')
+    elif component == 'source-button':
+        widget.setToolTip('View Source')
+    elif component == 'package-button':
+        widget.setToolTip('View PyPi Package')
+    elif component == 'documentation-button':
+        widget.setToolTip('View Documentation')
+    elif component == 'okay-button':
+        widget.setToolTip('Okay')
+    if component not in atomic_map['ITEM']:
+        widget.setObjectName(component)
     return widget
 
 
@@ -207,32 +206,31 @@ def argument_widget_factory(component: str, title: str = None, optional: bool = 
     """
     widget = atomic_widget_factory(None, 'input-container')
     label_widget = atomic_widget_factory('footer', 'input-label')
-
-
+    arg_map = gui_definitions.FACTORIES['ARGUMENTS']
     # Type Configuration
-    if component in gui_definitions.FACTORIES['ARGUMENTS']['LINE']:
+    if component in arg_map['LINE']:
         main_widget = QtWidgets.QLineEdit()
-    elif component in gui_definitions.FACTORIES['ARGUMENTS']['DATE']:
+    elif component in arg_map['DATE']:
         main_widget = QtWidgets.QDateEdit()
-    elif component in gui_definitions.FACTORIES['ARGUMENTS']['RADIO']:
+    elif component in arg_map['RADIO']:
         main_widget = QtWidgets.QRadioButton(title)
     else:
         main_widget = QtWidgets.QWidget()
 
     # Sizing Configuration
-    if component in gui_definitions.FACTORIES['ARGUMENTS']['SIZING']['MAXMAX']:
+    if component in arg_map['SIZING']['MAXMAX']:
         main_widget.setSizePolicy(QtWidgets.QSizePolicy(
             QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum))
-    elif component in gui_definitions.FACTORIES['ARGUMENTS']['SIZING']['MINMAX']:
+    elif component in arg_map['SIZING']['MINMAX']:
         main_widget.setSizePolicy(QtWidgets.QSizePolicy(
             QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Maximum))
 
     # Constraint Configuration
-    if component in gui_definitions.FACTORIES['ARGUMENTS']['CONSTRAINTS']['LENGTH']:
+    if component in arg_map['CONSTRAINTS']['LENGTH']:
         main_widget.setMaxLength(100)
 
     # Initial Disabled Configuration
-    if component in gui_definitions.FACTORIES['ARGUMENTS']['DISABLED']:
+    if component in arg_map['DISABLED']:
         main_widget.setEnabled(False)
 
     # Type Specific Configuration

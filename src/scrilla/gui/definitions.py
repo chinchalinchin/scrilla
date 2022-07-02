@@ -80,40 +80,32 @@ MENUBAR_WIDGET = {
     ],
 }
 
+# TODO: unnest align, sizing and templates and include on the level underneath 'ATOMIC'. Then the conditionals in `atomic_widget_factory` can have their complexity reduced AND all atomic widgets will have property configuration.
 FACTORIES = {
-    'LABEL': {
-        'TYPES': [ 'title', 'subtitle', 'heading', 'label', 'error', 'text', 'splash', 'figure', 'footer'],
-        'TEMPLATES': [ 'splash' ],
+    'ATOMIC':{
+        'TYPES': ['widget', 'title', 'subtitle', 'heading', 'label', 'error', 'text', 'splash', 'figure', 'footer','calculate-button', 'clear-button', 'hide-button', 'download-button', 'source-button', 'package-button', 'documentation-button', 'okay-button', 'button','save-dialog' , 'table', 'table-item', 'menu-bar'],
+        'LABEL': ['title', 'subtitle', 'heading', 'label', 'error', 'text', 'splash', 'figure', 'footer'],
+        'BUTTON':  [ 'calculate-button', 'clear-button', 'hide-button', 'download-button', 'source-button', 'package-button', 'documentation-button', 'okay-button', 'button'],
+        'DIALOG': [ 'save-dialog' ],
+        'TABLE':  [ 'table' ],
+        'ITEM': [ 'table-item' ],
+        'MENU': [ 'menu-bar' ],
+        'SIZING':{
+            'EXPANDEXPAND': [ 'figure' ],
+            'EXPANDMIN': [ 'table' ],
+            'MINMAX': [ 'splash', 'hide-button', 'download-button', 'source-button' ],
+            'MAXMAX': [ 'calculate-button', 'clear-button', 'package-button', 'documentation-button', 'okay-button', 'button'],
+            'MINMIN': [ 'widget' ]
+        },
         'ALIGN': {
-            'TOP': [ 'title', 'subtitle', 'label' ],
-            'LEFT': [ 'heading' ],
-            'CENTER': [ 'figure' ],
-            'HCENTER': [ 'error' ],
-            'BOTTOM': [ 'text', 'footer' ]
+                'TOP': [ 'title', 'subtitle', 'label' ],
+                'LEFT': [ 'heading' ],
+                'CENTER': [ 'figure' ],
+                'HCENTER': [ 'error' ],
+                'BOTTOM': [ 'text', 'footer' ]
         },
-        'SIZING': {
-            'EXPAND':[ 'figure' ],
-            'MINMAX': [ 'splash' ]
-        },
-    },
-    'BUTTON': {
-        'TYPES': [ 'calculate-button', 'clear-button', 'hide-button', 'download-button', 
-                    'source-button', 'package-button', 'documentation-button', 'okay-button', 
-                    'button'],
-        'TEXTUAL': [ 'hide-button', 'download-button', 'source-button']
-        
-    },
-    'DIALOG': {
-        'TYPES': [ 'save-dialog' ]
-    },
-    'TABLE': {
-        'TYPES': [ 'table' ]
-    },
-    'ITEM': {
-        'TYPES': [ 'table-item' ]
-    },
-    'MENU': {
-        'TYPES': [ 'menu-bar' ]
+        'TEMPLATE': [ 'splash' ],
+        'TITLED': [ 'hide-button', 'download-button', 'source-button']
     },
     'ARGUMENTS': {
         'TYPES': [ 'date', 'decimal', 'currency', 'integer', 'flag', 'symbol', 'symbols'],
