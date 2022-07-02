@@ -53,3 +53,6 @@ def test_dialog_widget_factory(qtbot):
     assert isinstance(option_widget, QtWidgets.QComboBox)
     for i, opt in enumerate(options):
         assert option_widget.itemText(i) == opt
+
+def test_group_widget_factory(qtbot):
+    pass

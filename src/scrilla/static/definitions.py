@@ -519,21 +519,22 @@ ARG_DICT = {
     }
 }
 """
-A dictionary containing configuration information for application arguments. This dictionary is used at various points in the library, such as `scrilla.gui.widgets.functions` and `scrilla.util.helper`, to parse construct and parse input elements.
+A dictionary containing configuration information for application arguments. This dictionary is used at various points in the library, such as `scrilla.gui.widgets.functions` and `scrilla.util.helper`, to construct and parse input elements.
 
 .. notes::
-    * Every argument has four ways of being inputted: short-dash-long, long-dash-long, short-dash-short, long-dash-short, e.g. the following commands are all equivalent,
-    ```
+    - Every argument has four ways of being inputted into the CLI: short-dash-long, long-dash-long, short-dash-short, long-dash-short, e.g. the following commands are all equivalent,
+    ```shell
     scrilla risk-profile LMT GD LNT -json
     ```
-    ```
+    ```shell
     scrilla risk-profile LMT GD LNT --json
     ```
-    ```
+    ```shell
     scrilla risk-profile LMT GD LNT -js
     ```
-    ```
+    ```shell
     scrilla risk-profile LMT GD LNT --js
     ```
-    * arguments with a format of `group` are mutually exclusively modes, similar to a radio button.
+    - arguments with a format of `group` are mutually exclusively modes, similar to a radio button. Indeed, group arguments are translated into `PySide6.QtWidgets.QRadioButtons` in `scrilla.gui.widgets.factories.group_widget_factory`.
+    - The attribute `cli_only` determes which arguments are available as GUI widgets and which arguments are only accessible through the command line interface (cli).
 """

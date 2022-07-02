@@ -156,7 +156,7 @@ def atomic_widget_factory(component: str, title: str = None) -> Union[QtWidgets.
         widget = QtWidgets.QTableWidgetItem(title)
         widget.setTextAlignment(QtCore.Qt.AlignHCenter)
 
-    elif component in ['menu-bar']:
+    elif component in gui_definitions.FACTORIES['MENU']['TYPES']:
         widget = QtWidgets.QMenuBar()
 
     else:
@@ -169,6 +169,16 @@ def atomic_widget_factory(component: str, title: str = None) -> Union[QtWidgets.
 
 
 def group_widget_factory(components: List[str], title: str):
+    """
+    Embeds a group of `PySide6.QtWidgets.QRadioButton` in a `PySide6.QtWidgets.GroupBox` with a vertical layout.
+
+    Parameters
+    ----------
+    1. **components**: ``List[str]``
+        A list of strings containing the text used for the radio button's display. Order of list corresponds to the displayed order of buttons.
+    2. **title**: ``str``
+        Title assigned to the container of the radio buttons, `PySide6.QtWidgets.GroupBox`.
+    """
     widget_layout = QtWidgets.QVBoxLayout()
 
     for i, component in enumerate(components):
