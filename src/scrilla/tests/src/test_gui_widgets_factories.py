@@ -80,3 +80,15 @@ def test_argument_widget_factory(qtbot, component, expected_type):
     assert isinstance(widget, QtWidgets.QWidget)
     assert isinstance(label_widget, QtWidgets.QLabel)
     assert isinstance(arg_widget, expected_type) 
+
+def test_set_policy_on_widget_list(qtbot):
+    widgets = [QtWidgets.QWidget() for _ in range(0, 10)]
+
+    policy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Maximum, 
+                                    QtWidgets.QSizePolicy.Maximum)
+    factories.set_policy_on_widget_list(widgets, policy)
+    assert all(isinstance(widget.sizePolicy(),QtWidgets.QSizePolicy) for widget in widgets)
+    assert all(isinstance(widget.sizePolicy().verticalPolicy(),
+                            QtWidgets.QSizePolicy.Policy) for widget in widgets)
+    assert all(isinstance(widget.sizePolicy().horizontalPolicy(),
+                            QtWidgets.QSizePolicy.Policy) for widget in widgets)

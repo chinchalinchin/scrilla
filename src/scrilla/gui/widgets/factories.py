@@ -207,12 +207,6 @@ def argument_widget_factory(component: str, title: str = None, optional: bool = 
     widget = atomic_widget_factory(None, None)
     widget.setObjectName('input-container')
 
-    if optional:
-        toggle_widget = QtWidgets.QCheckBox()
-        toggle_widget.setObjectName('input-toggle')
-        toggle_widget.setSizePolicy(QtWidgets.QSizePolicy(
-            QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum))
-
     label_widget = QtWidgets.QLabel(title)
     label_widget.setAlignment(QtCore.Qt.AlignBottom)
     label_widget.setObjectName('input-label')
@@ -226,6 +220,7 @@ def argument_widget_factory(component: str, title: str = None, optional: bool = 
         main_widget = QtWidgets.QRadioButton(title)
     else:
         main_widget = QtWidgets.QWidget()
+
     # Sizing Configuration
     if component in gui_definitions.FACTORIES['ARGUMENTS']['SIZING']['MAXMAX']:
         main_widget.setSizePolicy(QtWidgets.QSizePolicy(
@@ -233,12 +228,15 @@ def argument_widget_factory(component: str, title: str = None, optional: bool = 
     elif component in gui_definitions.FACTORIES['ARGUMENTS']['SIZING']['MINMAX']:
         main_widget.setSizePolicy(QtWidgets.QSizePolicy(
             QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Maximum))
+
     # Constraint Configuration
     if component in gui_definitions.FACTORIES['ARGUMENTS']['CONSTRAINTS']['LENGTH']:
         main_widget.setMaxLength(100)
+
     # Initial Disabled Configuration
     if component in gui_definitions.FACTORIES['ARGUMENTS']['DISABLED']:
         main_widget.setEnabled(False)
+
     # Type Specific Configuration
     if component == 'date':
         main_widget.setDate(QtCore.QDate.currentDate())
@@ -263,6 +261,10 @@ def argument_widget_factory(component: str, title: str = None, optional: bool = 
     widget.layout().addWidget(main_widget)
 
     if optional:
+        toggle_widget = QtWidgets.QCheckBox()
+        toggle_widget.setObjectName('input-toggle')
+        toggle_widget.setSizePolicy(QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum))
         toggle_widget.stateChanged.connect(
             lambda: main_widget.setEnabled((not main_widget.isEnabled())))
         widget.layout().addWidget(toggle_widget)
