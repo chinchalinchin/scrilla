@@ -217,67 +217,48 @@ def argument_widget_factory(component: str, title: str = None, optional: bool = 
     label_widget.setAlignment(QtCore.Qt.AlignBottom)
     label_widget.setObjectName('input-label')
 
-    if component == 'date':
+    # Type Configuration
+    if component in gui_definitions.FACTORIES['ARGUMENTS']['LINE']:
+        main_widget = QtWidgets.QLineEdit()
+    elif component in gui_definitions.FACTORIES['ARGUMENTS']['DATE']:
         main_widget = QtWidgets.QDateEdit()
+    elif component in gui_definitions.FACTORIES['ARGUMENTS']['RADIO']:
+        main_widget = QtWidgets.QRadioButton(title)
+    else:
+        main_widget = QtWidgets.QWidget()
+    # Sizing Configuration
+    if component in gui_definitions.FACTORIES['ARGUMENTS']['SIZING']['MAXMAX']:
+        main_widget.setSizePolicy(QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum))
+    elif component in gui_definitions.FACTORIES['ARGUMENTS']['SIZING']['MINMAX']:
+        main_widget.setSizePolicy(QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Maximum))
+    # Constraint Configuration
+    if component in gui_definitions.FACTORIES['ARGUMENTS']['CONSTRAINTS']['LENGTH']:
+        main_widget.setMaxLength(100)
+    # Initial Disabled Configuration
+    if component in gui_definitions.FACTORIES['ARGUMENTS']['DISABLED']:
+        main_widget.setEnabled(False)
+    # Type Specific Configuration
+    if component == 'date':
         main_widget.setDate(QtCore.QDate.currentDate())
         main_widget.setMaximumDate(QtCore.QDate.currentDate())
         main_widget.setMinimumDate(QtCore.QDate(
             constants.constants['PRICE_YEAR_CUTOFF'], 1, 1))
-        main_widget.setObjectName(component)
-        main_widget.setEnabled(False)
-
     elif component == 'decimal':
-        main_widget = QtWidgets.QLineEdit()
-        main_widget.setObjectName(component)
         main_widget.setValidator(
             QtGui.QDoubleValidator(-100, 100, 5, main_widget))
-        main_widget.setEnabled(False)
-        main_widget.setSizePolicy(QtWidgets.QSizePolicy(
-            QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum))
-
     elif component == 'currency':
-        main_widget = QtWidgets.QLineEdit()
-        main_widget.setObjectName(component)
         # https://stackoverflow.com/questions/354044/what-is-the-best-u-s-currency-regex
         main_widget.setValidator(QtGui.QRegularExpressionValidator(
             r"[+-]?[0-9]{1,3}(?:,?[0-9]{3})*(?:\.[0-9]{2})", main_widget))
-        main_widget.setEnabled(False)
-        main_widget.setSizePolicy(QtWidgets.QSizePolicy(
-            QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum))
-
     elif component == 'integer':
-        main_widget = QtWidgets.QLineEdit()
-        main_widget.setObjectName(component)
         main_widget.setValidator(QtGui.QIntValidator(0, 100, main_widget))
-        main_widget.setEnabled(False)
-        main_widget.setSizePolicy(QtWidgets.QSizePolicy(
-            QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum))
-
-    elif component == 'flag':
-        main_widget = QtWidgets.QRadioButton(title)
-        main_widget.setObjectName(component)
-        main_widget.setSizePolicy(QtWidgets.QSizePolicy(
-            QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum))
-
-    elif component == 'symbols':
-        main_widget = QtWidgets.QLineEdit()
-        main_widget.setObjectName(component)
-        main_widget.setMaxLength(100)
-        main_widget.setSizePolicy(QtWidgets.QSizePolicy(
-            QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Maximum))
-
     elif component == 'symbol':
-        main_widget = QtWidgets.QLineEdit()
-        main_widget.setObjectName(component)
-        main_widget.setMaxLength(100)
-        main_widget.setSizePolicy(QtWidgets.QSizePolicy(
-            QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Maximum))
         main_widget.setValidator(
             QtGui.QRegularExpressionValidator(r"[A-Za-z]+", main_widget))
 
-    else:
-        main_widget = QtWidgets.QWidget()
-
+    main_widget.setObjectName(component)
     widget.layout().addWidget(label_widget)
     widget.layout().addWidget(main_widget)
 

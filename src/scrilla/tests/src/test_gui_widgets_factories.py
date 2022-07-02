@@ -63,3 +63,20 @@ def test_group_widget_factory(qtbot):
         assert isinstance(radio, QtWidgets.QRadioButton)
         assert radio.text() == options[i]
 
+@pytest.mark.parametrize('component,expected_type',[
+    ('date', QtWidgets.QDateEdit),
+    ('decimal', QtWidgets.QLineEdit),
+    ('currency', QtWidgets.QLineEdit),
+    ('integer', QtWidgets.QLineEdit),
+    ('flag', QtWidgets.QRadioButton),
+    ('symbols', QtWidgets.QLineEdit),
+    ('symbol', QtWidgets.QLineEdit),
+    ('randomstring', QtWidgets.QWidget)
+])
+def test_argument_widget_factory(qtbot, component, expected_type):
+    widget = factories.argument_widget_factory(component, 'argument placeholder')
+    label_widget = widget.layout().itemAt(0).widget()
+    arg_widget = widget.layout().itemAt(1).widget()
+    assert isinstance(widget, QtWidgets.QWidget)
+    assert isinstance(label_widget, QtWidgets.QLabel)
+    assert isinstance(arg_widget, expected_type) 

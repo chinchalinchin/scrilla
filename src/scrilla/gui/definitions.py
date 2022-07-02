@@ -114,5 +114,19 @@ FACTORIES = {
     },
     'MENU': {
         'TYPES': [ 'menu-bar' ]
+    },
+    'ARGUMENTS': {
+        'TYPES': [ 'date', 'decimal', 'currency', 'integer', 'flag', 'symbol', 'symbols'],
+        'LINE': [ 'decimal', 'currency', 'integer', 'symbol', 'symbols'],
+        'DATE': [ 'date' ],
+        'RADIO': [ 'flag' ],
+        'SIZING':{
+            'MAXMAX': [ 'decimal', 'currency', 'integer', 'flag' ],
+            'MINMAX': [ 'symbol', 'symbols' ]
+        },
+        'CONSTRAINTS': {
+            'LENGTH': ['symbol', 'symbols']
+        },
+        'DISABLED': [ 'date', 'decimal', 'currency', 'integer']
     }
 }
