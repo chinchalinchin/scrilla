@@ -30,11 +30,20 @@ def test_decrement_date_by_business_days(start_date, days, bond, result):
 
 
 @pytest.mark.parametrize('start_date,end_date,length', [
+    ('2021-01-01', '2021-01-01', 1),
     ('2021-11-04', '2021-11-06', 3),
     ('2020-01-01', '2020-02-05', 36)
 ])
 def test_dates_between(start_date, end_date, length):
     date_range = dater.dates_between(start_date, end_date)
-    assert(len(date_range) == length)
-    assert(dater.parse(start_date) in date_range)
-    assert(dater.parse(end_date) in date_range)
+    assert len(date_range) == length
+    assert dater.parse(start_date) in date_range
+    assert dater.parse(end_date) in date_range
+
+@pytest.mark.parametrize('start_date,end_date,length', [
+    ('2022-06-01', '2022-06-07',5),
+    ('2021-12-23', '2021-12-27', 2)
+])
+def test_business_dates_between(start_date, end_date, length):
+    date_range = dater.business_dates_between(start_date, end_date)
+    assert len(date_range) == length
