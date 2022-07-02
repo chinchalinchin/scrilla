@@ -80,12 +80,16 @@ MENUBAR_WIDGET = {
     ],
 }
 
-# TODO: unnest align, sizing and templates and include on the level underneath 'ATOMIC'. Then the conditionals in `atomic_widget_factory` can have their complexity reduced AND all atomic widgets will have property configuration.
 FACTORIES = {
     'ATOMIC':{
-        'TYPES': ['widget', 'title', 'subtitle', 'heading', 'label', 'error', 'text', 'splash', 'figure', 'footer','calculate-button', 'clear-button', 'hide-button', 'download-button', 'source-button', 'package-button', 'documentation-button', 'okay-button', 'button','save-dialog' , 'table', 'table-item', 'menu-bar'],
-        'LABEL': ['title', 'subtitle', 'heading', 'label', 'error', 'text', 'splash', 'figure', 'footer'],
-        'BUTTON':  [ 'calculate-button', 'clear-button', 'hide-button', 'download-button', 'source-button', 'package-button', 'documentation-button', 'okay-button', 'button'],
+        'TYPES': ['widget', 'title', 'subtitle', 'heading', 'label', 'error', 'text', 
+            'splash', 'figure', 'footer','calculate-button', 'clear-button', 'hide-button', 
+            'download-button', 'source-button', 'package-button', 'documentation-button', 
+            'okay-button', 'button','save-dialog' , 'table', 'table-item', 'menu-bar'],
+        'LABEL': ['title', 'subtitle', 'heading', 'label', 'error', 'text', 'splash', 'figure', 
+            'footer'],
+        'BUTTON':  [ 'calculate-button', 'clear-button', 'hide-button', 'download-button', 
+            'source-button', 'package-button', 'documentation-button', 'okay-button', 'button'],
         'DIALOG': [ 'save-dialog' ],
         'TABLE':  [ 'table' ],
         'ITEM': [ 'table-item' ],
@@ -94,7 +98,8 @@ FACTORIES = {
             'EXPANDEXPAND': [ 'figure' ],
             'EXPANDMIN': [ 'table' ],
             'MINMAX': [ 'splash', 'hide-button', 'download-button', 'source-button' ],
-            'MAXMAX': [ 'calculate-button', 'clear-button', 'package-button', 'documentation-button', 'okay-button', 'button'],
+            'MAXMAX': [ 'calculate-button', 'clear-button', 'package-button', 'documentation-button', 
+                'okay-button', 'button'],
             'MINMIN': [ 'widget' ]
         },
         'ALIGN': {
