@@ -82,14 +82,14 @@ MENUBAR_WIDGET = {
 
 FACTORIES = {
     'LABEL': {
-        'TYPES': [ 'title', 'subtitle', 'heading', 'label', 'error', 'text', 'splash', 'figure'],
+        'TYPES': [ 'title', 'subtitle', 'heading', 'label', 'error', 'text', 'splash', 'figure', 'footer'],
         'TEMPLATES': [ 'splash' ],
         'ALIGN': {
             'TOP': [ 'title', 'subtitle', 'label' ],
             'LEFT': [ 'heading' ],
             'CENTER': [ 'figure' ],
             'HCENTER': [ 'error' ],
-            'BOTTOM': [ 'text' ]
+            'BOTTOM': [ 'text', 'footer' ]
         },
         'SIZING': {
             'EXPAND':[ 'figure' ],

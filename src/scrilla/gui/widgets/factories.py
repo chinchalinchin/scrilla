@@ -164,11 +164,12 @@ def atomic_widget_factory(component: str, title: str = None) -> Union[QtWidgets.
         widget.setLayout(QtWidgets.QHBoxLayout())
         widget.setSizePolicy(QtWidgets.QSizePolicy(
             QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum))
+        widget.setObjectName(title)
 
     return widget
 
 
-def group_widget_factory(components: List[str], title: str):
+def group_widget_factory(components: List[str], title: str) -> QtWidgets.QGroupBox:
     """
     Embeds a group of `PySide6.QtWidgets.QRadioButton` in a `PySide6.QtWidgets.GroupBox` with a vertical layout.
 
@@ -204,12 +205,9 @@ def argument_widget_factory(component: str, title: str = None, optional: bool = 
     1. **components** : ``str``
         Allowable values: `date`, `decimal`, `currency`, `integer`, `select`, `flag`, `symbols`, `symbol`. If `components=None`, a `PySide6.QtWidgets.QWidget` will be returned.
     """
-    widget = atomic_widget_factory(None, None)
-    widget.setObjectName('input-container')
+    widget = atomic_widget_factory(None, 'input-container')
+    label_widget = atomic_widget_factory('footer', 'input-label')
 
-    label_widget = QtWidgets.QLabel(title)
-    label_widget.setAlignment(QtCore.Qt.AlignBottom)
-    label_widget.setObjectName('input-label')
 
     # Type Configuration
     if component in gui_definitions.FACTORIES['ARGUMENTS']['LINE']:
@@ -272,6 +270,11 @@ def argument_widget_factory(component: str, title: str = None, optional: bool = 
     return widget
 
 
-def set_policy_on_widget_list(widget_list: List[QtWidgets.QWidget], policy: QtWidgets.QSizePolicy):
+def set_policy_on_widget_list(widget_list: List[QtWidgets.QWidget], policy: QtWidgets.QSizePolicy) -> None:
+    """
+    Sets the same policy on a list of widgets.
+
+    Parameters
+    """
     for widget in widget_list:
         widget.setSizePolicy(policy)
