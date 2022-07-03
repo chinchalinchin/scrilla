@@ -9,6 +9,27 @@ from scrilla.static import definitions, constants
 def generate_control_skeleton() -> Dict[str, bool]:
     """
     Generates a control dictionary with all argument controls initialized to `False` using the `scrilla.static.definitions.ARG_DICT`. This dictionary is used to configured the input widgets enabled on `scrilla.gui.widgets.components.ArgumentWidget`. By switching controls in this dictionary on before passing it into the constructor, the widgets for that specific input control will be displayed on `scrilla.gui.widgets.components.ArgumentWidget`.
+
+    .. notes ::
+        - Output will be formatted as follows,
+            ```python
+            {
+                'criteria': False,
+                'discount': False,
+                'end_date': False,
+                'expiry': False,
+                'investment': False,
+                'likelihood': False,
+                'moments': False,
+                'optimize_sharpe': False,
+                'percentiles': False,
+                'probability': False,
+                'start_date': False,
+                'steps': False,
+                'target': False
+            }
+            ```
+        - Function widgets from `scrilla.gui.widgets.function` will filter through the `scrilla.static.definitions.FUNC_DICT` dictionary to determine which arguments are enabled for a given function.
     """
     return {arg: False for arg in definitions.ARG_DICT if not definitions.ARG_DICT[arg]['cli_only']}
 

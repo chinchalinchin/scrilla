@@ -2,6 +2,8 @@ from scrilla.gui.widgets.functions import CorrelationWidget, DiscountDividendWid
     EfficientFrontierWidget, MovingAverageWidget, OptimizerWidget, \
     RiskProfileWidget, YieldCurveWidget
 
+# using literal class here causes circular import
+
 FUNC_WIDGETS = {
     'correlation': {
         'name': 'Correlation Matrix',

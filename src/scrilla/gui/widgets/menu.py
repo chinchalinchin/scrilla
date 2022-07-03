@@ -20,10 +20,27 @@ from PySide6 import QtCore, QtWidgets, QtGui
 from scrilla import settings
 
 from scrilla.gui import utilities, definitions
-from scrilla.gui.widgets import factories
+from scrilla.gui.widgets import factories, functions
 
 # NOTE: widget_buttons and function_widgets must preserve order.
 
+def _to_class(name: str):
+    if name == 'correlation':
+        return functions.CorrelationWidget
+    if name == 'plot_return_dist':
+        return functions.DistributionWidget
+    if name == 'yield_curve':
+        return functions.YieldCurveWidget
+    if name == 'discount_dividend':
+        return functions.DiscountDividendWidget
+    if name == 'risk_profile':
+        return functions.RiskProfileWidget
+    if name == 'optimize_portfolio':
+        return functions.OptimizerWidget
+    if name == 'efficient_frontier':
+        return functions.EfficientFrontierWidget
+    if name == 'moving_averages':
+        return functions.MovingAverageWidget
 
 class MenuWidget(QtWidgets.QWidget):
     """
@@ -111,7 +128,7 @@ class MenuWidget(QtWidgets.QWidget):
         self.exit_button = factories.atomic_widget_factory(
             component='button', title="Exit")
 
-        self.function_widgets = [function['class'](
+        self.function_widgets = [_to_class(function['name'])(
             'great-grand-child', self) for function in definitions.FUNC_WIDGETS.values()]
 
         self.display_pane = factories.layout_factory(layout='vertical-box')

@@ -42,27 +42,4 @@
 
 63. internal correlation cache
 
-
-BUGS
-----
-
-1. first install, no cache:
-    scrilla cvar [ticker] -start <start> -end <end>
-    outputs: 
-    ```
-        Traceback (most recent call last):
-    File "/home/chinchalinchin/.local/bin/scrilla", line 8, in <module>
-        sys.exit(scrilla())
-    File "/home/chinchalinchin/.local/lib/python3.8/site-packages/scrilla/main.py", line 1116, in scrilla
-        do_program(sys.argv[1:])
-    File "/home/chinchalinchin/.local/lib/python3.8/site-packages/scrilla/main.py", line 1106, in do_program
-        validate_function_usage(selection=args['function_arg'],
-    File "/home/chinchalinchin/.local/lib/python3.8/site-packages/scrilla/main.py", line 56, in validate_function_usage
-        wrapper_function()
-    File "/home/chinchalinchin/.local/lib/python3.8/site-packages/scrilla/main.py", line 280, in cli_cvar
-        valueatrisk = percentile(S0=latest_price,
-    File "/home/chinchalinchin/.local/lib/python3.8/site-packages/scrilla/analysis/models/geometric/probability.py", line 189, in percentile
-        return (S0*exp(exponent))
-    TypeError: can't multiply sequence by non-int of type 'float'
-    ```
-    First time, but not after.
+64. exponential moving averages. also, there has to be a better way of calculating moving averages than the way it is currently being done. research recursive ma algorithms.
