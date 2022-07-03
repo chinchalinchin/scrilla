@@ -6,27 +6,27 @@ FUNC_WIDGETS = {
         'shortcut': 'Ctrl+1',
         'group': 'analysis'
     },
-    'dividend': {
+    'discount_dividend': {
         'name': 'Discount Dividend Model',
         'shortcut': 'Ctrl+2',
         'group': 'analysis'
     },
-    'distribution': {
+    'plot_return_dist': {
         'name': 'Distribution of Returns',
         'shortcut': 'Ctrl+7',
         'group': 'analysis'
     },
-    'frontier': {
+    'efficient_frontier': {
         'name': 'Efficient Frontiers',
         'shortcut': 'Ctrl+3',
         'group': 'analysis'
     },
-    'averages': {
+    'moving_averages': {
         'name': 'Moving Averages',
         'shortcut': 'Ctrl+4',
         'group': 'analysis'
     },
-    'optimize': {
+    'optimize_portfolio': {
         'name': 'Portfolio Optimization',
         'shortcut': 'Ctrl+5',
         'group': 'allocation'
