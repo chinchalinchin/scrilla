@@ -100,7 +100,7 @@ from scrilla.gui.widgets import components
         {
             'criteria': False,
             'discount': False,
-            'end_date': False,
+            'end_date': True,
             'expiry': False,
             'investment': False,
             'likelihood': True,
@@ -134,5 +134,5 @@ from scrilla.gui.widgets import components
     # TODO: plot_return_dist 
 ])
 def test_skeleton_widget(qtbot, func_name, expected_conf):
-    skeleton = components.SkeletonWidget(func_name, QtWidgets.QWidget)
+    skeleton = components.SkeletonWidget(func_name, QtWidgets.QWidget())
     assert skeleton.controls == expected_conf
