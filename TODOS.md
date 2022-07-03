@@ -43,3 +43,5 @@
 63. internal correlation cache
 
 64. exponential moving averages. also, there has to be a better way of calculating moving averages than the way it is currently being done. research recursive ma algorithms.
+
+65. labels have disappeared from the gui after your brilliant refactoring. great job.
