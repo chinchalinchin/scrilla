@@ -303,7 +303,7 @@ def business_dates_between(start_date: Union[date, str], end_date: Union[date, s
 
 def business_days_between(start_date: Union[date, str], end_date: Union[date, str], bond: bool = False) -> List[int]:
     start_date, end_date = validate_date_range(start_date, end_date)
-    dates = business_dates_between(start_date, end_date)
+    dates = business_dates_between(start_date, end_date, bond)
     return len(dates)
 
 
