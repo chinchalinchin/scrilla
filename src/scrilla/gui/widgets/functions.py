@@ -19,6 +19,7 @@ from PySide6 import QtGui, QtCore, QtWidgets
 
 from scrilla import settings, services
 from scrilla.static import keys
+from scrilla.static import formats as app_formats
 # TODO: conditional import based on ANALYSIS_MODE
 from scrilla.analysis import estimators, markets, optimizer, plotter
 from scrilla.analysis.models.geometric import statistics
@@ -359,9 +360,9 @@ class CorrelationWidget(components.SkeletonWidget):
             for i in range(0, len(symbols)):
                 for j in range(i, len(symbols)):
                     item_upper = factories.atomic_widget_factory(
-                        component='table-item', title=helper.format_float_percent(matrix[i][j]))
+                        component='table-item', title=app_formats.format_float_percent(matrix[i][j]))
                     item_lower = factories.atomic_widget_factory(
-                        component='table-item', title=helper.format_float_percent(matrix[j][i]))
+                        component='table-item', title=app_formats.format_float_percent(matrix[j][i]))
                     self.table_widget.table.setItem(j, i, item_upper)
                     self.table_widget.table.setItem(i, j, item_lower)
         else:
@@ -437,7 +438,7 @@ class OptimizerWidget(components.SkeletonWidget):
 
             for i in range(len(symbols)):
                 item = factories.atomic_widget_factory(
-                    component='table-item', title=helper.format_float_percent(allocation[i]))
+                    component='table-item', title=app_formats.format_float_percent(allocation[i]))
                 self.table_widget.table.setItem(i, 0, item)
 
                 if investment is not None:

@@ -100,7 +100,8 @@ FACTORIES = {
                 'BOTTOM': [ 'text', 'footer' ]
         },
         'TEMPLATE': [ 'splash' ],
-        'TITLED': [ 'hide-button', 'download-button', 'source-button']
+        'TITLED': [ 'hide-button', 'download-button', 'source-button'],
+        'UNTITLED': [ 'input-label' ]
     },
     'ARGUMENTS': {
         'TYPES': [ 'date', 'decimal', 'currency', 'integer', 'flag', 'symbol', 'symbols'],

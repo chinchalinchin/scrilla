@@ -105,7 +105,9 @@ def atomic_widget_factory(component: str, title: str = None) -> Union[QtWidgets.
             widget = QtWidgets.QLabel(utilities.load_html_template(component))
             widget.setWordWrap(True)
             widget.setOpenExternalLinks(True)
-        else:
+        elif component in atomic_map['UNTITLED']:
+            widget = QtWidgets.QLabel()
+        else: 
             widget = QtWidgets.QLabel(title)
     elif component in atomic_map['BUTTON']:
         widget = QtWidgets.QPushButton(title)
@@ -225,7 +227,7 @@ def argument_widget_factory(component: str, title: str = None, optional: bool = 
         Allowable values: `date`, `decimal`, `currency`, `integer`, `select`, `flag`, `symbols`, `symbol`. If `components=None`, a `PySide6.QtWidgets.QWidget` will be returned.
     """
     widget = atomic_widget_factory(None, 'input-container')
-    label_widget = atomic_widget_factory('footer', 'input-label')
+    label_widget = atomic_widget_factory('input-label')
     arg_map = gui_definitions.FACTORIES['ARGUMENTS']
     # Type Configuration
     if component in arg_map['LINE']:
