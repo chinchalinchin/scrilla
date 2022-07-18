@@ -129,7 +129,7 @@ class MenuWidget(QtWidgets.QWidget):
             component='button', title="Exit")
 
         self.function_widgets = [_to_class(function)(
-            'great-grand-child', self) for function in definitions.FUNC_WIDGETS.keys()]
+            'great-grand-child', self) for function in definitions.FUNC_WIDGETS]
 
         self.display_pane = factories.layout_factory(layout='vertical-box')
         self.display_pane.setObjectName('grand-child')
