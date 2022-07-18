@@ -108,10 +108,7 @@ def atomic_widget_factory(component: str, title: str = None) -> Union[QtWidgets.
         else:
             widget = QtWidgets.QLabel(title)
     elif component in atomic_map['BUTTON']:
-        if component in atomic_map['TITLED']:
-            widget = QtWidgets.QPushButton(title)
-        else:
-            widget = QtWidgets.QPushButton()
+        widget = QtWidgets.QPushButton(title)
         widget.setAutoDefault(True)
         widget.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
     elif component in atomic_map['DIALOG']:
@@ -184,8 +181,10 @@ def atomic_widget_factory(component: str, title: str = None) -> Union[QtWidgets.
         widget.setToolTip('View Documentation')
     elif component == 'okay-button':
         widget.setToolTip('Okay')
+
     if component not in atomic_map['ITEM']:
         widget.setObjectName(component)
+
     return widget
 
 

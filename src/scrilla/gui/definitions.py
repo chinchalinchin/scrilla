@@ -87,9 +87,9 @@ FACTORIES = {
         'SIZING':{
             'EXPANDEXPAND': [ 'figure' ],
             'EXPANDMIN': [ 'table' ],
-            'MINMAX': [ 'splash', 'hide-button', 'download-button', 'source-button' ],
-            'MAXMAX': [ 'calculate-button', 'clear-button', 'package-button', 'documentation-button', 
-                'okay-button', 'button'],
+            'MINMAX': [ 'splash', 'calculate-button', 'clear-button', 'package-button', 'documentation-button', 
+                'okay-button', 'button' ],
+            'MAXMAX': [ 'hide-button', 'download-button', 'source-button', ],
             'MINMIN': [ 'widget' ]
         },
         'ALIGN': {

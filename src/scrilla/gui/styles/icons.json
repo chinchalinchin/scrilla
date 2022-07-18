@@ -33,6 +33,6 @@
     },
     "$okay": {
         "pressed": "okay-sharp.svg",
-        "unpresssed": "okay.svg"
+        "unpressed": "okay.svg"
     }
 }
