@@ -76,18 +76,24 @@ class Cache():
                 if isinstance(formatter, list):
                     response = executor.executemany(
                         query, formatter).fetchall()
-                else:
-                    response = executor.execute(query, formatter).fetchall()
-            else:
-                response = executor.execute(query).fetchall()
+                    con.commit(), con.close()
+                    return response
+                
+                response = executor.execute(query, formatter)
+                response = response.fetchall()
+                con.commit(), con.close()
+                return response
+
+            response = executor.execute(query).fetchall()
             con.commit(), con.close()
+            return response
+
         elif mode == 'dynamodb':
             response = aws.dynamo_statement(query, formatter)
-        else:
-            raise errors.ConfigurationError(
-                'CACHE_MODE has not been set in "settings.py"')
-        return response
+            return response
 
+        raise errors.ConfigurationError(
+            'CACHE_MODE has not been set in "settings.py"')
 
 class PriceCache(metaclass=Singleton):
     """
@@ -242,8 +248,15 @@ class PriceCache(metaclass=Singleton):
 
         logger.debug(
             f'Querying {self.mode} cache \n\t{self._query()}\n\t\t with :ticker={ticker}, :start_date={start_date}, :end_date={end_date}', 'ProfileCache.filter')
-        formatter = {'ticker': ticker,
-                     'start_date': start_date, 'end_date': end_date}
+
+        if isinstance(start_date, datetime.datetime.date):
+            start_date = dater.to_string(start_date)
+
+        if isinstance(end_date, datetime.datetime.date):
+            end_date = dater.to_string(end_date)
+
+        formatter = {'ticker': ticker, 'end_date': end_date, 'start_date': start_date}
+
         results = Cache.execute(
             query=self._query(),
             formatter=formatter,
@@ -255,6 +268,7 @@ class PriceCache(metaclass=Singleton):
             prices = self.to_dict(results)
             self._update_internal_cache(ticker, prices)
             return prices
+
         logger.debug(
             f'No results found for {ticker} prices in the cache', 'ProfileCache.filter')
         return None

@@ -397,7 +397,7 @@ class PriceManager():
         auth_query = query + f'&{self.service_map["PARAMS"]["KEY"]}={self.key}'
         url = f'{self.url}?{auth_query}'
         logger.debug(
-            f'PriceManager query (w/o key) = {query}', 'PriceManager._construct_url')
+            f'PriceManager query (w/o key) = {self.url}?{query}', 'PriceManager._construct_url')
         return url
 
     def get_prices(self, ticker: str, start_date: date, end_date: date, asset_type: str):
