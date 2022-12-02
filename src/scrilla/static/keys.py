@@ -78,7 +78,7 @@ keys = {
                         'SIZE': 'outputsize'
                     },
                     'ARGUMENTS': {
-                        'EQUITY_DAILY': 'TIME_SERIES_DAILY',
+                        'EQUITY_DAILY': 'TIME_SERIES_DAILY_ADJUSTED',
                         'EQUITY_LISTING': 'LISTING_STATUS',
                         'CRYPTO_DAILY': 'DIGITAL_CURRENCY_DAILY',
                         'FULL': 'full'

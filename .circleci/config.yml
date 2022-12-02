@@ -92,25 +92,10 @@ commands:
           root: docs
           paths:
             - build/html
-
-  install_test_deps:
-    description: install testing libraries
-    steps:
-      - restore_cache:
-          key: deepsource-v2
-      - run:
-          name: install deepsource cli
-          command: curl https://deepsource.io/cli | sh
-      - save_cache:
-          key: deepsource-v2
-          paths:
-            - "./bin/"
   
   run_unit_tests: 
     description: run unit tests
     steps:
-      - restore_cache:
-          key: deepsource-v1
       - restore_cache: 
           key: python-deps-v5-{{ checksum "requirements.txt"}}
       - attach_workspace:
@@ -214,7 +199,6 @@ jobs:
       - image: docker.io/chinchalinchin/scrilla-builder:latest
     steps:
       - checkout
-      - install_test_deps
       - run_unit_tests
 
   documentation:
