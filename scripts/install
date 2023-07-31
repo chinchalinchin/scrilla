@@ -18,11 +18,11 @@ then
     rm -r $SRC_DIR/scrilla.egg-info
 fi
 
-pip uninstall -y scrilla
+pip3 uninstall -y scrilla
 
-python -m build
+python3 -m build
 
 cd $BUILD_DIR
 
-pip install "scrilla-$VERSION-py3-none-any.whl"
+pip3 install "scrilla-$VERSION-py3-none-any.whl"
 
