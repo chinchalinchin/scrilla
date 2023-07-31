@@ -249,10 +249,10 @@ class PriceCache(metaclass=Singleton):
         logger.debug(
             f'Querying {self.mode} cache \n\t{self._query()}\n\t\t with :ticker={ticker}, :start_date={start_date}, :end_date={end_date}', 'ProfileCache.filter')
 
-        if isinstance(start_date, datetime.datetime.date):
+        if isinstance(start_date, datetime.date):
             start_date = dater.to_string(start_date)
 
-        if isinstance(end_date, datetime.datetime.date):
+        if isinstance(end_date, datetime.date):
             end_date = dater.to_string(end_date)
 
         formatter = {'ticker': ticker, 'end_date': end_date, 'start_date': start_date}
@@ -475,6 +475,13 @@ class InterestCache(metaclass=Singleton):
         logger.debug(
             f'Querying {self.mode} cache \n\t{self._query()}\n\t\t with :maturity={maturity}, :start_date={start_date}, :end_date={end_date}',
             'InterestCache.filter')
+
+        if isinstance(start_date, datetime.date):
+            start_date = dater.to_string(start_date)
+
+        if isinstance(end_date, datetime.date):
+            end_date = dater.to_string(end_date)
+            
         formatter = {'maturity': maturity,
                      'start_date': start_date, 'end_date': end_date}
         results = Cache.execute(
