@@ -338,4 +338,5 @@ def av_key() -> str:
             'Alpha Vantage API Key not found. Either set ALPHA_VANTAGE_KEY environment variable or use "-store" CLI function to save key.')
     return AV_KEY
 
+
 print(CACHE_DIR)
