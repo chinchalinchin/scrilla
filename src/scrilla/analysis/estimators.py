@@ -24,11 +24,13 @@ from numpy import inf
 from math import log, sqrt, exp
 from scipy.stats import norm, multivariate_normal
 
+from scrilla.util import errors
+
 if __name__ == "__main__":
     APP_DIR = path.dirname(path.dirname(path.abspath(__file__)))
     sys_path.append(APP_DIR)
 
-from scrilla import settings, errors, cache
+from scrilla import settings, cache
 from scrilla.static.constants import constants
 import scrilla.util.outputter as outputter
 
@@ -114,11 +116,11 @@ def empirical_copula(sample: List[List[float]], x_order: float, y_order: float):
     """
     Computes an empirical estimate of the copula distribution for a bivariate sample, i.e.
 
-    $$ C(u_{1}, u_{2}) = F_{c} (\textbf{X_{1}}<F_x^{-1}(u_{1}),\textbf{X_{2}}<F_x^{-1}(u_{2})) $$
+    $$ C(u_{1}, u_{2}) = F_{c} ({U_{1}) < F_1^{-1}(u_{1}), {U_{2}}< F_2^{-1}(u_{2})) $$
 
     Using the empirical estimate defined by,
 
-    $$ C_{n} = \frac{\{ (x,y) \vert x \leq x_{p} & y \leq y_{p} \}}{n}$$ 
+    $$ C_{n} = \frac{\{ (x,y) \vert x \leq x_{p} & y \leq y_{p} \}}{n} $$ 
 
     where \\(x_p\\) and \\(y_p\\) are the *p*-th percentiles of their respective univariate samples.
     """
@@ -198,7 +200,7 @@ def sample_correlation(x: List[float], y: List[float]):
 
 def recursive_rolling_correlation(correl_previous, new_x_observation, lost_x_obs,
                                   new_y_obs, lost_y_obs, n=settings.DEFAULT_ANALYSIS_PERIOD):
-
+    # TODO: after other rolling functions work...
     pass
 
 
@@ -236,6 +238,7 @@ def sample_mean(x: List[float]) -> float:
 
 
 def recursive_rolling_mean(xbar_previous, new_obs, lost_obs, n=settings.DEFAULT_ANALYSIS_PERIOD):
+    # this should be done in terms of the sample arrays, not the observations themselves, i think.
     xbar_next = xbar_previous + (new_obs - lost_obs)/n
     return xbar_next
 
@@ -254,7 +257,11 @@ def sample_variance(x: List[float]):
     Raises 
     ------
     1. `scrilla.errors.SampleSizeError`
+
+    .. notes::
+        * This a naive two-pass implementation of sample variance. The function does not shift data around the mean, resulting in skewed calculations if the variance is numerically small and the sample is large; if you are concerned about the accuracy of your variance calculation in these instances, a better method is to use `scrilla.analysis.estimators.recursive_sum_of_squares` and then compute the variance by dividing by _(n-1)_, where _n_ is the number of samples.
     """
+    # TODO: this is a 'naive' estimation of variance: https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance
 
     mu, sigma, n = sample_mean(x=x), 0, len(x)
 
@@ -262,9 +269,13 @@ def sample_variance(x: List[float]):
         raise ValueError(
             'Sample contains null values')
 
-    if n in [0, 1]:
+    if n == 0:
         raise errors.SampleSizeError(
-            'Sample variance cannot be computed for a sample size less than or equal to 1.')
+            'Sample variance cannot be computed for a sample size of 0.')
+
+    if n == 1:
+        # no variance for a sample of 1.
+        return 0
 
     for i in x:
         sigma += ((i-mu)**2)/(n-1)
@@ -272,11 +283,31 @@ def sample_variance(x: List[float]):
 
 
 def recursive_rolling_variance(var_previous, xbar_previous, new_obs, lost_obs, n=settings.DEFAULT_ANALYSIS_PERIOD):
+    # TODO: slightly off for some reason...Formula not correct? Rework it out.
     xbar_new = recursive_rolling_mean(xbar_previous=xbar_previous, new_obs=new_obs,
                                       lost_obs=lost_obs, n=n)
     var_new = var_previous + \
         (n/(n-1))*((new_obs**2 - lost_obs**2)/n + (xbar_previous**2-xbar_new**2))
     return var_new
+
+
+def recursive_sum_of_squares(x: List[float], checked: bool = False):
+    n = len(x)
+
+    if not checked:
+        if not all(this_x is not None and isinstance(this_x, (float, int)) for this_x in x):
+            raise ValueError(
+                'Sample contains null values')
+
+        if n == 0:
+            raise errors.SampleSizeError(
+                'Sample variance cannot be computed for a sample size of 0.')
+
+    if n == 1:
+        return 0
+
+    term_variance = (n*x[-1] - sum(x))**2/(n*(n-1))
+    return recursive_sum_of_squares(x[:-1], True) + term_variance
 
 
 def sample_covariance(x: list, y: list):
@@ -312,6 +343,7 @@ def sample_covariance(x: list, y: list):
 
 
 def recursive_rolling_covariance(covar_previous: float, new_x_obs: float, lost_x_obs: float, previous_x_bar: float, new_y_obs: float, lost_y_obs: float, previous_y_bar: float, n: int = settings.DEFAULT_ANALYSIS_PERIOD):
+    # TODO: no work.
     new_sum_term = new_x_obs*new_y_obs - lost_x_obs*lost_y_obs
     xy_cross_term = previous_x_bar*(new_y_obs-lost_y_obs)
     yx_cross_term = previous_y_bar*(new_x_obs-lost_x_obs)

@@ -22,7 +22,8 @@ from scipy.integrate import quad
 from numpy import isinf, inf
 import random
 
-from scrilla import settings, errors
+from scrilla import settings
+from scrilla.util import errors
 import scrilla.util.outputter as outputter
 
 logger = outputter.Logger("scrilla.analysis.integration", settings.LOG_LEVEL)

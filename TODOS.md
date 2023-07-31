@@ -6,9 +6,7 @@
 
 17. Test moving averages plot generation.
 
-20. Other types of screening. Discounted Cash Flow, for instance. 
-
-21. Add watchlist functionality for crypto assets. Differentiate in /data/common/ between watchlist_equity.json and watchlist_crypto.json. Integrate watchlist functionality into GUI and API. Will need to implement API Key authentication functionality before introducing watchlist to API to account for different users's watchlist.
+21. Add watchlist functionality for crypto assets. Differentiate in /data/common/ between watchlist_equity.json and watchlist_crypto.json. Integrate watchlist functionality into GUI and API. 
 
 23. Research annotations for cashflow object's growth function and portfolio's return/volatility functions. Perhaps a way of injecting them into the GUI easier. Not sure.
 
@@ -18,25 +16,60 @@
 
 35. Correlation time series.
 
-37. Look into why U risk profile calculation breaks function.
-
 42. review monte carlo simulation. allow value at risk function to specify SDE. look into MLE for parameters.
 
-44. conditional imports based on ANALYSIS_MODE
+44. conditional imports based on ANALYSIS_MODE once reversion mode is implemented
+    -> implement reversion mode
 
 46. redo statistic operations with vector and matrix operations for greater generalization.
 
-47. don't import in main.py until you have to.
-
-48. Correlation matrix widget not formatting decimals < 0.01 for some reason. negatives are no go as well.
-
-50. refactor to use math.sqrt from standard library and create dot, multiply and transpose methods for matrices.
-
 51. don't round crypto shares in portfolio.
 
-52. update references to quandl to nasdaq (they got acquired)
+56. save api key in /data/common via gui menu (currently just displays dialog without doing anything when clicked)
 
-53. Quandl doesn't update USTREASURY/YIELD often enough. causes problems with application. get interest information directly from source:
-https://home.treasury.gov/resource-center/data-chart-center/interest-rates/pages/xml?data=daily_treasury_yield_curve&field_tdr_date_value=2022
+57. SHould incorporate inflation in the calculations. (1+Real)(1+Inflation) = (1+Nominal)
 
-54. juneteenth is getting added to the trading holidays. also, bond markets are closed on columbus day and veterans day. in other words, interest rates are not reported on those days.
+58. Implement Welford's recursive algorithm for variance and covariance: https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance (turns out someone already figured it out)
+
+59. clear memory.json when static, common and cache are cleared.
+
+61. pretty sure services and caches should be singletons: https://stackoverflow.com/questions/6760685/creating-a-singleton-in-python
+
+62. pipeline will need service role if it is going to test dynamodb.
+
+62. dynamodb configuration for correlation table is incorrect. primary key is not unique. it will not persist the items correctly. will need to concatenet ticker_1 and ticker_2.
+    - > as a result, will need to drop profile and correlations table currently up as they contain incorrect information.
+
+63. internal correlation cache
+
+64. exponential moving averages. also, there has to be a better way of calculating moving averages than the way it is currently being done. research recursive ma algorithms.
+
+<<<<<<< HEAD
+65. labels have disappeared from the gui after your brilliant refactoring. great job.
+=======
+BUGS
+----
+
+1. first install, no cache:
+    scrilla cvar [ticker] -start <start> -end <end>
+    outputs: 
+    ```
+        Traceback (most recent call last):
+    File "/home/chinchalinchin/.local/bin/scrilla", line 8, in <module>
+        sys.exit(scrilla())
+    File "/home/chinchalinchin/.local/lib/python3.8/site-packages/scrilla/main.py", line 1116, in scrilla
+        do_program(sys.argv[1:])
+    File "/home/chinchalinchin/.local/lib/python3.8/site-packages/scrilla/main.py", line 1106, in do_program
+        validate_function_usage(selection=args['function_arg'],
+    File "/home/chinchalinchin/.local/lib/python3.8/site-packages/scrilla/main.py", line 56, in validate_function_usage
+        wrapper_function()
+    File "/home/chinchalinchin/.local/lib/python3.8/site-packages/scrilla/main.py", line 280, in cli_cvar
+        valueatrisk = percentile(S0=latest_price,
+    File "/home/chinchalinchin/.local/lib/python3.8/site-packages/scrilla/analysis/models/geometric/probability.py", line 189, in percentile
+        return (S0*exp(exponent))
+    TypeError: can't multiply sequence by non-int of type 'float'
+    ```
+    First time, but not after.
+
+2. When you reinstall, it doesn't wipe memory.json from installation dir...
+>>>>>>> 56debc10 (update price endpoint)

@@ -1,6 +1,5 @@
 from scrilla.static.constants import constants
 from scrilla.static import keys
-from scrilla.util import dater
 
 
 def get_trading_period(asset_type: str) -> float:

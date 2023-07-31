@@ -1,10 +1,11 @@
-**NOTE**: Quandl was acquired by Nasdaq and their APIs were incorporated into the existing data.nasdaq APIs. The support for some of the feeds was dropped in the reshuffling. In particular, the free feed for the yield curve (USTREASURY/YIELD) is no longer refreshed daily and, in fact, hasn't been refreshed since February of this year. This was the feed this application used to determine the latest interest rate. As a result, any calculations involving interest rate since approximately 02-01-2022 (which is virtually every calculation in this application...) will fail, since there is no interest rate to retrieve. 
-
-Currently working on directly parsing the treasury.gov's XML feed for the yield curve instead of Nasdaq/Quandl's Rest API. 
-
 # scrilla: A Financial Optimization Application
 
+_scrilla_ is an open-source financial analysis application written in **Python**. It can optimize portfolios, calculate statistics using a variety of methods and algorithms, generate graphical plots and much more. It uses historical data retrieved from various sources, such as the US Treasury RSS Feed, AlphaVantage, IEX and Quandl, to calibrate models. 
+
+**NOTE**: None of the results of _scrilla_ should be interpretted as financial advice. All results assume past trends will continue indefinitely into the future, which is usually never the case in reality.
+
 ![](https://github.com/chinchalinchin/chinchalinchin/blob/main/assets/scrilla_gui_ii.png)
+
 
 Documentation
 ---
@@ -49,7 +50,9 @@ This will install a command line interface on your path under the name `scrilla`
 scrilla version
 ```
 
-If you are on Windows, you may need to add your Python scripts bin to the $PATH. To keep the installation as minimal as possible, the base package does not include the GUI libraries. You can install the optional GUI dependency with,
+You may need to add your Python scripts _/bin/_ to the $PATH if this command is not found. 
+
+To keep the installation as minimal as possible, the base package does not include the GUI libraries. You can install the optional GUI dependency ([PySide6](https://pypi.org/project/PySide6/)) with,
 
 ```shell
 pip install scrilla[gui]
@@ -63,7 +66,7 @@ scrilla-gui
 
 ### Source
 
-If you prefer, you can build from source. `git clone` the [repository](https://github.com/chinchalinchin/scrilla) and then from the root directory install the project dependencies and build the library,
+If you are developing, you can build from source. `git clone` the [repository](https://github.com/chinchalinchin/scrilla) and then from the root directory install the project dependencies and build the library,
 
 ```shell
 pip3 install -r requirements.txt
@@ -78,7 +81,7 @@ pip install scrilla-<major>.<minor>.<micro>-py3-none-any.whl
 
 ## Configuration
 
-In order to use this application, you will need to register for API keys with [AlphaVantage](https://www.alphavantage.co), [IEX](https://iexcloud.io/) and [Quandl](https://www.quandl.com/). The program will need to be made aware of these keys somehow. The best option is storing these credentials in environment variables. You can add the following lines to your <i>.bashrc</i> profile or corresponding configuration file for whatever shell you are using,
+In order to use this application, you will need to register for API keys with [AlphaVantage](https://www.alphavantage.co), [IEX](https://iexcloud.io/) and [Quandl/Nasdaq](https://www.quandl.com/). The program will need to be made aware of these keys somehow. The best option is storing these credentials in environment variables. You can add the following lines to your <i>.bashrc</i> profile or corresponding configuration file for whatever shell you are using,
 
 ```shell
 export ALPHA_VANTAGE_KEY=<key goes here>
@@ -96,11 +99,26 @@ where `<key>` is one of the values: **ALPHA_VANTAGE_KEY**, **QUANDL_KEY** or **I
 
 Keep in mind if using this method to store the API keys, the keys will be stored unencrypted in the local installation's <i>/data/common/</i> directory. The recommended method is storing the credentials in the environment. 
 
-If no API keys are found through either of these methods, the application will not function properly.
+If no API keys are found through either of these methods, the application will raise an exception.
 
+**NOTE**: The **Quandl**/**Nasdaq** key is technically no required for the majority of the application to function, as interest rates are now retrieved directly from the **US Treasury** RSS feed. However, it is still recommended that you register for an API key, as **Quandl**/**Nasdaq** is still the only source of economic statistics, like GDP or inflation rates. 
+
+### Environment File
+
+A sample environment file has been included in _/env/.sample.env_. To configure the application environment, copy this file into a new environment, adjust the values and load it into your session,
+
+```shell
+cp ./env/.sample.env ./env/.env
+# adjust .env values
+source ./env/.env
+# the values loaded into your session will now configure scrilla's execution environment
+scrilla risk-profile GD LMT 
+```
 ## Usage
 
-The following command will optimize a portfolio of consisting of *ALLY*, *BX*, *GLD*, *BTC* and *ETH* over the specified date range and save the result to a JSON file.
+### Portfolio Optimization
+
+The following command will optimize a portfolio of consisting of *ALLY*, *BX*, *GLD*, *BTC* and *ETH* over the specified date range and save the result to a JSON file,
 
 ```shell
 scrilla optimize-portfolio ALLY BX GLD BTC ETH \
@@ -109,4 +127,30 @@ scrilla optimize-portfolio ALLY BX GLD BTC ETH \
     -save <absolute path to json file> 
 ```
 
-See [usage](https://chinchalinchin.github.io/scrilla/USAGE.html) for more information.
+### Efficient Frontier
+
+The following command will calculaate the efficient frontier for a portfolio consisting of *SPY*, *GLD* and *USO* over the specified date range and save the result to a JSON file,
+
+```shell
+scrilla efficient-frontier SPY GLD USO \
+    --start <YYYY-MM-DD> \
+    --end <YYYY-MM-DD> \
+    --save <absolute path to json file>
+```
+
+The following command will generate a plot of this frontier in the return-volatility plane,
+
+```shell
+scrilla plot-ef SPY GLD USO \
+    --start <YYYY-MM-DD> \ 
+    --end <YYYY-MM-DD> 
+```
+
+_scrilla_ has lots of other functions. See [usage](https://chinchalinchin.github.io/scrilla/USAGE.html) for more information.
+
+
+## Cloud
+
+TODO
+
+currently working on a DynamoDB-based cache and Dockerfiles for lambda functions wrapped around scrilla's main features. will update this section once everything is completed.

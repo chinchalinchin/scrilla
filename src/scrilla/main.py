@@ -24,16 +24,15 @@ import time
 from datetime import date
 from typing import Callable, Dict, List, Union
 
-from scrilla.settings import LOG_LEVEL, ESTIMATION_METHOD
+from scrilla import settings, files, cache
 from scrilla.static import definitions
-from scrilla.errors import InputValidationError
-from scrilla.files import init_static_data
-from scrilla.util.helper import format_args
+from scrilla.util.errors import InputValidationError
+from scrilla.static import formats
 from scrilla.util.outputter import Logger
 
 # TODO: conditional imports based on value of ANALYSIS_MODE
 
-logger = Logger('main', LOG_LEVEL)
+logger = Logger('main', settings.LOG_LEVEL)
 
 
 def validate_function_usage(selection: str, args: List[str], wrapper_function: Callable, required_length: int = 1, exact: bool = False) -> None:
@@ -60,7 +59,8 @@ def validate_function_usage(selection: str, args: List[str], wrapper_function: C
         raise InputValidationError(
             f'Invalid number of arguments for \'{selection}\' function. Function requires more than {required_length} arguments.')
     end_time = time.time()
-    logger.info(f'Total execution time: {end_time - start_time}s')
+    logger.info(
+        f'Total execution time: {end_time - start_time}s', 'validate_function_usage')
 
 
 def print_format_to_screen(args: Dict[str, Union[str, date, float, None, bool]]) -> bool:
@@ -99,8 +99,10 @@ def do_program(cli_args: List[str]) -> None:
     """
     Parses command line arguments and passes the formatted arguments to appropriate function from the library.
     """
-    init_static_data()
-    args = format_args(cli_args, ESTIMATION_METHOD)
+    files.init_static_data()
+    cache.init_cache()
+
+    args = formats.format_args(cli_args, settings.ESTIMATION_METHOD)
     exact, selected_function = False, None
 
     # START CLI FUNCTION DEFINITIONS
@@ -110,55 +112,51 @@ def do_program(cli_args: List[str]) -> None:
     if args['function_arg'] in definitions.FUNC_DICT["help"]['values']:
         def cli_help():
             from scrilla.util.outputter import help_msg
-            help_msg()
+            # NOTE: in this case, the arguments are function names, not tickers.
+            #       it may be behoove the application to rejigger the argparse
+            #       just so names are consistent with what is represented.
+            help_msg(function_filter=args['tickers'])
         selected_function, required_length = cli_help, 0
 
     # FUNCTION: Clear Cache
     elif args['function_arg'] in definitions.FUNC_DICT["clear_cache"]['values']:
         def cli_clear_cache():
-            from scrilla.files import clear_directory
-            from scrilla.settings import CACHE_DIR
-            logger.info(f'Clearing {CACHE_DIR}')
-            clear_directory(directory=CACHE_DIR, retain=True)
+            logger.info(f'Clearing {settings.CACHE_DIR}', 'do_program')
+            files.clear_cache()
         selected_function, required_length = cli_clear_cache, 0
 
     # FUNCTION: Clear Static
     elif args['function_arg'] in definitions.FUNC_DICT["clear_static"]['values']:
         def cli_clear_static():
-            from scrilla.files import clear_directory
-            from scrilla.settings import STATIC_DIR
-            logger.info(f'Clearing {STATIC_DIR}')
-            clear_directory(directory=STATIC_DIR, retain=True)
+            logger.info(f'Clearing {settings.STATIC_DIR}', 'do_program')
+            files.clear_directory(directory=settings.STATIC_DIR, retain=True)
         selected_function, required_length = cli_clear_static, 0
 
     # FUNCTION: Clear Common
     elif args['function_arg'] in definitions.FUNC_DICT["clear_common"]['values']:
         def cli_clear_common():
-            from scrilla.files import clear_directory
-            from scrilla.settings import COMMON_DIR
-            logger.info(f'Clearing {COMMON_DIR}')
-            clear_directory(directory=COMMON_DIR, retain=True)
+            logger.info(f'Clearing {settings.COMMON_DIR}', 'do_program')
+            files.clear_directory(directory=settings.COMMON_DIR, retain=True)
         selected_function, required_length = cli_clear_common, 0
 
     # FUNCTION: Print Stock Watchlist
     elif args['function_arg'] in definitions.FUNC_DICT['list_watchlist']['values']:
         def cli_watchlist():
-            from scrilla.files import get_watchlist
             from scrilla.util.outputter import title_line, print_list
-            tickers = get_watchlist()
-            title_line("Stock Watchlist")
+            tickers = files.get_watchlist()
+            title_line("Watchlist")
             print_list(tickers)
         selected_function, required_length = cli_watchlist, 0
+
     # FUNCTION: Purge Data Directories
     elif args['function_arg'] in definitions.FUNC_DICT["purge"]['values']:
         def cli_purge():
-            from scrilla.files import clear_directory
-            from scrilla.settings import CACHE_DIR, STATIC_DIR, COMMON_DIR
+            from scrilla.files import clear_directory, clear_cache
             logger.info(
-                f'Clearing {STATIC_DIR}, {CACHE_DIR} and {COMMON_DIR}')
-            clear_directory(directory=STATIC_DIR, retain=True)
-            clear_directory(directory=CACHE_DIR, retain=True)
-            clear_directory(directory=COMMON_DIR, retain=True)
+                f'Clearing {settings.STATIC_DIR}, {settings.CACHE_DIR} and {settings.COMMON_DIR}', 'do_program')
+            files.clear_directory(directory=settings.STATIC_DIR, retain=True)
+            files.clear_directory(directory=settings.COMMON_DIR, retain=True)
+            files.clear_cache()
         selected_function, required_length = cli_purge, 0
 
     # FUNCTION: Display Version
@@ -177,10 +175,14 @@ def do_program(cli_args: List[str]) -> None:
             from scrilla.static.keys import keys
             from scrilla.services import get_daily_interest_history
             yield_curve = {}
+            # TODO: this is inefficient. get_daily_interest_history should be modified
+            # to return all maturities if no maturity is specified. otherwise, this is
+            # duplicating a ton of operations
             for maturity in keys['YIELD_CURVE']:
                 curve_rate = get_daily_interest_history(maturity=maturity,
                                                         start_date=args['start_date'],
                                                         end_date=args['start_date'])
+
                 yield_curve[maturity] = curve_rate[list(
                     curve_rate.keys())[0]]/100
 
@@ -221,7 +223,7 @@ def do_program(cli_args: List[str]) -> None:
             from scrilla.static.keys import keys
 
             all_vars = {}
-            for arg in args['tickers']['values']:
+            for arg in args['tickers']:
                 prices = get_daily_price_history(ticker=arg,
                                                  start_date=args['start_date'],
                                                  end_date=args['end_date'])
@@ -236,7 +238,7 @@ def do_program(cli_args: List[str]) -> None:
                                          expiry=args['expiry'],
                                          prob=args['probability'])
 
-                all_vars[arg] = valueatrisk
+                all_vars[arg] = {keys['STATISTICS']['VAR']: valueatrisk}
 
                 if print_format_to_screen(args):
                     from scrilla.util.outputter import scalar_result
@@ -250,7 +252,7 @@ def do_program(cli_args: List[str]) -> None:
                 from scrilla.files import save_file
                 save_file(file_to_save=all_vars, file_name=args['save_file'])
 
-        selected_function, required_length = cli_var, 2
+        selected_function, required_length = cli_var, 1
 
     # FUNCTION: Black-Scholes Conditional Value At Risk
     elif args['function_arg'] in definitions.FUNC_DICT['cvar']['values']:
@@ -280,12 +282,12 @@ def do_program(cli_args: List[str]) -> None:
                                                   ret=profile['annual_return'],
                                                   expiry=args['expiry'],
                                                   conditional_value=valueatrisk)
-                all_cvars[arg] = cvar
+                all_cvars[arg] = {keys['STATISTICS']['CVAR']: cvar}
 
                 if print_format_to_screen(args):
                     from scrilla.util.outputter import scalar_result
                     scalar_result(
-                        f'{arg}_conditional_value_at_risk', valueatrisk)
+                        f'{arg}_conditional_VaR', cvar)
 
             if print_json_to_screen(args):
                 from json import dumps
@@ -295,19 +297,20 @@ def do_program(cli_args: List[str]) -> None:
                 from scrilla.files import save_file
                 save_file(file_to_save=all_cvars, file_name=args['save_file'])
 
-        selected_function, required_length = cli_cvar, 2
+        selected_function, required_length = cli_cvar, 1
 
     # FUNCTION: Capital Asset Pricing Model Cost of Equity
     elif args['function_arg'] in definitions.FUNC_DICT['capm_equity_cost']['values']:
         def cli_capm_equity_cost():
             from scrilla.analysis.markets import cost_of_equity
+            from scrilla.static.keys import keys
             all_costs = {}
             for arg in args['tickers']:
                 equity_cost = cost_of_equity(ticker=arg,
                                              start_date=args['start_date'],
                                              end_date=args['end_date'],
                                              method=args['estimation_method'])
-                all_costs[arg] = equity_cost
+                all_costs[arg] = {keys['STATISTICS']['EQUITY']: equity_cost}
 
                 if print_format_to_screen(args):
                     from scrilla.util.outputter import scalar_result
@@ -328,13 +331,14 @@ def do_program(cli_args: List[str]) -> None:
     elif args['function_arg'] in definitions.FUNC_DICT['capm_beta']['values']:
         def cli_capm_beta():
             from scrilla.analysis.markets import market_beta
+            from scrilla.static.keys import keys
             all_betas = {}
             for arg in args['tickers']:
                 beta = market_beta(ticker=arg,
                                    start_date=args['start_date'],
                                    end_date=args['end_date'],
                                    method=args['estimation_method'])
-                all_betas[arg] = beta
+                all_betas[arg] = {keys['STATISTICS']['BETA']: beta}
 
                 if print_format_to_screen(args):
                     from scrilla.util.outputter import scalar_result
@@ -380,7 +384,8 @@ def do_program(cli_args: List[str]) -> None:
             from scrilla.analysis.models.geometric.statistics import correlation_matrix
 
             if args['estimation_method'] == keys['ESTIMATION']['LIKE']:
-                logger.info('This calculation takes a while, strap in...')
+                logger.info(
+                    'This calculation takes a while, strap in...', 'do_program')
 
             matrix = correlation_matrix(tickers=args['tickers'],
                                         start_date=args['start_date'],
@@ -394,7 +399,7 @@ def do_program(cli_args: List[str]) -> None:
 
             elif print_json_to_screen(args):
                 from json import dumps
-                print(dumps(matrix))
+                print(dumps({'correlation_matrix': matrix}))
 
             if args['save_file'] is not None:
                 from scrilla.files import save_file
@@ -409,7 +414,8 @@ def do_program(cli_args: List[str]) -> None:
             if print_format_to_screen(args):
                 from scrilla.util.outputter import scalar_result
 
-            logger.info('This calculation takes a while, strap in...')
+            logger.info(
+                'This calculation takes a while, strap in...', 'do_program')
             ticker_1, ticker_2 = args['tickers'][0], args['tickers'][1]
             result = calculate_moment_correlation_series(ticker_1=ticker_1,
                                                          ticker_2=ticker_2,
@@ -433,6 +439,7 @@ def do_program(cli_args: List[str]) -> None:
         def cli_discount_dividend():
             from scrilla.services import get_dividend_history
             from scrilla.analysis.objects.cashflow import Cashflow
+            from scrilla.static.keys import keys
             model_results = {}
 
             for arg in args['tickers']:
@@ -443,12 +450,14 @@ def do_program(cli_args: List[str]) -> None:
                         ticker=arg, method=args['estimation_method'])
                 else:
                     discount = args['discount']
-                model_results[f'{arg}_discount_dividend'] = Cashflow(sample=dividends,
-                                                                     discount_rate=discount).calculate_net_present_value()
+                result = Cashflow(sample=dividends,
+                                  discount_rate=discount).calculate_net_present_value()
+                model_results[arg] = {keys['MODELS']['DDM']: result}
+
                 if print_format_to_screen(args):
                     from scrilla.util.outputter import scalar_result
                     scalar_result(f'Net Present Value ({arg} dividends)',
-                                  model_results[f'{arg}_discount_dividend'])
+                                  model_results[arg][keys['MODELS']['DDM']])
 
             if print_json_to_screen(args):
                 from json import dumps
@@ -502,8 +511,6 @@ def do_program(cli_args: List[str]) -> None:
             else:
                 prices = None
 
-            print(prices)
-
             if print_format_to_screen(args):
                 from scrilla.util.outputter import efficient_frontier as frontier_output
                 frontier_output(portfolio=portfolio,
@@ -512,11 +519,10 @@ def do_program(cli_args: List[str]) -> None:
                                 latest_prices=prices)
             if print_json_to_screen(args):
                 from json import dumps
-                from scrilla.static.formats import format_frontier
-                print(dumps(format_frontier(portfolio=portfolio,
-                                            frontier=frontier,
-                                            investment=args['investment'],
-                                            latest_prices=prices)))
+                print(dumps(formats.format_frontier(portfolio=portfolio,
+                                                    frontier=frontier,
+                                                    investment=args['investment'],
+                                                    latest_prices=prices)))
 
             if args['save_file'] is not None:
                 from scrilla.files import save_frontier
@@ -557,11 +563,10 @@ def do_program(cli_args: List[str]) -> None:
 
             if print_json_to_screen(args):
                 from json import dumps
-                from scrilla.static.formats import format_allocation
-                print(dumps(format_allocation(allocation=allocation,
-                                              portfolio=portfolio,
-                                              investment=args['investment'],
-                                              latest_prices=prices)))
+                print(dumps(formats.format_allocation(allocation=allocation,
+                                                      portfolio=portfolio,
+                                                      investment=args['investment'],
+                                                      latest_prices=prices)))
 
             if args['save_file'] is not None:
                 from scrilla.files import save_allocation
@@ -634,12 +639,11 @@ def do_program(cli_args: List[str]) -> None:
                     latest_prices=prices)
 
             if print_json_to_screen(args):
-                from scrilla.static.formats import format_allocation
                 from json import dumps
-                print(dumps(format_allocation(allocation=allocation,
-                                              portfolio=portfolio,
-                                              investment=args['investment'],
-                                              latest_prices=prices)))
+                print(dumps(formats.format_allocation(allocation=allocation,
+                                                      portfolio=portfolio,
+                                                      investment=args['investment'],
+                                                      latest_prices=prices)))
 
             if args['save_file'] is not None:
                 from scrilla.files import save_allocation
@@ -680,12 +684,11 @@ def do_program(cli_args: List[str]) -> None:
                                latest_prices=prices)
 
             if print_json_to_screen(args):
-                from scrilla.static.formats import format_allocation
                 from json import dumps
-                print(dumps(format_allocation(allocation=allocation,
-                                              portfolio=portfolio,
-                                              investment=args['investment'],
-                                              latest_prices=prices)))
+                print(dumps(formats.format_allocation(allocation=allocation,
+                                                      portfolio=portfolio,
+                                                      investment=args['investment'],
+                                                      latest_prices=prices)))
 
             if args['save_file'] is not None:
                 from scrilla.files import save_allocation
@@ -702,7 +705,8 @@ def do_program(cli_args: List[str]) -> None:
             from scrilla.analysis.models.geometric.statistics import calculate_moment_correlation_series
             from scrilla.analysis.plotter import plot_correlation_series
 
-            logger.info('This calculation takes a while, strap in...')
+            logger.info(
+                'This calculation takes a while, strap in...', 'do_program')
 
             correlation_history = calculate_moment_correlation_series(ticker_1=args['tickers'][0],
                                                                       ticker_2=args['tickers'][1],
@@ -922,9 +926,8 @@ def do_program(cli_args: List[str]) -> None:
 
             if print_format_to_screen(args):
                 from scrilla.util.outputter import title_line, scalar_result
-                from scrilla.static.formats import formats
                 title_line("Risk Free Rate")
-                scalar_result(calculation=formats['RISK_FREE_TITLE'].format(RISK_FREE_RATE),
+                scalar_result(calculation=formats.formats['RISK_FREE_TITLE'].format(RISK_FREE_RATE),
                               result=rate[RISK_FREE_RATE], currency=False)
             if print_json_to_screen(args):
                 from json import dumps
@@ -959,6 +962,7 @@ def do_program(cli_args: List[str]) -> None:
                 profiles[arg]['equity_cost'] = cost_of_equity(ticker=arg,
                                                               start_date=args['start_date'],
                                                               end_date=args['end_date'],
+                                                              ticker_profile=profiles[arg],
                                                               method=args['estimation_method'])
 
             if print_format_to_screen(args):
@@ -1077,10 +1081,9 @@ def do_program(cli_args: List[str]) -> None:
     # FUNCTION: Set Watchlist
     elif args['function_arg'] in definitions.FUNC_DICT["watchlist"]['values']:
         def cli_watchlist():
-            from scrilla.files import add_watchlist
-            add_watchlist(new_tickers=args['tickers'])
+            files.add_watchlist(new_tickers=args['tickers'])
             logger.info(
-                "Watchlist saved. Use -ls option to print watchlist.")
+                "Watchlist saved. Use -ls option to print watchlist.", 'do_program')
         selected_function, required_length = cli_watchlist, 1
 
     else:
@@ -1106,6 +1109,4 @@ def scrilla():
 
 
 if __name__ == "__main__":
-    import sys
-
-    do_program(sys.argv[1:])
+    scrilla()

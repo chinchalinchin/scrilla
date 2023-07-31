@@ -53,6 +53,7 @@ METADATA_FILE = os.path.join(APP_DIR, 'data', 'meta', 'data.json')
 
 CACHE_DIR = os.path.join(APP_DIR, 'data', 'cache')
 """Directory containing cached prices, statistics and calculations"""
+
 CACHE_SQLITE_FILE = os.environ.setdefault(
     'SQLITE_FILE', os.path.join(CACHE_DIR, 'scrilla.db'))
 """Location of the SQLite database flat file; Configured by environment variable **SQLITE_FILE***"""
@@ -84,6 +85,9 @@ COMMON_DIR = os.path.join(APP_DIR, 'data', 'common')
 
 COMMON_WATCHLIST_FILE = os.path.join(COMMON_DIR, f'watchlist.{FILE_EXT}')
 """Location of file used to store watchlisted ticker symbols"""
+
+MEMORY_FILE = os.path.join(COMMON_DIR, f'memory.{FILE_EXT}')
+"""Location to file used to persist flags that inform the application it has already initialized data"""
 
 GUI_STYLESHEET_FILE = os.path.join(APP_DIR, 'gui', 'styles', 'app.qss')
 """Location of the stylesheet applied to the GUI"""
@@ -124,7 +128,7 @@ try:
     DATE_FORMAT = str(os.environ.setdefault('DATE_FORMAT', '%Y-%m-%d'))
 except (ValueError, TypeError) as ParseError:
     logger.debug(
-        'Failed to parse DATE_FORMAT from environment. Setting to default value of 1024.')
+        'Failed to parse DATE_FORMAT from environment. Setting to default value of 1024.', 'line_127')
     DATE_FORMAT = '%Y-%m-%d'
     os.environ['GUI_WIDTH'] = '%Y-%m-%d'
 
@@ -132,7 +136,7 @@ try:
     GUI_WIDTH = int(os.environ.setdefault('GUI_WIDTH', '1024'))
 except (ValueError, TypeError) as ParseError:
     logger.debug(
-        'Failed to parse GUI_WIDTH from environment. Setting to default value of 1024.')
+        'Failed to parse GUI_WIDTH from environment. Setting to default value of 1024.', 'line_135')
     GUI_WIDTH = 1024
     os.environ['GUI_WIDTH'] = '1024'
 
@@ -140,7 +144,7 @@ try:
     GUI_HEIGHT = int(os.environ.setdefault('GUI_HEIGHT', '768'))
 except (ValueError, TypeError) as ParseError:
     logger.debug(
-        'Failed to parse GUI_HEIGHT from enviroment. Setting to default value of 768.')
+        'Failed to parse GUI_HEIGHT from enviroment. Setting to default value of 768.', 'line_143')
     GUI_HEIGHT = 768
     os.environ['GUI_HEIGHT'] = '768'
 
@@ -149,7 +153,7 @@ try:
     FRONTIER_STEPS = int(os.environ.setdefault('FRONTIER_STEPS', '5'))
 except (ValueError, TypeError) as ParseError:
     logger.debug(
-        'Failed to parse FRONTIER_STEPS from enviroment. Setting to default value of 5.')
+        'Failed to parse FRONTIER_STEPS from enviroment. Setting to default value of 5.', 'line_152')
     FRONTIER_STEPS = 5
     os.environ['FRONTIER_STEPS'] = '5'
 
@@ -157,7 +161,7 @@ try:
     MA_1_PERIOD = int(os.environ.setdefault('MA_1', '20'))
 except (ValueError, TypeError) as ParseError:
     logger.debug(
-        'Failed to parse MA_1 from environment. Setting to default value of 20.')
+        'Failed to parse MA_1 from environment. Setting to default value of 20.', 'line_160')
     MA_1_PERIOD = 20
     os.environ['MA_1'] = '20'
 
@@ -165,7 +169,7 @@ try:
     MA_2_PERIOD = int(os.environ.setdefault('MA_2', '60'))
 except (ValueError, TypeError) as ParseError:
     logger.debug(
-        'Failed to parse MA_2 from environment. Setting to default value of 60.')
+        'Failed to parse MA_2 from environment. Setting to default value of 60.', 'line_168')
     MA_2_PERIOD = 60
     os.environ['MA_2'] = '60'
 
@@ -173,7 +177,7 @@ try:
     MA_3_PERIOD = int(os.environ.setdefault('MA_3', '100'))
 except (ValueError, TypeError) as ParseError:
     logger.debug(
-        'Failed to parse MA_3 from environment. Setting to default value of 100.')
+        'Failed to parse MA_3 from environment. Setting to default value of 100.', 'line_176')
     MA_3_PERIOD = 100
     os.environ['MA_3'] = '100'
 
@@ -181,7 +185,7 @@ try:
     ITO_STEPS = int(os.environ.setdefault('ITO_STEPS', '10000'))
 except (ValueError, TypeError) as ParseError:
     logger.debug(
-        'Failed to parse ITO_STEPS from environment. Setting to default of 10000.')
+        'Failed to parse ITO_STEPS from environment. Setting to default of 10000.', 'line_184')
     ITO_STEPS = 10000
     os.environ['ITO_STEPS'] = '10000'
 
@@ -190,7 +194,7 @@ try:
         os.environ.setdefault('DEFAULT_ANALYSIS_PERIOD', '100'))
 except (ValueError, TypeError) as ParseError:
     logger.debug(
-        'Failed to parse DEFAULT_ANALYSIS_PERIOD from environment. Setting to default of 100.')
+        'Failed to parse DEFAULT_ANALYSIS_PERIOD from environment. Setting to default of 100.', 'line_194')
     DEFAULT_ANALYSIS_PERIOD = 100
     os.environ['DEFAULT_ANALYSIS_PERIOD'] = 100
 
@@ -206,6 +210,20 @@ ANALYSIS_MODE = os.environ.setdefault('ANALYSIS_MODE', 'geometric')
 ESTIMATION_METHOD = os.environ.setdefault(
     'DEFAULT_ESTIMATION_METHOD', 'moments')
 """Determines the default estimation method using in statistical estimations"""
+
+CACHE_MODE = os.environ.setdefault(
+    'CACHE_MODE', 'sqlite')
+"""Determines how caching is handled"""
+
+DYNAMO_CONF = {
+    'BillingMode': 'PAY_PER_REQUEST'  # PAY_PER_REQUEST | PROVISIONED
+    # If PROVISIONED, the following lines need uncommented and configured:
+    #
+    # 'ProvisionedThroughput' : {
+    #       'ReadCapacityUnits': 123,
+    #       'WriteCapacityUnits': 123
+    #  },
+}
 
 # SERVICE CONFIGURATION
 # PRICE_MANAGER CONFIGRUATION
@@ -239,7 +257,7 @@ STAT_MANAGER = os.environ.setdefault('STAT_MANAGER', 'treasury')
 Q_KEY = None
 """API Key used to query *Quandl/Nasdaq* service"""
 
-# QUANDL CONFIGURAITON
+# QUANDL CONFIGURAITON / technically NASDAQ now. perhaps one day i will update the names...
 if STAT_MANAGER == "quandl":
     Q_URL = os.environ.setdefault(
         'QUANDL_URL', 'https://data.nasdaq.com/api/v3/datasets').strip("\"").strip("'")
@@ -319,3 +337,5 @@ def av_key() -> str:
         raise APIKeyError(
             'Alpha Vantage API Key not found. Either set ALPHA_VANTAGE_KEY environment variable or use "-store" CLI function to save key.')
     return AV_KEY
+
+print(CACHE_DIR)

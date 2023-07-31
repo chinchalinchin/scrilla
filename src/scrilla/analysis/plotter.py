@@ -1,4 +1,3 @@
-import os
 import datetime
 from typing import Dict, List, Union
 import numpy
@@ -8,13 +7,12 @@ from PIL import Image
 from matplotlib.figure import Figure
 from matplotlib import dates as mdates
 from matplotlib.ticker import PercentFormatter
-from numpy.lib.function_base import average
 
 from scrilla import settings
 from scrilla.static import formats, keys
 from scrilla.analysis.objects.portfolio import Portfolio
 from scrilla.analysis.objects.cashflow import Cashflow
-from scrilla.errors import InputValidationError
+from scrilla.util.errors import InputValidationError
 from scrilla.util import dater
 
 if settings.APP_ENV == 'local':

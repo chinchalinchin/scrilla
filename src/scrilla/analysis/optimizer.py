@@ -142,7 +142,7 @@ def optimize_portfolio_variance(portfolio: Portfolio, target_return: float = Non
 
     if target_return is not None:
         logger.debug(
-            f'Optimizing {tickers} Portfolio Volatility Subject To Return = {target_return}')
+            f'Optimizing {tickers} Portfolio Volatility Subject To Return = {target_return}', 'optimize_portfolio_variance')
 
         return_constraint = {
             'type': 'eq',
@@ -150,7 +150,8 @@ def optimize_portfolio_variance(portfolio: Portfolio, target_return: float = Non
         }
         portfolio_constraints = [equity_constraint, return_constraint]
     else:
-        logger.debug(f'Minimizing {tickers} Portfolio Volatility')
+        logger.debug(
+            f'Minimizing {tickers} Portfolio Volatility', 'optimize_portfolio_variance')
         portfolio_constraints = equity_constraint
 
     allocation = optimize.minimize(fun=portfolio.volatility_function, x0=init_guess,
@@ -190,7 +191,7 @@ def optimize_conditional_value_at_risk(portfolio: Portfolio, prob: float, expiry
 
     if target_return is not None:
         logger.debug(
-            f'Optimizing {tickers} Portfolio Conditional Value at Risk Subject To Return = {target_return}')
+            f'Optimizing {tickers} Portfolio Conditional Value at Risk Subject To Return = {target_return}', 'optimize_conditional_value_at_risk')
 
         return_constraint = {
             'type': 'eq',
@@ -199,7 +200,7 @@ def optimize_conditional_value_at_risk(portfolio: Portfolio, prob: float, expiry
         portfolio_constraints = [equity_constraint, return_constraint]
     else:
         logger.debug(
-            f'Minimizing {tickers} Portfolio Conditional Value at Risk')
+            f'Minimizing {tickers} Portfolio Conditional Value at Risk', 'optimize_conditional_value_at_risk')
         portfolio_constraints = equity_constraint
 
     allocation = optimize.minimize(fun=lambda x: portfolio.conditional_value_at_risk_function(x, expiry, prob),
@@ -236,7 +237,7 @@ def maximize_sharpe_ratio(portfolio: Portfolio, target_return: float = None) -> 
 
     if target_return is not None:
         logger.debug(
-            f'Optimizing {tickers} Portfolio Sharpe Ratio Subject To Return = {target_return}')
+            f'Optimizing {tickers} Portfolio Sharpe Ratio Subject To Return = {target_return}', 'maximize_sharpe_ratio')
 
         return_constraint = {
             'type': 'eq',
@@ -244,7 +245,8 @@ def maximize_sharpe_ratio(portfolio: Portfolio, target_return: float = None) -> 
         }
         portfolio_constraints = [equity_constraint, return_constraint]
     else:
-        logger.debug(f'Maximizing {tickers} Portfolio Sharpe Ratio')
+        logger.debug(f'Maximizing {tickers} Portfolio Sharpe Ratio',
+                     'maximize_sharpe_ratio')
         portfolio_constraints = equity_constraint
 
     allocation = optimize.minimize(fun=lambda x: (-1)*portfolio.sharpe_ratio_function(x),
@@ -266,6 +268,10 @@ def maximize_portfolio_return(portfolio: Portfolio) -> List[float]:
     ------
     ``List[float]``
         An array of floats that represents the proportion of the portfolio that should be allocated to the corresponding ticker symbols given as a parameter within the portfolio object to achieve the maximum return. Note, this function is often uninteresting because if the rate of return for equity A is 50% and the rate of return of equity B is 25%, the portfolio with a maximized return will always allocated 100% of its value to equity A. However, this function is useful for determining whether or not the optimization algorithm is actually working, so it has been left in the program for debugging purposes. 
+
+    Notes
+    -----
+    This should always return a portfolio with 100% allocated to the asset with the highest rate of return. If assets had negative correlation and shorting were allowed into the application, this would not necessarily be true.
     """
     tickers = portfolio.tickers
     init_guess = portfolio.get_init_guess()
@@ -275,7 +281,8 @@ def maximize_portfolio_return(portfolio: Portfolio) -> List[float]:
         'fun': portfolio.get_constraint
     }
 
-    logger.debug(f'Maximizing {tickers} Portfolio Return')
+    logger.debug(f'Maximizing {tickers} Portfolio Return',
+                 'maximize_portfolio_retrun')
     allocation = optimize.minimize(fun=lambda x: (-1)*portfolio.return_function(x),
                                    x0=init_guess, method=constants.constants['OPTIMIZATION_METHOD'],
                                    bounds=equity_bounds, constraints=equity_constraint,
@@ -310,7 +317,7 @@ def calculate_efficient_frontier(portfolio: Portfolio, steps=None) -> List[List[
     return_width = (maximum_return - minimum_return)/steps
 
     frontier = []
-    for i in range(steps+1):
+    for i in range(steps):
         target_return = minimum_return + return_width*i
         allocation = optimize_portfolio_variance(
             portfolio=portfolio, target_return=target_return)

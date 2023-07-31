@@ -22,16 +22,51 @@ import io
 import json
 import csv
 import zipfile
-from typing import Any, Dict
+from typing import Any, Dict, Union
 import requests
 
-from scrilla import settings, errors
-from scrilla.static import functions, keys, constants, formats
-from scrilla.util import outputter, helper
+from scrilla import settings
+from scrilla.cloud import aws
+from scrilla.static import keys, constants, formats
+from scrilla.util import outputter, helper, errors
+
 
 logger = outputter.Logger("scrilla.files", settings.LOG_LEVEL)
 
 static_tickers_blob, static_econ_blob, static_crypto_blob = None, None, None
+
+
+def memory_json_skeleton() -> dict:
+    return {
+        'static': False,
+        'cache': {
+            'sqlite': {
+                'prices': False,
+                'interest': False,
+                'correlations': False,
+                'profile': False
+            },
+            'dynamodb': {
+                'prices': False,
+                'interest': False,
+                'correlations': False,
+                'profile': False
+            }
+        }
+    }
+
+
+def save_memory_json(persist: Union[dict, None] = None):
+    if persist is None or not isinstance(persist, dict):
+        return
+    save_file(persist, settings.MEMORY_FILE)
+
+
+def get_memory_json():
+    if os.path.isfile(settings.MEMORY_FILE):
+        memory_json = load_file(settings.MEMORY_FILE)
+        return memory_json
+    return memory_json_skeleton()
 
 
 def load_file(file_name: str) -> Any:
@@ -41,27 +76,34 @@ def load_file(file_name: str) -> Any:
     ext = file_name.split('.')[-1]
     with open(file_name, 'r') as infile:
         if ext == "json":
-            file = json.load(infile)
-        return file
+            return json.load(infile)
+        return infile.read()
         # TODO: implement other file loading extensions
 
 
 def save_file(file_to_save: Dict[str, Any], file_name: str) -> bool:
     ext = file_name.split('.')[-1]
-    with open(file_name, 'w') as outfile:
-        if ext == "json":
-            json.dump(file_to_save, outfile)
-        elif ext == "csv":
-            # TODO: assume input is dict since ll functions in library return dict.
-            writer = csv.DictWriter(outfile, file_to_save.keys())
-            writer.writeheader()
-        # TODO: implement other file saving extensions.
+    try:
+        with open(file_name, 'w') as outfile:
+            if ext == "json":
+                json.dump(file_to_save, outfile)
+            elif ext == "csv":
+                # TODO: assume input is dict since ll functions in library return dict.
+                writer = csv.DictWriter(outfile, file_to_save.keys())
+                writer.writeheader()
+            # TODO: implement other file saving extensions.
+        return True
+    except OSError as e:
+        logger.error(e, 'save_file')
+        return False
 
 
 def set_credentials(value: str, which_key: str) -> bool:
     file_name = os.path.join(
         settings.COMMON_DIR, f'{which_key}.{settings.FILE_EXT}')
-    return save_file(file_to_save=value, file_name=file_name)
+    if settings.FILE_EXT == 'json':
+        key_dict = {which_key: value}
+    return save_file(file_to_save=key_dict, file_name=file_name)
 
 
 def get_credentials(which_key: str) -> str:
@@ -123,67 +165,64 @@ def parse_csv_response_column(column: int, url: str, firstRowHeader: str = None,
 def init_static_data():
     """
     Initializes the three static files defined in  settings: `scrilla.settings.STATIC_TICKERS_FILE`, `scrilla.settings.STATIC_CRYPTO_FILE` and `scrilla.settings.STATIC_ECON_FILE`. The data for these files is retrieved from the service managers. While this function blurs the lines between file management and service management, the function has been included in the `files.py` module rather than the `services.py` module due the unique response types of static metadata. All metadata is returned as a csv or zipped csvs. These responses require specialized functions. Moreover, these files should only be initialized the first time the application executes. Subsequent executions will refer to their cached versions residing in the local filesytems. 
-
-    Raises
-    ------
-    1. `scrilla.errors.ConfigurationError` :
-        If `scrilla.settings.PRICE_MANAGER` and `scrilla.settings.STAT_MANAGER` are not configured or are incorrectly configured through the environment variables `scrilla.settings.PRICE_MANAGER` and `scrilla.settings.STAT_MANAGER`, the function will throw this error.
     """
-    global static_tickers_blob
-    global static_econ_blob
-    global static_crypto_blob
 
-    if ((not os.path.isfile(settings.STATIC_ECON_FILE)) or
-            (not os.path.isfile(settings.STATIC_TICKERS_FILE)) or
-            (not os.path.isfile(settings.STATIC_CRYPTO_FILE))):
+    memory = get_memory_json()
 
-        logger.info(
-            'Initializing static data. Please wait. This may take a moment...')
+    if not memory['static']:
+        global static_tickers_blob
+        global static_econ_blob
+        global static_crypto_blob
 
         # grab ticker symbols and store in STATIC_DIR
-        if not os.path.isfile(settings.STATIC_TICKERS_FILE):
-            if settings.PRICE_MANAGER == "alpha_vantage":
-                service_map = keys.keys["SERVICES"]["PRICES"]["ALPHA_VANTAGE"]["MAP"]
-                logger.debug(
-                    f'Missing {settings.STATIC_TICKERS_FILE}, querying \'{settings.PRICE_MANAGER}\'')
+        if (
+            settings.PRICE_MANAGER == "alpha_vantage" and
+            not os.path.isfile(settings.STATIC_TICKERS_FILE)
+        ):
+            service_map = keys.keys["SERVICES"]["PRICES"]["ALPHA_VANTAGE"]["MAP"]
+            logger.debug(
+                f'Missing {settings.STATIC_TICKERS_FILE}, querying \'{settings.PRICE_MANAGER}\'', 'init_static_data')
 
-                # TODO: services calls should be in services.py! need to put this and the helper method
-                #       into services.py in the future.
-                query = f'{service_map["PARAMS"]["FUNCTION"]}={service_map["ARGUMENTS"]["EQUITY_LISTING"]}'
-                url = f'{settings.AV_URL}?{query}&{service_map["PARAMS"]["KEY"]}={settings.av_key()}'
-                static_tickers_blob = parse_csv_response_column(column=0, url=url, savefile=settings.STATIC_TICKERS_FILE,
-                                                                firstRowHeader=service_map['KEYS']['EQUITY']['HEADER'])
+            # TODO: services calls should be in services.py! need to put this and the helper method
+            #       into services.py in the future.
+            query = f'{service_map["PARAMS"]["FUNCTION"]}={service_map["ARGUMENTS"]["EQUITY_LISTING"]}'
+            url = f'{settings.AV_URL}?{query}&{service_map["PARAMS"]["KEY"]}={settings.av_key()}'
+            static_tickers_blob = parse_csv_response_column(column=0, url=url, savefile=settings.STATIC_TICKERS_FILE,
+                                                            firstRowHeader=service_map['KEYS']['EQUITY']['HEADER'])
 
         # grab crypto symbols and store in STATIC_DIR
-        if not os.path.isfile(settings.STATIC_CRYPTO_FILE):
-            if settings.PRICE_MANAGER == "alpha_vantage":
-                service_map = keys.keys["SERVICES"]["PRICES"]["ALPHA_VANTAGE"]["MAP"]
-                logger.debug(
-                    f'Missing {settings.STATIC_CRYPTO_FILE}, querying \'{settings.PRICE_MANAGER}\'.')
-                url = settings.AV_CRYPTO_LIST
-                static_crypto_blob = parse_csv_response_column(column=0, url=url, savefile=settings.STATIC_CRYPTO_FILE,
-                                                               firstRowHeader=service_map['KEYS']['CRYPTO']['HEADER'])
+        if (
+            settings.PRICE_MANAGER == "alpha_vantage" and
+            not os.path.isfile(settings.STATIC_CRYPTO_FILE)
+        ):
+            service_map = keys.keys["SERVICES"]["PRICES"]["ALPHA_VANTAGE"]["MAP"]
+            logger.debug(
+                f'Missing {settings.STATIC_CRYPTO_FILE}, querying \'{settings.PRICE_MANAGER}\'.', 'init_static_data')
+            url = settings.AV_CRYPTO_LIST
+            static_crypto_blob = parse_csv_response_column(column=0, url=url, savefile=settings.STATIC_CRYPTO_FILE,
+                                                           firstRowHeader=service_map['KEYS']['CRYPTO']['HEADER'])
 
         # grab econominc indicator symbols and store in STATIC_DIR
-        if not os.path.isfile(settings.STATIC_ECON_FILE):
-            if settings.STAT_MANAGER == "quandl":
-                service_map = keys.keys["SERVICES"]["STATISTICS"]["QUANDL"]["MAP"]
+        if (
+            settings.STAT_MANAGER == "quandl" and
+            not os.path.isfile(settings.STATIC_ECON_FILE)
+        ):
+            service_map = keys.keys["SERVICES"]["STATISTICS"]["QUANDL"]["MAP"]
 
-                logger.debug(
-                    f'Missing {settings.STATIC_ECON_FILE}, querying \'{settings.STAT_MANAGER}\'.')
+            logger.debug(
+                f'Missing {settings.STATIC_ECON_FILE}, querying \'{settings.STAT_MANAGER}\'.', 'init_static_data')
 
-                query = f'{service_map["PATHS"]["FRED"]}/{service_map["PARAMS"]["METADATA"]}'
-                url = f'{settings.Q_META_URL}/{query}?{service_map["PARAMS"]["KEY"]}={settings.Q_KEY}'
-                static_econ_blob = parse_csv_response_column(column=0, url=url, savefile=settings.STATIC_ECON_FILE,
-                                                             firstRowHeader=service_map["KEYS"]["HEADER"],
-                                                             zipped=service_map["KEYS"]["ZIPFILE"])
+            query = f'{service_map["PATHS"]["FRED"]}/{service_map["PARAMS"]["METADATA"]}'
+            url = f'{settings.Q_META_URL}/{query}?{service_map["PARAMS"]["KEY"]}={settings.Q_KEY}'
+            static_econ_blob = parse_csv_response_column(column=0, url=url, savefile=settings.STATIC_ECON_FILE,
+                                                         firstRowHeader=service_map["KEYS"]["HEADER"],
+                                                         zipped=service_map["KEYS"]["ZIPFILE"])
 
-            elif settings.STAT_MANAGER == "treasury":
-                # TODO: initialize interest rate data???
-                pass
+        memory['static'] = True
+        save_memory_json(memory)
 
     else:
-        logger.debug('Static data already initialized!')
+        logger.debug('Static data already initialized!', 'init_static_data')
 
 
 def get_static_data(static_type):
@@ -222,13 +261,15 @@ def get_static_data(static_type):
         return None
 
     if blob is not None:
-        logger.debug(f'Found in-memory {static_type} symbols.')
+        logger.verbose(
+            f'Found in-memory {static_type} symbols.', 'get_static_data')
         return blob
 
     if path is not None:
         if not os.path.isfile(path):
             init_static_data()
-        logger.debug(f'Loading in cached {static_type} symbols.')
+        logger.verbose(
+            f'Loading in cached {static_type} symbols.', 'get_static_data')
 
         ext = path.split('.')[-1]
 
@@ -308,19 +349,20 @@ def get_watchlist() -> list:
     -----------
     Retrieves the list of watchlisted equity ticker symbols saved in /data/common/watchlist.json.
     """
-    logger.debug('Loading in Watchlist symbols.')
+    logger.debug('Loading in Watchlist symbols.', 'get_watchlist')
 
     if os.path.isfile(settings.COMMON_WATCHLIST_FILE):
-        logger.debug('Watchlist found.')
+        logger.debug('Watchlist found.', 'get_watchlist')
         ext = settings.COMMON_WATCHLIST_FILE.split('.')[-1]
         with open(settings.COMMON_WATCHLIST_FILE, 'r') as infile:
             if ext == "json":
                 watchlist = json.load(infile)
-                logger.debug('Watchlist loaded in JSON format.')
+                logger.verbose(
+                    'Watchlist loaded in JSON format.', 'get_watchlist')
 
             # TODO: implement other file loading exts
     else:
-        logger.info('Watchlist not found.')
+        logger.error('Watchlist not found.', 'get_watchlist')
         watchlist = []
 
     return watchlist
@@ -332,14 +374,15 @@ def add_watchlist(new_tickers: list) -> None:
     -----------
     Retrieves the list of watchlisted equity ticker symbols saved in /data/common/watchlist.json and then appends to it the list of tickers supplied as arguments. After appending, the list is sorted in alphabetical order. The tickers to add must exist in the /data/static/tickers.json file in order to be added to the watchlist, i.e. the tickers must have price histories that can be retrieved (the static file tickers.json contains a list of all equities with retrievable price histories.) \n \n 
     """
-    logger.debug('Saving tickers to Watchlist')
+    logger.debug('Saving tickers to Watchlist', 'add_watchlist')
 
     current_tickers = get_watchlist()
     all_tickers = get_static_data(keys.keys['ASSETS']['EQUITY'])
 
     for ticker in new_tickers:
         if ticker not in current_tickers and ticker in all_tickers:
-            logger.debug(f'New ticker being added to Watchlist: {ticker}')
+            logger.debug(
+                f'New ticker being added to Watchlist: {ticker}', 'add_watchlist')
             current_tickers.append(ticker)
 
     current_tickers = sorted(current_tickers)
@@ -375,7 +418,7 @@ def save_correlation_matrix(tickers, correlation_matrix, file_name):
     save_file(file_to_save=save_format, file_name=file_name)
 
 
-def clear_directory(directory, retain=True):
+def clear_directory(directory: str, retain: bool = True) -> bool:
     """
     Wipes a directory of files without deleting the directory itself.
 
@@ -387,14 +430,40 @@ def clear_directory(directory, retain=True):
     2. **retain** : ``bool``
         If set to True, the method will skip files named '.gitkeep' within the directory, i.e. version control configuration files, and keep the directory structure in tact.
     """
-    filelist = list(os.listdir(directory))
+    try:
+        filelist = list(os.listdir(directory))
+        for f in filelist:
+            filename = os.path.basename(f)
+            if retain and filename == constants.constants['KEEP_FILE']:
+                continue
+            os.remove(os.path.join(directory, f))
+        return True
+    except OSError as e:
+        logger.error(e, 'clear_directory')
+        return False
 
-    for f in filelist:
-        filename = os.path.basename(f)
-        if retain and filename == constants.constants['KEEP_FILE']:
-            continue
-        os.remove(os.path.join(directory, f))
 
-
-def is_non_zero_file(fpath):
+def is_non_zero_file(fpath: str) -> bool:
     return os.path.isfile(fpath) and os.path.getsize(fpath) > 0
+
+
+def clear_cache(mode: str = settings.CACHE_MODE) -> bool:
+    tables = ['prices', 'interest', 'correlations', 'profile']
+    memory = get_memory_json()
+
+    for table in tables:
+        memory['cache'][mode][table] = False
+
+    save_memory_json(memory)
+
+    if mode == 'sqlite':
+        try:
+            os.remove(settings.CACHE_SQLITE_FILE)
+            return True
+        except OSError as e:
+            logger.error(e, 'clear_cache')
+            return False
+    elif mode == 'dynamodb':
+        return aws.dynamo_drop_table(tables)
+
+    raise errors.ConfigurationError('`CACHE_MODE` not set!')

@@ -72,7 +72,7 @@ def validate_date_range(start_date: Any, end_date: Any) -> Tuple[date, date]:
     return validate_order_of_dates(start_date, end_date)
 
 
-def validate_date_list(dates: Union[List[Union[datetime.date, str]]]) -> Union[List[datetime.date], None]:
+def validate_date_list(dates: List[Union[datetime.date, str]]) -> Union[List[datetime.date], None]:
     """
 
     Raises
@@ -303,8 +303,8 @@ def business_dates_between(start_date: Union[date, str], end_date: Union[date, s
 
 def business_days_between(start_date: Union[date, str], end_date: Union[date, str], bond: bool = False) -> List[int]:
     start_date, end_date = validate_date_range(start_date, end_date)
-    dates = dates_between(start_date, end_date)
-    return len([1 for this_date in dates if is_trading_date(this_date, bond)])
+    dates = business_dates_between(start_date, end_date, bond)
+    return len(dates)
 
 
 def weekends_between(start_date: Union[date, str], end_date: Union[date, str]) -> List[int]:
@@ -326,17 +326,16 @@ def decrement_date_by_business_days(start_date: Union[date, str], business_days:
     Subtracts `business_days`, ignoring weekends and trading holidays, from `start_date`
     """
     start_date = validate_date(start_date)
-    first_pass = True
+    added = False
     while business_days > 0:
         if is_trading_date(start_date, bond):
-            if first_pass:
-                first_pass = False
-            else:
-                business_days -= 1
-
-        if business_days > 0:
-            start_date -= datetime.timedelta(days=1)
-
+            business_days -= 1
+        start_date -= datetime.timedelta(days=1)
+        if business_days == 0 and not is_trading_date(start_date):
+            business_days += 1
+            added = True
+        if added and is_trading_date(start_date):
+            business_days -= 1
     return start_date
 
 
@@ -362,11 +361,11 @@ def get_previous_business_date(this_date: Union[date, str], bond: bool = False) 
         this_date -= datetime.timedelta(days=1)
     return this_date
 
-# in years
-
 
 def get_time_to_next_month(todays_date: date = today(), trading_days: int = 252) -> float:
     """
+    Returns the time (measured in years) from `todays_date` to first of the next month.
+
     Parameters
     ----------
     1. **todays_date**: ``date``
@@ -384,6 +383,8 @@ def get_time_to_next_month(todays_date: date = today(), trading_days: int = 252)
 
 def get_time_to_next_year(todays_date: date = today(), trading_days: int = 252) -> float:
     """
+    Returns the time (measured in years) from `todays_date` to first of the next year.
+
     Parameters
     ----------
     1. **todays_date**: ``date``
@@ -399,6 +400,8 @@ def get_time_to_next_year(todays_date: date = today(), trading_days: int = 252) 
 
 def get_time_to_next_quarter(todays_date: date = today(), trading_days: int = 252) -> float:
     """
+    Returns the time (measured in years) from `todays_date` to first of the next quarter.
+
     Parameters
     ----------
     1. **todays_date**: ``date``
@@ -425,7 +428,7 @@ def get_time_to_next_quarter(todays_date: date = today(), trading_days: int = 25
 
 def get_time_to_next_period(starting_date: Union[date, str], period: float) -> float:
     """
-    Divides the year into segments of equal length 'period' and then calculates the time from today until 
+    Divides the year into segments of equal length 'period' and then calculates the time from todays_date until 
     the next period. 
 
     Parameters
@@ -445,4 +448,4 @@ def get_time_to_next_period(starting_date: Union[date, str], period: float) -> f
     while ((starting_date - todays_date).days < 0):
         starting_date += datetime.timedelta(days=floored_days)
 
-    return float((todays_date - starting_date).days / 365)
+    return float((starting_date - todays_date).days / 365)

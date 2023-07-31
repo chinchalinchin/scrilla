@@ -10,7 +10,7 @@ exclude_patterns = [
   "*.pyc",
   ".gitignore",
   ".dockerignore",
-  "tests/**"
+  "src/scrilla/tests/**"
 ]
 
 [[analyzers]]

@@ -19,11 +19,28 @@ from PySide6 import QtCore, QtWidgets, QtGui
 
 from scrilla import settings
 
-from scrilla.gui import formats, utilities, definitions
-from scrilla.gui.widgets import factories
+from scrilla.gui import utilities, definitions
+from scrilla.gui.widgets import factories, functions
 
 # NOTE: widget_buttons and function_widgets must preserve order.
 
+def _to_class(name: str):
+    if name == 'correlation':
+        return functions.CorrelationWidget
+    if name == 'plot_return_dist':
+        return functions.DistributionWidget
+    if name == 'yield_curve':
+        return functions.YieldCurveWidget
+    if name == 'discount_dividend':
+        return functions.DiscountDividendWidget
+    if name == 'risk_profile':
+        return functions.RiskProfileWidget
+    if name == 'optimize_portfolio':
+        return functions.OptimizerWidget
+    if name == 'efficient_frontier':
+        return functions.EfficientFrontierWidget
+    if name == 'moving_averages':
+        return functions.MovingAverageWidget
 
 class MenuWidget(QtWidgets.QWidget):
     """
@@ -45,7 +62,7 @@ class MenuWidget(QtWidgets.QWidget):
 
     def _generate_menu_bar(self):
         self.menu_bar = factories.atomic_widget_factory(
-            component='menu-bar', title=None)
+            component='menu-bar')
         self.menus = []
 
         for j, menu in enumerate(definitions.MENUBAR_WIDGET):
@@ -55,9 +72,14 @@ class MenuWidget(QtWidgets.QWidget):
                 q_action.setShortcut(action['shortcut'])
                 if menu == 'Functions':
                     q_action.triggered.connect(
-                        (lambda i: lambda: self._show_widget(i))(i))
+                        (lambda i: lambda: self._show_widget(i))(i)
+                    )
                 elif menu == 'Account':
-                    pass
+                    if action['name'] == 'Add API Key':
+                        q_action.triggered.connect(
+                            (lambda action: lambda:
+                                self._show_api_key_dialog(action['options']))(action)
+                        )
                 elif menu == 'View':
                     if action['name'] == 'Function Menu':
                         q_action.triggered.connect(lambda: self.function_menu.setVisible(
@@ -106,8 +128,8 @@ class MenuWidget(QtWidgets.QWidget):
         self.exit_button = factories.atomic_widget_factory(
             component='button', title="Exit")
 
-        self.function_widgets = [function['class'](
-            'great-grand-child', self) for function in definitions.FUNC_WIDGETS.values()]
+        self.function_widgets = [_to_class(function)(
+            'great-grand-child', self) for function in definitions.FUNC_WIDGETS]
 
         self.display_pane = factories.layout_factory(layout='vertical-box')
         self.display_pane.setObjectName('grand-child')
@@ -120,7 +142,6 @@ class MenuWidget(QtWidgets.QWidget):
     def _arrange_menu_widgets(self):
         """Arranges child widget within their layouts."""
         self.title.setAlignment(QtCore.Qt.AlignHCenter)
-        # self.splash.setAlignment(QtCore.Qt.AlignCenter)
 
         self.container_pane.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding,
                                                                 QtWidgets.QSizePolicy.Expanding))
@@ -189,6 +210,11 @@ class MenuWidget(QtWidgets.QWidget):
         self.function_widgets[widget_index].show()
         self.title.setText(list(definitions.FUNC_WIDGETS.values())[
                            widget_index]['name'])
+
+    @staticmethod
+    def _show_api_key_dialog(options):
+        dialog = factories.dialog_widget_factory('api-key-dialog', options)
+        dialog.exec_()
 
 
 if __name__ == "__main__":

@@ -1,5 +1,8 @@
+# ignore actual, keep sample
 *.env
 !.sample.env
+
+# ignore contents, but keep directory
 /src/scrilla/data/cache/*
 !/src/scrilla/data/cache/.gitkeep
 /src/scrilla/data/static/*
@@ -9,21 +12,27 @@
 !/src/scrilla/data/common/latex/*
 /src/scrilla/data/sql/*
 !/src/scrilla/data/sql/.gitkeep
-/src/scrilla/data/tests/*
+
+# ignore compiled/data files
 *.pyc
-/src/scrilla.egg-info/*
-/dist/*
-/docs/package/*
-/docs/coverage/*
-/docs/build/*
+
+# ignore developer configuration
 .vscode
-/scrilla/static/*
-/tests/.pytest_cache
-/tests/*/.pytest_cache
-/tests/*/*/.pytest_cache
-/tests/*/*/*/.pytest_cache
-/tests/*/*/*/*/.pytest_cache
+scrilla.db
+**/.pytest_cache
+
+# ignore coverage
 .coverage
 coverage.xml
-/bin/*
-/tests/reports
+
+# ignore directories
+/src/scrilla.egg-info/
+/dist/
+/.pytest_cache/
+/docs/package/
+/docs/coverage/
+/docs/build/
+/bin/
+/tests/reports/
+/venv/
+/logs/

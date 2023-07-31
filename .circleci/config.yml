@@ -4,35 +4,44 @@ commands:
   install_python_deps:
     description: install python dependencies
     steps:
-      - restore_cache:  # ensure this step occurs *before* installing dependencies
-          key: python-deps-{{ checksum "requirements.txt"}}
+      - restore_cache:
+          key: python-deps-v5-{{ checksum "requirements.txt"}}
       - run:
           name: python dependencies
-          command: pip3 install -r requirements.txt
+          command: |
+            python3 -m venv ./venv/
+            source ./venv/bin/activate
+            pip3 install -r requirements.txt
       - save_cache:
-          key: python-deps-{{ checksum "requirements.txt"}}
+          key: python-deps-v5-{{ checksum "requirements.txt"}}
           paths:
-            - ".venv"
-            - "/usr/local/lib/python3.9/site-packages"
+            - "./venv/"
 
   build_wheel:
-    description: compress and build python package
+    description: build and package python wheel
     steps:
+      - restore_cache: 
+          key: python-deps-v5-{{ checksum "requirements.txt"}}
       - run:
           name: artifact build
           environment:
             APP_ENV: container
           command: |
+            source ./venv/bin/activate
             touch ./src/scrilla/data/cache/scrilla.db
-            bash ./scripts/install
+            ./scripts/install
             scrilla version
 
   upload_artifacts:
     description: upload package artifacts to PyPi
     steps:
+      - restore_cache: 
+          key: python-deps-v5-{{ checksum "requirements.txt"}}
       - run:
           name: artifact upload
-          command: twine upload -u $PYPI_USERNAME -p $PYPI_PASSWORD dist/*
+          command: |
+            source ./venv/bin/activate
+            twine upload -u $PYPI_USERNAME -p $PYPI_PASSWORD dist/*
 
   commit_version:
     description: commit new version to git
@@ -49,21 +58,18 @@ commands:
             git commit -m "Pipeline Build Version $(cat ./src/scrilla/version.txt)" || true
             git push --set-upstream origin develop/main || true
 
-  install_doc_deps:
-    description: install documentation dependencies
-    steps:
-      - run:
-          name: install virtual server & gui libraries
-          command: sudo apt-get update -y && sudo apt-get install -y xvfb libopengl0 libegl1-mesa libxkbcommon-dev
-
   generate_package_docs:
     description: generate documentation html from docstrings
     steps:
+      - restore_cache:
+          key: python-deps-v5-{{ checksum "requirements.txt"}}
       - attach_workspace:
           at: docs
       - run:
           name: generate docs
-          command: bash ./scripts/package-docs circle-ci
+          command: |
+            source ./venv/bin/activate
+            ./scripts/package-docs circle-ci
       - persist_to_workspace:
           root: docs
           paths: 
@@ -72,45 +78,43 @@ commands:
   generate_source_docs:
     description: generate documentation html from markdown
     steps:
+      - restore_cache:
+          key: python-deps-v5-{{ checksum "requirements.txt"}}
       - attach_workspace:
           at: docs
       - run:
           name: generate docs
           command: |
+            source ./venv/bin/activate
             cd docs
             make html
-            cp -ap ./build/html/. ./
       - persist_to_workspace:
           root: docs
           paths:
-            - ./*
-
-  install_test_deps:
-    description: install testing libraries
-    steps:
-      - run:
-          name: dependency installation
-          command: curl https://deepsource.io/cli | sh
+            - build/html
   
   run_unit_tests: 
-    description: run unit tests against installed wheel
+    description: run unit tests
     steps:
+      - restore_cache: 
+          key: python-deps-v5-{{ checksum "requirements.txt"}}
       - attach_workspace:
           at: docs
       - run: 
           name: unit tests
           environment:
             APP_ENV: container
-            PYTHON_LIB: /home/circleci/.pyenv/versions/3.9.6/lib/python3.9/site-packages/scrilla/
+            AWS_DEFAULT_REGION: us-east-1
+            LOG_LEVEL: none
           command: |
-            bash ./scripts/tests circleci
+            source ./venv/bin/activate
+            ./scripts/tests
             coverage xml
             ./bin/deepsource report --analyzer test-coverage --key python --value-file ./coverage.xml
-            rm -rf ./bin/
       - persist_to_workspace:
           root: docs
           paths: 
-            - coverage
+            - coverage/*
 
   commit_coverage:
     description: push coverage back to git
@@ -121,17 +125,24 @@ commands:
           name: coverage
           command: |
             mkdir /tmp/docs/
-            rm -rf ./docs/make.bat
-            rm -rf ./docs/Makefile
-            cp -ap ./docs/. /tmp/docs/
+            mkdir /tmp/docs/coverage/
+            cp -ap ./docs/build/html/. /tmp/docs/
+            cp -ap ./docs/coverage/. /tmp/docs/coverage/
+            rm /tmp/docs/coverage/.gitignore
             git checkout gh-pages
             git pull
+            rm -rf ./coverage/*
             cp -ap /tmp/docs/. ./
+            find -type f -name '*!home!circleci!.pyenv!versions!*' -delete
+            rm -f Makefile make.bat
             git config user.email "chinchalinchin@gmail.com"
             git config user.name "CircleCi Bot"
             git add .
             git commit -m "Pipeline Unit Tests & Documentation $(echo $(date))" || true
             git push --set-upstream origin gh-pages || true
+        # No idea what the file *!home!circleci!.pyenv!versions!* is, but it's huge
+        # and screws up the job. manually delete it until i figure out what is going on.
+        # I think it probably has something to do with the cache?
 
 jobs:
   pypi_micro_update:
@@ -175,25 +186,26 @@ jobs:
       - build_wheel
       - upload_artifacts
       - commit_version
-  
-  unit_tests:
+
+  dependencies: 
     docker:
-      - image: cimg/python:3.9.6
+      - image: docker.io/chinchalinchin/scrilla-builder:latest
     steps:
       - checkout
       - install_python_deps
-      - build_wheel
-      - install_test_deps
+
+  unit_tests:
+    docker:
+      - image: docker.io/chinchalinchin/scrilla-builder:latest
+    steps:
+      - checkout
       - run_unit_tests
-      - commit_coverage
 
   documentation:
     docker: 
-      - image: cimg/python:3.9.6
+      - image: docker.io/chinchalinchin/scrilla-builder:latest
     steps:
       - checkout
-      - install_python_deps
-      - install_doc_deps
       - generate_package_docs
       - generate_source_docs
       - commit_coverage
@@ -220,11 +232,18 @@ workflows:
 
   github_pages:
     jobs:
+      - dependencies:
+          filters: 
+            branches:
+              only:
+                - develop/main
       - unit_tests:
           filters:
             branches:
               only:
                 - develop/main
+          requires: 
+            - dependencies
       - documentation:
           filters:
             branches:
@@ -232,3 +251,4 @@ workflows:
                 - develop/main
           requires:
             - unit_tests
+            - dependencies

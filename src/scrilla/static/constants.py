@@ -15,6 +15,7 @@ constants = {
     'SIG_FIGS': 5,
     'LOG_LEVEL': {
         'NONE': 'none',
+        'ERROR': 'error',
         'INFO': 'info',
         'DEBUG': 'debug',
         'VERBOSE': 'verbose'

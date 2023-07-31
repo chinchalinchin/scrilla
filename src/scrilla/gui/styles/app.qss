@@ -256,3 +256,21 @@ QPushButton#documentation-button:pressed {
     background-color: $primary-700;
     qproperty-icon: url($documentation-pressed);
 }
+QPushButton#okay-button {
+    border-style: outset;
+    border-color: $primary-900;
+    background-color: $primary-500;
+    qproperty-icon: url($okay-unpressed);
+}
+QPushButton#okay-button:hover {
+    border-style: outset;
+    border-color: $primary-900;
+    background-color: $primary-300;
+    qproperty-icon: url($okay-unpressed);
+}
+QPushButton#okay-button:pressed {
+    border-style: inset;
+    border-color: $primary-900;
+    background-color: $primary-700;
+    qproperty-icon: url($okay-pressed);
+}

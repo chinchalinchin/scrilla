@@ -34,9 +34,9 @@ import defusedxml.ElementTree as ET
 
 from datetime import date
 
-from scrilla import settings, errors, cache
+from scrilla import settings, cache
 from scrilla.static import keys, constants
-from scrilla.util import outputter, helper, dater
+from scrilla.util import errors, outputter, helper, dater
 
 logger = outputter.Logger("scrilla.services", settings.LOG_LEVEL)
 
@@ -136,8 +136,6 @@ class StatManager():
             start_string = dater.to_string(start_date)
             query += f'&{self.service_map["PARAMS"]["START"]}={start_string}'
 
-        logger.debug(f'StatManager Query (w/o key) = {query}')
-
         if self.service_map["PARAMS"].get("KEY", None) is not None:
             if query:
                 return f'{query}&{self.service_map["PARAMS"]["KEY"]}={self.key}'
@@ -189,7 +187,12 @@ class StatManager():
         url = f'{self.url}/{self.service_map["PATHS"]["YIELD"]}?'
         if self._is_treasury():
             url += f'{self.service_map["PARAMS"]["DATA"]}={self.service_map["ARGUMENTS"]["DAILY"]}'
-        url += self._construct_query(start_date=start_date, end_date=end_date)
+        query = self._construct_query(start_date=start_date, end_date=end_date)
+        
+        logger.debug(
+            f'StatManager Query (w/o key) = {url}?{query}', 'StatManager._construct_query')
+
+        url += query
         return url
 
     def get_stats(self, symbol, start_date, end_date):
@@ -205,6 +208,17 @@ class StatManager():
         return formatted_stat
 
     def get_interest_rates(self, start_date, end_date):
+        """
+
+        .. notes::
+            - Regardless of the `scrilla.settings.STAT_MANAGER`, the return format for this method is as follows: 
+                ```json
+                {
+                    "date": [ "value", "value", ... , "value" ],
+                    "date": [ "value", "value", ... , "value" ]
+                }
+                ```
+        """
         url = self._construct_interest_url(
             start_date=start_date, end_date=end_date)
         formatted_interest = {}
@@ -219,24 +233,27 @@ class StatManager():
                 formatted_interest[rate[0]] = rate[1:]
 
         elif self._is_treasury():
-            # this is ugly, but it's the government's fault for not supporting an API
+            # NOTE: this is ugly, but it's the government's fault for not supporting an API
             # from this century.
 
             def __paginate(page_no, page_url):
                 page_url = f'{page_url}&{self.service_map["PARAMS"]["PAGE"]}={page_no}'
-                logger.debug(f'Paginating: {page_url}')
+                logger.verbose(
+                    f'Paginating: {page_url}', 'StatManager.get_interest_rates.__paginate')
                 page_response = ET.fromstring(requests.get(page_url).text)
                 return page_no - 1, page_response
 
             record_time = dater.business_days_between(
                 constants.constants['YIELD_START_DATE'], end_date, True)
-            # subtract to reindex to 0
+            # NOTE: subtract to reindex to 0
             pages = record_time // self.service_map["KEYS"]["PAGE_LENGTH"] - 1
             pages += 1 if record_time % self.service_map["KEYS"]["PAGE_LENGTH"] > 0 else 0
             page = pages
 
-            logger.debug(f'Sorting through {pages} pages of Treasury data')
-            logger.debug(f'Days from {dater.to_string(end_date)} to start of Treasury record: {record_time}')
+            logger.debug(
+                f'Sorting through {pages} pages of Treasury data', 'StatManager.get_interest_rates')
+            logger.debug(
+                f'Days from {dater.to_string(end_date)} to start of Treasury record: {record_time}', 'StatManager.get_interest_rates')
 
             while True:
                 page, response = __paginate(page, url)
@@ -244,8 +261,6 @@ class StatManager():
                     self.service_map["KEYS"]["FIRST_LAYER"])
 
                 if page >= 0:
-                    done = False
-
                     for child in first_layer:
                         xpath = f'{self.service_map["KEYS"]["RATE_XPATH"]}{self.service_map["KEYS"]["DATE"]}'
                         this_date = dater.parse(child.find(xpath).text)
@@ -259,13 +274,9 @@ class StatManager():
                                     f'{self.service_map["KEYS"]["RATE_XPATH"]}{maturity}').text
                                 formatted_interest[date_string].append(
                                     float(interest))
-                                    
-                        if len(formatted_interest) >= dater.business_days_between(start_date, end_date, True):
-                            done = True
-                            break
 
-                    if done:
-                        break
+                        if len(formatted_interest) >= dater.business_days_between(start_date, end_date, True):
+                            return formatted_interest
                 else:
                     break
 
@@ -309,7 +320,8 @@ class DividendManager():
     def _construct_url(self, ticker):
         query = f'{ticker}/{self.service_map["PATHS"]["DIV"]}/{self.service_map["PARAMS"]["FULL"]}'
         url = f'{self.url}/{query}?{self.service_map["PARAMS"]["KEY"]}={self.key}'
-        logger.debug(f'DivManager Query (w/o key) = {query}')
+        logger.debug(
+            f'DivManager Query (w/o key) = {query}', 'DividendManager._construct_url')
         return url
 
     def get_dividends(self, ticker):
@@ -386,7 +398,8 @@ class PriceManager():
 
         auth_query = query + f'&{self.service_map["PARAMS"]["KEY"]}={self.key}'
         url = f'{self.url}?{auth_query}'
-        logger.debug(f'PriceManager query (w/o key) = {query}')
+        logger.debug(
+            f'PriceManager query (w/o key) = {self.url}?{query}', 'PriceManager._construct_url')
         return url
 
     def get_prices(self, ticker: str, start_date: date, end_date: date, asset_type: str):
@@ -446,10 +459,10 @@ class PriceManager():
         while first_element == self.service_map['ERRORS']['RATE_THROTTLE']:
             if first_pass:
                 logger.info(
-                    f'{self.genre} API rate limit per minute exceeded. Waiting...')
+                    f'{self.genre} API rate limit per minute exceeded. Waiting...', 'PriceManager.get_prices')
                 first_pass = False
             else:
-                logger.info('Waiting...')
+                logger.info('Waiting...', 'PriceManager.get_prices')
 
             time.sleep(constants.constants['BACKOFF_PERIOD'])
             response = requests.get(url).json()
@@ -468,7 +481,7 @@ class PriceManager():
             open_price = self._parse_price_from_date(prices=prices, this_date=this_date, asset_type=asset_type,
                                                      which_price=keys.keys['PRICES']['OPEN'])
             format_prices[this_date] = {
-                keys.keys['PRICES']['OPEN']: open_price, keys.keys['PRICES']['CLOSE']: close_price}
+                keys.keys['PRICES']['OPEN']: float(open_price), keys.keys['PRICES']['CLOSE']: float(close_price)}
         return format_prices
 
     def _slice_prices(self, start_date: date, end_date: date, asset_type: str, prices: dict) -> dict:
@@ -565,13 +578,6 @@ class PriceManager():
             f'Verify {asset_type}, {which_price} are allowable values')
 
 
-price_manager = PriceManager(settings.PRICE_MANAGER)
-stat_manager = StatManager(settings.STAT_MANAGER)
-div_manager = DividendManager(settings.DIV_MANAGER)
-price_cache = cache.PriceCache()
-interest_cache = cache.InterestCache()
-
-
 def get_daily_price_history(ticker: str, start_date: Union[None, date] = None, end_date: Union[None, date] = None, asset_type: Union[None, str] = None) -> Dict[str, Dict[str, float]]:
     """
     Wrapper around external service request for price data. Relies on an instance of `PriceManager` configured by `settings.PRICE_MANAGER` value, which in turn is configured by the `PRICE_MANAGER` environment variable, to hydrate with data. 
@@ -620,16 +626,16 @@ def get_daily_price_history(ticker: str, start_date: Union[None, date] = None, e
     start_date, end_date = errors.validate_dates(
         start_date, end_date, asset_type)
 
-    cached_prices = price_cache.filter_price_cache(
+    cached_prices = price_cache.filter(
         ticker=ticker, start_date=start_date, end_date=end_date)
 
     if cached_prices is not None:
         if asset_type == keys.keys['ASSETS']['EQUITY']:
             logger.debug(
-                f'Comparing {len(cached_prices)} = {dater.business_days_between(start_date, end_date)}')
+                f'Comparing cache-size({len(cached_prices)}) = date-length{dater.business_days_between(start_date, end_date)})', 'get_daily_price_history')
         elif asset_type == keys.keys['ASSETS']['CRYPTO']:
             logger.debug(
-                f'Comparing {len(cached_prices)} = {dater.days_between(start_date, end_date)}')
+                f'Comparing cache-size({len(cached_prices)}) = date-length({dater.days_between(start_date, end_date)})', 'get_daily_price_history')
 
     # make sure the length of cache is equal to the length of the requested sample
     if cached_prices is not None and dater.to_string(end_date) in cached_prices.keys() and (
@@ -644,21 +650,17 @@ def get_daily_price_history(ticker: str, start_date: Union[None, date] = None, e
 
     if cached_prices is not None:
         logger.debug(
-            f'Cached {ticker} prices are out of date, passing request off to external service')
+            f'Cached {ticker} prices are out of date, passing request off to external service', 'get_daily_price_history')
 
     prices = price_manager.get_prices(
         ticker=ticker, start_date=start_date, end_date=end_date, asset_type=asset_type)
 
     if cached_prices is not None:
-        new_prices = helper.complement_dict_keys(prices, cached_prices)
+        new_prices = helper.complement_dict_keys(prices, cached_prices)[0]
     else:
         new_prices = prices
 
-    for this_date in new_prices:
-        open_price = new_prices[this_date][keys.keys['PRICES']['OPEN']]
-        close_price = new_prices[this_date][keys.keys['PRICES']['CLOSE']]
-        price_cache.save_row(ticker=ticker, date=this_date,
-                             open_price=open_price, close_price=close_price)
+    price_cache.save_rows(ticker, new_prices)
 
     if not prices:
         raise errors.PriceError(
@@ -772,27 +774,26 @@ def get_daily_interest_history(maturity: str, start_date: Union[date, None] = No
     start_date, end_date = errors.validate_dates(
         start_date=start_date, end_date=end_date, asset_type=keys.keys['ASSETS']['EQUITY'])
 
-    rates = None
-    rates = interest_cache.filter_interest_cache(
+    rates = interest_cache.filter(
         maturity, start_date=start_date, end_date=end_date)
 
     if rates is not None:
         logger.debug(
-            f'Comparing {len(rates)} = {dater.business_days_between(start_date, end_date)}')
+            f'Comparing cache-size({len(rates)}) = date-size({dater.business_days_between(start_date, end_date, True)})', 'get_daily_interest_history')
 
     # TODO: this only works when stats are reported daily and that the latest date in the dataset is actually end_date.
+            # bond prices aren't published until the end of the day...
     if rates is not None and \
-            dater.to_string(end_date) in rates.keys() and \
-            dater.business_days_between(start_date, end_date) == len(rates):
+            dater.to_string(dater.get_previous_business_date(end_date)) in rates.keys() and \
+            dater.business_days_between(start_date, end_date, True) == len(rates):
         return rates
 
     logger.debug(
-        f'Cached {maturity} data is out of date, passing request to external service')
+        f'Cached {maturity} data is out of date, passing request to external service', 'get_daily_interest_history')
     rates = stat_manager.get_interest_rates(
         start_date=start_date, end_date=end_date)
 
-    for this_date in rates:
-        interest_cache.save_row(date=this_date, value=rates[this_date])
+    interest_cache.save_rows(rates)
 
     rates = stat_manager.format_for_maturity(maturity=maturity, results=rates)
 
@@ -808,11 +809,11 @@ def get_daily_interest_latest(maturity: str) -> float:
     1. **maturity**: ``str``
         Maturity of the US Treasury security whose interest rate is to be retrieved. Allowable values accessible through `keys.keys['YIELD_CURVE']
     """
-    end_date = dater.get_last_trading_date()
-    start_date = dater.decrement_date_by_business_days(end_date, 1)
+        # the government is lazy and doesn't publish data on time, so subtract a business day
+    end_date = dater.decrement_date_by_business_days(dater.get_last_trading_date(True), 1, True)
+    start_date = dater.decrement_date_by_business_days(end_date, 1, True)
     interest_history = get_daily_interest_history(
-        maturity=maturity, start_date=start_date, end_date=end_date)
-    print(interest_history)
+        maturity, start_date, end_date)
     first_element = helper.get_first_json_key(interest_history)
     return interest_history[first_element]
 
@@ -833,7 +834,8 @@ def get_dividend_history(ticker: str) -> dict:
     ``list`` : `{ 'date' (str) :  amount (str),  'date' (str):  amount (str), ... }`
         Dictionary with date strings formatted `YYYY-MM-DD` as keys and the dividend payment amount on that date as the corresponding value.
     """
-    logger.debug(f'Retrieving {ticker} dividends from service')
+    logger.debug(
+        f'Retrieving {ticker} dividends from service', 'get_dividend_history')
     divs = div_manager.get_dividends(ticker=ticker)
     return divs
 
@@ -843,3 +845,10 @@ def get_risk_free_rate() -> float:
     Returns the risk free rate, defined as the annualized yield on a specific US Treasury duration, as a decimal. The US Treasury yield used as a proxy for the risk free rate is defined in the `settings.py` file and is configured through the RISK_FREE environment variable.
     """
     return get_daily_interest_latest(maturity=settings.RISK_FREE_RATE)/100
+
+
+price_manager = PriceManager(settings.PRICE_MANAGER)
+stat_manager = StatManager(settings.STAT_MANAGER)
+div_manager = DividendManager(settings.DIV_MANAGER)
+price_cache = cache.PriceCache()
+interest_cache = cache.InterestCache()

@@ -1,5 +1,9 @@
 # Usage
 
+### NOTE
+
+The first time you times you run `scrilla`, it will populate its cache with historical prices, assuming cached functionality is turned on. When this happens, it can take `scrilla` a little while to parse through 30 odd years of financial data. In particular, the Treasury yield curve, due to the absolute insanity of the format in which the Treasury publishes their historical recrods, can take a while to recursively crawl.
+
 ## Command Line
 
 Most functions have been wired into command line arguments. For a full list of <b>scrilla</b>'s functionality,

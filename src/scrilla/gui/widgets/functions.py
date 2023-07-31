@@ -18,7 +18,8 @@ from PySide6 import QtGui, QtCore, QtWidgets
 
 
 from scrilla import settings, services
-from scrilla.static import keys, definitions
+from scrilla.static import keys
+from scrilla.static import formats as app_formats
 # TODO: conditional import based on ANALYSIS_MODE
 from scrilla.analysis import estimators, markets, optimizer, plotter
 from scrilla.analysis.models.geometric import statistics
@@ -269,17 +270,25 @@ class RiskProfileWidget(components.SkeletonWidget):
                                                       columns=['Return', 'Volatility', 'Sharpe', 'Beta', 'Equity Cost'])
 
         profiles = {}
+        start_date = start_date = self.arg_widget.get_control_input(
+            'start_date')
+        end_date = self.arg_widget.get_control_input('end_date')
         for i, symbol in enumerate(symbols):
             profiles[symbol] = statistics.calculate_risk_return(ticker=symbol,
-                                                                start_date=self.arg_widget.get_control_input(
-                                                                    'start_date'),
-                                                                end_date=self.arg_widget.get_control_input('end_date'))
+                                                                start_date=start_date,
+                                                                end_date=end_date)
             profiles[symbol][keys.keys['APP']['PROFILE']
-                             ['SHARPE']] = markets.sharpe_ratio(symbol)
+                             ['SHARPE']] = markets.sharpe_ratio(ticker=symbol,
+                                                                start_date=start_date,
+                                                                end_date=end_date)
             profiles[symbol][keys.keys['APP']['PROFILE']
-                             ['BETA']] = markets.market_beta(symbol)
+                             ['BETA']] = markets.market_beta(ticker=symbol,
+                                                             start_date=start_date,
+                                                             end_date=end_date)
             profiles[symbol][keys.keys['APP']['PROFILE']
-                             ['EQUITY']] = markets.cost_of_equity(symbol)
+                             ['EQUITY']] = markets.cost_of_equity(ticker=symbol,
+                                                                  start_date=start_date,
+                                                                  end_date=end_date)
 
             formatted_profile = formats.format_profile(profiles[symbol])
 
@@ -351,9 +360,9 @@ class CorrelationWidget(components.SkeletonWidget):
             for i in range(0, len(symbols)):
                 for j in range(i, len(symbols)):
                     item_upper = factories.atomic_widget_factory(
-                        component='table-item', title=helper.format_float_percent(matrix[i][j]))
+                        component='table-item', title=app_formats.format_float_percent(matrix[i][j]))
                     item_lower = factories.atomic_widget_factory(
-                        component='table-item', title=helper.format_float_percent(matrix[j][i]))
+                        component='table-item', title=app_formats.format_float_percent(matrix[j][i]))
                     self.table_widget.table.setItem(j, i, item_upper)
                     self.table_widget.table.setItem(i, j, item_lower)
         else:
@@ -429,7 +438,7 @@ class OptimizerWidget(components.SkeletonWidget):
 
             for i in range(len(symbols)):
                 item = factories.atomic_widget_factory(
-                    component='table-item', title=helper.format_float_percent(allocation[i]))
+                    component='table-item', title=app_formats.format_float_percent(allocation[i]))
                 self.table_widget.table.setItem(i, 0, item)
 
                 if investment is not None:
@@ -444,7 +453,7 @@ class OptimizerWidget(components.SkeletonWidget):
             self.arg_widget.fire()
 
         else:
-            print('something went wrong')
+            print('error handling goes here')
 
     @QtCore.Slot()
     def clear(self):

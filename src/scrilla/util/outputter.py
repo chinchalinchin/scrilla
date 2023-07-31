@@ -1,5 +1,5 @@
 import datetime
-from typing import Dict, List, Tuple, Union
+from typing import Dict, List, Union
 
 from scrilla.static import constants, formats, definitions
 
@@ -110,7 +110,7 @@ def equivalent_result(right_hand, left_hand, value, indent=formats.formats['INDE
     print(' '*indent, f'{right_hand} = {left_hand} = {value}')
 
 
-def help_msg(indent=formats.formats['INDENT']):
+def help_msg(indent: int = formats.formats['INDENT'], function_filter: Union[List[str], None] = None):
     func_dict, arg_dict = definitions.FUNC_DICT, definitions.ARG_DICT
 
     title_line('scrilla')
@@ -126,34 +126,37 @@ def help_msg(indent=formats.formats['INDENT']):
     space(1)
 
     for func_name in func_dict:
-        title_line(func_dict[func_name]['name'])
-        for line in break_lines(func_dict[func_name]['description']):
-            center(line)
-        separator_line()
+        if function_filter is None or len(function_filter) == 0 or \
+                any(filt in func_dict[func_name]['values'] for filt in function_filter):
 
-        commands = func_dict[func_name]['values']
-        print(' ', f'COMMAND: {commands[0]}, {commands[1]}')
+            title_line(func_dict[func_name]['name'])
+            for line in break_lines(func_dict[func_name]['description']):
+                center(line)
+            separator_line()
 
-        if func_dict[func_name]['args'] is not None:
-            for arg_name in func_dict[func_name]['args']:
-                aliases = arg_dict[arg_name]['values']
+            commands = func_dict[func_name]['values']
+            print(' ', f'COMMAND: {commands[0]}, {commands[1]}')
 
-                print(
-                    ' '*indent, f'OPTION: {aliases[0]}, {aliases[1]}, {aliases[2]}, {aliases[3]}')
+            if func_dict[func_name]['args'] is not None:
+                for arg_name in func_dict[func_name]['args']:
+                    aliases = arg_dict[arg_name]['values']
 
-                if arg_dict[arg_name]['required']:
-                    print(' '*2*indent, 'REQUIRED')
+                    print(
+                        ' '*indent, f'OPTION: {aliases[0]}, {aliases[1]}, {aliases[2]}, {aliases[3]}')
 
-                print(' '*2*indent, f'NAME: {arg_dict[arg_name]["name"]}')
+                    if arg_dict[arg_name]['required']:
+                        print(' '*2*indent, 'REQUIRED')
 
-                if arg_dict[arg_name]['default'] is not None:
-                    print(' '*2*indent,
-                          f'DEFAULT: {arg_dict[arg_name]["default"]}')
+                    print(' '*2*indent, f'NAME: {arg_dict[arg_name]["name"]}')
 
-                if arg_dict[arg_name]['syntax'] is not None:
-                    print(' '*2*indent,
-                          f'FORMAT: {arg_dict[arg_name]["syntax"]}')
-        separator_line()
+                    if arg_dict[arg_name]['default'] is not None:
+                        print(' '*2*indent,
+                              f'DEFAULT: {arg_dict[arg_name]["default"]}')
+
+                    if arg_dict[arg_name]['syntax'] is not None:
+                        print(' '*2*indent,
+                              f'FORMAT: {arg_dict[arg_name]["syntax"]}')
+            separator_line()
 
 # ANALYSIS SPECIFIC OUTPUT FUNCTIONS
 
@@ -318,7 +321,7 @@ def correlation_matrix(tickers: List[str], correl_matrix: List[List[float]], dis
             else:
                 result = correl_matrix[i][j]
                 formatted_result = str(
-                    100*result)[:constants.constants['SIG_FIGS']]
+                    100*result)[:(constants.constants['SIG_FIGS']+1)]
                 new_line += f' {formatted_result}%'
 
         entire_formatted_result += new_line + '\n'
@@ -358,22 +361,26 @@ class Logger():
         self.log_level = log_level
 
     # LOGGING FUNCTIONS
-    def comment(self, msg):
+    def comment(self, msg, method, level="INFO"):
         now = datetime.datetime.now()
         dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
-        print(dt_string, ' :', self.location, ' : ', msg)
+        print(dt_string, ' : ', level, ':',
+              f'{self.location}.{method}', ' : ', msg)
 
-    def info(self, msg):
+    def error(self, msg, method):
+        self.comment(msg, method, 'ERROR',)
+
+    def info(self, msg, method):
         if self.log_level in [constants.constants['LOG_LEVEL']['INFO'],
                               constants.constants['LOG_LEVEL']['DEBUG'],
                               constants.constants['LOG_LEVEL']['VERBOSE']]:
-            self.comment(msg)
+            self.comment(msg, method, 'INFO')
 
-    def debug(self, msg):
+    def debug(self, msg, method):
         if self.log_level in [constants.constants['LOG_LEVEL']['DEBUG'],
                               constants.constants['LOG_LEVEL']['VERBOSE']]:
-            self.comment(msg)
+            self.comment(msg, method, 'DEBUG')
 
-    def verbose(self, msg):
+    def verbose(self, msg, method):
         if self.log_level == constants.constants['LOG_LEVEL']['VERBOSE']:
-            self.comment(msg)
+            self.comment(msg, method, 'VERBOSE')
