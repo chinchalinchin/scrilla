@@ -188,7 +188,7 @@ class StatManager():
         if self._is_treasury():
             url += f'{self.service_map["PARAMS"]["DATA"]}={self.service_map["ARGUMENTS"]["DAILY"]}'
         query = self._construct_query(start_date=start_date, end_date=end_date)
-        
+
         logger.debug(
             f'StatManager Query (w/o key) = {url}?{query}', 'StatManager._construct_query')
 
@@ -782,7 +782,7 @@ def get_daily_interest_history(maturity: str, start_date: Union[date, None] = No
             f'Comparing cache-size({len(rates)}) = date-size({dater.business_days_between(start_date, end_date, True)})', 'get_daily_interest_history')
 
     # TODO: this only works when stats are reported daily and that the latest date in the dataset is actually end_date.
-            # bond prices aren't published until the end of the day...
+        # bond prices aren't published until the end of the day...
     if rates is not None and \
             dater.to_string(dater.get_previous_business_date(end_date)) in rates.keys() and \
             dater.business_days_between(start_date, end_date, True) == len(rates):
