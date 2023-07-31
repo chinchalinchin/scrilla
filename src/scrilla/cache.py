@@ -483,7 +483,7 @@ class InterestCache(metaclass=Singleton):
 
         if isinstance(end_date, datetime.date):
             end_date = dater.to_string(end_date)
-            
+
         formatter = {'maturity': maturity,
                      'start_date': start_date, 'end_date': end_date}
         results = Cache.execute(
