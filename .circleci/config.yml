@@ -19,29 +19,29 @@ commands:
     description: install python dependencies
     steps:
       - restore_cache:
-          key: python-deps-v6-{{ checksum "requirements.txt"}}
+          key: python-deps-v7-{{ checksum "requirements.txt"}}
       - run:
           name: python dependencies
           command: |
-            python -m venv ./venv/
-            source ./venv/bin/activate
+            python -m venv lib
+            source ./lib/bin/activate
             pip install -r requirements.txt
       - save_cache:
-          key: python-deps-v6-{{ checksum "requirements.txt"}}
+          key: python-deps-v7-{{ checksum "requirements.txt"}}
           paths:
-            - "./venv/"
+            - "./lib/"
 
   build_wheel:
     description: build and package python wheel
     steps:
       - restore_cache: 
-          key: python-deps-v6-{{ checksum "requirements.txt"}}
+          key: python-deps-v7-{{ checksum "requirements.txt"}}
       - run:
           name: artifact build
           environment:
             APP_ENV: container
           command: |
-            source ./venv/bin/activate
+            source ./lib/bin/activate
             touch ./src/scrilla/data/cache/scrilla.db
             ./scripts/install
             scrilla version
@@ -50,11 +50,11 @@ commands:
     description: upload package artifacts to PyPi
     steps:
       - restore_cache: 
-          key: python-deps-v6-{{ checksum "requirements.txt"}}
+          key: python-deps-v7-{{ checksum "requirements.txt"}}
       - run:
           name: artifact upload
           command: |
-            source ./venv/bin/activate
+            source ./lib/bin/activate
             twine upload -u $PYPI_USERNAME -p $PYPI_PASSWORD dist/*
 
   commit_version:
@@ -76,13 +76,13 @@ commands:
     description: generate documentation html from docstrings
     steps:
       - restore_cache:
-          key: python-deps-v6-{{ checksum "requirements.txt"}}
+          key: python-deps-v7-{{ checksum "requirements.txt"}}
       - attach_workspace:
           at: docs
       - run:
           name: generate docs
           command: |
-            source ./venv/bin/activate
+            source ./lib/bin/activate
             ./scripts/package-docs circle-ci
       - persist_to_workspace:
           root: docs
@@ -93,13 +93,13 @@ commands:
     description: generate documentation html from markdown
     steps:
       - restore_cache:
-          key: python-deps-v6-{{ checksum "requirements.txt"}}
+          key: python-deps-v7-{{ checksum "requirements.txt"}}
       - attach_workspace:
           at: docs
       - run:
           name: generate docs
           command: |
-            source ./venv/bin/activate
+            source ./lib/bin/activate
             cd docs
             make html
       - persist_to_workspace:
@@ -111,7 +111,7 @@ commands:
     description: run unit tests
     steps:
       - restore_cache: 
-          key: python-deps-v6-{{ checksum "requirements.txt"}}
+          key: python-deps-v7-{{ checksum "requirements.txt"}}
       - attach_workspace:
           at: docs
       - run: 
@@ -121,7 +121,7 @@ commands:
             AWS_DEFAULT_REGION: us-east-1
             LOG_LEVEL: none
           command: |
-            source ./venv/bin/activate
+            source ./lib/bin/activate
             ./scripts/tests
             coverage xml
             ./bin/deepsource report --analyzer test-coverage --key python --value-file ./coverage.xml
