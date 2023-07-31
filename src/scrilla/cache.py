@@ -78,7 +78,7 @@ class Cache():
                         query, formatter).fetchall()
                     con.commit(), con.close()
                     return response
-                
+
                 response = executor.execute(query, formatter)
                 response = response.fetchall()
                 con.commit(), con.close()
@@ -94,6 +94,7 @@ class Cache():
 
         raise errors.ConfigurationError(
             'CACHE_MODE has not been set in "settings.py"')
+
 
 class PriceCache(metaclass=Singleton):
     """
@@ -255,7 +256,8 @@ class PriceCache(metaclass=Singleton):
         if isinstance(end_date, datetime.date):
             end_date = dater.to_string(end_date)
 
-        formatter = {'ticker': ticker, 'end_date': end_date, 'start_date': start_date}
+        formatter = {'ticker': ticker,
+                     'end_date': end_date, 'start_date': start_date}
 
         results = Cache.execute(
             query=self._query(),
