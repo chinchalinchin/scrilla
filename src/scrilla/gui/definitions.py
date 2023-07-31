@@ -77,7 +77,7 @@ FACTORIES = {
                   'download-button', 'source-button', 'package-button', 'documentation-button',
                   'okay-button', 'button', 'save-dialog', 'table', 'table-item', 'menu-bar'],
         'LABEL': ['title', 'subtitle', 'heading', 'label', 'error', 'text', 'splash', 'figure',
-                  'footer'],
+                  'footer', 'input-label'],
         'BUTTON':  ['calculate-button', 'clear-button', 'hide-button', 'download-button',
                     'source-button', 'package-button', 'documentation-button', 'okay-button', 'button'],
         'DIALOG': ['save-dialog'],
