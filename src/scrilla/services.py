@@ -809,7 +809,8 @@ def get_daily_interest_latest(maturity: str) -> float:
     1. **maturity**: ``str``
         Maturity of the US Treasury security whose interest rate is to be retrieved. Allowable values accessible through `keys.keys['YIELD_CURVE']
     """
-    end_date = dater.get_last_trading_date(True)
+        # the government is lazy and doesn't publish data on time, so subtract a business day
+    end_date = dater.decrement_date_by_business_days(dater.get_last_trading_date(True), 1, True)
     start_date = dater.decrement_date_by_business_days(end_date, 1, True)
     interest_history = get_daily_interest_history(
         maturity, start_date, end_date)
