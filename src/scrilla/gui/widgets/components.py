@@ -67,6 +67,7 @@ class SkeletonWidget(QtWidgets.QWidget):
     2. **parent**: ``PySide6.QtWidgets.QWidget``
         Parent of the widget.
     """
+
     def __init__(self, function: str, parent: QtWidgets.QWidget):
         super(SkeletonWidget, self).__init__(parent)
         self._configure_control_skeleton(function)
@@ -183,21 +184,20 @@ class ArgumentWidget(QtWidgets.QWidget):
         # TODO: yes, yes, very clever...i think. still needs re-factored for clarity.
         # what exactly is going on here?
 
-
         for control in self.controls:
             if self.controls[control]:
                 if definitions.ARG_DICT[control]["widget_type"] != "group":
                     self.control_widgets[control] = factories.argument_widget_factory(definitions.ARG_DICT[control]['widget_type'],
-                                                                                        f'{definitions.ARG_DICT[control]["name"]} :',
-                                                                                        optional=True)
+                                                                                      f'{definitions.ARG_DICT[control]["name"]} :',
+                                                                                      optional=True)
                 else:
                     if self.group_definitions is None:
                         self.group_definitions = {}
                     self.group_definitions[control] = definitions.ARG_DICT[control]
-                                            
+
                     # NOTE: at this point, the following should hold:
                     #   ```python
-                    #   assert isinstance(self.group_definitions, dict[str, any]) 
+                    #   assert isinstance(self.group_definitions, dict[str, any])
                     #   assert isinstance(defintions.ARG_DICT[control]['name'], str)
                     #   assert isinstance(definitions.ARG_DICT[control], dict[str, any])
                     #   ```
@@ -223,7 +223,7 @@ class ArgumentWidget(QtWidgets.QWidget):
 
     def _generate_group_widgets(self):
         """
-        
+
         .. notes::
             - `groups` is an intermediate dictionary used to group the definitions of each group into an array keyed to the group name, e.g.,
                 ```python
@@ -257,7 +257,8 @@ class ArgumentWidget(QtWidgets.QWidget):
 
             # str, dict from `scrilla.static.definitions.ARG_DICT`
             for group_name, group_def in groups.items():
-                control_names = [ single_def['name'] for single_def in group_def ] 
+                control_names = [single_def['name']
+                                 for single_def in group_def]
                 self.group_control_widgets[group_name] = factories.group_widget_factory(
                     control_names, group_name)
 
