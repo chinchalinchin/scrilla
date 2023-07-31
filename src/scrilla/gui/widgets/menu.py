@@ -24,6 +24,7 @@ from scrilla.gui.widgets import factories, functions
 
 # NOTE: widget_buttons and function_widgets must preserve order.
 
+
 def _to_class(name: str):
     if name == 'correlation':
         return functions.CorrelationWidget
@@ -41,6 +42,7 @@ def _to_class(name: str):
         return functions.EfficientFrontierWidget
     if name == 'moving_averages':
         return functions.MovingAverageWidget
+
 
 class MenuWidget(QtWidgets.QWidget):
     """
