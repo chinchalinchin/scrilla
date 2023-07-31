@@ -136,9 +136,6 @@ class StatManager():
             start_string = dater.to_string(start_date)
             query += f'&{self.service_map["PARAMS"]["START"]}={start_string}'
 
-        logger.debug(
-            f'StatManager Query (w/o key) = {query}', 'StatManager._construct_query')
-
         if self.service_map["PARAMS"].get("KEY", None) is not None:
             if query:
                 return f'{query}&{self.service_map["PARAMS"]["KEY"]}={self.key}'
@@ -190,7 +187,12 @@ class StatManager():
         url = f'{self.url}/{self.service_map["PATHS"]["YIELD"]}?'
         if self._is_treasury():
             url += f'{self.service_map["PARAMS"]["DATA"]}={self.service_map["ARGUMENTS"]["DAILY"]}'
-        url += self._construct_query(start_date=start_date, end_date=end_date)
+        query = self._construct_query(start_date=start_date, end_date=end_date)
+        
+        logger.debug(
+            f'StatManager Query (w/o key) = {url}?{query}', 'StatManager._construct_query')
+
+        url += query
         return url
 
     def get_stats(self, symbol, start_date, end_date):
@@ -780,9 +782,10 @@ def get_daily_interest_history(maturity: str, start_date: Union[date, None] = No
             f'Comparing cache-size({len(rates)}) = date-size({dater.business_days_between(start_date, end_date, True)})', 'get_daily_interest_history')
 
     # TODO: this only works when stats are reported daily and that the latest date in the dataset is actually end_date.
+            # bond prices aren't published until the end of the day...
     if rates is not None and \
-            dater.to_string(end_date) in rates.keys() and \
-            dater.business_days_between(start_date, end_date) == len(rates):
+            dater.to_string(dater.get_previous_business_date(end_date)) in rates.keys() and \
+            dater.business_days_between(start_date, end_date, True) == len(rates):
         return rates
 
     logger.debug(
