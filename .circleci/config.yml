@@ -1,6 +1,20 @@
 version: 2.1
 
 commands:
+  install_deepsource_cli:
+    description: install deepsource
+    steps:
+      - restore_cache:
+          key: deepsource-v1
+      - run:
+          name: deepsource cli
+          command:
+            BINDIR=./bin curl https://deepsource.io/cli | sh
+      - save_cache:
+          key: deepsource-v1
+          paths:
+            - "./bin/"
+
   install_python_deps:
     description: install python dependencies
     steps:
@@ -199,6 +213,7 @@ jobs:
       - image: docker.io/chinchalinchin/scrilla-builder:latest
     steps:
       - checkout
+      - install_deepsource_cli
       - run_unit_tests
 
   documentation:
