@@ -87,15 +87,9 @@ FACTORIES = {
         'SIZING': {
             'EXPANDEXPAND': ['figure'],
             'EXPANDMIN': ['table'],
-<<<<<<< HEAD
             'MINMAX': ['splash', 'calculate-button', 'clear-button', 'package-button', 'documentation-button',
                        'okay-button', 'button'],
             'MAXMAX': ['hide-button', 'download-button', 'source-button', ],
-=======
-            'MINMAX': ['splash', 'hide-button', 'download-button', 'source-button'],
-            'MAXMAX': ['calculate-button', 'clear-button', 'package-button', 'documentation-button',
-                       'okay-button', 'button'],
->>>>>>> origin/deepsource-transform-a6cf521a
             'MINMIN': ['widget']
         },
         'ALIGN': {
@@ -106,12 +100,8 @@ FACTORIES = {
             'BOTTOM': ['text', 'footer']
         },
         'TEMPLATE': ['splash'],
-<<<<<<< HEAD
         'TITLED': ['hide-button', 'download-button', 'source-button'],
         'UNTITLED': ['input-label']
-=======
-        'TITLED': ['hide-button', 'download-button', 'source-button']
->>>>>>> origin/deepsource-transform-a6cf521a
     },
     'ARGUMENTS': {
         'TYPES': ['date', 'decimal', 'currency', 'integer', 'flag', 'symbol', 'symbols'],
