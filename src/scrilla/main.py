@@ -50,7 +50,7 @@ def validate_function_usage(selection: str, args: List[str], wrapper_function: C
     """
 
     start_time = time.time()
-    if(not exact and (len(args) > (required_length-1))) or (exact and (len(args) == required_length)):
+    if (not exact and (len(args) > (required_length-1))) or (exact and (len(args) == required_length)):
         wrapper_function()
     elif exact:
         raise InputValidationError(
