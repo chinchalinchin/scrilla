@@ -1438,7 +1438,7 @@ def correlation_matrix(tickers, asset_types=None, start_date=None, end_date=None
             logger.debug(
                 'Assets of same type, which is equity, excluding weekends', 'correlation_matrix')
 
-    if(len(tickers) > 1):
+    if (len(tickers) > 1):
         for i, item in enumerate(tickers):
             correl_matrix[i][i] = 1
             for j in range(i+1, len(tickers)):
