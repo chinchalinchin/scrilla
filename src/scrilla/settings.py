@@ -240,8 +240,8 @@ if PRICE_MANAGER == 'alpha_vantage':
     AV_CRYPTO_LIST = os.environ.setdefault(
         'ALPHA_VANTAGE_CRYPTO_META_URL', 'https://www.alphavantage.co/digital_currency_list/')
 
-    AV_KEY = os.environ.setdefault('ALPHA_VANTAGE_KEY', None)
-
+    AV_KEY = os.environ.get('ALPHA_VANTAGE_KEY')
+    
     if AV_KEY is None:
         keystore = os.path.join(COMMON_DIR, f'ALPHA_VANTAGE_KEY.{FILE_EXT}')
         if os.path.isfile(keystore):
@@ -264,8 +264,8 @@ if STAT_MANAGER == "quandl":
     Q_META_URL = os.environ.setdefault(
         'QUANDL_META_URL', 'https://data.nasdaq.com/api/v3/databases')
 
-    Q_KEY = os.environ.setdefault('QUANDL_KEY', None)
-
+    Q_KEY = os.environ.get('QUANDL_KEY')
+    
     if Q_KEY is None:
         keystore = os.path.join(COMMON_DIR, f'QUANDL_KEY.{FILE_EXT}')
         if os.path.isfile(keystore):
@@ -289,8 +289,8 @@ if DIV_MANAGER == "iex":
     IEX_URL = os.environ.setdefault(
         "IEX_URL", 'https://cloud.iexapis.com/stable/stock')
 
-    IEX_KEY = os.environ.setdefault("IEX_KEY", None)
-
+    IEX_KEY = os.environ.get("IEX_KEY")
+    
     if IEX_KEY is None:
         keystore = os.path.join(COMMON_DIR, f'IEX_KEY.{FILE_EXT}')
         if os.path.isfile(keystore):
@@ -298,45 +298,3 @@ if DIV_MANAGER == "iex":
                 if FILE_EXT == "json":
                     IEX_KEY = json.load(infile)['IEX_KEY']
                     os.environ['IEX_KEY'] = str(IEX_KEY)
-
-
-def q_key() -> str:
-    """Wraps access to the `scrilla.settings.Q_KEY` in an `scrilla.settings.APIKeyError`. Exception is thrown if `scrilla.settings.Q_KEY` cannot be parsed from the environment or the local data directory.
-
-    Raises
-    ------
-    1. **scrilla.settings.APIKeyError**
-    """
-    if not Q_KEY:
-        raise APIKeyError(
-            'Quandl API Key not found. Either set QUANDL_KEY environment variable or use "-store" CLI function to save key.')
-    return Q_KEY
-
-
-def iex_key() -> str:
-    """Wraps access to the `scrilla.settings.IEX_KEY` in an `scrilla.settings.APIKeyError`. Exception is thrown if `scrilla.settings.IEX_KEY` cannot be parsed from the environment or the local data directory
-
-    Raises
-    ------
-    1. **scrilla.settings.APIKeyError**
-    """
-    if not IEX_KEY:
-        raise APIKeyError(
-            'IEX API Key cannot be found. Either set IEX_KEY environment variable or use "-store" CLI function to save key.')
-    return IEX_KEY
-
-
-def av_key() -> str:
-    """Wraps access to the `scrilla.settings.AV_KEY` in an `scrilla.settings.APIKeyError`. Exception is thrown if `scrilla.settings.AV_KEY` cannot be parsed from the environment or the local data directory
-
-    Raises
-    ------
-    1. **scrilla.settings.APIKeyError**
-    """
-    if not AV_KEY:
-        raise APIKeyError(
-            'Alpha Vantage API Key not found. Either set ALPHA_VANTAGE_KEY environment variable or use "-store" CLI function to save key.')
-    return AV_KEY
-
-
-print(CACHE_DIR)

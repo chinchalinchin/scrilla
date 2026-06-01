@@ -84,6 +84,8 @@ def load_file(file_name: str) -> Any:
 def save_file(file_to_save: Dict[str, Any], file_name: str) -> bool:
     ext = file_name.split('.')[-1]
     try:
+        os.makedirs(os.path.dirname(file_name), exist_ok=True)
+        
         with open(file_name, 'w') as outfile:
             if ext == "json":
                 json.dump(file_to_save, outfile)
@@ -186,7 +188,7 @@ def init_static_data():
             # TODO: services calls should be in services.py! need to put this and the helper method
             #       into services.py in the future.
             query = f'{service_map["PARAMS"]["FUNCTION"]}={service_map["ARGUMENTS"]["EQUITY_LISTING"]}'
-            url = f'{settings.AV_URL}?{query}&{service_map["PARAMS"]["KEY"]}={settings.av_key()}'
+            url = f'{settings.AV_URL}?{query}&{service_map["PARAMS"]["KEY"]}={settings.AV_KEY}'
             static_tickers_blob = parse_csv_response_column(column=0, url=url, savefile=settings.STATIC_TICKERS_FILE,
                                                             firstRowHeader=service_map['KEYS']['EQUITY']['HEADER'])
 

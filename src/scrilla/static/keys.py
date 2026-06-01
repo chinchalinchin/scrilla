@@ -81,7 +81,8 @@ keys = {
                         'EQUITY_DAILY': 'TIME_SERIES_DAILY',
                         'EQUITY_LISTING': 'LISTING_STATUS',
                         'CRYPTO_DAILY': 'DIGITAL_CURRENCY_DAILY',
-                        'FULL': 'full'
+                        'FULL': 'full', 
+                        'COMPACT': 'compact'
                     },
                     'ERRORS': {
                         'RATE_THROTTLE': 'Note',

@@ -44,9 +44,8 @@
 
 64. exponential moving averages. also, there has to be a better way of calculating moving averages than the way it is currently being done. research recursive ma algorithms.
 
-<<<<<<< HEAD
 65. labels have disappeared from the gui after your brilliant refactoring. great job.
-=======
+
 BUGS
 ----
 
@@ -72,4 +71,3 @@ BUGS
     First time, but not after.
 
 2. When you reinstall, it doesn't wipe memory.json from installation dir...
->>>>>>> 56debc10 (update price endpoint)

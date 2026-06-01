@@ -310,7 +310,7 @@ class DividendManager():
         self.genre = genre
         if self.genre == keys.keys['SERVICES']['DIVIDENDS']['IEX']['MANAGER']:
             self.service_map = keys.keys['SERVICES']['DIVIDENDS']['IEX']['MAP']
-            self.key = settings.iex_key()
+            self.key = settings.IEX_KEY
             self.url = settings.IEX_URL
 
         if self.service_map is None:
@@ -360,7 +360,7 @@ class PriceManager():
         if self.genre == keys.keys['SERVICES']['PRICES']['ALPHA_VANTAGE']['MANAGER']:
             self.service_map = keys.keys['SERVICES']['PRICES']['ALPHA_VANTAGE']['MAP']
             self.url = settings.AV_URL
-            self.key = settings.av_key()
+            self.key = settings.AV_KEY
         if self.service_map is None:
             raise errors.ConfigurationError(
                 'No PRICE_MANAGER found in the parsed environment settings')
@@ -390,7 +390,7 @@ class PriceManager():
 
         if asset_type == keys.keys['ASSETS']['EQUITY']:
             query += f'&{self.service_map["PARAMS"]["FUNCTION"]}={self.service_map["ARGUMENTS"]["EQUITY_DAILY"]}'
-            query += f'&{self.service_map["PARAMS"]["SIZE"]}={self.service_map["ARGUMENTS"]["FULL"]}'
+            query += f'&{self.service_map["PARAMS"]["SIZE"]}={self.service_map["ARGUMENTS"]["COMPACT"]}'
 
         elif asset_type == keys.keys['ASSETS']['CRYPTO']:
             query += f'&{self.service_map["PARAMS"]["FUNCTION"]}={self.service_map["ARGUMENTS"]["CRYPTO_DAILY"]}'
@@ -441,6 +441,11 @@ class PriceManager():
             If the service from which data is being retrieved is down, the request has been rate limited or some otherwise anomalous event has taken place, this error will be thrown.
         """
         url = self._construct_url(ticker, asset_type)
+
+        # Enforce 2-second sleep to clear AV's 1 req/sec throttle
+        logger.debug('Sleeping for 2 seconds to respect AV free tier 1 req/sec limit.', 'PriceManager.get_prices')
+        time.sleep(2)
+        
         response = requests.get(url).json()
 
         first_element = helper.get_first_json_key(response)
@@ -525,11 +530,11 @@ class PriceManager():
             elif asset_type == keys.keys['ASSETS']['CRYPTO']:
                 response_map = self.service_map['KEYS']['CRYPTO']['FIRST_LAYER']
 
-            start_index = list(prices[response_map].keys()).index(start_string)
-            end_index = list(prices[response_map].keys()).index(end_string)
-            prices = dict(itertools.islice(
-                prices[response_map].items(), end_index, start_index+1))
-            return prices
+            # Use ISO-8601 lexicographical bounds checking to bypass missing dates
+            return {
+                k: v for k, v in prices[response_map].items()
+                if start_string <= k <= end_string
+            }
 
         raise errors.ConfigurationError(
             'No PRICE_MANAGER found in the parsed environment settings')
