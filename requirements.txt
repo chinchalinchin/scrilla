@@ -26,7 +26,6 @@ requests>=2.31.0
 holidays>=0.14.2
 python-dateutil>=2.8.2
 defusedxml>=0.7.1
-pandas
 
 # GUI Dependencies
 PySide6>=6.2.0

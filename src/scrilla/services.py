@@ -26,15 +26,17 @@ os.environ.setdefault('ALPHA_VANTAGE_KEY')
 prices = get_daily_price_history('AAPL')
 ```
 """
+# Standard Library
 import itertools
 import time
-import requests
 from typing import Dict, List, Union
-
 import datetime
 
+# External Library
+import requests
 import defusedxml.ElementTree as ET
 
+# Application Library
 from scrilla import settings, cache
 from scrilla.static import keys, constants
 from scrilla.util import errors, outputter, helper, dater
@@ -65,6 +67,7 @@ class StatManager():
     def __init__(self, genre):
         self.genre = genre
         self.service_map = None
+
         if self._is_quandl():
             self.service_map = keys.keys["SERVICES"]["STATISTICS"]["QUANDL"]["MAP"]
             self.key = settings.Q_KEY
@@ -342,11 +345,13 @@ class PriceManager():
 
     Raises
     ------
+    
     1. **scrilla.errors.ConfigurationError**
         If the **PRICE_MANAGER** environment variable hasn't been set or set to a value the program doesn't understand, this error will be thrown when this class is instantiated.
 
     Attributes
     ----------
+
     1. **genre**: ``str``
         A string denoting which service will be used for data hydration. Genres can be accessed through the `keys.keys['SERVICES']` dictionary.
     2. **self.service_map**: ``dict``
@@ -362,9 +367,6 @@ class PriceManager():
             self.url = settings.AV_URL
             self.key = settings.AV_KEY
 
-        if self.genre == keys.keys['SERVICES']['PRICES']['YAHOO']['MANAGER']:
-            self.service_map = keys.keys['SERVICES']['PRICES']['YAHOO']['MAP']
-
         if self.service_map is None:
             raise errors.ConfigurationError(
                 'No PRICE_MANAGER found in the parsed environment settings')
@@ -376,6 +378,7 @@ class PriceManager():
 
         Parameters
         ----------
+
         1. **ticker**: ``str`
             Ticker symbol of the asset whose prices are being retrieved.
         2. **asset_type**: ``str``
@@ -384,6 +387,7 @@ class PriceManager():
 
         Returns
         -------
+
         `str`
             The URL with the authenticated query appended, i.e. with the service's API key injected into the parameters. Be careful not to expose the return value of this function!
 
@@ -419,6 +423,7 @@ class PriceManager():
 
         Parameters
         ----------
+
         1. **ticker** : ``str``
             Ticker symbol of the asset whose prices are being retrieved.
         2. **start_date**; ``str``
@@ -446,6 +451,7 @@ class PriceManager():
 
         Raises
         ------
+
         1. **scrilla.errors.ConfigurationError**
             If one of the settings is improperly configured or one of the environment variables was unable to be parsed from the environment, this error will be thrown.
         2. **scrilla.errors.APIResponseError**
@@ -457,6 +463,8 @@ class PriceManager():
             
             response = requests.get(url).json()
 
+            print(response)
+            
             first_element = helper.get_first_json_key(response)
 
             if first_element == self.service_map['ERRORS']['RATE_LIMIT']:
@@ -470,7 +478,10 @@ class PriceManager():
             # check and wait for API rate limit refresh
             first_element = helper.get_first_json_key(response)
 
-            while first_element == self.service_map['ERRORS']['RATE_THROTTLE']:
+            while first_element in [
+                self.service_map['ERRORS']['RATE_THROTTLE'],
+                self.service_map['ERRORS']['RATE_LIMIT']
+            ]:
                 logger.info(
                     f'{self.genre} API rate limit per minute exceeded. Waiting...', 'PriceManager.get_prices')
 
@@ -508,41 +519,6 @@ class PriceManager():
                 }
             return format_prices
 
-        # ELSE USE YFINANCE
-
-        yf_ticker = f"{ticker}-USD" if asset_type == keys.keys['ASSETS']['CRYPTO'] else ticker
-
-        logger.debug(f'Requesting {yf_ticker} from yfinance...', 'PriceManager.get_prices')
-
-        # yfinance 'end' date is exclusive, so we must add 1 day to capture the requested end_date
-        yf_end = end_date + datetime.timedelta(days=1)
-
-        try:
-            # Initialize Ticker object and request historical data
-            asset = yf.Ticker(yf_ticker)
-            df = asset.history(start=start_date, end=yf_end)
-
-            if df.empty:
-                raise errors.APIResponseError(f"No price data found for {yf_ticker} between {start_date} and {end_date}.")
-
-            # Sort the DataFrame descending (latest to earliest) to match original application logic
-            df = df.sort_index(ascending=False)
-
-            formatted_prices = {}
-            for index, row in df.iterrows():
-                # Extract the string date format (YYYY-MM-DD) from the pandas DatetimeIndex
-                date_str = index.strftime(settings.DATE_FORMAT)
-                
-                formatted_prices[date_str] = {
-                    keys.keys['PRICES']['OPEN']: float(row['Open']),
-                    keys.keys['PRICES']['CLOSE']: float(row['Close'])
-                }
-
-            return formatted_prices
-
-        except Exception as e:
-            raise errors.APIResponseError(f"Failed to retrieve data from yfinance: {str(e)}")
-
 
     def _slice_prices(self, 
         start_date: datetime.date, 
@@ -555,6 +531,7 @@ class PriceManager():
 
         Parameters
         ----------
+
         1. **start_date** : ``datetime.date``
         2. **end_date** : ``datetime.date``
         3. **asset_type** : ``str``
@@ -565,12 +542,14 @@ class PriceManager():
 
         Returns
         -------
+
         ``dict``: `{ 'date': value, 'date': value, ...}`
             Dictionary of prices with date as key, ordered from latest to earliest.
 
 
         Raises
         ------
+
         1. **KeyError**
             If the inputted or validated dates do not exist in the price history, a KeyError will be thrown. This could be due to the equity not having enough price history, i.e. it started trading a month ago and doesn't have 100 days worth of prices yet, or some other anomalous event in an equity's history. 
         2. **scrilla.errors.ConfigurationError**
@@ -744,7 +723,10 @@ def get_daily_price_history(
     return prices
 
 
-def get_daily_price_latest(ticker: str, asset_type: Union[None, str] = None) -> float:
+def get_daily_price_latest(
+    ticker: str, 
+    asset_type: Union[None, str] = None
+) -> float:
     """
     Returns the latest closing price for a given ticker symbol.
 
@@ -762,13 +744,20 @@ def get_daily_price_latest(ticker: str, asset_type: Union[None, str] = None) -> 
     return prices[first_element][keys.keys['PRICES']['OPEN']]
 
 
-def get_daily_prices_latest(tickers: List[str], asset_types: Union[None, List[str]] = None):
+def get_daily_prices_latest(
+    tickers: List[str], 
+    asset_types: Union[None, List[str]] = None
+) -> dict:
     if asset_types is None:
         asset_types = [None for _ in tickers]
     return {ticker: get_daily_price_latest(ticker, asset_types[i]) for i, ticker in enumerate(tickers)}
 
 
-def get_daily_fred_history(symbol: str, start_date: Union[date, None] = None, end_date: Union[date, None] = None) -> list:
+def get_daily_fred_history(
+    symbol: str, 
+    start_date: Union[datetime.date, None] = None, 
+    end_date: Union[datetime.date, None] = None
+) -> list:
     """
     Wrapper around external service request for financial statistics data constructed by the Federal Reserve Economic Data. Relies on an instance of `StatManager` configured by `settings.STAT_MANAGER` value, which in turn is configured by the `STAT_MANAGER` environment variable, to hydrate with data.
 
@@ -823,7 +812,11 @@ def get_daily_fred_latest(symbol: str) -> float:
     return stats_history[first_element]
 
 
-def get_daily_interest_history(maturity: str, start_date: Union[date, None] = None, end_date: Union[date, None] = None) -> list:
+def get_daily_interest_history(
+    maturity: str, 
+    start_date: Union[datetime.date, None] = None, 
+    end_date: Union[datetime.date, None] = None
+) -> list:
     """
     Wrapper around external service request for US Treasury Yield Curve data. Relies on an instance of `StatManager` configured by `settings.STAT_MANAGER` value, which in turn is configured by the `STAT_MANAGER` environment variable, to hydrate with data.
 
