@@ -6,7 +6,7 @@ constants = {
         'CRYPTO': (1/365)
     },
     'ACCURACY': 7,
-    'BACKOFF_PERIOD': 30,
+    'BACKOFF_PERIOD': 60,
     'KEEP_FILE': '.gitkeep',
     'PRICE_YEAR_CUTOFF': 1950,
     'DENOMINATION': 'USD',

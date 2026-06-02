@@ -30,9 +30,10 @@ import itertools
 import time
 import requests
 from typing import Dict, List, Union
-import defusedxml.ElementTree as ET
 
-from datetime import date
+import datetime
+
+import defusedxml.ElementTree as ET
 
 from scrilla import settings, cache
 from scrilla.static import keys, constants
@@ -68,10 +69,12 @@ class StatManager():
             self.service_map = keys.keys["SERVICES"]["STATISTICS"]["QUANDL"]["MAP"]
             self.key = settings.Q_KEY
             self.url = settings.Q_URL
+
         elif self._is_treasury():
             self.service_map = keys.keys["SERVICES"]["STATISTICS"]["TREASURY"]["MAP"]
             self.url = settings.TR_URL
             self.key = None
+            
         if self.service_map is None:
             raise errors.ConfigurationError(
                 'No STAT_MANAGER found in the environment settings')
@@ -87,9 +90,7 @@ class StatManager():
             * This is for use within the class and probably won't need to be accessed outside of it. `StatManager` is intended to hide the data implementation from the rest of the library, i.e. it is ultimately agnostic about where the data comes where. It should never need to know `StatManger` is a Quandl interface. Just in case the library ever needs to populate its data from another source.
 
         """
-        if self.genre == keys.keys['SERVICES']['STATISTICS']['QUANDL']['MANAGER']:
-            return True
-        return False
+        return self.genre == keys.keys['SERVICES']['STATISTICS']['QUANDL']['MANAGER']
 
     def _is_treasury(self):
         """
@@ -102,11 +103,9 @@ class StatManager():
             * This is for use within the class and probably won't need to be accessed outside of it. `StatManager` is intended to hide the data implementation from the rest of the library, i.e. it is ultimately agnostic about where the data comes where. It should never need to know `StatManger` is a Quandl interface. Just in case the library ever needs to populate its data from another source.
 
         """
-        if self.genre == keys.keys['SERVICES']['STATISTICS']['TREASURY']['MANAGER']:
-            return True
-        return False
+        return self.genre == keys.keys['SERVICES']['STATISTICS']['TREASURY']['MANAGER']
 
-    def _construct_query(self, start_date: date, end_date: date) -> str:
+    def _construct_query(self, start_date: datetime.date, end_date: datetime.date) -> str:
         """
         Constructs and formats the query parameters for the external statistics service. Note, this method appends the API key to the query. Be careful with the returned value.
 
@@ -142,7 +141,7 @@ class StatManager():
             return f'{self.service_map["PARAMS"]["KEY"]}={self.key}'
         return query
 
-    def _construct_stat_url(self, symbol: str, start_date: date, end_date: date):
+    def _construct_stat_url(self, symbol: str, start_date: datetime.date, end_date: datetime.date):
         """
         Constructs the full URL path for the external statistics service. Note, this method will return the URL with an API key appended as a query parameter. Be careful with the returned value.
 
@@ -357,15 +356,21 @@ class PriceManager():
 
     def __init__(self, genre):
         self.genre = genre
+
         if self.genre == keys.keys['SERVICES']['PRICES']['ALPHA_VANTAGE']['MANAGER']:
             self.service_map = keys.keys['SERVICES']['PRICES']['ALPHA_VANTAGE']['MAP']
             self.url = settings.AV_URL
             self.key = settings.AV_KEY
+
+        if self.genre == keys.keys['SERVICES']['PRICES']['YAHOO']['MANAGER']:
+            self.service_map = keys.keys['SERVICES']['PRICES']['YAHOO']['MAP']
+
         if self.service_map is None:
             raise errors.ConfigurationError(
                 'No PRICE_MANAGER found in the parsed environment settings')
 
-    def _construct_url(self, ticker, asset_type):
+
+    def _construct_url(self, ticker: str, asset_type: str) -> str:
         """
         Constructs the service url with the query and parameters appended. 
 
@@ -402,7 +407,13 @@ class PriceManager():
             f'PriceManager query (w/o key) = {self.url}?{query}', 'PriceManager._construct_url')
         return url
 
-    def get_prices(self, ticker: str, start_date: date, end_date: date, asset_type: str):
+
+    def get_prices(self, 
+        ticker: str, 
+        start_date: datetime.date, 
+        end_date: datetime.date, 
+        asset_type: str
+    ) -> dict:
         """
         Retrieve prices from external service.
 
@@ -440,56 +451,105 @@ class PriceManager():
         2. **scrilla.errors.APIResponseError**
             If the service from which data is being retrieved is down, the request has been rate limited or some otherwise anomalous event has taken place, this error will be thrown.
         """
-        url = self._construct_url(ticker, asset_type)
+        if self.genre != keys.keys['SERVICES']['PRICES']['YAHOO']['MANAGER']:
 
-        # Enforce 2-second sleep to clear AV's 1 req/sec throttle
-        logger.debug('Sleeping for 2 seconds to respect AV free tier 1 req/sec limit.', 'PriceManager.get_prices')
-        time.sleep(2)
-        
-        response = requests.get(url).json()
-
-        first_element = helper.get_first_json_key(response)
-        # end function is daily rate limit is reached
-        if first_element == self.service_map['ERRORS']['RATE_LIMIT']:
-            raise errors.APIResponseError(
-                response[self.service_map['ERRORS']['RATE_LIMIT']])
-            # check for bad response
-        if first_element == self.service_map['ERRORS']['INVALID']:
-            raise errors.APIResponseError(
-                response[self.service_map['ERRORS']['INVALID']])
-
-        # check and wait for API rate limit refresh
-        first_pass, first_element = True, helper.get_first_json_key(response)
-
-        while first_element == self.service_map['ERRORS']['RATE_THROTTLE']:
-            if first_pass:
-                logger.info(
-                    f'{self.genre} API rate limit per minute exceeded. Waiting...', 'PriceManager.get_prices')
-                first_pass = False
-            else:
-                logger.info('Waiting...', 'PriceManager.get_prices')
-
-            time.sleep(constants.constants['BACKOFF_PERIOD'])
+            url = self._construct_url(ticker, asset_type)
+            
             response = requests.get(url).json()
+
             first_element = helper.get_first_json_key(response)
+
+            if first_element == self.service_map['ERRORS']['RATE_LIMIT']:
+                raise errors.APIResponseError(
+                    response[self.service_map['ERRORS']['RATE_LIMIT']])
 
             if first_element == self.service_map['ERRORS']['INVALID']:
                 raise errors.APIResponseError(
                     response[self.service_map['ERRORS']['INVALID']])
 
-        prices = self._slice_prices(
-            start_date=start_date, end_date=end_date, asset_type=asset_type, prices=response)
-        format_prices = {}
-        for this_date in prices:
-            close_price = self._parse_price_from_date(prices=prices, this_date=this_date, asset_type=asset_type,
-                                                      which_price=keys.keys['PRICES']['CLOSE'])
-            open_price = self._parse_price_from_date(prices=prices, this_date=this_date, asset_type=asset_type,
-                                                     which_price=keys.keys['PRICES']['OPEN'])
-            format_prices[this_date] = {
-                keys.keys['PRICES']['OPEN']: float(open_price), keys.keys['PRICES']['CLOSE']: float(close_price)}
-        return format_prices
+            # check and wait for API rate limit refresh
+            first_element = helper.get_first_json_key(response)
 
-    def _slice_prices(self, start_date: date, end_date: date, asset_type: str, prices: dict) -> dict:
+            while first_element == self.service_map['ERRORS']['RATE_THROTTLE']:
+                logger.info(
+                    f'{self.genre} API rate limit per minute exceeded. Waiting...', 'PriceManager.get_prices')
+
+                time.sleep(constants.constants['BACKOFF_PERIOD'])
+                response = requests.get(url).json()
+                first_element = helper.get_first_json_key(response)
+
+                if first_element == self.service_map['ERRORS']['INVALID']:
+                    raise errors.APIResponseError(
+                        response[self.service_map['ERRORS']['INVALID']])
+
+            prices = self._slice_prices(
+                start_date=start_date, 
+                end_date=end_date, 
+                asset_type=asset_type, 
+                prices=response
+            )
+            format_prices = {}
+            for this_date in prices:
+                close_price = self._parse_price_from_date(
+                    prices=prices, 
+                    this_date=this_date, 
+                    asset_type=asset_type,
+                    which_price=keys.keys['PRICES']['CLOSE']
+                )
+                open_price = self._parse_price_from_date(
+                    prices=prices, 
+                    this_date=this_date, 
+                    asset_type=asset_type,
+                    which_price=keys.keys['PRICES']['OPEN']
+                )
+                format_prices[this_date] = {
+                    keys.keys['PRICES']['OPEN']: float(open_price), 
+                    keys.keys['PRICES']['CLOSE']: float(close_price)
+                }
+            return format_prices
+
+        # ELSE USE YFINANCE
+
+        yf_ticker = f"{ticker}-USD" if asset_type == keys.keys['ASSETS']['CRYPTO'] else ticker
+
+        logger.debug(f'Requesting {yf_ticker} from yfinance...', 'PriceManager.get_prices')
+
+        # yfinance 'end' date is exclusive, so we must add 1 day to capture the requested end_date
+        yf_end = end_date + datetime.timedelta(days=1)
+
+        try:
+            # Initialize Ticker object and request historical data
+            asset = yf.Ticker(yf_ticker)
+            df = asset.history(start=start_date, end=yf_end)
+
+            if df.empty:
+                raise errors.APIResponseError(f"No price data found for {yf_ticker} between {start_date} and {end_date}.")
+
+            # Sort the DataFrame descending (latest to earliest) to match original application logic
+            df = df.sort_index(ascending=False)
+
+            formatted_prices = {}
+            for index, row in df.iterrows():
+                # Extract the string date format (YYYY-MM-DD) from the pandas DatetimeIndex
+                date_str = index.strftime(settings.DATE_FORMAT)
+                
+                formatted_prices[date_str] = {
+                    keys.keys['PRICES']['OPEN']: float(row['Open']),
+                    keys.keys['PRICES']['CLOSE']: float(row['Close'])
+                }
+
+            return formatted_prices
+
+        except Exception as e:
+            raise errors.APIResponseError(f"Failed to retrieve data from yfinance: {str(e)}")
+
+
+    def _slice_prices(self, 
+        start_date: datetime.date, 
+        end_date: datetime.date, 
+        asset_type: str, 
+        prices: dict
+    ) -> dict:
         """
         Parses the raw response from the external price service into a format the program will understand.
 
@@ -539,7 +599,12 @@ class PriceManager():
         raise errors.ConfigurationError(
             'No PRICE_MANAGER found in the parsed environment settings')
 
-    def _parse_price_from_date(self, prices: Dict[str, Dict[str, float]], this_date: date, asset_type: str, which_price: str) -> str:
+    def _parse_price_from_date(self, 
+        prices: Dict[str, Dict[str, float]], 
+        this_date: datetime.date, 
+        asset_type: str, 
+        which_price: str
+    ) -> str:
         """
         Parameters
         ----------
@@ -583,7 +648,12 @@ class PriceManager():
             f'Verify {asset_type}, {which_price} are allowable values')
 
 
-def get_daily_price_history(ticker: str, start_date: Union[None, date] = None, end_date: Union[None, date] = None, asset_type: Union[None, str] = None) -> Dict[str, Dict[str, float]]:
+def get_daily_price_history(
+    ticker: str, 
+    start_date: Union[None, datetime.date] = None, 
+    end_date: Union[None, datetime.date] = None, 
+    asset_type: Union[None, str] = None
+) -> Dict[str, Dict[str, float]]:
     """
     Wrapper around external service request for price data. Relies on an instance of `PriceManager` configured by `settings.PRICE_MANAGER` value, which in turn is configured by the `PRICE_MANAGER` environment variable, to hydrate with data. 
 

@@ -90,6 +90,10 @@ keys = {
                         'INVALID': 'Error Message'
                     }
                 }
+            },
+            'YAHOO': {
+                'MANAGER': 'yfinance',
+                'MAP': {}
             }
         },
         'STATISTICS': {

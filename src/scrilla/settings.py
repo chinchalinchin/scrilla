@@ -227,7 +227,7 @@ DYNAMO_CONF = {
 
 # SERVICE CONFIGURATION
 # PRICE_MANAGER CONFIGRUATION
-PRICE_MANAGER = os.environ.setdefault('PRICE_MANAGER', 'alpha_vantage')
+PRICE_MANAGER = os.environ.setdefault('PRICE_MANAGER', 'yfinance')
 """Determines the service used to retrieve price data"""
 
 AV_KEY = None
