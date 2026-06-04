@@ -4,6 +4,7 @@ include src/scrilla/data/cache/*
 include src/scrilla/data/common/memory.json 
 include src/scrilla/data/static/.gitkeep
 include src/scrilla/data/tmp/.gitkeep
+include src/scrilla/data/app.yaml
 include src/scrilla/gui/styles/*
 include src/scrilla/gui/templates/*
 include src/scrilla/version.txt

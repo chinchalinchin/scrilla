@@ -1,0 +1,101 @@
+constants:
+  OPTIMIZATION_METHOD: "SLSQP"
+  BACKOFF_PERIOD: 60
+  DENOMINATION: "USD"
+  ONE_TRADING_DAY:
+    EQUITY: 252
+    CRYPTO: 365
+  NPV_DELTA_TOLERANCE: 0.0001
+  KEEP_FILE: ".gitkeep"
+  YIELD_START_DATE: "1990-01-02"
+  ACCURACY: 6
+
+definitions:
+  FUNC_DICT:
+    help:
+      values: ["help", "h"]
+    clear_cache:
+      values: ["clear-cache"]
+    clear_static:
+      values: ["clear-static"]
+    clear_common:
+      values: ["clear-common"]
+    list_watchlist:
+      values: ["watchlist", "ls"]
+    purge:
+      values: ["purge"]
+    version:
+      values: ["version", "v"]
+    yield_curve:
+      values: ["yield-curve"]
+    asset_type:
+      values: ["asset"]
+    var:
+      values: ["var"]
+    cvar:
+      values: ["cvar"]
+    capm_equity_cost:
+      values: ["capm-equity"]
+    capm_beta:
+      values: ["capm-beta"]
+    close:
+      values: ["close"]
+    correlation:
+      values: ["correlation"]
+    correlation_time_series:
+      values: ["correlations"]
+    discount_dividend:
+      values: ["discount-dividend-model"]
+    dividends:
+      values: ["dividends"]
+    efficient_frontier:
+      values: ["efficient-frontier"]
+    maximize_return:
+      values: ["max-return"]
+    moving_averages:
+      values: ["mov-averages"]
+    optimize_portfolio:
+      values: ["optimize-portfolio"]
+    optimize_portfolio_conditional_var:
+      values: ["optimize-cvar"]
+    plot_correlation:
+      values: ["plot-correlations"]
+    plot_dividends:
+      values: ["plot-dividends"]
+    plot_frontier:
+      values: ["plot-efficient-frontier"]
+    plot_moving_averages:
+      values: ["plot-moving-averages"]
+    plot_return_qq:
+      values: ["plot-returns"]
+    plot_return_dist:
+      values: ["plot-returns-dist"]
+    plot_risk_profile:
+      values: ["plot-risk-profile"]
+    plot_yield_curve:
+      values: ["plot-yield-curve"]
+    price_history:
+      values: ["prices"]
+    interest_history:
+      values: ["interest"]
+    risk_free_rate:
+      values: ["risk-free"]
+    risk_profile:
+      values: ["risk-profile"]
+    screener:
+      values: ["screen"]
+    sharpe_ratio:
+      values: ["sharpe-ratio"]
+    store:
+      values: ["store"]
+    statistic:
+      values: ["stat"]
+    statistic_history:
+      values: ["stats"]
+    watchlist:
+      values: ["watch"]
+
+formats:
+  BINS: 50
+  BAR_WIDTH: 0.25
+  RISK_FREE_TITLE: "Risk Free Rate ({})"

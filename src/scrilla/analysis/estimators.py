@@ -198,8 +198,14 @@ def sample_correlation(x: List[float], y: List[float]):
     return correlation
 
 
-def recursive_rolling_correlation(correl_previous, new_x_observation, lost_x_obs,
-                                  new_y_obs, lost_y_obs, n=settings.DEFAULT_ANALYSIS_PERIOD):
+def recursive_rolling_correlation(
+    correl_previous, 
+    new_x_observation, 
+    lost_x_obs,
+    new_y_obs, 
+    lost_y_obs, 
+    n=settings.DEFAULT_ANALYSIS_PERIOD
+):
     # TODO: after other rolling functions work...
     pass
 
@@ -237,7 +243,12 @@ def sample_mean(x: List[float]) -> float:
     return xbar
 
 
-def recursive_rolling_mean(xbar_previous, new_obs, lost_obs, n=settings.DEFAULT_ANALYSIS_PERIOD):
+def recursive_rolling_mean(
+    xbar_previous, 
+    new_obs, 
+    lost_obs, 
+    n=settings.DEFAULT_ANALYSIS_PERIOD
+):
     # this should be done in terms of the sample arrays, not the observations themselves, i think.
     xbar_next = xbar_previous + (new_obs - lost_obs)/n
     return xbar_next
@@ -282,10 +293,20 @@ def sample_variance(x: List[float]):
     return sigma
 
 
-def recursive_rolling_variance(var_previous, xbar_previous, new_obs, lost_obs, n=settings.DEFAULT_ANALYSIS_PERIOD):
+def recursive_rolling_variance(
+    var_previous, 
+    xbar_previous, 
+    new_obs, 
+    lost_obs, 
+    n=settings.DEFAULT_ANALYSIS_PERIOD
+):
     # TODO: slightly off for some reason...Formula not correct? Rework it out.
-    xbar_new = recursive_rolling_mean(xbar_previous=xbar_previous, new_obs=new_obs,
-                                      lost_obs=lost_obs, n=n)
+    xbar_new = recursive_rolling_mean(
+        xbar_previous=xbar_previous, 
+        new_obs=new_obs,
+        lost_obs=lost_obs, 
+        n=n
+    )
     var_new = var_previous + \
         (n/(n-1))*((new_obs**2 - lost_obs**2)/n + (xbar_previous**2-xbar_new**2))
     return var_new
@@ -342,7 +363,16 @@ def sample_covariance(x: list, y: list):
     return covariance
 
 
-def recursive_rolling_covariance(covar_previous: float, new_x_obs: float, lost_x_obs: float, previous_x_bar: float, new_y_obs: float, lost_y_obs: float, previous_y_bar: float, n: int = settings.DEFAULT_ANALYSIS_PERIOD):
+def recursive_rolling_covariance(
+    covar_previous: float, 
+    new_x_obs: float, 
+    lost_x_obs: float, 
+    previous_x_bar: float, 
+    new_y_obs: float, 
+    lost_y_obs: float, 
+    previous_y_bar: float, 
+    n: int = settings.DEFAULT_ANALYSIS_PERIOD
+):
     # TODO: no work.
     new_sum_term = new_x_obs*new_y_obs - lost_x_obs*lost_y_obs
     xy_cross_term = previous_x_bar*(new_y_obs-lost_y_obs)
