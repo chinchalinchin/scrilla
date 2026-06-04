@@ -462,14 +462,8 @@ class PriceManager():
             url = self._construct_url(ticker, asset_type)
             
             response = requests.get(url).json()
-
-            print(response)
             
             first_element = helper.get_first_json_key(response)
-
-            if first_element == self.service_map['ERRORS']['RATE_LIMIT']:
-                raise errors.APIResponseError(
-                    response[self.service_map['ERRORS']['RATE_LIMIT']])
 
             if first_element == self.service_map['ERRORS']['INVALID']:
                 raise errors.APIResponseError(
@@ -572,7 +566,7 @@ class PriceManager():
             # Use ISO-8601 lexicographical bounds checking to bypass missing dates
             return {
                 k: v for k, v in prices[response_map].items()
-                if start_string <= k <= end_string
+                if start_string < k <= end_string
             }
 
         raise errors.ConfigurationError(
@@ -686,7 +680,7 @@ def get_daily_price_history(
     if cached_prices is not None:
         if asset_type == keys.keys['ASSETS']['EQUITY']:
             logger.debug(
-                f'Comparing cache-size({len(cached_prices)}) = date-length{dater.business_days_between(start_date, end_date)})', 'get_daily_price_history')
+                f'Comparing cache-size({len(cached_prices)}) = date-length({dater.business_days_between(start_date, end_date)})', 'get_daily_price_history')
         elif asset_type == keys.keys['ASSETS']['CRYPTO']:
             logger.debug(
                 f'Comparing cache-size({len(cached_prices)}) = date-length({dater.days_between(start_date, end_date)})', 'get_daily_price_history')
